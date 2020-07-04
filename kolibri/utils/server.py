@@ -16,7 +16,7 @@ import kolibri
 from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
-from kolibri.core.content.zip_wsgi import application as content_app
+from kolibri.core.content.zip_wsgi import get_application
 from kolibri.core.deviceadmin.utils import schedule_vacuum
 from kolibri.core.tasks.main import initialize_workers
 from kolibri.core.tasks.main import queue
@@ -313,10 +313,13 @@ def configure_http_server(port):
     # Configure the server
     cherrypy.config.update(cherrypy_server_config)
 
-    alt_port_addr = (LISTEN_ADDRESS, port + 1)
+    alt_port_addr = (
+        LISTEN_ADDRESS,
+        conf.OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
+    )
 
     alt_port_server = ServerAdapter(
-        cherrypy.engine, wsgi.Server(alt_port_addr, content_app), alt_port_addr
+        cherrypy.engine, wsgi.Server(alt_port_addr, get_application()), alt_port_addr
     )
     # Subscribe these servers
     cherrypy.server.subscribe()
@@ -332,7 +335,7 @@ def run_server(port, serve_http=True):
 
     cherrypy.config.update(
         {
-            "engine.autoreload.on": False,
+            "engine.autoreload.on": getattr(settings, "DEVELOPER_MODE", False),
             "checker.on": False,
             "request.show_tracebacks": False,
             "request.show_mismatched_params": False,

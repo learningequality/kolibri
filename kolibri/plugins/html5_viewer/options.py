@@ -46,7 +46,7 @@ option_spec = {
     "HTML5": {
         "SANDBOX": {
             "type": "string",
-            "default": "allow-scripts",
+            "default": "allow-scripts allow-same-origin",
             "envvars": ("KOLIBRI_HTML5_SANDBOX",),
             "clean": clean_sandbox,
         }

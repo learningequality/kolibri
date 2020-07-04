@@ -58,8 +58,8 @@ export default class SandboxEnvironment {
   }
 
   resizeIframe() {
-    this.iframe.height = this.iframe.contentWindow.document.documentElement.scrollHeight + 'px';
     this.iframe.width = this.iframe.contentWindow.document.documentElement.scrollWidth + 'px';
+    this.iframe.height = this.iframe.contentWindow.document.documentElement.scrollHeight + 'px';
   }
 
   initializeIframe(contentWindow) {
@@ -92,7 +92,8 @@ export default class SandboxEnvironment {
     }
     this.iframe = document.createElement('iframe');
     this.iframe.src = srcUrl;
-    this.iframe.style = 'border: 0;';
+    this.iframe.style = 'border: 0; padding: 0; width: 100%;';
+    this.iframe.height = document.documentElement.scrollHeight;
     document.body.appendChild(this.iframe);
     this.initializeIframe(this.iframe.contentWindow);
   }

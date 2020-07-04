@@ -36,7 +36,6 @@
         :style="{ backgroundColor: $themePalette.grey.v_100 }"
         :sandbox="sandbox"
         frameBorder="0"
-        :name="name"
         :src="rooturl"
       >
       </iframe>
@@ -48,15 +47,11 @@
 
 <script>
 
+  import urls from 'kolibri.urls';
   import { now } from 'kolibri.utils.serverClock';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
-  import { nameSpace } from 'hashi/src/hashiBase';
   import plugin_data from 'plugin_data';
-
-  // Regex vendored from https://github.com/faisalman/ua-parser-js/blob/master/src/ua-parser.js
-  const iOSTest = /ip[honead]{2,4}(?:.*os\s([\w]+)\slike\smac|;\sopera)/i;
-  const IE11Test = /(trident).+rv[:\s]([\w.]+).+like\sgecko/i;
 
   const defaultContentHeight = '500px';
   const frameTopbarHeight = '37px';
@@ -73,14 +68,8 @@
       };
     },
     computed: {
-      name() {
-        return nameSpace;
-      },
       rooturl() {
-        const iOS = iOSTest.test(navigator.userAgent);
-        const iOSorIE11 = iOS || IE11Test.test(navigator.userAgent);
-        // Skip hashi on requests for these browsers
-        return this.defaultFile.storage_url + (iOSorIE11 ? '?SKIP_HASHI=true' : '');
+        return urls.hashi();
       },
       iframeHeight() {
         return (this.options && this.options.height) || defaultContentHeight;
@@ -132,7 +121,8 @@
       });
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},
-        this.userData
+        this.userData,
+        this.defaultFile.storage_url
       );
       this.$emit('startTracking');
       this.startTime = now();

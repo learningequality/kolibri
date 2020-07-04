@@ -6,9 +6,17 @@
 import setWebpackPublicPath from '../utils/setWebpackPublicPath';
 import plugin_data from 'plugin_data';
 
-function generateUrl(baseUrl, url) {
-  const base = new URL(baseUrl, window.location.origin);
-  const urlObject = new URL(url, base);
+function generateUrl(baseUrl, { url, host, port } = {}) {
+  let urlObject = new URL(baseUrl, window.location.origin);
+  if (host) {
+    urlObject.host = host;
+  }
+  if (port) {
+    urlObject.port = port;
+  }
+  if (url) {
+    urlObject = new URL(url, urlObject);
+  }
   return urlObject.href;
 }
 
@@ -22,28 +30,40 @@ const urls = {
     Object.assign(this, plugin_data.urls);
     setWebpackPublicPath(this);
   },
+  hashi() {
+    if (!this.__hashiUrl) {
+      throw new ReferenceError('Hashi Url is not defined');
+    }
+    return generateUrl(this.__hashiUrl, {
+      host: this.__zipContentHost,
+      port: this.__zipContentPort,
+    });
+  },
   static(url) {
     if (!this.__staticUrl) {
       throw new ReferenceError('Static Url is not defined');
     }
-    const base = new URL(this.__staticUrl, window.location.origin);
-    const urlObject = new URL(url, base);
-    return urlObject.href;
+    return generateUrl(this.__staticUrl, { url });
   },
   media(url) {
     if (!this.__mediaUrl) {
       throw new ReferenceError('Media Url is not defined');
     }
-    const base = new URL(this.__mediaUrl, window.location.origin);
-    const urlObject = new URL(url, base);
-    return urlObject.href;
+    return generateUrl(this.__mediaUrl, { url });
   },
   storageUrl(fileId, extension, embeddedFilePath = '') {
     const filename = `${fileId}.${extension}`;
     if (['perseus', 'zip', 'h5p'].includes(extension)) {
-      return this['kolibri:core:zipcontent'](filename, embeddedFilePath);
+      if (!this.__zipContentUrl) {
+        throw new ReferenceError('Zipcontent Url is not defined');
+      }
+      return generateUrl(this.__zipContentUrl, {
+        url: `${filename}/${embeddedFilePath}`,
+        host: this.__zipContentHost,
+        port: this.__zipContentPort,
+      });
     }
-    return generateUrl(this.__contentUrl, `${filename[0]}/${filename[1]}/${filename}`);
+    return generateUrl(this.__contentUrl, { url: `${filename[0]}/${filename[1]}/${filename}` });
   },
 };
 

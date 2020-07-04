@@ -17,6 +17,8 @@ from django_js_reverse.rjsmin import jsmin
 
 import kolibri
 from kolibri.core.content.utils.paths import get_content_storage_url
+from kolibri.core.content.utils.paths import get_hashi_path
+from kolibri.core.content.utils.paths import get_zip_content_base_path
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.hooks import NavigationHook
@@ -63,6 +65,10 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             {js_name}.__staticUrl = '{static_url}';
             {js_name}.__mediaUrl = '{media_url}';
             {js_name}.__contentUrl = '{content_url}';
+            {js_name}.__zipContentUrl = '{zip_content_url}';
+            {js_name}.__hashiUrl = '{hashi_url}';
+            {js_name}.__zipContentHost = '{zip_content_host}';
+            {js_name}.__zipContentPort = {zip_content_port};
             </script>
             """.format(
                     js_name=js_name,
@@ -71,6 +77,10 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
                     content_url=get_content_storage_url(
                         baseurl=OPTIONS["Deployment"]["URL_PATH_PREFIX"]
                     ),
+                    zip_content_url=get_zip_content_base_path(),
+                    hashi_url=get_hashi_path(),
+                    zip_content_host=OPTIONS["Deployment"]["ZIP_CONTENT_HOST"],
+                    zip_content_port=str(OPTIONS["Deployment"]["ZIP_CONTENT_PORT"]),
                 )
             )
         ]

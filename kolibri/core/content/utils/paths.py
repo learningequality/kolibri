@@ -1,7 +1,6 @@
 import os
 import re
 
-from django.core.urlresolvers import reverse
 from django.utils.http import urlencode
 from six.moves.urllib.parse import urljoin
 
@@ -48,10 +47,7 @@ def get_local_content_storage_file_url(obj):
     The same url will also be exposed by the file serializer.
     """
     if get_attribute(obj, "available"):
-        return get_content_storage_file_url(
-            filename=get_content_file_name(obj),
-            baseurl=conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"],
-        )
+        return get_content_storage_file_url(filename=get_content_file_name(obj))
     else:
         return None
 
@@ -251,7 +247,20 @@ def get_file_checksums_url(channel_id, baseurl, version="1"):
     )
 
 
-def get_content_storage_file_url(filename, baseurl=None):
+HASHI = "hashi/"
+
+ZIPCONTENT = "zipcontent/"
+
+
+def get_zip_content_base_path():
+    return "{}{}".format(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"], ZIPCONTENT)
+
+
+def get_hashi_path():
+    return "{}{}".format(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"], HASHI)
+
+
+def get_content_storage_file_url(filename):
     """
     Return the URL at which the specified file can be accessed. For regular files, this is a link to the static
     file itself, under "/content/storage/". For "zip" files, this points to a dynamically generated view that
@@ -259,13 +268,12 @@ def get_content_storage_file_url(filename, baseurl=None):
     """
     ext = os.path.splitext(filename)[1]
     if ext in POSSIBLE_ZIPPED_FILE_EXTENSIONS:
-        return reverse(
-            "kolibri:core:zipcontent",
-            kwargs={"zipped_filename": filename, "embedded_filepath": ""},
-        )
+        return "{}{}/".format(get_zip_content_base_path(), filename)
     else:
         return "/{}{}/{}/{}".format(
-            get_content_storage_url(baseurl).lstrip("/"),
+            get_content_storage_url(
+                conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
+            ).lstrip("/"),
             filename[0],
             filename[1],
             filename,

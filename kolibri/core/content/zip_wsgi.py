@@ -13,7 +13,7 @@ import re
 import sys
 import zipfile
 from collections import OrderedDict
-from xml.etree.ElementTree import SubElement
+from xml.etree.ElementTree import Element
 
 import html5lib
 from cheroot import wsgi
@@ -34,6 +34,8 @@ from django.utils.safestring import mark_safe
 from .utils.paths import get_content_storage_file_path
 from kolibri import __version__ as kolibri_version
 from kolibri.core.content.errors import InvalidStorageFilenameError
+from kolibri.core.content.utils.paths import get_hashi_path
+from kolibri.core.content.utils.paths import get_zip_content_base_path
 
 
 logger = logging.getLogger(__name__)
@@ -174,8 +176,9 @@ def parse_html(content):
             }
         """
 
-        script_tag = SubElement(head, "script", attrib={"type": "text/javascript"})
+        script_tag = Element("script", attrib={"type": "text/javascript"})
         script_tag.text = initialize_hashi_from_iframe
+        head.insert(0, script_tag)
         # Currently, html5lib strips the doctype, but it's important for correct rendering, so check the original
         # content for the doctype and, if found, prepend it to the content serialized by html5lib
         doctype = None
@@ -374,9 +377,7 @@ def generate_zip_content_response(environ):
                 response = get_h5p(zf, embedded_filepath)
             else:
                 # Don't bother doing any hashi parsing of HTML content for h5p
-                response = get_embedded_file(
-                    zf, zipped_filename, embedded_filepath, skip_hashi=True
-                )
+                response = get_embedded_file(zf, zipped_filename, embedded_filepath)
         else:
             response = get_embedded_file(zf, zipped_filename, embedded_filepath)
 
@@ -399,9 +400,10 @@ def zip_content_view(environ, start_response):
     return django_response_to_wsgi(response, environ, start_response)
 
 
-path_map = {
-    "/hashi": hashi_view,
-    "/zipcontent": zip_content_view,
-}
+def get_application():
+    path_map = {
+        get_hashi_path(): hashi_view,
+        get_zip_content_base_path(): zip_content_view,
+    }
 
-application = wsgi.PathInfoDispatcher(path_map)
+    return wsgi.PathInfoDispatcher(path_map)
