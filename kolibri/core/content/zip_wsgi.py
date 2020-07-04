@@ -10,7 +10,6 @@ import logging
 import mimetypes
 import os
 import re
-import sys
 import zipfile
 from collections import OrderedDict
 from xml.etree.ElementTree import Element
@@ -84,13 +83,6 @@ def get_hashi_filename():
         ) as f:
             HASHI_FILENAME = f.read().strip()
     return HASHI_FILENAME
-
-
-def _coerce_to_bytes(string):
-    if sys.version_info < (3, 0):
-        return bytes(string)
-    else:
-        return bytes(string, "utf8")
 
 
 def hashi_view(environ, start_response):

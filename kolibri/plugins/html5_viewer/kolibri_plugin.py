@@ -17,7 +17,7 @@ class HTML5AppPlugin(KolibriPluginBase):
 @register_hook
 class HTML5AppAsset(content_hooks.ContentRendererHook):
     bundle_id = "main"
-    presets = (format_presets.HTML5_ZIP,)
+    presets = (format_presets.HTML5_ZIP, format_presets.H5P_ZIP)
 
     @property
     def plugin_data(self):
