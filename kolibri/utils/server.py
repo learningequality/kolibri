@@ -6,7 +6,9 @@ from subprocess import check_output
 
 import cherrypy
 import requests
+from cheroot import wsgi
 from cherrypy.process.plugins import SimplePlugin
+from cherrypy.process.servers import ServerAdapter
 from django.conf import settings
 from zeroconf import get_all_addresses
 
@@ -14,6 +16,7 @@ import kolibri
 from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
+from kolibri.core.content.zip_wsgi import application as content_app
 from kolibri.core.deviceadmin.utils import schedule_vacuum
 from kolibri.core.tasks.main import initialize_workers
 from kolibri.core.tasks.main import queue
@@ -310,11 +313,11 @@ def configure_http_server(port):
     # Configure the server
     cherrypy.config.update(cherrypy_server_config)
 
-    alt_port_server = cherrypy._cpserver.Server()
-    for key, value in cherrypy_server_config.items():
-        server_key = key.split(".")[1]
-        setattr(alt_port_server, server_key, value)
-    alt_port_server.socket_port = port + 1
+    alt_port_addr = (LISTEN_ADDRESS, port + 1)
+
+    alt_port_server = ServerAdapter(
+        cherrypy.engine, wsgi.Server(alt_port_addr, content_app), alt_port_addr
+    )
     # Subscribe these servers
     cherrypy.server.subscribe()
     alt_port_server.subscribe()
