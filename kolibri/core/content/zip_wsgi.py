@@ -3,8 +3,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import codecs
-import hashlib
-import io
 import json
 import logging
 import mimetypes
@@ -19,10 +17,13 @@ from cheroot import wsgi
 from django.conf import settings
 from django.contrib.staticfiles.finders import find
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.core.cache import cache
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
 from django.http import HttpResponseNotFound
+from django.http import HttpResponseRedirect
 from django.http.response import FileResponse
+from django.http.response import StreamingHttpResponse
 from django.template import loader
 from django.utils.cache import get_conditional_response
 from django.utils.cache import patch_cache_control
@@ -33,14 +34,13 @@ from django.utils.safestring import mark_safe
 from .utils.paths import get_content_storage_file_path
 from kolibri import __version__ as kolibri_version
 from kolibri.core.content.errors import InvalidStorageFilenameError
+from kolibri.core.content.utils.paths import get_hashi_base_path
+from kolibri.core.content.utils.paths import get_hashi_filename
 from kolibri.core.content.utils.paths import get_hashi_path
 from kolibri.core.content.utils.paths import get_zip_content_base_path
 
 
 logger = logging.getLogger(__name__)
-
-
-HASHI_FILENAME = None
 
 
 def django_response_to_wsgi(response, environ, start_response):
@@ -73,19 +73,18 @@ hashi_template = """
 """
 
 
-def get_hashi_filename():
-    global HASHI_FILENAME
-    if HASHI_FILENAME is None or getattr(settings, "DEVELOPER_MODE", None):
-        with io.open(
-            os.path.join(os.path.dirname(__file__), "./build/hashi_filename"),
-            mode="r",
-            encoding="utf-8",
-        ) as f:
-            HASHI_FILENAME = f.read().strip()
-    return HASHI_FILENAME
-
-
-def hashi_view(environ, start_response):
+def get_hashi_view_response(environ):
+    if environ["PATH_INFO"].lstrip("/") != get_hashi_filename():
+        return HttpResponseRedirect(get_hashi_path())
+    request = WSGIRequest(environ)
+    etag = quote_etag(get_hashi_filename())
+    conditional_response = get_conditional_response(request, etag=etag)
+    if conditional_response is not None:
+        return conditional_response
+    CACHE_KEY = "HASHI_VIEW_RESPONSE_{}".format(get_hashi_filename())
+    cached_response = cache.get(CACHE_KEY)
+    if cached_response is not None:
+        return cached_response
     # Removes Byte Order Mark
     charset = "utf-8-sig"
     basename = "content/{filename}".format(filename=get_hashi_filename())
@@ -106,15 +105,15 @@ def hashi_view(environ, start_response):
         mark_safe(hashi_template.format(content)), content_type=content_type
     )
     response["Content-Length"] = len(response.content)
+    response["ETag"] = etag
+    patch_cache_control(response, max_age=YEAR_IN_SECONDS)
+    cache.set(CACHE_KEY, response, YEAR_IN_SECONDS)
+    return response
+
+
+def hashi_view(environ, start_response):
+    response = get_hashi_view_response(environ)
     return django_response_to_wsgi(response, environ, start_response)
-
-
-def calculate_zip_content_etag():
-    return quote_etag(
-        hashlib.md5(
-            kolibri_version.encode("utf-8") + get_hashi_filename().encode("utf-8")
-        ).hexdigest()
-    )
 
 
 def load_json_from_zipfile(zf, filepath):
@@ -354,10 +353,17 @@ def generate_zip_content_response(environ):
     embedded_filepath = embedded_filepath.replace("//", "/")
 
     request = WSGIRequest(environ)
-    etag = calculate_zip_content_etag()
+    etag = quote_etag(kolibri_version)
     # if client has a cached version, use that (we can safely assume nothing has changed, due to MD5)
-    cached_response = get_conditional_response(request, etag=etag)
+    conditional_response = get_conditional_response(request, etag=etag)
 
+    if conditional_response is not None:
+        return conditional_response
+
+    CACHE_KEY = "ZIPCONTENT_VIEW_RESPONSE_{}_{}/{}".format(
+        etag, zipped_filename, embedded_filepath
+    )
+    cached_response = cache.get(CACHE_KEY)
     if cached_response is not None:
         return cached_response
 
@@ -380,6 +386,10 @@ def generate_zip_content_response(environ):
 
     patch_cache_control(response, max_age=YEAR_IN_SECONDS)
 
+    if not isinstance(response, StreamingHttpResponse):
+
+        cache.set(CACHE_KEY, response, YEAR_IN_SECONDS)
+
     return response
 
 
@@ -394,7 +404,7 @@ def zip_content_view(environ, start_response):
 
 def get_application():
     path_map = {
-        get_hashi_path(): hashi_view,
+        get_hashi_base_path(): hashi_view,
         get_zip_content_base_path(): zip_content_view,
     }
 

@@ -1,6 +1,8 @@
+import io
 import os
 import re
 
+from django.conf import settings
 from django.utils.http import urlencode
 from six.moves.urllib.parse import urljoin
 
@@ -256,8 +258,29 @@ def get_zip_content_base_path():
     return "{}{}".format(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"], ZIPCONTENT)
 
 
-def get_hashi_path():
+HASHI_FILENAME = None
+
+
+def get_hashi_filename():
+    global HASHI_FILENAME
+    if HASHI_FILENAME is None or getattr(settings, "DEVELOPER_MODE", None):
+        with io.open(
+            os.path.join(os.path.dirname(__file__), "../build/hashi_filename"),
+            mode="r",
+            encoding="utf-8",
+        ) as f:
+            HASHI_FILENAME = f.read().strip()
+    return HASHI_FILENAME
+
+
+def get_hashi_base_path():
     return "{}{}".format(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"], HASHI)
+
+
+def get_hashi_path():
+    return "{}{}{}".format(
+        conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"], HASHI, get_hashi_filename()
+    )
 
 
 def get_content_storage_file_url(filename):
