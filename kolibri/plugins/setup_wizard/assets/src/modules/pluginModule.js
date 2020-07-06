@@ -12,7 +12,7 @@ const SetupStrings = createTranslator('SetupStrings', {
   },
 });
 
-const { NOT_SPECIFIED } = DemographicConstants;
+const { DEFERRED } = DemographicConstants;
 
 export default {
   state: {
@@ -44,8 +44,10 @@ export default {
         full_name: '',
         username: '',
         password: '',
-        gender: NOT_SPECIFIED,
-        birth_year: NOT_SPECIFIED,
+        // Superusers are not required to provide this info and are not
+        // nudged to update the profile when on Learn page
+        gender: DEFERRED,
+        birth_year: DEFERRED,
       },
     },
     loading: false,

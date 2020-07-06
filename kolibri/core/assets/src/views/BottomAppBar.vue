@@ -65,6 +65,8 @@
   }
 
   .inner-bottom {
+    height: 100%;
+    padding: 10px 0;
     margin: auto;
   }
 

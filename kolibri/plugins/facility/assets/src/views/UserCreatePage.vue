@@ -215,11 +215,14 @@
       submitForm() {
         this.formSubmitted = true;
         let password = this.password;
-        if (!this.formIsValid) {
-          return this.focusOnInvalidField();
-        }
+
         if (!this.showPasswordInput) {
           password = 'NOT_SPECIFIED';
+          this.passwordValid = true;
+        }
+
+        if (!this.formIsValid) {
+          return this.focusOnInvalidField();
         }
         this.busy = true;
         this.$store
