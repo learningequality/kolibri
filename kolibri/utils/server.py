@@ -269,17 +269,18 @@ def configure_http_server(port):
 
     cherrypy.tree.graft(application, "/")
 
-    # Mount static files
-    cherrypy.tree.mount(
-        cherrypy.tools.staticdir.handler(section="/", dir=settings.STATIC_ROOT),
-        settings.STATIC_URL,
-        config={
-            "/": {
-                "tools.gzip.on": True,
-                "tools.gzip.mime_types": ["text/*", "application/javascript"],
-            }
-        },
-    )
+    if not getattr(settings, "DEVELOPER_MODE", False):
+        # Mount static files
+        cherrypy.tree.mount(
+            cherrypy.tools.staticdir.handler(section="/", dir=settings.STATIC_ROOT),
+            settings.STATIC_URL,
+            config={
+                "/": {
+                    "tools.gzip.on": True,
+                    "tools.gzip.mime_types": ["text/*", "application/javascript"],
+                }
+            },
+        )
 
     # Mount media files
     cherrypy.tree.mount(
