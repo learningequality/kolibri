@@ -21,6 +21,7 @@ from kolibri.core.auth.constants.morango_sync import State
 from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.auth.management.utils import run_once
 from kolibri.core.auth.models import dataset_cache
+from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.utils import conf
@@ -72,7 +73,7 @@ class Command(AsyncCommand):
         )
         # parser.add_argument("--scope-id", type=str, default=FULL_FACILITY)
 
-    def handle_async(self, *args, **options):
+    def handle_async(self, *args, **options):  # noqa C901
 
         (
             baseurl,
@@ -174,37 +175,45 @@ class Command(AsyncCommand):
 
         logger.info("Syncing has been initiated (this may take a while)...")
 
-        # pull from server
-        if not no_pull:
-            self._handle_pull(
-                network_connection,
-                client_cert,
-                server_cert,
-                chunk_size,
-                noninteractive,
-                dataset_id,
-            )
-        # and push our own data to server
-        if not no_push:
-            self._handle_push(
-                network_connection,
-                client_cert,
-                server_cert,
-                chunk_size,
-                noninteractive,
-                dataset_id,
-            )
-
-        if not no_provision:
-            with self._lock():
-                create_superuser_and_provision_device(
-                    username, dataset_id, noninteractive=noninteractive
+        try:
+            # pull from server
+            if not no_pull:
+                self._handle_pull(
+                    network_connection,
+                    client_cert,
+                    server_cert,
+                    chunk_size,
+                    noninteractive,
+                    dataset_id,
                 )
+            # and push our own data to server
+            if not no_push:
+                self._handle_push(
+                    network_connection,
+                    client_cert,
+                    server_cert,
+                    chunk_size,
+                    noninteractive,
+                    dataset_id,
+                )
+
+            if not no_provision:
+                with self._lock():
+                    create_superuser_and_provision_device(
+                        username, dataset_id, noninteractive=noninteractive
+                    )
+        except UserCancelledError:
+            if self.job:
+                self.job.extra_metadata.update(sync_state=State.CANCELLED)
+                self.job.save_meta()
+            logger.info("Syncing has been cancelled.")
+            return
 
         network_connection.close()
 
         if self.job:
             self.job.extra_metadata.update(sync_state=State.COMPLETED)
+            self.job.save_meta()
 
         logger.info("Syncing has been completed.")
 
@@ -221,6 +230,10 @@ class Command(AsyncCommand):
 
         if self.job and cancellable:
             self.job.cancellable = True
+
+    def _raise_cancel(self, *args, **kwargs):
+        if self.is_cancelled() and (not self.job or self.job.cancellable):
+            raise UserCancelledError()
 
     def _handle_pull(
         self,
@@ -242,6 +255,9 @@ class Command(AsyncCommand):
         sync_client = network_connection.get_pull_client(
             client_cert, server_cert, chunk_size=chunk_size
         )
+
+        sync_client.signals.queuing.connect(self._raise_cancel)
+        sync_client.signals.transferring.connect(self._raise_cancel)
 
         self._queueing_tracker_adapter(
             sync_client.signals.queuing,
@@ -294,6 +310,8 @@ class Command(AsyncCommand):
             client_cert, server_cert, chunk_size=chunk_size
         )
 
+        sync_client.signals.transferring.connect(self._raise_cancel)
+
         self._queueing_tracker_adapter(
             sync_client.signals.queuing,
             "Locally preparing data to send",
@@ -321,7 +339,12 @@ class Command(AsyncCommand):
 
         with self._lock():
             sync_client.initialize(Filter(dataset_id))
+
         sync_client.run()
+
+        # we can't cancel remotely integrating data
+        if self.job:
+            self.job.cancellable = False
         sync_client.finalize()
 
     def _update_all_progress(self, progress_fraction, progress):

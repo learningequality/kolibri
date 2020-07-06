@@ -16,6 +16,7 @@ from django.http.response import HttpResponseBadRequest
 from django.utils.translation import get_language_from_request
 from django.utils.translation import gettext_lazy as _
 from morango.sync.controller import MorangoProfileController
+from requests.exceptions import HTTPError
 from rest_framework import decorators
 from rest_framework import serializers
 from rest_framework import status
@@ -1049,7 +1050,7 @@ def validate_and_prepare_peer_sync_job(request, **kwargs):
         get_client_and_server_certs(
             username, password, dataset_id, network_connection, noninteractive=True
         )
-    except CommandError as e:
+    except (CommandError, HTTPError) as e:
         if not username and not password:
             raise PermissionDenied()
         else:
