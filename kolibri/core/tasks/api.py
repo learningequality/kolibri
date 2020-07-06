@@ -179,6 +179,9 @@ def validate_deletion_task(request, task_description):
 class BaseViewSet(viewsets.ViewSet):
     queues = []
 
+    def _job_to_response(self, job):
+        return _job_to_response(job)
+
     @property
     def permission_classes(self):
         # task permissions shared between facility management and device management
@@ -194,7 +197,7 @@ class BaseViewSet(viewsets.ViewSet):
 
     def list(self, request):
         jobs_response = [
-            _job_to_response(j) for _queue in self.queues for j in _queue.jobs
+            self._job_to_response(j) for _queue in self.queues for j in _queue.jobs
         ]
 
         return Response(jobs_response)
@@ -206,7 +209,7 @@ class BaseViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         for _queue in self.queues:
             try:
-                task = _job_to_response(_queue.fetch_job(pk))
+                task = self._job_to_response(_queue.fetch_job(pk))
                 break
             except JobNotFound:
                 continue
@@ -836,6 +839,20 @@ class TasksViewSet(BaseViewSet):
 class FacilityTasksViewSet(BaseViewSet):
     queues = [facility_queue]
 
+    def _job_to_response(self, job):
+        response = super(FacilityTasksViewSet, self)._job_to_response(job)
+        sync_state = job.extra_metadata.get("sync_state", "none")
+
+        # if it's a sync task, and it's in these states, we'll report that it's not cancellable
+        if sync_state in [
+            FacilitySyncState.LOCAL_QUEUING,
+            FacilitySyncState.REMOTE_DEQUEUING,
+            FacilitySyncState.LOCAL_DEQUEUING,
+        ]:
+            response.update(cancellable=False)
+
+        return response
+
     @property
     def permission_classes(self):
         permission_classes = super(FacilityTasksViewSet, self).permission_classes
@@ -897,7 +914,7 @@ class FacilityTasksViewSet(BaseViewSet):
         Initiate a SYNC (PULL + PUSH) of a specific facility from another device.
         """
         job_data = validate_and_prepare_peer_sync_job(
-            request, extra_metadata=prepare_sync_task(request, type="SYNCPEER/FULL"),
+            request, extra_metadata=prepare_sync_task(request, type="SYNCPEER/FULL")
         )
         job_id = facility_queue.enqueue(call_command, "sync", **job_data)
 
@@ -916,12 +933,12 @@ class FacilityTasksViewSet(BaseViewSet):
                 raise KeyError()
         except KeyError:
             raise ParseError(
-                dict(code="INVALID_FACILITY", message="Missing `facility` parameter",)
+                dict(code="INVALID_FACILITY", message="Missing `facility` parameter")
             )
 
         if not Facility.objects.filter(id=facility_id).exists():
             raise ValidationError(
-                dict(code="INVALID_FACILITY", message="Facility doesn't exist",)
+                dict(code="INVALID_FACILITY", message="Facility doesn't exist")
             )
 
         if not Facility.objects.exclude(id=facility_id).exists():
@@ -934,7 +951,7 @@ class FacilityTasksViewSet(BaseViewSet):
 
         if request.user.is_facility_user and request.user.facility_id == facility_id:
             raise ValidationError(
-                dict(code="FACILITY_MEMBER", message="User is member of facility",)
+                dict(code="FACILITY_MEMBER", message="User is member of facility")
             )
 
         facility_name = Facility.objects.get(id=facility_id).name
