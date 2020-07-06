@@ -89,19 +89,11 @@
             type="submit"
           />
         </p>
-
-        <p
-          v-if="showGuestAccess"
-          class="guest"
-        >
-          <KExternalLink
-            :text="$tr('accessAsGuest')"
-            :href="guestURL"
-            :primary="true"
-            appearance="basic-link"
-          />
-        </p>
-
+        <KRouterLink
+          :text="$tr('signInPrompt')"
+          :to="this.$router.getRoute(PageNames.SIGN_IN)"
+          appearance="basic-link"
+        />
       </form>
     </KPageContainer>
 
@@ -130,7 +122,7 @@
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import urls from 'kolibri.urls';
+  import { PageNames } from '../constants';
   import { SignUpResource } from '../apiResource';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import getUrlParameter from './getUrlParameter';
@@ -178,8 +170,8 @@
       firstStepIsValid() {
         return every([this.nameValid, this.usernameValid, this.passwordValid]);
       },
-      guestURL() {
-        return urls['kolibri:core:guest']();
+      PageNames() {
+        return PageNames;
       },
       nextParam() {
         // query is after hash
@@ -188,9 +180,6 @@
         }
         // query is before hash
         return getUrlParameter('next');
-      },
-      showGuestAccess() {
-        return plugin_data.allowGuestAccess;
       },
       showPasswordInput() {
         return !this.facilityConfig.learner_can_login_with_no_password;
@@ -235,7 +224,7 @@
         }
       },
       goToFirstStep() {
-        this.$router.replace({ query: {} });
+        if (this.$router.query != undefined) this.$router.replace({ query: {} });
       },
       goToSecondStep() {
         if (this.firstStepIsValid) {
@@ -322,7 +311,11 @@
           'It will be visible to administrators. It will also be used to help improve the software and resources for different learner types and needs.',
         context: '\nDetails on how the demographic information requested in the form will be used.',
       },
-      accessAsGuest: 'Explore without account',
+      signInPrompt: {
+        message: 'Sign in if you have an existing account',
+        context:
+          'When a device has multiple facilities, this message is above a button which leads the user to the rest of the sign in process.',
+      },
       privacyLinkText: {
         message: 'Learn more about usage and privacy',
         context:
