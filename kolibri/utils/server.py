@@ -320,7 +320,17 @@ def configure_http_server(port):
     )
 
     alt_port_server = ServerAdapter(
-        cherrypy.engine, wsgi.Server(alt_port_addr, get_application()), alt_port_addr
+        cherrypy.engine,
+        wsgi.Server(
+            alt_port_addr,
+            get_application(),
+            numthreads=conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
+            request_queue_size=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+            timeout=conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
+            accepted_queue_size=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+            accepted_queue_timeout=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_TIMEOUT"],
+        ),
+        alt_port_addr,
     )
     # Subscribe these servers
     cherrypy.server.subscribe()
