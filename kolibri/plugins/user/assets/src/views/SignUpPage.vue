@@ -91,7 +91,7 @@
         </p>
         <KRouterLink
           :text="signUpStrings.$tr('signInPrompt')"
-          :to="this.$router.getRoute(PageNames.SIGN_IN)"
+          :to="$router.getRoute(PageNames.SIGN_IN)"
           appearance="basic-link"
         />
       </form>
