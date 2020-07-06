@@ -1007,7 +1007,7 @@ def validate_prepare_sync_job(request, **kwargs):
         noninteractive=True,
         extra_metadata=dict(),
         track_progress=True,
-        cancellable=False,
+        cancellable=True,
     )
 
     job_data.update(kwargs)

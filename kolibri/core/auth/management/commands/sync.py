@@ -1,6 +1,7 @@
 import json
 import logging
 import math
+from contextlib import contextmanager
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -25,6 +26,7 @@ from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.utils import conf
 
 DATA_PORTAL_SYNCING_BASE_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
+TRANSFER_MESSAGE = "{records_transferred}/{records_total}, {transfer_total}"
 
 
 logger = logging.getLogger(__name__)
@@ -172,62 +174,84 @@ class Command(AsyncCommand):
 
         logger.info("Syncing has been initiated (this may take a while)...")
 
-        sync_client = network_connection.create_sync_session(
-            client_cert, server_cert, chunk_size=chunk_size
-        )
-
-        # pull from server and push our own data to server
+        # pull from server
         if not no_pull:
-            self._setup_pull_progress_tracking(sync_client, noninteractive)
-            self._session_tracker_adapter(
-                sync_client.signals.session,
-                "Creating pull transfer session",
-                "Completed pull transfer session",
+            self._handle_pull(
+                network_connection,
+                client_cert,
+                server_cert,
+                chunk_size,
+                noninteractive,
+                dataset_id,
             )
-            with db_task_write_lock:
-                sync_client.initiate_pull(Filter(dataset_id))
+        # and push our own data to server
         if not no_push:
-            self._setup_push_progress_tracking(sync_client, noninteractive)
-            self._session_tracker_adapter(
-                sync_client.signals.session,
-                "Creating push transfer session",
-                "Completed push transfer session",
+            self._handle_push(
+                network_connection,
+                client_cert,
+                server_cert,
+                chunk_size,
+                noninteractive,
+                dataset_id,
             )
-            with db_task_write_lock:
-                sync_client.initiate_push(Filter(dataset_id))
 
         if not no_provision:
-            with db_task_write_lock:
+            with self._lock():
                 create_superuser_and_provision_device(
                     username, dataset_id, noninteractive=noninteractive
                 )
 
-        sync_client.close_sync_session()
+        network_connection.close()
 
         if self.job:
             self.job.extra_metadata.update(sync_state=State.COMPLETED)
 
         logger.info("Syncing has been completed.")
 
-    def _setup_pull_progress_tracking(self, sync_client, noninteractive):
-        """
-        Sets up progress trackers for pull stages
+    @contextmanager
+    def _lock(self):
+        cancellable = False
+        # job can't be cancelled while locked
+        if self.job:
+            cancellable = self.job.cancellable
+            self.job.cancellable = False
 
-        :type sync_client: morango.sync.syncsession.SyncClient
-        :type noninteractive: bool
+        with db_task_write_lock:
+            yield
+
+        if self.job and cancellable:
+            self.job.cancellable = True
+
+    def _handle_pull(
+        self,
+        network_connection,
+        client_cert,
+        server_cert,
+        chunk_size,
+        noninteractive,
+        dataset_id,
+    ):
         """
-        transfer_message = "{records_transferred}/{records_total}, {transfer_total}"
+        :type network_connection: morango.sync.syncsession.NetworkSyncConnection
+        :type client_cert: kolibri.core.auth.models.Certificate
+        :type server_cert: kolibri.core.auth.models.Certificate
+        :type chunk_size: int
+        :type noninteractive: bool
+        :type dataset_id: str
+        """
+        sync_client = network_connection.get_pull_client(
+            client_cert, server_cert, chunk_size=chunk_size
+        )
 
         self._queueing_tracker_adapter(
             sync_client.signals.queuing,
             "Remotely preparing data",
             State.REMOTE_QUEUING,
-            False,
             noninteractive,
         )
         self._transfer_tracker_adapter(
-            sync_client.signals.pulling,
-            "Receiving data ({})".format(transfer_message),
+            sync_client.signals.transferring,
+            "Receiving data ({})".format(TRANSFER_MESSAGE),
             State.PULLING,
             noninteractive,
         )
@@ -235,29 +259,50 @@ class Command(AsyncCommand):
             sync_client.signals.dequeuing,
             "Locally integrating received data",
             State.LOCAL_DEQUEUING,
-            False,
             noninteractive,
         )
 
-    def _setup_push_progress_tracking(self, sync_client, noninteractive):
-        """
-        Sets up progress trackers for push stages
+        self._session_tracker_adapter(
+            sync_client.signals.session,
+            "Creating pull transfer session",
+            "Completed pull transfer session",
+        )
 
-        :type sync_client: morango.sync.syncsession.SyncClient
-        :type noninteractive: bool
+        sync_client.initialize(Filter(dataset_id))
+        sync_client.run()
+        with self._lock():
+            sync_client.finalize()
+
+    def _handle_push(
+        self,
+        network_connection,
+        client_cert,
+        server_cert,
+        chunk_size,
+        noninteractive,
+        dataset_id,
+    ):
         """
-        transfer_message = "{records_transferred}/{records_total}, {transfer_total}"
+        :type network_connection: morango.sync.syncsession.NetworkSyncConnection
+        :type client_cert: kolibri.core.auth.models.Certificate
+        :type server_cert: kolibri.core.auth.models.Certificate
+        :type chunk_size: int
+        :type noninteractive: bool
+        :type dataset_id: str
+        """
+        sync_client = network_connection.get_push_client(
+            client_cert, server_cert, chunk_size=chunk_size
+        )
 
         self._queueing_tracker_adapter(
             sync_client.signals.queuing,
             "Locally preparing data to send",
             State.LOCAL_QUEUING,
-            True,
             noninteractive,
         )
         self._transfer_tracker_adapter(
             sync_client.signals.pushing,
-            "Sending data ({})".format(transfer_message),
+            "Sending data ({})".format(TRANSFER_MESSAGE),
             State.PUSHING,
             noninteractive,
         )
@@ -265,9 +310,19 @@ class Command(AsyncCommand):
             sync_client.signals.dequeuing,
             "Remotely integrating data",
             State.REMOTE_DEQUEUING,
-            True,
             noninteractive,
         )
+
+        self._session_tracker_adapter(
+            sync_client.signals.session,
+            "Creating push transfer session",
+            "Completed push transfer session",
+        )
+
+        with self._lock():
+            sync_client.initialize(Filter(dataset_id))
+        sync_client.run()
+        sync_client.finalize()
 
     def _update_all_progress(self, progress_fraction, progress):
         """
@@ -360,32 +415,27 @@ class Command(AsyncCommand):
         signal_group.completed.connect(stats)
 
     def _queueing_tracker_adapter(
-        self, signal_group, message, sync_state, is_push, noninteractive
+        self, signal_group, message, sync_state, noninteractive
     ):
         """
-        Attaches a signal handler to queuing/dequeuing signals, filtered by `is_local` on
-        whether or not to match a local or remote signal
+        Attaches a signal handler to queuing/dequeuing signals
 
         :type signal_group: morango.sync.syncsession.SyncSignalGroup
         :type message: str
         :type sync_state: str
-        :type is_push: bool
         :type noninteractive: bool
         """
         tracker = self.start_progress(total=2)
 
         def started(transfer_session):
             dataset_cache.clear()
-            if transfer_session.push == is_push and (
-                noninteractive or tracker.progressbar is None
-            ):
+            if noninteractive or tracker.progressbar is None:
                 logger.info(message)
 
         def handler(transfer_session):
-            if transfer_session.push == is_push:
-                tracker.update_progress(
-                    message=message, extra_data=dict(sync_state=sync_state)
-                )
+            tracker.update_progress(
+                message=message, extra_data=dict(sync_state=sync_state)
+            )
 
         if noninteractive or tracker.progressbar is None:
             signal_group.started.connect(started)
