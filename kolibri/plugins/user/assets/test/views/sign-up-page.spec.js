@@ -6,15 +6,20 @@ import makeStore from '../makeStore';
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 
+const router = new VueRouter({
+  routes: [{ name: 'SIGN_IN', path: '/signin' }],
+});
+router.getRoute = () => {
+  return { name: 'SIGN_IN', path: '/signin' };
+};
+
 function makeWrapper() {
   const store = makeStore();
   store.state.core.facilities = [{ id: 1, name: 'facility' }];
   store.state.facilityId = 1;
   return mount(SignUpPage, {
     store,
-    router: new VueRouter({
-      routes: [{ name: 'SIGN_IN', path: '/signin' }],
-    }),
+    router,
     methods: {
       // To silence router error
       goToFirstStep() {
@@ -27,6 +32,6 @@ function makeWrapper() {
 describe('signUpPage component', () => {
   it('smoke test', () => {
     const wrapper = makeWrapper();
-    expect(wrapper.isVueInstance()).toEqual(true);
+    expect(wrapper.exists()).toEqual(true);
   });
 });
