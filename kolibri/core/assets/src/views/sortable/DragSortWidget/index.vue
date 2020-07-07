@@ -19,7 +19,7 @@
       Currently missing from material icon repo.
       See https://github.com/google/material-design-icons/issues/786
      -->
-    <KIcon icon="dragVertical" class="grip" style="top: 0; width: 24px; height: 24px" />
+    <KIcon icon="dragHorizontal" class="grip" style="top: 0; width: 24px; height: 24px" />
     <KIconButton
       v-show="!isLast"
       ref="dnBtn"
