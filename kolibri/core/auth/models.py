@@ -682,6 +682,15 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     id_number = models.CharField(max_length=64, default="", blank=True)
 
+    @classmethod
+    def deserialize(cls, dict_model):
+        # be defensive against blank passwords, set to `NOT_SPECIFIED` if blank
+        password = dict_model.get("password", "") or ""
+        if len(password) == 0:
+            dict_model.update(password="NOT_SPECIFIED")
+
+        return super(FacilityUser, cls).deserialize(dict_model)
+
     def calculate_partition(self):
         return "{dataset_id}:user-ro:{user_id}".format(
             dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER
