@@ -142,21 +142,29 @@ def not_empty():
     return checker
 
 
-def value_length(length, allow_null=False):
+def value_length(length, allow_null=False, multiple=False):
     """
     Return a value check function which raises a ValueError if the supplied
     value has a length greater than 'length'
     If null is not True raises a ValueError if the supplied value is None.
+    If multiple is True it checks the length of each of the separated by commas value
     """
 
     def checker(v):
+        def check_single_value(v):
+            if v is None or len(v) > length:
+                raise ValueError(v)
+
         if v == DEFERRED:
             return checker
         if allow_null and v is None:
             return None
-
-        if v is None or len(v) > length:
-            raise ValueError(v)
+        if multiple:
+            values = v.split(",")
+            for value in values:
+                check_single_value(value)
+        else:
+            check_single_value(v)
 
     return checker
 
@@ -426,12 +434,12 @@ class Command(AsyncCommand):
         )
         validator.add_check(
             "ENROLLED_IN",
-            value_length(100, allow_null=True),
+            value_length(100, allow_null=True, multiple=True),
             MESSAGES[TOO_LONG].format("Class name"),
         )
         validator.add_check(
             "ASSIGNED_TO",
-            value_length(100, allow_null=True),
+            value_length(100, allow_null=True, multiple=True),
             MESSAGES[TOO_LONG].format("Class name"),
         )
 
