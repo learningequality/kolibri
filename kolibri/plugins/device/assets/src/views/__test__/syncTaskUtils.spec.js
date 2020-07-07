@@ -3,9 +3,17 @@ import {
   syncStatusToDescriptionMap,
   removeStatusToDescriptionMap,
   removeFacilityTaskDisplayInfo,
+  SyncTaskStatuses,
 } from '../syncTaskUtils';
 
 describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
+  const CANCELLABLE_STATUSES = [
+    SyncTaskStatuses.SESSION_CREATION,
+    SyncTaskStatuses.PULLING,
+    SyncTaskStatuses.PUSHING,
+    SyncTaskStatuses.REMOTE_QUEUING,
+  ];
+
   function makeTask(status) {
     return {
       type: 'SYNC_FACILITY',
@@ -19,6 +27,7 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
       started_by_username: 'generic user',
       bytes_sent: 1000000,
       bytes_received: 500000000,
+      cancellable: CANCELLABLE_STATUSES.indexOf(status) >= 0,
     };
   }
 
@@ -91,28 +100,28 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
   });
 
   const controlAndStatusTests = [
-    // [status, canClear/hideCancel, isRunning]
-    ['PENDING', false, false],
-    ['CANCELED', true, false],
-    ['CANCELING', false, false],
-    ['FAILED', true, false],
-    ['SESSION_CREATION', false, true],
-    ['REMOTE_QUEUING', false, true],
-    ['PULLING', false, true],
-    ['LOCAL_DEQUEUING', false, true],
-    ['LOCAL_QUEUING', false, true],
-    ['PUSHING', false, true],
-    ['REMOTE_DEQUEUING', false, true],
+    // [status, canClear/hideCancel, isRunning, canCancel]
+    ['PENDING', false, false, true],
+    ['CANCELED', true, false, false],
+    ['CANCELING', false, false, false],
+    ['FAILED', true, false, false],
+    ['SESSION_CREATION', false, true, true],
+    ['REMOTE_QUEUING', false, true, true],
+    ['PULLING', false, true, true],
+    ['LOCAL_DEQUEUING', false, true, false],
+    ['LOCAL_QUEUING', false, true, false],
+    ['PUSHING', false, true, true],
+    ['REMOTE_DEQUEUING', false, true, false],
     ['COMPLETED', true, false],
   ];
 
   test.each(controlAndStatusTests)(
     'flags for showing clear/cancel/retry buttons are correct for status %s',
-    (status, canClear, isRunning) => {
+    (status, canClear, isRunning, canCancel) => {
       const task = makeTask(status);
       expect(syncFacilityTaskDisplayInfo(task)).toMatchObject({
         canClear,
-        canCancel: !canClear,
+        canCancel,
         canRetry: status === 'FAILED',
         isRunning,
       });
