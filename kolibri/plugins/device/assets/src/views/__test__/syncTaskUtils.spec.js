@@ -101,7 +101,7 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
 
   const controlAndStatusTests = [
     // [status, canClear/hideCancel, isRunning, canCancel]
-    ['PENDING', false, false, true],
+    ['PENDING', false, false, false],
     ['CANCELED', true, false, false],
     ['CANCELING', false, false, false],
     ['FAILED', true, false, false],
@@ -112,7 +112,7 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
     ['LOCAL_QUEUING', false, true, false],
     ['PUSHING', false, true, true],
     ['REMOTE_DEQUEUING', false, true, false],
-    ['COMPLETED', true, false],
+    ['COMPLETED', true, false, false],
   ];
 
   test.each(controlAndStatusTests)(
