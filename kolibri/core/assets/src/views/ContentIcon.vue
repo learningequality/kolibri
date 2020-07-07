@@ -88,10 +88,10 @@
         :color="color"
         style="top:0;"
       />
-      <!-- constant value comes all caps, but KIcon tokens are all lower case -->
+      <!-- class icon uses a different token name than the constant's name -->
       <KIcon
         v-if="is(ContentNodeKinds.CLASSROOM)"
-        :icon="ContentNodeKinds.CLASSROOM.toLowerCase()"
+        icon="classes"
         :class="[colorClass]"
         :color="color"
         style="top:0;"

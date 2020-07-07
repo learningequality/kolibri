@@ -7,7 +7,7 @@
     <KIconButton
       v-show="!isFirst"
       ref="upBtn"
-      icon="arrow_up"
+      icon="chevronUp"
       class="btn up"
       size="mini"
       :ariaLabel="moveUpText"
@@ -23,7 +23,7 @@
     <KIconButton
       v-show="!isLast"
       ref="dnBtn"
-      icon="arrow_down"
+      icon="chevronDown"
       class="btn dn"
       size="mini"
       :ariaLabel="moveDownText"

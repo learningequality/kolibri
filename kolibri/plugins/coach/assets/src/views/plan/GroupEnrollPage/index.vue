@@ -47,7 +47,7 @@
           </span>
           <KButtonGroup style="margin-top: 8px;">
             <KIconButton
-              icon="keyboard_arrow_left"
+              icon="chevronLeft"
               :ariaLabel="$tr('previousResults')"
               :disabled="pageNum === 1"
               size="small"
@@ -55,7 +55,7 @@
               @click="goToPage(pageNum - 1)"
             />
             <KIconButton
-              icon="keyboard_arrow_right"
+              icon="chevronRight"
               :ariaLabel="$tr('nextResults')"
               :disabled="numPages === 0 || pageNum === numPages"
               size="small"

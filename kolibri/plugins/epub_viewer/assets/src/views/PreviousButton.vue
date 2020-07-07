@@ -1,7 +1,7 @@
 <template>
 
   <KIconButton
-    :icon="isRtl ? 'keyboard_arrow_right' : 'keyboard_arrow_left'"
+    :icon="isRtl ? 'chevronRight' : 'chevronLeft'"
     class="previous-button"
     :class="{ 'previous-button-white': color === 'white' }"
     :color="color"

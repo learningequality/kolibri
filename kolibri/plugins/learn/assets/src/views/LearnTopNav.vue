@@ -8,7 +8,7 @@
       :link="allClassesLink"
     >
       <KIcon
-        icon="classroom"
+        icon="classes"
         style="top: 0; width: 24px; height: 24px;"
         :color="$themeTokens.textInverted"
       />
