@@ -7,7 +7,7 @@
         <UiIcon v-if="facility.dataset.registered" ref="icon">
           <KIcon
             icon="registered"
-            :style="{ fill: $themePalette.green.v_500 }"
+            :style="{ top: '-4px', fill: $themePalette.green.v_500 }"
           />
         </UiIcon>
         <KTooltip
