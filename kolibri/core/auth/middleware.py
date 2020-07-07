@@ -64,3 +64,14 @@ class CustomAuthenticationMiddleware(AuthenticationMiddleware):
             "'kolibri.core.auth.middleware.CustomAuthenticationMiddleware'."
         )
         request.user = SimpleLazyObject(lambda: _get_user(request))
+
+
+class XhrPreventLoginPromptMiddleware(object):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if response and response.status_code == 401 and request.is_ajax():
+            del response["WWW-Authenticate"]
+        return response

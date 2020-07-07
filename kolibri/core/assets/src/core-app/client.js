@@ -90,7 +90,7 @@ const client = options => {
     );
   }
 
-  const headers = { ...(options.headers || {}) };
+  const headers = { ...(options.headers || {}), 'X-Requested-With': 'XMLHttpRequest' };
   if (options.multipart) {
     headers['Content-Type'] = 'multipart/form-data';
     options.transformRequest = function(data) {
