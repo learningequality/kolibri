@@ -776,18 +776,23 @@ class Command(AsyncCommand):
         for user in users:
             # enrolled:
             to_remove = user.memberships.filter(collection__kind=CLASSROOM)
-            if user.username in users_enrolled.keys():
+            username = (
+                user.username
+                if sys.version_info[0] >= 3
+                else user.username.encode("utf-8")
+            )
+            if username in users_enrolled.keys():
                 to_remove.exclude(
-                    collection__name__in=users_enrolled[user.username]
+                    collection__name__in=users_enrolled[username]
                 ).delete()
             else:
                 to_remove.delete()
 
             # assigned:
             to_remove = user.roles.filter(collection__kind=CLASSROOM)
-            if user.username in users_assigned.keys():
+            if username in users_assigned.keys():
                 to_remove.exclude(
-                    collection__name__in=users_assigned[user.username]
+                    collection__name__in=users_assigned[username]
                 ).delete()
             else:
                 to_remove.delete()
