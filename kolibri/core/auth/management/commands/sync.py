@@ -319,7 +319,7 @@ class Command(AsyncCommand):
             noninteractive,
         )
         self._transfer_tracker_adapter(
-            sync_client.signals.pushing,
+            sync_client.signals.transferring,
             "Sending data ({})".format(TRANSFER_MESSAGE),
             State.PUSHING,
             noninteractive,
