@@ -125,8 +125,6 @@
         type: String,
         required: true,
         validator(value) {
-          console.log(value);
-          console.log(typeof value);
           return validateContentNodeKind(value, [USER]);
         },
       },

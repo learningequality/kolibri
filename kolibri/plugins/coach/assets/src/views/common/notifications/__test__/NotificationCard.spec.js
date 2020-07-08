@@ -99,7 +99,7 @@ describe('NotificationCard component', () => {
 
   const contentIconTestCases = [
     ['Lesson', 'lesson'],
-    ['Quiz', 'quiz'],
+    ['Quiz', 'exam'],
     ['Resource', 'video'],
   ];
 
