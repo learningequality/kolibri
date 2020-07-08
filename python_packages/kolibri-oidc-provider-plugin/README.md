@@ -1,5 +1,4 @@
 
-# Please, DON'T install this plugin yet unless you're running Kolibri in a development environment using the `develop` branch
 
 # Kolibri OpenID Connect Provider plugin
 
@@ -13,6 +12,8 @@ This package provides a plugin to convert a  Kolibri server into a OIDC provider
 
 
 ## How can I install this plugin?
+
+**For this to work, kolibri >= 0.14 must be installed**
 
 1. Inside your Kolibri virtual environment: `pip install kolibri-oidc-provider-plugin`
 
