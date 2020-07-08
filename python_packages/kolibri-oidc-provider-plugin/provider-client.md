@@ -18,7 +18,7 @@ For this example, Kolibri will have its home at `/tmp/provider`  for the OIDC pr
 
 5. Let's create an authorized client:
 
-   `KOLIBRI_HOME=/tmp/provider kolibri manage oidccreateclient --name=myapp --clientid=myclient.app --redirect-uri="http://localhost:9000/oidccallback/"`
+   `KOLIBRI_HOME=/tmp/provider kolibri manage oidccreateclient --name=myapp --clientid=myclient.app --redirect-uri="http://127.0.0.1:9000/oidccallback/"`
 
    It will output a client secret code that must be used when configuring the client, replacing the `<secret_given_by_the_provider>` text below.
 
@@ -33,6 +33,6 @@ For this example, Kolibri will have its home at `/tmp/provider`  for the OIDC pr
 1. `pip install kolibri-oidc-client-plugin`
 2. `KOLIBRI_HOME=/tmp/client kolibri plugin enable kolibri_oidc_client_plugin`
 3. Start Kolibri with `KOLIBRI_HOME=/tmp/client CLIENT_ID=myclient.app CLIENT_SECRET=<secret_given_by_the_provider> KOLIBRI_OIDC_CLIENT_URL=http://localhost:8080/oidc_provider KOLIBRI_HTTP_PORT=9000 kolibri start --foreground`
-4. Open a browser in http://localhost:9000 and use the OIDC authentication button: it should connect to the provider server (check the urls  jump to the urls with port 8080)
+4. Open a browser in http://127.0.0.1:9000 and use the OIDC authentication button: it should connect to the provider server (check the urls  jump to the urls with port 8080). **It's important to use *127.0.0.1* and not *localhost* in the url to avoid a cookies conflict if the provider has been open in the browser.**
 5. Signing in with the user that has been created in the provider should be possible and it will appear as an user in the kolibri client server
 
