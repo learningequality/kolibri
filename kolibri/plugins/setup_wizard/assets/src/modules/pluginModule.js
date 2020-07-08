@@ -1,7 +1,6 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import { currentLanguage, createTranslator } from 'kolibri.utils.i18n';
-import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
 import { Presets, permissionPresets } from '../constants';
 import { FacilityImportResource } from '../api';
 
@@ -11,8 +10,6 @@ const SetupStrings = createTranslator('SetupStrings', {
     context: 'Template for a facility name for personal setups',
   },
 });
-
-const { DEFERRED } = DemographicConstants;
 
 export default {
   state: {
@@ -44,10 +41,6 @@ export default {
         full_name: '',
         username: '',
         password: '',
-        // Superusers are not required to provide this info and are not
-        // nudged to update the profile when on Learn page
-        gender: DEFERRED,
-        birth_year: DEFERRED,
       },
     },
     loading: false,
