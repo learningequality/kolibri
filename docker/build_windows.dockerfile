@@ -16,9 +16,6 @@ RUN apt-get update -y && \
 
 RUN git lfs install
 
-VOLUME /kolibridist/
-
-
 # TODO(cpauya): Verify the checksums of the downloaded Python installers.
 
 CMD git clone https://github.com/learningequality/kolibri-installer-windows.git && \
