@@ -22,7 +22,9 @@ from kolibri.core.content.utils.content_types_tools import (
 from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.import_export_content import calculate_files_to_transfer
 from kolibri.core.content.utils.import_export_content import get_nodes_to_transfer
+from kolibri.core.content.utils.upgrade import CHANNEL_UPDATE_STATS_CACHE_KEY
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.utils.cache import process_cache
 
 
 class DeviceChannelMetadataSerializer(ChannelMetadataSerializer):
@@ -66,6 +68,24 @@ class DeviceChannelMetadataSerializer(ChannelMetadataSerializer):
                 if "on_device_file_size" in include_fields:
                     # read the precalculated total size of available files associated with the channel
                     value["on_device_file_size"] = instance.published_size
+
+                new_resource_stats = process_cache.get(
+                    CHANNEL_UPDATE_STATS_CACHE_KEY.format(instance.id)
+                )
+
+                if "new_resource_count" in include_fields and new_resource_stats:
+                    new_resource_ids = new_resource_stats.get("new_resource_ids")
+                    value["new_resource_count"] = (
+                        len(new_resource_ids) if new_resource_ids is not None else None
+                    )
+
+                if "new_resource_total_size" in include_fields and new_resource_stats:
+                    new_resource_stats = process_cache.get(
+                        CHANNEL_UPDATE_STATS_CACHE_KEY.format(instance.id)
+                    )
+                    value["new_resource_total_size"] = new_resource_stats.get(
+                        "new_resource_total_size", None
+                    )
 
         return value
 
