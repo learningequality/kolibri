@@ -898,6 +898,8 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
         child_serializer = self.get_serializer(children, many=True)
         parent_data["children"] = child_serializer.data
 
+        parent_data["ancestors"] = instance.get_ancestors().values("id", "title")
+
         return Response(parent_data)
 
 
