@@ -80,7 +80,7 @@ def cherrypy_access_log_middleware(get_response):
         # https://github.com/learningequality/kolibri/issues/6459
         log_as_debug = (
             "/api/tasks/tasks/" in request.path_info
-            or "/status/" in request.path_info
+            or "/status/" == request.path_info
             or request.method == "PATCH"
         )
         if log_as_debug:
