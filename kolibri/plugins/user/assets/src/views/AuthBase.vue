@@ -77,6 +77,7 @@
                 :to="signUpPage"
                 :primary="true"
                 appearance="flat-button"
+                data-test="createUser"
               />
             </p>
 

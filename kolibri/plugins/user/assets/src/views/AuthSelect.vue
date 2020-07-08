@@ -9,6 +9,7 @@
           :to="facilitySelectPage(PageNames.SIGN_UP)"
           appearance="flat-button"
           class="auth-button"
+          data-test="createUser"
         />
       </div>
       <div>
@@ -18,6 +19,7 @@
           :to="facilitySelectPage(PageNames.SIGN_IN)"
           appearance="flat-button"
           class="auth-button"
+          data-test="signIn"
         />
       </div>
     </div>

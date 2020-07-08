@@ -37,7 +37,7 @@ describe('auth base component', () => {
   });
   it('create_session_link', () => {
     const wrapper = makeWrapper();
-    const createLink = wrapper.find('a');
+    const createLink = wrapper.find('[data-test="createUser"]');
     expect(createLink.attributes().href).toBe('#/signup');
   });
 });
