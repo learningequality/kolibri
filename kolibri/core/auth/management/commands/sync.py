@@ -345,7 +345,10 @@ class Command(AsyncCommand):
         # we can't cancel remotely integrating data
         if self.job:
             self.job.cancellable = False
-        sync_client.finalize()
+
+        # allow server timeout since remotely integrating data can take a while and the request
+        # could timeout. In that case, we'll assume everything is good.
+        sync_client.finalize(allow_server_timeout=True)
 
     def _update_all_progress(self, progress_fraction, progress):
         """
