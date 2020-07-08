@@ -2,5 +2,5 @@ include AUTHORS.rst
 include CONTRIBUTING.rst
 include LICENSE
 include README.md
-recursive-include kolibri_oidc_provider_plugin *py
+recursive-include kolibri_oidc_provider_plugin *py *html
 recursive-exclude kolibri_oidc_provider_plugin *pyc
