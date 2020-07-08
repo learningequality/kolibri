@@ -10,15 +10,15 @@ For this example, Kolibri will have its home at `/tmp/provider`  for the OIDC pr
 
 1. `pip install kolibri-oidc-provider-plugin`
 
-2.  `kolibri plugin enable kolibri_oidc_provider_plugin`
+2. `KOLIBRI_HOME=/tmp/provider kolibri plugin enable kolibri_oidc_provider_plugin`
 
-3. `kolibri manage migrate`
+3. `KOLIBRI_HOME=/tmp/provider kolibri manage migrate`
 
-4. `kolibri manage creatersakey`
+4. `KOLIBRI_HOME=/tmp/provider kolibri manage creatersakey`
 
 5. Let's create an authorized client:
 
-   `kolibri manage oidccreateclient --name=myapp --clientid=myclient.app --redirect-uri="http://localhost:9000/oidc/callback/`
+   `KOLIBRI_HOME=/tmp/provider kolibri manage oidccreateclient --name=myapp --clientid=myclient.app --redirect-uri="http://localhost:9000/oidc/callback/"`
 
    It will output a client secret code that must be used when configuring the client, replacing the `<secret_given_by_the_provider>` text below.
 
