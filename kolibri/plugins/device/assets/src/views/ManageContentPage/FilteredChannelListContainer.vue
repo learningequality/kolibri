@@ -219,6 +219,9 @@
   }
 
   .no-match {
+    // Add extra height to empty state message
+    // so opening language dropdown doesn't cause an overflow
+    height: 250px;
     padding: 32px 0;
   }
 
