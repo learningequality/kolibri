@@ -1,6 +1,7 @@
 import importlib
 import logging
 import os
+from uuid import UUID
 
 from django.apps import apps
 from django.conf import settings
@@ -392,6 +393,13 @@ def _by_uuids(field, ids, validate, include):
     # trick to workaround postgresql, it does not allow returning ():
     empty_query = "IS NULL" if include else "IS NOT NULL"
     if ids:
+        if len(ids) > 10000:
+            logger.warn(
+                """
+                More than 10000 UUIDs passed to filter by uuids method,
+                these should be batched into separate querysets to avoid SQL Query too large errors in SQLite
+            """
+            )
         try:
             validate_uuids(ids)
             ids_list = [_format_uuid(identifier) for identifier in ids]
@@ -410,8 +418,21 @@ def filter_by_checksums(field, checksums):
     # trick to workaround postgresql, it does not allow returning ():
     empty_query = "IS NULL"
     if checksums:
+        if len(checksums) > 10000:
+            logger.warn(
+                """
+                More than 10000 UUIDs passed to filter by checksums method,
+                these should be batched into separate querysets to avoid SQL Query too large errors in SQLite
+            """
+            )
         checksums_list = ["'{}'".format(identifier) for identifier in checksums]
         return UnaryExpression(
             field, modifier=operators.custom_op(query + ",".join(checksums_list) + ")")
         )
     return UnaryExpression(field, modifier=operators.custom_op(empty_query))
+
+
+def coerce_key(key):
+    if isinstance(key, UUID):
+        return key.hex
+    return key
