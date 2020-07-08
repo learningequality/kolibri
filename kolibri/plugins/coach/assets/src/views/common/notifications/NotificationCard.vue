@@ -112,7 +112,7 @@
       },
       contentIcon() {
         if (this.objectType === NotificationObjects.QUIZ) {
-          return 'quiz';
+          return 'exam';
         } else if (this.objectType === NotificationObjects.LESSON) {
           return 'lesson';
         } else {
@@ -185,6 +185,11 @@
 
   .button-wrapper {
     position: relative;
+  }
+
+  /* Fixes spacing only observed in this notification card content icon */
+  /deep/.content-icon svg {
+    top: -2px !important;
   }
 
 </style>

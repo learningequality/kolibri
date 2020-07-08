@@ -53,7 +53,7 @@
       />
       <KIcon
         v-if="is(ContentNodeKinds.EXAM)"
-        :icon="ContentNodeKinds.EXAM"
+        icon="quiz"
         :class="[colorClass]"
         :color="color"
         style="top:0;"
@@ -125,6 +125,8 @@
         type: String,
         required: true,
         validator(value) {
+          console.log(value);
+          console.log(typeof value);
           return validateContentNodeKind(value, [USER]);
         },
       },

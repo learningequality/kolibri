@@ -2,7 +2,7 @@
 
   <CoreBase
     :immersivePage="true"
-    immersivePageIcon="arrow_back"
+    immersivePageIcon="back"
     :immersivePagePrimary="false"
     :immersivePageRoute="toolbarRoute"
     :appBarTitle="$tr('appBarLabel')"

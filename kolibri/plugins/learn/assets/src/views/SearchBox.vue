@@ -43,7 +43,7 @@
             color="white"
             class="search-submit-button"
             :disabled="!searchUpdate"
-            :class="{ 'rtl-icon': icon === 'arrow_forward' && isRtl }"
+            :class="{ 'rtl-icon': icon === 'forward' && isRtl }"
             :style="{ fill: $themeTokens.textInverted }"
             :ariaLabel="$tr('startSearchButtonLabel')"
             @click="search"
@@ -126,7 +126,7 @@
         type: String,
         default: 'search',
         validator(val) {
-          return ['search', 'arrow_forward'].includes(val);
+          return ['search', 'forward'].includes(val);
         },
       },
       filters: {

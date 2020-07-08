@@ -61,7 +61,7 @@
             immersivePage: true,
             immersivePageRoute: { query: {} },
             immersivePagePrimary: false,
-            immersivePageIcon: 'arrow_back',
+            immersivePageIcon: 'back',
           };
         }
         if (this.pageName === PageNames.PROFILE_EDIT) {
@@ -69,7 +69,7 @@
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(PageNames.PROFILE),
             immersivePagePrimary: true,
-            immersivePageIcon: 'arrow_back',
+            immersivePageIcon: 'back',
           };
         }
         return {

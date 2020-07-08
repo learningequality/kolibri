@@ -130,7 +130,7 @@
           this.inMultipleImportPage ||
           this.pageName === PageNames.NEW_CHANNEL_VERSION_PAGE
         ) {
-          return 'arrow_back';
+          return 'back';
         }
         return 'close';
       },

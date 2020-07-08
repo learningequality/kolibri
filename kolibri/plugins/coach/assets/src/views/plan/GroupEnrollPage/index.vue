@@ -2,7 +2,7 @@
 
   <CoreBase
     :immersivePage="true"
-    immersivePageIcon="arrow_back"
+    immersivePageIcon="back"
     :immersivePagePrimary="true"
     :primary="true"
     :toolbarTitle="currentGroup.name"
