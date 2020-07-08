@@ -25,7 +25,9 @@
             >
               {{ logoText }}
             </h1>
-            <p>{{ $tr('restrictedAccess') }}</p>
+            <p data-test="restrictedAccess">
+              {{ $tr('restrictedAccess') }}
+            </p>
             <p>{{ $tr('restrictedAccessDescription') }}</p>
           </div>
           <!-- remote access enabled -->
