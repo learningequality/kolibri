@@ -47,7 +47,7 @@
     },
     computed: {
       strings() {
-        return this.translations.learnerProgress[this.verb];
+        return this.learnerProgressTranslators[this.verb];
       },
       text() {
         if (!this.verbosityNumber) {

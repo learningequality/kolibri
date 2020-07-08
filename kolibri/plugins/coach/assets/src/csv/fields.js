@@ -5,7 +5,7 @@ import PageStatus from 'kolibri.coreVue.components.PageStatus';
 import coreStringsMixin from 'kolibri.coreVue.mixins.commonCoreStrings';
 import { STATUSES } from '../modules/classSummary/constants';
 import { VERBS } from '../views/common/status/constants';
-import { translations } from '../views/common/status/statusStrings';
+import { learnerProgressTranslators } from '../views/common/status/statusStrings';
 import { coachStrings } from '../views/common/commonCoachStrings';
 
 const FieldsMixinStrings = createTranslator('FieldsMixinStrings', {
@@ -103,7 +103,7 @@ export function learnerProgress(key = 'status') {
       key,
       format(row) {
         const value = get(row, key);
-        const strings = translations.learnerProgress[VERB_MAP[value]];
+        const strings = learnerProgressTranslators[VERB_MAP[value]];
         return strings.$tr('labelShort', { count: 1 });
       },
     },
