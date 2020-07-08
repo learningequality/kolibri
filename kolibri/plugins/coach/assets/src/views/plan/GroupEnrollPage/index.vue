@@ -37,8 +37,8 @@
           </template>
         </UserTable>
 
-        <nav>
-          <span>
+        <nav class="pagination-nav">
+          <span class="pagination-label">
             {{ $tr('pagination', {
               visibleStartRange,
               visibleEndRange,
@@ -216,8 +216,17 @@
 
   .actions-header,
   .footer,
-  nav {
+  .pagination-nav {
     text-align: right;
+  }
+  .pagination-nav {
+    margin-bottom: 8px;
+  }
+
+  .pagination-label {
+    position: relative;
+    top: -2px;
+    display: inline;
   }
 
 </style>
