@@ -1,4 +1,4 @@
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 def kolibri_userinfo(claims, user):
     """
     Fill claims with the information available in the Kolibri database
