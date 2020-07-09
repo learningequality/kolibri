@@ -72,6 +72,7 @@ class ChannelBuilder(object):
         self.localfile_to_files_map = {}
 
         self.root_node = self.generate_topic()
+        self.channel["root_id"] = self.root_node["id"]
 
         if self.levels:
             self.root_node["children"] = self.recurse_and_generate(
@@ -318,7 +319,7 @@ class ChannelBuilder(object):
 
     def channel_data(self, channel_id=None, version=1):
         return {
-            "root_id": uuid4_hex(),
+            "root_id": None,
             "last_updated": None,
             "version": 1,
             "author": "Outis",
