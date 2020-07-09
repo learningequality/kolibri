@@ -67,6 +67,16 @@ class CustomAuthenticationMiddleware(AuthenticationMiddleware):
 
 
 class XhrPreventLoginPromptMiddleware(object):
+    """
+    By default, HTTP 401 responses are sent with a ``WWW-Authenticate``
+    header. Web browsers react to this header by displaying a login prompt
+    dialog.  By removing the header, the login prompt can be avoided.  While
+    this isn't recommended in general, there's a convention of removing it
+    for XHR requests, so that unauthenticated XHR requests don't trigger a
+    popup.
+    
+    See `here <https://stackoverflow.com/a/20221330>`_ for reference.
+    """
     def __init__(self, get_response):
         self.get_response = get_response
 
