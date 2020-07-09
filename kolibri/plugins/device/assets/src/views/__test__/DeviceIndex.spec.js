@@ -9,7 +9,7 @@ function makeWrapper() {
     ...router,
   });
   const els = {
-    CoreBase: () => wrapper.find({ name: 'CoreBase' }),
+    CoreBase: () => wrapper.findComponent({ name: 'CoreBase' }),
   };
   return { wrapper, els };
 }
