@@ -62,7 +62,7 @@ describe('app bar component', () => {
     it('should show the language modal link if no components are added and user is not logged in', () => {
       expect(navComponents).toHaveLength(0);
       const wrapper = createWrapper();
-      expect(wrapper.findComponent(CoreMenuOption)).toBeTruthy();
+      expect(wrapper.findComponent(CoreMenuOption).element).toBeTruthy();
     });
     it('should show logout if no components are added and user is logged in', async () => {
       expect(navComponents).toHaveLength(0);
@@ -104,7 +104,7 @@ describe('app bar component', () => {
           const wrapper = createWrapper();
           setUserKind(wrapper.vm.$store, kind);
           await wrapper.vm.$nextTick();
-          expect(wrapper.findComponent(component)).toBeTruthy();
+          expect(wrapper.findComponent(component).element).toBeTruthy();
         }
       );
     });
