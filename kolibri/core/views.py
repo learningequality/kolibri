@@ -85,7 +85,7 @@ def set_language(request):
 
 def logout_view(request):
     logout(request)
-    if LogoutRedirectHook.registered_hooks:
+    if LogoutRedirectHook.is_enabled():
         return HttpResponseRedirect(
             next(obj.url for obj in LogoutRedirectHook.registered_hooks)
         )
