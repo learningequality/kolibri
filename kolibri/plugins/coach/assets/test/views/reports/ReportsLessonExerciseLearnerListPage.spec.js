@@ -84,7 +84,7 @@ const router = new VueRouter({
 });
 
 const getViewByGroupsCheckbox = wrapper => {
-  return wrapper.find({ name: 'KCheckbox' }).find('input');
+  return wrapper.findComponent({ name: 'KCheckbox' }).find('input');
 };
 
 const getGroupTitles = wrapper => {
@@ -100,7 +100,7 @@ const getGroup = (wrapper, groupId) => {
 };
 
 const getGroupTally = (wrapper, groupId) => {
-  return getGroup(wrapper, groupId).find({ name: 'StatusSummary' });
+  return getGroup(wrapper, groupId).find(`[data-test="group-tally"]`);
 };
 
 const initWrapper = lessonMap => {
