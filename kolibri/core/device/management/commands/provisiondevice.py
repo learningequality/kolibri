@@ -1,15 +1,11 @@
 import logging
 
 from django.conf import settings
-from django.core.management.base import BaseCommand
-from django.core.management.base import CommandError
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import six
-
-from kolibri.core.auth.constants.facility_presets import mappings
-from kolibri.core.auth.constants.facility_presets import presets
-from kolibri.core.auth.models import Facility
-from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.constants.facility_presets import mappings, presets
+from kolibri.core.auth.models import Facility, FacilityUser
 from kolibri.core.device.utils import provision_device
 
 logger = logging.getLogger(__name__)
