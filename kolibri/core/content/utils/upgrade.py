@@ -209,7 +209,9 @@ def get_new_resources_available_for_import(destination, channel_id):
             ContentNodeTable.update()
             .where(
                 and_(
-                    filter_by_uuids(ContentNodeTable.c.id, node_ids),
+                    filter_by_uuids(
+                        ContentNodeTable.c.id, node_ids, vendor=bridge.engine.name
+                    ),
                     ContentNodeTable.c.channel_id == channel_id,
                 ),
             )
@@ -310,7 +312,11 @@ def get_new_resources_available_for_import(destination, channel_id):
             ContentNodeTable.update()
             .where(
                 and_(
-                    filter_by_uuids(ContentNodeTable.c.content_id, content_ids),
+                    filter_by_uuids(
+                        ContentNodeTable.c.content_id,
+                        content_ids,
+                        vendor=bridge.engine.name,
+                    ),
                     ContentNodeTable.c.channel_id == channel_id,
                 ),
             )
@@ -495,7 +501,7 @@ def get_automatically_updated_resources(destination, channel_id):
     while ids_batch:
 
         contentnode_filter_expression = filter_by_uuids(
-            ContentNodeTable.c.id, ids_batch
+            ContentNodeTable.c.id, ids_batch, vendor=bridge.engine.name
         )
 
         # This does the first step in the many to many lookup for File

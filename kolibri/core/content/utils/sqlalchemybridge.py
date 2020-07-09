@@ -371,24 +371,24 @@ class Bridge(object):
             self.connection.close()
 
 
-def filter_by_uuids(field, ids, validate=True):
-    return _by_uuids(field, ids, validate, True)
+def filter_by_uuids(field, ids, validate=True, vendor=None):
+    return _by_uuids(field, ids, validate, True, vendor=vendor)
 
 
-def exclude_by_uuids(field, ids, validate=True):
-    return _by_uuids(field, ids, validate, False)
+def exclude_by_uuids(field, ids, validate=True, vendor=None):
+    return _by_uuids(field, ids, validate, False, vendor=vendor)
 
 
-def _format_uuid(identifier):
+def _format_uuid(identifier, vendor=None):
     # wrap the uuids in string quotations
-    if django_connection.vendor == "sqlite":
+    if (vendor or django_connection.vendor) == "sqlite":
         return "'{}'".format(identifier)
-    elif django_connection.vendor == "postgresql":
+    elif (vendor or django_connection.vendor) == "postgresql":
         return "'{}'::uuid".format(identifier)
     return identifier
 
 
-def _by_uuids(field, ids, validate, include):
+def _by_uuids(field, ids, validate, include, vendor=None):
     query = "IN (" if include else "NOT IN ("
     # trick to workaround postgresql, it does not allow returning ():
     empty_query = "IS NULL" if include else "IS NOT NULL"
@@ -402,7 +402,7 @@ def _by_uuids(field, ids, validate, include):
             )
         try:
             validate_uuids(ids)
-            ids_list = [_format_uuid(identifier) for identifier in ids]
+            ids_list = [_format_uuid(identifier, vendor=vendor) for identifier in ids]
             return UnaryExpression(
                 field, modifier=operators.custom_op(query + ",".join(ids_list) + ")")
             )
