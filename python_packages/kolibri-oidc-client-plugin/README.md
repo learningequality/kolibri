@@ -52,6 +52,9 @@ JWKS_URI=
 AUTHORIZATION_ENDPOINT=
 TOKEN_ENDPOINT=
 USERINFO_ENDPOINT=
+ENDSESSION_ENDPOINT=
+CLIENT_URL=
+
 ```
 
 Or, as environment variables:
@@ -61,8 +64,13 @@ KOLIBRI_OIDC_JWKS_URI
 KOLIBRI_OIDC_AUTHORIZATION_ENDPOINT
 KOLIBRI_OIDC_TOKEN_ENDPOINT
 KOLIBRI_OIDC_USERINFO_ENDPOINT
+KOLIBRI_OIDC_ENDSESSION_ENDPOINT
+KOLIBRI_CLIENT_URL
 ```
 
+### Ending session in the OIDC provider from kolibri
+If kolibri >= 0.14 is used, kolibri will be able to end the user session in the OIDC provider when the use logs out.
+For it to work correctly, the `ENDSESSION_ENDPOINT` must contain the OIDC provider url to end the session and another option: `CLIENT_URL` must be set containing the exact base url of the server running Kolibri, for example: http://localhost:8000 . This feature is available only if kolibri version >= 0.14
 
 ### OIDC provider credentials
 
