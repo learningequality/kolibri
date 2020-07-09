@@ -72,3 +72,10 @@ class LogoutRedirectHook(KolibriHook):
     @classmethod
     def is_enabled(cls):
         return len(list(cls.registered_hooks)) == 1
+
+    @abstractproperty
+    def url(self):
+        """
+        A property to be overriden by the class using this hook to provide the needed url to redirect
+        """
+        pass
