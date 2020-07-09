@@ -21,7 +21,7 @@ function makeWrapper() {
 describe('signInPage component', () => {
   it('smoke test', () => {
     const wrapper = makeWrapper();
-    expect(wrapper.isVueInstance()).toEqual(true);
+    expect(wrapper.exists()).toEqual(true);
   });
   it('will set the username as invalid if it contains punctuation and is blurred', () => {
     const wrapper = makeWrapper();
