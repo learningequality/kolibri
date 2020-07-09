@@ -25,8 +25,8 @@ function makeWrapper(options) {
   wrapper.vm.handleAdHocLearnersGroupPromise = jest.fn().mockResolvedValue();
   wrapper.vm.handleUpdateAdHocLearnersGroupPromise = jest.fn().mockResolvedValue();
   const els = {
-    titleField: () => wrapper.findAll({ name: 'KTextbox' }).at(0),
-    descriptionField: () => wrapper.findAll({ name: 'KTextbox' }).at(1),
+    titleField: () => wrapper.findAllComponents({ name: 'KTextbox' }).at(0),
+    descriptionField: () => wrapper.findAllComponents({ name: 'KTextbox' }).at(1),
     form: () => wrapper.find('form'),
   };
   const actions = {
