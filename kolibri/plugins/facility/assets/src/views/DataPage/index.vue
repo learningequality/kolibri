@@ -78,7 +78,7 @@
       </KGrid>
     </KPageContainer>
 
-    <ImportInterface />
+    <ImportInterface v-if="!cannotDownload" />
     <SyncInterface />
 
   </div>
