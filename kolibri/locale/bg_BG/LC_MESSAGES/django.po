@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-06-11 09:07-0700\n"
-"PO-Revision-Date: 2020-06-22 00:57\n"
+"PO-Revision-Date: 2020-07-09 18:09\n"
 "Last-Translator: \n"
 "Language-Team: Bulgarian\n"
 "Language: bg_BG\n"
@@ -31,162 +31,162 @@ msgstr "Група ученици"
 
 #: kolibri/core/auth/constants/collection_kinds.py:18
 msgid "Ad hoc learners group"
-msgstr ""
+msgstr "Временна група от ученици"
 
 #: kolibri/core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr ""
+msgstr "Неочаквано грешка [{}]: {}"
 
 #: kolibri/core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
-msgstr ""
+msgstr "Съдържанието на клетка '{}' е твърде дълго"
 
 #: kolibri/core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr ""
+msgstr "Съдържанието на клетка '{}' е невалидно"
 
 #: kolibri/core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr ""
+msgstr "Дублиране на име"
 
 #: kolibri/core/auth/constants/commands_errors.py:28
 #: kolibri/core/auth/management/commands/bulkimportusers.py:84
 msgid "Username only can contain characters, numbers and underscores"
-msgstr ""
+msgstr "Потребителското име може да съдържа само букви, цифри и долни черти"
 
 #: kolibri/core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
-msgstr ""
+msgstr "Колоната '{}' е задължителна"
 
 #: kolibri/core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr ""
+msgstr "Смесица от валидни и/или невалидни етикети на заглавията, открити в първия ред"
 
 #: kolibri/core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr ""
+msgstr "Не съществува институция по подразбиране. Не забравяй да настроиш институция на устройството, преди да изпълниш тази команда"
 
 #: kolibri/core/auth/constants/commands_errors.py:35
 #: kolibri/core/auth/management/commands/bulkimportusers.py:98
 msgid "Error trying to read csv file: {}"
-msgstr ""
+msgstr "Грешка при опит за четене на csv файл: {}"
 
 #: kolibri/core/auth/constants/commands_errors.py:36
 #: kolibri/core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to write csv file: {}"
-msgstr ""
+msgstr "Грешка при запис в csv файл: {}"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:43
 #: kolibri/core/auth/management/commands/bulkexportusers.py:125
 msgid "Database ID ({})"
-msgstr ""
+msgstr "База данни ID ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:44
 #: kolibri/core/auth/management/commands/bulkexportusers.py:126
 msgid "Username ({})"
-msgstr ""
+msgstr "Потребителско име ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:45
 #: kolibri/core/auth/management/commands/bulkexportusers.py:127
 msgid "Password ({})"
-msgstr ""
+msgstr "Парола ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:46
 #: kolibri/core/auth/management/commands/bulkexportusers.py:128
 msgid "Full name ({})"
-msgstr ""
+msgstr "Пълно име ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:51
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr ""
+msgstr "Вид потребител ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:54
 #: kolibri/core/auth/management/commands/bulkexportusers.py:136
 msgid "Identifier ({})"
-msgstr ""
+msgstr "Идентификатор ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:55
 #: kolibri/core/auth/management/commands/bulkexportusers.py:137
 msgid "Birth year ({})"
-msgstr ""
+msgstr "Година на раждане ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:56
 #: kolibri/core/auth/management/commands/bulkexportusers.py:138
 msgid "Gender ({})"
-msgstr ""
+msgstr "Пол ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:61
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr ""
+msgstr "Записване на ученик ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:68
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr ""
+msgstr "Учителско назначение ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:133
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr ""
+msgstr "Вид потребител ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:143
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr ""
+msgstr "Записване на ученик ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:150
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr ""
+msgstr "Учителско назначение ({})"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:75
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
-msgstr ""
+msgstr "Неочаквана грешка [{}]: {}"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:79
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
-msgstr ""
+msgstr "Стойността в колона '{}' има прекалено много символи"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:81
 msgid "Invalid value in column '{}'"
-msgstr ""
+msgstr "Невалидна стойност в колона '{}'"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:82
 msgid "Username is duplicated"
-msgstr ""
+msgstr "Потребителското име се повтаря"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:88
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
-msgstr ""
+msgstr "Колоната '{}' е задължителна"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:92
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Invalid header label found in the first row"
-msgstr ""
+msgstr "Невалидни етикети на заглавията, открити в първия ред"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:96
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr ""
+msgstr "Не съществува институция по подразбиране. Не забравяй да настроиш институция на устройството, преди да импортираш потребители и класове"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:101
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr ""
+msgstr "Полето за парола е задължително. За да оставиш парола непроменена при съществуващ потребител, постави звездичка (*)"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:104
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr ""
+msgstr "Не може да обнови потребител с идентификационен номер: '{}', защото в базата данни на институцията не съществува потребител с такъв идентификационен номер"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:106
 msgid "Database ID is not valid"
-msgstr ""
+msgstr "Идентификационният номер на базата данни не е валиден"
 
 #: kolibri/core/content/api.py:149
 msgid "Resource"
@@ -207,12 +207,12 @@ msgstr "Този език не се поддържа от Колибри"
 #: kolibri/core/logger/csv_export.py:207
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
-msgstr ""
+msgstr "content_session_logs"
 
 #: kolibri/core/logger/csv_export.py:217
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
-msgstr ""
+msgstr "content_summary_logs"
 
 #: kolibri/core/tasks/api.py:71
 msgid "There was a network error."
@@ -220,7 +220,7 @@ msgstr "Възникна грешка в мрежата."
 
 #: kolibri/core/tasks/api.py:73
 msgid "There was a disk access error."
-msgstr "Възникна грешка с достъпа до устройството."
+msgstr "Възникна грешка с дисковото устройството."
 
 #: kolibri/core/tasks/api.py:75
 msgid "There was an unknown error."
@@ -241,7 +241,7 @@ msgstr "Съжаляваме, тази версия на браузъра не �
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr "За използване на Колибри препоръчваме Firefox или Chrome."
+msgstr "Препоръчваме Firefox или Chrome за използване на Колибри."
 
 #: kolibri/core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
@@ -254,7 +254,7 @@ msgstr "Не са намерени подходящи страници за пр
 #: kolibri/plugins/facility/views.py:46
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users_{}"
-msgstr ""
+msgstr "users_{}"
 
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
 msgid "OpenID Provider Authorization"
