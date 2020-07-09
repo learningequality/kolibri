@@ -987,6 +987,11 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^13.0.0"
 
+"@mdi/svg@^5.3.45":
+  version "5.3.45"
+  resolved "https://registry.yarnpkg.com/@mdi/svg/-/svg-5.3.45.tgz#27456a94ffa16b71c0a6581b584f24ed9d4f6b2e"
+  integrity sha512-MHUZBDSRDG6uWcRlQs4nALliPRT8u4gg5E+knk7FuFBUb3NjFgjT0PjdnTyEN0f3mwVLzLvggs7v7G/NVO+gaw==
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"
@@ -8466,12 +8471,13 @@ knuth-shuffle-seeded@^1.0.6:
   dependencies:
     seed-random "~2.2.0"
 
-"kolibri-design-system@github:learningequality/kolibri-design-system#v0.2.0-beta2":
-  version "0.2.0"
-  resolved "https://codeload.github.com/learningequality/kolibri-design-system/tar.gz/6e2fb9898a63a0c37199faf37bf5a33c856ce474"
+"kolibri-design-system@github:learningequality/kolibri-design-system#v0.2.0-beta5":
+  version "0.2.0-beta5"
+  resolved "https://codeload.github.com/learningequality/kolibri-design-system/tar.gz/fcf1f8849620fbcc27bb7b6a418c766f70bd40f8"
   dependencies:
     "@babel/core" "^7.9.6"
     "@babel/preset-env" "^7.9.6"
+    "@mdi/svg" "^5.3.45"
     aphrodite "https://github.com/learningequality/aphrodite/"
     autosize "^3.0.21"
     css-element-queries "^1.2.0"

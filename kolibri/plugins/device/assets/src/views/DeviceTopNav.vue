@@ -18,7 +18,7 @@
       :link="$router.getRoute('MANAGE_PERMISSIONS_PAGE')"
     >
       <KIcon
-        icon="https"
+        icon="permissions"
         :color="$themeTokens.textInverted"
         style="top: 0; width: 24px; height: 24px;"
       />
@@ -39,7 +39,7 @@
       :link="$router.getRoute('DEVICE_INFO_PAGE')"
     >
       <KIcon
-        icon="perm_device_information"
+        icon="deviceInfo"
         :color="$themeTokens.textInverted"
         style="top: 0; width: 24px; height: 24px;"
       />

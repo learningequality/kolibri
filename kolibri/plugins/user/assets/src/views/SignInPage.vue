@@ -67,20 +67,10 @@
           appearance="basic-link"
           text=""
           style="margin-bottom: 16px;"
+          icon="back"
           @click="clearUser"
         >
-          <mat-svg
-            name="arrow_back"
-            category="navigation"
-            :style="{
-              fill: $themeTokens.primary,
-              height: '1.125em',
-              width: '1.125em',
-              position: 'relative',
-              marginRight: '8px',
-              top: '2px',
-            }"
-          />{{ coreString('goBackAction') }}
+          {{ coreString('goBackAction') }}
         </KButton>
 
         <p v-if="username" style="padding: 8px 0;">

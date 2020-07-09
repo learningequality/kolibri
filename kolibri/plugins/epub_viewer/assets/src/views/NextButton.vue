@@ -1,7 +1,7 @@
 <template>
 
   <KIconButton
-    :icon="isRtl ? 'keyboard_arrow_left' : 'keyboard_arrow_right'"
+    :icon="isRtl ? 'chevronLeft' : 'chevronRight'"
     class="next-button"
     :class="{ 'next-button-white': color === 'white' }"
     :ariaLabel="$tr('goToNextPage')"

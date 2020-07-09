@@ -4,7 +4,7 @@
     :immersivePage="true"
     :immersivePageRoute="toolbarRoute"
     :immersivePagePrimary="true"
-    immersivePageIcon="arrow_back"
+    immersivePageIcon="back"
     :appBarTitle="exercise.title"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
