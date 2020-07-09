@@ -1,6 +1,12 @@
+# When we are able to properly support multiprocessing, we can update this
+# to a setting instead of an always off flag.
+MULTIPROCESSING = False
+
 try:
+    if not MULTIPROCESSING:
+        raise ImportError()
     # Import in order to check if multiprocessing is supported on this platform
-    from multiprocessing import synchronization  # noqa
+    from multiprocessing import synchronize  # noqa
 
     # Proxy Process to Thread to allow seamless substitution
     from multiprocessing import Process as Thread  # noqa
@@ -8,12 +14,17 @@ try:
 
     # any variable is local to a process, so this is
     # just a dummy
-    local = object
+    class local(object):
+        """
+        Dummy class to use for a local object for multiprocessing
+        """
 
-    MULTIPROCESS = True
+        pass
+
+    from concurrent.futures import ProcessPoolExecutor as PoolExecutor  # noqa
+
 except ImportError:
     from threading import Thread  # noqa
     from threading import Event  # noqa
     from threading import local  # noqa
-
-    MULTIPROCESS = False
+    from concurrent.futures import ThreadPoolExecutor as PoolExecutor  # noqa

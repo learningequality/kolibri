@@ -19,38 +19,53 @@ from kolibri.utils import conf
 logger = logging.getLogger(__name__)
 
 
-if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
+def create_db_url(
+    db_type, path=None, name=None, password=None, user=None, host=None, port=None
+):
+    if db_type == "sqlite":
+        return "sqlite:///{path}".format(path=path)
+    elif db_type == "postgres":
+        return "postgresql://{user}:{password}@{host}{port}/{name}".format(
+            name=name,
+            password=password,
+            user=user,
+            host=host,
+            port=":" + port if port else "",
+        )
 
-    def __create_engine():
+
+def make_connection(db_type, url):
+    if db_type == "sqlite":
         return create_engine(
-            "sqlite:///{path}".format(
-                path=os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3")
-            ),
+            url,
             connect_args={"check_same_thread": False},
             poolclass=NullPool,
         )
 
-
-elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
-
-    def __create_engine():
+    elif db_type == "postgres":
         return create_engine(
-            "postgresql://{user}:{password}@{host}{port}/{name}".format(
-                name=conf.OPTIONS["Database"]["DATABASE_NAME"],
-                password=conf.OPTIONS["Database"]["DATABASE_PASSWORD"],
-                user=conf.OPTIONS["Database"]["DATABASE_USER"],
-                host=conf.OPTIONS["Database"]["DATABASE_HOST"],
-                port=":" + conf.OPTIONS["Database"]["DATABASE_PORT"]
-                if conf.OPTIONS["Database"]["DATABASE_PORT"]
-                else "",
-            ),
+            url,
             pool_pre_ping=True,
             client_encoding="utf8",
         )
+    else:
+        raise Exception("Unknown database engine option: {}".format(db_type))
 
 
 def __initialize_connection():
-    connection = __create_engine()
+    db_url = create_db_url(
+        conf.OPTIONS["Database"]["DATABASE_ENGINE"],
+        path=os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3"),
+        name=conf.OPTIONS["Database"]["DATABASE_NAME"],
+        password=conf.OPTIONS["Database"]["DATABASE_PASSWORD"],
+        user=conf.OPTIONS["Database"]["DATABASE_USER"],
+        host=conf.OPTIONS["Database"]["DATABASE_HOST"],
+        port=conf.OPTIONS["Database"]["DATABASE_PORT"],
+    )
+    connection = make_connection(
+        conf.OPTIONS["Database"]["DATABASE_ENGINE"],
+        db_url,
+    )
 
     # Add multiprocessing safeguards as recommended by:
     # https://docs.sqlalchemy.org/en/13/core/pooling.html#pooling-multiprocessing
@@ -74,6 +89,7 @@ def __initialize_connection():
     try:
         check_sqlite_integrity(connection)
     except (exc.DatabaseError, sqlite3.DatabaseError):
+        logger.warn("Job storage database has been corrupted, regenerating")
         repair_sqlite_db(connection)
 
     return connection

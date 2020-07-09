@@ -2,9 +2,8 @@ import os
 import tempfile
 from contextlib import contextmanager
 
-from sqlalchemy import create_engine
-from sqlalchemy.pool import NullPool
-
+from kolibri.core.tasks.main import create_db_url
+from kolibri.core.tasks.main import make_connection
 from kolibri.utils import conf
 
 
@@ -14,11 +13,11 @@ def connection():
 
     if database_engine_option == "sqlite":
         fd, filepath = tempfile.mkstemp()
-        engine = create_engine(
-            "sqlite:///{path}".format(path=filepath),
-            connect_args={"check_same_thread": False},
-            poolclass=NullPool,
+        db_url = create_db_url(
+            conf.OPTIONS["Database"]["DATABASE_ENGINE"],
+            path=filepath,
         )
+        engine = make_connection(database_engine_option, db_url)
         yield engine
         engine.dispose()
         os.close(fd)
@@ -28,19 +27,17 @@ def connection():
             # Don't fail test because of difficulty cleaning up.
             pass
     elif database_engine_option == "postgres":
-        engine = create_engine(
-            "postgresql://{user}:{password}@{host}{port}/{name}".format(
-                name=conf.OPTIONS["Database"]["DATABASE_NAME"],
-                password=conf.OPTIONS["Database"]["DATABASE_PASSWORD"],
-                user=conf.OPTIONS["Database"]["DATABASE_USER"],
-                host=conf.OPTIONS["Database"]["DATABASE_HOST"],
-                port=":" + conf.OPTIONS["Database"]["DATABASE_PORT"]
-                if conf.OPTIONS["Database"]["DATABASE_PORT"]
-                else "",
-            ),
-            pool_pre_ping=True,
-            client_encoding="utf8",
-            poolclass=NullPool,
+        db_url = create_db_url(
+            conf.OPTIONS["Database"]["DATABASE_ENGINE"],
+            name=conf.OPTIONS["Database"]["DATABASE_NAME"],
+            password=conf.OPTIONS["Database"]["DATABASE_PASSWORD"],
+            user=conf.OPTIONS["Database"]["DATABASE_USER"],
+            host=conf.OPTIONS["Database"]["DATABASE_HOST"],
+            port=conf.OPTIONS["Database"]["DATABASE_PORT"],
+        )
+        engine = make_connection(
+            database_engine_option,
+            db_url,
         )
         yield engine
         engine.dispose()

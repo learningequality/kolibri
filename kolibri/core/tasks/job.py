@@ -1,9 +1,11 @@
 import copy
 import logging
+import traceback
 import uuid
 
-from django.db import connection
+from django.db import connection as django_connection
 
+from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import current_state_tracker
 from kolibri.core.tasks.utils import import_stringified_func
 from kolibri.core.tasks.utils import stringify_func
@@ -46,6 +48,45 @@ class State(object):
     COMPLETED = "COMPLETED"
 
 
+def execute_job(job_id, db_type, db_url):
+    """
+    Call the function stored in the job.func.
+    :return: Any
+    """
+    from kolibri.core.tasks.main import make_connection
+    from kolibri.core.tasks.storage import Storage
+
+    connection = make_connection(db_type, db_url)
+
+    storage = Storage(connection)
+
+    job = storage.get_job(job_id)
+
+    setattr(current_state_tracker, "job", job)
+
+    func = import_stringified_func(job.func)
+
+    args, kwargs = copy.copy(job.args), copy.copy(job.kwargs)
+
+    try:
+        result = func(*args, **kwargs)
+    except Exception as e:
+        # If any error occurs, clear the job tracker and reraise
+        setattr(current_state_tracker, "job", None)
+        traceback_str = traceback.format_exc()
+        e.traceback = traceback_str
+        # Close any django connections opened here
+        django_connection.close()
+        raise
+
+    setattr(current_state_tracker, "job", None)
+
+    # Close any django connections opened here
+    django_connection.close()
+
+    return result
+
+
 class Job(object):
     """
     Job represents a function whose execution has been deferred through the Client's schedule function.
@@ -68,6 +109,7 @@ class Job(object):
             "args",
             "kwargs",
             "func",
+            "result",
         ]
         return {key: self.__dict__[key] for key in keys}
 
@@ -103,11 +145,9 @@ class Job(object):
         self.total_progress = 0
         self.args = args
         self.kwargs = kwargs
+        self.result = None
 
-        self.save_meta_method = None
-        self.update_progress_method = None
-        self.check_for_cancel_method = None
-        self.save_as_cancellable_method = None
+        self.storage = None
 
         if callable(func):
             funcstring = stringify_func(func)
@@ -122,96 +162,38 @@ class Job(object):
         self.func = funcstring
 
     def save_meta(self):
-        if self.save_meta_method is None:
+        if self.storage is None:
             raise ReferenceError(
-                "save_meta_method is not defined on this job, cannot save metadata"
+                "storage is not defined on this job, cannot save metadata"
             )
-        self.save_meta_method(self)
+        self.storage.save_job_meta(self)
 
     def update_progress(self, progress, total_progress):
         if self.track_progress:
-            if self.update_progress_method is None:
+            if self.storage is None:
                 raise ReferenceError(
-                    "update_progress_method is not defined on this job, cannot update progress"
+                    "storage is not defined on this job, cannot update progress"
                 )
-            self.update_progress_method(self.job_id, progress, total_progress)
+            self.storage.update_job_progress(self.job_id, progress, total_progress)
 
     def check_for_cancel(self):
         if self.cancellable:
-            if self.check_for_cancel_method is None:
+            if self.storage is None:
                 raise ReferenceError(
-                    "check_for_cancel_method is not defined on this job, cannot check for cancellation"
+                    "storage is not defined on this job, cannot check for cancellation"
                 )
-            self.check_for_cancel_method(self.job_id)
+            if self.storage.check_job_canceled(self.job_id):
+                raise UserCancelledError()
 
     def save_as_cancellable(self, cancellable=True):
         # if we're not changing cancellability then ignore
         if self.cancellable == cancellable:
             return
-        if self.save_as_cancellable_method is None:
-            raise ReferenceError("Missing method to save job as cancellable")
-        self.save_as_cancellable_method(self.job_id, cancellable=cancellable)
-
-    def get_lambda_to_execute(self):
-        """
-        return a function that executes the function assigned to this job.
-
-        If job.track_progress is None (the default), the returned function accepts no argument
-        and simply needs to be called. If job.track_progress is True, an update_progress function
-        is passed in that can be used by the function to provide feedback progress back to the
-        job scheduling system.
-
-        :return: a function that executes the original function assigned to this job.
-        """
-
-        def y(
-            update_progress_func,
-            cancel_job_func,
-            save_job_meta_func,
-            save_as_cancellable_func,
-        ):
-            """
-            Call the function stored in self.func, and passing in update_progress_func
-            or cancel_job_func depending if self.track_progress or self.cancellable is defined,
-            respectively.
-            :param update_progress_func: The callback for when the job updates its progress.
-            :param cancel_job_func: The callback to see if the user wants to cancel the job.
-            :param save_job_meta_func: The callback to save any changes to meta data
-            :param save_as_cancellable_func: The callback to save any changes to meta data
-            :return: Any
-            """
-
-            setattr(current_state_tracker, "job", self)
-
-            self.save_meta_method = save_job_meta_func
-            self.save_as_cancellable_method = save_as_cancellable_func
-            if self.track_progress:
-                self.update_progress_method = update_progress_func
-
-            if self.cancellable:
-                self.check_for_cancel_method = cancel_job_func
-
-            func = import_stringified_func(self.func)
-
-            args, kwargs = copy.copy(self.args), copy.copy(self.kwargs)
-
-            try:
-                result = func(*args, **kwargs)
-            except Exception:
-                # If any error occurs, clear the job tracker and reraise
-                setattr(current_state_tracker, "job", None)
-                # Close any django connections opened here
-                connection.close()
-                raise
-
-            setattr(current_state_tracker, "job", None)
-
-            # Close any django connections opened here
-            connection.close()
-
-            return result
-
-        return y
+        if self.storage is None:
+            raise ReferenceError(
+                "storage is not defined on this job, cannot save as cancellable"
+            )
+        self.storage.save_job_as_cancellable(self.job_id, cancellable=cancellable)
 
     @property
     def percentage_progress(self):
