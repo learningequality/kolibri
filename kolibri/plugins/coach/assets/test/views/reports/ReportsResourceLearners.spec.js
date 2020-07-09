@@ -56,7 +56,7 @@ describe('ReportsResourceLearners', () => {
   it('smoke test', () => {
     const wrapper = shallowMount(ReportsResourceLearners);
 
-    expect(wrapper.isVueInstance()).toBe(true);
+    expect(wrapper.exists()).toBe(true);
   });
 
   it('renders all entries', () => {
