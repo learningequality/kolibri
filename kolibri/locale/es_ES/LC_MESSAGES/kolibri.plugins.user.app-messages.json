@@ -9,7 +9,7 @@
   "AuthBase.whatsThis": "¿Qué es esto?",
   "AuthSelect.createAccountAction": "Crear cuenta",
   "AuthSelect.newUserPrompt": "¿Eres un nuevo usuario?",
-  "AuthSelect.signInPrompt": "Inicia sesión si tienea una cuenta existente",
+  "AuthSelect.signInPrompt": "Inicia sesión si ya tienes una cuenta",
   "ChangeUserPasswordModal.passwordChangeFormHeader": "Cambiar contraseña",
   "ChangeUserPasswordModal.passwordChangedNotification": "Tu contraseña se ha cambiado correctamente.",
   "FacilitySelect.askAdminForAccountLabel": "Pídele al administrador que cree una cuenta para estos centros educativos:",
