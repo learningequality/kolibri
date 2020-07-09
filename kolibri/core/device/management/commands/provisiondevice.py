@@ -1,4 +1,6 @@
+import json
 import logging
+import os
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -9,6 +11,24 @@ from kolibri.core.auth.models import Facility, FacilityUser
 from kolibri.core.device.utils import provision_device
 
 logger = logging.getLogger(__name__)
+
+
+def check_setting(name):
+
+    AVAILABLE_SETTINGS = [
+        "learner_can_edit_username",
+        "learner_can_edit_name",
+        "learner_can_edit_password",
+        "learner_can_sign_up",
+        "learner_can_delete_account",
+        "learner_can_login_with_no_password",
+        "show_download_button_in_learn",
+    ]
+
+    if name not in AVAILABLE_SETTINGS:
+        raise Exception(
+            "'{}' is not a setting that can be changed by this command".format(key)
+        )
 
 
 def get_user_response(prompt, valid_answers=None):
@@ -58,6 +78,7 @@ def create_facility(facility_name=None, preset=None, interactive=False):
         if preset:
             dataset_data = mappings[preset]
             for key, value in dataset_data.items():
+                check_setting(key)
                 setattr(facility.dataset, key, value)
             facility.dataset.save()
             logger.info("Facility preset changed to {preset}.".format(preset=preset))
@@ -66,6 +87,15 @@ def create_facility(facility_name=None, preset=None, interactive=False):
         if not facility:
             raise CommandError("No facility exists")
     return facility
+
+
+def update_facility_settings(facility, new_settings):
+    # Override any settings passed in
+    for key, value in new_settings.items():
+        check_setting(key)
+        setattr(facility.dataset, key, new_settings.get(key, value))
+    facility.dataset.save()
+    logger.info("Facility settings updated with {}".format(new_settings))
 
 
 def create_superuser(username=None, password=None, interactive=False):
@@ -101,6 +131,17 @@ def create_device_settings(language_id=None, facility=None, interactive=False):
             valid_answers=languages,
         )
     provision_device(language_id=language_id, default_facility=facility)
+
+
+def json_file_contents(parser, arg):
+    if not os.path.exists(arg) or not os.path.isfile(arg):
+        return parser.error("The file '{}' does not exist".format(arg))
+    with open(arg, "r") as f:
+        try:
+            output = json.load(f)
+        except json.decoder.JSONDecodeError as e:
+            return parser.error("The file '{}' is not valid JSON:\n{}".format(arg, e))
+    return output
 
 
 class Command(BaseCommand):
@@ -144,6 +185,13 @@ class Command(BaseCommand):
             default=True,
             help="Tells Django to NOT prompt the user for input of any kind.",
         )
+        parser.add_argument(
+            "--facility_settings",
+            action="store",
+            help="JSON file containing facility settings",
+            type=lambda arg: json_file_contents(parser, arg),
+            default={},
+        )
 
     def handle(self, *args, **options):
         with transaction.atomic():
@@ -152,6 +200,8 @@ class Command(BaseCommand):
                 preset=options["preset"],
                 interactive=options["interactive"],
             )
+
+            update_facility_settings(facility, options["facility_settings"])
 
             create_device_settings(
                 language_id=options["language_id"],
