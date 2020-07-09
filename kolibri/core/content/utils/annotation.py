@@ -409,7 +409,7 @@ def mark_local_files_availability(checksums, availability, destination=None):
             connection.execute(
                 LocalFileTable.update()
                 .where(LocalFileTable.c.id.in_(checksums[i : i + CHUNKSIZE]))
-                .values(available=True)
+                .values(available=availability)
             )
 
         trans.commit()

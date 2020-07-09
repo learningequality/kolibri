@@ -246,7 +246,8 @@ class ContentNodeAPITestCase(APITestCase):
 
     @mock.patch("kolibri.core.content.api.get_channel_stats_from_studio")
     def test_contentnode_granular_network_import(self, stats_mock):
-        c1_id = content.ContentNode.objects.get(title="root").id
+        c1 = content.ContentNode.objects.get(title="root")
+        c1_id = c1.id
         c2_id = content.ContentNode.objects.get(title="c1").id
         c3_id = content.ContentNode.objects.get(title="c2").id
         content.ContentNode.objects.all().update(available=False)
@@ -271,6 +272,7 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(
             reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id})
         )
+
         self.assertEqual(
             response.data,
             {
@@ -283,6 +285,10 @@ class ContentNodeAPITestCase(APITestCase):
                 "coach_content": False,
                 "importable": True,
                 "num_coach_contents": 0,
+                "new_resource": False,
+                "num_new_resources": 0,
+                "updated_resource": False,
+                "ancestors": list(c1.get_ancestors().values("id", "title")),
                 "children": [
                     {
                         "id": c2_id,
@@ -294,6 +300,9 @@ class ContentNodeAPITestCase(APITestCase):
                         "importable": True,
                         "coach_content": False,
                         "num_coach_contents": 0,
+                        "new_resource": False,
+                        "num_new_resources": 0,
+                        "updated_resource": False,
                     },
                     {
                         "id": c3_id,
@@ -305,6 +314,9 @@ class ContentNodeAPITestCase(APITestCase):
                         "importable": True,
                         "coach_content": False,
                         "num_coach_contents": 0,
+                        "new_resource": False,
+                        "num_new_resources": 0,
+                        "updated_resource": False,
                     },
                 ],
             },
@@ -315,7 +327,8 @@ class ContentNodeAPITestCase(APITestCase):
         content.LocalFile.objects.update(available=False)
         content.ContentNode.objects.update(available=False)
 
-        c1_id = content.ContentNode.objects.get(title="root").id
+        c1 = content.ContentNode.objects.get(title="root")
+        c1_id = c1.id
         c2_id = content.ContentNode.objects.get(title="c1").id
         c3_id = content.ContentNode.objects.get(title="c2").id
 
@@ -349,6 +362,10 @@ class ContentNodeAPITestCase(APITestCase):
                 "importable": True,
                 "coach_content": False,
                 "num_coach_contents": 0,
+                "new_resource": False,
+                "num_new_resources": 0,
+                "updated_resource": False,
+                "ancestors": list(c1.get_ancestors().values("id", "title")),
                 "children": [
                     {
                         "id": c2_id,
@@ -360,6 +377,9 @@ class ContentNodeAPITestCase(APITestCase):
                         "importable": False,
                         "coach_content": False,
                         "num_coach_contents": 0,
+                        "new_resource": False,
+                        "num_new_resources": 0,
+                        "updated_resource": False,
                     },
                     {
                         "id": c3_id,
@@ -371,6 +391,9 @@ class ContentNodeAPITestCase(APITestCase):
                         "importable": True,
                         "coach_content": False,
                         "num_coach_contents": 0,
+                        "new_resource": False,
+                        "num_new_resources": 0,
+                        "updated_resource": False,
                     },
                 ],
             },
@@ -381,7 +404,8 @@ class ContentNodeAPITestCase(APITestCase):
         content.LocalFile.objects.update(available=False)
         content.ContentNode.objects.update(available=False)
 
-        c1_id = content.ContentNode.objects.get(title="root").id
+        c1 = content.ContentNode.objects.get(title="root")
+        c1_id = c1.id
         c2_id = content.ContentNode.objects.get(title="c1").id
         c3_id = content.ContentNode.objects.get(title="c2").id
         stats = {
@@ -414,6 +438,10 @@ class ContentNodeAPITestCase(APITestCase):
                 "importable": True,
                 "coach_content": False,
                 "num_coach_contents": 0,
+                "new_resource": False,
+                "num_new_resources": 0,
+                "updated_resource": False,
+                "ancestors": list(c1.get_ancestors().values("id", "title")),
                 "children": [
                     {
                         "id": c2_id,
@@ -425,6 +453,9 @@ class ContentNodeAPITestCase(APITestCase):
                         "importable": False,
                         "coach_content": False,
                         "num_coach_contents": 0,
+                        "new_resource": False,
+                        "num_new_resources": 0,
+                        "updated_resource": False,
                     },
                     {
                         "id": c3_id,
@@ -436,13 +467,17 @@ class ContentNodeAPITestCase(APITestCase):
                         "importable": True,
                         "coach_content": False,
                         "num_coach_contents": 0,
+                        "new_resource": False,
+                        "num_new_resources": 0,
+                        "updated_resource": False,
                     },
                 ],
             },
         )
 
     def test_contentnode_granular_export_available(self):
-        c1_id = content.ContentNode.objects.get(title="c1").id
+        c1 = content.ContentNode.objects.get(title="c1")
+        c1_id = c1.id
         content.ContentNode.objects.filter(title="c1").update(on_device_resources=1)
         response = self.client.get(
             reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
@@ -461,11 +496,16 @@ class ContentNodeAPITestCase(APITestCase):
                 "children": [],
                 "coach_content": False,
                 "num_coach_contents": 0,
+                "new_resource": None,
+                "num_new_resources": None,
+                "updated_resource": None,
+                "ancestors": list(c1.get_ancestors().values("id", "title")),
             },
         )
 
     def test_contentnode_granular_export_unavailable(self):
-        c1_id = content.ContentNode.objects.get(title="c1").id
+        c1 = content.ContentNode.objects.get(title="c1")
+        c1_id = c1.id
         content.ContentNode.objects.filter(title="c1").update(available=False)
         response = self.client.get(
             reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1_id}),
@@ -484,6 +524,10 @@ class ContentNodeAPITestCase(APITestCase):
                 "children": [],
                 "coach_content": False,
                 "num_coach_contents": 0,
+                "new_resource": None,
+                "num_new_resources": None,
+                "updated_resource": None,
+                "ancestors": list(c1.get_ancestors().values("id", "title")),
             },
         )
 
