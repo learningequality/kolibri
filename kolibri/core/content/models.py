@@ -102,30 +102,6 @@ class ContentNodeManager(
         """
         vendored from:
         https://github.com/django-mptt/django-mptt/blob/fe2b9cc8cfd8f4b764d294747dba2758147712eb/mptt/managers.py#L614
-
-        Load a tree from a nested dictionary for bulk insert, returning an
-        array of records. Use to efficiently insert many nodes within a tree
-        without an expensive `rebuild`.
-        ::
-            records = MyModel.objects.build_tree_nodes({
-                'id': 7,
-                'name': 'parent',
-                'children': [
-                    {
-                        'id': 8,
-                        'parent_id': 7,
-                        'name': 'child',
-                        'children': [
-                            {
-                                'id': 9,
-                                'parent_id': 8,
-                                'name': 'grandchild',
-                            }
-                        ]
-                    }
-                ]
-            })
-            MyModel.objects.bulk_create(records)
         """
         opts = self.model._mptt_meta
         if target:
