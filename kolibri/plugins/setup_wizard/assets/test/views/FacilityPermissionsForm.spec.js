@@ -9,13 +9,13 @@ function makeWrapper() {
   });
   // prettier-ignore
   const els = {
-    nonFormalRadioButton: () => wrapper.findAll({ name: 'KRadioButton' }).at(0),
-    formalRadioButton: () => wrapper.findAll({ name: 'KRadioButton' }).at(1),
-    nonFormalTextbox: () => wrapper.findAll({ name: 'FacilityNameTextbox' }).at(0),
-    formalTextbox: () => wrapper.findAll({ name: 'FacilityNameTextbox' }).at(1),
+    nonFormalRadioButton: () => wrapper.findAllComponents({ name: 'KRadioButton' }).at(0),
+    formalRadioButton: () => wrapper.findAllComponents({ name: 'KRadioButton' }).at(1),
+    nonFormalTextbox: () => wrapper.findAllComponents({ name: 'FacilityNameTextbox' }).at(0),
+    formalTextbox: () => wrapper.findAllComponents({ name: 'FacilityNameTextbox' }).at(1),
   }
   const actions = {
-    simulateSubmit: () => wrapper.find({ name: 'OnboardingForm' }).vm.$emit('submit'),
+    simulateSubmit: () => wrapper.findComponent({ name: 'OnboardingForm' }).vm.$emit('submit'),
     selectPreset: preset => wrapper.setData({ selected: preset }),
   };
   jest.spyOn(wrapper.vm, '$emit');
@@ -26,7 +26,7 @@ describe('FacilityPermissionsForm', () => {
   it('"non-formal" option is selected by default and facility name textbox is visible', () => {
     const { els } = makeWrapper();
     expect(els.nonFormalRadioButton().vm.isChecked).toEqual(true);
-    expect(els.nonFormalTextbox().isVisible()).toEqual(true);
+    expect(els.nonFormalTextbox().element).toBeVisible();
   });
 
   it('selecting "formal" shows facility name textbox', async () => {
@@ -34,9 +34,9 @@ describe('FacilityPermissionsForm', () => {
     actions.selectPreset('formal');
     await wrapper.vm.$nextTick();
     expect(els.nonFormalRadioButton().vm.isChecked).toEqual(false);
-    expect(els.nonFormalTextbox().isVisible()).toEqual(false);
+    expect(els.nonFormalTextbox().element).not.toBeVisible();
     expect(els.formalRadioButton().vm.isChecked).toEqual(true);
-    expect(els.formalTextbox().isVisible()).toEqual(true);
+    expect(els.formalTextbox().element).toBeVisible();
   });
 
   describe('submitting', () => {
