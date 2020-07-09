@@ -1,6 +1,7 @@
 import importlib
 import logging
 import os
+from uuid import UUID
 
 from django.apps import apps
 from django.conf import settings
@@ -370,31 +371,38 @@ class Bridge(object):
             self.connection.close()
 
 
-def filter_by_uuids(field, ids, validate=True):
-    return _by_uuids(field, ids, validate, True)
+def filter_by_uuids(field, ids, validate=True, vendor=None):
+    return _by_uuids(field, ids, validate, True, vendor=vendor)
 
 
-def exclude_by_uuids(field, ids, validate=True):
-    return _by_uuids(field, ids, validate, False)
+def exclude_by_uuids(field, ids, validate=True, vendor=None):
+    return _by_uuids(field, ids, validate, False, vendor=vendor)
 
 
-def _format_uuid(identifier):
+def _format_uuid(identifier, vendor=None):
     # wrap the uuids in string quotations
-    if django_connection.vendor == "sqlite":
+    if (vendor or django_connection.vendor) == "sqlite":
         return "'{}'".format(identifier)
-    elif django_connection.vendor == "postgresql":
+    elif (vendor or django_connection.vendor) == "postgresql":
         return "'{}'::uuid".format(identifier)
     return identifier
 
 
-def _by_uuids(field, ids, validate, include):
+def _by_uuids(field, ids, validate, include, vendor=None):
     query = "IN (" if include else "NOT IN ("
     # trick to workaround postgresql, it does not allow returning ():
     empty_query = "IS NULL" if include else "IS NOT NULL"
     if ids:
+        if len(ids) > 10000:
+            logger.warn(
+                """
+                More than 10000 UUIDs passed to filter by uuids method,
+                these should be batched into separate querysets to avoid SQL Query too large errors in SQLite
+            """
+            )
         try:
             validate_uuids(ids)
-            ids_list = [_format_uuid(identifier) for identifier in ids]
+            ids_list = [_format_uuid(identifier, vendor=vendor) for identifier in ids]
             return UnaryExpression(
                 field, modifier=operators.custom_op(query + ",".join(ids_list) + ")")
             )
@@ -410,8 +418,21 @@ def filter_by_checksums(field, checksums):
     # trick to workaround postgresql, it does not allow returning ():
     empty_query = "IS NULL"
     if checksums:
+        if len(checksums) > 10000:
+            logger.warn(
+                """
+                More than 10000 UUIDs passed to filter by checksums method,
+                these should be batched into separate querysets to avoid SQL Query too large errors in SQLite
+            """
+            )
         checksums_list = ["'{}'".format(identifier) for identifier in checksums]
         return UnaryExpression(
             field, modifier=operators.custom_op(query + ",".join(checksums_list) + ")")
         )
     return UnaryExpression(field, modifier=operators.custom_op(empty_query))
+
+
+def coerce_key(key):
+    if isinstance(key, UUID):
+        return key.hex
+    return key

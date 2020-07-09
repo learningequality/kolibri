@@ -1093,21 +1093,18 @@ def _remoteimport(
 
     job.save_meta()
 
-    # Skip importcontent step if updating and no nodes have changed
-    if is_updating and (node_ids is not None) and len(node_ids) == 0:
-        pass
-    else:
-        call_command(
-            "importcontent",
-            "network",
-            channel_id,
-            baseurl=baseurl,
-            peer_id=peer_id,
-            node_ids=node_ids,
-            exclude_node_ids=exclude_node_ids,
-            update_progress=update_progress,
-            check_for_cancel=check_for_cancel,
-        )
+    call_command(
+        "importcontent",
+        "network",
+        channel_id,
+        baseurl=baseurl,
+        peer_id=peer_id,
+        node_ids=node_ids,
+        exclude_node_ids=exclude_node_ids,
+        import_updates=is_updating,
+        update_progress=update_progress,
+        check_for_cancel=check_for_cancel,
+    )
 
 
 def _diskimport(

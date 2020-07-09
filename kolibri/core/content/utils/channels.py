@@ -12,6 +12,8 @@ from kolibri.utils.uuids import is_valid_uuid
 
 logger = logging.getLogger(__name__)
 
+CHANNEL_UPDATE_STATS_CACHE_KEY = "CHANNEL_UPDATE_STATS_{}"
+
 
 def get_channel_ids_for_content_dirs(content_dirs):
     database_dir_paths = [

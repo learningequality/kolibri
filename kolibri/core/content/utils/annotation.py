@@ -393,7 +393,7 @@ def mark_local_files_availability(checksums, availability, destination=None):
     if checksums:
         bridge = Bridge(app_name=CONTENT_APP_NAME, sqlite_file_path=destination)
 
-        LocalFileClass = bridge.get_class(LocalFile)
+        LocalFileTable = bridge.get_table(LocalFile)
 
         logger.info(
             "Setting availability to {availability} of {number} LocalFile objects based on passed in checksums".format(
@@ -401,17 +401,18 @@ def mark_local_files_availability(checksums, availability, destination=None):
             )
         )
 
-        for i in range(0, len(checksums), CHUNKSIZE):
-            bridge.session.bulk_update_mappings(
-                LocalFileClass,
-                (
-                    {"id": checksum, "available": availability}
-                    for checksum in checksums[i : i + CHUNKSIZE]
-                ),
-            )
-            bridge.session.flush()
+        connection = bridge.get_connection()
 
-        bridge.session.commit()
+        trans = connection.begin()
+
+        for i in range(0, len(checksums), CHUNKSIZE):
+            connection.execute(
+                LocalFileTable.update()
+                .where(LocalFileTable.c.id.in_(checksums[i : i + CHUNKSIZE]))
+                .values(available=availability)
+            )
+
+        trans.commit()
 
         bridge.end()
 

@@ -280,6 +280,9 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
     coach_content = serializers.SerializerMethodField()
     total_resources = serializers.SerializerMethodField()
     importable = serializers.SerializerMethodField()
+    new_resource = serializers.SerializerMethodField()
+    num_new_resources = serializers.SerializerMethodField()
+    updated_resource = serializers.SerializerMethodField()
 
     class Meta:
         model = ContentNode
@@ -293,6 +296,9 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             "on_device_resources",
             "title",
             "total_resources",
+            "new_resource",
+            "num_new_resources",
+            "updated_resource",
         )
 
     @property
@@ -330,6 +336,24 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         if self.channel_stats is None:
             return None
         return instance.id in self.channel_stats
+
+    def get_new_resource(self, instance):
+        # If for export, just return None
+        if self.channel_stats is None:
+            return None
+        return self.channel_stats.get(instance.id, {}).get("new_resource", False)
+
+    def get_num_new_resources(self, instance):
+        # If for export, just return None
+        if self.channel_stats is None:
+            return None
+        return self.channel_stats.get(instance.id, {}).get("num_new_resources", 0)
+
+    def get_updated_resource(self, instance):
+        # If for export, just return None
+        if self.channel_stats is None:
+            return None
+        return self.channel_stats.get(instance.id, {}).get("updated_resource", False)
 
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):

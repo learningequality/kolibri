@@ -1,6 +1,7 @@
 """
-Mixins for Django REST Framework ViewSets
+Mixins for Django REST Framework ViewSets and Django Querysets
 """
+import logging
 from uuid import UUID
 
 from django.core.exceptions import EmptyResultSet
@@ -11,6 +12,8 @@ from django.db.models.lookups import In
 from morango.models import UUIDField
 from rest_framework import status
 from rest_framework.response import Response
+
+logger = logging.getLogger(__name__)
 
 
 class BulkCreateMixin(object):
@@ -158,6 +161,13 @@ class FilterByUUIDQuerysetMixin(object):
             # on the queryset itself.
             lookup = "in"
         else:
+            if len(ids) > 10000:
+                logger.warn(
+                    """
+                    More than 10000 UUIDs passed to filter by uuids method,
+                    these should be batched into separate querysets to avoid SQL Query too large errors in SQLite
+                """
+                )
             if validate:
                 try:
                     validate_uuids(ids)

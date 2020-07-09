@@ -262,6 +262,9 @@
       handleClickViewNewVersion() {
         this.$router.push({
           name: PageNames.NEW_CHANNEL_VERSION_PAGE,
+          query: {
+            last: PageNames.MANAGE_CHANNEL,
+          },
         });
       },
       handleSelectImportMoreSource(params) {

@@ -98,6 +98,54 @@ class ContentNodeManager(
             .order_by(self.tree_id_attr, self.left_attr)
         )
 
+    def build_tree_nodes(self, data, target=None, position="last-child"):
+        """
+        vendored from:
+        https://github.com/django-mptt/django-mptt/blob/fe2b9cc8cfd8f4b764d294747dba2758147712eb/mptt/managers.py#L614
+        """
+        opts = self.model._mptt_meta
+        if target:
+            tree_id = target.tree_id
+            if position in ("left", "right"):
+                level = getattr(target, opts.level_attr)
+                if position == "left":
+                    cursor = getattr(target, opts.left_attr)
+                else:
+                    cursor = getattr(target, opts.right_attr) + 1
+            else:
+                level = getattr(target, opts.level_attr) + 1
+                if position == "first-child":
+                    cursor = getattr(target, opts.left_attr) + 1
+                else:
+                    cursor = getattr(target, opts.right_attr)
+        else:
+            tree_id = self._get_next_tree_id()
+            cursor = 1
+            level = 0
+
+        stack = []
+
+        def treeify(data, cursor=1, level=0):
+            data = dict(data)
+            children = data.pop("children", [])
+            node = self.model(**data)
+            stack.append(node)
+            setattr(node, opts.tree_id_attr, tree_id)
+            setattr(node, opts.level_attr, level)
+            setattr(node, opts.left_attr, cursor)
+            for child in children:
+                cursor = treeify(child, cursor=cursor + 1, level=level + 1)
+            cursor += 1
+            setattr(node, opts.right_attr, cursor)
+            return cursor
+
+        treeify(data, cursor=cursor, level=level)
+
+        if target:
+            self._create_space(2 * len(stack), cursor - 1, tree_id)
+
+        return stack
+
 
 @python_2_unicode_compatible
 class ContentNode(base_models.ContentNode):

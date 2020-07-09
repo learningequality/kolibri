@@ -15,6 +15,7 @@ from kolibri.core.content.utils.import_export_content import calculate_files_to_
 from kolibri.core.content.utils.import_export_content import compare_checksums
 from kolibri.core.content.utils.import_export_content import get_nodes_to_transfer
 from kolibri.core.content.utils.paths import get_channel_lookup_url
+from kolibri.core.content.utils.upgrade import get_import_data_for_update
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.core.tasks.utils import get_current_job
@@ -98,6 +99,14 @@ class Command(AsyncCommand):
             help="Import all content, not just that which this Kolibri instance can render",
         )
 
+        parser.add_argument(
+            "--import_updates",
+            action="store_true",
+            default=False,
+            dest="import_updates",
+            help="Import all updated content after a channel version upgrade",
+        )
+
         # to implement these two groups of commands and their corresponding
         # arguments, we'll need argparse.subparsers.
         subparsers = parser.add_subparsers(
@@ -145,6 +154,7 @@ class Command(AsyncCommand):
         baseurl=None,
         peer_id=None,
         renderable_only=True,
+        import_updates=False,
     ):
         self._transfer(
             DOWNLOAD_METHOD,
@@ -154,6 +164,7 @@ class Command(AsyncCommand):
             baseurl=baseurl,
             peer_id=peer_id,
             renderable_only=renderable_only,
+            import_updates=import_updates,
         )
 
     def copy_content(
@@ -164,6 +175,7 @@ class Command(AsyncCommand):
         node_ids=None,
         exclude_node_ids=None,
         renderable_only=True,
+        import_updates=False,
     ):
         self._transfer(
             COPY_METHOD,
@@ -173,6 +185,7 @@ class Command(AsyncCommand):
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             renderable_only=renderable_only,
+            import_updates=import_updates,
         )
 
     def _transfer(  # noqa: max-complexity=16
@@ -186,18 +199,41 @@ class Command(AsyncCommand):
         baseurl=None,
         peer_id=None,
         renderable_only=True,
+        import_updates=False,
     ):
-
         try:
-            nodes_for_transfer = get_nodes_to_transfer(
-                channel_id,
-                node_ids,
-                exclude_node_ids,
-                False,
-                renderable_only=renderable_only,
-                drive_id=drive_id,
-                peer_id=peer_id,
-            )
+            if not import_updates:
+                nodes_for_transfer = get_nodes_to_transfer(
+                    channel_id,
+                    node_ids,
+                    exclude_node_ids,
+                    False,
+                    renderable_only=renderable_only,
+                    drive_id=drive_id,
+                    peer_id=peer_id,
+                )
+                total_resource_count = (
+                    nodes_for_transfer.exclude(kind=content_kinds.TOPIC)
+                    .values("content_id")
+                    .distinct()
+                    .count()
+                )
+
+                (
+                    files_to_download,
+                    total_bytes_to_transfer,
+                ) = calculate_files_to_transfer(nodes_for_transfer, False)
+            else:
+                (
+                    total_resource_count,
+                    files_to_download,
+                    total_bytes_to_transfer,
+                ) = get_import_data_for_update(
+                    channel_id,
+                    renderable_only=renderable_only,
+                    drive_id=drive_id,
+                    peer_id=peer_id,
+                )
         except LocationError:
             if drive_id:
                 raise CommandError(
@@ -209,16 +245,12 @@ class Command(AsyncCommand):
                 raise CommandError(
                     "The network location with the id {} does not exist".format(peer_id)
                 )
-        total_resource_count = (
-            nodes_for_transfer.exclude(kind=content_kinds.TOPIC)
-            .values("content_id")
-            .distinct()
-            .count()
-        )
-
-        (files_to_download, total_bytes_to_transfer) = calculate_files_to_transfer(
-            nodes_for_transfer, False
-        )
+        except ValueError:
+            if import_updates:
+                raise CommandError(
+                    "Tried to perform an channel update import when update data was not available"
+                )
+            raise
 
         job = get_current_job()
 
@@ -360,6 +392,7 @@ class Command(AsyncCommand):
                         number_of_skipped_files
                     )
                 )
+
             overall_progress_update(dummy_bytes_for_annotation)
 
             if exception:
@@ -412,6 +445,7 @@ class Command(AsyncCommand):
                 baseurl=options["baseurl"],
                 peer_id=options["peer_id"],
                 renderable_only=options["renderable_only"],
+                import_updates=options["import_updates"],
             )
         elif options["command"] == "disk":
             self.copy_content(
@@ -421,6 +455,7 @@ class Command(AsyncCommand):
                 node_ids=options["node_ids"],
                 exclude_node_ids=options["exclude_node_ids"],
                 renderable_only=options["renderable_only"],
+                import_updates=options["import_updates"],
             )
         else:
             self._parser.print_help()
