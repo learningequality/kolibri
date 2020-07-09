@@ -74,9 +74,10 @@ class XhrPreventLoginPromptMiddleware(object):
     this isn't recommended in general, there's a convention of removing it
     for XHR requests, so that unauthenticated XHR requests don't trigger a
     popup.
-    
+
     See `here <https://stackoverflow.com/a/20221330>`_ for reference.
     """
+
     def __init__(self, get_response):
         self.get_response = get_response
 
