@@ -108,7 +108,7 @@ describe('ActivityList component', () => {
     const { wrapper } = makeWrapper({});
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
-    const showMoreButton = wrapper.find({ name: 'KButton' });
+    const showMoreButton = wrapper.findComponent({ name: 'KButton' });
     expect(showMoreButton.exists()).toEqual(true);
   });
 
@@ -120,13 +120,13 @@ describe('ActivityList component', () => {
     const { wrapper } = makeWrapper({});
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
-    const showMoreButton = wrapper.find({ name: 'KButton' });
+    const showMoreButton = wrapper.findComponent({ name: 'KButton' });
     expect(showMoreButton.exists()).toEqual(false);
   });
 
   it('disables the "show more" button if any filters are activated', async () => {
     const { wrapper } = makeWrapper({});
-    const showMoreButton = () => wrapper.find({ name: 'KButton' });
+    const showMoreButton = () => wrapper.findComponent({ name: 'KButton' });
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     wrapper.setData({
@@ -171,7 +171,7 @@ describe('ActivityList component', () => {
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
 
-    const filters = wrapper.find({ name: 'NotificationsFilter' });
+    const filters = wrapper.findComponent({ name: 'NotificationsFilter' });
     // Logic is very simple: just find the unique values in the notifications
     // and disable anything that isn't there.
     expect(filters.props().enabledFilters.progress.sort()).toMatchObject(['Completed', 'Started']);
@@ -197,12 +197,6 @@ describe('ActivityList component', () => {
     });
     const { wrapper } = makeWrapper({});
 
-    wrapper.setMethods({
-      notificationLink: () => ({}),
-      cardTextForNotification: () => '',
-      cardPropsForNotification: n => ({ targetPage: n.targetPage }),
-    });
-
     // Need to set up a route, since backLinkQuery depends on $route.params
     await wrapper.vm.$router.push({
       name: 'FakeReportPage',
@@ -212,7 +206,7 @@ describe('ActivityList component', () => {
       },
     });
 
-    const notificationCard = () => wrapper.find({ name: 'NotificationCard' });
+    const notificationCard = () => wrapper.findComponent({ name: 'NotificationCard' });
 
     // Need to simulate a refresh since the notifications are not reactively
     // updated when backLinkQuery changes
