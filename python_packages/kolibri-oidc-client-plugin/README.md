@@ -31,10 +31,15 @@ From the [standard OIDC claims](https://openid.net/specs/openid-connect-core-1_0
 - `birthdate`
 - `gender`
 
-Apart from these standard claims, the plugin will accept a list of `roles` in the user_info token provided in a string with the format "roles":[role1, role2....]
+In case `birthdate`is provided, the accepted format is  [ISO8601‑2004] YYYY-MM-DD. However Kolibri only stores the year of birth.
+
+Apart from these standard claims, the plugin will accept a  `roles` in the user_info token provided as a list. Allowed roles are only `admin` or `coach`.
+If the role is not provided the user is created as a learner.
+
 As an user_info token payload example:
 ```json
-{"email":"jhon@doe.com", "username":"jdoe", "roles":["coach","admin"], "family_name":"Doe"}
+{"email":"jhon@doe.com", "username":"jdoe", "roles":"['coach']", "family_name":"Doe"}
+
 ```
 
 

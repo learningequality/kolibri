@@ -1,6 +1,5 @@
 import logging
 from uuid import uuid4
-
 from kolibri.core.auth.errors import InvalidRoleKind
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from mozilla_django_oidc.auth import SuspiciousOperation
@@ -93,9 +92,10 @@ class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
         # check if the user has assigned roles and assign them in such case
         roles = claims.get("roles", [])
         for role in roles:
-            try:
-                user.facility.add_role(user, role.lower())
-            except InvalidRoleKind:
-                pass  # The role does not exist in Kolibri
+            if role.lower() in ("admin", "coach"):
+                try:
+                    user.facility.add_role(user, role.lower())
+                except InvalidRoleKind:
+                    pass  # The role does not exist in Kolibri
 
         return user
