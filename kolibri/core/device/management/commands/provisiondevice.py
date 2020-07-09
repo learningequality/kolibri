@@ -27,7 +27,7 @@ def check_setting(name):
 
     if name not in AVAILABLE_SETTINGS:
         raise Exception(
-            "'{}' is not a setting that can be changed by this command".format(key)
+            "'{}' is not a setting that can be changed by this command".format(name)
         )
 
 
