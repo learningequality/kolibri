@@ -6,7 +6,7 @@ import ProgressIcon from '../src/views/ProgressIcon';
 function testIcon(wrapper, expectedText) {
   expect(
     wrapper
-      .find({ name: 'KTooltip' })
+      .findComponent({ name: 'KTooltip' })
       .text()
       .trim()
   ).toEqual(expectedText);
@@ -22,8 +22,8 @@ describe('ProgressIcon Component', () => {
       store,
     });
     await wrapper.vm.$nextTick();
-    const tooltip = wrapper.find({ name: 'KTooltip' });
-    expect(wrapper.contains(UiIcon)).toEqual(false);
+    const tooltip = wrapper.findComponent({ name: 'KTooltip' });
+    expect(wrapper.findComponent(UiIcon).element).toBeFalsy();
     // Tooltip is still around, just nothing to trigger it.
     expect(tooltip.text().trim()).toEqual('Completed');
   });

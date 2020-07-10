@@ -3,6 +3,8 @@ import { mount, createLocalVue } from '@vue/test-utils';
 import LearnIndex from '../../src/views/LearnIndex';
 import makeStore from '../makeStore';
 
+LearnIndex.methods.getDemographicInfo = function() {};
+
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 
@@ -17,9 +19,6 @@ const router = new VueRouter({
 function makeWrapper(options) {
   return mount(LearnIndex, {
     ...options,
-    methods: {
-      getDemographicInfo() {},
-    },
     stubs: {
       breadcrumbs: true,
       contentUnavailablePage: true,
@@ -47,8 +46,8 @@ function getElements(wrapper) {
     classesLink: () => wrapper.find('[href="#/classes"]'),
     recommendedLink: () => wrapper.find('[href="#/recommended"]'),
     topicsLink: () => wrapper.find('[href="#/topics"]'),
-    tabLinks: () => wrapper.findAll({ name: 'NavbarLink' }),
-    CoreBase: () => wrapper.find({ name: 'CoreBase' }),
+    tabLinks: () => wrapper.findAllComponents({ name: 'NavbarLink' }),
+    CoreBase: () => wrapper.findComponent({ name: 'CoreBase' }),
   };
 }
 
@@ -92,8 +91,8 @@ describe('learn plugin index page', () => {
       const wrapper = makeWrapper({ store });
       const { tabLinks, recommendedLink, topicsLink } = getElements(wrapper);
       expect(tabLinks().length).toEqual(2);
-      expect(recommendedLink().is('a')).toEqual(true);
-      expect(topicsLink().is('a')).toEqual(true);
+      expect(recommendedLink().element.tagName).toBe('A');
+      expect(topicsLink().element.tagName).toBe('A');
     });
 
     it('the classes tab is available if user is logged in and has memberships', () => {
@@ -103,7 +102,7 @@ describe('learn plugin index page', () => {
       const wrapper = makeWrapper({ store });
       const { classesLink, tabLinks } = getElements(wrapper);
       expect(tabLinks().length).toEqual(3);
-      expect(classesLink().is('a')).toEqual(true);
+      expect(classesLink().element.tagName).toBe('A');
     });
 
     it('the classes tab is not available if user is not logged in', () => {
@@ -146,7 +145,7 @@ describe('learn plugin index page', () => {
       const wrapper = makeWrapper({ store });
       const { classesLink, tabLinks } = getElements(wrapper);
       expect(tabLinks().length).toEqual(1);
-      expect(classesLink().is('a')).toEqual(true);
+      expect(classesLink().element.tagName).toBe('A');
     });
   });
 });

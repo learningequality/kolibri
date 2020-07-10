@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom';
 import 'intl';
 import 'intl/locale-data/jsonp/en.js';
 import * as Aphrodite from 'aphrodite';

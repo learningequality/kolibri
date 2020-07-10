@@ -33,8 +33,8 @@ function makeWrapper(options = {}) {
 
 function getElements(wrapper) {
   return {
-    breadcrumbs: () => wrapper.find(KBreadcrumbs),
-    breadcrumbItems: () => wrapper.find(KBreadcrumbs).props().items,
+    breadcrumbs: () => wrapper.findComponent(KBreadcrumbs),
+    breadcrumbItems: () => wrapper.findComponent(KBreadcrumbs).props().items,
   };
 }
 

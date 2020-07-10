@@ -20,12 +20,6 @@ function makeWrapper() {
   return mount(SignUpPage, {
     store,
     router,
-    methods: {
-      // To silence router error
-      goToFirstStep() {
-        return Promise.resolve();
-      },
-    },
   });
 }
 

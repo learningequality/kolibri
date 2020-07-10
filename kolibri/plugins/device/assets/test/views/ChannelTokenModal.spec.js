@@ -9,8 +9,8 @@ function makeWrapper(options = {}) {
 function getElements(wrapper) {
   return {
     cancelButton: () => wrapper.find('button[name="cancel"]'),
-    tokenTextbox: () => wrapper.find({ name: 'KTextbox' }),
-    networkErrorAlert: () => wrapper.find({ name: 'ui-alert' }),
+    tokenTextbox: () => wrapper.findComponent({ name: 'KTextbox' }),
+    networkErrorAlert: () => wrapper.findComponent({ name: 'ui-alert' }),
     lookupTokenStub: () => {
       wrapper.vm.lookupToken = jest.fn();
       return wrapper.vm.lookupToken;
@@ -119,7 +119,7 @@ describe('channelTokenModal component', () => {
       await inputToken(wrapper, 'toka-toka-token');
       await wrapper.vm.submitForm();
       expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-      expect(wrapper.emittedByOrder().length).toEqual(0);
+      expect(Object.keys(wrapper.emitted()).length).toEqual(0);
       assertTextboxInvalid(wrapper);
     });
 
@@ -132,9 +132,9 @@ describe('channelTokenModal component', () => {
       await inputToken(wrapper, 'toka-toka-token');
       await wrapper.vm.submitForm();
       expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-      expect(wrapper.emittedByOrder().length).toEqual(0);
+      expect(Object.keys(wrapper.emitted()).length).toEqual(0);
       expect(textbox.props().invalid).toEqual(false);
-      expect(networkErrorAlert().isVueInstance()).toEqual(true);
+      expect(networkErrorAlert().exists()).toEqual(true);
     });
   });
 });
