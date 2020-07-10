@@ -75,17 +75,19 @@ For it to work correctly, the `ENDSESSION_ENDPOINT` must contain the OIDC provid
 #### Configuration example
 This is the options.ini used to login and logout from a [KeyCloak](https://www.keycloak.org/) server:
 
-`[Deployment]`
-`HTTP_PORT = 9000`
+```ini
+[Deployment]
+HTTP_PORT = 9000
 
-`[OIDCClient]`
-`PROVIDER_URL = http://localhost:8080/auth/realms/master`
-`AUTHORIZATION_ENDPOINT = http://localhost:8080/auth/realms/master/protocol/openid-connect/auth`
-`TOKEN_ENDPOINT = http://localhost:8080/auth/realms/master/protocol/openid-connect/token`
-`USERINFO_ENDPOINT = http://localhost:8080/auth/realms/master/protocol/openid-connect/userinfo`
-`JWKS_URI = http://localhost:8080/auth/realms/master/protocol/openid-connect/certs`
-`ENDSESSION_ENDPOINT = http://localhost:8080/auth/realms/master/protocol/openid-connect/logout`
-`CLIENT_URL = http://localhost:9000`
+[OIDCClient]
+PROVIDER_URL = http://localhost:8080/auth/realms/master
+AUTHORIZATION_ENDPOINT = http://localhost:8080/auth/realms/master/protocol/openid-connect/auth
+TOKEN_ENDPOINT = http://localhost:8080/auth/realms/master/protocol/openid-connect/token
+USERINFO_ENDPOINT = http://localhost:8080/auth/realms/master/protocol/openid-connect/userinfo
+JWKS_URI = http://localhost:8080/auth/realms/master/protocol/openid-connect/certs
+ENDSESSION_ENDPOINT = http://localhost:8080/auth/realms/master/protocol/openid-connect/logout
+CLIENT_URL = http://localhost:9000
+```
 
 ### OIDC provider credentials
 
