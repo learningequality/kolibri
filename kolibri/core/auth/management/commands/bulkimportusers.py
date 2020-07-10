@@ -434,12 +434,12 @@ class Command(AsyncCommand):
         )
         validator.add_check(
             "ENROLLED_IN",
-            value_length(100, allow_null=True, multiple=True),
+            value_length(50, allow_null=True, multiple=True),
             MESSAGES[TOO_LONG].format("Class name"),
         )
         validator.add_check(
             "ASSIGNED_TO",
-            value_length(100, allow_null=True, multiple=True),
+            value_length(50, allow_null=True, multiple=True),
             MESSAGES[TOO_LONG].format("Class name"),
         )
 
