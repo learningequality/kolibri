@@ -157,11 +157,12 @@ def create_device_settings(
     for key in new_settings:
         check_device_setting(key)
 
-    new_settings["language_id"] = language_id
-    new_settings["default_facility"] = facility
+    settings_to_set = dict(new_settings)
+    settings_to_set["language_id"] = language_id
+    settings_to_set["default_facility"] = facility
 
-    provision_device(**new_settings)
-    logger.info("Device settings updated with {}".format(new_settings))
+    provision_device(**settings_to_set)
+    logger.info("Device settings updated with {}".format(settings_to_set))
 
 
 def json_file_contents(parser, arg):
