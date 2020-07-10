@@ -6,7 +6,7 @@ For this example, Kolibri will have its home at `/tmp/provider`  for the OIDC pr
 
 
 
-## Provider configuration steps:
+## Provider configuration steps
 
 
 IMPORTANT: For all the steps below you'll want to set your `KOLIBRI_HOME` to an alternate location so you can have another Kolibri running in parallel. This could be e.g. `/tmp/provider` or `~/.kolibri-oidc-provider`
@@ -33,13 +33,22 @@ IMPORTANT: For all the steps below you'll want to set your `KOLIBRI_HOME` to an 
 
 8. As a check, open this url in the browser: http://localhost:8080/.well-known/openid-configuration . It should show all the available OIDC endpoints.
 
+## Client configuration steps
 
+Here you'll need to set `KOLIBRI_HOME` to something different, e.g. `/tmp/client` or `~/.kolibri-oidc-client`.
 
-## Client configuration steps:
+You'll also need to set these environment variables:
+
+```
+CLIENT_ID=myclient.app
+CLIENT_SECRET=<secret_given_by_the_provider>
+KOLIBRI_OIDC_CLIENT_URL=http://localhost:8080/oidc_provider
+KOLIBRI_HTTP_PORT=9000  # need a different port from the provider
+```
 
 1. `pip install kolibri-oidc-client-plugin`
-2. `KOLIBRI_HOME=/tmp/client kolibri plugin enable kolibri_oidc_client_plugin`
-3. Start Kolibri with `KOLIBRI_HOME=/tmp/client CLIENT_ID=myclient.app CLIENT_SECRET=<secret_given_by_the_provider> KOLIBRI_OIDC_CLIENT_URL=http://localhost:8080/oidc_provider KOLIBRI_HTTP_PORT=9000 kolibri start --foreground`
+2. `kolibri plugin enable kolibri_oidc_client_plugin`
+3. Start Kolibri with `kolibri start --foreground`
 4. Open a browser in http://127.0.0.1:9000 and use the OIDC authentication button: it should connect to the provider server (check the urls  jump to the urls with port 8080). **It's important to use *127.0.0.1* and not *localhost* in the url to avoid a cookies conflict if the provider has been open in the browser.**
 5. Signing in with the user that has been created in the provider should be possible and it will appear as an user in the kolibri client server
 
