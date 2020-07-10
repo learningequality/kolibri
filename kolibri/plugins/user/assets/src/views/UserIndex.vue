@@ -1,54 +1,33 @@
 <template>
 
-  <CoreBase
-    v-bind="immersiveProperties"
-    :appBarTitle="appBarTitle"
-    :fullScreen="isFullscreenPage"
-  >
-    <component :is="currentPage" />
-  </CoreBase>
+  <router-view />
 
 </template>
 
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { PageNames } from '../constants';
-  import AuthSelect from './AuthSelect';
-  import FacilitySelect from './FacilitySelect';
-  import SignInPage from './SignInPage';
-  import SignUpPage from './SignUpPage';
-  import ProfilePage from './ProfilePage';
-  import ProfileEditPage from './ProfileEditPage';
-
-  const pageNameComponentMap = {
-    [PageNames.SIGN_IN]: SignInPage,
-    [PageNames.SIGN_UP]: SignUpPage,
-    [PageNames.PROFILE]: ProfilePage,
-    [PageNames.PROFILE_EDIT]: ProfileEditPage,
-    [PageNames.AUTH_SELECT]: AuthSelect,
-    [PageNames.FACILITY_SELECT]: FacilitySelect,
-  };
+  import { ComponentMap } from '../constants';
 
   export default {
     name: 'UserIndex',
-    components: {
-      CoreBase,
-    },
     mixins: [commonCoreStrings],
+    watch: {
+      $route(newRoute) {},
+    },
     computed: {
-      ...mapState(['pageName']),
       ...mapGetters(['facilities', 'selectedFacility']),
-      immersiveProperties() {
-        if (this.pageName === PageNames.SIGN_UP) {
-          if (!this.$route.query.step) {
+    },
+    methods: {
+      immersiveProperties(route) {
+        if (route.name === ComponentMap.SIGN_UP) {
+          if (!route.query.step) {
             const backRoute =
               this.facilities.length > 1 && !this.selectedFacility
-                ? this.$router.getRoute(PageNames.AUTH_SELECT)
-                : this.$router.getRoute(PageNames.SIGN_IN);
+                ? this.$router.getRoute(ComponentMap.AUTH_SELECT)
+                : this.$router.getRoute(ComponentMap.SIGN_IN);
 
             return {
               immersivePage: true,
@@ -64,10 +43,10 @@
             immersivePageIcon: 'back',
           };
         }
-        if (this.pageName === PageNames.PROFILE_EDIT) {
+        if (route.name === ComponentMap.PROFILE_EDIT) {
           return {
             immersivePage: true,
-            immersivePageRoute: this.$router.getRoute(PageNames.PROFILE),
+            immersivePageRoute: this.$router.getRoute(ComponentMap.PROFILE),
             immersivePagePrimary: true,
             immersivePageIcon: 'back',
           };
@@ -77,11 +56,14 @@
         };
       },
       appBarTitle() {
-        if (this.pageName === PageNames.PROFILE || this.pageName == PageNames.PROFILE_EDIT) {
+        if (
+          this.$route.name === ComponentMap.PROFILE ||
+          this.$route.name == ComponentMap.PROFILE_EDIT
+        ) {
           return this.$tr('userProfileTitle');
         }
 
-        if (this.pageName === PageNames.SIGN_UP) {
+        if (this.$route.name === ComponentMap.SIGN_UP) {
           if (!this.$route.query.step) {
             return this.$tr('signUpStep1Title');
           }
@@ -90,13 +72,12 @@
 
         return this.coreString('signInLabel');
       },
-      currentPage() {
-        return pageNameComponentMap[this.pageName] || null;
-      },
       isFullscreenPage() {
-        return [PageNames.SIGN_IN, PageNames.AUTH_SELECT, PageNames.FACILITY_SELECT].includes(
-          this.pageName
-        );
+        return [
+          ComponentMap.SIGN_IN,
+          ComponentMap.AUTH_SELECT,
+          ComponentMap.FACILITY_SELECT,
+        ].includes(this.$route.name);
       },
     },
     $trs: {

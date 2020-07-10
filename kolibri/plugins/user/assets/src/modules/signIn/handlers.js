@@ -9,7 +9,6 @@ const snackbarTranslator = createTranslator('UserPageSnackbars', {
 });
 
 export function showSignInPage(store) {
-  store.commit('SET_PAGE_NAME', PageNames.SIGN_IN);
   if (Lockr.get(SIGNED_OUT_DUE_TO_INACTIVITY)) {
     store.commit('CORE_CREATE_SNACKBAR', {
       text: snackbarTranslator.$tr('signedOut'),
@@ -19,7 +18,7 @@ export function showSignInPage(store) {
     });
     Lockr.set(SIGNED_OUT_DUE_TO_INACTIVITY, null);
   }
-  store.dispatch('setFacilitiesAndConfig').then(() => {
+  return store.dispatch('setFacilitiesAndConfig').then(() => {
     // Use selected id if available, otherwise get the default facility id from session
     let facilityId;
     if (store.getters.facilities.length > 1) {
@@ -30,9 +29,6 @@ export function showSignInPage(store) {
     store.commit('SET_FACILITY_ID', facilityId);
     store.commit('signIn/SET_STATE', {
       hasMultipleFacilities: store.getters.facilities.length > 1,
-    });
-    store.dispatch('resetAndSetPageName', {
-      pageName: PageNames.SIGN_IN,
     });
   });
 }
