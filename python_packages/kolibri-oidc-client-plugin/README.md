@@ -70,7 +70,7 @@ KOLIBRI_CLIENT_URL
 
 ### Ending session in the OIDC provider from kolibri
 If kolibri >= 0.14 is used, kolibri will be able to end the user session in the OIDC provider when the use logs out.
-For it to work correctly, the `ENDSESSION_ENDPOINT` must contain the OIDC provider url to end the session and another option: `CLIENT_URL` must be set containing the exact base url of the server running Kolibri, for example: http://localhost:8000 . This feature is available only if kolibri version >= 0.14
+For it to work correctly, the `ENDSESSION_ENDPOINT` must contain the OIDC provider url to end the session and another option: `CLIENT_URL` must be set containing the exact base url of the server running Kolibri, for example: http://localhost:9000 . This feature is available only if kolibri version >= 0.14
 
 #### Configuration example
 This is the options.ini used to login and logout from a [KeyCloak](https://www.keycloak.org/) server:
