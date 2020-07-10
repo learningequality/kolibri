@@ -54,6 +54,13 @@ def test_value_length_validator():
     assert check("ok") is None
     assert check("") is None
 
+    with pytest.raises(ValueError):
+        check("a,b,c,d,e,f")
+    check = b.value_length(4, allow_null=False, multiple=True)
+    with pytest.raises(ValueError):
+        check("a,bbbbb,c,d")
+    assert check("a,b,c,d,e,f,") is None
+
 
 def test_enumeration_validator():
     check = b.enumeration("LEARNER", "ADMIN", "COACH")
