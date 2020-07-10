@@ -1,7 +1,10 @@
 <template>
 
-  <div class="fh">
-
+  <CoreBase
+    :immersivePage="false"
+    :immersivePagePrimary="false"
+    :fullScreen="true"
+  >
     <AuthBase>
 
       <!-- Multi-facility selection -->
@@ -209,14 +212,14 @@
       </form>
 
     </AuthBase>
-
-  </div>
+  </CoreBase>
 
 </template>
 
 
 <script>
 
+  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { FacilityUsernameResource } from 'kolibri.resources';
   import get from 'lodash/get';
@@ -244,10 +247,11 @@
     },
     components: {
       AuthBase,
+      CoreBase,
+      PasswordTextbox,
       UiAutocompleteSuggestion,
       UiAlert,
       UsersList,
-      PasswordTextbox,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     data() {

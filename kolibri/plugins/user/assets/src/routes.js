@@ -54,7 +54,10 @@ export default [
         if (store.getters.facilities.length > 1 && !store.state.facilityId) {
           next(router.getRoute(ComponentMap.AUTH_SELECT));
         } else {
-          showSignInPage(store).then(() => next());
+          showSignInPage(store).then(() => {
+            store.commit('CORE_SET_PAGE_LOADING', false);
+            next();
+          });
         }
       }
     },
