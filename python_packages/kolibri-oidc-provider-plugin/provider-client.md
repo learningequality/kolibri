@@ -8,23 +8,30 @@ For this example, Kolibri will have its home at `/tmp/provider`  for the OIDC pr
 
 ## Provider configuration steps:
 
+
+IMPORTANT: For all the steps below you'll want to set your `KOLIBRI_HOME` to an alternate location so you can have another Kolibri running in parallel. This could be e.g. `/tmp/provider` or `~/.kolibri-oidc-provider`
+
+
+
 1. `pip install kolibri-oidc-provider-plugin`
 
-2. `KOLIBRI_HOME=/tmp/provider kolibri plugin enable kolibri_oidc_provider_plugin`
+2. `kolibri plugin enable kolibri_oidc_provider_plugin`
 
-3. `KOLIBRI_HOME=/tmp/provider kolibri manage migrate`
+3. `kolibri manage migrate`
 
-4. `KOLIBRI_HOME=/tmp/provider kolibri manage creatersakey`
+4. `kolibri manage creatersakey`
 
 5. Let's create an authorized client:
 
-   `KOLIBRI_HOME=/tmp/provider kolibri manage oidccreateclient --name=myapp --clientid=myclient.app --redirect-uri="http://127.0.0.1:9000/oidccallback/"`
+   `kolibri manage oidccreateclient --name=myapp --clientid=myclient.app --redirect-uri="http://127.0.0.1:9000/oidccallback/"`
 
    It will output a client secret code that must be used when configuring the client, replacing the `<secret_given_by_the_provider>` text below.
 
-6. Start Kolibri with  `KOLIBRI_HOME=/tmp/provider kolibri start --foreground`, go through the wizard and create at least one user. Ensure to logout afterwards.
+6. `yarn run build` to build assets
 
-7. As a check, open this url in the browser: http://localhost:8080/.well-known/openid-configuration . It should show all the available OIDC endpoints.
+7. Start Kolibri with `kolibri start --foreground`, go through the wizard and create at least one user. Ensure to logout afterwards.
+
+8. As a check, open this url in the browser: http://localhost:8080/.well-known/openid-configuration . It should show all the available OIDC endpoints.
 
 
 
