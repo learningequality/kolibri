@@ -15,12 +15,35 @@
     name: 'UserIndex',
     mixins: [commonCoreStrings],
     watch: {
-      $route(newRoute) {},
+      // TODO 0.15.x: Redefine the strings in this file wherever they're used
+      // This is structured this way because UserIndex used to dynamically
+      // fill CoreBase props based on which page we were viewing - including
+      // the appBarTitle - we just can't move the strings since we've frozen
+      // For now, watch the route - whenever it changes, set the appBarTitle in vuex
+      // so other components have access to it and it changes as we navigate
+      $route(newVal) {
+        this.$store.commit('SET_APPBAR_TITLE', this.appBarTitle(newVal));
+      },
     },
     computed: {
       ...mapGetters(['facilities', 'selectedFacility']),
     },
     methods: {
+      appBarTitle(route) {
+        if (route.name === ComponentMap.PROFILE || route.name == ComponentMap.PROFILE_EDIT) {
+          return this.$tr('userProfileTitle');
+        }
+
+        if (route.name === ComponentMap.SIGN_UP) {
+          if (route.query.step) {
+            return this.$tr('signUpStep1Title');
+          }
+          return this.$tr('signUpStep2Title');
+        }
+
+        return this.coreString('signInLabel');
+      },
+      // TODO: Migrate this logic into components
       immersiveProperties(route) {
         if (route.name === ComponentMap.SIGN_UP) {
           if (!route.query.step) {
@@ -54,23 +77,6 @@
         return {
           immersivePage: false,
         };
-      },
-      appBarTitle() {
-        if (
-          this.$route.name === ComponentMap.PROFILE ||
-          this.$route.name == ComponentMap.PROFILE_EDIT
-        ) {
-          return this.$tr('userProfileTitle');
-        }
-
-        if (this.$route.name === ComponentMap.SIGN_UP) {
-          if (!this.$route.query.step) {
-            return this.$tr('signUpStep1Title');
-          }
-          return this.$tr('signUpStep2Title');
-        }
-
-        return this.coreString('signInLabel');
       },
       isFullscreenPage() {
         return [

@@ -7,6 +7,7 @@ export default {
   state: {
     facilityId: Lockr.get('facilityId') || null,
     pageName: '',
+    appBarTitle: '',
   },
   actions: {
     resetAndSetPageName(store, { pageName }) {
@@ -50,6 +51,9 @@ export default {
     SET_FACILITY_ID(state, facilityId) {
       Lockr.set('facilityId', facilityId);
       state.facilityId = facilityId;
+    },
+    SET_APPBAR_TITLE(state, appBarTitle) {
+      state.appBarTitle = appBarTitle;
     },
   },
   modules: {
