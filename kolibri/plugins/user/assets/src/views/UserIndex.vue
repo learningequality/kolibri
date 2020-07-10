@@ -24,6 +24,9 @@
       },
     },
     watch: {
+      $route(newRoute) {},
+    },
+    watch: {
       // TODO 0.15.x: Redefine the strings in this file wherever they're used
       // This is structured this way because UserIndex used to dynamically
       // fill CoreBase props based on which page we were viewing - including

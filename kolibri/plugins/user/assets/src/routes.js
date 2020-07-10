@@ -1,12 +1,15 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
+import Lockr from 'lockr';
+import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri.coreVue.vuex.constants';
 import { showSignInPage } from './modules/signIn/handlers';
 import { showSignUpPage } from './modules/signUp/handlers';
-import { ComponentMap } from './constants';
+import { showProfilePage } from './modules/profile/handlers';
+import { ComponentMap, PageNames } from './constants';
+
 import AuthSelect from './views/AuthSelect';
 import FacilitySelect from './views/FacilitySelect';
 import ProfilePage from './views/ProfilePage';
-import ProfileEditPage from './views/ProfileEditPage';
 import SignInPage from './views/SignInPage';
 import SignUpPage from './views/SignUpPage';
 
@@ -44,23 +47,14 @@ export default [
     component: SignInPage,
     beforeEnter(to, from, next) {
       if (store.getters.isUserLoggedIn) {
-        next(router.getRoute(ComponentMap.PROFILE));
+        next(router.getRoute(componentMap.PROFILE));
       } else {
         // If we're on multiple facility device, show auth_select when
         // there is no facilityId
         if (store.getters.facilities.length > 1 && !store.state.facilityId) {
-          // Go to FacilitySelect with whereToNext => SignUpPage
-          const whereToNext = router.getRoute(ComponentMap.SIGN_IN);
-          const route = {
-            ...router.getRoute(ComponentMap.FACILITY_SELECT),
-            params: { whereToNext },
-          };
-          next(route);
+          next(router.getRoute(ComponentMap.AUTH_SELECT));
         } else {
-          showSignInPage(store).then(() => {
-            store.commit('CORE_SET_PAGE_LOADING', false);
-            next();
-          });
+          showSignInPage(store).then(() => next());
         }
       }
     },
@@ -94,9 +88,6 @@ export default [
     path: '/signin-or-signup',
     component: AuthSelect,
     beforeEnter(to, from, next) {
-      // If we're loading CoreBase won't render.
-      // There is nothing to load within this component.
-      store.commit('CORE_SET_PAGE_LOADING', false);
       if (store.getters.isUserLoggedIn) {
         next(router.getRoute(ComponentMap.PROFILE));
       } else {
@@ -107,29 +98,16 @@ export default [
   {
     path: '/facilities',
     component: FacilitySelect,
-    props: true,
     beforeEnter(to, from, next) {
-      // If we're loading CoreBase won't render.
-      // There is nothing to load within this component.
-      store.commit('CORE_SET_PAGE_LOADING', false);
       if (store.getters.isUserLoggedIn) {
-        next(router.getRoute(ComponentMap.PROFILE));
-      } else {
-        // This param is required, so return to AuthSelect
-        // unless we have it
-        if (to.params.whereToNext) {
-          next();
-        } else {
-          next(router.getRoute(ComponentMap.AUTH_SELECT));
-        }
+        router.replace({ name: PageNames.PROFILE });
       }
     },
   },
   {
     path: '/profile',
     component: ProfilePage,
-    beforeEnter(to, from, next) {
-      store.commit('CORE_SET_PAGE_LOADING', false);
+    handler: () => {
       if (!store.getters.isUserLoggedIn) {
         next(router.getRoute(ComponentMap.SIGN_IN));
       } else {
