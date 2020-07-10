@@ -24,7 +24,15 @@
       },
     },
     watch: {
-      $route(newRoute) {},
+      // TODO 0.15.x: Redefine the strings in this file wherever they're used
+      // This is structured this way because UserIndex used to dynamically
+      // fill CoreBase props based on which page we were viewing - including
+      // the appBarTitle - we just can't move the strings since we've frozen
+      // For now, watch the route - whenever it changes, set the appBarTitle in vuex
+      // so other components have access to it and it changes as we navigate
+      $route(newVal) {
+        this.$store.commit('SET_APPBAR_TITLE', this.appBarTitle(newVal));
+      },
     },
     watch: {
       // TODO 0.15.x: Redefine the strings in this file wherever they're used
