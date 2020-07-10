@@ -2,13 +2,13 @@
 
   <a
     href="/oidcauthenticate/"
-    class="button secondary raised"
+    class="button raised secondary"
   >
     <file-svg
       slot="icon"
       src="./openid.svg"
     />
-    {{ $tr('signInWithOpenIDConnect') }}
+    <div>{{ $tr('signInWithOpenIDConnect') }}</div>
   </a>
 
 </template>
