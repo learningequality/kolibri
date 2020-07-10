@@ -13,8 +13,12 @@ from kolibri.core.device.utils import provision_device
 logger = logging.getLogger(__name__)
 
 
-def check_setting(name):
+def _check_setting(name, available, msg):
+    if name not in available:
+        raise CommandError(msg.format(name))
 
+
+def check_facility_setting(name):
     AVAILABLE_SETTINGS = [
         "learner_can_edit_username",
         "learner_can_edit_name",
@@ -24,11 +28,28 @@ def check_setting(name):
         "learner_can_login_with_no_password",
         "show_download_button_in_learn",
     ]
+    _check_setting(
+        name,
+        AVAILABLE_SETTINGS,
+        "'{}' is not a facility setting that can be changed by this command",
+    )
 
-    if name not in AVAILABLE_SETTINGS:
-        raise Exception(
-            "'{}' is not a setting that can be changed by this command".format(name)
-        )
+
+def check_device_setting(name):
+    AVAILABLE_SETTINGS = [
+        "language_id",
+        "landing_page",
+        "allow_guest_access",
+        "allow_peer_unlisted_channel_import",
+        "allow_learner_unassigned_resource_access",
+        "name",
+        "allow_other_browsers_to_connect",
+    ]
+    _check_setting(
+        name,
+        AVAILABLE_SETTINGS,
+        "'{}' is not a device setting that can be changed by this command",
+    )
 
 
 def get_user_response(prompt, valid_answers=None):
@@ -78,7 +99,7 @@ def create_facility(facility_name=None, preset=None, interactive=False):
         if preset:
             dataset_data = mappings[preset]
             for key, value in dataset_data.items():
-                check_setting(key)
+                check_facility_setting(key)
                 setattr(facility.dataset, key, value)
             facility.dataset.save()
             logger.info("Facility preset changed to {preset}.".format(preset=preset))
@@ -92,8 +113,8 @@ def create_facility(facility_name=None, preset=None, interactive=False):
 def update_facility_settings(facility, new_settings):
     # Override any settings passed in
     for key, value in new_settings.items():
-        check_setting(key)
-        setattr(facility.dataset, key, new_settings.get(key, value))
+        check_facility_setting(key)
+        setattr(facility.dataset, key, value)
     facility.dataset.save()
     logger.info("Facility settings updated with {}".format(new_settings))
 
@@ -122,7 +143,9 @@ def create_superuser(username=None, password=None, interactive=False):
             )
 
 
-def create_device_settings(language_id=None, facility=None, interactive=False):
+def create_device_settings(
+    language_id=None, facility=None, interactive=False, new_settings={}
+):
     if language_id is None and interactive:
         language_id = get_user_response(
             "Enter a default language code [{langs}]: ".format(
@@ -130,7 +153,15 @@ def create_device_settings(language_id=None, facility=None, interactive=False):
             ),
             valid_answers=languages,
         )
-    provision_device(language_id=language_id, default_facility=facility)
+    # Override any settings passed in
+    for key in new_settings:
+        check_device_setting(key)
+
+    new_settings["language_id"] = language_id
+    new_settings["default_facility"] = facility
+
+    provision_device(**new_settings)
+    logger.info("Device settings updated with {}".format(new_settings))
 
 
 def json_file_contents(parser, arg):
@@ -192,6 +223,13 @@ class Command(BaseCommand):
             type=lambda arg: json_file_contents(parser, arg),
             default={},
         )
+        parser.add_argument(
+            "--device_settings",
+            action="store",
+            help="JSON file containing device settings",
+            type=lambda arg: json_file_contents(parser, arg),
+            default={},
+        )
 
     def handle(self, *args, **options):
         with transaction.atomic():
@@ -207,6 +245,7 @@ class Command(BaseCommand):
                 language_id=options["language_id"],
                 facility=facility,
                 interactive=options["interactive"],
+                new_settings=options["device_settings"],
             )
 
             create_superuser(
