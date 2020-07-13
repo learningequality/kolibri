@@ -109,7 +109,7 @@ Dynamic values are passed into translation strings as named arguments in an obje
 .py files
 ~~~~~~~~~
 
-For any user-facing strings in python files, we are using standard Django tools (``gettext`` and associated functions). See the `Django i18n documentation <https://docs.djangoproject.com/en/1.10/topics/i18n/>`__ for more information.
+For any user-facing strings in python files, we are using standard Django tools (``gettext`` and associated functions). See the `Django i18n documentation <https://docs.djangoproject.com/en/1.11/topics/i18n/>`__ for more information.
 
 
 RTL language support
