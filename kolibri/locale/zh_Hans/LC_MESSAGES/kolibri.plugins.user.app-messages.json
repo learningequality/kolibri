@@ -4,7 +4,7 @@
   "AuthBase.oidcSpecificExplanation": "您是从应用程序“{app_name}”来到这里的。课励彼是一个电子学习平台，您也可以使用您的课励彼帐户来访问“{app_name}”。",
   "AuthBase.poweredBy": "课励彼 {version}",
   "AuthBase.poweredByKolibri": "由课励彼支持",
-  "AuthBase.restrictedAccess": "已限制外部设备访问 Kolibri",
+  "AuthBase.restrictedAccess": "已限制外部设备访问课励彼",
   "AuthBase.restrictedAccessDescription": "要更改此设置，请以超级管理员身份登录并更新设备网络访问设置",
   "AuthBase.whatsThis": "这是什么？",
   "AuthSelect.createAccountAction": "创建一个帐户",
@@ -49,5 +49,5 @@
   "UserIndex.signUpStep2Title": "步骤 2 / 2",
   "UserIndex.userProfileTitle": "个人资料",
   "UserPageSnackbars.dismiss": "取消",
-  "UserPageSnackbars.signedOut": "由于无活动，您被自动注销了"
+  "UserPageSnackbars.signedOut": "由于无活动，您已自动退出登陆了"
 }

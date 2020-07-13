@@ -1,6 +1,6 @@
 {
   "AuthBase.accessAsGuest": "Naviguer sans compte",
-  "AuthBase.oidcGenericExplanation": "Kolibri est une plateforme d'apprentissage. Vous pouvez utiliser votre compte Kolibri pour se connecter à des applications tierces.",
+  "AuthBase.oidcGenericExplanation": "Kolibri est une plateforme d'apprentissage. Vous pouvez utiliser votre compte Kolibri pour vous connecter à des applications tierces.",
   "AuthBase.oidcSpecificExplanation": "Vous avez été envoyé ici à partir de l'application '{app_name}'. Kolibri est une plateforme d'apprentissage en ligne. Vous pouvez utiliser votre compte Kolibri pour accéder à '{app_name}'.",
   "AuthBase.poweredBy": "Kolibri {version}",
   "AuthBase.poweredByKolibri": "Avec la technologie Kolibri / Créé avec Kolibri",

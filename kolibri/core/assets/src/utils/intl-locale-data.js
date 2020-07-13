@@ -26,6 +26,12 @@ module.exports = function(locale) {
           resolve(() => require('intl/locale-data/jsonp/bn-BD.js'));
         });
       });
+    case 'de':
+      return new Promise(function(resolve) {
+        require.ensure(['intl/locale-data/jsonp/de.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/de.js'));
+        });
+      });
     case 'en':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/en.js'], function(require) {

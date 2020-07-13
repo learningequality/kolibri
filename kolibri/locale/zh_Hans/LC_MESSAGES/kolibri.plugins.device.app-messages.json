@@ -4,7 +4,7 @@
   "AvailableChannelsPage.documentTitleForRemoteImport": "Kolibri Studio 中可用的频道",
   "AvailableChannelsPage.importChannelsHeader": "选择频道导入",
   "AvailableChannelsPage.importFromDisk": "从“{driveName}”导入",
-  "AvailableChannelsPage.importFromKolibriStudio": "从 Kolibri Studio 导入",
+  "AvailableChannelsPage.importFromKolibriStudio": "从 课励彼Studio 导入",
   "AvailableChannelsPage.importFromPeer": "从“{deviceName}”导入({address})",
   "AvailableChannelsPage.importResourcesHeader": "选择资源导入",
   "AvailableChannelsPage.noChannelsAvailable": "没有可用于此设备的频道",
