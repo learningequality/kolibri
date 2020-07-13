@@ -19,18 +19,25 @@
             :primary="true"
           />
         </div>
-        <div class="sign-up-prompt">
-          <div class="label">
-            {{ $tr("newUserPrompt") }}
-          </div>
-          <KRouterLink
-            :text="$tr('createAccountAction')"
-            :to="signUpRoute"
-            :primary="false"
-            style="width: 100%;"
-            appearance="raised-button"
-          />
+        <KRouterLink
+          :text="coreString('signInLabel')"
+          :to="route(signInRoute)"
+          appearance="raised-button"
+          style="width: 100%;"
+          :primary="true"
+        />
+      </div>
+      <div class="sign-up-prompt">
+        <div class="label">
+          {{ $tr("newUserPrompt") }}
         </div>
+        <KRouterLink
+          :text="$tr('createAccountAction')"
+          :to="route(signUpRoute)"
+          :primary="false"
+          style="width: 100%;"
+          appearance="raised-button"
+        />
       </div>
     </AuthBase>
   </CoreBase>
@@ -51,12 +58,20 @@
     mixins: [commonCoreStrings],
     computed: {
       signUpRoute() {
-        const whereToNext = this.$router.getRoute(ComponentMap.SIGN_UP);
-        return { ...this.facilitySelectRoute, params: { whereToNext } };
+        return this.$router.getRoute(ComponentMap.SIGN_UP);
       },
       signInRoute() {
-        const whereToNext = this.$router.getRoute(ComponentMap.SIGN_IN);
-        return { ...this.facilitySelectRoute, params: { whereToNext } };
+        return this.$router.getRoute(ComponentMap.SIGN_IN);
+      },
+      facilitySelectRoute() {
+        return this.$router.getRoute(ComponentMap.FACILITY_SELECT);
+      },
+    },
+    methods: {
+      route(whereToNext) {
+        const route = this.facilitySelectRoute;
+        route.params = { whereToNext };
+        return route;
       },
       facilitySelectRoute() {
         return this.$router.getRoute(ComponentMap.FACILITY_SELECT);
