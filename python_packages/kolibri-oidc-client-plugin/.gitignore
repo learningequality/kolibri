@@ -80,6 +80,8 @@ target/
 # virtualenv
 venv/
 ENV/
+.venv/
+Pipfile
 
 # Spyder project settings
 .spyderproject
