@@ -8,7 +8,7 @@
         </div>
         <KRouterLink
           :text="coreString('signInLabel')"
-          :to="facilitySelectPage(PageNames.SIGN_IN)"
+          :to="route(signInRoute)"
           appearance="raised-button"
           style="width: 100%;"
           :primary="true"
@@ -20,7 +20,7 @@
         </div>
         <KRouterLink
           :text="$tr('createAccountAction')"
-          :to="facilitySelectPage(PageNames.SIGN_UP)"
+          :to="route(signUpRoute)"
           :primary="false"
           style="width: 100%;"
           appearance="raised-button"
@@ -35,7 +35,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { PageNames } from '../constants';
+  import { ComponentMap } from '../constants';
   import AuthBase from './AuthBase';
 
   export default {
@@ -43,13 +43,21 @@
     components: { AuthBase },
     mixins: [commonCoreStrings],
     computed: {
-      PageNames() {
-        return PageNames;
+      signUpRoute() {
+        return this.$router.getRoute(ComponentMap.SIGN_UP);
+      },
+      signInRoute() {
+        return this.$router.getRoute(ComponentMap.SIGN_IN);
+      },
+      facilitySelectRoute() {
+        return this.$router.getRoute(ComponentMap.FACILITY_SELECT);
       },
     },
     methods: {
-      facilitySelectPage(next) {
-        return { name: PageNames.FACILITY_SELECT, query: { next, backTo: PageNames.AUTH_SELECT } };
+      route(whereToNext) {
+        const route = this.facilitySelectRoute;
+        route.params = { whereToNext };
+        return route;
       },
     },
     $trs: {

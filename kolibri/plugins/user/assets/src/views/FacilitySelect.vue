@@ -39,6 +39,12 @@
     name: 'FacilitySelect',
     components: { AuthBase },
     mixins: [commonCoreStrings],
+    props: {
+      whereToNext: {
+        type: Object,
+        required: true,
+      },
+    },
     computed: {
       ...mapGetters(['facilities']),
       backTo() {

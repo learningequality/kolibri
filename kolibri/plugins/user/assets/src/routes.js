@@ -88,9 +88,12 @@ export default [
   {
     path: '/facilities',
     component: FacilitySelect,
+    props: true,
     beforeEnter(to, from, next) {
       if (store.getters.isUserLoggedIn) {
         router.replace({ name: PageNames.PROFILE });
+      } else {
+        next();
       }
     },
   },
