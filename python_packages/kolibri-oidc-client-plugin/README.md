@@ -76,6 +76,9 @@ JWKS_URI=
 AUTHORIZATION_ENDPOINT=
 TOKEN_ENDPOINT=
 USERINFO_ENDPOINT=
+ENDSESSION_ENDPOINT=
+CLIENT_URL=
+
 ```
 
 Or, as environment variables:
@@ -85,8 +88,30 @@ KOLIBRI_OIDC_JWKS_URI
 KOLIBRI_OIDC_AUTHORIZATION_ENDPOINT
 KOLIBRI_OIDC_TOKEN_ENDPOINT
 KOLIBRI_OIDC_USERINFO_ENDPOINT
+KOLIBRI_OIDC_ENDSESSION_ENDPOINT
+KOLIBRI_CLIENT_URL
 ```
 
+### Ending session in the OIDC provider from kolibri
+If kolibri >= 0.14 is used, kolibri will be able to end the user session in the OIDC provider when the use logs out.
+For it to work correctly, the `ENDSESSION_ENDPOINT` must contain the OIDC provider url to end the session and another option: `CLIENT_URL` must be set containing the exact base url of the server running Kolibri, for example: http://localhost:9000 . This feature is available only if kolibri version >= 0.14
+
+#### Configuration example
+This is the options.ini used to login and logout from a [KeyCloak](https://www.keycloak.org/) server:
+
+```ini
+[Deployment]
+HTTP_PORT = 9000
+
+[OIDCClient]
+PROVIDER_URL = http://localhost:8080/auth/realms/master
+AUTHORIZATION_ENDPOINT = http://localhost:8080/auth/realms/master/protocol/openid-connect/auth
+TOKEN_ENDPOINT = http://localhost:8080/auth/realms/master/protocol/openid-connect/token
+USERINFO_ENDPOINT = http://localhost:8080/auth/realms/master/protocol/openid-connect/userinfo
+JWKS_URI = http://localhost:8080/auth/realms/master/protocol/openid-connect/certs
+ENDSESSION_ENDPOINT = http://localhost:8080/auth/realms/master/protocol/openid-connect/logout
+CLIENT_URL = http://localhost:9000
+```
 
 ### OIDC provider credentials
 
