@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <KPageContainer v-if="!cannotDownload">
+    <KPageContainer v-if="canUploadDownloadFiles">
       <KGrid gutter="48">
 
         <KGridItem>
@@ -25,7 +25,7 @@
             <span v-if="noSessionLogs">{{ $tr('noLogsYet') }}</span>
             <GeneratedElapsedTime v-else-if="sessionDateCreated" :date="sessionDateCreated" />
           </p>
-          <p v-if="cannotDownload" :style="noDlStyle">
+          <p v-if="!canUploadDownloadFiles" :style="noDlStyle">
             {{ $tr('noDownload') }}
           </p>
           <p v-else-if="inSessionCSVCreation">
@@ -57,7 +57,7 @@
             <span v-if="noSummaryLogs">{{ $tr('noLogsYet') }}</span>
             <GeneratedElapsedTime v-else-if="summaryDateCreated" :date="summaryDateCreated" />
           </p>
-          <p v-if="cannotDownload" :style="noDlStyle">
+          <p v-if="!canUploadDownloadFiles" :style="noDlStyle">
             {{ $tr('noDownload') }}
           </p>
           <p v-else-if="inSummaryCSVCreation">
@@ -78,7 +78,7 @@
       </KGrid>
     </KPageContainer>
 
-    <ImportInterface v-if="!cannotDownload" />
+    <ImportInterface v-if="canUploadDownloadFiles" />
     <SyncInterface />
 
   </div>
@@ -122,8 +122,10 @@
       ]),
       ...mapGetters(['activeFacilityId']),
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
-      cannotDownload() {
-        return isEmbeddedWebView;
+      // NOTE: We disable CSV file upload/download on embedded web views like the Mac
+      // and Android apps
+      canUploadDownloadFiles() {
+        return !isEmbeddedWebView;
       },
       pollForTasks() {
         return this.$route.name === PageNames.DATA_EXPORT_PAGE;
