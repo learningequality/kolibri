@@ -291,7 +291,7 @@
     @extend %dropshadow-16dp;
 
     width: 360px;
-    padding: 16px 32px;
+    padding: 24px 32px;
     margin: 16px auto;
     border-radius: $radius;
   }
@@ -305,8 +305,8 @@
   }
 
   .guest {
-    margin-top: 8px;
-    margin-bottom: 16px;
+    margin-top: 24px;
+    margin-bottom: 8px;
   }
 
   .small-text {
@@ -369,7 +369,7 @@
 
   .kolibri-title {
     margin-top: 0;
-    margin-bottom: 8px;
+    margin-bottom: 0;
     font-size: 24px;
     font-weight: 100;
   }

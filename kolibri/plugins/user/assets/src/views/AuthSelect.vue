@@ -2,24 +2,28 @@
 
   <AuthBase :hideCreateAccount="true">
     <div class="auth-select">
-      <div class="sign-up-prompt" style="margin-bottom: 24px;">
-        <div>{{ $tr("newUserPrompt") }}</div>
-        <KRouterLink
-          :text="$tr('createAccountAction')"
-          :to="facilitySelectPage(PageNames.SIGN_UP)"
-          appearance="flat-button"
-          class="auth-button"
-          data-test="createUser"
-        />
-      </div>
       <div>
-        <div>{{ $tr("signInPrompt") }}</div>
+        <div class="label">
+          {{ $tr("signInPrompt") }}
+        </div>
         <KRouterLink
           :text="coreString('signInLabel')"
           :to="facilitySelectPage(PageNames.SIGN_IN)"
-          appearance="flat-button"
-          class="auth-button"
-          data-test="signIn"
+          appearance="raised-button"
+          style="width: 100%;"
+          :primary="true"
+        />
+      </div>
+      <div class="sign-up-prompt">
+        <div class="label">
+          {{ $tr("newUserPrompt") }}
+        </div>
+        <KRouterLink
+          :text="$tr('createAccountAction')"
+          :to="facilitySelectPage(PageNames.SIGN_UP)"
+          :primary="false"
+          style="width: 100%;"
+          appearance="raised-button"
         />
       </div>
     </div>
@@ -69,16 +73,12 @@
 <style lang="scss" scoped>
 
   .auth-select {
-    padding-top: 16px;
+    font-size: 14px;
     text-align: left;
-  }
 
-  .sign-up-prompt {
-    margin-bottom: 24px;
-  }
-
-  .auth-button {
-    margin-left: -16px;
+    .label {
+      margin: 24px 0 16px;
+    }
   }
 
 </style>
