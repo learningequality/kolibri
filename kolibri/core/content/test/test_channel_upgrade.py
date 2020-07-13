@@ -55,6 +55,8 @@ class ChannelBuilder(object):
     def __init__(self, levels=3):
         self.levels = levels
 
+        self.modified = set()
+
         try:
             self.load_data()
         except KeyError:
@@ -208,24 +210,30 @@ class ChannelBuilder(object):
     def duplicate_resources(self, num_resources):
         self.duplicated_resources = []
         for i in range(0, num_resources):
-            parent = self.recurse_tree_until_leaf_container(self.root_node)
-            child = random.choice(parent["children"])
+            child = None
+            while child is None or child["id"] in self.modified:
+                parent = self.recurse_tree_until_leaf_container(self.root_node)
+                child = random.choice(parent["children"])
             duplicate = self.duplicate_resource(child)
             self.duplicated_resources.append(duplicate)
             parent["children"].append(duplicate)
+            self.modified.add(duplicate["id"])
         self.generate_nodes_from_root_node()
 
     def move_resources(self, num_resources):
         self.moved_resources = []
         self.deleted_resources = []
         for i in range(0, num_resources):
-            parent = self.recurse_tree_until_leaf_container(self.root_node)
-            child = random.choice(parent["children"])
+            child = None
+            while child is None or child["id"] in self.modified:
+                parent = self.recurse_tree_until_leaf_container(self.root_node)
+                child = random.choice(parent["children"])
             moved = self.duplicate_resource(child)
             self.moved_resources.append(moved)
             self.deleted_resources.append(child)
             parent["children"].pop(parent["children"].index(child))
             parent["children"].append(moved)
+            self.modified.add(moved["id"])
         self.generate_nodes_from_root_node()
 
     def upgrade(self, new_resources=0, updated_resources=0, deleted_resources=0):
@@ -239,19 +247,26 @@ class ChannelBuilder(object):
             # To emulate a common occurrence that produces edge cases
             # we also update the parent's thumbnail here
             self.updated_thumbnails.extend(self.update_thumbnail(parent))
+            self.modified.add(child["id"])
 
         self.updated_resources = []
         self.updated_resource_localfiles = []
         for i in range(0, updated_resources):
-            parent = self.recurse_tree_until_leaf_container(self.root_node)
-            child = random.choice(parent["children"])
+            child = None
+            while child is None or child["id"] in self.modified:
+                parent = self.recurse_tree_until_leaf_container(self.root_node)
+                child = random.choice(parent["children"])
             self.updated_resource_localfiles.extend(self.update_resource(child))
             self.updated_resources.append(child)
+            self.modified.add(child["id"])
 
         self.deleted_resources = []
         for i in range(0, deleted_resources):
-            parent = self.recurse_tree_until_leaf_container(self.root_node)
-            child_index = random.randint(0, len(parent["children"]) - 1)
+            child = None
+            while child is None or child["id"] in self.modified:
+                parent = self.recurse_tree_until_leaf_container(self.root_node)
+                child_index = random.randint(0, len(parent["children"]) - 1)
+                child = parent["children"][child_index]
             child = parent["children"].pop(child_index)
             self.delete_resource_files(child)
             self.deleted_resources.append(child)
