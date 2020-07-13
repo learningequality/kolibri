@@ -2,6 +2,7 @@
 
   <div class="pos-rel">
     <KTextbox
+      class="identifier-textbox"
       :value="value"
       :label="$tr('label')"
       :maxlength="64"
@@ -49,10 +50,14 @@
     position: relative;
   }
 
+  .identifier-textbox {
+    width: calc(100% - 32px);
+  }
+
   .info-icon {
     position: absolute;
     top: 27px;
-    right: -34px;
+    right: 0;
   }
 
   /deep/ .k-tooltip {
