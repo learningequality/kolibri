@@ -28,6 +28,13 @@
     "default_font": "NotoSansBengali"
   },
   {
+    "crowdin_code": "de",
+    "intl_code": "de",
+    "language_name": "Deutch",
+    "english_name": "German",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "en",
     "intl_code": "en",
     "language_name": "English",

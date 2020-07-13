@@ -26,7 +26,7 @@
   "ConfirmResetModal.reconfirmation": "任何自定义更改都将丢失。",
   "ConfirmResetModal.reset": "重置",
   "ConfirmResetModal.title": "恢复默认设置",
-  "CsvInfoModal.assigned": "教练作业",
+  "CsvInfoModal.assigned": "教练分配",
   "CsvInfoModal.birthYear": "出生年份",
   "CsvInfoModal.close": "关闭",
   "CsvInfoModal.columnIDHeader": "识别号",

@@ -168,7 +168,7 @@
   "FacilityNameAndSyncStatus.justNow": "刚刚",
   "FacilityNameAndSyncStatus.lastSync": "最近一次成功的同步",
   "FacilityNameAndSyncStatus.neverSynced": "从未同步过",
-  "FacilityNameAndSyncStatus.registeredAlready": "在“Kolibri数据门户网站”注册",
+  "FacilityNameAndSyncStatus.registeredAlready": "在“课励彼数据门户网站”注册",
   "FacilityNameAndSyncStatus.syncFailed": "最近同步失败",
   "FacilityNameAndSyncStatus.syncing": "同步中",
   "FilePresetStrings.audio": "音频 ({fileSize})",
