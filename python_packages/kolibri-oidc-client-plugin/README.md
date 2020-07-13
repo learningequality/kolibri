@@ -19,6 +19,30 @@ This package provides Kolibri users with the ability to authenticate against an 
 3. Restart Kolibri
 
 
+## Used claims
+
+This plugin will create a new user in the Kolibri database after it authenticates using the OIDC provider.
+From the [standard OIDC claims](https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims) the plugin will fetch the following fields and add the information to the Kolibri user database:
+
+- `nickname` (or `username`)
+- `given_name`
+- `family_name`
+- `email`
+- `birthdate`
+- `gender`
+
+In case `birthdate`is provided, the accepted format is  [ISO8601‑2004] YYYY-MM-DD. However Kolibri only stores the year of birth.
+
+Apart from these standard claims, the plugin will accept a  `roles` in the user_info token provided as a list. Allowed roles are only `admin` or `coach`.
+If the role is not provided the user is created as a learner.
+
+As an user_info token payload example:
+```json
+{"email":"jhon@doe.com", "username":"jdoe", "roles":"['coach']", "family_name":"Doe"}
+
+```
+
+
 ## Plugin configuration
 
 This plugin is based on the [Mozilla Django OIDC library](https://mozilla-django-oidc.readthedocs.io/en/stable/). The plugin has been set to work with a standard OpenID Connect provider, so most of the library options have already been set and are not optional.

@@ -1,6 +1,6 @@
 import logging
 from uuid import uuid4
-
+from kolibri.core.auth.errors import InvalidRoleKind
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from mozilla_django_oidc.auth import SuspiciousOperation
 
@@ -9,7 +9,9 @@ logger = logging.getLogger(__name__)
 
 class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
     def get_username(self, claim):
-        username = claim.get("nickname")  # according to https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
+        username = claim.get(
+            "nickname"
+        )  # according to https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
         if not username:  # according to OLIP implementation
             username = claim.get("username")
         return username
@@ -66,12 +68,34 @@ class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
         username = self.get_username(claims)
         full_name = claims.get("name", "")
         if not full_name:
-            full_name = '{} {}'.format(claims.get('given_name', ""), claims.get('family_name', ""))
+            full_name = "{} {}".format(
+                claims.get("given_name", ""), claims.get("family_name", "")
+            )
         # not needed in Kolibri, email is not mandatory:
-        email = username
+        email = claims.get("email", username)
         # Kolibri doesn't allow an empty password. This isn't going to be used:
         password = uuid4().hex
-
-        return self.UserModel.objects.create_user(
-            username, email=email, full_name=full_name, password=password
+        # birthdate format is [ISO8601‑2004] YYYY-MM-DD
+        birthdate = (
+            claims.get("birthdate")[:4] if "birthdate" in claims else "NOT_SPECIFIED"
         )
+        gender = claims.get("gender", "NOT_SPECIFIED").upper()
+        user = self.UserModel.objects.create_user(
+            username,
+            email=email,
+            full_name=full_name,
+            password=password,
+            birth_year=birthdate,
+            gender=gender,
+        )
+
+        # check if the user has assigned roles and assign them in such case
+        roles = claims.get("roles", [])
+        for role in roles:
+            if role.lower() in ("admin", "coach"):
+                try:
+                    user.facility.add_role(user, role.lower())
+                except InvalidRoleKind:
+                    pass  # The role does not exist in Kolibri
+
+        return user
