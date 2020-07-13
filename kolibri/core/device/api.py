@@ -86,9 +86,15 @@ class DeviceInfoView(views.APIView):
 
         info["urls"] = urls
 
-        if settings.DATABASES["default"]["ENGINE"].endswith("sqlite3"):
+        db_engine = settings.DATABASES["default"]["ENGINE"]
+
+        if db_engine.endswith("sqlite3"):
             # If any other database backend, will not be file backed, so no database path to return
             info["database_path"] = settings.DATABASES["default"]["NAME"]
+        elif db_engine.endswith("postgresql"):
+            info["database_path"] = "postgresql"
+        else:
+            info["database_path"] = ""
 
         instance_model = InstanceIDModel.get_or_create_current_instance()[0]
 
