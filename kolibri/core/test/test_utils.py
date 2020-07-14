@@ -100,3 +100,13 @@ class RedisSettingsHelperTestCase(TestCase):
         self.helper.set_maxmemory_policy("allkeys-lru")
         self.client.config_set.assert_called_with("maxmemory-policy", "allkeys-lru")
         self.assertTrue(self.helper.changed)
+
+    @mock.patch("kolibri.core.utils.cache.logger")
+    def test_save(self, mock_logger):
+        self.helper.save()
+        self.client.config_rewrite.assert_not_called()
+
+        self.helper.changed = True
+        self.helper.save()
+        self.client.config_rewrite.assert_called()
+        self.assertFalse(self.helper.changed)
