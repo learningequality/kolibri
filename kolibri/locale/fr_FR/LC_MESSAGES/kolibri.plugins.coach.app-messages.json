@@ -28,7 +28,7 @@
   "CommonCoachStrings.avgTimeSpentLabel": "Temps moyen passé",
   "CommonCoachStrings.backToLessonLabel": "Retour à \"{lesson}\"",
   "CommonCoachStrings.classLabel": "Classe",
-  "CommonCoachStrings.classesLabel": "Cours",
+  "CommonCoachStrings.classesLabel": "Classes",
   "CommonCoachStrings.closeQuizLabel": "Terminer le quiz",
   "CommonCoachStrings.closeQuizModalDetail": "Tous les apprenants recevront une note finale et un rapport de quiz. Les questions non terminées seront considérées comme incorrectes.",
   "CommonCoachStrings.coachLabel": "Éducateur",

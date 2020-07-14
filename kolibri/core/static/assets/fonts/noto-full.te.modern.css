@@ -118,6 +118,24 @@
 
 @font-face {
   font-family: 'noto-full';
+  src: url('noto-full.NotoSansKhmer.400.woff') format('woff');
+  font-style: normal;
+  font-weight: normal;
+  unicode-range: U+1780-17DD,U+17E0-17E9,U+17F0-17F9,U+19E0-19FF;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
+  src: url('noto-full.NotoSansKhmer.700.woff') format('woff');
+  font-style: normal;
+  font-weight: bold;
+  unicode-range: U+1780-17DD,U+17E0-17E9,U+17F0-17F9,U+19E0-19FF;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
   src: url('noto-full.NotoSansMyanmar.400.woff') format('woff');
   font-style: normal;
   font-weight: normal;
@@ -311,24 +329,6 @@
   font-style: normal;
   font-weight: bold;
   unicode-range: U+E81-E82,U+E84,U+E87-E88,U+E8A,U+E8D,U+E94-E97,U+E99-E9F,U+EA1-EA3,U+EA5,U+EA7,U+EAA-EAB,U+EAD-EB9,U+EBB-EBD,U+EC0-EC4,U+EC6,U+EC8-ECD,U+ED0-ED9,U+EDC-EDF;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansKhmer.400.woff') format('woff');
-  font-style: normal;
-  font-weight: normal;
-  unicode-range: U+1780-17DD,U+17E0-17E9,U+17F0-17F9,U+19E0-19FF;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansKhmer.700.woff') format('woff');
-  font-style: normal;
-  font-weight: bold;
-  unicode-range: U+1780-17DD,U+17E0-17E9,U+17F0-17F9,U+19E0-19FF;
   font-display: swap;
 }
 
