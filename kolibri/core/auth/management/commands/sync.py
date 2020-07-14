@@ -174,27 +174,20 @@ class Command(AsyncCommand):
             )
 
         logger.info("Syncing has been initiated (this may take a while)...")
+        sync_session_client = network_connection.create_sync_session(
+            client_cert, server_cert, chunk_size=chunk_size
+        )
 
         try:
             # pull from server
             if not no_pull:
                 self._handle_pull(
-                    network_connection,
-                    client_cert,
-                    server_cert,
-                    chunk_size,
-                    noninteractive,
-                    dataset_id,
+                    sync_session_client, noninteractive, dataset_id,
                 )
             # and push our own data to server
             if not no_push:
                 self._handle_push(
-                    network_connection,
-                    client_cert,
-                    server_cert,
-                    chunk_size,
-                    noninteractive,
-                    dataset_id,
+                    sync_session_client, noninteractive, dataset_id,
                 )
 
             if not no_provision:
@@ -223,39 +216,27 @@ class Command(AsyncCommand):
         # job can't be cancelled while locked
         if self.job:
             cancellable = self.job.cancellable
-            self.job.cancellable = False
+            self.job.save_as_cancellable(cancellable=False)
 
         with db_task_write_lock:
             yield
 
-        if self.job and cancellable:
-            self.job.cancellable = True
+        if self.job:
+            self.job.save_as_cancellable(cancellable=cancellable)
 
     def _raise_cancel(self, *args, **kwargs):
         if self.is_cancelled() and (not self.job or self.job.cancellable):
             raise UserCancelledError()
 
     def _handle_pull(
-        self,
-        network_connection,
-        client_cert,
-        server_cert,
-        chunk_size,
-        noninteractive,
-        dataset_id,
+        self, sync_session_client, noninteractive, dataset_id,
     ):
         """
-        :type network_connection: morango.sync.syncsession.NetworkSyncConnection
-        :type client_cert: kolibri.core.auth.models.Certificate
-        :type server_cert: kolibri.core.auth.models.Certificate
-        :type chunk_size: int
+        :type sync_session_client: morango.sync.syncsession.SyncSessionClient
         :type noninteractive: bool
         :type dataset_id: str
         """
-        sync_client = network_connection.get_pull_client(
-            client_cert, server_cert, chunk_size=chunk_size
-        )
-
+        sync_client = sync_session_client.get_pull_client()
         sync_client.signals.queuing.connect(self._raise_cancel)
         sync_client.signals.transferring.connect(self._raise_cancel)
 
@@ -290,26 +271,14 @@ class Command(AsyncCommand):
             sync_client.finalize()
 
     def _handle_push(
-        self,
-        network_connection,
-        client_cert,
-        server_cert,
-        chunk_size,
-        noninteractive,
-        dataset_id,
+        self, sync_session_client, noninteractive, dataset_id,
     ):
         """
-        :type network_connection: morango.sync.syncsession.NetworkSyncConnection
-        :type client_cert: kolibri.core.auth.models.Certificate
-        :type server_cert: kolibri.core.auth.models.Certificate
-        :type chunk_size: int
+        :type sync_session_client: morango.sync.syncsession.SyncSessionClient
         :type noninteractive: bool
         :type dataset_id: str
         """
-        sync_client = network_connection.get_push_client(
-            client_cert, server_cert, chunk_size=chunk_size
-        )
-
+        sync_client = sync_session_client.get_push_client()
         sync_client.signals.transferring.connect(self._raise_cancel)
 
         self._queueing_tracker_adapter(
@@ -344,7 +313,7 @@ class Command(AsyncCommand):
 
         # we can't cancel remotely integrating data
         if self.job:
-            self.job.cancellable = False
+            self.job.save_as_cancellable(cancellable=False)
 
         # allow server timeout since remotely integrating data can take a while and the request
         # could timeout. In that case, we'll assume everything is good.
@@ -431,11 +400,11 @@ class Command(AsyncCommand):
                 ),
             )
 
-        signal_group.started.connect(stats)
-        signal_group.connect(handler)
-
         if noninteractive or tracker.progressbar is None:
+            signal_group.started.connect(stats)
             signal_group.in_progress.connect(stats)
+
+        signal_group.connect(handler)
 
         # log one more time at end to capture in logging output
         signal_group.completed.connect(stats)

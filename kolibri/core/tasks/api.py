@@ -179,9 +179,6 @@ def validate_deletion_task(request, task_description):
 class BaseViewSet(viewsets.ViewSet):
     queues = []
 
-    def _job_to_response(self, job):
-        return _job_to_response(job)
-
     @property
     def permission_classes(self):
         # task permissions shared between facility management and device management
@@ -197,7 +194,7 @@ class BaseViewSet(viewsets.ViewSet):
 
     def list(self, request):
         jobs_response = [
-            self._job_to_response(j) for _queue in self.queues for j in _queue.jobs
+            _job_to_response(j) for _queue in self.queues for j in _queue.jobs
         ]
 
         return Response(jobs_response)
@@ -209,7 +206,7 @@ class BaseViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         for _queue in self.queues:
             try:
-                task = self._job_to_response(_queue.fetch_job(pk))
+                task = _job_to_response(_queue.fetch_job(pk))
                 break
             except JobNotFound:
                 continue
@@ -838,20 +835,6 @@ class TasksViewSet(BaseViewSet):
 
 class FacilityTasksViewSet(BaseViewSet):
     queues = [facility_queue]
-
-    def _job_to_response(self, job):
-        response = super(FacilityTasksViewSet, self)._job_to_response(job)
-        sync_state = job.extra_metadata.get("sync_state", "none")
-
-        # if it's a sync task, and it's in these states, we'll report that it's not cancellable
-        if sync_state in [
-            FacilitySyncState.LOCAL_QUEUING,
-            FacilitySyncState.REMOTE_DEQUEUING,
-            FacilitySyncState.LOCAL_DEQUEUING,
-        ]:
-            response.update(cancellable=False)
-
-        return response
 
     @property
     def permission_classes(self):
