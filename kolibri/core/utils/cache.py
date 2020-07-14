@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 
@@ -10,6 +11,9 @@ from django.core.cache import caches
 from django.core.cache import InvalidCacheBackendError
 from django.core.cache.backends.base import BaseCache
 from django.utils.functional import SimpleLazyObject
+
+
+logger = logging.getLogger(__name__)
 
 
 def __get_process_cache():
@@ -28,6 +32,8 @@ class DiskCacheRLock(object):
     https://github.com/grantjenks/python-diskcache/blob/2d1f43ea2be4c82a430d245de6260c3e18059ba1/diskcache/recipes.py
     """
 
+    sleep_time = 0.001
+
     def __init__(self, key, expire=None):
         self._cache = process_cache
         self._key = key
@@ -44,7 +50,7 @@ class DiskCacheRLock(object):
             if pid_tid == value or count == 0:
                 self._cache.set(self._key, (pid_tid, count + 1), self._expire)
                 return
-            time.sleep(0.001)
+            time.sleep(self.sleep_time)
 
     def release(self):
         "Release lock by decrementing count."
@@ -149,3 +155,37 @@ class NamespacedCacheProxy(BaseCache):
             for key in self._get_keys():
                 self.cache.delete(self.make_key(key))
             self._set_keys([])
+
+
+class RedisSettingsHelper(object):
+    def __init__(self, client):
+        """
+        :type client: redis.Redis
+        """
+        self.client = client
+        self.changed = False
+
+    def get(self, key, default_value=None):
+        return self.client.config_get(key).get(key, default_value)
+
+    def set(self, key, value):
+        self.changed = True
+        logger.info("Configuring Redis: {} {}".format(key, value))
+        return self.client.config_set(key, value)
+
+    def get_maxmemory(self):
+        return int(self.get("maxmemory", default_value=0))
+
+    def set_maxmemory(self, maxmemory):
+        return self.set("maxmemory", maxmemory)
+
+    def get_maxmemory_policy(self):
+        return self.get("maxmemory-policy", default_value="noeviction")
+
+    def set_maxmemory_policy(self, policy):
+        return self.set("maxmemory-policy", policy)
+
+    def save(self):
+        if self.changed:
+            logger.info("Overwriting Redis config")
+            self.client.config_rewrite()

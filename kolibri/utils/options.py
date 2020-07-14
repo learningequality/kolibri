@@ -12,6 +12,9 @@ CACHE_MAX_ENTRIES
 CACHE_PASSWORD
 CACHE_LOCATION
 CACHE_REDIS_MIN_DB
+CACHE_REDIS_USE_CONF
+CACHE_REDIS_MAXMEMORY
+CACHE_REDIS_MAXMEMORY_POLICY
 
 [Database]
 DATABASE_ENGINE
@@ -215,6 +218,29 @@ base_option_spec = {
             "type": "integer",
             "default": 0,
             "envvars": ("KOLIBRI_CACHE_REDIS_MIN_DB",),
+        },
+        "CACHE_REDIS_USE_CONF": {
+            "type": "boolean",
+            "default": False,
+            "envvars": ("KOLIBRI_CACHE_REDIS_USE_CONF",),
+        },
+        "CACHE_REDIS_MAXMEMORY": {
+            "type": "integer",
+            "default": 100 * 1024 * 1024,  # ~100MB
+            "envvars": ("KOLIBRI_CACHE_REDIS_MAXMEMORY",),
+        },
+        "CACHE_REDIS_MAXMEMORY_POLICY": {
+            "type": "option",
+            "options": (
+                "allkeys-lru",
+                "volatile-lru",
+                "allkeys-random",
+                "volatile-random",
+                "volatile-ttl",
+                "noeviction",
+            ),
+            "default": "allkeys-lru",
+            "envvars": ("KOLIBRI_CACHE_REDIS_MAXMEMORY_POLICY",),
         },
     },
     "Database": {

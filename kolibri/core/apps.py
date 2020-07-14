@@ -10,8 +10,11 @@ from django.db.utils import DatabaseError
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
 from kolibri.core.sqlite.utils import repair_sqlite_db
+from kolibri.core.utils.cache import RedisSettingsHelper
+from kolibri.utils.conf import OPTIONS
 
 logger = logging.getLogger(__name__)
+CACHE_OPTIONS = OPTIONS["Cache"]
 
 
 class KolibriCoreConfig(AppConfig):
@@ -31,6 +34,9 @@ class KolibriCoreConfig(AppConfig):
                 settings=os.environ["DJANGO_SETTINGS_MODULE"]
             )
         )
+        # When configured to use Redis, make sure we have sensible Redis settings
+        if CACHE_OPTIONS["CACHE_BACKEND"] == "redis":
+            self.check_redis_settings()
 
     @staticmethod
     def activate_pragmas_per_connection(sender, connection, **kwargs):
@@ -84,3 +90,54 @@ class KolibriCoreConfig(AppConfig):
             # at the cost of a slight penalty to all reads.
             cursor.execute(START_PRAGMAS)
             connection.close()
+
+    @staticmethod
+    def check_redis_settings():
+        """
+        Check that Redis settings are sensible, and use the lower level Redis client to make updates
+        if we are configured to do so, and if we should, otherwise make some logging noise.
+        """
+        from kolibri.core.utils.cache import process_cache
+
+        config_use_conf = CACHE_OPTIONS["CACHE_REDIS_USE_CONF"]
+        config_maxmemory = CACHE_OPTIONS["CACHE_REDIS_MAXMEMORY"]
+        config_maxmemory_policy = CACHE_OPTIONS["CACHE_REDIS_MAXMEMORY_POLICY"]
+
+        try:
+            # see redis_cache.backends.single.RedisCache
+            client = process_cache.get_master_client()
+            helper = RedisSettingsHelper(client)
+            config_warn = False
+
+            # default setting is "0", or no limit
+            maxmemory = helper.get_maxmemory()
+            if config_use_conf:
+                if maxmemory == 0:
+                    logger.warning("Redis is configured without a maximum memory size.")
+                    config_warn = True
+            elif maxmemory != config_maxmemory:
+                helper.set_maxmemory(config_maxmemory)
+
+            # default setting is "noeviction"
+            maxmemory_policy = helper.get_maxmemory_policy()
+            if config_use_conf:
+                if maxmemory_policy == "noeviction":
+                    logger.warning(
+                        "Redis is configured without a maximum memory policy. Using Redis with "
+                        "Kolibri, the following is suggested: maxmemory-policy allkeys-lru"
+                    )
+                    config_warn = True
+            elif maxmemory_policy != config_maxmemory_policy:
+                helper.set_maxmemory_policy(config_maxmemory_policy)
+
+            # should only change something when `config_use_conf` is also `False`
+            helper.save()
+
+            if config_warn:
+                logger.warning(
+                    "Please see Redis configuration documentation for details: "
+                    "https://redis.io/topics/config"
+                )
+        except Exception as e:
+            logger.warning("Unable to check Redis settings")
+            logger.warning(e)

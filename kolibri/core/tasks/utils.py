@@ -5,6 +5,8 @@ import uuid
 
 from kolibri.core.tasks import compat
 from kolibri.core.utils.cache import DiskCacheRLock
+from kolibri.core.utils.cache import process_cache
+from kolibri.utils.conf import OPTIONS
 
 
 # An object on which to store data about the current job
@@ -120,4 +122,16 @@ class InfiniteLoopThread(compat.Thread):
         self.stop()
 
 
-db_task_write_lock = DiskCacheRLock("db_task_write_lock")
+DB_TASK_WRITE_LOCK = "db_task_write_lock"
+if OPTIONS["Cache"]["CACHE_BACKEND"] == "redis":
+    # if we're using Redis, be sure we use Redis' locking mechanism which uses
+    # `SET NX` under the hood. See redis.lock.Lock
+    db_task_write_lock = process_cache.lock(
+        DB_TASK_WRITE_LOCK,
+        timeout=None,  # milliseconds
+        sleep=DiskCacheRLock.sleep_time,  # seconds
+        blocking_timeout=100,  # seconds
+        thread_local=True,
+    )
+else:
+    db_task_write_lock = DiskCacheRLock(DB_TASK_WRITE_LOCK)
