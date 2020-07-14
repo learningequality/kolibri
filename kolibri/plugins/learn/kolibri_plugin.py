@@ -7,6 +7,7 @@ from django.urls import reverse
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.auth.constants.user_kinds import LEARNER
 from kolibri.core.content.hooks import ContentNodeDisplayHook
+from kolibri.core.device.utils import allow_learner_unassigned_resource_access
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import is_landing_page
 from kolibri.core.device.utils import LANDING_PAGE_LEARN
@@ -47,7 +48,10 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
 
     @property
     def plugin_data(self):
-        return {"allowGuestAccess": get_device_setting("allow_guest_access")}
+        return {
+            "allowGuestAccess": get_device_setting("allow_guest_access"),
+            "allowLearnerUnassignedResourceAccess": allow_learner_unassigned_resource_access(),
+        }
 
 
 @register_hook

@@ -20,3 +20,12 @@ export function pageMode(state) {
   }
   return undefined;
 }
+
+export function canAccessUnassignedContent(state, getters) {
+  return (
+    state.canAccessUnassignedContentSetting ||
+    getters.isCoach ||
+    getters.isAdmin ||
+    getters.isSuperUser
+  );
+}
