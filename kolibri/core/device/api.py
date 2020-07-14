@@ -94,7 +94,7 @@ class DeviceInfoView(views.APIView):
         elif db_engine.endswith("postgresql"):
             info["database_path"] = "postgresql"
         else:
-            info["database_path"] = ""
+            info["database_path"] = "unknown"
 
         instance_model = InstanceIDModel.get_or_create_current_instance()[0]
 
