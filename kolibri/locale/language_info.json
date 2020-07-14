@@ -98,6 +98,13 @@
     "default_font": "NotoSans"
   },
   {
+    "crowdin_code": "km",
+    "intl_code": "km",
+    "language_name": "ភាសាខ្មែរ",
+    "english_name": "Khmer",
+    "default_font": "NotoSansKhmer"
+  },
+  {
     "crowdin_code": "ko",
     "intl_code": "ko",
     "language_name": "한국어",
