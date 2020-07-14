@@ -147,6 +147,11 @@
         type: Boolean,
         default: false,
       },
+      // If an ID is provided, that address's radio button will be automatically selected
+      selectedId: {
+        type: String,
+        required: false,
+      },
     },
     data() {
       return {
@@ -236,6 +241,9 @@
             this.resetSelectedAddress();
             this.stage = this.Stages.FETCHING_SUCCESSFUL;
             this.savedAddressesInitiallyFetched = true;
+            if (this.savedAddresses.find(({ id }) => this.selectedId === id)) {
+              this.selectedAddressId = this.selectedId;
+            }
           })
           .catch(() => {
             this.stage = this.Stages.FETCHING_FAILED;
