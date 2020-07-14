@@ -225,7 +225,7 @@ EXTRA_LANG_INFO = {
         "name": "Gujarati",
         "name_local": "ગુજરાતી",
     },
-    "km": {"bidi": False, "code": "km", "name": "Khmer", "name_local": "ភាសាខ្មែរ",},
+    "km": {"bidi": False, "code": "km", "name": "Khmer", "name_local": "ភាសាខ្មែរ"},
     "nyn": {
         "bidi": False,
         "code": "nyn",
