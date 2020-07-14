@@ -237,6 +237,11 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+
+        logger.warn(
+            "The 'provisiondevice' command is experimental, and the API and behavior will change in a future release"
+        )
+
         with transaction.atomic():
             facility = create_facility(
                 facility_name=options["facility"],
