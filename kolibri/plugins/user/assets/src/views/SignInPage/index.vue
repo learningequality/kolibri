@@ -139,6 +139,7 @@
           @userSelected="setSelectedUsername"
         />
       </div>
+      -->
 
       <!-- TODO: This can be its own separate component -->
       <!-- Learner was created without a password, but now must create one. -->
