@@ -6,156 +6,142 @@
     :fullScreen="true"
   >
     <AuthBase>
+      <div v-if="!needsToCreatePassword">
+        <!-- ** Text and Backlinks ** -->
 
-      <!-- ** Text and Backlinks ** -->
+        <!-- In MFD show return to facility select when not asking for password -->
+        <KRouterLink
+          v-if="hasMultipleFacilities && !showPasswordForm"
+          icon="back"
+          :text="$tr('changeFacility')"
+          :to="backToFacilitySelectionRoute"
+          style="margin-top: 24px; text-align: left; width: 100%;"
+        />
 
-      <!-- In MFD show return to facility select when not asking for password -->
-      <KRouterLink
-        v-if="hasMultipleFacilities && !showPasswordForm"
-        icon="back"
-        :text="$tr('changeFacility')"
-        :to="backToFacilitySelectionRoute"
-        style="margin-top: 24px; text-align: left; width: 100%;"
-      />
+        <!-- When password form shows, show a change user link -->
+        <!-- Not using v-else here to be more explicit -->
+        <KButton
+          v-if="showPasswordForm"
+          appearance="basic-link"
+          :text="$tr('changeUser')"
+          style="margin-top: 24px; text-align: left; width: 100%;"
+          @click="clearUser"
+        >
+          <KIcon slot="icon" icon="back" :color="$themeTokens.primary" />
+        </KButton>
 
-      <!-- When password form shows, show a change user link -->
-      <!-- Not using v-else here to be more explicit -->
-      <KButton
-        v-if="showPasswordForm"
-        appearance="basic-link"
-        :text="$tr('changeUser')"
-        style="margin-top: 24px; text-align: left; width: 100%;"
-        @click="clearUser"
-      >
-        <KIcon slot="icon" icon="back" :color="$themeTokens.primary" />
-      </KButton>
+        <SignInHeading 
+          :showFacilityName="showFacilityName" 
+          :showPasswordForm="showPasswordForm"
+        />
 
+        <!-- END Text & Backlinks -->
 
-      <!-- TODO: This may as well be its own little component -->
-      <!-- ALSO NOTE: `informal` means `personal` and vice versa -->
-      <!-- Asking for username, has multiple facilities or is not informal -->
-      <div v-if="showFacilityName && !showPasswordForm" style="margin-top: 24px; margin-bottom: 16px; text-align: left;">
-        {{ $tr("signInToFacilityLabel", { facility: selectedFacility.name }) }}
-      </div>
-
-      <!-- Asking for password, has multiple facilities or is not informal -->
-      <div v-else-if="showFacilityName && showPasswordForm" style="margin-top: 24px; margin-bottom: 16px; text-align: left;">
-        {{ $tr("signingInToFacilityAsUserLabel", { facility: selectedFacility.name, user: username }) }}
-      </div>
-
-      <!-- Asking for password, has one facility which is informal -->
-      <div v-else-if="showPasswordForm">
-        {{ $tr("signingInAsUser", { user: username }) }}
-      </div>
-      <!-- END TODO about what should be in a separate component -->
-
-      <!-- END Text & Backlinks -->
-
-
-      <!-- 
-        USERNAME FORM
-        Always presented to user unless we are in app context AND have <= 16 users in the facility
-        TODO: Extract this into a separate component. We're post string freeze and short on time right now
-      -->
-      <form ref="form" class="login-form" @submit.prevent="signIn">
-        <div v-show="showUsernameForm">
-          <UiAlert
-            v-if="invalidCredentials"
-            type="error"
-            :dismissible="false"
-          >
-            {{ $tr('signInError') }}
-          </UiAlert>
-          <transition name="textbox">
-            <KTextbox
-              id="username"
-              ref="username"
-              v-model="username"
-              autocomplete="username"
-              :autofocus="true"
-              :label="coreString('usernameLabel')"
-              :invalid="usernameIsInvalid"
-              :invalidText="usernameIsInvalidText"
-              @blur="handleUsernameBlur"
-              @input="showDropdown = true"
-              @keydown="handleKeyboardNav"
-            />
-          </transition>
-          <transition name="list">
-            <div class="suggestions-wrapper">
-              <ul
-                v-if="simpleSignIn && suggestions.length"
-                v-show="showDropdown"
-                class="suggestions"
-                :style="{ backgroundColor: $themeTokens.surface }"
-              >
-                <UiAutocompleteSuggestion
-                  v-for="(suggestion, i) in suggestions"
-                  :key="i"
-                  :suggestion="suggestion"
-                  :style="suggestionStyle(i)"
-                  @mousedown.native="fillUsername(suggestion)"
-                />
-              </ul>
+        <!-- 
+          USERNAME FORM
+          Presented to user **unless** we are in app context AND have <= 16 users in the facility
+          TODO: Extract this into a separate component. We're post string freeze and short on time right now
+        -->
+        <form ref="form" class="login-form" @submit.prevent="signIn">
+          <div v-show="showUsernameForm">
+            <UiAlert
+              v-if="invalidCredentials"
+              type="error"
+              :dismissible="false"
+            >
+              {{ $tr('signInError') }}
+            </UiAlert>
+            <transition name="textbox">
+              <KTextbox
+                id="username"
+                ref="username"
+                v-model="username"
+                autocomplete="username"
+                :autofocus="true"
+                :label="coreString('usernameLabel')"
+                :invalid="usernameIsInvalid"
+                :invalidText="usernameIsInvalidText"
+                @blur="handleUsernameBlur"
+                @input="showDropdown = true"
+                @keydown="handleKeyboardNav"
+              />
+            </transition>
+            <transition name="list">
+              <div class="suggestions-wrapper">
+                <ul
+                  v-if="simpleSignIn && suggestions.length"
+                  v-show="showDropdown"
+                  class="suggestions"
+                  :style="{ backgroundColor: $themeTokens.surface }"
+                >
+                  <UiAutocompleteSuggestion
+                    v-for="(suggestion, i) in suggestions"
+                    :key="i"
+                    :suggestion="suggestion"
+                    :style="suggestionStyle(i)"
+                    @mousedown.native="fillUsername(suggestion)"
+                  />
+                </ul>
+              </div>
+            </transition>
+            <div>
+              <KButton
+                class="login-btn"
+                :text="$tr('nextLabel')"
+                :primary="true"
+                :disabled="busy"
+                @click="signIn"
+              />
             </div>
-          </transition>
-          <div>
-            <KButton
-              class="login-btn"
-              :text="$tr('nextLabel')"
-              :primary="true"
-              :disabled="busy"
-              @click="signIn"
-            />
           </div>
-        </div>
-        <div v-show="showPasswordForm">
-          <transition name="textbox">
-            <KTextbox
-              id="password"
-              ref="password"
-              v-model="password"
-              type="password"
-              autocomplete="current-password"
-              :label="coreString('passwordLabel')"
-              :autofocus="true"
-              :invalid="passwordIsInvalid"
-              :invalidText="passwordIsInvalidText"
-              :floatingLabel="false"
-              @blur="handlePasswordBlur"
-            />
-          </transition>
-          <div>
-            <KButton
-              class="login-btn"
-              type="submit"
-              :text="coreString('signInLabel')"
-              :primary="true"
-              :disabled="busy"
-            />
+          <div v-show="showPasswordForm">
+            <transition name="textbox">
+              <KTextbox
+                id="password"
+                ref="password"
+                v-model="password"
+                type="password"
+                autocomplete="current-password"
+                :label="coreString('passwordLabel')"
+                :autofocus="true"
+                :invalid="passwordIsInvalid"
+                :invalidText="passwordIsInvalidText"
+                :floatingLabel="false"
+                @blur="handlePasswordBlur"
+              />
+            </transition>
+            <div>
+              <KButton
+                class="login-btn"
+                type="submit"
+                :text="coreString('signInLabel')"
+                :primary="true"
+                :disabled="busy"
+              />
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
 
-      <!--
-        USERS LIST
-        Shows users in a list of buttons to be selected from.
-        Shown in App Context in a Facility with <= 16 users
+        <!--
+          USERS LIST
+          Shows users in a list of buttons to be selected from.
+          Shown in App Context in a Facility with <= 16 users
 
-        TODO: When the username form is moved to its own component,
-        integrate this better with that component in next pass for
-        state management and event (signIn) handling
-      -->
-      <UsersList
-        v-if="showUsersList && !showPasswordForm"
-        :users="usernamesForCurrentFacility"
-        :busy="busy"
-        @userSelected="setSelectedUsername"
-      />
+          TODO: When the username form is moved to its own component,
+          integrate this better with that component in next pass for
+          state management and event (signIn) handling
+        -->
+        <UsersList
+          v-if="showUsersList && !showPasswordForm"
+          :users="usernamesForCurrentFacility"
+          :busy="busy"
+          @userSelected="setSelectedUsername"
+        />
+      </div>
 
       <!-- TODO: This can be its own separate component -->
-      <!-- Password creation flow - note: not the first thing seen -->
-      <div v-if="needsToCreatePassword" style="text-align: left">
+      <!-- Learner was created without a password, but now must create one. -->
+      <div v-else style="text-align: left">
         <KButton
           appearance="basic-link"
           text=""
@@ -163,7 +149,8 @@
           @click="clearUser"
         >
           <KIcon
-            :icon="back"
+            slot="icon"
+            icon="back"
             :style="{
               fill: $themeTokens.primary,
               height: '1.125em',
@@ -214,10 +201,11 @@
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { ComponentMap, PageNames } from '../constants';
-  import getUrlParameter from './getUrlParameter';
-  import AuthBase from './AuthBase';
-  import UsersList from './UsersList';
+  import { ComponentMap, PageNames } from '../../constants';
+  import getUrlParameter from '../getUrlParameter';
+  import AuthBase from '../AuthBase';
+  import UsersList from '../UsersList';
+  import SignInHeading from './SignInHeading';
   import plugin_data from 'plugin_data';
 
   const MAX_USERS_FOR_LISTING_VIEW = 16;
@@ -233,6 +221,7 @@
       AuthBase,
       CoreBase,
       PasswordTextbox,
+      SignInHeading,
       UiAutocompleteSuggestion,
       UiAlert,
       UsersList,
