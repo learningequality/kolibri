@@ -8,7 +8,7 @@
         </div>
         <KRouterLink
           :text="coreString('signInLabel')"
-          :to="route(signInRoute)"
+          :to="signInRoute"
           appearance="raised-button"
           style="width: 100%;"
           :primary="true"
@@ -20,7 +20,7 @@
         </div>
         <KRouterLink
           :text="$tr('createAccountAction')"
-          :to="route(signUpRoute)"
+          :to="signUpRoute"
           :primary="false"
           style="width: 100%;"
           appearance="raised-button"
@@ -44,20 +44,15 @@
     mixins: [commonCoreStrings],
     computed: {
       signUpRoute() {
-        return this.$router.getRoute(ComponentMap.SIGN_UP);
+        const whereToNext = this.$router.getRoute(ComponentMap.SIGN_UP);
+        return { ...this.facilitySelectRoute, params: { whereToNext } };
       },
       signInRoute() {
-        return this.$router.getRoute(ComponentMap.SIGN_IN);
+        const whereToNext = this.$router.getRoute(ComponentMap.SIGN_IN);
+        return { ...this.facilitySelectRoute, params: { whereToNext } };
       },
       facilitySelectRoute() {
         return this.$router.getRoute(ComponentMap.FACILITY_SELECT);
-      },
-    },
-    methods: {
-      route(whereToNext) {
-        const route = this.facilitySelectRoute;
-        route.params = { whereToNext };
-        return route;
       },
     },
     $trs: {

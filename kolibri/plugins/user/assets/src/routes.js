@@ -47,7 +47,7 @@ export default [
     component: SignInPage,
     beforeEnter(to, from, next) {
       if (store.getters.isUserLoggedIn) {
-        next(router.getRoute(componentMap.PROFILE));
+        next(router.getRoute(ComponentMap.PROFILE));
       } else {
         // If we're on multiple facility device, show auth_select when
         // there is no facilityId
@@ -70,7 +70,7 @@ export default [
         next(router.getRoute(ComponentMap.PROFILE));
         return Promise.resolve();
       } else {
-        return showSignUpPage(store, fromRoute);
+        return showSignUpPage(store, from);
       }
     },
   },
@@ -93,19 +93,28 @@ export default [
       if (store.getters.isUserLoggedIn) {
         router.replace({ name: PageNames.PROFILE });
       } else {
-        next();
+        // This param is required, so return to AuthSelect
+        // unless we have it
+        if (to.params.whereToNext) {
+          next();
+        } else {
+          next(router.getRoute(ComponentMap.AUTH_SELECT));
+        }
       }
     },
   },
   {
     path: '/profile',
     component: ProfilePage,
-    handler: () => {
+    beforeEnter: (to, from, next) => {
+      /*
       if (!store.getters.isUserLoggedIn) {
         router.replace({ name: PageNames.SIGN_IN });
       } else {
         showProfilePage(store);
       }
+      */
+      next();
     },
   },
   {

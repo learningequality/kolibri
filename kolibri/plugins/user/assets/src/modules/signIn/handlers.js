@@ -1,7 +1,6 @@
 import Lockr from 'lockr';
 import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri.coreVue.vuex.constants';
 import { createTranslator } from 'kolibri.utils.i18n';
-import { PageNames } from '../../constants';
 
 const snackbarTranslator = createTranslator('UserPageSnackbars', {
   dismiss: 'Dismiss',
