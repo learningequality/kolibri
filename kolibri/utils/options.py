@@ -275,6 +275,11 @@ base_option_spec = {
             "envvars": ("KOLIBRI_HTTP_PORT", "KOLIBRI_LISTEN_PORT"),
         },
         "RUN_MODE": {"type": "string", "envvars": ("KOLIBRI_RUN_MODE",)},
+        "DISABLE_PING": {
+            "type": "boolean",
+            "default": False,
+            "envvars": ("KOLIBRI_DISABLE_PING",),
+        },
         "URL_PATH_PREFIX": {
             "type": "string",
             "default": "/",
