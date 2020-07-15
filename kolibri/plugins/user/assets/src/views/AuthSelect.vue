@@ -19,25 +19,18 @@
             :primary="true"
           />
         </div>
-        <KRouterLink
-          :text="coreString('signInLabel')"
-          :to="signInRoute"
-          appearance="raised-button"
-          style="width: 100%;"
-          :primary="true"
-        />
-      </div>
-      <div class="sign-up-prompt">
-        <div class="label">
-          {{ $tr("newUserPrompt") }}
+        <div class="sign-up-prompt">
+          <div class="label">
+            {{ $tr("newUserPrompt") }}
+          </div>
+          <KRouterLink
+            :text="$tr('createAccountAction')"
+            :to="signUpRoute"
+            :primary="false"
+            style="width: 100%;"
+            appearance="raised-button"
+          />
         </div>
-        <KRouterLink
-          :text="$tr('createAccountAction')"
-          :to="signUpRoute"
-          :primary="false"
-          style="width: 100%;"
-          appearance="raised-button"
-        />
       </div>
     </AuthBase>
   </CoreBase>

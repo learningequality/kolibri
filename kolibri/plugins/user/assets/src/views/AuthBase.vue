@@ -77,6 +77,7 @@
                 :primary="false"
                 appearance="raised-button"
                 style="width: 100%;"
+                data-test="createUser"
               />
             </p>
 
@@ -154,8 +155,9 @@
   import branding from 'kolibri.utils.branding';
   import loginComponents from 'kolibri.utils.loginComponents';
   import urls from 'kolibri.urls';
-  import { ComponentMap } from '../constants';
+  import { ComponentMap, PageNames } from '../constants';
   import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
+
   import plugin_data from 'plugin_data';
 
   export default {
