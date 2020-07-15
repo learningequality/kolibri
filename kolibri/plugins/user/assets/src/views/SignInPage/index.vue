@@ -175,7 +175,7 @@
           appearance="raised-button"
           :primary="true"
           :text="coreString('continueAction')"
-          style="margin: 24px auto 0; display:block;"
+          style="width: 100%; margin: 24px auto 0; display:block;"
           :disabled="busy"
           @click="updatePasswordAndSignIn"
         />
@@ -641,7 +641,7 @@
   }
 
   .login-btn {
-    width: calc(100% - 16px);
+    width: 100%;
     margin-top: 16px;
   }
 

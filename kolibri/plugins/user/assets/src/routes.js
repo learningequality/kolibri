@@ -52,7 +52,13 @@ export default [
         // If we're on multiple facility device, show auth_select when
         // there is no facilityId
         if (store.getters.facilities.length > 1 && !store.state.facilityId) {
-          next(router.getRoute(ComponentMap.AUTH_SELECT));
+          // Go to FacilitySelect with whereToNext => SignUpPage
+          const whereToNext = router.getRoute(ComponentMap.SIGN_IN);
+          const route = {
+            ...router.getRoute(ComponentMap.FACILITY_SELECT),
+            params: { whereToNext },
+          };
+          next(route);
         } else {
           showSignInPage(store).then(() => {
             store.commit('CORE_SET_PAGE_LOADING', false);
@@ -70,7 +76,20 @@ export default [
         next(router.getRoute(ComponentMap.PROFILE));
         return Promise.resolve();
       } else {
-        return showSignUpPage(store, from);
+        if (store.getters.facilities.length > 1 && !store.state.facilityId) {
+          // Go to FacilitySelect with whereToNext => SignUpPage
+          const whereToNext = router.getRoute(ComponentMap.SIGN_UP);
+          const route = {
+            ...router.getRoute(ComponentMap.FACILITY_SELECT),
+            params: { whereToNext },
+          };
+          next(route);
+        } else {
+          showSignUpPage(store, from).then(() => {
+            store.commit('CORE_SET_PAGE_LOADING', false);
+            next();
+          });
+        }
       }
     },
   },
@@ -78,6 +97,9 @@ export default [
     path: '/signin-or-signup',
     component: AuthSelect,
     beforeEnter(to, from, next) {
+      // If we're loading CoreBase won't render.
+      // There is nothing to load within this component.
+      store.commit('CORE_SET_PAGE_LOADING', false);
       if (store.getters.isUserLoggedIn) {
         next(router.getRoute(ComponentMap.PROFILE));
       } else {
@@ -90,6 +112,9 @@ export default [
     component: FacilitySelect,
     props: true,
     beforeEnter(to, from, next) {
+      // If we're loading CoreBase won't render.
+      // There is nothing to load within this component.
+      store.commit('CORE_SET_PAGE_LOADING', false);
       if (store.getters.isUserLoggedIn) {
         router.replace({ name: PageNames.PROFILE });
       } else {

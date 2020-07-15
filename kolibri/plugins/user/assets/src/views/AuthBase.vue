@@ -75,9 +75,9 @@
                 v-if="canSignUp"
                 :text="$tr('createAccountAction')"
                 :to="signUpPage"
-                :primary="true"
-                appearance="flat-button"
-                data-test="createUser"
+                :primary="false"
+                appearance="raised-button"
+                style="width: 100%;"
               />
             </p>
 
@@ -155,8 +155,9 @@
   import branding from 'kolibri.utils.branding';
   import loginComponents from 'kolibri.utils.loginComponents';
   import urls from 'kolibri.urls';
+  import { ComponentMap, PageNames } from '../constants';
   import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
-  import { PageNames } from '../constants';
+
   import plugin_data from 'plugin_data';
 
   export default {
@@ -198,10 +199,11 @@
         return this.facilityConfig.learner_can_sign_up;
       },
       signUpPage() {
+        let signUpRoute = this.$router.getRoute(ComponentMap.SIGN_UP);
         if (this.nextParam) {
-          return { name: PageNames.SIGN_UP, query: { next: this.nextParam } };
+          return { ...signUpRoute, query: { next: this.nextParam } };
         }
-        return { name: PageNames.SIGN_UP };
+        return signUpRoute;
       },
       loginOptions() {
         // POC, in the future sorting of different login options can be implemented

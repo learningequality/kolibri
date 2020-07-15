@@ -1,46 +1,53 @@
 <template>
 
-  <AuthBase :hideCreateAccount="true">
-    <div class="auth-select">
-      <div>
-        <div class="label">
-          {{ $tr("signInPrompt") }}
+  <CoreBase
+    :immersivePage="false"
+    :immersivePagePrimary="false"
+    :fullScreen="true"
+  >
+    <AuthBase :hideCreateAccount="true">
+      <div class="auth-select">
+        <div>
+          <div class="label">
+            {{ $tr("signInPrompt") }}
+          </div>
+          <KRouterLink
+            :text="coreString('signInLabel')"
+            :to="signInRoute"
+            appearance="raised-button"
+            style="width: 100%;"
+            :primary="true"
+          />
         </div>
-        <KRouterLink
-          :text="coreString('signInLabel')"
-          :to="signInRoute"
-          appearance="raised-button"
-          style="width: 100%;"
-          :primary="true"
-        />
-      </div>
-      <div class="sign-up-prompt">
-        <div class="label">
-          {{ $tr("newUserPrompt") }}
+        <div class="sign-up-prompt">
+          <div class="label">
+            {{ $tr("newUserPrompt") }}
+          </div>
+          <KRouterLink
+            :text="$tr('createAccountAction')"
+            :to="signUpRoute"
+            :primary="false"
+            style="width: 100%;"
+            appearance="raised-button"
+          />
         </div>
-        <KRouterLink
-          :text="$tr('createAccountAction')"
-          :to="signUpRoute"
-          :primary="false"
-          style="width: 100%;"
-          appearance="raised-button"
-        />
       </div>
-    </div>
-  </AuthBase>
+    </AuthBase>
+  </CoreBase>
 
 </template>
 
 
 <script>
 
+  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ComponentMap } from '../constants';
   import AuthBase from './AuthBase';
 
   export default {
     name: 'AuthSelect',
-    components: { AuthBase },
+    components: { AuthBase, CoreBase },
     mixins: [commonCoreStrings],
     computed: {
       signUpRoute() {
