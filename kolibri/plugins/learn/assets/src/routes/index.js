@@ -18,6 +18,16 @@ import RecommendedPage from '../views/RecommendedPage';
 import RecommendedSubpage from '../views/RecommendedSubpage';
 import classesRoutes from './classesRoutes';
 
+function unassignedContentGuard() {
+  const { canAccessUnassignedContent } = store.getters;
+  if (!canAccessUnassignedContent) {
+    // If there are no memberships and it is allowed, redirect to topics page
+    return router.replace({ name: ClassesPageNames.ALL_CLASSES });
+  }
+  // Otherwise return nothing
+  return;
+}
+
 export default [
   ...classesRoutes,
   {
@@ -40,6 +50,9 @@ export default [
     name: PageNames.TOPICS_ROOT,
     path: '/topics',
     handler: () => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
       showChannels(store);
     },
   },
@@ -47,6 +60,9 @@ export default [
     name: PageNames.RECOMMENDED,
     path: '/recommended',
     handler: () => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
       showRecommended(store);
     },
     component: RecommendedPage,
@@ -55,6 +71,9 @@ export default [
     name: PageNames.SEARCH,
     path: '/search',
     handler: toRoute => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
       showSearch(store, { ...toRoute.query });
     },
   },
@@ -71,6 +90,9 @@ export default [
     name: PageNames.TOPICS_CHANNEL,
     path: '/topics/:channel_id',
     handler: toRoute => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
       showTopicsChannel(store, toRoute.params.channel_id);
     },
   },
@@ -78,6 +100,9 @@ export default [
     name: PageNames.TOPICS_TOPIC,
     path: '/topics/t/:id',
     handler: toRoute => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
       showTopicsTopic(store, { id: toRoute.params.id });
     },
   },
@@ -85,6 +110,9 @@ export default [
     name: PageNames.TOPICS_CONTENT,
     path: '/topics/c/:id',
     handler: toRoute => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
       showTopicsContent(store, toRoute.params.id);
     },
   },
@@ -92,6 +120,9 @@ export default [
     name: PageNames.RECOMMENDED_POPULAR,
     path: '/recommended/popular',
     handler: () => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
       showPopularPage(store);
     },
     component: RecommendedSubpage,
@@ -100,6 +131,9 @@ export default [
     name: PageNames.RECOMMENDED_RESUME,
     path: '/recommended/resume',
     handler: () => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
       showResumePage(store);
     },
     component: RecommendedSubpage,
@@ -108,6 +142,9 @@ export default [
     name: PageNames.RECOMMENDED_NEXT_STEPS,
     path: '/recommended/nextsteps',
     handler: () => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
       showNextStepsPage(store);
     },
     component: RecommendedSubpage,
