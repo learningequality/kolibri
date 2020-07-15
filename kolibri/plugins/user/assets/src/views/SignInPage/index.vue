@@ -27,30 +27,24 @@
           style="margin-top: 24px; text-align: left; width: 100%;"
           @click="clearUser"
         >
-          <KIcon slot="icon" icon="back" :color="$themeTokens.primary" />
+          <KIcon slot="icon" icon="back" :color="$themeTokens.primary" style="margin-right: 8px;" />
         </KButton>
 
-        <SignInHeading 
-          :showFacilityName="showFacilityName" 
+        <SignInHeading
+          :showFacilityName="showFacilityName"
           :showPasswordForm="showPasswordForm"
         />
 
         <!-- END Text & Backlinks -->
 
-        <!-- 
+        <!--
           USERNAME FORM
           Presented to user **unless** we are in app context AND have <= 16 users in the facility
-          TODO: Extract this into a separate component. We're post string freeze and short on time right now
+          TODO: Extract this into a separate component. We're post string freeze and short on
+          time right now
         -->
         <form ref="form" class="login-form" @submit.prevent="signIn">
           <div v-show="showUsernameForm">
-            <UiAlert
-              v-if="invalidCredentials"
-              type="error"
-              :dismissible="false"
-            >
-              {{ $tr('signInError') }}
-            </UiAlert>
             <transition name="textbox">
               <KTextbox
                 id="username"
@@ -95,6 +89,13 @@
             </div>
           </div>
           <div v-show="showPasswordForm">
+            <UiAlert
+              v-if="invalidCredentials"
+              type="error"
+              :dismissible="false"
+            >
+              {{ $tr('signInError') }}
+            </UiAlert>
             <transition name="textbox">
               <KTextbox
                 id="password"
@@ -201,7 +202,7 @@
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { ComponentMap, PageNames } from '../../constants';
+  import { ComponentMap } from '../../constants';
   import getUrlParameter from '../getUrlParameter';
   import AuthBase from '../AuthBase';
   import UsersList from '../UsersList';
@@ -241,6 +242,7 @@
         createdPasswordConfirmation: '',
         busy: false,
         loginError: null,
+        usernameSubmittedWithoutPassword: false,
       };
     },
     computed: {
@@ -268,7 +270,10 @@
         return { ...facilityRoute, params: { whereToNext } };
       },
       showPasswordForm() {
-        return Boolean(this.username) && (this.passwordMissing || this.invalidCredentials);
+        return (
+          Boolean(this.username) &&
+          (this.passwordMissing || this.invalidCredentials || this.usernameSubmittedWithoutPassword)
+        );
       },
       showUsernameForm() {
         return !this.showPasswordForm && !this.showUsersList;
@@ -320,12 +325,6 @@
       passwordIsInvalid() {
         return Boolean(this.passwordIsInvalidText);
       },
-      formIsValid() {
-        if (this.simpleSignIn) {
-          return !this.usernameIsInvalid;
-        }
-        return !this.usernameIsInvalid && !this.passwordIsInvalid;
-      },
       nextParam() {
         // query is after hash
         if (this.$route.query.next) {
@@ -333,9 +332,6 @@
         }
         // query is before hash
         return getUrlParameter('next');
-      },
-      PageNames() {
-        return PageNames;
       },
       showFacilityName() {
         return (
@@ -353,12 +349,15 @@
       // that need to be focused for cleaner transitions
       showPasswordForm(b) {
         if (b) {
-          this.$nextTick(() => this.$refs.password.focus());
+          this.$nextTick(() => {
+            this.$refs.password.focus();
+          });
         }
       },
       showUsernameForm(b) {
         if (b) {
           this.$nextTick(() => this.$refs.username.focus());
+          this.usernameSubmittedWithoutPassword = false;
         }
       },
     },
@@ -515,16 +514,9 @@
         this.passwordBlurred = false;
         this.showDropdown = false;
       },
-      validateAndSignIn() {
-        this.formSubmitted = true;
-        if (this.formIsValid) {
-          this.signIn();
-        } else {
-          this.focusOnInvalidField();
-        }
-      },
       signIn() {
         this.busy = true;
+
         const sessionPayload = {
           username: this.username,
           password: this.password,
@@ -540,8 +532,16 @@
 
         this.kolibriLogin(sessionPayload)
           .then(err => {
+            // If we don't have a password, we submitted without a username
             if (err) {
-              this.loginError = err;
+              if (err === LoginErrors.PASSWORD_NOT_SPECIFIED) {
+                // This error overrides the whole layout
+                this.loginError = err;
+              } else {
+                // Otherwise, only show errors when we've submitted a password
+                this.usernameSubmittedWithoutPassword = !this.password;
+                this.loginError = this.usernameSubmittedWithoutPassword ? null : err;
+              }
             }
             this.busy = false;
           })
@@ -550,15 +550,6 @@
             this.busy = false;
           });
       },
-      focusOnInvalidField() {
-        this.$nextTick(() => {
-          if (this.usernameIsInvalid) {
-            this.$refs.username.focus();
-          } else if (this.passwordIsInvalid) {
-            this.$refs.password.focus();
-          }
-        });
-      },
       suggestionStyle(i) {
         return {
           backgroundColor: this.highlightedIndex === i ? this.$themePalette.grey.v_200 : '',
@@ -566,20 +557,21 @@
       },
     },
     $trs: {
+      // TODO: Remove the comments in $trs, run the linter, fix the issues
+      // Disabling this altogether for now because we use some with crossComponentTranslator
+      /* eslint-disable kolibri/vue-no-unused-translations */
       changeLabel: {
         message: 'Change',
         context:
           '(verb) Link to change the facility to sign in when the device has more than one facility',
       },
-      signInError: 'Incorrect username or password',
       signInToFacilityLabel: "Sign into '{facility}'",
+      greetUser: 'Hi, {user}',
+      signInError: 'Incorrect username or password',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
       documentTitle: 'User Sign In',
-      greetUser: 'Hi, {user}',
       needToMakeNewPasswordLabel: 'Hi, {user}. You need to set a new password for your account.',
       nextLabel: 'Next',
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      // stub out some extra strings
       signingInToFacilityAsUserLabel: "Signing in to '{facility}' as '{user}'",
       signingInAsUserLabel: "Signing in as '{user}'",
       changeUser: 'Change user',

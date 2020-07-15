@@ -1,5 +1,5 @@
 import Lockr from 'lockr';
-import { PageNames, pageNameToModuleMap } from '../constants';
+import { ComponentMap, pageNameToModuleMap } from '../constants';
 import profile from './profile';
 import signIn from './signIn';
 
@@ -10,19 +10,18 @@ export default {
     appBarTitle: '',
   },
   actions: {
-    resetAndSetPageName(store, { pageName }) {
-      store.commit('SET_PAGE_NAME', pageName);
+    reset(store) {
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
     },
     setFacilitiesAndConfig(store) {
       return store.dispatch('getFacilities').then(() => {
-        return store.dispatch('getFacilityConfig');
+        return store.dispatch('getFacilityConfig', store.getters.selectedFacility.id);
       });
     },
     resetModuleState(store, { toRoute, fromRoute }) {
       const moduleName = pageNameToModuleMap[fromRoute.name];
-      if (toRoute.name === PageNames.SIGN_UP && fromRoute.name === PageNames.SIGN_UP) {
+      if (toRoute.name === ComponentMap.SIGN_UP && fromRoute.name === ComponentMap.SIGN_UP) {
         return;
       }
       if (moduleName) {
@@ -31,6 +30,7 @@ export default {
     },
     setFacilityId(store, { facilityId }) {
       store.commit('SET_FACILITY_ID', facilityId);
+      store.dispatch('getFacilityConfig', facilityId);
     },
   },
   getters: {
@@ -40,7 +40,7 @@ export default {
       if (selectedFacility) {
         return selectedFacility;
       } else {
-        return getters.facilities.find(f => (f.id = getters.currentFacilityId)) || null;
+        return getters.facilities.find(f => f.id == getters.currentFacilityId) || null;
       }
     },
   },

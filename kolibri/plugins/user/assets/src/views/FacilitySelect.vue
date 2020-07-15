@@ -13,9 +13,9 @@
             {{ label }}
           </p>
           <div v-for="facility in facilityList['enabled']" :key="facility.id" class="facility-name">
-            <KButton 
-              appearance="raised-button" 
-              :primary="false" 
+            <KButton
+              appearance="raised-button"
+              :primary="false"
               @click="setFacility(facility.id)"
             >
               <KIcon slot="icon" icon="facility" style="margin-right: 16px;" />
@@ -27,10 +27,14 @@
           <p class="label">
             {{ $tr('askAdminForAccountLabel') }}
           </p>
-          <div v-for="facility in facilityList['disabled']" :key="facility.id" class="facility-name">
-            <KButton 
-              :disabled="true" 
-              :primary="false" 
+          <div
+            v-for="facility in facilityList['disabled']"
+            :key="facility.id"
+            class="facility-name"
+          >
+            <KButton
+              :disabled="true"
+              :primary="false"
               appearance="raised-button"
             >
               <KIcon slot="icon" icon="facility" style="margin-right: 16px;" />

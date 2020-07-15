@@ -70,9 +70,8 @@
 
             <slot></slot>
 
-            <p v-if="!hideCreateAccount" class="create">
+            <p v-if="!hideCreateAccount && canSignUp" class="create">
               <KRouterLink
-                v-if="canSignUp"
                 :text="$tr('createAccountAction')"
                 :to="signUpPage"
                 :primary="false"
@@ -155,9 +154,8 @@
   import branding from 'kolibri.utils.branding';
   import loginComponents from 'kolibri.utils.loginComponents';
   import urls from 'kolibri.urls';
-  import { ComponentMap, PageNames } from '../constants';
+  import { ComponentMap } from '../constants';
   import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
-
   import plugin_data from 'plugin_data';
 
   export default {

@@ -7,7 +7,6 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ComponentMap } from '../constants';
 
@@ -25,9 +24,6 @@
         this.$store.commit('SET_APPBAR_TITLE', this.appBarTitle(newVal));
       },
     },
-    computed: {
-      ...mapGetters(['facilities', 'selectedFacility']),
-    },
     methods: {
       appBarTitle(route) {
         if (route.name === ComponentMap.PROFILE || route.name == ComponentMap.PROFILE_EDIT) {
@@ -42,48 +38,6 @@
         }
 
         return this.coreString('signInLabel');
-      },
-      // TODO: Migrate this logic into components
-      immersiveProperties(route) {
-        if (route.name === ComponentMap.SIGN_UP) {
-          if (!route.query.step) {
-            const backRoute =
-              this.facilities.length > 1 && !this.selectedFacility
-                ? this.$router.getRoute(ComponentMap.AUTH_SELECT)
-                : this.$router.getRoute(ComponentMap.SIGN_IN);
-
-            return {
-              immersivePage: true,
-              immersivePageRoute: backRoute,
-              immersivePagePrimary: false,
-              immersivePageIcon: 'close',
-            };
-          }
-          return {
-            immersivePage: true,
-            immersivePageRoute: { query: {} },
-            immersivePagePrimary: false,
-            immersivePageIcon: 'back',
-          };
-        }
-        if (route.name === ComponentMap.PROFILE_EDIT) {
-          return {
-            immersivePage: true,
-            immersivePageRoute: this.$router.getRoute(ComponentMap.PROFILE),
-            immersivePagePrimary: true,
-            immersivePageIcon: 'back',
-          };
-        }
-        return {
-          immersivePage: false,
-        };
-      },
-      isFullscreenPage() {
-        return [
-          ComponentMap.SIGN_IN,
-          ComponentMap.AUTH_SELECT,
-          ComponentMap.FACILITY_SELECT,
-        ].includes(this.$route.name);
       },
     },
     $trs: {

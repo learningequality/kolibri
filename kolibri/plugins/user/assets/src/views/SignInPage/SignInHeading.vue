@@ -1,19 +1,24 @@
 <template>
 
   <div class="sign-in-text">
-    <div 
-      v-if="showFacilityName && !showPasswordForm" 
+    <div
+      v-if="showFacilityName && !showPasswordForm"
       style="margin-top: 24px; margin-bottom: 16px; text-align: left;"
     >
       {{ strings.$tr("signInToFacilityLabel", { facility: selectedFacility.name }) }}
     </div>
 
     <!-- Asking for password, has multiple facilities or is not informal -->
-    <div 
-      v-else-if="showFacilityName && showPasswordForm" 
+    <div
+      v-else-if="showFacilityName && showPasswordForm"
       style="margin-top: 24px; margin-bottom: 16px; text-align: left;"
     >
-      {{ strings.$tr("signingInToFacilityAsUserLabel", { facility: selectedFacility.name, user: username }) }}
+      {{
+        strings.$tr(
+          "signingInToFacilityAsUserLabel",
+          { facility: selectedFacility.name, user: username }
+        )
+      }}
     </div>
 
     <!-- Asking for password, has one facility which is informal -->
@@ -45,7 +50,7 @@
     },
     computed: {
       ...mapGetters(['selectedFacility']),
-      ...mapState('signIn', ['username', 'password']),
+      ...mapState('signIn', ['username']),
       strings() {
         // Gross
         return crossComponentTranslator(SignInPage);
