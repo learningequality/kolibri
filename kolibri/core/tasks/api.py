@@ -16,6 +16,7 @@ from django.http.response import HttpResponseBadRequest
 from django.utils.translation import get_language_from_request
 from django.utils.translation import gettext_lazy as _
 from morango.sync.controller import MorangoProfileController
+from requests.exceptions import HTTPError
 from rest_framework import decorators
 from rest_framework import serializers
 from rest_framework import status
@@ -896,7 +897,7 @@ class FacilityTasksViewSet(BaseViewSet):
         Initiate a SYNC (PULL + PUSH) of a specific facility from another device.
         """
         job_data = validate_and_prepare_peer_sync_job(
-            request, extra_metadata=prepare_sync_task(request, type="SYNCPEER/FULL"),
+            request, extra_metadata=prepare_sync_task(request, type="SYNCPEER/FULL")
         )
         job_id = facility_queue.enqueue(call_command, "sync", **job_data)
 
@@ -915,12 +916,12 @@ class FacilityTasksViewSet(BaseViewSet):
                 raise KeyError()
         except KeyError:
             raise ParseError(
-                dict(code="INVALID_FACILITY", message="Missing `facility` parameter",)
+                dict(code="INVALID_FACILITY", message="Missing `facility` parameter")
             )
 
         if not Facility.objects.filter(id=facility_id).exists():
             raise ValidationError(
-                dict(code="INVALID_FACILITY", message="Facility doesn't exist",)
+                dict(code="INVALID_FACILITY", message="Facility doesn't exist")
             )
 
         if not Facility.objects.exclude(id=facility_id).exists():
@@ -933,7 +934,7 @@ class FacilityTasksViewSet(BaseViewSet):
 
         if request.user.is_facility_user and request.user.facility_id == facility_id:
             raise ValidationError(
-                dict(code="FACILITY_MEMBER", message="User is member of facility",)
+                dict(code="FACILITY_MEMBER", message="User is member of facility")
             )
 
         facility_name = Facility.objects.get(id=facility_id).name
@@ -1007,7 +1008,7 @@ def validate_prepare_sync_job(request, **kwargs):
         noninteractive=True,
         extra_metadata=dict(),
         track_progress=True,
-        cancellable=False,
+        cancellable=True,
     )
 
     job_data.update(kwargs)
@@ -1049,7 +1050,7 @@ def validate_and_prepare_peer_sync_job(request, **kwargs):
         get_client_and_server_certs(
             username, password, dataset_id, network_connection, noninteractive=True
         )
-    except CommandError as e:
+    except (CommandError, HTTPError) as e:
         if not username and not password:
             raise PermissionDenied()
         else:

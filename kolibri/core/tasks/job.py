@@ -102,6 +102,7 @@ class Job(object):
         self.save_meta_method = None
         self.update_progress_method = None
         self.check_for_cancel_method = None
+        self.save_as_cancellable_method = None
 
         if callable(func):
             funcstring = stringify_func(func)
@@ -138,6 +139,14 @@ class Job(object):
                 )
             self.check_for_cancel_method(self.job_id)
 
+    def save_as_cancellable(self, cancellable=True):
+        # if we're not changing cancellability then ignore
+        if self.cancellable == cancellable:
+            return
+        if self.save_as_cancellable_method is None:
+            raise ReferenceError("Missing method to save job as cancellable")
+        self.save_as_cancellable_method(self.job_id, cancellable=cancellable)
+
     def get_lambda_to_execute(self):
         """
         return a function that executes the function assigned to this job.
@@ -150,20 +159,27 @@ class Job(object):
         :return: a function that executes the original function assigned to this job.
         """
 
-        def y(update_progress_func, cancel_job_func, save_job_meta_func):
+        def y(
+            update_progress_func,
+            cancel_job_func,
+            save_job_meta_func,
+            save_as_cancellable_func,
+        ):
             """
             Call the function stored in self.func, and passing in update_progress_func
             or cancel_job_func depending if self.track_progress or self.cancellable is defined,
             respectively.
             :param update_progress_func: The callback for when the job updates its progress.
-            :param cancel_job_func: The function that the function has to call occasionally to see
-            if the user wants to cancel the currently running job.
+            :param cancel_job_func: The callback to see if the user wants to cancel the job.
+            :param save_job_meta_func: The callback to save any changes to meta data
+            :param save_as_cancellable_func: The callback to save any changes to meta data
             :return: Any
             """
 
             setattr(current_state_tracker, "job", self)
 
             self.save_meta_method = save_job_meta_func
+            self.save_as_cancellable_method = save_as_cancellable_func
             if self.track_progress:
                 self.update_progress_method = update_progress_func
 

@@ -92,3 +92,19 @@ class TestBackend:
         requeued_job = defaultbackend.get_job(job_id)
 
         assert requeued_job.state == State.QUEUED
+
+    def test_save_job_as_cancellable(self, defaultbackend, simplejob):
+        simplejob.cancellable = True
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+
+        job = defaultbackend.get_job(job_id)
+        assert job.cancellable, "Job is not cancellable"
+
+        defaultbackend.save_job_as_cancellable(job_id, cancellable=False)
+        job = defaultbackend.get_job(job_id)
+        assert not job.cancellable, "Job is still cancellable"
+
+        # default should be back to True
+        defaultbackend.save_job_as_cancellable(job_id)
+        job = defaultbackend.get_job(job_id)
+        assert job.cancellable, "Job is not cancellable default"

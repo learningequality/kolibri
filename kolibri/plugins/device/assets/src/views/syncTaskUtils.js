@@ -100,7 +100,7 @@ export function syncFacilityTaskDisplayInfo(task) {
     deviceNameMsg,
     isRunning: Boolean(syncStep) && !canClear,
     canClear,
-    canCancel: !canClear,
+    canCancel: !canClear && task.cancellable,
     canRetry: task.status === TaskStatuses.FAILED,
   };
 }

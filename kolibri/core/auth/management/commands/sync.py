@@ -1,6 +1,7 @@
 import json
 import logging
 import math
+from contextlib import contextmanager
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -20,11 +21,13 @@ from kolibri.core.auth.constants.morango_sync import State
 from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.auth.management.utils import run_once
 from kolibri.core.auth.models import dataset_cache
+from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.utils import conf
 
 DATA_PORTAL_SYNCING_BASE_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
+TRANSFER_MESSAGE = "{records_transferred}/{records_total}, {transfer_total}"
 
 
 logger = logging.getLogger(__name__)
@@ -70,7 +73,7 @@ class Command(AsyncCommand):
         )
         # parser.add_argument("--scope-id", type=str, default=FULL_FACILITY)
 
-    def handle_async(self, *args, **options):
+    def handle_async(self, *args, **options):  # noqa C901
 
         (
             baseurl,
@@ -171,63 +174,81 @@ class Command(AsyncCommand):
             )
 
         logger.info("Syncing has been initiated (this may take a while)...")
-
-        sync_client = network_connection.create_sync_session(
+        sync_session_client = network_connection.create_sync_session(
             client_cert, server_cert, chunk_size=chunk_size
         )
 
-        # pull from server and push our own data to server
-        if not no_pull:
-            self._setup_pull_progress_tracking(sync_client, noninteractive)
-            self._session_tracker_adapter(
-                sync_client.signals.session,
-                "Creating pull transfer session",
-                "Completed pull transfer session",
-            )
-            with db_task_write_lock:
-                sync_client.initiate_pull(Filter(dataset_id))
-        if not no_push:
-            self._setup_push_progress_tracking(sync_client, noninteractive)
-            self._session_tracker_adapter(
-                sync_client.signals.session,
-                "Creating push transfer session",
-                "Completed push transfer session",
-            )
-            with db_task_write_lock:
-                sync_client.initiate_push(Filter(dataset_id))
-
-        if not no_provision:
-            with db_task_write_lock:
-                create_superuser_and_provision_device(
-                    username, dataset_id, noninteractive=noninteractive
+        try:
+            # pull from server
+            if not no_pull:
+                self._handle_pull(
+                    sync_session_client, noninteractive, dataset_id,
+                )
+            # and push our own data to server
+            if not no_push:
+                self._handle_push(
+                    sync_session_client, noninteractive, dataset_id,
                 )
 
-        sync_client.close_sync_session()
+            if not no_provision:
+                with self._lock():
+                    create_superuser_and_provision_device(
+                        username, dataset_id, noninteractive=noninteractive
+                    )
+        except UserCancelledError:
+            if self.job:
+                self.job.extra_metadata.update(sync_state=State.CANCELLED)
+                self.job.save_meta()
+            logger.info("Syncing has been cancelled.")
+            return
+
+        network_connection.close()
 
         if self.job:
             self.job.extra_metadata.update(sync_state=State.COMPLETED)
+            self.job.save_meta()
 
         logger.info("Syncing has been completed.")
 
-    def _setup_pull_progress_tracking(self, sync_client, noninteractive):
-        """
-        Sets up progress trackers for pull stages
+    @contextmanager
+    def _lock(self):
+        cancellable = False
+        # job can't be cancelled while locked
+        if self.job:
+            cancellable = self.job.cancellable
+            self.job.save_as_cancellable(cancellable=False)
 
-        :type sync_client: morango.sync.syncsession.SyncClient
-        :type noninteractive: bool
+        with db_task_write_lock:
+            yield
+
+        if self.job:
+            self.job.save_as_cancellable(cancellable=cancellable)
+
+    def _raise_cancel(self, *args, **kwargs):
+        if self.is_cancelled() and (not self.job or self.job.cancellable):
+            raise UserCancelledError()
+
+    def _handle_pull(
+        self, sync_session_client, noninteractive, dataset_id,
+    ):
         """
-        transfer_message = "{records_transferred}/{records_total}, {transfer_total}"
+        :type sync_session_client: morango.sync.syncsession.SyncSessionClient
+        :type noninteractive: bool
+        :type dataset_id: str
+        """
+        sync_client = sync_session_client.get_pull_client()
+        sync_client.signals.queuing.connect(self._raise_cancel)
+        sync_client.signals.transferring.connect(self._raise_cancel)
 
         self._queueing_tracker_adapter(
             sync_client.signals.queuing,
             "Remotely preparing data",
             State.REMOTE_QUEUING,
-            False,
             noninteractive,
         )
         self._transfer_tracker_adapter(
-            sync_client.signals.pulling,
-            "Receiving data ({})".format(transfer_message),
+            sync_client.signals.transferring,
+            "Receiving data ({})".format(TRANSFER_MESSAGE),
             State.PULLING,
             noninteractive,
         )
@@ -235,29 +256,40 @@ class Command(AsyncCommand):
             sync_client.signals.dequeuing,
             "Locally integrating received data",
             State.LOCAL_DEQUEUING,
-            False,
             noninteractive,
         )
 
-    def _setup_push_progress_tracking(self, sync_client, noninteractive):
-        """
-        Sets up progress trackers for push stages
+        self._session_tracker_adapter(
+            sync_client.signals.session,
+            "Creating pull transfer session",
+            "Completed pull transfer session",
+        )
 
-        :type sync_client: morango.sync.syncsession.SyncClient
-        :type noninteractive: bool
+        sync_client.initialize(Filter(dataset_id))
+        sync_client.run()
+        with self._lock():
+            sync_client.finalize()
+
+    def _handle_push(
+        self, sync_session_client, noninteractive, dataset_id,
+    ):
         """
-        transfer_message = "{records_transferred}/{records_total}, {transfer_total}"
+        :type sync_session_client: morango.sync.syncsession.SyncSessionClient
+        :type noninteractive: bool
+        :type dataset_id: str
+        """
+        sync_client = sync_session_client.get_push_client()
+        sync_client.signals.transferring.connect(self._raise_cancel)
 
         self._queueing_tracker_adapter(
             sync_client.signals.queuing,
             "Locally preparing data to send",
             State.LOCAL_QUEUING,
-            True,
             noninteractive,
         )
         self._transfer_tracker_adapter(
-            sync_client.signals.pushing,
-            "Sending data ({})".format(transfer_message),
+            sync_client.signals.transferring,
+            "Sending data ({})".format(TRANSFER_MESSAGE),
             State.PUSHING,
             noninteractive,
         )
@@ -265,9 +297,27 @@ class Command(AsyncCommand):
             sync_client.signals.dequeuing,
             "Remotely integrating data",
             State.REMOTE_DEQUEUING,
-            True,
             noninteractive,
         )
+
+        self._session_tracker_adapter(
+            sync_client.signals.session,
+            "Creating push transfer session",
+            "Completed push transfer session",
+        )
+
+        with self._lock():
+            sync_client.initialize(Filter(dataset_id))
+
+        sync_client.run()
+
+        # we can't cancel remotely integrating data
+        if self.job:
+            self.job.save_as_cancellable(cancellable=False)
+
+        # allow server timeout since remotely integrating data can take a while and the request
+        # could timeout. In that case, we'll assume everything is good.
+        sync_client.finalize(allow_server_timeout=True)
 
     def _update_all_progress(self, progress_fraction, progress):
         """
@@ -350,42 +400,37 @@ class Command(AsyncCommand):
                 ),
             )
 
-        signal_group.started.connect(stats)
-        signal_group.connect(handler)
-
         if noninteractive or tracker.progressbar is None:
+            signal_group.started.connect(stats)
             signal_group.in_progress.connect(stats)
+
+        signal_group.connect(handler)
 
         # log one more time at end to capture in logging output
         signal_group.completed.connect(stats)
 
     def _queueing_tracker_adapter(
-        self, signal_group, message, sync_state, is_push, noninteractive
+        self, signal_group, message, sync_state, noninteractive
     ):
         """
-        Attaches a signal handler to queuing/dequeuing signals, filtered by `is_local` on
-        whether or not to match a local or remote signal
+        Attaches a signal handler to queuing/dequeuing signals
 
         :type signal_group: morango.sync.syncsession.SyncSignalGroup
         :type message: str
         :type sync_state: str
-        :type is_push: bool
         :type noninteractive: bool
         """
         tracker = self.start_progress(total=2)
 
         def started(transfer_session):
             dataset_cache.clear()
-            if transfer_session.push == is_push and (
-                noninteractive or tracker.progressbar is None
-            ):
+            if noninteractive or tracker.progressbar is None:
                 logger.info(message)
 
         def handler(transfer_session):
-            if transfer_session.push == is_push:
-                tracker.update_progress(
-                    message=message, extra_data=dict(sync_state=sync_state)
-                )
+            tracker.update_progress(
+                message=message, extra_data=dict(sync_state=sync_state)
+            )
 
         if noninteractive or tracker.progressbar is None:
             signal_group.started.connect(started)
