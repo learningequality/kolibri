@@ -8,6 +8,7 @@ from kolibri.core.apps import KolibriCoreConfig
 from kolibri.core.apps import RedisSettingsHelper
 
 DEFAULT_CACHE_OPTS = dict(
+    CACHE_BACKEND="redis",
     CACHE_REDIS_USE_CONF=False,
     CACHE_REDIS_MAXMEMORY=123,
     CACHE_REDIS_MAXMEMORY_POLICY="allkeys-lru",
@@ -17,17 +18,18 @@ DEFAULT_CACHE_OPTS = dict(
 def do_setup(**cache_opts):
     defaults = DEFAULT_CACHE_OPTS.copy()
     defaults.update(cache_opts)
-    cache_opts = defaults
+    all_opts = dict(Cache=defaults)
 
     def outer_decorator(func):
         @functools.wraps(func)
         def wrapped(self, mock_cache, mock_options, mock_helper_cls, mock_logger):
             mock_cache.get_master_client.return_value = self.client
-            mock_options.__getitem__.side_effect = cache_opts.__getitem__
+            mock_options.__getitem__.side_effect = all_opts.__getitem__
             mock_helper_cls.return_value = self.helper
-            func(self, mock_logger)
-            mock_cache.get_master_client.assert_called_once()
-            mock_helper_cls.assert_called_once_with(self.client)
+            result = func(self, mock_logger)
+            if not result:
+                mock_cache.get_master_client.assert_called_once()
+                mock_helper_cls.assert_called_once_with(self.client)
 
         return wrapped
 
@@ -36,8 +38,8 @@ def do_setup(**cache_opts):
 
 @mock.patch("kolibri.core.apps.logger")
 @mock.patch("kolibri.core.apps.RedisSettingsHelper")
-@mock.patch("kolibri.core.apps.CACHE_OPTIONS")
-@mock.patch("kolibri.core.utils.cache.process_cache")
+@mock.patch("kolibri.core.apps.OPTIONS")
+@mock.patch("kolibri.core.apps.process_cache")
 class KolibriCoreConfigTestCase(TestCase):
     def setUp(self):
         super(KolibriCoreConfigTestCase, self).setUp()
@@ -59,15 +61,30 @@ class KolibriCoreConfigTestCase(TestCase):
 
         logger.assert_not_called()
 
+    @do_setup(CACHE_BACKEND="magic")
+    def test_check_redis_settings__not_redis(self, logger):
+        KolibriCoreConfig.check_redis_settings()
+        self.helper.get_maxmemory.assert_not_called()
+        self.helper.set_maxmemory.assert_not_called()
+
+        self.helper.get_maxmemory_policy.assert_not_called()
+        self.helper.set_maxmemory_policy.assert_not_called()
+
+        self.helper.save.assert_not_called()
+        logger.assert_not_called()
+        return True
+
     @do_setup()
     def test_check_redis_settings(self, logger):
         self.setUp_okay()
         self.assertOkay(logger)
+        self.helper.save.assert_called()
 
     @do_setup(CACHE_REDIS_USE_CONF=True)
     def test_check_redis_settings__use_conf(self, logger):
         self.setUp_okay()
         self.assertOkay(logger)
+        self.helper.save.assert_not_called()
 
     @do_setup(CACHE_REDIS_USE_CONF=True)
     def test_check_redis_settings__use_conf__not_okay__maxmemory(self, logger):
@@ -81,6 +98,7 @@ class KolibriCoreConfigTestCase(TestCase):
         self.helper.get_maxmemory_policy.assert_called_once()
         self.helper.set_maxmemory_policy.assert_not_called()
 
+        self.helper.save.assert_not_called()
         logger.warning.assert_called()
 
     @do_setup(CACHE_REDIS_USE_CONF=True)
@@ -95,6 +113,7 @@ class KolibriCoreConfigTestCase(TestCase):
         self.helper.get_maxmemory_policy.assert_called_once()
         self.helper.set_maxmemory_policy.assert_not_called()
 
+        self.helper.save.assert_not_called()
         logger.warning.assert_called()
 
     @do_setup(CACHE_REDIS_MAXMEMORY=456)
@@ -109,6 +128,7 @@ class KolibriCoreConfigTestCase(TestCase):
         self.helper.get_maxmemory_policy.assert_called_once()
         self.helper.set_maxmemory_policy.assert_not_called()
 
+        self.helper.save.assert_called_once()
         logger.warning.assert_not_called()
 
     @do_setup(CACHE_REDIS_MAXMEMORY_POLICY="volatile-lru")
@@ -123,8 +143,5 @@ class KolibriCoreConfigTestCase(TestCase):
         self.helper.get_maxmemory_policy.assert_called_once()
         self.helper.set_maxmemory_policy.assert_called_once_with("volatile-lru")
 
-        logger.warning.assert_not_called()
-
-    def tearDown(self):
-        super(KolibriCoreConfigTestCase, self).tearDown()
         self.helper.save.assert_called_once()
+        logger.warning.assert_not_called()
