@@ -14,19 +14,8 @@ def prepend_cext_path(dist_path):
     machine_name = platform.machine()
     dirname = os.path.join(dist_path, "cext", python_version, system_name)
 
-    # Cryptography builds for Linux target Python 3.4+ but the only existing
-    # build is labeled 3.4 (the lowest version supported). This is because all
-    # the builds work on 3.4+!
-    # Minimum version will change to Python 3.5 in future versions of
-    # cryptography.
-    # https://cryptography.io/en/latest/faq/#why-are-there-no-wheels-for-python-3-6-on-linux-or-macos
-    # Untested for a future Python 3.9, so don't make it count for that one
-    if system_name == "Linux" and sys.version_info >= (3, 5):
-        python_version = "cp34"
-        dirname = os.path.join(dist_path, "cext", python_version, system_name)
-
     # For Linux system with cpython<3.3, there could be abi tags 'm' and 'mu'
-    elif system_name == "Linux" and sys.version_info < (3, 3):
+    if system_name == "Linux" and sys.version_info < (3, 3):
         # encode with ucs2
         if sys.maxunicode == 65535:
             dirname = os.path.join(dirname, python_version + "m")
