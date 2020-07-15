@@ -6,6 +6,7 @@ import signIn from './signIn';
 export default {
   state: {
     facilityId: Lockr.get('facilityId') || null,
+    redirect: null,
     pageName: '',
     appBarTitle: '',
   },
@@ -54,6 +55,9 @@ export default {
     },
     SET_APPBAR_TITLE(state, appBarTitle) {
       state.appBarTitle = appBarTitle;
+    },
+    SET_REDIRECT(state, redirect) {
+      state.redirect = redirect;
     },
   },
   modules: {

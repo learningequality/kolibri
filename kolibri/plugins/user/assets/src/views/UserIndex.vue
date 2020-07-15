@@ -13,6 +13,16 @@
   export default {
     name: 'UserIndex',
     mixins: [commonCoreStrings],
+    computed: {
+      redirect: {
+        get() {
+          return this.$store.state.signIn.redirect;
+        },
+        set(redirect) {
+          this.$store.commit('SET_REDIRECT', redirect);
+        },
+      },
+    },
     watch: {
       // TODO 0.15.x: Redefine the strings in this file wherever they're used
       // This is structured this way because UserIndex used to dynamically
@@ -23,6 +33,13 @@
       $route(newVal) {
         this.$store.commit('SET_APPBAR_TITLE', this.appBarTitle(newVal));
       },
+    },
+    created() {
+      // Check for redirect param and store it in vuex
+      // otherwise it'll be lost when the route changes.
+      if (this.$route.query.redirect) {
+        this.redirect = this.$route.query.redirect;
+      }
     },
     methods: {
       appBarTitle(route) {

@@ -248,6 +248,7 @@
     computed: {
       ...mapGetters(['selectedFacility', 'isAppContext']),
       ...mapState('signIn', ['hasMultipleFacilities']),
+      ...mapState(['redirect']),
       username: {
         get() {
           return this.$store.state.signIn.username;
@@ -525,9 +526,9 @@
 
         if (plugin_data.oidcProviderEnabled) {
           sessionPayload['next'] = this.nextParam;
-        } else if (this.$route.query.redirect && !this.nextParam) {
+        } else if (this.redirect && !this.nextParam) {
           // Go to URL in 'redirect' query param, if arriving from AuthMessage
-          sessionPayload['next'] = this.$route.query.redirect;
+          sessionPayload['next'] = this.redirect;
         }
 
         this.kolibriLogin(sessionPayload)
