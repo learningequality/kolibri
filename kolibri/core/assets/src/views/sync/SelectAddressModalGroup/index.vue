@@ -4,6 +4,7 @@
     <SelectAddressForm
       v-if="stage === Stages.SELECT_ADDRESS"
       :fetchAddressArgs="fetchAddressArgs"
+      :selectedId="addedAddressId"
       @click_add_address="goToAddAddress"
       @click_search_address="goToSearchAddress"
       @removed_address="handleRemovedAddress"
@@ -45,6 +46,7 @@
     data() {
       return {
         stage: Stages.SELECT_ADDRESS,
+        addedAddressId: '',
         Stages,
       };
     },
@@ -53,6 +55,7 @@
         this.$store.dispatch('createSnackbar', args);
       },
       goToAddAddress() {
+        this.addedAddressId = '';
         this.stage = Stages.ADD_ADDRESS;
       },
       goToSearchAddress() {
@@ -61,7 +64,8 @@
       goToSelectAddress() {
         this.stage = Stages.SELECT_ADDRESS;
       },
-      handleAddedAddress() {
+      handleAddedAddress(addressId) {
+        this.addedAddressId = addressId;
         this.createSnackbar(this.$tr('addAddressSnackbarText'));
         this.goToSelectAddress();
       },
