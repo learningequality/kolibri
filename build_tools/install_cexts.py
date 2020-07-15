@@ -14,32 +14,35 @@ DIST_CEXT = os.path.join(
     "dist",
     "cext",
 )
+DOCKER_VOLUME_PATH = "/cext_cache"
 PYPI_DOWNLOAD = "https://pypi.python.org/simple/"
 PIWHEEL_DOWNLOAD = "https://www.piwheels.org/simple/"
 
 
-def get_path_with_arch(platform, path, abi, implementation, python_version):
+def get_path_with_arch(platform, abi, implementation, python_version):
     """
     Calculate package path according to the platform.
     """
 
     # Split the platform into two parts.
     # For example: manylinux1_x86_64 to Linux, x86_64
-    platform_split = platform.replace("manylinux1", "Linux").split("_", 1)
+    platform_split = (
+        platform.replace("manylinux1", "Linux").replace("linux", "Linux").split("_", 1)
+    )
 
     # Windows 32-bit's machine name is x86.
     if platform_split[0] == "win32":
-        return os.path.join(path, "Windows", "x86")
+        return os.path.join("Windows", "x86")
     # Windows 64-bit
     elif platform_split[0] == "win":
-        return os.path.join(path, "Windows", "AMD64")
+        return os.path.join("Windows", "AMD64")
 
     # Prior to CPython 3.3, there were two ABI-incompatible ways of building CPython
     # There could be abi tag 'm' for narrow-unicode and abi tag 'mu' for wide-unicode
     if implementation == "cp" and int(python_version) < 33:
-        return os.path.join(path, platform_split[0], abi, platform_split[1])
+        return os.path.join(platform_split[0], abi, platform_split[1])
 
-    return os.path.join(path, platform_split[0], platform_split[1])
+    return os.path.join(platform_split[0], platform_split[1])
 
 
 def download_package(
@@ -138,14 +141,14 @@ def download_and_install(package_name, package_version, index_url, info):
         filename = "-".join([package_name, package_version, abi, platform])
 
         # Calculate the path that the package will be installed into
-        version_path = os.path.join(DIST_CEXT, implementation + python_version)
-        package_path = get_path_with_arch(
-            platform, version_path, abi, implementation, python_version
-        )
+        version_path = os.path.join(DOCKER_VOLUME_PATH, implementation + python_version)
+        package_path = get_path_with_arch(platform, abi, implementation, python_version)
+        volume_package_path = os.path.join(version_path, package_path)
 
         print("Downloading package {}...".format(filename))
+        # Download the package to the cache folder
         download_return = download_package(
-            package_path,
+            volume_package_path,
             platform,
             python_version,
             implementation,
@@ -157,8 +160,11 @@ def download_and_install(package_name, package_version, index_url, info):
 
         # Successfully download package
         if download_return == 0:
+            # Copy the files downloaded in DOCKER_VOLUME_PATH to DIST_CEXT
+            install_path = volume_package_path.replace(DOCKER_VOLUME_PATH, DIST_CEXT)
+            shutil.copytree(volume_package_path, install_path)
             print("Installing package {}...".format(filename))
-            install_package_by_wheel(package_path)
+            install_package_by_wheel(install_path)
         # Download failed
         else:
             # see https://github.com/learningequality/kolibri/issues/4656
@@ -245,6 +251,7 @@ def install(name, pk_version):
         else:
             sys.exit("\nUnable to find package {} on {}.\n".format(name, link))
 
+    # Clean up .dist-info folders
     files = os.listdir(DIST_CEXT)
     for file in files:
         if file.endswith(".dist-info"):

@@ -249,6 +249,7 @@ docker-whl: writeversion docker-envlist
 		--env-file ./docker/env.list \
 		-v $$PWD/dist:/kolibridist \
 		-v yarn_cache:/yarn_cache \
+		-v cext_cache:/cext_cache \
 		"learningequality/kolibri-whl"
 	git checkout -- ./docker/env.list  # restore env.list file
 
