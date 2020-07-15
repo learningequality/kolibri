@@ -43,80 +43,14 @@ def get_path_with_arch(platform, path, abi, implementation, python_version):
 
 
 def download_package(
-    path, platform, version, implementation, abi, name, pk_version, index_url, filename
+    path, platform, version, implementation, abi, name, pk_version, index_url
 ):
     """
     Download the package according to platform, python version, implementation and abi.
     """
-    if abi == "abi3":
-        return_code = download_package_abi3(
-            path,
-            platform,
-            version,
-            implementation,
-            abi,
-            name,
-            pk_version,
-            index_url,
-            filename,
-        )
-
-    else:
-        return_code = subprocess.call(
-            [
-                "python",
-                "kolibripip.pex",
-                "download",
-                "-q",
-                "-d",
-                path,
-                "--platform",
-                platform,
-                "--python-version",
-                version,
-                "--implementation",
-                implementation,
-                "--abi",
-                abi,
-                "-i",
-                index_url,
-                "{}=={}".format(name, pk_version),
-            ]
-        )
-
-    # When downloaded as a tar.gz, convert to a wheel file first.
-    # This is specifically for pycparser package.
-    files = os.listdir(path)
-    for file in files:
-        if file.endswith("tar.gz"):
-            subprocess.call(
-                [
-                    "python",
-                    "kolibripip.pex",
-                    "wheel",
-                    "-q",
-                    "-w",
-                    path,
-                    os.path.join(path, file),
-                    "--no-deps",
-                ]
-            )
-            os.remove(os.path.join(path, file))
-
-    return return_code
-
-
-def download_package_abi3(
-    path, platform, version, implementation, abi, name, pk_version, index_url, filename
-):
-    """
-    Download the package when the abi tag is abi3. Install the package to get the dependecies
-    information from METADATA in dist-info and download all the dependecies.
-    """
     return_code = subprocess.call(
         [
-            "python",
-            "kolibripip.pex",
+            "pip",
             "download",
             "-q",
             "-d",
@@ -131,68 +65,10 @@ def download_package_abi3(
             abi,
             "-i",
             index_url,
-            "--no-deps",
+            "--only-binary=:all:",
             "{}=={}".format(name, pk_version),
         ]
     )
-
-    return_code = (
-        subprocess.call(
-            [
-                "python",
-                "kolibripip.pex",
-                "install",
-                "-q",
-                "-t",
-                path,
-                os.path.join(path, filename),
-                "--no-deps",
-            ]
-        )
-        or return_code
-    )
-
-    os.remove(os.path.join(path, filename))
-
-    # Open the METADATA file inside dist-info folder to find out dependencies.
-    with open(
-        os.path.join(path, "{}-{}.dist-info".format(name, pk_version), "METADATA"), "r"
-    ) as metadata:
-        for line in metadata:
-            if line.startswith("Requires-Dist:"):
-                requires_dist = line.rstrip("\n").split("Requires-Dist: ")
-                content = requires_dist[-1].split("; ")
-                version_constraint = content[0].split("(")[-1].split(")")[0]
-                name = content[0].split("(")[0].strip()
-                if content[-1].startswith("extra ==") or content[-1].startswith(
-                    "python_version < '3'"
-                ):
-                    continue
-
-                return_code = (
-                    subprocess.call(
-                        [
-                            "python",
-                            "kolibripip.pex",
-                            "download",
-                            "-q",
-                            "-d",
-                            path,
-                            "--platform",
-                            platform,
-                            "--python-version",
-                            version,
-                            "--implementation",
-                            implementation,
-                            "--abi",
-                            implementation + version + "m",
-                            "-i",
-                            index_url,
-                            "{}{}".format(name, version_constraint),
-                        ]
-                    )
-                    or return_code
-                )
 
     return return_code
 
@@ -216,8 +92,7 @@ def install_package_by_wheel(path):
         if "py2.py3-none-any" in file:
             return_code = subprocess.call(
                 [
-                    "python",
-                    "kolibripip.pex",
+                    "pip",
                     "install",
                     "-q",
                     "-U",
@@ -230,8 +105,7 @@ def install_package_by_wheel(path):
         else:
             return_code = subprocess.call(
                 [
-                    "python",
-                    "kolibripip.pex",
+                    "pip",
                     "install",
                     "-q",
                     "-t",
@@ -252,25 +126,68 @@ def install_package_by_wheel(path):
             )
 
 
+def download_and_install(package_name, package_version, index_url, info):
+    """
+    Download and install packages based on the information we gather from the index_url page
+    """
+    for item in info:
+        platform = item["platform"]
+        implementation = item["implementation"]
+        python_version = item["version"]
+        abi = item["abi"]
+        filename = "-".join([package_name, package_version, abi, platform])
+
+        # Calculate the path that the package will be installed into
+        version_path = os.path.join(DIST_CEXT, implementation + python_version)
+        package_path = get_path_with_arch(
+            platform, version_path, abi, implementation, python_version
+        )
+
+        print("Downloading package {}...".format(filename))
+        download_return = download_package(
+            package_path,
+            platform,
+            python_version,
+            implementation,
+            abi,
+            package_name,
+            package_version,
+            index_url,
+        )
+
+        # Successfully download package
+        if download_return == 0:
+            print("Installing package {}...".format(filename))
+            install_package_by_wheel(package_path)
+        # Download failed
+        else:
+            # see https://github.com/learningequality/kolibri/issues/4656
+            print("\nDownload failed for package {}.\n".format(filename))
+
+            # We still need to have the program exit with error
+            # if something wrong with PyPi download.
+            if index_url == PYPI_DOWNLOAD:
+                sys.exit(1)
+
+
 def parse_package_page(files, pk_version, index_url):
     """
-    Parse the PYPI and Piwheels link for the package and install the desired wheel files.
+    Parse the PYPI and Piwheels link for the package information.
     We are not going to install the packages if they are:
         * not a whl file
         * not the version specified in requirements.txt
-        * not python versions that kolibri supports
+        * not python versions that kolibri does not support
         * not macosx
-        * not win_x64 with python 3.6,
-        since the process of setup wizard has been fast enough
+        * not win_x64 with python 3.6
     """
 
+    result = []
     for file in files.find_all("a"):
+        # Skip if not a whl file
+        if not file.string.endswith("whl"):
+            continue
 
         file_name_chunks = file.string.split("-")
-
-        # When the length of file_name_chunks is 2, it means the file is tar.gz.
-        if len(file_name_chunks) == 2:
-            continue
 
         package_version = file_name_chunks[1]
         package_name = file_name_chunks[0]
@@ -288,37 +205,31 @@ def parse_package_page(files, pk_version, index_url):
         if "win_amd64" in platform and python_version != "36":
             continue
 
-        print("Installing {}...".format(file.string))
-
-        version_path = os.path.join(DIST_CEXT, file_name_chunks[2])
-        package_path = get_path_with_arch(
-            platform, version_path, abi, implementation, python_version
-        )
-
-        download_return = download_package(
-            package_path,
-            platform,
-            python_version,
-            implementation,
-            abi,
-            package_name,
-            pk_version,
-            index_url,
-            file.string,
-        )
-
-        # Successfully download package
-        if download_return == 0:
-            install_package_by_wheel(package_path)
-        # Download failed
+        # Cryptography builds for Linux target Python 3.4+ but the only existing
+        # build is labeled 3.4 (the lowest version supported).
+        # Expand the abi3 tag here. e.g. cp34 abi3 is expanded to cp34m, cp35m, cp36m, cp37m
+        # https://cryptography.io/en/latest/faq/#why-are-there-no-wheels-for-python-3-6-on-linux-or-macos
+        if abi == "abi3":
+            for actual_version in range(int(python_version), 38):
+                actual_version = str(actual_version)
+                actual_abi = "".join([implementation, actual_version, "m"])
+                info = {
+                    "platform": platform,
+                    "implementation": implementation,
+                    "version": actual_version,
+                    "abi": actual_abi,
+                }
+                result.append(info)
         else:
-            # see https://github.com/learningequality/kolibri/issues/4656
-            print("\nDownload failed for package {}.\n".format(file.string))
+            info = {
+                "platform": platform,
+                "implementation": implementation,
+                "version": python_version,
+                "abi": abi,
+            }
+            result.append(info)
 
-            # We still need to have the program exit with error
-            # if something wrong with PyPi download.
-            if index_url == PYPI_DOWNLOAD:
-                sys.exit(1)
+    download_and_install(package_name, pk_version, index_url, result)
 
 
 def install(name, pk_version):
