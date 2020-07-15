@@ -44,7 +44,10 @@ def get_process_lock(key, expire=None):
             thread_local=True,
         )
     else:
-        return RLock(process_cache, key, expire=expire)
+        # we can't pass in the `process_cache` because it's an instance of DjangoCache
+        # and we need a Cache instance
+        cache = process_cache.cache("locks")
+        return RLock(cache, key, expire=expire)
 
 
 class NamespacedCacheProxy(BaseCache):
