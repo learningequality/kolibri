@@ -1,14 +1,11 @@
 import logging
-from contextlib import contextmanager
 
-from django.db import transaction
 from django.db.models import Q
 from morango.models import Buffer
 from morango.models import RecordMaxCounterBuffer
 from morango.models import SyncSession
 from morango.models import TransferSession
 
-from kolibri.core.auth.management.utils import DisablePostDeleteSignal
 from kolibri.core.auth.management.utils import GroupDeletion
 from kolibri.core.auth.utils import confirm_or_exit
 from kolibri.core.tasks.management.commands.base import AsyncCommand
@@ -32,25 +29,17 @@ class Command(AsyncCommand):
 
         delete_group = GroupDeletion("Main", sleep=1, groups=self._get_delete_groups())
 
-        with self._delete_context():
-            # run the counting step
-            with self.start_progress(
-                total=delete_group.group_count()
-            ) as update_progress:
-                update_progress(increment=0, message="Counting database objects")
-                total_count = delete_group.count(update_progress)
+        # run the counting step
+        with self.start_progress(total=delete_group.group_count()) as update_progress:
+            update_progress(increment=0, message="Counting database objects")
+            total_count = delete_group.count(update_progress)
 
-            # no the deleting step
-            with self.start_progress(total=total_count) as update_progress:
-                update_progress(increment=0, message="Deleting database objects")
-                delete_group.delete(update_progress)
+        # no the deleting step
+        with self.start_progress(total=total_count) as update_progress:
+            update_progress(increment=0, message="Deleting database objects")
+            delete_group.delete(update_progress)
 
         logger.info("Deletion complete.")
-
-    @contextmanager
-    def _delete_context(self):
-        with DisablePostDeleteSignal(), transaction.atomic():
-            yield
 
     def _get_delete_groups(self):
         sync_session_ids = SyncSession.objects.all().values_list("id", flat=True)
