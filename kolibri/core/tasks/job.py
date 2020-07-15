@@ -145,7 +145,7 @@ class Job(object):
             return
         if self.save_as_cancellable_method is None:
             raise ReferenceError("Missing method to save job as cancellable")
-        self.save_as_cancellable_method(self.job_id, cancellable=self.cancellable)
+        self.save_as_cancellable_method(self.job_id, cancellable=cancellable)
 
     def get_lambda_to_execute(self):
         """
