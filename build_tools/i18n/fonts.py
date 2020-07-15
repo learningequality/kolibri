@@ -18,8 +18,7 @@ import tempfile
 
 import noto_source
 import utils
-from fontTools import merge
-from fontTools import subset
+from fontTools import merge, subset
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.getLogger("fontTools").setLevel(logging.WARNING)
@@ -136,8 +135,22 @@ def _font_priorities(default_font):
         if name not in font_names:
             font_names.append(name)
 
+    # problematic fonts don't seem to merge well with other fonts
+    problematic = [
+        "NotoSansBamum",
+        "NotoSansLisu",
+        "NotoSansThaana",
+        "NotoSansSoraSompeng",
+    ]
+
     # finally look at the remaining langauges
-    font_names.extend([fn for fn in noto_source.FONT_MANIFEST if fn not in font_names])
+    font_names.extend(
+        [
+            fn
+            for fn in noto_source.FONT_MANIFEST
+            if fn not in font_names and fn not in problematic
+        ]
+    )
     return font_names
 
 
