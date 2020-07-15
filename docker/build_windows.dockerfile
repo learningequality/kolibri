@@ -23,9 +23,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
       make \
       wget
 
-VOLUME /kolibridist/
-
-
 # TODO(cpauya): Verify the checksums of the downloaded Python installers.
 
 CMD git clone https://github.com/learningequality/kolibri-installer-windows.git && \
