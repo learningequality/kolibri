@@ -62,8 +62,6 @@ steps:
         vader=true
     if: build.tag != null
 
-  - wait
-
   - block: "Create integration testing worksheet?"
   - label: Create integration testing
     command: .buildkite/build_worksheet.sh
