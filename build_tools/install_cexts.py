@@ -252,18 +252,19 @@ def install_package_by_wheel(path):
             )
 
 
-def parse_package_page(files, pk_version, index_url):  # noqa C901
+def parse_package_page(files, pk_version, index_url):
     """
     Parse the PYPI and Piwheels link for the package and install the desired wheel files.
+    We are not going to install the packages if they are:
+        * not a whl file
+        * not the version specified in requirements.txt
+        * not python versions that kolibri supports
+        * not macosx
+        * not win_x64 with python 3.6,
+        since the process of setup wizard has been fast enough
     """
 
     for file in files.find_all("a"):
-        # We are not going to install the packages if they are:
-        #   * not a whl file
-        #   * not the version specified in requirements.txt
-        #   * not python versions that kolibri supports
-        #   * not macosx or win_x64 platforms,
-        #     since the process of setup wizard has been fast enough
 
         file_name_chunks = file.string.split("-")
 
@@ -284,7 +285,7 @@ def parse_package_page(files, pk_version, index_url):  # noqa C901
             continue
         if "macosx" in platform:
             continue
-        if "win_amd64" in platform and python_version != "34":
+        if "win_amd64" in platform and python_version != "36":
             continue
 
         print("Installing {}...".format(file.string))
