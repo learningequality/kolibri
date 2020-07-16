@@ -28,7 +28,7 @@
 
 <script>
 
-  import SelectSourceModal from '../SelectSourceModal';
+  import SelectSourceModal from './SelectSourceModal';
 
   const SyncSources = Object.freeze({
     PORTAL: 'PORTAL',

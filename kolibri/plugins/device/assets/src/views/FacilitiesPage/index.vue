@@ -117,13 +117,13 @@
     FacilityNameAndSyncStatus,
     RegisterFacilityModal,
     ConfirmationRegisterModal,
+    SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
   import TasksBar from '../ManageContentPage/TasksBar';
   import HeaderWithOptions from '../HeaderWithOptions';
   import { TaskStatuses, TaskTypes } from '../../constants';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
-  import SyncFacilityModalGroup from './SyncFacilityModalGroup';
   import ImportFacilityModalGroup from './ImportFacilityModalGroup';
   import facilityTaskQueue from './facilityTasksQueue';
 

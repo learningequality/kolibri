@@ -22,7 +22,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
+  import SelectAddressModalGroup from './SelectAddressModalGroup';
   import SelectSyncSourceModal from './SelectSyncSourceModal';
 
   const Steps = Object.freeze({
