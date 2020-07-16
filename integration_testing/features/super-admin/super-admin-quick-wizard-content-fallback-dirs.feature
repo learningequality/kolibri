@@ -11,9 +11,9 @@ Feature: Load Kolibri with content fallback directories
 			And that there is a '[Paths]' section in the 'options.ini' file
 			And that there is a 'CONTENT_FALLBACK_DIRS' variable set to a list of directories
 			And these directories exist on disk with Kolibri channel content in them
-		
+
 		Scenario: Running Kolibri for the first time with content fallback dirs
 			When I open Kolibri in the browser for the first time
 				And I complete the "Super admin goes through the 'Quick Start' setup wizard" scenario
-			When I am redirected to *Device > Channels* 
+			When I am redirected to *Device > Channels*
 			Then I see all the channels that exist in the directories specified in 'CONTENT_FALLBACK_DIRS'
