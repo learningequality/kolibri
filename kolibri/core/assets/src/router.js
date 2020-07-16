@@ -26,10 +26,15 @@ class Router {
 
   initRouter(options = {}) {
     options.scrollBehavior = to => {
+      // return false;
       return new Promise(resolve => {
         setTimeout(() => {
-          resolve({ selector: to.params.scrollTo, offset: { y: 70 } });
-        }, 200);
+          document.documentElement.style.scrollBehavior = 'smooth';
+          resolve({ selector: to.params.scrollTo, offset: { y: 60 } });
+          setTimeout(() => {
+            document.documentElement.style.scrollBehavior = 'auto';
+          }, 2000);
+        }, 250);
       });
     };
     if (this._vueRouter === null) {

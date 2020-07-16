@@ -155,11 +155,11 @@
       return defaultPos;
     },
     setScrollPosition({ left, top, behavior, querySelector }) {
-      console.log('setting scroll position', left, top, behavior, querySelector);
       const key = (window.history.state || {}).key;
       // Only set if we have a vue router key on the state,
       // otherwise we don't do anything.
       if (key) {
+        console.log('setting scroll position', left, top, behavior, querySelector);
         this._scrollPositions[window.history.state.key] = {
           left,
           top,
@@ -171,10 +171,15 @@
   };
 
   const scrollTo = ({ top, left, behavior }) => {
-    document.documentElement.style.scrollBehavior = behavior;
-    // delaying the scrolling is important for preventing glitchy behavior in firefox
+    // Delaying the scrolling is important for preventing glitchy behavior in FireFox...
+    // Every once in a while, some earlier part of the page rendering process interrupts scrolling
+    // and causes the page to jump.  This may be a bug in Vue or in FireFox itself.
     // setTimeout(() => {
-    window.scrollTo(left ? left : 0, top ? top : 0);
+    document.documentElement.style.scrollBehavior = behavior;
+    window.scrollTo(left, top);
+    setTimeout(() => {
+      document.documentElement.style.scrollBehavior = 'auto';
+    }, 1500);
     // }, delay);
   };
 
@@ -431,14 +436,15 @@
         }
         let scrollTo = this.$route.params.scrollTo;
         if (scrollTo) {
-          let position;
-          if (typeof scrollTo == 'string') {
-            position = { querySelector: scrollTo };
-          } else if (scrollTo && scrollTo.top) {
-            position = scrollTo;
-          }
-          position.behavior = 'smooth';
-          scrollPositions.setScrollPosition(position);
+          // let position;
+          // if (typeof scrollTo == 'string') {
+          //   position = { selector: scrollTo };
+          // } else if (scrollTo && scrollTo.top) {
+          //   position = scrollTo;
+          // }
+          // position.behavior = 'smooth';
+          // scrollPositions.setScrollPosition(position);
+          return;
         }
         if (this.loading) {
           // Don't set scroll position until the main content
@@ -451,10 +457,12 @@
             this.$nextTick(() => {
               // Set the scroll in next tick for safety, to ensure
               // that the child components have finished mounting
+              console.log('setScroll next tick (loading)');
               this.setScroll();
             });
           });
         } else {
+          console.log('setScroll this tick (not loading)');
           this.setScroll();
         }
       },
@@ -480,12 +488,12 @@
     },
     methods: {
       handleScroll() {
-        console.log('handleScroll');
+        // console.log('handleScroll');
         this.scrollPosition = window.pageYOffset;
         this.recordScroll();
       },
       recordScroll() {
-        console.log('recordScroll');
+        // console.log('recordScroll');
         scrollPositions.setScrollPosition({ top: window.pageYOffset });
       },
       dismissUpdateModal() {
@@ -495,7 +503,7 @@
         }
       },
       updateScrollHeight() {
-        console.log('updateScrollHeight');
+        // console.log('updateScrollHeight');
         this.mainWrapperScrollHeight = Math.max(
           this.$refs.mainWrapper.offsetHeight,
           this.$refs.mainWrapper.scrollHeight
@@ -505,15 +513,18 @@
         console.log('setScroll');
         this.updateScrollHeight();
         let scrollPosition = scrollPositions.getScrollPosition();
-        if (scrollPosition.querySelector) {
-          scrollPosition.top = this.$el.querySelector(scrollPosition.querySelector).offsetTop - 70;
-          console.log('scrolling to', scrollPosition.top);
-        }
+
+        // if (scrollPosition.querySelector) {
+        //   console.log('scrollPosition querySelector', scrollPosition);
+        //   scrollPosition.top =
+        //     this.$el.querySelector(scrollPosition.querySelector).offsetTop - this.headerHeight;
+        //   // console.log('scrolling to', scrollPosition.top);
+        // }
         this.headerSkipNextUpdate = true;
-        scrollTo(scrollPosition);
         // this.scrollPosition = window.pageYOffset;
-        console.log(window.pageYOffset);
+        // console.log(window.pageYOffset);
         // If recorded scroll is applied, immediately un-hide the header
+        scrollTo(scrollPosition);
         if (this.scrollPosition > 0) {
           this.$nextTick().then(() => {
             this.headerIsHidden = false;
