@@ -22,13 +22,12 @@
         <!-- Not using v-else here to be more explicit -->
         <KButton
           v-if="showPasswordForm"
+          icon="back"
           appearance="basic-link"
           :text="$tr('changeUser')"
-          style="margin-top: 24px; text-align: left; width: 100%;"
+          style="text-align: left; width: 100%; margin-top: 24px;"
           @click="clearUser"
-        >
-          <KIcon slot="icon" icon="back" :color="$themeTokens.primary" style="margin-right: 8px;" />
-        </KButton>
+        />
 
         <SignInHeading
           :showFacilityName="showFacilityName"
