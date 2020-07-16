@@ -33,8 +33,7 @@
               <KButton
                 appearance="raised-button"
                 :text="$tr('sync')"
-                :disabled="facilityTaskId !== '' || !theFacility.dataset.registered"
-                @click="sync()"
+                @click="showFacilitySyncModal"
               />
             </KButtonGroup>
           </td>
@@ -44,13 +43,13 @@
 
     <PrivacyModal
       v-if="modalShown === Modals.PRIVACY"
-      @cancel="displayModal(null)"
+      @cancel="closeModal"
     />
 
     <RegisterFacilityModal
       v-if="modalShown === Modals.REGISTER_FACILITY"
       @success="handleValidateSuccess"
-      @cancel="displayModal(null)"
+      @cancel="closeModal"
     />
     <ConfirmationRegisterModal
       v-if="modalShown === Modals.CONFIRMATION_REGISTER"
@@ -58,7 +57,14 @@
       :projectName="projectName"
       :token="token"
       @success="handleConfirmationSuccess"
-      @cancel="displayModal(null)"
+      @cancel="closeModal"
+    />
+
+    <SyncFacilityModalGroup
+      v-if="modalShown === Modals.SYNC_FACILITY"
+      :facilityForSync="theFacility"
+      @close="closeModal"
+      @success="handleSyncFacilitySuccess"
     />
 
   </KPageContainer>
@@ -75,10 +81,17 @@
     FacilityNameAndSyncStatus,
     ConfirmationRegisterModal,
     RegisterFacilityModal,
+    SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { Modals } from '../../../constants';
   import PrivacyModal from './PrivacyModal';
+
+  const Modals = Object.freeze({
+    SYNC_FACILITY: 'SYNC_FACILITY',
+    CONFIRMATION_REGISTER: 'CONFIRMATION_REGISTER',
+    REGISTER_FACILITY: 'REGISTER_FACILITY',
+    PRIVACY: 'PRIVACY',
+  });
 
   export default {
     name: 'SyncInterface',
@@ -88,6 +101,7 @@
       FacilityNameAndSyncStatus,
       RegisterFacilityModal,
       ConfirmationRegisterModal,
+      SyncFacilityModalGroup,
     },
     mixins: [commonSyncElements],
     data() {
@@ -95,11 +109,11 @@
         projectName: '',
         token: '',
         modalShown: null,
+        Modals,
       };
     },
     computed: {
       ...mapState('manageCSV', ['facilityTaskId']),
-      Modals: () => Modals,
       theFacility() {
         return find(this.$store.state.manageCSV.facilities, {
           id: this.$store.getters.activeFacilityId,
@@ -107,16 +121,20 @@
       },
     },
     methods: {
+      closeModal() {
+        this.modalShown = null;
+      },
       displayModal(modal) {
         this.modalShown = modal;
       },
       register() {
         this.modalShown = Modals.REGISTER_FACILITY;
       },
-      sync() {
-        this.startKdpSyncTask(this.theFacility.id).then(task => {
-          this.$store.commit('manageCSV/START_FACILITY_SYNC', task);
-        });
+      showFacilitySyncModal() {
+        this.modalShown = Modals.SYNC_FACILITY;
+        // this.startKdpSyncTask(this.theFacility.id).then(task => {
+        //   this.$store.commit('manageCSV/START_FACILITY_SYNC', task);
+        // });
       },
       handleValidateSuccess({ name, token }) {
         this.projectName = name;
@@ -125,7 +143,14 @@
       },
       handleConfirmationSuccess(payload) {
         this.$store.commit('manageCSV/SET_REGISTERED', payload);
-        this.modalShown = null;
+        this.closeModal();
+      },
+      handleSyncFacilitySuccess(taskId) {
+        this.$store.commit('manageCSV/START_FACILITY_SYNC', {
+          facility: this.$store.getters.activeFacilityId,
+          id: taskId,
+        });
+        this.closeModal();
       },
     },
     $trs: {
