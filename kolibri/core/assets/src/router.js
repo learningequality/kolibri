@@ -1,6 +1,5 @@
 import VueRouter from 'vue-router';
 import logger from 'kolibri.lib.logging';
-import { result } from 'lodash';
 
 const logging = logger.getLogger(__filename);
 
@@ -27,22 +26,13 @@ class Router {
 
   initRouter(options = {}) {
     options.scrollBehavior = to => {
-      // return false;
-      return new Promise(resolve => {
-        setTimeout(() => {
-          document.documentElement.style.scrollBehavior = 'smooth';
-          if (typeof to.params.scrollTo === 'string') {
-            // assume that `params.scrollTo` is a selector and that the top header will be shown
-            resolve({ selector: to.params.scrollTo, offset: { y: 70 } });
-          } else {
-            // otherwise assume that `params.scrollTo` is a `scrollBehavior` compatible object
-            result(to.params.scrollTo);
-          }
-          setTimeout(() => {
-            document.documentElement.style.scrollBehavior = 'auto';
-          }, 2000);
-        }, 100);
-      });
+      if (typeof to.params.scrollTo === 'string') {
+        // assume that `params.scrollTo` is a selector and that the top header will be shown
+        return { selector: to.params.scrollTo, offset: { y: 70 } };
+      } else {
+        // otherwise assume that `params.scrollTo` is a `scrollBehavior` compatible object
+        return to.params.scrollTo;
+      }
     };
     if (this._vueRouter === null) {
       this._vueRouter = new VueRouter(options);

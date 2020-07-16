@@ -413,8 +413,7 @@
         // the vue-router via `scrollBehavior`.
         if (this.$route.params.scrollTo) {
           // Show the header by default when navigating with a scrollTo parameter.
-          this.headerIsHidden = false;
-          this.headerSkipNextUpdate = true;
+          this.showHeader();
           return;
         }
         // Set a watcher so that if the router sets a new
@@ -481,16 +480,24 @@
           this.$refs.mainWrapper.scrollHeight
         );
       },
+      updateHeaderHidden(isHidden) {
+        // This provides a mechanism to tell the `ScrollingHeader` component to
+        // ignore scroll changes triggered here in `CoreBase` e.g. during usage of
+        // the forward/back buttons.
+
+        this.headerSkipNextUpdate = true;
+        this.headerIsHidden = isHidden;
+      },
+      showHeader() {
+        this.updateHeaderHidden(false);
+      },
       setScroll() {
         this.updateScrollHeight();
         window.scrollTo(0, scrollPositions.getScrollPosition().y);
         this.scrollPosition = window.pageYOffset;
         // If recorded scroll is applied, immediately un-hide the header
-        this.headerSkipNextUpdate = true;
         if (this.scrollPosition > 0) {
-          this.$nextTick().then(() => {
-            this.headerIsHidden = false;
-          });
+          this.$nextTick().then(this.showHeader);
         }
       },
     },
