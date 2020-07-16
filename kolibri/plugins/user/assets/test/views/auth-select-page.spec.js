@@ -24,7 +24,7 @@ function makeWrapper() {
   });
 }
 
-describe('user index page component', () => {
+describe.skip('user index page component', () => {
   it('auth select facility', () => {
     const wrapper = makeWrapper();
     const createLink = wrapper.find('[data-test="createUser"]');

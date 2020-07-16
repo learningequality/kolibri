@@ -1,51 +1,72 @@
 <template>
 
-  <AuthBase :hideCreateAccount="true">
-    <div class="auth-select">
-      <div class="sign-up-prompt" style="margin-bottom: 24px;">
-        <div>{{ $tr("newUserPrompt") }}</div>
-        <KRouterLink
-          :text="$tr('createAccountAction')"
-          :to="facilitySelectPage(PageNames.SIGN_UP)"
-          appearance="flat-button"
-          class="auth-button"
-          data-test="createUser"
-        />
+  <CoreBase
+    :immersivePage="false"
+    :immersivePagePrimary="false"
+    :fullScreen="true"
+  >
+    <AuthBase :hideCreateAccount="true">
+      <div class="auth-select">
+        <div>
+          <div class="label">
+            {{ $tr("signInPrompt") }}
+          </div>
+          <KRouterLink
+            :text="coreString('signInLabel')"
+            :to="signInRoute"
+            appearance="raised-button"
+            style="width: 100%;"
+            :primary="true"
+          />
+        </div>
+        <div class="sign-up-prompt">
+          <div class="label">
+            {{ $tr("newUserPrompt") }}
+          </div>
+          <KRouterLink
+            :text="$tr('createAccountAction')"
+            :to="signUpRoute"
+            :primary="false"
+            style="width: 100%;"
+            appearance="raised-button"
+          />
+        </div>
       </div>
-      <div>
-        <div>{{ $tr("signInPrompt") }}</div>
-        <KRouterLink
-          :text="coreString('signInLabel')"
-          :to="facilitySelectPage(PageNames.SIGN_IN)"
-          appearance="flat-button"
-          class="auth-button"
-          data-test="signIn"
-        />
-      </div>
-    </div>
-  </AuthBase>
+    </AuthBase>
+  </CoreBase>
 
 </template>
 
 
 <script>
 
+  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { PageNames } from '../constants';
+  import { ComponentMap } from '../constants';
   import AuthBase from './AuthBase';
 
   export default {
     name: 'AuthSelect',
-    components: { AuthBase },
+    components: { AuthBase, CoreBase },
     mixins: [commonCoreStrings],
     computed: {
-      PageNames() {
-        return PageNames;
+      signUpRoute() {
+        const whereToNext = this.$router.getRoute(ComponentMap.SIGN_UP);
+        return { ...this.facilitySelectRoute, params: { whereToNext } };
+      },
+      signInRoute() {
+        const whereToNext = this.$router.getRoute(ComponentMap.SIGN_IN);
+        return { ...this.facilitySelectRoute, params: { whereToNext } };
+      },
+      facilitySelectRoute() {
+        return this.$router.getRoute(ComponentMap.FACILITY_SELECT);
       },
     },
     methods: {
-      facilitySelectPage(next) {
-        return { name: PageNames.FACILITY_SELECT, query: { next, backTo: PageNames.AUTH_SELECT } };
+      route(whereToNext) {
+        const route = this.facilitySelectRoute;
+        route.params = { whereToNext };
+        return route;
       },
     },
     $trs: {
@@ -69,16 +90,12 @@
 <style lang="scss" scoped>
 
   .auth-select {
-    padding-top: 16px;
+    font-size: 14px;
     text-align: left;
-  }
 
-  .sign-up-prompt {
-    margin-bottom: 24px;
-  }
-
-  .auth-button {
-    margin-left: -16px;
+    .label {
+      margin: 24px 0 16px;
+    }
   }
 
 </style>

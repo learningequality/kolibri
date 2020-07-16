@@ -28,11 +28,6 @@ describe('signInPage component', () => {
     wrapper.setData({ username: '?', usernameBlurred: true });
     expect(wrapper.vm.usernameIsInvalid).toEqual(true);
   });
-  it('will set the form as not valid if the username is invalid and is blurred', () => {
-    const wrapper = makeWrapper();
-    wrapper.setData({ username: '?', usernameBlurred: true });
-    expect(wrapper.vm.formIsValid).toEqual(false);
-  });
   it('will set the validation text to required if the username is empty and blurred', () => {
     const wrapper = makeWrapper();
     wrapper.setData({ username: '', usernameBlurred: true });

@@ -1,17 +1,24 @@
-import { mount } from '@vue/test-utils';
-import UserPage from '../../src/views/UserIndex';
+import { mount, createLocalVue } from '@vue/test-utils';
+import VueRouter from 'vue-router';
+import Vuex from 'vuex';
+import UserIndex from '../../src/views/UserIndex';
 import makeStore from '../makeStore';
+import routes from '../../src/routes';
 
 jest.mock('kolibri.urls');
 
+const localVue = createLocalVue();
+
+localVue.use(VueRouter);
+localVue.use(Vuex);
+
+const router = new VueRouter({ routes });
+
 function makeWrapper() {
-  return mount(UserPage, {
+  return mount(UserIndex, {
+    localVue,
     store: makeStore(),
-    data() {
-      return {
-        pageName: 'SIGN_IN',
-      };
-    },
+    router,
   });
 }
 

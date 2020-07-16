@@ -91,7 +91,7 @@
         </p>
         <KRouterLink
           :text="signUpStrings.$tr('signInPrompt')"
-          :to="$router.getRoute(PageNames.SIGN_IN)"
+          :to="$router.getRoute(ComponentMap.SIGN_IN)"
           appearance="basic-link"
         />
       </form>
@@ -123,7 +123,7 @@
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import { PageNames } from '../constants';
+  import { ComponentMap } from '../constants';
   import { SignUpResource } from '../apiResource';
   import AuthSelect from './AuthSelect';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
@@ -172,8 +172,8 @@
       firstStepIsValid() {
         return every([this.nameValid, this.usernameValid, this.passwordValid]);
       },
-      PageNames() {
-        return PageNames;
+      ComponentMap() {
+        return ComponentMap;
       },
       nextParam() {
         // query is after hash

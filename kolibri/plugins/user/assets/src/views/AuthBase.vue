@@ -70,13 +70,13 @@
 
             <slot></slot>
 
-            <p v-if="!hideCreateAccount" class="create">
+            <p v-if="!hideCreateAccount && canSignUp" class="create">
               <KRouterLink
-                v-if="canSignUp"
                 :text="$tr('createAccountAction')"
                 :to="signUpPage"
-                :primary="true"
-                appearance="flat-button"
+                :primary="false"
+                appearance="raised-button"
+                style="width: 100%;"
                 data-test="createUser"
               />
             </p>
@@ -155,8 +155,8 @@
   import branding from 'kolibri.utils.branding';
   import loginComponents from 'kolibri.utils.loginComponents';
   import urls from 'kolibri.urls';
+  import { ComponentMap } from '../constants';
   import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
-  import { PageNames } from '../constants';
   import plugin_data from 'plugin_data';
 
   export default {
@@ -198,10 +198,11 @@
         return this.facilityConfig.learner_can_sign_up;
       },
       signUpPage() {
+        const signUpRoute = this.$router.getRoute(ComponentMap.SIGN_UP);
         if (this.nextParam) {
-          return { name: PageNames.SIGN_UP, query: { next: this.nextParam } };
+          return { ...signUpRoute, query: { next: this.nextParam } };
         }
-        return { name: PageNames.SIGN_UP };
+        return signUpRoute;
       },
       loginOptions() {
         // POC, in the future sorting of different login options can be implemented
@@ -291,7 +292,7 @@
     @extend %dropshadow-16dp;
 
     width: 360px;
-    padding: 16px 32px;
+    padding: 24px 32px;
     margin: 16px auto;
     border-radius: $radius;
   }
@@ -305,8 +306,8 @@
   }
 
   .guest {
-    margin-top: 8px;
-    margin-bottom: 16px;
+    margin-top: 24px;
+    margin-bottom: 8px;
   }
 
   .small-text {
@@ -369,7 +370,7 @@
 
   .kolibri-title {
     margin-top: 0;
-    margin-bottom: 8px;
+    margin-bottom: 0;
     font-size: 24px;
     font-weight: 100;
   }
