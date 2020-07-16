@@ -17,8 +17,6 @@ steps:
         # Autoblock unless there's a tag associated with the commit. Usually a release.
         LE_KOLIBRI_RELEASE: "${BUILDKITE_TAG:-false}"
 
-  - label: Build Windows installer
-    command: .buildkite/build_windows_installer.sh
 
   - wait
 
