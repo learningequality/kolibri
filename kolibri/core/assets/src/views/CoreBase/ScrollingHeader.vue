@@ -61,7 +61,7 @@
       resetSkipNextUpdateDebounced() {
         return debounce(() => {
           this.$emit('update:skipNextUpdate', false);
-        }, 100);
+        }, 500);
       },
       classes() {
         return {
