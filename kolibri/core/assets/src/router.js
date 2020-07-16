@@ -25,6 +25,15 @@ class Router {
   }
 
   initRouter(options = {}) {
+    options.scrollBehavior = to => {
+      if (typeof to.params.scrollTo === 'string') {
+        // assume that `params.scrollTo` is a selector and that the top header will be shown
+        return { selector: to.params.scrollTo, offset: { y: 70 } };
+      } else {
+        // otherwise assume that `params.scrollTo` is a `scrollBehavior` compatible object
+        return to.params.scrollTo;
+      }
+    };
     if (this._vueRouter === null) {
       this._vueRouter = new VueRouter(options);
     }

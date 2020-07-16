@@ -251,6 +251,9 @@
             query: {
               node: node.id,
             },
+            params: {
+              scrollTo: '.content-tree-viewer',
+            },
           };
         } else {
           return selectContentTopicLink(node, this.$route.query, this.$route.params.channel_id);
