@@ -1,4 +1,31 @@
-#!/usr/bin/env python
+"""
+This module defines functions to install c extensions for all the platforms into
+Kolibri.
+
+It is required to have pip version greater than 19.3.1 to run this script.
+Usage:
+> python build_tools/install_cexts.py --file "requirements/cext.txt" --cache-path "/cext_cache"
+
+It reads the package name and version from requirements/cext.txt file, downloads
+and installs the package and its dependency from PyPi for platforms such as
+manylinux, Windows and Piwheels for platforms such as ARM Linux. Please check
+the description of the function `parse_package_page` to see the platforms we skip
+downloading.
+
+The module downloads the wheel files of the package and its dependencies using
+`pip download` to the cache directory, copies the files from the cache directory
+to `kolibri/dist/cext` and runs `pip install` to install these wheel files one
+by one.
+
+When Kolibri starts, the function `prepend_cext_path` in `env.py` will calculate
+the c extension path based on system information and add it to sys.path so
+Kolibri can import the c extension.
+
+The cache directory is mainly used to stabilize the installation of c extensions
+from Piwheels website for the builds on Buildkite. If the directory of the cache_path
+passed into the function is not writable, a folder named `cext_cache` will be
+created under the directory where the script runs to store the cache data.
+"""
 import argparse
 import os
 import shutil
