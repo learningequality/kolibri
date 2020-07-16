@@ -6,6 +6,10 @@
     :fullScreen="true"
   >
     <AuthBase>
+      <!--
+        Unless we know the user needs to create a password enter this div
+        block for the main flow - see the v-else below for the create password flow
+      -->
       <div v-if="!needsToCreatePassword">
         <!-- ** Text and Backlinks ** -->
 
@@ -138,10 +142,12 @@
           @userSelected="setSelectedUsername"
         />
       </div>
-      -->
 
       <!-- TODO: This can be its own separate component -->
-      <!-- Learner was created without a password, but now must create one. -->
+      <!--
+        Learner was created without a password, but now must create one.
+        This ought to be routed separately.
+      -->
       <div v-else style="text-align: left">
         <KButton
           appearance="basic-link"

@@ -31,7 +31,7 @@ export default {
     },
     setFacilityId(store, { facilityId }) {
       store.commit('SET_FACILITY_ID', facilityId);
-      store.dispatch('getFacilityConfig', facilityId);
+      return store.dispatch('getFacilityConfig', facilityId);
     },
   },
   getters: {
@@ -41,7 +41,7 @@ export default {
       if (selectedFacility) {
         return selectedFacility;
       } else {
-        return getters.facilities.find(f => f.id == getters.currentFacilityId) || null;
+        return getters.facilities.find(f => f.id === getters.currentFacilityId) || null;
       }
     },
   },

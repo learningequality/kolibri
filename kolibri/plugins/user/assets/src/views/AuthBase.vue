@@ -198,7 +198,7 @@
         return this.facilityConfig.learner_can_sign_up;
       },
       signUpPage() {
-        let signUpRoute = this.$router.getRoute(ComponentMap.SIGN_UP);
+        const signUpRoute = this.$router.getRoute(ComponentMap.SIGN_UP);
         if (this.nextParam) {
           return { ...signUpRoute, query: { next: this.nextParam } };
         }
