@@ -62,13 +62,6 @@
         return this.$router.getRoute(ComponentMap.FACILITY_SELECT);
       },
     },
-    methods: {
-      route(whereToNext) {
-        const route = this.facilitySelectRoute;
-        route.params = { whereToNext };
-        return route;
-      },
-    },
     $trs: {
       createAccountAction: 'Create an account',
       newUserPrompt: {
