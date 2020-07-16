@@ -13,6 +13,7 @@
       :alwaysVisible="fixedAppBar"
       :mainWrapperScrollHeight="mainWrapperScrollHeight"
       :isHidden.sync="headerIsHidden"
+      :skipNextUpdate.sync="headerSkipNextUpdate"
     >
       <ImmersiveToolbar
         v-if="immersivePage && !fullScreen"
@@ -147,20 +148,36 @@
     getScrollPosition() {
       // Use key set by Vue Router on the history state.
       const key = (window.history.state || {}).key;
-      const defaultPos = { x: 0, y: 0 };
+      const defaultPos = { left: 0, top: 0, behavior: 'auto' };
       if (key && this._scrollPositions[key]) {
         return this._scrollPositions[key];
       }
       return defaultPos;
     },
-    setScrollPosition({ x, y }) {
+    setScrollPosition({ left, top, behavior, querySelector }) {
+      console.log('setting scroll position', left, top, behavior, querySelector);
       const key = (window.history.state || {}).key;
       // Only set if we have a vue router key on the state,
       // otherwise we don't do anything.
       if (key) {
-        this._scrollPositions[window.history.state.key] = { x, y };
+        this._scrollPositions[window.history.state.key] = {
+          left,
+          top,
+          querySelector,
+          behavior: behavior ? behavior : 'auto',
+        };
       }
     },
+  };
+
+  const scrollTo = ({ top, left, behavior }) => {
+    document.documentElement.style.scrollBehavior = behavior;
+    setTimeout(() => {
+      window.scrollTo(left, top);
+    }, 10);
+    setTimeout(() => {
+      document.documentElement.style.scrollBehavior = 'auto';
+    }, 2000);
   };
 
   export default {
@@ -287,6 +304,7 @@
         notificationModalShown: true,
         languageModalShown: false,
         headerIsHidden: false,
+        headerSkipNextUpdate: false,
         mainWrapperScrollHeight: 0,
       };
     },
@@ -413,6 +431,17 @@
         if (this.unwatchScrollHeight) {
           this.unwatchScrollHeight();
         }
+        let scrollTo = this.$route.params.scrollTo;
+        if (scrollTo) {
+          let position;
+          if (typeof scrollTo == 'string') {
+            position = { querySelector: scrollTo };
+          } else if (scrollTo && scrollTo.top) {
+            position = scrollTo;
+          }
+          position.behavior = 'smooth';
+          scrollPositions.setScrollPosition(position);
+        }
         if (this.loading) {
           // Don't set scroll position until the main content
           // of coreBase is shown in the DOM.
@@ -453,11 +482,13 @@
     },
     methods: {
       handleScroll() {
+        console.log('handleScroll');
         this.scrollPosition = window.pageYOffset;
         this.recordScroll();
       },
       recordScroll() {
-        scrollPositions.setScrollPosition({ y: window.pageYOffset });
+        console.log('recordScroll');
+        scrollPositions.setScrollPosition({ top: window.pageYOffset });
       },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
@@ -466,15 +497,25 @@
         }
       },
       updateScrollHeight() {
+        console.log('updateScrollHeight');
         this.mainWrapperScrollHeight = Math.max(
           this.$refs.mainWrapper.offsetHeight,
           this.$refs.mainWrapper.scrollHeight
         );
       },
       setScroll() {
+        console.log('setScroll');
         this.updateScrollHeight();
-        window.scrollTo(0, scrollPositions.getScrollPosition().y);
-        this.scrollPosition = window.pageYOffset;
+        let scrollPosition = scrollPositions.getScrollPosition();
+        if (scrollPosition.querySelector) {
+          scrollPosition.top =
+            this.$el.querySelector(scrollPosition.querySelector).offsetTop - this.headerHeight;
+          console.log('scrolling to', scrollPosition.top);
+        }
+        this.headerSkipNextUpdate = true;
+        scrollTo(scrollPosition);
+        // this.scrollPosition = window.pageYOffset;
+        console.log(window.pageYOffset);
         // If recorded scroll is applied, immediately un-hide the header
         if (this.scrollPosition > 0) {
           this.$nextTick().then(() => {

@@ -5,6 +5,7 @@ export function selectContentTopicLink(topicNode, query, channelId) {
     name: ContentWizardPages.SELECT_CONTENT,
     params: {
       node: topicNode,
+      scrollTo: '.content-tree-viewer',
     },
     query: {
       ...query,
