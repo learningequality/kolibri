@@ -14,7 +14,6 @@ DIST_CEXT = os.path.join(
     "dist",
     "cext",
 )
-DOCKER_VOLUME_PATH = "/cext_cache"
 PYPI_DOWNLOAD = "https://pypi.python.org/simple/"
 PIWHEEL_DOWNLOAD = "https://www.piwheels.org/simple/"
 
@@ -129,7 +128,7 @@ def install_package_by_wheel(path):
             )
 
 
-def download_and_install(package_name, package_version, index_url, info):
+def download_and_install(package_name, package_version, index_url, info, cache_path):
     """
     Download and install packages based on the information we gather from the index_url page
     """
@@ -141,7 +140,7 @@ def download_and_install(package_name, package_version, index_url, info):
         filename = "-".join([package_name, package_version, abi, platform])
 
         # Calculate the path that the package will be installed into
-        version_path = os.path.join(DOCKER_VOLUME_PATH, implementation + python_version)
+        version_path = os.path.join(cache_path, implementation + python_version)
         package_path = get_path_with_arch(platform, abi, implementation, python_version)
         volume_package_path = os.path.join(version_path, package_path)
 
@@ -160,8 +159,8 @@ def download_and_install(package_name, package_version, index_url, info):
 
         # Successfully download package
         if download_return == 0:
-            # Copy the files downloaded in DOCKER_VOLUME_PATH to DIST_CEXT
-            install_path = volume_package_path.replace(DOCKER_VOLUME_PATH, DIST_CEXT)
+            # Copy the files downloaded in cache_path to DIST_CEXT
+            install_path = volume_package_path.replace(cache_path, DIST_CEXT)
             shutil.copytree(volume_package_path, install_path)
             print("Installing package {}...".format(filename))
             install_package_by_wheel(install_path)
@@ -176,7 +175,7 @@ def download_and_install(package_name, package_version, index_url, info):
                 sys.exit(1)
 
 
-def parse_package_page(files, pk_version, index_url):
+def parse_package_page(files, pk_version, index_url, cache_path):
     """
     Parse the PYPI and Piwheels link for the package information.
     We are not going to install the packages if they are:
@@ -235,10 +234,10 @@ def parse_package_page(files, pk_version, index_url):
             }
             result.append(info)
 
-    download_and_install(package_name, pk_version, index_url, result)
+    download_and_install(package_name, pk_version, index_url, result, cache_path)
 
 
-def install(name, pk_version):
+def install(name, pk_version, cache_path):
     """
     Start installing from the pypi and piwheels pages of the package.
     """
@@ -247,7 +246,7 @@ def install(name, pk_version):
         r = requests.get(link + name)
         if r.status_code == 200:
             files = BeautifulSoup(r.content, "html.parser")
-            parse_package_page(files, pk_version, link)
+            parse_package_page(files, pk_version, link, cache_path)
         else:
             sys.exit("\nUnable to find package {} on {}.\n".format(name, link))
 
@@ -258,17 +257,40 @@ def install(name, pk_version):
             shutil.rmtree(os.path.join(DIST_CEXT, file))
 
 
+def check_cache_path_writable(cache_path):
+    """
+    If the defined cache path is not writable, change it to a folder named
+    cext_cache under the current directory where the script runs.
+    """
+    try:
+        check_file = os.path.join(cache_path, "check.txt")
+        with open(check_file, "w") as f:
+            f.write("check")
+        os.remove(check_file)
+        return cache_path
+    except OSError:
+        new_path = os.path.realpath("cext_cache")
+        print(
+            "The cache directory {old_path} is not writable. Changing to directory {new_path}.".format(
+                old_path=cache_path, new_path=new_path
+            )
+        )
+        return new_path
+
+
 def parse_requirements(args):
     """
     Parse the requirements.txt to get packages' names and versions,
     then install them.
     """
     with open(args.file) as f:
+        cache_path = os.path.realpath(args.cache_path)
+        cache_path = check_cache_path_writable(cache_path)
         for line in f:
             char_list = line.split("==")
             if len(char_list) == 2:
                 # Install package according to its name and version
-                install(char_list[0].strip(), char_list[1].strip())
+                install(char_list[0].strip(), char_list[1].strip(), cache_path)
             else:
                 sys.exit(
                     "\nName format in cext.txt is incorrect. Should be 'packageName==packageVersion'.\n"
@@ -282,6 +304,11 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--file", required=True, help="The name of the requirements.txt"
+    )
+    parser.add_argument(
+        "--cache-path",
+        default="/cext_cache",
+        help="The path in which pip cache data is stored",
     )
     args = parser.parse_args()
     parse_requirements(args)
