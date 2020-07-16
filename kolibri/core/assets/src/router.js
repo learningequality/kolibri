@@ -25,6 +25,13 @@ class Router {
   }
 
   initRouter(options = {}) {
+    options.scrollBehavior = to => {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve({ selector: to.params.scrollTo, offset: { y: 70 } });
+        }, 200);
+      });
+    };
     if (this._vueRouter === null) {
       this._vueRouter = new VueRouter(options);
     }

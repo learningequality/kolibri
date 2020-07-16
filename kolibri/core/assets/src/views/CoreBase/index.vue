@@ -172,12 +172,10 @@
 
   const scrollTo = ({ top, left, behavior }) => {
     document.documentElement.style.scrollBehavior = behavior;
-    setTimeout(() => {
-      window.scrollTo(left, top);
-    }, 10);
-    setTimeout(() => {
-      document.documentElement.style.scrollBehavior = 'auto';
-    }, 2000);
+    // delaying the scrolling is important for preventing glitchy behavior in firefox
+    // setTimeout(() => {
+    window.scrollTo(left ? left : 0, top ? top : 0);
+    // }, delay);
   };
 
   export default {
@@ -508,8 +506,7 @@
         this.updateScrollHeight();
         let scrollPosition = scrollPositions.getScrollPosition();
         if (scrollPosition.querySelector) {
-          scrollPosition.top =
-            this.$el.querySelector(scrollPosition.querySelector).offsetTop - this.headerHeight;
+          scrollPosition.top = this.$el.querySelector(scrollPosition.querySelector).offsetTop - 70;
           console.log('scrolling to', scrollPosition.top);
         }
         this.headerSkipNextUpdate = true;
