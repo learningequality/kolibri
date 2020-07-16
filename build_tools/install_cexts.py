@@ -283,6 +283,15 @@ def parse_requirements(args):
     Parse the requirements.txt to get packages' names and versions,
     then install them.
     """
+    # pip version needs to be greater than 19.3.1 to run this script
+    # see https://github.com/pypa/pip/issues/6070
+    pip_version = str(subprocess.check_output(["pip", "--version"]))
+    pip_version_major = int(str(pip_version).split(".")[0].split("pip")[1].strip())
+    if pip_version_major < 20:
+        sys.exit(
+            "pip version is lower or equal to 19.3.1. Please upgrade the pip version to run this script."
+        )
+
     with open(args.file) as f:
         cache_path = os.path.realpath(args.cache_path)
         cache_path = check_cache_path_writable(cache_path)
