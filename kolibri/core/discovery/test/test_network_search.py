@@ -1,4 +1,5 @@
 import socket
+import threading
 
 import mock
 from django.test import TransactionTestCase
@@ -46,7 +47,8 @@ class MockZeroconf(Zeroconf):
     def __init__(self, *args, **kwargs):
         self.browsers = {}
         self.services = {}
-        self._GLOBAL_DONE = True
+        self._GLOBAL_DONE = threading.Event()
+        self._GLOBAL_DONE.set()
 
     def get_service_info(self, type_, name, timeout=3000):
         id = _id_from_name(name)
