@@ -1,7 +1,10 @@
-import logging.config
+import logging
 import os
 import platform
 import sys
+
+logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
+logging.StreamHandler(sys.stdout)
 
 
 def prepend_cext_path(dist_path):
@@ -31,9 +34,8 @@ def prepend_cext_path(dist_path):
         # If the directory of platform-specific cextensions (cryptography) exists,
         # add it + the matching noarch (OpenSSL) modules to sys.path
         sys.path = [str(dirname), str(noarch_dir)] + sys.path
-        return True
-
-    return False
+    else:
+        logging.info("No C extensions are available for this platform")
 
 
 def set_env():
@@ -50,9 +52,7 @@ def set_env():
     sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
 
     # Add path for c extensions to sys.path
-    c_extension_available = prepend_cext_path(
-        os.path.realpath(os.path.dirname(kolibri_dist.__file__))
-    )
+    prepend_cext_path(os.path.realpath(os.path.dirname(kolibri_dist.__file__)))
 
     # This was added in
     # https://github.com/learningequality/kolibri/pull/580
@@ -78,18 +78,3 @@ def set_env():
     os.environ.setdefault(
         "KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri")
     )
-
-    if not c_extension_available:
-        logger = _get_logger()
-        logger.info("No C extensions are available for this platform")
-
-
-def _get_logger():
-    """
-    Define logger config here, Django settings haven't been set up in cli.py yet
-    """
-    from kolibri.utils.conf import LOG_ROOT
-    from kolibri.utils.logger import get_default_logging_config
-
-    logging.config.dictConfig(get_default_logging_config(LOG_ROOT))
-    return logging.getLogger(__name__)
