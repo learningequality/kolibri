@@ -72,7 +72,7 @@
 
             <p v-if="!hideCreateAccount && canSignUp" class="create">
               <KRouterLink
-                :text="$tr('createAccountAction')"
+                :text="AuthBaseStrings.$tr('createAccountAction')"
                 :to="signUpPage"
                 :primary="false"
                 appearance="raised-button"
@@ -155,8 +155,10 @@
   import branding from 'kolibri.utils.branding';
   import loginComponents from 'kolibri.utils.loginComponents';
   import urls from 'kolibri.urls';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { ComponentMap } from '../constants';
   import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
+  import AuthSelect from './AuthSelect';
   import plugin_data from 'plugin_data';
 
   export default {
@@ -178,6 +180,9 @@
     },
     computed: {
       ...mapGetters(['facilityConfig']),
+      AuthBaseStrings() {
+        return crossComponentTranslator(AuthSelect);
+      },
       backgroundImageStyle() {
         if (this.$kolibriBranding.signIn.background) {
           const scrimOpacity =
@@ -228,6 +233,8 @@
     },
     $trs: {
       accessAsGuest: 'Explore without account',
+      // This is in the eslint-disabling section because we crossComponentTranslator @ AuthSelect
+      // eslint-disable-next-line kolibri/vue-no-unused-translations
       createAccountAction: 'Create an account',
       oidcGenericExplanation:
         'Kolibri is an e-learning platform. You can also use your Kolibri account to log in to some third-party applications.',
