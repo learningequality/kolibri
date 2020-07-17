@@ -67,9 +67,13 @@ export default {
     fetchNetworkLocationFacilities(locationId) {
       return client({
         url: urls['kolibri:core:networklocation_facilities-detail'](locationId),
-      }).then(response => {
-        return response.data;
-      });
+      })
+        .then(response => {
+          return response.data;
+        })
+        .catch(() => {
+          return [];
+        });
     },
     startKdpSyncTask(facilityId) {
       return FacilityTaskResource.dataportalsync(facilityId).then(response => {

@@ -35,6 +35,7 @@
         @click="$emit('click_add_address')"
       />
 
+      <!-- Static Addresses -->
       <template v-for="(a, idx) in savedAddresses">
         <div :key="`div-${idx}`">
           <KRadioButton
@@ -58,6 +59,7 @@
 
       <hr v-if="!hideSavedAddresses && discoveredAddresses.length > 0">
 
+      <!-- Dynamic Addresses -->
       <template v-for="d in discoveredAddresses">
         <div :key="`div-${d.id}`">
           <KRadioButton
@@ -67,7 +69,7 @@
             :value="d.instance_id"
             :label="formatNameAndId(d.device_name, d.id)"
             :description="d.base_url"
-            :disabled="formDisabled || !d.available || discoveryFailed"
+            :disabled="formDisabled || !d.available || discoveryFailed || !d.hasContent"
           />
         </div>
       </template>
@@ -116,7 +118,7 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { deleteAddress, fetchStaticAddresses, fetchDynamicAddresses } from './api';
 
-  const Stages = {
+  const Stages = Object.freeze({
     FETCHING_ADDRESSES: 'FETCHING_ADDRESSES',
     FETCHING_SUCCESSFUL: 'FETCHING_SUCCESSFUL',
     FETCHING_FAILED: 'FETCHING_FAILED',
@@ -126,7 +128,7 @@
     PEER_DISCOVERY_STARTED: 'PEER_DISCOVERY_STARTED',
     PEER_DISCOVERY_SUCCESSFUL: 'PEER_DISCOVERY_SUCCESSFUL',
     PEER_DISCOVERY_FAILED: 'PEER_DISCOVERY_FAILED',
-  };
+  });
 
   export default {
     name: 'SelectAddressForm',
@@ -136,11 +138,15 @@
     mixins: [commonCoreStrings, commonSyncElements],
     props: {
       discoverySpinnerTime: { type: Number, default: 2500 },
-      // Arg that's passed to fetchDynamic/StaticAddresses
-      fetchAddressArgs: {
+      // Facility filter only needed on SyncFacilityModalGroup
+      filterByFacilityId: {
         type: String,
         required: false,
-        default: '',
+      },
+      // Channel filter only needed on ManageContentPage/SelectNetworkAddressModal
+      filterByChannelId: {
+        type: String,
+        required: false,
       },
       // Hides "New address" button and other saved locations
       hideSavedAddresses: {
@@ -172,6 +178,15 @@
       };
     },
     computed: {
+      fetchAddressArgs() {
+        if (this.filterByChannelId) {
+          return { channelId: this.filterByChannelId };
+        } else if (this.filterByFacilityId) {
+          return { facilityId: this.filterByFacilityId };
+        } else {
+          return {};
+        }
+      },
       addresses() {
         return this.savedAddresses.concat(this.discoveredAddresses);
       },

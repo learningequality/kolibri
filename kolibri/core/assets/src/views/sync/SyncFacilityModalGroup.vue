@@ -10,7 +10,7 @@
 
     <SelectAddressModalGroup
       v-else-if="atSelectAddress"
-      :fetchAddressArgs="''"
+      :filterByFacilityId="facilityForSync.id"
       :selectAddressDisabled="syncSubmitDisabled"
       @submit="handleAddressSubmit"
       @cancel="closeModal()"
@@ -40,6 +40,8 @@
     },
     mixins: [commonCoreStrings, commonSyncElements],
     props: {
+      // If facility has not been KDP-registered, skip to SelectAddressForm
+      // and use facility ID to filter the selectable addresses
       facilityForSync: {
         type: Object,
         required: true,
