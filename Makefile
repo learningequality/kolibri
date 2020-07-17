@@ -1,5 +1,5 @@
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
-.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font docker-whl docker-windows docker-demoserver docker-devserver docker-envlist
+.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font docker-whl docker-demoserver docker-devserver docker-envlist
 
 help:
 	@echo "Usage:"
@@ -222,13 +222,6 @@ docker-whl: writeversion docker-envlist
 		-v $$PWD/dist:/kolibridist \
 		-v yarn_cache:/yarn_cache \
 		"learningequality/kolibri-whl"
-	git checkout -- ./docker/env.list  # restore env.list file
-
-docker-windows: writeversion docker-envlist
-	@echo "\n  !! This assumes you have run 'make dockerenvdist' or 'make dist' !!\n"
-	docker image build -t "learningequality/kolibri-windows" -f docker/build_windows.dockerfile .
-	export KOLIBRI_VERSION=$$(cat kolibri/VERSION) && \
-	docker run --env-file ./docker/env.list -v $$PWD/dist:/kolibridist "learningequality/kolibri-windows"
 	git checkout -- ./docker/env.list  # restore env.list file
 
 docker-build-base: writeversion
