@@ -5,7 +5,6 @@
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
     size="medium"
-    :submitDisabled="submitDisabled"
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
@@ -29,7 +28,7 @@
       </UiAlert>
 
       <KButton
-        v-show="!newAddressButtonDisabled"
+        v-show="!newAddressButtonDisabled && !formDisabled"
         class="new-address-button"
         :text="$tr('newAddressButtonLabel')"
         appearance="basic-link"
@@ -45,7 +44,7 @@
             :value="a.id"
             :label="a.nickname"
             :description="a.base_url"
-            :disabled="!a.available || !a.hasContent"
+            :disabled="formDisabled || !a.available || !a.hasContent"
           />
           <KButton
             v-if="!hideSavedAddresses"
@@ -68,7 +67,7 @@
             :value="d.instance_id"
             :label="formatNameAndId(d.device_name, d.id)"
             :description="d.base_url"
-            :disabled="!d.available || discoveryFailed"
+            :disabled="formDisabled || !d.available || discoveryFailed"
           />
         </div>
       </template>
@@ -91,12 +90,13 @@
           <KButton
             :text="coreString('cancelAction')"
             appearance="flat-button"
+            :disabled="formDisabled"
             @click="$emit('cancel')"
           />
           <KButton
             :text="coreString('continueAction')"
             :primary="true"
-            :disabled="submitDisabled"
+            :disabled="formDisabled || submitDisabled"
             type="submit"
           />
         </KButtonGroup>
@@ -151,6 +151,11 @@
       selectedId: {
         type: String,
         required: false,
+      },
+      // Disables all the form controls
+      formDisabled: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {

@@ -33,6 +33,7 @@
               <KButton
                 appearance="raised-button"
                 :text="$tr('sync')"
+                :disabled="facilityTaskId !== ''"
                 @click="showFacilitySyncModal"
               />
             </KButtonGroup>
@@ -132,9 +133,6 @@
       },
       showFacilitySyncModal() {
         this.modalShown = Modals.SYNC_FACILITY;
-        // this.startKdpSyncTask(this.theFacility.id).then(task => {
-        //   this.$store.commit('manageCSV/START_FACILITY_SYNC', task);
-        // });
       },
       handleValidateSuccess({ name, token }) {
         this.projectName = name;

@@ -3,6 +3,7 @@
   <div>
     <SelectSyncSourceModal
       v-if="atSelectSource"
+      :formDisabled="syncSubmitDisabled"
       @submit="handleSourceSubmit"
       @cancel="closeModal()"
     />
@@ -10,6 +11,7 @@
     <SelectAddressModalGroup
       v-else-if="atSelectAddress"
       :fetchAddressArgs="''"
+      :selectAddressDisabled="syncSubmitDisabled"
       @submit="handleAddressSubmit"
       @cancel="closeModal()"
     />
@@ -46,6 +48,7 @@
     data() {
       return {
         step: this.facilityForSync.dataset.registered ? Steps.SELECT_SOURCE : Steps.SELECT_ADDRESS,
+        syncSubmitDisabled: false,
       };
     },
     computed: {
@@ -71,11 +74,13 @@
         this.$emit('close');
       },
       startKdpSync() {
+        this.syncSubmitDisabled = true;
         this.startKdpSyncTask(this.facilityForSync.id).then(task => {
           this.$emit('success', task.id);
         });
       },
       startPeerSync(peerData) {
+        this.syncSubmitDisabled = true;
         this.startPeerSyncTask({
           facility: this.facilityForSync.id,
           facility_name: this.facilityForSync.name,

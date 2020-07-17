@@ -5,6 +5,7 @@
       v-if="stage === Stages.SELECT_ADDRESS"
       :fetchAddressArgs="fetchAddressArgs"
       :selectedId="addedAddressId"
+      :formDisabled="$attrs.selectAddressDisabled"
       @click_add_address="goToAddAddress"
       @click_search_address="goToSearchAddress"
       @removed_address="handleRemovedAddress"
