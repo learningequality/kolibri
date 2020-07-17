@@ -59,8 +59,8 @@
     <ConfirmationRegisterModal
       v-if="modalShown === Modals.CONFIRMATION_REGISTER"
       :targetFacility="theFacility"
-      :projectName="projectName"
-      :token="token"
+      :projectName="kdpProject.name"
+      :token="kdpProject.token"
       @success="handleConfirmationSuccess"
       @cancel="closeModal"
     />
@@ -88,6 +88,7 @@
   } from 'kolibri.coreVue.componentSets.sync';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { FacilityTaskResource, FacilityResource } from 'kolibri.resources';
+  import { TaskStatuses, taskIsClearable } from '../../../constants';
   import PrivacyModal from './PrivacyModal';
 
   const Modals = Object.freeze({
@@ -110,9 +111,8 @@
     mixins: [commonSyncElements],
     data() {
       return {
-        projectName: '',
-        token: '',
         theFacility: null,
+        kdpProject: null, // { name, token }
         modalShown: null,
         syncTaskId: '',
         isSyncing: false,
@@ -120,7 +120,6 @@
         Modals,
       };
     },
-    computed: {},
     beforeMount() {
       this.fetchFacility();
     },
@@ -144,16 +143,15 @@
       pollSyncTask() {
         // Like facilityTaskQueue, just keep polling until component is destroyed
         FacilityTaskResource.fetchModel({ id: this.syncTaskId, force: true }).then(task => {
-          if (task.status === 'COMPLETED') {
+          if (taskIsClearable(task)) {
             this.isSyncing = false;
-            FacilityTaskResource.deleteFinishedTask(this.syncTaskId);
-            this.syncTaskId = '';
-            this.fetchFacility();
-          } else if (task.status === 'FAILED') {
-            this.isSyncing = false;
-            this.syncHasFailed = true;
             this.syncTaskId = '';
             FacilityTaskResource.deleteFinishedTask(this.syncTaskId);
+            if (task.status === TaskStatuses.FAILED) {
+              this.syncHasFailed = true;
+            } else if (task.status === TaskStatuses.COMPLETED) {
+              this.fetchFacility();
+            }
           } else if (this.syncTaskId) {
             setTimeout(() => {
               this.pollSyncTask();
@@ -162,8 +160,7 @@
         });
       },
       handleValidateSuccess({ name, token }) {
-        this.projectName = name;
-        this.token = token;
+        this.kdpProject = { name, token };
         this.displayModal(Modals.CONFIRMATION_REGISTER);
       },
       handleConfirmationSuccess(payload) {
@@ -171,8 +168,8 @@
         this.closeModal();
       },
       handleSyncFacilitySuccess(taskId) {
-        this.syncTaskId = taskId;
         this.isSyncing = true;
+        this.syncTaskId = taskId;
         this.pollSyncTask();
         this.closeModal();
       },

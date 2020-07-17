@@ -161,7 +161,7 @@
         facilityForSync: null,
         facilityForRemoval: null,
         facilityForRegister: null,
-        kdpProject: null,
+        kdpProject: null, // { name, token }
         taskIdsToWatch: [],
         // (facilityTaskQueue) facilityTasks
       };
