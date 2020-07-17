@@ -72,7 +72,7 @@
 
             <p v-if="!hideCreateAccount && canSignUp" class="create">
               <KRouterLink
-                :text="AuthBaseStrings.$tr('createAccountAction')"
+                :text="AuthSelectStrings.$tr('createAccountAction')"
                 :to="signUpPage"
                 :primary="false"
                 appearance="raised-button"
@@ -180,7 +180,7 @@
     },
     computed: {
       ...mapGetters(['facilityConfig']),
-      AuthBaseStrings() {
+      AuthSelectStrings() {
         return crossComponentTranslator(AuthSelect);
       },
       backgroundImageStyle() {
