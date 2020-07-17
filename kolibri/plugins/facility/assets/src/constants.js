@@ -48,7 +48,8 @@ export const TaskTypes = {
   EXPORTUSERSTOCSV: 'EXPORTUSERSTOCSV',
 };
 
-export const TaskStatuses = {
+// Identical to device constants.js
+export const TaskStatuses = Object.freeze({
   IN_PROGRESS: 'INPROGRESS',
   COMPLETED: 'COMPLETED',
   FAILED: 'FAILED',
@@ -56,7 +57,13 @@ export const TaskStatuses = {
   RUNNING: 'RUNNING',
   QUEUED: 'QUEUED',
   SCHEDULED: 'SCHEDULED',
-};
+  CANCELED: 'CANCELED',
+  CANCELING: 'CANCELING',
+});
+
+export function taskIsClearable(task) {
+  return [TaskStatuses.COMPLETED, TaskStatuses.CANCELED, TaskStatuses.FAILED].includes(task.status);
+}
 
 export const CSVGenerationStatuses = {
   NO_LOGS_CREATED: 'NOLOGSCREATED',
