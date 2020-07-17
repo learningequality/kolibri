@@ -39,6 +39,7 @@ export default {
     };
   },
   methods: {
+    isSyncTask,
     pollFacilityTasks() {
       FacilityTaskResource.fetchCollection({ force: true }).then(tasks => {
         this.facilityTasks = tasks;

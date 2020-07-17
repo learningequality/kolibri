@@ -37,6 +37,7 @@
               :facility="facility"
               :isSyncing="facilityIsSyncing(facility)"
               :isDeleting="facilityIsDeleting(facility)"
+              :syncHasFailed="facility.syncHasFailed"
             />
           </td>
           <td class="button-col">
@@ -178,6 +179,11 @@
                 this.showFacilityRemovedSnackbar(task.facility_name);
               }
               this.taskIdsToWatch = this.taskIdsToWatch.filter(x => x !== task.id);
+            } else if (this.isSyncTask(task) && task.status === TaskStatuses.FAILED) {
+              const match = this.facilities.find(({ id }) => id === task.facility);
+              if (match) {
+                this.$set(match, 'syncHasFailed', true);
+              }
             }
           }
         }
@@ -226,7 +232,8 @@
         this.facilityForRegister = null;
         this.kdpProject = null;
       },
-      handleStartSyncSuccess() {
+      handleStartSyncSuccess(taskId) {
+        this.taskIdsToWatch.push(taskId);
         this.facilityForSync = null;
       },
       handleSyncAllSuccess() {
