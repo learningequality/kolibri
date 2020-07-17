@@ -20,21 +20,25 @@
       <tbody slot="tbody">
         <tr v-if="theFacility">
           <td>
-            <FacilityNameAndSyncStatus :facility="theFacility" />
+            <FacilityNameAndSyncStatus
+              :facility="theFacility"
+              :isSyncing="isSyncing"
+              :syncHasFailed="syncHasFailed"
+            />
           </td>
           <td class="button-col">
             <KButtonGroup style="margin-top: 8px; overflow: visible">
               <KButton
                 appearance="raised-button"
                 :text="$tr('register')"
-                :disabled="facilityTaskId !== ''"
-                @click="register()"
+                :disabled="Boolean(syncTaskId) || theFacility.dataset.registered"
+                @click="displayModal(Modals.REGISTER_FACILITY)"
               />
               <KButton
                 appearance="raised-button"
                 :text="$tr('sync')"
-                :disabled="facilityTaskId !== ''"
-                @click="showFacilitySyncModal"
+                :disabled="Boolean(syncTaskId)"
+                @click="displayModal(Modals.SYNC_FACILITY)"
               />
             </KButtonGroup>
           </td>
@@ -75,8 +79,6 @@
 
 <script>
 
-  import find from 'lodash/find';
-  import { mapState } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import {
     FacilityNameAndSyncStatus,
@@ -85,6 +87,7 @@
     SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import { FacilityTaskResource, FacilityResource } from 'kolibri.resources';
   import PrivacyModal from './PrivacyModal';
 
   const Modals = Object.freeze({
@@ -109,45 +112,68 @@
       return {
         projectName: '',
         token: '',
+        theFacility: null,
         modalShown: null,
+        syncTaskId: '',
+        isSyncing: false,
+        syncHasFailed: false,
         Modals,
       };
     },
-    computed: {
-      ...mapState('manageCSV', ['facilityTaskId']),
-      theFacility() {
-        return find(this.$store.state.manageCSV.facilities, {
-          id: this.$store.getters.activeFacilityId,
-        });
-      },
+    computed: {},
+    beforeMount() {
+      this.fetchFacility();
+    },
+    beforeDestroy() {
+      this.syncTaskId = '';
     },
     methods: {
+      fetchFacility() {
+        FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
+          facility => {
+            this.theFacility = { ...facility };
+          }
+        );
+      },
       closeModal() {
         this.modalShown = null;
       },
       displayModal(modal) {
         this.modalShown = modal;
       },
-      register() {
-        this.modalShown = Modals.REGISTER_FACILITY;
-      },
-      showFacilitySyncModal() {
-        this.modalShown = Modals.SYNC_FACILITY;
+      pollSyncTask() {
+        // Like facilityTaskQueue, just keep polling until component is destroyed
+        FacilityTaskResource.fetchModel({ id: this.syncTaskId, force: true }).then(task => {
+          if (task.status === 'COMPLETED') {
+            this.isSyncing = false;
+            FacilityTaskResource.deleteFinishedTask(this.syncTaskId);
+            this.syncTaskId = '';
+            this.fetchFacility();
+          } else if (task.status === 'FAILED') {
+            this.isSyncing = false;
+            this.syncHasFailed = true;
+            this.syncTaskId = '';
+            FacilityTaskResource.deleteFinishedTask(this.syncTaskId);
+          } else if (this.syncTaskId) {
+            setTimeout(() => {
+              this.pollSyncTask();
+            }, 2000);
+          }
+        });
       },
       handleValidateSuccess({ name, token }) {
         this.projectName = name;
         this.token = token;
-        this.modalShown = Modals.CONFIRMATION_REGISTER;
+        this.displayModal(Modals.CONFIRMATION_REGISTER);
       },
       handleConfirmationSuccess(payload) {
         this.$store.commit('manageCSV/SET_REGISTERED', payload);
         this.closeModal();
       },
       handleSyncFacilitySuccess(taskId) {
-        this.$store.commit('manageCSV/START_FACILITY_SYNC', {
-          facility: this.$store.getters.activeFacilityId,
-          id: taskId,
-        });
+        this.syncTaskId = taskId;
+        this.isSyncing = true;
+        this.pollSyncTask();
         this.closeModal();
       },
     },

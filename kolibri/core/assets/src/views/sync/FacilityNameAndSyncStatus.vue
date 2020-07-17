@@ -29,7 +29,7 @@
           {{ getTaskString('removingFacilityStatus') }}
         </template>
         <template v-else>
-          <span v-if="facility.last_sync_failed" class="sync-message">
+          <span v-if="syncHasFailed" class="sync-message">
             {{ $tr('syncFailed') }}
           </span>
           <span v-if="facility.last_synced === null" class="sync-message">
@@ -64,6 +64,10 @@
         required: true,
       },
       isSyncing: {
+        type: Boolean,
+        default: false,
+      },
+      syncHasFailed: {
         type: Boolean,
         default: false,
       },

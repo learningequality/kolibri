@@ -24,6 +24,9 @@ export default new Resource({
   deleteFinishedTasks() {
     return this.postListEndpoint('deletefinishedtasks');
   },
+  deleteFinishedTask(taskId) {
+    return this.postListEndpoint('deletefinishedtasks', { task_id: taskId });
+  },
 
   /**
    * Params for import/sync request
