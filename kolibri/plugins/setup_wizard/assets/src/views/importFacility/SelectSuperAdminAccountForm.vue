@@ -127,7 +127,14 @@
         return FacilityImportResource.facilityadmins()
           .then(admins => {
             this.facilityAdmins = [...admins];
-            this.selected = { ...this.dropdownOptions[0] };
+            // NOTE: We don't have the facility user ID on hand to disambiguate if
+            // a duplicate username is used
+            this.selected =
+              this.dropdownOptions.find(({ label }) => label === this.facility.username) ||
+              this.dropdownOptions[0];
+            this.$nextTick().then(() => {
+              this.resetFormAndRefocus();
+            });
             this.loading = false;
           })
           .catch(error => {
@@ -138,6 +145,9 @@
         this.shouldValidate = false;
         if (this.$refs.password) {
           this.$refs.password.resetAndFocus();
+          if (this.selected.label === this.facility.username) {
+            this.password = this.facility.password;
+          }
         }
       },
       handleClickNextImportedUser() {
