@@ -91,7 +91,7 @@
               />
             </div>
           </div>
-          <div v-show="showPasswordForm">
+          <div v-if="showPasswordForm">
             <UiAlert
               v-if="invalidCredentials"
               type="error"
