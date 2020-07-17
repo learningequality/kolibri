@@ -87,7 +87,7 @@ Then messages are available from the ``$tr`` method on the translator object:
 ICU message syntax
 ~~~~~~~~~~~~~~~~~~
 
-All frontend translations can be parameterized using `ICU message syntax <https://formatjs.io/guides/message-syntax/>`__. Additional documentation is `available on crowdin <https://support.crowdin.com/icu-message-syntax/>`__.
+All frontend translations can be parameterized using `ICU message syntax <https://formatjs.io/docs/icu-syntax/>`__. Additional documentation is `available on crowdin <https://support.crowdin.com/icu-message-syntax/>`__.
 
 This syntax can be used to do things like inject variables, pluralize words, and localize numbers.
 
