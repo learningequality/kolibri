@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(AsyncCommand):
-    help = "This command initiates the deletion process for all temporary sync session data."
+    help = "This command initiates the deletion process for temporary sync session buffers."
 
     def add_arguments(self, parser):
         parser.add_argument("--noninteractive", action="store_true")
@@ -25,7 +25,7 @@ class Command(AsyncCommand):
 
         if not noninteractive:
             # ensure the user REALLY wants to do this!
-            confirm_or_exit("Are you sure you wish to delete all sync session data?")
+            confirm_or_exit("Are you sure you wish to delete all sync session buffers?")
 
         delete_group = GroupDeletion("Main", sleep=1, groups=self._get_delete_groups())
 
@@ -58,8 +58,6 @@ class Command(AsyncCommand):
                     querysets=[
                         RecordMaxCounterBuffer.objects.filter(transfer_session_filter),
                         Buffer.objects.filter(transfer_session_filter),
-                        transfer_sessions,
-                        SyncSession.objects.filter(id=sync_session_id),
                     ],
                 )
             )
