@@ -67,7 +67,7 @@
       :class="fullScreen ? 'scrolling-pane' : 'content'"
       :style="contentStyles"
     >
-      <CoreBanner v-if="demoBannerVisible">
+      <CoreBanner v-if="coreBannerComponent && showDemoBanner">
         <template slot-scope="props">
           <component :is="coreBannerComponent" :bannerClosed="props.bannerClosed" />
         </template>
@@ -279,6 +279,11 @@
         required: false,
         default: 1000,
       },
+      showDemoBanner: {
+        type: Boolean,
+        default: false,
+        required: false,
+      },
     },
     data() {
       return {
@@ -293,7 +298,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isSuperuser', 'demoBannerVisible']),
+      ...mapGetters(['isAdmin', 'isSuperuser']),
       ...mapState({
         error: state => state.core.error,
         loading: state => state.core.loading,

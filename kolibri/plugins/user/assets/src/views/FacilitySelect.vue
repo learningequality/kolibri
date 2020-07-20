@@ -1,57 +1,53 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
-    :immersivePagePrimary="false"
-    :fullScreen="true"
-  >
-    <AuthBase :hideCreateAccount="true">
-      <div class="facility-select">
-        <KRouterLink class="backlink" :to="backTo" :text="coreString('goBackAction')" icon="back" />
-        <div>
-          <p class="label">
-            {{ label }}
-          </p>
-          <div v-for="facility in facilityList['enabled']" :key="facility.id" class="facility-name">
-            <KButton
-              appearance="raised-button"
-              :primary="false"
-              @click="setFacility(facility.id)"
-            >
-              <KIcon slot="icon" icon="facility" style="margin-right: 16px;" />
-              {{ facility.name }}
-            </KButton>
-          </div>
-        </div>
-        <div v-if="facilityList['disabled'].length" class="disabled-facilities">
-          <p class="label">
-            {{ $tr('askAdminForAccountLabel') }}
-          </p>
-          <div
-            v-for="facility in facilityList['disabled']"
-            :key="facility.id"
-            class="facility-name"
+  <AuthBase :hideCreateAccount="true">
+    <div class="facility-select">
+      <KRouterLink class="backlink" :to="backTo" :text="coreString('goBackAction')" icon="back" />
+      <div v-if="facilityList['enabled'].length">
+        <p class="label">
+          {{ label }}
+        </p>
+        <div v-for="facility in facilityList['enabled']" :key="facility.id" class="facility-name">
+          <KButton
+            appearance="raised-button"
+            :primary="false"
+            @click="setFacility(facility.id)"
           >
-            <KButton
-              :disabled="true"
-              :primary="false"
-              appearance="raised-button"
-            >
-              <KIcon slot="icon" icon="facility" style="margin-right: 16px;" />
-              {{ facility.name }}
-            </KButton>
-          </div>
+            <KIcon slot="icon" icon="facility" style="margin-right: 16px;" />
+            {{ facility.name }}
+          </KButton>
         </div>
       </div>
-    </AuthBase>
-  </CoreBase>
+      <div
+        v-if="facilityList['disabled'].length"
+        :class="{ 'disabled-facilities': facilityList['enabled'].length }"
+      >
+        <p class="label">
+          {{ $tr('askAdminForAccountLabel') }}
+        </p>
+        <div
+          v-for="facility in facilityList['disabled']"
+          :key="facility.id"
+          class="facility-name"
+        >
+          <KButton
+            :disabled="true"
+            :primary="false"
+            appearance="raised-button"
+          >
+            <KIcon slot="icon" icon="facility" style="margin-right: 16px;" />
+            {{ facility.name }}
+          </KButton>
+        </div>
+      </div>
+    </div>
+  </AuthBase>
 
 </template>
 
 
 <script>
 
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import partition from 'lodash/partition';
@@ -60,7 +56,7 @@
 
   export default {
     name: 'FacilitySelect',
-    components: { AuthBase, CoreBase },
+    components: { AuthBase },
     mixins: [commonCoreStrings],
     props: {
       // This component is interstitial and needs to know where to go when it's done
