@@ -71,7 +71,7 @@ languages = dict(settings.LANGUAGES)
 def create_facility(facility_name=None, preset=None, interactive=False):
     if facility_name is None and interactive:
         answer = get_user_response(
-            "Do you wish to create a facility? [yn] ", ["y", "n"]
+            "Do you wish to create a facility? [y/n] ", ["y", "n"]
         )
         if answer == "y":
             facility_name = get_user_response(
@@ -94,7 +94,7 @@ def create_facility(facility_name=None, preset=None, interactive=False):
         if preset is None and interactive:
             preset = get_user_response(
                 "Which preset do you wish to use? [{presets}]: ".format(
-                    presets=",".join(presets.keys())
+                    presets="/".join(presets.keys())
                 ),
                 valid_answers=presets,
             )
@@ -102,6 +102,7 @@ def create_facility(facility_name=None, preset=None, interactive=False):
         # Only set preset data if we have created the facility, otherwise leave previous data intact
         if preset:
             dataset_data = mappings[preset]
+            facility.dataset.preset = preset
             for key, value in dataset_data.items():
                 check_facility_setting(key)
                 setattr(facility.dataset, key, value)
