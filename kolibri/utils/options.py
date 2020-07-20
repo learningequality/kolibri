@@ -15,6 +15,8 @@ CACHE_REDIS_MIN_DB
 CACHE_REDIS_USE_CONF
 CACHE_REDIS_MAXMEMORY
 CACHE_REDIS_MAXMEMORY_POLICY
+CACHE_REDIS_MAX_POOL_SIZE
+CACHE_REDIS_POOL_TIMEOUT
 
 [Database]
 DATABASE_ENGINE
@@ -241,6 +243,16 @@ base_option_spec = {
             ),
             "default": "allkeys-lru",
             "envvars": ("KOLIBRI_CACHE_REDIS_MAXMEMORY_POLICY",),
+        },
+        "CACHE_REDIS_MAX_POOL_SIZE": {
+            "type": "integer",
+            "default": 50,  # use redis-benchmark to determine better value
+            "envvars": ("KOLIBRI_CACHE_REDIS_MAX_POOL_SIZE",),
+        },
+        "CACHE_REDIS_POOL_TIMEOUT": {
+            "type": "integer",
+            "default": 30,  # seconds
+            "envvars": ("KOLIBRI_CACHE_REDIS_POOL_TIMEOUT",),
         },
     },
     "Database": {
