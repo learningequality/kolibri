@@ -143,11 +143,15 @@
         const $credentialsForm = this.$refs.credentialsForm;
         if ($credentialsForm) {
           // The form makes the call to the startpeerfacilityimport endpoint
-          return $credentialsForm.startImport().then(() => {
-            return {
-              username: $credentialsForm.username,
-              password: $credentialsForm.password,
-            };
+          return $credentialsForm.startImport().then(importStarted => {
+            if (importStarted) {
+              return {
+                username: $credentialsForm.username,
+                password: $credentialsForm.password,
+              };
+            } else {
+              return false;
+            }
           });
         } else {
           return Promise.resolve(false);
