@@ -1,13 +1,17 @@
+import platform
 import time
+from uuid import uuid4
 
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models
+from morango.models import UUIDField
 
 from .utils import LANDING_PAGE_LEARN
 from .utils import LANDING_PAGE_SIGN_IN
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.plugins.app.utils import interface
 
 device_permissions_fields = ["is_superuser", "can_manage_content"]
 
@@ -42,6 +46,19 @@ class DeviceSettingsManager(models.Manager):
         return model
 
 
+def get_device_hostname():
+    # Get the device hostname to set it as the default value of name field in
+    # DeviceSettings model
+    hostname = platform.node()
+
+    # make sure the default name does not exceed max length of the field
+    return hostname[:50]
+
+
+def app_is_enabled():
+    return interface.enabled
+
+
 class DeviceSettings(models.Model):
     """
     This class stores data about settings particular to this device
@@ -67,9 +84,12 @@ class DeviceSettings(models.Model):
     allow_guest_access = models.BooleanField(default=True)
     allow_peer_unlisted_channel_import = models.BooleanField(default=False)
     allow_learner_unassigned_resource_access = models.BooleanField(default=True)
+    name = models.CharField(max_length=50, default=get_device_hostname)
+    allow_other_browsers_to_connect = models.BooleanField(default=app_is_enabled)
 
     def save(self, *args, **kwargs):
         self.pk = 1
+        self.full_clean()
         super(DeviceSettings, self).save(*args, **kwargs)
         cache.set(DEVICE_SETTINGS_CACHE_KEY, self, 600)
 
@@ -107,4 +127,41 @@ class ContentCacheKey(models.Model):
                 cache_key = cls.update_cache_key()
             key = cache_key.key
             cache.set(CONTENT_CACHE_KEY_CACHE_KEY, key, 5000)
+        return key
+
+
+APP_KEY_CACHE_KEY = "app_key"
+
+
+class DeviceAppKey(models.Model):
+    """
+    This class stores a key that is checked to make sure that a webview
+    is making requests from a privileged device (i.e. from inside an
+    app-wrapper webview)
+    """
+
+    key = UUIDField(default=uuid4)
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super(DeviceAppKey, self).save(*args, **kwargs)
+
+    @classmethod
+    def update_app_key(cls):
+        app_key, created = cls.objects.get_or_create()
+        app_key.key = uuid4().hex
+        app_key.save()
+        cache.set(APP_KEY_CACHE_KEY, app_key.key, 5000)
+        return app_key
+
+    @classmethod
+    def get_app_key(cls):
+        key = cache.get(APP_KEY_CACHE_KEY)
+        if key is None:
+            try:
+                app_key = cls.objects.get()
+            except cls.DoesNotExist:
+                app_key = cls.update_app_key()
+            key = app_key.key
+            cache.set(APP_KEY_CACHE_KEY, key, 5000)
         return key

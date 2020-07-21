@@ -12,10 +12,9 @@
         aria-hidden="true"
         @click="handleClickPrevious"
       >
-        <mat-svg
-          name="keyboard_arrow_left"
-          category="hardware"
-          :style="{ fill: $themeTokens.textInverted }"
+        <KIcon
+          icon="chevronLeft"
+          :style="{ fill: $themeTokens.textInverted, top: 0, width: '24px', height: '24px', }"
           :class="{ 'rtl-icon': isRtl }"
         />
       </button>
@@ -36,10 +35,9 @@
         aria-hidden="true"
         @click="handleClickNext"
       >
-        <mat-svg
-          name="keyboard_arrow_right"
-          category="hardware"
-          :style="{ fill: $themeTokens.textInverted }"
+        <KIcon
+          icon="chevronRight"
+          :style="{ fill: $themeTokens.textInverted, top: 0, width: '24px', height: '24px', }"
           :class="{ 'rtl-icon': isRtl }"
         />
       </button>
@@ -116,7 +114,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .wrapper {
     padding-left: 16px;

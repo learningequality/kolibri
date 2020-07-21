@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from jsonfield import JSONField
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import AbstractFacilityDataModel
@@ -9,6 +8,7 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.fields import DateTimeTzField
+from kolibri.core.fields import JSONField
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.utils.time_utils import local_now
 

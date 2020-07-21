@@ -3,25 +3,32 @@ import urls from 'kolibri.urls';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import bytesForHumans from 'kolibri.utils.bytesForHumans';
-import { isEmbeddedWebView } from 'kolibri.utils.browser';
+import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
 
 /* Function to fetch device info from the backend
  * and resolve validated data
  */
 export function getDeviceInfo() {
-  return client({ path: urls['kolibri:core:deviceinfo']() }).then(response => {
-    const data = response.entity;
+  const requests = [
+    client({ url: urls['kolibri:core:deviceinfo']() }),
+    client({ url: urls['kolibri:core:devicename']() }),
+  ];
+  return Promise.all(requests).then(([infoResponse, nameResponse]) => {
+    const data = infoResponse.data;
     data.server_time = new Date(data.server_time);
     data.free_space = data.content_storage_free_space;
     data.content_storage_free_space = bytesForHumans(data.content_storage_free_space);
+    data.device_name = nameResponse.data.name;
 
-    if (response.headers.Server.includes('0.0.0.0')) {
-      if (isEmbeddedWebView()) {
+    const { server } = infoResponse.headers;
+
+    if (server.includes('0.0.0.0')) {
+      if (isEmbeddedWebView) {
         data.server_type = 'Kolibri app server';
       } else {
         data.server_type = 'Kolibri internal server';
       }
-    } else data.server_type = response.headers.Server;
+    } else data.server_type = server;
 
     return data;
   });

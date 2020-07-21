@@ -2,7 +2,7 @@
 
   <div>
     <UiAlert
-      v-if="notification===notificationTypes.PAGELOAD_FAILURE"
+      v-if="notification === notificationTypes.PAGELOAD_FAILURE"
       type="error"
       @dismiss="dismiss()"
     >
@@ -10,7 +10,7 @@
     </UiAlert>
 
     <UiAlert
-      v-if="notification===notificationTypes.SAVE_SUCCESS"
+      v-if="notification === notificationTypes.SAVE_SUCCESS"
       type="success"
       @dismiss="dismiss()"
     >
@@ -18,8 +18,8 @@
     </UiAlert>
 
     <UiAlert
-      v-if="notification===notificationTypes.SAVE_FAILURE"
-      type="success"
+      v-if="notification === notificationTypes.SAVE_FAILURE"
+      type="error"
       @dismiss="dismiss()"
     >
       {{ $tr('saveFailure') }}
@@ -31,7 +31,7 @@
 
 <script>
 
-  import UiAlert from 'kolibri.coreVue.components.UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { notificationTypes } from '../../constants';
 
   export default {

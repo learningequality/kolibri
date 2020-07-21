@@ -132,14 +132,13 @@
     },
     methods: {
       ...mapActions('groups', ['removeUsersFromGroup']),
-      ...mapActions(['createSnackbar']),
       removeSelectedUserFromGroup() {
         if (this.userForRemoval) {
           this.removeUsersFromGroup({
             userIds: [this.userForRemoval.id],
             groupId: this.currentGroup.id,
           }).then(() => {
-            this.createSnackbar(this.coachString('updatedNotification'));
+            this.showSnackbarNotification('learnersRemovedNoCount', { count: 1 });
             this.userForRemoval = null;
           });
         }

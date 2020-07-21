@@ -13,8 +13,18 @@
       size="small"
       @click="$refs.slideshowRenderer.toggleFullscreen()"
     >
-      <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
-      <mat-svg v-else name="fullscreen" category="navigation" />
+      <KIcon
+        v-if="isInFullscreen"
+        icon="fullscreen_exit"
+        :color="$themeTokens.textInverted"
+        style="top:0; width: 24px; height: 24px;"
+      />
+      <KIcon
+        v-else
+        icon="fullscreen"
+        :color="$themeTokens.textInverted"
+        style="top:0; width: 24px; height: 24px;"
+      />
     </UiIconButton>
     <Hooper
       v-if="slides.length"
@@ -44,7 +54,7 @@
       </Slide>
       <HooperNavigation
         slot="hooper-addons"
-        :class="{'hooper-navigation-fullscreen' : isInFullscreen}"
+        :class="{ 'hooper-navigation-fullscreen': isInFullscreen }"
       />
       <HooperPagination slot="hooper-addons" />
     </Hooper>
@@ -55,6 +65,7 @@
 
 <script>
 
+  import has from 'lodash/has';
   import orderBy from 'lodash/orderBy';
   import objectFitImages from 'object-fit-images';
   import client from 'kolibri.client';
@@ -62,7 +73,7 @@
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import {
     Hooper,
@@ -134,7 +145,7 @@
     },
     mounted() {
       this.$emit('startTracking');
-      if (this.extraFields && this.extraFields.hasOwnProperty('contentState')) {
+      if (this.extraFields && has(this.extraFields, 'contentState')) {
         this.highestViewedSlideIndex = this.extraFields.contentState.highestViewedSlideIndex;
       } else {
         this.extraFields.contentState = {
@@ -153,15 +164,15 @@
         /*
          * First check that the file has a storage url and that it is a JSON file.
          */
-        if (defaultFile.hasOwnProperty('storage_url') && defaultFile.extension === 'json') {
+        if (has(defaultFile, 'storage_url') && defaultFile.extension === 'json') {
           /*
             Using the manifest file, get the JSON from the manifest, then
             use the manifest JSON to get all slide images and metadata.
           */
-          const path = defaultFile.storage_url;
-          const method = 'GET';
-          client({ path, method }).then(({ entity }) => {
-            this.setSlides(entity);
+          const url = defaultFile.storage_url;
+          const method = 'get';
+          client({ url, method }).then(({ data }) => {
+            this.setSlides(data);
           });
         }
       },

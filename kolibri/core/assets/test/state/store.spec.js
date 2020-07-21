@@ -1,9 +1,10 @@
 import Vue from 'vue';
 import { SessionResource, AttemptLogResource } from 'kolibri.resources';
+import * as redirectBrowser from 'kolibri.utils.redirectBrowser';
 import * as constants from '../../src/constants';
-import * as browser from '../../src/utils/browser';
 import ConditionalPromise from '../../src/conditionalPromise';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
+import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri.urls');
 
@@ -32,12 +33,14 @@ describe('Vuex store/actions for core module', () => {
   });
 
   describe('kolibriLogin', () => {
+    stubWindowLocation(beforeAll, afterAll);
+
     let store;
     let redirectStub;
 
     beforeEach(() => {
       store = makeStore();
-      redirectStub = jest.spyOn(browser, 'redirectBrowser');
+      redirectStub = jest.spyOn(redirectBrowser, 'redirectBrowser');
     });
 
     afterEach(() => {
@@ -66,18 +69,20 @@ describe('Vuex store/actions for core module', () => {
         createModel: () => ({
           save: () =>
             Promise.reject({
-              entity: [
-                {
-                  id: constants.LoginErrors.INVALID_CREDENTIALS,
-                },
-              ],
-              status: { code: 401 },
+              response: {
+                data: [
+                  {
+                    id: constants.LoginErrors.INVALID_CREDENTIALS,
+                  },
+                ],
+                status: 401,
+              },
             }),
         }),
       });
 
-      await store.dispatch('kolibriLogin', {});
-      expect(store.state.core.loginError).toEqual(constants.LoginErrors.INVALID_CREDENTIALS);
+      const error = await store.dispatch('kolibriLogin', {});
+      expect(error).toEqual(constants.LoginErrors.INVALID_CREDENTIALS);
     });
   });
 });

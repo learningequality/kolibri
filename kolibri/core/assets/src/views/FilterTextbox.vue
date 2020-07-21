@@ -6,7 +6,7 @@
       :style="{ color: $themeTokens.annotation }"
       :ariaLabel="$tr('filter')"
     >
-      <mat-svg name="search" category="action" />
+      <KIcon icon="search" />
     </UiIcon>
 
     <input
@@ -20,19 +20,17 @@
       :placeholder="placeholder"
       :aria-label="placeholder"
       :autofocus="autofocus"
+      @keyup="throttledEmitInput($event.target.value)"
     >
 
-    <UiIconButton
-      color="black"
+    <KIconButton
       size="small"
       class="k-filter-clear-button"
+      icon="clear"
       :class="model === '' ? '' : 'k-filter-clear-button-visible'"
-      :style="{ color: $themeTokens.text }"
       :ariaLabel="$tr('clear')"
       @click="model = ''"
-    >
-      <mat-svg name="clear" category="content" />
-    </UiIconButton>
+    />
   </div>
 
 </template>
@@ -41,8 +39,7 @@
 <script>
 
   import throttle from 'lodash/throttle';
-  import UiIcon from 'keen-ui/src/UiIcon';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
   /**
    * Used to filter items via text input
    */
@@ -50,7 +47,6 @@
     name: 'FilterTextbox',
     components: {
       UiIcon,
-      UiIconButton,
     },
     props: {
       /**
@@ -77,12 +73,18 @@
       throttleInput: {
         type: Number,
         required: false,
+        default: 15,
       },
     },
     computed: {
       throttledEmitInput() {
         return throttle(val => {
-          this.$emit('input', val);
+          // This will also be triggered on keyUp for Android
+          // where the keyboard may not trigger a `model.set` call
+          // and thereby not triggering this
+          if (val !== this.value) {
+            this.$emit('input', val);
+          }
         }, this.throttleInput);
       },
       model: {
@@ -119,7 +121,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .k-filter {
     position: relative;
@@ -130,7 +132,7 @@
 
   .k-filter-icon {
     position: absolute;
-    top: 9px;
+    top: 6px;
     left: 0;
     margin-right: 8px;
     margin-left: 8px;
@@ -151,7 +153,7 @@
 
   .k-filter-clear-button {
     position: absolute;
-    top: 9px;
+    top: 6px;
     right: 0;
     width: 24px;
     height: 24px;

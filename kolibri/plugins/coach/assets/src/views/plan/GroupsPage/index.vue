@@ -12,7 +12,6 @@
       <PlanHeader />
       <div class="ta-r">
         <KButton
-          class="new-group-button"
           :text="$tr('newGroupAction')"
           :primary="true"
           @click="openCreateGroupModal"
@@ -126,7 +125,6 @@
     },
     methods: {
       ...mapActions('groups', ['displayModal']),
-      ...mapActions(['createSnackbar']),
       closeModal() {
         this.displayModal(false);
       },
@@ -148,11 +146,11 @@
         this.displayModal(GroupModals.DELETE_GROUP);
       },
       handleSuccessCreateGroup() {
-        this.createSnackbar(this.coachString('createdNotification'));
+        this.showSnackbarNotification('groupCreated');
         this.displayModal(false);
       },
       handleSuccessDeleteGroup() {
-        this.createSnackbar(this.coachString('deletedNotification'));
+        this.showSnackbarNotification('groupDeleted');
         this.displayModal(false);
       },
     },

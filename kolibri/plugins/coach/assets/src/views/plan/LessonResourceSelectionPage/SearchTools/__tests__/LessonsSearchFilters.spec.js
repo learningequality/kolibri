@@ -19,7 +19,7 @@ function makeWrapper(props) {
       ...props,
     },
   });
-  const kSelects = () => wrapper.findAll({ name: 'KSelect' });
+  const kSelects = () => wrapper.findAllComponents({ name: 'KSelect' });
   const els = {
     kindSelect: () => kSelects().at(0),
     channelSelect: () => kSelects().at(1),
@@ -30,8 +30,7 @@ function makeWrapper(props) {
 
 describe('LessonsSearchFilters', () => {
   it('has the correct content kind filter options based on search results', () => {
-    const { wrapper, els } = makeWrapper();
-    wrapper.setProps({
+    const { els } = makeWrapper({
       searchResults: {
         results: [],
         channel_ids: [],
@@ -45,16 +44,20 @@ describe('LessonsSearchFilters', () => {
     ]);
   });
 
-  it('has the correct channel filter options based on search results', () => {
+  it('has the correct channel filter options based on search results', async () => {
     const { wrapper, els } = makeWrapper();
     wrapper.vm.$store.state.core.channels.list = [{ id: '123', title: 'Channel 123' }];
     wrapper.setProps({
       searchResults: {
         channel_ids: ['123'],
         content_kinds: [],
-        results: [{ kind: 'html5', channel_id: '123' }, { kind: 'exercise', channel_id: '123' }],
+        results: [
+          { kind: 'html5', channel_id: '123' },
+          { kind: 'exercise', channel_id: '123' },
+        ],
       },
     });
+    await wrapper.vm.$nextTick();
     expect(els.channelSelect().props().options).toEqual([
       { label: 'All', value: null },
       { label: 'Channel 123', value: '123' },
@@ -63,13 +66,12 @@ describe('LessonsSearchFilters', () => {
 
   it('does not show role filter options when there are no coach contents', () => {
     const { wrapper } = makeWrapper();
-    const kSelects = wrapper.findAll({ name: 'KSelect' });
+    const kSelects = wrapper.findAllComponents({ name: 'KSelect' });
     expect(kSelects.length).toEqual(2);
   });
 
   it('has the correct role filter options when there are coach contents', () => {
-    const { wrapper, els } = makeWrapper();
-    wrapper.setProps({
+    const { els } = makeWrapper({
       searchResults: {
         channel_ids: [],
         content_kinds: [],

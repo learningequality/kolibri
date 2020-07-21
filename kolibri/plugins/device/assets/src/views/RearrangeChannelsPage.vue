@@ -99,9 +99,9 @@
     methods: {
       postNewOrder(channelIds) {
         return client({
-          path: urls['kolibri:kolibri.plugins.device:devicechannelorder'](),
+          url: urls['kolibri:kolibri.plugins.device:devicechannelorder'](),
           method: 'POST',
-          entity: channelIds,
+          data: channelIds,
         });
       },
       fetchChannels() {
@@ -161,7 +161,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .instructions {
     margin-bottom: 32px;

@@ -1,41 +1,24 @@
 <template>
 
-  <div>
-    <SelectAddressForm
-      v-if="stage === Stages.SELECT_ADDRESS"
-      @click_add_address="goToAddAddress"
-      @click_search_address="goToSearchAddress"
-      @removed_address="handleRemovedAddress"
-      @cancel="handleCancel"
-      @submit="handleSelectAddressSubmit"
-    />
-    <AddAddressForm
-      v-if="stage === Stages.ADD_ADDRESS"
-      @cancel="goToSelectAddress"
-      @added_address="handleAddedAddress"
-    />
-  </div>
+  <SelectAddressModalGroup
+    :fetchAddressArgs="fetchAddressArgs"
+    @cancel="handleCancel"
+    @submit="handleSelectAddressSubmit"
+  />
 
 </template>
 
 
 <script>
 
-  import { mapActions, mapGetters, mapMutations, mapState } from 'vuex';
+  import { mapGetters, mapMutations, mapState } from 'vuex';
+  import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
   import { availableChannelsPageLink, selectContentPageLink } from '../manageContentLinks';
-  import AddAddressForm from './AddAddressForm';
-  import SelectAddressForm from './SelectAddressForm';
-
-  const Stages = {
-    ADD_ADDRESS: 'ADD_ADDRESS',
-    SELECT_ADDRESS: 'SELECT_ADDRESS',
-  };
 
   export default {
     name: 'SelectNetworkAddressModal',
     components: {
-      AddAddressForm,
-      SelectAddressForm,
+      SelectAddressModalGroup,
     },
     props: {
       manageMode: {
@@ -44,49 +27,33 @@
       },
     },
     data() {
-      return {
-        stage: Stages.SELECT_ADDRESS,
-        Stages,
-      };
+      return {};
     },
     computed: {
       ...mapGetters('manageContent/wizard', ['isImportingMore']),
       ...mapState('manageContent/wizard', ['transferredChannel']),
+      fetchAddressArgs() {
+        return this.isImportingMore ? this.transferredChannel.id : '';
+      },
     },
     methods: {
-      ...mapActions(['createSnackbar']),
       ...mapMutations('manageContent/wizard', {
         resetContentWizardState: 'RESET_STATE',
       }),
-      goToAddAddress() {
-        this.stage = Stages.ADD_ADDRESS;
-      },
-      goToSearchAddress() {
-        this.stage = Stages.SEARCH_ADDRESS;
-      },
-      goToSelectAddress() {
-        this.stage = Stages.SELECT_ADDRESS;
-      },
-      handleAddedAddress() {
-        this.createSnackbar(this.$tr('addAddressSnackbarText'));
-        this.goToSelectAddress();
-      },
-      handleRemovedAddress() {
-        this.createSnackbar(this.$tr('removeAddressSnackbarText'));
-      },
       handleSelectAddressSubmit(address) {
+        const addressId = address.id;
         if (this.manageMode) {
-          this.$emit('submit', { addressId: address.id });
+          this.$emit('submit', { addressId });
         } else {
           if (this.isImportingMore) {
             this.$router.push(
               selectContentPageLink({
-                addressId: address.id,
+                addressId,
                 channelId: this.transferredChannel.id,
               })
             );
           } else {
-            this.$router.push(availableChannelsPageLink({ addressId: address.id }));
+            this.$router.push(availableChannelsPageLink({ addressId }));
           }
         }
       },
@@ -97,10 +64,6 @@
           this.resetContentWizardState();
         }
       },
-    },
-    $trs: {
-      addAddressSnackbarText: 'Successfully added address',
-      removeAddressSnackbarText: 'Successfully removed address',
     },
   };
 

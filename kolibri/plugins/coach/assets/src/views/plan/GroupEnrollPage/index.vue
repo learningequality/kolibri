@@ -2,7 +2,7 @@
 
   <CoreBase
     :immersivePage="true"
-    immersivePageIcon="arrow_back"
+    immersivePageIcon="back"
     :immersivePagePrimary="true"
     :primary="true"
     :toolbarTitle="currentGroup.name"
@@ -32,55 +32,37 @@
           :emptyMessage="emptyMessage"
           :infoDescriptor="$tr('learnerGroups')"
         >
-          <template slot="info" slot-scope="userRow">
+          <template v-slot:info="userRow">
             <TruncatedItemList :items="getGroupsForLearner(userRow.user.id)" />
           </template>
         </UserTable>
 
-        <nav>
-          <span>
+        <nav class="pagination-nav">
+          <span class="pagination-label">
             {{ $tr('pagination', {
               visibleStartRange,
               visibleEndRange,
               numFilteredUsers
             }) }}
           </span>
-          <UiIconButton
-            type="primary"
-            :ariaLabel="$tr('previousResults')"
-            :disabled="pageNum === 1"
-            size="small"
-            @click="goToPage(pageNum - 1)"
-          >
-            <mat-svg
-              v-if="isRtl"
-              name="chevron_right"
-              category="navigation"
+          <KButtonGroup style="margin-top: 8px;">
+            <KIconButton
+              icon="chevronLeft"
+              :ariaLabel="$tr('previousResults')"
+              :disabled="pageNum === 1"
+              size="small"
+
+              @click="goToPage(pageNum - 1)"
             />
-            <mat-svg
-              v-else
-              name="chevron_left"
-              category="navigation"
+            <KIconButton
+              icon="chevronRight"
+              :ariaLabel="$tr('nextResults')"
+              :disabled="numPages === 0 || pageNum === numPages"
+              size="small"
+
+              @click="goToPage(pageNum + 1)"
             />
-          </UiIconButton>
-          <UiIconButton
-            type="primary"
-            :ariaLabel="$tr('nextResults')"
-            :disabled="numPages === 0 || pageNum === numPages"
-            size="small"
-            @click="goToPage(pageNum + 1)"
-          >
-            <mat-svg
-              v-if="isRtl"
-              name="chevron_left"
-              category="navigation"
-            />
-            <mat-svg
-              v-else
-              name="chevron_right"
-              category="navigation"
-            />
-          </UiIconButton>
+          </KButtonGroup>
         </nav>
 
         <div class="footer">
@@ -105,7 +87,6 @@
   import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
@@ -115,7 +96,6 @@
   export default {
     name: 'GroupEnrollPage',
     components: {
-      UiIconButton,
       FilterTextbox,
       UserTable,
     },
@@ -181,7 +161,10 @@
         }
         if (this.sortedFilteredUsers.length === 0 && this.filterInput !== '') {
           // TODO internationalize this
-          return `${this.$tr('noUsersMatch')}: '${this.filterInput}'`;
+          return this.coreString('labelColonThenDetails', {
+            label: this.$tr('noUsersMatch'),
+            details: this.filterInput,
+          });
         }
 
         return '';
@@ -189,14 +172,15 @@
     },
     methods: {
       ...mapActions('groups', ['addUsersToGroup']),
-      ...mapActions(['createSnackbar']),
       addSelectedUsersToGroup() {
         this.addUsersToGroup({
           groupId: this.currentGroup.id,
           userIds: this.selectedUsers,
         }).then(() => {
           this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
-            this.createSnackbar(this.coachString('updatedNotification'));
+            this.showSnackbarNotification('learnersEnrolledNoCount', {
+              count: this.selectedUsers.length,
+            });
           });
         });
       },
@@ -232,8 +216,17 @@
 
   .actions-header,
   .footer,
-  nav {
+  .pagination-nav {
     text-align: right;
+  }
+  .pagination-nav {
+    margin-bottom: 8px;
+  }
+
+  .pagination-label {
+    position: relative;
+    top: -2px;
+    display: inline;
   }
 
 </style>

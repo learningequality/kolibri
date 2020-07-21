@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import csv
+import logging
 import os
 import time
 from datetime import datetime
@@ -29,6 +30,67 @@ try:
 except NotImplementedError:
     # This middleware can't work on this OS
     kolibri_process = None
+
+
+def cherrypy_access_log_middleware(get_response):
+    """
+    Because of an upstream issue in CherryPy, HTTP requests aren't
+    logged to cherrypy.access -- which they would be expected to.
+
+    Note that cherrypy.access is already logged to
+
+    Upstream bug:
+    https://github.com/cherrypy/cherrypy/issues/1845
+
+    Log format is a copy of the current cherrypy log format, here is an
+    example::
+
+        2020-02-19 00:01:29,440 cherrypy.access.139816853771432 192.168.88.174 - - "GET /content/storage/e/d/ed0ba2af960040e99c6013ab4709fb3e.png HTTP/1.1" 200 13144 "http://192.168.88.1:2020/en/learn/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36"
+
+    Combined Log Format is described here, but it is applied differently,
+    as the request time is removed.
+    http://httpd.apache.org/docs/2.0/logs.html#combined
+
+    In order to temporarily work around it, we emulate that logging.
+    """  # noqa ignore:E501
+
+    def middleware(request):
+        # Code to be executed for each request before
+        # the view (and later middleware) are called.
+
+        cp_logger = logging.getLogger("cherrypy.access")
+
+        response = get_response(request)
+
+        # Code to be executed for each request/response after
+        # the view is called.
+
+        log_message = '{h} {l} {u} "{r}" {s} {b} "{ref}" "{ua}"'.format(
+            h=request.META.get("REMOTE_ADDR", "unknown"),
+            l="-",  # noqa ignore:E741
+            u="-",
+            r="{} {}".format(request.method, request.path_info.replace('"', "\\")),
+            s=response.status_code,
+            b=len(response.get("content", b"")),
+            ref=request.META.get("HTTP_REFERER", "").replace('"', "\\"),
+            ua=request.META.get("HTTP_USER_AGENT", "unknown").replace('"', "\\"),
+        )
+
+        # Silence busy polling API endpoints and PATCH requests:
+        # https://github.com/learningequality/kolibri/issues/6459
+        log_as_debug = (
+            "/api/tasks/tasks/" in request.path_info
+            or "/status/" == request.path_info
+            or request.method == "PATCH"
+        )
+        if log_as_debug:
+            cp_logger.debug(log_message)
+        else:
+            cp_logger.info(log_message)
+
+        return response
+
+    return middleware
 
 
 class Metrics(object):

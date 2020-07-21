@@ -9,21 +9,21 @@ function makeWrapper() {
     ...router,
   });
   const els = {
-    CoreBase: () => wrapper.find({ name: 'CoreBase' }),
+    CoreBase: () => wrapper.findComponent({ name: 'CoreBase' }),
   };
   return { wrapper, els };
 }
 
 describe('DeviceIndex component', () => {
-  it('CoreBase is immersive when at the SELECT_CONTENT page', () => {
+  it('CoreBase is immersive when at the SELECT_CONTENT page', async () => {
     const { wrapper, els } = makeWrapper();
-    wrapper.vm.$router.push({ name: 'SELECT_CONTENT' });
+    await wrapper.vm.$router.push({ name: 'SELECT_CONTENT' });
     expect(els.CoreBase().props().immersivePage).toEqual(true);
   });
 
-  it('CoreBase is immersive when at the AVAILABLE_CHANNELS page', () => {
+  it('CoreBase is immersive when at the AVAILABLE_CHANNELS page', async () => {
     const { wrapper, els } = makeWrapper();
-    wrapper.vm.$router.push({ name: 'AVAILABLE_CHANNELS' });
+    await wrapper.vm.$router.push({ name: 'AVAILABLE_CHANNELS' });
     expect(els.CoreBase().props().immersivePage).toEqual(true);
   });
 });

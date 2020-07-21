@@ -3,45 +3,33 @@
   <div>
 
     <div>
-      <KGrid>
-        <KGridItem
-          :layout8="{ span: 4 }"
-          :layout12="{ span: 6 }"
-        >
-          <h1>{{ coreString('channelsLabel') }}</h1>
-        </KGridItem>
-        <KGridItem
-          :layout8="{ span: 4, alignment: 'right' }"
-          :layout12="{ span: 6, alignment: 'right' }"
-          class="buttons"
-        >
-          <KDropdownMenu
-            v-if="channelsAreInstalled"
-            appearance="raised-button"
-            :text="coreString('optionsLabel')"
-            position="bottom left"
-            :options="dropdownOptions"
-            class="options-btn"
-            @select="handleSelect"
-          />
-          <KButton
-            :text="$tr('import')"
-            :primary="true"
-            class="import-btn"
-            @click="startImportWorkflow()"
-          />
-        </KGridItem>
-      </KGrid>
+      <HeaderWithOptions :headerText="coreString('channelsLabel')">
+        <template #options>
+          <KButtonGroup>
+            <KDropdownMenu
+              v-if="channelsAreInstalled"
+              appearance="raised-button"
+              :text="coreString('optionsLabel')"
+              position="bottom left"
+              :options="dropdownOptions"
+              class="options-btn"
+              @select="handleSelect"
+            />
+            <KButton
+              :text="$tr('import')"
+              :primary="true"
+              @click="startImportWorkflow()"
+            />
+          </KButtonGroup>
+        </template>
+      </HeaderWithOptions>
 
-      <TasksBar />
-
-      <p>
-        <KRouterLink
-          appearance="basic-link"
-          :text="$tr('taskManagerLink')"
-          :to="{name: 'MANAGE_TASKS'}"
-        />
-      </p>
+      <TasksBar
+        v-if="managedTasks.length > 0"
+        :tasks="managedTasks"
+        :taskManagerLink="{ name: 'MANAGE_TASKS' }"
+        @clearall="handleClickClearAll"
+      />
 
       <p v-if="!channelsAreInstalled">
         {{ $tr('emptyChannelListMessage') }}
@@ -65,7 +53,7 @@
         v-if="deleteChannelId"
         :channelTitle="selectedChannelTitle"
         @submit="handleDeleteChannel"
-        @cancel="deleteChannelId=null"
+        @cancel="deleteChannelId = null"
       />
     </div>
 
@@ -85,6 +73,7 @@
   import { TaskResource } from 'kolibri.resources';
   import taskNotificationMixin from '../taskNotificationMixin';
   import { PageNames, TaskStatuses } from '../../constants';
+  import HeaderWithOptions from '../HeaderWithOptions';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -100,6 +89,7 @@
     components: {
       ChannelPanel,
       DeleteChannelModal,
+      HeaderWithOptions,
       SelectTransferSourceModal,
       TasksBar,
     },
@@ -141,7 +131,11 @@
         return [
           { label: this.$tr('exportChannels'), value: 'EXPORT' },
           { label: this.$tr('deleteChannels'), value: 'DELETE' },
-          { label: this.$tr('editChannelOrder'), value: 'REARRANGE' },
+          {
+            label: this.$tr('editChannelOrder'),
+            value: 'REARRANGE',
+            disabled: this.installedChannelsWithResources.length === 1,
+          },
         ];
       },
     },
@@ -196,7 +190,7 @@
             .catch(err => {
               // Silently handle double-deletions
               // TODO make double-deletion return a 404 error
-              if (get(err, 'entity[0]') === 'This channel does not exist') {
+              if (get(err, 'data[0]') === 'This channel does not exist') {
                 this.refreshChannelList();
               } else {
                 this.createTaskFailedSnackbar();
@@ -206,6 +200,9 @@
       },
       handleSelectManage(channelId) {
         this.$router.push({ name: PageNames.MANAGE_CHANNEL, params: { channel_id: channelId } });
+      },
+      handleClickClearAll() {
+        TaskResource.deleteFinishedTasks();
       },
       // @public (used by taskNotificationMixin)
       onWatchedTaskFinished() {
@@ -219,7 +216,6 @@
       deleteChannels: 'Delete channels',
       editChannelOrder: 'Edit channel order',
       emptyChannelListMessage: 'No channels installed',
-      taskManagerLink: 'View task manager',
     },
   };
 
@@ -235,10 +231,6 @@
   .options-btn {
     margin: 0;
     margin-right: 16px;
-  }
-
-  .import-btn {
-    margin: 0;
   }
 
 </style>

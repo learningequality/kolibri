@@ -48,7 +48,10 @@ export function showExam(store, params, alreadyOnQuiz) {
         const attemptLogs = {};
 
         if (examLogs.length > 0 && examLogs.some(log => !log.closed)) {
-          store.commit('SET_EXAM_LOG', examLogs.find(log => !log.closed));
+          store.commit(
+            'SET_EXAM_LOG',
+            examLogs.find(log => !log.closed)
+          );
         } else if (examLogs.length > 0 && examLogs.some(log => log.closed)) {
           // If exam is closed, then redirect to route for the report
           return router.replace({
@@ -107,7 +110,7 @@ export function showExam(store, params, alreadyOnQuiz) {
             if (questions.some(question => !question.question_id)) {
               store.dispatch(
                 'handleError',
-                `This exam cannot be displayed:\nQuestion sources: ${JSON.stringify(
+                `This quiz cannot be displayed:\nQuestion sources: ${JSON.stringify(
                   questions
                 )}\nExam: ${JSON.stringify(exam)}`
               );
@@ -117,7 +120,7 @@ export function showExam(store, params, alreadyOnQuiz) {
             else if (questionNumber >= questions.length) {
               store.dispatch(
                 'handleError',
-                `Question number ${questionNumber} is not valid for this exam`
+                `Question number ${questionNumber} is not valid for this quiz`
               );
               return;
             }

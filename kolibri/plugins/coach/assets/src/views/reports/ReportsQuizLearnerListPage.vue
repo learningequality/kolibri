@@ -47,7 +47,7 @@
               <KIcon slot="icon" :color="$themeTokens.progress" icon="inProgress" />
               {{
                 $tr('questionsCompletedRatioLabel',
-                    {count: tableRow.statusObj.num_answered || 0, total: exam.question_count})
+                    { count: tableRow.statusObj.num_answered || 0, total: exam.question_count })
               }}
             </KLabeledIcon>
           </td>
@@ -144,6 +144,7 @@
           ...csvFields.name(),
           ...csvFields.learnerProgress('statusObj.status'),
           ...csvFields.score(),
+          ...csvFields.quizQuestionsAnswered(this.exam),
           ...csvFields.list('groups', 'groupsLabel'),
         ];
 

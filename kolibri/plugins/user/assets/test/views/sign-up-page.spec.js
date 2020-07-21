@@ -6,20 +6,39 @@ import makeStore from '../makeStore';
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 
+const router = new VueRouter({
+  routes: [{ name: 'SIGN_IN', path: '/signin' }],
+});
+router.getRoute = () => {
+  return { name: 'SIGN_IN', path: '/signin' };
+};
+
 function makeWrapper() {
   const store = makeStore();
-  store.state.core.facilities = [{ id: 1, name: 'facility' }];
+  store.state.core.facilities = [
+    { id: 1, name: 'Facility 1' },
+    { id: 2, name: 'Facility 2' },
+  ];
+  store.state.facilityId = 1;
   return mount(SignUpPage, {
     store,
-    router: new VueRouter({
-      routes: [{ name: 'SIGN_IN', path: '/signin' }],
-    }),
+    router,
   });
 }
 
 describe('signUpPage component', () => {
   it('smoke test', () => {
     const wrapper = makeWrapper();
-    expect(wrapper.isVueInstance()).toEqual(true);
+    expect(wrapper.exists()).toBeTruthy();
+  });
+});
+
+describe('multiFacility signUpPage component', () => {
+  it('right facility', async () => {
+    const wrapper = makeWrapper();
+    const facilityLabel = wrapper.find('[data-test="facilityLabel"]').element;
+    expect(facilityLabel.textContent).toMatch(/Facility 1/);
+    await wrapper.vm.$store.commit('SET_FACILITY_ID', 2);
+    expect(facilityLabel.textContent).toMatch(/Facility 2/);
   });
 });

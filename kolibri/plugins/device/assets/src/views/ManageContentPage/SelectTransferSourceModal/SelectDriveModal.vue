@@ -18,7 +18,7 @@
       {{ $tr('notEnoughFreeSpaceWarning') }}
     </UiAlert>
     <UiAlert
-      v-if="driveStatus==='ERROR'"
+      v-if="driveStatus === 'ERROR'"
       type="error"
       :dismissible="false"
     >
@@ -27,7 +27,7 @@
 
     <transition mode="out-in">
       <UiAlert
-        v-if="driveStatus==='LOADING'"
+        v-if="driveStatus === 'LOADING'"
         type="info"
         :dismissible="false"
       >
@@ -36,7 +36,7 @@
         </span>
       </UiAlert>
       <DriveList
-        v-if="driveStatus===''"
+        v-if="driveStatus === ''"
         v-model="selectedDriveId"
         :drives="enabledDrives"
         :mode="driveListMode"
@@ -51,7 +51,7 @@
 
   import { mapActions, mapState, mapGetters, mapMutations } from 'vuex';
   import find from 'lodash/find';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TransferTypes } from '../../../constants';
   import DriveList from './DriveList';

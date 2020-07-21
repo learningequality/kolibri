@@ -16,6 +16,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateView
 from django.views.generic.base import View
 from django.views.i18n import LANGUAGE_QUERY_PARAMETER
+from django.views.static import serve
 
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Role
@@ -26,6 +27,7 @@ from kolibri.core.device.translation import get_device_language
 from kolibri.core.device.translation import get_settings_language
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import device_provisioned
+from kolibri.core.hooks import LogoutRedirectHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 
 
@@ -83,7 +85,12 @@ def set_language(request):
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("kolibri:core:redirect_user"))
+    if LogoutRedirectHook.is_enabled():
+        return HttpResponseRedirect(
+            next(obj.url for obj in LogoutRedirectHook.registered_hooks)
+        )
+    else:
+        return HttpResponseRedirect(reverse("kolibri:core:redirect_user"))
 
 
 def get_urls_by_role(role):
@@ -128,10 +135,8 @@ class RootURLRedirectView(View):
         Redirects user based on the highest role they have for which a redirect is defined.
         """
         # If it has not been provisioned and we have something that can handle setup, redirect there.
-        if not is_provisioned():
-            SETUP_WIZARD_URLS = [hook.url for hook in SetupHook.registered_hooks]
-            if SETUP_WIZARD_URLS:
-                return redirect(SETUP_WIZARD_URLS[0])
+        if not is_provisioned() and SetupHook.provision_url:
+            return redirect(SetupHook.provision_url())
 
         if request.user.is_authenticated():
             url = None
@@ -169,3 +174,23 @@ class StatusCheckView(View):
         Confirms that the server is up
         """
         return HttpResponse()
+
+
+def static_serve_with_fallbacks(search_paths):
+    """
+    Serve a static file by iterating over search_paths until a matching file is found.
+    If a matching file is not found on any of the paths, a 404 will be raised.
+    """
+
+    def serve_func(request, path, document_root=None):
+
+        for search_path in search_paths:
+            try:
+                return serve(request, path, document_root=search_path)
+            except Http404:
+                pass
+
+        # allow the Http404 to be raised, since we couldn't find the file anywhere
+        return serve(request, path, document_root=search_paths[0])
+
+    return serve_func

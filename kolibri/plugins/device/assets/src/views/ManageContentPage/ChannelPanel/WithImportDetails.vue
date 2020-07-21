@@ -2,7 +2,7 @@
 
   <div
     class="channel-list-item"
-    :class="{'channel-list-item-sm': windowIsSmall}"
+    :class="{ 'channel-list-item-sm': windowIsSmall }"
     :style="[verticalPadding, { borderTop: `1px solid ${$themePalette.grey.v_200}` } ]"
   >
     <ChannelDetails
@@ -44,7 +44,7 @@
           <KIcon
             class="update-icon"
             icon="error"
-            :style="{fill: $themeTokens.primary}"
+            :style="{ fill: $themeTokens.primary }"
           />
           {{ $tr('newVersionMessage') }}
           <KRouterLink :to="newChannelVersionPageRoute" :text="$tr('moreInformationLabel')" />
@@ -53,7 +53,7 @@
           <KIcon
             class="check-icon"
             icon="correct"
-            :style="{fill: $themeTokens.success}"
+            :style="{ fill: $themeTokens.success }"
           />
           <span class="on-device-text">{{ $tr('onYourDevice') }}</span>
         </div>

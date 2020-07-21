@@ -8,9 +8,9 @@
       <p>
         {{ $tr('pageDescription') }}
         <KExternalLink
-          v-if="facilitySettingsUrl"
+          v-if="!isMultiFacilitySuperuser && getFacilitySettingsPath()"
           :text="$tr('facilitySettings')"
-          :href="facilitySettingsUrl"
+          :href="getFacilitySettingsPath()"
         />
       </p>
     </section>
@@ -45,6 +45,21 @@
         :checked="allowPeerUnlistedChannelImport"
         @change="allowPeerUnlistedChannelImport = $event"
       />
+      <KCheckbox
+        v-if="isAppContext"
+        :checked="allowOtherBrowsersToConnect"
+        @change="allowOtherBrowsersToConnect = $event"
+      >
+        <span> {{ $tr('allowExternalConnectionsApp') }}
+          <p
+            v-if="allowOtherBrowsersToConnect"
+            class="description"
+            :style="{ color: $themeTokens.annotation }"
+          >
+            {{ $tr('allowExternalConnectionsAppDescription') }}
+          </p>
+        </span>
+      </KCheckbox>
       <p>
         <label>{{ $tr('landingPageLabel') }}</label>
         <KRadioButton
@@ -75,12 +90,26 @@
     </section>
     <section>
       <KButton
-        class="save-button"
         :text="coreString('saveAction')"
         appearance="raised-button"
         primary
         @click="handleClickSave"
       />
+    </section>
+
+    <!-- List of separate links to Facility Settings pages -->
+    <section v-if="isMultiFacilitySuperuser">
+      <h2>{{ $tr('configureFacilitySettingsHeader') }}</h2>
+      <ul class="ul-reset">
+        <template v-for="(facility, idx) in facilities">
+          <li :key="idx">
+            <KExternalLink
+              :text="facility.name"
+              :href="getFacilitySettingsPath(facility.id)"
+            />
+          </li>
+        </template>
+      </ul>
     </section>
   </div>
 
@@ -89,12 +118,13 @@
 
 <script>
 
-  import mapValues from 'lodash/map';
+  import { mapGetters } from 'vuex';
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import UiAlert from 'keen-ui/src/UiAlert';
-  import { availableLanguages } from 'kolibri.utils.i18n';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
+  import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
+  import sortLanguages from 'kolibri.utils.sortLanguages';
   import { LandingPageChoices } from '../../constants';
   import { getDeviceSettings, saveDeviceSettings } from './api';
 
@@ -116,7 +146,7 @@
         allowGuestAccess: null,
         allowLearnerUnassignedResourceAccess: null,
         allowPeerUnlistedChannelImport: null,
-
+        allowOtherBrowsersToConnect: null,
         saveStatus: null,
         landingPageChoices: LandingPageChoices,
         browserDefaultOption: {
@@ -126,23 +156,25 @@
       };
     },
     computed: {
+      ...mapGetters(['isAppContext']),
+      facilities() {
+        return this.$store.getters.facilities;
+      },
+      isMultiFacilitySuperuser() {
+        return this.$store.getters.isSuperuser && this.facilities.length > 1;
+      },
       languageOptions() {
-        return [
-          this.browserDefaultOption,
-          ...mapValues(availableLanguages, language => {
+        let languages = sortLanguages(Object.values(availableLanguages), currentLanguage).map(
+          language => {
             return {
               value: language.id,
               label: language.lang_name,
             };
-          }),
-        ];
-      },
-      facilitySettingsUrl() {
-        const getUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
-        if (getUrl) {
-          return getUrl() + '#/settings';
-        }
-        return null;
+          }
+        );
+        languages.splice(1, 0, this.browserDefaultOption);
+
+        return languages;
       },
       disableAllowGuestAccess() {
         return (
@@ -162,6 +194,7 @@
           allowGuestAccess,
           allowLearnerUnassignedResourceAccess,
           allowPeerUnlistedChannelImport,
+          allowOtherBrowsersToConnect,
         } = settings;
 
         const match = find(this.languageOptions, { value: languageId });
@@ -176,12 +209,23 @@
           allowGuestAccess,
           allowLearnerUnassignedResourceAccess,
           allowPeerUnlistedChannelImport,
+          allowOtherBrowsersToConnect,
         });
       });
     },
     methods: {
       resetSaveStatus() {
         this.saveStatus = null;
+      },
+      getFacilitySettingsPath(facilityId = '') {
+        const getUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
+        if (getUrl) {
+          if (facilityId) {
+            return getUrl() + `#/${facilityId}/settings`;
+          }
+          return getUrl() + '#/settings';
+        }
+        return '';
       },
       handleClickSave() {
         const {
@@ -190,6 +234,7 @@
           allowGuestAccess,
           allowLearnerUnassignedResourceAccess,
           allowPeerUnlistedChannelImport,
+          allowOtherBrowsersToConnect,
         } = this;
 
         this.resetSaveStatus();
@@ -199,6 +244,7 @@
           allowGuestAccess,
           allowLearnerUnassignedResourceAccess,
           allowPeerUnlistedChannelImport,
+          allowOtherBrowsersToConnect,
         })
           .then(() => {
             this.saveStatus = 'SUCCESS';
@@ -227,6 +273,18 @@
       },
       unlistedChannels: 'Allow other computers on this network to import my unlisted channels',
       lockedContent: 'Learners should only see resources assigned to them in classes',
+      configureFacilitySettingsHeader: 'Configure facility settings',
+      allowExternalConnectionsApp: {
+        message: 'Allow others in the network to access Kolibri on this device using a browser',
+        context:
+          'Description of a device setting option. This option is visible only When Kolibri runs on an Android app',
+      },
+      allowExternalConnectionsAppDescription: {
+        message:
+          'If learners are allowed to sign in with no password on this device, enabling this may allow external devices to view the user data, which could be a potential security concern.',
+        context:
+          'Warns the user of the potential security risk if this setting is enabled together with users accesing without password',
+      },
     },
   };
 
@@ -237,6 +295,21 @@
 
   .save-button {
     margin-left: 0;
+  }
+  .description {
+    width: 100%;
+    font-size: 12px;
+    line-height: normal;
+  }
+
+  .ul-reset {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+
+    li {
+      margin-bottom: 8px;
+    }
   }
 
 </style>

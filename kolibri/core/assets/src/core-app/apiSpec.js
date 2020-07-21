@@ -14,12 +14,11 @@
 
 import vue from 'vue';
 import vuex from 'vuex';
-import UiAlert from 'keen-ui/src/UiAlert';
-import tetherDrop from 'tether-drop';
-import tetherTooltip from 'tether-tooltip';
-import responsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
-import responsiveElementMixin from 'kolibri-components/src/KResponsiveElementMixin';
-import scriptLoader from 'kolibri-components/src/utils/scriptLoader';
+import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
+import responsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
+import scriptLoader from 'kolibri-design-system/lib/utils/scriptLoader';
+import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton'; // temp hack
 import logging from '../logging';
 import conditionalPromise from '../conditionalPromise';
 import * as apiResource from '../api-resource';
@@ -45,16 +44,17 @@ import AuthMessage from '../views/AuthMessage';
 import FilterTextbox from '../views/FilterTextbox';
 import router from '../router';
 import commonCoreStrings from '../mixins/commonCoreStrings';
+import commonTaskStrings from '../mixins/taskStrings';
+import commonSyncElements from '../mixins/commonSyncElements';
 import CoreFullscreen from '../views/CoreFullscreen';
-import definitions from '../styles/definitions.scss';
-import keenVars from '../keen-config/variables.scss';
 import * as exams from '../exams/utils';
 import * as validators from '../validators';
 import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
+import * as browserInfo from '../utils/browserInfo';
+import { redirectBrowser } from '../utils/redirectBrowser';
 import * as licenseTranslations from '../utils/licenseTranslations';
-import * as browser from '../utils/browser';
 import bytesForHumans from '../utils/bytesForHumans';
 import UserType from '../utils/UserType';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
@@ -84,6 +84,8 @@ import PrivacyLinkAndModal from '../views/userAccounts/PrivacyLinkAndModal.vue';
 import PaginatedListContainer from '../views/PaginatedListContainer';
 import PageStatus from '../views/ExamReport/PageStatus';
 import branding from '../utils/branding';
+import sortLanguages from '../utils/sortLanguages';
+import * as sync from '../views/sync/syncComponentSet';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -98,9 +100,9 @@ import navComponents from '../utils/navComponents';
 import loginComponents from '../utils/loginComponents';
 import coreBannerContent from '../utils/coreBannerContent';
 import CatchErrors from '../utils/CatchErrors';
-import UiIconButton from '../views/KeenUiIconButton.vue';
 import UiToolbar from '../views/KeenUiToolbar.vue';
 import shuffled from '../utils/shuffled';
+import appCapabilities from '../utils/appCapabilities';
 import * as client from './client';
 import urls from './urls';
 
@@ -113,8 +115,6 @@ export default {
     vuex,
     conditionalPromise,
     apiResource,
-    tetherDrop,
-    tetherTooltip,
   },
   coreVue: {
     vuex: {
@@ -175,22 +175,25 @@ export default {
       PrivacyLinkAndModal,
       PageStatus,
     },
+    componentSets: {
+      sync,
+    },
     router,
     mixins: {
       responsiveWindowMixin,
       responsiveElementMixin,
       commonCoreStrings,
+      commonTaskStrings,
+      commonSyncElements,
     },
   },
   resources,
-  styles: {
-    definitions,
-    keenVars,
-  },
   urls,
   utils: {
+    appCapabilities,
     contentNode,
-    browser,
+    redirectBrowser,
+    browserInfo,
     exams,
     validators,
     serverClock,
@@ -206,5 +209,6 @@ export default {
     bytesForHumans,
     branding,
     scriptLoader,
+    sortLanguages,
   },
 };

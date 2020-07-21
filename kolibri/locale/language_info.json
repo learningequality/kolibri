@@ -1,5 +1,12 @@
 [
   {
+    "crowdin_code": "ach",
+    "intl_code": "ach-ug",
+    "language_name": "In-context translation",
+    "english_name": "In-context translation",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "ar",
     "intl_code": "ar",
     "language_name": "العَرَبِيَّة‎‎",
@@ -21,6 +28,13 @@
     "default_font": "NotoSansBengali"
   },
   {
+    "crowdin_code": "de",
+    "intl_code": "de",
+    "language_name": "Deutsch",
+    "english_name": "German",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "en",
     "intl_code": "en",
     "language_name": "English",
@@ -34,7 +48,7 @@
     "english_name": "Spanish (Spain)",
     "default_font": "NotoSans"
   },
-    {
+  {
     "crowdin_code": "la",
     "intl_code": "es-419",
     "language_name": "Español",
@@ -83,7 +97,14 @@
     "english_name": "Italian",
     "default_font": "NotoSans"
   },
-    {
+  {
+    "crowdin_code": "km",
+    "intl_code": "km",
+    "language_name": "ភាសាខ្មែរ",
+    "english_name": "Khmer",
+    "default_font": "NotoSansKhmer"
+  },
+  {
     "crowdin_code": "ko",
     "intl_code": "ko",
     "language_name": "한국어",
@@ -114,7 +135,7 @@
   {
     "crowdin_code": "pt-BR",
     "intl_code": "pt-br",
-    "language_name": "Português (Brasil)",
+    "language_name": "Português",
     "english_name": "Portuguese (Brazil)",
     "default_font": "NotoSans"
   },

@@ -2,8 +2,8 @@ diskcache==4.1.0
 django-filter==1.1.0 # pyup: <2.0.0
 django-js-reverse==0.9.1
 djangorestframework==3.9.1
-django==1.11.28  # pyup: >=1.11,<2
-six==1.11.0
+django==1.11.29  # pyup: >=1.11,<2
+six==1.14.0
 colorlog==3.2.0 # pyup: <4.0.0
 configobj==5.0.6
 django-mptt==0.9.1
@@ -20,16 +20,15 @@ kolibri_exercise_perseus_plugin==1.3.2
 jsonfield==2.0.2
 requests-toolbelt==0.8.0
 clint==0.5.1
-morango==0.5.2
+morango==0.5.3
 tzlocal==1.5.1
 pytz==2018.5
 python-dateutil==2.7.5
-ifcfg==0.19
-sqlalchemy==1.2.10
+sqlalchemy==1.3.17
 semver==2.8.1
 django-redis-cache==2.0.0
 redis==3.2.1
 html5lib==1.0.1
-zeroconf-py2compat==0.19.4
-django-oidc-provider==0.7.0
+zeroconf-py2compat==0.19.9
+ifcfg==0.21
 Click==7.0

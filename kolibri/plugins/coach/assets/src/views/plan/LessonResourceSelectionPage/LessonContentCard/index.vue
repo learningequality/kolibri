@@ -12,7 +12,7 @@
     <div class="text" :style="{ color: $themeTokens.text }">
       <h3
         class="title"
-        :class="{'has-message': Boolean(message)}"
+        :class="{ 'has-message': Boolean(message) }"
         dir="auto"
       >
         {{ title }}
@@ -119,7 +119,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
   @import './card';
 
   .coach-content-label {

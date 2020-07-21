@@ -1,6 +1,5 @@
 import {
   ContentNodeGranularResource,
-  ContentNodeSlimResource,
   RemoteChannelResource,
   TaskResource,
 } from 'kolibri.resources';
@@ -30,18 +29,13 @@ export function fetchPageData(channelId) {
 }
 
 export function fetchNodeWithAncestors(nodeId) {
-  return Promise.all([
-    ContentNodeGranularResource.fetchModel({
-      id: nodeId,
-      getParams: {
-        // Set this param to only show resources that are 'available'
-        for_export: true,
-      },
-      force: true,
-    }),
-    ContentNodeSlimResource.fetchAncestors(nodeId),
-  ]).then(([node, ancestors]) => {
-    return { ...node, ancestors: [...ancestors] };
+  return ContentNodeGranularResource.fetchModel({
+    id: nodeId,
+    getParams: {
+      // Set this param to only show resources that are 'available'
+      for_export: true,
+    },
+    force: true,
   });
 }
 

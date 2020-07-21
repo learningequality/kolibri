@@ -1,5 +1,5 @@
 import logger from 'kolibri.lib.logging';
-import { TaskResource } from 'kolibri.resources';
+import { TaskResource, FacilityTaskResource } from 'kolibri.resources';
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import { TaskStatuses, TaskTypes } from '../../constants';
@@ -9,12 +9,13 @@ const logging = logger.getLogger(__filename);
 function startCSVExport(store, logtype, creating, commitStart) {
   const params = {
     logtype: logtype,
+    facility: store.rootGetters.activeFacilityId,
   };
   if (!creating) {
     let promise = TaskResource.startexportlogcsv(params);
     return promise.then(task => {
-      store.commit(commitStart, task.entity);
-      return task.entity.id;
+      store.commit(commitStart, task.data);
+      return task.data.id;
     });
   }
 }
@@ -39,9 +40,12 @@ function startSessionCSVExport(store) {
 
 function getExportedLogsInfo(store) {
   return client({
-    path: urls['kolibri:core:exportedlogsinfo'](),
+    url: urls['kolibri:core:exportedlogsinfo'](
+      store.rootGetters.activeFacilityId,
+      store.rootGetters.currentFacilityName
+    ),
   }).then(response => {
-    const data = response.entity;
+    const data = response.data;
     let sessionTimeStamp = null;
     if (data.session != null) {
       sessionTimeStamp = new Date(data.session * 1000);
@@ -56,16 +60,23 @@ function getExportedLogsInfo(store) {
 }
 
 function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitFinish) {
+  const myNewTasks = newTasks.filter(task => {
+    return task.facility === store.rootGetters.activeFacilityId;
+  });
   // if task job has already been fetched, just continually check if its completed
   if (taskId) {
-    const task = newTasks.find(task => task.id === taskId);
+    const task = myNewTasks.find(task => task.id === taskId);
 
     if (task && task.status === TaskStatuses.COMPLETED) {
-      store.commit(commitFinish, new Date());
+      if (task.type === TaskTypes.EXPORTUSERSTOCSV) {
+        store.commit(commitFinish, task.filename);
+      } else {
+        store.commit(commitFinish, new Date());
+      }
       TaskResource.deleteFinishedTask(taskId);
     }
   } else {
-    const running = newTasks.filter(task => {
+    const running = myNewTasks.filter(task => {
       return (
         task.type === taskType &&
         task.status !== TaskStatuses.COMPLETED &&
@@ -76,11 +87,28 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
   }
 }
 
+function startExportUsers(store) {
+  if (!store.getters.exportingUsers) {
+    let promise = TaskResource.export_users_to_csv({
+      facility_id: store.rootGetters.activeFacilityId,
+    });
+    return promise.then(task => {
+      store.commit('START_EXPORT_USERS', task.data);
+      return task.data.id;
+    });
+  }
+}
+
 function refreshTaskList(store) {
-  return TaskResource.fetchCollection({
-    force: true,
-  })
-    .then(newTasks => {
+  return Promise.all([
+    TaskResource.fetchCollection({
+      force: true,
+    }),
+    FacilityTaskResource.fetchCollection({
+      force: true,
+    }),
+  ])
+    .then(([newTasks, newFacilityTasks]) => {
       checkTaskStatus(
         store,
         newTasks,
@@ -99,11 +127,19 @@ function refreshTaskList(store) {
       );
       checkTaskStatus(
         store,
-        newTasks,
+        newFacilityTasks,
         TaskTypes.SYNCDATAPORTAL,
         store.state.facilityTaskId,
         'START_FACILITY_SYNC',
         'SET_FINISH_FACILITY_SYNC'
+      );
+      checkTaskStatus(
+        store,
+        newTasks,
+        TaskTypes.EXPORTUSERSTOCSV,
+        store.state.exportUsersTaskId,
+        'START_EXPORT_USERS',
+        'SET_FINISH_EXPORT_USERS'
       );
     })
     .catch(error => {
@@ -116,4 +152,5 @@ export default {
   startSummaryCSVExport,
   startSessionCSVExport,
   getExportedLogsInfo,
+  startExportUsers,
 };

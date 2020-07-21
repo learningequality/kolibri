@@ -37,36 +37,46 @@
           />
         </KGridItem>
         <KGridItem :layout12="{ span: 6 }">
-          <KTextbox
-            ref="questionsInput"
-            v-model.trim.number="numQuestions"
-            type="number"
-            :min="1"
-            :max="maxQs"
-            :invalid="Boolean(showError && numQuestIsInvalidText)"
-            :invalidText="numQuestIsInvalidText"
-            :label="$tr('numQuestions')"
-            class="number-field"
-            @blur="numQuestionsBlurred = true"
-          />
-          <UiIconButton
-            type="flat"
-            aria-hidden="true"
-            class="number-btn"
-            :disabled="numQuestions === 1"
-            @click="numQuestions -= 1"
-          >
-            <mat-svg name="remove" category="content" />
-          </UiIconButton>
-          <UiIconButton
-            type="flat"
-            aria-hidden="true"
-            class="number-btn"
-            :disabled="numQuestions === maxQs"
-            @click="numQuestions += 1"
-          >
-            <mat-svg name="add" category="content" />
-          </UiIconButton>
+          <KGrid>
+            <KGridItem
+              :layout4="{ span: 2 }"
+              :layout8="{ span: 5 }"
+              :layout12="{ span: 8 }"
+            >
+              <KTextbox
+                ref="questionsInput"
+                v-model.trim.number="numQuestions"
+                type="number"
+                :min="1"
+                :max="maxQs"
+                :invalid="Boolean(showError && numQuestIsInvalidText)"
+                :invalidText="numQuestIsInvalidText"
+                :label="$tr('numQuestions')"
+                @blur="numQuestionsBlurred = true"
+              />
+            </KGridItem>
+            <KGridItem
+              :layout4="{ span: 2 }"
+              :layout8="{ span: 3 }"
+              :layout12="{ span: 4 }"
+              :style="{ marginTop: '16px' }"
+            >
+              <KIconButton
+                icon="minus"
+                aria-hidden="true"
+                class="number-btn"
+                :disabled="numQuestions === 1"
+                @click="numQuestions -= 1"
+              />
+              <KIconButton
+                icon="plus"
+                aria-hidden="true"
+                class="number-btn"
+                :disabled="numQuestions === maxQs"
+                @click="numQuestions += 1"
+              />
+            </KGridItem>
+          </KGrid>
         </KGridItem>
       </KGrid>
 
@@ -118,16 +128,18 @@
         />
       </BottomAppBar>
       <BottomAppBar v-else>
-        <KRouterLink
-          appearance="flat-button"
-          :text="coreString('goBackAction')"
-          :to="toolbarRoute"
-        />
-        <KButton
-          :text="coreString('continueAction')"
-          primary
-          @click="continueProcess"
-        />
+        <KButtonGroup>
+          <KRouterLink
+            appearance="flat-button"
+            :text="coreString('goBackAction')"
+            :to="toolbarRoute"
+          />
+          <KButton
+            :text="coreString('continueAction')"
+            primary
+            @click="continueProcess"
+          />
+        </KButtonGroup>
       </BottomAppBar>
 
     </KPageContainer>
@@ -142,10 +154,9 @@
   import { mapState, mapActions, mapGetters } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import UiAlert from 'kolibri.coreVue.components.UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import flatMap from 'lodash/flatMap';
   import pickBy from 'lodash/pickBy';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants/';
@@ -165,7 +176,6 @@
       LessonsSearchFilters,
       ResourceSelectionBreadcrumbs,
       ContentCardList,
-      UiIconButton,
       BottomAppBar,
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
@@ -331,7 +341,6 @@
       },
     },
     methods: {
-      ...mapActions(['createSnackbar']),
       ...mapActions('examCreation', [
         'addToSelectedExercises',
         'removeFromSelectedExercises',
@@ -398,45 +407,44 @@
         return '';
       },
       toggleTopicInWorkingResources(isChecked) {
-        let snackbarString;
         if (isChecked) {
           this.showError = false;
+          // NOTE must call snackbar first before mutating the exercise list
+          this.showSnackbarNotification('resourcesAddedWithCount', {
+            count: this.addableExercises.length,
+          });
           this.addToSelectedExercises(this.addableExercises);
-          snackbarString = 'added';
         } else {
+          this.showSnackbarNotification('resourcesRemovedWithCount', {
+            count: this.allExercises.length,
+          });
           this.removeFromSelectedExercises(this.allExercises);
-          snackbarString = 'removed';
         }
-        this.createSnackbar(this.$tr(snackbarString, { item: this.topicTitle }));
       },
       toggleSelected({ checked, contentId }) {
         let exercises;
-        let snackbarString;
         const contentNode = this.contentList.find(item => item.id === contentId);
         const isTopic = contentNode.kind === ContentNodeKinds.TOPIC;
         if (checked && isTopic) {
           this.showError = false;
           exercises = contentNode.exercises;
           this.addToSelectedExercises(exercises);
-          snackbarString = 'added';
         } else if (checked && !isTopic) {
           this.showError = false;
           exercises = [contentNode];
           this.addToSelectedExercises(exercises);
-          snackbarString = 'added';
         } else if (!checked && isTopic) {
           exercises = contentNode.exercises;
           this.removeFromSelectedExercises(exercises);
-          snackbarString = 'removed';
         } else if (!checked && !isTopic) {
           exercises = [contentNode];
           this.removeFromSelectedExercises(exercises);
-          snackbarString = 'removed';
         }
 
-        if (snackbarString) {
-          this.createSnackbar(this.$tr(snackbarString, { item: contentNode.title }));
-        }
+        this.showSnackbarNotification(
+          checked ? 'resourcesAddedWithCount' : 'resourcesRemovedWithCount',
+          { count: exercises.length }
+        );
       },
       handleMoreResults() {
         this.moreResultsState = 'waiting';
@@ -494,15 +502,8 @@
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
       noneSelected: 'No exercises are selected',
       exitSearchButtonLabel: 'Exit search',
-      // TODO: Handle singular/plural
       selectionInformation:
-        '{count, number, integer} of {total, number, integer} resources selected',
-      // TODO: Interpolate strings correctly
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      /* The items below are referred to dynamically */
-      added: "Added '{item}'",
-      removed: "Removed '{item}'",
-      /* eslint-enable kolibri/vue-no-unused-translations */
+        '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
     },
   };
 
@@ -514,36 +515,6 @@
   .search-box {
     display: inline-block;
     vertical-align: middle;
-  }
-
-  .buttons-container {
-    text-align: right;
-    button {
-      margin: 0 0 0 16px;
-    }
-  }
-
-  .items {
-    display: inline-block;
-  }
-
-  .numItems {
-    display: inline-block;
-    margin: 8px;
-    list-style: none;
-  }
-
-  .number-field {
-    display: inline-block;
-    max-width: 250px;
-    margin-right: 8px;
-  }
-
-  .number-btn {
-    position: relative;
-    top: 16px;
-    display: inline-block;
-    vertical-align: top;
   }
 
 </style>

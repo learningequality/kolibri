@@ -1,6 +1,5 @@
 import logging
 import os
-from time import sleep
 
 import requests
 from django.core.management.base import CommandError
@@ -15,8 +14,8 @@ from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.import_export_content import calculate_files_to_transfer
 from kolibri.core.content.utils.import_export_content import compare_checksums
 from kolibri.core.content.utils.import_export_content import get_nodes_to_transfer
-from kolibri.core.content.utils.import_export_content import retry_import
 from kolibri.core.content.utils.paths import get_channel_lookup_url
+from kolibri.core.content.utils.upgrade import get_import_data_for_update
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.core.tasks.utils import get_current_job
@@ -28,9 +27,8 @@ COPY_METHOD = "copy"
 
 logger = logging.getLogger(__name__)
 
-FILE_TRANSFERRED = 2
+FILE_TRANSFERRED = 0
 FILE_SKIPPED = 1
-FILE_NOT_TRANSFERRED = 0
 
 
 def lookup_channel_listing_status(channel_id, baseurl=None):
@@ -101,6 +99,14 @@ class Command(AsyncCommand):
             help="Import all content, not just that which this Kolibri instance can render",
         )
 
+        parser.add_argument(
+            "--import_updates",
+            action="store_true",
+            default=False,
+            dest="import_updates",
+            help="Import all updated content after a channel version upgrade",
+        )
+
         # to implement these two groups of commands and their corresponding
         # arguments, we'll need argparse.subparsers.
         subparsers = parser.add_subparsers(
@@ -148,6 +154,7 @@ class Command(AsyncCommand):
         baseurl=None,
         peer_id=None,
         renderable_only=True,
+        import_updates=False,
     ):
         self._transfer(
             DOWNLOAD_METHOD,
@@ -157,6 +164,7 @@ class Command(AsyncCommand):
             baseurl=baseurl,
             peer_id=peer_id,
             renderable_only=renderable_only,
+            import_updates=import_updates,
         )
 
     def copy_content(
@@ -167,6 +175,7 @@ class Command(AsyncCommand):
         node_ids=None,
         exclude_node_ids=None,
         renderable_only=True,
+        import_updates=False,
     ):
         self._transfer(
             COPY_METHOD,
@@ -176,6 +185,7 @@ class Command(AsyncCommand):
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             renderable_only=renderable_only,
+            import_updates=import_updates,
         )
 
     def _transfer(  # noqa: max-complexity=16
@@ -189,18 +199,41 @@ class Command(AsyncCommand):
         baseurl=None,
         peer_id=None,
         renderable_only=True,
+        import_updates=False,
     ):
-
         try:
-            nodes_for_transfer = get_nodes_to_transfer(
-                channel_id,
-                node_ids,
-                exclude_node_ids,
-                False,
-                renderable_only=renderable_only,
-                drive_id=drive_id,
-                peer_id=peer_id,
-            )
+            if not import_updates:
+                nodes_for_transfer = get_nodes_to_transfer(
+                    channel_id,
+                    node_ids,
+                    exclude_node_ids,
+                    False,
+                    renderable_only=renderable_only,
+                    drive_id=drive_id,
+                    peer_id=peer_id,
+                )
+                total_resource_count = (
+                    nodes_for_transfer.exclude(kind=content_kinds.TOPIC)
+                    .values("content_id")
+                    .distinct()
+                    .count()
+                )
+
+                (
+                    files_to_download,
+                    total_bytes_to_transfer,
+                ) = calculate_files_to_transfer(nodes_for_transfer, False)
+            else:
+                (
+                    total_resource_count,
+                    files_to_download,
+                    total_bytes_to_transfer,
+                ) = get_import_data_for_update(
+                    channel_id,
+                    renderable_only=renderable_only,
+                    drive_id=drive_id,
+                    peer_id=peer_id,
+                )
         except LocationError:
             if drive_id:
                 raise CommandError(
@@ -212,16 +245,12 @@ class Command(AsyncCommand):
                 raise CommandError(
                     "The network location with the id {} does not exist".format(peer_id)
                 )
-        total_resource_count = (
-            nodes_for_transfer.exclude(kind=content_kinds.TOPIC)
-            .values("content_id")
-            .distinct()
-            .count()
-        )
-
-        (files_to_download, total_bytes_to_transfer) = calculate_files_to_transfer(
-            nodes_for_transfer, False
-        )
+        except ValueError:
+            if import_updates:
+                raise CommandError(
+                    "Tried to perform an channel update import when update data was not available"
+                )
+            raise
 
         job = get_current_job()
 
@@ -286,7 +315,9 @@ class Command(AsyncCommand):
                     url = paths.get_content_storage_remote_url(
                         filename, baseurl=baseurl
                     )
-                    filetransfer = transfer.FileDownload(url, dest, session=session)
+                    filetransfer = transfer.FileDownload(
+                        url, dest, session=session, cancel_check=self.is_cancelled
+                    )
                 elif method == COPY_METHOD:
                     try:
                         srcpath = paths.get_content_storage_file_path(
@@ -296,26 +327,40 @@ class Command(AsyncCommand):
                         # If the source file name is malformed, just stop now.
                         overall_progress_update(f.file_size)
                         continue
-                    filetransfer = transfer.FileCopy(srcpath, dest)
+                    filetransfer = transfer.FileCopy(
+                        srcpath, dest, cancel_check=self.is_cancelled
+                    )
 
-                finished = False
                 try:
-                    while not finished:
-                        finished, status = self._start_file_transfer(
-                            f, filetransfer, overall_progress_update
-                        )
+                    status = self._start_file_transfer(
+                        f, filetransfer, overall_progress_update
+                    )
 
-                        if self.is_cancelled():
-                            break
+                    if self.is_cancelled():
+                        break
 
-                        if status == FILE_TRANSFERRED:
-                            file_checksums_to_annotate.append(f.id)
-                            transferred_file_size += f.file_size
-                        elif status == FILE_SKIPPED:
-                            number_of_skipped_files += 1
-                except Exception as e:
-                    exception = e
+                    if status == FILE_SKIPPED:
+                        number_of_skipped_files += 1
+                    else:
+                        file_checksums_to_annotate.append(f.id)
+                        transferred_file_size += f.file_size
+                except transfer.TransferCanceled:
                     break
+                except Exception as e:
+                    logger.error(
+                        "An error occurred during content import: {}".format(e)
+                    )
+                    if (
+                        isinstance(e, requests.exceptions.HTTPError)
+                        and e.response.status_code == 404
+                    ) or (isinstance(e, OSError) and e.errno == 2):
+                        # Continue file import when the current file is not found from the source and is skipped.
+                        overall_progress_update(f.file_size)
+                        number_of_skipped_files += 1
+                        continue
+                    else:
+                        exception = e
+                        break
 
             with db_task_write_lock:
                 annotation.set_content_visibility(
@@ -347,6 +392,7 @@ class Command(AsyncCommand):
                         number_of_skipped_files
                     )
                 )
+
             overall_progress_update(dummy_bytes_for_annotation)
 
             if exception:
@@ -355,78 +401,40 @@ class Command(AsyncCommand):
             if self.is_cancelled():
                 self.cancel()
 
-    # fmt: on
-
     def _start_file_transfer(self, f, filetransfer, overall_progress_update):
         """
         Start to transfer the file from network/disk to the destination.
         Return value:
-            * True, FILE_TRANSFERRED - successfully transfer the file.
-            * True, FILE_SKIPPED - the file does not exist so it is skipped.
-            * True, FILE_NOT_TRANSFERRED - the transfer is cancelled.
-            * False, FILE_NOT_TRANSFERRED - the transfer fails and needs to retry.
+            * FILE_TRANSFERRED - successfully transfer the file.
+            * FILE_SKIPPED - the file does not exist so it is skipped.
         """
-        try:
-            # Save the current progress value
-            original_value = self.progresstrackers[0].progress
-            original_progress = self.progresstrackers[0].get_progress()
+        with filetransfer, self.start_progress(
+            total=filetransfer.total_size
+        ) as file_dl_progress_update:
+            for chunk in filetransfer:
+                length = len(chunk)
+                overall_progress_update(length)
+                file_dl_progress_update(length)
 
-            with filetransfer, self.start_progress(
-                total=filetransfer.total_size
-            ) as file_dl_progress_update:
-                for chunk in filetransfer:
-                    if self.is_cancelled():
-                        filetransfer.cancel()
-                        return True, FILE_NOT_TRANSFERRED
-                    length = len(chunk)
-                    overall_progress_update(length)
-                    file_dl_progress_update(length)
+            # Ensure that if for some reason the total file size for the transfer
+            # is less than what we have marked in the database that we make up
+            # the difference so that the overall progress is never incorrect.
+            # This could happen, for example for a local transfer if a file
+            # has been replaced or corrupted (which we catch below)
+            overall_progress_update(f.file_size - filetransfer.total_size)
 
-                # Ensure that if for some reason the total file size for the transfer
-                # is less than what we have marked in the database that we make up
-                # the difference so that the overall progress is never incorrect.
-                # This could happen, for example for a local transfer if a file
-                # has been replaced or corrupted (which we catch below)
-                overall_progress_update(f.file_size - filetransfer.total_size)
+            # If checksum of the destination file is different from the localfile
+            # id indicated in the database, it means that the destination file
+            # is corrupted, either from origin or during import. Skip importing
+            # this file.
+            checksum_correctness = compare_checksums(filetransfer.dest, f.id)
+            if not checksum_correctness:
+                e = "File {} is corrupted.".format(filetransfer.source)
+                logger.error("An error occurred during content import: {}".format(e))
+                os.remove(filetransfer.dest)
+                return FILE_SKIPPED
 
-                # If checksum of the destination file is different from the localfile
-                # id indicated in the database, it means that the destination file
-                # is corrupted, either from origin or during import. Skip importing
-                # this file.
-                checksum_correctness = compare_checksums(filetransfer.dest, f.id)
-                if not checksum_correctness:
-                    e = "File {} is corrupted.".format(filetransfer.source)
-                    logger.error(
-                        "An error occurred during content import: {}".format(e)
-                    )
-                    os.remove(filetransfer.dest)
-                    return True, FILE_SKIPPED
-
-            return True, FILE_TRANSFERRED
-
-        except Exception as e:
-            logger.error("An error occurred during content import: {}".format(e))
-            retry = retry_import(e, skip_404=True)
-
-            if retry:
-                # Restore the previous progress so that the progress bar will
-                # not reach over 100% later
-                self.progresstrackers[0].progress = original_value
-
-                self.progresstrackers[0].update_callback(
-                    original_progress.progress_fraction, original_progress
-                )
-
-                logger.info(
-                    "Waiting for 30 seconds before retrying import: {}\n".format(
-                        filetransfer.source
-                    )
-                )
-                sleep(30)
-                return False, FILE_NOT_TRANSFERRED
-            else:
-                overall_progress_update(f.file_size)
-                return True, FILE_SKIPPED
+        return FILE_TRANSFERRED
 
     def handle_async(self, *args, **options):
         if options["command"] == "network":
@@ -437,6 +445,7 @@ class Command(AsyncCommand):
                 baseurl=options["baseurl"],
                 peer_id=options["peer_id"],
                 renderable_only=options["renderable_only"],
+                import_updates=options["import_updates"],
             )
         elif options["command"] == "disk":
             self.copy_content(
@@ -446,6 +455,7 @@ class Command(AsyncCommand):
                 node_ids=options["node_ids"],
                 exclude_node_ids=options["exclude_node_ids"],
                 renderable_only=options["renderable_only"],
+                import_updates=options["import_updates"],
             )
         else:
             self._parser.print_help()

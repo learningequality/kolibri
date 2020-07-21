@@ -9,8 +9,8 @@
 
     <TopNavbar slot="sub-nav" />
 
-    <KPageContainer :class="{'print': $isPrint}">
-      <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
+    <KPageContainer :class="{ 'print': $isPrint }">
+      <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
       <ReportsControls @export="exportCSV">
         <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
         <KSelect
@@ -64,7 +64,7 @@
             </td>
             <td
               v-show="!$isPrint"
-              class="center-text button-col core-table-button-col"
+              class="button-col center-text core-table-button-col"
             >
               <!-- Open quiz button -->
               <KButton
@@ -72,7 +72,7 @@
                 :text="coachString('openQuizLabel')"
                 appearance="flat-button"
                 class="table-left-aligned-button"
-                @click="showOpenConfirmationModal = true; modalQuizId=tableRow.id"
+                @click="showOpenConfirmationModal = true; modalQuizId = tableRow.id"
               />
               <!-- Close quiz button -->
               <KButton
@@ -80,7 +80,7 @@
                 :text="coachString('closeQuizLabel')"
                 appearance="flat-button"
                 class="table-left-aligned-button"
-                @click="showCloseConfirmationModal = true; modalQuizId=tableRow.id;"
+                @click="showCloseConfirmationModal = true; modalQuizId = tableRow.id;"
               />
               <div
                 v-if="tableRow.archive"
@@ -193,6 +193,7 @@
             totalLearners: learnersForQuiz.length,
             tally: this.getExamStatusTally(exam.id, learnersForQuiz),
             groupNames: this.getGroupNames(exam.groups),
+            recipientNames: this.getRecipientNamesForExam(exam),
             avgScore: this.getExamAvgScore(exam.id, learnersForQuiz),
             hasAssignments: learnersForQuiz.length > 0,
           };
@@ -249,7 +250,7 @@
         const columns = [
           ...csvFields.title(),
           ...csvFields.avgScore(),
-          ...csvFields.recipients(),
+          ...csvFields.recipients(this.className),
           ...csvFields.tally(),
         ];
 

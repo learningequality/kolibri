@@ -175,7 +175,7 @@ def _MPTT_descendant_ids_statement(bridge, node_ids, min_boundary, max_boundary)
 
 
 def _create_batch_update_statement(
-    bridge, channel_id, min_boundary, max_boundary, node_ids, exclude_node_ids,
+    bridge, channel_id, min_boundary, max_boundary, node_ids, exclude_node_ids
 ):
     ContentNodeTable = bridge.get_table(ContentNode)
 
@@ -195,7 +195,7 @@ def _create_batch_update_statement(
         # Construct a statement that restricts which nodes we update
         # in this batch by the specified inclusion constraints
         node_ids_statement = _MPTT_descendant_ids_statement(
-            bridge, node_ids, min_boundary, max_boundary,
+            bridge, node_ids, min_boundary, max_boundary
         )
         # Add this statement to the query
         batch_statement = batch_statement.where(
@@ -206,7 +206,7 @@ def _create_batch_update_statement(
         # Construct a statement that restricts nodes we update
         # in this batch by the specified exclusion constraints
         exclude_node_ids_statement = _MPTT_descendant_ids_statement(
-            bridge, exclude_node_ids, min_boundary, max_boundary,
+            bridge, exclude_node_ids, min_boundary, max_boundary
         )
         # Add this statement to the query
         batch_statement = batch_statement.where(
@@ -222,7 +222,7 @@ def _calculate_batch_params(bridge, channel_id, node_ids, exclude_node_ids):
     # highest rght value for this channel.
     max_rght = connection.execute(
         select([func.max(ContentNodeTable.c.rght)]).where(
-            ContentNodeTable.c.channel_id == channel_id,
+            ContentNodeTable.c.channel_id == channel_id
         )
     ).scalar()
 
@@ -393,7 +393,7 @@ def mark_local_files_availability(checksums, availability, destination=None):
     if checksums:
         bridge = Bridge(app_name=CONTENT_APP_NAME, sqlite_file_path=destination)
 
-        LocalFileClass = bridge.get_class(LocalFile)
+        LocalFileTable = bridge.get_table(LocalFile)
 
         logger.info(
             "Setting availability to {availability} of {number} LocalFile objects based on passed in checksums".format(
@@ -401,17 +401,18 @@ def mark_local_files_availability(checksums, availability, destination=None):
             )
         )
 
-        for i in range(0, len(checksums), CHUNKSIZE):
-            bridge.session.bulk_update_mappings(
-                LocalFileClass,
-                (
-                    {"id": checksum, "available": availability}
-                    for checksum in checksums[i : i + CHUNKSIZE]
-                ),
-            )
-            bridge.session.flush()
+        connection = bridge.get_connection()
 
-        bridge.session.commit()
+        trans = connection.begin()
+
+        for i in range(0, len(checksums), CHUNKSIZE):
+            connection.execute(
+                LocalFileTable.update()
+                .where(LocalFileTable.c.id.in_(checksums[i : i + CHUNKSIZE]))
+                .values(available=availability)
+            )
+
+        trans.commit()
 
         bridge.end()
 
@@ -657,7 +658,7 @@ def set_content_visibility(
 ):
     mark_local_files_as_available(checksums)
     update_content_metadata(
-        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, public=public,
+        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, public=public
     )
 
 

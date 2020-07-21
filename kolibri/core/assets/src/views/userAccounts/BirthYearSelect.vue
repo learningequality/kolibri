@@ -2,7 +2,7 @@
 
   <div class="pos-rel">
     <KSelect
-      class="select"
+      class="birthyear-select"
       :value="selected"
       :label="coreString('birthYearLabel')"
       :placeholder="$tr('placeholder')"
@@ -97,10 +97,14 @@
     position: relative;
   }
 
+  .birthyear-select {
+    width: calc(100% - 32px);
+  }
+
   .info-icon {
     position: absolute;
     top: 27px;
-    right: -34px;
+    right: 0;
   }
 
 </style>

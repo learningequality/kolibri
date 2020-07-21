@@ -5,7 +5,6 @@ import union from 'lodash/union';
 import shuffled from 'kolibri.utils.shuffled';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
-import { createTranslator } from 'kolibri.utils.i18n';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import router from 'kolibri.coreVue.router';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -13,10 +12,6 @@ import { PageNames } from '../../constants';
 import { MAX_QUESTIONS } from '../../constants/examConstants';
 import { createExam } from '../examShared/exams';
 import selectQuestions from './selectQuestions';
-
-const snackbarTranslator = createTranslator('ExamCreateSnackbarTexts', {
-  newExamCreated: 'New quiz created',
-});
 
 export function resetExamCreationState(store) {
   store.commit('RESET_STATE');
@@ -40,7 +35,7 @@ export function updateAvailableQuestions(store) {
   if (Object.keys(selectedExercises).length > 0) {
     if (MAX_QUESTIONS > Object.keys(selectedExercises).length) {
       return ContentNodeResource.fetchNodeAssessments(Object.keys(selectedExercises)).then(resp => {
-        store.commit('SET_AVAILABLE_QUESTIONS', resp.entity);
+        store.commit('SET_AVAILABLE_QUESTIONS', resp.data);
       });
     } else {
       store.commit('SET_AVAILABLE_QUESTIONS', MAX_QUESTIONS);
@@ -105,8 +100,7 @@ export function createExamAndRoute(store, { classId, adHocGroupId }) {
   };
 
   return createExam(store, exam).then(() => {
-    router.push({ name: PageNames.EXAMS });
-    store.dispatch('createSnackbar', snackbarTranslator.$tr('newExamCreated'), { root: true });
+    return router.push({ name: PageNames.EXAMS });
   });
 }
 
@@ -122,7 +116,7 @@ function _getTopicsWithExerciseDescendants(topicIds = []) {
 
     topicsNumAssessmentDescendantsPromise.then(response => {
       const topicsWithExerciseDescendants = [];
-      response.entity.forEach(descendantAssessments => {
+      response.data.forEach(descendantAssessments => {
         if (descendantAssessments.num_assessments > 0) {
           topicsWithExerciseDescendants.push({
             id: descendantAssessments.id,
@@ -132,10 +126,13 @@ function _getTopicsWithExerciseDescendants(topicIds = []) {
         }
       });
 
-      ContentNodeResource.fetchDescendants(topicsWithExerciseDescendants.map(topic => topic.id), {
-        descendant_kind: ContentNodeKinds.EXERCISE,
-      }).then(response => {
-        response.entity.forEach(exercise => {
+      ContentNodeResource.fetchDescendants(
+        topicsWithExerciseDescendants.map(topic => topic.id),
+        {
+          descendant_kind: ContentNodeKinds.EXERCISE,
+        }
+      ).then(response => {
+        response.data.forEach(exercise => {
           const topic = topicsWithExerciseDescendants.find(t => t.id === exercise.ancestor_id);
           topic.exercises.push(exercise);
         });

@@ -2,11 +2,11 @@
 
   <div>
     <KGrid>
-      <KGridItem :layout12="{ span: 3 }">
+      <KGridItem :layout12="{ span: 7 }">
         <slot name="otherFilter"></slot>
       </KGridItem>
       <KGridItem
-        :layout12="{ span: 9, alignment: 'right' }"
+        :layout12="{ span: 5, alignment: 'right' }"
         class="text-filter"
       >
         <FilterTextbox
@@ -20,30 +20,28 @@
       <slot v-bind="{ items: visibleFilteredItems, filterInput }"></slot>
     </div>
 
-    <nav>
+    <nav class="pagination-nav">
       <span dir="auto" class="pagination-label">
         {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems }) }}
       </span>
-      <UiIconButton
-        type="primary"
-        :ariaLabel="$tr('previousResults')"
-        :disabled="previousButtonDisabled"
-        size="small"
-        class="pagination-button"
-        @click="changePage(-1)"
-      >
-        <KIcon icon="back" class="arrow-icon" />
-      </UiIconButton>
-      <UiIconButton
-        type="primary"
-        :ariaLabel="$tr('nextResults')"
-        :disabled="nextButtonDisabled"
-        size="small"
-        class="pagination-button"
-        @click="changePage(+1)"
-      >
-        <KIcon icon="forward" class="arrow-icon" />
-      </UiIconButton>
+      <KButtonGroup>
+        <KIconButton
+          :ariaLabel="$tr('previousResults')"
+          :disabled="previousButtonDisabled"
+          size="small"
+
+          icon="back"
+          @click="changePage(-1)"
+        />
+        <KIconButton
+          :ariaLabel="$tr('nextResults')"
+          :disabled="nextButtonDisabled"
+          size="small"
+
+          icon="forward"
+          @click="changePage(+1)"
+        />
+      </KButtonGroup>
     </nav>
   </div>
 
@@ -53,13 +51,11 @@
 <script>
 
   import clamp from 'lodash/clamp';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
 
   export default {
     name: 'PaginatedListContainer',
     components: {
-      UiIconButton,
       FilterTextbox,
     },
     props: {
@@ -155,22 +151,19 @@
 
 <style lang="scss" scoped>
 
-  .actions-header,
-  nav {
+  .pagination-nav {
+    margin-bottom: 8px;
     text-align: right;
-  }
-
-  .pagination-button {
-    margin-left: 8px;
   }
 
   .text-filter {
     margin-top: 14px;
   }
 
-  .arrow-icon {
+  .pagination-label {
     position: relative;
-    top: -1px;
+    top: -2px;
+    display: inline;
   }
 
 </style>

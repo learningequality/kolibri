@@ -9,7 +9,7 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
+      <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
       <ReportsControls @export="exportCSV">
         <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
         <KSelect
@@ -139,6 +139,7 @@
             totalLearners: learners.length,
             tally: this.getLessonStatusTally(lesson.id, learners),
             groupNames: this.getGroupNames(lesson.groups),
+            recipientNames: this.getRecipientNamesForExam(lesson),
             hasAssignments: learners.length > 0,
           };
           Object.assign(tableRow, lesson);
@@ -170,7 +171,11 @@
         });
       },
       exportCSV() {
-        const columns = [...csvFields.title(), ...csvFields.recipients(), ...csvFields.tally()];
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.recipients(this.className),
+          ...csvFields.tally(),
+        ];
 
         const fileName = this.$tr('printLabel', { className: this.className });
         new CSVExporter(columns, fileName).export(this.table);

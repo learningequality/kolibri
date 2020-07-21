@@ -39,6 +39,11 @@
         type: Boolean,
         default: false,
       },
+      // This can be used to override automatic hiding/showing updates
+      skipNextUpdate: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -52,6 +57,11 @@
       },
       resetDistanceDebounced() {
         return debounce(this.resetDistance, 500);
+      },
+      resetSkipNextUpdateDebounced() {
+        return debounce(() => {
+          this.$emit('update:skipNextUpdate', false);
+        }, 500);
       },
       classes() {
         return {
@@ -86,6 +96,11 @@
     },
     methods: {
       handleNewScrollPosition(newVal, oldVal) {
+        if (this.skipNextUpdate) {
+          this.resetSkipNextUpdateDebounced();
+          return;
+        }
+
         const delta = newVal - oldVal;
 
         // If delta shouldn't cause a change in isHidden, then do nothing
@@ -135,7 +150,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .scrolling-header {
     @extend %enable-gpu-acceleration;

@@ -1,6 +1,6 @@
 <template>
 
-  <KPageContainer class="narrow-container">
+  <KPageContainer v-if="!loading" class="narrow-container">
 
     <form class="form" @submit.prevent="submitForm">
       <h1>
@@ -26,15 +26,15 @@
           :isUniqueValidator="usernameIsUnique"
           :errors.sync="caughtErrors"
         />
-
-        <PasswordTextbox
-          ref="passwordTextbox"
-          :disabled="busy"
-          :value.sync="password"
-          :isValid.sync="passwordValid"
-          :shouldValidate="formSubmitted"
-        />
-
+        <template v-if="showPasswordInput">
+          <PasswordTextbox
+            ref="passwordTextbox"
+            :disabled="busy"
+            :value.sync="password"
+            :isValid.sync="passwordValid"
+            :shouldValidate="formSubmitted"
+          />
+        </template>
         <KSelect
           v-model="kind"
           class="select"
@@ -80,17 +80,21 @@
       </section>
 
       <div class="buttons">
-        <KButton
-          type="submit"
-          :text="coreString('saveAction')"
-          :disabled="busy"
-          :primary="true"
-        />
-        <KButton
-          :text="coreString('cancelAction')"
-          :disabled="busy"
-          @click="goToUserManagementPage()"
-        />
+        <KButtonGroup style="margin-top: 8px;">
+          <KButton
+            type="submit"
+            :text="coreString('saveAction')"
+            :disabled="busy"
+
+            :primary="true"
+          />
+          <KButton
+            :text="coreString('cancelAction')"
+            :disabled="busy"
+
+            @click="goToUserManagementPage()"
+          />
+        </KButtonGroup>
       </div>
 
     </form>
@@ -102,7 +106,7 @@
 <script>
 
   import every from 'lodash/every';
-  import { mapState, mapGetters } from 'vuex';
+  import { mapState, mapGetters, mapActions } from 'vuex';
   import { UserKinds, ERROR_CONSTANTS, DemographicConstants } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
@@ -142,6 +146,7 @@
         gender: NOT_SPECIFIED,
         birthYear: NOT_SPECIFIED,
         idNumber: '',
+        loading: true,
         kind: {
           label: this.coreString('learnerLabel'),
           value: UserKinds.LEARNER,
@@ -153,8 +158,14 @@
       };
     },
     computed: {
-      ...mapGetters(['currentFacilityId']),
+      ...mapGetters(['activeFacilityId', 'facilityConfig']),
       ...mapState('userManagement', ['facilityUsers']),
+      showPasswordInput() {
+        if (this.facilityConfig.learner_can_login_with_no_password) {
+          return this.kind.value !== UserKinds.LEARNER;
+        }
+        return true;
+      },
       newUserRole() {
         if (this.coachIsSelected) {
           return this.classCoachIsSelected ? UserKinds.ASSIGNABLE_COACH : UserKinds.COACH;
@@ -185,12 +196,16 @@
         ];
       },
     },
-    mounted() {
-      this.$store.dispatch('notLoading');
+    beforeMount() {
+      this.getFacilityConfig(this.activeFacilityId).then(() => {
+        this.$store.dispatch('notLoading');
+        this.loading = false;
+      });
     },
     methods: {
+      ...mapActions(['getFacilityConfig']),
       goToUserManagementPage(onComplete) {
-        this.$router.push(this.$router.getRoute('USER_MGMT_PAGE'), onComplete);
+        this.$router.push(this.$store.getters.facilityPageLinks.UserPage, onComplete);
       },
       usernameIsUnique(value) {
         return !this.facilityUsers.find(
@@ -199,6 +214,13 @@
       },
       submitForm() {
         this.formSubmitted = true;
+        let password = this.password;
+
+        if (!this.showPasswordInput) {
+          password = 'NOT_SPECIFIED';
+          this.passwordValid = true;
+        }
+
         if (!this.formIsValid) {
           return this.focusOnInvalidField();
         }
@@ -212,9 +234,8 @@
             birth_year: this.birthYear,
             role: {
               kind: this.newUserRole,
-              collection: this.currentFacilityId,
             },
-            password: this.password,
+            password,
           })
           .then(() => {
             this.handleSubmitSuccess();
@@ -225,10 +246,7 @@
       },
       handleSubmitSuccess() {
         this.goToUserManagementPage(() => {
-          this.$store.dispatch(
-            'createSnackbar',
-            this.$tr('userCreatedNotification', { username: this.username })
-          );
+          this.showSnackbarNotification('userCreated');
         });
       },
       handleSubmitFailure(error) {
@@ -256,7 +274,6 @@
       createNewUserHeader: 'Create new user',
       classCoachDescription: "Can only instruct classes that they're assigned to",
       facilityCoachDescription: 'Can instruct all classes in your facility',
-      userCreatedNotification: "User account for '{username}' was created",
     },
   };
 

@@ -1,11 +1,9 @@
 import logger from 'kolibri.lib.logging';
 import store from 'kolibri.coreVue.vuex.store';
-import { redirectBrowser } from 'kolibri.utils.browser';
+import { redirectBrowser } from 'kolibri.utils.redirectBrowser';
 import Lockr from 'lockr';
 import urls from 'kolibri.urls';
-import mime from 'rest/interceptor/mime';
-import interceptor from 'rest/interceptor';
-import baseClient from './core-app/baseClient';
+import clientFactory from './core-app/baseClient';
 import { SIGNED_OUT_DUE_TO_INACTIVITY } from './constants';
 import errorCodes from './disconnectionErrorCodes';
 import {
@@ -51,6 +49,47 @@ export class HeartBeat {
     this.pollSessionEndPoint = this.pollSessionEndPoint.bind(this);
     this.setUserInactive();
     this._enabled = false;
+    // Don't use the regular client, to avoid circular imports, and to use different custom
+    // interceptors on the request specific to the behaviour here.
+    this._client = clientFactory();
+    // Define an interceptor to monitor the response that gets returned.
+    this._client.interceptors.response.use(
+      function(response) {
+        // If the response does not have one of the disconnect error codes
+        // then we have reconnected.
+        if (!store.getters.connected && !errorCodes.includes(response.status)) {
+          // Not one of our 'disconnected' status codes, so we are connected again
+          // Set connected and return the response here to prevent any further processing.
+          heartbeat._setConnected();
+        }
+        return response;
+      },
+      function(error) {
+        const { connected, reconnectTime } = store.getters;
+        if (!connected) {
+          // If the response does not have one of the disconnect error codes
+          // then we have reconnected.
+          if (!errorCodes.includes(error.response.status)) {
+            // Not one of our 'disconnected' status codes, so we are connected again
+            // Set connected and return the response here to prevent any further processing.
+            heartbeat._setConnected();
+            return Promise.reject(error);
+          }
+          // If we have got here, then the error code meant that the server is still not reachable
+          // set the snackbar to disconnected.
+          // See what the previous reconnect interval was.
+          const reconnect = reconnectTime;
+          // Set a new reconnect interval.
+          store.commit(
+            'CORE_SET_RECONNECT_TIME',
+            // Multiply the previous interval by our multiplier, but max out at a high interval.
+            Math.min(RECONNECT_MULTIPLIER * reconnect, MAX_RECONNECT_TIME)
+          );
+          createDisconnectedSnackbar(store, heartbeat.pollSessionEndPoint);
+        }
+        return Promise.reject(error);
+      }
+    );
   }
   startPolling() {
     if (!this._enabled) {
@@ -117,56 +156,27 @@ export class HeartBeat {
    * @return {Promise} promise that resolves when the endpoint check is complete.
    */
   _checkSession() {
-    const { currentUserId, connected, reconnectTime } = store.getters;
+    const { currentUserId, connected } = store.getters;
     // Record the current user id to check if a different one is returned by the server.
-    // Don't use the regular client, to avoid circular imports, and to use different custom
-    // interceptors on the request specific to the behaviour here.
-    let client = baseClient.wrap(mime, { mime: 'application/json' });
     if (!connected) {
       // If not currently connected to the server, flag that we are currently trying to reconnect.
       createTryingToReconnectSnackbar(store);
-      client = client.wrap(
-        interceptor({
-          // Define an interceptor to monitor the response that gets returned.
-          response: function(response) {
-            // If the response does not have one of the disconnect error codes
-            // then we have reconnected.
-            if (!errorCodes.includes(response.status.code)) {
-              // Not one of our 'disconnected' status codes, so we are connected again
-              // Set connected and return the response here to prevent any further processing.
-              heartbeat._setConnected();
-              return response;
-            }
-            // If we have got here, then the error code meant that the server is still not reachable
-            // set the snackbar to disconnected.
-            // See what the previous reconnect interval was.
-            const reconnect = reconnectTime;
-            // Set a new reconnect interval.
-            store.commit(
-              'CORE_SET_RECONNECT_TIME',
-              // Multiply the previous interval by our multiplier, but max out at a high interval.
-              Math.min(RECONNECT_MULTIPLIER * reconnect, MAX_RECONNECT_TIME)
-            );
-            createDisconnectedSnackbar(store, heartbeat.pollSessionEndPoint);
-            return response;
-          },
-        })
-      );
     }
     // Log the time at the start of the request for time diff setting.
     const pollStart = Date.now();
-    return client({
-      params: {
-        // Only send active when both connected and activity has been registered.
-        // Do this to prevent a user logging activity cascade on the server side.
-        active: connected && this._active,
-      },
-      path: this._sessionUrl('current'),
-    })
+    return this._client
+      .request({
+        params: {
+          // Only send active when both connected and activity has been registered.
+          // Do this to prevent a user logging activity cascade on the server side.
+          active: connected && this._active,
+        },
+        url: this._sessionUrl('current'),
+      })
       .then(response => {
         // Log the time that the poll of the session endpoint ended.
         const pollEnd = Date.now();
-        const session = response.entity;
+        const session = response.data;
         // If our session is already defined, check the user id in the response
         if (store.state.core.session.id && session.user_id !== currentUserId) {
           if (session.user_id === null) {
@@ -195,10 +205,10 @@ export class HeartBeat {
       .catch(error => {
         // An error occurred.
         logging.error('Session polling failed, with error: ', error);
-        if (errorCodes.includes(error.status.code)) {
+        if (errorCodes.includes(error.response.status)) {
           // We had an error that indicates that we are disconnected, so start to monitor
           // the disconnection.
-          this.monitorDisconnect(error.status.code);
+          return this.monitorDisconnect(error.response.status);
         }
       });
   }

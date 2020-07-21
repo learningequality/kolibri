@@ -3,7 +3,7 @@
   <CoreBase
     :immersivePage="true"
     :immersivePagePrimary="true"
-    immersivePageIcon="arrow_back"
+    immersivePageIcon="back"
     :immersivePageRoute="toolbarRoute"
     :appBarTitle="exercise.title"
     :pageTitle="title"
@@ -34,7 +34,8 @@
       ...mapState('questionDetail', ['title']),
       ...mapState('exerciseDetail', ['exercise']),
       toolbarRoute() {
-        return this.classRoute('ReportsGroupReportLessonExerciseQuestionListPage', {});
+        const backRoute = this.backRouteForQuery(this.$route.query);
+        return backRoute || this.classRoute('ReportsGroupReportLessonExerciseQuestionListPage', {});
       },
     },
     methods: {

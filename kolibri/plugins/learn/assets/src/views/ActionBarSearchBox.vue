@@ -2,15 +2,15 @@
 
   <div class="search-box-wrapper">
     <div ref="toggleBtnAndSearchBox">
-      <UiIconButton
+      <KIconButton
         v-show="searchBoxIsDropdown"
         ref="toggleBtn"
-        type="primary"
-        color="clear"
+        icon="search"
+        size="small"
+        style="margin-left: 8px;"
+        :color="$themeTokens.textInverted"
         @click="toggleDropdownSearchBox"
-      >
-        <mat-svg name="search" category="action" class="search-icon" />
-      </UiIconButton>
+      />
 
       <div
         v-show="searchBoxIsVisible"
@@ -19,7 +19,7 @@
       >
         <SearchBox
           ref="searchBox"
-          :icon="searchBoxIsDropdown ? 'arrow_forward' : 'search'"
+          :icon="searchBoxIsDropdown ? 'forward' : 'search'"
           :class="searchBoxIsDropdown ? '' : 'search-box-within-action-bar'"
           @closeDropdownSearchBox="closeDropdownSearchBox"
         />
@@ -35,13 +35,11 @@
 <script>
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import SearchBox from './SearchBox';
 
   export default {
     name: 'ActionBarSearchBox',
     components: {
-      UiIconButton,
       SearchBox,
     },
     mixins: [responsiveWindowMixin],

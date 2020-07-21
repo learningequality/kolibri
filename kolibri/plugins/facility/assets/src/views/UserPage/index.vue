@@ -13,11 +13,12 @@
         :layout8="{ span: 4 }"
         :layout12="{ span: 6 }"
       >
-        <KButton
+        <KRouterLink
           :text="$tr('newUserButtonLabel')"
           :primary="true"
+          appearance="raised-button"
           class="move-down"
-          @click="$router.push($router.getRoute('USER_CREATE_PAGE'))"
+          :to="$store.getters.facilityPageLinks.UserCreatePage"
         />
       </KGridItem>
     </KGrid>
@@ -37,14 +38,14 @@
         />
       </template>
 
-      <template v-slot:default="{items, filterInput}">
+      <template v-slot:default="{ items, filterInput }">
         <UserTable
-          class="user-roster move-down"
+          class="move-down user-roster"
           :users="items"
           :emptyMessage="emptyMessageForItems(items, filterInput)"
           :showDemographicInfo="true"
         >
-          <template slot="action" slot-scope="userRow">
+          <template v-slot:action="userRow">
             <KDropdownMenu
               :text="$tr('optionsButtonLabel')"
               :options="manageUserOptions(userRow.user.id)"
@@ -60,14 +61,14 @@
     <!-- Modals -->
 
     <ResetUserPasswordModal
-      v-if="modalShown===Modals.RESET_USER_PASSWORD"
+      v-if="modalShown === Modals.RESET_USER_PASSWORD"
       :id="selectedUser.id"
       :username="selectedUser.username"
       @cancel="closeModal"
     />
 
     <DeleteUserModal
-      v-if="modalShown===Modals.DELETE_USER"
+      v-if="modalShown === Modals.DELETE_USER"
       :id="selectedUser.id"
       :username="selectedUser.username"
       @cancel="closeModal"
@@ -82,6 +83,7 @@
   import { mapState, mapGetters } from 'vuex';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import cloneDeep from 'lodash/cloneDeep';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
@@ -122,6 +124,7 @@
           { label: this.coreString('learnersLabel'), value: UserKinds.LEARNER },
           { label: this.coreString('coachesLabel'), value: UserKinds.COACH },
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
+          { label: this.$tr('superAdmins'), value: UserKinds.SUPERUSER },
         ];
       },
     },
@@ -132,6 +135,19 @@
       emptyMessageForItems(items, filterText) {
         if (this.facilityUsers.length === 0) {
           return this.$tr('noUsersExist');
+        } else if (this.roleFilter && filterText === '') {
+          switch (this.roleFilter.value) {
+            case UserKinds.LEARNER:
+              return this.$tr('noLearnersExist');
+            case UserKinds.COACH:
+              return this.$tr('noCoachesExist');
+            case UserKinds.ADMIN:
+              return this.$tr('noAdminsExist');
+            case UserKinds.SUPERUSER:
+              return this.$tr('noSuperAdminsExist');
+            default:
+              return '';
+          }
         } else if (items.length === 0) {
           return this.$tr('allUsersFilteredOut', { filterText });
         }
@@ -157,6 +173,9 @@
         if (filterKind === UserKinds.ADMIN) {
           return user.kind === UserKinds.ADMIN || user.kind === UserKinds.SUPERUSER;
         }
+        if (filterKind === UserKinds.SUPERUSER) {
+          return user.kind === UserKinds.SUPERUSER;
+        }
         return filterKind === user.kind;
       },
       manageUserOptions(userId) {
@@ -172,11 +191,9 @@
       },
       handleManageUserSelection(selection, user) {
         if (selection.value === Modals.EDIT_USER) {
-          this.$router.push(
-            this.$router.getRoute('USER_EDIT_PAGE', {
-              id: user.id,
-            })
-          );
+          const link = cloneDeep(this.$store.getters.facilityPageLinks.UserEditPage);
+          link.params.id = user.id;
+          this.$router.push(link);
         } else {
           this.selectedUser = user;
           this.modalShown = selection.value;
@@ -191,11 +208,16 @@
     $trs: {
       searchText: 'Search for a user…',
       admins: 'Admins',
+      superAdmins: 'Super admins',
       newUserButtonLabel: 'New User',
       noUsersExist: 'No users exist',
       allUsersFilteredOut: "No users match the filter: '{filterText}'",
       optionsButtonLabel: 'Options',
       resetUserPassword: 'Reset password',
+      noLearnersExist: 'No learners exist',
+      noCoachesExist: 'No coaches exist',
+      noSuperAdminsExist: 'No super admins exist',
+      noAdminsExist: 'No admins exist',
     },
   };
 

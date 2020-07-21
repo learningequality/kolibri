@@ -38,7 +38,7 @@
               <tr><td>help needed</td><td> {{ tally.helpNeeded }}</td></tr>
             </table>
           </td>
-          <td rowspan="2" style="width: 200px; text-align: center; position: relative;">
+          <td rowspan="2" style="position: relative; width: 200px; text-align: center;">
             <div class="bar">
               <ProgressSummaryBar :showErrorBar="true" :tally="tally" />
             </div>

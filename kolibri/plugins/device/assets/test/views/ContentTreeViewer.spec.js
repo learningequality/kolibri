@@ -22,10 +22,10 @@ function makeWrapper(options = {}) {
 function getElements(wrapper) {
   return {
     // Need to filter out checkboxes in content-node-rows
-    selectAllCheckbox: () => wrapper.findAll({ name: 'KCheckbox' }).filter(el => el.props().label === 'Select all').at(0),
+    selectAllCheckbox: () => wrapper.findAllComponents({ name: 'KCheckbox' }).filter(el => el.props().label === 'Select all').at(0),
     emptyState: () => wrapper.find('.no-contents'),
     contentsSection: () => wrapper.findAll('.contents'),
-    contentNodeRows: () => wrapper.findAll({ name: 'ContentNodeRow' }),
+    contentNodeRows: () => wrapper.findAllComponents({ name: 'ContentNodeRow' }),
     addNodeForTransferMock: () => {
       const mock = wrapper.vm.addNodeForTransfer = jest.fn().mockResolvedValue();
       return mock;
@@ -75,7 +75,7 @@ describe('ContentTreeViewer component', () => {
       ],
     });
     const wrapper = makeWrapper({ store });
-    const rows = wrapper.findAll({ name: 'ContentNodeRow' });
+    const rows = wrapper.findAllComponents({ name: 'ContentNodeRow' });
     expect(rows).toHaveLength(2);
   });
 
@@ -126,7 +126,7 @@ describe('ContentTreeViewer component', () => {
     const wrapper = makeWrapper({ store });
     const { contentsSection, emptyState } = getElements(wrapper);
     expect(contentsSection()).toHaveLength(0);
-    expect(emptyState().is('div')).toEqual(true);
+    expect(emptyState().element.tagName).toBe('DIV');
   });
 
   it('child nodes are annotated with their full path', () => {
@@ -219,7 +219,7 @@ describe('ContentTreeViewer component', () => {
       const wrapper = makeWrapper({ store });
       const { removeNodeForTransferMock } = getElements(wrapper);
       const { mock } = removeNodeForTransferMock();
-      const topicRow = wrapper.find({ name: 'ContentNodeRow' });
+      const topicRow = wrapper.findComponent({ name: 'ContentNodeRow' });
       expect(topicRow.props().checked).toEqual(true);
       expect(topicRow.props().disabled).toEqual(false);
       topicRow.find('input[type="checkbox"]').trigger('click');
@@ -243,7 +243,7 @@ describe('ContentTreeViewer component', () => {
       const wrapper = makeWrapper({ store });
       const { addNodeForTransferMock } = getElements(wrapper);
       const { mock } = addNodeForTransferMock();
-      const topicRow = wrapper.find({ name: 'ContentNodeRow' });
+      const topicRow = wrapper.findComponent({ name: 'ContentNodeRow' });
       expect(topicRow.props().checked).toEqual(false);
       topicRow.find('input[type="checkbox"]').trigger('click');
       expect(mock.calls).toHaveLength(1);
@@ -270,7 +270,7 @@ describe('ContentTreeViewer component', () => {
       const wrapper = makeWrapper({ store });
       const { addNodeForTransferMock } = getElements(wrapper);
       const { mock } = addNodeForTransferMock();
-      const topicRow = wrapper.find({ name: 'ContentNodeRow' });
+      const topicRow = wrapper.findComponent({ name: 'ContentNodeRow' });
       expect(topicRow.props().checked).toEqual(false);
       expect(topicRow.props().indeterminate).toEqual(true);
       topicRow.find('input[type="checkbox"]').trigger('click');

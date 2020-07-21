@@ -1,15 +1,12 @@
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { ClassroomResource, FacilityUserResource } from 'kolibri.resources';
-import { PageNames } from '../../constants';
 import { _userState } from '../mappers';
 import { filterAndSortUsers } from '../../userSearchUtils';
 
 export function showClassEditPage(store, classId) {
-  store.dispatch('preparePage', {
-    name: PageNames.CLASS_EDIT_MGMT_PAGE,
-  });
-  const facilityId = store.getters.currentFacilityId;
+  store.dispatch('preparePage');
+  const facilityId = store.getters.activeFacilityId;
   const promises = [
     FacilityUserResource.fetchCollection({ getParams: { member_of: classId }, force: true }),
     ClassroomResource.fetchModel({ id: classId, force: true }),

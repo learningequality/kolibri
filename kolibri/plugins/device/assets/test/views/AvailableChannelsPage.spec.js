@@ -19,21 +19,25 @@ function getElements(wrapper) {
     noChannels: () => wrapper.find('.no-channels'),
     channelsList: () => wrapper.find('.channels-list'),
     channelsAvailableText: () => wrapper.find('[data-test="available"]').text().trim(),
-    channelListItems: () => wrapper.findAll({ name: 'WithImportDetails' }),
-    ChannelTokenModal: () => wrapper.find({ name: 'ChannelTokenModal' }),
+    channelListItems: () => wrapper.findAllComponents({ name: 'WithImportDetails' }),
+    ChannelTokenModal: () => wrapper.findComponent({ name: 'ChannelTokenModal' }),
     filters: () => wrapper.find('.filters'),
-    languageFilter: () => wrapper.find({ name: 'KSelect' }),
+    languageFilter: () => wrapper.findComponent({ name: 'KSelect' }),
     titleText: () => wrapper.find('[data-test="title"]').text().trim(),
-    titleFilter: () => wrapper.find({ name: 'FilterTextbox' }),
+    titleFilter: () => wrapper.findComponent({ name: 'FilterTextbox' }),
     unlistedChannelsButton: () => wrapper.find('[data-test="token-button"]'),
-    filterComponent: () => wrapper.find({name: 'FilteredChannelListContainer'}),
+    filterComponent: () => wrapper.findComponent({name: 'FilteredChannelListContainer'}),
   }
 }
 
 function testChannelVisibility(wrapper, visibilities) {
   const channels = getElements(wrapper).channelListItems();
   visibilities.forEach((v, i) => {
-    expect(channels.at(i).isVisible()).toEqual(v);
+    if (v) {
+      expect(channels.at(i).element).toBeVisible();
+    } else {
+      expect(channels.at(i).element).not.toBeVisible();
+    }
   });
 }
 
@@ -48,7 +52,7 @@ describe('availableChannelsPage', () => {
     store.commit('manageContent/wizard/SET_TRANSFER_TYPE', transferType);
   }
 
-  it('in REMOTEIMPORT mode, the unlisted channel button is available', () => {
+  it('in REMOTEIMPORT mode, the unlisted channel button is available', async () => {
     // ...and clicking it opens the channel token modal
     setTransferType('remoteimport');
     const wrapper = makeWrapper({ store });
@@ -56,7 +60,8 @@ describe('availableChannelsPage', () => {
     // prettier-ignore
     const button = unlistedChannelsButton();
     button.trigger('click');
-    expect(ChannelTokenModal().isVueInstance()).toEqual(true);
+    await wrapper.vm.$nextTick();
+    expect(ChannelTokenModal().exists()).toEqual(true);
   });
 
   it('in LOCALIMPORT mode, the unlisted channel button is not available', () => {
@@ -171,7 +176,7 @@ describe('availableChannelsPage', () => {
     const { channelListItems } = getElements(wrapper);
     const channels = channelListItems();
     // prettier-ignore
-    const link = channels.at(0).find({ name: 'KRouterLink' });
+    const link = channels.at(0).findComponent({ name: 'KRouterLink' });
     expect(link.props().to).toMatchObject({
       name: 'SELECT_CONTENT',
       params: {

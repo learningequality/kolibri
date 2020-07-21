@@ -4,7 +4,10 @@ import RearrangeChannelsPage from '../RearrangeChannelsPage';
 
 RearrangeChannelsPage.methods.postNewOrder = () => Promise.resolve();
 RearrangeChannelsPage.methods.fetchChannels = () => {
-  return Promise.resolve([{ id: '1', name: 'Channel 1' }, { id: '2', name: 'Channel 2' }]);
+  return Promise.resolve([
+    { id: '1', name: 'Channel 1' },
+    { id: '2', name: 'Channel 2' },
+  ]);
 };
 async function makeWrapper() {
   const store = makeStore();
@@ -19,7 +22,7 @@ async function makeWrapper() {
 
 describe('RearrangeChannelsPage', () => {
   async function simulateSort(wrapper) {
-    const dragContainer = wrapper.find({ name: 'DragContainer' });
+    const dragContainer = wrapper.findComponent({ name: 'DragContainer' });
     dragContainer.vm.$emit('sort', {
       newArray: [wrapper.vm.channels[1], wrapper.vm.channels[0]],
     });
@@ -68,20 +71,26 @@ describe('RearrangeChannelsPage', () => {
   it('handles a @moveUp event properly', async () => {
     const { wrapper } = await makeWrapper();
     const spy = (wrapper.vm.handleOrderChange = jest.fn());
-    const dragSortWidget = wrapper.findAll({ name: 'DragSortWidget' }).at(1);
+    const dragSortWidget = wrapper.findAllComponents({ name: 'DragSortWidget' }).at(1);
     dragSortWidget.vm.$emit('moveUp');
     expect(spy).toHaveBeenCalledWith({
-      newArray: [{ id: '2', name: 'Channel 2' }, { id: '1', name: 'Channel 1' }],
+      newArray: [
+        { id: '2', name: 'Channel 2' },
+        { id: '1', name: 'Channel 1' },
+      ],
     });
   });
 
   it('handles a @moveDown event properly', async () => {
     const { wrapper } = await makeWrapper();
     const spy = (wrapper.vm.handleOrderChange = jest.fn());
-    const dragSortWidget = wrapper.findAll({ name: 'DragSortWidget' }).at(0);
+    const dragSortWidget = wrapper.findAllComponents({ name: 'DragSortWidget' }).at(0);
     dragSortWidget.vm.$emit('moveDown');
     expect(spy).toHaveBeenCalledWith({
-      newArray: [{ id: '2', name: 'Channel 2' }, { id: '1', name: 'Channel 1' }],
+      newArray: [
+        { id: '2', name: 'Channel 2' },
+        { id: '1', name: 'Channel 1' },
+      ],
     });
   });
 });

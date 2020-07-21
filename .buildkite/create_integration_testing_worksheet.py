@@ -20,6 +20,7 @@ SPREADSHEET_CREDENTIALS = os.getenv("GOOGLE_SPREADSHEET_CREDENTIALS")
 SPREADSHEET_TPL_KEY = "1kVhg0evo9EV2aDo10KdIIjwqsoT4rISR7dJzf6s_-RM"
 SPREADSHEET_TITLE = "Integration testing with Gherkin scenarios"
 
+
 # Use to get the Kolibri version, for the integration testing spreadsheet
 def get_tag_name():
     if os.getenv("BUILDKITE_TAG"):
@@ -63,8 +64,8 @@ G_ACCESS = gspread.authorize(
 
 
 def get_feature_name(str_arg):
-    str_name = str_arg.replace("-", " ").replace(".feature", " ").capitalize()
-    return str_name.strip()
+    str_name = str_arg.replace("-", " ").replace(".feature", " ").strip().split("/")[-1]
+    return str_name.capitalize()
 
 
 def get_role_name(str_arg):

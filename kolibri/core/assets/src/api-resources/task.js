@@ -74,7 +74,10 @@ export default new Resource({
    * Takes an array of params of the same signature as startDiskContentImport as input
    */
   startDiskBulkImport(paramsArray) {
-    return this.postListEndpoint('startdiskbulkimport', paramsArray.map(params => pickBy(params)));
+    return this.postListEndpoint(
+      'startdiskbulkimport',
+      paramsArray.map(params => pickBy(params))
+    );
   },
 
   /**
@@ -98,7 +101,10 @@ export default new Resource({
    */
   startDiskBulkExport(paramsArray) {
     // Not naming it after URL to keep internal consistency
-    return this.postListEndpoint('startdiskbulkexport', paramsArray.map(params => pickBy(params)));
+    return this.postListEndpoint(
+      'startdiskbulkexport',
+      paramsArray.map(params => pickBy(params))
+    );
   },
 
   /**
@@ -110,6 +116,27 @@ export default new Resource({
    */
   startexportlogcsv(params) {
     return this.postListEndpoint('startexportlogcsv', pickBy(params));
+  },
+  /**
+   * Initiates a Task that import users, classes and assign roles from a csv file
+   *
+   * @param {object} params.csvfile - File object or filename (stored in kolibri temp dir)
+   * @param {string} params.dryrun - validate objects but don't write in the db
+   * @param {string} params.delete - delete users not included in the csv
+   *                                 and clear not included classrooms
+   * @returns {Promise}
+   *
+   */
+  import_users_from_csv(params) {
+    return this.postListEndpointMultipart('importusersfromcsv', pickBy(params));
+  },
+  /**
+   * Initiates a Task that export users, classes and assign roles to a csv file
+   * @returns {Promise}
+   *
+   */
+  export_users_to_csv(params) {
+    return this.postListEndpoint('exportuserstocsv', pickBy(params));
   },
 
   deleteChannel({ channelId }) {
@@ -131,10 +158,6 @@ export default new Resource({
 
   localDrives() {
     return this.getListEndpoint('localdrive');
-  },
-
-  dataportalsync(facility) {
-    return this.postListEndpoint('startdataportalsync', { facility: facility });
   },
 
   // TODO: switch to Model.delete()

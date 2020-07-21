@@ -27,7 +27,7 @@
         />
 
         <template v-if="editingSuperAdmin">
-          <h2 class="user-type header">
+          <h2 class="header user-type">
             {{ coreString('userTypeLabel') }}
           </h2>
 
@@ -94,17 +94,21 @@
         {{ $tr('forceLogoutWarning') }}
       </p>
       <div class="buttons">
-        <KButton
-          type="submit"
-          :text="coreString('saveAction')"
-          :disabled="formDisabled"
-          :primary="true"
-        />
-        <KButton
-          :text="cancelButtonText"
-          :disabled="formDisabled"
-          @click="goToUserManagementPage()"
-        />
+        <KButtonGroup style="margin-top: 8px;">
+          <KButton
+            type="submit"
+            :text="coreString('saveAction')"
+            :disabled="formDisabled"
+
+            :primary="true"
+          />
+          <KButton
+            :text="cancelButtonText"
+            :disabled="formDisabled"
+
+            @click="goToUserManagementPage()"
+          />
+        </KButtonGroup>
       </div>
 
     </form>
@@ -167,7 +171,7 @@
       };
     },
     computed: {
-      ...mapGetters(['currentFacilityId', 'currentUserId']),
+      ...mapGetters(['currentUserId']),
       ...mapState('userManagement', ['facilityUsers']),
       formDisabled() {
         return this.status === 'BUSY';
@@ -268,7 +272,7 @@
         };
       },
       goToUserManagementPage() {
-        this.$router.push(this.$router.getRoute('USER_MGMT_PAGE'));
+        this.$router.push(this.$store.getters.facilityPageLinks.UserPage);
       },
       usernameIsUnique(value) {
         const match = this.facilityUsers.find(
@@ -299,7 +303,6 @@
         // their update separately
         if (!this.editingSuperAdmin && this.newUserKind !== this.userCopy.kind) {
           roleUpdates = {
-            collection: this.currentFacilityId,
             kind: this.newUserKind,
           };
         }

@@ -7,13 +7,14 @@
     @cancel="$emit('cancel')"
   >
     <!-- Classroom Selection Form -->
-    <div v-if="stage=== Stages.SELECT_CLASSROOM" id="select-classroom">
+    <div v-if="stage === Stages.SELECT_CLASSROOM" id="select-classroom">
       <KRadioButton
         v-for="classroom in availableClassrooms"
         :key="classroom.id"
         v-model="selectedClassroomId"
         :label="classroomLabel(classroom)"
         :value="classroom.id"
+        data-test="radio-button"
       />
     </div>
     <!-- Learner Group Selection Form -->
@@ -25,6 +26,7 @@
         :groups="availableGroups"
         :classId="selectedClassroomId"
         :initialAdHocLearners="[]"
+        data-test="recipient-selector"
         @updateLearners="learners => adHocLearners = learners"
       />
     </div>

@@ -23,7 +23,7 @@ Feature: Learner engages with an assigned quiz
     Then I see the *Submit quiz* modal
     When I click *Submit quiz* button
     Then I see the quiz is marked as *Completed*
-    
+
   Scenario: Review a completed quiz
     Given I have previously completed the quiz
       When I click to open a completed quiz

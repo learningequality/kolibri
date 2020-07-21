@@ -30,6 +30,12 @@ export default {
     },
   },
   actions: {
+    stopPolling(store) {
+      store.commit('SET_CURRENT_CLASSROOM_ID', '');
+      // Need to clear out 403 error in store to prevent auth message from showing
+      // in other places.
+      store.commit('CORE_SET_ERROR', '', { root: true });
+    },
     fetchNotificationsForClass(store, classroomId) {
       if (!store.state.currentClassroomId) {
         store.commit('SET_CURRENT_CLASSROOM_ID', classroomId);
@@ -53,6 +59,10 @@ export default {
         });
     },
     updateNotificationsForClass(store, { classroomId, after }) {
+      // stop polling if not viewing a classroom anymore
+      if (!store.state.currentClassroomId) {
+        return;
+      }
       return notificationsResource
         .fetchCollection({
           getParams: {

@@ -13,18 +13,13 @@
       :raised="false"
       :removeBrandDivider="true"
     >
-      <UiIconButton
+      <KIconButton
         slot="icon"
-        type="secondary"
-        :aria-label="$tr('openNav')"
+        icon="menu"
+        :color="$themeTokens.textInverted"
+        :ariaLabel="$tr('openNav')"
         @click="$emit('toggleSideNav')"
-      >
-        <mat-svg
-          name="menu"
-          category="navigation"
-          :style="{fill: $themeTokens.textInverted}"
-        />
-      </UiIconButton>
+      />
 
       <img
         v-if="$kolibriBranding.appBar.topLogo"
@@ -46,21 +41,19 @@
           type="primary"
           color="clear"
           class="user-menu-button"
-          :class="$computedClass({':focus': $coreOutline})"
+          :class="$computedClass({ ':focus': $coreOutline })"
           :ariaLabel="$tr('userMenu')"
           @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
         >
-          <mat-svg
+          <KIcon
             slot="icon"
-            name="person"
-            category="social"
-            :style="{fill: $themeTokens.textInverted}"
+            icon="person"
+            :style="{ fill: $themeTokens.textInverted, height: '24px', width: '24px', top: 0, }"
           />
           <span v-if="isUserLoggedIn" class="username" tabindex="-1">{{ dropdownName }}</span>
-          <mat-svg
-            name="arrow_drop_down"
-            category="navigation"
-            :style="{fill: $themeTokens.textInverted}"
+          <KIcon
+            icon="dropdown"
+            :style="{ fill: $themeTokens.textInverted, height: '24px', width: '24px', top: 0, }"
           />
         </UiButton>
 
@@ -68,13 +61,14 @@
           v-show="userMenuDropdownIsOpen"
           ref="userMenuDropdown"
           class="user-menu-dropdown"
+          :isOpen="userMenuDropdownIsOpen"
           :raised="true"
           :containFocus="true"
           :showActive="false"
-          :style="{backgroundColor: $themeTokens.surface}"
-          @close="userMenuDropdownIsOpen = false"
+          :style="{ backgroundColor: $themeTokens.surface }"
+          @close="handleCoreMenuClose"
         >
-          <template v-if="isUserLoggedIn" slot="header">
+          <template v-if="isUserLoggedIn" v-slot:header>
             <div class="role">
               {{ coreString('userTypeLabel') }}
             </div>
@@ -86,7 +80,7 @@
             </div>
           </template>
 
-          <template slot="options">
+          <template v-slot:options>
             <component :is="component" v-for="component in menuOptions" :key="component.name" />
             <CoreMenuOption
               :label="$tr('languageSwitchMenuOption')"
@@ -114,11 +108,11 @@
   import { mapGetters, mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
-  import UiButton from 'keen-ui/src/UiButton';
+  import UiButton from 'kolibri-design-system/lib/keen/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import branding from 'kolibri.utils.branding';
@@ -132,7 +126,7 @@
     name: 'AppBar',
     components: {
       UiToolbar,
-      UiIconButton,
+      KIconButton,
       CoreMenu,
       UiButton,
       CoreMenuOption,
@@ -190,6 +184,12 @@
         }
         return event;
       },
+      handleCoreMenuClose() {
+        this.userMenuDropdownIsOpen = false;
+        if (this.$refs.userMenuButton.$refs.button) {
+          this.$refs.userMenuButton.$refs.button.focus();
+        }
+      },
       handleChangeLanguage() {
         this.$emit('showLanguageModal');
         this.userMenuDropdownIsOpen = false;
@@ -207,7 +207,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .user-menu-button {
     text-transform: none;

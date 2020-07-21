@@ -1,5 +1,6 @@
 import debounce from 'lodash/debounce';
 import pick from 'lodash/pick';
+import client from 'kolibri.client';
 import logger from 'kolibri.lib.logging';
 import {
   SessionResource,
@@ -17,7 +18,7 @@ import {
 import { now, setServerTime } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import { redirectBrowser } from 'kolibri.utils.browser';
+import { redirectBrowser } from 'kolibri.utils.redirectBrowser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
 import Lockr from 'lockr';
@@ -32,6 +33,7 @@ import {
   UPDATE_MODAL_DISMISSED,
 } from '../../../constants';
 import samePageCheckGenerator from '../../../utils/samePageCheckGenerator';
+import errorCodes from './../../../disconnectionErrorCodes.js';
 
 const logging = logger.getLogger(__filename);
 const intervalTime = 5000; // Frequency at which time logging is updated
@@ -136,6 +138,7 @@ function _channelListState(data) {
     id: channel.id,
     title: channel.name,
     description: channel.description,
+    tagline: channel.tagline,
     root_id: channel.root,
     last_updated: channel.last_updated,
     version: channel.version,
@@ -174,6 +177,15 @@ export function handleApiError(store, errorObject) {
   let error = errorObject;
   if (typeof errorObject === 'object' && !(errorObject instanceof Error)) {
     error = JSON.stringify(errorObject, null, 2);
+  } else if (errorObject.response) {
+    if (errorCodes.includes(errorObject.response.status)) {
+      // Do not log errors for disconnections, as it disrupts the user experience
+      // and should already be being handled by our disconnection overlay.
+      return;
+    }
+    // Reassign object properties here as Axios error objects have built in
+    // pretty printing support which messes with this.
+    error = JSON.stringify(errorObject.response, null, 2);
   } else if (errorObject instanceof Error) {
     error = errorObject.toString();
   }
@@ -207,13 +219,33 @@ export function setSession(store, { session, clientNow }) {
 }
 
 /**
+ * Sets a password that is currently not specified
+ * due to an account that was created while passwords
+ * were not required.
+ *
+ * @param {object} store The store.
+ * @param {object} sessionPayload The session payload.
+ */
+export function kolibriSetUnspecifiedPassword(store, { username, password, facility }) {
+  const data = {
+    username,
+    password,
+    facility,
+  };
+  return client({
+    url: urls['kolibri:core:setnonspecifiedpassword'](),
+    data,
+    method: 'post',
+  });
+}
+
+/**
  * Signs in user.
  *
  * @param {object} store The store.
  * @param {object} sessionPayload The session payload.
  */
 export function kolibriLogin(store, sessionPayload) {
-  store.commit('CORE_SET_SIGN_IN_BUSY', true);
   Lockr.set(UPDATE_MODAL_DISMISSED, false);
   return SessionResource.saveModel({ data: sessionPayload })
     .then(() => {
@@ -227,16 +259,18 @@ export function kolibriLogin(store, sessionPayload) {
       }
     })
     .catch(error => {
-      store.commit('CORE_SET_SIGN_IN_BUSY', false);
       const errorsCaught = CatchErrors(error, [
         ERROR_CONSTANTS.INVALID_CREDENTIALS,
         ERROR_CONSTANTS.MISSING_PASSWORD,
+        ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED,
       ]);
       if (errorsCaught) {
         if (errorsCaught.includes(ERROR_CONSTANTS.INVALID_CREDENTIALS)) {
-          store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.INVALID_CREDENTIALS);
+          return LoginErrors.INVALID_CREDENTIALS;
         } else if (errorsCaught.includes(ERROR_CONSTANTS.MISSING_PASSWORD)) {
-          store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.PASSWORD_MISSING);
+          return LoginErrors.PASSWORD_MISSING;
+        } else if (errorsCaught.includes(ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED)) {
+          return LoginErrors.PASSWORD_NOT_SPECIFIED;
         }
       } else {
         store.dispatch('handleApiError', error);
@@ -286,23 +320,22 @@ export function saveDismissedNotification(store, notification_id) {
 }
 
 export function getFacilities(store) {
-  return FacilityResource.fetchCollection().then(facilities => {
-    store.commit('CORE_SET_FACILITIES', facilities);
+  return FacilityResource.fetchCollection({ force: true }).then(facilities => {
+    store.commit('CORE_SET_FACILITIES', [...facilities]);
   });
 }
 
 export function getFacilityConfig(store, facilityId) {
-  const { facilities, currentFacilityId } = store.getters;
+  const { currentFacilityId, selectedFacility } = store.getters;
   let facId = facilityId || currentFacilityId;
   if (!facId) {
     // No facility Id, so nothing good is going to happen here.
     // Redirect and let Kolibri sort it out.
     return Promise.resolve(redirectBrowser());
   }
-  const currentFacility = facilities.find(facility => facility.id === facId);
   let datasetPromise;
-  if (currentFacility && typeof currentFacility.dataset === 'object') {
-    datasetPromise = Promise.resolve([currentFacility.dataset]);
+  if (selectedFacility && typeof selectedFacility.dataset !== 'object') {
+    datasetPromise = Promise.resolve([selectedFacility.dataset]);
   } else {
     datasetPromise = FacilityDatasetResource.fetchCollection({
       getParams: {
@@ -548,25 +581,42 @@ function _updateProgress(store, sessionProgress, summaryProgress, forceSave = fa
 }
 
 /**
- * Update the progress percentage
+ * Sets the progress of the current content item to progressPercent.
+ * This is for renderers that track state internally and have their own
+ * way of calculating completion. They are responsible to load any previous
+ * session state if they need to use that when calculating progress.
  * To be called periodically by content renderers on interval or on pause
  * Must be called after initContentSession
  * @param {float} progressPercent
  * @param {boolean} forceSave
  */
 export function updateProgress(store, { progressPercent, forceSave = false }) {
-  /* Create aliases for logs */
-  const summaryLog = store.getters.logging.summary;
-  const sessionLog = store.getters.logging.session;
-
   /* Calculate progress based on progressPercent */
   // TODO rtibbles: Delegate this to the renderers?
   progressPercent = progressPercent || 0;
-  const sessionProgress = Math.min(1, sessionLog.progress + progressPercent);
+  const sessionProgress = Math.min(1, progressPercent);
+
+  return _updateProgress(store, sessionProgress, sessionProgress, forceSave);
+}
+
+/**
+ * Adds progressPercent to the current progress percentage
+ * To be called periodically by content renderers on interval or on pause
+ * Must be called after initContentSession
+ * @param {float} progressPercent
+ * @param {boolean} forceSave
+ */
+export function addProgress(store, { progressPercent, forceSave = false }) {
+  const summaryLog = store.getters.logging.summary;
+  const sessionLog = store.getters.logging.session;
+
+  progressPercent = progressPercent || 0;
+  const totalPercent = sessionLog.progress + progressPercent;
+
+  const sessionProgress = Math.min(1, totalPercent);
   const summaryProgress = summaryLog.id
     ? Math.min(1, summaryLog.progress_before_current_session + sessionProgress)
     : 0;
-
   return _updateProgress(store, sessionProgress, summaryProgress, forceSave);
 }
 

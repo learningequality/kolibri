@@ -1,30 +1,47 @@
-import { PageNames, pageNameToModuleMap } from '../constants';
+import Lockr from 'lockr';
+import { ComponentMap, pageNameToModuleMap } from '../constants';
 import profile from './profile';
 import signIn from './signIn';
 
 export default {
   state: {
-    facilityId: '',
+    facilityId: Lockr.get('facilityId') || null,
+    redirect: null,
     pageName: '',
+    appBarTitle: '',
   },
   actions: {
-    resetAndSetPageName(store, { pageName }) {
-      store.commit('SET_PAGE_NAME', pageName);
+    reset(store) {
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
     },
     setFacilitiesAndConfig(store) {
       return store.dispatch('getFacilities').then(() => {
-        return store.dispatch('getFacilityConfig');
+        return store.dispatch('getFacilityConfig', store.getters.selectedFacility.id);
       });
     },
     resetModuleState(store, { toRoute, fromRoute }) {
       const moduleName = pageNameToModuleMap[fromRoute.name];
-      if (toRoute.name === PageNames.SIGN_UP && fromRoute.name === PageNames.SIGN_UP) {
+      if (toRoute.name === ComponentMap.SIGN_UP && fromRoute.name === ComponentMap.SIGN_UP) {
         return;
       }
       if (moduleName) {
         store.commit(`${moduleName}/RESET_STATE`);
+      }
+    },
+    setFacilityId(store, { facilityId }) {
+      store.commit('SET_FACILITY_ID', facilityId);
+      return store.dispatch('getFacilityConfig', facilityId);
+    },
+  },
+  getters: {
+    // Return the facility that was last selected or fallback to the default facility.
+    selectedFacility(state, getters) {
+      const selectedFacility = getters.facilities.find(f => f.id === state.facilityId);
+      if (selectedFacility) {
+        return selectedFacility;
+      } else {
+        return getters.facilities.find(f => f.id === getters.currentFacilityId) || null;
       }
     },
   },
@@ -33,7 +50,14 @@ export default {
       state.pageName = name;
     },
     SET_FACILITY_ID(state, facilityId) {
+      Lockr.set('facilityId', facilityId);
       state.facilityId = facilityId;
+    },
+    SET_APPBAR_TITLE(state, appBarTitle) {
+      state.appBarTitle = appBarTitle;
+    },
+    SET_REDIRECT(state, redirect) {
+      state.redirect = redirect;
     },
   },
   modules: {

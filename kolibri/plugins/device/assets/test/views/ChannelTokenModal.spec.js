@@ -9,8 +9,8 @@ function makeWrapper(options = {}) {
 function getElements(wrapper) {
   return {
     cancelButton: () => wrapper.find('button[name="cancel"]'),
-    tokenTextbox: () => wrapper.find({ name: 'KTextbox' }),
-    networkErrorAlert: () => wrapper.find({ name: 'ui-alert' }),
+    tokenTextbox: () => wrapper.findComponent({ name: 'KTextbox' }),
+    networkErrorAlert: () => wrapper.findComponent({ name: 'ui-alert' }),
     lookupTokenStub: () => {
       wrapper.vm.lookupToken = jest.fn();
       return wrapper.vm.lookupToken;
@@ -112,19 +112,19 @@ describe('channelTokenModal component', () => {
     });
 
     it('if the token does not point to a channel (404 code), shows a validation message', async () => {
-      const tokenPayload = { status: { code: 404 } };
+      const tokenPayload = { response: { status: 404 } };
       const { lookupTokenStub } = getElements(wrapper);
       const lookupStub = lookupTokenStub();
       lookupStub.mockRejectedValue(tokenPayload);
       await inputToken(wrapper, 'toka-toka-token');
       await wrapper.vm.submitForm();
       expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-      expect(wrapper.emittedByOrder().length).toEqual(0);
+      expect(Object.keys(wrapper.emitted()).length).toEqual(0);
       assertTextboxInvalid(wrapper);
     });
 
     it('shows an ui-alert error if there is a generic network error (other error code)', async () => {
-      const tokenPayload = { status: { code: 500 } };
+      const tokenPayload = { response: { status: 500 } };
       const { tokenTextbox, networkErrorAlert, lookupTokenStub } = getElements(wrapper);
       const textbox = tokenTextbox();
       const lookupStub = lookupTokenStub();
@@ -132,9 +132,9 @@ describe('channelTokenModal component', () => {
       await inputToken(wrapper, 'toka-toka-token');
       await wrapper.vm.submitForm();
       expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-      expect(wrapper.emittedByOrder().length).toEqual(0);
+      expect(Object.keys(wrapper.emitted()).length).toEqual(0);
       expect(textbox.props().invalid).toEqual(false);
-      expect(networkErrorAlert().isVueInstance()).toEqual(true);
+      expect(networkErrorAlert().exists()).toEqual(true);
     });
   });
 });

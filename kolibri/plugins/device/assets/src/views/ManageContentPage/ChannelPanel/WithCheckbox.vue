@@ -2,7 +2,7 @@
 
   <div
     class="channel-card"
-    :class="{'channel-card-sm': windowIsSmall}"
+    :class="{ 'channel-card-sm': windowIsSmall }"
     :style="{ borderTopColor: $themePalette.grey.v_200 }"
   >
     <ChannelDetails :channel="channel">

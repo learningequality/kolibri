@@ -1,7 +1,7 @@
 <template>
 
   <KPageContainer>
-    <h1>{{ $tr('pageHeader', {className}) }}</h1>
+    <h1>{{ $tr('pageHeader', { className }) }}</h1>
     <p>{{ $tr('pageSubheader') }}</p>
     <ClassEnrollForm
       :facilityUsers="facilityUsers"
@@ -16,7 +16,7 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import { PageNames } from '../constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ClassEnrollForm from './ClassEnrollForm';
 
   export default {
@@ -29,6 +29,7 @@
     components: {
       ClassEnrollForm,
     },
+    mixins: [commonCoreStrings],
     computed: {
       ...mapState('classAssignMembers', ['class', 'classUsers', 'facilityUsers']),
       className() {
@@ -40,7 +41,9 @@
       assignCoaches(coaches) {
         this.assignCoachesToClass({ classId: this.class.id, coaches }).then(() => {
           // do this in action?
-          this.$router.push({ name: PageNames.CLASS_EDIT_MGMT_PAGE });
+          this.$router.push(this.$store.getters.facilityPageLinks.ClassEditPage).then(() => {
+            this.showSnackbarNotification('coachesAssignedNoCount', { count: coaches.length });
+          });
         });
       },
     },

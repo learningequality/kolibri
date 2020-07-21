@@ -1,29 +1,33 @@
 <template>
 
   <BottomAppBar>
-    <span class="message">{{ selectedMessage }}</span>
     <template v-if="actionType === 'manage'">
-      <KButton
-        :disabled="$attrs.disabled || buttonsDisabled"
-        :text="coreString('deleteAction')"
-        :primary="false"
-        @click="$emit('selectoption', 'DELETE')"
-      />
-      <KButton
-        :disabled="$attrs.disabled || buttonsDisabled"
-        :text="$tr('exportAction')"
-        :primary="true"
-        @click="$emit('selectoption', 'EXPORT')"
-      />
+      <KButtonGroup>
+        <span class="message">{{ selectedMessage }}</span>
+        <KButton
+          :disabled="$attrs.disabled || buttonsDisabled"
+          :text="coreString('deleteAction')"
+          :primary="false"
+          @click="$emit('selectoption', 'DELETE')"
+        />
+        <KButton
+          :disabled="$attrs.disabled || buttonsDisabled"
+          :text="$tr('exportAction')"
+          :primary="true"
+          @click="$emit('selectoption', 'EXPORT')"
+        />
+      </KButtonGroup>
     </template>
 
-    <KButton
-      v-else
-      :disabled="$attrs.disabled || buttonsDisabled"
-      :text="confirmButtonLabel"
-      :primary="true"
-      @click="$emit('clickconfirm')"
-    />
+    <template v-else>
+      <span class="message">{{ selectedMessage }}</span>
+      <KButton
+        :disabled="$attrs.disabled || buttonsDisabled"
+        :text="confirmButtonLabel"
+        :primary="true"
+        @click="$emit('clickconfirm')"
+      />
+    </template>
   </BottomAppBar>
 
 </template>

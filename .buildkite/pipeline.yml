@@ -17,6 +17,18 @@ steps:
         # Autoblock unless there's a tag associated with the commit. Usually a release.
         LE_KOLIBRI_RELEASE: "${BUILDKITE_TAG:-false}"
 
+  - label: ":android:"
+    trigger: "kolibri-android-installer"
+    build:
+      message: "${BUILDKITE_MESSAGE}"
+      env:
+        LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
+        LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
+        LE_KOLIBRI_RELEASE: "${BUILDKITE_TAG:-false}"
+
+  - label: Build Windows installer
+    command: .buildkite/build_windows_installer.sh
+
   - trigger: "kolibri-debian"
     label: ":debian:"
     key: deb-build
@@ -42,9 +54,6 @@ steps:
     depends_on:
       - deb-build
 
-  - label: Build Windows installer
-    command: .buildkite/build_windows_installer.sh
-
   - wait
 
   - label: Upload Release Artifacts
@@ -52,8 +61,6 @@ steps:
     agents:
         vader=true
     if: build.tag != null
-
-  - wait
 
   - block: "Create integration testing worksheet?"
   - label: Create integration testing

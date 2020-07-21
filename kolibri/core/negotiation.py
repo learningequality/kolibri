@@ -1,18 +1,11 @@
-from rest_framework.negotiation import BaseContentNegotiation
-from rest_framework.parsers import JSONParser
+from rest_framework.negotiation import DefaultContentNegotiation
 from rest_framework.renderers import JSONRenderer
 
 
-class JSONOnlyContentNegotiation(BaseContentNegotiation):
-    def select_parser(self, request, parsers):
+class LimitContentNegotiation(DefaultContentNegotiation):
+    def select_renderer(self, request, renderers, format_suffix=None):
         """
-        Always return JSONParser
-        """
-        return JSONParser()
-
-    def select_renderer(self, request, renderers, format_suffix):
-        """
-        Always return JSONRenderer
+        Always return JSONRenderer unless for morango
         """
         renderer = JSONRenderer()
         return (renderer, renderer.media_type)

@@ -37,7 +37,16 @@
     </td>
 
     <td class="message">
-      {{ message }}
+      <template v-if="message && !importing">
+        {{ message }}
+      </template>
+      <ChannelUpdateAnnotations
+        v-if="node.num_new_resources || importing"
+        class="update-label"
+        :isTopic="isTopic"
+        :newResources="node.num_new_resources"
+        :importing="importing"
+      />
     </td>
   </tr>
 
@@ -49,12 +58,14 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import ChannelUpdateAnnotations from './ChannelUpdateAnnotations';
 
   export default {
     name: 'ContentNodeRow',
     components: {
       CoachContentLabel,
       ContentIcon,
+      ChannelUpdateAnnotations,
     },
     props: {
       node: {
@@ -86,6 +97,9 @@
       isTopic() {
         return this.node.kind === ContentNodeKinds.TOPIC;
       },
+      importing() {
+        return this.node.updated_resource && !this.node.available;
+      },
     },
   };
 
@@ -107,6 +121,10 @@
   .message {
     width: 40%;
     text-align: right;
+  }
+
+  .update-label {
+    margin-left: 24px;
   }
 
 </style>

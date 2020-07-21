@@ -5,7 +5,7 @@ Feature: Learners subtab
       When I click the *Learners* subtab
       Then I see the list of learners currently enrolled in the class
         And I see the columns with progress data for each learner
- 
+
   Scenario: Review reports for a specific learner
       Given I am on the *Coach - '<class>' > Reports > Learners* subtab
         When I click on the name of the learner <learner>
@@ -20,7 +20,7 @@ Feature: Learners subtab
     When I click on the <quiz> quiz assigned to <learner>
     Then I see the quiz <quiz> report page for <learner>
       And I see all quiz data scoped to <learner>
-     
+
   Scenario: Review progress of a lesson assigned to a learner
     Given I am on the learner <learner> profile
       And there are lessons assigned to them

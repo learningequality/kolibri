@@ -6,6 +6,7 @@ import router from 'kolibri.coreVue.router';
 import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
 import meanBy from 'lodash/meanBy';
 import maxBy from 'lodash/maxBy';
+import find from 'lodash/find';
 import map from 'lodash/map';
 import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
 import filter from 'lodash/filter';
@@ -89,17 +90,28 @@ export const CoachCoreBase = {
     appBarTitle: {
       type: String,
       default() {
+        let facilityName;
         // Using coachStrings.$tr() here because mixins are not applied
         // prior to props being processed.
-        const coachLabel = coachStrings.$tr('coachLabel');
-        const classroomName = this.$store.state.classSummary.name;
-        if (!classroomName) {
-          return coachLabel;
+        const { facility_id, name } = this.$store.state.classSummary;
+        if (
+          facility_id &&
+          this.$store.state.core.facilities.length > 1 &&
+          this.$store.getters.isSuperuser
+        ) {
+          const match = find(this.$store.state.core.facilities, { id: facility_id }) || {};
+          facilityName = match.name;
         }
-        if (this.isRtl) {
-          return `${classroomName} – ${coachLabel}`;
+        if (facilityName && name) {
+          return coachStrings.$tr('coachLabelWithOneTwoNames', {
+            name1: facilityName,
+            name2: name,
+          });
+        } else if (name) {
+          return coachStrings.$tr('coachLabelWithOneName', { name });
+        } else {
+          return coachStrings.$tr('coachLabel');
         }
-        return `${coachLabel} – ${classroomName}`;
       },
     },
     pageTitle: {
@@ -188,7 +200,13 @@ export default {
       'getExamAvgScore',
     ]),
     userIsAuthorized() {
-      return this.isCoach || this.isAdmin || this.isSuperuser;
+      if (this.isSuperuser) {
+        return true;
+      }
+      if (this.$route.name === 'CoachClassListPage') {
+        return this.isCoach || this.isAdmin;
+      }
+      return this.$store.getters.userIsAuthorizedForCoach;
     },
     PageNames() {
       return PageNames;

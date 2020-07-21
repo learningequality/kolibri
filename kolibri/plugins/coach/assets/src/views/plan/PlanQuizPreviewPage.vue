@@ -2,8 +2,8 @@
 
   <CoreBase
     :immersivePage="true"
-    immersivePageIcon="arrow_back"
-    :immersivePageRoute="toolbarRoute"
+    immersivePageIcon="back"
+    :immersivePageRoute="returnBackRoute"
     :immersivePagePrimary="true"
     :appBarTitle="appBarTitle"
     :authorized="userIsAuthorized"
@@ -28,6 +28,7 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
 
@@ -36,7 +37,7 @@
     components: {
       LessonContentPreviewPage,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoreStrings, commonCoach],
     computed: {
       ...mapState(['toolbarRoute']),
       ...mapState('examCreation', ['preview', 'selectedExercises', 'currentContentNode']),
@@ -46,26 +47,28 @@
       appBarTitle() {
         return this.currentContentNode.title;
       },
+      returnBackRoute() {
+        return this.toolbarRoute;
+      },
     },
     beforeDestroy() {
       this.clearSnackbar();
     },
     methods: {
-      ...mapActions(['createSnackbar', 'clearSnackbar']),
+      ...mapActions(['clearSnackbar']),
       ...mapActions('examCreation', ['addToSelectedExercises', 'removeFromSelectedExercises']),
       handleAddResource(content) {
-        this.addToSelectedExercises([content]);
-        this.createSnackbar(this.$tr('added', { item: this.currentContentNode.title }));
+        this.$router.push(this.returnBackRoute).then(() => {
+          this.addToSelectedExercises([content]);
+          this.showSnackbarNotification('resourcesAddedWithCount', { count: 1 });
+        });
       },
       handleRemoveResource(content) {
-        this.removeFromSelectedExercises([content]);
-        this.createSnackbar(this.$tr('removed', { item: this.currentContentNode.title }));
+        this.$router.push(this.returnBackRoute).then(() => {
+          this.removeFromSelectedExercises([content]);
+          this.showSnackbarNotification('resourcesRemovedWithCount', { count: 1 });
+        });
       },
-    },
-    $trs: {
-      added: "Added '{item}'",
-      removed: "Removed '{item}'",
-      // createNewExamLabel: 'Create new quiz',
     },
   };
 

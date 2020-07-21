@@ -21,12 +21,15 @@
         <slot name="footer"></slot>
       </div>
 
-      <KButton
-        class="onboarding-form-submit"
-        :primary="true"
-        type="submit"
-        :text="submitText"
-      />
+      <slot name="buttons">
+        <KButton
+          class="onboarding-form-submit"
+          :primary="true"
+          type="submit"
+          :text="submitText || coreString('continueAction')"
+          :disabled="$attrs.disabled"
+        />
+      </slot>
     </form>
   </div>
 
@@ -35,8 +38,11 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+
   export default {
     name: 'OnboardingForm',
+    mixins: [commonCoreStrings],
     props: {
       header: {
         type: String,
@@ -48,7 +54,7 @@
       },
       submitText: {
         type: String,
-        required: true,
+        required: false,
       },
     },
     computed: {
@@ -84,10 +90,6 @@
 
   .onboarding-form-description {
     margin-bottom: 8px;
-  }
-
-  .onboarding-form-submit {
-    margin: 0;
   }
 
   .form-footer {

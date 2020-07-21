@@ -1,15 +1,17 @@
+from django.conf.urls import url
 from rest_framework import routers
 
+from .api import AdHocGroupViewSet
 from .api import ClassroomViewSet
 from .api import FacilityDatasetViewSet
 from .api import FacilityUsernameViewSet
 from .api import FacilityUserViewSet
 from .api import FacilityViewSet
-from .api import AdHocGroupViewSet
 from .api import LearnerGroupViewSet
 from .api import MembershipViewSet
 from .api import RoleViewSet
 from .api import SessionViewSet
+from .api import SetNonSpecifiedPasswordView
 from .api import SignUpViewSet
 from kolibri.core.api import KolibriDataPortalViewSet
 from kolibri.core.routers import BulkDeleteRouter
@@ -36,4 +38,14 @@ bulk_delete_router = BulkDeleteRouter()
 bulk_delete_router.register(r"membership", MembershipViewSet, base_name="membership")
 bulk_delete_router.register(r"role", RoleViewSet, base_name="role")
 
-urlpatterns = router.urls + bulk_delete_router.urls
+urlpatterns = (
+    router.urls
+    + bulk_delete_router.urls
+    + [
+        url(
+            r"^setnonspecifiedpassword$",
+            SetNonSpecifiedPasswordView.as_view(),
+            name="setnonspecifiedpassword",
+        )
+    ]
+)

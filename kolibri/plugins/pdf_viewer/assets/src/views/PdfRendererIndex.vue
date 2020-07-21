@@ -15,6 +15,52 @@
     />
 
     <template v-else>
+      <transition name="slide">
+        <div
+          v-if="showControls"
+          class="fullscreen-header"
+          :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
+        >
+          <UiIconButton
+            class="button-zoom-in controls"
+            aria-controls="pdf-container"
+            @click="zoomIn"
+          >
+            <mat-svg
+              name="add"
+              category="content"
+            />
+          </UiIconButton>
+          <UiIconButton
+            class="button-zoom-out controls"
+            aria-controls="pdf-container"
+            @click="zoomOut"
+          >
+            <mat-svg
+              name="remove"
+              category="content"
+            />
+          </UiIconButton>
+          <KButton
+            class="fullscreen-button"
+            :primary="false"
+            appearance="flat-button"
+            @click="$refs.pdfRenderer.toggleFullscreen()"
+          >
+            <mat-svg
+              v-if="isInFullscreen"
+              name="fullscreen_exit"
+              category="navigation"
+            />
+            <mat-svg
+              v-else
+              name="fullscreen"
+              category="navigation"
+            />
+            {{ fullscreenText }}
+          </KButton>
+        </div>
+      </transition>
       <RecycleList
         ref="recycleList"
         :items="pdfPages"
@@ -37,33 +83,6 @@
           />
         </template>
       </RecycleList>
-
-      <UiIconButton
-        class="controls button-fullscreen"
-        :style="{ fill: $themeTokens.textInverted }"
-        aria-controls="pdf-container"
-        :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-        color="primary"
-        size="large"
-        @click="$refs.pdfRenderer.toggleFullscreen()"
-      >
-        <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
-        <mat-svg v-else name="fullscreen" category="navigation" />
-      </UiIconButton>
-      <UiIconButton
-        class="controls button-zoom-in"
-        aria-controls="pdf-container"
-        @click="zoomIn"
-      >
-        <mat-svg name="add" category="content" />
-      </UiIconButton>
-      <UiIconButton
-        class="controls button-zoom-out"
-        aria-controls="pdf-container"
-        @click="zoomOut"
-      >
-        <mat-svg name="remove" category="content" />
-      </UiIconButton>
     </template>
   </CoreFullscreen>
 
@@ -74,6 +93,7 @@
 
   import { mapGetters } from 'vuex';
   import PDFJSLib from 'pdfjs-dist';
+  import Hammer from 'hammerjs';
   import throttle from 'lodash/throttle';
   import debounce from 'lodash/debounce';
   import { RecycleList } from 'vue-virtual-scroller';
@@ -85,7 +105,7 @@
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import urls from 'kolibri.urls';
 
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
 
   import PdfPage from './PdfPage';
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
@@ -119,9 +139,23 @@
       isInFullscreen: false,
       currentLocation: 0,
       updateContentStateInterval: null,
+      showControls: true,
     }),
     computed: {
       ...mapGetters(['sessionTimeSpent']),
+      // Returns whether or not the current device is iOS.
+      // Probably not perfect, but worked in testing.
+      iOS() {
+        const iDevices = [
+          'iPad Simulator',
+          'iPhone Simulator',
+          'iPod Simulator',
+          'iPad',
+          'iPhone',
+          'iPod',
+        ];
+        return iDevices.includes(navigator.platform);
+      },
       targetTime() {
         return this.totalPages * 30;
       },
@@ -137,8 +171,24 @@
         }
         return 0;
       },
+      fullscreenText() {
+        return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
+      },
     },
     watch: {
+      recycleListIsMounted(newVal) {
+        // On iOS pinch zooming always targets the document no matter what.
+        // meta viewport attrs for `user-scalable` are ignored in iOS because
+        // Apple considered it an a11y issue not to. So pinch-zooming on iOS
+        // does not work well because - even if you zoom in on the PDF, the whole
+        // screen zooms too which is jarring.
+        if (newVal === true && !this.iOS) {
+          const hammer = Hammer(this.$refs.recycleList.$el);
+          hammer.get('pinch').set({ enable: true });
+          hammer.on('pinchin', throttle(this.zoomOut, 1000));
+          hammer.on('pinchout', throttle(this.zoomIn, 1000));
+        }
+      },
       scale(newScale, oldScale) {
         // Listen to changes in scale, as we have to rerender every visible page if it changes.
         const noChange = newScale === oldScale;
@@ -154,9 +204,18 @@
           this.debounceForceUpdateRecycleList();
         }
       },
+      // Listen to change in scroll position to determine whether we show top control bar or not
+      currentLocation(newPos, oldPos) {
+        if (newPos > oldPos) {
+          this.showControls = false;
+        } else {
+          this.showControls = true;
+        }
+      },
     },
     created() {
       this.currentLocation = this.savedLocation;
+      this.showControls = true; // Ensures it shows on load even if we're scrolled
       const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
 
       // pass callback to update loading bar
@@ -333,36 +392,28 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
+  $controls-height: 40px;
 
   .pdf-renderer {
     @extend %momentum-scroll;
+    @extend %dropshadow-2dp;
 
     position: relative;
     height: 500px;
+    // This ensures that showing vs hiding the controls
+    // will not cover visible content below (ie, author name)
+    margin-bottom: $controls-height;
+    overflow-y: hidden;
   }
 
   .controls {
-    position: absolute;
-    z-index: 6; // material spec - snackbar and FAB
-  }
-
-  .button-fullscreen {
-    top: 16px;
-    right: 21px;
-  }
-
-  .button-zoom-in,
-  .button-zoom-out {
-    right: 27px;
-  }
-
-  .button-zoom-in {
-    top: 80px;
-  }
-
-  .button-zoom-out {
-    top: 132px;
+    position: relative;
+    top: 8px;
+    z-index: 0; // Hide icons with transition
+    width: 24px;
+    height: 24px;
+    margin: 0 4px;
   }
 
   .progress-bar {
@@ -376,6 +427,42 @@
     .item-wrapper {
       overflow-x: auto;
     }
+  }
+
+  .fullscreen-button {
+    margin: 0;
+
+    svg {
+      position: relative;
+      top: 8px;
+    }
+  }
+
+  .fullscreen-header {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 24;
+    height: $controls-height;
+    text-align: end;
+  }
+
+  .slide-enter-active {
+    @extend %md-accelerate-func;
+
+    transition: all 0.3s;
+  }
+
+  .slide-leave-active {
+    @extend %md-decelerate-func;
+
+    transition: all 0.3s;
+  }
+
+  .slide-enter,
+  .slide-leave-to {
+    transform: translateY(-40px);
   }
 
 </style>

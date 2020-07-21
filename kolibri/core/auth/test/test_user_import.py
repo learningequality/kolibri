@@ -3,8 +3,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import csv
-import tempfile
 import os
+import tempfile
 
 from django.core.management import call_command
 from django.core.management.base import CommandError

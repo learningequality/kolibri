@@ -10,11 +10,11 @@
         :key="SNACKBARS.POINTS"
         @close="currentSnackbar = SNACKBARS.NEXT_RESOURCE"
       >
-        <template slot="icon">
-          <ProgressIcon :progress="1" />
+        <template v-slot:icon>
+          <ProgressIcon :progress="1" style="position: relative; top: -2px;" />
         </template>
 
-        <template slot="content">
+        <template v-slot:content>
           <PointsIcon class="points-icon" />
           <div
             class="points-amount"
@@ -41,16 +41,17 @@
         :key="SNACKBARS.NEXT_RESOURCE"
         @close="$emit('close')"
       >
-        <template slot="icon">
+        <template v-slot:icon>
           <ContentIcon
             class="content-icon icon-bg"
             :kind="nextContent.kind"
             :showTooltip="true"
-            :style="{backgroundColor: iconBackgroundColor, color: $themeTokens.textInverted }"
+            :color="$themeTokens.textInverted"
+            :style="{ backgroundColor: iconBackgroundColor, color: $themeTokens.textInverted }"
           />
         </template>
 
-        <template slot="content">
+        <template v-slot:content>
           <router-link
             class="rm-link-style"
             :style="{ color: $themeTokens.text }"
@@ -86,7 +87,7 @@
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import Snackbar from './Snackbar';
 
   const SNACKBARS = { POINTS: 'POINTS', NEXT_RESOURCE: 'NEXT_RESOURCE' };
@@ -169,7 +170,7 @@
     $trs: {
       plusPoints: '+ { maxPoints, number } Points',
       next: 'Next:',
-      signIn: 'Sign in or create an account to save points you earn',
+      signIn: 'Sign in or create an account to begin earning points',
     },
   };
 

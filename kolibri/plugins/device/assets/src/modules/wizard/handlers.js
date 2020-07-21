@@ -163,7 +163,16 @@ export function showSelectContentPage(store, params) {
       store.commit('manageContent/REMOVE_FROM_CHANNEL_LIST', channel.id);
       store.commit('manageContent/ADD_TO_CHANNEL_LIST', channel);
     })
-    .catch(() => {});
+    .catch(error => {
+      // This is an expected scenario because it's possible that there
+      // are no data for this channel on a device yet (download channel
+      // metadata task will be triggered later for this situation)
+      if (error.response && error.response.status === 404) {
+        console.log(
+          `^^^ 404 (Not Found) error returned while requesting "${error.response.config.url}..." is an expected response.`
+        );
+      }
+    });
 
   if (transferType === TransferTypes.LOCALIMPORT) {
     selectedDrivePromise = getSelectedDrive(store, drive_id);
@@ -191,7 +200,7 @@ export function showSelectContentPage(store, params) {
             resolve({ ...channels[0] });
           },
           error => {
-            if (error.status.code === 404) {
+            if (error.response.status === 404) {
               reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO });
             } else {
               reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE });

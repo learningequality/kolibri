@@ -2,8 +2,8 @@
 
   <div
     class="epub-renderer-error"
-    :class="{loaded}"
-    :style="{background: $themeTokens.surface}"
+    :class="{ loaded }"
+    :style="{ background: $themeTokens.surface }"
   >
     <UiAlert
       type="error"
@@ -18,7 +18,7 @@
 
 <script>
 
-  import UiAlert from 'kolibri.coreVue.components.UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
 
   export default {
     name: 'LoadingError',

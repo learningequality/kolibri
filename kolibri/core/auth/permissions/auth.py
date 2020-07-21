@@ -3,9 +3,9 @@ The permissions classes in this module define the specific permissions that gove
 """
 from django.contrib.auth.models import AnonymousUser
 
+from ..constants.collection_kinds import ADHOCLEARNERSGROUP
 from ..constants.collection_kinds import FACILITY
 from ..constants.collection_kinds import LEARNERGROUP
-from ..constants.collection_kinds import ADHOCLEARNERSGROUP
 from ..constants.role_kinds import ADMIN
 from ..constants.role_kinds import COACH
 from .base import BasePermissions

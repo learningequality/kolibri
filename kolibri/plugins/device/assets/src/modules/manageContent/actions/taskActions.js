@@ -48,8 +48,8 @@ export function refreshTaskList(store) {
 }
 
 export function refreshDriveList(store) {
-  return TaskResource.localDrives().then(({ entity }) => {
-    store.commit('wizard/SET_DRIVE_LIST', entity);
-    return entity;
+  return TaskResource.localDrives().then(({ data }) => {
+    store.commit('wizard/SET_DRIVE_LIST', data);
+    return data;
   });
 }

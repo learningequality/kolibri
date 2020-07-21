@@ -11,7 +11,7 @@ function makeWrapper() {
   });
   jest.spyOn(wrapper.vm, '$emit');
   const actions = {
-    simulateSubmit: () => wrapper.find({ name: 'OnboardingForm' }).vm.$emit('submit'),
+    simulateSubmit: () => wrapper.findComponent({ name: 'OnboardingForm' }).vm.$emit('submit'),
   };
   return { store, wrapper, actions };
 }
@@ -33,9 +33,11 @@ describe('SuperuserCredentialsForm', () => {
       full_name: 'Schoolhouse Rock',
       username: 'schoolhouse_rock',
       password: 'password',
-      birth_year: 'NOT_SPECIFIED',
-      gender: 'NOT_SPECIFIED',
     });
-    expect(wrapper.vm.$emit).toHaveBeenCalledWith('submit');
+    expect(wrapper.vm.$emit).toHaveBeenCalledWith('click_next', {
+      full_name: 'Schoolhouse Rock',
+      username: 'schoolhouse_rock',
+      password: 'password',
+    });
   });
 });

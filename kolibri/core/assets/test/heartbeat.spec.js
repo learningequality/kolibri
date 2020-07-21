@@ -1,16 +1,24 @@
+import mock from 'xhr-mock';
 import coreStore from 'kolibri.coreVue.vuex.store';
-import * as browser from 'kolibri.utils.browser';
+import * as redirectBrowser from 'kolibri.utils.redirectBrowser';
 import * as serverClock from 'kolibri.utils.serverClock';
 import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
+import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri.lib.logging');
 jest.mock('kolibri.urls');
 jest.mock('lockr');
-jest.mock('http');
 
 describe('HeartBeat', function() {
+  stubWindowLocation(beforeAll, afterAll);
+  // replace the real XHR object with the mock XHR object before each test
+  beforeEach(() => mock.setup());
+
+  // put the real XHR object back and clear the mocks after each test
+  afterEach(() => mock.teardown());
+
   describe('constructor method', function() {
     it('should set the setUserActive method to a bound method', function() {
       const test = new HeartBeat();
@@ -177,10 +185,11 @@ describe('HeartBeat', function() {
     });
     it('should sign out if an auto logout is detected', function() {
       coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
-      const http = require('http');
-      http.__setCode(200);
-      http.__setHeaders({ 'Content-Type': 'application/json' });
-      http.__setEntity({ user_id: null, id: 'current' });
+      mock.get(/.*/, {
+        status: 200,
+        body: JSON.stringify({ user_id: null, id: 'current' }),
+        headers: { 'Content-Type': 'application/json' },
+      });
       const stub = jest.spyOn(heartBeat, 'signOutDueToInactivity');
       return heartBeat._checkSession().finally(() => {
         expect(stub).toHaveBeenCalledTimes(1);
@@ -188,21 +197,23 @@ describe('HeartBeat', function() {
     });
     it('should redirect if a change in user is detected', function() {
       coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
-      const http = require('http');
-      http.__setCode(200);
-      http.__setHeaders({ 'Content-Type': 'application/json' });
-      http.__setEntity({ user_id: 'nottest', id: 'current' });
-      const redirectStub = jest.spyOn(browser, 'redirectBrowser');
+      mock.get(/.*/, {
+        status: 200,
+        body: JSON.stringify({ user_id: 'nottest', id: 'current' }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const redirectStub = jest.spyOn(redirectBrowser, 'redirectBrowser');
       return heartBeat._checkSession().finally(() => {
         expect(redirectStub).toHaveBeenCalledTimes(1);
       });
     });
     it('should not sign out if user_id changes but session is being set for first time', function() {
       coreStore.commit('CORE_SET_SESSION', { user_id: undefined, id: undefined });
-      const http = require('http');
-      http.__setCode(200);
-      http.__setHeaders({ 'Content-Type': 'application/json' });
-      http.__setEntity({ user_id: null, id: 'current' });
+      mock.get(/.*/, {
+        status: 200,
+        body: JSON.stringify({ user_id: null, id: 'current' }),
+        headers: { 'Content-Type': 'application/json' },
+      });
       const stub = jest.spyOn(heartBeat, 'signOutDueToInactivity');
       return heartBeat._checkSession().finally(() => {
         expect(stub).toHaveBeenCalledTimes(0);
@@ -210,17 +221,18 @@ describe('HeartBeat', function() {
     });
     it('should call setServerTime with a clientNow value that is between the start and finish of the poll', function() {
       coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
-      const http = require('http');
-      http.__setCode(200);
-      http.__setHeaders({ 'Content-Type': 'application/json' });
       const serverTime = new Date().toJSON();
-      http.__setEntity({ user_id: 'test', id: 'current', server_time: serverTime });
+      mock.get(/.*/, {
+        status: 200,
+        body: JSON.stringify({ user_id: 'test', id: 'current', server_time: serverTime }),
+        headers: { 'Content-Type': 'application/json' },
+      });
       const stub = jest.spyOn(serverClock, 'setServerTime');
       const start = new Date();
       return heartBeat._checkSession().finally(() => {
         const end = new Date();
         expect(stub.mock.calls[0][0]).toEqual(serverTime);
-        expect(stub.mock.calls[0][1].getTime()).toBeGreaterThan(start.getTime());
+        expect(stub.mock.calls[0][1].getTime()).toBeGreaterThanOrEqual(start.getTime());
         expect(stub.mock.calls[0][1].getTime()).toBeLessThan(end.getTime());
       });
     });
@@ -234,9 +246,10 @@ describe('HeartBeat', function() {
         .forEach(errorCode => {
           it('should call monitorDisconnect if it receives error code ' + errorCode, function() {
             const monitorStub = jest.spyOn(heartBeat, 'monitorDisconnect');
-            const http = require('http');
-            http.__setCode(errorCode);
-            http.__setHeaders({ 'Content-Type': 'application/json' });
+            mock.get(/.*/, {
+              status: errorCode,
+              headers: { 'Content-Type': 'application/json' },
+            });
             return heartBeat._checkSession().finally(() => {
               expect(monitorStub).toHaveBeenCalledTimes(1);
             });
@@ -245,10 +258,6 @@ describe('HeartBeat', function() {
     });
     describe('when not connected', function() {
       beforeEach(function() {
-        const http = require('http');
-        http.__setCode(0);
-        http.__setHeaders({ 'Content-Type': 'application/json' });
-        jest.spyOn(heartBeat, '_wait');
         heartBeat.monitorDisconnect();
       });
       it('should set snackbar to trying to reconnect', function() {
@@ -256,26 +265,40 @@ describe('HeartBeat', function() {
         expect(coreStore.getters.snackbarIsVisible).toEqual(true);
         expect(coreStore.getters.snackbarOptions.text).toEqual(trs.$tr('tryingToReconnect'));
       });
-      disconnectionErrorCodes.forEach(errorCode => {
-        it('should set snackbar to disconnected for error code ' + errorCode, function() {
-          jest.spyOn(heartBeat, 'monitorDisconnect');
-          const http = require('http');
-          http.__setCode(errorCode);
-          http.__setHeaders({ 'Content-Type': 'application/json' });
-          return heartBeat._checkSession().finally(() => {
-            expect(coreStore.getters.snackbarIsVisible).toEqual(true);
-            expect(
-              coreStore.getters.snackbarOptions.text.startsWith(
-                'Disconnected from server. Will try to reconnect in'
-              )
-            ).toEqual(true);
+      disconnectionErrorCodes
+        .filter(code => code !== 0)
+        .forEach(errorCode => {
+          it('should set snackbar to disconnected for error code ' + errorCode, function() {
+            jest.spyOn(heartBeat, 'monitorDisconnect');
+            mock.get(/.*/, {
+              status: errorCode,
+              headers: { 'Content-Type': 'application/json' },
+            });
+            heartBeat._wait = jest.fn();
+            return heartBeat._checkSession().finally(() => {
+              expect(coreStore.getters.snackbarIsVisible).toEqual(true);
+              expect(
+                coreStore.getters.snackbarOptions.text.startsWith(
+                  'Disconnected from server. Will try to reconnect in'
+                )
+              ).toEqual(true);
+            });
           });
+        });
+      it('should set snackbar to disconnected for error code 0', function() {
+        jest.spyOn(heartBeat, 'monitorDisconnect');
+        mock.get(/.*/, () => Promise.reject(new Error()));
+        return heartBeat._checkSession().finally(() => {
+          expect(coreStore.getters.snackbarIsVisible).toEqual(true);
+          expect(
+            coreStore.getters.snackbarOptions.text.startsWith(
+              'Disconnected from server. Will try to reconnect in'
+            )
+          ).toEqual(true);
         });
       });
       it('should increase the reconnect time when it fails to connect', function() {
-        const http = require('http');
-        http.__setCode(0);
-        http.__setHeaders({ 'Content-Type': 'application/json' });
+        mock.get(/.*/, () => Promise.reject(new Error()));
         coreStore.commit('CORE_SET_RECONNECT_TIME', 5);
         return heartBeat._checkSession().finally(() => {
           const oldReconnectTime = coreStore.getters.reconnectTime;
@@ -286,9 +309,10 @@ describe('HeartBeat', function() {
       });
       describe('and then gets reconnected', function() {
         beforeEach(function() {
-          const http = require('http');
-          http.__setCode(200);
-          http.__setHeaders({ 'Content-Type': 'application/json' });
+          mock.get(/.*/, {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          });
         });
         it('should set snackbar to reconnected', function() {
           return heartBeat._checkSession().finally(() => {

@@ -1,13 +1,13 @@
 import logging
 import sys
 
-from django.db.models.signals import post_delete
 from morango.models import Buffer
 from morango.models import Certificate
 from morango.models import DatabaseIDModel
 from morango.models import DeletedModels
 from morango.models import Store
 
+from kolibri.core.auth.management.utils import DisablePostDeleteSignal
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.utils import confirm_or_exit
@@ -35,18 +35,6 @@ MODELS_TO_DELETE = [
     DeletedModels,
     DeviceSettings,
 ]
-
-# we want to disable the post_delete signal temporarily when deleting, so morango doesn't create DeletedModels objects
-
-
-class DisablePostDeleteSignal(object):
-    def __enter__(self):
-        self.receivers = post_delete.receivers
-        post_delete.receivers = []
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        post_delete.receivers = self.receivers
-        self.receivers = None
 
 
 class Command(AsyncCommand):

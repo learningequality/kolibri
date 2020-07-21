@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 url = "http://localhost:8082/api/device/deviceprovision/"
 data = {
+    "device_name": "localhost",
     "language_id": "en",
     "facility": {"name": "Atkinson Hall"},
     "preset": "nonformal",

@@ -19,12 +19,12 @@ describe('Top bar', () => {
   });
   it('should not have a heading if a title is not passed in', () => {
     const wrapper = createWrapper();
-    expect(wrapper.contains('h2')).toBe(false);
+    expect(wrapper.find('h2').element).toBeFalsy();
   });
   it('should have a heading if a title is passed in', () => {
     const title = 'Book title';
     const wrapper = createWrapper({ title });
-    expect(wrapper.contains('h2')).toBe(true);
+    expect(wrapper.find('h2').element).toBeTruthy();
   });
   it('should allow parent to focus on table of contents button', () => {
     const wrapper = createWrapper();
@@ -47,22 +47,22 @@ describe('Top bar', () => {
 
   it('should emit and event when the table of contents button is clicked', () => {
     const wrapper = createWrapper();
-    wrapper.find({ name: 'TocButton' }).trigger('click');
+    wrapper.findComponent({ name: 'TocButton' }).trigger('click');
     expect(wrapper.emitted().tableOfContentsButtonClicked).toBeTruthy();
   });
   it('should emit and event when the settings button is clicked', () => {
     const wrapper = createWrapper();
-    wrapper.find({ name: 'SettingsButton' }).trigger('click');
+    wrapper.findComponent({ name: 'SettingsButton' }).trigger('click');
     expect(wrapper.emitted().settingsButtonClicked).toBeTruthy();
   });
   it('should emit and event when the search button is clicked', () => {
     const wrapper = createWrapper();
-    wrapper.find({ name: 'SearchButton' }).trigger('click');
+    wrapper.findComponent({ name: 'SearchButton' }).trigger('click');
     expect(wrapper.emitted().searchButtonClicked).toBeTruthy();
   });
   it('should emit and event when the fullscreen button is clicked', () => {
     const wrapper = createWrapper();
-    wrapper.find({ ref: 'fullscreenButton' }).trigger('click');
+    wrapper.findComponent({ ref: 'fullscreenButton' }).trigger('click');
     expect(wrapper.emitted().fullscreenButtonClicked).toBeTruthy();
   });
 });

@@ -20,7 +20,6 @@ from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
-from jsonfield import JSONField
 from morango.models import SyncableModelQuerySet
 from morango.models import UUIDField
 
@@ -33,6 +32,7 @@ from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.permissions.general import IsOwn
 from kolibri.core.exams.models import Exam
 from kolibri.core.fields import DateTimeTzField
+from kolibri.core.fields import JSONField
 from kolibri.utils.time_utils import local_now
 
 

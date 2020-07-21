@@ -2,7 +2,7 @@
 
   <div
     class="panel"
-    :class="{'panel-sm': windowIsSmall}"
+    :class="{ 'panel-sm': windowIsSmall }"
     :style="{ borderTop: `1px solid ${$themePalette.grey.v_200}` }"
   >
     <ChannelDetails :channel="channel">
@@ -42,7 +42,6 @@
       <KButton
         :text="$tr('manageChannelAction')"
         :disabled="disabled"
-        class="manage-btn"
         @click="handleManageChannelAction"
       />
     </div>
@@ -148,10 +147,6 @@
       margin-top: 16px;
       text-align: right;
     }
-  }
-
-  .manage-btn {
-    margin: 0;
   }
 
   .private-icons {

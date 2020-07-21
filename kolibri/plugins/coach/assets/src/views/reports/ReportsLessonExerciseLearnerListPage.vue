@@ -39,6 +39,7 @@
             <StatusSummary
               :tally="getGroupTally(group.id)"
               :verbose="false"
+              data-test="group-tally"
             />
           </p>
 

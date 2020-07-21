@@ -1,7 +1,6 @@
 import io
 import json
 import os
-import pickle
 import tempfile
 import uuid
 
@@ -23,6 +22,7 @@ from kolibri.core.content.constants.schema_versions import V020BETA1
 from kolibri.core.content.constants.schema_versions import V040BETA3
 from kolibri.core.content.constants.schema_versions import VERSION_1
 from kolibri.core.content.constants.schema_versions import VERSION_2
+from kolibri.core.content.constants.schema_versions import VERSION_3
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -36,6 +36,7 @@ from kolibri.core.content.utils.annotation import update_content_metadata
 from kolibri.core.content.utils.channel_import import ChannelImport
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
+from kolibri.core.content.utils.sqlalchemybridge import load_metadata
 
 
 @patch("kolibri.core.content.utils.channel_import.Bridge")
@@ -404,8 +405,7 @@ class ContentImportTestBase(TransactionTestCase):
             "sqlite:///" + self.content_db_path, convert_unicode=True
         )
 
-        with open(SCHEMA_PATH_TEMPLATE.format(name=self.schema_name), "rb") as f:
-            metadata = pickle.load(f)
+        metadata = load_metadata(self.schema_name)
 
         data_path = DATA_PATH_TEMPLATE.format(name=self.data_name)
         with io.open(data_path, mode="r", encoding="utf-8") as f:
@@ -580,6 +580,22 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
             ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").description,
             self.longdescription,
         )
+
+
+class Version3ImportTestCase(NaiveImportTestCase):
+    """
+    Integration test for import from no version import
+    """
+
+    name = VERSION_3
+
+    @classmethod
+    def tearDownClass(cls):
+        super(Version3ImportTestCase, cls).tearDownClass()
+
+    @classmethod
+    def setUpClass(cls):
+        super(Version3ImportTestCase, cls).setUpClass()
 
 
 class Version2ImportTestCase(NaiveImportTestCase):

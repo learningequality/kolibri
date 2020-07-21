@@ -41,12 +41,18 @@ function makeWrapper(options) {
     },
     stubs: {
       NotificationsFilter: {
+        name: 'NotificationsFilter',
         props: ['enabledFilters'],
         template: '<div></div>',
       },
       NotificationCard: {
+        name: 'NotificationCard',
         props: ['targetPage'],
         template: '<div></div>',
+      },
+      transition: {
+        name: 'transition',
+        template: '<div><slot></slot></div>',
       },
     },
   });
@@ -89,6 +95,7 @@ describe('ActivityList component', () => {
       },
     });
     await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
     const noActivity = wrapper.find('.notifications p');
     expect(noActivity.text()).toEqual('No activity in this classroom');
   });
@@ -100,7 +107,8 @@ describe('ActivityList component', () => {
     });
     const { wrapper } = makeWrapper({});
     await wrapper.vm.$nextTick();
-    const showMoreButton = wrapper.find({ name: 'KButton' });
+    await wrapper.vm.$nextTick();
+    const showMoreButton = wrapper.findComponent({ name: 'KButton' });
     expect(showMoreButton.exists()).toEqual(true);
   });
 
@@ -111,22 +119,26 @@ describe('ActivityList component', () => {
     });
     const { wrapper } = makeWrapper({});
     await wrapper.vm.$nextTick();
-    const showMoreButton = wrapper.find({ name: 'KButton' });
+    await wrapper.vm.$nextTick();
+    const showMoreButton = wrapper.findComponent({ name: 'KButton' });
     expect(showMoreButton.exists()).toEqual(false);
   });
 
   it('disables the "show more" button if any filters are activated', async () => {
     const { wrapper } = makeWrapper({});
-    const showMoreButton = () => wrapper.find({ name: 'KButton' });
+    const showMoreButton = () => wrapper.findComponent({ name: 'KButton' });
+    await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     wrapper.setData({
       loading: false,
       moreResults: true,
     });
+    await wrapper.vm.$nextTick();
     expect(showMoreButton().exists()).toBe(true);
     wrapper.setData({
       progressFilter: 'Completed',
     });
+    await wrapper.vm.$nextTick();
     expect(showMoreButton().exists()).toBe(false);
   });
 
@@ -157,8 +169,9 @@ describe('ActivityList component', () => {
     const { wrapper } = makeWrapper({});
 
     await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
 
-    const filters = wrapper.find({ name: 'NotificationsFilter' });
+    const filters = wrapper.findComponent({ name: 'NotificationsFilter' });
     // Logic is very simple: just find the unique values in the notifications
     // and disable anything that isn't there.
     expect(filters.props().enabledFilters.progress.sort()).toMatchObject(['Completed', 'Started']);
@@ -184,14 +197,8 @@ describe('ActivityList component', () => {
     });
     const { wrapper } = makeWrapper({});
 
-    wrapper.setMethods({
-      notificationLink: () => ({}),
-      cardTextForNotification: () => '',
-      cardPropsForNotification: n => ({ targetPage: n.targetPage }),
-    });
-
     // Need to set up a route, since backLinkQuery depends on $route.params
-    wrapper.vm.$router.push({
+    await wrapper.vm.$router.push({
       name: 'FakeReportPage',
       params: {
         groupId: 'group_001',
@@ -199,7 +206,7 @@ describe('ActivityList component', () => {
       },
     });
 
-    const notificationCard = () => wrapper.find({ name: 'NotificationCard' });
+    const notificationCard = () => wrapper.findComponent({ name: 'NotificationCard' });
 
     // Need to simulate a refresh since the notifications are not reactively
     // updated when backLinkQuery changes

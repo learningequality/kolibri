@@ -2,7 +2,7 @@ Feature: Coach reviews lesson to discover difficult questions
 Coach needs to be able to determine which questions in a lesson are difficult
 
 # Prepare two browsers, or two windows/tabs of the same browser, one of them being incognito/private mode, in order to sign in into one as a learner user, and as a coach in the other
-  
+
   Background:
     Given I have both sessions visible in two browser windows/tabs (signed into one as learner, and in the other as coach)
       And there <learner1> and <learner2> enrolled in the class

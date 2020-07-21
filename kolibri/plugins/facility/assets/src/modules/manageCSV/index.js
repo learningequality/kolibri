@@ -1,5 +1,5 @@
 import Vue from 'kolibri.lib.vue';
-import { CSVGenerationStatuses } from '../../constants';
+import { CSVGenerationStatuses, UsersExportStatuses } from '../../constants';
 import actions from './actions';
 
 function defaultState() {
@@ -12,6 +12,9 @@ function defaultState() {
     sessionDateCreated: null,
     facilities: [],
     facilityTaskId: '',
+    exportUsersTaskId: '',
+    exportUsersStatus: '',
+    exportUsersFilename: '',
   };
 }
 
@@ -42,6 +45,12 @@ export default {
     },
     availableSummaryCSVLog(state) {
       return state.summaryLogStatus === CSVGenerationStatuses.AVAILABLE;
+    },
+    exportingUsers(state) {
+      return state.status === UsersExportStatuses.EXPORTING;
+    },
+    exported(state) {
+      return state.status === UsersExportStatuses.FINISHED;
     },
   },
   mutations: {
@@ -91,6 +100,15 @@ export default {
       if (match) {
         Vue.set(match.dataset, 'registered', true);
       }
+    },
+    /*State for export users tasks*/
+    START_EXPORT_USERS(state, payload) {
+      state.exportUsersStatus = UsersExportStatuses.EXPORTING;
+      state.exportUsersTaskId = payload.id;
+    },
+    SET_FINISH_EXPORT_USERS(state, payload) {
+      state.exportUsersFilename = payload;
+      state.exportUsersStatus = UsersExportStatuses.FINISHED;
     },
   },
   actions,

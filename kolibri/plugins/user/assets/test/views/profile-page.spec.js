@@ -27,6 +27,6 @@ function makeWrapper() {
 describe('profilePage component', () => {
   it('smoke test', () => {
     const wrapper = makeWrapper();
-    expect(wrapper.isVueInstance()).toEqual(true);
+    expect(wrapper.exists()).toEqual(true);
   });
 });

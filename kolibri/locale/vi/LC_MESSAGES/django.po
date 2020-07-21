@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-24 13:01-0800\n"
-"PO-Revision-Date: 2020-05-29 14:42\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2020-06-11 09:07-0700\n"
+"PO-Revision-Date: 2020-07-09 18:09\n"
+"Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Language: vi_VN\n"
 "MIME-Version: 1.0\n"
@@ -12,8 +12,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: vi\n"
-"X-Crowdin-File: /release-v0.13.x/django.po\n"
+"X-Crowdin-File: /release-v0.14.x/django.po\n"
+"X-Crowdin-File-ID: 3806\n"
 
 #: kolibri/core/auth/constants/collection_kinds.py:15
 msgid "Facility"
@@ -29,11 +31,166 @@ msgstr "Nhóm học viên"
 
 #: kolibri/core/auth/constants/collection_kinds.py:18
 msgid "Ad hoc learners group"
-msgstr ""
+msgstr "Nhóm học viên tạm thời"
+
+#: kolibri/core/auth/constants/commands_errors.py:17
+msgid "Unexpected exception [{}]: {}"
+msgstr "Ngoại lệ ngoài ý muốn [{}]: {}"
+
+#: kolibri/core/auth/constants/commands_errors.py:20
+msgctxt "Error report message when the allowed number of digits has been exceeded."
+msgid "Content of cell '{}' is too long"
+msgstr "Nội dung của ô '{}' quá dài"
+
+#: kolibri/core/auth/constants/commands_errors.py:24
+msgctxt "Error report message when the cell contains an improper data format."
+msgid "Content of cell '{}' is not valid"
+msgstr "Nội dung của ô '{}' không hợp lệ"
+
+#: kolibri/core/auth/constants/commands_errors.py:26
+msgid "Duplicated username"
+msgstr "Tên người dùng bị trùng lặp"
+
+#: kolibri/core/auth/constants/commands_errors.py:28
+#: kolibri/core/auth/management/commands/bulkimportusers.py:84
+msgid "Username only can contain characters, numbers and underscores"
+msgstr "Tên người dùng chỉ có thể chứa chữ cái, số và dấu gạch dưới"
+
+#: kolibri/core/auth/constants/commands_errors.py:30
+msgid "The column '{}' is required"
+msgstr "Cần có cột '{}'"
+
+#: kolibri/core/auth/constants/commands_errors.py:31
+msgid "Mix of valid and/or invalid header labels found in first row"
+msgstr "Hàng đầu tiên chứa cả nhãn đầu đề hợp lệ và không hợp lệ"
+
+#: kolibri/core/auth/constants/commands_errors.py:33
+msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
+msgstr "Phương tiện mặc định không tồn tại. Hãy chắc chắn thiết lập một phương tiện trên thiết bị trước khi chạy lệnh này"
+
+#: kolibri/core/auth/constants/commands_errors.py:35
+#: kolibri/core/auth/management/commands/bulkimportusers.py:98
+msgid "Error trying to read csv file: {}"
+msgstr "Lỗi khi đọc tệp csv: {}"
+
+#: kolibri/core/auth/constants/commands_errors.py:36
+#: kolibri/core/auth/management/commands/bulkimportusers.py:99
+msgid "Error trying to write csv file: {}"
+msgstr "Lỗi khi ghi tệp csv: {}"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:43
+#: kolibri/core/auth/management/commands/bulkexportusers.py:125
+msgid "Database ID ({})"
+msgstr "Mã số cơ sở dữ liệu ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:44
+#: kolibri/core/auth/management/commands/bulkexportusers.py:126
+msgid "Username ({})"
+msgstr "Tên người dùng ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:45
+#: kolibri/core/auth/management/commands/bulkexportusers.py:127
+msgid "Password ({})"
+msgstr "Mật khẩu ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:46
+#: kolibri/core/auth/management/commands/bulkexportusers.py:128
+msgid "Full name ({})"
+msgstr "Tên đầy đủ ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:51
+msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
+msgid "User type ({})"
+msgstr "Loại người dùng ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:54
+#: kolibri/core/auth/management/commands/bulkexportusers.py:136
+msgid "Identifier ({})"
+msgstr "Mã định danh ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:55
+#: kolibri/core/auth/management/commands/bulkexportusers.py:137
+msgid "Birth year ({})"
+msgstr "Năm sinh ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:56
+#: kolibri/core/auth/management/commands/bulkexportusers.py:138
+msgid "Gender ({})"
+msgstr "Giới tính ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:61
+msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
+msgid "Learner enrollment ({})"
+msgstr "Học viên đăng ký ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:68
+msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
+msgid "Coach assignment ({})"
+msgstr "Bài tập của giáo viên ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:133
+msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
+msgid "User type ({})"
+msgstr "Loại người dùng ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:143
+msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
+msgid "Learner enrollment ({})"
+msgstr "Học viên đăng ký ({})"
+
+#: kolibri/core/auth/management/commands/bulkexportusers.py:150
+msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
+msgid "Coach assignment ({})"
+msgstr "Bài tập của giáo viên ({})"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:75
+msgctxt "Error message that might appear when there's a programming error importing a CSV file"
+msgid "Unexpected error [{}]: {}"
+msgstr "Lỗi ngoài ý muốn [{}]: {}"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:79
+msgctxt "Error when the command is executed in the Terminal (command prompt)"
+msgid "Value in column '{}' has too many characters"
+msgstr "Giá trị trong cột '{}' có quá nhiều ký tự"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:81
+msgid "Invalid value in column '{}'"
+msgstr "Giá trị không hợp lệ trong cột '{}'"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:82
+msgid "Username is duplicated"
+msgstr "Tên người dùng bị trùng"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:88
+msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
+msgid "The column '{}' is required"
+msgstr "Cần có cột '{}'"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:92
+msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
+msgid "Invalid header label found in the first row"
+msgstr "Hàng đầu tiên có chứa nhãn đầu đề không hợp lệ"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:96
+msgctxt "Error when the command is executed in the Terminal (command prompt)"
+msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
+msgstr "Không tìm thấy địa điểm mặc định. Hãy chắc chắn đã thiết lập địa điểm trên thiết bị trước khi nhập người dùng và lớp học"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:101
+msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
+msgstr "Trường dữ liệu mật khẩu là bắt buộc. Để giữ nguyên mật khẩu của người dùng hiện tại, hãy nhập vào một dấu hoa thị (*)"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:104
+msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
+msgstr "Không thể cập nhật thông tin cho người dùng mang mã số: '{}' vì không có người dùng mang mã cơ sở dữ liệu đó tại địa điểm này"
+
+#: kolibri/core/auth/management/commands/bulkimportusers.py:106
+msgid "Database ID is not valid"
+msgstr "Mã cơ sở dữ liệu không hợp lệ"
 
 #: kolibri/core/content/api.py:149
-msgid "Content"
-msgstr "Nội dung"
+msgid "Resource"
+msgstr "Nguồn tài liệu"
 
 #: kolibri/core/content/api.py:910
 msgid "The requested channel does not exist on the content server"
@@ -47,15 +204,25 @@ msgstr "Không xác định được định dạng"
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri không hỗ trợ ngôn ngữ này"
 
-#: kolibri/core/tasks/api.py:46
+#: kolibri/core/logger/csv_export.py:207
+msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
+msgid "content_session_logs"
+msgstr "nhật_ký_nội_dung_phiên_làm_việc"
+
+#: kolibri/core/logger/csv_export.py:217
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "content_summary_logs"
+msgstr "nhật_ký_nội_dung_phần_tóm_tắt"
+
+#: kolibri/core/tasks/api.py:71
 msgid "There was a network error."
 msgstr "Đã xảy ra lỗi mạng."
 
-#: kolibri/core/tasks/api.py:48
+#: kolibri/core/tasks/api.py:73
 msgid "There was a disk access error."
 msgstr "Đã xảy ra lỗi truy cập đĩa."
 
-#: kolibri/core/tasks/api.py:50
+#: kolibri/core/tasks/api.py:75
 msgid "There was an unknown error."
 msgstr "Đã xảy ra lỗi không xác định."
 
@@ -80,9 +247,14 @@ msgstr "Chúng tôi đề nghị dùng Firefox hoặc Chrome để truy cập Ko
 msgid "You can also try updating your current browser."
 msgstr "Bạn cũng có thể thử cập nhật trình duyệt hiện tại."
 
-#: kolibri/core/views.py:174
+#: kolibri/core/views.py:157
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Không tìm thấy trang chuyển hướng phù hợp. Có thể Kolibri đặt cấu hình không tốt"
+
+#: kolibri/plugins/facility/views.py:46
+msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
+msgid "users_{}"
+msgstr "người_dùng_{}"
 
 #: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
 msgid "OpenID Provider Authorization"

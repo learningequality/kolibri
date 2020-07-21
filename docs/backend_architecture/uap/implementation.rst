@@ -13,7 +13,7 @@ and ``LearnerGroup`` -- are implemented as _proxy models of the main
 us to distinguish between these types, and the ``ModelManager`` for the proxy
 models returns only instances of the matching kind.
 
-.. _proxy: https://docs.djangoproject.com/en/1.9/topics/db/models/#proxy-models
+.. _proxy: https://docs.djangoproject.com/en/1.11/topics/db/models/#proxy-models
 
 From a ``Collection`` instance, you can traverse upwards in the tree with the
 ``parent`` field, and downwards via the ``children`` field (which is a reverse
@@ -153,7 +153,7 @@ strings, of role kinds), these parameters accept either:
   from the base model in the ``F`` function, but you can also indirectly reference
   fields of related models, e.g. ``F("collection__parent")``)
 
-.. _F expression: https://docs.djangoproject.com/en/1.9/ref/models/expressions/#f-expressions
+.. _F expression: https://docs.djangoproject.com/en/1.11/ref/models/expressions/#f-expressions
 
 For example, the ``ContentLog`` query described above ("give me all
 ``ContentLogs`` associated with ``FacilityUsers`` for which Source User has an

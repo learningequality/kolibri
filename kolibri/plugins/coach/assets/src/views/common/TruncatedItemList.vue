@@ -6,13 +6,13 @@
       {{ items[0] }}
     </span>
     <span v-else-if="items.length === 2">
-      {{ $tr('twoItems', {item1: items[0], item2: items[1]}) }}
+      {{ $tr('twoItems', { item1: items[0], item2: items[1] }) }}
     </span>
     <span v-else-if="items.length === 3">
-      {{ $tr('threeItems', {item1: items[0], item2: items[1], item3: items[2]}) }}
+      {{ $tr('threeItems', { item1: items[0], item2: items[1], item3: items[2] }) }}
     </span>
     <span v-else>
-      {{ $tr('manyItems', {item1: items[0], item2: items[1], count: items.length - 2}) }}
+      {{ $tr('manyItems', { item1: items[0], item2: items[1], count: items.length - 2 }) }}
     </span>
   </div>
 

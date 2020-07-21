@@ -68,7 +68,6 @@ into legacy_models.py to allow for referencing during channel import of older da
 from __future__ import print_function
 
 from django.db import models
-from jsonfield import JSONField
 from le_utils.constants import content_kinds
 from le_utils.constants import file_formats
 from le_utils.constants import format_presets
@@ -78,6 +77,7 @@ from mptt.models import MPTTModel
 from mptt.models import TreeForeignKey
 
 from kolibri.core.fields import DateTimeTzField
+from kolibri.core.fields import JSONField
 
 
 class ContentTag(models.Model):
@@ -128,6 +128,9 @@ class ContentNode(MPTTModel):
     kind = models.CharField(max_length=200, choices=content_kinds.choices, blank=True)
     available = models.BooleanField(default=False)
     lang = models.ForeignKey("Language", blank=True, null=True)
+
+    # A JSON Dictionary of properties to configure loading, rendering, etc. the file
+    options = JSONField(default={}, blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -220,6 +223,7 @@ class ChannelMetadata(models.Model):
     id = UUIDField(primary_key=True)
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True)
+    tagline = models.CharField(max_length=150, blank=True, null=True)
     author = models.CharField(max_length=400, blank=True)
     version = models.IntegerField(default=0)
     thumbnail = models.TextField(blank=True)

@@ -27,15 +27,13 @@ const createComponent = (totalattempts, pastattempts, masteryModel) => {
 };
 
 describe('assessmentWrapper Component', function() {
-  beforeEach(function() {
-    this.kind = 'test';
-    this.files = [
-      {
-        available: true,
-        preset: 'tst',
-      },
-    ];
-    this.id = 'testing';
+  // Mock the console so all the TypeErrors don't clutter the test report
+  let consoleMock;
+  beforeAll(() => {
+    consoleMock = jest.spyOn(console, 'error').mockImplementation();
+  });
+  afterAll(() => {
+    consoleMock.mockRestore();
   });
   describe('computed property', function() {
     describe('exerciseProgress', function() {

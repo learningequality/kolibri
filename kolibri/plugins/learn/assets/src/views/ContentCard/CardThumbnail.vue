@@ -2,7 +2,7 @@
 
   <div
     class="card-thumbnail-wrapper"
-    :class="{ 'mobile-thumbnail' : isMobile }"
+    :class="{ 'mobile-thumbnail': isMobile }"
     :style="thumbnailBackground"
   >
 
@@ -10,7 +10,7 @@
       v-if="!thumbnail"
       :kind="kind"
       class="type-icon"
-      :style="{ color: $themeTokens.annotation }"
+      :color="$themeTokens.annotation"
     />
 
     <ProgressIcon
@@ -39,12 +39,12 @@
         :kind="kind"
         :showTooltip="true"
         class="content-icon"
-        :style="{ color: $themeTokens.textInverted }"
+        :color="$themeTokens.textInverted"
       />
     </div>
 
     <div
-      v-if="progress!==undefined"
+      v-if="progress !== undefined && progress !== 0"
       class="progress-bar-wrapper"
       :style="{ backgroundColor: $themePalette.grey.v_200 }"
     >

@@ -26,7 +26,8 @@
       :invalidText="$tr('invalidTokenMessage')"
       autofocus
       :disabled="formIsDisabled || $attrs.disabled"
-      @blur="tokenIsBlurred=true"
+      autocapitalize="none"
+      @blur="tokenIsBlurred = true"
     />
   </KModal>
 
@@ -35,7 +36,7 @@
 
 <script>
 
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { getRemoteChannelBundleByToken } from '../../modules/wizard/utils';
 
@@ -80,7 +81,7 @@
               }
             })
             .catch(error => {
-              if (error.status.code === 404) {
+              if (error.response.status === 404) {
                 this.tokenLookupFailed = true;
               } else {
                 this.tokenNetworkError = true;

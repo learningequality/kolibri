@@ -2,8 +2,8 @@
 
   <div
     class="bottom"
-    :style="{backgroundColor: $themeTokens.surface}"
-    :class="{'bottom-sm': windowIsSmall}"
+    :style="{ backgroundColor: $themeTokens.surface }"
+    :class="{ 'bottom-sm': windowIsSmall }"
   >
     <div class="inner-bottom" :style="innerStyle">
       <slot></slot>
@@ -41,7 +41,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .bottom {
     @extend %dropshadow-8dp;
@@ -65,6 +65,8 @@
   }
 
   .inner-bottom {
+    height: 100%;
+    padding: 10px 0;
     margin: auto;
   }
 

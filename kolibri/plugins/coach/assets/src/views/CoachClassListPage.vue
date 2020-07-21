@@ -2,7 +2,7 @@
 
   <CoreBase
     :immersivePage="false"
-    :appBarTitle="coreString('coachLabel')"
+    :appBarTitle="appBarTitle"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="false"
@@ -11,6 +11,15 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
+
+      <p>
+        <KRouterLink
+          v-if="userIsMultiFacilityAdmin"
+          :to="{ name: 'AllFacilitiesPage' }"
+          :text="coreString('allFacilitiesLabel')"
+          icon="back"
+        />
+      </p>
       <h1>{{ coreString('classesLabel') }}</h1>
       <p>{{ $tr('classPageSubheader') }}</p>
 
@@ -36,7 +45,7 @@
         <transition-group slot="tbody" tag="tbody" name="list">
           <tr v-for="classObj in classList" :key="classObj.id">
             <td>
-              <KLabeledIcon icon="classroom">
+              <KLabeledIcon icon="classes">
                 <KRouterLink
                   :text="classObj.name"
                   :to="$router.getRoute('HomePage', { classId: classObj.id })"
@@ -62,6 +71,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import find from 'lodash/find';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
   import commonCoach from './common';
@@ -70,7 +80,7 @@
     name: 'CoachClassListPage',
     mixins: [commonCoach, commonCoreStrings],
     computed: {
-      ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
+      ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach', 'userIsMultiFacilityAdmin']),
       ...mapState(['classList']),
       // Message that shows up when state.classList is empty
       emptyStateDetails() {
@@ -89,10 +99,26 @@
       createClassUrl() {
         const facilityUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
         if (facilityUrl) {
+          if (this.userIsMultiFacilityAdmin) {
+            return `${facilityUrl()}#/${this.$route.query.facility_id}/classes`;
+          }
           return facilityUrl();
         }
 
         return '';
+      },
+      appBarTitle() {
+        let facilityName;
+        const { facility_id } = this.$route.query;
+        if (facility_id) {
+          const match = find(this.$store.state.core.facilities, { id: facility_id }) || {};
+          facilityName = match.name;
+        }
+        if (facilityName) {
+          return this.coachString('coachLabelWithOneName', { name: facilityName });
+        } else {
+          return this.coachString('coachLabel');
+        }
       },
     },
     $trs: {

@@ -2,6 +2,14 @@
 
   <KPageContainer>
 
+    <p>
+      <KRouterLink
+        v-if="userIsMultiFacilityAdmin"
+        :to="facilityPageLinks.AllFacilitiesPage"
+        icon="back"
+        :text="coreString('allFacilitiesLabel')"
+      />
+    </p>
     <KGrid>
       <KGridItem
         :layout8="{ span: 6 }"
@@ -46,7 +54,7 @@
           :key="classroom.id"
         >
           <td>
-            <KLabeledIcon icon="classroom">
+            <KLabeledIcon icon="classes">
               <KRouterLink
                 :text="classroom.name"
                 :to="classEditLink(classroom.id)"
@@ -88,15 +96,17 @@
     </p>
 
     <ClassDeleteModal
-      v-if="modalShown===Modals.DELETE_CLASS"
-      :classid="currentClassDelete.id"
-      :classname="currentClassDelete.name"
+      v-if="modalShown === Modals.DELETE_CLASS"
+      :classid="classForDeletion.id"
+      :classname="classForDeletion.name"
       @cancel="closeModal"
+      @success="handleDeleteSuccess()"
     />
     <ClassCreateModal
-      v-if="modalShown===Modals.CREATE_CLASS"
+      v-if="modalShown === Modals.CREATE_CLASS"
       :classes="sortedClassrooms"
       @cancel="closeModal"
+      @success="handleCreateSuccess()"
     />
 
   </KPageContainer>
@@ -106,20 +116,14 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState, mapActions, mapGetters } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import orderBy from 'lodash/orderBy';
+  import cloneDeep from 'lodash/cloneDeep';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { Modals, PageNames } from '../../constants';
+  import { Modals } from '../../constants';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
-
-  function classEditLink(classId) {
-    return {
-      name: PageNames.CLASS_EDIT_MGMT_PAGE,
-      params: { id: classId },
-    };
-  }
 
   export default {
     name: 'ManageClassPage',
@@ -134,9 +138,12 @@
       ClassDeleteModal,
     },
     mixins: [commonCoreStrings],
-    data: () => ({ currentClassDelete: null }),
+    data() {
+      return { classForDeletion: null };
+    },
     computed: {
       ...mapState('classManagement', ['modalShown', 'classes']),
+      ...mapGetters(['userIsMultiFacilityAdmin', 'facilityPageLinks']),
       noClassesExist() {
         return this.classes.length === 0;
       },
@@ -149,6 +156,21 @@
       ...mapActions('classManagement', ['displayModal']),
       closeModal() {
         this.displayModal(false);
+      },
+      handleCreateSuccess() {
+        this.closeModal();
+        this.refreshCoreFacilities();
+      },
+      handleDeleteSuccess() {
+        this.closeModal();
+        this.classForDeletion = null;
+        this.refreshCoreFacilities();
+      },
+      refreshCoreFacilities() {
+        if (this.userIsMultiFacilityAdmin) {
+          // Update the core facilities object to update classroom number
+          this.$store.dispatch('getFacilities');
+        }
       },
       // Duplicated in class-list-page
       coachNames(classroom) {
@@ -179,9 +201,13 @@
         }
         return null;
       },
-      classEditLink,
+      classEditLink(classId) {
+        const link = cloneDeep(this.facilityPageLinks.ClassEditPage);
+        link.params.id = classId;
+        return link;
+      },
       openDeleteClassModal(classModel) {
-        this.currentClassDelete = classModel;
+        this.classForDeletion = classModel;
         this.displayModal(Modals.DELETE_CLASS);
       },
     },

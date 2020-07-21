@@ -1,4 +1,5 @@
 import { Resource } from 'kolibri.lib.apiResource';
+import Store from 'kolibri.coreVue.vuex.store';
 
 export default new Resource({
   name: 'contentnode',
@@ -20,5 +21,20 @@ export default new Resource({
   },
   fetchNodeAssessments(ids) {
     return this.getListEndpoint('node_assessments', { ids });
+  },
+  fetchAncestors(id) {
+    return this.fetchDetailCollection('ancestors', id);
+  },
+  fetchRecommendationsFor(id, getParams) {
+    return this.fetchDetailCollection('recommendations_for', id, getParams);
+  },
+  fetchResume(getParams) {
+    return this.fetchDetailCollection('resume', Store.getters.currentUserId, getParams);
+  },
+  fetchPopular(getParams) {
+    return this.fetchListCollection('popular', getParams);
+  },
+  fetchNextSteps(getParams) {
+    return this.fetchDetailCollection('next_steps', Store.getters.currentUserId, getParams);
   },
 });

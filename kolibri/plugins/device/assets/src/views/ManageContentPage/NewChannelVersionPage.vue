@@ -26,8 +26,8 @@
           <th>{{ $tr('resourcesAvailableForImport') }}</th>
           <td class="col-2">
             <span
-              :class="{'count-added': newResources}"
-              :style="{color: $themeTokens.success}"
+              :class="{ 'count-added': newResources }"
+              :style="{ color: $themeTokens.success }"
             >
               {{ newResources }}
             </span>
@@ -37,8 +37,8 @@
           <th>{{ $tr('resourcesToBeDeleted') }}</th>
           <td>
             <span
-              :class="{'count-deleted': deletedResources}"
-              :style="{color: $themeTokens.error}"
+              :class="{ 'count-deleted': deletedResources }"
+              :style="{ color: $themeTokens.error }"
             >
               {{ deletedResources }}
             </span>
@@ -120,7 +120,7 @@
   import { TaskResource } from 'kolibri.resources';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import { taskIsClearable, TaskStatuses } from '../../constants';
+  import { taskIsClearable, PageNames, TaskStatuses } from '../../constants';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 
   export default {
@@ -142,7 +142,7 @@
         currentVersion: null,
         deletedResources: null,
         newResources: null,
-        updatedNodeIds: [],
+        updatedResources: null,
         versionNotes: {},
         showModal: false,
         disableModal: false,
@@ -163,9 +163,6 @@
           });
         }
         return '';
-      },
-      updatedResources() {
-        return this.updatedNodeIds.length;
       },
       params() {
         return pickBy({
@@ -216,7 +213,6 @@
         const updateParams = {
           sourcetype: 'remote',
           channel_id: this.params.channelId,
-          node_ids: this.updatedNodeIds,
           new_version: this.nextVersion,
         };
 
@@ -229,8 +225,24 @@
 
         // Create the import channel task
         return TaskResource.postListEndpoint('startchannelupdate', updateParams)
-          .then(() => {
-            this.$router.push(this.$router.getRoute('MANAGE_TASKS'));
+          .then(taskResponse => {
+            if (this.newResources) {
+              this.loadingTask = true;
+              const taskId = taskResponse.data.id;
+              const taskList = state => state.manageContent.taskList;
+              const stopWatching = this.$store.watch(taskList, tasks => {
+                const match = tasks.find(task => task.id === taskId) || {};
+                if (match && match.database_ready) {
+                  stopWatching();
+                  this.$router.push(this.$router.getRoute(PageNames.MANAGE_CHANNEL));
+                } else if (match.status === TaskStatuses.FAILED) {
+                  stopWatching();
+                  this.$router.push(this.$router.getRoute('MANAGE_TASKS'));
+                }
+              });
+            } else {
+              this.$router.push(this.$router.getRoute('MANAGE_TASKS'));
+            }
           })
           .catch(error => {
             this.$store.dispatch('handleApiError', error);
@@ -280,7 +292,7 @@
         this.loadingTask = false;
         this.newResources = task.new_resources_count;
         this.deletedResources = task.deleted_resources_count;
-        this.updatedNodeIds = task.updated_node_ids || [];
+        this.updatedResources = task.updated_resources_count;
 
         return TaskResource.deleteFinishedTask(task.id);
       },

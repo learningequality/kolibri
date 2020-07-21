@@ -4,14 +4,12 @@
     <slot></slot>
     <div class="report-controls-buttons">
 
-      <UiIconButton
+      <KIconButton
         ref="printButton"
-        type="flat"
+        icon="print"
         :aria-label="coachString('printReportAction')"
         @click.prevent="$print()"
-      >
-        <mat-svg name="print" category="action" />
-      </UiIconButton>
+      />
       <KTooltip
         reference="printButton"
         :refs="$refs"
@@ -19,15 +17,13 @@
         {{ coachString('printReportAction') }}
       </KTooltip>
 
-      <UiIconButton
+      <KIconButton
         v-if="!exportDisabled"
         ref="exportButton"
-        type="flat"
+        icon="download"
         :aria-label="coachString('exportCSVAction')"
         @click.prevent="$emit('export')"
-      >
-        <mat-svg name="get_app" category="action" />
-      </UiIconButton>
+      />
       <KTooltip
         reference="exportButton"
         :refs="$refs"
@@ -42,13 +38,11 @@
 
 <script>
 
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import { isEmbeddedWebView } from 'kolibri.utils.browser';
+  import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
   import commonCoach from '../common';
 
   export default {
     name: 'ReportsControls',
-    components: { UiIconButton },
     mixins: [commonCoach],
     props: {
       disableExport: {
@@ -59,7 +53,7 @@
     computed: {
       exportDisabled() {
         // Always disable in app mode until we add the ability to download files.
-        return isEmbeddedWebView() || this.disableExport;
+        return isEmbeddedWebView || this.disableExport;
       },
     },
   };

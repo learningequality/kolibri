@@ -4,8 +4,10 @@ import RequirePasswordForLearnersForm from '../../src/views/onboarding-forms/Req
 
 function makeWrapper(options) {
   const store = makeStore();
-  if (options.preset) {
-    store.commit('SET_FACILITY_PRESET', options.preset);
+  if (options.preset === 'formal') {
+    store.dispatch('setFormalUsageDefaults');
+  } else {
+    store.dispatch('setNonformalUsageDefaults');
   }
   if (options.previousChoice !== undefined) {
     store.commit('SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD', options.previousChoice);
@@ -29,20 +31,15 @@ describe('RequirePasswordForLearnersForm', () => {
     expect(wrapper.vm.settingIsEnabled).toEqual(false);
   });
 
-  it('has the correct default with "informal" preset', () => {
-    const { wrapper } = makeWrapper({ preset: 'informal' });
-    expect(wrapper.vm.settingIsEnabled).toEqual(true);
-  });
-
   it('if user has set it in a previous step, it is kept', () => {
     const { wrapper } = makeWrapper({ preset: 'nonformal', previousChoice: false });
-    expect(wrapper.vm.settingIsEnabled).toEqual(false);
+    expect(wrapper.vm.settingIsEnabled).toEqual(true);
   });
 
   it('after clicking submit, the setting in vuex is updated', () => {
     const { wrapper, store } = makeWrapper({ preset: 'formal' });
-    wrapper.find({ name: 'YesNoForm' }).vm.emitSetting();
-    expect(store.state.onboardingData.settings.learner_can_login_with_no_password).toEqual(false);
+    wrapper.findComponent({ name: 'YesNoForm' }).vm.emitSetting();
+    expect(store.state.onboardingData.settings.learner_can_login_with_no_password).toEqual(true);
     expect(wrapper.vm.$emit).toHaveBeenCalledTimes(1);
   });
 });

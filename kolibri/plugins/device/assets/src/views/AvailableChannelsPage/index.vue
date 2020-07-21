@@ -21,6 +21,7 @@
       <template v-slot:abovechannels>
         <p>
           <KButton
+            v-if="channelsAreAvailable"
             appearance="basic-link"
             :text="multipleMode ? $tr('selectTopicsAndResources') : $tr('selectEntireChannels')"
             @click="toggleMultipleMode"
@@ -29,11 +30,10 @@
         <p v-if="showUnlistedChannels">
           <KButton
             data-test="token-button"
-            class="token-button"
             :text="$tr('channelTokenButtonLabel')"
             appearance="raised-button"
             name="showtokenmodal"
-            @click="showTokenModal=true"
+            @click="showTokenModal = true"
           />
         </p>
         <p>
@@ -48,7 +48,7 @@
 
       </template>
 
-      <template v-slot:default="{filteredItems, showItem, handleChange, itemIsSelected}">
+      <template v-slot:default="{ filteredItems, showItem, handleChange, itemIsSelected }">
         <p v-if="!channelsAreAvailable && !status">
           {{ $tr('noChannelsAvailable') }}
         </p>
@@ -72,14 +72,14 @@
     <ChannelTokenModal
       v-if="showTokenModal"
       :disabled="disableModal"
-      @cancel="showTokenModal=false"
+      @cancel="showTokenModal = false"
       @submit="handleSubmitToken"
     />
 
     <ChannelUpdateModal
       v-if="showUpdateModal"
       :disabled="disableModal"
-      @cancel="showUpdateModal=false"
+      @cancel="showUpdateModal = false"
       @submit="handleConfirmUpgrade"
     />
 
@@ -115,7 +115,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
@@ -204,7 +204,10 @@
       },
       multipleMode() {
         const { multiple } = this.$route.query;
-        return multiple === true || multiple === 'true';
+        return this.setupMode || multiple === true || multiple === 'true';
+      },
+      setupMode() {
+        return Boolean(this.$route.query.setup);
       },
       documentTitle() {
         switch (this.transferType) {
@@ -252,6 +255,13 @@
         this.setAppBarTitle(this.toolbarTitle(this.transferType));
       }
     },
+    mounted() {
+      // If arriving here from the PostSetupModalGroup/WelcomeModal,
+      // then select all the channels automatically
+      if (this.setupMode) {
+        this.selectedChannels = [...this.allChannels];
+      }
+    },
     methods: {
       ...mapMutations('coreBase', {
         setAppBarTitle: 'SET_APP_BAR_TITLE',
@@ -262,11 +272,11 @@
             return this.$tr('importFromDisk', { driveName: this.selectedDrive.name });
           case TransferTypes.PEERIMPORT:
             return this.$tr('importFromPeer', {
-              deviceName: this.selectedPeer.device_name,
+              deviceName: this.selectedPeer.device_name || this.selectedPeer.nickname,
               address: this.selectedPeer.base_url,
             });
           default:
-            return this.$tr('kolibriCentralServer');
+            return this.$tr('importFromKolibriStudio');
         }
       },
       channelIsOnDevice(channel) {
@@ -276,14 +286,16 @@
       toggleMultipleMode() {
         let newQuery;
         if (this.multipleMode) {
-          newQuery = omit(this.$route.query, ['multiple']);
+          // Remove the 'setup' query param if switching to single-channel mode.
+          // When the user returns, none of the channels will be selected
+          newQuery = omit(this.$route.query, ['multiple', 'setup']);
         } else {
           newQuery = {
             ...this.$route.query,
             multiple: true,
           };
         }
-        this.$router.push({ query: newQuery });
+        return this.$router.push({ query: newQuery });
       },
       handleSubmitToken(channel) {
         if (this.multipleMode) {
@@ -382,7 +394,7 @@
       importResourcesHeader: 'Select resources for import',
       importFromDisk: `Import from '{driveName}'`,
       importFromPeer: `Import from '{deviceName}' ({address})`,
-      kolibriCentralServer: 'Kolibri Studio channels',
+      importFromKolibriStudio: 'Import from Kolibri Studio',
       channelTokenButtonLabel: 'Import with token',
       pageLoadError: 'There was a problem loading this page…',
       documentTitleForLocalImport: "Available Channels on '{driveName}'",
@@ -415,10 +427,6 @@
   .channel-list-header {
     padding: 16px 0;
     font-size: 14px;
-  }
-
-  .token-button {
-    margin-left: 0;
   }
 
 </style>

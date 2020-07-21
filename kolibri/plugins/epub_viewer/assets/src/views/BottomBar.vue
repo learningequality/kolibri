@@ -10,7 +10,7 @@
       <div v-if="locationsAreReady">
         <div class="d-t">
           <div class="d-t-r">
-            <div class="d-t-c bottom-bar-progress-container">
+            <div class="bottom-bar-progress-container d-t-c">
               <div class="bottom-bar-progress">
                 {{ $tr('progress', { progress: sliderValue / 100 }) }}
               </div>

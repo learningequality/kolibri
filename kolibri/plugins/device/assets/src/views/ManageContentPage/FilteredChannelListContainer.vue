@@ -1,6 +1,6 @@
 <template>
 
-  <div :class="{'fclc-sm': !windowIsLarge}">
+  <div :class="{ 'fclc-sm': !windowIsLarge }">
 
     <slot name="header"></slot>
 
@@ -8,7 +8,7 @@
 
     <KGrid class="top-panel">
       <template v-if="channels.length > 0">
-        <KGridItem :layout12="{span: 4}">
+        <KGridItem :layout12="{ span: 4 }">
           <KSelect
             v-model="languageFilter"
             class="filter-lang"
@@ -17,7 +17,7 @@
             :inline="true"
           />
         </KGridItem>
-        <KGridItem :layout12="{span: 5}" class="filter-title">
+        <KGridItem :layout12="{ span: 5 }" class="filter-title">
           <FilterTextbox
             v-model="titleFilter"
             :placeholder="$tr('titleFilterPlaceholder')"
@@ -25,7 +25,7 @@
           />
         </KGridItem>
       </template>
-      <KGridItem :layout12="{span: 3}">
+      <KGridItem :layout12="{ span: 3 }">
         <p class="count-msg" data-test="available">
           {{ channelsCountMsg }}
         </p>
@@ -38,11 +38,11 @@
         class="select-all-checkbox"
         :label="$tr('selectAll')"
         :checked="selectAllIsChecked"
-        @change="handleChangeSelectAll({ isSelected:$event })"
+        @change="handleChangeSelectAll({ isSelected: $event })"
       />
     </template>
 
-    <slot v-bind="{filteredItems, showItem, itemIsSelected, handleChange}"></slot>
+    <slot v-bind="{ filteredItems, showItem, itemIsSelected, handleChange }"></slot>
 
     <div
       v-if="filteredItems.length === 0"
@@ -61,7 +61,7 @@
   import differenceBy from 'lodash/differenceBy';
   import unionBy from 'lodash/unionBy';
   import uniqBy from 'lodash/uniqBy';
-  import KResponsiveWindowMixin from 'kolibri-components/src/KResponsiveWindowMixin';
+  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
 
   export default {
@@ -87,6 +87,8 @@
       return {
         languageFilter: {},
         titleFilter: '',
+        // Use a copy of channels from Vuex to avoid #6989 when it gets mutated
+        channelsCopy: [...this.channels],
       };
     },
     computed: {
@@ -110,7 +112,7 @@
         };
       },
       languageFilterOptions() {
-        const codes = uniqBy(this.channels, 'lang_code')
+        const codes = uniqBy(this.channelsCopy, 'lang_code')
           .map(({ lang_name, lang_code }) => ({
             value: lang_code,
             label: lang_name,
@@ -122,7 +124,7 @@
         return this.$tr('numChannelsAvailable', { count: this.filteredItems.length });
       },
       filteredItems() {
-        return this.channels.filter(this.channelPassesFilters);
+        return this.channelsCopy.filter(this.channelPassesFilters);
       },
       noMatchMsg() {
         if (
@@ -217,6 +219,9 @@
   }
 
   .no-match {
+    // Add extra height to empty state message
+    // so opening language dropdown doesn't cause an overflow
+    height: 250px;
     padding: 32px 0;
   }
 

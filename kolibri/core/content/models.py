@@ -54,15 +54,24 @@ class ContentTag(base_models.ContentTag):
 
 
 class ContentNodeQueryset(TreeQuerySet, FilterByUUIDQuerysetMixin):
-    def dedupe_by_content_id(self):
+    def dedupe_by_content_id(self, use_distinct=True):
+        # Cannot use distinct if queryset is also going to use annotate,
+        # so optional use_distinct flag can be used to fallback to a subquery
         # remove duplicate content nodes based on content_id
-        if connection.vendor == "sqlite":
-            # adapted from https://code.djangoproject.com/ticket/22696
-            deduped_ids = (
-                self.values("content_id")
-                .annotate(node_id=Min("id"))
-                .values_list("node_id", flat=True)
-            )
+        if connection.vendor == "sqlite" or not use_distinct:
+            if connection.vendor == "postgresql":
+                # Create a subquery of all contentnodes deduped by content_id
+                # to avoid calling distinct on an annotated queryset.
+                deduped_ids = self.model.objects.order_by("content_id").distinct(
+                    "content_id"
+                )
+            else:
+                # adapted from https://code.djangoproject.com/ticket/22696
+                deduped_ids = (
+                    self.values("content_id")
+                    .annotate(node_id=Min("id"))
+                    .values_list("node_id", flat=True)
+                )
             return self.filter_by_uuids(deduped_ids)
 
         # when using postgres, we can call distinct on a specific column
@@ -88,6 +97,54 @@ class ContentNodeManager(
             .get_queryset(*args, **kwargs)
             .order_by(self.tree_id_attr, self.left_attr)
         )
+
+    def build_tree_nodes(self, data, target=None, position="last-child"):
+        """
+        vendored from:
+        https://github.com/django-mptt/django-mptt/blob/fe2b9cc8cfd8f4b764d294747dba2758147712eb/mptt/managers.py#L614
+        """
+        opts = self.model._mptt_meta
+        if target:
+            tree_id = target.tree_id
+            if position in ("left", "right"):
+                level = getattr(target, opts.level_attr)
+                if position == "left":
+                    cursor = getattr(target, opts.left_attr)
+                else:
+                    cursor = getattr(target, opts.right_attr) + 1
+            else:
+                level = getattr(target, opts.level_attr) + 1
+                if position == "first-child":
+                    cursor = getattr(target, opts.left_attr) + 1
+                else:
+                    cursor = getattr(target, opts.right_attr)
+        else:
+            tree_id = self._get_next_tree_id()
+            cursor = 1
+            level = 0
+
+        stack = []
+
+        def treeify(data, cursor=1, level=0):
+            data = dict(data)
+            children = data.pop("children", [])
+            node = self.model(**data)
+            stack.append(node)
+            setattr(node, opts.tree_id_attr, tree_id)
+            setattr(node, opts.level_attr, level)
+            setattr(node, opts.left_attr, cursor)
+            for child in children:
+                cursor = treeify(child, cursor=cursor + 1, level=level + 1)
+            cursor += 1
+            setattr(node, opts.right_attr, cursor)
+            return cursor
+
+        treeify(data, cursor=cursor, level=level)
+
+        if target:
+            self._create_space(2 * len(stack), cursor - 1, tree_id)
+
+        return stack
 
 
 @python_2_unicode_compatible
@@ -137,6 +194,15 @@ class Language(base_models.Language):
         return self.lang_name or ""
 
 
+def get_download_filename(title, preset, extension):
+    """
+    Return a valid filename to be downloaded as.
+    """
+    filename = "{} ({}).{}".format(title, preset, extension)
+    valid_filename = get_valid_filename(filename)
+    return valid_filename
+
+
 class File(base_models.File):
     """
     The second to bottom layer of the contentDB schema, defines the basic building brick for content.
@@ -168,10 +234,9 @@ class File(base_models.File):
         """
         Return a valid filename to be downloaded as.
         """
-        title = self.contentnode.title
-        filename = "{} ({}).{}".format(title, self.get_preset(), self.get_extension())
-        valid_filename = get_valid_filename(filename)
-        return valid_filename
+        return get_download_filename(
+            self.contentnode.title, self.get_preset(), self.get_extension()
+        )
 
     def get_download_url(self):
         """

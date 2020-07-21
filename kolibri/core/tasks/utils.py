@@ -1,16 +1,10 @@
 import importlib
 import logging
-import os
 import time
 import uuid
 
-try:
-    from thread import get_ident
-except ImportError:
-    from threading import get_ident
-
 from kolibri.core.tasks import compat
-from kolibri.core.utils.cache import process_cache
+from kolibri.core.utils.cache import DiskCacheRLock
 
 
 # An object on which to store data about the current job
@@ -80,7 +74,7 @@ class InfiniteLoopThread(compat.Thread):
         self.wait = wait_between_runs
 
     def run(self):
-        self.logger.info(
+        self.logger.debug(
             "Started new {name} thread ID#{id}".format(
                 name=self.thread_name, id=self.thread_id
             )
@@ -88,7 +82,7 @@ class InfiniteLoopThread(compat.Thread):
 
         while True:
             if self.shutdown_event.wait(self.DEFAULT_TIMEOUT_SECONDS):
-                self.logger.warning(
+                self.logger.debug(
                     "{name} shut down event received; closing.".format(
                         name=self.thread_name
                     )
@@ -126,52 +120,4 @@ class InfiniteLoopThread(compat.Thread):
         self.stop()
 
 
-class DiskCacheRLock(object):
-    """
-    Vendored from
-    https://github.com/grantjenks/python-diskcache/blob/2d1f43ea2be4c82a430d245de6260c3e18059ba1/diskcache/recipes.py
-    """
-
-    def __init__(self, cache, key, expire=None):
-        self._cache = cache
-        self._key = key
-        self._expire = expire
-
-    def acquire(self):
-        "Acquire lock by incrementing count using spin-lock algorithm."
-        pid = os.getpid()
-        tid = get_ident()
-        pid_tid = "{}-{}".format(pid, tid)
-
-        while True:
-            value, count = self._cache.get(self._key, (None, 0))
-            if pid_tid == value or count == 0:
-                self._cache.set(
-                    self._key, (pid_tid, count + 1), self._expire,
-                )
-                return
-            time.sleep(0.001)
-
-    def release(self):
-        "Release lock by decrementing count."
-        pid = os.getpid()
-        tid = get_ident()
-        pid_tid = "{}-{}".format(pid, tid)
-
-        value, count = self._cache.get(self._key, default=(None, 0))
-        is_owned = pid_tid == value and count > 0
-        assert is_owned, "cannot release un-acquired lock"
-        self._cache.set(self._key, (value, count - 1), self._expire)
-
-        # RLOCK leaves the db connection open after releasing the lock
-        # Let's ensure it's correctly closed
-        self._cache.close()
-
-    def __enter__(self):
-        self.acquire()
-
-    def __exit__(self, *exc_info):
-        self.release()
-
-
-db_task_write_lock = DiskCacheRLock(process_cache, "db_task_write_lock")
+db_task_write_lock = DiskCacheRLock("db_task_write_lock")

@@ -1,45 +1,53 @@
 <template>
 
   <OnboardingForm
-    :header="$tr('adminAccountCreationHeader')"
-    :description="$tr('adminAccountCreationDescription')"
+    :header="$attrs.header || $tr('adminAccountCreationHeader')"
+    :description="$attrs.description || $tr('adminAccountCreationDescription')"
     :submitText="submitText"
-    @submit="submitForm"
+    @submit="handleSubmit"
   >
-    <FullNameTextbox
-      ref="fullNameTextbox"
-      :value.sync="fullName"
-      :isValid.sync="fullNameValid"
-      :shouldValidate="formSubmitted"
-      :autofocus="true"
-      autocomplete="name"
-    />
+    <slot name="aboveform"></slot>
 
-    <UsernameTextbox
-      ref="usernameTextbox"
-      :value.sync="username"
-      :isValid.sync="usernameValid"
-      :shouldValidate="formSubmitted"
-    />
+    <!-- HACK in Import mode, this slot will be replaced by Password-only form -->
+    <slot name="form">
+      <FullNameTextbox
+        ref="fullNameTextbox"
+        :value.sync="fullName"
+        :isValid.sync="fullNameValid"
+        :shouldValidate="formSubmitted"
+        :autofocus="true"
+        autocomplete="name"
+      />
 
-    <PasswordTextbox
-      ref="passwordTextbox"
-      :value.sync="password"
-      :isValid.sync="passwordValid"
-      :shouldValidate="formSubmitted"
-      autocomplete="new-password"
-    />
+      <UsernameTextbox
+        ref="usernameTextbox"
+        :value.sync="username"
+        :isValid.sync="usernameValid"
+        :shouldValidate="formSubmitted"
+        :isUniqueValidator="uniqueUsernameValidator"
+      />
 
-    <PrivacyLinkAndModal />
+      <PasswordTextbox
+        ref="passwordTextbox"
+        :value.sync="password"
+        :isValid.sync="passwordValid"
+        :shouldValidate="formSubmitted"
+        autocomplete="new-password"
+      />
 
-    <div slot="footer" class="reminder">
-      <div class="icon">
-        <mat-svg category="alert" name="warning" />
+      <!-- NOTE: Demographic info forms were removed in PR #6053 -->
+
+      <PrivacyLinkAndModal v-if="!hidePrivacyLink" />
+
+      <div slot="footer" class="reminder">
+        <div class="icon">
+          <mat-svg category="alert" name="warning" />
+        </div>
+        <p class="text">
+          {{ $tr('rememberThisAccountInformation') }}
+        </p>
       </div>
-      <p class="text">
-        {{ $tr('rememberThisAccountInformation') }}
-      </p>
-    </div>
+    </slot>
   </OnboardingForm>
 
 </template>
@@ -47,7 +55,6 @@
 
 <script>
 
-  import { mapMutations } from 'vuex';
   import every from 'lodash/every';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
@@ -67,9 +74,17 @@
     },
     mixins: [commonCoreStrings],
     props: {
-      submitText: {
-        type: String,
-        required: true,
+      isFinalStep: {
+        type: Boolean,
+        default: false,
+      },
+      uniqueUsernameValidator: {
+        type: Function,
+        required: false,
+      },
+      hidePrivacyLink: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -88,29 +103,31 @@
       formIsValid() {
         return every([this.usernameValid, this.fullNameValid, this.passwordValid]);
       },
-    },
-    beforeDestroy() {
-      // saves data if going backwards in wizard
-      this.saveSuperuserCredentials();
+      submitText() {
+        return this.isFinalStep
+          ? this.coreString('finishAction')
+          : this.coreString('continueAction');
+      },
     },
     methods: {
-      ...mapMutations({
-        setSuperuser: 'SET_SU',
-      }),
-      saveSuperuserCredentials() {
-        this.setSuperuser({
-          full_name: this.fullName,
-          username: this.username,
-          password: this.password,
-        });
-      },
-      submitForm() {
+      handleSubmit() {
+        if (!this.$refs.fullNameTextbox) {
+          return this.$emit('click_next');
+        }
         this.formSubmitted = true;
         // Have to wait a tick to let inputs react to this.formSubmitted
         this.$nextTick().then(() => {
           if (this.formIsValid) {
-            this.saveSuperuserCredentials();
-            this.$emit('submit');
+            this.$store.commit('SET_SUPERUSER_CREDENTIALS', {
+              full_name: this.fullName,
+              username: this.username,
+              password: this.password,
+            });
+            this.$emit('click_next', {
+              full_name: this.fullName,
+              username: this.username,
+              password: this.password,
+            });
           } else {
             this.focusOnInvalidField();
           }

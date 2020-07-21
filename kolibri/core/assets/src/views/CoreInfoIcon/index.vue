@@ -7,7 +7,7 @@
       :style="{ color: $themeTokens.primary }"
       :iconAriaLabel="iconAriaLabel"
     >
-      <mat-svg name="info" category="action" />
+      <KIcon icon="info" :style="{ fill: $themeTokens.primary }" />
     </UiIcon>
     <KTooltip
       reference="icon"
@@ -23,7 +23,7 @@
 
 <script>
 
-  import UiIcon from 'keen-ui/src/UiIcon';
+  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 
   export default {
     name: 'CoreInfoIcon',
@@ -56,6 +56,13 @@
     font-size: 1.2em;
     vertical-align: top;
     cursor: pointer;
+  }
+
+  // Overwrite KICon styles to make it compatible with UIIcon
+  /deep/ svg {
+    top: 0;
+    width: 100%;
+    height: 100%;
   }
 
   .pos-rel {

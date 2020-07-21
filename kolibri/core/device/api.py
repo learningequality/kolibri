@@ -86,13 +86,18 @@ class DeviceInfoView(views.APIView):
 
         info["urls"] = urls
 
-        if settings.DATABASES["default"]["ENGINE"].endswith("sqlite3"):
-            # If any other database backend, will not be file backed, so no database path to return
+        db_engine = settings.DATABASES["default"]["ENGINE"]
+
+        if db_engine.endswith("sqlite3"):
+            # Return path to .sqlite file (usually in KOLIBRI_HOME folder)
             info["database_path"] = settings.DATABASES["default"]["NAME"]
+        elif db_engine.endswith("postgresql"):
+            info["database_path"] = "postgresql"
+        else:
+            info["database_path"] = "unknown"
 
         instance_model = InstanceIDModel.get_or_create_current_instance()[0]
 
-        info["device_name"] = instance_model.hostname
         info["device_id"] = instance_model.id
         info["os"] = instance_model.platform
 
@@ -129,3 +134,17 @@ class DeviceSettingsView(views.APIView):
 
         serializer.save()
         return Response(serializer.data)
+
+
+class DeviceNameView(views.APIView):
+    permission_classes = (UserHasAnyDevicePermissions,)
+
+    def get(self, request):
+        settings = DeviceSettings.objects.get()
+        return Response({"name": settings.name})
+
+    def patch(self, request):
+        settings = DeviceSettings.objects.get()
+        settings.name = request.data["name"]
+        settings.save()
+        return Response({"name": settings.name})

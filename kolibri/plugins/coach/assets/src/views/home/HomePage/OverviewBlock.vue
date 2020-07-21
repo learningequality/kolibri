@@ -4,18 +4,18 @@
     <p>
       <BackLink
         v-if="classListPageEnabled"
-        :to="$router.getRoute('CoachClassListPage')"
+        :to="classListLink"
         :text="$tr('allClassesLabel')"
       />
     </p>
 
     <h1>
-      <KLabeledIcon icon="classroom" :label="$store.state.classSummary.name" />
+      <KLabeledIcon icon="classes" :label="$store.state.classSummary.name" />
     </h1>
     <HeaderTable>
       <HeaderTableRow>
-        <KLabeledIcon slot="key" icon="coach" :label="$tr('coach', {count: coachNames.length})" />
-        <template slot="value">
+        <KLabeledIcon slot="key" icon="coach" :label="$tr('coach', { count: coachNames.length })" />
+        <template v-slot:value>
           <TruncatedItemList :items="coachNames" />
         </template>
       </HeaderTableRow>
@@ -23,10 +23,10 @@
         <KLabeledIcon
           slot="key"
           icon="people"
-          :label="$tr('learner', {count: learnerNames.length})"
+          :label="$tr('learner', { count: learnerNames.length })"
         />
-        <template slot="value">
-          {{ coachString('integer', {value: learnerNames.length}) }}
+        <template v-slot:value>
+          {{ coachString('integer', { value: learnerNames.length }) }}
         </template>
       </HeaderTableRow>
     </HeaderTable>
@@ -51,6 +51,13 @@
       },
       learnerNames() {
         return this.learners.map(learner => learner.name);
+      },
+      classListLink() {
+        let facility_id;
+        if (this.$store.getters.userIsMultiFacilityAdmin) {
+          facility_id = this.$store.state.classSummary.facility_id;
+        }
+        return this.$router.getRoute('CoachClassListPage', {}, { facility_id });
       },
     },
     $trs: {

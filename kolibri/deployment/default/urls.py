@@ -2,7 +2,7 @@
 """kolibri URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/1.8/topics/http/urls/
+    https://docs.djangoproject.com/en/1.11/topics/http/urls/
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -36,7 +36,6 @@ if path_prefix == "/":
 
 url_patterns_prefixed = [
     url(r"^admin/", include(admin.site.urls)),
-    url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     url(r"", include(morango_urls)),
     url(r"", include("kolibri.core.urls")),
     url(r"", include(get_root_urls())),

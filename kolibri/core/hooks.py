@@ -61,3 +61,21 @@ class FrontEndBaseASyncHook(WebpackInclusionASyncMixin):
     Inherit a hook defining assets to be loaded in kolibri/base.html, that means
     ALL pages. Use with care.
     """
+
+
+@define_hook(only_one_registered=True)
+class LogoutRedirectHook(KolibriHook):
+    """
+    A hook to enable the OIDC client
+    """
+
+    @classmethod
+    def is_enabled(cls):
+        return len(list(cls.registered_hooks)) == 1
+
+    @abstractproperty
+    def url(self):
+        """
+        A property to be overriden by the class using this hook to provide the needed url to redirect
+        """
+        pass

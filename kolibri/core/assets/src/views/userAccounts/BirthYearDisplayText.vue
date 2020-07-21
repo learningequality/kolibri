@@ -1,7 +1,7 @@
 <template>
 
-  <span v-if="displayText">
-    {{ displayText }}
+  <span v-if="isSpecified && birthYear">
+    {{ birthYear }}
   </span>
   <KEmptyPlaceholder v-else />
 
@@ -24,14 +24,8 @@
       },
     },
     computed: {
-      displayText() {
-        if (this.birthYear === NOT_SPECIFIED) {
-          return this.coreString('birthYearNotSpecified');
-        } else if (this.birthYear !== DEFERRED) {
-          return this.birthYear;
-        } else {
-          return '';
-        }
+      isSpecified() {
+        return this.birthYear !== NOT_SPECIFIED && this.birthYear !== DEFERRED;
       },
     },
   };

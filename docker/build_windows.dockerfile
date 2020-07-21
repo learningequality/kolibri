@@ -23,11 +23,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
       make \
       wget
 
-VOLUME /kolibridist/
-
-
 # TODO(cpauya): Verify the checksums of the downloaded Python installers.
 
+# Build the Kolibri Windows installer
 CMD git clone https://github.com/learningequality/kolibri-installer-windows.git && \
       cd kolibri-installer-windows && \
       git checkout $KOLIBRI_WINDOWS_INSTALLER_VERSION && \
@@ -35,8 +33,6 @@ CMD git clone https://github.com/learningequality/kolibri-installer-windows.git 
       cp /kolibridist/kolibri-$KOLIBRI_VERSION*.whl . && \
       export KOLIBRI_BUILD_VERSION=$KOLIBRI_VERSION && \
       make && \
-      curl -sS https://www.python.org/ftp/python/3.4.3/python-3.4.3.msi --output "python-setup/python-3.4.3.msi" && \
-      curl -sS https://www.python.org/ftp/python/3.4.3/python-3.4.3.amd64.msi --output "python-setup/python-3.4.3.amd64.msi" && \
       wine inno-compiler/ISCC.exe installer-source/KolibriSetupScript.iss && \
       mv *.exe kolibri-$KOLIBRI_VERSION-unsigned.exe && \
       cp *.exe /kolibridist/

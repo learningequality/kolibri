@@ -1,6 +1,10 @@
 import KolibriApp from '../src/kolibri_app';
 import coreModule from '../src/state/modules/core';
 
+jest.mock('vuex-router-sync', () => ({
+  sync() {},
+}));
+
 jest.mock(
   'kolibri',
   () => {

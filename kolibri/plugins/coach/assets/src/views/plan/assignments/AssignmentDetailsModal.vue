@@ -53,19 +53,21 @@
     </form>
 
     <BottomAppBar>
-      <KButton
-        :text="coreString('cancelAction')"
-        appearance="flat-button"
-        :primary="false"
-        :disabled="disabled"
-        @click="$emit('cancel')"
-      />
-      <KButton
-        :text="coreString('saveChangesAction')"
-        :primary="true"
-        :disabled="disabled"
-        @click="submitData"
-      />
+      <KButtonGroup>
+        <KButton
+          :text="coreString('cancelAction')"
+          appearance="flat-button"
+          :primary="false"
+          :disabled="disabled"
+          @click="$emit('cancel')"
+        />
+        <KButton
+          :text="coreString('saveChangesAction')"
+          :primary="true"
+          :disabled="disabled"
+          @click="submitData"
+        />
+      </KButtonGroup>
     </BottomAppBar>
   </div>
 
@@ -75,7 +77,7 @@
 <script>
 
   import xor from 'lodash/xor';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';

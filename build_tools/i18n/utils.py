@@ -30,14 +30,6 @@ KEY_LANG_NAME = "language_name"
 KEY_ENG_NAME = "english_name"
 KEY_DEFAULT_FONT = "default_font"
 
-IN_CTXT_LANG = {
-    KEY_CROWDIN_CODE: "ach",
-    KEY_INTL_CODE: "ach-ug",
-    KEY_LANG_NAME: "In context translation",
-    KEY_ENG_NAME: "In context translation",
-    KEY_DEFAULT_FONT: "NotoSans",
-}
-
 
 def to_locale(language):
     """
@@ -77,8 +69,10 @@ def available_languages(include_in_context=False, include_english=False):
     for lang in languages:
         if include_english or lang[KEY_INTL_CODE] != "en":
             result.append(lang)
-    if include_in_context:
-        result.append(IN_CTXT_LANG)
+        # in-context language has been included in language_info.json,
+        # remove it if the parameter include_in_context is False
+        if lang[KEY_INTL_CODE] == "ach-ug" and not include_in_context:
+            result.remove(lang)
     return result
 
 
@@ -115,11 +109,8 @@ def json_dump_formatted(data, file_path, file_name):
     """
 
     # Ensure that the directory exists for the file to be opened inside of.
-    try:
+    if not os.path.exists(file_path):
         os.makedirs(file_path)
-    except Exception:
-        # Path already exists
-        pass
 
     # Join the filename to the path which we now know exists for sure.
     file_path_with_file_name = os.path.join(file_path, file_name)
@@ -135,7 +126,7 @@ def json_dump_formatted(data, file_path, file_name):
                 separators=(",", ": "),
                 ensure_ascii=False,
             )
-            output = unicode(output, "utf-8")
+            output = unicode(output, "utf-8")  # noqa
             file_object.write(output)
         else:
             json.dump(

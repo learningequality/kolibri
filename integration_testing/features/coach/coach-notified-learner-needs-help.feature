@@ -1,13 +1,13 @@
 Feature: Coach tracks learner progress in a quiz
 
 # Prepare two browsers, or two windows/tabs of the same browser, one of them being incognito/private mode, in order to sign into one as a learner user, and as a coach in the other
-  
+
   Background:
     Given I have both sessions visible in two browser windows/tabs (signed into one as learner, and in the other as coach)
       And there is <learner> enrolled into the class <class>
       And there is an active lesson <lesson> assigned to class <class> with one <exercise>
 
-  Scenario: Learner starts the exercise   
+  Scenario: Learner starts the exercise
     When as learner <learner> in one window I go to the *Learn > Class* page for <class>
     Then I see there's a lesson <lesson> assigned to me that I have not started
     When I click to start the lesson

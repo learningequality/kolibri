@@ -22,7 +22,6 @@
       <div style="text-align: right">
         <KButton
           :text="$tr('importMoreAction')"
-          style="margin: 0;"
           @click="shownModal = 'IMPORT_MORE'"
         />
       </div>
@@ -253,7 +252,7 @@
       },
       onTaskSuccess(task) {
         this.bottomBarDisabled = false;
-        this.watchedTaskType = task.entity.type;
+        this.watchedTaskType = task.data.type;
         this.notifyAndWatchTask(task);
       },
       onTaskFailure() {
@@ -263,6 +262,9 @@
       handleClickViewNewVersion() {
         this.$router.push({
           name: PageNames.NEW_CHANNEL_VERSION_PAGE,
+          query: {
+            last: PageNames.MANAGE_CHANNEL,
+          },
         });
       },
       handleSelectImportMoreSource(params) {
@@ -307,7 +309,7 @@
           .then(this.setUpPage)
           .catch(error => {
             // If entire channel is deleted, redirect
-            if (error.status.code === 404) {
+            if (error.response.status === 404) {
               this.$router.replace({ name: PageNames.MANAGE_CONTENT_PAGE });
             } else {
               this.$store.dispatch('handleApiError', error);

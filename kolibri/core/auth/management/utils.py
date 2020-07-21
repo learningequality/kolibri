@@ -2,15 +2,19 @@
 Utility methods for syncing.
 """
 import getpass
+import logging
+import time
+from functools import wraps
 
 import requests
 from django.core.management.base import CommandError
+from django.db.models.signals import post_delete
 from django.urls import reverse
 from django.utils.six.moves import input
 from morango.models import Certificate
 from six.moves.urllib.parse import urljoin
 
-from kolibri.core.auth.constants.morango_scope_definitions import FULL_FACILITY
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
@@ -21,9 +25,27 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
 
 
+logger = logging.getLogger(__name__)
+
+
+class DisablePostDeleteSignal(object):
+    """
+    Helper that disables the post_delete signal temporarily when deleting, so Morango doesn't
+    create DeletedModels objects for what we're deleting
+    """
+
+    def __enter__(self):
+        self.receivers = post_delete.receivers
+        post_delete.receivers = []
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        post_delete.receivers = self.receivers
+        self.receivers = None
+
+
 def _interactive_client_facility_selection():
-    facilities = Facility.objects.all()
-    message = "Please choose a facility to sync:\n"
+    facilities = Facility.objects.all().order_by("name")
+    message = "Please choose a facility:\n"
     for idx, facility in enumerate(facilities):
         message += "{}. {}\n".format(idx + 1, facility.name)
     idx = input(message)
@@ -140,7 +162,9 @@ def get_client_and_server_certs(
     username, password, dataset_id, nc, noninteractive=False
 ):
     # get servers certificates which server has a private key for
-    server_certs = nc.get_remote_certificates(dataset_id, scope_def_id=FULL_FACILITY)
+    server_certs = nc.get_remote_certificates(
+        dataset_id, scope_def_id=ScopeDefinitions.FULL_FACILITY
+    )
     if not server_certs:
         raise CommandError(
             "Server does not have any certificates for dataset_id: {}".format(
@@ -153,7 +177,7 @@ def get_client_and_server_certs(
     owned_certs = (
         Certificate.objects.filter(id=dataset_id)
         .get_descendants(include_self=True)
-        .filter(scope_definition_id=FULL_FACILITY)
+        .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
         .exclude(_private_key=None)
     )
 
@@ -170,7 +194,7 @@ def get_client_and_server_certs(
 
         client_cert = nc.certificate_signing_request(
             server_cert,
-            FULL_FACILITY,
+            ScopeDefinitions.FULL_FACILITY,
             {"dataset_id": dataset_id},
             userargs=username,
             password=password,
@@ -223,3 +247,124 @@ def create_superuser_and_provision_device(username, dataset_id, noninteractive=F
         DevicePermissions.objects.update_or_create(
             user=user, defaults={"is_superuser": True, "can_manage_content": True}
         )
+
+
+BYTES_PREFIXES = ("", "K", "M", "G", "T")
+PREFIX_FACTOR_BYTES = 1024.0
+
+
+def bytes_for_humans(size, suffix="B"):
+    """
+    Function to get bytes in more human readable format, untranslated, for logging purposes.
+    :type size: int
+    :type suffix: str
+    :rtype: str
+    """
+    for prefix in BYTES_PREFIXES:
+        if size < PREFIX_FACTOR_BYTES:
+            if prefix == "":
+                return "{}{}".format(size, suffix)
+            return "{:.2f}{}{}".format(size, prefix, suffix)
+        size /= PREFIX_FACTOR_BYTES
+    return "{:.2f}{}{}".format(size, "P", suffix)
+
+
+def run_once(f):
+    """
+    Runs a function once, useful for connection once to a signal
+    :type f: function
+    :rtype: function
+    """
+
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not wrapper.has_run:
+            result = f(*args, **kwargs)
+            wrapper.has_run = True
+            return result
+
+    wrapper.has_run = False
+    return wrapper
+
+
+class GroupDeletion(object):
+    """
+    Helper to manage deleting many models, or groups of models
+    """
+
+    def __init__(self, name, groups=None, querysets=None, sleep=None):
+        """
+        :type groups: GroupDeletion[]
+        :type querysets: QuerySet[]
+        :type sleep: int
+        """
+        self.name = name
+        groups = [] if groups is None else groups
+        if querysets is not None:
+            groups.extend(querysets)
+        self.groups = groups
+        self.sleep = sleep
+
+    def count(self, progress_updater):
+        """
+        :type progress_updater: function
+        :rtype: int
+        """
+        sum = 0
+        for qs in self.groups:
+            if isinstance(qs, GroupDeletion):
+                count = qs.count(progress_updater)
+                logger.debug("Counted {} in group `{}`".format(count, qs.name))
+            else:
+                count = qs.count()
+                progress_updater(increment=1)
+                logger.debug(
+                    "Counted {} of `{}`".format(count, qs.model._meta.model_name)
+                )
+
+            sum += count
+
+        return sum
+
+    def group_count(self):
+        """
+        :rtype: int
+        """
+        return sum(
+            [
+                qs.group_count() if isinstance(qs, GroupDeletion) else 1
+                for qs in self.groups
+            ]
+        )
+
+    def delete(self, progress_updater, sleep=None):
+        """
+        :type progress_updater: function
+        :type sleep: int
+        :rtype: tuple(int, dict)
+        """
+        total_count = 0
+        all_deletions = dict()
+        sleep = self.sleep if sleep is None else sleep
+
+        for qs in self.groups:
+            if isinstance(qs, GroupDeletion):
+                count, deletions = qs.delete(progress_updater)
+                debug_msg = "Deleted {} of `{}` in group `{}`"
+                name = qs.name
+            else:
+                count, deletions = qs.delete()
+                debug_msg = "Deleted {} of `{}` with model `{}`"
+                name = qs.model._meta.model_name
+
+            total_count += count
+            progress_updater(increment=count)
+
+            for obj_name, count in deletions.items():
+                if not isinstance(qs, GroupDeletion):
+                    logger.debug(debug_msg.format(count, obj_name, name))
+                all_deletions.update({obj_name: all_deletions.get(obj_name, 0) + count})
+            if self.sleep is not None:
+                time.sleep(sleep)
+
+        return total_count, all_deletions

@@ -4,7 +4,6 @@
     :title="$tr('modalTitle')"
     :submitText="coreString('deleteAction')"
     :cancelText="coreString('cancelAction')"
-    :hasError="false"
     @submit="classDelete"
     @cancel="$emit('cancel')"
   >
@@ -17,7 +16,6 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
@@ -34,9 +32,11 @@
       },
     },
     methods: {
-      ...mapActions('classManagement', ['deleteClass']),
       classDelete() {
-        this.deleteClass(this.classid);
+        this.$store.dispatch('classManagement/deleteClass', this.classid).then(() => {
+          this.$emit('success');
+          this.showSnackbarNotification('classDeleted');
+        });
       },
     },
     $trs: {

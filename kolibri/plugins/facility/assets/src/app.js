@@ -15,6 +15,13 @@ class FacilityManagementModule extends KolibriApp {
     return pluginModule;
   }
   ready() {
+    router.beforeEach((to, from, next) => {
+      if (this.store.getters.isSuperuser && this.store.state.core.facilities.length === 0) {
+        this.store.dispatch('getFacilities').then(next, next);
+      } else {
+        next();
+      }
+    });
     // reset module states after leaving their respective page
     router.afterEach((toRoute, fromRoute) => {
       this.store.dispatch('resetModuleState', { toRoute, fromRoute });

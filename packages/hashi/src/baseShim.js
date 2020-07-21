@@ -11,6 +11,13 @@ export default class BaseShim {
     this.stateUpdated();
   }
 
+  setUserData(data) {
+    if (this.__setUserData) {
+      this.__setUserData(data);
+      this.userDataUpdated();
+    }
+  }
+
   sendMessage(event, data) {
     this.__mediator.sendMessage({ nameSpace: this.nameSpace, event, data });
   }
@@ -31,5 +38,9 @@ export default class BaseShim {
 
   stateUpdated() {
     this.sendMessage(this.events.STATEUPDATE, this.data);
+  }
+
+  userDataUpdated() {
+    this.sendMessage(this.events.USERDATAUPDATE, this.userData);
   }
 }

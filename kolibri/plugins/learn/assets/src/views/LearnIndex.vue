@@ -15,9 +15,20 @@
 
     <TotalPoints slot="totalPointsMenuItem" />
 
-    <div>
+    <!--
+      Topics pages have a different heading style which
+      includes passing the breadcrumbs
+    -->
+    <div v-if="currentPageIsTopic">
+      <component :is="currentPage">
+        <Breadcrumbs slot="breadcrumbs" />
+      </component>
+      <router-view />
+    </div>
+
+    <div v-else>
       <Breadcrumbs v-if="pageName !== 'TOPICS_CONTENT'" />
-      <component :is="currentPage" />
+      <component :is="currentPage" v-if="currentPage" />
       <router-view />
     </div>
 
@@ -38,7 +49,6 @@
 
   import { mapGetters, mapState } from 'vuex';
   import urls from 'kolibri.urls';
-  import { redirectBrowser } from 'kolibri.utils.browser';
   import lastItem from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -62,6 +72,7 @@
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
   import UpdateYourProfileModal from './UpdateYourProfileModal';
+  import plugin_data from 'plugin_data';
 
   const pageNameToComponentMap = {
     [PageNames.TOPICS_ROOT]: ChannelsPage,
@@ -96,7 +107,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'canAccessUnassignedContent']),
+      ...mapGetters(['isUserLoggedIn', 'canAccessUnassignedContent']),
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
         currentLesson: 'currentLesson',
@@ -111,10 +122,18 @@
       ...mapState('examReportViewer', ['exam']),
       ...mapState(['pageName']),
       userIsAuthorized() {
-        return this.facilityConfig.allow_guest_access || this.isUserLoggedIn;
+        return (
+          (plugin_data.allowGuestAccess && this.$store.getters.allowAccess) || this.isUserLoggedIn
+        );
       },
       currentPage() {
         return pageNameToComponentMap[this.pageName] || null;
+      },
+      currentPageIsTopic() {
+        return [
+          pageNameToComponentMap[PageNames.TOPICS_TOPIC],
+          pageNameToComponentMap[PageNames.TOPICS_CHANNEL],
+        ].includes(this.currentPage);
       },
       immersivePageProps() {
         if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
@@ -123,7 +142,7 @@
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.CLASS_ASSIGNMENTS),
             immersivePagePrimary: true,
-            immersivePageIcon: 'arrow_back',
+            immersivePageIcon: 'close',
           };
         }
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
@@ -132,7 +151,7 @@
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
             immersivePagePrimary: true,
-            immersivePageIcon: 'arrow_back',
+            immersivePageIcon: 'close',
           };
         }
         if (this.pageName === ClassesPageNames.EXAM_REPORT_VIEWER) {
@@ -155,7 +174,7 @@
             // Default to the Learn root page if there is no lastRoute to return to.
             immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
             immersivePagePrimary: true,
-            immersivePageIcon: 'arrow_back',
+            immersivePageIcon: 'close',
           };
         }
 
@@ -195,7 +214,7 @@
             immersivePage: true,
             immersivePageRoute,
             immersivePagePrimary: true,
-            immersivePageIcon: 'arrow_back',
+            immersivePageIcon: 'close',
           };
         }
 
@@ -261,22 +280,28 @@
     },
     mounted() {
       if (this.isUserLoggedIn) {
-        this.$store
+        this.getDemographicInfo();
+      }
+    },
+    methods: {
+      getDemographicInfo() {
+        return this.$store
           .dispatch('getDemographicInfo')
           .then(info => {
             this.demographicInfo = { ...info };
           })
           .catch(() => {});
-      }
-    },
-    methods: {
+      },
       handleCancelUpdateYourProfileModal() {
         this.$store.dispatch('deferProfileUpdates', this.demographicInfo);
         this.demographicInfo = null;
       },
       handleSubmitUpdateYourProfileModal() {
         if (this.userPluginUrl) {
-          const redirect = () => redirectBrowser(`${this.userPluginUrl()}#/profile/edit`);
+          const url = `${this.userPluginUrl()}#/profile/edit`;
+          const redirect = () => {
+            window.location.href = url;
+          };
           this.$store
             .dispatch('deferProfileUpdates', this.demographicInfo)
             .then(redirect, redirect);

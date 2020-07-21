@@ -20,7 +20,7 @@
       <KButton
         v-if="clipboardCapable"
         ref="copyButton"
-        class="copy-to-clipboard-button"
+        :style="{ marginTop: '8px', marginBottom: '8px' }"
         :primary="false"
         :text="$tr('copyToClipboardButtonPrompt')"
       />
@@ -95,7 +95,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .error-log {
     width: 100%;
@@ -105,10 +105,6 @@
     white-space: pre;
     resize: none;
     border-radius: $radius;
-  }
-
-  .copy-to-clipboard-button {
-    margin-left: 0;
   }
 
 </style>

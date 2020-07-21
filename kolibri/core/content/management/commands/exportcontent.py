@@ -99,43 +99,42 @@ class Command(AsyncCommand):
                 if self.is_cancelled():
                     break
 
-                filename = f.get_filename()
-
-                try:
-                    srcpath = paths.get_content_storage_file_path(filename)
-                    dest = paths.get_content_storage_file_path(
-                        filename, datafolder=data_dir
-                    )
-                except InvalidStorageFilenameError:
-                    # If any files have an invalid storage file name, don't export them.
-                    overall_progress_update(f.file_size)
-                    continue
-
-                # if the file already exists, add its size to our overall progress, and skip
-                if os.path.isfile(dest) and os.path.getsize(dest) == f.file_size:
-                    overall_progress_update(f.file_size)
-                    continue
-
-                copy = transfer.FileCopy(srcpath, dest)
-
-                with copy:
-
-                    with self.start_progress(
-                        total=copy.total_size
-                    ) as file_cp_progress_update:
-
-                        for chunk in copy:
-                            if self.is_cancelled():
-                                copy.cancel()
-                                break
-                            length = len(chunk)
-                            overall_progress_update(length)
-                            file_cp_progress_update(length)
-                        else:
-                            exported_files.append(dest)
+                dest = self.export_file(f, data_dir, overall_progress_update)
+                if dest:
+                    exported_files.append(dest)
 
             if self.is_cancelled():
                 # Cancelled, clean up any already downloading files.
                 for dest in exported_files:
                     os.remove(dest)
                 self.cancel()
+
+    def export_file(self, f, data_dir, overall_progress_update):
+        filename = f.get_filename()
+
+        try:
+            srcpath = paths.get_content_storage_file_path(filename)
+            dest = paths.get_content_storage_file_path(filename, datafolder=data_dir)
+        except InvalidStorageFilenameError:
+            # If any files have an invalid storage file name, don't export them.
+            overall_progress_update(f.file_size)
+            return
+
+        # if the file already exists, add its size to our overall progress, and skip
+        if os.path.isfile(dest) and os.path.getsize(dest) == f.file_size:
+            overall_progress_update(f.file_size)
+            return
+
+        copy = transfer.FileCopy(srcpath, dest, cancel_check=self.is_cancelled)
+
+        with copy, self.start_progress(
+            total=copy.total_size
+        ) as file_cp_progress_update:
+            try:
+                for chunk in copy:
+                    length = len(chunk)
+                    overall_progress_update(length)
+                    file_cp_progress_update(length)
+            except transfer.TransferCanceled:
+                return
+        return dest

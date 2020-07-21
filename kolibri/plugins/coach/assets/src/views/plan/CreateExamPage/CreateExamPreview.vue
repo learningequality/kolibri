@@ -2,7 +2,7 @@
 
   <CoreBase
     :immersivePage="true"
-    immersivePageIcon="arrow_back"
+    immersivePageIcon="back"
     :immersivePagePrimary="false"
     :immersivePageRoute="toolbarRoute"
     :appBarTitle="$tr('appBarLabel')"
@@ -39,36 +39,30 @@
             :invalidText="numQuestIsInvalidText"
             class="number-field"
           />
-          <UiIconButton
-            type="flat"
+          <KIconButton
+            icon="minus"
             aria-hidden="true"
             class="number-btn"
             :disabled="numQuestions === 1"
             @click="numQuestions -= 1"
-          >
-            <mat-svg name="remove" category="content" />
-          </UiIconButton>
-          <UiIconButton
-            type="flat"
+          />
+          <KIconButton
+            icon="plus"
             aria-hidden="true"
             class="number-btn"
             :disabled="numQuestions === maxQs"
             @click="numQuestions += 1"
-          >
-            <mat-svg name="add" category="content" />
-          </UiIconButton>
+          />
         </KGridItem>
       </KGrid>
       <div>
-        <UiIconButton
-          type="flat"
+        <KIconButton
+          icon="refresh"
           aria-hidden="true"
           tabindex="-1"
-          color="primary"
+          :color="$themeTokens.primary"
           @click="getNewQuestionSet"
-        >
-          <mat-svg name="refresh" category="navigation" />
-        </UiIconButton>
+        />
         <KButton
           :text="$tr('randomize')"
           appearance="basic-link"
@@ -106,17 +100,19 @@
       />
 
       <BottomAppBar style="z-index: 1062;">
-        <KRouterLink
-          appearance="flat-button"
-          :text="coreString('goBackAction')"
-          :to="toolbarRoute"
-        />
-        <KButton
-          :text="coreString('finishAction')"
-          :disabled="loadingNewQuestions"
-          primary
-          @click="submit"
-        />
+        <KButtonGroup>
+          <KRouterLink
+            appearance="flat-button"
+            :text="coreString('goBackAction')"
+            :to="toolbarRoute"
+          />
+          <KButton
+            :text="coreString('finishAction')"
+            :disabled="loadingNewQuestions"
+            primary
+            @click="submit"
+          />
+        </KButtonGroup>
       </BottomAppBar>
     </KPageContainer>
 
@@ -129,7 +125,6 @@
 
   import { mapState } from 'vuex';
 
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
@@ -147,7 +142,6 @@
       };
     },
     components: {
-      UiIconButton,
       BottomAppBar,
       QuestionListPreview,
     },
@@ -246,16 +240,21 @@
                 classId: this.classId,
                 adHocGroupId: this.$store.state.adHocLearners.id,
               };
-              this.$store.dispatch('examCreation/createExamAndRoute', params).catch(error => {
-                const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
-                if (errors) {
-                  this.showError = true;
-                  this.showTitleError = true;
-                  this.$refs.title.focus();
-                } else {
-                  this.$store.dispatch('handleApiError', error);
-                }
-              });
+              this.$store
+                .dispatch('examCreation/createExamAndRoute', params)
+                .then(() => {
+                  this.showSnackbarNotification('quizCreated');
+                })
+                .catch(error => {
+                  const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+                  if (errors) {
+                    this.showError = true;
+                    this.showTitleError = true;
+                    this.$refs.title.focus();
+                  } else {
+                    this.$store.dispatch('handleApiError', error);
+                  }
+                });
             });
         }
       },
@@ -278,7 +277,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .number-field {
     display: inline-block;

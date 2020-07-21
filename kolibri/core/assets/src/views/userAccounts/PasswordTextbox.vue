@@ -11,9 +11,11 @@
       v-bind="$attrs"
       @blur="passwordBlurred = true"
       @input="$emit('update:value', $event)"
+      @keydown.enter="checkErrorsAndSubmit"
     />
 
     <KTextbox
+      v-if="showConfirmationInput"
       ref="confirm"
       v-model="confirmation"
       type="password"
@@ -23,6 +25,7 @@
       :invalidText="shownConfirmationInvalidText"
       :autocomplete="$attrs.autocomplete"
       @blur="confirmationBlurred = true"
+      @keydown.enter="checkErrorsAndSubmit"
     />
   </div>
 
@@ -43,6 +46,11 @@
       },
       shouldValidate: {
         type: Boolean,
+      },
+      // Set to false if you just want one password field
+      showConfirmationInput: {
+        type: Boolean,
+        default: true,
       },
     },
     data() {
@@ -81,7 +89,11 @@
         return '';
       },
       valid() {
-        return this.confirmationInvalidText === '' && this.passwordInvalidText === '';
+        let passwordValid = this.passwordInvalidText === '';
+        if (this.showConfirmationInput) {
+          return this.confirmationInvalidText === '' && passwordValid;
+        }
+        return passwordValid;
       },
     },
     watch: {
@@ -99,6 +111,20 @@
           this.$refs.password.focus();
         } else if (this.shownConfirmationInvalidText) {
           this.$refs.confirm.focus();
+        }
+      },
+      // @public
+      resetAndFocus() {
+        this.passwordBlurred = false;
+        this.$emit('update:value', '');
+        this.$refs.password.focus();
+      },
+      checkErrorsAndSubmit(e) {
+        if (this.valid) {
+          this.$emit('submitNewPassword');
+        } else {
+          // Blurring will cause validation errors to show if needed
+          e.target.blur();
         }
       },
     },

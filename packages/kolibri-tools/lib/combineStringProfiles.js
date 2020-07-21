@@ -15,6 +15,7 @@ const path = require('path');
 const glob = require('glob');
 const uniqWith = require('lodash/uniqWith');
 const isEqual = require('lodash/isEqual');
+const has = require('lodash/has');
 const logger = require('./logging');
 const writeProfileToCSV = require('./ProfileStrings').writeProfileToCSV;
 
@@ -47,7 +48,7 @@ glob(basePath + '/*.json', {}, (err, files) => {
     let json = JSON.parse(fs.readFileSync(file).toString());
 
     Object.keys(json).forEach(str => {
-      if (fullProfile.hasOwnProperty(str)) {
+      if (has(fullProfile, str)) {
         fullProfile[str].definitions = uniqWith(
           [...fullProfile[str].definitions, ...json[str].definitions],
           isEqual

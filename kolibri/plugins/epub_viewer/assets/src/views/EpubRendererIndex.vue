@@ -3,7 +3,7 @@
   <CoreFullscreen
     ref="epubRenderer"
     class="epub-renderer"
-    :class="{small: windowIsSmall, scrolled: scrolled}"
+    :class="{ small: windowIsSmall, scrolled: scrolled }"
     :style="epubRendererStyle"
     @changeFullscreen="isInFullscreen = $event"
   >
@@ -94,7 +94,7 @@
 
       <div
         class="navigation-and-epubjs"
-        :style="{backgroundColor}"
+        :style="{ backgroundColor }"
       >
         <div
           class="column epubjs-navigation"
@@ -103,14 +103,14 @@
             v-show="!isAtStart"
             :color="navigationButtonColor"
             :isRtl="contentIsRtl"
-            :style="{backgroundColor}"
+            :style="{ backgroundColor }"
             @goToPreviousPage="goToPreviousPage"
           />
         </div>
         <div
           ref="epubjsContainer"
           class="column epubjs-parent"
-          :style="{backgroundColor}"
+          :style="{ backgroundColor }"
         >
         </div>
         <div
@@ -120,7 +120,7 @@
             v-show="!isAtEnd"
             :color="navigationButtonColor"
             :isRtl="contentIsRtl"
-            :style="{backgroundColor}"
+            :style="{ backgroundColor }"
             @goToNextPage="goToNextPage"
           />
         </div>
@@ -706,7 +706,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
   @import './EpubStyles';
 
   $top-bar-height: 36px;

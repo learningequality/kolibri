@@ -5,15 +5,14 @@ import { ClassroomResource } from 'kolibri.resources';
  * @param {string} name
  */
 export function createClass(store, name) {
-  ClassroomResource.saveModel({
+  return ClassroomResource.saveModel({
     data: {
       name,
-      parent: store.rootState.core.session.facility_id,
+      parent: store.rootGetters.activeFacilityId,
     },
   }).then(
     classroom => {
       store.commit('ADD_CLASS', classroom);
-      store.dispatch('displayModal', false);
     },
     error => {
       store.dispatch('handleApiError', error, { root: true });
@@ -26,14 +25,9 @@ export function createClass(store, name) {
  * @param {string or Integer} id
  */
 export function deleteClass(store, id) {
-  if (!id) {
-    // if no id passed, abort the function
-    return;
-  }
   return ClassroomResource.deleteModel({ id }).then(
     () => {
       store.commit('DELETE_CLASS', id);
-      store.dispatch('displayModal', false);
     },
     error => {
       store.dispatch('handleApiError', error, { root: true });

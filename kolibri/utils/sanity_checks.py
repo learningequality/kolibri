@@ -5,10 +5,12 @@ import sys
 
 import portend
 from django.apps import apps
-from django.core.management import call_command
 from django.db.utils import OperationalError
+from django.db.utils import ProgrammingError
 
+from .conf import KOLIBRI_HOME
 from .conf import OPTIONS
+from .options import generate_empty_options_file
 from .server import get_status
 from .server import LISTEN_ADDRESS
 from .server import NotRunning
@@ -16,6 +18,29 @@ from .server import NotRunning
 logger = logging.getLogger(__name__)
 
 PORT_AVAILABILITY_CHECK_TIMEOUT = 2
+
+
+class SanityException(RuntimeError):
+    pass
+
+
+class DatabaseNotMigrated(SanityException):
+    def __init__(self, *args, **kwargs):
+        self.db_exception = kwargs.get("db_exception")
+        super(DatabaseNotMigrated, self).__init__(
+            "An exception occurred for which it is assumed that the "
+            "database is not fully migrated.\n\n"
+            "Exception: {}".format(str(self.db_exception))
+        )
+
+
+class DatabaseInaccessible(SanityException):
+    def __init__(self, *args, **kwargs):
+        self.db_exception = kwargs.get("db_exception")
+        super(DatabaseInaccessible, self).__init__(
+            "Not able to access the database while checking it.\n\n"
+            "Exception: {}".format(str(self.db_exception))
+        )
 
 
 def check_other_kolibri_running(port):
@@ -108,26 +133,21 @@ def check_log_file_location():
             shutil.move(old_log_path, new_log_path)
 
 
-def migrate_databases():
-    """
-    Try to migrate all active databases. This should not be called unless Django has
-    been initialized.
-    """
-    from django.conf import settings
-
-    for database in settings.DATABASES:
-        call_command("migrate", interactive=False, database=database)
-
-    # load morango fixtures needed for certificate related operations
-    call_command("loaddata", "scopedefinitions")
+def check_django_stack_ready():
+    """Checks that all Django apps are loaded"""
+    apps.check_apps_ready()
 
 
 def check_database_is_migrated():
     """
-    Use a check that the database instance id model is initialized to check if the database
-    is in a proper state to be used. This must only be run after django initialization.
+    This function checks that the database instance id model is
+    initialized. It must only be run after Django initialization.
+
+    It does not actually verify whether all migrations are run, as this is
+    assumed to be a part of Kolibri version number checking. When a
+    Kolibri version change is detected, we run migrations. Checking that
+    migrations are run for every startup would be costly.
     """
-    apps.check_apps_ready()
     from django.db import connection
     from morango.models import InstanceIDModel
 
@@ -135,18 +155,20 @@ def check_database_is_migrated():
         InstanceIDModel.get_or_create_current_instance()[0]
         connection.close()
         return
-    except OperationalError:
-        try:
-            migrate_databases()
-            return
-        except Exception as e:
-            logging.error(
-                "Tried to migrate the database but another error occurred: {}".format(e)
-            )
+    except (OperationalError, ProgrammingError) as e:
+        raise DatabaseNotMigrated(db_exception=e)
     except Exception as e:
-        logging.error(
-            "Tried to check that the database was accessible and an error occurred: {}".format(
-                e
+        raise DatabaseInaccessible(db_exception=e)
+
+
+def check_default_options_exist():
+    options_path = os.path.join(KOLIBRI_HOME, "options.ini")
+    if not os.path.exists(options_path):
+        try:
+            generate_empty_options_file(options_path, OPTIONS)
+        except IOError:
+            logger.warning(
+                "Failed to create an options.ini file at this path: {}".format(
+                    options_path
+                )
             )
-        )
-    sys.exit(1)

@@ -10,7 +10,7 @@
     <TopNavbar slot="sub-nav" />
 
     <KPageContainer>
-      <ReportsHeader :title="$isPrint ? $tr('printLabel', {className}) : null" />
+      <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
       <ReportsControls @export="exportCSV" />
       <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
         <thead slot="thead">
@@ -35,8 +35,8 @@
             </td>
             <td><TruncatedItemList :items="tableRow.groups" /></td>
             <td><Score :value="tableRow.avgScore" /></td>
-            <td>{{ coachString('integer', {value: tableRow.exercises}) }}</td>
-            <td>{{ coachString('integer', {value: tableRow.resources}) }}</td>
+            <td>{{ coachString('integer', { value: tableRow.exercises }) }}</td>
+            <td>{{ coachString('integer', { value: tableRow.resources }) }}</td>
             <td><ElapsedTime :date="tableRow.lastActivity" /></td>
           </tr>
         </transition-group>
@@ -69,7 +69,10 @@
         const sorted = this._.sortBy(this.learners, ['name']);
         return sorted.map(learner => {
           const groupNames = this.getGroupNames(
-            this._.map(this.groups.filter(group => group.member_ids.includes(learner.id)), 'id')
+            this._.map(
+              this.groups.filter(group => group.member_ids.includes(learner.id)),
+              'id'
+            )
           );
           const examStatuses = this.examStatuses.filter(status => learner.id === status.learner_id);
           const contentStatuses = this.contentStatuses.filter(

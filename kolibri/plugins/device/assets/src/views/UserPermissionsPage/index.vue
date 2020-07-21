@@ -13,14 +13,14 @@
 
         <table>
           <tr>
-            <th scope="row">
+            <th>
               {{ coreString('usernameLabel') }}
             </th>
             <td>{{ user.username }}</td>
           </tr>
 
           <tr>
-            <th scope="row">
+            <th>
               {{ coreString('userTypeLabel') }}
             </th>
             <td>
@@ -29,7 +29,7 @@
           </tr>
 
           <tr>
-            <th scope="row">
+            <th>
               {{ coreString('facilityLabel') }}
             </th>
             <td dir="auto">
@@ -46,7 +46,7 @@
           :disabled="superuserDisabled"
           :label="$tr('makeSuperAdmin')"
           :checked="superuserChecked"
-          @change="superuserChecked=$event"
+          @change="superuserChecked = $event"
         />
         <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
 
@@ -57,7 +57,7 @@
           }"
         >
           <li>{{ $tr('superAdminExplanation1') }}</li>
-          <li>{{ $tr('superAdminExplanation2') }}</li>
+          <li>{{ $tr('superAdminExplanation2', { facilityName }) }}</li>
         </ul>
       </div>
 
@@ -67,26 +67,27 @@
           :disabled="devicePermissionsDisabled"
           :label="$tr('devicePermissionsDetails')"
           :checked="devicePermissionsChecked"
-          @change="devicePermissionsChecked=$event"
+          @change="devicePermissionsChecked = $event"
         />
       </div>
 
       <div class="buttons">
-        <KButton
-          :disabled="saveDisabled"
-          :text="$tr('saveButton')"
-          class="no-margin"
-          :primary="true"
-          appearance="raised-button"
-          @click="save()"
-        />
-        <KButton
-          :disabled="uiBlocked"
-          :text="coreString('cancelAction')"
-          :primary="false"
-          appearance="flat-button"
-          @click="goBack()"
-        />
+        <KButtonGroup>
+          <KButton
+            :disabled="saveDisabled"
+            :text="$tr('saveButton')"
+            :primary="true"
+            appearance="raised-button"
+            @click="save()"
+          />
+          <KButton
+            :disabled="uiBlocked"
+            :text="coreString('cancelAction')"
+            :primary="false"
+            appearance="flat-button"
+            @click="goBack()"
+          />
+        </KButtonGroup>
       </div>
       <div v-if="saveFailed">
         {{ $tr('saveFailureNotification') }}
@@ -127,17 +128,14 @@
       };
     },
     computed: {
-      ...mapGetters(['facilities']),
+      ...mapGetters(['facilities', 'currentUserId']),
       ...mapState('userPermissions', ['user', 'permissions']),
-      ...mapState({
-        currentUsername: state => state.core.session.username,
-      }),
       // IDEA Make this a core getter? Need audit
       facilityName() {
         return this.facilities.find(facility => facility.id === this.user.facility).name;
       },
       isCurrentUser() {
-        return this.currentUsername === this.user.username;
+        return this.currentUserId === this.user.id;
       },
       superuserDisabled() {
         return this.uiBlocked || this.isCurrentUser;
@@ -173,7 +171,6 @@
     },
     methods: {
       ...mapActions('userPermissions', ['addOrUpdateUserPermissions']),
-      ...mapActions(['createSnackbar']),
       save() {
         this.uiBlocked = true;
         this.addOrUpdateUserPermissions({
@@ -182,7 +179,7 @@
           can_manage_content: this.devicePermissionsChecked,
         })
           .then(() => {
-            this.createSnackbar(this.$tr('permissionChangeConfirmation'));
+            this.showSnackbarNotification('changesSaved');
             this.uiBlocked = false;
             this.goBack();
           })
@@ -204,13 +201,13 @@
       },
       documentTitle: "{ name }'s Device Permissions",
       makeSuperAdmin: 'Make super admin',
-      permissionChangeConfirmation: 'Changes saved',
       saveButton: 'Save Changes',
       saveFailureNotification: 'There was a problem saving these changes.',
       userDoesNotExist: 'User does not exist',
       superAdminExplanation1:
-        'Has all device permissions and can manage device permissions of other users',
-      superAdminExplanation2: 'Has admin permissions for all facilities on this device',
+        'Has all device permissions and can manage the device permissions of other users',
+      superAdminExplanation2:
+        "Has admin permissions for all facilities on this device, but is still a member of the facility '{facilityName}'",
       you: 'You',
     },
   };
@@ -219,10 +216,6 @@
 
 
 <style lang="scss" scoped>
-
-  .no-margin {
-    margin-left: 0;
-  }
 
   table {
     line-height: 1.5em;

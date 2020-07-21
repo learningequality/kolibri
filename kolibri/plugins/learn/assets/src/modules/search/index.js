@@ -24,6 +24,10 @@ export default {
       state.kindFilter = null;
       state.total_results = null;
     },
+    // Clear out search results but not filters
+    SET_NO_RESULTS_KEEP_FILTERS(state) {
+      state.contents = [];
+    },
     SET_SEARCH_TERM(state, searchTerm) {
       state.searchTerm = searchTerm;
     },

@@ -34,47 +34,42 @@
             @keydown.enter="setSelectedAttemptLog(index)"
             @keydown.space.prevent="setSelectedAttemptLog(index)"
           >
-            <mat-svg
+            <KIcon
               v-if="attemptLog.noattempt"
               class="item svg-item"
               :style=" { fill: $themeTokens.annotation }"
-              category="navigation"
-              name="cancel"
+              icon="cancel"
             />
-            <mat-svg
+            <KIcon
               v-else-if="attemptLog.correct"
               class="item svg-item"
               :style="{ fill: $themeTokens.correct }"
-              category="action"
-              name="check_circle"
+              icon="correct"
             />
-            <mat-svg
+            <KIcon
               v-else-if="attemptLog.error"
               class="svg-item"
               :style=" { fill: $themeTokens.annotation }"
-              category="alert"
-              name="error_outline"
+              icon="helpNeeded"
             />
-            <mat-svg
+            <KIcon
               v-else-if="!attemptLog.correct"
               class="item svg-item"
               :style="{ fill: $themeTokens.incorrect }"
-              category="navigation"
-              name="cancel"
+              icon="incorrect"
             />
-            <mat-svg
+            <KIcon
               v-else-if="attemptLog.hinted"
               class="item svg-item"
               :style=" { fill: $themeTokens.annotation }"
-              category="action"
-              name="lightbulb_outline"
+              icon="hint"
             />
             <p class="item">
               {{
                 windowIsLarge ?
                   coreString(
                     'questionNumberLabel',
-                    {questionNumber: attemptLog.questionNumber}
+                    { questionNumber: attemptLog.questionNumber }
                   )
                   :
                   // Add non-breaking space to preserve vertical centering
@@ -198,11 +193,9 @@
   }
 
   .svg-item {
-    width: 24px;
-    height: auto;
-    margin-top: -4px;
     margin-right: 12px;
-    vertical-align: middle;
+    margin-bottom: -4px;
+    font-size: 24px;
   }
 
   .attempt-item {

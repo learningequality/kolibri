@@ -59,6 +59,7 @@ from configobj import ConfigObj
 from configobj import flatten_errors
 from configobj import get_extra_values
 from django.utils.functional import SimpleLazyObject
+from django.utils.six import string_types
 from validate import Validator
 from validate import VdtValueError
 
@@ -71,7 +72,6 @@ except NotImplementedError:
 
 from kolibri.utils.i18n import KOLIBRI_LANGUAGE_INFO
 from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
-from kolibri.utils.logger import get_base_logging_config
 from kolibri.plugins.utils.options import extend_config_spec
 
 
@@ -164,6 +164,25 @@ def language_list(value):
     return sorted(list(out))
 
 
+def path_list(value):
+    """
+    Check that the supplied value is a semicolon-delimited list of paths.
+    Note: we do not guarantee that these paths all currently exist.
+    """
+    if isinstance(value, string_types):
+        value = value.split(";")
+
+    if isinstance(value, list):
+        errors = []
+        for item in value:
+            if not isinstance(item, string_types):
+                errors.append(repr(item))
+        if errors:
+            raise VdtValueError(errors)
+
+    return value
+
+
 base_option_spec = {
     "Cache": {
         "CACHE_BACKEND": {
@@ -245,13 +264,24 @@ base_option_spec = {
             "default": False,
             "envvars": ("KOLIBRI_SERVER_PROFILE",),
         },
+        "DEBUG": {"type": "boolean", "default": False, "envvars": ("KOLIBRI_DEBUG",)},
+        "DEBUG_LOG_DATABASE": {
+            "type": "boolean",
+            "default": False,
+            "envvars": ("KOLIBRI_DEBUG_LOG_DATABASE",),
+        },
     },
     "Paths": {
         "CONTENT_DIR": {
             "type": "string",
             "default": "content",
             "envvars": ("KOLIBRI_CONTENT_DIR",),
-        }
+        },
+        "CONTENT_FALLBACK_DIRS": {
+            "type": "path_list",
+            "default": "",
+            "envvars": ("KOLIBRI_CONTENT_FALLBACK_DIRS",),
+        },
     },
     "Urls": {
         "CENTRAL_CONTENT_BASE_URL": {
@@ -302,33 +332,38 @@ base_option_spec = {
             "type": "integer",
             "default": 2,
             "envvars": ("KOLIBRI_PICKLE_PROTOCOL",),
-        },
+        }
     },
 }
 
 
-def get_validator():
-    return Validator({"language_list": language_list})
+def _get_validator():
+    return Validator({"language_list": language_list, "path_list": path_list})
 
 
-def get_logger(KOLIBRI_HOME):
+def _get_logger(KOLIBRI_HOME):
     """
-    We define a minimal default logger config here, since we can't yet load up Django settings.
+    We define a minimal default logger config here, since we can't yet
+    load up Django settings.
+
+    NB! Since logging can be defined by options, the logging from some
+    of the functions in this module do not use fully customized logging.
     """
     from kolibri.utils.conf import LOG_ROOT
+    from kolibri.utils.logger import get_default_logging_config
 
-    logging.config.dictConfig(get_base_logging_config(LOG_ROOT))
+    logging.config.dictConfig(get_default_logging_config(LOG_ROOT))
     return logging.getLogger(__name__)
 
 
-def __get_option_spec():
+def _get_option_spec():
     """
     Combine the default option spec with any options that are defined in plugins
     """
     return extend_config_spec(base_option_spec)
 
 
-option_spec = SimpleLazyObject(__get_option_spec)
+option_spec = SimpleLazyObject(_get_option_spec)
 
 
 def get_configspec():
@@ -371,14 +406,14 @@ def clean_conf(conf):
 
 def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
 
-    logger = get_logger(KOLIBRI_HOME)
+    logger = _get_logger(KOLIBRI_HOME)
 
     ini_path = os.path.join(KOLIBRI_HOME, ini_filename)
 
     conf = ConfigObj(ini_path, configspec=get_configspec())
 
     # validate once up front to ensure section structure is in place
-    conf.validate(get_validator())
+    conf.validate(_get_validator())
 
     # keep track of which options were overridden using environment variables, to support error reporting
     using_env_vars = {}
@@ -399,7 +434,7 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
 
     conf = clean_conf(conf)
 
-    validation = conf.validate(get_validator(), preserve_errors=True)
+    validation = conf.validate(_get_validator(), preserve_errors=True)
 
     # loop over and display any errors with config values, and then bail
     if validation is not True:
@@ -446,7 +481,7 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
         )
 
     # run validation once again to fill in any default values for options we deleted due to issues
-    conf.validate(get_validator())
+    conf.validate(_get_validator())
 
     # ensure all arguments under section "Paths" are fully resolved and expanded, relative to KOLIBRI_HOME
     _expand_paths(KOLIBRI_HOME, conf.get("Paths", {}))
@@ -454,17 +489,38 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
     return conf
 
 
+def _expand_path(basepath, path):
+    return os.path.join(basepath, os.path.expanduser(path))
+
+
 def _expand_paths(basepath, pathdict):
     """
     Resolve all paths in a dict, relative to a base path, and after expanding "~" into the user's home directory.
     """
     for key, path in pathdict.items():
-        pathdict[key] = os.path.join(basepath, os.path.expanduser(path))
+        if isinstance(path, string_types):
+            pathdict[key] = _expand_path(basepath, path)
+        elif isinstance(path, list):
+            pathdict[key] = [_expand_path(basepath, p) for p in path]
+        else:
+            raise Exception(
+                "Paths must be a single string or a semicolon-delimited list, not {}".format(
+                    type(path)
+                )
+            )
 
 
 def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options.ini"):
+    """
+    Updates the configuration file on top of what is currently in the
+    file.
 
-    logger = get_logger(KOLIBRI_HOME)
+    Note to future: Do not change the implementation to write the
+    in-memory conf.OPTIONS as it can contain temporary in-memory values
+    that are not intended to be stored.
+    """
+
+    logger = _get_logger(KOLIBRI_HOME)
 
     # load the current conf from disk into memory
     conf = read_options_file(KOLIBRI_HOME, ini_filename=ini_filename)
@@ -473,7 +529,7 @@ def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options
     conf[section][key] = value
 
     # check for any errors with the provided value, and abort
-    validation = conf.validate(get_validator(), preserve_errors=True)
+    validation = conf.validate(_get_validator(), preserve_errors=True)
     if validation is not True:
         error = validation.get(section, {}).get(key) or "unknown error"
         raise ValueError(
@@ -490,3 +546,24 @@ def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options
             file=conf.filename
         )
     )
+
+
+empty_options_excluded_key = ["Python"]
+
+
+def generate_empty_options_file(options_path, options_data):
+
+    # Generate an options.ini file inside the KOLIBRI_HOME as default placeholder config
+    with open(options_path, "w") as file:
+        keys = [k for k in options_data if k not in empty_options_excluded_key]
+        for key in keys:
+            file.write("# [{}] \n".format(key))
+            child_keys = [
+                k for k in options_data[key] if k not in empty_options_excluded_key
+            ]
+            for child_key in child_keys:
+                file.write(
+                    "# {} = {} \n".format(child_key, options_data[key][child_key])
+                )
+
+            file.write("\n")

@@ -5,25 +5,28 @@ import makeStore from '../makeStore';
 jest.mock('kolibri.urls');
 
 function makeWrapper() {
+  const store = makeStore();
+  store.state.facilityId = '123';
+  store.state.core.facilities.push({
+    id: '123',
+    name: 'test facility',
+    dataset: {},
+  });
   return mount(SignInPage, {
-    store: makeStore(),
+    store,
   });
 }
 
+//
 describe('signInPage component', () => {
   it('smoke test', () => {
     const wrapper = makeWrapper();
-    expect(wrapper.isVueInstance()).toEqual(true);
+    expect(wrapper.exists()).toEqual(true);
   });
   it('will set the username as invalid if it contains punctuation and is blurred', () => {
     const wrapper = makeWrapper();
     wrapper.setData({ username: '?', usernameBlurred: true });
     expect(wrapper.vm.usernameIsInvalid).toEqual(true);
-  });
-  it('will set the form as not valid if the username is invalid and is blurred', () => {
-    const wrapper = makeWrapper();
-    wrapper.setData({ username: '?', usernameBlurred: true });
-    expect(wrapper.vm.formIsValid).toEqual(false);
   });
   it('will set the validation text to required if the username is empty and blurred', () => {
     const wrapper = makeWrapper();

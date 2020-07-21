@@ -1,5 +1,3 @@
-import json
-
 from django.db.models import Count
 from django.db.models import OuterRef
 from django.db.models import Q
@@ -36,7 +34,7 @@ class LearnerClassroomViewset(ValuesViewset):
         else:
             return Classroom.objects.filter(membership__user=self.request.user)
 
-    def consolidate(self, items):
+    def consolidate(self, items, queryset):
         lessons = (
             Lesson.objects.filter(
                 lesson_assignments__collection__membership__user=self.request.user,
@@ -50,7 +48,6 @@ class LearnerClassroomViewset(ValuesViewset):
         )
         lesson_content_ids = set()
         for lesson in lessons:
-            lesson["resources"] = json.loads(lesson["resources"])
             lesson_content_ids |= set(
                 (resource["content_id"] for resource in lesson["resources"])
             )
@@ -183,10 +180,7 @@ class LearnerLessonViewset(ValuesViewset):
         "collection__parent_id",
     )
 
-    field_map = {
-        "classroom": _map_lesson_classroom,
-        "resources": lambda x: json.loads(x["resources"]),
-    }
+    field_map = {"classroom": _map_lesson_classroom}
 
     def get_queryset(self):
         if self.request.user.is_anonymous():

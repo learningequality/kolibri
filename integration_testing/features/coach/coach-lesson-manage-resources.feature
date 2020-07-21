@@ -16,19 +16,19 @@ Feature: Coach manages lesson resources
     Given that I haven’t made any changes on *Manage resources in '<lesson>'* page
       When I click on the *X* to close the *Manage resources in '<lesson>'* page
         OR I click *Finish* button
-      Then I am back on the lesson <lesson> page      
+      Then I am back on the lesson <lesson> page
 
   Scenario: Reorder resources in the lesson by mouse drag and drop
     When I move the cursor over a resource under the *Resources* heading
     Then it transforms to a hand
-    When I drag and drop the resource up or down 
+    When I drag and drop the resource up or down
     Then the snackbar notification appears
       And I see the resource in the new position
 
   Scenario: Reorder resources in the lesson by keyboard
-    When I use the TAB key to focus the resource 
+    When I use the TAB key to focus the resource
     Then I see the focus ring around either up or down arrow
-    When I press the ENTER or SPACEBAR key  
+    When I press the ENTER or SPACEBAR key
     Then the snackbar notification appears
       And I see the resource in the new position
 

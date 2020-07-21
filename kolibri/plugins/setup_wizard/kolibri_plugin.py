@@ -9,6 +9,7 @@ from kolibri.plugins.hooks import register_hook
 
 
 class SetupWizardPlugin(KolibriPluginBase):
+    untranslated_view_urls = "api_urls"
     translated_view_urls = "urls"
 
 

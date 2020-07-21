@@ -12,9 +12,9 @@
     <DeviceTopNav slot="sub-nav" />
 
     <transition name="delay-entry">
-      <WelcomeModal
+      <PostSetupModalGroup
         v-if="welcomeModalVisible"
-        @submit="hideWelcomeModal"
+        @cancel="hideWelcomeModal"
       />
     </transition>
 
@@ -33,7 +33,7 @@
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { ContentWizardPages, PageNames } from '../constants';
   import DeviceTopNav from './DeviceTopNav';
-  import WelcomeModal from './WelcomeModal';
+  import PostSetupModalGroup from './PostSetupModalGroup';
 
   const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
@@ -41,7 +41,7 @@
     name: 'DeviceIndex',
     components: {
       CoreBase,
-      WelcomeModal,
+      PostSetupModalGroup,
       DeviceTopNav,
     },
     computed: {
@@ -130,7 +130,7 @@
           this.inMultipleImportPage ||
           this.pageName === PageNames.NEW_CHANNEL_VERSION_PAGE
         ) {
-          return 'arrow_back';
+          return 'back';
         }
         return 'close';
       },

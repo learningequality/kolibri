@@ -13,6 +13,7 @@
       :alwaysVisible="fixedAppBar"
       :mainWrapperScrollHeight="mainWrapperScrollHeight"
       :isHidden.sync="headerIsHidden"
+      :skipNextUpdate.sync="headerSkipNextUpdate"
     >
       <ImmersiveToolbar
         v-if="immersivePage && !fullScreen"
@@ -48,7 +49,7 @@
       <KLinearLoader
         v-if="loading && !fullScreen"
         class="loader"
-        :style="{top: `${appbarHeight}px`}"
+        :style="{ top: `${appbarHeight}px` }"
         type="indeterminate"
         :delay="false"
       />
@@ -58,7 +59,7 @@
       :navShown="navShown"
       :headerHeight="headerHeight"
       :width="navWidth"
-      @toggleSideNav="navShown=!navShown"
+      @toggleSideNav="navShown = !navShown"
     />
 
     <div
@@ -102,7 +103,7 @@
 
     <GlobalSnackbar />
     <UpdateNotification
-      v-if="!loading && showNotification && !busy"
+      v-if="!loading && showNotification"
       :id="mostRecentNotification.id"
       :title="mostRecentNotification.title"
       :msg="mostRecentNotification.msg"
@@ -287,6 +288,7 @@
         notificationModalShown: true,
         languageModalShown: false,
         headerIsHidden: false,
+        headerSkipNextUpdate: false,
         mainWrapperScrollHeight: 0,
       };
     },
@@ -296,7 +298,6 @@
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
-        busy: state => state.core.signInBusy,
         notifications: state => state.core.notifications,
       }),
       headerHeight() {
@@ -314,7 +315,12 @@
       },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
-        if (this.error && this.error.status && this.error.status.code == 403) {
+        if (
+          this.error &&
+          this.error.response &&
+          this.error.response.status &&
+          this.error.response.status == 403
+        ) {
           return true;
         }
         return !this.authorized;
@@ -403,6 +409,13 @@
     },
     watch: {
       $route() {
+        // If there's a scrollTo parameter, it will be handled by
+        // the vue-router via `scrollBehavior`.
+        if (this.$route.params.scrollTo) {
+          // Show the header by default when navigating with a scrollTo parameter.
+          this.showHeader();
+          return;
+        }
         // Set a watcher so that if the router sets a new
         // route, we update our scroll position based on the ones
         // we have tracked in the scrollPosition object above.
@@ -467,15 +480,24 @@
           this.$refs.mainWrapper.scrollHeight
         );
       },
+      updateHeaderHidden(isHidden) {
+        // This provides a mechanism to tell the `ScrollingHeader` component to
+        // ignore scroll changes triggered here in `CoreBase` e.g. during usage of
+        // the forward/back buttons.
+
+        this.headerSkipNextUpdate = true;
+        this.headerIsHidden = isHidden;
+      },
+      showHeader() {
+        this.updateHeaderHidden(false);
+      },
       setScroll() {
         this.updateScrollHeight();
         window.scrollTo(0, scrollPositions.getScrollPosition().y);
         this.scrollPosition = window.pageYOffset;
         // If recorded scroll is applied, immediately un-hide the header
         if (this.scrollPosition > 0) {
-          this.$nextTick().then(() => {
-            this.headerIsHidden = false;
-          });
+          this.$nextTick().then(this.showHeader);
         }
       },
     },
@@ -490,7 +512,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .main-wrapper {
     display: inline-block;

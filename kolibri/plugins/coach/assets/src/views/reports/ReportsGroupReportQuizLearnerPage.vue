@@ -3,7 +3,7 @@
   <CoreBase
     :immersivePage="true"
     :immersivePagePrimary="true"
-    immersivePageIcon="arrow_back"
+    immersivePageIcon="back"
     :immersivePageRoute="toolbarRoute"
     :appBarTitle="exam.title"
     :authorized="userIsAuthorized"
@@ -32,7 +32,8 @@
     computed: {
       ...mapState('examReportDetail', ['exam']),
       toolbarRoute() {
-        return this.classRoute('ReportsGroupReportQuizLearnerListPage', {});
+        const backRoute = this.backRouteForQuery(this.$route.query);
+        return backRoute || this.classRoute('ReportsGroupReportQuizLearnerListPage', {});
       },
     },
     methods: {

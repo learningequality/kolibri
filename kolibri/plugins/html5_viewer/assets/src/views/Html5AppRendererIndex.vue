@@ -3,25 +3,38 @@
   <CoreFullscreen
     ref="html5Renderer"
     class="html5-renderer"
+    :style="{ height: contentRendererHeight, width: iframeWidth }"
     @changeFullscreen="isInFullscreen = $event"
   >
-    <UiIconButton
-      class="btn"
-      :style="{ fill: $themeTokens.textInverted }"
-      :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
-      color="primary"
-      size="large"
-      @click="$refs.html5Renderer.toggleFullscreen()"
+
+    <div
+      class="fullscreen-header"
+      :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
     >
-      <mat-svg v-if="isInFullscreen" name="fullscreen_exit" category="navigation" />
-      <mat-svg v-else name="fullscreen" category="navigation" />
-    </UiIconButton>
-    <div class="iframe-container">
+      <KButton
+        :primary="false"
+        appearance="flat-button"
+        @click="$refs.html5Renderer.toggleFullscreen()"
+      >
+        <KIcon
+          v-if="isInFullscreen"
+          icon="fullscreen_exit"
+          class="fs-icon"
+        />
+        <KIcon
+          v-else
+          icon="fullscreen"
+          class="fs-icon"
+        />
+        {{ fullscreenText }}
+      </KButton>
+    </div>
+    <div class="iframe-container" :style="containerStyle">
       <iframe
         ref="iframe"
         class="iframe"
         :style="{ backgroundColor: $themePalette.grey.v_100 }"
-        sandbox="allow-scripts"
+        :sandbox="sandbox"
         frameBorder="0"
         :name="name"
         :src="rooturl"
@@ -36,19 +49,22 @@
 <script>
 
   import { now } from 'kolibri.utils.serverClock';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
   import { nameSpace } from 'hashi/src/hashiBase';
+  import plugin_data from 'plugin_data';
 
   // Regex vendored from https://github.com/faisalman/ua-parser-js/blob/master/src/ua-parser.js
   const iOSTest = /ip[honead]{2,4}(?:.*os\s([\w]+)\slike\smac|;\sopera)/i;
   const IE11Test = /(trident).+rv[:\s]([\w.]+).+like\sgecko/i;
 
+  const defaultContentHeight = '500px';
+  const frameTopbarHeight = '37px';
+  const pxStringAdd = (x, y) => parseInt(x, 10) + parseInt(y, 10) + 'px';
+
   export default {
     name: 'Html5AppRendererIndex',
     components: {
-      UiIconButton,
       CoreFullscreen,
     },
     data() {
@@ -66,13 +82,58 @@
         // Skip hashi on requests for these browsers
         return this.defaultFile.storage_url + (iOSorIE11 ? '?SKIP_HASHI=true' : '');
       },
+      iframeHeight() {
+        return (this.options && this.options.height) || defaultContentHeight;
+      },
+      iframeWidth() {
+        return (this.options && this.options.width) || 'auto';
+      },
+      contentRendererHeight() {
+        return pxStringAdd(this.iframeHeight, frameTopbarHeight);
+      },
+      sandbox() {
+        return plugin_data.html5_sandbox_tokens;
+      },
+      fullscreenText() {
+        return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
+      },
+      userData() {
+        return {
+          userId: this.userId,
+          userFullName: this.userFullName,
+          progress: this.progress,
+          complete: this.progress >= 1,
+          language: this.lang.id,
+          timeSpent: this.timeSpent,
+        };
+      },
+      containerStyle() {
+        if (this.isInFullscreen) {
+          return {
+            position: 'absolute',
+            top: frameTopbarHeight,
+            bottom: 0,
+          };
+        }
+        return { height: this.iframeHeight };
+      },
+    },
+    watch: {
+      userData(newValue) {
+        if (newValue && this.hashi) {
+          this.hashi.updateData({ userData: newValue });
+        }
+      },
     },
     mounted() {
       this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
       this.hashi.onStateUpdate(data => {
         this.$emit('updateContentState', data);
       });
-      this.hashi.initialize((this.extraFields && this.extraFields.contentState) || {});
+      this.hashi.initialize(
+        (this.extraFields && this.extraFields.contentState) || {},
+        this.userData
+      );
       this.$emit('startTracking');
       this.startTime = now();
       this.pollProgress();
@@ -86,7 +147,11 @@
     methods: {
       recordProgress() {
         const totalTime = now() - this.startTime;
-        this.$emit('updateProgress', Math.max(0, totalTime / 300000));
+        const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
+        this.$emit(
+          'updateProgress',
+          hashiProgress === null ? Math.max(0, totalTime / 3000000) : hashiProgress
+        );
         this.pollProgress();
       },
       pollProgress() {
@@ -96,8 +161,8 @@
       },
     },
     $trs: {
-      exitFullscreen: 'Exit fullscreen',
-      enterFullscreen: 'Enter fullscreen',
+      exitFullscreen: 'Exit Fullscreen',
+      enterFullscreen: 'View Fullscreen',
     },
   };
 
@@ -106,18 +171,21 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
-  .btn {
-    position: absolute;
+  .fullscreen-header {
+    text-align: right;
+  }
+
+  .fs-icon {
+    position: relative;
     top: 8px;
-    right: 21px;
-    z-index: 1;
+    width: 24px;
+    height: 24px;
   }
 
   .html5-renderer {
     position: relative;
-    height: 500px;
     text-align: center;
   }
 
@@ -129,11 +197,7 @@
   .iframe-container {
     @extend %momentum-scroll;
 
-    position: absolute;
-    top: 0;
-    bottom: 0;
     width: 100%;
-    height: 100%;
     overflow: visible;
   }
 

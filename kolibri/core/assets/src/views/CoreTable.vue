@@ -25,7 +25,7 @@
         const selectable = {
           cursor: 'pointer',
           ':hover': {
-            backgroundColor: this.$themeTokens.fineLine,
+            backgroundColor: this.$themePalette.grey.v_100,
           },
         };
         return Object.assign(
@@ -87,7 +87,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .core-table-container {
     @extend %momentum-scroll;

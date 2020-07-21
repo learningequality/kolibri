@@ -20,7 +20,7 @@
           </th>
           <th>
             <!-- "Full name" header visually hidden if checkbox is on -->
-            <span :class="{visuallyhidden: selectable}">
+            <span :class="{ visuallyhidden: selectable }">
               {{ coreString('fullNameLabel') }}
             </span>
           </th>
@@ -203,7 +203,10 @@
           selected.push(id);
           return this.$emit('input', selected);
         }
-        return this.$emit('input', selected.filter(selectedId => selectedId !== id));
+        return this.$emit(
+          'input',
+          selected.filter(selectedId => selectedId !== id)
+        );
       },
     },
     $trs: {

@@ -7,11 +7,7 @@
 
     <div>
       <div class="ib">
-        <mat-svg
-          category="content"
-          name="filter_list"
-          class="filter-icon"
-        />
+        <KIcon icon="filterList" />
         <KSelect
           :label="$tr('contentKindFilterLabel')"
           :options="contentKindFilterOptions"
@@ -24,11 +20,7 @@
       </div>
 
       <div class="ib">
-        <mat-svg
-          category="navigation"
-          name="apps"
-          class="filter-icon"
-        />
+        <KIcon icon="channel" />
         <KSelect
           :label="$tr('channelFilterLabel')"
           :options="channelFilterOptions"
@@ -44,11 +36,7 @@
         v-if="coachContentInResults"
         class="ib"
       >
-        <mat-svg
-          name="local_library"
-          category="maps"
-          class="filter-icon"
-        />
+        <KIcon icon="coachContent" />
         <KSelect
           :label="$tr('coachResourcesLabel')"
           :options="roleFilterOptions"

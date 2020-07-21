@@ -49,7 +49,7 @@
         <ContentTreeViewer
           v-if="!newVersionAvailable"
           class="block-item"
-          :class="{ small : windowIsSmall }"
+          :class="{ small: windowIsSmall }"
           :style="{ borderBottomColor: $themeTokens.fineLine }"
         />
       </template>
@@ -58,7 +58,7 @@
       v-if="!newVersionAvailable"
       objectType="resource"
       actionType="import"
-      :resourceCounts="{count:transferResourceCount, fileSize:transferFileSize}"
+      :resourceCounts="{ count: transferResourceCount, fileSize: transferFileSize }"
       :disabled="disableBottomBar || newVersionAvailable"
       @clickconfirm="handleClickConfirm"
     />
@@ -70,7 +70,7 @@
 <script>
 
   import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import isEmpty from 'lodash/isEmpty';
   import find from 'lodash/find';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';

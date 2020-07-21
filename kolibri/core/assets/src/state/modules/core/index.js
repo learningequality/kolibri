@@ -5,6 +5,7 @@ import snackbarModule from '../snackbar';
 import * as getters from './getters';
 import * as actions from './actions';
 import mutations from './mutations';
+import plugin_data from 'plugin_data';
 
 export default {
   state: {
@@ -12,14 +13,13 @@ export default {
     blockDoubleClicks: false,
     loading: true,
     pageSessionId: 0,
-    loginError: null,
-    signInBusy: false,
     totalProgress: null,
     notifications: [],
     channels: {
       list: [],
       currentId: null,
     },
+    allowRemoteAccess: plugin_data.allowRemoteAccess,
     // facility
     facilityConfig: {},
     facilities: [],

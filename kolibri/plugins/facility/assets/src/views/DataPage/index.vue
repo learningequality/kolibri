@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <KPageContainer v-if="!cannotDownload">
+    <KPageContainer v-if="canUploadDownloadFiles">
       <KGrid gutter="48">
 
         <KGridItem>
@@ -18,20 +18,21 @@
           <p>
             <KButton
               :text="$tr('download')"
+              style="margin-right: 8px;"
               :disabled="!availableSessionCSVLog"
-              class="download-button"
               @click="downloadSessionLog"
             />
+            <span v-if="noSessionLogs">{{ $tr('noLogsYet') }}</span>
+            <GeneratedElapsedTime v-else-if="sessionDateCreated" :date="sessionDateCreated" />
           </p>
-          <p v-if="cannotDownload" :style="noDlStyle">
+          <p v-if="!canUploadDownloadFiles" :style="noDlStyle">
             {{ $tr('noDownload') }}
           </p>
           <p v-else-if="inSessionCSVCreation">
-            <DataPageTaskProgress />
+            <DataPageTaskProgress>{{ $tr('generatingLog') }}</DataPageTaskProgress>
           </p>
           <p v-else>
-            <span v-if="noSessionLogs"> {{ $tr('noLogsYet') }} </span>
-            <GeneratedElapsedTime v-else :date="sessionDateCreated" />
+
             <KButton
               appearance="basic-link"
               :text="noSessionLogs ? $tr('generateLog') : $tr('regenerateLog')"
@@ -49,20 +50,20 @@
           <p>
             <KButton
               :text="$tr('download')"
+              style="margin-right: 8px;"
               :disabled="!availableSummaryCSVLog"
-              class="download-button"
               @click="downloadSummaryLog"
             />
+            <span v-if="noSummaryLogs">{{ $tr('noLogsYet') }}</span>
+            <GeneratedElapsedTime v-else-if="summaryDateCreated" :date="summaryDateCreated" />
           </p>
-          <p v-if="cannotDownload" :style="noDlStyle">
+          <p v-if="!canUploadDownloadFiles" :style="noDlStyle">
             {{ $tr('noDownload') }}
           </p>
           <p v-else-if="inSummaryCSVCreation">
-            <DataPageTaskProgress />
+            <DataPageTaskProgress>{{ $tr('generatingLog') }}</DataPageTaskProgress>
           </p>
           <p v-else>
-            <span v-if="noSummaryLogs"> {{ $tr('noLogsYet') }} </span>
-            <GeneratedElapsedTime v-else :date="summaryDateCreated" />
             <KButton
               appearance="basic-link"
               :text="noSummaryLogs ? $tr('generateLog') : $tr('regenerateLog')"
@@ -77,7 +78,9 @@
       </KGrid>
     </KPageContainer>
 
+    <ImportInterface v-if="canUploadDownloadFiles" />
     <SyncInterface />
+
   </div>
 
 </template>
@@ -86,13 +89,14 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import { isEmbeddedWebView } from 'kolibri.utils.browser';
+  import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
   import urls from 'kolibri.urls';
   import { FacilityResource } from 'kolibri.resources';
   import { PageNames } from '../../constants';
   import GeneratedElapsedTime from './GeneratedElapsedTime';
   import DataPageTaskProgress from './DataPageTaskProgress';
   import SyncInterface from './SyncInterface';
+  import ImportInterface from './ImportInterface';
 
   export default {
     name: 'DataPage',
@@ -105,6 +109,7 @@
       GeneratedElapsedTime,
       DataPageTaskProgress,
       SyncInterface,
+      ImportInterface,
     },
     computed: {
       ...mapGetters('manageCSV', [
@@ -115,13 +120,15 @@
         'availableSessionCSVLog',
         'availableSummaryCSVLog',
       ]),
-      ...mapState(['pageName']),
+      ...mapGetters(['activeFacilityId']),
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
-      cannotDownload() {
-        return isEmbeddedWebView();
+      // NOTE: We disable CSV file upload/download on embedded web views like the Mac
+      // and Android apps
+      canUploadDownloadFiles() {
+        return !isEmbeddedWebView;
       },
-      inDataExportPage() {
-        return this.pageName === PageNames.DATA_EXPORT_PAGE;
+      pollForTasks() {
+        return this.$route.name === PageNames.DATA_EXPORT_PAGE;
       },
       noDlStyle() {
         return {
@@ -130,7 +137,7 @@
       },
     },
     watch: {
-      inDataExportPage(val) {
+      pollForTasks(val) {
         return val ? this.startTaskPolling() : this.stopTaskPolling();
       },
     },
@@ -138,8 +145,11 @@
       // fetch task list after fetching facilities, to ensure proper syncing state
       FacilityResource.fetchCollection({ force: true }).then(facilities => {
         this.$store.commit('manageCSV/RESET_STATE');
-        this.$store.commit('manageCSV/SET_STATE', { facilities: facilities });
-        this.inDataExportPage && this.refreshTaskList() && this.startTaskPolling();
+        this.$store.commit('manageCSV/SET_STATE', { facilities });
+        if (this.pollForTasks) {
+          this.refreshTaskList();
+          this.startTaskPolling();
+        }
       });
     },
     destroyed() {
@@ -170,10 +180,16 @@
         }
       },
       downloadSessionLog() {
-        window.open(urls['kolibri:core:download_csv_file']('session'), '_blank');
+        window.open(
+          urls['kolibri:core:download_csv_file']('session', this.activeFacilityId),
+          '_blank'
+        );
       },
       downloadSummaryLog() {
-        window.open(urls['kolibri:core:download_csv_file']('summary'), '_blank');
+        window.open(
+          urls['kolibri:core:download_csv_file']('summary', this.activeFacilityId),
+          '_blank'
+        );
       },
     },
     $trs: {
@@ -195,6 +211,7 @@
       note: 'Note:',
       noDownload: 'Download is not supported on Android',
       documentTitle: 'Manage Data',
+      generatingLog: 'Generating log file...',
     },
   };
 
@@ -203,7 +220,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .infobox {
     padding: 8px;
@@ -211,10 +228,6 @@
     margin-left: -8px;
     font-size: 0.8em;
     border-radius: $radius;
-  }
-
-  .download-button {
-    margin-left: 0;
   }
 
 </style>

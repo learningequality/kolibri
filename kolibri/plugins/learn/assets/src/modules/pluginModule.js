@@ -11,12 +11,15 @@ import search from './search';
 import topicsRoot from './topicsRoot';
 import topicsTree from './topicsTree';
 
+import plugin_data from 'plugin_data';
+
 export default {
   state: {
     pageName: '',
     examAttemptLogs: {},
     examLog: {},
     memberships: [],
+    canAccessUnassignedContentSetting: plugin_data.allowLearnerUnassignedResourceAccess,
   },
   actions,
   getters,

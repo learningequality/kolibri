@@ -2,9 +2,16 @@
 
   <KPageContainer>
 
+    <p>
+      <KRouterLink
+        :text="coreString('allClassesLabel')"
+        :to="$store.getters.facilityPageLinks.ManageClassPage"
+        icon="back"
+      />
+    </p>
     <div>
       <h1 class="title-header" dir="auto">
-        <KLabeledIcon icon="classroom" :label="currentClass.name" />
+        <KLabeledIcon icon="classes" :label="currentClass.name" />
       </h1>
       <KButton
         :text="$tr('renameButtonLabel')"
@@ -19,14 +26,14 @@
 
     <!-- Modals -->
     <ClassRenameModal
-      v-if="modalShown===Modals.EDIT_CLASS_NAME"
+      v-if="modalShown === Modals.EDIT_CLASS_NAME"
       :classname="currentClass.name"
       :classid="currentClass.id"
       :classes="classes"
       @cancel="closeModal"
     />
     <UserRemoveConfirmationModal
-      v-if="modalShown===Modals.REMOVE_USER"
+      v-if="modalShown === Modals.REMOVE_USER"
       :classname="currentClass.name"
       :username="userToBeRemoved.username"
       @submit="removalAction({ classId: currentClass.id, userId: userToBeRemoved.id })"
@@ -48,7 +55,7 @@
       >
         <KRouterLink
           :text="$tr('assignCoachesButtonLabel')"
-          :to="coachAssignmentLink"
+          :to="$store.getters.facilityPageLinks.CoachClassAssignmentPage"
           appearance="raised-button"
         />
       </KGridItem>
@@ -60,7 +67,7 @@
       isCoach
     >
       <!-- Don't need template in Vue 2.5+ -->
-      <template slot="action" slot-scope="userRow">
+      <template v-slot:action="userRow">
         <KButton
           :text="coreString('removeAction')"
           appearance="flat-button"
@@ -83,7 +90,7 @@
       >
         <KRouterLink
           :text="$tr('enrollLearnerButtonLabel')"
-          :to="learnerEnrollmentLink"
+          :to="$store.getters.facilityPageLinks.LearnerClassEnrollmentPage"
           :primary="true"
           appearance="raised-button"
         />
@@ -94,7 +101,7 @@
       :users="classLearners"
       :emptyMessage="$tr('noLearnersInClassMessage')"
     >
-      <template slot="action" slot-scope="userRow">
+      <template v-slot:action="userRow">
         <KButton
           :text="coreString('removeAction')"
           appearance="flat-button"
@@ -112,7 +119,7 @@
   import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UserTable from '../UserTable';
-  import { PageNames, Modals } from '../../constants';
+  import { Modals } from '../../constants';
   import ClassRenameModal from './ClassRenameModal';
   import UserRemoveConfirmationModal from './UserRemoveConfirmationModal';
 
@@ -146,23 +153,9 @@
       Modals() {
         return Modals;
       },
-      learnerEnrollmentLink() {
-        return {
-          name: PageNames.CLASS_ENROLL_LEARNER,
-        };
-      },
-      coachAssignmentLink() {
-        return {
-          name: PageNames.CLASS_ASSIGN_COACH,
-        };
-      },
     },
     methods: {
-      ...mapActions('classEditManagement', [
-        'displayModal',
-        'removeClassLearner',
-        'removeClassCoach',
-      ]),
+      ...mapActions('classEditManagement', ['displayModal']),
       closeModal() {
         this.displayModal(false);
       },
@@ -170,6 +163,16 @@
         this.userToBeRemoved = user;
         this.removalAction = removalAction;
         this.displayModal(Modals.REMOVE_USER);
+      },
+      removeClassCoach(args) {
+        this.$store.dispatch('classEditManagement/removeClassCoach', args).then(() => {
+          this.showSnackbarNotification('coachesRemovedNoCount', { count: 1 });
+        });
+      },
+      removeClassLearner(args) {
+        this.$store.dispatch('classEditManagement/removeClassLearner', args).then(() => {
+          this.showSnackbarNotification('learnersRemovedNoCount', { count: 1 });
+        });
       },
     },
     $trs: {

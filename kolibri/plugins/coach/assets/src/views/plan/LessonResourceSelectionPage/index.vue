@@ -17,11 +17,11 @@
       </h1>
 
       <KGrid>
-        <KGridItem :layout12="{span: 6}">
+        <KGridItem :layout12="{ span: 6 }">
           <LessonsSearchBox @searchterm="handleSearchTerm" />
         </KGridItem>
 
-        <KGridItem :layout12="{span: 6, alignment: 'right'}">
+        <KGridItem :layout12="{ span: 6, alignment: 'right' }">
           <p>
             {{ $tr('totalResourcesSelected', { total: workingResources.length }) }}
           </p>
@@ -43,6 +43,9 @@
         :topicsLink="topicsLink"
       />
 
+      <h2>{{ topicTitle }}</h2>
+      <p>{{ topicDescription }}</p>
+
       <ContentCardList
         v-if="!isExiting"
         :contentList="filteredContentList"
@@ -62,7 +65,7 @@
 
     <BottomAppBar>
       <KRouterLink
-        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coreString('finishAction')"
+        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coreString('closeAction')"
         :primary="true"
         appearance="raised-button"
         :to="exitButtonRoute"
@@ -202,6 +205,18 @@
       channelsLink() {
         return this.selectionRootLink();
       },
+      topicTitle() {
+        if (!this.ancestors.length) {
+          return '';
+        }
+        return this.ancestors[this.ancestors.length - 1].title;
+      },
+      topicDescription() {
+        if (!this.ancestors.length) {
+          return '';
+        }
+        return this.ancestors[this.ancestors.length - 1].description;
+      },
       exitButtonRoute() {
         const lastId = this.$route.query.last_id;
         if (this.inSearchMode && lastId) {
@@ -266,16 +281,14 @@
         removeFromSelectedResources: 'REMOVE_FROM_WORKING_RESOURCES',
       }),
       showResourcesDifferenceMessage(difference) {
-        let text;
         if (difference === 0) {
           return;
         }
         if (difference > 0) {
-          text = this.$tr('resourcesAddedSnackbarText', { count: difference });
+          this.showSnackbarNotification('resourcesAddedWithCount', { count: difference });
         } else {
-          text = this.$tr('resourcesRemovedSnackbarText', { count: -difference });
+          this.showSnackbarNotification('resourcesRemovedWithCount', { count: -difference });
         }
-        this.createSnackbar(text);
       },
       showResourcesChangedError() {
         this.createSnackbar(this.$tr('resourcesChangedErrorSnackbarText'));
@@ -396,10 +409,6 @@
       totalResourcesSelected:
         '{total, number, integer} {total, plural, one {resource} other {resources}} in this lesson',
       documentTitle: `Manage resources in '{lessonName}'`,
-      resourcesAddedSnackbarText:
-        'Added {count, number, integer} {count, plural, one {resource} other {resources}} to lesson',
-      resourcesRemovedSnackbarText:
-        'Removed {count, number, integer} {count, plural, one {resource} other {resources}} from lesson',
       resourcesChangedErrorSnackbarText: 'There was a problem updating this lesson',
       saveBeforeExitSnackbarText: 'Saving your changes…',
       // only shown on search page

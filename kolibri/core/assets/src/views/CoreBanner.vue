@@ -2,14 +2,14 @@
 
   <div
     class="banner"
-    :style="{ background: $themeTokens.surface}"
+    :style="{ background: $themeTokens.surface }"
   >
     <div class="banner-inner">
       <KGrid>
         <!-- Grid Content -->
         <KGridItem
-          :layout8="{ span: bannerClosed ? 6 : 8 }"
-          :layout12="{ span: bannerClosed ? 10 : 12 }"
+          :layout8="{ span: bannerClosed ? 5 : 8 }"
+          :layout12="{ span: bannerClosed ? 9 : 12 }"
         >
           <slot :bannerClosed="bannerClosed"></slot>
         </KGridItem>
@@ -17,9 +17,9 @@
         <!-- Grid Buttons -->
         <KGridItem
           v-if="bannerClosed"
-          :layout="{ alignment: 'right' }"
-          :layout8="{ span: 2 }"
-          :layout12="{ span: 2 }"
+          class="button-grid-item"
+          :layout8="{ span: 3 }"
+          :layout12="{ span: 3 }"
         >
           <KButton
             class="open-button"
@@ -29,7 +29,7 @@
             @click="toggleBanner"
           />
         </KGridItem>
-        <KGridItem v-else :layout="{ alignment: 'right' }">
+        <KGridItem v-else class="button-grid-item">
           <KButton
             class="close-button"
             :text="coreString('closeAction')"
@@ -72,7 +72,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .banner {
     @extend %dropshadow-16dp;
@@ -94,12 +94,11 @@
     }
   }
 
-  .close-button {
-    margin-bottom: 24px;
-  }
-
-  .open-button {
-    margin-top: 14px;
+  .button-grid-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 60px;
   }
 
 </style>

@@ -17,26 +17,23 @@
           @click="setSelectedLearner(index)"
         >
           <div class="title">
-            <mat-svg
+            <KIcon
               v-if="learner.noattempt"
               class="item svg-item"
               :style=" { fill: $themeTokens.annotation }"
-              category="navigation"
-              name="cancel"
+              icon="cancel"
             />
-            <mat-svg
+            <KIcon
               v-else-if="!learner.correct"
               class="item svg-item"
               :style="{ fill: $themeTokens.incorrect }"
-              category="navigation"
-              name="cancel"
+              icon="cancel"
             />
-            <mat-svg
+            <KIcon
               v-else-if="learner.hinted"
               class="item svg-item"
               :style=" { fill: $themeTokens.annotation }"
-              category="action"
-              name="lightbulb_outline"
+              icon="hint"
             />
             <h3 class="item">
               {{ learner.name }}

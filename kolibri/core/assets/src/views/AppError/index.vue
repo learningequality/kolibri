@@ -13,18 +13,20 @@
     </p>
 
     <p>
-      <KButton
-        v-if="!isPageNotFound"
-        :text="$tr('pageReloadPrompt')"
-        :primary="true"
-        @click="reloadPage"
-      />
-      <KButton
-        :primary="isPageNotFound"
-        appearance="raised-button"
-        :text="exitButtonLabel"
-        @click="handleClickBackToHome"
-      />
+      <KButtonGroup>
+        <KButton
+          v-if="!isPageNotFound"
+          :text="$tr('pageReloadPrompt')"
+          :primary="true"
+          @click="reloadPage"
+        />
+        <KButton
+          :primary="isPageNotFound"
+          appearance="raised-button"
+          :text="exitButtonLabel"
+          @click="handleClickBackToHome"
+        />
+      </KButtonGroup>
     </p>
 
     <p v-if="!isPageNotFound">
@@ -91,8 +93,8 @@
         // Returns 'true' only if method is 'GET' and code is '404'.
         // Doesn't handle case where 'DELETE' or 'PATCH' request returns '404'.
         return (
-          get(this.errorObject, 'status.code') === 404 &&
-          get(this.errorObject, 'request.method') === 'GET'
+          get(this.errorObject, 'status') === 404 &&
+          get(this.errorObject, 'config.method') === 'get'
         );
       },
       exitButtonLabel() {

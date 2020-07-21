@@ -21,7 +21,7 @@
         $computedClass(progressStyle)
       ]"
     >
-      <div v-show="loading" class="loading-space fill-space">
+      <div v-show="loading" class="fill-space loading-space">
         <KCircularLoader
           class="loader"
           :delay="true"
@@ -31,7 +31,7 @@
       <video
         v-if="isVideo"
         ref="player"
-        class="video-js custom-skin vjs-big-play-centered vjs-show-big-play-button-on-pause"
+        class="custom-skin video-js vjs-big-play-centered vjs-show-big-play-button-on-pause"
       >
         <template v-for="video in videoSources">
           <source
@@ -52,7 +52,7 @@
         </template>
       </video>
 
-      <audio v-else ref="player" class="video-js custom-skin">
+      <audio v-else ref="player" class="custom-skin video-js">
         <template v-for="audio in audioSources">
           <source
             :key="audio.storage_url"
@@ -75,12 +75,10 @@
   import { mapActions, mapState, mapGetters } from 'vuex';
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
-
   import { languageIdToCode } from 'kolibri.utils.i18n';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-
   import Settings from '../utils/settings';
   import { ReplayButton, ForwardButton } from './customButtons';
   import MediaPlayerFullscreen from './MediaPlayerFullscreen';
@@ -402,7 +400,7 @@
       },
       recordProgress() {
         this.$emit(
-          'updateProgress',
+          'addProgress',
           Math.max(
             0,
             (this.dummyTime - this.progressStartingPoint) / Math.floor(this.player.duration())
@@ -484,7 +482,7 @@
   // Custom build icons.
   @import './videojs-style/videojs-font/css/videojs-icons.css';
   @import './videojs-style/variables';
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   $transcript-wrap-height: 250px;
   $transcript-wrap-fill-height: 100% * 9 / 16;

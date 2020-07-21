@@ -1,7 +1,7 @@
 from abc import abstractproperty
 
-from kolibri.plugins.hooks import KolibriHook
 from kolibri.plugins.hooks import define_hook
+from kolibri.plugins.hooks import KolibriHook
 from kolibri.plugins.utils import plugin_url
 
 
@@ -15,3 +15,7 @@ class SetupHook(KolibriHook):
 
     def plugin_url(self, plugin_class, url_name):
         return plugin_url(plugin_class, url_name)
+
+    @classmethod
+    def provision_url(cls):
+        return next(hook.url for hook in cls.registered_hooks)

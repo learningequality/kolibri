@@ -10,24 +10,6 @@ Feature: Learners can see a notification if their profile needs to be updated
       When I log in for the first time
       Then the *update your profile* modal appears
 
-    # this should go to guest scenario; do not test
-    Scenario: Accounts created on *Sign Up Page* never see a notification
-      Given I do not have an account
-        And I am on the Sign Up Page
-      When I provide my birth year or gender (or not)
-        And I complete the account creation workflow
-      Then I am redirected to the *Learn* page
-        And the *update your profile* modal does not appear
-
-    # this should go to super-user scenario; do not test
-    Scenario: Accounts created in *Setup Wizard* never see a notification
-      Given I do not have an account
-        And I am on the *Setup Wizard > Superuser Credentials* step
-      When I provide my birth year or gender (or not)
-        And I complete the Setup Wizard
-        And I navigate to the *Learn* page
-        And the *update your profile* modal does not appear
-
     # test this only on upgrade workflow (from Kolibri > 0.13 to 0.13)
     Scenario: Pre-upgrade accounts see a notification on first post-upgrade login
       Given I am user of any type

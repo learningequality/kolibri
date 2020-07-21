@@ -8,8 +8,14 @@ const entries = [
     id: 'd4b',
     name: 'learner1',
     username: 'learner1',
-    groups: [{ id: 'dc2', name: 'group1' }, { id: '23s', name: 'group2' }],
-    assignments: [{ id: 'dc2', name: 'group1' }, { id: '23s', name: 'group2' }],
+    groups: [
+      { id: 'dc2', name: 'group1' },
+      { id: '23s', name: 'group2' },
+    ],
+    assignments: [
+      { id: 'dc2', name: 'group1' },
+      { id: '23s', name: 'group2' },
+    ],
     exerciseLearnerLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/d4b',
     statusObj: {
       learner_id: 'd4b',
@@ -41,6 +47,10 @@ const initWrapper = propsData => {
     propsData,
     stubs: {
       RouterLink: RouterLinkStub,
+      transitionGroup: {
+        name: 'transition-group',
+        template: '<div><slot></slot></div>',
+      },
     },
   });
 };
@@ -59,7 +69,7 @@ describe('ReportsExerciseLearners', () => {
   it('smoke test', () => {
     const wrapper = shallowMount(ReportsExerciseLearners);
 
-    expect(wrapper.isVueInstance()).toBe(true);
+    expect(wrapper.exists()).toBe(true);
   });
 
   it('renders all entries', () => {
@@ -102,9 +112,9 @@ describe('ReportsExerciseLearners', () => {
     });
 
     it("renders learner's name as a link to an exercise", () => {
-      expect(getCol(row, 0).contains({ name: 'KRouterLink' })).toBe(true);
+      const link = getCol(row, 0).find('[data-test="exercise-learner-link"]');
 
-      const link = getCol(row, 0).find({ name: 'KRouterLink' });
+      expect(link.element).toBeTruthy();
       expect(link.props().to).toEqual('#/2e3/reports/lessons/79b/exercises/a97/learners/d4b');
     });
 
@@ -138,7 +148,7 @@ describe('ReportsExerciseLearners', () => {
     });
 
     it("doesn't render learner's as a link", () => {
-      expect(getCol(row, 0).contains({ name: 'KRouterLink' })).toBe(false);
+      expect(getCol(row, 0).find('[data-test="exercise-learner-link"]').element).toBeFalsy();
     });
 
     it("doesn't render time spent", () => {

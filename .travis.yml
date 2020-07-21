@@ -17,6 +17,7 @@ cache:
   directories:
     - node_modules
     - $HOME/.cache/pip
+    - $HOME/.cache/pre-commit
 
 matrix:
   include:
@@ -32,10 +33,7 @@ matrix:
        - tox -e $TOX_ENV
     - python: "3.6"
       env:
-        - TOX_ENV=pythonlint3
-    - python: "3.6"
-      env:
-        - TOX_ENV=pythonblack
+        - TOX_ENV=lint
     - python: "2.7"
       env:
         - TOX_ENV=licenses
@@ -82,11 +80,6 @@ matrix:
         - TOX_ENV=postgres
     - python: "2.7"
       env:
-        - TOX_ENV=frontendlint
-      script:
-       - tox -e $TOX_ENV
-    - python: "2.7"
-      env:
         - TOX_ENV=nocext
       script:
        - tox -e $TOX_ENV
@@ -98,6 +91,9 @@ matrix:
 
 
 before_install:
+  # Can likely be removed once we stop using Trusty
+  # https://github.com/travis-ci/travis-ci/issues/8920
+  - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
   - git fetch
   - git describe --tags --always
   # Required until this is fixed: https://github.com/travis-ci/travis-ci/issues/9112

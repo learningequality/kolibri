@@ -2,7 +2,7 @@
 
   <div
     class="channel-detail-panel"
-    :class="{'channel-detail-panel-sm': windowIsSmall}"
+    :class="{ 'channel-detail-panel-sm': windowIsSmall }"
   >
     <div class="col-1">
       <slot name="beforethumbnail"></slot>
@@ -11,10 +11,9 @@
         class="thumbnail"
         :src="channel.thumbnail"
       >
-      <mat-svg
+      <KIcon
         v-else
-        category="navigation"
-        name="apps"
+        icon="channel"
         class="thumbnail-svg"
         :style="{ backgroundColor: $themePalette.grey.v_200 }"
       />

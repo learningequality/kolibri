@@ -16,24 +16,17 @@
           :style="{
             height: headerHeight + 'px',
             width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px',
-            backgroundColor: $themeTokens.primary,
+            backgroundColor: $themeTokens.appBar,
           }"
         >
-          <UiIconButton
-            ref="toggleButton"
-            :aria-label="$tr('closeNav')"
-            type="secondary"
-            color="white"
-            size="large"
+          <KIconButton
+            icon="close"
+            :color="$themeTokens.textInverted"
             class="side-nav-header-icon"
+            :ariaLabel="$tr('closeNav')"
+            size="large"
             @click="toggleNav"
-          >
-            <mat-svg
-              name="close"
-              category="navigation"
-              :style="{fill: $themeTokens.textInverted}"
-            />
-          </UiIconButton>
+          />
           <span
             class="side-nav-header-name"
             :style="{ color: $themeTokens.textInverted }"
@@ -56,7 +49,7 @@
             :style="{ backgroundColor: $themeTokens.surface }"
             :aria-label="$tr('navigationLabel')"
           >
-            <template slot="options">
+            <template v-slot:options>
               <component :is="component" v-for="component in menuOptions" :key="component.name" />
               <SideNavDivider />
             </template>
@@ -135,7 +128,6 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import navComponents from 'kolibri.utils.navComponents';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
@@ -158,7 +150,6 @@
     name: 'SideNav',
     components: {
       CoreMenu,
-      UiIconButton,
       CoreLogo,
       SideNavDivider,
       PrivacyInfoModal,
@@ -273,7 +264,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   // Matches the Keen-UI/UiToolbar box-shadow property
   %ui-toolbar-box-shadow {

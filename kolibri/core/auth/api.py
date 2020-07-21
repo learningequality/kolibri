@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 import time
 from datetime import datetime
 from datetime import timedelta
-from functools import partial
 from itertools import groupby
 from uuid import uuid4
 
@@ -14,12 +13,15 @@ from django.contrib.auth import login
 from django.contrib.auth import logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
-from django.db import connection
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.db.models import CharField
 from django.db.models import OuterRef
 from django.db.models import Q
+from django.db.models import Subquery
+from django.db.models import TextField
+from django.db.models.functions import Cast
 from django.db.models.query import F
+from django.http import Http404
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -27,9 +29,11 @@ from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
+from morango.models import TransferSession
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
+from rest_framework import views
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -56,13 +60,15 @@ from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ValuesViewset
+from kolibri.core.device.utils import allow_guest_access
+from kolibri.core.device.utils import allow_other_browsers_to_connect
+from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
-from kolibri.core.query import ArrayAgg
-from kolibri.core.query import GroupConcat
-from kolibri.core.query import process_uuid_aggregate
+from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
+from kolibri.plugins.app.utils import interface
 
 
 class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
@@ -129,10 +135,27 @@ class KolibriAuthPermissions(permissions.BasePermission):
             return False
 
 
-class FacilityDatasetViewSet(viewsets.ModelViewSet):
+class FacilityDatasetViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
     serializer_class = FacilityDatasetSerializer
+
+    values = (
+        "id",
+        "learner_can_edit_username",
+        "learner_can_edit_name",
+        "learner_can_edit_password",
+        "learner_can_sign_up",
+        "learner_can_delete_account",
+        "learner_can_login_with_no_password",
+        "show_download_button_in_learn",
+        "description",
+        "location",
+        "registered",
+        "preset",
+    )
+
+    field_map = {"allow_guest_access": lambda x: allow_guest_access()}
 
     def get_queryset(self):
         queryset = FacilityDataset.objects.filter(
@@ -183,7 +206,7 @@ class FacilityUserViewSet(ValuesViewset):
         "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
     }
 
-    def consolidate(self, items):
+    def consolidate(self, items, queryset):
         output = []
         items = sorted(items, key=lambda x: x["id"])
         for key, group in groupby(items, lambda x: x["id"]):
@@ -205,7 +228,8 @@ class FacilityUserViewSet(ValuesViewset):
     def set_password_if_needed(self, instance, serializer):
         with transaction.atomic():
             if serializer.validated_data.get("password", ""):
-                instance.set_password(serializer.validated_data["password"])
+                if serializer.validated_data.get("password", "") != "NOT_SPECIFIED":
+                    instance.set_password(serializer.validated_data["password"])
                 instance.save()
         return instance
 
@@ -231,6 +255,10 @@ class FacilityUsernameViewSet(ValuesViewset):
     values = ("username",)
 
     def get_queryset(self):
+        if valid_app_key_on_request(self.request):
+            # Special case for app context to return usernames for
+            # the list display
+            return FacilityUser.objects.all()
         return FacilityUser.objects.filter(
             dataset__learner_can_login_with_no_password=True, roles=None
         ).filter(
@@ -278,19 +306,66 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     filter_fields = ["user", "collection", "kind", "user_ids"]
 
 
-class FacilityViewSet(viewsets.ModelViewSet):
+class FacilityViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
     queryset = Facility.objects.all()
     serializer_class = FacilitySerializer
 
-    def get_queryset(self, prefetch=True):
-        queryset = Facility.objects.all()
-        if prefetch:
-            # This is a default field on the serializer, so do a select_related
-            # to prevent n queries when n facilities are queried
-            return queryset.select_related("dataset")
-        return queryset
+    facility_values = ["id", "name", "num_classrooms", "num_users", "last_synced"]
+
+    dataset_keys = [
+        "dataset__id",
+        "dataset__learner_can_edit_username",
+        "dataset__learner_can_edit_name",
+        "dataset__learner_can_edit_password",
+        "dataset__learner_can_sign_up",
+        "dataset__learner_can_delete_account",
+        "dataset__learner_can_login_with_no_password",
+        "dataset__show_download_button_in_learn",
+        "dataset__description",
+        "dataset__location",
+        "dataset__registered",
+        "dataset__preset",
+    ]
+
+    values = tuple(facility_values + dataset_keys)
+
+    # map function to pop() all of the dataset__ items into an dict
+    # then assign that new dict to the `dataset` key of the facility
+    def _map_dataset(facility, dataset_keys=dataset_keys):
+        dataset = {}
+        for dataset_key in dataset_keys:
+            stripped_key = dataset_key.replace("dataset__", "")
+            dataset[stripped_key] = facility.pop(dataset_key)
+        return dataset
+
+    field_map = {
+        "dataset": _map_dataset,
+    }
+
+    def annotate_queryset(self, queryset):
+        return (
+            queryset.annotate(
+                num_users=SQCount(
+                    FacilityUser.objects.filter(facility=OuterRef("id")), field="id"
+                )
+            )
+            .annotate(
+                num_classrooms=SQCount(
+                    Classroom.objects.filter(parent=OuterRef("id")), field="id"
+                )
+            )
+            .annotate(
+                last_synced=Subquery(
+                    TransferSession.objects.filter(
+                        filter=Cast(OuterRef("dataset"), TextField())
+                    )
+                    .order_by("-last_activity_timestamp")
+                    .values("last_activity_timestamp")
+                )
+            )
+        )
 
 
 class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
@@ -348,7 +423,7 @@ class ClassroomViewSet(ValuesViewset):
             )
         )
 
-    def consolidate(self, items):
+    def consolidate(self, items, queryset):
         output = []
         items = sorted(items, key=lambda x: x["id"])
         coach_ids = list(
@@ -405,14 +480,8 @@ class LearnerGroupViewSet(ValuesViewset):
 
     values = ("id", "name", "parent", "user_ids")
 
-    field_map = {"user_ids": partial(process_uuid_aggregate, key="user_ids")}
-
     def annotate_queryset(self, queryset):
-        if connection.vendor == "postgresql" and ArrayAgg is not None:
-            return queryset.annotate(user_ids=ArrayAgg("membership__user__id"))
-        return queryset.values("id").annotate(
-            user_ids=GroupConcat("membership__user__id", output_field=CharField())
-        )
+        return annotate_array_aggregate(queryset, user_ids="membership__user__id")
 
 
 class AdHocGroupViewSet(viewsets.ModelViewSet):
@@ -425,14 +494,8 @@ class AdHocGroupViewSet(viewsets.ModelViewSet):
 
     values = ("id", "name", "parent", "user_ids")
 
-    field_map = {"user_ids": partial(process_uuid_aggregate, key="user_ids")}
-
     def annotate_queryset(self, queryset):
-        if connection.vendor == "postgresql" and ArrayAgg is not None:
-            return queryset.annotate(user_ids=ArrayAgg("membership__user__id"))
-        return queryset.values("id").annotate(
-            user_ids=GroupConcat("membership__user__id", output_field=CharField())
-        )
+        return annotate_array_aggregate(queryset, user_ids="membership__user__id")
 
     def partial_update(self, request, pk):
         individual_learners_group = AdHocGroup.objects.filter(pk=pk)[:1].get()
@@ -468,12 +531,12 @@ class SignUpViewSet(viewsets.ViewSet):
     def create(self, request):
 
         data = self.extract_request_data(request)
-
         # we validate the user's input, and if valid, login as user
         serialized_user = self.serializer_class(data=data)
         if serialized_user.is_valid(raise_exception=True):
             serialized_user.save()
-            serialized_user.instance.set_password(data["password"])
+            if data["password"] != "NOT_SPECIFIED":
+                serialized_user.instance.set_password(data["password"])
             serialized_user.instance.save()
             authenticated_user = authenticate(
                 username=data["username"],
@@ -484,18 +547,85 @@ class SignUpViewSet(viewsets.ViewSet):
             return Response(serialized_user.data, status=status.HTTP_201_CREATED)
 
 
+class SetNonSpecifiedPasswordView(views.APIView):
+    def post(self, request):
+        username = request.data.get("username", "")
+        password = request.data.get("password", "")
+        facility_id = request.data.get("facility", None)
+
+        if not username or not password or not facility_id:
+            return Response(
+                "Must specify username, password, and facility",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        error_message = "Suitable user does not exist"
+
+        try:
+            user = FacilityUser.objects.get(username=username, facility=facility_id)
+        except ObjectDoesNotExist:
+            raise Http404(error_message)
+
+        if user.password != "NOT_SPECIFIED":
+            raise Http404(error_message)
+
+        user.set_password(password)
+        user.save()
+
+        return Response()
+
+
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class SessionViewSet(viewsets.ViewSet):
     def create(self, request):
         username = request.data.get("username", "")
         password = request.data.get("password", "")
         facility_id = request.data.get("facility", None)
+
+        # Only enforce this when running in an app
+        if (
+            interface.enabled
+            and not allow_other_browsers_to_connect()
+            and not valid_app_key_on_request(request)
+        ):
+            return Response(
+                [{"id": error_constants.INVALID_CREDENTIALS, "metadata": {}}],
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        # Find the FacilityUser we're looking for use later on
+        try:
+            unauthenticated_user = FacilityUser.objects.get(
+                username__iexact=username, facility=facility_id
+            )
+        except ObjectDoesNotExist:
+            unauthenticated_user = None
+
         user = authenticate(username=username, password=password, facility=facility_id)
         if user is not None and user.is_active:
             # Correct password, and the user is marked "active"
             login(request, user)
             # Success!
             return self.get_session_response(request)
+        elif (
+            unauthenticated_user is not None
+            and unauthenticated_user.password == "NOT_SPECIFIED"
+        ):
+            # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
+            # while the "Require learners to log in with password" setting was disabled - but now
+            # it is enabled again.
+            return Response(
+                [
+                    {
+                        "id": error_constants.PASSWORD_NOT_SPECIFIED,
+                        "metadata": {
+                            "field": "password",
+                            "message": "Username is valid, but password needs to be set before login.",
+                        },
+                    }
+                ],
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         elif (
             not password
             and FacilityUser.objects.filter(
@@ -534,7 +664,13 @@ class SessionViewSet(viewsets.ViewSet):
         session_key = "current"
         server_time = now()
         session = user.session_data
-        session.update({"id": session_key, "server_time": server_time})
+        session.update(
+            {
+                "id": session_key,
+                "server_time": server_time,
+                "app_context": valid_app_key_on_request(request),
+            }
+        )
 
         visitor_cookie_expiry = datetime.utcnow() + timedelta(days=365)
 

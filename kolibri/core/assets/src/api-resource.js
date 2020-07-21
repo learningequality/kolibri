@@ -72,10 +72,10 @@ export class Model {
           } else {
             this.synced = false;
             // Do a fetch on the URL.
-            this.resource.client({ path: this.url, params: this.getParams }).then(
+            this.resource.client({ url: this.url, params: this.getParams }).then(
               response => {
                 // Set the retrieved Object onto the Model instance.
-                this.set(response.entity);
+                this.set(response.data);
                 // Flag that the Model has been fetched.
                 this.synced = true;
                 // Flag that the model exists on the server.
@@ -138,18 +138,18 @@ export class Model {
             if (!this.new || exists) {
               // If this Model is not new, then can do a PATCH against the Model
               url = this.url;
-              clientObj = { path: url, method: 'PATCH', entity: payload, params: this.getParams };
+              clientObj = { url: url, method: 'patch', data: payload, params: this.getParams };
             } else {
               // Otherwise, must POST to the Collection endpoint to create the Model
               url = this.resource.collectionUrl();
-              clientObj = { path: url, entity: payload, params: this.getParams };
+              clientObj = { url: url, method: 'post', data: payload, params: this.getParams };
             }
             // Do a save on the URL.
             this.resource.client(clientObj).then(
               response => {
                 const oldId = this.id;
                 // Set the retrieved Object onto the Model instance.
-                this.set(response.entity);
+                this.set(response.data);
                 // if the model did not used to have an id and now does, add it to the cache.
                 if (!oldId && this.id) {
                   this.resource.addModel(this, this.getParams);
@@ -196,7 +196,7 @@ export class Model {
             reject('Can not delete model that we do not have an id for');
           } else {
             // Otherwise, DELETE the Model
-            const clientObj = { path: this.url, method: 'DELETE', params: this.getParams };
+            const clientObj = { url: this.url, method: 'delete', params: this.getParams };
             this.resource.client(clientObj).then(
               () => {
                 // delete this instance
@@ -302,28 +302,28 @@ export class Collection {
             resolve(this.data);
           } else {
             this.synced = false;
-            this.resource.client({ path: this.url, params: this.getParams }).then(
+            this.resource.client({ url: this.url, params: this.getParams }).then(
               response => {
                 // Set response object - an Array - on the Collection to record the data.
                 // First check that the response *is* an Array
-                if (Array.isArray(response.entity)) {
+                if (Array.isArray(response.data)) {
                   this.clearCache();
-                  this.set(response.entity);
+                  this.set(response.data);
                   // Mark that the fetch has completed.
                   this.synced = true;
                   // Flag that the collection exists on the server.
                   this.new = false;
-                } else if (typeof (response.entity || {}).results !== 'undefined') {
+                } else if (typeof (response.data || {}).results !== 'undefined') {
                   // If it's not, there are two possibilities - something is awry,
                   // or we have received data with additional metadata!
                   this.clearCache();
                   // Collections with additional metadata have 'results' as their results
                   // object so interpret this as such.
-                  this.set(response.entity.results);
+                  this.set(response.data.results);
                   this.metadata = {};
-                  Object.keys(response.entity).forEach(key => {
+                  Object.keys(response.data).forEach(key => {
                     if (key !== 'results') {
-                      this.metadata[key] = response.entity[key];
+                      this.metadata[key] = response.data[key];
                     }
                   });
                   // Mark that the fetch has completed.
@@ -332,7 +332,7 @@ export class Collection {
                   this.new = false;
                 } else {
                   // It's all gone a bit Pete Tong.
-                  logging.error('Data appears to be malformed', response.entity);
+                  logging.error('Data appears to be malformed', response.data);
                   reject(response);
                 }
                 resolve(this.data);
@@ -377,20 +377,20 @@ export class Collection {
           this.synced = false;
           const url = this.resource.collectionUrl();
           const payload = data.length ? data : this.data;
-          const clientObj = { path: url, entity: payload };
+          const clientObj = { url: url, data: payload, method: 'post' };
           // Do a save on the URL.
           this.resource.client(clientObj).then(
             response => {
-              if (Array.isArray(response.entity)) {
+              if (Array.isArray(response.data)) {
                 this.clearCache();
-                this.set(response.entity);
+                this.set(response.data);
                 // Mark that the fetch has completed.
                 this.synced = true;
                 // Flag that the collection exists on the server.
                 this.new = false;
               } else {
                 // It's all gone a bit Pete Tong.
-                logging.debug('Data appears to be malformed', response.entity);
+                logging.debug('Data appears to be malformed', response.data);
                 reject(response);
               }
               // Resolve the promise with the Collection.
@@ -431,8 +431,8 @@ export class Collection {
           } else {
             // Otherwise, DELETE the Collection
             const clientObj = {
-              path: this.resource.collectionUrl(),
-              method: 'DELETE',
+              url: this.resource.collectionUrl(),
+              method: 'delete',
               params: this.getParams,
             };
             this.resource.client(clientObj).then(
@@ -873,25 +873,26 @@ export class Resource {
    * endpoints.
    * @param  {string} method   A valid HTTP method name, in all caps.
    * @param  {string} listName The name given to the list endpoint
-   * @param  {Object} args     The getParams or entity to be passed to the endpoint,
+   * @param  {Object} args     The getParams or data to be passed to the endpoint,
    * depending on method
    * @return {Promise}         Promise that resolves with the request
    */
-  accessEndpoint(method, listName, args = {}) {
+  accessEndpoint(method, listName, args = {}, multipart = false) {
     if (!listName) {
       throw TypeError('A listName must be specified');
     }
-    let entity, params;
-    if (method === 'GET') {
+    let data, params;
+    if (method.toLowerCase() === 'get') {
       params = args;
     } else {
-      entity = args;
+      data = args;
     }
     return this.client({
-      path: this.getUrlFunction(listName)(),
+      url: this.getUrlFunction(listName)(),
       method,
-      entity,
+      data,
       params,
+      multipart,
     });
   }
 
@@ -902,7 +903,7 @@ export class Resource {
    * @return {Promise}         Promise that resolves with the request
    */
   getListEndpoint(listName, params = {}) {
-    return this.accessEndpoint('GET', listName, params);
+    return this.accessEndpoint('get', listName, params);
   }
 
   /**
@@ -912,7 +913,19 @@ export class Resource {
    * @return {Promise}         Promise that resolves with the request
    */
   postListEndpoint(listName, params = {}) {
-    return this.accessEndpoint('POST', listName, params);
+    return this.accessEndpoint('post', listName, params);
+  }
+
+  /**
+   * Call a POST on a custom list endpoint and use
+   * 'multipart/form-data' as Mimetype instead of 'application/json'.
+   *
+   * @param  {string} listName The name given to the list endpoint
+   * @param  {Object} args     The body of the request
+   * @return {Promise}         Promise that resolves with the request
+   */
+  postListEndpointMultipart(listName, params = {}) {
+    return this.accessEndpoint('post', listName, params, true);
   }
 
   /**
@@ -968,7 +981,7 @@ export class Resource {
   client(options) {
     const client = require('./core-app/client').default;
     // Add in content cache parameter if relevant
-    if (this.useContentCacheKey && !options.entity) {
+    if (this.useContentCacheKey && !options.data) {
       options.params = options.params || {};
       options.params['contentCacheKey'] = contentCacheKey;
       options.cacheBust = false;

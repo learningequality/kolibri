@@ -18,10 +18,12 @@ from django_js_reverse.rjsmin import jsmin
 import kolibri
 from kolibri.core.content.utils.paths import get_content_storage_url
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.theme_hook import ThemeHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
+from kolibri.plugins.app.utils import interface
 from kolibri.plugins.hooks import register_hook
 from kolibri.utils import i18n
 from kolibri.utils.conf import OPTIONS
@@ -96,7 +98,19 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
 
     @property
     def plugin_data(self):
+        language_code = get_language()
+        static_root = static("assets/fonts/noto-full")
+        full_file = "{}.{}.{}.css?v={}"
         return {
+            "fullCSSFileModern": full_file.format(
+                static_root, language_code, "modern", kolibri.__version__
+            ),
+            "fullCSSFileBasic": full_file.format(
+                static_root, language_code, "basic", kolibri.__version__
+            ),
+            "allowRemoteAccess": allow_other_browsers_to_connect()
+            or not interface.enabled,
+            "appCapabilities": interface.capabilities,
             "contentCacheKey": ContentCacheKey.get_cache_key(),
             "languageGlobals": self.language_globals(),
             "oidcProviderEnabled": OIDCProviderHook.is_enabled(),
@@ -128,8 +142,12 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
 
 
 @register_hook
-class FrontEndUserAgentAssetHook(WebpackBundleHook):
-    bundle_id = "user_agent"
+class FrontendHeadAssetsHook(WebpackBundleHook):
+    """
+    Render these assets in the <head> tag of base.html, before other JS and assets.
+    """
+
+    bundle_id = "frontend_head_assets"
     inline = True
 
     def render_to_page_load_sync_html(self):
@@ -161,15 +179,4 @@ class FrontEndUserAgentAssetHook(WebpackBundleHook):
 
     @property
     def plugin_data(self):
-        language_code = get_language()
-        static_root = static("assets/fonts/noto-full")
-        full_file = "{}.{}.{}.css?v={}"
-        return {
-            "fullCSSFileModern": full_file.format(
-                static_root, language_code, "modern", kolibri.__version__
-            ),
-            "fullCSSFileBasic": full_file.format(
-                static_root, language_code, "basic", kolibri.__version__
-            ),
-            "unsupportedUrl": reverse("kolibri:core:unsupported"),
-        }
+        return {"unsupportedUrl": reverse("kolibri:core:unsupported")}

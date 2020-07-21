@@ -31,6 +31,7 @@
 
   import { mapGetters } from 'vuex';
   import { ExamResource } from 'kolibri.resources';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import { CoachCoreBase } from '../common';
   import { coachStringsMixin } from '../common/commonCoachStrings';
@@ -42,8 +43,7 @@
       AssignmentDetailsForm: AssignmentDetailsModal,
       CoreBase: CoachCoreBase,
     },
-    mixins: [coachStringsMixin],
-    props: {},
+    mixins: [coachStringsMixin, commonCoreStrings],
     data() {
       return {
         quiz: {
@@ -153,7 +153,7 @@
         this.$store.dispatch('notLoading');
       },
       goBackToSummaryPage() {
-        this.$router.push(this.previousPageRoute);
+        return this.$router.push(this.previousPageRoute);
       },
       handleSaveChanges(changes) {
         let promise;
@@ -169,7 +169,9 @@
         }
         return promise
           .then(() => {
-            this.goBackToSummaryPage();
+            this.goBackToSummaryPage().then(() => {
+              this.showSnackbarNotification('changesSaved');
+            });
           })
           .catch(() => {
             this.disabled = false;

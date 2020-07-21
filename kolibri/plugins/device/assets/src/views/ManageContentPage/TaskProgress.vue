@@ -2,19 +2,17 @@
 
   <transition name="fade">
     <div v-if="$attrs.show" class="task-progress">
-      <div class="progress-icon dtc">
+      <div class="dtc progress-icon">
         <transition name="fade" mode="out-in">
-          <mat-svg
+          <KIcon
             v-if="taskHasFailed"
-            category="alert"
-            name="error"
-            :style="{ fill: $themeTokens.error }"
+            icon="error"
+            :color="$themeTokens.error"
           />
-          <mat-svg
+          <KIcon
             v-else-if="taskHasCompleted"
-            category="action"
-            name="check_circle"
-            :style="{ fill: $themeTokens.success }"
+            icon="correct"
+            :color="$themeTokens.success"
           />
           <KCircularLoader
             v-else
@@ -24,8 +22,8 @@
         </transition>
       </div>
 
-      <div class="progress-bar dtc">
-        <div :class="{'task-stage': !taskHasCompleted}">
+      <div class="dtc progress-bar">
+        <div :class="{ 'task-stage': !taskHasCompleted }">
           {{ stageText }}
         </div>
         <KLinearLoader
@@ -36,7 +34,7 @@
         />
       </div>
 
-      <div v-if="!taskHasCompleted" class="progress-messages dtc">
+      <div v-if="!taskHasCompleted" class="dtc progress-messages">
         <span class="percentage">{{ progressMessage }}</span>
       </div>
 

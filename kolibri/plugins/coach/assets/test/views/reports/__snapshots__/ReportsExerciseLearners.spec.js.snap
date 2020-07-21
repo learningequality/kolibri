@@ -11,40 +11,42 @@ exports[`ReportsExerciseLearners doesn't render groups information when show gro
         <!---->
         <th>Last activity</th>
       </tr>
-    </thead><span tag="tbody" name="list"><tr data-test="entry"><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_1eg6lrk link">
-  learner1
-</a></span>
-</div></span></td>
-<td>
-  <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
+    </thead>
+    <transition-group-stub tag="tbody" name="list">
+      <tr data-test="entry">
+        <td><span class="labeled-icon-wrapper"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #212121; top: 2px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_qhgpwa link" data-test="exercise-learner-link"><span class="labeled-icon-wrapper"><span class="icon"><!----></span> <span class="label" style="max-width: 100%;"><span dir="auto" class="debug-warning"><!----> <span class="link-text">learner1</span>
+          <!----></span></span> <span class="icon-after"><!----></span></span></a></span></span> <span class="icon-after"><!----></span></span></td>
+        <td>
+          <div><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #ffc107;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     Completed
-  </span></div></span>
-  <!---->
-  </div>
-</td>
-<td><span>92 seconds</span></td>
-<!---->
-<td><span>
+  </span></span> <span class="icon-after"><!----></span></span>
+            <!---->
+          </div>
+        </td>
+        <td><span>92 seconds</span></td>
+        <!---->
+        <td><span>
   yesterday
 </span></td>
-</tr>
-<tr data-test="entry">
-  <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_1eg6lrk link">
-  learner2
-</a></span></div></span></td>
-  <td>
-    <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
+      </tr>
+      <tr data-test="entry">
+        <td><span class="labeled-icon-wrapper"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #212121; top: 2px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_qhgpwa link" data-test="exercise-learner-link"><span class="labeled-icon-wrapper"><span class="icon"><!----></span> <span class="label" style="max-width: 100%;"><span dir="auto" class="debug-warning"><!----> <span class="link-text">learner2</span>
+          <!----></span></span> <span class="icon-after"><!----></span></span></a></span></span> <span class="icon-after"><!----></span></span></td>
+        <td>
+          <div><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #03a9f4;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     Started
-  </span></div></span>
-    <!---->
-    </div>
-  </td>
-  <td><span>17 seconds</span></td>
-  <!---->
-  <td><span>
+  </span></span> <span class="icon-after"><!----></span></span>
+            <!---->
+          </div>
+        </td>
+        <td><span>17 seconds</span></td>
+        <!---->
+        <td><span>
   3 hours ago
 </span></td>
-</tr></span></table>
+      </tr>
+    </transition-group-stub>
+  </table>
 </div>
 `;
 
@@ -61,47 +63,49 @@ exports[`ReportsExerciseLearners renders all entries 1`] = `
         </th>
         <th>Last activity</th>
       </tr>
-    </thead><span tag="tbody" name="list"><tr data-test="entry"><td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_1eg6lrk link">
-  learner1
-</a></span>
-</div></span></td>
-<td>
-  <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="stars" category="action" style="fill: #ffc107;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
+    </thead>
+    <transition-group-stub tag="tbody" name="list">
+      <tr data-test="entry">
+        <td><span class="labeled-icon-wrapper"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #212121; top: 2px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_qhgpwa link" data-test="exercise-learner-link"><span class="labeled-icon-wrapper"><span class="icon"><!----></span> <span class="label" style="max-width: 100%;"><span dir="auto" class="debug-warning"><!----> <span class="link-text">learner1</span>
+          <!----></span></span> <span class="icon-after"><!----></span></span></a></span></span> <span class="icon-after"><!----></span></span></td>
+        <td>
+          <div><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #ffc107;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     Completed
-  </span></div></span>
-  <!---->
-  </div>
-</td>
-<td><span>92 seconds</span></td>
-<td>
-  <div class="items-label"><span>
+  </span></span> <span class="icon-after"><!----></span></span>
+            <!---->
+          </div>
+        </td>
+        <td><span>92 seconds</span></td>
+        <td>
+          <div class="items-label"><span>
     group1, group2
   </span></div>
-</td>
-<td><span>
+        </td>
+        <td><span>
   yesterday
 </span></td>
-</tr>
-<tr data-test="entry">
-  <td><span class="labeled-icon-wrapper"><div class="icon"><mat-svg name="person" category="social" style="fill: #212121;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_1eg6lrk link">
-  learner2
-</a></span></div></span></td>
-  <td>
-    <div><span class="labeled-icon-wrapper" nowrap="nowrap"><div class="icon"><mat-svg name="access_time" category="device" style="fill: #03a9f4;"></mat-svg></div> <div class="label"><span dir="auto" class="debug-warning">
+      </tr>
+      <tr data-test="entry">
+        <td><span class="labeled-icon-wrapper"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #212121; top: 2px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_qhgpwa link" data-test="exercise-learner-link"><span class="labeled-icon-wrapper"><span class="icon"><!----></span> <span class="label" style="max-width: 100%;"><span dir="auto" class="debug-warning"><!----> <span class="link-text">learner2</span>
+          <!----></span></span> <span class="icon-after"><!----></span></span></a></span></span> <span class="icon-after"><!----></span></span></td>
+        <td>
+          <div><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #03a9f4;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     Started
-  </span></div></span>
-    <!---->
-    </div>
-  </td>
-  <td><span>17 seconds</span></td>
-  <td>
-    <div class="items-label"><span>
+  </span></span> <span class="icon-after"><!----></span></span>
+            <!---->
+          </div>
+        </td>
+        <td><span>17 seconds</span></td>
+        <td>
+          <div class="items-label"><span>
     group2
   </span></div>
-  </td>
-  <td><span>
+        </td>
+        <td><span>
   3 hours ago
 </span></td>
-</tr></span></table>
+      </tr>
+    </transition-group-stub>
+  </table>
 </div>
 `;

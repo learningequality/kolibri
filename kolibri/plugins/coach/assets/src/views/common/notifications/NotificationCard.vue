@@ -145,7 +145,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .icon {
     // vertically align icon
@@ -185,6 +185,11 @@
 
   .button-wrapper {
     position: relative;
+  }
+
+  /* Fixes spacing only observed in this notification card content icon */
+  /deep/.content-icon svg {
+    top: -2px !important;
   }
 
 </style>

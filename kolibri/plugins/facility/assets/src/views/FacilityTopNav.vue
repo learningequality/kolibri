@@ -3,27 +3,43 @@
   <Navbar>
     <NavbarLink
       :title="coreString('classesLabel')"
-      :link="linkify(PageNames.CLASS_MGMT_PAGE)"
+      :link="$store.getters.facilityPageLinks.ManageClassPage"
     >
-      <mat-svg name="domain" category="social" />
+      <KIcon
+        icon="domain"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
     <NavbarLink
       :title="coreString('usersLabel')"
-      :link="linkify(PageNames.USER_MGMT_PAGE)"
+      :link="$store.getters.facilityPageLinks.UserPage"
     >
-      <mat-svg name="people" category="social" />
+      <KIcon
+        icon="people"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
     <NavbarLink
       :title="$tr('settings')"
-      :link="linkify(PageNames.FACILITY_CONFIG_PAGE)"
+      :link="$store.getters.facilityPageLinks.FacilitiesConfigPage"
     >
-      <mat-svg name="settings" category="action" />
+      <KIcon
+        icon="settings"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
     <NavbarLink
       :title="$tr('data')"
-      :link="linkify(PageNames.DATA_EXPORT_PAGE)"
+      :link="$store.getters.facilityPageLinks.DataPage"
     >
-      <mat-svg name="save" category="content" />
+      <KIcon
+        icon="save"
+        :color="$themeTokens.textInverted"
+        style="top: 0; width: 24px; height: 24px;"
+      />
     </NavbarLink>
   </Navbar>
 
@@ -35,7 +51,6 @@
   import Navbar from 'kolibri.coreVue.components.Navbar';
   import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { PageNames } from '../constants';
 
   export default {
     name: 'FacilityTopNav',
@@ -44,12 +59,6 @@
       NavbarLink,
     },
     mixins: [commonCoreStrings],
-    computed: {
-      PageNames: () => PageNames,
-    },
-    methods: {
-      linkify: name => ({ name }),
-    },
     $trs: {
       data: 'Data',
       settings: 'Settings',

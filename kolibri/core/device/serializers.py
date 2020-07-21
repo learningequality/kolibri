@@ -5,13 +5,13 @@ from rest_framework import serializers
 
 from kolibri.core.auth.constants.facility_presets import choices
 from kolibri.core.auth.constants.facility_presets import mappings
-from kolibri.core.auth.constants.role_kinds import ADMIN
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import FacilitySerializer
 from kolibri.core.auth.serializers import FacilityUserSerializer
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.utils import create_superuser
 from kolibri.core.device.utils import provision_device
 
 
@@ -48,16 +48,17 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     preset = serializers.ChoiceField(choices=choices)
     superuser = NoFacilityFacilityUserSerializer()
     language_id = serializers.CharField(max_length=15)
+    device_name = serializers.CharField(max_length=50, allow_null=True)
     settings = serializers.JSONField()
-    allow_guest_access = serializers.BooleanField()
+    allow_guest_access = serializers.BooleanField(allow_null=True)
 
     class Meta:
         fields = (
             "facility",
-            "dataset",
             "superuser",
             "language_id",
             "settings",
+            "device_name",
             "allow_guest_access",
         )
 
@@ -79,22 +80,20 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             # overwrite the settings in dataset_data with validated_data.settings
             custom_settings = validated_data.pop("settings")
             for key, value in custom_settings.items():
-                setattr(facility.dataset, key, value)
+                if value is not None:
+                    setattr(facility.dataset, key, value)
             facility.dataset.save()
-            superuser_data = validated_data.pop("superuser")
-            superuser_data["facility"] = facility
-            superuser = FacilityUserSerializer(data=superuser_data).create(
-                superuser_data
-            )
-            superuser.set_password(superuser_data["password"])
-            superuser.save()
-            facility.add_role(superuser, ADMIN)
-            DevicePermissions.objects.create(user=superuser, is_superuser=True)
+
+            # Create superuser
+            superuser = create_superuser(validated_data["superuser"], facility=facility)
+
+            # Create device settings
             language_id = validated_data.pop("language_id")
-            allow_guest_access = validated_data.pop(
-                "allow_guest_access", preset != "formal"
-            )
+            allow_guest_access = validated_data.pop("allow_guest_access")
+            if allow_guest_access is None:
+                allow_guest_access = preset != "formal"
             provision_device(
+                device_name=validated_data["device_name"],
                 language_id=language_id,
                 default_facility=facility,
                 allow_guest_access=allow_guest_access,
@@ -118,6 +117,7 @@ class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerialize
             "allow_guest_access",
             "allow_peer_unlisted_channel_import",
             "allow_learner_unassigned_resource_access",
+            "allow_other_browsers_to_connect",
         )
 
     def create(self, validated_data):

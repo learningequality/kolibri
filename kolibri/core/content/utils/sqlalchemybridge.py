@@ -1,6 +1,7 @@
+import importlib
 import logging
 import os
-import pickle
+from uuid import UUID
 
 from django.apps import apps
 from django.conf import settings
@@ -166,7 +167,7 @@ def set_all_class_defaults(Base):
                     # with a default value may not exist
                     if column is not None:
                         # The column does exist, set up a default by creating a SQLALchemy ColumnDefault object
-                        default = ColumnDefault(field.default)
+                        default = ColumnDefault(field.get_prep_value(field.default))
                         # Set the default of this column to our new default
                         column.default = default
                         # This is necessary, but I can't find the part of the SQLAlchemy source code that
@@ -176,21 +177,53 @@ def set_all_class_defaults(Base):
             pass
 
 
-SCHEMA_PATH_TEMPLATE = os.path.join(
-    os.path.dirname(__file__), "../fixtures/{name}_content_schema"
+__SQLALCHEMY_CLASSES_PATH = (
+    "contentschema",
+    "versions",
 )
+
+__SQLALCHEMY_CLASSES_MODULE_NAME = "content_schema_{name}"
+
+SQLALCHEMY_CLASSES_PATH_TEMPLATE = os.path.join(
+    os.path.dirname(__file__),
+    "..",
+    *(__SQLALCHEMY_CLASSES_PATH + (__SQLALCHEMY_CLASSES_MODULE_NAME + ".py",))
+)
+
+SQLALCHEMY_CLASSES_MODULE_PATH_TEMPLATE = ".".join(
+    tuple(__name__.split(".")[:-2])
+    + __SQLALCHEMY_CLASSES_PATH
+    + (__SQLALCHEMY_CLASSES_MODULE_NAME,)
+)
+
+
+def coerce_version_name_to_valid_module_path(name):
+    # Only required to support the legacy schema versions that
+    # use Kolibri versions explicitly in their name.
+    return name.replace(".", "").replace("-", "")
+
+
+def load_metadata(name):
+    module = importlib.import_module(
+        SQLALCHEMY_CLASSES_MODULE_PATH_TEMPLATE.format(
+            name=coerce_version_name_to_valid_module_path(name)
+        )
+    )
+    return module.Base.metadata
 
 
 def prepare_bases():
 
     for name in CONTENT_DB_SCHEMA_VERSIONS + [CURRENT_SCHEMA_VERSION]:
-
-        with open(SCHEMA_PATH_TEMPLATE.format(name=name), "rb") as f:
-            metadata = pickle.load(f)
-        cascade_relationships = name == CURRENT_SCHEMA_VERSION
-        BASES[name] = prepare_base(
-            metadata, cascade_relationships=cascade_relationships
-        )
+        try:
+            metadata = load_metadata(name)
+            BASES[name] = prepare_base(metadata, name=name)
+        except ImportError:
+            logger.error(
+                "Tried to load content schema version {} but valid schema import was not found".format(
+                    name
+                )
+            )
 
 
 def get_model_from_cls(cls):
@@ -208,13 +241,13 @@ def get_field_from_model_by_column(model, column):
     return next((f for f in model._meta.fields if f.column == column), None)
 
 
-def prepare_base(metadata, cascade_relationships=False):
+def prepare_base(metadata, name=None):
     """
     Create a Base mapping for models for a particular schema version of the content app
     A Base mapping defines the mapping from database tables to the SQLAlchemy ORM and is
     our main entrypoint for interacting with content databases and the content app tables
     of the default database.
-    If cascade_relationships is True, then also attempt to use Django model information
+    If name is CURRENT_SCHEMA_VERSION, then also attempt to use Django model information
     to setup proper relationship cascade behaviour to allow deletion in SQLAlchemy.
     """
     # Set up the base mapping using the automap_base method, using the metadata passed in
@@ -232,7 +265,7 @@ def prepare_base(metadata, cascade_relationships=False):
             base, direction, return_fn, attrname, local_cls, referred_cls, **kw
         )
 
-    if cascade_relationships:
+    if name == CURRENT_SCHEMA_VERSION:
         Base.prepare(generate_relationship=_gen_relationship)
     else:
         Base.prepare()
@@ -338,31 +371,38 @@ class Bridge(object):
             self.connection.close()
 
 
-def filter_by_uuids(field, ids, validate=True):
-    return _by_uuids(field, ids, validate, True)
+def filter_by_uuids(field, ids, validate=True, vendor=None):
+    return _by_uuids(field, ids, validate, True, vendor=vendor)
 
 
-def exclude_by_uuids(field, ids, validate=True):
-    return _by_uuids(field, ids, validate, False)
+def exclude_by_uuids(field, ids, validate=True, vendor=None):
+    return _by_uuids(field, ids, validate, False, vendor=vendor)
 
 
-def _format_uuid(identifier):
+def _format_uuid(identifier, vendor=None):
     # wrap the uuids in string quotations
-    if django_connection.vendor == "sqlite":
+    if (vendor or django_connection.vendor) == "sqlite":
         return "'{}'".format(identifier)
-    elif django_connection.vendor == "postgresql":
+    elif (vendor or django_connection.vendor) == "postgresql":
         return "'{}'::uuid".format(identifier)
     return identifier
 
 
-def _by_uuids(field, ids, validate, include):
+def _by_uuids(field, ids, validate, include, vendor=None):
     query = "IN (" if include else "NOT IN ("
     # trick to workaround postgresql, it does not allow returning ():
     empty_query = "IS NULL" if include else "IS NOT NULL"
     if ids:
+        if len(ids) > 10000:
+            logger.warn(
+                """
+                More than 10000 UUIDs passed to filter by uuids method,
+                these should be batched into separate querysets to avoid SQL Query too large errors in SQLite
+            """
+            )
         try:
             validate_uuids(ids)
-            ids_list = [_format_uuid(identifier) for identifier in ids]
+            ids_list = [_format_uuid(identifier, vendor=vendor) for identifier in ids]
             return UnaryExpression(
                 field, modifier=operators.custom_op(query + ",".join(ids_list) + ")")
             )
@@ -378,8 +418,21 @@ def filter_by_checksums(field, checksums):
     # trick to workaround postgresql, it does not allow returning ():
     empty_query = "IS NULL"
     if checksums:
+        if len(checksums) > 10000:
+            logger.warn(
+                """
+                More than 10000 UUIDs passed to filter by checksums method,
+                these should be batched into separate querysets to avoid SQL Query too large errors in SQLite
+            """
+            )
         checksums_list = ["'{}'".format(identifier) for identifier in checksums]
         return UnaryExpression(
             field, modifier=operators.custom_op(query + ",".join(checksums_list) + ")")
         )
     return UnaryExpression(field, modifier=operators.custom_op(empty_query))
+
+
+def coerce_key(key):
+    if isinstance(key, UUID):
+        return key.hex
+    return key

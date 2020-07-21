@@ -76,7 +76,7 @@ const contentNodes = map(QUESTION_IDS, (assessmentIds, nodeId) => {
   // See core/mappers/assessmentMetaDataState to see why we mock ContentNodes this way
   return {
     id: nodeId,
-    assessmentmetadata: [{ assessment_item_ids: assessmentIds, mastery_model: { ultimate: true } }],
+    assessmentmetadata: { assessment_item_ids: assessmentIds, mastery_model: { ultimate: true } },
   };
 });
 

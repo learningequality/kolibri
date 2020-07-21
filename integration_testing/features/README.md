@@ -1,7 +1,7 @@
 
 # Style guide for Kolibri `.feature` files
 
-The purpose of this document is to compile and keep the record of our internal conventions used to write and format the `.feature` files for testing Kolibri. 
+The purpose of this document is to compile and keep the record of our internal conventions used to write and format the `.feature` files for testing Kolibri.
 
 Style guide is a `Work-In-Progress` as we keep adding the testing scenarios and refining our strategies.
 
@@ -9,7 +9,7 @@ Style guide is a `Work-In-Progress` as we keep adding the testing scenarios and 
 
 - Use the `role-name-feature-name.feature` naming strategy.
 - Feature name part should be expressed as **action** whenever possible, instead of the *need*. Examples: `move-learners-between-groups`, or `modify-facility-settings`. Do not use verbs as *can* or *should* in filenames.
-- Separate all filename parts with dashes `-`, not underscores `_`. 
+- Separate all filename parts with dashes `-`, not underscores `_`.
 
 ## Feature naming
 
@@ -20,7 +20,7 @@ Feature name and description (the first part of the content inside the `.feature
 - List the `Background` "givens" in order to cover the more general conditions **first** (`there are groups created`, meaning that the groups should be created even before the user arrived to the groups page), and the more specific ones (`I am on *Coach > Groups* page`)
 - Keep the *point of view* consistent by writing all the steps as **I**.
 - Use present tense and avoid conditionals: *When I scroll... Then I see...* instead of *When I have scrolled... Then I should see...*
-- Whenever possible and not too laborious, let's try recording the values in `Examples` table and use the placeholders `<>`in the steps: 
+- Whenever possible and not too laborious, let's try recording the values in `Examples` table and use the placeholders `<>`in the steps:
 
 	```
 	Examples:

@@ -2,8 +2,8 @@ import some from 'lodash/some';
 import { UserKinds } from '../../constants';
 
 export const baseSessionState = {
+  app_context: false,
   can_manage_content: false,
-  can_access_unassigned_content: false,
   facility_id: undefined,
   full_name: '',
   id: undefined,
@@ -38,11 +38,12 @@ export default {
     canManageContent(state) {
       return state.can_manage_content;
     },
-    canAccessUnassignedContent(state) {
-      return state.can_access_unassigned_content;
-    },
     isSuperuser(state) {
       return state.kind.includes(UserKinds.SUPERUSER);
+    },
+    // An "Multi-Facility Admin" is a superuser for a device with 2+ facilities
+    userIsMultiFacilityAdmin(state, getters, rootState) {
+      return getters.isSuperuser && rootState.core.facilities.length > 1;
     },
     getUserPermissions(state) {
       const permissions = {};
@@ -72,6 +73,9 @@ export default {
     },
     session(state) {
       return state;
+    },
+    isAppContext(state) {
+      return state.app_context;
     },
   },
   mutations: {

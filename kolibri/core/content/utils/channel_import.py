@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.apps import apps
@@ -18,6 +19,7 @@ from kolibri.core.content.constants.schema_versions import V040BETA3
 from kolibri.core.content.constants.schema_versions import VERSION_1
 from kolibri.core.content.constants.schema_versions import VERSION_2
 from kolibri.core.content.constants.schema_versions import VERSION_3
+from kolibri.core.content.constants.schema_versions import VERSION_4
 from kolibri.core.content.legacy_models import License
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -60,6 +62,8 @@ def convert_to_sqlite_value(python_value):
         return "1" if python_value else "0"
     elif python_value is None:
         return "null"
+    elif isinstance(python_value, dict) or isinstance(python_value, list):
+        return '"{}"'.format(json.dumps(python_value))
     else:
         return repr(python_value)
 
@@ -585,9 +589,7 @@ class ChannelImport(object):
         # detach the content database from the primary database so we don't get errors trying to attach it again later
         if self.destination.engine.name == "sqlite":
             try:
-                self.destination.session.execute(
-                    text("DETACH 'sourcedb'".format(path=self.source_db_path))
-                )
+                self.destination.session.execute(text("DETACH 'sourcedb'"))
             except OperationalError:
                 # silently ignore if the database was already detached, as then we're good to go
                 pass
@@ -736,6 +738,7 @@ mappings = {
     VERSION_1: ChannelImport,
     VERSION_2: ChannelImport,
     VERSION_3: ChannelImport,
+    VERSION_4: ChannelImport,
 }
 
 

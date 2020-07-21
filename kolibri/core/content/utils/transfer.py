@@ -1,9 +1,11 @@
 import logging
 import os
 import shutil
+from time import sleep
 
 import requests
-from requests.exceptions import ConnectionError
+
+from kolibri.core.content.utils.import_export_content import retry_import
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +34,7 @@ class Transfer(object):
         block_size=2097152,
         remove_existing_temp_file=True,
         timeout=20,
+        cancel_check=None,
     ):
         self.source = source
         self.dest = dest
@@ -42,6 +45,7 @@ class Transfer(object):
         self.completed = False
         self.finalized = False
         self.closed = False
+        self.cancel_check = cancel_check
 
         # TODO (aron): Instead of using signals, have bbq/iceqube add
         # hooks that the app calls every so often to determine whether it
@@ -149,17 +153,26 @@ class FileDownload(Transfer):
             # initialize a fresh requests session, if one wasn't provided
             self.session = requests.Session()
 
+        # Record the size of content that has been transferred
+        self.transferred_size = 0
+
         super(FileDownload, self).__init__(*args, **kwargs)
 
     def start(self):
-        # If a file download was stopped by Internet connection error,
-        # then open the temp file again.
-        if self.started:
-            self.dest_file_obj = open(self.dest_tmp, "wb")
-
         # initiate the download, check for status errors, and calculate download size
-        self.response = self.session.get(self.source, stream=True, timeout=self.timeout)
-        self.response.raise_for_status()
+        try:
+            self.response = self.session.get(
+                self.source, stream=True, timeout=self.timeout
+            )
+            self.response.raise_for_status()
+        except Exception as e:
+            retry = retry_import(e)
+            if not retry:
+                raise
+            # Catch exceptions to check if we should resume file downloading
+            self.resume()
+            if self.cancel_check():
+                self._kill_gracefully()
 
         try:
             self.total_size = int(self.response.headers["content-length"])
@@ -184,15 +197,79 @@ class FileDownload(Transfer):
         return self
 
     def next(self):
+        if self.cancel_check():
+            self._kill_gracefully()
+
         try:
-            return super(FileDownload, self).next()
-        except ConnectionError as e:
+            chunk = super(FileDownload, self).next()
+            self.transferred_size = self.transferred_size + self.block_size
+            return chunk
+        except Exception as e:
+            retry = retry_import(e)
+            if not retry:
+                raise
+
             logger.error("Error reading download stream: {}".format(e))
-            raise
+            self.resume()
+            return self.next()
 
     def close(self):
-        self.response.close()
+        if hasattr(self, "response"):
+            self.response.close()
         super(FileDownload, self).close()
+
+    def resume(self):
+        if self.cancel_check():
+            return
+        try:
+            logger.info(
+                "Waiting for 30 seconds before retrying import: {}\n".format(
+                    self.source
+                )
+            )
+            sleep(30)
+
+            byte_range_resume = None
+            # When internet connection is lost at the beginning of start(),
+            # self.response does not get an assigned value
+            if hasattr(self, "response"):
+                # Use Accept-Ranges and Content-Length header to check if range
+                # requests are supported. For example, range requests are not
+                # supported on compressed files
+                byte_range_resume = self.response.headers.get(
+                    "accept-ranges", None
+                ) and self.response.headers.get("content-length", None)
+                resume_headers = self.response.request.headers
+
+                # Only use byte-range file resuming when sources support range requests
+                if byte_range_resume:
+                    range_headers = {"Range": "bytes={}-".format(self.transferred_size)}
+                    resume_headers.update(range_headers)
+
+                self.response = self.session.get(
+                    self.source,
+                    headers=resume_headers,
+                    stream=True,
+                    timeout=self.timeout,
+                )
+            else:
+                self.response = self.session.get(
+                    self.source, stream=True, timeout=self.timeout
+                )
+            self.response.raise_for_status()
+            self._content_iterator = self.response.iter_content(self.block_size)
+
+            # Remove the existing content in dest_file_object when range requests are not supported
+            if byte_range_resume is None:
+                self.dest_file_obj.seek(0)
+                self.dest_file_obj.truncate()
+        except Exception as e:
+            logger.error("Error reading download stream: {}".format(e))
+            retry = retry_import(e)
+            if not retry:
+                raise
+
+            self.resume()
 
 
 class FileCopy(Transfer):
@@ -206,6 +283,8 @@ class FileCopy(Transfer):
 
     def _read_block_iterator(self):
         while True:
+            if self.cancel_check():
+                self._kill_gracefully()
             block = self.source_file_obj.read(self.block_size)
             if not block:
                 break

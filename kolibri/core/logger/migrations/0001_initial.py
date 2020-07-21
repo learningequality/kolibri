@@ -4,10 +4,11 @@ from __future__ import unicode_literals
 
 import django.core.validators
 import django.db.models.deletion
-import jsonfield.fields
 import morango.models
 from django.db import migrations
 from django.db import models
+
+import kolibri.core.fields
 
 
 class Migration(migrations.Migration):
@@ -60,12 +61,12 @@ class Migration(migrations.Migration):
                 ("hinted", models.BooleanField(default=False)),
                 (
                     "answer",
-                    jsonfield.fields.JSONField(blank=True, default={}, null=True),
+                    kolibri.core.fields.JSONField(blank=True, default={}, null=True),
                 ),
                 ("simple_answer", models.CharField(blank=True, max_length=200)),
                 (
                     "interaction_history",
-                    jsonfield.fields.JSONField(blank=True, default=[]),
+                    kolibri.core.fields.JSONField(blank=True, default=[]),
                 ),
                 (
                     "dataset",
@@ -115,7 +116,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("kind", models.CharField(max_length=200)),
-                ("extra_fields", jsonfield.fields.JSONField(blank=True, default={})),
+                ("extra_fields", kolibri.core.fields.JSONField(blank=True, default={})),
                 (
                     "dataset",
                     models.ForeignKey(
@@ -177,7 +178,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("kind", models.CharField(max_length=200)),
-                ("extra_fields", jsonfield.fields.JSONField(blank=True, default={})),
+                ("extra_fields", kolibri.core.fields.JSONField(blank=True, default={})),
                 (
                     "dataset",
                     models.ForeignKey(
@@ -238,12 +239,12 @@ class Migration(migrations.Migration):
                 ("hinted", models.BooleanField(default=False)),
                 (
                     "answer",
-                    jsonfield.fields.JSONField(blank=True, default={}, null=True),
+                    kolibri.core.fields.JSONField(blank=True, default={}, null=True),
                 ),
                 ("simple_answer", models.CharField(blank=True, max_length=200)),
                 (
                     "interaction_history",
-                    jsonfield.fields.JSONField(blank=True, default=[]),
+                    kolibri.core.fields.JSONField(blank=True, default=[]),
                 ),
                 ("content_id", morango.models.UUIDField()),
                 ("channel_id", morango.models.UUIDField()),
@@ -320,7 +321,7 @@ class Migration(migrations.Migration):
                     "_morango_partition",
                     models.CharField(editable=False, max_length=128),
                 ),
-                ("mastery_criterion", jsonfield.fields.JSONField(default={})),
+                ("mastery_criterion", kolibri.core.fields.JSONField(default={})),
                 ("start_timestamp", models.DateTimeField()),
                 ("end_timestamp", models.DateTimeField(blank=True, null=True)),
                 ("completion_timestamp", models.DateTimeField(blank=True, null=True)),

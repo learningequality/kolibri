@@ -4,7 +4,7 @@ const prettier = require('prettier');
 const compiler = require('vue-template-compiler');
 const ESLintCLIEngine = require('eslint').CLIEngine;
 const HTMLHint = require('htmlhint').HTMLHint;
-const esLintFormatter = require('eslint/lib/formatters/stylish');
+const esLintFormatter = require('eslint/lib/cli-engine/formatters/stylish');
 const stylelint = require('stylelint');
 const colors = require('colors');
 const stylelintFormatter = require('stylelint').formatters.string;
@@ -150,7 +150,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
               code,
               codeFilename,
               config: stylelintConfig,
-              // For reasons beyond my ken, stylint borks on css files
+              // For reasons beyond my ken, stylelint borks on css files
               // Fortunately, scss is a superset of css, so this works.
               syntax: style === 'css' ? 'scss' : style,
               fix: true,

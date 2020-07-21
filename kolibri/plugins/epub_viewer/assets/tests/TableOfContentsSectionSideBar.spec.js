@@ -46,7 +46,7 @@ describe('Table of Contents Side Bar', () => {
     const wrapper = createWrapper({
       toc,
     });
-    expect(wrapper.findAll({ name: 'KButton' }).length).toBe(3);
+    expect(wrapper.findAllComponents({ name: 'KButton' }).length).toBe(3);
   });
 
   it('should create a ul for each section', () => {
@@ -60,7 +60,7 @@ describe('Table of Contents Side Bar', () => {
     const wrapper = createWrapper({
       toc,
     });
-    const allSectionButtons = wrapper.findAll({ name: 'KButton' });
+    const allSectionButtons = wrapper.findAllComponents({ name: 'KButton' });
     allSectionButtons.wrappers[allSectionButtons.length - 1].trigger('click');
     expect(wrapper.emitted().tocNavigation[0][0]).toEqual({
       label: 'Third level section',
@@ -73,7 +73,7 @@ describe('Table of Contents Side Bar', () => {
       toc,
       currentSection,
     });
-    const allSectionButtons = wrapper.findAll({ name: 'KButton' });
+    const allSectionButtons = wrapper.findAllComponents({ name: 'KButton' });
     const allSectionButtonsWithCustomClass = allSectionButtons.filter(button =>
       button.classes().includes('toc-list-item-button-current')
     );

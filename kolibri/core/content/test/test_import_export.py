@@ -8,8 +8,8 @@ from django.test import TestCase
 from le_utils.constants import content_kinds
 from mock import call
 from mock import MagicMock
+from mock import mock_open
 from mock import patch
-from requests import Response
 from requests import Session
 from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import ConnectionError
@@ -24,6 +24,7 @@ from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
 from kolibri.core.content.utils.import_export_content import get_files_to_transfer
+from kolibri.core.content.utils.transfer import TransferCanceled
 from kolibri.utils.tests.helpers import override_option
 
 # helper class for mocking that is equal to anything
@@ -81,12 +82,14 @@ class ImportChannelTestCase(TestCase):
         local_path = tempfile.mkstemp()[1]
         local_path_mock.return_value = local_path
         remote_path_mock.return_value = "notest"
-        FileDownloadMock.return_value.__iter__.return_value = ["one", "two", "three"]
+        FileDownloadMock.return_value.__iter__.side_effect = TransferCanceled()
         call_command("importchannel", "network", self.the_channel_id)
         # Check that is_cancelled was called
         is_cancelled_mock.assert_called_with()
         # Check that the FileDownload initiated
-        FileDownloadMock.assert_called_with("notest", local_path)
+        FileDownloadMock.assert_called_with(
+            "notest", local_path, cancel_check=is_cancelled_mock
+        )
         # Check that cancel was called
         cancel_mock.assert_called_with()
         # Test that import channel cleans up database file if cancelled
@@ -116,12 +119,14 @@ class ImportChannelTestCase(TestCase):
         local_dest_path = tempfile.mkstemp()[1]
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_dest_path, local_src_path]
-        FileCopyMock.return_value.__iter__.return_value = ["one", "two", "three"]
+        FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
         call_command("importchannel", "disk", self.the_channel_id, tempfile.mkdtemp())
         # Check that is_cancelled was called
         is_cancelled_mock.assert_called_with()
         # Check that the FileCopy initiated
-        FileCopyMock.assert_called_with(local_src_path, local_dest_path)
+        FileCopyMock.assert_called_with(
+            local_src_path, local_dest_path, cancel_check=is_cancelled_mock
+        )
         # Check that cancel was called
         cancel_mock.assert_called_with()
         # Test that import channel cleans up database file if cancelled
@@ -176,6 +181,19 @@ class ImportChannelTestCase(TestCase):
         call_command("importchannel", "network", "197934f144305350b5820c7c4dd8e194")
         cancel_mock.assert_called_with()
         import_channel_mock.assert_not_called()
+
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.AsyncCommand.is_cancelled",
+        return_value=False,
+    )
+    def test_remote_import_full_import(
+        self, is_cancelled_mock, start_progress_mock, import_channel_mock
+    ):
+        call_command("importchannel", "network", "197934f144305350b5820c7c4dd8e194")
+        is_cancelled_mock.assert_called()
+        import_channel_mock.assert_called_with(
+            "197934f144305350b5820c7c4dd8e194", cancel_check=is_cancelled_mock
+        )
 
     @patch(
         "kolibri.core.content.management.commands.importchannel.paths.get_content_database_file_url"
@@ -265,7 +283,7 @@ class ImportContentTestCase(TestCase):
     @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
     @patch(
         "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
-        side_effect=[False, True, True, True, True],
+        side_effect=[False, True],
     )
     def test_remote_cancel_during_transfer(
         self,
@@ -283,16 +301,15 @@ class ImportContentTestCase(TestCase):
         local_path_mock.return_value = local_path
         remote_path_mock.return_value = "notest"
         # Mock this __iter__ so that the filetransfer can be looped over
-        FileDownloadMock.return_value.__iter__.return_value = ["one", "two", "three"]
-        FileDownloadMock.return_value.total_size = 1
+        FileDownloadMock.return_value.__iter__.side_effect = TransferCanceled()
         files_to_transfer_mock.return_value = (LocalFile.objects.all(), 10)
         call_command("importcontent", "network", self.the_channel_id)
         # is_cancelled should be called thrice.
-        is_cancelled_mock.assert_has_calls([call(), call(), call()])
+        is_cancelled_mock.assert_has_calls([call(), call()])
         # Should be set to the local path we mocked
-        FileDownloadMock.assert_called_with("notest", local_path, session=Any(Session))
-        # Check that it was cancelled when the command was cancelled, this ensures cleanup
-        FileDownloadMock.assert_has_calls([call().cancel()])
+        FileDownloadMock.assert_called_with(
+            "notest", local_path, session=Any(Session), cancel_check=is_cancelled_mock
+        )
         # Check that the command itself was also cancelled.
         cancel_mock.assert_called_with()
         annotation_mock.mark_local_files_as_available.assert_not_called()
@@ -315,7 +332,7 @@ class ImportContentTestCase(TestCase):
     @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
     @patch(
         "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
-        side_effect=[False, False, False, False, False, True, True, True],
+        side_effect=[False, True, True],
     )
     def test_remote_cancel_after_file_copy_file_not_deleted(
         self,
@@ -382,7 +399,7 @@ class ImportContentTestCase(TestCase):
     @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
     @patch(
         "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
-        side_effect=[False, True, True, True, True],
+        side_effect=[False, True],
     )
     def test_local_cancel_during_transfer(
         self,
@@ -398,13 +415,13 @@ class ImportContentTestCase(TestCase):
         local_dest_path = tempfile.mkstemp()[1]
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_dest_path, local_src_path]
-        FileCopyMock.return_value.__iter__.return_value = ["one", "two", "three"]
-        FileCopyMock.return_value.total_size = 1
+        FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
         files_to_transfer_mock.return_value = (LocalFile.objects.all(), 10)
         call_command("importcontent", "disk", self.the_channel_id, tempfile.mkdtemp())
-        is_cancelled_mock.assert_has_calls([call(), call(), call()])
-        FileCopyMock.assert_called_with(local_src_path, local_dest_path)
-        FileCopyMock.assert_has_calls([call().cancel()])
+        is_cancelled_mock.assert_has_calls([call(), call()])
+        FileCopyMock.assert_called_with(
+            local_src_path, local_dest_path, cancel_check=is_cancelled_mock
+        )
         cancel_mock.assert_called_with()
         annotation_mock.set_content_visibility.assert_called()
 
@@ -416,7 +433,7 @@ class ImportContentTestCase(TestCase):
     @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
     @patch(
         "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
-        side_effect=[False, True, True, True],
+        side_effect=[False, True, True],
     )
     def test_remote_cancel_during_connect_error(
         self,
@@ -453,7 +470,7 @@ class ImportContentTestCase(TestCase):
         len_mock.assert_not_called()
         annotation_mock.set_content_visibility.assert_called()
 
-    @patch("kolibri.core.content.management.commands.importcontent.logger.error")
+    @patch("kolibri.core.content.management.commands.importcontent.logger.warning")
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
     )
@@ -485,85 +502,93 @@ class ImportContentTestCase(TestCase):
             ),
             10,
         )
+
+        node_id = ["2b6926ed22025518a8b9da91745b51d3"]
         call_command(
             "importcontent",
             "network",
             self.the_channel_id,
-            node_ids=["2b6926ed22025518a8b9da91745b51d3"],
+            node_ids=node_id,
             renderable_only=False,
         )
-        self.assertTrue(logger_mock.call_count == 3)
-        self.assertTrue("404" in logger_mock.call_args_list[0][0][0])
+        logger_mock.assert_called_once()
+        self.assertTrue("3 files are skipped" in logger_mock.call_args_list[0][0][0])
+        annotation_mock.set_content_visibility.assert_called_with(
+            self.the_channel_id,
+            [],
+            node_ids=node_id,
+            exclude_node_ids=None,
+            public=False,
+        )
 
-    @patch("kolibri.core.content.management.commands.importcontent.sleep")
-    @patch(
-        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload"
-    )
+    @patch("kolibri.core.content.utils.transfer.Transfer.next")
+    @patch("kolibri.core.content.utils.transfer.sleep")
+    @patch("kolibri.core.content.utils.transfer.requests.Session.get")
     @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
     @patch(
         "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
-        side_effect=[False, True, True, True],
+        side_effect=[False, False, True, True, True],
     )
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path",
-        return_value="test",
+        return_value="test/test",
     )
     def test_remote_import_httperror_502(
         self,
         content_storage_file_path_mock,
         is_cancelled_mock,
         cancel_mock,
-        file_download_mock,
+        requests_get_mock,
         sleep_mock,
+        transfer_next_mock,
         annotation_mock,
         files_to_transfer_mock,
         channel_list_status_mock,
     ):
-        response = Response()
-        response.status_code = 502
-        file_download_mock.return_value.__enter__.side_effect = HTTPError(
-            response=response
-        )
-        file_download_mock.return_value.dest = "test"
+        response_mock = MagicMock()
+        response_mock.status_code = 502
+        exception_502 = HTTPError("Bad Gateway", response=response_mock)
+        requests_get_mock.return_value.raise_for_status.side_effect = exception_502
         LocalFile.objects.filter(
             files__contentnode__channel_id=self.the_channel_id
         ).update(file_size=1)
         files_to_transfer_mock.return_value = (LocalFile.objects.all(), 10)
         call_command("importcontent", "network", self.the_channel_id)
+
+        sleep_mock.assert_called_once()
+        transfer_next_mock.assert_not_called()
         cancel_mock.assert_called_with()
         annotation_mock.set_content_visibility.assert_called()
-        sleep_mock.assert_called_once()
 
-    @patch(
-        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload"
-    )
+    @patch("kolibri.core.content.utils.transfer.requests.Session.get")
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path",
-        return_value="test",
+        return_value="test/test",
     )
     def test_remote_import_httperror_500(
         self,
         content_storage_file_path_mock,
-        file_download_mock,
+        requests_get_mock,
         annotation_mock,
         files_to_transfer_mock,
         channel_list_status_mock,
     ):
-        response = Response()
-        response.status_code = 500
-        file_download_mock.return_value.__enter__.side_effect = HTTPError(
-            response=response
-        )
-        file_download_mock.return_value.dest = "test"
+        response_mock = MagicMock()
+        response_mock.status_code = 500
+        exception_500 = HTTPError("Internal Server Error", response=response_mock)
+        requests_get_mock.return_value.raise_for_status.side_effect = exception_500
         LocalFile.objects.filter(
             files__contentnode__channel_id=self.the_channel_id
         ).update(file_size=1)
         files_to_transfer_mock.return_value = (LocalFile.objects.all(), 10)
         with self.assertRaises(HTTPError):
             call_command("importcontent", "network", self.the_channel_id)
-        annotation_mock.set_content_visibility.assert_called()
+        annotation_mock.set_content_visibility.assert_called_with(
+            self.the_channel_id, [], node_ids=None, exclude_node_ids=None, public=False
+        )
 
     @patch("kolibri.core.content.management.commands.importcontent.len")
+    @patch("kolibri.core.content.utils.transfer.sleep")
     @patch(
         "kolibri.core.content.utils.transfer.Transfer.next",
         side_effect=ChunkedEncodingError("Chunked Encoding Error"),
@@ -571,13 +596,14 @@ class ImportContentTestCase(TestCase):
     @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
     @patch(
         "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
-        side_effect=[False, True, True, True],
+        side_effect=[False, False, False, True, True],
     )
     def test_remote_import_chunkedencodingerror(
         self,
         is_cancelled_mock,
         cancel_mock,
         error_mock,
+        sleep_mock,
         len_mock,
         annotation_mock,
         files_to_transfer_mock,
@@ -604,18 +630,19 @@ class ImportContentTestCase(TestCase):
             self.the_channel_id,
             node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
         )
+        sleep_mock.assert_called_once()
         cancel_mock.assert_called_with()
         len_mock.assert_not_called()
         annotation_mock.set_content_visibility.assert_called()
 
-    @patch("kolibri.core.content.management.commands.importcontent.logger.error")
+    @patch("kolibri.core.content.management.commands.importcontent.logger.warning")
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
     )
     @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
     @patch(
         "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
-        side_effect=[False, True, True, True],
+        side_effect=[False, True, True],
     )
     def test_local_import_oserror_dne(
         self,
@@ -634,9 +661,7 @@ class ImportContentTestCase(TestCase):
         ).update(file_size=1)
         files_to_transfer_mock.return_value = (LocalFile.objects.all(), 10)
         call_command("importcontent", "disk", self.the_channel_id, "destination")
-        self.assertTrue(
-            "No such file or directory" in logger_mock.call_args_list[0][0][0]
-        )
+        self.assertTrue("1 files are skipped" in logger_mock.call_args_list[0][0][0])
         annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.management.commands.importcontent.logger.error")
@@ -868,12 +893,59 @@ class ImportContentTestCase(TestCase):
             ),
             10,
         )
-        call_command(
-            "importcontent", "network", self.the_channel_id,
-        )
+        call_command("importcontent", "network", self.the_channel_id)
         annotation_mock.set_content_visibility.assert_called_with(
-            self.the_channel_id, [], exclude_node_ids=None, node_ids=None, public=False,
+            self.the_channel_id, [], exclude_node_ids=None, node_ids=None, public=False
         )
+
+    @patch("kolibri.core.content.utils.transfer.sleep")
+    @patch("kolibri.core.content.utils.transfer.Transfer.next")
+    @patch("kolibri.core.content.utils.transfer.requests.Session.get")
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path",
+        return_value="test/test",
+    )
+    @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
+        side_effect=[False, False, False, True, True, True],
+    )
+    def test_remote_import_file_compressed_on_gcs(
+        self,
+        is_cancelled_mock,
+        cancel_mock,
+        content_storage_file_path_mock,
+        requests_get_mock,
+        transfer_next_mock,
+        sleep_mock,
+        annotation_mock,
+        files_to_transfer_mock,
+        channel_list_status_mock,
+    ):
+        response_mock = MagicMock()
+        response_mock.status_code = 503
+        exception_503 = HTTPError("Service Unavailable", response=response_mock)
+        transfer_next_mock.side_effect = exception_503
+        requests_get_mock.return_value.headers = {"X-Goog-Stored-Content-Length": "1"}
+        LocalFile.objects.filter(
+            files__contentnode__channel_id=self.the_channel_id
+        ).update(file_size=1)
+        files_to_transfer_mock.return_value = (LocalFile.objects.all(), 10)
+
+        m = mock_open()
+        with patch("kolibri.core.content.utils.transfer.open", m) as open_mock:
+            call_command("importcontent", "network", self.the_channel_id)
+            # Check if truncate() is called since byte-range file resuming is not supported
+            open_mock.assert_called_with("test/test.transfer", "wb")
+            open_mock.return_value.truncate.assert_called_once()
+            sleep_mock.assert_called_once()
+            annotation_mock.set_content_visibility.assert_called_with(
+                self.the_channel_id,
+                [],
+                node_ids=None,
+                exclude_node_ids=None,
+                public=False,
+            )
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
@@ -908,10 +980,12 @@ class ExportChannelTestCase(TestCase):
         local_dest_path = tempfile.mkstemp()[1]
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_src_path, local_dest_path]
-        FileCopyMock.return_value.__iter__.return_value = ["one", "two", "three"]
+        FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
         call_command("exportchannel", self.the_channel_id, local_dest_path)
         is_cancelled_mock.assert_called_with()
-        FileCopyMock.assert_called_with(local_src_path, local_dest_path)
+        FileCopyMock.assert_called_with(
+            local_src_path, local_dest_path, cancel_check=is_cancelled_mock
+        )
         cancel_mock.assert_called_with()
         self.assertFalse(os.path.exists(local_dest_path))
 
@@ -935,9 +1009,9 @@ class ExportContentTestCase(TestCase):
         self, is_cancelled_mock, cancel_mock, FileCopyMock
     ):
         # If cancel comes in before we do anything, make sure nothing happens!
-        FileCopyMock.return_value.__iter__.return_value = ["one", "two", "three"]
+        FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
         call_command("exportcontent", self.the_channel_id, tempfile.mkdtemp())
-        is_cancelled_mock.assert_has_calls([call(), call()])
+        is_cancelled_mock.assert_has_calls([call()])
         FileCopyMock.assert_not_called()
         cancel_mock.assert_called_with()
 
@@ -951,7 +1025,7 @@ class ExportContentTestCase(TestCase):
     @patch("kolibri.core.content.management.commands.exportcontent.AsyncCommand.cancel")
     @patch(
         "kolibri.core.content.management.commands.exportcontent.AsyncCommand.is_cancelled",
-        side_effect=[False, True, True, True],
+        side_effect=[False, True, True],
     )
     def test_local_cancel_during_transfer(
         self,
@@ -965,11 +1039,12 @@ class ExportContentTestCase(TestCase):
         local_dest_path = tempfile.mkstemp()[1]
         local_src_path = tempfile.mkstemp()[1]
         local_path_mock.side_effect = [local_src_path, local_dest_path]
-        FileCopyMock.return_value.__iter__.return_value = ["one", "two", "three"]
+        FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
         call_command("exportcontent", self.the_channel_id, tempfile.mkdtemp())
         is_cancelled_mock.assert_has_calls([call(), call(), call()])
-        FileCopyMock.assert_called_with(local_src_path, local_dest_path)
-        FileCopyMock.assert_has_calls([call().cancel()])
+        FileCopyMock.assert_called_with(
+            local_src_path, local_dest_path, cancel_check=is_cancelled_mock
+        )
         cancel_mock.assert_called_with()
 
 

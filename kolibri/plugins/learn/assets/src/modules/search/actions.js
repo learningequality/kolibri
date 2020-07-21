@@ -42,18 +42,24 @@ export function triggerSearch(
   return ContentNodeSearchResource.getCollection(getParams)
     .fetch()
     .then(({ results, channel_ids, content_kinds, total_results }) => {
-      const contents = _collectionState(results);
-      store.commit('SET_STATE', {
-        contents,
-        searchTerm,
-        channel_ids,
-        content_kinds,
-        kindFilter,
-        channelFilter,
-        total_results,
-      });
+      // If using the same searchTerm, but filters yield no results,
+      // don't wipe out the filters
+      if (store.state.searchTerm === searchTerm && results.length === 0) {
+        store.commit('SET_NO_RESULTS_KEEP_FILTERS');
+      } else {
+        const contents = _collectionState(results);
+        store.commit('SET_STATE', {
+          contents,
+          searchTerm,
+          channel_ids,
+          content_kinds,
+          kindFilter,
+          channelFilter,
+          total_results,
+        });
+        setCopiesCount(store, contents);
+      }
       store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
-      setCopiesCount(store, contents);
     })
     .catch(error => {
       store.dispatch('handleApiError', error, { root: true });

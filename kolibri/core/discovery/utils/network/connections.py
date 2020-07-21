@@ -51,9 +51,15 @@ class CachedDeviceConnectionChecker(object):
         self.base_url = base_url
 
     def check_device_info(self):
+        from kolibri.core.discovery.models import NetworkLocation
+
         info = check_device_info(self.base_url)
 
         if info:
+            # Update the underlying model at the same time as the cache
+            NetworkLocation.objects.filter(instance_id=info.get("instance_id")).update(
+                **info
+            )
             process_cache.set(
                 DEVICE_INFO_CACHE_KEY.format(url=self.base_url),
                 info,

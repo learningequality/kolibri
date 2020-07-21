@@ -12,6 +12,7 @@ from kolibri.plugins.hooks import register_hook
 
 class FacilityManagementPlugin(KolibriPluginBase):
     translated_view_urls = "urls"
+    untranslated_view_urls = "api_urls"
 
 
 @register_hook

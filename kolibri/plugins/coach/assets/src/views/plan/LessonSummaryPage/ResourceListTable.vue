@@ -116,20 +116,8 @@
       workingResources() {
         return this.workingResourcesIds.filter(resourceId => this.resourceContentNodes[resourceId]);
       },
-      removalMessage() {
-        const numberOfRemovals = this.workingResourcesBackup.length - this.workingResources.length;
-
-        if (!numberOfRemovals) {
-          return '';
-        } else if (numberOfRemovals === 1) {
-          return this.$tr('singleResourceRemovalConfirmationMessage', {
-            resourceTitle: this.firstRemovalTitle,
-          });
-        }
-
-        return this.$tr('multipleResourceRemovalsConfirmationMessage', {
-          numberOfRemovals,
-        });
+      numberOfRemovals() {
+        return this.workingResourcesBackup.length - this.workingResources.length;
       },
     },
     mounted() {
@@ -140,7 +128,7 @@
       }
     },
     methods: {
-      ...mapActions(['createSnackbar', 'clearSnackbar']),
+      ...mapActions(['clearSnackbar']),
       ...mapActions('lessonSummary', ['saveLessonResources', 'updateCurrentLesson']),
       ...mapMutations('lessonSummary', {
         removeFromWorkingResources: 'REMOVE_FROM_WORKING_RESOURCES',
@@ -161,23 +149,28 @@
 
         this.autoSave(this.lessonId, this.workingResources);
 
-        this.$store.commit('CORE_CREATE_SNACKBAR', {
-          text: this.removalMessage,
-          autoDismiss: true,
-          duration: removalSnackbarTime,
-          actionText: this.$tr('undoActionPrompt'),
-          actionCallback: () => {
-            this.setWorkingResources(this.workingResourcesBackup);
-            this.autoSave(this.lessonId, this.workingResources);
-            this.clearSnackbar();
-          },
-          hideCallback: () => {
-            if (this.workingResourcesBackup) {
-              // snackbar might carryover to another page (like select)
-              this.workingResourcesBackup = this.workingResources;
+        if (this.numberOfRemovals > 0) {
+          this.showSnackbarNotification(
+            'resourcesRemovedWithCount',
+            { count: this.numberOfRemovals },
+            {
+              autoDismiss: true,
+              duration: removalSnackbarTime,
+              actionText: this.$tr('undoActionPrompt'),
+              actionCallback: () => {
+                this.setWorkingResources(this.workingResourcesBackup);
+                this.autoSave(this.lessonId, this.workingResources);
+                this.clearSnackbar();
+              },
+              hideCallback: () => {
+                if (this.workingResourcesBackup) {
+                  // snackbar might carryover to another page (like select)
+                  this.workingResourcesBackup = this.workingResources;
+                }
+              },
             }
-          },
-        });
+          );
+        }
       },
       moveUpOne(oldIndex) {
         this.shiftOne(oldIndex, oldIndex - 1);
@@ -194,12 +187,12 @@
         this.setWorkingResources(resources);
         this.autoSave(this.lessonId, resources);
 
-        this.createSnackbar(this.$tr('resourceReorderConfirmationMessage'));
+        this.showSnackbarNotification('resourceOrderSaved');
       },
       handleDrag({ newArray }) {
         this.setWorkingResources(newArray);
         this.autoSave(this.lessonId, newArray);
-        this.createSnackbar(this.$tr('resourceReorderConfirmationMessage'));
+        this.showSnackbarNotification('resourceOrderSaved');
       },
       autoSave(id, resources) {
         this.saveLessonResources({ lessonId: id, resourceIds: resources }).catch(() => {
@@ -212,10 +205,7 @@
       },
     },
     $trs: {
-      resourceReorderConfirmationMessage: 'New lesson order saved',
       undoActionPrompt: 'Undo',
-      singleResourceRemovalConfirmationMessage: 'Removed { resourceTitle }',
-      multipleResourceRemovalsConfirmationMessage: 'Removed { numberOfRemovals } resources',
       moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',
       moveResourceDownButtonDescription: 'Move this resource one position down in this lesson',
       parentChannelLabel: 'Parent channel:',
@@ -227,7 +217,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .wrapper {
     margin-top: 16px;

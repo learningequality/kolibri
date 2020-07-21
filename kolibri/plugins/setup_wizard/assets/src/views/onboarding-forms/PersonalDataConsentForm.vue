@@ -4,8 +4,8 @@
     <OnboardingForm
       :header="$tr('header')"
       :description="$tr('description')"
-      :submitText="submitText"
-      @submit="$emit('submit')"
+      :submitText="coreString('finishAction')"
+      @submit="handleSubmit"
     >
       <KButton
         ref="modalButton"
@@ -39,12 +39,6 @@
       OnboardingForm,
     },
     mixins: [commonCoreStrings],
-    props: {
-      submitText: {
-        type: String,
-        required: true,
-      },
-    },
     data() {
       return {
         showModal: false,
@@ -70,6 +64,9 @@
             }, 200);
           }
         });
+      },
+      handleSubmit() {
+        this.$emit('click_next');
       },
     },
     $trs: {

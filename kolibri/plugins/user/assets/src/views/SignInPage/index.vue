@@ -1,219 +1,221 @@
 <template>
 
-  <div class="fh">
+  <CoreBase
+    :immersivePage="false"
+    :immersivePagePrimary="false"
+    :fullScreen="true"
+  >
+    <AuthBase>
+      <!--
+        Unless we know the user needs to create a password enter this div
+        block for the main flow - see the v-else below for the create password flow
+      -->
+      <div v-if="!needsToCreatePassword">
+        <!-- ** Text and Backlinks ** -->
 
-    <FacilityModal
-      v-if="facilityModalVisible"
-      @cancel="closeFacilityModal"
-      @submit="closeFacilityModal"
-    />
-
-    <div class="wrapper-table">
-      <div class="table-row main-row" :style="backgroundImageStyle">
-        <div class="table-cell main-cell">
-          <div class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
-            <CoreLogo
-              v-if="$kolibriBranding.signIn.topLogo"
-              class="logo"
-              :src="$kolibriBranding.signIn.topLogo.src"
-              :alt="$kolibriBranding.signIn.topLogo.alt"
-              :style="$kolibriBranding.signIn.topLogo.style"
-            />
-            <h1
-              v-if="$kolibriBranding.signIn.showTitle"
-              class="kolibri-title"
-              :class="$computedClass({color: $themeBrand.primary.v_300})"
-              :style="$kolibriBranding.signIn.titleStyle"
-            >
-              {{ logoText }}
-            </h1>
-            <p
-              v-if="$kolibriBranding.signIn.showPoweredBy"
-              :style="$kolibriBranding.signIn.poweredByStyle"
-              class="small-text"
-            >
-              <KButton
-                v-if="oidcProviderFlow"
-                :text="$tr('poweredByKolibri')"
-                appearance="basic-link"
-                @click="whatsThisModalVisible = true"
-              />
-              <KExternalLink
-                v-else
-                :text="$tr('poweredByKolibri')"
-                :primary="true"
-                href="https://learningequality.org/r/powered_by_kolibri"
-                target="_blank"
-                appearance="basic-link"
-              />
-            </p>
-            <form ref="form" class="login-form" @submit.prevent="signIn">
-              <UiAlert
-                v-if="invalidCredentials"
-                type="error"
-                :dismissible="false"
-              >
-                {{ $tr('signInError') }}
-              </UiAlert>
-              <transition name="textbox">
-                <KTextbox
-                  id="username"
-                  ref="username"
-                  v-model="username"
-                  autocomplete="username"
-                  :autofocus="!hasMultipleFacilities"
-                  :label="coreString('usernameLabel')"
-                  :invalid="usernameIsInvalid"
-                  :invalidText="usernameIsInvalidText"
-                  @blur="handleUsernameBlur"
-                  @input="showDropdown = true"
-                  @keydown="handleKeyboardNav"
-                />
-              </transition>
-              <transition name="list">
-                <div class="suggestions-wrapper">
-                  <ul
-                    v-if="simpleSignIn && suggestions.length"
-                    v-show="showDropdown"
-                    class="suggestions"
-                    :style="{backgroundColor: $themeTokens.surface}"
-                  >
-                    <UiAutocompleteSuggestion
-                      v-for="(suggestion, i) in suggestions"
-                      :key="i"
-                      :suggestion="suggestion"
-                      :style="suggestionStyle(i)"
-                      @mousedown.native="fillUsername(suggestion)"
-                    />
-                  </ul>
-                </div>
-              </transition>
-              <transition name="textbox">
-                <KTextbox
-                  v-if="needPasswordField"
-                  id="password"
-                  ref="password"
-                  v-model="password"
-                  type="password"
-                  autocomplete="current-password"
-                  :label="coreString('passwordLabel')"
-                  :autofocus="simpleSignIn"
-                  :invalid="passwordIsInvalid"
-                  :invalidText="passwordIsInvalidText"
-                  :floatingLabel="!autoFilledByChromeAndNotEdited"
-                  @blur="passwordBlurred = true"
-                  @input="handlePasswordChanged"
-                />
-              </transition>
-              <div>
-                <KButton
-                  class="login-btn"
-                  type="submit"
-                  :text="coreString('signInLabel')"
-                  :primary="true"
-                  :disabled="busy"
-                />
-              </div>
-            </form>
-
-            <p class="create">
-              <KRouterLink
-                v-if="canSignUp"
-                :text="$tr('createAccountAction')"
-                :to="signUpPage"
-                :primary="true"
-                appearance="flat-button"
-              />
-            </p>
-            <div slot="options">
-              <component :is="component" v-for="component in loginOptions" :key="component.name" />
-            </div>
-            <p
-              v-if="showGuestAccess"
-              class="guest small-text"
-            >
-              <KExternalLink
-                :text="$tr('accessAsGuest')"
-                :href="guestURL"
-                :primary="true"
-                appearance="basic-link"
-              />
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="table-row">
-        <div class="table-cell footer-cell" :style="{ backgroundColor: $themeTokens.surface }">
-          <LanguageSwitcherFooter />
-          <div class="small-text">
-            <span class="version-string">
-              {{ versionMsg }}
-            </span>
-            <CoreLogo
-              v-if="this.$kolibriBranding.signIn.showKolibriFooterLogo"
-              class="footer-logo"
-            />
-            <span v-else> • </span>
-            <KButton
-              :text="coreString('usageAndPrivacyLabel')"
-              appearance="basic-link"
-              @click="privacyModalVisible = true"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <PrivacyInfoModal
-      v-if="privacyModalVisible"
-      @submit="privacyModalVisible = false"
-      @cancel="privacyModalVisible = false"
-    />
-
-    <KModal
-      v-if="whatsThisModalVisible"
-      :title="$tr('whatsThis')"
-      :submitText="coreString('closeAction')"
-      @submit="whatsThisModalVisible = false"
-      @cancel="whatsThisModalVisible = false"
-    >
-      <p>{{ $tr('oidcGenericExplanation') }}</p>
-      <p>
-        <KExternalLink
-          text="https://learningequality.org/kolibri"
-          :primary="true"
-          href="https://learningequality.org/r/powered_by_kolibri"
-          target="_blank"
-          appearance="basic-link"
+        <!-- In MFD show return to facility select when not asking for password -->
+        <KRouterLink
+          v-if="hasMultipleFacilities && !showPasswordForm"
+          icon="back"
+          :text="$tr('changeFacility')"
+          :to="backToFacilitySelectionRoute"
+          style="margin-top: 24px; text-align: left; width: 100%;"
         />
-      </p>
-    </KModal>
 
-  </div>
+        <!-- When password form shows, show a change user link -->
+        <!-- Not using v-else here to be more explicit -->
+        <KButton
+          v-if="showPasswordForm"
+          icon="back"
+          appearance="basic-link"
+          :text="$tr('changeUser')"
+          style="text-align: left; width: 100%; margin-top: 24px;"
+          @click="clearUser"
+        />
+
+        <SignInHeading
+          :showFacilityName="showFacilityName"
+          :showPasswordForm="showPasswordForm"
+        />
+
+        <!-- END Text & Backlinks -->
+
+        <!--
+          USERNAME FORM
+          Presented to user **unless** we are in app context AND have <= 16 users in the facility
+          TODO: Extract this into a separate component. We're post string freeze and short on
+          time right now
+        -->
+        <form ref="form" class="login-form" @submit.prevent="signIn">
+          <div v-show="showUsernameForm">
+            <transition name="textbox">
+              <KTextbox
+                id="username"
+                ref="username"
+                v-model="username"
+                autocomplete="username"
+                :autofocus="true"
+                :label="coreString('usernameLabel')"
+                :invalid="usernameIsInvalid"
+                :invalidText="usernameIsInvalidText"
+                @blur="handleUsernameBlur"
+                @input="showDropdown = true"
+                @keydown="handleKeyboardNav"
+              />
+            </transition>
+            <transition name="list">
+              <div class="suggestions-wrapper">
+                <ul
+                  v-if="simpleSignIn && suggestions.length"
+                  v-show="showDropdown"
+                  class="suggestions"
+                  :style="{ backgroundColor: $themeTokens.surface }"
+                >
+                  <UiAutocompleteSuggestion
+                    v-for="(suggestion, i) in suggestions"
+                    :key="i"
+                    :suggestion="suggestion"
+                    :style="suggestionStyle(i)"
+                    @mousedown.native="fillUsername(suggestion)"
+                  />
+                </ul>
+              </div>
+            </transition>
+            <div>
+              <KButton
+                class="login-btn"
+                :text="$tr('nextLabel')"
+                :primary="true"
+                :disabled="busy"
+                @click="signIn"
+              />
+            </div>
+          </div>
+          <div v-if="showPasswordForm">
+            <UiAlert
+              v-if="invalidCredentials"
+              type="error"
+              :dismissible="false"
+            >
+              {{ $tr('signInError') }}
+            </UiAlert>
+            <transition name="textbox">
+              <KTextbox
+                id="password"
+                ref="password"
+                v-model="password"
+                type="password"
+                autocomplete="current-password"
+                :label="coreString('passwordLabel')"
+                :autofocus="true"
+                :invalid="passwordIsInvalid"
+                :invalidText="passwordIsInvalidText"
+                :floatingLabel="false"
+                @blur="handlePasswordBlur"
+              />
+            </transition>
+            <div>
+              <KButton
+                class="login-btn"
+                type="submit"
+                :text="coreString('signInLabel')"
+                :primary="true"
+                :disabled="busy"
+              />
+            </div>
+          </div>
+        </form>
+
+        <!--
+          USERS LIST
+          Shows users in a list of buttons to be selected from.
+          Shown in App Context in a Facility with <= 16 users
+
+          TODO: When the username form is moved to its own component,
+          integrate this better with that component in next pass for
+          state management and event (signIn) handling
+        -->
+        <UsersList
+          v-if="showUsersList && !showPasswordForm"
+          :users="usernamesForCurrentFacility"
+          :busy="busy"
+          @userSelected="setSelectedUsername"
+        />
+      </div>
+
+      <!-- TODO: This can be its own separate component -->
+      <!--
+        Learner was created without a password, but now must create one.
+        This ought to be routed separately.
+      -->
+      <div v-else style="text-align: left">
+        <KButton
+          appearance="basic-link"
+          text=""
+          style="margin-bottom: 16px;"
+          @click="clearUser"
+        >
+          <KIcon
+            slot="icon"
+            icon="back"
+            :style="{
+              fill: $themeTokens.primary,
+              height: '1.125em',
+              width: '1.125em',
+              position: 'relative',
+              marginRight: '8px',
+              top: '2px',
+            }"
+          />{{ coreString('goBackAction') }}
+        </KButton>
+        <p>{{ $tr("needToMakeNewPasswordLabel", { user: username }) }}</p>
+        <PasswordTextbox
+          ref="createPassword"
+          :autofocus="true"
+          :disabled="busy"
+          :value.sync="createdPassword"
+          :isValid.sync="createdPasswordConfirmation"
+          :shouldValidate="busy"
+          @submitNewPassword="updatePasswordAndSignIn"
+        />
+        <KButton
+          appearance="raised-button"
+          :primary="true"
+          :text="coreString('continueAction')"
+          style="width: 100%; margin: 24px auto 0; display:block;"
+          :disabled="busy"
+          @click="updatePasswordAndSignIn"
+        />
+      </div>
+      <!-- End TODO about making this its own component -->
+
+    </AuthBase>
+  </CoreBase>
 
 </template>
 
 
 <script>
 
+  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { FacilityUsernameResource } from 'kolibri.resources';
+  import get from 'lodash/get';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
-  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
+  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
-  import UiAutocompleteSuggestion from 'keen-ui/src/UiAutocompleteSuggestion';
-  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
-  import branding from 'kolibri.utils.branding';
-  import UiAlert from 'keen-ui/src/UiAlert';
+  import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import urls from 'kolibri.urls';
-  import loginComponents from 'kolibri.utils.loginComponents';
-  import { PageNames } from '../../constants';
-  import LanguageSwitcherFooter from '../LanguageSwitcherFooter';
+  import { ComponentMap } from '../../constants';
   import getUrlParameter from '../getUrlParameter';
-  import FacilityModal from './FacilityModal';
+  import AuthBase from '../AuthBase';
+  import UsersList from '../UsersList';
+  import SignInHeading from './SignInHeading';
   import plugin_data from 'plugin_data';
+
+  const MAX_USERS_FOR_LISTING_VIEW = 16;
 
   export default {
     name: 'SignInPage',
@@ -223,43 +225,80 @@
       };
     },
     components: {
-      FacilityModal,
-      CoreLogo,
+      AuthBase,
+      CoreBase,
+      PasswordTextbox,
+      SignInHeading,
       UiAutocompleteSuggestion,
       UiAlert,
-      LanguageSwitcherFooter,
-      PrivacyInfoModal,
+      UsersList,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     data() {
       return {
-        username: '',
-        password: '',
         usernameSuggestions: [],
-        facilityModalVisible: this.$store.state.signIn.hasMultipleFacilities,
+        usernamesForCurrentFacility: [],
         suggestionTerm: '',
         showDropdown: true,
         highlightedIndex: -1,
         usernameBlurred: false,
         passwordBlurred: false,
         formSubmitted: false,
-        autoFilledByChromeAndNotEdited: false,
-        privacyModalVisible: false,
-        whatsThisModalVisible: false,
+        createdPassword: '',
+        createdPasswordConfirmation: '',
+        busy: false,
+        loginError: null,
+        usernameSubmittedWithoutPassword: false,
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig']),
-      // backend's default facility on load
-      ...mapState(['facilityId']),
+      ...mapGetters(['selectedFacility', 'isAppContext']),
       ...mapState('signIn', ['hasMultipleFacilities']),
-      ...mapState({
-        passwordMissing: state => state.core.loginError === LoginErrors.PASSWORD_MISSING,
-        invalidCredentials: state => state.core.loginError === LoginErrors.INVALID_CREDENTIALS,
-        busy: state => state.core.signInBusy,
-      }),
+      ...mapState(['redirect']),
+      username: {
+        get() {
+          return this.$store.state.signIn.username;
+        },
+        set(username) {
+          this.$store.commit('signIn/SET_USERNAME', username);
+        },
+      },
+      password: {
+        get() {
+          return this.$store.state.signIn.password;
+        },
+        set(password) {
+          this.$store.commit('signIn/SET_PASSWORD', password);
+        },
+      },
+      backToFacilitySelectionRoute() {
+        const facilityRoute = this.$router.getRoute(ComponentMap.FACILITY_SELECT);
+        const whereToNext = this.$router.getRoute(ComponentMap.SIGN_IN);
+        return { ...facilityRoute, params: { whereToNext } };
+      },
+      showPasswordForm() {
+        return (
+          Boolean(this.username) &&
+          (this.passwordMissing || this.invalidCredentials || this.usernameSubmittedWithoutPassword)
+        );
+      },
+      showUsernameForm() {
+        return !this.showPasswordForm && !this.showUsersList;
+      },
+      passwordMissing() {
+        return this.loginError === LoginErrors.PASSWORD_MISSING;
+      },
+      invalidCredentials() {
+        return this.loginError === LoginErrors.INVALID_CREDENTIALS;
+      },
+      needsToCreatePassword() {
+        return this.loginError === LoginErrors.PASSWORD_NOT_SPECIFIED;
+      },
       simpleSignIn() {
-        return this.facilityConfig.learner_can_login_with_no_password;
+        return this.selectedFacility.dataset.learner_can_login_with_no_password;
+      },
+      showUsersList() {
+        return this.selectedFacility.num_users <= MAX_USERS_FOR_LISTING_VIEW && this.isAppContext;
       },
       suggestions() {
         // Filter suggestions on the client side so we don't hammer the server
@@ -291,62 +330,7 @@
         return '';
       },
       passwordIsInvalid() {
-        // prevent validation from showing when we only think that the password is empty
-        if (this.autoFilledByChromeAndNotEdited) {
-          return false;
-        }
         return Boolean(this.passwordIsInvalidText);
-      },
-      formIsValid() {
-        if (this.simpleSignIn) {
-          return !this.usernameIsInvalid;
-        }
-        return !this.usernameIsInvalid && !this.passwordIsInvalid;
-      },
-      canSignUp() {
-        return this.facilityConfig.learner_can_sign_up;
-      },
-      signUpPage() {
-        if (this.nextParam) {
-          return { name: PageNames.SIGN_UP, query: { next: this.nextParam } };
-        }
-        return { name: PageNames.SIGN_UP };
-      },
-      versionMsg() {
-        return this.$tr('poweredBy', { version: __version });
-      },
-      hasServerError() {
-        return Boolean(this.passwordMissing || this.invalidCredentials);
-      },
-      needPasswordField() {
-        return !this.simpleSignIn || this.hasServerError;
-      },
-      showGuestAccess() {
-        return this.facilityConfig.allow_guest_access && !this.oidcProviderFlow;
-      },
-      logoText() {
-        return this.$kolibriBranding.signIn.title
-          ? this.$kolibriBranding.signIn.title
-          : this.coreString('kolibriLabel');
-      },
-      guestURL() {
-        return urls['kolibri:core:guest']();
-      },
-      backgroundImageStyle() {
-        if (this.$kolibriBranding.signIn.background) {
-          const scrimOpacity =
-            this.$kolibriBranding.signIn.scrimOpacity !== undefined
-              ? this.$kolibriBranding.signIn.scrimOpacity
-              : 0.7;
-          return {
-            backgroundColor: this.$themeTokens.primary,
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.$kolibriBranding.signIn.background})`,
-          };
-        }
-        return { backgroundColor: this.$themeBrand.primary.v_900 };
-      },
-      oidcProviderFlow() {
-        return plugin_data.oidcProviderEnabled && this.nextParam;
       },
       nextParam() {
         // query is after hash
@@ -356,45 +340,98 @@
         // query is before hash
         return getUrlParameter('next');
       },
-      loginOptions() {
-        // POC, in the future sorting of different login options can be implemented
-        return [...loginComponents];
+      showFacilityName() {
+        return (
+          this.hasMultipleFacilities || get(this.selectedFacility, 'dataset.preset') !== 'informal'
+        );
       },
     },
     watch: {
       username(newVal) {
-        this.setSuggestionTerm(newVal);
+        if (this.simpleSignIn && !this.showUsersList) {
+          this.setSuggestionTerm(newVal);
+        }
+      },
+      // Watch these computed properties and focus the fields
+      // that need to be focused for cleaner transitions
+      showPasswordForm(b) {
+        if (b) {
+          this.$nextTick(() => {
+            this.$refs.password.focus();
+          });
+        }
+      },
+      showUsernameForm(b) {
+        if (b) {
+          this.$nextTick(() => this.$refs.username.focus());
+          this.usernameSubmittedWithoutPassword = false;
+        }
       },
     },
-    created() {
-      this.$kolibriBranding = branding;
+    // Clear the username when entering the route.
+    // username may be held over if you select a user from UsersList
+    // then change to a facility that doesn't use UsersList
+    //
+    // TODO: If we want to clear the username whenever we switch facilities,
+    // then we can remove the `beforeRouteEnter` and use the commented out
+    // `beforeRouteLeave` below
+    beforeRouteEnter(to, from, next) {
+      next(vm => vm.$store.commit('signIn/RESET_FORM_VALUES'));
     },
-    mounted() {
-      /*
-        Chrome has non-standard behavior with auto-filled text fields where
-        the value shows up as an empty string even though there is text in
-        the field:
-          https://bugs.chromium.org/p/chromium/issues/detail?id=669724
-        As super-brittle hack to detect the presence of auto-filled text and
-        work-around it, we look for a change in background color as described
-        here:
-          https://stackoverflow.com/a/35783761
-      */
-      setTimeout(() => {
-        const bgColor = window.getComputedStyle(this.$refs.username.$el.querySelector('input'))
-          .backgroundColor;
-
-        if (bgColor === 'rgb(250, 255, 189)') {
-          this.autoFilledByChromeAndNotEdited = true;
-        }
-      }, 250);
+    // Clear the username before changing routes to FacilitySelect?
+    /*
+    beforeRouteLeave(to, from, next) {
+      if(to.name === ComponentMap.FACILITY_SELECT) {
+        this.$store.commit('signIn/RESET_FORM_VALUES')
+      }
+      next();
+    },
+    */
+    created() {
+      // Only fetch if we should fetch for this facility
+      if (this.showUsersList) {
+        FacilityUsernameResource.fetchCollection({
+          getParams: {
+            facility: this.selectedFacility.id,
+          },
+        }).then(data => {
+          this.usernamesForCurrentFacility = data.map(u => u.username);
+        });
+      }
     },
     methods: {
-      ...mapActions(['kolibriLogin']),
-      closeFacilityModal() {
-        this.facilityModalVisible = false;
-        this.$nextTick().then(() => {
-          this.$refs.username.focus();
+      ...mapActions(['kolibriLogin', 'kolibriSetUnspecifiedPassword']),
+      clearUser() {
+        // Going back to the beginning - undo what we may have
+        // changed so far and clearing the errors, if any
+        this.username = '';
+        this.password = '';
+        // This ensures we don't get '<field> required' when going back
+        // and forth
+        this.usernameBlurred = false;
+        this.passwordBlurred = false;
+        this.loginError = null;
+      },
+      // Sets the selected list user and/or logs them in
+      setSelectedUsername(username) {
+        this.username = username;
+        // Try to sign in now to validate the username
+        // and to check if we even need a password
+        // or need to change a password
+        this.signIn();
+      },
+      updatePasswordAndSignIn() {
+        this.busy = true;
+        const payload = {
+          username: this.username,
+          password: this.createdPassword,
+          facility: this.selectedFacility.id,
+        };
+        this.kolibriSetUnspecifiedPassword(payload).then(() => {
+          // Password successfully set
+          // Use this password now to sign in
+          this.password = this.createdPassword;
+          this.signIn();
         });
       },
       setSuggestionTerm(newVal) {
@@ -420,7 +457,7 @@
       setSuggestions() {
         FacilityUsernameResource.fetchCollection({
           getParams: {
-            facility: this.facility,
+            facility: this.selectedFacility.id,
             search: this.suggestionTerm,
           },
         })
@@ -450,9 +487,11 @@
           case 'Escape':
             this.showDropdown = false;
             break;
+          case 'NumpadEnter':
           case 'Enter':
             if (this.highlightedIndex < 0) {
               this.showDropdown = false;
+              this.signIn();
             } else {
               this.fillUsername(this.suggestions[this.highlightedIndex]);
               e.preventDefault();
@@ -472,38 +511,51 @@
           this.$refs.username.focus();
         }
       },
+      handlePasswordBlur() {
+        setTimeout(() => (this.passwordBlurred = true), 200);
+      },
       handleUsernameBlur() {
         this.usernameBlurred = true;
+        // Unblur password to avoid inadvertent validation errors when
+        // moving between username and password field views
+        this.passwordBlurred = false;
         this.showDropdown = false;
       },
       signIn() {
-        this.formSubmitted = true;
-        if (this.formIsValid) {
-          const sessionPayload = {
-            username: this.username,
-            password: this.password,
-            facility: this.facilityId,
-          };
-          if (plugin_data.oidcProviderEnabled) {
-            sessionPayload['next'] = this.nextParam;
-          } else if (this.$route.query.redirect && !this.nextParam) {
-            // Go to URL in 'redirect' query param, if arriving from AuthMessage
-            sessionPayload['next'] = this.$route.query.redirect;
-          }
-          this.kolibriLogin(sessionPayload).catch();
-        } else {
-          this.focusOnInvalidField();
+        this.busy = true;
+
+        const sessionPayload = {
+          username: this.username,
+          password: this.password,
+          facility: this.selectedFacility.id,
+        };
+
+        if (plugin_data.oidcProviderEnabled) {
+          sessionPayload['next'] = this.nextParam;
+        } else if (this.redirect && !this.nextParam) {
+          // Go to URL in 'redirect' query param, if arriving from AuthMessage
+          sessionPayload['next'] = this.redirect;
         }
-      },
-      focusOnInvalidField() {
-        if (this.usernameIsInvalid) {
-          this.$refs.username.focus();
-        } else if (this.passwordIsInvalid) {
-          this.$refs.password.focus();
-        }
-      },
-      handlePasswordChanged() {
-        this.autoFilledByChromeAndNotEdited = false;
+
+        this.kolibriLogin(sessionPayload)
+          .then(err => {
+            // If we don't have a password, we submitted without a username
+            if (err) {
+              if (err === LoginErrors.PASSWORD_NOT_SPECIFIED) {
+                // This error overrides the whole layout
+                this.loginError = err;
+              } else {
+                // Otherwise, only show errors when we've submitted a password
+                this.usernameSubmittedWithoutPassword = !this.password;
+                this.loginError = this.usernameSubmittedWithoutPassword ? null : err;
+              }
+            }
+            this.busy = false;
+          })
+          .catch(e => {
+            console.log(e);
+            this.busy = false;
+          });
       },
       suggestionStyle(i) {
         return {
@@ -512,20 +564,27 @@
       },
     },
     $trs: {
-      createAccountAction: 'Create an account',
-      poweredByKolibri: 'Powered by Kolibri',
-      whatsThis: "What's this?",
-      oidcGenericExplanation:
-        'Kolibri is an e-learning platform. You can also use your Kolibri account to log in to some third-party applications.',
-      // Disable the rule here because we will keep this unused string in case we need it later on
-      // eslint-disable-next-line kolibri/vue-no-unused-translations
-      oidcSpecificExplanation:
-        "You were sent here from the application '{app_name}'. Kolibri is an e-learning platform, and you can also use your Kolibri account to access '{app_name}'.",
-      accessAsGuest: 'Explore without account',
+      // TODO: Remove the comments in $trs, run the linter, fix the issues
+      // Disabling this altogether for now because we use some with crossComponentTranslator
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      changeLabel: {
+        message: 'Change',
+        context:
+          '(verb) Link to change the facility to sign in when the device has more than one facility',
+      },
+      signInToFacilityLabel: "Sign into '{facility}'",
+      greetUser: 'Hi, {user}',
       signInError: 'Incorrect username or password',
-      poweredBy: 'Kolibri {version}',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
       documentTitle: 'User Sign In',
+      needToMakeNewPasswordLabel: 'Hi, {user}. You need to set a new password for your account.',
+      nextLabel: 'Next',
+      signingInToFacilityAsUserLabel: "Signing in to '{facility}' as '{user}'",
+      signingInAsUserLabel: "Signing in as '{user}'",
+      changeUser: 'Change user',
+      changeFacility: 'Change facility',
+      multiFacilitySignInError: 'Incorrect username, password, or facility',
+      /* eslint-enable */
     },
   };
 
@@ -534,7 +593,7 @@
 
 <style lang="scss" scoped>
 
-  @import '~kolibri.styles.definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .fh {
     height: 100%;
@@ -581,7 +640,8 @@
   }
 
   .login-btn {
-    width: calc(100% - 16px);
+    width: 100%;
+    margin-top: 16px;
   }
 
   .create {

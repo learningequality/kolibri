@@ -34,12 +34,12 @@
         :disabled="formDisabled"
       />
 
-      <div class="buttons">
+      <KButtonGroup class="buttons">
         <KButton
-          class="no-margin"
           :text="coreString('saveAction')"
           :disabled="formDisabled"
           type="submit"
+
           primary
         />
         <KButton
@@ -47,9 +47,10 @@
           :disabled="formDisabled"
           appearance="raised-button"
           :primary="false"
+
           @click="$router.push($router.getRoute('PROFILE'))"
         />
-      </div>
+      </KButtonGroup>
     </form>
   </KPageContainer>
 
@@ -69,6 +70,7 @@
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import { FacilityUserResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ComponentMap } from '../constants';
 
   export default {
     name: 'ProfileEditPage',
@@ -100,18 +102,18 @@
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig', 'isCoach', 'isLearner']),
+      ...mapGetters(['facilityConfig', 'isLearner']),
       formDisabled() {
         return this.status === 'BUSY';
       },
       canEditName() {
-        if (this.isLearner || this.isCoach) {
+        if (this.isLearner) {
           return this.facilityConfig.learner_can_edit_name;
         }
         return true;
       },
       canEditUsername() {
-        if (this.isLearner || this.isCoach) {
+        if (this.isLearner) {
           return this.facilityConfig.learner_can_edit_username;
         }
         return true;
@@ -159,8 +161,9 @@
               updates: this.getUpdates(),
             })
             .then(() => {
-              this.$store.dispatch('createSnackbar', this.$tr('updateSuccessNotification'));
-              this.$router.push(this.$router.getRoute('PROFILE'));
+              this.showSnackbarNotification('changesSaved');
+              const nextRoute = this.$router.getRoute(ComponentMap.PROFILE);
+              this.$router.push(nextRoute);
             })
             .catch(error => {
               this.status = 'FAILURE';
@@ -187,7 +190,6 @@
     },
     $trs: {
       editProfileHeader: 'Edit profile',
-      updateSuccessNotification: 'Profile details updated',
     },
   };
 
@@ -208,7 +210,7 @@
   }
 
   .buttons {
-    margin: 36px 0 18px;
+    padding: 18px 0;
 
     button:first-of-type {
       margin-left: 0;

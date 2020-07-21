@@ -1,12 +1,12 @@
 Feature: General navigation on the *Reports* tab
 
-  Background: 
+  Background:
     Given I am signed in as a facility or class coach
       And I am on *Coach - '<class>' > Reports* tab
 
   Scenario: Navigate back to the class list
     Given there are 2 or more classes in the facility
-      And I am on any of the subtabs *Lessons/Quizzes/Groups/Learners* 
+      And I am on any of the subtabs *Lessons/Quizzes/Groups/Learners*
         When I click on *Class home*
         Then I am on *Coach - '<class>' > Class home* page
           And I see the high level summary for <class>, and blocks for *Quizzes*, *Lessons* and *Class activity*

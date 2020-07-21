@@ -68,6 +68,20 @@ module.exports = {
         ignoreStrings: true,
         ignoreTemplateLiterals: true,
         ignoreUrls: true,
+        ignoreTrailingComments: true,
+      },
+    ],
+    'vue/max-len': [
+      ERROR,
+      {
+        code: 100,
+        template: 100,
+        comments: 100,
+        ignoreUrls: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+        ignoreHTMLTextContents: true,
+        ignoreTrailingComments: true,
       },
     ],
     'vue/attribute-hyphenation': [ERROR, 'never'],
@@ -159,12 +173,26 @@ module.exports = {
       ERROR,
       2, // Base indent spaces
       {
-        'attribute': 1,
-        'baseIndent': 1,
-        'closeBracket': 0,
-        'alignAttributesVertically': true,
-      }
+        attribute: 1,
+        baseIndent: 1,
+        closeBracket: 0,
+        alignAttributesVertically: true,
+      },
     ],
+    'vue/static-class-names-order': ERROR,
+    'vue/no-deprecated-scope-attribute': ERROR,
+    'vue/valid-v-bind-sync': ERROR,
+    // TODO Enforcing these rules requires bigger refactor
+    // 'vue/no-deprecated-slot-attribute': ERROR,
+    // 'vue/no-deprecated-slot-scope-attribute': ERROR,
+    'vue/valid-v-slot': ERROR,
+
+    // ESLint rules for interpolated JS
+    'vue/object-curly-spacing': [ERROR, 'always'],
+    'vue/eqeqeq': [ERROR, 'always'],
+    'vue/key-spacing': [ERROR, { afterColon: true }],
+    'vue/space-infix-ops': ERROR,
+    'vue/space-unary-ops': ERROR,
 
     'import/first': ERROR,
     'import/no-duplicates': ERROR,

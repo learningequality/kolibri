@@ -31,9 +31,6 @@ RUN git lfs install
 # copy Kolibri source code into image
 COPY . /kolibri
 
-# A volume used to share `pex`/`whl` files and fixtures with docker host
-VOLUME /docker/mnt
-
 # do the time-consuming base install commands
 RUN cd /kolibri \
     && pip install -r requirements/dev.txt \

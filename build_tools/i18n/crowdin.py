@@ -424,8 +424,9 @@ def download_translations(branch):
                 os.path.join(target, lang_object["crowdin_code"], PERSEUS_CSV),
                 os.path.join(perseus_target, PERSEUS_CSV),
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logging.error("Ignoring an exception")
+            logging.error(e)
 
     # TODO Don't need to format here... going to do this in the new command.
     _process_downloaded_files()  # clean them up to make git diffs more meaningful
