@@ -112,7 +112,11 @@
       },
     },
     watch: {
-      selected() {
+      selected(newVal) {
+        // If the previously-saved admin is chosen, auto-fill their password
+        if (newVal.label === this.facility.username) {
+          this.setSavedAdminPassword();
+        }
         this.resetFormAndRefocus();
       },
     },
@@ -123,15 +127,25 @@
       uniqueUsernameValidator(username) {
         return !this.facilityAdmins.find(admin => admin.username === username);
       },
+      setSavedAdminPassword() {
+        this.password = this.facility.password;
+      },
       fetchFacilityAdmins() {
         return FacilityImportResource.facilityadmins()
           .then(admins => {
             this.facilityAdmins = [...admins];
             // NOTE: We don't have the facility user ID on hand to disambiguate if
             // a duplicate username is used
-            this.selected =
-              this.dropdownOptions.find(({ label }) => label === this.facility.username) ||
-              this.dropdownOptions[0];
+            const superuserMatch = this.dropdownOptions.find(
+              ({ label }) => label === this.facility.username
+            );
+            if (superuserMatch) {
+              this.selected = superuserMatch;
+              this.setSavedAdminPassword();
+            } else {
+              this.selected = this.dropdownOptions[0];
+              this.password = '';
+            }
             this.$nextTick().then(() => {
               this.resetFormAndRefocus();
             });
@@ -144,9 +158,9 @@
       resetFormAndRefocus() {
         this.shouldValidate = false;
         if (this.$refs.password) {
-          this.$refs.password.resetAndFocus();
-          if (this.selected.label === this.facility.username) {
-            this.password = this.facility.password;
+          // If password was set to the facility.password in handler
+          if (this.selected.label !== this.facility.username) {
+            this.$refs.password.resetAndFocus();
           }
         }
       },
