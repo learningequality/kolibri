@@ -73,7 +73,7 @@
             <p v-if="!hideCreateAccount && canSignUp" class="create">
               <router-link :to="signUpPage">
                 <KButton
-                  :text="$tr('createAccountAction')"
+                  :text="AuthSelectStrings.$tr('createAccountAction')"
                   :to="signUpPage"
                   :primary="false"
                   appearance="raised-button"
