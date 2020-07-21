@@ -48,7 +48,7 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
   return store.dispatch('loading').then(() => {
     store.commit('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
     const promises = [
-      ContentNodeResource.fetchModel({ id }), // the topic
+      ContentNodeResource.fetchModel({ id, force: true }), // the topic
       ContentNodeResource.fetchCollection({
         getParams: {
           parent: id,
