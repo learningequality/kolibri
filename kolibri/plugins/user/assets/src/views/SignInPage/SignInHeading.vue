@@ -32,7 +32,7 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapGetters } from 'vuex';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import SignInPage from './index';
 
@@ -47,10 +47,13 @@
         type: Boolean,
         required: true,
       },
+      username: {
+        type: String,
+        required: true,
+      },
     },
     computed: {
       ...mapGetters(['selectedFacility']),
-      ...mapState('signIn', ['username']),
       strings() {
         // Gross
         return crossComponentTranslator(SignInPage);
