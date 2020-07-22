@@ -104,7 +104,7 @@ Feature: Manage sign in options within app context
 		Then I see my *Learn* page
 
 	Scenario: Any subsequent session on Kolibri after first sign in (multiple facilities; with password; less then 16 users)
-		Given the device has with multiple facilities
+		Given the device has multiple facilities
 			And I have used this device previously to sign in or create a new learner account
 			And that signing in without password is disabled in the *Facility Settings*
 		When I tap the app icon to open Kolibri
