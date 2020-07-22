@@ -6,8 +6,9 @@ from sqlalchemy.pool import NullPool
 
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
-from kolibri.core.tasks.storage import Storage
+from kolibri.core.tasks.storage import Storage, ORMJob
 from kolibri.core.tasks.utils import stringify_func
+from kolibri.utils import conf
 
 
 QUEUE = "pytest"
@@ -16,14 +17,35 @@ QUEUE = "pytest"
 @pytest.fixture
 def defaultbackend():
     with tempfile.NamedTemporaryFile() as f:
-        connection = create_engine(
-            "sqlite:///{path}".format(path=f.name),
-            connect_args={"check_same_thread": False},
-            poolclass=NullPool,
-        )
+
+        database_engine_option = conf.OPTIONS["Database"]["DATABASE_ENGINE"]
+
+        if database_engine_option == "sqlite":
+            connection = create_engine(
+                "sqlite:///{path}".format(path=f.name),
+                connect_args={"check_same_thread": False},
+                poolclass=NullPool,
+            )
+        elif database_engine_option == "postgres":
+            connection = create_engine(
+                "postgresql://{user}:{password}@{host}{port}/{name}".format(
+                    name=conf.OPTIONS["Database"]["DATABASE_NAME"],
+                    password=conf.OPTIONS["Database"]["DATABASE_PASSWORD"],
+                    user=conf.OPTIONS["Database"]["DATABASE_USER"],
+                    host=conf.OPTIONS["Database"]["DATABASE_HOST"],
+                    port=":" + conf.OPTIONS["Database"]["DATABASE_PORT"]
+                    if conf.OPTIONS["Database"]["DATABASE_PORT"]
+                    else "",
+                )
+            )
+        else:
+            raise Exception(
+                "Unknown database engine option: {}".format(database_engine_option)
+            )
+
         b = Storage(connection)
         yield b
-        b.clear()
+        b.clear(queue=QUEUE, force=True)
 
 
 @pytest.fixture
