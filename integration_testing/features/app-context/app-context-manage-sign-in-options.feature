@@ -89,24 +89,41 @@ Feature: Manage sign in options within app context
 			And I tap *Sign in*
 		Then I see learner <learner> *Learn* page
 
-	Scenario: Any subsequent session on Kolibri after first sign in
-		Given I am using a client device that has detected multiple facilities
-			And I have used this client device previously to sign in or create a new account
-
+	Scenario: Any subsequent session on Kolibri after first sign in (single facility; with password; less then 16 users)
+		Given I the device has only one facility
+			And I have used this device previously to sign in or create a new learner account
+			And that signing in without password is disabled in the *Facility Settings*			
 		When I tap the app icon to open Kolibri
-		Then I see a list of usernames
-			And I see that my facility name displayed in the container box
-			And I tap on my username
-		Then I see the input field for entering my password
+		Then I see *Sign into '<facility>'*
+			And I see a list of usernames
+		When I tap my <username>
+		Then I see *Sign into '<facility>' as '<username>'*
+			And I see the input field for entering my password
 			And I type my password
-			And I click on *Next*
-		Then I see my Kolibri account
+			And I click on *Sign in*
+		Then I see my *Learn* page
+
+	Scenario: Any subsequent session on Kolibri after first sign in (multiple facilities; with password; less then 16 users)
+		Given I the device has with multiple facilities
+			And I have used this device previously to sign in or create a new learner account
+			And that signing in without password is disabled in the *Facility Settings*			
+		When I tap the app icon to open Kolibri
+		Then I see the *Select facility...*
+			And I see a list of facilities
+		When I tap to select <facility>
+		Then I see *Sign into '<facility>'*
+			And I see a list of usernames
+		When I tap my <username>
+		Then I see *Sign into '<facility>' as '<username>'*
+			And I see the input field for entering my password
+			And I type my password
+			And I click on *Sign in*
+		Then I see my *Learn* page
 
 	Scenario: Facility name will not be displayed on the sign in page if there is only one facility on the device and the use context is personal
  		Given I have a Kolibri account
 			And there is only one facility on the device
 			And the use context is personal
-
 		When I tap the app icon to open Kolibri
 		Then I see a list of usernames
 			And I don't see any facility name displayed in the sign in container box
@@ -120,7 +137,6 @@ Feature: Manage sign in options within app context
  		Given I have a Kolibri account
 			And there is only 1 facility on the device
 			And the use context is formal / non formal
-
 		When I click on the Kolibri application
 		Then I see a list of usernames
 			And I see the facility name displayed in the container box
