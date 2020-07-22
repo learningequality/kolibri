@@ -45,8 +45,10 @@
         <td>{{ $tr('resourceCount', { count: channel.on_device_resources || 0 }) }}</td>
         <td>{{ bytesForHumans(channel.on_device_file_size || 0) }}</td>
       </tr>
-      <tr v-if="false">
+      <tr v-if="channel.new_resource_count !== null">
         <th>{{ $tr('newOrUpdatedLabel') }}</th>
+        <td>{{ $tr('resourceCount', { count: channel.new_resource_count || 0 }) }}</td>
+        <td>{{ bytesForHumans(channel.new_resource_total_size || 0) }}</td>
       </tr>
     </table>
   </section>

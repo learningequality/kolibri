@@ -1,6 +1,6 @@
-import client from 'kolibri.client';
 import debounce from 'lodash/debounce';
 import pick from 'lodash/pick';
+import client from 'kolibri.client';
 import logger from 'kolibri.lib.logging';
 import {
   SessionResource,
@@ -173,10 +173,6 @@ export function clearError(store) {
   store.commit('CORE_SET_ERROR', null);
 }
 
-export function clearLoginError(store) {
-  store.commit('CORE_SET_LOGIN_ERROR', null);
-}
-
 export function handleApiError(store, errorObject) {
   let error = errorObject;
   if (typeof errorObject === 'object' && !(errorObject instanceof Error)) {
@@ -223,60 +219,24 @@ export function setSession(store, { session, clientNow }) {
 }
 
 /**
- * Signs in user and then sets their password
- * this is used in the case where a learner has created an
- * account without a password. At sign in, they will
- * give a password - we sign them in to create the session,
- * then we make a request to update their password before
- * redirecting.
+ * Sets a password that is currently not specified
+ * due to an account that was created while passwords
+ * were not required.
  *
  * @param {object} store The store.
  * @param {object} sessionPayload The session payload.
  */
-export function kolibriLoginWithNewPassword(store, payload) {
-  store.commit('CORE_SET_SIGN_IN_BUSY', true);
-  Lockr.set(UPDATE_MODAL_DISMISSED, false);
-
-  const { username, password, facility, user } = payload;
-
-  const sessionPayload = {
+export function kolibriSetUnspecifiedPassword(store, { username, password, facility }) {
+  const data = {
     username,
     password,
     facility,
   };
-
-  return SessionResource.saveModel({ data: sessionPayload })
-    .then(() => {
-      const path = `/api/auth/facilityuser/${user.id}/`;
-      const method = 'PATCH';
-      const data = { password };
-      client({ path, method, data }).then(() => {
-        // OIDC redirect
-        if (sessionPayload.next) {
-          redirectBrowser(sessionPayload.next);
-        }
-        // Normal redirect on login
-        else {
-          redirectBrowser();
-        }
-      });
-    })
-    .catch(error => {
-      store.commit('CORE_SET_SIGN_IN_BUSY', false);
-      const errorsCaught = CatchErrors(error, [
-        ERROR_CONSTANTS.INVALID_CREDENTIALS,
-        ERROR_CONSTANTS.MISSING_PASSWORD,
-      ]);
-      if (errorsCaught) {
-        if (errorsCaught.includes(ERROR_CONSTANTS.INVALID_CREDENTIALS)) {
-          store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.INVALID_CREDENTIALS);
-        } else if (errorsCaught.includes(ERROR_CONSTANTS.MISSING_PASSWORD)) {
-          store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.PASSWORD_MISSING);
-        }
-      } else {
-        store.dispatch('handleApiError', error);
-      }
-    });
+  return client({
+    url: urls['kolibri:core:setnonspecifiedpassword'](),
+    data,
+    method: 'post',
+  });
 }
 
 /**
@@ -286,7 +246,6 @@ export function kolibriLoginWithNewPassword(store, payload) {
  * @param {object} sessionPayload The session payload.
  */
 export function kolibriLogin(store, sessionPayload) {
-  store.commit('CORE_SET_SIGN_IN_BUSY', true);
   Lockr.set(UPDATE_MODAL_DISMISSED, false);
   return SessionResource.saveModel({ data: sessionPayload })
     .then(() => {
@@ -300,16 +259,18 @@ export function kolibriLogin(store, sessionPayload) {
       }
     })
     .catch(error => {
-      store.commit('CORE_SET_SIGN_IN_BUSY', false);
       const errorsCaught = CatchErrors(error, [
         ERROR_CONSTANTS.INVALID_CREDENTIALS,
         ERROR_CONSTANTS.MISSING_PASSWORD,
+        ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED,
       ]);
       if (errorsCaught) {
         if (errorsCaught.includes(ERROR_CONSTANTS.INVALID_CREDENTIALS)) {
-          store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.INVALID_CREDENTIALS);
+          return LoginErrors.INVALID_CREDENTIALS;
         } else if (errorsCaught.includes(ERROR_CONSTANTS.MISSING_PASSWORD)) {
-          store.commit('CORE_SET_LOGIN_ERROR', LoginErrors.PASSWORD_MISSING);
+          return LoginErrors.PASSWORD_MISSING;
+        } else if (errorsCaught.includes(ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED)) {
+          return LoginErrors.PASSWORD_NOT_SPECIFIED;
         }
       } else {
         store.dispatch('handleApiError', error);

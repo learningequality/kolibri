@@ -2,7 +2,7 @@
 
   <CoreBase
     :immersivePage="true"
-    immersivePageIcon="arrow_back"
+    immersivePageIcon="back"
     :immersivePageRoute="returnBackRoute"
     :immersivePagePrimary="true"
     :appBarTitle="appBarTitle"

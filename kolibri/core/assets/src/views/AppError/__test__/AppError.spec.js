@@ -21,7 +21,7 @@ describe('AppError component', () => {
     };
     store.state.core.error = JSON.stringify(error);
     await wrapper.vm.$nextTick();
-    expect(wrapper.find({ name: 'KButton' }).props().text).toEqual('Back to home');
+    expect(wrapper.findComponent({ name: 'KButton' }).props().text).toEqual('Back to home');
     expect(wrapper.find('h1').text()).toEqual('Resource not found');
   });
 
@@ -35,7 +35,7 @@ describe('AppError component', () => {
     };
     store.state.core.error = JSON.stringify(error);
     await wrapper.vm.$nextTick();
-    expect(wrapper.find({ name: 'KButton' }).props().text).toEqual('Refresh');
+    expect(wrapper.findComponent({ name: 'KButton' }).props().text).toEqual('Refresh');
     expect(wrapper.find('h1').text()).toEqual('Sorry! Something went wrong!');
   });
 });

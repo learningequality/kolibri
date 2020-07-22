@@ -9,7 +9,7 @@
     >
       <KLabeledIcon
         :label="coachString('entireClassLabel')"
-        icon="classroom"
+        icon="classes"
       />
     </KRadioButton>
     <KCheckbox

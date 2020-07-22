@@ -44,7 +44,7 @@
           </KPageContainer>
 
           <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
-            <KButtonGroup style="margin-top: 8px;">
+            <KButtonGroup>
               <UiIconButton
                 v-if="windowBreakpoint === 0"
                 :aria-label="$tr('nextQuestion')"
@@ -54,9 +54,8 @@
                 :disabled="questionNumber === exam.question_count - 1"
                 @click="goToQuestion(questionNumber + 1)"
               >
-                <mat-svg
-                  name="arrow_forward"
-                  category="navigation"
+                <KIcon
+                  icon="forward"
                   :style="{ fill: $themeTokens.primary }"
                 />
               </UiIconButton>
@@ -80,9 +79,8 @@
                 :disabled="questionNumber === 0"
                 @click="goToQuestion(questionNumber - 1)"
               >
-                <mat-svg
-                  name="arrow_back"
-                  category="navigation"
+                <KIcon
+                  icon="back"
                   :style="{ fill: $themeTokens.primary }"
                 />
               </UiIconButton>

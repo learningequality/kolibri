@@ -13,6 +13,7 @@
       :alwaysVisible="fixedAppBar"
       :mainWrapperScrollHeight="mainWrapperScrollHeight"
       :isHidden.sync="headerIsHidden"
+      :skipNextUpdate.sync="headerSkipNextUpdate"
     >
       <ImmersiveToolbar
         v-if="immersivePage && !fullScreen"
@@ -66,7 +67,7 @@
       :class="fullScreen ? 'scrolling-pane' : 'content'"
       :style="contentStyles"
     >
-      <CoreBanner v-if="demoBannerVisible">
+      <CoreBanner v-if="coreBannerComponent && showDemoBanner">
         <template slot-scope="props">
           <component :is="coreBannerComponent" :bannerClosed="props.bannerClosed" />
         </template>
@@ -102,7 +103,7 @@
 
     <GlobalSnackbar />
     <UpdateNotification
-      v-if="!loading && showNotification && !busy"
+      v-if="!loading && showNotification"
       :id="mostRecentNotification.id"
       :title="mostRecentNotification.title"
       :msg="mostRecentNotification.msg"
@@ -278,6 +279,11 @@
         required: false,
         default: 1000,
       },
+      showDemoBanner: {
+        type: Boolean,
+        default: false,
+        required: false,
+      },
     },
     data() {
       return {
@@ -287,16 +293,16 @@
         notificationModalShown: true,
         languageModalShown: false,
         headerIsHidden: false,
+        headerSkipNextUpdate: false,
         mainWrapperScrollHeight: 0,
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isSuperuser', 'demoBannerVisible']),
+      ...mapGetters(['isAdmin', 'isSuperuser']),
       ...mapState({
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
-        busy: state => state.core.signInBusy,
         notifications: state => state.core.notifications,
       }),
       headerHeight() {
@@ -408,6 +414,13 @@
     },
     watch: {
       $route() {
+        // If there's a scrollTo parameter, it will be handled by
+        // the vue-router via `scrollBehavior`.
+        if (this.$route.params.scrollTo) {
+          // Show the header by default when navigating with a scrollTo parameter.
+          this.showHeader();
+          return;
+        }
         // Set a watcher so that if the router sets a new
         // route, we update our scroll position based on the ones
         // we have tracked in the scrollPosition object above.
@@ -472,15 +485,24 @@
           this.$refs.mainWrapper.scrollHeight
         );
       },
+      updateHeaderHidden(isHidden) {
+        // This provides a mechanism to tell the `ScrollingHeader` component to
+        // ignore scroll changes triggered here in `CoreBase` e.g. during usage of
+        // the forward/back buttons.
+
+        this.headerSkipNextUpdate = true;
+        this.headerIsHidden = isHidden;
+      },
+      showHeader() {
+        this.updateHeaderHidden(false);
+      },
       setScroll() {
         this.updateScrollHeight();
         window.scrollTo(0, scrollPositions.getScrollPosition().y);
         this.scrollPosition = window.pageYOffset;
         // If recorded scroll is applied, immediately un-hide the header
         if (this.scrollPosition > 0) {
-          this.$nextTick().then(() => {
-            this.headerIsHidden = false;
-          });
+          this.$nextTick().then(this.showHeader);
         }
       },
     },

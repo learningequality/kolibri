@@ -6,8 +6,12 @@ function makeWrapper(options) {
   const wrapper = shallowMount(SelectTransferSourceModal, {
     ...options,
     stubs: {
-      SelectImportSourceModal: '<div data-test="select-import-source"></div>',
-      SelectDriveModal: '<div data-test="select-drive"></div>',
+      SelectImportSourceModal: {
+        template: '<div data-test="select-import-source"></div>',
+      },
+      SelectDriveModal: {
+        template: '<div data-test="select-drive"></div>',
+      },
     },
   });
   const els = {

@@ -4,7 +4,7 @@ from .views import download_csv_file
 
 urlpatterns = [
     url(
-        r"^downloadcsvfile/(?P<filename>.*)/$",
+        r"^downloadcsvfile/(?P<filename>.*)/(?P<facility_id>.*)$",
         download_csv_file,
         name="download_csv_file",
     )

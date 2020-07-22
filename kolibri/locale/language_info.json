@@ -28,6 +28,13 @@
     "default_font": "NotoSansBengali"
   },
   {
+    "crowdin_code": "de",
+    "intl_code": "de",
+    "language_name": "Deutsch",
+    "english_name": "German",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "en",
     "intl_code": "en",
     "language_name": "English",
@@ -89,6 +96,13 @@
     "language_name": "Italiano",
     "english_name": "Italian",
     "default_font": "NotoSans"
+  },
+  {
+    "crowdin_code": "km",
+    "intl_code": "km",
+    "language_name": "ភាសាខ្មែរ",
+    "english_name": "Khmer",
+    "default_font": "NotoSansKhmer"
   },
   {
     "crowdin_code": "ko",

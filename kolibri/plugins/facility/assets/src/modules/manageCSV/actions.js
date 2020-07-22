@@ -68,8 +68,11 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
     const task = myNewTasks.find(task => task.id === taskId);
 
     if (task && task.status === TaskStatuses.COMPLETED) {
-      if (task.type === TaskTypes.EXPORTUSERSTOCSV) store.commit(commitFinish, task.filename);
-      else store.commit(commitFinish, new Date());
+      if (task.type === TaskTypes.EXPORTUSERSTOCSV) {
+        store.commit(commitFinish, task.filename);
+      } else {
+        store.commit(commitFinish, new Date());
+      }
       TaskResource.deleteFinishedTask(taskId);
     }
   } else {
@@ -86,7 +89,9 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
 
 function startExportUsers(store) {
   if (!store.getters.exportingUsers) {
-    let promise = TaskResource.export_users_to_csv({});
+    let promise = TaskResource.export_users_to_csv({
+      facility_id: store.rootGetters.activeFacilityId,
+    });
     return promise.then(task => {
       store.commit('START_EXPORT_USERS', task.data);
       return task.data.id;

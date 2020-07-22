@@ -17,6 +17,7 @@ from morango.models import TransferSession
 from kolibri.core.analytics.models import PingbackNotificationDismissed
 from kolibri.core.auth.management.utils import DisablePostDeleteSignal
 from kolibri.core.auth.management.utils import get_facility
+from kolibri.core.auth.management.utils import GroupDeletion
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Collection
@@ -43,83 +44,6 @@ from kolibri.core.tasks.management.commands.base import AsyncCommand
 
 
 logger = logging.getLogger(__name__)
-
-
-class GroupDeletion(object):
-    """
-    Helper to manage deleting many models, or groups of models
-    """
-
-    def __init__(self, name, groups=None, querysets=None):
-        """
-        :type groups: GroupDeletion[]
-        :type querysets: QuerySet[]
-        """
-        self.name = name
-        groups = [] if groups is None else groups
-        if querysets is not None:
-            groups.extend(querysets)
-        self.groups = groups
-
-    def count(self, progress_updater):
-        """
-        :type progress_updater: function
-        :rtype: int
-        """
-        sum = 0
-        for qs in self.groups:
-            if isinstance(qs, GroupDeletion):
-                count = qs.count(progress_updater)
-                logger.debug("Counted {} in group `{}`".format(count, qs.name))
-            else:
-                count = qs.count()
-                progress_updater(increment=1)
-                logger.debug(
-                    "Counted {} of `{}`".format(count, qs.model._meta.model_name)
-                )
-
-            sum += count
-
-        return sum
-
-    def group_count(self):
-        """
-        :rtype: int
-        """
-        return sum(
-            [
-                qs.group_count() if isinstance(qs, GroupDeletion) else 1
-                for qs in self.groups
-            ]
-        )
-
-    def delete(self, progress_updater):
-        """
-        :type progress_updater: function
-        :rtype: tuple(int, dict)
-        """
-        total_count = 0
-        all_deletions = dict()
-
-        for qs in self.groups:
-            if isinstance(qs, GroupDeletion):
-                count, deletions = qs.delete(progress_updater)
-                debug_msg = "Deleted {} of `{}` in group `{}`"
-                name = qs.name
-            else:
-                count, deletions = qs.delete()
-                debug_msg = "Deleted {} of `{}` with model `{}`"
-                name = qs.model._meta.model_name
-
-            total_count += count
-            progress_updater(increment=count)
-
-            for obj_name, count in deletions.items():
-                if not isinstance(qs, GroupDeletion):
-                    logger.debug(debug_msg.format(count, obj_name, name))
-                all_deletions.update({obj_name: all_deletions.get(obj_name, 0) + count})
-
-        return total_count, all_deletions
 
 
 def chunk(things, size):

@@ -427,9 +427,9 @@ def update(old_version, new_version):
         # If there are, then we need to stop users from starting kolibri again.
         server.get_status()
         logger.error(
-            "There is a Kolibri server running."
-            "Running updates now could cause a database error."
-            "Please use `kolibri stop` and try again."
+            "There is a Kolibri server running. "
+            "Running updates now could cause a database error. "
+            "Please use `kolibri stop` and try again. "
         )
         sys.exit(1)
 

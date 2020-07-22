@@ -173,7 +173,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=False,
+            cancellable=True,
             extra_metadata=dict(this_is_extra=True,),
         )
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
@@ -202,7 +202,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                 type="SYNCDATAPORTAL",
             ),
             track_progress=True,
-            cancellable=False,
+            cancellable=True,
         )
 
     def test_startdataportalbulksync(self, facility_queue):
@@ -217,7 +217,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=False,
+            cancellable=True,
             extra_metadata=dict(this_is_extra=True,),
         )
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
@@ -246,7 +246,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                         type="SYNCDATAPORTAL",
                     ),
                     track_progress=True,
-                    cancellable=False,
+                    cancellable=True,
                 ),
                 call(
                     call_command,
@@ -264,7 +264,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                         type="SYNCDATAPORTAL",
                     ),
                     track_progress=True,
-                    cancellable=False,
+                    cancellable=True,
                 ),
             ],
             any_order=True,
@@ -301,7 +301,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             noninteractive=True,
             extra_metadata=extra_metadata,
             track_progress=True,
-            cancellable=False,
+            cancellable=True,
         )
         validate_and_prepare_peer_sync_job.return_value = prepared_data.copy()
 
@@ -310,7 +310,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=False,
+            cancellable=True,
             extra_metadata=dict(this_is_extra=True,),
         )
         fake_job_data["extra_metadata"].update(extra_metadata)
@@ -359,7 +359,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             noninteractive=True,
             extra_metadata=extra_metadata,
             track_progress=True,
-            cancellable=False,
+            cancellable=True,
         )
         validate_and_prepare_peer_sync_job.return_value = prepared_data.copy()
 
@@ -368,7 +368,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=False,
+            cancellable=True,
             extra_metadata=dict(this_is_extra=True,),
         )
         fake_job_data["extra_metadata"].update(extra_metadata)
@@ -498,7 +498,7 @@ class FacilityTaskHelperTestCase(TestCase):
             chunk_size=200,
             noninteractive=True,
             track_progress=True,
-            cancellable=False,
+            cancellable=True,
             extra_metadata=dict(type="test"),
         )
         actual = validate_prepare_sync_job(req, extra_metadata=dict(type="test"))
@@ -554,7 +554,7 @@ class FacilityTaskHelperTestCase(TestCase):
             chunk_size=200,
             noninteractive=True,
             track_progress=True,
-            cancellable=False,
+            cancellable=True,
             extra_metadata=dict(type="test"),
         )
         actual = validate_and_prepare_peer_sync_job(

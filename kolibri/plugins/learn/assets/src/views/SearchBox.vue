@@ -43,7 +43,7 @@
             color="white"
             class="search-submit-button"
             :disabled="!searchUpdate"
-            :class="{ 'rtl-icon': icon === 'arrow_forward' && isRtl }"
+            :class="{ 'rtl-icon': icon === 'forward' && isRtl }"
             :style="{ fill: $themeTokens.textInverted }"
             :ariaLabel="$tr('startSearchButtonLabel')"
             @click="search"
@@ -57,7 +57,7 @@
     >
       <div class="ib">
         <KIcon
-          icon="filter_list"
+          icon="filterList"
           class="filter-icon"
           style="width: 24px; height: 24px;"
         />
@@ -104,6 +104,7 @@
   import { mapGetters, mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import { PageNames } from '../constants';
 
   const ALL_FILTER = null;
@@ -119,13 +120,13 @@
 
   export default {
     name: 'SearchBox',
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveElementMixin],
     props: {
       icon: {
         type: String,
         default: 'search',
         validator(val) {
-          return ['search', 'arrow_forward'].includes(val);
+          return ['search', 'forward'].includes(val);
         },
       },
       filters: {
@@ -152,13 +153,20 @@
         'channelFilter',
       ]),
       channelFilterStyle() {
+        const maxWidth = 375;
+        // If window is small, just let it have its default width
+        if (this.elementWidth < maxWidth + 32) {
+          return {};
+        }
+        // Otherwise, adjust the width based on the longest channel name,
+        // capped at 375px, or approx 50 characters
         const longestChannelName = maxBy(
           this.channelFilterOptions,
           channel => channel.label.length
         );
-        // Adjust the width based on the longest channel name
+        const maxPx = Math.min(longestChannelName.label.length * 8, maxWidth);
         return {
-          width: `${longestChannelName.label.length * 10}px`,
+          width: `${maxPx}px`,
         };
       },
       allFilter() {

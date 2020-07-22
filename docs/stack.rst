@@ -67,7 +67,7 @@ We use a number of mechanisms to help encourage code quality and consistency. Mo
 - We use `EditorConfig <http://editorconfig.org/>`__ to help developers set their editor preferences
 - `tox <https://tox.readthedocs.io/en/latest/>`__ is used to run our test suites under a range of Python and Node environment versions
 - ``sphinx-build -b linkcheck`` checks the validity of documentation links
-- `pytest <http://pytest.org/latest/>`__ runs our Python unit tests. We also leverage the `Django test framework <https://docs.djangoproject.com/en/1.9/topics/testing/>`__.
+- `pytest <http://pytest.org/latest/>`__ runs our Python unit tests. We also leverage the `Django test framework <https://docs.djangoproject.com/en/1.11/topics/testing/>`__.
 - In addition to building client assets, `webpack <https://webpack.github.io/>`__ runs linters on client-side code: `ESLint <http://eslint.org/>`__ for ES6 JavaScript, `Stylelint <https://stylelint.io/>`__ for SCSS, and `HTMLHint <http://htmlhint.com/>`__ for HTML and Vue.js components.
 - Client-side code is tested using `Jest <https://facebook.github.io/jest/>`__
 - `codecov <https://codecov.io/>`__ reports on the test coverage

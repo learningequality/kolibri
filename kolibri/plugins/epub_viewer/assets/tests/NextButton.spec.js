@@ -13,7 +13,7 @@ describe('Next button', () => {
   });
   it('should emit an event when the button is clicked', () => {
     const wrapper = createWrapper();
-    wrapper.find('button').trigger('click');
+    wrapper.find('.next-button').trigger('click');
     expect(wrapper.emitted().goToNextPage).toBeTruthy();
   });
 });

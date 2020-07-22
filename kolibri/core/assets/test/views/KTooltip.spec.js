@@ -27,7 +27,7 @@ describe('KTooltip component', () => {
       },
     });
     await wrapper.vm.$nextTick();
-    const tooltip = wrapper.find({ name: 'KTooltip' });
+    const tooltip = wrapper.findComponent({ name: 'KTooltip' });
     expect(tooltip.text()).toEqual('Sample tooltip content.');
   });
 });

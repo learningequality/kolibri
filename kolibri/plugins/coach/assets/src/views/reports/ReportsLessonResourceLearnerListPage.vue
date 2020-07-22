@@ -54,6 +54,7 @@
             :avgTime="getGroupRecipientsAvgTime(group.id)"
             :className="className"
             :lessonName="lesson.title"
+            data-test="group-resources-stats"
           />
 
           <p>
@@ -61,6 +62,7 @@
               :tally="getGroupTally(group.id)"
               :showNeedsHelp="false"
               :verbose="false"
+              data-test="group-tally"
             />
           </p>
 

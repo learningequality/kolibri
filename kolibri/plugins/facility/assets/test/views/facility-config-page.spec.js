@@ -19,7 +19,7 @@ function getElements(wrapper) {
     confirmResetButton: () => wrapper.find('button[name="submit"]'),
     resetButton: () => wrapper.find('button[name="reset-settings"]'),
     saveButton: () => wrapper.find('button[name="save-settings"]'),
-    confirmResetModal: () => wrapper.find({ name: 'ConfirmResetModal' }),
+    confirmResetModal: () => wrapper.findComponent({ name: 'ConfirmResetModal' }),
     form: () => wrapper.find('form'),
   };
 }
@@ -37,7 +37,7 @@ describe('facility config page view', () => {
 
   it('has all of the settings', () => {
     const wrapper = makeWrapper();
-    const checkboxes = wrapper.findAll({ name: 'KCheckbox' });
+    const checkboxes = wrapper.findAllComponents({ name: 'KCheckbox' });
     expect(checkboxes.length).toEqual(6);
     const labels = [
       'Allow learners to edit their username',

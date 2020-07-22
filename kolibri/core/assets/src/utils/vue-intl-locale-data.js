@@ -11,6 +11,7 @@ module.exports = function() {
   data.push(require('vue-intl/locale-data/ar.js'));
   data.push(require('vue-intl/locale-data/bg.js'));
   data.push(require('vue-intl/locale-data/bn.js'));
+  data.push(require('vue-intl/locale-data/de.js'));
   data.push(require('vue-intl/locale-data/en.js'));
   data.push(require('vue-intl/locale-data/es.js'));
   data.push(require('vue-intl/locale-data/es.js'));
@@ -20,6 +21,7 @@ module.exports = function() {
   data.push(require('vue-intl/locale-data/gu.js'));
   data.push(require('vue-intl/locale-data/hi.js'));
   data.push(require('vue-intl/locale-data/it.js'));
+  data.push(require('vue-intl/locale-data/km.js'));
   data.push(require('vue-intl/locale-data/ko.js'));
   data.push(require('vue-intl/locale-data/mr.js'));
   data.push(require('vue-intl/locale-data/my.js'));

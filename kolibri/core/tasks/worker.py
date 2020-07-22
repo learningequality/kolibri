@@ -150,6 +150,7 @@ class Worker(object):
             update_progress_func=self.update_progress,
             cancel_job_func=self._check_for_cancel,
             save_job_meta_func=self.storage.save_job_meta,
+            save_as_cancellable_func=self.storage.save_job_as_cancellable,
         )
 
         # assign the futures to a dict, mapping them to a job
@@ -191,8 +192,6 @@ class Worker(object):
         was before it was cancelled.
 
         :param job_id: The job_id to check
-        :param current_stage: Where the job currently is
-
         :return: raises a UserCancelledError if we find out that we were cancelled.
         """
 

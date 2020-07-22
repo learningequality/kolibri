@@ -142,21 +142,29 @@ def not_empty():
     return checker
 
 
-def value_length(length, allow_null=False):
+def value_length(length, allow_null=False, multiple=False):
     """
     Return a value check function which raises a ValueError if the supplied
     value has a length greater than 'length'
     If null is not True raises a ValueError if the supplied value is None.
+    If multiple is True it checks the length of each of the separated by commas value
     """
 
     def checker(v):
+        def check_single_value(v):
+            if v is None or len(v) > length:
+                raise ValueError(v)
+
         if v == DEFERRED:
             return checker
         if allow_null and v is None:
             return None
-
-        if v is None or len(v) > length:
-            raise ValueError(v)
+        if multiple:
+            values = v.split(",")
+            for value in values:
+                check_single_value(value)
+        else:
+            check_single_value(v)
 
     return checker
 
@@ -426,12 +434,12 @@ class Command(AsyncCommand):
         )
         validator.add_check(
             "ENROLLED_IN",
-            value_length(100, allow_null=True),
+            value_length(50, allow_null=True, multiple=True),
             MESSAGES[TOO_LONG].format("Class name"),
         )
         validator.add_check(
             "ASSIGNED_TO",
-            value_length(100, allow_null=True),
+            value_length(50, allow_null=True, multiple=True),
             MESSAGES[TOO_LONG].format("Class name"),
         )
 
@@ -768,18 +776,23 @@ class Command(AsyncCommand):
         for user in users:
             # enrolled:
             to_remove = user.memberships.filter(collection__kind=CLASSROOM)
-            if user.username in users_enrolled.keys():
+            username = (
+                user.username
+                if sys.version_info[0] >= 3
+                else user.username.encode("utf-8")
+            )
+            if username in users_enrolled.keys():
                 to_remove.exclude(
-                    collection__name__in=users_enrolled[user.username]
+                    collection__name__in=users_enrolled[username]
                 ).delete()
             else:
                 to_remove.delete()
 
             # assigned:
             to_remove = user.roles.filter(collection__kind=CLASSROOM)
-            if user.username in users_assigned.keys():
+            if username in users_assigned.keys():
                 to_remove.exclude(
-                    collection__name__in=users_assigned[user.username]
+                    collection__name__in=users_assigned[username]
                 ).delete()
             else:
                 to_remove.delete()

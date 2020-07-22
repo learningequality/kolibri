@@ -1,123 +1,129 @@
 <template>
 
-  <KPageContainer>
+  <CoreBase
+    :immersivePage="false"
+    :immersivePagePrimary="true"
+  >
+    <KPageContainer>
 
-    <KGrid>
-      <KGridItem sizes="100, 75, 75" percentage>
-        <h1>{{ $tr('detailsHeader') }}</h1>
-      </KGridItem>
-      <KGridItem sizes="100, 25, 25" percentage alignment="right">
-        <KRouterLink
-          :text="$tr('editAction')"
-          appearance="raised-button"
-          :primary="true"
-          :to="$router.getRoute('PROFILE_EDIT')"
-        />
-      </KGridItem>
-    </KGrid>
-
-    <table>
-      <tr>
-        <th>{{ $tr('points') }}</th>
-        <td class="points-cell">
-          <PointsIcon class="points-icon" />
-          <span :style="{ color: $themeTokens.correct }">
-            {{ $formatNumber(totalPoints) }}
-          </span>
-        </td>
-      </tr>
-
-      <tr>
-        <th>{{ coreString('userTypeLabel') }}</th>
-
-        <td>
-          <UserTypeDisplay
-            :distinguishCoachTypes="false"
-            :userType="getUserKind"
+      <KGrid>
+        <KGridItem sizes="100, 75, 75" percentage>
+          <h1>{{ $tr('detailsHeader') }}</h1>
+        </KGridItem>
+        <KGridItem sizes="100, 25, 25" percentage alignment="right">
+          <KRouterLink
+            :text="$tr('editAction')"
+            appearance="raised-button"
+            :primary="true"
+            :to="profileEditRoute"
           />
-        </td>
-      </tr>
+        </KGridItem>
+      </KGrid>
 
-      <tr v-if="facilityName">
-        <th>{{ coreString('facilityLabel') }}</th>
-        <td>{{ facilityName }}</td>
-      </tr>
+      <table>
+        <tr>
+          <th>{{ $tr('points') }}</th>
+          <td class="points-cell">
+            <PointsIcon class="points-icon" />
+            <span :style="{ color: $themeTokens.correct }">
+              {{ $formatNumber(totalPoints) }}
+            </span>
+          </td>
+        </tr>
 
-      <tr v-if="userHasPermissions">
-        <th style="vertical-align: top">
-          {{ coreString('devicePermissionsLabel') }}
-        </th>
-        <td>
-          <KLabeledIcon>
-            <PermissionsIcon
-              slot="icon"
-              :permissionType="permissionType"
-              class="permissions-icon"
+        <tr>
+          <th>{{ coreString('userTypeLabel') }}</th>
+
+          <td>
+            <UserTypeDisplay
+              :distinguishCoachTypes="false"
+              :userType="getUserKind"
             />
-            {{ permissionTypeText }}
-          </KLabeledIcon>
-          <p>
-            {{ $tr('youCan') }}
-            <ul class="permissions-list">
-              <li v-if="isSuperuser">
-                {{ $tr('manageDevicePermissions') }}
-              </li>
-              <li v-for="(value, key) in userPermissions" :key="key">
-                {{ getPermissionString(key) }}
-              </li>
-            </ul>
-          </p>
-        </td>
-      </tr>
+          </td>
+        </tr>
 
-      <tr>
-        <th>{{ coreString('fullNameLabel') }}</th>
-        <td>{{ session.full_name }}</td>
-      </tr>
+        <tr v-if="facilityName">
+          <th>{{ coreString('facilityLabel') }}</th>
+          <td>{{ facilityName }}</td>
+        </tr>
 
-      <tr>
-        <th>{{ coreString('usernameLabel') }}</th>
-        <td>{{ session.username }}</td>
-      </tr>
+        <tr v-if="userHasPermissions">
+          <th style="vertical-align: top">
+            {{ coreString('devicePermissionsLabel') }}
+          </th>
+          <td>
+            <KLabeledIcon>
+              <PermissionsIcon
+                slot="icon"
+                :permissionType="permissionType"
+                class="permissions-icon"
+              />
+              {{ permissionTypeText }}
+            </KLabeledIcon>
+            <p>
+              {{ $tr('youCan') }}
+              <ul class="permissions-list">
+                <li v-if="isSuperuser">
+                  {{ $tr('manageDevicePermissions') }}
+                </li>
+                <li v-for="(value, key) in userPermissions" :key="key">
+                  {{ getPermissionString(key) }}
+                </li>
+              </ul>
+            </p>
+          </td>
+        </tr>
 
-      <tr>
-        <th>{{ coreString('genderLabel') }}</th>
-        <td>
-          <GenderDisplayText :gender="facilityUser.gender" />
-        </td>
-      </tr>
+        <tr>
+          <th>{{ coreString('fullNameLabel') }}</th>
+          <td>{{ session.full_name }}</td>
+        </tr>
 
-      <tr>
-        <th>{{ coreString('birthYearLabel') }}</th>
-        <td>
-          <BirthYearDisplayText :birthYear="facilityUser.birth_year" />
-        </td>
-      </tr>
+        <tr>
+          <th>{{ coreString('usernameLabel') }}</th>
+          <td>{{ session.username }}</td>
+        </tr>
 
-      <tr v-if="canEditPassword">
-        <th>{{ coreString('passwordLabel') }}</th>
-        <td>
-          <KButton
-            appearance="basic-link"
-            :text="$tr('changePasswordPrompt')"
-            class="change-password"
-            @click="showPasswordModal = true"
-          />
-        </td>
-      </tr>
-    </table>
+        <tr>
+          <th>{{ coreString('genderLabel') }}</th>
+          <td>
+            <GenderDisplayText :gender="facilityUser.gender" />
+          </td>
+        </tr>
 
-    <ChangeUserPasswordModal
-      v-if="showPasswordModal"
-      @cancel="showPasswordModal = false"
-    />
-  </KPageContainer>
+        <tr>
+          <th>{{ coreString('birthYearLabel') }}</th>
+          <td>
+            <BirthYearDisplayText :birthYear="facilityUser.birth_year" />
+          </td>
+        </tr>
+
+        <tr v-if="canEditPassword">
+          <th>{{ coreString('passwordLabel') }}</th>
+          <td>
+            <KButton
+              appearance="basic-link"
+              :text="$tr('changePasswordPrompt')"
+              class="change-password"
+              @click="showPasswordModal = true"
+            />
+          </td>
+        </tr>
+      </table>
+
+      <ChangeUserPasswordModal
+        v-if="showPasswordModal"
+        @cancel="showPasswordModal = false"
+      />
+    </KPageContainer>
+  </CoreBase>
 
 </template>
 
 
 <script>
 
+  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { mapState, mapGetters } from 'vuex';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
@@ -130,6 +136,7 @@
   import { FacilityUserResource } from 'kolibri.resources';
   import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
   import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
+  import { ComponentMap } from '../../constants';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
 
   export default {
@@ -140,12 +147,13 @@
       };
     },
     components: {
-      PointsIcon,
-      PermissionsIcon,
-      ChangeUserPasswordModal,
-      UserTypeDisplay,
-      GenderDisplayText,
       BirthYearDisplayText,
+      ChangeUserPasswordModal,
+      CoreBase,
+      GenderDisplayText,
+      PermissionsIcon,
+      PointsIcon,
+      UserTypeDisplay,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     data() {
@@ -167,6 +175,9 @@
       ...mapState({
         session: state => state.core.session,
       }),
+      profileEditRoute() {
+        return this.$router.getRoute(ComponentMap.PROFILE_EDIT);
+      },
       userPermissions() {
         return pickBy(this.getUserPermissions);
       },

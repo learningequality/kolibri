@@ -19,7 +19,7 @@ function makeWrapper(props) {
       ...props,
     },
   });
-  const kSelects = () => wrapper.findAll({ name: 'KSelect' });
+  const kSelects = () => wrapper.findAllComponents({ name: 'KSelect' });
   const els = {
     kindSelect: () => kSelects().at(0),
     channelSelect: () => kSelects().at(1),
@@ -66,7 +66,7 @@ describe('LessonsSearchFilters', () => {
 
   it('does not show role filter options when there are no coach contents', () => {
     const { wrapper } = makeWrapper();
-    const kSelects = wrapper.findAll({ name: 'KSelect' });
+    const kSelects = wrapper.findAllComponents({ name: 'KSelect' });
     expect(kSelects.length).toEqual(2);
   });
 

@@ -26,6 +26,7 @@
       :invalidText="$tr('invalidTokenMessage')"
       autofocus
       :disabled="formIsDisabled || $attrs.disabled"
+      autocapitalize="none"
       @blur="tokenIsBlurred = true"
     />
   </KModal>

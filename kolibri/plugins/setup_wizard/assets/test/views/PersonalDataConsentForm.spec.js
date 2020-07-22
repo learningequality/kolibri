@@ -10,8 +10,8 @@ function makeWrapper() {
 describe('PersonalDataConsentForm', () => {
   it('the "View statement" opens the statement', async () => {
     const { wrapper } = makeWrapper();
-    const modal = () => wrapper.find({ name: 'PrivacyInfoModal' });
-    const button = wrapper.find({ name: 'KButton' });
+    const modal = () => wrapper.findComponent({ name: 'PrivacyInfoModal' });
+    const button = wrapper.findComponent({ name: 'KButton' });
     expect(modal().exists()).toEqual(false);
     button.vm.$emit('click');
     await wrapper.vm.$nextTick();
@@ -25,7 +25,7 @@ describe('PersonalDataConsentForm', () => {
   it('clicking submit on form bubbles up the "submit" event', () => {
     const { wrapper } = makeWrapper();
     jest.spyOn(wrapper.vm, '$emit');
-    wrapper.find({ name: 'OnboardingForm' }).vm.$emit('submit');
+    wrapper.findComponent({ name: 'OnboardingForm' }).vm.$emit('submit');
     expect(wrapper.vm.$emit).toHaveBeenCalledTimes(1);
   });
 });

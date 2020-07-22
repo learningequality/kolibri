@@ -16,7 +16,7 @@
       :link="navRoute(PageNames.REPORTS_PAGE)"
     >
       <KIcon
-        icon="insert_chart"
+        icon="reports"
         :color="$themeTokens.textInverted"
         style="top: 0; width: 24px; height: 24px;"
       />

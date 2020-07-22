@@ -19,7 +19,7 @@
       >
         <SearchBox
           ref="searchBox"
-          :icon="searchBoxIsDropdown ? 'arrow_forward' : 'search'"
+          :icon="searchBoxIsDropdown ? 'forward' : 'search'"
           :class="searchBoxIsDropdown ? '' : 'search-box-within-action-bar'"
           @closeDropdownSearchBox="closeDropdownSearchBox"
         />

@@ -86,7 +86,7 @@ const router = new VueRouter({
 });
 
 const getViewByGroupsCheckbox = wrapper => {
-  return wrapper.find({ name: 'KCheckbox' }).find('input[type="checkbox"]');
+  return wrapper.findComponent({ name: 'KCheckbox' }).find('input[type="checkbox"]');
 };
 
 const getGroupTitles = wrapper => {
@@ -106,11 +106,15 @@ const getGroup = (wrapper, groupId) => {
 };
 
 const getGroupTally = (wrapper, groupId) => {
-  return getGroup(wrapper, groupId).find({ name: 'StatusSummary' });
+  return getGroup(wrapper, groupId).find(`[data-test="group-tally"]`);
 };
 
 const getGroupResourcesStats = (wrapper, groupId) => {
-  return getGroup(wrapper, groupId).find({ name: 'ReportsResourcesStats' });
+  return getGroup(wrapper, groupId).find(`[data-test="group-resources-stats"]`);
+};
+
+const containsGroupResourcesStats = (wrapper, groupId) => {
+  return Boolean(getGroup(wrapper, groupId).find(`[data-test="group-resources-stats"]`).element);
 };
 
 const initWrapper = lessonMap => {
@@ -311,7 +315,7 @@ describe('ReportsLessonResourceLearnerListPage', () => {
       it('renders correct group resources stats', () => {
         expect(getGroupResourcesStats(wrapper, GROUP_1.id).html()).toMatchSnapshot();
         expect(getGroupResourcesStats(wrapper, GROUP_2.id).html()).toMatchSnapshot();
-        expect(getGroupResourcesStats(wrapper, GROUP_3.id).html()).toMatchSnapshot();
+        expect(containsGroupResourcesStats(wrapper, GROUP_3.id)).toBe(false);
       });
     });
   });
@@ -377,7 +381,7 @@ describe('ReportsLessonResourceLearnerListPage', () => {
 
       it('renders correct group resources stats', () => {
         expect(getGroupResourcesStats(wrapper, GROUP_2.id).html()).toMatchSnapshot();
-        expect(getGroupResourcesStats(wrapper, GROUP_3.id).html()).toMatchSnapshot();
+        expect(containsGroupResourcesStats(wrapper, GROUP_3.id)).toBe(false);
       });
     });
   });

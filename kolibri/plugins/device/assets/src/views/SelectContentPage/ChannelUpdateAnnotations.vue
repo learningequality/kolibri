@@ -1,16 +1,8 @@
 <template>
 
-  <div>
-    <p v-if="false">
-      {{ $tr('newResource') }}
-    </p>
-    <p v-if="false">
-      {{ $tr('newResourcesInTopic') }}
-    </p>
-    <p v-if="false">
-      {{ $tr('inQueueForImport') }}
-    </p>
-  </div>
+  <span :class="styleClass" :style="style">
+    {{ label }}
+  </span>
 
 </template>
 
@@ -19,14 +11,52 @@
 
   export default {
     name: 'ChannelUpdateAnnotations',
-    components: {},
-    mixins: [],
-    props: {},
-    data() {
-      return {};
+    props: {
+      newResources: {
+        type: Number,
+        default: 0,
+      },
+      isTopic: {
+        type: Boolean,
+        default: false,
+      },
+      importing: {
+        type: Boolean,
+        default: false,
+      },
     },
-    computed: {},
-    methods: {},
+    computed: {
+      new() {
+        return this.newResources > 0;
+      },
+      styleClass() {
+        if (this.new) {
+          // Doing this separately from the dynamic styling below
+          // to ensure things get properly RTL transpiled in CSS
+          return ['new-label'];
+        }
+        return [];
+      },
+      style() {
+        if (this.new) {
+          return {
+            color: this.$themeTokens.textInverted,
+            backgroundColor: this.$themeTokens.success,
+          };
+        }
+        return {};
+      },
+      label() {
+        if (this.new && this.isTopic === false) {
+          return this.$tr('newResource');
+        } else if (this.new && this.isTopic === true) {
+          return this.$tr('newResourcesInTopic', { count: this.newResources });
+        } else if (this.importing) {
+          return this.$tr('inQueueForImport');
+        }
+        return '';
+      },
+    },
     $trs: {
       newResource: {
         message: 'New',
@@ -48,4 +78,16 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .new-label {
+    top: 2px;
+    display: inline-block;
+    padding: 2px 8px;
+    margin-left: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 2px;
+  }
+
+</style>

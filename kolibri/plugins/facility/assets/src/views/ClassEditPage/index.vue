@@ -11,7 +11,7 @@
     </p>
     <div>
       <h1 class="title-header" dir="auto">
-        <KLabeledIcon icon="classroom" :label="currentClass.name" />
+        <KLabeledIcon icon="classes" :label="currentClass.name" />
       </h1>
       <KButton
         :text="$tr('renameButtonLabel')"

@@ -32,7 +32,8 @@
             v-for="cNode in showableAnnotatedChildNodes"
             :key="cNode.id"
             :checked="nodeIsChecked(cNode)"
-            :disabled="disabled || disableAll || cNode.disabled"
+            :disabled="disabled || disableAll || cNode.disabled ||
+              (cNode.updated_resource && !cNode.available)"
             :indeterminate="nodeIsIndeterminate(cNode)"
             :message="cNode.message"
             :node="cNode"
@@ -249,6 +250,9 @@
           return {
             query: {
               node: node.id,
+            },
+            params: {
+              scrollTo: '.content-tree-viewer',
             },
           };
         } else {

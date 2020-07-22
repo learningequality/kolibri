@@ -70,6 +70,7 @@
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import { FacilityUserResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ComponentMap } from '../constants';
 
   export default {
     name: 'ProfileEditPage',
@@ -161,7 +162,8 @@
             })
             .then(() => {
               this.showSnackbarNotification('changesSaved');
-              this.$router.push(this.$router.getRoute('PROFILE'));
+              const nextRoute = this.$router.getRoute(ComponentMap.PROFILE);
+              this.$router.push(nextRoute);
             })
             .catch(error => {
               this.status = 'FAILURE';

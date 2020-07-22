@@ -13,8 +13,6 @@ export default {
     blockDoubleClicks: false,
     loading: true,
     pageSessionId: 0,
-    loginError: null,
-    signInBusy: false,
     totalProgress: null,
     notifications: [],
     channels: {

@@ -14,6 +14,7 @@
         v-model="selectedClassroomId"
         :label="classroomLabel(classroom)"
         :value="classroom.id"
+        data-test="radio-button"
       />
     </div>
     <!-- Learner Group Selection Form -->
@@ -25,6 +26,7 @@
         :groups="availableGroups"
         :classId="selectedClassroomId"
         :initialAdHocLearners="[]"
+        data-test="recipient-selector"
         @updateLearners="learners => adHocLearners = learners"
       />
     </div>

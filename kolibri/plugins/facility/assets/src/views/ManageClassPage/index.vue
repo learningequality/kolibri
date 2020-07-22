@@ -54,7 +54,7 @@
           :key="classroom.id"
         >
           <td>
-            <KLabeledIcon icon="classroom">
+            <KLabeledIcon icon="classes">
               <KRouterLink
                 :text="classroom.name"
                 :to="classEditLink(classroom.id)"
