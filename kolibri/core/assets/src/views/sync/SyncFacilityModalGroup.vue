@@ -77,7 +77,10 @@
       },
       startKdpSync() {
         this.syncSubmitDisabled = true;
-        this.startKdpSyncTask(this.facilityForSync.id).then(task => {
+        this.startKdpSyncTask({
+          id: this.facilityForSync.id,
+          name: this.facilityForSync.name,
+        }).then(task => {
           this.$emit('success', task.id);
         });
       },

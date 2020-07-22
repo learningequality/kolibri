@@ -979,7 +979,7 @@ def prepare_sync_task(request, **kwargs):
     )
 
     task_type = kwargs.get("type")
-    if task_type in ["SYNCPEER/PULL", "SYNCPEER/FULL"]:
+    if task_type in ["SYNCPEER/PULL", "SYNCPEER/FULL", "SYNCDATAPORTAL"]:
         # Extra metadata that can be passed from the client
         extra_task_data = dict(
             facility_name=request.data.get("facility_name", ""),

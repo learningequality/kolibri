@@ -75,8 +75,8 @@ export default {
           return [];
         });
     },
-    startKdpSyncTask(facilityId) {
-      return FacilityTaskResource.dataportalsync(facilityId).then(response => {
+    startKdpSyncTask({ id, name }) {
+      return FacilityTaskResource.dataportalsync({ id, name }).then(response => {
         return response.data;
       });
     },

@@ -12,9 +12,11 @@ function taskFacilityMatch(task, facility) {
 }
 
 function retryKdpSync(task) {
-  const facilityId = task.facility;
   return FacilityTaskResource.cleartask(task.id).then(() => {
-    return FacilityTaskResource.dataportalsync(facilityId);
+    return FacilityTaskResource.dataportalsync({
+      id: task.facility,
+      name: task.facility_name,
+    });
   });
 }
 
