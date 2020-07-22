@@ -65,6 +65,19 @@ class TestBackend:
         # Does the job have the right state (QUEUED)?
         assert new_job.state == State.QUEUED
 
+    def test_can_save_and_read_utf8_metadata(self, defaultbackend, simplejob):
+        # TODO!
+        # store utf8 string from sentry error: 
+        # https://sentry.io/organizations/learningequality/issues/1771408928/?environment=profuturo-prod&project=1378215
+        # read back sentry error, hopefully without errors
+
+        # Goal: try to get SQLAlchemy+Postgres to raise a UnicodeDecodeError when reading from the list of jobs.
+        # This test should then fail.
+        # Afterwards, implement an exception handler somewhere that handles said error, or makes an explicit option that avoids
+        # that UnicodeDecodeError.
+        # Test should now be fixed.
+        pass
+
     def test_can_cancel_nonrunning_job(self, defaultbackend, simplejob):
         job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
 
