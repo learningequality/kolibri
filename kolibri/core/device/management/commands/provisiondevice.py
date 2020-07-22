@@ -1,8 +1,10 @@
 import json
 import logging
 import os
+import sys
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 from django.db import transaction
@@ -77,6 +79,8 @@ def create_facility(facility_name=None, preset=None, interactive=False):
             facility_name = get_user_response(
                 "What do you wish to name your facility? "
             )
+        else:
+            sys.exit(1)
 
     if facility_name:
         facility, created = Facility.objects.get_or_create(name=facility_name)
@@ -123,7 +127,7 @@ def update_facility_settings(facility, new_settings):
     logger.info("Facility settings updated with {}".format(new_settings))
 
 
-def create_superuser(username=None, password=None, interactive=False):
+def create_superuser(username=None, password=None, interactive=False, facility=None):
     if username is None and interactive:
         username = get_user_response("Enter a username for the super user: ")
 
@@ -134,15 +138,17 @@ def create_superuser(username=None, password=None, interactive=False):
             confirm = get_user_response("Confirm password for the super user: ")
 
     if username and password:
-        if not FacilityUser.objects.filter(username__icontains=username).exists():
-            FacilityUser.objects.create_superuser(username, password)
+        try:
+            FacilityUser.objects.create_superuser(username, password, facility=facility)
             logger.info(
-                "Superuser created with username {username}.".format(username=username)
+                "Superuser created with username {username} in facility {facility}.".format(
+                    username=username, facility=facility
+                )
             )
-        else:
+        except ValidationError:
             logger.warn(
-                "An account with username {username} already exists, not creating user account.".format(
-                    username=username
+                "An account with username {username} already exists in facility {facility}, not creating user account.".format(
+                    username=username, facility=facility
                 )
             )
 
@@ -262,4 +268,5 @@ class Command(BaseCommand):
                 username=options["superusername"],
                 password=options["superuserpassword"],
                 interactive=options["interactive"],
+                facility=facility,
             )
