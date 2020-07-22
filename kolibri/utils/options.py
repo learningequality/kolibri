@@ -239,7 +239,7 @@ base_option_spec = {
         "CACHE_REDIS_MAXMEMORY_POLICY": {
             "type": "option",
             "options": (
-                None,
+                "",
                 "allkeys-lru",
                 "volatile-lru",
                 "allkeys-random",
@@ -247,7 +247,7 @@ base_option_spec = {
                 "volatile-ttl",
                 "noeviction",
             ),
-            "default": None,
+            "default": "",
             "envvars": ("KOLIBRI_CACHE_REDIS_MAXMEMORY_POLICY",),
         },
     },

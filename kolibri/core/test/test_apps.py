@@ -94,7 +94,7 @@ class KolibriCoreConfigTestCase(TestCase):
         self.helper.save.assert_not_called()
         logger.warning.assert_called()
 
-    @do_setup(CACHE_REDIS_MAXMEMORY_POLICY="noeviction")
+    @do_setup(CACHE_REDIS_MAXMEMORY_POLICY="")
     def test_check_redis_settings__not_okay__maxmemory_policy(self, logger):
         self.helper.get_maxmemory.return_value = 123
         self.helper.get_maxmemory_policy.return_value = "noeviction"

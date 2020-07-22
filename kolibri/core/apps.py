@@ -89,7 +89,6 @@ class KolibriCoreConfig(AppConfig):
             cursor.execute(START_PRAGMAS)
             connection.close()
 
-    # flake8: noqa: C901
     @staticmethod
     def check_redis_settings():
         """
@@ -115,7 +114,7 @@ class KolibriCoreConfig(AppConfig):
             # default setting is "noeviction"
             maxmemory_policy = helper.get_maxmemory_policy()
             if (
-                config_maxmemory_policy is not None
+                config_maxmemory_policy != ""
                 and maxmemory_policy != config_maxmemory_policy
             ):
                 helper.set_maxmemory_policy(config_maxmemory_policy)
