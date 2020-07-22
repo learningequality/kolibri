@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import tempfile
 
 import pytest
@@ -76,7 +77,22 @@ class TestBackend:
         # Afterwards, implement an exception handler somewhere that handles said error, or makes an explicit option that avoids
         # that UnicodeDecodeError.
         # Test should now be fixed.
-        pass
+        
+
+        # create a job that contains an exception field, and put in some rando non-ascii text
+        nonascii = """
+            卞廾工己　山工しし　乍丹工し
+        """ # this will fail
+
+        job = Job(id)
+        job.exception = Exception(nonascii.encode('utf-8'))
+
+        job_id = defaultbackend.enqueue_job(job, QUEUE)
+
+        # read the job, will it error?
+        returned_job = defaultbackend.get_job(job_id)
+        assert False
+        assert returned_job.exception.message
 
     def test_can_cancel_nonrunning_job(self, defaultbackend, simplejob):
         job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
