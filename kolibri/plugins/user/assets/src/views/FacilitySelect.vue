@@ -90,7 +90,7 @@
         }
       },
       label() {
-        return this.$route.query.next === ComponentMap.SIGN_UP
+        return this.whereToNext.name === ComponentMap.SIGN_UP
           ? this.$tr('canSignUpForFacilityLabel')
           : this.$tr('selectFacilityLabel');
       },
