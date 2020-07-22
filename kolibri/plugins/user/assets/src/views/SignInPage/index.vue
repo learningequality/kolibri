@@ -15,19 +15,26 @@
           icon="back"
           :text="$tr('changeFacility')"
           :to="backToFacilitySelectionRoute"
-          style="margin-top: 24px;"
+          style="margin-top: 24px; margin-left: -4px;"
         />
 
         <!-- When password form shows, show a change user link -->
         <!-- Not using v-else here to be more explicit -->
         <KButton
           v-if="showPasswordForm"
-          icon="back"
           appearance="basic-link"
           :text="$tr('changeUser')"
-          style="margin-top: 24px;"
+          style="margin-top: 24px;margin-left: 4px;"
           @click="clearUser"
-        />
+        >
+          <KIcon
+            slot="icon"
+            style="width: 24px; height: 24px; top: 6px; right: 8px;"
+            icon="back"
+            :color="$themeTokens.primary"
+          />
+        </KButton>
+
       </div>
 
       <SignInHeading
