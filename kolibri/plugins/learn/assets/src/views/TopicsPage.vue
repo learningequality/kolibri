@@ -54,12 +54,7 @@
           :layout8="{ span: topicOrChannel['thumbnail'] ? 6 : 8 }"
           :layout12="{ span: topicOrChannel['thumbnail'] ? 10 : 12 }"
         >
-          <TextTruncator
-            :text="getTagline"
-            :maxHeight="100"
-            :showTooltip="false"
-            dir="auto"
-          />
+          {{ getTagline }}
         </KGridItem>
 
         <KGridItem

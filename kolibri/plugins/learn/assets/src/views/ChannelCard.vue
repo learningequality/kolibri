@@ -42,13 +42,7 @@
           :layout8="{ span: 6 }"
           :layout12="{ span: 9 }"
         >
-          <TextTruncator
-            v-if="tagline"
-            class="text"
-            :text="tagline"
-            :maxHeight="150"
-            :showTooltip="false"
-          />
+          {{ tagline }}
         </KGridItem>
       </div>
 
@@ -187,7 +181,7 @@
     width: 100%;
     // Height set to ensure consistent text height
     // calculated from 150
-    height: 172px;
+    min-height: 172px;
     padding: $margin;
   }
 
