@@ -147,7 +147,6 @@ class Storage(StorageMixin):
                 s.query(ORMJob)
                 .filter(ORMJob.queue.in_(queues))
                 .filter_by(state=State.QUEUED)
-                .order_by(ORMJob.queue_order)
                 .first()
             )
             if orm_job:
