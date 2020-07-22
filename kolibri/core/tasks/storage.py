@@ -38,7 +38,7 @@ class ORMJob(Base):
     state = Column(String, index=True)
 
     # The job's order in the entire global queue of jobs.
-    queue_order = Column(Integer, autoincrement=True)
+    queue_order = Column(Integer)
 
     # The queue name passed to the client when the job is scheduled.
     queue = Column(String, index=True)
