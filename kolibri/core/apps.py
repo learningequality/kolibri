@@ -98,7 +98,6 @@ class KolibriCoreConfig(AppConfig):
         """
         if OPTIONS["Cache"]["CACHE_BACKEND"] != "redis":
             return
-        config_use_conf = OPTIONS["Cache"]["CACHE_REDIS_USE_CONF"]
         config_maxmemory = OPTIONS["Cache"]["CACHE_REDIS_MAXMEMORY"]
         config_maxmemory_policy = OPTIONS["Cache"]["CACHE_REDIS_MAXMEMORY_POLICY"]
 
@@ -108,25 +107,26 @@ class KolibriCoreConfig(AppConfig):
 
             # default setting is "0", or no limit
             maxmemory = helper.get_maxmemory()
-            if config_use_conf:
-                if maxmemory == 0:
-                    logger.warning("Redis is configured without a maximum memory size.")
-            elif maxmemory != config_maxmemory:
+            if config_maxmemory > 0 and maxmemory != config_maxmemory:
                 helper.set_maxmemory(config_maxmemory)
+            elif maxmemory == 0:
+                logger.warning("Redis is configured without a maximum memory size.")
 
             # default setting is "noeviction"
             maxmemory_policy = helper.get_maxmemory_policy()
-            if config_use_conf:
-                if maxmemory_policy == "noeviction":
-                    logger.warning(
-                        "Redis is configured without a maximum memory policy. Using Redis with "
-                        "Kolibri, the following is suggested: maxmemory-policy allkeys-lru"
-                    )
-            elif maxmemory_policy != config_maxmemory_policy:
+            if (
+                config_maxmemory_policy is not None
+                and maxmemory_policy != config_maxmemory_policy
+            ):
                 helper.set_maxmemory_policy(config_maxmemory_policy)
+            elif maxmemory_policy == "noeviction":
+                logger.warning(
+                    "Redis is configured without a maximum memory policy. Using Redis with "
+                    "Kolibri, the following is suggested: maxmemory-policy allkeys-lru"
+                )
 
             # should only change something when `config_use_conf` is also `False`
-            if not config_use_conf:
+            if helper.changed:
                 helper.save()
             elif maxmemory == 0 or maxmemory_policy == "noeviction":
                 logger.warning(

@@ -9,7 +9,6 @@ from kolibri.core.apps import RedisSettingsHelper
 
 DEFAULT_CACHE_OPTS = dict(
     CACHE_BACKEND="redis",
-    CACHE_REDIS_USE_CONF=False,
     CACHE_REDIS_MAXMEMORY=123,
     CACHE_REDIS_MAXMEMORY_POLICY="allkeys-lru",
 )
@@ -78,16 +77,10 @@ class KolibriCoreConfigTestCase(TestCase):
     def test_check_redis_settings(self, logger):
         self.setUp_okay()
         self.assertOkay(logger)
-        self.helper.save.assert_called()
-
-    @do_setup(CACHE_REDIS_USE_CONF=True)
-    def test_check_redis_settings__use_conf(self, logger):
-        self.setUp_okay()
-        self.assertOkay(logger)
         self.helper.save.assert_not_called()
 
-    @do_setup(CACHE_REDIS_USE_CONF=True)
-    def test_check_redis_settings__use_conf__not_okay__maxmemory(self, logger):
+    @do_setup(CACHE_REDIS_MAXMEMORY=0)
+    def test_check_redis_settings__not_okay__maxmemory(self, logger):
         self.helper.get_maxmemory.return_value = 0
         self.helper.get_maxmemory_policy.return_value = "allkeys-lru"
         KolibriCoreConfig.check_redis_settings()
@@ -101,8 +94,8 @@ class KolibriCoreConfigTestCase(TestCase):
         self.helper.save.assert_not_called()
         logger.warning.assert_called()
 
-    @do_setup(CACHE_REDIS_USE_CONF=True)
-    def test_check_redis_settings__use_conf__not_okay__maxmemory_policy(self, logger):
+    @do_setup(CACHE_REDIS_MAXMEMORY_POLICY="noeviction")
+    def test_check_redis_settings__not_okay__maxmemory_policy(self, logger):
         self.helper.get_maxmemory.return_value = 123
         self.helper.get_maxmemory_policy.return_value = "noeviction"
         KolibriCoreConfig.check_redis_settings()
@@ -120,6 +113,7 @@ class KolibriCoreConfigTestCase(TestCase):
     def test_check_redis_settings__update__maxmemory(self, logger):
         self.helper.get_maxmemory.return_value = 0
         self.helper.get_maxmemory_policy.return_value = "allkeys-lru"
+        self.helper.changed = True
         KolibriCoreConfig.check_redis_settings()
 
         self.helper.get_maxmemory.assert_called_once()
@@ -135,6 +129,7 @@ class KolibriCoreConfigTestCase(TestCase):
     def test_check_redis_settings__update__maxmemory_policy(self, logger):
         self.helper.get_maxmemory.return_value = 123
         self.helper.get_maxmemory_policy.return_value = "noeviction"
+        self.helper.changed = True
         KolibriCoreConfig.check_redis_settings()
 
         self.helper.get_maxmemory.assert_called_once()
