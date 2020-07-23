@@ -19,13 +19,18 @@
           :text="coreString('cancelAction')"
           @click="$emit('cancel')"
         />
-        <KButton
-          ref="syncbutton"
-          :text="coreString('syncAction')"
-          primary
-          type="submit"
-        />
-        <!-- TODO make tooltips appear when hovering over disabled buttons-->
+        <!--
+          Wrap the KButton in a span w/ a ref so we listen for mouseovers even when
+          the underlying button is disabled - disabled elements don't fire events
+        -->
+        <span ref="syncbutton">
+          <KButton
+            :text="coreString('syncAction')"
+            :disabled="submitDisabled"
+            primary
+            type="submit"
+          />
+        </span>
         <KTooltip
           v-if="submitDisabled"
           reference="syncbutton"

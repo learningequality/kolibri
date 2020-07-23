@@ -155,7 +155,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 16;
+    z-index: 24; // material dialog - ensures we cover KModal
     background-color: rgba(0, 0, 0, 0.7);
   }
 

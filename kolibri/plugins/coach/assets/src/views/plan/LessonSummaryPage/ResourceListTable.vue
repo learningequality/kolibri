@@ -29,11 +29,15 @@
             </KFixedGridItem>
             <KFixedGridItem span="4">
               <div class="resource-title">
-                <ContentIcon :kind="resourceKind(resourceId)" />
-                <KRouterLink
-                  :text="resourceTitle(resourceId)"
-                  :to="$router.getRoute('RESOURCE_CONTENT_PREVIEW', { contentId: resourceId })"
-                />
+                <div class="content-icon">
+                  <ContentIcon :kind="resourceKind(resourceId)" />
+                </div>
+                <div class="content-link">
+                  <KRouterLink
+                    :text="resourceTitle(resourceId)"
+                    :to="$router.getRoute('RESOURCE_CONTENT_PREVIEW', { contentId: resourceId })"
+                  />
+                </div>
                 <p dir="auto" class="channel-title" :style="{ color: $themeTokens.annotation }">
                   <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
                   {{ resourceChannelTitle(resourceId) }}
@@ -290,6 +294,17 @@
 
   .list-move {
     transition: transform $core-time ease;
+  }
+
+  .content-icon {
+    display: inline-block;
+    width: 16px; // match the icon
+    vertical-align: top;
+  }
+
+  .content-link {
+    display: inline-block;
+    width: calc(100% - 16px);
   }
 
 </style>
