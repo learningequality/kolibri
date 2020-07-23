@@ -41,6 +41,7 @@
     },
     computed: {
       newString() {
+        // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
         return UpdateStrings.$tr('newResource');
       },
     },
