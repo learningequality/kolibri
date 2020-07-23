@@ -233,6 +233,27 @@ class Storage(StorageMixin):
         Returns: None
 
         """
+
+        # we have run into encoding issues when pickling / unpickling exception and traceback objects. See:
+        # https://sentry.io/organizations/learningequality/issues/1771408928/?environment=profuturo-prod&project=1378215
+        # The pickled objects save to the db, but then fail to de-serialize due to 'char not in utf-8' errors.
+        # To address this, we convert to string then try to encode them as utf-8, and nullify the object in the case
+        # of errors. Try also to log the exception and traceback so we can have the data even if pickling fails.
+        try:
+            if exception:
+                logger.warning("Job had exception: {}".format(exception))
+                exception = str(exception)
+                exception.encode('utf-8')
+        except:
+            exception = None
+        try:
+            if traceback:
+                logger.warning("Job had traceback: {}".format(traceback))
+                traceback = str(traceback)
+                traceback.encode('utf-8')
+        except:
+            traceback = None
+
         self._update_job(job_id, State.FAILED, exception=exception, traceback=traceback)
 
     def mark_job_as_running(self, job_id):

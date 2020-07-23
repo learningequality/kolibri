@@ -10,8 +10,15 @@ from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.worker import Worker
 
-
 QUEUE = "pytest"
+
+
+def error_func():
+    """
+    Function that raises an encoding error on purpose to test error handling.
+    Made this a module function due to the need to have a module path to pass to the Job constructor.
+    """
+    b'\x80'.decode('utf-8')
 
 
 @pytest.fixture
@@ -44,6 +51,25 @@ class TestWorker:
             pass
 
         assert job.state == State.COMPLETED
+
+    def test_exceptions_stored_as_string(self, worker):
+        # Make sure task exception info is not an object, but is either a string or None.
+        # See Storage.mark_job_as_failed in kolibri.core.tasks.storage for more details on why we do this.
+
+        # create a job that triggers an exception
+        job = Job('kolibri.core.tasks.test.test_worker.error_func')
+
+        job_id = worker.storage.enqueue_job(job, QUEUE)
+
+        while job.state == State.QUEUED:
+            job = worker.storage.get_job(job.job_id)
+            time.sleep(0.5)
+
+        returned_job = worker.storage.get_job(job_id)
+        assert returned_job.state == 'FAILED'
+        assert isinstance(returned_job.exception, str)
+        # traceback may not be set even if exception is
+        assert isinstance(returned_job.traceback, str) or returned_job.traceback is None
 
     def test_enqueue_job_writes_to_storage_on_success(self, worker):
         with patch.object(
