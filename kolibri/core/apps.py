@@ -7,6 +7,7 @@ from django.apps import AppConfig
 from django.db.backends.signals import connection_created
 from django.db.utils import DatabaseError
 
+from kolibri.core.logger.utils.data import bytes_for_humans
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
 from kolibri.core.sqlite.utils import repair_sqlite_db
@@ -104,13 +105,7 @@ class KolibriCoreConfig(AppConfig):
             # see redis_cache.backends.single.RedisCache
             helper = RedisSettingsHelper(process_cache.get_master_client())
 
-            # default setting is "0", or no limit
-            maxmemory = helper.get_maxmemory()
-            if config_maxmemory > 0 and maxmemory != config_maxmemory:
-                helper.set_maxmemory(config_maxmemory)
-            elif maxmemory == 0:
-                logger.warning("Redis is configured without a maximum memory size.")
-
+            # set policy first
             # default setting is "noeviction"
             maxmemory_policy = helper.get_maxmemory_policy()
             if (
@@ -124,13 +119,29 @@ class KolibriCoreConfig(AppConfig):
                     "Kolibri, the following is suggested: maxmemory-policy allkeys-lru"
                 )
 
-            # should only change something when `config_use_conf` is also `False`
-            if helper.changed:
-                helper.save()
-            elif maxmemory == 0 or maxmemory_policy == "noeviction":
+            # default setting is "0", or no limit
+            maxmemory = helper.get_maxmemory()
+            if config_maxmemory > 0 and maxmemory != config_maxmemory:
+                used_memory = helper.get_used_memory()
+                if maxmemory < used_memory:
+                    logger.warning(
+                        "Redis was using {used_memory} before setting `maxmemory` configuration of {config_memory}".format(
+                            used_memory=bytes_for_humans(used_memory),
+                            config_memory=bytes_for_humans(config_maxmemory),
+                        )
+                    )
+
+                helper.set_maxmemory(config_maxmemory)
+            elif maxmemory == 0:
+                logger.warning("Redis is configured without a maximum memory size.")
+
+            # add a final message about the redis configuration
+            if not helper.changed and (
+                maxmemory == 0 or maxmemory_policy == "noeviction"
+            ):
                 logger.warning(
-                    "Please see Redis configuration documentation for details: "
-                    "https://redis.io/topics/config"
+                    "Problematic Redis settings detected, please see Redis configuration "
+                    "documentation for details: https://redis.io/topics/config"
                 )
         except Exception as e:
             logger.warning("Unable to check Redis settings")

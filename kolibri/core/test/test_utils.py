@@ -144,3 +144,9 @@ class RedisSettingsHelperTestCase(TestCase):
         self.helper.save()
         self.client.config_rewrite.assert_called()
         self.assertFalse(self.helper.changed)
+
+    @mock.patch("kolibri.core.utils.cache.logger")
+    def test_get_used_memory(self, mock_logger):
+        self.client.info.return_value = {"used_memory": 123}
+        self.assertEqual(123, self.helper.get_used_memory())
+        self.client.info.assert_called_once_with(section="memory")
