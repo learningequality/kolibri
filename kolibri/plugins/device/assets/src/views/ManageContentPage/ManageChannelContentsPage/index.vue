@@ -10,14 +10,15 @@
     />
 
     <template v-if="channel">
-      <NewChannelVersionBanner
-        v-if="availableVersions.studioLatest > availableVersions.installed"
-        class="banner"
-        :version="availableVersions.studioLatest"
-        @click="handleClickViewNewVersion"
-      />
 
-      <ChannelContentsSummary :channel="channel" />
+      <ChannelContentsSummary :channel="channel">
+        <NewChannelVersionBanner
+          v-if="availableVersions.studioLatest > availableVersions.installed"
+          class="banner"
+          :version="availableVersions.studioLatest"
+          @click="handleClickViewNewVersion"
+        />
+      </ChannelContentsSummary>
 
       <div style="text-align: right">
         <KButton
