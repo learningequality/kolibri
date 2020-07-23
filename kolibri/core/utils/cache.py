@@ -153,6 +153,9 @@ class RedisSettingsHelper(object):
         logger.info("Configuring Redis: {} {}".format(key, value))
         return self.client.config_set(key, value)
 
+    def get_used_memory(self):
+        return self.client.info(section="memory").get("used_memory")
+
     def get_maxmemory(self):
         return int(self.get("maxmemory", default_value=0))
 

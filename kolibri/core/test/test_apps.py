@@ -113,6 +113,7 @@ class KolibriCoreConfigTestCase(TestCase):
     def test_check_redis_settings__update__maxmemory(self, logger):
         self.helper.get_maxmemory.return_value = 0
         self.helper.get_maxmemory_policy.return_value = "allkeys-lru"
+        self.helper.get_used_memory.return_value = 0
         self.helper.changed = True
         KolibriCoreConfig.check_redis_settings()
 
@@ -122,8 +123,25 @@ class KolibriCoreConfigTestCase(TestCase):
         self.helper.get_maxmemory_policy.assert_called_once()
         self.helper.set_maxmemory_policy.assert_not_called()
 
-        self.helper.save.assert_called_once()
+        self.helper.save.assert_not_called()
         logger.warning.assert_not_called()
+
+    @do_setup(CACHE_REDIS_MAXMEMORY=456)
+    def test_check_redis_settings__update__maxmemory__warning(self, logger):
+        self.helper.get_maxmemory.return_value = 0
+        self.helper.get_maxmemory_policy.return_value = "allkeys-lru"
+        self.helper.get_used_memory.return_value = 512
+        self.helper.changed = True
+        KolibriCoreConfig.check_redis_settings()
+
+        self.helper.get_maxmemory.assert_called_once()
+        self.helper.set_maxmemory.assert_called_once_with(456)
+
+        self.helper.get_maxmemory_policy.assert_called_once()
+        self.helper.set_maxmemory_policy.assert_not_called()
+
+        self.helper.save.assert_not_called()
+        logger.warning.assert_called()
 
     @do_setup(CACHE_REDIS_MAXMEMORY_POLICY="volatile-lru")
     def test_check_redis_settings__update__maxmemory_policy(self, logger):
@@ -138,5 +156,5 @@ class KolibriCoreConfigTestCase(TestCase):
         self.helper.get_maxmemory_policy.assert_called_once()
         self.helper.set_maxmemory_policy.assert_called_once_with("volatile-lru")
 
-        self.helper.save.assert_called_once()
+        self.helper.save.assert_not_called()
         logger.warning.assert_not_called()

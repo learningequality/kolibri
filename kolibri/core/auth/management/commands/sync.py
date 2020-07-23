@@ -10,7 +10,6 @@ from morango.models import InstanceIDModel
 from morango.models import ScopeDefinition
 from morango.sync.controller import MorangoProfileController
 
-from ..utils import bytes_for_humans
 from ..utils import create_superuser_and_provision_device
 from ..utils import get_baseurl
 from ..utils import get_client_and_server_certs
@@ -21,6 +20,7 @@ from kolibri.core.auth.constants.morango_sync import State
 from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.auth.management.utils import run_once
 from kolibri.core.auth.models import dataset_cache
+from kolibri.core.logger.utils.data import bytes_for_humans
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import db_task_write_lock
