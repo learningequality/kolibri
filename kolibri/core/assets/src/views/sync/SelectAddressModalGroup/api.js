@@ -32,7 +32,7 @@ function fetchAddressesWithChannel(withChannelId = '', LocationResource = Networ
     // If channelId is provided, then we are in an 'import-more' workflow and disable
     // locations that do not have the channel we are importing from.
     if (withChannelId !== '') {
-      const locationsWithAvailbilityPromises = locations.map(location => {
+      const locationsWithAvailabilityPromises = locations.map(location => {
         // Need to wrap in normal promise, otherwise Promise.all will cause some of these
         // to resolve as undefined
         return new Promise(resolve => {
@@ -41,7 +41,7 @@ function fetchAddressesWithChannel(withChannelId = '', LocationResource = Networ
           });
         });
       });
-      return Promise.all(locationsWithAvailbilityPromises);
+      return Promise.all(locationsWithAvailabilityPromises);
     }
 
     // If channelId is not provided, then we are at top-level import workflow and do not
@@ -65,7 +65,7 @@ function facilityIsAvailableAtLocation(facilityId, location) {
 function fetchAddressesWithFacility(facilityId = '', LocationResource = NetworkLocationResource) {
   return LocationResource.fetchCollection({ force: true }).then(locations => {
     if (facilityId !== '') {
-      const locationsWithAvailbilityPromises = locations.map(location => {
+      const locationsWithAvailabilityPromises = locations.map(location => {
         // Need to wrap in normal promise, otherwise Promise.all will cause some of these
         // to resolve as undefined
         return new Promise(resolve => {
@@ -75,7 +75,7 @@ function fetchAddressesWithFacility(facilityId = '', LocationResource = NetworkL
           });
         });
       });
-      return Promise.all(locationsWithAvailbilityPromises);
+      return Promise.all(locationsWithAvailabilityPromises);
     }
 
     // If facilityId is not provided, then we are at the initial Facility Import workflow
