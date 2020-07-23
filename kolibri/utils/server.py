@@ -11,6 +11,7 @@ from django.conf import settings
 from zeroconf import get_all_addresses
 
 import kolibri
+from .conf import OPTIONS
 from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
@@ -86,10 +87,12 @@ class ServicesPlugin(SimplePlugin):
         # Initialize the iceqube scheduler to handle scheduled tasks
         scheduler.clear_scheduler()
 
-        # schedule the pingback job
-        from kolibri.core.analytics.utils import schedule_ping
+        if not OPTIONS["Deployment"]["DISABLE_PING"]:
 
-        schedule_ping()
+            # schedule the pingback job
+            from kolibri.core.analytics.utils import schedule_ping
+
+            schedule_ping()
 
         # schedule the vacuum job
         schedule_vacuum()
