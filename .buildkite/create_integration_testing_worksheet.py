@@ -20,14 +20,16 @@ SPREADSHEET_CREDENTIALS = os.getenv("GOOGLE_SPREADSHEET_CREDENTIALS")
 SPREADSHEET_TPL_KEY = "1kVhg0evo9EV2aDo10KdIIjwqsoT4rISR7dJzf6s_-RM"
 SPREADSHEET_TITLE = "Integration testing with Gherkin scenarios"
 
+
 # Use to get the Kolibri version, for the integration testing spreadsheet
 def get_tag_name():
     if os.getenv("BUILDKITE_TAG"):
         return os.getenv("BUILDKITE_TAG")
     elif os.getenv("BUILDKITE_PULL_REQUEST_BASE_BRANCH"):
         return os.getenv("BUILDKITE_PULL_REQUEST_BASE_BRANCH")
-    else:
-        return "develop"
+    elif os.getenv("BUILDKITE_BRANCH"):
+        return os.getenv("BUILDKITE_BRANCH")
+    return "develop"
 
 
 SHEET_TAG = get_tag_name()
