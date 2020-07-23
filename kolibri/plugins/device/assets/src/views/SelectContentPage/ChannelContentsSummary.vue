@@ -24,10 +24,10 @@
 
       <KFixedGrid numCols="4">
         <KFixedGridItem span="1" class="version">
-          {{ $tr('version', { version: versionNumber }) }}
+          <p>{{ $tr('version', { version: versionNumber }) }}</p>
         </KFixedGridItem>
         <KFixedGridItem span="3" alignment="right">
-          <slot></slot>
+          <p><slot></slot></p>
         </KFixedGridItem>
       </KFixedGrid>
 
