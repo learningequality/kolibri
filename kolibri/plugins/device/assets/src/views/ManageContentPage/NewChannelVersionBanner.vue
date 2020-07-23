@@ -2,11 +2,13 @@
 
   <div>
     <span class="version">
-      <KIcon
-        class="icon"
-        icon="error"
-        :style="{ fill: $themePalette.lightblue.v_500 }"
-      />
+      <span
+        class="new-label"
+        :style="{ color: $themeTokens.textInverted, backgroundColor: $themeTokens.success }"
+      >
+        {{ newString }}
+      </span>
+
       <span class="version-available">
         {{ $tr('versionAvailable', { version }) }}
       </span>
@@ -24,12 +26,22 @@
 
 <script>
 
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import ChannelUpdateAnnotations from '../SelectContentPage/ChannelUpdateAnnotations';
+
+  const UpdateStrings = crossComponentTranslator(ChannelUpdateAnnotations);
+
   export default {
     name: 'NewChannelVersionBanner',
     props: {
       version: {
         type: Number,
         required: true,
+      },
+    },
+    computed: {
+      newString() {
+        return UpdateStrings.$tr('newResource');
       },
     },
     $trs: {
@@ -49,17 +61,16 @@
 
   .version-available {
     margin-right: 8px;
+    font-weight: bold;
   }
 
-  .icon {
-    position: relative;
-    top: 6px;
+  .new-label {
+    display: inline-block;
+    padding: 2px 8px;
     margin-right: 8px;
-  }
-
-  svg.icon {
-    width: 24px;
-    height: 24px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 2px;
   }
 
 </style>
