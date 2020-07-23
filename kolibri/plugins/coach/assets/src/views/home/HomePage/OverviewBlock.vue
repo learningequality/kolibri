@@ -10,7 +10,7 @@
     </p>
 
     <h1>
-      <KLabeledIcon icon="classroom" :label="$store.state.classSummary.name" />
+      <KLabeledIcon icon="classes" :label="$store.state.classSummary.name" />
     </h1>
     <HeaderTable>
       <HeaderTableRow>

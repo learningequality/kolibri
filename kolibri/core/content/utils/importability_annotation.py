@@ -1,5 +1,4 @@
 import logging
-from uuid import UUID
 
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
@@ -10,12 +9,11 @@ from sqlalchemy import Integer
 from sqlalchemy import or_
 from sqlalchemy import select
 
-from .sqlalchemybridge import Bridge
-from .sqlalchemybridge import filter_by_checksums
 from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.channels import CHANNEL_UPDATE_STATS_CACHE_KEY
 from kolibri.core.content.utils.content_types_tools import renderable_files_presets
 from kolibri.core.content.utils.file_availability import (
     get_available_checksums_from_disk,
@@ -23,6 +21,10 @@ from kolibri.core.content.utils.file_availability import (
 from kolibri.core.content.utils.file_availability import (
     get_available_checksums_from_remote,
 )
+from kolibri.core.content.utils.sqlalchemybridge import Bridge
+from kolibri.core.content.utils.sqlalchemybridge import coerce_key
+from kolibri.core.content.utils.sqlalchemybridge import filter_by_checksums
+from kolibri.core.content.utils.sqlalchemybridge import filter_by_uuids
 from kolibri.core.utils.cache import process_cache
 
 logger = logging.getLogger(__name__)
@@ -30,13 +32,7 @@ logger = logging.getLogger(__name__)
 CONTENT_APP_NAME = KolibriContentConfig.label
 
 
-def coerce_key(key):
-    if isinstance(key, UUID):
-        return key.hex
-    return key
-
-
-def get_channel_annotation_stats(channel_id, checksums=None):
+def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     ContentNodeTable = bridge.get_table(ContentNode)
@@ -249,6 +245,110 @@ def get_channel_annotation_stats(channel_id, checksums=None):
 
     # rollback the transaction to undo the temporary annotation
     trans.rollback()
+
+    new_resource_stats = process_cache.get(
+        CHANNEL_UPDATE_STATS_CACHE_KEY.format(channel_id)
+    )
+
+    if new_resource_stats and new_resource_stats.get("new_resource_ids"):
+
+        trans = connection.begin()
+
+        # Here we are using the on_device_resources key to track 'newness'
+        # set everything to false to start with.
+
+        connection.execute(
+            ContentNodeTable.update()
+            .where(ContentNodeTable.c.channel_id == channel_id)
+            .values(available=False, on_device_resources=0)
+        )
+
+        i = 0
+        batch_size = 1000
+
+        # Now set all new resources as 'available' in batches of 1000
+        new_resource_ids = new_resource_stats.get("new_resource_ids")[
+            i : i + batch_size
+        ]
+
+        while new_resource_ids:
+            connection.execute(
+                ContentNodeTable.update()
+                .where(
+                    and_(
+                        ContentNodeTable.c.channel_id == channel_id,
+                        filter_by_uuids(ContentNodeTable.c.id, new_resource_ids),
+                    )
+                )
+                .values(available=True, on_device_resources=1)
+            )
+
+            i += batch_size
+            new_resource_ids = new_resource_stats.get("new_resource_ids")[
+                i : i + batch_size
+            ]
+
+        # Go from the deepest level to the shallowest
+        for level in range(node_depth, 0, -1):
+
+            # Only modify topic availability here
+            connection.execute(
+                ContentNodeTable.update()
+                .where(
+                    and_(
+                        ContentNodeTable.c.level == level - 1,
+                        ContentNodeTable.c.channel_id == channel_id,
+                        ContentNodeTable.c.kind == content_kinds.TOPIC,
+                    )
+                )
+                # Because we have set availability to False on all topics as a starting point
+                # we only need to make updates to topics with available children.
+                .where(exists(available_nodes))
+                .values(available=True, on_device_resources=on_device_num)
+            )
+
+            level_stats = connection.execute(
+                select(
+                    [ContentNodeTable.c.id, ContentNodeTable.c.on_device_resources]
+                ).where(
+                    and_(
+                        ContentNodeTable.c.level == level,
+                        ContentNodeTable.c.channel_id == channel_id,
+                        ContentNodeTable.c.available == True,  # noqa
+                    )
+                )
+            )
+
+            for stat in level_stats:
+                key = coerce_key(stat[0])
+                if key in stats:
+                    stats[key]["new_resource"] = True
+                    stats[key]["num_new_resources"] = stat[1]
+
+        root_node_stats = connection.execute(
+            select([ContentNodeTable.c.id]).where(
+                and_(
+                    ContentNodeTable.c.level == 0,
+                    ContentNodeTable.c.channel_id == channel_id,
+                )
+            )
+        ).fetchone()
+
+        # If there are any new resource ids then the root node has new resources
+        key = coerce_key(root_node_stats[0])
+        if key in stats:
+            stats[key]["new_resource"] = True
+            stats[key]["num_new_resources"] = len(
+                new_resource_stats.get("new_resource_ids")
+            )
+
+        # rollback the transaction to undo the temporary annotation
+        trans.rollback()
+
+    if new_resource_stats and new_resource_stats.get("updated_resource_ids"):
+        for key in new_resource_stats.get("updated_resource_ids"):
+            if key in stats:
+                stats[key]["updated_resource"] = True
 
     bridge.end()
 

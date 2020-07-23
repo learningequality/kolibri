@@ -1,9 +1,9 @@
 <template>
 
   <BottomAppBar>
-    <span class="message">{{ selectedMessage }}</span>
     <template v-if="actionType === 'manage'">
-      <KButtonGroup style="margin-top: 8px;">
+      <KButtonGroup>
+        <span class="message">{{ selectedMessage }}</span>
         <KButton
           :disabled="$attrs.disabled || buttonsDisabled"
           :text="coreString('deleteAction')"
@@ -19,13 +19,15 @@
       </KButtonGroup>
     </template>
 
-    <KButton
-      v-else
-      :disabled="$attrs.disabled || buttonsDisabled"
-      :text="confirmButtonLabel"
-      :primary="true"
-      @click="$emit('clickconfirm')"
-    />
+    <template v-else>
+      <span class="message">{{ selectedMessage }}</span>
+      <KButton
+        :disabled="$attrs.disabled || buttonsDisabled"
+        :text="confirmButtonLabel"
+        :primary="true"
+        @click="$emit('clickconfirm')"
+      />
+    </template>
   </BottomAppBar>
 
 </template>

@@ -4,8 +4,10 @@ import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
 import SelectDriveModal from '../../src/views/ManageContentPage/SelectTransferSourceModal/SelectDriveModal';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 
+SelectDriveModal.methods.refreshDriveList = () => Promise.resolve();
+
 function makeWrapper(options = {}) {
-  const { props = {}, store, methods, data } = options;
+  const { props = {}, store, data } = options;
   return mount(SelectDriveModal, {
     propsData: {
       mode: 'import',
@@ -18,12 +20,6 @@ function makeWrapper(options = {}) {
       };
     },
     store: store || makeStore(),
-    methods: {
-      refreshDriveList() {
-        return Promise.resolve();
-      },
-      ...methods,
-    },
     stubs: {
       transition: {
         name: 'transition',
@@ -71,7 +67,7 @@ function makeStore() {
 // prettier-ignore
 function getElements(wrapper) {
   return {
-    titleText: () => wrapper.find(KModal).props().title,
+    titleText: () => wrapper.findComponent(KModal).props().title,
     driveListLoading: () => wrapper.find('.drive-list-loading'),
     driveListLoadingText: () => wrapper.find('.drive-list-loading').text().trim(),
     driveListContainer: () => wrapper.find('.drive-list'),
@@ -81,9 +77,9 @@ function getElements(wrapper) {
     incompatibleRadio: () => wrapper.find('input[value="incompatible_chanel_drive"]'),
     cancelButton: () => wrapper.find('button[name="cancel"]'),
     continueButton: () => wrapper.find('button[name="submit"]'),
-    UiAlerts: () => wrapper.find(UiAlert),
+    UiAlerts: () => wrapper.findComponent(UiAlert),
     findingLocalDrives: () => wrapper.find('.finding-local-drives'),
-    selectDriveModal: () => wrapper.find({ name: 'KModal'}),
+    selectDriveModal: () => wrapper.findComponent({ name: 'KModal'}),
   };
 }
 
@@ -100,14 +96,14 @@ describe('selectDriveModal component', () => {
 
   it('when drive list is loading, show a message', async () => {
     const wrapper = makeWrapper({ store, data: { driveStatus: 'LOADING' } });
-    const alert = wrapper.find({ name: 'UiAlert' });
+    const alert = wrapper.findComponent({ name: 'UiAlert' });
     expect(alert.text().trim()).toEqual('Finding local drives…');
   });
 
   it('when drive list is loaded, it shows the drive-list component ', async () => {
     const wrapper = makeWrapper({ store });
     const { driveListContainer, driveListLoading } = getElements(wrapper);
-    expect(driveListContainer().is('div')).toEqual(true);
+    expect(driveListContainer().element.tagName).toBe('DIV');
     expect(driveListLoading().exists()).toEqual(false);
   });
 
@@ -115,7 +111,7 @@ describe('selectDriveModal component', () => {
     setTransferType('localimport');
     const wrapper = makeWrapper({ store });
     const { writableImportableRadio, noContentRadio } = getElements(wrapper);
-    expect(writableImportableRadio().is('input')).toEqual(true);
+    expect(writableImportableRadio().element.tagName).toBe('INPUT');
     expect(noContentRadio().exists()).toEqual(false);
   });
 
@@ -130,7 +126,7 @@ describe('selectDriveModal component', () => {
     store.state.manageContent.channelList = [{ ...channel }];
     const wrapper = makeWrapper({ store });
     const { writableImportableRadio } = getElements(wrapper);
-    expect(writableImportableRadio().is('input')).toEqual(true);
+    expect(writableImportableRadio().element.tagName).toBe('INPUT');
   });
 
   it('in import more mode, drive-list hides drives with an incompatible channel', () => {
@@ -151,8 +147,8 @@ describe('selectDriveModal component', () => {
     setTransferType('localexport');
     const wrapper = makeWrapper({ store });
     const { writableImportableRadio, noContentRadio, unwritableRadio } = getElements(wrapper);
-    expect(writableImportableRadio().is('input')).toEqual(true);
-    expect(noContentRadio().is('input')).toEqual(true);
+    expect(writableImportableRadio().element.tagName).toBe('INPUT');
+    expect(noContentRadio().element.tagName).toBe('INPUT');
     expect(unwritableRadio().exists()).toEqual(false);
   });
 
@@ -162,7 +158,7 @@ describe('selectDriveModal component', () => {
       d.metadata.channels = [];
     });
     const wrapper = makeWrapper({ store });
-    const driveListText = wrapper.find({ name: 'UiAlert' });
+    const driveListText = wrapper.findComponent({ name: 'UiAlert' });
     const expectedMessage = 'No drives with Kolibri resources are connected to the server';
     expect(driveListText.text().trim()).toEqual(expectedMessage);
   });
@@ -173,7 +169,7 @@ describe('selectDriveModal component', () => {
       d.writable = false;
     });
     const wrapper = makeWrapper({ store });
-    const driveListText = wrapper.find({ name: 'UiAlert' });
+    const driveListText = wrapper.findComponent({ name: 'UiAlert' });
     const expectedMessage = 'Could not find a writable drive connected to the server';
     expect(driveListText.text().trim()).toEqual(expectedMessage);
   });
@@ -212,7 +208,7 @@ describe('selectDriveModal component', () => {
     const { cancelButton } = getElements(wrapper);
     cancelButton().trigger('click');
     await wrapper.vm.$nextTick();
-    expect(wrapper.find({ name: 'KModal' }).emitted().cancel).toHaveLength(1);
+    expect(wrapper.findComponent({ name: 'KModal' }).emitted().cancel).toHaveLength(1);
   });
 
   // not tested

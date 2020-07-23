@@ -3,7 +3,7 @@
   <CoreBase
     :immersivePage="true"
     :immersivePagePrimary="true"
-    immersivePageIcon="arrow_back"
+    immersivePageIcon="back"
     :immersivePageRoute="toolbarRoute"
     :appBarTitle="exercise.title"
     :pageTitle="title"

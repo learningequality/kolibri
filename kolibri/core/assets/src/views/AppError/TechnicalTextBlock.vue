@@ -20,6 +20,7 @@
       <KButton
         v-if="clipboardCapable"
         ref="copyButton"
+        :style="{ marginTop: '8px', marginBottom: '8px' }"
         :primary="false"
         :text="$tr('copyToClipboardButtonPrompt')"
       />

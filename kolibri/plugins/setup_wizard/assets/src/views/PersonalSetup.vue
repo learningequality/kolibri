@@ -47,17 +47,11 @@
         // that the non-superuser-related payload is valid for the 'deviceprovision' endpoint
         this.$store.dispatch('setPersonalUsageDefaults');
 
-        const {
-          full_name,
-          username,
-          password,
-          gender,
-          birth_year,
-        } = this.$store.state.onboardingData.superuser;
+        const { full_name, username, password } = this.$store.state.onboardingData.superuser;
 
         // Validate the superuser info in case user ended up in a bad state here via history
         // and redirect to credentials page
-        if (every([full_name, username, password, gender, birth_year])) {
+        if (every([full_name, username, password])) {
           this.$store.dispatch('provisionDevice');
         } else {
           return this.$refs.credentials.focusOnInvalidField();

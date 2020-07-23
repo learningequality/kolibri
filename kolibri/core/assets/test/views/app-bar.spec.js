@@ -53,23 +53,23 @@ describe('app bar component', () => {
   describe('drop down user menu', () => {
     it('should be hidden if userMenuDropdownIsOpen is false', async () => {
       const wrapper = createWrapper(undefined, { userMenuDropdownIsOpen: false });
-      expect(wrapper.find(CoreMenu).isVisible()).toBe(false);
+      expect(wrapper.findComponent(CoreMenu).element).not.toBeVisible();
     });
     it('should be shown if userMenuDropdownIsOpen is true', async () => {
       const wrapper = createWrapper(undefined, { userMenuDropdownIsOpen: true });
-      expect(wrapper.contains(CoreMenu)).toBe(true);
+      expect(wrapper.findComponent(CoreMenu).element).toBeTruthy();
     });
     it('should show the language modal link if no components are added and user is not logged in', () => {
       expect(navComponents).toHaveLength(0);
       const wrapper = createWrapper();
-      expect(wrapper.contains(CoreMenuOption)).toBe(true);
+      expect(wrapper.findComponent(CoreMenuOption).element).toBeTruthy();
     });
     it('should show logout if no components are added and user is logged in', async () => {
       expect(navComponents).toHaveLength(0);
       const wrapper = createWrapper();
       setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
       await wrapper.vm.$nextTick();
-      expect(wrapper.contains(logoutSideNavEntry)).toBe(true);
+      expect(wrapper.findComponent(logoutSideNavEntry).element).toBeTruthy();
     });
     describe('only non-account components are added', () => {
       afterEach(() => {
@@ -85,7 +85,7 @@ describe('app bar component', () => {
         };
         navComponents.register(component);
         const wrapper = createWrapper();
-        expect(wrapper.contains(component)).toBe(false);
+        expect(wrapper.findComponent(component).element).toBeFalsy();
       });
 
       it.each(filterableUserKinds)(
@@ -104,7 +104,7 @@ describe('app bar component', () => {
           const wrapper = createWrapper();
           setUserKind(wrapper.vm.$store, kind);
           await wrapper.vm.$nextTick();
-          expect(wrapper.contains(component)).toBe(true);
+          expect(wrapper.findComponent(component).element).toBeTruthy();
         }
       );
     });

@@ -38,7 +38,7 @@ describe('RequirePasswordForLearnersForm', () => {
 
   it('after clicking submit, the setting in vuex is updated', () => {
     const { wrapper, store } = makeWrapper({ preset: 'formal' });
-    wrapper.find({ name: 'YesNoForm' }).vm.emitSetting();
+    wrapper.findComponent({ name: 'YesNoForm' }).vm.emitSetting();
     expect(store.state.onboardingData.settings.learner_can_login_with_no_password).toEqual(true);
     expect(wrapper.vm.$emit).toHaveBeenCalledTimes(1);
   });

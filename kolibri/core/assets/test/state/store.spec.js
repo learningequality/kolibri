@@ -81,8 +81,8 @@ describe('Vuex store/actions for core module', () => {
         }),
       });
 
-      await store.dispatch('kolibriLogin', {});
-      expect(store.state.core.loginError).toEqual(constants.LoginErrors.INVALID_CREDENTIALS);
+      const error = await store.dispatch('kolibriLogin', {});
+      expect(error).toEqual(constants.LoginErrors.INVALID_CREDENTIALS);
     });
   });
 });

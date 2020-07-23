@@ -68,7 +68,7 @@
       // This used to determine Select Source workflow to enter into
       importedFacility() {
         const [facility] = this.$store.state.core.facilities;
-        if (facility.last_synced !== null) {
+        if (facility && facility.last_synced !== null) {
           return facility;
         }
         return null;

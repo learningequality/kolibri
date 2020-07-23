@@ -3,7 +3,6 @@
   <KPageContainer>
 
     <h1>{{ $tr('syncData') }}</h1>
-    <p>{{ $tr('access') }}</p>
     <p>
       <KButton
         appearance="basic-link"
@@ -131,8 +130,6 @@
     },
     $trs: {
       syncData: 'Sync facility data',
-      access:
-        'This is an experimental feature. You can use it if you have access to the Kolibri Data Portal.',
       learnMore: 'Usage and privacy',
       facility: 'Facility',
       register: 'Register',

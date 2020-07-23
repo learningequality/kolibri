@@ -75,7 +75,7 @@
         required: false,
         default: 'close',
         validator(val) {
-          return ['close', 'arrow_back'].includes(val);
+          return ['close', 'back'].includes(val);
         },
       },
       showIcon: {

@@ -12,6 +12,8 @@ export function getChannelWithContentSizes(channelId) {
           'total_file_size',
           'on_device_resources',
           'on_device_file_size',
+          'new_resource_count',
+          'new_resource_total_size',
         ],
       },
       force: true,

@@ -38,7 +38,7 @@ describe('CreateLearnerAccountForm', () => {
 
   it('after clicking submit, the setting in vuex is updated', () => {
     const { wrapper, store } = makeWrapper({ preset: 'formal' });
-    wrapper.find({ name: 'YesNoForm' }).vm.emitSetting();
+    wrapper.findComponent({ name: 'YesNoForm' }).vm.emitSetting();
     expect(store.state.onboardingData.settings.learner_can_sign_up).toEqual(false);
     expect(store.state.onboardingData.settings.learner_can_edit_name).toEqual(false);
     expect(store.state.onboardingData.settings.learner_can_edit_username).toEqual(false);

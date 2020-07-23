@@ -29,7 +29,7 @@
                 contents: {
                     "cid-1": {
                         library: "{{ library }}",
-                        jsonContent: JSON.stringify({{ content|safe }}),
+                        jsonContent: {{ content|safe }},
                         displayOptions: {
                             copyright: false,
                             download: false,

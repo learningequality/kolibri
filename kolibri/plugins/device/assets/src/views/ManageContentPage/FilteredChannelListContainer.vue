@@ -87,6 +87,8 @@
       return {
         languageFilter: {},
         titleFilter: '',
+        // Use a copy of channels from Vuex to avoid #6989 when it gets mutated
+        channelsCopy: [...this.channels],
       };
     },
     computed: {
@@ -110,7 +112,7 @@
         };
       },
       languageFilterOptions() {
-        const codes = uniqBy(this.channels, 'lang_code')
+        const codes = uniqBy(this.channelsCopy, 'lang_code')
           .map(({ lang_name, lang_code }) => ({
             value: lang_code,
             label: lang_name,
@@ -122,7 +124,7 @@
         return this.$tr('numChannelsAvailable', { count: this.filteredItems.length });
       },
       filteredItems() {
-        return this.channels.filter(this.channelPassesFilters);
+        return this.channelsCopy.filter(this.channelPassesFilters);
       },
       noMatchMsg() {
         if (
@@ -217,6 +219,9 @@
   }
 
   .no-match {
+    // Add extra height to empty state message
+    // so opening language dropdown doesn't cause an overflow
+    height: 250px;
     padding: 32px 0;
   }
 

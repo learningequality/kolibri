@@ -1,7 +1,6 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import { currentLanguage, createTranslator } from 'kolibri.utils.i18n';
-import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
 import { Presets, permissionPresets } from '../constants';
 import { FacilityImportResource } from '../api';
 
@@ -11,8 +10,6 @@ const SetupStrings = createTranslator('SetupStrings', {
     context: 'Template for a facility name for personal setups',
   },
 });
-
-const { NOT_SPECIFIED } = DemographicConstants;
 
 export default {
   state: {
@@ -44,8 +41,6 @@ export default {
         full_name: '',
         username: '',
         password: '',
-        gender: NOT_SPECIFIED,
-        birth_year: NOT_SPECIFIED,
       },
     },
     loading: false,

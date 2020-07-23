@@ -6,6 +6,7 @@ import sys
 import portend
 from django.apps import apps
 from django.db.utils import OperationalError
+from django.db.utils import ProgrammingError
 
 from .conf import KOLIBRI_HOME
 from .conf import OPTIONS
@@ -36,7 +37,7 @@ class DatabaseNotMigrated(SanityException):
 class DatabaseInaccessible(SanityException):
     def __init__(self, *args, **kwargs):
         self.db_exception = kwargs.get("db_exception")
-        super(DatabaseNotMigrated, self).__init__(
+        super(DatabaseInaccessible, self).__init__(
             "Not able to access the database while checking it.\n\n"
             "Exception: {}".format(str(self.db_exception))
         )
@@ -154,7 +155,7 @@ def check_database_is_migrated():
         InstanceIDModel.get_or_create_current_instance()[0]
         connection.close()
         return
-    except OperationalError as e:
+    except (OperationalError, ProgrammingError) as e:
         raise DatabaseNotMigrated(db_exception=e)
     except Exception as e:
         raise DatabaseInaccessible(db_exception=e)

@@ -37,7 +37,7 @@ function getElements(wrapper) {
     messageText: () => wrapper.find('.message').text().trim(),
     goToTopicButton: () => wrapper.find('a[name="select-node"]'),
     checkbox: () => wrapper.find('input[type="checkbox"]'),
-    KCheckbox: () => wrapper.find({ name: 'KCheckbox' }),
+    KCheckbox: () => wrapper.findComponent({ name: 'KCheckbox' }),
   };
 }
 

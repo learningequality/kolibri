@@ -603,3 +603,11 @@ class FacilityUserTestCase(TestCase):
             FacilityUser.objects.create(username="bob", facility=self.facility)
         except IntegrityError:
             self.fail("Can't create user with same username.")
+
+    def test_deserialize_empty_password(self):
+        self.facility = Facility.objects.create()
+        self.device_settings = DeviceSettings.objects.create()
+
+        user = FacilityUser.deserialize(dict(username="bob", password=""))
+        self.assertEqual("bob", user.username)
+        self.assertEqual("NOT_SPECIFIED", user.password)

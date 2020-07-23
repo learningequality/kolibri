@@ -3,10 +3,10 @@
 Django settings for kolibri project.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/1.9/topics/settings/
+https://docs.djangoproject.com/en/1.11/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.9/ref/settings/
+https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 from __future__ import absolute_import
 from __future__ import print_function
@@ -48,7 +48,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__name__))
 LOCALE_PATHS = [os.path.join(KOLIBRI_MODULE_PATH, "locale")]
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
+# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "f@ey3)y^03r9^@mou97apom*+c1m#b1!cwbm50^s4yk72xce27"
@@ -133,7 +133,7 @@ WSGI_APPLICATION = "kolibri.deployment.default.wsgi.application"
 
 
 # Database
-# https://docs.djangoproject.com/en/1.9/ref/settings/#databases
+# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
     DATABASES = {
@@ -176,7 +176,7 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/1.9/topics/i18n/
+# https://docs.djangoproject.com/en/1.11/topics/i18n/
 
 # For language names, see:
 # https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
@@ -225,6 +225,7 @@ EXTRA_LANG_INFO = {
         "name": "Gujarati",
         "name_local": "ગુજરાતી",
     },
+    "km": {"bidi": False, "code": "km", "name": "Khmer", "name_local": "ភាសាខ្មែរ"},
     "nyn": {
         "bidi": False,
         "code": "nyn",
@@ -268,7 +269,7 @@ USE_L10N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.9/howto/static-files/
+# https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 path_prefix = conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
 
@@ -291,8 +292,8 @@ CSRF_COOKIE_NAME = "kolibri_csrftoken"
 # set by other Django apps served from the same domain.
 SESSION_COOKIE_PATH = path_prefix
 
-# https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-LOGGING
-# https://docs.djangoproject.com/en/1.9/topics/logging/
+# https://docs.djangoproject.com/en/1.11/ref/settings/#std:setting-LOGGING
+# https://docs.djangoproject.com/en/1.11/topics/logging/
 
 LOGGING = get_logging_config(
     conf.LOG_ROOT,
@@ -302,7 +303,7 @@ LOGGING = get_logging_config(
 
 
 # Customizing Django auth system
-# https://docs.djangoproject.com/en/1.9/topics/auth/customizing/
+# https://docs.djangoproject.com/en/1.11/topics/auth/customizing/
 
 AUTH_USER_MODEL = "kolibriauth.FacilityUser"
 
@@ -326,7 +327,7 @@ REST_FRAMEWORK = {
 }
 
 # System warnings to disable
-# see https://docs.djangoproject.com/en/1.9/ref/settings/#silenced-system-checks
+# see https://docs.djangoproject.com/en/1.11/ref/settings/#silenced-system-checks
 SILENCED_SYSTEM_CHECKS = ["auth.W004"]
 
 # Configuration for Django JS Reverse

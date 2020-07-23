@@ -71,7 +71,10 @@ def get_source_field(model, field_path):
     paths = field_path.split("__")
     while len(paths) > 1:
         model = model._meta.get_field(paths.pop(0)).related_model
-    return model._meta.get_field(paths[0])
+    field = model._meta.get_field(paths[0])
+    if field.is_relation and field.foreign_related_fields:
+        field = field.foreign_related_fields[0]
+    return field
 
 
 def annotate_array_aggregate(queryset, **kwargs):

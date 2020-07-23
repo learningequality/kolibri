@@ -13,7 +13,7 @@
         @click="handleClickPrevious"
       >
         <KIcon
-          icon="keyboard_arrow_left"
+          icon="chevronLeft"
           :style="{ fill: $themeTokens.textInverted, top: 0, width: '24px', height: '24px', }"
           :class="{ 'rtl-icon': isRtl }"
         />
@@ -36,7 +36,7 @@
         @click="handleClickNext"
       >
         <KIcon
-          icon="keyboard_arrow_right"
+          icon="chevronRight"
           :style="{ fill: $themeTokens.textInverted, top: 0, width: '24px', height: '24px', }"
           :class="{ 'rtl-icon': isRtl }"
         />

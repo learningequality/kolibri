@@ -7,7 +7,7 @@
     <KIconButton
       v-show="!isFirst"
       ref="upBtn"
-      icon="arrow_up"
+      icon="chevronUp"
       class="btn up"
       size="mini"
       :ariaLabel="moveUpText"
@@ -19,11 +19,11 @@
       Currently missing from material icon repo.
       See https://github.com/google/material-design-icons/issues/786
      -->
-    <KIcon icon="drag" class="grip" style="top: 0; width: 24px; height: 24px" />
+    <KIcon icon="dragHorizontal" class="grip" style="top: 0; width: 24px; height: 24px" />
     <KIconButton
       v-show="!isLast"
       ref="dnBtn"
-      icon="arrow_down"
+      icon="chevronDown"
       class="btn dn"
       size="mini"
       :ariaLabel="moveDownText"

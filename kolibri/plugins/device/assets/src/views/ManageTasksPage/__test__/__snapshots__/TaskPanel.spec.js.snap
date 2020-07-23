@@ -3,7 +3,7 @@
 exports[`TaskPanel renders correctly when it is a canceled DISKCONTENTEXPORT task 1`] = `
 <div class="task-panel">
   <div class="icon">
-    <transition-stub mode="out-in"><svg role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #d32f2f;">
+    <transition-stub mode="out-in"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #d32f2f;">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path>
       </svg></transition-stub>
   </div>
@@ -21,7 +21,7 @@ exports[`TaskPanel renders correctly when it is a canceled DISKCONTENTEXPORT tas
     </p>
   </div>
   <div class="buttons"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_37nh0f">
-      <!----> <span>Clear</span>
+      <!----> <span class="link-text">Clear</span>
       <!---->
       <!----></button></div>
 </div>
@@ -30,7 +30,7 @@ exports[`TaskPanel renders correctly when it is a canceled DISKCONTENTEXPORT tas
 exports[`TaskPanel renders correctly when it is a canceled DISKEXPORT task (bulk export) 1`] = `
 <div class="task-panel">
   <div class="icon">
-    <transition-stub mode="out-in"><svg role="presentation" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #d32f2f;">
+    <transition-stub mode="out-in"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #d32f2f;">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path>
       </svg></transition-stub>
   </div>
@@ -48,7 +48,7 @@ exports[`TaskPanel renders correctly when it is a canceled DISKEXPORT task (bulk
     </p>
   </div>
   <div class="buttons"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_37nh0f">
-      <!----> <span>Clear</span>
+      <!----> <span class="link-text">Clear</span>
       <!---->
       <!----></button></div>
 </div>

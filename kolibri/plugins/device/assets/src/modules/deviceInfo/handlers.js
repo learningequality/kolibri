@@ -20,13 +20,15 @@ export function getDeviceInfo() {
     data.content_storage_free_space = bytesForHumans(data.content_storage_free_space);
     data.device_name = nameResponse.data.name;
 
-    if (infoResponse.headers.server.includes('0.0.0.0')) {
+    const { server } = infoResponse.headers;
+
+    if (server.includes('0.0.0.0')) {
       if (isEmbeddedWebView) {
         data.server_type = 'Kolibri app server';
       } else {
         data.server_type = 'Kolibri internal server';
       }
-    } else data.server_type = infoResponse.headers.Server;
+    } else data.server_type = server;
 
     return data;
   });

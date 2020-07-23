@@ -1,6 +1,8 @@
 import { mount, RouterLinkStub } from '@vue/test-utils';
 import NotificationCard from '../NotificationCard';
 
+NotificationCard.methods.getRoute = x => x;
+
 function makeWrapper(options) {
   const wrapper = mount(NotificationCard, {
     stubs: {
@@ -10,11 +12,6 @@ function makeWrapper(options) {
         template: '<div></div>',
       },
       RouterLink: RouterLinkStub,
-    },
-    methods: {
-      getRoute(x) {
-        return x;
-      },
     },
     propsData: {
       eventType: 'Completed',
@@ -37,7 +34,7 @@ describe('NotificationCard component', () => {
         },
       },
     });
-    const link = wrapper.find({ name: 'KRouterLink' });
+    const link = wrapper.findComponent({ name: 'KRouterLink' });
     expect(link.props().to.name).toEqual('CoolReport');
     expect(link.props('text')).toEqual('JB finished a lesson');
   });
@@ -49,7 +46,7 @@ describe('NotificationCard component', () => {
       },
     });
 
-    const link = wrapper.find({ name: 'KRouterLink' });
+    const link = wrapper.findComponent({ name: 'KRouterLink' });
     expect(link.exists()).toEqual(false);
     expect(wrapper.text()).toContain('JB finished a lesson');
   });
@@ -58,7 +55,7 @@ describe('NotificationCard component', () => {
     const { wrapper } = makeWrapper({
       propsData: {},
     });
-    const gridItems = wrapper.findAll({ name: 'KFixedGridItem' });
+    const gridItems = wrapper.findAllComponents({ name: 'KFixedGridItem' });
     expect(gridItems.length).toEqual(1);
     expect(gridItems.at(0).props().span).toEqual(4);
   });
@@ -70,12 +67,12 @@ describe('NotificationCard component', () => {
         time: timeString,
       },
     });
-    const gridItems = wrapper.findAll({ name: 'KFixedGridItem' });
+    const gridItems = wrapper.findAllComponents({ name: 'KFixedGridItem' });
     expect(gridItems.length).toEqual(2);
     expect(gridItems.at(0).props().span).toEqual(3);
     expect(gridItems.at(1).props().span).toEqual(1);
 
-    const elapsedTime = wrapper.find({ name: 'ElapsedTime' });
+    const elapsedTime = wrapper.findComponent({ name: 'ElapsedTime' });
     const timeObject = new Date(timeString).getTime();
     expect(elapsedTime.props().date.getTime()).toEqual(timeObject);
   });
@@ -92,14 +89,14 @@ describe('NotificationCard component', () => {
       const { wrapper } = makeWrapper({
         propsData: { eventType },
       });
-      const icon = wrapper.find({ name: 'CoachStatusIcon' });
+      const icon = wrapper.findComponent({ name: 'CoachStatusIcon' });
       expect(icon.props().icon).toEqual(iconType);
     }
   );
 
   const contentIconTestCases = [
     ['Lesson', 'lesson'],
-    ['Quiz', 'quiz'],
+    ['Quiz', 'exam'],
     ['Resource', 'video'],
   ];
 
@@ -112,7 +109,7 @@ describe('NotificationCard component', () => {
           resourceType: 'video',
         },
       });
-      const contentIcon = wrapper.find({ name: 'ContentIcon' });
+      const contentIcon = wrapper.findComponent({ name: 'ContentIcon' });
       expect(contentIcon.props().kind).toEqual(iconKind);
     }
   );

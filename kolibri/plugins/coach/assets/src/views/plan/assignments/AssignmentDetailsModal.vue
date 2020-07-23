@@ -53,7 +53,7 @@
     </form>
 
     <BottomAppBar>
-      <KButtonGroup style="margin-top: 8px;">
+      <KButtonGroup>
         <KButton
           :text="coreString('cancelAction')"
           appearance="flat-button"

@@ -5,20 +5,22 @@
     <div>
       <HeaderWithOptions :headerText="coreString('channelsLabel')">
         <template #options>
-          <KDropdownMenu
-            v-if="channelsAreInstalled"
-            appearance="raised-button"
-            :text="coreString('optionsLabel')"
-            position="bottom left"
-            :options="dropdownOptions"
-            class="options-btn"
-            @select="handleSelect"
-          />
-          <KButton
-            :text="$tr('import')"
-            :primary="true"
-            @click="startImportWorkflow()"
-          />
+          <KButtonGroup>
+            <KDropdownMenu
+              v-if="channelsAreInstalled"
+              appearance="raised-button"
+              :text="coreString('optionsLabel')"
+              position="bottom left"
+              :options="dropdownOptions"
+              class="options-btn"
+              @select="handleSelect"
+            />
+            <KButton
+              :text="$tr('import')"
+              :primary="true"
+              @click="startImportWorkflow()"
+            />
+          </KButtonGroup>
         </template>
       </HeaderWithOptions>
 

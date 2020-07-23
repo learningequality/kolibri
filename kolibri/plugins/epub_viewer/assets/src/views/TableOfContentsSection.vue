@@ -23,6 +23,7 @@
         :section="subsection"
         :currentSection="currentSection"
         :depth="depth + 1"
+        data-test="table-of-contents-section"
         @tocNavigation="emitTocNavigation"
       />
     </ul>

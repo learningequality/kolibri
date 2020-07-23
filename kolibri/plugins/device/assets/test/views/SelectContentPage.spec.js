@@ -37,7 +37,7 @@ describe('SelectContentPage', () => {
   it('shows the thumbnail, title, descripton, and version of the channel', () => {
     const fakeImage = 'data:image/png;base64,abcd1234';
     updateMetaChannel(store, { thumbnail: fakeImage });
-    const summary = makeWrapper({ store }).find(ChannelContentsSummary);
+    const summary = makeWrapper({ store }).findComponent(ChannelContentsSummary);
     expect(summary.find('img').attributes().src).toEqual(fakeImage);
     expect(summary.find('h1').text()).toEqual('Awesome Channel');
     const pTags = summary.findAll('p');
@@ -47,14 +47,14 @@ describe('SelectContentPage', () => {
 
   it('shows the total size of the channel', () => {
     const rows = makeWrapper({ store })
-      .find(ChannelContentsSummary)
+      .findComponent(ChannelContentsSummary)
       .findAll('tr');
     expect(rows.at(1).text()).toEqual('Total size 1,000 5 GB');
   });
 
   it('shows the total size of any resources on the device', () => {
     const rows = makeWrapper({ store })
-      .find(ChannelContentsSummary)
+      .findComponent(ChannelContentsSummary)
       .findAll('tr');
     expect(rows.at(2).text()).toEqual('On your device 2,000 95 MB');
   });
@@ -66,7 +66,7 @@ describe('SelectContentPage', () => {
       on_device_file_size: 0,
     });
     const rows = makeWrapper({ store })
-      .find(ChannelContentsSummary)
+      .findComponent(ChannelContentsSummary)
       .findAll('tr');
     expect(rows.at(2).text()).toEqual('On your device 0 0 B');
   });
@@ -74,7 +74,7 @@ describe('SelectContentPage', () => {
   it('shows a update notification if a new version is available', () => {
     updateMetaChannel(store, { version: 1000 });
     const wrapper = makeWrapper({ store });
-    expect(wrapper.find({ name: 'NewChannelVersionBanner' }).exists()).toBe(true);
+    expect(wrapper.findComponent({ name: 'NewChannelVersionBanner' }).exists()).toBe(true);
   });
 
   it('if a new version is not available, then no notification/button appear', () => {

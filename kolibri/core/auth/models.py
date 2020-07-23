@@ -69,7 +69,6 @@ from .permissions.general import IsOwn
 from .permissions.general import IsSelf
 from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
-from kolibri.core.device.utils import allow_learner_unassigned_resource_access
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import set_device_settings
@@ -493,10 +492,6 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
             "Subclasses of KolibriAbstractBaseUser must override the `can_delete` method."
         )
 
-    @property
-    def can_access_unassigned_content(self):
-        return allow_learner_unassigned_resource_access()
-
 
 class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
     """
@@ -514,7 +509,6 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
             "user_id": None,
             "facility_id": getattr(Facility.get_default_facility(), "id", None),
             "kind": [user_kinds.ANONYMOUS],
-            "can_access_unassigned_content": self.can_access_unassigned_content,
         }
 
     def is_member_of(self, coll):
@@ -682,6 +676,15 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     id_number = models.CharField(max_length=64, default="", blank=True)
 
+    @classmethod
+    def deserialize(cls, dict_model):
+        # be defensive against blank passwords, set to `NOT_SPECIFIED` if blank
+        password = dict_model.get("password", "") or ""
+        if len(password) == 0:
+            dict_model.update(password="NOT_SPECIFIED")
+
+        return super(FacilityUser, cls).deserialize(dict_model)
+
     def calculate_partition(self):
         return "{dataset_id}:user-ro:{user_id}".format(
             dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER
@@ -730,18 +733,12 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         if not roles:
             roles = [user_kinds.LEARNER]
 
-        can_access_unassigned_content = self.can_access_unassigned_content
-
-        if len(set(roles).difference({user_kinds.LEARNER, user_kinds.ANONYMOUS})) > 0:
-            can_access_unassigned_content = True
-
         return {
             "username": self.username,
             "full_name": self.full_name,
             "user_id": self.id,
             "kind": roles,
             "can_manage_content": self.can_manage_content,
-            "can_access_unassigned_content": can_access_unassigned_content,
             "facility_id": self.facility_id,
         }
 

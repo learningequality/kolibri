@@ -26,20 +26,20 @@ describe('Bottom bar', () => {
   });
   it('should not display a heading if none is provided', () => {
     const wrapper = createWrapper();
-    expect(wrapper.contains('h3')).toBe(false);
+    expect(wrapper.find('h3').element).toBeFalsy();
   });
   it('should display a heading if one is provided', () => {
     const heading = 'Chapter 1';
     const wrapper = createWrapper({ heading });
-    expect(wrapper.contains('h3')).toBe(true);
+    expect(wrapper.find('h3').element).toBeTruthy();
   });
   it('should not display slider if locations are not ready', () => {
     const wrapper = createWrapper({ locationsAreReady: false });
-    expect(wrapper.contains('input')).toBeFalsy();
+    expect(wrapper.find('input').element).toBeFalsy();
   });
   it('should display slider if locations are ready', () => {
     const wrapper = createWrapper();
-    expect(wrapper.contains('input')).toBeTruthy();
+    expect(wrapper.find('input').element).toBeTruthy();
   });
   it('should set the correct value on the slider', () => {
     const sliderValue = 100;

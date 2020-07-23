@@ -20,6 +20,7 @@
               v-if="showLink(entry)"
               :text="entry.name"
               :to="entry.exerciseLearnerLink"
+              data-test="exercise-learner-link"
             />
             <template v-else>
               {{ entry.name }}

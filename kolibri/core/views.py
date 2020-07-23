@@ -27,6 +27,7 @@ from kolibri.core.device.translation import get_device_language
 from kolibri.core.device.translation import get_settings_language
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import device_provisioned
+from kolibri.core.hooks import LogoutRedirectHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 
 
@@ -84,7 +85,12 @@ def set_language(request):
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("kolibri:core:redirect_user"))
+    if LogoutRedirectHook.is_enabled():
+        return HttpResponseRedirect(
+            next(obj.url for obj in LogoutRedirectHook.registered_hooks)
+        )
+    else:
+        return HttpResponseRedirect(reverse("kolibri:core:redirect_user"))
 
 
 def get_urls_by_role(role):

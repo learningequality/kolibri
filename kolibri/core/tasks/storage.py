@@ -245,6 +245,9 @@ class Storage(StorageMixin):
     def save_job_meta(self, job):
         self._update_job(job.job_id, extra_metadata=job.extra_metadata)
 
+    def save_job_as_cancellable(self, job_id, cancellable=True):
+        self._update_job(job_id, cancellable=cancellable)
+
     def _update_job(self, job_id, state=None, **kwargs):
         with self.session_scope() as session:
             try:

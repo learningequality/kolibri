@@ -15,13 +15,13 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models import TextField
 from django.db.models.functions import Cast
 from django.db.models.query import F
+from django.http import Http404
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -33,8 +33,8 @@ from morango.models import TransferSession
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
+from rest_framework import views
 from rest_framework import viewsets
-from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
 from .constants import collection_kinds
@@ -60,7 +60,6 @@ from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ValuesViewset
-from kolibri.core.decorators import MissingRequiredParamsException
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import valid_app_key_on_request
@@ -207,28 +206,6 @@ class FacilityUserViewSet(ValuesViewset):
         "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
     }
 
-    @list_route(methods=["get"])
-    def users_for_facilities(self, request):
-        if "member_of" not in request.GET:
-            raise MissingRequiredParamsException(
-                "member_of is required for this endpoint"
-            )
-
-        facility_ids = request.GET["member_of"].split(",")
-
-        users = (
-            FacilityUser.objects.filter(facility__in=facility_ids)
-            .annotate(is_learner=Exists(Role.objects.filter(user=OuterRef("id"))))
-            .values("id", "username", "facility_id", "is_learner", "password")
-        )
-
-        def sanitize_users(user):
-            password = user.pop("password")
-            user["needs_password"] = password == "NOT_SPECIFIED" or not password
-            return user
-
-        return Response(list(map(sanitize_users, users)))
-
     def consolidate(self, items, queryset):
         output = []
         items = sorted(items, key=lambda x: x["id"])
@@ -278,6 +255,10 @@ class FacilityUsernameViewSet(ValuesViewset):
     values = ("username",)
 
     def get_queryset(self):
+        if valid_app_key_on_request(self.request):
+            # Special case for app context to return usernames for
+            # the list display
+            return FacilityUser.objects.all()
         return FacilityUser.objects.filter(
             dataset__learner_can_login_with_no_password=True, roles=None
         ).filter(
@@ -360,17 +341,8 @@ class FacilityViewSet(ValuesViewset):
         return dataset
 
     field_map = {
-        "default": lambda x: Facility.get_default_facility().id == x["id"],
         "dataset": _map_dataset,
     }
-
-    def get_queryset(self, prefetch=True):
-        queryset = Facility.objects.all()
-        if prefetch:
-            # This is a default field on the serializer, so do a select_related
-            # to prevent n queries when n facilities are queried
-            return queryset.select_related("dataset")
-        return queryset
 
     def annotate_queryset(self, queryset):
         return (
@@ -575,6 +547,34 @@ class SignUpViewSet(viewsets.ViewSet):
             return Response(serialized_user.data, status=status.HTTP_201_CREATED)
 
 
+class SetNonSpecifiedPasswordView(views.APIView):
+    def post(self, request):
+        username = request.data.get("username", "")
+        password = request.data.get("password", "")
+        facility_id = request.data.get("facility", None)
+
+        if not username or not password or not facility_id:
+            return Response(
+                "Must specify username, password, and facility",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        error_message = "Suitable user does not exist"
+
+        try:
+            user = FacilityUser.objects.get(username=username, facility=facility_id)
+        except ObjectDoesNotExist:
+            raise Http404(error_message)
+
+        if user.password != "NOT_SPECIFIED":
+            raise Http404(error_message)
+
+        user.set_password(password)
+        user.save()
+
+        return Response()
+
+
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class SessionViewSet(viewsets.ViewSet):
     def create(self, request):
@@ -614,8 +614,18 @@ class SessionViewSet(viewsets.ViewSet):
             # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
             # while the "Require learners to log in with password" setting was disabled - but now
             # it is enabled again.
-            login(request, unauthenticated_user)
-            return self.get_session_response(request)
+            return Response(
+                [
+                    {
+                        "id": error_constants.PASSWORD_NOT_SPECIFIED,
+                        "metadata": {
+                            "field": "password",
+                            "message": "Username is valid, but password needs to be set before login.",
+                        },
+                    }
+                ],
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         elif (
             not password
             and FacilityUser.objects.filter(

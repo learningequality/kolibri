@@ -58,19 +58,19 @@ function emptyNavComponents(n = 1) {
 describe('side nav component', () => {
   it('should be hidden if navShown is false', () => {
     const wrapper = createWrapper({ navShown: false });
-    expect(wrapper.find('.side-nav').isVisible()).toBe(false);
+    expect(wrapper.find('.side-nav').element).not.toBeVisible();
   });
   it('should show nothing if no components are added and user is not logged in', () => {
     expect(navComponents).toHaveLength(0);
     const wrapper = createWrapper();
-    expect(wrapper.contains('a.ui-menu-option:not(.is-divider)')).toBe(false);
+    expect(wrapper.find('a.ui-menu-option:not(.is-divider)').element).toBeFalsy();
   });
   it('should show logout if no components are added and user is logged in', async () => {
     expect(navComponents).toHaveLength(0);
     const wrapper = createWrapper();
     setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
     await wrapper.vm.$nextTick();
-    expect(wrapper.contains(logoutSideNavEntry)).toBe(true);
+    expect(wrapper.findComponent(logoutSideNavEntry).element).toBeTruthy();
   });
 
   describe('SideNav components are shown/hidden depending on role', () => {
@@ -112,7 +112,11 @@ describe('side nav component', () => {
         const wrapper = createWrapper();
         setUserKind(wrapper.vm.$store, kind);
         await wrapper.vm.$nextTick();
-        expect(wrapper.contains(component)).toBe(shouldShow);
+        if (shouldShow) {
+          expect(wrapper.findComponent(component).element).toBeTruthy();
+        } else {
+          expect(wrapper.findComponent(component).element).toBeFalsy();
+        }
       }
     );
   });

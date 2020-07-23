@@ -66,7 +66,6 @@
       UiAlert,
     },
     mixins: [commonCoreStrings],
-    props: {},
     data() {
       return {
         address: '',
@@ -113,8 +112,8 @@
           base_url: this.address,
           nickname: this.name,
         })
-          .then(() => {
-            this.$emit('added_address');
+          .then(address => {
+            this.$emit('added_address', address.id);
           })
           .catch(err => {
             const errorsCaught = CatchErrors(err, [

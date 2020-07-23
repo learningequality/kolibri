@@ -37,9 +37,17 @@
     </td>
 
     <td class="message">
-      {{ message }}
+      <template v-if="message && !importing">
+        {{ message }}
+      </template>
+      <ChannelUpdateAnnotations
+        v-if="node.num_new_resources || importing"
+        class="update-label"
+        :isTopic="isTopic"
+        :newResources="node.num_new_resources"
+        :importing="importing"
+      />
     </td>
-    <ChannelUpdateAnnotations v-if="false" />
   </tr>
 
 </template>
@@ -89,6 +97,9 @@
       isTopic() {
         return this.node.kind === ContentNodeKinds.TOPIC;
       },
+      importing() {
+        return this.node.updated_resource && !this.node.available;
+      },
     },
   };
 
@@ -110,6 +121,10 @@
   .message {
     width: 40%;
     text-align: right;
+  }
+
+  .update-label {
+    margin-left: 24px;
   }
 
 </style>

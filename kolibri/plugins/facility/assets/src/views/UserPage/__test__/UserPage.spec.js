@@ -22,7 +22,7 @@ const coachUser = { id: '1', kind: 'coach', username: 'coach', full_name: 'coach
 describe('UserPage component', () => {
   describe('message in empty states', () => {
     function getUserTableEmptyMessage(wrapper) {
-      return wrapper.find({ name: 'UserTable' }).props().emptyMessage;
+      return wrapper.findComponent({ name: 'UserTable' }).props().emptyMessage;
     }
 
     it('when there are no users', () => {
@@ -50,7 +50,7 @@ describe('UserPage component', () => {
       const { wrapper, store } = makeWrapper();
       store.state.userManagement.facilityUsers = [{ ...coachUser }];
       wrapper.setData({ roleFilter: { value: 'coach' } });
-      wrapper.find({ name: 'PaginatedListContainer' }).setData({ filterInput: 'coachy' });
+      wrapper.findComponent({ name: 'PaginatedListContainer' }).setData({ filterInput: 'coachy' });
       await wrapper.vm.$nextTick();
       expect(getUserTableEmptyMessage(wrapper)).toEqual("No users match the filter: 'coachy'");
     });

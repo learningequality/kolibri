@@ -15,6 +15,7 @@ from django.utils.translation import get_language_from_request
 from django.utils.translation import pgettext
 from django.views.generic.base import TemplateView
 
+from kolibri.core.auth.models import Facility
 from kolibri.core.decorators import cache_no_user_data
 from kolibri.utils import conf
 
@@ -24,7 +25,12 @@ class FacilityManagementView(TemplateView):
     template_name = "facility_management.html"
 
 
-def download_csv_file(request, filename):
+def download_csv_file(request, filename, facility_id):
+    if facility_id:
+        facility_name = Facility.objects.get(pk=facility_id).name
+    else:
+        facility_name = request.user.facility.name
+
     locale = get_language_from_request(request)
     translation.activate(locale)
     filepath = os.path.join(conf.KOLIBRI_HOME, "temp", filename)
@@ -48,8 +54,11 @@ def download_csv_file(request, filename):
         ).replace("-", "_")
         + ".csv"
     )
+
+    # Append the facility name to the beginning of the filename
+    filename_with_facility = "{}_{}".format(facility_name, str(exported_filename))
     response["Content-Disposition"] = "attachment; filename={}".format(
-        str(exported_filename)
+        filename_with_facility
     )
 
     # set the content-length to the file size

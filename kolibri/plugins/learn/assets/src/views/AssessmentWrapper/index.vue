@@ -50,7 +50,6 @@ oriented data synchronization.
         <KIcon
           icon="mastered"
           :color="success ? $themeTokens.mastered : $themePalette.grey.v_200"
-          style="margin-bottom: -6px;"
         />
         <div class="overall-status-text">
           <span v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">

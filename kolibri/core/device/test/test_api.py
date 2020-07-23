@@ -340,12 +340,14 @@ class DeviceInfoTestCase(APITestCase):
 
     def test_database_path(self):
         response = self.client.get(reverse("kolibri:core:deviceinfo"), format="json")
-        if settings.DATABASES["default"]["ENGINE"].endswith("sqlite3"):
-            self.assertEqual(
-                response.data["database_path"], settings.DATABASES["default"]["NAME"]
-            )
+        db_engine = settings.DATABASES["default"]["ENGINE"]
+        db_path = response.data["database_path"]
+        if db_engine.endswith("sqlite3"):
+            self.assertEqual(db_path, settings.DATABASES["default"]["NAME"])
+        elif db_engine.endswith("postgresql"):
+            self.assertEqual(db_path, "postgresql")
         else:
-            self.assertTrue("database_path" not in response.data)
+            self.assertEqual(db_path, "unknown")
 
     def test_os(self):
         response = self.client.get(reverse("kolibri:core:deviceinfo"), format="json")

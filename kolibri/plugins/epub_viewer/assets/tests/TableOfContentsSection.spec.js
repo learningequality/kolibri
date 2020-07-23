@@ -62,7 +62,9 @@ describe('Table of Contents Section', () => {
       section: sectionWithSubItems,
       depth: 0,
     });
-    expect(wrapper.find('ul.toc-list').findAll({ name: 'TableOfContentsSection' }).length).toBe(2);
+    expect(
+      wrapper.find('ul.toc-list').findAll('[data-test="table-of-contents-section"]').length
+    ).toBe(2);
   });
 
   it('should display href if label is empty', () => {
@@ -70,7 +72,7 @@ describe('Table of Contents Section', () => {
       section: sectionWithEmptyLabel,
       depth: 0,
     });
-    expect(wrapper.find({ name: 'KButton' }).text()).toBe(sectionWithEmptyLabel.href);
+    expect(wrapper.findComponent({ name: 'KButton' }).text()).toBe(sectionWithEmptyLabel.href);
   });
 
   it('should not have a custom class if not top level section', () => {
@@ -95,7 +97,9 @@ describe('Table of Contents Section', () => {
       depth: 0,
       currentSection: section,
     });
-    expect(wrapper.find({ name: 'KButton' }).classes()).toContain('toc-list-item-button-current');
+    expect(wrapper.findComponent({ name: 'KButton' }).classes()).toContain(
+      'toc-list-item-button-current'
+    );
   });
 
   it('should not add a custom class if a current section is provided but does not match section', () => {
@@ -104,7 +108,7 @@ describe('Table of Contents Section', () => {
       depth: 0,
       currentSection: { label: 'Random section', href: 'href' },
     });
-    expect(wrapper.find({ name: 'KButton' }).classes()).not.toContain(
+    expect(wrapper.findComponent({ name: 'KButton' }).classes()).not.toContain(
       'toc-list-item-button-current'
     );
   });
@@ -114,7 +118,7 @@ describe('Table of Contents Section', () => {
       section,
       depth: 0,
     });
-    wrapper.find({ name: 'KButton' }).trigger('click');
+    wrapper.findComponent({ name: 'KButton' }).trigger('click');
     expect(wrapper.emitted().tocNavigation[0][0]).toBe(section);
   });
 });

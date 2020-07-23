@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-06-11 09:07-0700\n"
-"PO-Revision-Date: 2020-06-22 00:57\n"
+"PO-Revision-Date: 2020-07-14 17:14\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -27,7 +27,7 @@ msgstr "Salle de classe"
 
 #: kolibri/core/auth/constants/collection_kinds.py:17
 msgid "Learner group"
-msgstr "Groupe d'élèves"
+msgstr "Groupe d'apprenants"
 
 #: kolibri/core/auth/constants/collection_kinds.py:18
 msgid "Ad hoc learners group"
@@ -54,7 +54,7 @@ msgstr "Nom d'utilisateur déjà existant"
 #: kolibri/core/auth/constants/commands_errors.py:28
 #: kolibri/core/auth/management/commands/bulkimportusers.py:84
 msgid "Username only can contain characters, numbers and underscores"
-msgstr "Le nom d’utilisateur ne peut contenir que des lettres, des chiffres et des underscrores"
+msgstr "Le nom d’utilisateur ne peut contenir que des lettres, des chiffres et des soulignés"
 
 #: kolibri/core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"

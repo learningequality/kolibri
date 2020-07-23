@@ -2,7 +2,7 @@
 
   <CoreBase
     :immersivePage="true"
-    immersivePageIcon="arrow_back"
+    immersivePageIcon="back"
     :immersivePagePrimary="true"
     :primary="true"
     :toolbarTitle="currentGroup.name"
@@ -37,8 +37,8 @@
           </template>
         </UserTable>
 
-        <nav>
-          <span>
+        <nav class="pagination-nav">
+          <span class="pagination-label">
             {{ $tr('pagination', {
               visibleStartRange,
               visibleEndRange,
@@ -47,7 +47,7 @@
           </span>
           <KButtonGroup style="margin-top: 8px;">
             <KIconButton
-              icon="keyboard_arrow_left"
+              icon="chevronLeft"
               :ariaLabel="$tr('previousResults')"
               :disabled="pageNum === 1"
               size="small"
@@ -55,7 +55,7 @@
               @click="goToPage(pageNum - 1)"
             />
             <KIconButton
-              icon="keyboard_arrow_right"
+              icon="chevronRight"
               :ariaLabel="$tr('nextResults')"
               :disabled="numPages === 0 || pageNum === numPages"
               size="small"
@@ -216,8 +216,17 @@
 
   .actions-header,
   .footer,
-  nav {
+  .pagination-nav {
     text-align: right;
+  }
+  .pagination-nav {
+    margin-bottom: 8px;
+  }
+
+  .pagination-label {
+    position: relative;
+    top: -2px;
+    display: inline;
   }
 
 </style>

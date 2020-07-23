@@ -25,7 +25,9 @@
             >
               {{ logoText }}
             </h1>
-            <p>{{ $tr('restrictedAccess') }}</p>
+            <p data-test="restrictedAccess">
+              {{ $tr('restrictedAccess') }}
+            </p>
             <p>{{ $tr('restrictedAccessDescription') }}</p>
           </div>
           <!-- remote access enabled -->
@@ -68,14 +70,19 @@
 
             <slot></slot>
 
-            <p v-if="!hideCreateAccount" class="create">
-              <KRouterLink
-                v-if="canSignUp"
-                :text="$tr('createAccountAction')"
-                :to="signUpPage"
-                :primary="true"
-                appearance="flat-button"
-              />
+            <p v-if="!hideCreateAccount && canSignUp" class="create">
+              <router-link :to="signUpPage">
+                <KButton
+                  :text="AuthSelectStrings.$tr('createAccountAction')"
+                  :to="signUpPage"
+                  :primary="false"
+                  appearance="raised-button"
+                  :disabled="busy"
+                  style="width: 100%;"
+                  data-test="createUser"
+                />
+              </router-link>
+
             </p>
 
             <div slot="options">
@@ -152,8 +159,10 @@
   import branding from 'kolibri.utils.branding';
   import loginComponents from 'kolibri.utils.loginComponents';
   import urls from 'kolibri.urls';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { ComponentMap } from '../constants';
   import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
-  import { PageNames } from '../constants';
+  import AuthSelect from './AuthSelect';
   import plugin_data from 'plugin_data';
 
   export default {
@@ -162,6 +171,11 @@
     mixins: [commonCoreStrings],
     props: {
       hideCreateAccount: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      busy: {
         type: Boolean,
         required: false,
         default: false,
@@ -175,6 +189,9 @@
     },
     computed: {
       ...mapGetters(['facilityConfig']),
+      AuthSelectStrings() {
+        return crossComponentTranslator(AuthSelect);
+      },
       backgroundImageStyle() {
         if (this.$kolibriBranding.signIn.background) {
           const scrimOpacity =
@@ -195,10 +212,11 @@
         return this.facilityConfig.learner_can_sign_up;
       },
       signUpPage() {
+        const signUpRoute = this.$router.getRoute(ComponentMap.SIGN_UP);
         if (this.nextParam) {
-          return { name: PageNames.SIGN_UP, query: { next: this.nextParam } };
+          return { ...signUpRoute, query: { next: this.nextParam } };
         }
-        return { name: PageNames.SIGN_UP };
+        return signUpRoute;
       },
       loginOptions() {
         // POC, in the future sorting of different login options can be implemented
@@ -224,6 +242,8 @@
     },
     $trs: {
       accessAsGuest: 'Explore without account',
+      // This is in the eslint-disabling section because we crossComponentTranslator @ AuthSelect
+      // eslint-disable-next-line kolibri/vue-no-unused-translations
       createAccountAction: 'Create an account',
       oidcGenericExplanation:
         'Kolibri is an e-learning platform. You can also use your Kolibri account to log in to some third-party applications.',
@@ -288,7 +308,7 @@
     @extend %dropshadow-16dp;
 
     width: 360px;
-    padding: 16px 32px;
+    padding: 24px 32px;
     margin: 16px auto;
     border-radius: $radius;
   }
@@ -302,8 +322,8 @@
   }
 
   .guest {
-    margin-top: 8px;
-    margin-bottom: 16px;
+    margin-top: 24px;
+    margin-bottom: 8px;
   }
 
   .small-text {
@@ -366,7 +386,7 @@
 
   .kolibri-title {
     margin-top: 0;
-    margin-bottom: 8px;
+    margin-bottom: 0;
     font-size: 24px;
     font-weight: 100;
   }

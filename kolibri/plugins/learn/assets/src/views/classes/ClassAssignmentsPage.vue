@@ -2,7 +2,7 @@
 
   <div>
     <h1 class="classroom-name">
-      <KLabeledIcon icon="classroom" :label="classroomName" />
+      <KLabeledIcon icon="classes" :label="classroomName" />
     </h1>
 
     <AssignedExamsCards

@@ -90,11 +90,15 @@ def create_superuser(user_data, facility):
     ).exists():
         raise ValidationError("An account with that username already exists")
 
+    # gender and birth_year are set to "DEFERRED", since superusers do not
+    # need to provide this and are not nudged to update profile on Learn page
     superuser = FacilityUser.objects.create(
         full_name=full_name or username,
         username=username,
         password=password,
         facility=facility,
+        gender="DEFERRED",
+        birth_year="DEFERRED",
     )
 
     superuser.full_clean()
