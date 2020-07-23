@@ -80,7 +80,6 @@
             this.facilities,
             f => f.dataset.learner_can_sign_up
           );
-          console.log(partitionedFacilities);
           return {
             enabled: partitionedFacilities[0],
             disabled: partitionedFacilities[1],

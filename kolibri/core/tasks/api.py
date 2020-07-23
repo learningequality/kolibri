@@ -865,11 +865,11 @@ class FacilityTasksViewSet(BaseViewSet):
         """
         responses = []
         facilities = Facility.objects.filter(dataset__registered=True).values_list(
-            "id", flat=True
+            "id", "name"
         )
 
-        for facility_id in facilities:
-            request.data.update(facility=facility_id)
+        for id, name in facilities:
+            request.data.update(facility=id, facility_name=name)
             responses.append(self.startdataportalsync(request).data)
 
         return Response(responses)
@@ -987,6 +987,10 @@ def prepare_sync_task(request, **kwargs):
             device_id=request.data.get("device_id", ""),
             baseurl=request.data.get("baseurl", ""),
         )
+        task_data.update(extra_task_data)
+    elif task_type == "SYNCDATAPORTAL":
+        # Extra metadata that can be passed from the client
+        extra_task_data = dict(facility_name=request.data.get("facility_name", ""))
         task_data.update(extra_task_data)
 
     task_data.update(kwargs)

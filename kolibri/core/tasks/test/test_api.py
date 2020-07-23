@@ -180,7 +180,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
 
         response = self.client.post(
             reverse("kolibri:core:facilitytask-startdataportalsync"),
-            {"facility": self.facility.id},
+            {"facility": self.facility.id, "facility_name": "my facility name"},
             format="json",
         )
         self.assertEqual(response.status_code, 200)
@@ -194,6 +194,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             noninteractive=True,
             extra_metadata=dict(
                 facility=self.facility.id,
+                facility_name="my facility name",
                 started_by=user.pk,
                 started_by_username=user.username,
                 sync_state="PENDING",
@@ -238,6 +239,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                     noninteractive=True,
                     extra_metadata=dict(
                         facility=facility2.id,
+                        facility_name="facility 2",
                         started_by=user.pk,
                         started_by_username=user.username,
                         sync_state="PENDING",
@@ -256,6 +258,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                     noninteractive=True,
                     extra_metadata=dict(
                         facility=facility3.id,
+                        facility_name="facility 3",
                         started_by=user.pk,
                         started_by_username=user.username,
                         sync_state="PENDING",

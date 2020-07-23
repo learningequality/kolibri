@@ -3,13 +3,15 @@
   <div>
     <SelectSyncSourceModal
       v-if="atSelectSource"
+      :formDisabled="syncSubmitDisabled"
       @submit="handleSourceSubmit"
       @cancel="closeModal()"
     />
 
     <SelectAddressModalGroup
       v-else-if="atSelectAddress"
-      :fetchAddressArgs="''"
+      :filterByFacilityId="facilityForSync.id"
+      :selectAddressDisabled="syncSubmitDisabled"
       @submit="handleAddressSubmit"
       @cancel="closeModal()"
     />
@@ -22,7 +24,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
+  import SelectAddressModalGroup from './SelectAddressModalGroup';
   import SelectSyncSourceModal from './SelectSyncSourceModal';
 
   const Steps = Object.freeze({
@@ -38,6 +40,8 @@
     },
     mixins: [commonCoreStrings, commonSyncElements],
     props: {
+      // If facility has not been KDP-registered, skip to SelectAddressForm
+      // and use facility ID to filter the selectable addresses
       facilityForSync: {
         type: Object,
         required: true,
@@ -46,6 +50,7 @@
     data() {
       return {
         step: this.facilityForSync.dataset.registered ? Steps.SELECT_SOURCE : Steps.SELECT_ADDRESS,
+        syncSubmitDisabled: false,
       };
     },
     computed: {
@@ -71,11 +76,16 @@
         this.$emit('close');
       },
       startKdpSync() {
-        this.startKdpSyncTask(this.facilityForSync.id).then(task => {
+        this.syncSubmitDisabled = true;
+        this.startKdpSyncTask({
+          id: this.facilityForSync.id,
+          name: this.facilityForSync.name,
+        }).then(task => {
           this.$emit('success', task.id);
         });
       },
       startPeerSync(peerData) {
+        this.syncSubmitDisabled = true;
         this.startPeerSyncTask({
           facility: this.facilityForSync.id,
           facility_name: this.facilityForSync.name,

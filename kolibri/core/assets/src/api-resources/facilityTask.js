@@ -8,7 +8,10 @@ export default new Resource({
    * @return {Promise}
    */
   dataportalsync(facility) {
-    return this.postListEndpoint('startdataportalsync', { facility });
+    return this.postListEndpoint('startdataportalsync', {
+      facility: facility.id,
+      facility_name: facility.name,
+    });
   },
 
   /**
@@ -23,6 +26,9 @@ export default new Resource({
    */
   deleteFinishedTasks() {
     return this.postListEndpoint('deletefinishedtasks');
+  },
+  deleteFinishedTask(taskId) {
+    return this.postListEndpoint('deletefinishedtasks', { task_id: taskId });
   },
 
   /**

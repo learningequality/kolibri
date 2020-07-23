@@ -37,8 +37,8 @@
 
   import { mapActions, mapMutations } from 'vuex';
   import { RemoteChannelResource } from 'kolibri.resources';
+  import { SelectSourceModal } from 'kolibri.coreVue.componentSets.sync';
   import { ContentSources } from '../../../constants';
-  import SelectSourceModal from '../../SelectSourceModal';
 
   export default {
     name: 'SelectImportSourceModal',

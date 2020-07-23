@@ -23,10 +23,6 @@ export const Modals = {
   EDIT_USER: 'EDIT_USER',
   RESET_USER_PASSWORD: 'RESET_USER_PASSWORD',
   DELETE_USER: 'DELETE_USER',
-  REGISTER_FACILITY: 'REGISTER_FACILITY',
-  CONFIRMATION_REGISTER: 'CONFIRMATION_REGISTER',
-  ALREADY_REGISTERED: 'ALREADY_REGISTERED',
-  PRIVACY: 'PRIVACY',
 };
 
 export const notificationTypes = {
@@ -52,7 +48,8 @@ export const TaskTypes = {
   EXPORTUSERSTOCSV: 'EXPORTUSERSTOCSV',
 };
 
-export const TaskStatuses = {
+// Identical to device constants.js
+export const TaskStatuses = Object.freeze({
   IN_PROGRESS: 'INPROGRESS',
   COMPLETED: 'COMPLETED',
   FAILED: 'FAILED',
@@ -60,7 +57,13 @@ export const TaskStatuses = {
   RUNNING: 'RUNNING',
   QUEUED: 'QUEUED',
   SCHEDULED: 'SCHEDULED',
-};
+  CANCELED: 'CANCELED',
+  CANCELING: 'CANCELING',
+});
+
+export function taskIsClearable(task) {
+  return [TaskStatuses.COMPLETED, TaskStatuses.CANCELED, TaskStatuses.FAILED].includes(task.status);
+}
 
 export const CSVGenerationStatuses = {
   NO_LOGS_CREATED: 'NOLOGSCREATED',

@@ -42,7 +42,8 @@ export const TaskTypes = {
   DELETEFACILITY: 'DELETEFACILITY',
 };
 
-export const TaskStatuses = {
+// identical to facility constants.js
+export const TaskStatuses = Object.freeze({
   IN_PROGRESS: 'INPROGRESS',
   COMPLETED: 'COMPLETED',
   FAILED: 'FAILED',
@@ -52,7 +53,7 @@ export const TaskStatuses = {
   SCHEDULED: 'SCHEDULED',
   CANCELED: 'CANCELED',
   CANCELING: 'CANCELING',
-};
+});
 
 export function taskIsClearable(task) {
   return [TaskStatuses.COMPLETED, TaskStatuses.CANCELED, TaskStatuses.FAILED].includes(task.status);

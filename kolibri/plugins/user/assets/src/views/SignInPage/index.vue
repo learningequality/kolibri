@@ -525,8 +525,7 @@
             }
             this.busy = false;
           })
-          .catch(e => {
-            console.log(e);
+          .catch(() => {
             this.busy = false;
           });
       },
