@@ -36,7 +36,9 @@
         <slot name="abovedescription"></slot>
         <p class="description" dir="auto">
           <span v-if="channel.description">{{ channel.description }}</span>
-          <span v-else :style="{ color: $themeTokens.annotation }">{{ $tr('defaultDescription') }}</span>
+          <span v-else :style="{ color: $themeTokens.annotation }">
+            {{ $tr('defaultDescription') }}
+          </span>
         </p>
         <p class="coach-content">
           <CoachContentLabel
