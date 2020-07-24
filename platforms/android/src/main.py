@@ -134,6 +134,12 @@ class Application(pew.ui.PEWApp):
         start_url = home_url + get_init_url(next_url)
         pew.ui.run_on_main_thread(self.view.load_url, start_url)
 
+        if pew.ui.platform == "android":
+            from remoteshell import launch_remoteshell
+            self.remoteshell_thread = pew.ui.PEWThread(target=launch_remoteshell)
+            self.remoteshell_thread.daemon = True
+            self.remoteshell_thread.start()
+
     def get_main_window(self):
         return self.view
 
