@@ -167,12 +167,13 @@
         });
       },
       sortedFilteredVersionNotes() {
+        // Show version notes for all versions since the current one
         const versionArray = map(this.versionNotes, (val, key) => {
           return {
             version: Number(key),
             notes: val,
           };
-        }).filter(note => note.version >= this.currentVersion);
+        }).filter(note => note.version > this.currentVersion);
         return sortBy(versionArray, note => -note.version);
       },
       watchedTaskHasFinished() {
