@@ -226,6 +226,8 @@
         // Create the import channel task
         return TaskResource.postListEndpoint('startchannelupdate', updateParams)
           .then(taskResponse => {
+            // If there are new resources in the new version, wait until the new
+            // metadata DB is loaded, then redirect to the "Import More from Studio" flow
             if (this.newResources) {
               this.loadingTask = true;
               const taskId = taskResponse.data.id;
@@ -234,7 +236,7 @@
                 const match = tasks.find(task => task.id === taskId) || {};
                 if (match && match.database_ready) {
                   stopWatching();
-                  this.$router.push(this.$router.getRoute(PageNames.MANAGE_CHANNEL));
+                  this.$router.push(this.$router.getRoute('SELECT_CONTENT'));
                 } else if (match.status === TaskStatuses.FAILED) {
                   stopWatching();
                   this.$router.push(this.$router.getRoute('MANAGE_TASKS'));
