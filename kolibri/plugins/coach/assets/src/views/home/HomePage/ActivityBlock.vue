@@ -16,8 +16,8 @@
         :key="notification.groupCode + '_' + notification.lastId"
       >
         <NotificationCard
-          v-bind="cardPropsForNotification(notification)"
-          :linkText="cardTextForNotification(notification)"
+          :notification="notification"
+          :lastQuery="lastQuery"
         />
       </BlockItem>
     </transition-group>
@@ -36,9 +36,7 @@
   import commonCoach from '../../common';
   import NotificationCard from '../../common/notifications/NotificationCard';
   import { nStringsMixin } from '../../common/notifications/notificationStrings';
-  import { CollectionTypes } from '../../../constants/lessonsConstants';
   import { LastPages } from '../../../constants/lastPagesConstants';
-  import { notificationLink } from '../../../modules/coachNotifications/gettersUtils';
   import Block from './Block';
   import BlockItem from './BlockItem';
 
@@ -64,24 +62,9 @@
           MAX_NOTIFICATIONS
         );
       },
-    },
-    methods: {
-      cardPropsForNotification(notification) {
-        const { collection } = notification;
-        const learnerContext =
-          collection.type === CollectionTypes.LEARNERGROUP ? collection.name : '';
+      lastQuery() {
         return {
-          eventType: notification.event,
-          objectType: notification.object,
-          resourceType: notification.resource.type,
-          targetPage: {
-            ...notificationLink(notification),
-            query: {
-              last: LastPages.HOME_PAGE,
-            },
-          },
-          contentContext: notification.assignment.name,
-          learnerContext,
+          last: LastPages.HOME_PAGE,
         };
       },
     },

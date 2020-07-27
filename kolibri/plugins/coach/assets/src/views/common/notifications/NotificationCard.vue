@@ -9,7 +9,7 @@
       {{ context }}
     </p>
     <KFixedGrid numCols="4">
-      <KFixedGridItem :span="time ? 3 : 4">
+      <KFixedGridItem :span="showTime ? 3 : 4">
         <div class="icon-spacer">
           <ContentIcon
             slot="icon"
@@ -18,17 +18,17 @@
             :showTooltip="false"
           />
           <KRouterLink
-            v-if="targetPage && targetPage.name"
+            v-if="route"
             :text="linkText"
-            :to="getRoute(targetPage)"
+            :to="route"
           />
           <span v-else>
             {{ linkText }}
           </span>
         </div>
       </KFixedGridItem>
-      <KFixedGridItem v-if="time" :span="1" alignment="right">
-        <ElapsedTime :date="parseDate(time)" />
+      <KFixedGridItem v-if="showTime" :span="1" alignment="right">
+        <ElapsedTime :date="parseDate(date)" />
       </KFixedGridItem>
     </KFixedGrid>
   </div>
@@ -40,12 +40,14 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import { validateLinkObject } from 'kolibri.utils.validators';
+  import { cardTextForNotification } from '../notifications/notificationStrings';
   import CoachStatusIcon from '../status/CoachStatusIcon';
   import {
     NotificationEvents,
     NotificationObjects,
   } from '../../../constants/notificationsConstants';
+  import { CollectionTypes } from '../../../constants/lessonsConstants';
+  import { notificationLink } from './../../../modules/coachNotifications/gettersUtils';
 
   const EventToIconMap = {
     [NotificationEvents.COMPLETED]: 'star',
@@ -61,81 +63,67 @@
       ElapsedTime,
     },
     props: {
-      targetPage: {
+      notification: {
         type: Object,
-        required: false,
-        validator: validateLinkObject,
-      },
-      // Notification event: 'Started', 'Completed', 'HelpNeeded'
-      eventType: {
-        type: String,
         required: true,
-        validator(value) {
-          return Object.values(NotificationEvents).includes(value);
+        validator(notification) {
+          return (
+            Object.values(NotificationEvents).includes(notification.event) &&
+            Object.values(NotificationObjects).includes(notification.object)
+          );
         },
       },
-      // Notification object: 'Lesson', 'Quiz', 'Resource',
-      objectType: {
-        type: String,
-        required: true,
-        validator(value) {
-          return Object.values(NotificationObjects).includes(value);
-        },
+      lastQuery: {
+        type: Object,
+        default: () => ({}),
       },
-      // A ContentNodeKind
-      resourceType: {
-        type: String,
-        required: false,
-      },
-      // group name
-      learnerContext: {
-        type: String,
-        required: false,
-      },
-      // exam or lesson name
-      contentContext: {
-        type: String,
-        required: false,
-      },
-      linkText: {
-        type: String,
-        required: true,
-      },
-      time: {
-        type: String,
-        required: false,
+      showTime: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {
       statusIcon() {
-        return EventToIconMap[this.eventType];
+        return EventToIconMap[this.notification.event];
       },
       contentIcon() {
-        if (this.objectType === NotificationObjects.QUIZ) {
+        if (this.notification.object === NotificationObjects.QUIZ) {
           return 'exam';
-        } else if (this.objectType === NotificationObjects.LESSON) {
+        } else if (this.notification.object === NotificationObjects.LESSON) {
           return 'lesson';
         } else {
-          return this.resourceType;
+          return this.notification.resource.type;
         }
       },
       context() {
-        if (this.learnerContext && this.contentContext) {
-          return `${this.learnerContext} • ${this.contentContext}`;
-        } else if (this.learnerContext) {
-          return this.learnerContext;
-        } else if (this.contentContext) {
-          return this.contentContext;
+        const contentContext = this.notification.assignment.name;
+        const learnerContext =
+          this.notification.collection.type === CollectionTypes.LEARNERGROUP
+            ? this.notification.collection.name
+            : '';
+        if (learnerContext && contentContext) {
+          return this.isRtl
+            ? `${contentContext} • ${learnerContext}`
+            : `${learnerContext} • ${contentContext}`;
+        } else if (learnerContext) {
+          return learnerContext;
+        } else if (contentContext) {
+          return contentContext;
         }
         return '';
       },
-    },
-    methods: {
-      parseDate(dateString) {
-        return new Date(dateString);
+      date() {
+        return new Date(this.notification.timestamp);
       },
-      getRoute({ name, params, query }) {
-        return this.$router.getRoute(name, params, query);
+      linkText() {
+        return cardTextForNotification(this.notification);
+      },
+      route() {
+        const targetPage = notificationLink(this.notification);
+        if (targetPage) {
+          return this.$router.getRoute(targetPage.name, targetPage.params, this.lastQuery);
+        }
+        return null;
       },
     },
   };

@@ -19,8 +19,8 @@
         v-show="showNotification(notification)"
         :key="notification.id"
         class="notification-card"
-        v-bind="cardPropsForNotification(notification)"
-        :linkText="cardTextForNotification(notification)"
+        :notification="notification"
+        :lastQuery="backLinkQuery"
         :style="{ borderBottomColor: $themeTokens.fineLine }"
       />
     </div>
@@ -53,7 +53,6 @@
   import uniq from 'lodash/uniq';
   import map from 'lodash/map';
   import { mapActions, mapGetters } from 'vuex';
-  import { cardTextForNotification } from '../notifications/notificationStrings';
   import { NotificationObjects } from '../../../constants/notificationsConstants';
   import { LastPages } from '../../../constants/lastPagesConstants';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
@@ -139,7 +138,6 @@
     },
     methods: {
       ...mapActions('coachNotifications', ['moreNotificationsForClass']),
-      cardTextForNotification,
       fetchMore() {
         if (this.moreResults) {
           this.loading = true;
@@ -190,21 +188,6 @@
           }
         }
         return progressPasses && resourcePasses;
-      },
-      cardPropsForNotification(notification) {
-        return {
-          eventType: notification.event,
-          objectType: notification.object,
-          resourceType: notification.resource.type,
-          contentContext: notification.assignment.name,
-          time: notification.timestamp,
-          targetPage: {
-            ...notification.targetPage,
-            query: {
-              ...this.backLinkQuery,
-            },
-          },
-        };
       },
     },
   };

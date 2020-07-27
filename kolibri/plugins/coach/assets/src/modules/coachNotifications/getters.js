@@ -160,7 +160,6 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
       classSummary,
       assignment: firstEvent.assignment,
     });
-    console.log(groupCode, assigneeCollections);
     // If 'assigneeCollections' is null, then the quiz or lesson was deleted
     if (assigneeCollections === null) continue;
 
