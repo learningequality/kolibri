@@ -848,8 +848,9 @@ class FacilityTasksViewSet(BaseViewSet):
         # All other permissions are deferred to permissions_classes decorator
         return []
 
-    @decorators.permission_classes([FacilitySyncPermissions])
-    @decorators.action(methods=["post"], detail=False)
+    @decorators.action(
+        methods=["post"], detail=False, permission_classes=[FacilitySyncPermissions]
+    )
     def startdataportalsync(self, request):
         """
         Initiate a PUSH sync with Kolibri Data Portal.
@@ -862,8 +863,7 @@ class FacilityTasksViewSet(BaseViewSet):
         resp = _job_to_response(facility_queue.fetch_job(job_id))
         return Response(resp)
 
-    @decorators.permission_classes([IsSuperuser])
-    @decorators.action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False, permission_classes=[IsSuperuser])
     def startdataportalbulksync(self, request):
         """
         Initiate a PUSH sync with Kolibri Data Portal for ALL registered facilities.
@@ -879,8 +879,7 @@ class FacilityTasksViewSet(BaseViewSet):
 
         return Response(responses)
 
-    @decorators.permission_classes([IsSuperuser])
-    @decorators.action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False, permission_classes=[IsSuperuser])
     def startpeerfacilityimport(self, request):
         """
         Initiate a PULL of a specific facility from another device.
@@ -897,8 +896,9 @@ class FacilityTasksViewSet(BaseViewSet):
         resp = _job_to_response(facility_queue.fetch_job(job_id))
         return Response(resp)
 
-    @decorators.permission_classes([FacilitySyncPermissions])
-    @decorators.action(methods=["post"], detail=False)
+    @decorators.action(
+        methods=["post"], detail=False, permission_classes=[FacilitySyncPermissions]
+    )
     def startpeerfacilitysync(self, request):
         """
         Initiate a SYNC (PULL + PUSH) of a specific facility from another device.
