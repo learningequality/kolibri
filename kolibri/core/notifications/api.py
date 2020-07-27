@@ -194,6 +194,7 @@ def check_and_created_answered_lesson(lesson, user_id, contentnode_id, timestamp
             lesson["classroom_id"],
             assignment_collections=lesson["assignment_collections"],
             lesson_id=lesson["id"],
+            contentnode_id=contentnode_id,
             timestamp=timestamp,
         )
     return notification
