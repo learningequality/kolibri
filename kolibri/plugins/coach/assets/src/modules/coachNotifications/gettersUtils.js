@@ -260,7 +260,9 @@ export function notificationLink(notification) {
     key: {
       object,
       isMultiple,
-      isWholeClass: notification.collection.type === 'classroom',
+      isWholeClass:
+        notification.collection.type === CollectionTypes.CLASSROOM ||
+        notification.collection.type === CollectionTypes.ADHOCLEARNERSGROUP,
     },
   });
 
