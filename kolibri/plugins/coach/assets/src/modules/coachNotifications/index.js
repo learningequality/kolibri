@@ -1,6 +1,6 @@
 import maxBy from 'lodash/maxBy';
 import notificationsResource from '../../apiResources/notifications';
-import { summarizedNotifications } from './getters';
+import { allNotifications, summarizedNotifications } from './getters';
 
 export default {
   namespaced: true,
@@ -15,11 +15,15 @@ export default {
     APPEND_NOTIFICATIONS(state, notifications) {
       state.notifications = [...notifications, ...state.notifications];
     },
+    PREPEND_NOTIFICATIONS(state, notifications) {
+      state.notifications.push(...notifications);
+    },
     SET_CURRENT_CLASSROOM_ID(state, classroomId) {
       state.currentClassroomId = classroomId;
     },
   },
   getters: {
+    allNotifications,
     summarizedNotifications,
     maxNotificationIndex(state) {
       if (state.notifications.length > 0) {
@@ -43,7 +47,7 @@ export default {
       return notificationsResource
         .fetchCollection({
           getParams: {
-            collection_id: classroomId,
+            classroom_id: classroomId,
           },
         })
         .then(data => {
@@ -66,7 +70,7 @@ export default {
       return notificationsResource
         .fetchCollection({
           getParams: {
-            collection_id: classroomId,
+            classroom_id: classroomId,
             after,
           },
           force: true,
@@ -80,6 +84,33 @@ export default {
         })
         .catch(() => {
           store.dispatch('startingPolling', { coachesPolling: 0 });
+        });
+    },
+    moreNotificationsForClass(store) {
+      const classroomId = store.state.currentClassroomId;
+      const lastNotification = store.state.notifications.slice(-1)[0];
+      // don't fetch if no current classroom
+      if (!classroomId || !lastNotification || lastNotification.id <= 1) {
+        return Promise.resolve(false);
+      }
+      return notificationsResource
+        .fetchCollection({
+          getParams: {
+            classroom_id: classroomId,
+            before: lastNotification.id,
+            limit: 100,
+          },
+          force: true,
+        })
+        .then(data => {
+          if (data.results.length > 0) {
+            store.commit('PREPEND_NOTIFICATIONS', data.results);
+            return data.results.slice(-1)[0].id > 1;
+          }
+          return false;
+        })
+        .catch(() => {
+          return false;
         });
     },
     startingPolling(store, { coachesPolling }) {
