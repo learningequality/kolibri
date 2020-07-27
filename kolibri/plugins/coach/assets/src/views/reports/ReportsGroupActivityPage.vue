@@ -14,7 +14,6 @@
       <ReportsGroupHeader :enablePrint="true" />
 
       <ActivityList
-        :notificationParams="notificationParams"
         embeddedPageName="ReportsGroupActivityPage"
         :noActivityString="coachString('activityListEmptyState')"
       />
@@ -38,13 +37,6 @@
       ReportsGroupHeader,
     },
     mixins: [commonCoach],
-    computed: {
-      notificationParams() {
-        return {
-          collection_id: this.$route.params.groupId,
-        };
-      },
-    },
   };
 
 </script>
