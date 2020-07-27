@@ -123,14 +123,14 @@
             return {};
         }
       },
-      fetchParams() {
+      filterParam() {
         switch (this.embeddedPageName) {
           case 'ReportsLearnerActivityPage':
             return { learner_id: this.$route.params.learnerId };
           case 'ReportsGroupActivityPage':
             return { group_id: this.$route.params.groupId };
           default:
-            return null;
+            return {};
         }
       },
       enabledFilters() {
@@ -151,7 +151,13 @@
       fetchMore() {
         if (this.moreResults) {
           this.loading = true;
-          this.moreNotificationsForClass(this.fetchParams).then(moreResults => {
+          const params = {
+            ...this.filterParam,
+          };
+          if (this.notifications.length) {
+            params.before = this.notifications.slice(-1)[0].id;
+          }
+          this.moreNotificationsForClass(params).then(moreResults => {
             this.moreResults = moreResults;
             this.loading = false;
           });

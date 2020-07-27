@@ -5,11 +5,7 @@ import maxBy from 'lodash/maxBy';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { NotificationObjects } from '../../constants/notificationsConstants';
 import { CollectionTypes } from '../../constants/lessonsConstants';
-import {
-  notificationLink,
-  partitionCollectionByEvents,
-  getCollectionsForAssignment,
-} from './gettersUtils';
+import { partitionCollectionByEvents, getCollectionsForAssignment } from './gettersUtils';
 
 const { LESSON, RESOURCE, QUIZ } = NotificationObjects;
 
@@ -102,7 +98,7 @@ export function allNotifications(state, getters, rootState, rootGetters) {
       };
     }
 
-    const baseNotification = {
+    return {
       ...notification,
       object,
       collection,
@@ -114,13 +110,6 @@ export function allNotifications(state, getters, rootState, rootGetters) {
         firstUserId: notification.user_id,
         total: 1,
       },
-    };
-
-    const targetPage = notificationLink(baseNotification);
-
-    return {
-      ...baseNotification,
-      targetPage,
     };
   }
 

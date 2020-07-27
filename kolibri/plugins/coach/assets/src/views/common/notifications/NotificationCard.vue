@@ -28,7 +28,7 @@
         </div>
       </KFixedGridItem>
       <KFixedGridItem v-if="showTime" :span="1" alignment="right">
-        <ElapsedTime :date="parseDate(date)" />
+        <ElapsedTime :date="date" />
       </KFixedGridItem>
     </KFixedGrid>
   </div>
@@ -121,7 +121,12 @@
       route() {
         const targetPage = notificationLink(this.notification);
         if (targetPage) {
-          return this.$router.getRoute(targetPage.name, targetPage.params, this.lastQuery);
+          return {
+            ...targetPage,
+            query: {
+              ...this.lastQuery,
+            },
+          };
         }
         return null;
       },

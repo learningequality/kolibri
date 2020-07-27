@@ -2,7 +2,6 @@ import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import makeStore from '../../../../../test/makeStore';
 import ActivityList from '../ActivityList';
-import notificationsResource from '../../../../apiResources/notifications';
 import { LastPages } from '../../../../constants/lastPagesConstants';
 
 const localVue = createLocalVue();
@@ -18,14 +17,25 @@ const router = new VueRouter({
   ],
 });
 
-jest.mock('../../../../apiResources/notifications', () => {
-  return {
-    fetchCollection: jest.fn(),
-  };
-});
-
 function makeWrapper(options) {
-  const store = makeStore();
+  const fetchMock = jest.fn(() => Promise.resolve(Boolean(options.moreResults)));
+  const store = makeStore({
+    coachNotifications: {
+      namespaced: true,
+      state: {
+        currentClassroomId: 'classroom_id_test',
+        notifications: [],
+      },
+      actions: {
+        moreNotificationsForClass: fetchMock,
+      },
+      getters: {
+        allNotifications() {
+          return options.results || [];
+        },
+      },
+    },
+  });
   store.state.classSummary.lessonMap = {
     lesson_1: {
       groups: [],
@@ -56,36 +66,16 @@ function makeWrapper(options) {
       },
     },
   });
-  return { wrapper };
+  return { fetchMock, wrapper };
 }
 
 describe('ActivityList component', () => {
-  beforeEach(() => {
-    notificationsResource.fetchCollection.mockClear();
-    notificationsResource.fetchCollection.mockResolvedValue({
-      results: [],
-      next: null,
-    });
-  });
-
-  it('on first render, calls the notification resource with the parameters provided', async () => {
-    const { wrapper } = makeWrapper({
-      propsData: {
-        notificationParams: {
-          collection_id: 'class_001',
-        },
-      },
-    });
-    expect(notificationsResource.fetchCollection).toHaveBeenCalledWith({
-      getParams: {
-        collection_id: 'class_001',
-        page_size: 10,
-        page: 1,
-      },
-      force: true,
-    });
+  it('on first render, calls the notification resource', async () => {
+    const { fetchMock, wrapper } = makeWrapper({});
     await wrapper.vm.$nextTick();
-    expect(wrapper.vm.nextPage).toEqual(2);
+    await wrapper.vm.$nextTick();
+    expect(fetchMock).toHaveBeenCalled();
+    expect(wrapper.vm.moreResults).toBe(false);
   });
 
   it('shows an empty state when there are no notifications', async () => {
@@ -101,11 +91,7 @@ describe('ActivityList component', () => {
   });
 
   it('has a "show more" button if there are more pages of notifications', async () => {
-    notificationsResource.fetchCollection.mockResolvedValue({
-      results: [],
-      next: 'http://more.stuff.com&page=2',
-    });
-    const { wrapper } = makeWrapper({});
+    const { wrapper } = makeWrapper({ moreResults: true });
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     const showMoreButton = wrapper.findComponent({ name: 'KButton' });
@@ -113,10 +99,6 @@ describe('ActivityList component', () => {
   });
 
   it('does not have a "show more" button if there are no more pages of notifications', async () => {
-    notificationsResource.fetchCollection.mockResolvedValue({
-      results: [],
-      next: null,
-    });
     const { wrapper } = makeWrapper({});
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
@@ -143,30 +125,37 @@ describe('ActivityList component', () => {
   });
 
   it('enables filters based on what is in the current notifications array', async () => {
-    notificationsResource.fetchCollection.mockResolvedValue({
+    const { wrapper } = makeWrapper({
       results: [
         {
           lesson_id: 'lesson_1',
           object: 'Lesson',
           event: 'Started',
-          contentnode_kind: 'video',
+          resource: {
+            type: 'video',
+          },
+          assignment_collections: [],
         },
         {
           lesson_id: 'lesson_1',
           object: 'Resource',
           event: 'Started',
-          contentnode_kind: 'exercise',
+          resource: {
+            type: 'exercise',
+          },
+          assignment_collections: [],
         },
         {
           lesson_id: 'lesson_1',
           object: 'Resource',
           event: 'Completed',
-          contentnode_kind: 'exercise',
+          resource: {
+            type: 'exercise',
+          },
+          assignment_collections: [],
         },
       ],
-      next: null,
     });
-    const { wrapper } = makeWrapper({});
 
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
@@ -184,18 +173,17 @@ describe('ActivityList component', () => {
   });
 
   it('appends the correct back link query to links, depending on the embedded page', async () => {
-    notificationsResource.fetchCollection.mockResolvedValue({
+    const { wrapper } = makeWrapper({
       results: [
         {
           lesson_id: 'lesson_1',
           object: 'Lesson',
           event: 'Started',
           contentnode_kind: 'video',
+          assignment_collections: [],
         },
       ],
-      next: null,
     });
-    const { wrapper } = makeWrapper({});
 
     // Need to set up a route, since backLinkQuery depends on $route.params
     await wrapper.vm.$router.push({
@@ -206,23 +194,12 @@ describe('ActivityList component', () => {
       },
     });
 
-    const notificationCard = () => wrapper.findComponent({ name: 'NotificationCard' });
-
-    // Need to simulate a refresh since the notifications are not reactively
-    // updated when backLinkQuery changes
-    function reloadNotifications() {
-      wrapper.setData({
-        notifications: [],
-      });
-      return wrapper.vm.fetchNotifications();
-    }
-
     // Embed in Home Activity Page
     wrapper.setProps({
       embeddedPageName: 'HomeActivityPage',
     });
-    await reloadNotifications();
-    expect(notificationCard().props().targetPage.query).toEqual({
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.backLinkQuery).toEqual({
       last: LastPages.HOME_ACTIVITY,
     });
 
@@ -230,8 +207,8 @@ describe('ActivityList component', () => {
     wrapper.setProps({
       embeddedPageName: 'ReportsLearnerActivityPage',
     });
-    await reloadNotifications();
-    expect(notificationCard().props().targetPage.query).toEqual({
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.backLinkQuery).toEqual({
       last: LastPages.LEARNER_ACTIVITY,
       last_id: 'learner_001',
     });
@@ -240,8 +217,8 @@ describe('ActivityList component', () => {
     wrapper.setProps({
       embeddedPageName: 'ReportsGroupActivityPage',
     });
-    await reloadNotifications();
-    expect(notificationCard().props().targetPage.query).toEqual({
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.backLinkQuery).toEqual({
       last: LastPages.GROUP_ACTIVITY,
       last_id: 'group_001',
     });
