@@ -11,8 +11,8 @@ from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from .serializers import LearnerNotificationSerializer
 from .serializers import LessonReportSerializer
+from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.filters import HierarchyRelationsFilter
@@ -81,10 +81,31 @@ class ClassroomNotificationsPermissions(permissions.BasePermission):
 
 
 @query_params_required(classroom_id=str)
-class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
+class ClassroomNotificationsViewset(ValuesViewset):
 
     permission_classes = (ClassroomNotificationsPermissions,)
-    serializer_class = LearnerNotificationSerializer
+
+    values = (
+        "id",
+        "timestamp",
+        "user_id",
+        "classroom_id",
+        "lesson_id",
+        "assignment_collections",
+        "reason",
+        "quiz_id",
+        "quiz_num_correct",
+        "quiz_num_answered",
+        "contentnode_id",
+        "notification_object",
+        "notification_event",
+        "type",
+    )
+
+    field_map = {
+        "object": "notification_object",
+        "event": "notification_event",
+    }
 
     def check_after(self):
         """
@@ -182,9 +203,16 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             # Don't allow arbitrary backwards lookups
             notifications_query = notifications_query.filter(id__lt=before)
 
-        if limit is not None:
-            return notifications_query.order_by("-id")[:limit]
-        return notifications_query.order_by("-id")
+        return notifications_query
+
+    def annotate_queryset(self, queryset):
+        queryset = queryset.annotate(
+            type=F("notification_object") + F("notification_event")
+        ).order_by("-id")
+        limit = self.check_limit()
+        if limit:
+            return queryset[:limit]
+        return queryset
 
     def list(self, request, *args, **kwargs):
         """
@@ -192,9 +220,8 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         Then it fetches and saves the needed information to know how many coaches
         are requesting notifications in the last five minutes
         """
-        # Use super on the parent class to prevent an infinite recursion.
         try:
-            response = super(viewsets.ReadOnlyModelViewSet, self).list(
+            response = super(ClassroomNotificationsViewset, self).list(
                 request, *args, **kwargs
             )
         except (OperationalError, DatabaseError):
