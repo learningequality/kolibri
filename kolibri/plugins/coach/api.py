@@ -204,10 +204,10 @@ class ClassroomNotificationsViewset(ValuesViewset):
                     timestamp__gte=last_24h
                 )
             except (LearnerProgressNotification.DoesNotExist):
-                return []
+                return LearnerProgressNotification.objects.none()
             except DatabaseError:
                 repair_sqlite_db(connections["notifications_db"])
-                return []
+                return LearnerProgressNotification.objects.none()
 
         limit = self.check_limit()
         if before and limit:
