@@ -70,6 +70,7 @@
       :facilityForSync="theFacility"
       @close="closeModal"
       @success="handleSyncFacilitySuccess"
+      @failure="handleSyncFacilityFailure"
     />
 
   </KPageContainer>
@@ -171,6 +172,10 @@
         this.isSyncing = true;
         this.syncTaskId = taskId;
         this.pollSyncTask();
+        this.closeModal();
+      },
+      handleSyncFacilityFailure() {
+        this.syncHasFailed = true;
         this.closeModal();
       },
     },
