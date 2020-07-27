@@ -1,4 +1,5 @@
 import maxBy from 'lodash/maxBy';
+import sortBy from 'lodash/sortBy';
 import notificationsResource from '../../apiResources/notifications';
 import { allNotifications, summarizedNotifications } from './getters';
 
@@ -15,8 +16,8 @@ export default {
     APPEND_NOTIFICATIONS(state, notifications) {
       state.notifications = [...notifications, ...state.notifications];
     },
-    PREPEND_NOTIFICATIONS(state, notifications) {
-      state.notifications.push(...notifications);
+    INSERT_NOTIFICATIONS(state, notifications) {
+      state.notifications = sortBy([state.notifications, ...notifications], '-id');
     },
     SET_CURRENT_CLASSROOM_ID(state, classroomId) {
       state.currentClassroomId = classroomId;
@@ -86,26 +87,28 @@ export default {
           store.dispatch('startingPolling', { coachesPolling: 0 });
         });
     },
-    moreNotificationsForClass(store) {
+    moreNotificationsForClass(store, params) {
       const classroomId = store.state.currentClassroomId;
       const lastNotification = store.state.notifications.slice(-1)[0];
       // don't fetch if no current classroom
       if (!classroomId || !lastNotification || lastNotification.id <= 1) {
         return Promise.resolve(false);
       }
+      const limit = 25;
       return notificationsResource
         .fetchCollection({
           getParams: {
             classroom_id: classroomId,
             before: lastNotification.id,
-            limit: 100,
+            limit,
+            ...(params || {}),
           },
           force: true,
         })
         .then(data => {
           if (data.results.length > 0) {
-            store.commit('PREPEND_NOTIFICATIONS', data.results);
-            return data.results.slice(-1)[0].id > 1;
+            store.commit('INSERT_NOTIFICATIONS', data.results);
+            return data.more_results;
           }
           return false;
         })

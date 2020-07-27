@@ -123,6 +123,16 @@
             return {};
         }
       },
+      fetchParams() {
+        switch (this.embeddedPageName) {
+          case 'ReportsLearnerActivityPage':
+            return { learner_id: this.$route.params.learnerId };
+          case 'ReportsGroupActivityPage':
+            return { group_id: this.$route.params.groupId };
+          default:
+            return null;
+        }
+      },
       enabledFilters() {
         return {
           resource: [
@@ -141,7 +151,7 @@
       fetchMore() {
         if (this.moreResults) {
           this.loading = true;
-          this.moreNotificationsForClass().then(moreResults => {
+          this.moreNotificationsForClass(this.fetchParams).then(moreResults => {
             this.moreResults = moreResults;
             this.loading = false;
           });

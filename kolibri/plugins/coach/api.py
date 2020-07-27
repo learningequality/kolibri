@@ -155,6 +155,15 @@ class ClassroomNotificationsViewset(ValuesViewset):
             return query.filter(user_id=learner_id)
         return query
 
+    def apply_group_filter(self, query):
+        """
+        Filter the notifications by group_id if applicable
+        """
+        group_id = self.request.query_params.get("group_id", None)
+        if group_id:
+            return query.filter(assignment_collections__contains=group_id)
+        return query
+
     def get_queryset(self):
         """
         Returns the notifications in reverse-chronological order, filtered by the query parameters.
@@ -170,6 +179,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
 
         :param: classroom_id uuid: classroom or learner group identifier (mandatory)
         :param: learner_id uuid: user identifier
+        :param: group_id uuid: group identifier
         :param: after integer: all the notifications after this id will be sent.
         :param: limit integer: sets the number of notifications to provide
         """
@@ -179,6 +189,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
             classroom_id=classroom_id
         )
         notifications_query = self.apply_learner_filter(notifications_query)
+        notifications_query = self.apply_group_filter(notifications_query)
         after = self.check_after()
         if after:
             notifications_query = notifications_query.filter(id__gt=after)
@@ -221,9 +232,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
         are requesting notifications in the last five minutes
         """
         try:
-            response = super(ClassroomNotificationsViewset, self).list(
-                request, *args, **kwargs
-            )
+            queryset = self.filter_queryset(self.prefetch_queryset(self.get_queryset()))
         except (OperationalError, DatabaseError):
             repair_sqlite_db(connections["notifications_db"])
 
@@ -245,14 +254,20 @@ class ClassroomNotificationsViewset(ValuesViewset):
             notification_info.coach_id = request.user.id
             notification_info.save()
             NotificationsLog.objects.filter(timestamp__lt=logging_interval).delete()
-        if "results" not in response.data:
-            response.data = {
-                "results": response.data,
+
+        more_results = False
+        limit = self.check_limit()
+        if limit:
+            # If we are limiting responses, check if more results are available
+            more_results = queryset.order_by("-id")[limit:].exists()
+
+        return Response(
+            {
+                "results": self.serialize(queryset),
                 "coaches_polling": logged_notifications,
+                "more_results": more_results,
             }
-        else:
-            response.data["coaches_polling"] = logged_notifications
-        return response
+        )
 
 
 class ExerciseDifficultiesPermissions(permissions.BasePermission):
