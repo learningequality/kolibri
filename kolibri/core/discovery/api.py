@@ -6,9 +6,9 @@ from rest_framework.response import Response
 from .models import DynamicNetworkLocation
 from .models import NetworkLocation
 from .models import StaticNetworkLocation
+from .permissions import NetworkLocationPermissions
 from .serializers import NetworkLocationSerializer
 from kolibri.core.device.permissions import NotProvisionedHasPermission
-from .permissions import NetworkLocationPermissions
 
 
 class NetworkLocationViewSet(viewsets.ModelViewSet):

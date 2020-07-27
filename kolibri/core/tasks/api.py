@@ -29,6 +29,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from six import string_types
 
+from .permissions import FacilitySyncPermissions
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.management.utils import get_client_and_server_certs
@@ -45,8 +46,6 @@ from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.upgrade import diff_stats
 from kolibri.core.device.permissions import IsSuperuser
-from kolibri.core.device.permissions import NotProvisionedCanGet
-from kolibri.core.device.permissions import NotProvisionedCanPost
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
@@ -841,10 +840,12 @@ class FacilityTasksViewSet(BaseViewSet):
         permission_classes = super(FacilityTasksViewSet, self).permission_classes
 
         if self.action in ["list", "retrieve"]:
-            return [p | NotProvisionedCanGet for p in permission_classes]
+            return [p | FacilitySyncPermissions for p in permission_classes]
 
-        return [p | NotProvisionedCanPost for p in permission_classes]
+        # All other permissions are deferred to permissions_classes decorator
+        return []
 
+    @decorators.permission_classes([FacilitySyncPermissions])
     @decorators.action(methods=["post"], detail=False)
     def startdataportalsync(self, request):
         """
@@ -858,6 +859,7 @@ class FacilityTasksViewSet(BaseViewSet):
         resp = _job_to_response(facility_queue.fetch_job(job_id))
         return Response(resp)
 
+    @decorators.permission_classes([IsSuperuser])
     @decorators.action(methods=["post"], detail=False)
     def startdataportalbulksync(self, request):
         """
@@ -874,6 +876,7 @@ class FacilityTasksViewSet(BaseViewSet):
 
         return Response(responses)
 
+    @decorators.permission_classes([IsSuperuser])
     @decorators.action(methods=["post"], detail=False)
     def startpeerfacilityimport(self, request):
         """
@@ -891,6 +894,7 @@ class FacilityTasksViewSet(BaseViewSet):
         resp = _job_to_response(facility_queue.fetch_job(job_id))
         return Response(resp)
 
+    @decorators.permission_classes([FacilitySyncPermissions])
     @decorators.action(methods=["post"], detail=False)
     def startpeerfacilitysync(self, request):
         """
