@@ -177,9 +177,14 @@ def validate_deletion_task(request, task_description):
 
 class BaseViewSet(viewsets.ViewSet):
     queues = []
+    permission_classes = []
 
-    @property
-    def permission_classes(self):
+    def initial(self, request, *args, **kwargs):
+        if len(self.permission_classes) == 0:
+            self.permission_classes = self.default_permission_classes()
+        return super(BaseViewSet, self).initial(request, *args, **kwargs)
+
+    def default_permission_classes(self):
         # task permissions shared between facility management and device management
         if self.action in ["list", "deletefinishedtasks"]:
             return [CanManageContent | CanExportLogs]
@@ -279,8 +284,7 @@ class BaseViewSet(viewsets.ViewSet):
 class TasksViewSet(BaseViewSet):
     queues = [queue, priority_queue]
 
-    @property
-    def permission_classes(self):
+    def default_permission_classes(self):
         # exclusive permission for facility management
         if self.action == "startexportlogcsv":
             return [CanExportLogs]
@@ -835,8 +839,7 @@ class TasksViewSet(BaseViewSet):
 class FacilityTasksViewSet(BaseViewSet):
     queues = [facility_queue]
 
-    @property
-    def permission_classes(self):
+    def default_permission_classes(self):
         permission_classes = super(FacilityTasksViewSet, self).permission_classes
 
         if self.action in ["list", "retrieve"]:
@@ -908,8 +911,7 @@ class FacilityTasksViewSet(BaseViewSet):
         resp = _job_to_response(facility_queue.fetch_job(job_id))
         return Response(resp)
 
-    @decorators.permission_classes([IsSuperuser])
-    @decorators.action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False, permission_classes=[IsSuperuser])
     def startdeletefacility(self, request):
         """
         Initiate a task to delete a facility
