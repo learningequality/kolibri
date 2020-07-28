@@ -22,32 +22,45 @@ def __get_process_cache():
 process_cache = SimpleLazyObject(__get_process_cache)
 
 
-def get_process_lock(key, expire=None):
-    """
-    Return Lock object that's appropriate given current cache backend
+class ProcessLock(object):
+    def __init__(self, key, expire=None):
+        """
+        :param key: The lock key
+        :param expire: The cache key expiration in seconds
+        :type key: str
+        :type expire: int
+        """
+        self.key = key
+        self.expire = expire
 
-    :param key: The lock key
-    :param expire: The cache key expiration in seconds
-    :type key: str
-    :type expire: int
-    :rtype: redis.lock.Lock|diskcache.recipes.RLock
-    """
-    if OPTIONS["Cache"]["CACHE_BACKEND"] == "redis":
-        expire = expire * 1000 if expire is not None else None
-        # if we're using Redis, be sure we use Redis' locking mechanism which uses
-        # `SET NX` under the hood. See redis.lock.Lock
-        return process_cache.lock(
-            key,
-            timeout=expire,  # milliseconds
-            sleep=0.01,  # seconds
-            blocking_timeout=100,  # seconds
-            thread_local=True,
-        )
-    else:
-        # we can't pass in the `process_cache` because it's an instance of DjangoCache
-        # and we need a Cache instance
-        cache = process_cache.cache("locks")
-        return RLock(cache, key, expire=expire)
+        self._lock_object = None
+
+    @property
+    def _lock(self):
+        if self._lock_object is None:
+            if OPTIONS["Cache"]["CACHE_BACKEND"] == "redis":
+                expire = self.expire * 1000 if self.expire is not None else None
+                # if we're using Redis, be sure we use Redis' locking mechanism which uses
+                # `SET NX` under the hood. See redis.lock.Lock
+                self._lock_object = process_cache.lock(
+                    self.key,
+                    timeout=expire,  # milliseconds
+                    sleep=0.01,  # seconds
+                    blocking_timeout=100,  # seconds
+                    thread_local=True,
+                )
+            else:
+                # we can't pass in the `process_cache` because it's an instance of DjangoCache
+                # and we need a Cache instance
+                cache = process_cache.cache("locks")
+                self._lock_object = RLock(cache, self.key, expire=self.expire)
+        return self._lock_object
+
+    def __enter__(self, *args, **kwargs):
+        return self._lock.__enter__(*args, **kwargs)
+
+    def __exit__(self, *args, **kwargs):
+        return self._lock.__exit__(*args, **kwargs)
 
 
 class NamespacedCacheProxy(BaseCache):
@@ -64,7 +77,7 @@ class NamespacedCacheProxy(BaseCache):
         params.update(KEY_PREFIX=namespace)
         super(NamespacedCacheProxy, self).__init__(params)
         self.cache = cache
-        self._lock = get_process_lock("namespaced_cache_{}".format(namespace))
+        self._lock = ProcessLock("namespaced_cache_{}".format(namespace))
 
     def _get_keys(self):
         """
