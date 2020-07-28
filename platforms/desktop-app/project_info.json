@@ -11,8 +11,9 @@
   "build_tool": {
       "win": "pyinstaller"
   },
-  "includes": ["html.parser", "kolibri.deployment.default.settings.base", "six"],
-  "packages": ["django", "kolibri", "morango", "mptt", "sqlite3", "wx", "pkg_resources"],
+  "import_hooks_file": "stdlib_imports.py",
+  "includes": ["html.parser", "http.cookies", "kolibri.deployment.default.settings.base", "logging.config", "logging.handlers", "six"],
+  "packages": ["pkg_resources", "sqlite3", "wx"],
   "disk_image": {
     "background": "assets/disk_image/Layout.png",
     "window_rect": "((20, 100000), (734, 550))",

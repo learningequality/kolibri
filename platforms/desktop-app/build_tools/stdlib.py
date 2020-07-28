@@ -1,5 +1,6 @@
 import distutils.sysconfig as sysconfig
 import os
+import sys
 
 tools_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -9,14 +10,28 @@ excludes = [
     'encodings',
     'python-config',
     '__phello__',
-    '__init__.py',
     'this',
     'distutils',
     'antigravity',
     'tkinter',
     'idlelib',
+    'lib2to3',
+    'turtledemo',
     'venv.__init__'
 ]
+
+if sys.platform.startswith('win'):
+    # some modules are Unix-specific but don't prevent attempts to import on Windows
+    excludes.extend([
+        'asyncio',
+        'asyncio.unix_events',
+        'crypt',
+        'curses',
+        'dbm',
+        'pty',
+        'tty',
+        'termios',
+    ])
 
 def generate_stdlib_imports():
     """
@@ -33,6 +48,7 @@ def generate_stdlib_imports():
     """
     std_lib = sysconfig.get_python_lib(standard_lib=True)
     script = ""
+    modules = []
     for top, dirs, files in os.walk(std_lib):
         for nm in files:
             module_path = os.path.join(top, nm)[len(std_lib)+1:-3].replace(os.sep, '.')
@@ -41,7 +57,15 @@ def generate_stdlib_imports():
                 if ex in module_path:
                     exclude = True
             if nm.endswith('.py') and not exclude:
-                script += """
+                module_path = module_path.replace(".__init__", "")
+                modules.append(module_path)
+
+    modules.append('ctypes')
+    modules.append('ctypes.wintypes')
+    modules.append('logging.config')
+
+    for module_path in modules:
+        script += """
 try:
     import {}
 except:

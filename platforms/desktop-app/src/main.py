@@ -114,19 +114,6 @@ logging.info("**********************************")
 logging.info("")
 logging.info("Started at: {}".format(datetime.datetime.today()))
 
-try:
-    # import standard library modules for packaging.
-    import stdlib_imports
-
-    # These modules do not get found when walking the stdlib for some reason, so manually add them.
-    import pkg_resources
-    import email.mime
-except Exception as e:
-    logging.warning("Modules needed for packaging support could not be imported.")
-    logging.warning("Generating app packages may creating non-working builds.")
-    logging.warning(str(e))
-
-
 languages = None
 if sys.platform == 'darwin':
     langs_str = subprocess.check_output('defaults read .GlobalPreferences AppleLanguages | tr -d [:space:]', shell=True).strip()
@@ -190,7 +177,7 @@ class MenuEventHandler:
         webbrowser.open(self.get_url())
 
     def on_open_kolibri_home(self):
-        subprocess.call(['open', os.environ['KOLIBRI_HOME']])
+        os.startfile(os.environ['KOLIBRI_HOME'])
 
     def on_back(self):
         self.go_back()
@@ -408,5 +395,16 @@ if __name__ == "__main__":
     # This call fixes some issues with using multiprocessing when packaged as an app. (e.g. fork can start the app
     # multiple times)
     multiprocessing.freeze_support()
+    if sys.platform.startswith('win'):
+        import winreg
+
+        try:
+            root = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
+            KEY = r"SOFTWARE\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BROWSER_EMULATION"
+            with winreg.CreateKeyEx(root, KEY, 0, winreg.KEY_ALL_ACCESS) as regkey:
+                winreg.SetValueEx(regkey, os.path.basename(sys.executable), 0, winreg.REG_DWORD, 11000)
+            print("Key created?")
+        except:
+            raise
     app = Application()
     app.run()

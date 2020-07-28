@@ -107,6 +107,7 @@ def get_kolibri_release_whl(release_tag):
     print("Getting release from {}".format(url))
 
     local_filename = os.path.join('whl', url.split('/')[-1])
+    os.makedirs(os.path.dirname(local_filename), exist_ok=True)
     with requests.get(url, stream=True) as r:
         with open(local_filename, 'wb') as f:
             shutil.copyfileobj(r.raw, f)

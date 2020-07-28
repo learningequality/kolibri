@@ -29,7 +29,9 @@ Creating a macOS app for testing in `dist/Kolibri.app`:
 # despite not having been installed in the virtualenv
 export PYTHONPATH=$PWD/src/kolibri/dist
 
-pew build
+# we use a wrapper around the "pew build" command for now
+# to do some pre and post-processing steps
+python kapew.py build
 ```
 
 Creating a macOS disk image in `package` directory:
