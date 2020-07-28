@@ -86,8 +86,10 @@ export default {
       });
     },
     startPeerImportTask(data) {
-      const { facility, facility_name, baseurl, username, password } = data;
+      const { facility, facility_name, baseurl, username, password, device_name, device_id } = data;
       return FacilityTaskResource.startpeerfacilityimport({
+        device_name,
+        device_id,
         facility,
         facility_name,
         baseurl,

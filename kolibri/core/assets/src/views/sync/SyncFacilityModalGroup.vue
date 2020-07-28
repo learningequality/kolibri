@@ -70,6 +70,9 @@
         }
       },
       handleAddressSubmit(data) {
+        if (!data.device_name) {
+          data.device_name = data.nickname;
+        }
         this.startPeerSync(data);
       },
       closeModal() {
