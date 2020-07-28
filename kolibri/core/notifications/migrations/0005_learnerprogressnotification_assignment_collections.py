@@ -36,6 +36,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("notifications", "0004_learnerprogressnotification_quiz_num_answered"),
+        ("kolibriauth", "0018_no_i18n_collection_kinds"),
     ]
 
     operations = [
