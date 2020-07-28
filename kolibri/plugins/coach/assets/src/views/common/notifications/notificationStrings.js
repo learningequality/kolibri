@@ -62,7 +62,11 @@ function cardTextForNotification(notification) {
   }
 
   if (event === COMPLETED || event === STARTED) {
-    if (learnerSummary.completesCollection) {
+    // Don't give complete notices for adhoc learner groups
+    if (
+      learnerSummary.completesCollection &&
+      collection.type !== CollectionTypes.ADHOCLEARNERSGROUP
+    ) {
       if (collection.type === CollectionTypes.CLASSROOM) {
         // When concatenated, should match the keys in 'nStrings' (e.g. 'wholeClassCompleted')
         stringType = `wholeClass${event}`;

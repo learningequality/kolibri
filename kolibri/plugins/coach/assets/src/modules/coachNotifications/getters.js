@@ -172,49 +172,22 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
         return partitioning.hasEvent.includes(event.user_id);
       });
 
-      // Ad hoc groups will not have notifications bundled up like
-      // "Joe and N others..." for now. Each Individual learner's behavior
-      // will have a notification shown.
-      if (collection.collection_kind === CollectionTypes.ADHOCLEARNERSGROUP) {
-        partitioning.hasEvent.forEach((userId, idx) => {
-          const userEvent = find(orderBy(allEvents, 'timestamp', ['desc']), event => {
-            return event.user_id === userId;
-          });
-          summaryEvents.push({
-            ...userEvent,
-            groupCode: groupCode + '_' + collIdx + '_' + idx,
-            lastId,
-            collection: {
-              id: collection.collection,
-              type: collection.collection_kind,
-              name: collection.name,
-            },
-            learnerSummary: {
-              ...userEvent.learnerSummary,
-              total: 1,
-              // not used for Needs Help
-              completesCollection: false,
-            },
-          });
-        });
-      } else {
-        summaryEvents.push({
-          ...firstEvent,
-          groupCode: groupCode + '_' + collIdx,
-          lastId,
-          collection: {
-            id: collection.collection,
-            type: collection.collection_kind,
-            name: collection.name,
-          },
-          learnerSummary: {
-            ...firstUser.learnerSummary,
-            total: partitioning.hasEvent.length,
-            // not used for Needs Help
-            completesCollection: partitioning.rest.length === 0,
-          },
-        });
-      }
+      summaryEvents.push({
+        ...firstEvent,
+        groupCode: groupCode + '_' + collIdx,
+        lastId,
+        collection: {
+          id: collection.collection,
+          type: collection.collection_kind,
+          name: collection.name,
+        },
+        learnerSummary: {
+          ...firstUser.learnerSummary,
+          total: partitioning.hasEvent.length,
+          // not used for Needs Help
+          completesCollection: partitioning.rest.length === 0,
+        },
+      });
     }
   }
 

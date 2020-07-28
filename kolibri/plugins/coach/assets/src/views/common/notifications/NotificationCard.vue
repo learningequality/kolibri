@@ -40,13 +40,13 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import { cardTextForNotification } from '../notifications/notificationStrings';
   import CoachStatusIcon from '../status/CoachStatusIcon';
   import {
     NotificationEvents,
     NotificationObjects,
   } from '../../../constants/notificationsConstants';
   import { CollectionTypes } from '../../../constants/lessonsConstants';
+  import { cardTextForNotification } from './notificationStrings';
   import { notificationLink } from './../../../modules/coachNotifications/gettersUtils';
 
   const EventToIconMap = {
