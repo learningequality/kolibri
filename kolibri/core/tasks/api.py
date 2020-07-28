@@ -46,6 +46,7 @@ from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.upgrade import diff_stats
 from kolibri.core.device.permissions import IsSuperuser
+from kolibri.core.device.permissions import NotProvisionedCanPost
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
@@ -845,7 +846,7 @@ class FacilityTasksViewSet(BaseViewSet):
         if self.action in ["list", "retrieve"]:
             return [p | FacilitySyncPermissions for p in permission_classes]
 
-        # All other permissions are deferred to permissions_classes decorator
+        # All other permissions are deferred to permission_classes decorator
         return []
 
     @decorators.action(
@@ -879,7 +880,12 @@ class FacilityTasksViewSet(BaseViewSet):
 
         return Response(responses)
 
-    @decorators.action(methods=["post"], detail=False, permission_classes=[IsSuperuser])
+    # Method needs to be available in Setup Wizard as well
+    @decorators.action(
+        methods=["post"],
+        detail=False,
+        permission_classes=[IsSuperuser | NotProvisionedCanPost],
+    )
     def startpeerfacilityimport(self, request):
         """
         Initiate a PULL of a specific facility from another device.
