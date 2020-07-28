@@ -99,7 +99,8 @@
 <style lang="scss" scoped>
 
   .footer {
-    text-align: end;
+    display: flex;
+    justify-content: flex-end;
   }
 
 </style>
