@@ -17,7 +17,7 @@ repos:
         language_version: python2.7
 -   repo: local
     hooks:
-    -   id: frontend-lint
+    -   id: lint-frontend
         name: Linting of JS, Vue, SCSS and CSS files
         description: This hook handles all frontend linting for Kolibri
         entry: yarn run lint-frontend
