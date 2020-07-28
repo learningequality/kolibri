@@ -42,6 +42,7 @@ class ProcessLock(object):
                 expire = self.expire * 1000 if self.expire is not None else None
                 # if we're using Redis, be sure we use Redis' locking mechanism which uses
                 # `SET NX` under the hood. See redis.lock.Lock
+                # The Django RedisCache backend provide the lock method to proxy this
                 self._lock_object = process_cache.lock(
                     self.key,
                     timeout=expire,  # milliseconds
@@ -51,16 +52,22 @@ class ProcessLock(object):
                 )
             else:
                 # we can't pass in the `process_cache` because it's an instance of DjangoCache
-                # and we need a Cache instance
+                # and we need a DiskCache Cache instance
                 cache = process_cache.cache("locks")
                 self._lock_object = RLock(cache, self.key, expire=self.expire)
         return self._lock_object
 
-    def __enter__(self, *args, **kwargs):
-        return self._lock.__enter__(*args, **kwargs)
+    def acquire(self):
+        self._lock.acquire()
 
-    def __exit__(self, *args, **kwargs):
-        return self._lock.__exit__(*args, **kwargs)
+    def release(self):
+        self._lock.release()
+
+    def __enter__(self):
+        self.acquire()
+
+    def __exit__(self, *exc_info):
+        self.release()
 
 
 class NamespacedCacheProxy(BaseCache):
