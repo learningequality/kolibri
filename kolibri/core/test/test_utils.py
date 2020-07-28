@@ -4,8 +4,8 @@ from django.core.cache.backends.base import BaseCache
 from django.test import TestCase
 from redis import Redis
 
-from kolibri.core.utils.cache import get_process_lock
 from kolibri.core.utils.cache import NamespacedCacheProxy
+from kolibri.core.utils.cache import ProcessLock
 from kolibri.core.utils.cache import RedisSettingsHelper
 
 
@@ -21,7 +21,7 @@ class GetProcessLockTestCase(TestCase):
         self.setup_opts(options, redis=True)
         lock = mock.Mock()
         process_cache.lock.return_value = lock
-        self.assertEqual(lock, get_process_lock("test_key", expire=2))
+        self.assertEqual(lock, ProcessLock("test_key", expire=2)._lock)
         process_cache.lock.assert_called_once_with(
             "test_key",
             timeout=2000,
@@ -34,15 +34,15 @@ class GetProcessLockTestCase(TestCase):
         self.setup_opts(options, redis=False)
         sub_cache = mock.Mock()
         process_cache.cache.return_value = sub_cache
-        lock = get_process_lock("test_key", expire=2)
-        self.assertIsInstance(lock, RLock)
+        lock = ProcessLock("test_key", expire=2)
+        self.assertIsInstance(lock._lock, RLock)
         process_cache.cache.assert_called_once_with("locks")
-        self.assertEqual(sub_cache, lock._cache)
-        self.assertEqual("test_key", lock._key)
-        self.assertEqual(2, lock._expire)
+        self.assertEqual(sub_cache, lock._lock._cache)
+        self.assertEqual("test_key", lock._lock._key)
+        self.assertEqual(2, lock._lock._expire)
 
 
-@mock.patch("kolibri.core.utils.cache.get_process_lock")
+@mock.patch("kolibri.core.utils.cache.ProcessLock")
 class NamespacedCacheProxyTestCase(TestCase):
     def setUp(self):
         self.lock = mock.MagicMock(spec=RLock)
