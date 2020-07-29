@@ -150,7 +150,7 @@
         const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
         this.$emit(
           'updateProgress',
-          hashiProgress === null ? Math.max(0, totalTime / 3000000) : hashiProgress
+          hashiProgress === null ? Math.max(0, totalTime / 300000) : hashiProgress
         );
         this.pollProgress();
       },
