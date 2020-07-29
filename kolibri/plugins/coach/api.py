@@ -99,7 +99,6 @@ class ClassroomNotificationsViewset(ValuesViewset):
         "contentnode_id",
         "notification_object",
         "notification_event",
-        "type",
     )
 
     field_map = {
@@ -217,9 +216,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
         return notifications_query
 
     def annotate_queryset(self, queryset):
-        queryset = queryset.annotate(
-            type=F("notification_object") + F("notification_event")
-        ).order_by("-id")
+        queryset = queryset.order_by("-id")
         limit = self.check_limit()
         if limit:
             return queryset[:limit]

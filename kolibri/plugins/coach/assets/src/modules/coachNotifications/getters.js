@@ -1,11 +1,10 @@
 import orderBy from 'lodash/orderBy';
 import groupBy from 'lodash/groupBy';
 import find from 'lodash/find';
-import maxBy from 'lodash/maxBy';
+import sortedUniqBy from 'lodash/sortedUniqBy';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import { NotificationObjects } from '../../constants/notificationsConstants';
+import { NotificationObjects, NotificationEvents } from '../../constants/notificationsConstants';
 import { CollectionTypes } from '../../constants/lessonsConstants';
-import { partitionCollectionByEvents, getCollectionsForAssignment } from './gettersUtils';
 
 const { LESSON, RESOURCE, QUIZ } = NotificationObjects;
 
@@ -39,7 +38,6 @@ export function allNotifications(state, getters, rootState, rootGetters) {
     // Finds the first group the user_id is in and just uses that label.
     // Does not make additional notifications if the user is in more than
     // one group that has been assigned lesson or quiz.
-    let groups;
     if (object === QUIZ) {
       const examMatch = classSummary.exams[notification.quiz_id];
       if (!examMatch) {
@@ -51,36 +49,29 @@ export function allNotifications(state, getters, rootState, rootGetters) {
         return null;
       }
     }
+    const groups = notification.assignment_collections
+      .map(idx => classSummary.learnerGroups[idx])
+      .filter(Boolean);
+
     let collection;
-    if (groups) {
+    if (!groups.length) {
       collection = {
         id: classSummary.classId,
         name: classSummary.className,
         type: CollectionTypes.CLASSROOM,
       };
     } else {
-      const groupMatch = find(groups, groupId => {
-        const found = classSummary.learnerGroups[groupId];
-        if (found) {
-          return found.member_ids.includes(notification.user_id);
-        }
-        return false;
-      });
-      if (groupMatch) {
-        collection = {
-          id: classSummary.learnerGroups[groupMatch].id,
-          name: classSummary.learnerGroups[groupMatch].name,
-          type: CollectionTypes.LEARNERGROUP,
-        };
-      } else {
-        // If learner group was deleted, then just give it the header
-        // for the whole class
-        collection = {
-          id: classSummary.classId,
-          name: classSummary.className,
-          type: CollectionTypes.CLASSROOM,
-        };
-      }
+      const groupMatch =
+        find(groups, group => {
+          return group.member_ids.includes(notification.user_id);
+          // If the learner was removed from all groups, generate the notification for
+          // the first group
+        }) || groups[0];
+      collection = {
+        id: groupMatch.id,
+        name: groupMatch.name,
+        type: CollectionTypes.LEARNERGROUP,
+      };
     }
 
     let assignment = {};
@@ -113,7 +104,11 @@ export function allNotifications(state, getters, rootState, rootGetters) {
     };
   }
 
-  return state.notifications.map(reshapeNotification).filter(n => n);
+  return orderBy(
+    state.notifications.map(reshapeNotification).filter(n => n),
+    'timestamp',
+    ['desc']
+  );
 }
 
 export function summarizedNotifications(state, getters, rootState, rootGetters) {
@@ -126,70 +121,65 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
   const groupedNotifications = groupBy(getters.allNotifications, n => {
     if (n.object === RESOURCE) {
       // Contains both Needs Help and Resource Completed-typed notifications
-      return `${n.type}_${n.lesson_id}_${n.contentnode_id}`;
+      return `${n.object}_${n.lesson_id}_${n.contentnode_id}`;
     }
     if (n.object === LESSON) {
-      return `${n.type}_${n.lesson_id}`;
+      return `${n.object}_${n.lesson_id}`;
     }
     if (n.object === QUIZ) {
-      return `${n.type}_${n.quiz_id}`;
+      return `${n.object}_${n.quiz_id}`;
     }
   });
 
   for (let groupCode in groupedNotifications) {
-    const allEvents = groupedNotifications[groupCode];
+    // Filter out all bust the most recent event for each user
+    const allEvents = sortedUniqBy(groupedNotifications[groupCode], 'user_id');
 
-    // Use first event in list as exemplar for summary object
-    const firstEvent = allEvents[0];
-
-    // Get the ID of the most recent event in the collection
-    const lastId = maxBy(allEvents, n => Number(n.id)).id;
-
-    const assigneeCollections = getCollectionsForAssignment({
-      classSummary,
-      assignment: firstEvent.assignment,
-    });
-    // If 'assigneeCollections' is null, then the quiz or lesson was deleted
-    if (assigneeCollections === null) continue;
+    const eventsByCollection = groupBy(allEvents, e => e.collection.id);
 
     // Iterate through each of the assignee collections and create one
-    // summarizing notification for each.
-    for (let collIdx in assigneeCollections) {
-      const collection = assigneeCollections[collIdx];
+    // summarizing notification for each event type in the collection.
+    for (let collIdx in eventsByCollection) {
+      const collectionEvents = eventsByCollection[collIdx];
 
-      const partitioning = partitionCollectionByEvents({
-        classSummary,
-        events: allEvents,
-        collectionId: collection.collection,
-        collectionType: collection.collection_kind,
-      });
+      const eventTypeEvents = groupBy(collectionEvents, 'event');
 
-      // If 'partitioning' is null, then the assignee collection is a learnergroup
-      // that has been deleted.
-      if (partitioning === null || partitioning.hasEvent.length === 0) continue;
+      for (let eventType in eventTypeEvents) {
+        if (eventType === NotificationEvents.ANSWERED) {
+          // Filter out "Answered" notifications to avoid flooding the list
+          continue;
+        }
 
-      const firstUser = find(orderBy(allEvents, 'timestamp', ['desc']), event => {
-        return partitioning.hasEvent.includes(event.user_id);
-      });
+        const orderedEvents = eventTypeEvents[eventType];
 
-      summaryEvents.push({
-        ...firstEvent,
-        groupCode: groupCode + '_' + collIdx,
-        lastId,
-        collection: {
-          id: collection.collection,
-          type: collection.collection_kind,
-          name: collection.name,
-        },
-        learnerSummary: {
-          ...firstUser.learnerSummary,
-          total: partitioning.hasEvent.length,
-          // not used for Needs Help
-          completesCollection: partitioning.rest.length === 0,
-        },
-      });
+        const firstEvent = orderedEvents.slice(-1)[0];
+
+        const lastEvent = orderedEvents[0];
+
+        let collectionSize = 1;
+
+        if (firstEvent.collection.type === CollectionTypes.CLASSROOM) {
+          collectionSize = classSummary.learners.length;
+        } else if (firstEvent.collection.type === CollectionTypes.LEARNERGROUP) {
+          collectionSize = classSummary.learnerGroups[collIdx].member_ids.length;
+        } else if (firstEvent.collection.type === CollectionTypes.ADHOCLEARNERSGROUP) {
+          collectionSize = classSummary.adHocGroupsMap[collIdx].length;
+        }
+
+        summaryEvents.push({
+          ...firstEvent,
+          groupCode: groupCode + '_' + collIdx,
+          timestamp: lastEvent.timestamp,
+          learnerSummary: {
+            ...firstEvent.learnerSummary,
+            total: orderedEvents.length,
+            // not used for Needs Help
+            completesCollection: orderedEvents.length === collectionSize,
+          },
+        });
+      }
     }
   }
 
-  return summaryEvents;
+  return orderBy(summaryEvents, 'timestamp', ['desc']);
 }
