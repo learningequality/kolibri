@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-06-11 09:07-0700\n"
-"PO-Revision-Date: 2020-07-14 17:14\n"
+"PO-Revision-Date: 2020-07-27 17:56\n"
 "Last-Translator: \n"
 "Language-Team: Khmer\n"
 "Language: km_KH\n"
@@ -49,7 +49,7 @@ msgstr "មាតិកាក្នុងប្រអប់ cell '{}' មិន�
 
 #: kolibri/core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr "បានចម្លងឈ្មោះអ្នកប្រើ"
+msgstr "បានចម្លងឈ្មោះអ្នកប្រើប្រាស់"
 
 #: kolibri/core/auth/constants/commands_errors.py:28
 #: kolibri/core/auth/management/commands/bulkimportusers.py:84
@@ -86,7 +86,7 @@ msgstr "ID ឃ្លាំងផ្ទុកទិន្នន័យ ({})"
 #: kolibri/core/auth/management/commands/bulkexportusers.py:44
 #: kolibri/core/auth/management/commands/bulkexportusers.py:126
 msgid "Username ({})"
-msgstr "នាមត្រកូល ({})"
+msgstr "ឈ្មោះអ្នកប្រើប្រាស់ ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:45
 #: kolibri/core/auth/management/commands/bulkexportusers.py:127
@@ -159,7 +159,7 @@ msgstr "មាតិកាក្នុងជួរឈរ '{}' មិនត្រ
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:82
 msgid "Username is duplicated"
-msgstr "ឈ្មោះអ្នកប្រើត្រូវបានចម្លង"
+msgstr "ឈ្មោះអ្នកប្រើប្រាស់ត្រូវបានចម្លង"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:88
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
@@ -182,7 +182,7 @@ msgstr "កន្លែងពាក្យសម្ងាត់ត្រូវក
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:104
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr "មិនអាចដំឡើងអ្នកប្រើប្រាស់ជាមួយលេខ ID៖ '{}' ពីព្រោះគ្មាន ID អ្នកប្រើប្រាស់ក្នុងទីតាំងនេះទេ"
+msgstr "មិនអាចធ្វើបច្ចុប្បន្នភាពអ្នកប្រើប្រាស់ជាមួយលេខ ID៖ '{}' ពីព្រោះគ្មាន ID អ្នកប្រើប្រាស់ក្នុងទីតាំងនេះទេ"
 
 #: kolibri/core/auth/management/commands/bulkimportusers.py:106
 msgid "Database ID is not valid"
