@@ -2,7 +2,12 @@
 
   <AuthBase :hideCreateAccount="true">
     <div class="facility-select">
-      <KRouterLink class="backlink" :to="backTo" :text="coreString('goBackAction')" icon="back" />
+      <KRouterLink
+        class="backlink"
+        :to="backTo"
+        :text="AuthMessageStrings.$tr('goBackToHomeAction')"
+        icon="back"
+      />
       <div v-if="facilityList['enabled'].length">
         <p class="label">
           {{ label }}
@@ -50,7 +55,9 @@
 
   import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import partition from 'lodash/partition';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { ComponentMap } from '../constants';
   import AuthBase from './AuthBase';
 
@@ -92,6 +99,9 @@
         return this.whereToNext.name === ComponentMap.SIGN_UP
           ? this.$tr('canSignUpForFacilityLabel')
           : this.$tr('selectFacilityLabel');
+      },
+      AuthMessageStrings() {
+        return crossComponentTranslator(AuthMessage);
       },
     },
     methods: {
