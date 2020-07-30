@@ -2,11 +2,11 @@ import datetime
 import gettext
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import time
 import webbrowser
-
 
 try:
     from urllib2 import urlopen, URLError
@@ -87,6 +87,13 @@ elif not 'KOLIBRI_HOME' in os.environ:
     os.environ["KOLIBRI_HOME"] = os.path.join(os.path.expanduser("~"), ".kolibri")
 
 
+# move in a templated Kolibri data directory, including pre-migrated DB, to speed up startup
+HOME_TEMPLATE_PATH = "assets/preseeded_kolibri_home"
+HOME_PATH = os.environ["KOLIBRI_HOME"]
+if not os.path.exists(HOME_PATH) and os.path.exists(HOME_TEMPLATE_PATH):
+    shutil.copytree(HOME_TEMPLATE_PATH, HOME_PATH)
+
+
 from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 
 log_basename = "kolibri-app.txt"
@@ -141,6 +148,9 @@ logging.info("Locale info = {}".format(locale_info))
 
 def start_django(port=5000):
     from kolibri.utils.cli import initialize, setup_logging, start
+    from kolibri.plugins.registry import registered_plugins
+
+    registered_plugins.register_plugins(['kolibri.plugins.app'])
 
     logging.info("Starting server...")
     setup_logging(debug=False)
@@ -211,7 +221,8 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
         """
         app = pew.ui.get_app()
         if app:
-            app.windows.remove(self)
+            if self in app.windows:
+                app.windows.remove(self)
             if len(app.windows) > 0:
                 # if we still have open windows, don't run shutdown
                 return
@@ -371,11 +382,16 @@ class Application(pew.ui.PEWApp):
         saved_state = self.view.get_view_state()
         logging.debug('Persisted View State: {}'.format(self.view.get_view_state()))
 
+        # activate app mode
+        from kolibri.plugins.app.utils import interface
+        next_url = None
         if "URL" in saved_state and saved_state["URL"].startswith(home_url):
-            pew.ui.run_on_main_thread(self.view.load_url, saved_state["URL"])
-            return
+            next_url = saved_state["URL"]
 
-        pew.ui.run_on_main_thread(self.view.load_url, home_url)
+        root_url = KOLIBRI_ROOT_URL + interface.get_initialize_url(next_url=next_url)
+        logging.debug("root_url = {}".format(root_url))
+
+        pew.ui.run_on_main_thread(self.view.load_url, root_url)
 
     def get_main_window(self):
         return self.view
