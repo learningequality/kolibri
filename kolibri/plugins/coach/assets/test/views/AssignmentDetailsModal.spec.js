@@ -1,7 +1,6 @@
 import { mount } from '@vue/test-utils';
 //import store from 'kolibri.coreVue.vuex.store';
 import makeStore from '../makeStore';
-//import adHocLearners from '../../src/modules/adHocLearners';
 import AssignmentDetailsModal from '../../src/views/plan/assignments/AssignmentDetailsModal';
 
 // HACK to avoid having to mock this property's dependancies on vuex and vue router
@@ -22,8 +21,6 @@ const defaultProps = {
 function makeWrapper(options) {
   options.store = makeStore();
   const wrapper = mount(AssignmentDetailsModal, options);
-  wrapper.vm.handleAdHocLearnersGroupPromise = jest.fn().mockResolvedValue();
-  wrapper.vm.handleUpdateAdHocLearnersGroupPromise = jest.fn().mockResolvedValue();
   const els = {
     titleField: () => wrapper.findAllComponents({ name: 'KTextbox' }).at(0),
     descriptionField: () => wrapper.findAllComponents({ name: 'KTextbox' }).at(1),

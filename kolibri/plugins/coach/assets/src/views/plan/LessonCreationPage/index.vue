@@ -55,22 +55,13 @@
     },
     mounted() {
       this.$store.commit('CORE_SET_PAGE_LOADING', false);
-      this.$store.commit('adHocLearners/RESET_STATE');
     },
     methods: {
-      createLesson(formData) {
-        formData.lesson_assignments = formData.assignments;
-        delete formData.assignments;
-        formData.lesson_assignments.map(assignment => {
-          if (assignment.collection === null) {
-            assignment.collection = this.$store.state.adHocLearners.id;
-          }
-          return assignment;
-        });
+      createLesson(payload) {
         this.$store
           .dispatch('lessonsRoot/createLesson', {
             classId: this.classId,
-            payload: formData,
+            payload,
           })
           .then(() => {
             this.showSnackbarNotification('lessonCreated');
