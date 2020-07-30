@@ -81,27 +81,28 @@ class ExamViewset(ValuesViewset):
         return annotate_array_aggregate(queryset, assignments="assignments__collection")
 
     def consolidate(self, items, queryset):
-        adhoc_assignments = models.ExamAssignment.objects.filter(
-            exam__in=queryset, collection__kind=ADHOCLEARNERSGROUP
-        )
-        adhoc_assignments = annotate_array_aggregate(
-            adhoc_assignments, learner_ids="collection__membership__user_id"
-        )
-        adhoc_assignments = {
-            a["exam"]: a
-            for a in adhoc_assignments.values("collection", "exam", "learner_ids",)
-        }
-        for item in items:
-            if item["id"] in adhoc_assignments:
-                adhoc_assignment = adhoc_assignments[item["id"]]
-                item["learner_ids"] = adhoc_assignments[item["id"]]["learner_ids"]
-                item["assignments"] = [
-                    i
-                    for i in item["assignments"]
-                    if i != adhoc_assignment["collection"]
-                ]
-            else:
-                item["learner_ids"] = []
+        if items:
+            adhoc_assignments = models.ExamAssignment.objects.filter(
+                exam__in=queryset, collection__kind=ADHOCLEARNERSGROUP
+            )
+            adhoc_assignments = annotate_array_aggregate(
+                adhoc_assignments, learner_ids="collection__membership__user_id"
+            )
+            adhoc_assignments = {
+                a["exam"]: a
+                for a in adhoc_assignments.values("collection", "exam", "learner_ids",)
+            }
+            for item in items:
+                if item["id"] in adhoc_assignments:
+                    adhoc_assignment = adhoc_assignments[item["id"]]
+                    item["learner_ids"] = adhoc_assignments[item["id"]]["learner_ids"]
+                    item["assignments"] = [
+                        i
+                        for i in item["assignments"]
+                        if i != adhoc_assignment["collection"]
+                    ]
+                else:
+                    item["learner_ids"] = []
 
         return items
 

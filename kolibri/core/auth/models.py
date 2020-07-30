@@ -1479,7 +1479,7 @@ class AdHocGroup(Collection):
         return [self.add_learner(user) for user in users]
 
     def get_learners(self):
-        return FacilityUser.objects.filter(membership__collection=self)
+        return FacilityUser.objects.filter(memberships__collection=self)
 
     def remove_learner(self, user):
         return self.remove_member(user)

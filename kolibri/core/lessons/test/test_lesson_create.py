@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase
 
-from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
+from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -73,7 +73,7 @@ class LessonCreationTestCase(APITestCase):
             "title": "New Lesson",
             "description": "An awesome lesson",
             "created_by": self.admin_user.id,
-            "lesson_assignments": [{"collection": self.classroom.id}],
+            "lesson_assignments": [self.classroom.id],
             "collection": self.classroom.id,
             "resources": [],
         }
@@ -101,7 +101,7 @@ class LessonCreationTestCase(APITestCase):
             "title": "New Lesson",
             "description": "An awesome lesson",
             "created_by": self.admin_user.id,
-            "lesson_assignments": [{"collection": self.classroom.id}],
+            "lesson_assignments": [self.classroom.id],
             "collection": self.classroom.id,
             "learner_ids": [learner.id],
             "resources": [],
@@ -115,9 +115,9 @@ class LessonCreationTestCase(APITestCase):
 
         lesson = Lesson.objects.get(id=lesson_id)
 
-        adhoc_group = lesson.lesson_assignments.get(kind=ADHOCLEARNERSGROUP)
+        adhoc_group = AdHocGroup.objects.get(assigned_lessons__lesson=lesson)
 
-        self.assertEqual(adhoc_group.get_learners(), [learner])
+        self.assertEqual(list(adhoc_group.get_learners()), [learner])
 
         get_response = self.client.get(
             reverse("kolibri:core:lesson-detail", kwargs={"pk": lesson_id})
@@ -135,10 +135,7 @@ class LessonCreationTestCase(APITestCase):
         new_lesson = {
             "title": "Assigned To lgroup1 and lgroup2",
             "created_by": self.admin_user.id,
-            "lesson_assignments": [
-                {"collection": lgroup1.id},
-                {"collection": lgroup2.id},
-            ],
+            "lesson_assignments": [lgroup1.id, lgroup2.id],
             "collection": self.classroom.id,
             "resources": [],
         }
@@ -150,10 +147,7 @@ class LessonCreationTestCase(APITestCase):
         # Reassign Lesson to lgroup3 only
         patch_response = self.client.patch(
             reverse("kolibri:core:lesson-detail", kwargs={"pk": lesson_id}),
-            {
-                "title": "Assigned to lgroup3",
-                "lesson_assignments": [{"collection": lgroup3.id}],
-            },
+            {"title": "Assigned to lgroup3", "lesson_assignments": [lgroup3.id]},
             format="json",
         )
         self.assertEqual(patch_response.status_code, 200)
@@ -166,7 +160,7 @@ class LessonCreationTestCase(APITestCase):
         new_lesson = {
             "title": "All Resources Available",
             "created_by": self.admin_user.id,
-            "lesson_assignments": [{"collection": self.classroom.id}],
+            "lesson_assignments": [self.classroom.id],
             "collection": self.classroom.id,
             "resources": [
                 {
@@ -186,7 +180,7 @@ class LessonCreationTestCase(APITestCase):
         new_lesson = {
             "title": "No Resources Available",
             "created_by": self.admin_user.id,
-            "lesson_assignments": [{"collection": self.classroom.id}],
+            "lesson_assignments": [self.classroom.id],
             "collection": self.classroom.id,
             "resources": [
                 {

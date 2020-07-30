@@ -63,28 +63,31 @@ class LessonViewset(ValuesViewset):
     field_map = {"classroom": _map_lesson_classroom}
 
     def consolidate(self, items, queryset):
-        adhoc_assignments = LessonAssignment.objects.filter(
-            lesson__in=queryset, collection__kind=ADHOCLEARNERSGROUP
-        )
-        adhoc_assignments = annotate_array_aggregate(
-            adhoc_assignments, learner_ids="collection__membership__user_id"
-        )
-        adhoc_assignments = {
-            a["lesson"]: a
-            for a in adhoc_assignments.values("collection", "lesson", "learner_ids",)
-        }
-        for item in items:
-            if item["id"] in adhoc_assignments:
-                adhoc_assignment = adhoc_assignments[item["id"]]
-                item["learner_ids"] = adhoc_assignments[item["id"]]["learner_ids"]
-                item["lesson_assignments"] = [
-                    i
-                    for i in item["lesson_assignments"]
-                    if i != adhoc_assignment["collection"]
-                ]
-            else:
-                item["learner_ids"] = []
-            item["resources"] = item["resources"] or []
+        if items:
+            adhoc_assignments = LessonAssignment.objects.filter(
+                lesson__in=queryset, collection__kind=ADHOCLEARNERSGROUP
+            )
+            adhoc_assignments = annotate_array_aggregate(
+                adhoc_assignments, learner_ids="collection__membership__user_id"
+            )
+            adhoc_assignments = {
+                a["lesson"]: a
+                for a in adhoc_assignments.values(
+                    "collection", "lesson", "learner_ids",
+                )
+            }
+            for item in items:
+                if item["id"] in adhoc_assignments:
+                    adhoc_assignment = adhoc_assignments[item["id"]]
+                    item["learner_ids"] = adhoc_assignments[item["id"]]["learner_ids"]
+                    item["lesson_assignments"] = [
+                        i
+                        for i in item["lesson_assignments"]
+                        if i != adhoc_assignment["collection"]
+                    ]
+                else:
+                    item["learner_ids"] = []
+                item["resources"] = item["resources"] or []
 
         return items
 
