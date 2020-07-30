@@ -72,7 +72,7 @@
       </p>
     </div>
 
-    <KButtonGroup :class="{ 'button-lift': Boolean(loaderType) }">
+    <KButtonGroup class="nowrap" :class="{ 'button-lift': Boolean(loaderType) }">
 
       <KButton
         v-if="buttonSet === 'cancel'"
@@ -282,6 +282,10 @@
   .buttons-lift {
     // Lift button a little to align with progress bar
     margin-top: -24px;
+  }
+
+  .nowrap {
+    white-space: nowrap;
   }
 
 </style>

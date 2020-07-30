@@ -163,7 +163,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         response = self.client.get(
             reverse("kolibri:core:facilitytask-list"), format="json"
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
     def test_startdataportalsync(self, facility_queue):
         user = self._setup_device()
@@ -451,9 +451,14 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         facility1 = Facility.objects.create(name="facility1")
         Facility.objects.create(name="facility2")
 
-        user = FacilityUser.objects.create(username="superuser", facility=facility1)
+        user = FacilityUser.objects.create(username="notasuperuser", facility=facility1)
         user.set_password(DUMMY_PASSWORD)
         user.save()
+
+        DevicePermissions.objects.create(
+            user=user, is_superuser=False, can_manage_content=True
+        )
+        self.client.logout()
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(

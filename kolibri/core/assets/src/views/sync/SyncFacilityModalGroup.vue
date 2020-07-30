@@ -70,6 +70,9 @@
         }
       },
       handleAddressSubmit(data) {
+        if (!data.device_name) {
+          data.device_name = data.nickname;
+        }
         this.startPeerSync(data);
       },
       closeModal() {
@@ -80,9 +83,13 @@
         this.startKdpSyncTask({
           id: this.facilityForSync.id,
           name: this.facilityForSync.name,
-        }).then(task => {
-          this.$emit('success', task.id);
-        });
+        })
+          .then(task => {
+            this.$emit('success', task.id);
+          })
+          .catch(() => {
+            this.$emit('failure');
+          });
       },
       startPeerSync(peerData) {
         this.syncSubmitDisabled = true;
@@ -92,9 +99,13 @@
           device_name: peerData.device_name,
           device_id: peerData.id,
           baseurl: peerData.base_url,
-        }).then(task => {
-          this.$emit('success', task.id);
-        });
+        })
+          .then(task => {
+            this.$emit('success', task.id);
+          })
+          .catch(() => {
+            this.$emit('failure');
+          });
       },
     },
   };

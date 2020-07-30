@@ -29,6 +29,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from six import string_types
 
+from .permissions import FacilitySyncPermissions
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.management.utils import get_client_and_server_certs
@@ -45,7 +46,6 @@ from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.upgrade import diff_stats
 from kolibri.core.device.permissions import IsSuperuser
-from kolibri.core.device.permissions import NotProvisionedCanGet
 from kolibri.core.device.permissions import NotProvisionedCanPost
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
@@ -178,9 +178,14 @@ def validate_deletion_task(request, task_description):
 
 class BaseViewSet(viewsets.ViewSet):
     queues = []
+    permission_classes = []
 
-    @property
-    def permission_classes(self):
+    def initial(self, request, *args, **kwargs):
+        if len(self.permission_classes) == 0:
+            self.permission_classes = self.default_permission_classes()
+        return super(BaseViewSet, self).initial(request, *args, **kwargs)
+
+    def default_permission_classes(self):
         # task permissions shared between facility management and device management
         if self.action in ["list", "deletefinishedtasks"]:
             return [CanManageContent | CanExportLogs]
@@ -280,8 +285,7 @@ class BaseViewSet(viewsets.ViewSet):
 class TasksViewSet(BaseViewSet):
     queues = [queue, priority_queue]
 
-    @property
-    def permission_classes(self):
+    def default_permission_classes(self):
         # exclusive permission for facility management
         if self.action == "startexportlogcsv":
             return [CanExportLogs]
@@ -836,16 +840,18 @@ class TasksViewSet(BaseViewSet):
 class FacilityTasksViewSet(BaseViewSet):
     queues = [facility_queue]
 
-    @property
-    def permission_classes(self):
+    def default_permission_classes(self):
         permission_classes = super(FacilityTasksViewSet, self).permission_classes
 
         if self.action in ["list", "retrieve"]:
-            return [p | NotProvisionedCanGet for p in permission_classes]
+            return [p | FacilitySyncPermissions for p in permission_classes]
 
-        return [p | NotProvisionedCanPost for p in permission_classes]
+        # All other permissions are deferred to permission_classes decorator
+        return []
 
-    @decorators.action(methods=["post"], detail=False)
+    @decorators.action(
+        methods=["post"], detail=False, permission_classes=[FacilitySyncPermissions]
+    )
     def startdataportalsync(self, request):
         """
         Initiate a PUSH sync with Kolibri Data Portal.
@@ -858,7 +864,7 @@ class FacilityTasksViewSet(BaseViewSet):
         resp = _job_to_response(facility_queue.fetch_job(job_id))
         return Response(resp)
 
-    @decorators.action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False, permission_classes=[IsSuperuser])
     def startdataportalbulksync(self, request):
         """
         Initiate a PUSH sync with Kolibri Data Portal for ALL registered facilities.
@@ -874,7 +880,12 @@ class FacilityTasksViewSet(BaseViewSet):
 
         return Response(responses)
 
-    @decorators.action(methods=["post"], detail=False)
+    # Method needs to be available in Setup Wizard as well
+    @decorators.action(
+        methods=["post"],
+        detail=False,
+        permission_classes=[IsSuperuser | NotProvisionedCanPost],
+    )
     def startpeerfacilityimport(self, request):
         """
         Initiate a PULL of a specific facility from another device.
@@ -891,7 +902,9 @@ class FacilityTasksViewSet(BaseViewSet):
         resp = _job_to_response(facility_queue.fetch_job(job_id))
         return Response(resp)
 
-    @decorators.action(methods=["post"], detail=False)
+    @decorators.action(
+        methods=["post"], detail=False, permission_classes=[FacilitySyncPermissions]
+    )
     def startpeerfacilitysync(self, request):
         """
         Initiate a SYNC (PULL + PUSH) of a specific facility from another device.
@@ -904,8 +917,7 @@ class FacilityTasksViewSet(BaseViewSet):
         resp = _job_to_response(facility_queue.fetch_job(job_id))
         return Response(resp)
 
-    @decorators.permission_classes([IsSuperuser])
-    @decorators.action(methods=["post"], detail=False)
+    @decorators.action(methods=["post"], detail=False, permission_classes=[IsSuperuser])
     def startdeletefacility(self, request):
         """
         Initiate a task to delete a facility

@@ -60,7 +60,9 @@ export function syncFacilityTaskDisplayInfo(task) {
   const facilityName = formatNameWithId(task.facility_name, task.facility);
 
   // Device info isn't shown on the Setup Wizard version of panel
-  if (task.device_name) {
+  if (task.type === TaskTypes.SYNCDATAPORTAL) {
+    deviceNameMsg = 'Kolibri Data Portal';
+  } else if (task.device_name) {
     deviceNameMsg = coreString('quotedPhrase', {
       phrase: formatNameWithId(task.device_name, task.device_id),
     });
