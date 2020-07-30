@@ -118,18 +118,24 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
   // Group notifications by certain shared values
   // Resource Completed/Needs Help - Same Node and Lesson
   // Lesson/Quiz Completed - Same Lesson/Quiz
-  const groupedNotifications = groupBy(getters.allNotifications, n => {
-    if (n.object === RESOURCE) {
-      // Contains both Needs Help and Resource Completed-typed notifications
-      return `${n.object}_${n.lesson_id}_${n.contentnode_id}`;
+  const groupedNotifications = groupBy(
+    getters.allNotifications.filter(
+      // Filter out "Answered" notifications to avoid flooding the list
+      n => n.event === NotificationEvents.ANSWERED
+    ),
+    n => {
+      if (n.object === RESOURCE) {
+        // Contains both Needs Help and Resource Completed-typed notifications
+        return `${n.object}_${n.lesson_id}_${n.contentnode_id}`;
+      }
+      if (n.object === LESSON) {
+        return `${n.object}_${n.lesson_id}`;
+      }
+      if (n.object === QUIZ) {
+        return `${n.object}_${n.quiz_id}`;
+      }
     }
-    if (n.object === LESSON) {
-      return `${n.object}_${n.lesson_id}`;
-    }
-    if (n.object === QUIZ) {
-      return `${n.object}_${n.quiz_id}`;
-    }
-  });
+  );
 
   for (let groupCode in groupedNotifications) {
     // Filter out all bust the most recent event for each user
@@ -145,11 +151,6 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
       const eventTypeEvents = groupBy(collectionEvents, 'event');
 
       for (let eventType in eventTypeEvents) {
-        if (eventType === NotificationEvents.ANSWERED) {
-          // Filter out "Answered" notifications to avoid flooding the list
-          continue;
-        }
-
         const orderedEvents = eventTypeEvents[eventType];
 
         const firstEvent = orderedEvents.slice(-1)[0];
