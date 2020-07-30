@@ -82,7 +82,7 @@ class LessonAPITestCase(APITestCase):
                 "title": "title next",
                 "is_active": True,
                 "collection": self.facility.id,
-                "lesson_assignments": [{"collection": self.facility.id}],
+                "lesson_assignments": [self.facility.id],
             },
             format="json",
         )
@@ -102,7 +102,7 @@ class LessonAPITestCase(APITestCase):
                 "title": "title next",
                 "is_active": True,
                 "collection": self.facility.id,
-                "lesson_assignments": [{"collection": self.facility.id}],
+                "lesson_assignments": [self.facility.id],
             },
             format="json",
         )
@@ -133,7 +133,7 @@ class LessonAPITestCase(APITestCase):
                 "title": "title next",
                 "is_active": True,
                 "collection": self.facility.id,
-                "lesson_assignments": [{"collection": self.facility.id}],
+                "lesson_assignments": [self.facility.id],
             },
             format="json",
         )
@@ -145,7 +145,7 @@ class LessonAPITestCase(APITestCase):
                 "title": "title next",
                 "is_active": True,
                 "collection": self.facility.id,
-                "lesson_assignments": [{"collection": group.id}],
+                "lesson_assignments": [group.id],
                 "created_by": self.admin.id,
             },
             format="json",
@@ -171,7 +171,7 @@ class LessonAPITestCase(APITestCase):
                 "title": "title next",
                 "is_active": True,
                 "collection": self.facility.id,
-                "lesson_assignments": [{"collection": self.facility.id}],
+                "lesson_assignments": [self.facility.id],
             },
             format="json",
         )
@@ -183,10 +183,7 @@ class LessonAPITestCase(APITestCase):
                 "title": "title next",
                 "is_active": True,
                 "collection": self.facility.id,
-                "lesson_assignments": [
-                    {"collection": group.id},
-                    {"collection": self.facility.id},
-                ],
+                "lesson_assignments": [group.id, self.facility.id],
                 "created_by": self.admin.id,
             },
             format="json",
@@ -273,7 +270,7 @@ class LessonAPITestCase(APITestCase):
                 "title": "TiTlE",
                 "is_active": True,
                 "collection": self.facility.id,
-                "lesson_assignments": [{"collection": self.facility.id}],
+                "lesson_assignments": [self.facility.id],
             },
             format="json",
         )
@@ -356,7 +353,7 @@ class LessonAPITestCase(APITestCase):
                 "title": self.lesson.title,
                 "is_active": True,
                 "collection": self.facility.id,
-                "lesson_assignments": [{"collection": self.facility.id}],
+                "lesson_assignments": [self.facility.id],
             },
             format="json",
         )

@@ -151,9 +151,8 @@ export default {
       const learnersInSelectedGroups = recipientsForGroups.map(
         learnerId => state.learnerMap[learnerId].name
       );
-      const assignments = lesson.lesson_assignments.map(l => l.collection);
       return this.getGroupNames(fullLesson.groups).concat(
-        this.getAdHocLearners(assignments)
+        lesson.learner_ids
           .map(learnerId => state.learnerMap[learnerId].name)
           .filter(learner => !learnersInSelectedGroups.includes(learner))
       );

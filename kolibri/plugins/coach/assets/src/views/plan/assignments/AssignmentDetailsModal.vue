@@ -76,7 +76,6 @@
 
 <script>
 
-  import xor from 'lodash/xor';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -155,14 +154,6 @@
       };
     },
     computed: {
-      formData() {
-        return {
-          title: this.title,
-          description: this.description,
-          assignments: this.selectedCollectionIds.map(groupId => ({ collection: groupId })),
-          active: this.activeIsSelected,
-        };
-      },
       titleIsInvalidText() {
         // submission is handled because "blur" event happens on submit
         if (!this.disabled && this.titleIsVisited) {
@@ -207,18 +198,6 @@
       formIsValid() {
         return !this.titleIsInvalid;
       },
-      groupsHaveChanged() {
-        const unsharedIds = xor(this.selectedCollectionIds, this.initialSelectedCollectionIds);
-        return unsharedIds.length > 0;
-      },
-      detailsHaveChanged() {
-        return (
-          this.initialTitle !== this.title ||
-          this.initialDescription !== this.description ||
-          this.groupsHaveChanged ||
-          this.initialActive !== this.activeIsSelected
-        );
-      },
     },
     methods: {
       submitData() {
@@ -236,58 +215,22 @@
         // are no learners actually selected, pretend they selected Entire class
         // NOT DONE due to this being 0.13.0 post string freeze.
         // Create an issue for this and it'll be a quick fix in 0.13.1
-        if (
-          this.selectedCollectionIds.length === 1 &&
-          this.selectedCollectionIds.includes(this.$store.state.adHocLearners.id) &&
-          this.adHocLearners.length === 0
-        ) {
+        if (this.selectedCollectionIds.length === 0 && this.adHocLearners.length === 0) {
           this.selectedCollectionIds.push(this.classId);
         }
 
-        // Always make sure that we're including the adHocGroup ID in this
-        // or else we'll delete the assignment and lose the collection.
-        if (
-          this.$store.state.adHocLearners.id &&
-          !this.selectedCollectionIds.includes(this.$store.state.adHocLearners.id)
-        ) {
-          // The selected individual learners should be cleared out in this case as well.
-          this.adHocLearners = [];
-          this.selectedCollectionIds.push(this.$store.state.adHocLearners.id);
-        }
-        // Update the users associated with the AdHocGroup then proceed
-        // with form submission
-        return this.handleAdHocLearnersGroupPromise()
-          .then(() => {
-            return this.handleUpdateAdHocLearnersGroupPromise();
-          })
-          .then(() => {
-            if (this.formIsValid) {
-              if (!this.detailsHaveChanged) {
-                this.$emit('submit', null);
-              } else {
-                this.$emit('submit', this.formData);
-              }
-            } else {
-              this.formIsSubmitted = false;
-              this.$refs.titleField.focus();
-            }
-          })
-          .catch(() => {
-            this.handleSubmitFailure();
+        if (this.formIsValid) {
+          this.$emit('submit', {
+            title: this.title,
+            description: this.description,
+            assignments: this.selectedCollectionIds,
+            active: this.activeIsSelected,
+            learner_ids: this.adHocLearners,
           });
-      },
-      handleAdHocLearnersGroupPromise() {
-        return this.assignmentType === 'new_lesson'
-          ? this.$store.dispatch('adHocLearners/createAdHocLearnersGroup', {
-              classId: this.classId,
-            })
-          : Promise.resolve();
-      },
-      handleUpdateAdHocLearnersGroupPromise() {
-        return this.$store.dispatch(
-          'adHocLearners/updateLearnersInAdHocLearnersGroup',
-          this.adHocLearners
-        );
+        } else {
+          this.formIsSubmitted = false;
+          this.$refs.titleField.focus();
+        }
       },
       /**
        * @public

@@ -1,7 +1,6 @@
 from django.conf.urls import url
 from rest_framework import routers
 
-from .api import AdHocGroupViewSet
 from .api import ClassroomViewSet
 from .api import FacilityDatasetViewSet
 from .api import FacilityUsernameViewSet
@@ -27,9 +26,6 @@ router.register(r"facility", FacilityViewSet, base_name="facility")
 router.register(r"session", SessionViewSet, base_name="session")
 router.register(r"classroom", ClassroomViewSet, base_name="classroom")
 router.register(r"learnergroup", LearnerGroupViewSet, base_name="learnergroup")
-router.register(
-    r"adhoclearnersgroup", AdHocGroupViewSet, base_name="adhoclearnersgroup"
-)
 router.register(r"signup", SignUpViewSet, base_name="signup")
 router.register(r"portal", KolibriDataPortalViewSet, base_name="portal")
 

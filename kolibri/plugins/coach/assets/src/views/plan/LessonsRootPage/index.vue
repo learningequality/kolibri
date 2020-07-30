@@ -59,7 +59,8 @@
             <td>
               <Recipients
                 :groupNames="getRecipientNamesForLesson(lesson)"
-                :hasAssignments="lesson.lesson_assignments.length > 0"
+                :hasAssignments="lesson.lesson_assignments.length > 0 ||
+                  lesson.learner_ids.length > 0"
               />
             </td>
             <td>
@@ -186,10 +187,7 @@
         this.detailsModalIsDisabled = true;
         this.createLesson({
           classId: this.classId,
-          payload: {
-            ...payload,
-            lesson_assignments: payload.assignments,
-          },
+          payload,
         })
           .then() // If successful, should redirect to LessonSummaryPage
           .catch(error => {

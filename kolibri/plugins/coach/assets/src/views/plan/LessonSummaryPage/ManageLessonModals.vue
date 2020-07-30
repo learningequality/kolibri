@@ -68,63 +68,42 @@
           0,
           50
         );
-        // Strip current lesson's adHocGroup ID from the list and map to expected format.
-        const copySourceAdHocGroupId = this.$store.state.adHocLearners.id;
-        let lesson_assignments = selectedCollectionIds
-          .filter(id => id !== copySourceAdHocGroupId)
-          .map(id => ({ collection: id }));
-
         const classroomName = find(this.classList, { id: selectedClassroomId }).name;
 
-        // Create an adHocGroup for the lesson
-        this.$store
-          .dispatch('adHocLearners/createAdHocLearnersGroup', {
-            classId: selectedClassroomId,
-          })
-          // Then update it's associated learners with what we got from the selector
+        LessonResource.saveModel({
+          data: {
+            title,
+            description: this.currentLesson.description,
+            resources: this.currentLesson.resources,
+            collection: selectedClassroomId,
+            lesson_assignments: selectedCollectionIds,
+            learner_ids: adHocLearnerIds,
+          },
+        })
           .then(() => {
-            return this.$store.dispatch(
-              'adHocLearners/updateLearnersInAdHocLearnersGroup',
-              adHocLearnerIds
-            );
+            // If copied to the same classroom, update the class summary
+            if (this.classId === selectedClassroomId) {
+              this.$store.dispatch('classSummary/refreshClassSummary');
+            }
+            this.closeModal();
+            this.showSnackbarNotification('lessonCopied');
           })
-          .then(() => {
-            // Include the newly created adHocGroup in assignments
-            lesson_assignments.push({ collection: this.$store.state.adHocLearners.id });
-            LessonResource.saveModel({
-              data: {
-                title,
-                description: this.currentLesson.description,
-                resources: this.currentLesson.resources,
-                collection: selectedClassroomId,
-                lesson_assignments,
-              },
-            })
-              .then(() => {
-                // If copied to the same classroom, update the class summary
-                if (this.classId === selectedClassroomId) {
-                  this.$store.dispatch('classSummary/refreshClassSummary');
-                }
-                this.closeModal();
-                this.showSnackbarNotification('lessonCopied');
-              })
-              .catch(error => {
-                const caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
-                if (caughtErrors) {
-                  this.$store.commit('CORE_CREATE_SNACKBAR', {
-                    text: this.$tr('uniqueTitleError', {
-                      title,
-                      className: classroomName,
-                    }),
-                    autoDismiss: false,
-                    actionText: this.coreString('closeAction'),
-                    actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
-                  });
-                } else {
-                  this.$store.dispatch('handleApiError', error);
-                }
-                this.closeModal();
+          .catch(error => {
+            const caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            if (caughtErrors) {
+              this.$store.commit('CORE_CREATE_SNACKBAR', {
+                text: this.$tr('uniqueTitleError', {
+                  title,
+                  className: classroomName,
+                }),
+                autoDismiss: false,
+                actionText: this.coreString('closeAction'),
+                actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
               });
+            } else {
+              this.$store.dispatch('handleApiError', error);
+            }
+            this.closeModal();
           });
       },
       handleSubmitDelete() {

@@ -30,8 +30,8 @@
       :initialAdHocLearners="initialAdHocLearners"
       :targetClassId="classId"
       :disabled="disabled"
-      @toggleCheck="toggleGroup"
       @updateLearners="learners => $emit('updateLearners', learners)"
+      @change="toggleGroup"
     />
   </div>
 
@@ -98,23 +98,24 @@
       selectEntireClass() {
         this.$emit('input', [this.classId]);
       },
-      toggleGroup(isChecked, id) {
+      toggleGroup(isChecked, newId) {
         let newValue;
         if (isChecked) {
           // If a group is selected, remove classId if it is there
-          newValue = [...this.value].filter(id => id !== this.classId);
-          this.$emit('input', [...newValue, id]);
+          newValue = this.value.filter(id => id !== this.classId);
+          if (newId) {
+            newValue.push(newId);
+          }
         } else {
-          newValue = [...this.value].filter(groupId => id !== groupId);
+          newValue = this.value.filter(groupId => newId !== groupId);
           // If un-selecting the last group, auto-select 'Entire Class'
           if (newValue.length === 0) {
             newValue = [this.classId];
           }
-          this.$emit('input', newValue);
         }
+        this.$emit('input', newValue);
       },
     },
-    $trs: {},
   };
 
 </script>
