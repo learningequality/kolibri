@@ -121,7 +121,7 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
   const groupedNotifications = groupBy(
     getters.allNotifications.filter(
       // Filter out "Answered" notifications to avoid flooding the list
-      n => n.event === NotificationEvents.ANSWERED
+      n => n.event !== NotificationEvents.ANSWERED
     ),
     n => {
       if (n.object === RESOURCE) {
