@@ -9,4 +9,5 @@ export const NotificationEvents = {
   COMPLETED: 'Completed',
   HELP_NEEDED: 'HelpNeeded',
   STARTED: 'Started',
+  ANSWERED: 'Answered',
 };

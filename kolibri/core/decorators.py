@@ -284,34 +284,35 @@ def query_params_required(**kwargs):
             cls, APIView
         ), "query_params_required decorator can only be used on subclasses of APIView"
 
-        class Wrapper(cls):
-            def initial(self, request, *args, **kwargs):
+        def initial(self, request, *args, **kwargs):
 
-                # Copy this from the default viewset initial behaviour, otherwise it is not set before a
-                # validation exception would be raised.
-                self.format_kwarg = self.get_format_suffix(**kwargs)
-                neg = self.perform_content_negotiation(request)
-                request.accepted_renderer, request.accepted_media_type = neg
+            # Copy this from the default viewset initial behaviour, otherwise it is not set before a
+            # validation exception would be raised.
+            self.format_kwarg = self.get_format_suffix(**kwargs)
+            neg = self.perform_content_negotiation(request)
+            request.accepted_renderer, request.accepted_media_type = neg
 
-                # Validate the params
-                missing_params = []
-                for arg_name, validator in validators.items():
-                    try:
-                        kwargs[arg_name] = validator.validate(request)
-                    except MissingRequiredParamsException:
-                        missing_params.append(validator.param_name)
+            # Validate the params
+            missing_params = []
+            for arg_name, validator in validators.items():
+                try:
+                    kwargs[arg_name] = validator.validate(request)
+                except MissingRequiredParamsException:
+                    missing_params.append(validator.param_name)
 
-                if missing_params:
-                    raise MissingRequiredParamsException(
-                        "The following parameters were missing and are required: {required}".format(
-                            required=", ".join(missing_params)
-                        )
+            if missing_params:
+                raise MissingRequiredParamsException(
+                    "The following parameters were missing and are required: {required}".format(
+                        required=", ".join(missing_params)
                     )
-                # Update the kwargs on the view itself
-                self.kwargs = kwargs
-                super(Wrapper, self).initial(request, *args, **kwargs)
+                )
+            # Update the kwargs on the view itself
+            self.kwargs = kwargs
+            super(cls, self).initial(request, *args, **kwargs)
 
-        return Wrapper
+        setattr(cls, "initial", initial)
+
+        return cls
 
     return _params
 

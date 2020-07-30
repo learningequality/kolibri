@@ -18,7 +18,6 @@
       </p>
 
       <ActivityList
-        :notificationParams="notificationParams"
         :noActivityString="$tr('noActivityLabel')"
         embeddedPageName="HomeActivityPage"
       />
@@ -41,13 +40,6 @@
       ActivityList,
     },
     mixins: [commonCoach, nStringsMixin],
-    computed: {
-      notificationParams() {
-        return {
-          collection_id: this.$route.params.classId,
-        };
-      },
-    },
     $trs: {
       back: 'Class home',
       noActivityLabel: 'No activity in your class',

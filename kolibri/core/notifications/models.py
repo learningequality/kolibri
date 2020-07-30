@@ -15,6 +15,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from morango.models import UUIDField
 
 from kolibri.core.fields import DateTimeTzField
+from kolibri.core.fields import JSONField
 from kolibri.utils.time_utils import local_now
 
 # Remove NotificationsRouter if sqlite is not being used:
@@ -117,7 +118,8 @@ class LearnerProgressNotification(models.Model):
         max_length=200, choices=NotificationEventType.choices(), blank=True
     )
     user_id = UUIDField()
-    classroom_id = UUIDField()  # This can be either a Classroom or a LearnerGroup id
+    classroom_id = UUIDField()  # This is a Classroom id
+    assignment_collections = JSONField(null=True, default=[])
     contentnode_id = UUIDField(null=True)
     lesson_id = UUIDField(null=True)
     quiz_id = UUIDField(null=True)

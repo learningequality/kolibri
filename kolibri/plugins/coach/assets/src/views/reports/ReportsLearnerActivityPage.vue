@@ -14,7 +14,6 @@
       <ReportsLearnerHeader :enablePrint="true" />
 
       <ActivityList
-        :notificationParams="notificationParams"
         embeddedPageName="ReportsLearnerActivityPage"
         :noActivityString="coachString('activityListEmptyState')"
       />
@@ -38,14 +37,6 @@
       ReportsLearnerHeader,
     },
     mixins: [commonCoach],
-    computed: {
-      notificationParams() {
-        return {
-          collection_id: this.$route.params.classId,
-          learner_id: this.$route.params.learnerId,
-        };
-      },
-    },
   };
 
 </script>
