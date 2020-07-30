@@ -148,10 +148,10 @@ class ValuesViewset(viewsets.ModelViewSet):
 class HexUUIDField(UUIDField):
     def __init__(self, **kwargs):
         kwargs["format"] = "hex"
-        super().__init__(**kwargs)
+        super(HexUUIDField, self).__init__(**kwargs)
 
     def to_internal_value(self, data):
-        return super().to_internal_value(data).hex
+        return super(HexUUIDField, self).to_internal_value(data).hex
 
     def to_representation(self, value):
         if isinstance(value, uuid.UUID):
