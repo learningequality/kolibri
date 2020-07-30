@@ -9,6 +9,7 @@ AssignmentDetailsModal.computed.titleIsInvalidText = () => '';
 const defaultProps = {
   initialDescription: '',
   initialSelectedCollectionIds: [],
+  initialAdHocLearners: [],
   initialTitle: '',
   isInEditMode: false,
   modalTitle: '',
@@ -44,7 +45,8 @@ describe('AssignmentDetailsModal', () => {
       active: false,
       title: 'Lesson 1',
       description: 'The first lesson',
-      assignments: [],
+      assignments: [defaultProps.classId],
+      learner_ids: [],
     };
     actions.inputTitle('Lesson 1');
     actions.inputDescription('The first lesson');
@@ -68,14 +70,6 @@ describe('AssignmentDetailsModal', () => {
       initialDescription: 'Oldie but goodie',
     };
 
-    it('in edit mode, if there are no changes, closes modal without making a server request', async () => {
-      const { wrapper } = makeWrapper({
-        propsData: props,
-      });
-      await wrapper.vm.submitData();
-      expect(wrapper.emitted().submit[0][0]).toEqual(null);
-    });
-
     it('in edit mode, if the name has changed, makes a request after clicking submit', async () => {
       const { wrapper, actions } = makeWrapper({
         propsData: props,
@@ -84,7 +78,8 @@ describe('AssignmentDetailsModal', () => {
         active: false,
         title: 'Old Lesson V2',
         description: props.initialDescription,
-        assignments: [],
+        assignments: [defaultProps.classId],
+        learner_ids: [],
       };
       actions.inputTitle('Old Lesson V2');
       await wrapper.vm.submitData();
@@ -99,7 +94,8 @@ describe('AssignmentDetailsModal', () => {
         active: false,
         title: props.initialTitle,
         description: 'Its da remix',
-        assignments: [],
+        assignments: [defaultProps.classId],
+        learner_ids: [],
       };
       actions.inputDescription('Its da remix');
       await wrapper.vm.submitData();
