@@ -57,10 +57,13 @@ class LessonViewset(ValuesViewset):
         "collection__name",
         "collection__parent_id",
         "created_by",
-        "lesson_assignments",
+        "lesson_assignment_collections",
     )
 
-    field_map = {"classroom": _map_lesson_classroom}
+    field_map = {
+        "classroom": _map_lesson_classroom,
+        "lesson_assignments": "lesson_assignment_collections",
+    }
 
     def consolidate(self, items, queryset):
         if items:
@@ -93,5 +96,5 @@ class LessonViewset(ValuesViewset):
 
     def annotate_queryset(self, queryset):
         return annotate_array_aggregate(
-            queryset, lesson_assignments="lesson_assignments__collection"
+            queryset, lesson_assignment_collections="lesson_assignments__collection"
         )

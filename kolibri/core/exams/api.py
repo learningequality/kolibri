@@ -68,17 +68,23 @@ class ExamViewset(ValuesViewset):
         "archive",
         "date_archived",
         "date_activated",
-        "assignments",
+        "assignment_collections",
         "creator",
         "data_model_version",
         "learners_see_fixed_order",
     )
 
+    field_map = {
+        "assignments": "assignment_collections",
+    }
+
     def get_queryset(self):
         return models.Exam.objects.all()
 
     def annotate_queryset(self, queryset):
-        return annotate_array_aggregate(queryset, assignments="assignments__collection")
+        return annotate_array_aggregate(
+            queryset, assignment_collections="assignments__collection"
+        )
 
     def consolidate(self, items, queryset):
         if items:
