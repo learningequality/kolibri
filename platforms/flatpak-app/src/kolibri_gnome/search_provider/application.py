@@ -1,4 +1,5 @@
-from gi.repository import Gio, GLib
+from gi.repository import Gio
+from gi.repository import GLib
 
 from .. import config
 from ..globals import IS_KOLIBRI_LOCAL

@@ -1,93 +1,73 @@
-# Starts Kolibri, recovering from improper exits if required.
-
 import logging
 
 logger = logging.getLogger(__name__)
 
-import io
-import os
-import signal
-import subprocess
-import threading
-import time
-
-from kolibri.utils import server
-from kolibri.utils import cli
-
-from ..globals import KOLIBRI_URL
-from .utils import singleton_service
+from .kolibri_service_main import KolibriServiceMainProcess
+from .kolibri_service_monitor import KolibriServiceMonitorProcess
+from .kolibri_service_setup import KolibriServiceSetupProcess
+from .kolibri_service_stop import KolibriServiceStopProcess
 
 
-class KolibriServiceThread(threading.Thread):
+class KolibriServiceManager(object):
+    """
+    Manages the Kolibri service, starting and stopping it in separate
+    processes, and checking for availability.
+    """
+
+    APP_INITIALIZE_URL = "/app/api/initialize/{key}"
+
     def __init__(self, retry_timeout_secs=None):
-        self.__retry_timeout_secs = retry_timeout_secs
-        self.__kolibri_exitcode = None
-        self.__kolibri_process = None
-        self.__running = threading.Event()
-        super().__init__()
+        self.__setup_process = KolibriServiceSetupProcess()
+        self.__main_process = KolibriServiceMainProcess(
+            ready_event=self.__setup_process.ready_event,
+            retry_timeout_secs=retry_timeout_secs,
+        )
+        self.__monitor_process = KolibriServiceMonitorProcess(
+            stopped_event=self.__main_process.stopped_event
+        )
+        self.__stop_process = KolibriServiceStopProcess(
+            loaded_event=self.__monitor_process.loaded_event
+        )
 
-    @property
-    def kolibri_exitcode(self):
-        return self.__kolibri_exitcode
+    def get_initialize_url(self, next_url=None):
+        from ..kolibri_globals import KOLIBRI_URL
+
+        app_key = self.__main_process.get_app_key_sync()
+        url = self.APP_INITIALIZE_URL.format(key=app_key)
+        if next_url:
+            url += "?next={next_url}".format(next_url=next_url)
+        return KOLIBRI_URL + url
+
+    def get_kolibri_url(self, **kwargs):
+        from urllib.parse import urlunsplit
+        from ..kolibri_globals import KOLIBRI_URL_SPLIT
+
+        target_url = KOLIBRI_URL_SPLIT._replace(**kwargs)
+        return urlunsplit(target_url)
+
+    def is_kolibri_url(self, url):
+        from ..kolibri_globals import KOLIBRI_URL
+
+        return url and url.startswith(KOLIBRI_URL)
+
+    def is_kolibri_loading(self):
+        return self.__monitor_process.is_kolibri_loading()
+
+    def is_kolibri_loaded(self):
+        return self.__monitor_process.is_kolibri_loaded()
+
+    def wait_for_kolibri(self):
+        return self.__monitor_process.wait_for_kolibri()
+
+    def join(self):
+        if self.__main_process.is_alive():
+            self.__main_process.join()
+
+    def start_kolibri(self):
+        self.__setup_process.start()
+        self.__main_process.start()
+        self.__monitor_process.start()
 
     def stop_kolibri(self):
-        self.__running.clear()
-        if self.__kolibri_process:
-            logger.info("Stopping Kolibri...")
-            subprocess.Popen(["kolibri", "stop"])
-
-    def run(self):
-        self.__running.set()
-
-        while self.__running.is_set():
-            try:
-                return self.__run()
-            except io.BlockingIOError:
-                logger.warning("Kolibri is already running in another process.")
-                if self.__retry_timeout_secs is not None:
-                    logger.info(
-                        "Trying again in %d seconds...", self.__retry_timeout_secs
-                    )
-                    time.sleep(self.__retry_timeout_secs)
-                else:
-                    return None
-
-        logger.info("Kolibri is not starting. Giving up.")
-
-    def __run(self):
-        with singleton_service("kolibri", KOLIBRI_URL):
-            return self.__run_kolibri_process()
-
-    def __run_kolibri_process(self):
-        status = server.get_urls()[0]
-        logger.debug("Kolibri status (%s): %s", status, cli.status.codes[status])
-
-        if status in [
-            server.STATUS_STOPPED,
-            server.STATUS_FAILED_TO_START,
-            server.STATUS_UNKNOWN,
-        ]:
-            logger.info("Starting Kolibri...")
-            self.__kolibri_process = subprocess.Popen(
-                ["kolibri", "start", "--foreground"]
-            )
-        elif status in [server.STATUS_UNCLEAN_SHUTDOWN, server.STATUS_FAILED_TO_START]:
-            logger.info("Clearing lock files and starting Kolibri...")
-            if os.path.exists(server.STARTUP_LOCK):
-                os.remove(server.STARTUP_LOCK)
-            if os.path.exists(server.PID_FILE):
-                os.remove(server.PID_FILE)
-            self.__kolibri_process = subprocess.Popen(
-                ["kolibri", "start", "--foreground"]
-            )
-        else:
-            logger.warning(
-                "Not starting Kolibri because its status is ({}): {}".format(
-                    status, cli.status.codes[status]
-                )
-            )
-            self.__kolibri_process = None
-
-        if self.__kolibri_process:
-            self.__kolibri_exitcode = self.__kolibri_process.wait()
-            self.__kolibri_process = None
+        self.__main_process.stop()
+        self.__stop_process.start()
