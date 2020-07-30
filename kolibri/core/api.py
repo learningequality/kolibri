@@ -1,3 +1,5 @@
+import uuid
+
 import requests
 from django.http import Http404
 from rest_framework import viewsets
@@ -5,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
+from rest_framework.serializers import UUIDField
 from rest_framework.status import HTTP_201_CREATED
 from six.moves.urllib.parse import urljoin
 
@@ -127,11 +130,8 @@ class ValuesViewset(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
         instance = serializer.instance
-        return Response(
-            self.serialize_object(instance.id), status=HTTP_201_CREATED, headers=headers
-        )
+        return Response(self.serialize_object(instance.id), status=HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
         if self.read_only:
@@ -143,3 +143,17 @@ class ValuesViewset(viewsets.ModelViewSet):
         self.perform_update(serializer)
 
         return Response(self.serialize_object(instance.id))
+
+
+class HexUUIDField(UUIDField):
+    def __init__(self, **kwargs):
+        kwargs["format"] = "hex"
+        super().__init__(**kwargs)
+
+    def to_internal_value(self, data):
+        return super().to_internal_value(data).hex
+
+    def to_representation(self, value):
+        if isinstance(value, uuid.UUID):
+            return value.hex
+        return value

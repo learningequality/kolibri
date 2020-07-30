@@ -6,12 +6,14 @@ from __future__ import unicode_literals
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase
 
+from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
+from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 
 
@@ -87,6 +89,41 @@ class LessonCreationTestCase(APITestCase):
         )
         self.assertEqual(get_response.status_code, 200)
         self.assertEqual(get_response.data["title"], "New Lesson")
+
+    def test_create_new_lesson_with_assigned_learners(self):
+        self.client.login(username="admin", password="password")
+        learner = FacilityUser.objects.create(
+            username="learner", facility=self.facility
+        )
+        self.classroom.add_member(learner)
+
+        new_lesson = {
+            "title": "New Lesson",
+            "description": "An awesome lesson",
+            "created_by": self.admin_user.id,
+            "lesson_assignments": [{"collection": self.classroom.id}],
+            "collection": self.classroom.id,
+            "learner_ids": [learner.id],
+            "resources": [],
+        }
+        post_response = self.client.post(
+            reverse("kolibri:core:lesson-list"), new_lesson, format="json"
+        )
+        self.assertEqual(post_response.status_code, 201)
+
+        lesson_id = post_response.data["id"]
+
+        lesson = Lesson.objects.get(id=lesson_id)
+
+        adhoc_group = lesson.lesson_assignments.get(kind=ADHOCLEARNERSGROUP)
+
+        self.assertEqual(adhoc_group.get_learners(), [learner])
+
+        get_response = self.client.get(
+            reverse("kolibri:core:lesson-detail", kwargs={"pk": lesson_id})
+        )
+        self.assertEqual(get_response.status_code, 200)
+        self.assertEqual(get_response.data["learner_ids"], [learner.id])
 
     def test_change_learnergroup_assignments(self):
         lgroup1 = LearnerGroup.objects.create(parent=self.classroom, name="lgroup1")
