@@ -596,7 +596,7 @@ class ImportContentTestCase(TestCase):
     @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
     @patch(
         "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
-        side_effect=[False, False, False, True, True],
+        side_effect=[False, False, False, True, True, True],
     )
     def test_remote_import_chunkedencodingerror(
         self,
@@ -908,7 +908,7 @@ class ImportContentTestCase(TestCase):
     @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
     @patch(
         "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
-        side_effect=[False, False, False, True, True, True],
+        side_effect=[False] * 32 + [True, True, True],
     )
     def test_remote_import_file_compressed_on_gcs(
         self,
@@ -938,7 +938,7 @@ class ImportContentTestCase(TestCase):
             # Check if truncate() is called since byte-range file resuming is not supported
             open_mock.assert_called_with("test/test.transfer", "wb")
             open_mock.return_value.truncate.assert_called_once()
-            sleep_mock.assert_called_once()
+            sleep_mock.assert_called()
             annotation_mock.set_content_visibility.assert_called_with(
                 self.the_channel_id,
                 [],
