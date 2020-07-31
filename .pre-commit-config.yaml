@@ -22,7 +22,6 @@ repos:
         description: This hook handles all frontend linting for Kolibri
         entry: yarn run lint-frontend:format
         language: system
-        files: \.(js|vue|scss|css)$
         pass_filenames: false
 - repo: local
   hooks:
