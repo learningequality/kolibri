@@ -15,6 +15,7 @@ from django.http.response import Http404
 from django.http.response import HttpResponseBadRequest
 from django.utils.translation import get_language_from_request
 from django.utils.translation import gettext_lazy as _
+from morango.models import ScopeDefinition
 from morango.sync.controller import MorangoProfileController
 from requests.exceptions import HTTPError
 from rest_framework import decorators
@@ -1051,6 +1052,10 @@ def validate_and_prepare_peer_sync_job(request, **kwargs):
     facility_id = job_data.get("facility")
     username = request.data.get("username", None)
     password = request.data.get("password", None)
+
+    # call this in case user directly syncs without migrating database
+    if not ScopeDefinition.objects.filter():
+        call_command("loaddata", "scopedefinitions")
 
     controller = MorangoProfileController(PROFILE_FACILITY_DATA)
     network_connection = controller.create_network_connection(baseurl)
