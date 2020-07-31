@@ -81,7 +81,7 @@ def get_latest_kolibri_release(include_prereleases=False):
     else:
         # find the latest release without an -alpha, -beta, or -rc in the version.
         for k_release in releases:
-            if '-' not in k_release:
+            if '-' not in k_release['name']:
                 release = k_release
                 break
 
@@ -115,26 +115,23 @@ def get_kolibri_release_whl(release_tag):
     return local_filename
 
 
-def update_kolibri():
-    get_latest_kolibri_release(include_prereleases=True)
-    wheels = glob.glob('whl/*.whl')
-    if len(wheels) < 0:
-        print("No Kolibri wheels found in {}/whl, cannot continue.".format(os.getcwd()))
-
-    if len(wheels) > 1:
-        print("Multiple wheels found, using last one found...")
+def update_kolibri(args):
+    if args.kolibri_version is not None:
+        whl = get_kolibri_release_whl(args.kolibri_version)
+    else:
+        whl = get_latest_kolibri_release(include_prereleases=(not args.exclude_prereleases))
 
     kolibri_dir = 'src/kolibri'
     if os.path.exists(kolibri_dir):
         shutil.rmtree(kolibri_dir)
 
-    whl = wheels[-1]
-    zip = zipfile.ZipFile(wheels[-1])
+    zip = zipfile.ZipFile(whl)
     zip.extractall('src')
 
     remove_unneeded_files()
 
-    preseed_kolibri(whl)
+    if not args.skip_preseed:
+        preseed_kolibri(whl)
 
 
 if __name__ == '__main__':
