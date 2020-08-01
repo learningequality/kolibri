@@ -4,19 +4,9 @@
     <div v-if="viewAllText">
       {{ text }}
     </div>
-    <template v-else>
-      <div ref="shaveEl">
-        {{ text }}
-      </div>
-      <KTooltip
-        v-if="showTooltip"
-        reference="shaveEl"
-        :refs="$refs"
-        :disabled="!tooltipText"
-      >
-        {{ tooltipText }}
-      </KTooltip>
-    </template>
+    <div v-else ref="shaveEl">
+      {{ text }}
+    </div>
     <div
       v-if="showViewMore && (textIsTruncated || viewAllText)"
       class="show-more"
@@ -54,11 +44,6 @@
           return value > 0;
         },
       },
-      showTooltip: {
-        type: Boolean,
-        required: false,
-        default: true,
-      },
       showViewMore: {
         type: Boolean,
         required: false,
@@ -72,12 +57,6 @@
       };
     },
     computed: {
-      tooltipText() {
-        if (!this.showTooltip || this.showViewMore || !this.textIsTruncated) {
-          return null;
-        }
-        return this.text;
-      },
       currentDimensions() {
         return {
           text: this.text,
