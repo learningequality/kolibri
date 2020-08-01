@@ -6,29 +6,21 @@
     :style="cardStyle"
   >
 
+    <h3
+      class="title"
+      dir="auto"
+      :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
+    >
+      {{ title }}
+    </h3>
+
+
     <ProgressIcon
       v-if="progress > 0"
       class="progress-icon"
       :progress="progress"
     />
 
-    <CoachContentLabel
-      v-if="true || isUserLoggedIn && !isLearner"
-      class="coach-content-label"
-      :value="numCoachContents"
-      :isTopic="isTopic"
-    />
-
-    <h3
-      class="title"
-      dir="auto"
-      :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
-    >
-      <TextTruncator
-        :text="title"
-        :maxHeight="50"
-      />
-    </h3>
 
     <KFixedGrid numCols="4" gutter="16" style="margin: 0 16px;">
       <KFixedGridItem span="1">
@@ -40,9 +32,20 @@
         />
       </KFixedGridItem>
       <KFixedGridItem span="3">
-        {{ tagline }}
+        <TextTruncator
+          :text="tagline"
+          :maxHeight="taglineHeight"
+          :showTooltip="false"
+        />
       </KFixedGridItem>
     </KFixedGrid>
+
+    <CoachContentLabel
+      v-if="true || isUserLoggedIn && !isLearner"
+      class="coach-content-label"
+      :value="numCoachContents"
+      :isTopic="isTopic"
+    />
 
   </router-link>
 
@@ -117,12 +120,19 @@
       isTopic() {
         return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
       },
+      overallHeight() {
+        return 258;
+      },
       cardStyle() {
         return {
           backgroundColor: this.$themeTokens.surface,
           color: this.$themeTokens.text,
           marginBottom: `${this.windowGutter}px`,
+          minHeight: `${this.overallHeight}px`,
         };
+      },
+      taglineHeight() {
+        return 165;
       },
     },
   };
@@ -150,8 +160,7 @@
     position: relative;
     display: inline-block;
     width: 100%;
-    min-height: 240px;
-    padding-bottom: 24px;
+    padding-bottom: $margin;
     text-decoration: none;
     vertical-align: top;
     border-radius: $radius;
@@ -166,7 +175,7 @@
   }
 
   .title {
-    padding: 0 48px 8px $margin;
+    padding: 0 48px $margin $margin;
     border-bottom: 2px solid #cecece;
   }
 
@@ -174,14 +183,6 @@
     position: absolute;
     top: 12px;
     right: $margin;
-  }
-
-  .card-content {
-    width: 100%;
-    // Height set to ensure consistent text height
-    // calculated from 150
-    min-height: 172px;
-    padding: $margin;
   }
 
   /deep/.card-thumbnail-wrapper {
