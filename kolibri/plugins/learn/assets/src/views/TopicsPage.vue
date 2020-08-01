@@ -20,12 +20,7 @@
           :layout12="{ span: 12 }"
         >
           <h3 class="title">
-            <TextTruncator
-              :text="topicOrChannel.title"
-              :maxHeight="90"
-              :showTooltip="false"
-              dir="auto"
-            />
+            {{ topicOrChannel.title }}
           </h3>
         </KGridItem>
 
