@@ -41,7 +41,7 @@
     </KFixedGrid>
 
     <CoachContentLabel
-      v-if="true || isUserLoggedIn && !isLearner"
+      v-if="isUserLoggedIn && !isLearner"
       class="coach-content-label"
       :value="numCoachContents"
       :isTopic="isTopic"
