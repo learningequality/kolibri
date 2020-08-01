@@ -9,6 +9,7 @@
         {{ text }}
       </div>
       <KTooltip
+        v-if="showTooltip"
         reference="shaveEl"
         :refs="$refs"
         :disabled="!tooltipText"
@@ -16,9 +17,11 @@
         {{ tooltipText }}
       </KTooltip>
     </template>
-    <div class="show-more">
+    <div
+      v-if="showViewMore && (textIsTruncated || viewAllText)"
+      class="show-more"
+    >
       <KButton
-        v-if="showViewMore && (textIsTruncated || viewAllText)"
         appearance="basic-link"
         :text="viewAllText ? $tr('viewLessButtonPrompt') : coreString('viewMoreAction')"
         @click.stop.prevent="viewAllText = !viewAllText"
