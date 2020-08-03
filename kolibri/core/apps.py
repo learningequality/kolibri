@@ -123,7 +123,7 @@ class KolibriCoreConfig(AppConfig):
             maxmemory = helper.get_maxmemory()
             if config_maxmemory > 0 and maxmemory != config_maxmemory:
                 used_memory = helper.get_used_memory()
-                if maxmemory < used_memory:
+                if config_maxmemory < used_memory:
                     logger.warning(
                         "Redis was using {used_memory} before setting `maxmemory` configuration of {config_memory}".format(
                             used_memory=bytes_for_humans(used_memory),
