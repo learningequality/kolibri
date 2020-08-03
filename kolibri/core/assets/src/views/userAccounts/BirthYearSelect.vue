@@ -13,6 +13,7 @@
     <CoreInfoIcon
       class="info-icon"
       :tooltipText="$tr('birthYearTooltip')"
+      :tooltipPlacement="tooltipPlacement"
       :iconAriaLabel="$tr('birthyearAriaLabel')"
     />
 
@@ -28,6 +29,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
 
   const { NOT_SPECIFIED } = DemographicConstants;
@@ -50,7 +52,7 @@
     components: {
       CoreInfoIcon,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       value: {
         type: String,
@@ -75,6 +77,12 @@
           ...extraYears,
           ...yearOptions,
         ];
+      },
+      tooltipPlacement() {
+        if (this.windowIsSmall) {
+          return 'left';
+        }
+        return 'bottom';
       },
     },
     $trs: {
