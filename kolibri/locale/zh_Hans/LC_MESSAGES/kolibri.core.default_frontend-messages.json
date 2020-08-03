@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "请输入有效的 IP 地址，URL，或主机名",
   "AddAddressForm.header": "新的地址",
   "AddAddressForm.nameDesc": "命名这个地址，这样您以后就可以记住它：",
-  "AddAddressForm.nameLabel": "网络名称",
+  "AddAddressForm.nameLabel": "姓名",
   "AddAddressForm.namePlaceholder": "例：家庭网络",
   "AddAddressForm.submitButtonLabel": "添加",
   "AddAddressForm.tryingToConnect": "尝试连接到服务器......",

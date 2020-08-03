@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "Vui lòng nhập địa chỉ IP, URL hoặc tên máy chủ hợp lệ",
   "AddAddressForm.header": "Địa chỉ mới",
   "AddAddressForm.nameDesc": "Chọn tên cho địa chỉ này để sau này bạn có thể ghi nhớ:",
-  "AddAddressForm.nameLabel": "Tên mạng",
+  "AddAddressForm.nameLabel": "Tên",
   "AddAddressForm.namePlaceholder": "ví dụ: mạng nhà",
   "AddAddressForm.submitButtonLabel": "Thêm",
   "AddAddressForm.tryingToConnect": "Đang thử kết nối đến máy chủ…",

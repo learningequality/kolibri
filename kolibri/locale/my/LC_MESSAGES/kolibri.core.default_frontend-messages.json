@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "ကျေးဇူးပြု၍မှန်ကန်တဲ့ IP လိပ်စာ, URL နှင့် hostname တို့ဖြင့်၀င်ပါ။",
   "AddAddressForm.header": "လိပ်စာအသစ်",
   "AddAddressForm.nameDesc": "ဒီလိပ်စာအတွက် အမည်တစ်ခုခုရွေးပါ။ သို့မှသာ သင်သည်နောက်ပိုင်းတွင်မှတ်မိလွယ်သည်",
-  "AddAddressForm.nameLabel": "ကွန်ယက်အမည်",
+  "AddAddressForm.nameLabel": "အမည်",
   "AddAddressForm.namePlaceholder": "ဥပမာ၊ အိမ်သုံးကွန်ယက်",
   "AddAddressForm.submitButtonLabel": "ပေါင်း",
   "AddAddressForm.tryingToConnect": "server ကိုချိတ်ဆက်ရန်ကြိုးစားနေသည်။",

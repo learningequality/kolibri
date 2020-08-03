@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "कृपया वैध आयपी अड्रेस, यूआरएल किंवा होस्ट नेम प्रविष्ट करा",
   "AddAddressForm.header": "नवीन पत्ता",
   "AddAddressForm.nameDesc": "या पत्त्यासाठी नाव निवडा जेणेकरून भविष्यात तुमच्या लक्षात राहील:",
-  "AddAddressForm.nameLabel": "नेटवर्कचे नाव",
+  "AddAddressForm.nameLabel": "नाव",
   "AddAddressForm.namePlaceholder": "उदा. हाउस नेटवर्क",
   "AddAddressForm.submitButtonLabel": "जोडा",
   "AddAddressForm.tryingToConnect": "सर्व्हरशी संपर्क प्रस्थापित करण्याचा प्रयत्न करत आहोत…",
