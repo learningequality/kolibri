@@ -2,7 +2,6 @@ import importlib
 import logging
 import os
 import shutil
-from pkgutil import iter_modules
 
 from django.apps import AppConfig
 from django.apps import apps
@@ -13,7 +12,6 @@ from django.core.urlresolvers import reverse
 from pkg_resources import DistributionNotFound
 from pkg_resources import get_distribution
 from pkg_resources import iter_entry_points
-from pkg_resources import resource_exists
 from semver import VersionInfo
 
 import kolibri
@@ -469,14 +467,3 @@ def iterate_plugins():
         if _can_import_plugin(name) and name not in plugins:
             plugins.add(name)
             yield name
-    for module_loader, name, is_pkg in iter_modules():
-        try:
-            if (
-                is_pkg
-                and name not in plugins
-                and resource_exists(name, "kolibri_plugin.py")
-                and _can_import_plugin(name)
-            ):
-                yield name
-        except Exception:
-            pass
