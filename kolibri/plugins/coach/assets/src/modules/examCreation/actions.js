@@ -86,14 +86,14 @@ export function fetchAdditionalSearchResults(store, params) {
   });
 }
 
-export function createExamAndRoute(store, { classId, adHocGroupId }) {
+export function createExamAndRoute(store, { classId }) {
   const exam = {
     collection: classId,
     title: store.state.title,
     seed: store.state.seed,
     question_count: store.state.selectedQuestions.length,
     question_sources: store.state.selectedQuestions,
-    assignments: [{ collection: classId }, { collection: adHocGroupId }],
+    assignments: [classId],
     learners_see_fixed_order: store.state.learnersSeeFixedOrder,
     date_archived: null,
     date_activated: null,

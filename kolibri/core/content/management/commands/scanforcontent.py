@@ -1,4 +1,5 @@
 import logging
+from argparse import SUPPRESS
 
 from django.core.management.base import BaseCommand
 from sqlalchemy.exc import DatabaseError
@@ -57,10 +58,24 @@ class Command(BaseCommand):
             help=channels_help_text,
         )
 
+        # Hidden option to skip annotate_channel for discovered channels
+        # With this option, scanforcontent will only scan for channel
+        # database files without changing content visibility. This is
+        # useful for managing content extensions in the Kolibri desktop
+        # application.
+        parser.add_argument(
+            "--skip-annotations",
+            required=False,
+            action="store_true",
+            dest="skip_annotations",
+            help=SUPPRESS,
+        )
+
     def handle(self, *args, **options):
 
         channel_import_mode = options["channel_import_mode"]
         channels_to_include = options["channels"]
+        skip_annotations = options["skip_annotations"]
 
         storage_channel_ids = get_channel_ids_for_content_dirs(
             get_all_content_dir_paths()
@@ -79,7 +94,6 @@ class Command(BaseCommand):
             all_channel_ids = all_channel_ids.intersection(channels_to_include)
 
         for channel_id in all_channel_ids:
-
             disk_path = get_content_database_file_path(channel_id)
 
             if channel_id not in storage_channel_ids or channel_import_mode == "none":
@@ -91,7 +105,8 @@ class Command(BaseCommand):
             if import_database:
                 self.import_channel_database(channel_id, disk_path)
 
-            self.annotate_channel(channel_id)
+            if not skip_annotations:
+                self.annotate_channel(channel_id)
 
     def database_file_is_newer(self, channel_id, disk_path):
         try:

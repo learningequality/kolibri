@@ -3,8 +3,10 @@
   <div>
     <SelectAddressForm
       v-if="stage === Stages.SELECT_ADDRESS"
-      :fetchAddressArgs="fetchAddressArgs"
+      :filterByChannelId="filterByChannelId"
+      :filterByFacilityId="filterByFacilityId"
       :selectedId="addedAddressId"
+      :formDisabled="$attrs.selectAddressDisabled"
       @click_add_address="goToAddAddress"
       @click_search_address="goToSearchAddress"
       @removed_address="handleRemovedAddress"
@@ -38,9 +40,15 @@
       SelectAddressForm,
     },
     props: {
-      fetchAddressArgs: {
+      // Channel filter only needed on ManageContentPage/SelectNetworkAddressModal
+      filterByChannelId: {
         type: String,
-        default: '',
+        required: false,
+      },
+      // Facility filter only needed on SyncFacilityModalGroup
+      filterByFacilityId: {
+        type: String,
+        required: false,
       },
     },
     data() {

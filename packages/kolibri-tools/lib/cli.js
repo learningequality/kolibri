@@ -248,6 +248,7 @@ program
   .option('-e, --encoding <string>', 'Text encoding of file', 'utf-8')
   .option('-m, --monitor', 'Monitor files and check on change', false)
   .option('-i, --ignore <patterns...>', 'Ignore these comma separated patterns', list, [])
+  .option('-p, --pattern <string>', 'Lint only files that match this comma separated pattern', null)
   .action(function(args, options) {
     const files = [];
     if (!(args instanceof program.Command)) {
@@ -255,9 +256,16 @@ program
     } else {
       options = args;
     }
-    if (!files.length) {
+
+    let patternCheck;
+    if (!files.length && !options.pattern) {
       cliLogging.error('Must specify files or glob patterns to lint!');
       process.exit(1);
+    } else if (!files.length) {
+      files.push(options.pattern);
+    } else {
+      const Minimatch = require('minimatch').Minimatch;
+      patternCheck = new Minimatch(options.pattern, {});
     }
     const glob = require('glob');
     const { logging, lint, noChange } = require('./lint');
@@ -270,6 +278,10 @@ program
     } else {
       const runLinting = file => lint(Object.assign({}, options, { file }));
       if (watchMode) {
+        if (patternCheck) {
+          cliLogging.error('Must not specify files and --pattern in watch mode');
+          process.exit(1);
+        }
         logging.info('Initializing watcher for the following patterns: ' + files.join(', '));
         const watcher = chokidar.watch(files, { ignored: ignore });
         watcher.on('change', runLinting);
@@ -281,15 +293,19 @@ program
             });
             return Promise.all(
               matches.map(globbedFile => {
-                return runLinting(globbedFile)
-                  .then(formatted => {
-                    return formatted.code;
-                  })
-                  .catch(error => {
-                    logging.error(`Error processing file: ${globbedFile}`);
-                    logging.error(error.error ? error.error : error);
-                    return error.code;
-                  });
+                if (!patternCheck || patternCheck.match(globbedFile)) {
+                  return runLinting(globbedFile)
+                    .then(formatted => {
+                      return formatted.code;
+                    })
+                    .catch(error => {
+                      logging.error(`Error processing file: ${globbedFile}`);
+                      logging.error(error.error ? error.error : error);
+                      return error.code;
+                    });
+                } else {
+                  return Promise.resolve(0);
+                }
               })
             ).then(sources => {
               return sources.reduce((code, result) => {

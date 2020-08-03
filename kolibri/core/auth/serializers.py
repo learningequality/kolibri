@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from .models import AdHocGroup
 from .models import Classroom
 from .models import Facility
 from .models import FacilityDataset
@@ -122,15 +121,3 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
                 queryset=LearnerGroup.objects.all(), fields=("parent", "name")
             )
         ]
-
-
-class AdHocGroupSerializer(serializers.ModelSerializer):
-
-    user_ids = serializers.SerializerMethodField()
-
-    def get_user_ids(self, group):
-        return [str(user_id["id"]) for user_id in group.get_members().values("id")]
-
-    class Meta:
-        model = AdHocGroup
-        fields = ("id", "name", "parent", "user_ids")

@@ -86,10 +86,12 @@ class ServicesPlugin(SimplePlugin):
         # Initialize the iceqube scheduler to handle scheduled tasks
         scheduler.clear_scheduler()
 
-        # schedule the pingback job
-        from kolibri.core.analytics.utils import schedule_ping
+        if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
 
-        schedule_ping()
+            # schedule the pingback job
+            from kolibri.core.analytics.utils import schedule_ping
+
+            schedule_ping()
 
         # schedule the vacuum job
         schedule_vacuum()

@@ -1,12 +1,10 @@
-from itertools import chain
-
-from django.db.models import F
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import LessonSerializer
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.query import annotate_array_aggregate
@@ -28,7 +26,8 @@ class LessonPermissions(KolibriAuthPermissions):
         )
         # Cannot have create assignments without creating the Lesson first,
         # so this doesn't try to validate the Lesson with a non-empty lesson_assignments list
-        validated_data.pop("lesson_assignments")
+        validated_data.pop("lesson_assignments", [])
+        validated_data.pop("learner_ids", [])
         return request.user.can_create(model, validated_data)
 
 
@@ -58,42 +57,44 @@ class LessonViewset(ValuesViewset):
         "collection__name",
         "collection__parent_id",
         "created_by",
-        "assignment_ids",
+        "lesson_assignment_collections",
     )
 
-    field_map = {"classroom": _map_lesson_classroom}
+    field_map = {
+        "classroom": _map_lesson_classroom,
+        "lesson_assignments": "lesson_assignment_collections",
+    }
 
     def consolidate(self, items, queryset):
-        assignment_ids = []
-        for item in items:
-            assignment_ids.extend(item["assignment_ids"])
-        assignments = LessonAssignment.objects.filter(id__in=assignment_ids)
-        assignments = annotate_array_aggregate(
-            assignments, learner_ids="collection__membership__user__id"
-        )
-        assignments = {
-            a["id"]: a
-            for a in assignments.values(
-                "id",
-                "collection",
-                "learner_ids",
-                "assigned_by",
-                collection_kind=F("collection__kind"),
+        if items:
+            adhoc_assignments = LessonAssignment.objects.filter(
+                lesson__in=queryset, collection__kind=ADHOCLEARNERSGROUP
             )
-        }
-        for item in items:
-            item_ids = item.pop("assignment_ids")
-            item["lesson_assignments"] = [assignments[a] for a in item_ids]
-            item["learner_ids"] = list(
-                set(
-                    chain.from_iterable(
-                        a.pop("learner_ids") for a in item["lesson_assignments"]
-                    )
+            adhoc_assignments = annotate_array_aggregate(
+                adhoc_assignments, learner_ids="collection__membership__user_id"
+            )
+            adhoc_assignments = {
+                a["lesson"]: a
+                for a in adhoc_assignments.values(
+                    "collection", "lesson", "learner_ids",
                 )
-            )
+            }
+            for item in items:
+                if item["id"] in adhoc_assignments:
+                    adhoc_assignment = adhoc_assignments[item["id"]]
+                    item["learner_ids"] = adhoc_assignments[item["id"]]["learner_ids"]
+                    item["lesson_assignments"] = [
+                        i
+                        for i in item["lesson_assignments"]
+                        if i != adhoc_assignment["collection"]
+                    ]
+                else:
+                    item["learner_ids"] = []
+                item["resources"] = item["resources"] or []
+
         return items
 
     def annotate_queryset(self, queryset):
         return annotate_array_aggregate(
-            queryset, assignment_ids="lesson_assignments__id"
+            queryset, lesson_assignment_collections="lesson_assignments__collection"
         )

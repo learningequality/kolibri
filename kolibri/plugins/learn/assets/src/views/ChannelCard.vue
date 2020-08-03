@@ -2,71 +2,47 @@
 
   <router-link
     :to="link"
-    class="card"
-    :style="{ backgroundColor: $themeTokens.surface, color: $themeTokens.text }"
+    class="card-main-wrapper"
+    :style="cardStyle"
   >
 
-    <KGrid :gridStyle="{ marginLeft: 0, marginRight: 0 }">
+    <ProgressIcon
+      v-if="progress > 0"
+      class="progress-icon"
+      :progress="progress"
+    />
 
-      <KGridItem
-        class="card-heading"
-        :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
-        :layout4="{ span: 4 }"
-        :layout8="{ span: 8 }"
-        :layout12="{ span: 12 }"
-      >
-        <h3 class="title" dir="auto">
-          <TextTruncator
-            :text="title"
-            :maxHeight="50"
-          />
-        </h3>
-      </KGridItem>
+    <CoachContentLabel
+      v-if="true || isUserLoggedIn && !isLearner"
+      class="coach-content-label"
+      :value="numCoachContents"
+      :isTopic="isTopic"
+    />
 
-      <div class="card-content">
-        <KGridItem
-          :layout4="{ span: 1 }"
-          :layout8="{ span: 2 }"
-          :layout12="{ span: 3 }"
-        >
-          <CardThumbnail
-            class="thumbnail"
-            v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
-            :showTooltip="false"
-            :showContentIcon="false"
-          />
-        </KGridItem>
+    <h3
+      class="title"
+      dir="auto"
+      :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
+    >
+      <TextTruncator
+        :text="title"
+        :maxHeight="50"
+      />
+    </h3>
 
-        <KGridItem
-          :layout4="{ span: 3 }"
-          :layout8="{ span: 6 }"
-          :layout12="{ span: 9 }"
-        >
-          <TextTruncator
-            v-if="tagline"
-            class="text"
-            :text="tagline"
-            :maxHeight="150"
-            :showTooltip="false"
-          />
-        </KGridItem>
-      </div>
-
-      <KGridItem
-        class="card-footer"
-        :layout4="{ span: 4 }"
-        :layout8="{ span: 8 }"
-        :layout12="{ span: 12 }"
-      >
-        <CoachContentLabel
-          v-if="isUserLoggedIn && !isLearner"
-          class="coach-content-label"
-          :value="numCoachContents"
-          :isTopic="isTopic"
+    <KFixedGrid numCols="4" gutter="16" style="margin: 0 16px;">
+      <KFixedGridItem span="1">
+        <CardThumbnail
+          class="thumbnail"
+          v-bind="{ thumbnail, kind, isMobile }"
+          :showTooltip="false"
+          :showContentIcon="false"
         />
-      </KGridItem>
-
-    </KGrid>
+      </KFixedGridItem>
+      <KFixedGridItem span="3">
+        {{ tagline }}
+      </KFixedGridItem>
+    </KFixedGrid>
 
   </router-link>
 
@@ -77,9 +53,11 @@
 
   import { mapGetters } from 'vuex';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import CardThumbnail from './ContentCard/CardThumbnail';
 
   export default {
@@ -88,7 +66,9 @@
       CardThumbnail,
       CoachContentLabel,
       TextTruncator,
+      ProgressIcon,
     },
+    mixins: [responsiveWindowMixin],
     props: {
       title: {
         type: String,
@@ -106,10 +86,6 @@
         type: String,
         required: true,
         validator: validateContentNodeKind,
-      },
-      showContentIcon: {
-        type: Boolean,
-        default: true,
       },
       // ContentNode.coach_content will be `0` if not a coach content leaf node,
       // or a topic without coach content. It will be a positive integer if a topic
@@ -141,6 +117,13 @@
       isTopic() {
         return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
       },
+      cardStyle() {
+        return {
+          backgroundColor: this.$themeTokens.surface,
+          color: this.$themeTokens.text,
+          marginBottom: `${this.windowGutter}px`,
+        };
+      },
     },
   };
 
@@ -155,16 +138,20 @@
   $margin: 16px;
 
   .coach-content-label {
+    position: absolute;
+    bottom: $margin;
+    left: $margin;
     display: inline-block;
   }
 
-  .card {
+  .card-main-wrapper {
     @extend %dropshadow-1dp;
 
+    position: relative;
     display: inline-block;
     width: 100%;
-    min-height: 222px; // Defined in Figma
-    margin-bottom: 24px;
+    min-height: 240px;
+    padding-bottom: 24px;
     text-decoration: none;
     vertical-align: top;
     border-radius: $radius;
@@ -178,38 +165,23 @@
     }
   }
 
-  .card-heading {
-    padding: 0 $margin !important;
+  .title {
+    padding: 0 48px 8px $margin;
     border-bottom: 2px solid #cecece;
+  }
+
+  .progress-icon {
+    position: absolute;
+    top: 12px;
+    right: $margin;
   }
 
   .card-content {
     width: 100%;
     // Height set to ensure consistent text height
     // calculated from 150
-    height: 172px;
+    min-height: 172px;
     padding: $margin;
-  }
-
-  .thumbnail {
-    position: relative;
-    display: inline-block;
-  }
-
-  .text {
-    position: relative;
-    display: inline-block;
-    padding: 0 0 0 $margin;
-    margin: 0;
-    vertical-align: top;
-  }
-
-  .card-footer {
-    display: block;
-    width: 100%;
-    height: 48px;
-    padding: $margin;
-    font-size: 12px;
   }
 
   /deep/.card-thumbnail-wrapper {

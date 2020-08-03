@@ -6,6 +6,7 @@
     :authorized="userIsAuthorized"
     authorizedRole="registeredUser"
     v-bind="immersivePageProps"
+    :maxMainWidth="maxWidth"
   >
     <template slot="app-bar-actions">
       <ActionBarSearchBox v-if="showSearch" />
@@ -249,6 +250,14 @@
         const isAssessment = content && content.assessment;
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? ASSESSMENT_FOOTER : 0;
+      },
+      maxWidth() {
+        // ref: https://www.figma.com/file/zbxBoJUUkOynZtgK0wO9KD/Channel-descriptions?node-id=281%3A1270
+        if (this.pageName !== PageNames.TOPICS_ROOT) return undefined;
+        if (this.windowBreakpoint <= 2) return 400;
+        if (this.windowBreakpoint <= 4) return 800;
+        if (this.windowBreakpoint <= 6) return 1200;
+        return 1600;
       },
       profileNeedsUpdate() {
         return (

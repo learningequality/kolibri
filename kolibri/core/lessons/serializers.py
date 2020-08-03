@@ -1,37 +1,47 @@
 from collections import OrderedDict
 
-from rest_framework.serializers import JSONField
+from django.db.models import Q
+from rest_framework.serializers import ListField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
+from rest_framework.serializers import Serializer
 from rest_framework.serializers import ValidationError
 
 from .models import Lesson
 from .models import LessonAssignment
 from kolibri.core import error_constants
+from kolibri.core.api import HexUUIDField
+from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import Membership
+from kolibri.core.auth.utils import create_adhoc_group_for_learners
 from kolibri.core.content.models import ContentNode
 
 
-class LessonAssignmentSerializer(ModelSerializer):
-    """
-    Returns a simplified serialization of the LessonAssignment model,
-    containing only the assignee Collection, and omitting redundant info
-    about the Lesson
-    """
-
-    class Meta:
-        model = LessonAssignment
-        fields = ("id", "collection")
-        read_only_fields = ("id",)
+class ResourceSerializer(Serializer):
+    content_id = HexUUIDField()
+    channel_id = HexUUIDField()
+    contentnode_id = HexUUIDField()
 
 
 class LessonSerializer(ModelSerializer):
     created_by = PrimaryKeyRelatedField(
         read_only=False, queryset=FacilityUser.objects.all()
     )
-    lesson_assignments = LessonAssignmentSerializer(many=True)
-    resources = JSONField(default="[]")
+    lesson_assignments = ListField(
+        child=PrimaryKeyRelatedField(
+            read_only=False, queryset=Collection.objects.all()
+        ),
+        required=False,
+    )
+    resources = ListField(child=ResourceSerializer(), required=False)
+    learner_ids = ListField(
+        child=PrimaryKeyRelatedField(
+            read_only=False, queryset=FacilityUser.objects.all()
+        ),
+        required=False,
+    )
 
     class Meta:
         model = Lesson
@@ -43,6 +53,7 @@ class LessonSerializer(ModelSerializer):
             "is_active",
             "collection",  # classroom
             "lesson_assignments",
+            "learner_ids",
             "created_by",
         )
 
@@ -50,6 +61,20 @@ class LessonSerializer(ModelSerializer):
         title = attrs.get("title")
         # first condition is for creating object, second is for updating
         collection = attrs.get("collection") or getattr(self.instance, "collection")
+
+        if "learner_ids" in self.initial_data and self.initial_data["learner_ids"]:
+            if (
+                len(self.initial_data["learner_ids"])
+                != FacilityUser.objects.filter(
+                    memberships__collection=collection,
+                    id__in=self.initial_data["learner_ids"],
+                ).count()
+            ):
+                raise ValidationError(
+                    "Some learner_ids are not members of the collection that this lesson is contained in",
+                    code=error_constants.INVALID,
+                )
+
         # if no lessons exist matching this, return data
         lessons = Lesson.objects.filter(title__iexact=title, collection=collection)
         if not lessons.exists():
@@ -68,23 +93,22 @@ class LessonSerializer(ModelSerializer):
         # Validates that every ContentNode passed into resources is actually installed
         # on the server. NOTE that this could cause problems if content is deleted from
         # device.
-        if resources == "[]":
-            # If no value is passed to resources, 'resources' will default to '[]'
-            # Set to empty list so we can iterate properly
-            resources = []
-        try:
-            for resource in resources:
-                ContentNode.objects.get(
-                    content_id=resource["content_id"],
-                    channel_id=resource["channel_id"],
-                    id=resource["contentnode_id"],
-                    available=True,
-                )
-            return resources
-        except ContentNode.DoesNotExist:
+        resource_query = Q()
+        for resource in resources:
+            resource_query |= Q(
+                content_id=resource["content_id"],
+                channel_id=resource["channel_id"],
+                id=resource["contentnode_id"],
+            )
+
+        available_resources = ContentNode.objects.filter(
+            resource_query, available=True
+        ).count()
+        if available_resources < len(resources):
             raise ValidationError(
                 "One or more of the selected resources is not available"
             )
+        return resources
 
     def to_internal_value(self, data):
         data = OrderedDict(data)
@@ -101,16 +125,22 @@ class LessonSerializer(ModelSerializer):
             "is_active": false,
             "collection": "df6308209356328f726a09aa9bd323b7", // classroom ID
             "lesson_assignments": [{"collection": "df6308209356328f726a09aa9bd323b7"}] // learnergroup IDs
+            "learner_ids": ["df6308209356328f726a09aa9bd323b8"] // learner ids this lesson is directly assigned to
         }
         """
-        assignees = validated_data.pop("lesson_assignments")
+        collections = validated_data.pop("lesson_assignments", [])
+        learners = validated_data.pop("learner_ids", [])
         new_lesson = Lesson.objects.create(**validated_data)
 
         # Create all of the new LessonAssignments
-        for assignee in assignees:
-            self._create_lesson_assignment(
-                lesson=new_lesson, collection=assignee["collection"]
+        for collection in collections:
+            self._create_lesson_assignment(lesson=new_lesson, collection=collection)
+
+        if learners:
+            adhoc_group = create_adhoc_group_for_learners(
+                new_lesson.collection, learners
             )
+            self._create_lesson_assignment(lesson=new_lesson, collection=adhoc_group)
 
         return new_lesson
 
@@ -123,24 +153,77 @@ class LessonSerializer(ModelSerializer):
 
         # Add/delete any new/removed Assignments
         if "lesson_assignments" in validated_data:
-            assignees = validated_data.pop("lesson_assignments")
+            collections = validated_data.pop("lesson_assignments")
             current_group_ids = set(
-                instance.lesson_assignments.values_list("collection__id", flat=True)
+                instance.lesson_assignments.exclude(
+                    collection__kind=ADHOCLEARNERSGROUP
+                ).values_list("collection__id", flat=True)
             )
-            new_group_ids = set(x["collection"].id for x in assignees)
+            new_group_ids = set(x.id for x in collections)
 
-            for id in set(new_group_ids) - set(current_group_ids):
-                self._create_lesson_assignment(
-                    lesson=instance, collection=Collection.objects.get(id=id)
-                )
+            for cid in set(new_group_ids) - set(current_group_ids):
+                collection = Collection.objects.get(id=cid)
+                if collection.kind != ADHOCLEARNERSGROUP:
+                    self._create_lesson_assignment(
+                        lesson=instance, collection=collection
+                    )
 
             LessonAssignment.objects.filter(
-                lesson_id=instance.id,
+                lesson=instance,
                 collection_id__in=(set(current_group_ids) - set(new_group_ids)),
-            ).delete()
+            ).exclude(collection__kind=ADHOCLEARNERSGROUP).delete()
+
+        # Update adhoc assignment
+        if "learner_ids" in validated_data:
+            self._update_learner_ids(instance, validated_data["learner_ids"])
 
         instance.save()
         return instance
+
+    def _update_learner_ids(self, instance, learners):
+        try:
+            adhoc_group_assignment = LessonAssignment.objects.select_related(
+                "collection"
+            ).get(lesson_id=instance.id, collection__kind=ADHOCLEARNERSGROUP)
+        except LessonAssignment.DoesNotExist:
+            adhoc_group_assignment = None
+        if not learners:
+            # Setting learner_ids to empty, so only need to do something
+            # if there is already an adhoc_group_assignment defined
+            if adhoc_group_assignment is not None:
+                # Adhoc group already exists delete it and the assignment
+                # cascade deletion should also delete the adhoc_group_assignment
+                adhoc_group_assignment.collection.delete()
+        else:
+            if adhoc_group_assignment is None:
+                # There is no adhoc group right now, so just make a new one
+                adhoc_group = create_adhoc_group_for_learners(
+                    instance.collection, learners
+                )
+                self._create_lesson_assignment(lesson=instance, collection=adhoc_group)
+            else:
+                # There is an adhoc group, so we need to potentially update its membership
+                original_learner_ids = Membership.objects.filter(
+                    collection=adhoc_group_assignment.collection
+                ).values_list("user_id", flat=True)
+                original_learner_ids_set = set(original_learner_ids)
+                learner_ids_set = set(learner.id for learner in learners)
+                if original_learner_ids_set != learner_ids_set:
+                    # Only bother to do anything if these are different
+                    new_learner_ids = learner_ids_set - original_learner_ids_set
+                    deleted_learner_ids = original_learner_ids_set - learner_ids_set
+
+                    if deleted_learner_ids:
+                        Membership.objects.filter(
+                            collection=adhoc_group_assignment.collection,
+                            user_id__in=deleted_learner_ids,
+                        ).delete()
+
+                    for new_learner_id in new_learner_ids:
+                        Membership.objects.create(
+                            user_id=new_learner_id,
+                            collection=adhoc_group_assignment.collection,
+                        )
 
     def _create_lesson_assignment(self, **params):
         return LessonAssignment.objects.create(

@@ -78,6 +78,11 @@ if cache_options["CACHE_BACKEND"] == "redis":
             "MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"],
             # Pin pickle protocol for Python 2 compatibility
             "PICKLE_VERSION": pickle_protocol,
+            "CONNECTION_POOL_CLASS": "redis.BlockingConnectionPool",
+            "CONNECTION_POOL_CLASS_KWARGS": {
+                "max_connections": cache_options["CACHE_REDIS_MAX_POOL_SIZE"],
+                "timeout": cache_options["CACHE_REDIS_POOL_TIMEOUT"],
+            },
         },
     }
     default_cache = copy.deepcopy(base_cache)

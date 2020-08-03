@@ -27,8 +27,9 @@ def get_tag_name():
         return os.getenv("BUILDKITE_TAG")
     elif os.getenv("BUILDKITE_PULL_REQUEST_BASE_BRANCH"):
         return os.getenv("BUILDKITE_PULL_REQUEST_BASE_BRANCH")
-    else:
-        return "develop"
+    elif os.getenv("BUILDKITE_BRANCH"):
+        return os.getenv("BUILDKITE_BRANCH")
+    return "develop"
 
 
 SHEET_TAG = get_tag_name()

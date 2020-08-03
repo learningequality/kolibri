@@ -41,7 +41,7 @@
   "SignInPage.signingInToFacilityAsUserLabel": "Connexion à \"{facility}\" en tant que \"{user}\"",
   "SignUpPage.accessAsGuest": "Naviguer sans compte",
   "SignUpPage.createAccount": "Créer un compte",
-  "SignUpPage.demographicInfoExplanation": "Cela sera visible par les administrateurs. Cela sera également utilisé pour aider à améliorer le logiciel et les ressources pour différents types d'élèves et de besoins.",
+  "SignUpPage.demographicInfoExplanation": "Cela sera visible par les administrateurs. Cela sera également utilisé pour aider à améliorer le logiciel et les ressources pour différents types d'apprenants et de besoins.",
   "SignUpPage.demographicInfoOptional": "Fournir cette information est facultatif.",
   "SignUpPage.documentTitle": "Créer un compte",
   "SignUpPage.privacyLinkText": "En savoir plus sur l'utilisation et la confidentialité",

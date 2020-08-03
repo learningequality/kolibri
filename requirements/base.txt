@@ -20,8 +20,8 @@ kolibri_exercise_perseus_plugin==1.3.2
 jsonfield==2.0.2
 requests-toolbelt==0.8.0
 clint==0.5.1
-morango==0.5.3
-tzlocal==1.5.1
+morango==0.5.5
+tzlocal==2.1
 pytz==2018.5
 python-dateutil==2.7.5
 sqlalchemy==1.3.17
@@ -29,6 +29,6 @@ semver==2.8.1
 django-redis-cache==2.0.0
 redis==3.2.1
 html5lib==1.0.1
-zeroconf-py2compat==0.19.9
+zeroconf-py2compat==0.19.10
 ifcfg==0.21
 Click==7.0

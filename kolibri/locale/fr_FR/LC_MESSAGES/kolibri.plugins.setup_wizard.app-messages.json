@@ -1,6 +1,6 @@
 {
   "CreateFacilitySetup.newFacilityStepTitle": "Nouvel établissement - étape {step, number} sur {total, number}",
-  "CreateLearnerAccountForm.header": "Permettre à quiconque de créer leur propre compte apprenant ?",
+  "CreateLearnerAccountForm.header": "Permettre à quiconque de créer leur propre compte apprenant ?",
   "CreateLearnerAccountForm.noOptionLabel": "Non. Les administrateurs doivent créer tous les comptes",
   "DefaultLanguageForm.languageFormHeader": "Veuillez sélectionner la langue par défaut pour Kolibri",
   "DeviceNameForm.deviceNameExplanation": "Donner à cet appareil un nom significatif peut vous aider ainsi que les autres personnes avec qui vous vous connectez à le reconnaître plus facilement",

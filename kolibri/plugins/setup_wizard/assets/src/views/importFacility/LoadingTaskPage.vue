@@ -74,21 +74,18 @@
       },
     },
     beforeMount() {
-      this.startPolling();
+      this.pollTask();
     },
     methods: {
-      startPolling() {
+      pollTask() {
         SetupTasksResource.fetchCollection({ force: true }).then(tasks => {
           this.loadingTask = {
             ...tasks[0],
             facility_name: this.facilityName,
           };
         });
-        if (this.loadingTask.status) {
-          return;
-        }
         setTimeout(() => {
-          this.startPolling();
+          this.pollTask();
         }, 2000);
       },
       retryImport() {
@@ -104,9 +101,6 @@
           })
           .catch(error => {
             this.$store.dispatch('handleApiError', error);
-          })
-          .then(() => {
-            this.startPolling();
           });
       },
       cancelTask() {

@@ -127,5 +127,6 @@ class SetupWizardFacilityImportTaskView(FacilityTasksViewSet):
     # Remove all the endpoints we don't want in setup wizard
     startdataportalsync = property()
     startdataportalbulksync = property()
+    # startpeerfacilityimport: not overwritten
     startpeerfacilitysync = property()
     startdeletefacility = property()

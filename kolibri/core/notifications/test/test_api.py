@@ -25,7 +25,6 @@ from kolibri.core.notifications.api import create_examlog
 from kolibri.core.notifications.api import create_notification
 from kolibri.core.notifications.api import create_summarylog
 from kolibri.core.notifications.api import get_assignments
-from kolibri.core.notifications.api import get_exam_group
 from kolibri.core.notifications.api import parse_attemptslog
 from kolibri.core.notifications.api import parse_examlog
 from kolibri.core.notifications.api import parse_summarylog
@@ -143,16 +142,11 @@ class NotificationsAPITestCase(APITestCase):
         # user1 has one lesson:
         lessons = get_assignments(self.user1, self.summarylog1, attempt=False)
         assert len(lessons) > 0
-        assert type(lessons[0][0]) == Lesson
+        assert type(lessons[0][0]) == dict
+        assert "assignment_collections" in lessons[0][0]
         # being the node an Exercise, it should be available for attempts:
         lessons = get_assignments(self.user1, self.summarylog1, attempt=True)
         assert len(lessons) > 0
-
-    def test_get_exam_group(self):
-        user_classrooms = self.user1.memberships.all()
-        touched_groups = get_exam_group(user_classrooms, self.exam.id)
-        assert len(touched_groups) > 0
-        assert touched_groups[0] == self.classroom.id
 
     def test_create_notification(self):
         notification = create_notification(
@@ -248,6 +242,7 @@ class NotificationsAPITestCase(APITestCase):
             NotificationEventType.Started,
             attemptlog1.user_id,
             self.classroom.id,
+            assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             timestamp=attemptlog1.start_timestamp,
@@ -258,6 +253,7 @@ class NotificationsAPITestCase(APITestCase):
             NotificationEventType.Started,
             attemptlog1.user_id,
             self.classroom.id,
+            assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             timestamp=attemptlog1.start_timestamp,
         )
@@ -412,6 +408,7 @@ class NotificationsAPITestCase(APITestCase):
             NotificationEventType.Help,
             attemptlog3.user_id,
             self.classroom.id,
+            assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
@@ -497,11 +494,13 @@ class NotificationsAPITestCase(APITestCase):
         )
         parse_attemptslog(attemptlog3)
         assert save_notifications.called
+
         create_notification.assert_called_once_with(
             NotificationObjectType.Resource,
             NotificationEventType.Help,
             attemptlog3.user_id,
             self.classroom.id,
+            assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
@@ -574,6 +573,7 @@ class NotificationsAPITestCase(APITestCase):
             NotificationEventType.Help,
             attemptlog3.user_id,
             self.classroom.id,
+            assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
@@ -585,6 +585,7 @@ class NotificationsAPITestCase(APITestCase):
             NotificationEventType.Started,
             attemptlog3.user_id,
             self.classroom.id,
+            assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             timestamp=attemptlog3.start_timestamp,

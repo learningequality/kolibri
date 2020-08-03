@@ -231,30 +231,23 @@
           this.showError = true;
           this.$refs.title.focus();
         } else {
+          const params = {
+            classId: this.classId,
+          };
           this.$store
-            .dispatch('adHocLearners/createAdHocLearnersGroup', {
-              classId: this.$route.params.classId,
-            })
+            .dispatch('examCreation/createExamAndRoute', params)
             .then(() => {
-              const params = {
-                classId: this.classId,
-                adHocGroupId: this.$store.state.adHocLearners.id,
-              };
-              this.$store
-                .dispatch('examCreation/createExamAndRoute', params)
-                .then(() => {
-                  this.showSnackbarNotification('quizCreated');
-                })
-                .catch(error => {
-                  const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
-                  if (errors) {
-                    this.showError = true;
-                    this.showTitleError = true;
-                    this.$refs.title.focus();
-                  } else {
-                    this.$store.dispatch('handleApiError', error);
-                  }
-                });
+              this.showSnackbarNotification('quizCreated');
+            })
+            .catch(error => {
+              const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+              if (errors) {
+                this.showError = true;
+                this.showTitleError = true;
+                this.$refs.title.focus();
+              } else {
+                this.$store.dispatch('handleApiError', error);
+              }
             });
         }
       },

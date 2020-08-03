@@ -20,21 +20,25 @@
       <tbody slot="tbody">
         <tr v-if="theFacility">
           <td>
-            <FacilityNameAndSyncStatus :facility="theFacility" />
+            <FacilityNameAndSyncStatus
+              :facility="theFacility"
+              :isSyncing="isSyncing"
+              :syncHasFailed="syncHasFailed"
+            />
           </td>
           <td class="button-col">
             <KButtonGroup style="margin-top: 8px; overflow: visible">
               <KButton
                 appearance="raised-button"
                 :text="$tr('register')"
-                :disabled="facilityTaskId !== ''"
-                @click="register()"
+                :disabled="Boolean(syncTaskId) || theFacility.dataset.registered"
+                @click="displayModal(Modals.REGISTER_FACILITY)"
               />
               <KButton
                 appearance="raised-button"
                 :text="$tr('sync')"
-                :disabled="facilityTaskId !== '' || !theFacility.dataset.registered"
-                @click="sync()"
+                :disabled="Boolean(syncTaskId)"
+                @click="displayModal(Modals.SYNC_FACILITY)"
               />
             </KButtonGroup>
           </td>
@@ -44,21 +48,29 @@
 
     <PrivacyModal
       v-if="modalShown === Modals.PRIVACY"
-      @cancel="displayModal(null)"
+      @cancel="closeModal"
     />
 
     <RegisterFacilityModal
       v-if="modalShown === Modals.REGISTER_FACILITY"
       @success="handleValidateSuccess"
-      @cancel="displayModal(null)"
+      @cancel="closeModal"
     />
     <ConfirmationRegisterModal
       v-if="modalShown === Modals.CONFIRMATION_REGISTER"
       :targetFacility="theFacility"
-      :projectName="projectName"
-      :token="token"
+      :projectName="kdpProject.name"
+      :token="kdpProject.token"
       @success="handleConfirmationSuccess"
-      @cancel="displayModal(null)"
+      @cancel="closeModal"
+    />
+
+    <SyncFacilityModalGroup
+      v-if="modalShown === Modals.SYNC_FACILITY"
+      :facilityForSync="theFacility"
+      @close="closeModal"
+      @success="handleSyncFacilitySuccess"
+      @failure="handleSyncFacilityFailure"
     />
 
   </KPageContainer>
@@ -68,17 +80,24 @@
 
 <script>
 
-  import find from 'lodash/find';
-  import { mapState } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import {
     FacilityNameAndSyncStatus,
     ConfirmationRegisterModal,
     RegisterFacilityModal,
+    SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { Modals } from '../../../constants';
+  import { FacilityTaskResource, FacilityResource } from 'kolibri.resources';
+  import { TaskStatuses, taskIsClearable } from '../../../constants';
   import PrivacyModal from './PrivacyModal';
+
+  const Modals = Object.freeze({
+    SYNC_FACILITY: 'SYNC_FACILITY',
+    CONFIRMATION_REGISTER: 'CONFIRMATION_REGISTER',
+    REGISTER_FACILITY: 'REGISTER_FACILITY',
+    PRIVACY: 'PRIVACY',
+  });
 
   export default {
     name: 'SyncInterface',
@@ -88,44 +107,76 @@
       FacilityNameAndSyncStatus,
       RegisterFacilityModal,
       ConfirmationRegisterModal,
+      SyncFacilityModalGroup,
     },
     mixins: [commonSyncElements],
     data() {
       return {
-        projectName: '',
-        token: '',
+        theFacility: null,
+        kdpProject: null, // { name, token }
         modalShown: null,
+        syncTaskId: '',
+        isSyncing: false,
+        syncHasFailed: false,
+        Modals,
       };
     },
-    computed: {
-      ...mapState('manageCSV', ['facilityTaskId']),
-      Modals: () => Modals,
-      theFacility() {
-        return find(this.$store.state.manageCSV.facilities, {
-          id: this.$store.getters.activeFacilityId,
-        });
-      },
+    beforeMount() {
+      this.fetchFacility();
+    },
+    beforeDestroy() {
+      this.syncTaskId = '';
     },
     methods: {
+      fetchFacility() {
+        FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
+          facility => {
+            this.theFacility = { ...facility };
+          }
+        );
+      },
+      closeModal() {
+        this.modalShown = null;
+      },
       displayModal(modal) {
         this.modalShown = modal;
       },
-      register() {
-        this.modalShown = Modals.REGISTER_FACILITY;
-      },
-      sync() {
-        this.startKdpSyncTask(this.theFacility.id).then(task => {
-          this.$store.commit('manageCSV/START_FACILITY_SYNC', task);
+      pollSyncTask() {
+        // Like facilityTaskQueue, just keep polling until component is destroyed
+        FacilityTaskResource.fetchModel({ id: this.syncTaskId, force: true }).then(task => {
+          if (taskIsClearable(task)) {
+            this.isSyncing = false;
+            this.syncTaskId = '';
+            FacilityTaskResource.deleteFinishedTask(this.syncTaskId);
+            if (task.status === TaskStatuses.FAILED) {
+              this.syncHasFailed = true;
+            } else if (task.status === TaskStatuses.COMPLETED) {
+              this.fetchFacility();
+            }
+          } else if (this.syncTaskId) {
+            setTimeout(() => {
+              this.pollSyncTask();
+            }, 2000);
+          }
         });
       },
       handleValidateSuccess({ name, token }) {
-        this.projectName = name;
-        this.token = token;
-        this.modalShown = Modals.CONFIRMATION_REGISTER;
+        this.kdpProject = { name, token };
+        this.displayModal(Modals.CONFIRMATION_REGISTER);
       },
       handleConfirmationSuccess(payload) {
         this.$store.commit('manageCSV/SET_REGISTERED', payload);
-        this.modalShown = null;
+        this.closeModal();
+      },
+      handleSyncFacilitySuccess(taskId) {
+        this.isSyncing = true;
+        this.syncTaskId = taskId;
+        this.pollSyncTask();
+        this.closeModal();
+      },
+      handleSyncFacilityFailure() {
+        this.syncHasFailed = true;
+        this.closeModal();
       },
     },
     $trs: {

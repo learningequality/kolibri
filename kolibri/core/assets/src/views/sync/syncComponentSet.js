@@ -5,3 +5,5 @@ export { default as FacilityAdminCredentialsForm } from './FacilityAdminCredenti
 export { default as FacilityNameAndSyncStatus } from './FacilityNameAndSyncStatus';
 export { default as RadioButtonGroup } from './RadioButtonGroup';
 export { default as RegisterFacilityModal } from './RegisterFacilityModal';
+export { default as SelectSourceModal } from './SelectSourceModal';
+export { default as SyncFacilityModalGroup } from './SyncFacilityModalGroup';

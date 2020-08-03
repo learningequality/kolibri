@@ -1,10 +1,10 @@
 <template>
 
-  <KFixedGrid numCols="2">
-    <KFixedGridItem
+  <KGrid>
+    <KGridItem
       v-for="content in contents"
       :key="content.id"
-      :span="windowIsLarge ? 1 : 2"
+      :layout="{ span: cardColumnSpan }"
     >
       <ChannelCard
         :isMobile="windowIsSmall"
@@ -19,7 +19,7 @@
         :copiesCount="content.copies_count"
         @openCopiesModal="openCopiesModal"
       />
-    </KFixedGridItem>
+    </KGridItem>
 
     <CopiesModal
       v-if="modalIsOpen"
@@ -27,7 +27,7 @@
       :sharedContentId="sharedContentId"
       @submit="modalIsOpen = false"
     />
-  </KFixedGrid>
+  </KGrid>
 
 </template>
 
@@ -65,6 +65,15 @@
       sharedContentId: null,
       uniqueId: null,
     }),
+    computed: {
+      cardColumnSpan() {
+        if (this.windowBreakpoint <= 1) return 4;
+        if (this.windowBreakpoint === 2) return 8;
+        if (this.windowBreakpoint <= 4) return 6;
+        if (this.windowBreakpoint <= 6) return 4;
+        return 3;
+      },
+    },
     methods: {
       openCopiesModal(contentId) {
         this.sharedContentId = contentId;

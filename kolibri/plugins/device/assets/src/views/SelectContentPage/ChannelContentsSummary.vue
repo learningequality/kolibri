@@ -21,9 +21,16 @@
           />
         </h1>
       </div>
-      <p class="version">
-        {{ $tr('version', { version: versionNumber }) }}
-      </p>
+
+      <KFixedGrid numCols="4">
+        <KFixedGridItem span="1" class="version">
+          <p>{{ $tr('version', { version: versionNumber }) }}</p>
+        </KFixedGridItem>
+        <KFixedGridItem span="3" alignment="right">
+          <p><slot></slot></p>
+        </KFixedGridItem>
+      </KFixedGrid>
+
       <p dir="auto">
         {{ channel.description }}
       </p>
@@ -120,8 +127,6 @@
   }
 
   .version {
-    margin-bottom: 32px;
-    font-size: 14px;
     font-weight: bold;
   }
 

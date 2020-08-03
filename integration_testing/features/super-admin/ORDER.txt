@@ -1,4 +1,5 @@
 super-admin-quick-start-setup-wizard.feature
+super-admin-update-channel-import-more.feature
 super-admin-creates-new-facility-in-device-setup.feature
 super-admin-imports-facility-in-device-setup.feature
 super-admin-sign-in.feature

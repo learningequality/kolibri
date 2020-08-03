@@ -219,15 +219,14 @@ class FileDownload(Transfer):
         super(FileDownload, self).close()
 
     def resume(self):
-        if self.cancel_check():
-            return
+        logger.info("Waiting 30s before retrying import: {}".format(self.source))
+        for i in range(30):
+            if self.cancel_check():
+                logger.info("Canceling import: {}".format(self.source))
+                return
+            sleep(1)
+
         try:
-            logger.info(
-                "Waiting for 30 seconds before retrying import: {}\n".format(
-                    self.source
-                )
-            )
-            sleep(30)
 
             byte_range_resume = None
             # When internet connection is lost at the beginning of start(),

@@ -100,7 +100,6 @@
       startImport() {
         this.shouldValidate = true;
         if (this.formIsValid) {
-          // return Promise.resolve(true);
           return this.startPeerImportTask({
             device_name: this.device.name,
             device_id: this.device.id,

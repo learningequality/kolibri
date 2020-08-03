@@ -12,6 +12,10 @@ CACHE_MAX_ENTRIES
 CACHE_PASSWORD
 CACHE_LOCATION
 CACHE_REDIS_MIN_DB
+CACHE_REDIS_MAX_POOL_SIZE
+CACHE_REDIS_POOL_TIMEOUT
+CACHE_REDIS_MAXMEMORY
+CACHE_REDIS_MAXMEMORY_POLICY
 
 [Database]
 DATABASE_ENGINE
@@ -216,6 +220,36 @@ base_option_spec = {
             "default": 0,
             "envvars": ("KOLIBRI_CACHE_REDIS_MIN_DB",),
         },
+        "CACHE_REDIS_MAX_POOL_SIZE": {
+            "type": "integer",
+            "default": 50,  # use redis-benchmark to determine better value
+            "envvars": ("KOLIBRI_CACHE_REDIS_MAX_POOL_SIZE",),
+        },
+        "CACHE_REDIS_POOL_TIMEOUT": {
+            "type": "integer",
+            "default": 30,  # seconds
+            "envvars": ("KOLIBRI_CACHE_REDIS_POOL_TIMEOUT",),
+        },
+        # Optional redis settings to overwrite redis.conf
+        "CACHE_REDIS_MAXMEMORY": {
+            "type": "integer",
+            "default": 0,
+            "envvars": ("KOLIBRI_CACHE_REDIS_MAXMEMORY",),
+        },
+        "CACHE_REDIS_MAXMEMORY_POLICY": {
+            "type": "option",
+            "options": (
+                "",
+                "allkeys-lru",
+                "volatile-lru",
+                "allkeys-random",
+                "volatile-random",
+                "volatile-ttl",
+                "noeviction",
+            ),
+            "default": "",
+            "envvars": ("KOLIBRI_CACHE_REDIS_MAXMEMORY_POLICY",),
+        },
     },
     "Database": {
         "DATABASE_ENGINE": {
@@ -305,6 +339,11 @@ base_option_spec = {
             "envvars": ("KOLIBRI_HTTP_PORT", "KOLIBRI_LISTEN_PORT"),
         },
         "RUN_MODE": {"type": "string", "envvars": ("KOLIBRI_RUN_MODE",)},
+        "DISABLE_PING": {
+            "type": "boolean",
+            "default": False,
+            "envvars": ("KOLIBRI_DISABLE_PING",),
+        },
         "URL_PATH_PREFIX": {
             "type": "string",
             "default": "/",

@@ -16,7 +16,7 @@
       <AssignmentDetailsForm
         v-bind="formProps"
         :disabled="disabled"
-        :initialAdHocLearners="initialAdHocLearners"
+        :initialAdHocLearners="quiz.learner_ids"
         @cancel="goBackToSummaryPage"
         @submit="handleSaveChanges"
       />
@@ -32,7 +32,6 @@
   import { mapGetters } from 'vuex';
   import { ExamResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { CollectionKinds } from 'kolibri.coreVue.vuex.constants';
   import { CoachCoreBase } from '../common';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import AssignmentDetailsModal from './assignments/AssignmentDetailsModal';
@@ -49,6 +48,7 @@
         quiz: {
           title: '',
           assignments: [],
+          learner_ids: [],
           active: false,
         },
         loading: true,
@@ -58,14 +58,13 @@
     },
     computed: {
       ...mapGetters('classSummary', ['groups']),
-      ...mapGetters('adHocLearners', ['hasAdHocLearnersAssigned']),
       formProps() {
         return {
           assignmentType: 'quiz',
           classId: this.$route.params.classId,
           groups: this.groups,
           initialActive: this.quiz.active,
-          initialSelectedCollectionIds: this.initialSelectedCollectionIds,
+          initialSelectedCollectionIds: this.quiz.assignments,
           initialTitle: this.quiz.title,
           submitErrorMessage: this.$tr('submitErrorMessage'),
         };
@@ -80,24 +79,6 @@
         }
         return this.$router.getRoute(route);
       },
-      initialSelectedCollectionIds() {
-        let collectionIds = [];
-        // Only include the AdHocGroup in this if it has already
-        // had learners assigned to it.
-        this.quiz.assignments.forEach(assignment => {
-          if (assignment.collection_kind === CollectionKinds.ADHOCLEARNERSGROUP) {
-            if (this.hasAdHocLearnersAssigned) {
-              collectionIds.push(assignment.collection);
-            }
-          } else {
-            collectionIds.push(assignment.collection);
-          }
-        });
-        return collectionIds;
-      },
-      initialAdHocLearners() {
-        return this.$store.state.adHocLearners.user_ids;
-      },
     },
     beforeRouteEnter(to, from, next) {
       return ExamResource.fetchModel({
@@ -105,34 +86,7 @@
       })
         .then(quiz => {
           next(vm => {
-            const collection = quiz.assignments.find(
-              a => a.collection_kind === CollectionKinds.ADHOCLEARNERSGROUP
-            );
-            if (collection) {
-              vm.$store
-                .dispatch('adHocLearners/initializeAdHocLearnersGroup', collection.collection)
-                .then(() => vm.setData(quiz));
-            } else {
-              // There is no "ad hoc learners group" assigned to this quiz, so
-              // we will make one. This will also set the newly created individual learners
-              // group to the adHocLearners vuex state.
-              vm.$store
-                .dispatch('adHocLearners/createAdHocLearnersGroup', {
-                  classId: vm.$route.params.classId,
-                })
-                .then(() => {
-                  // Save the Exam with the new assignment
-                  ExamResource.saveModel({
-                    id: vm.$route.params.quizId,
-                    data: {
-                      assignments: [
-                        ...quiz.assignments,
-                        { collection: vm.$store.state.adHocLearners.id },
-                      ],
-                    },
-                  }).then(() => vm.setData(quiz));
-                });
-            }
+            vm.setData(quiz);
           });
         })
         .catch(error => {

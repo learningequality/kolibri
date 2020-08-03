@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.db.models import Case
 from django.db.models import Count
+from django.db.models import F
 from django.db.models import Sum
 from django.db.models import When
 from le_utils.constants import content_kinds
@@ -15,6 +16,7 @@ from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.query import annotate_array_aggregate
 
 
 @memoize
@@ -24,63 +26,62 @@ def get_assignments(user, summarylog, attempt=False):
     """
     memberships = user.memberships.all()
     # If the user is not in any classroom nor group, nothing to notify
-    if not memberships:
+    if not memberships.exists():
         return []
 
     content_id = summarylog.content_id
     channel_id = summarylog.channel_id
-    learner_groups = [m.collection for m in memberships]
+    learner_collections = memberships.values_list("collection_id", flat=True)
 
     # Return only active Lessons that are assigned to the requesting user's groups
-    filtered_lessons = Lesson.objects.filter(
-        lesson_assignments__collection__in=learner_groups,
-        is_active=True,
-        resources__regex=r"" + content_id + "",
-    ).distinct()
+    filtered_lessons = (
+        annotate_array_aggregate(
+            Lesson.objects.filter(
+                lesson_assignments__collection_id__in=learner_collections,
+                is_active=True,
+                resources__regex=r"" + content_id + "",
+            ),
+            assignment_collections="lesson_assignments__collection_id",
+        )
+        .distinct()
+        .values(
+            "id", "resources", "assignment_collections", classroom_id=F("collection_id")
+        )
+    )
     # get the contentnode_id for each lesson:
-    lesson_contentnode = {
-        lesson.id: r["contentnode_id"]
+    lesson_contentnode_map = {
+        lesson["id"]: r["contentnode_id"]
         for lesson in filtered_lessons
-        for r in lesson.resources
+        for r in lesson["resources"]
         if (r["content_id"] == content_id and r["channel_id"] == channel_id)
     }
     if attempt:
         # This part is for the NeedsHelp event. These Events can only be triggered on Exercises:
         to_delete = []
-        for lesson_id, contentnode_id in lesson_contentnode.items():
-            content_node = ContentNode.objects.get(pk=contentnode_id)
+        content_nodes = ContentNode.objects.filter(
+            pk__in=lesson_contentnode_map.values()
+        ).in_bulk()
+        for lesson_id, contentnode_id in lesson_contentnode_map.items():
+            content_node = content_nodes[contentnode_id]
             if content_node.kind != content_kinds.EXERCISE:
                 to_delete.append(lesson_id)
         for lesson_id in to_delete:
-            del lesson_contentnode[lesson_id]
+            del lesson_contentnode_map[lesson_id]
     # Returns all the affected lessons with the touched contentnode_id, Resource must be inside a lesson
     lesson_resources = [
-        (lesson, lesson_contentnode[lesson.id])
+        (lesson, lesson_contentnode_map[lesson["id"]])
         for lesson in filtered_lessons
-        if lesson.id in lesson_contentnode
+        if lesson["id"] in lesson_contentnode_map
     ]
 
+    learner_collections_set = set(learner_collections)
     # Try to find out if the lesson is being executed assigned to a Classroom or to a LearnerGroup:
-    for lesson in lesson_resources:
-        assignments = [l.collection_id for l in lesson[0].lesson_assignments.all()]
-        groups = [g.id for g in learner_groups if g.id in assignments]
-        lesson[0].group_or_classroom = groups[0] if groups else lesson.collection_id
+    for lesson, contentnode_id in lesson_resources:
+        lesson["assignment_collections"] = list(
+            set(lesson["assignment_collections"]).intersection(learner_collections_set)
+        )
 
     return lesson_resources
-
-
-def get_exam_group(memberships, exam_id):
-    """
-    Returns all classrooms or learner groups having this exam
-    """
-    learner_groups = [m.collection for m in memberships]
-    filtered_exam_assignments = ExamAssignment.objects.filter(
-        exam_id=exam_id, collection__in=learner_groups
-    ).distinct()
-    touched_groups = [
-        assignment.collection_id for assignment in filtered_exam_assignments
-    ]
-    return touched_groups
 
 
 def save_notifications(notifications):
@@ -93,7 +94,8 @@ def create_notification(
     notification_object,
     notification_event,
     user_id,
-    group_id,
+    classroom_id,
+    assignment_collections=None,
     lesson_id=None,
     contentnode_id=None,
     quiz_id=None,
@@ -104,7 +106,7 @@ def create_notification(
 ):
     notification = LearnerProgressNotification()
     notification.user_id = user_id
-    notification.classroom_id = group_id
+    notification.classroom_id = classroom_id
     notification.notification_object = notification_object
     notification.notification_event = notification_event
     if contentnode_id:
@@ -121,6 +123,8 @@ def create_notification(
         notification.reason = reason
     if timestamp:
         notification.timestamp = timestamp
+    if assignment_collections and type(assignment_collections) is list:
+        notification.assignment_collections = assignment_collections
     return notification
 
 
@@ -131,7 +135,7 @@ def check_and_created_completed_resource(lesson, user_id, contentnode_id, timest
         user_id=user_id,
         notification_object=NotificationObjectType.Resource,
         notification_event=NotificationEventType.Completed,
-        lesson_id=lesson.id,
+        lesson_id=lesson["id"],
         contentnode_id=contentnode_id,
     ).exists():
         # Let's create an Resource Completion notification
@@ -139,8 +143,9 @@ def check_and_created_completed_resource(lesson, user_id, contentnode_id, timest
             NotificationObjectType.Resource,
             NotificationEventType.Completed,
             user_id,
-            lesson.group_or_classroom,
-            lesson_id=lesson.id,
+            lesson["classroom_id"],
+            assignment_collections=lesson["assignment_collections"],
+            lesson_id=lesson["id"],
             contentnode_id=contentnode_id,
             timestamp=timestamp,
         )
@@ -154,16 +159,17 @@ def check_and_created_completed_lesson(lesson, user_id, timestamp):
         user_id=user_id,
         notification_object=NotificationObjectType.Lesson,
         notification_event=NotificationEventType.Completed,
-        lesson_id=lesson.id,
-        classroom_id=lesson.group_or_classroom,
+        lesson_id=lesson["id"],
+        classroom_id=lesson["classroom_id"],
     ).exists():
         # Let's create an Lesson Completion notification
         notification = create_notification(
             NotificationObjectType.Lesson,
             NotificationEventType.Completed,
             user_id,
-            lesson.group_or_classroom,
-            lesson_id=lesson.id,
+            lesson["classroom_id"],
+            assignment_collections=lesson["assignment_collections"],
+            lesson_id=lesson["id"],
             timestamp=timestamp,
         )
     return notification
@@ -176,8 +182,8 @@ def check_and_created_answered_lesson(lesson, user_id, contentnode_id, timestamp
         user_id=user_id,
         notification_object=NotificationObjectType.Resource,
         notification_event=NotificationEventType.Answered,
-        lesson_id=lesson.id,
-        classroom_id=lesson.group_or_classroom,
+        lesson_id=lesson["id"],
+        classroom_id=lesson["classroom_id"],
         timestamp=timestamp,
     ).exists():
         # Let's create an Lesson Completion notification
@@ -185,8 +191,10 @@ def check_and_created_answered_lesson(lesson, user_id, contentnode_id, timestamp
             NotificationObjectType.Resource,
             NotificationEventType.Answered,
             user_id,
-            lesson.group_or_classroom,
-            lesson_id=lesson.id,
+            lesson["classroom_id"],
+            assignment_collections=lesson["assignment_collections"],
+            lesson_id=lesson["id"],
+            contentnode_id=contentnode_id,
             timestamp=timestamp,
         )
     return notification
@@ -198,7 +206,7 @@ def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
         user_id=user_id,
         notification_object=NotificationObjectType.Resource,
         notification_event=NotificationEventType.Started,
-        lesson_id=lesson.id,
+        lesson_id=lesson["id"],
         contentnode_id=contentnode_id,
     ).exists():
         return []
@@ -209,8 +217,9 @@ def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
             NotificationObjectType.Resource,
             NotificationEventType.Started,
             user_id,
-            lesson.group_or_classroom,
-            lesson_id=lesson.id,
+            lesson["classroom_id"],
+            assignment_collections=lesson["assignment_collections"],
+            lesson_id=lesson["id"],
             contentnode_id=contentnode_id,
             timestamp=timestamp,
         )
@@ -221,8 +230,8 @@ def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
         user_id=user_id,
         notification_object=NotificationObjectType.Lesson,
         notification_event=NotificationEventType.Started,
-        lesson_id=lesson.id,
-        classroom_id=lesson.group_or_classroom,
+        lesson_id=lesson["id"],
+        classroom_id=lesson["classroom_id"],
     ).exists():
         # and create it if that's not the case
         notifications.append(
@@ -230,8 +239,9 @@ def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
                 NotificationObjectType.Lesson,
                 NotificationEventType.Started,
                 user_id,
-                lesson.group_or_classroom,
-                lesson_id=lesson.id,
+                lesson["classroom_id"],
+                assignment_collections=lesson["assignment_collections"],
+                lesson_id=lesson["id"],
                 timestamp=timestamp,
             )
         )
@@ -278,7 +288,9 @@ def parse_summarylog(summarylog):
             notifications.append(notification_completed)
         else:
             continue
-        lesson_content_ids = [resource["content_id"] for resource in lesson.resources]
+        lesson_content_ids = [
+            resource["content_id"] for resource in lesson["resources"]
+        ]
 
         # Let's check if an LessonResourceIndividualCompletion needs to be created
         user_completed = ContentSummaryLog.objects.filter(
@@ -333,24 +345,30 @@ def num_answered(examlog):
 
 
 def created_quiz_notification(examlog, event_type, timestamp):
-    user_classrooms = examlog.user.memberships.all()
-
-    touched_groups = get_exam_group(user_classrooms, examlog.exam_id)
-    notifications = []
-    for group in touched_groups:
-        notification = create_notification(
-            NotificationObjectType.Quiz,
-            event_type,
-            examlog.user_id,
-            group,
-            quiz_id=examlog.exam_id,
-            quiz_num_correct=num_correct(examlog),
-            quiz_num_answered=num_answered(examlog),
-            timestamp=timestamp,
+    assigned_collections = (
+        ExamAssignment.objects.filter(
+            exam_id=examlog.exam_id,
+            collection_id__in=examlog.user.memberships.all().values_list(
+                "collection_id", flat=True
+            ),
         )
-        notifications.append(notification)
+        .distinct()
+        .values_list("collection_id", flat=True)
+    )
 
-    save_notifications(notifications)
+    notification = create_notification(
+        NotificationObjectType.Quiz,
+        event_type,
+        examlog.user_id,
+        examlog.exam.collection_id,
+        assignment_collections=assigned_collections,
+        quiz_id=examlog.exam_id,
+        quiz_num_correct=num_correct(examlog),
+        quiz_num_answered=num_answered(examlog),
+        timestamp=timestamp,
+    )
+
+    save_notifications([notification])
 
 
 def create_examlog(examlog, timestamp):
@@ -389,7 +407,7 @@ def create_examattemptslog(examlog, timestamp):
     if exist_examattempt_notification(examlog.user_id, examlog.exam_id):
         return  # the event has already been triggered
     event_type = NotificationEventType.Answered
-    exist_exam_notification.cache_clear()
+    exist_examattempt_notification.cache_clear()
     created_quiz_notification(examlog, event_type, timestamp)
 
 
@@ -432,16 +450,17 @@ def parse_attemptslog(attemptlog):
                 user_id=attemptlog.user_id,
                 notification_object=NotificationObjectType.Resource,
                 notification_event=NotificationEventType.Help,
-                lesson_id=lesson.id,
-                classroom_id=lesson.group_or_classroom,
+                lesson_id=lesson["id"],
+                classroom_id=lesson["classroom_id"],
                 contentnode_id=contentnode_id,
             ).exists():
                 notification = create_notification(
                     NotificationObjectType.Resource,
                     NotificationEventType.Help,
                     attemptlog.user_id,
-                    lesson.group_or_classroom,
-                    lesson_id=lesson.id,
+                    lesson["classroom_id"],
+                    assignment_collections=lesson["assignment_collections"],
+                    lesson_id=lesson["id"],
                     contentnode_id=contentnode_id,
                     reason=HelpReason.Multiple,
                     timestamp=attemptlog.end_timestamp,

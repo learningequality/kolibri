@@ -6,13 +6,13 @@ from rest_framework.response import Response
 from .models import DynamicNetworkLocation
 from .models import NetworkLocation
 from .models import StaticNetworkLocation
+from .permissions import NetworkLocationPermissions
 from .serializers import NetworkLocationSerializer
-from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.device.permissions import NotProvisionedHasPermission
 
 
 class NetworkLocationViewSet(viewsets.ModelViewSet):
-    permission_classes = [CanManageContent | NotProvisionedHasPermission]
+    permission_classes = [NetworkLocationPermissions | NotProvisionedHasPermission]
     serializer_class = NetworkLocationSerializer
     queryset = NetworkLocation.objects.all()
 
@@ -26,8 +26,7 @@ class StaticNetworkLocationViewSet(NetworkLocationViewSet):
 
 
 class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
-    # TODO Tighten the first permission to be for superusers only
-    permission_classes = [CanManageContent | NotProvisionedHasPermission]
+    permission_classes = [NetworkLocationPermissions | NotProvisionedHasPermission]
 
     def retrieve(self, request, pk=None):
         """

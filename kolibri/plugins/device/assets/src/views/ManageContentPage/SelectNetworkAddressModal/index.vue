@@ -1,7 +1,7 @@
 <template>
 
   <SelectAddressModalGroup
-    :fetchAddressArgs="fetchAddressArgs"
+    :filterByChannelId="filterByChannelId"
     @cancel="handleCancel"
     @submit="handleSelectAddressSubmit"
   />
@@ -32,7 +32,7 @@
     computed: {
       ...mapGetters('manageContent/wizard', ['isImportingMore']),
       ...mapState('manageContent/wizard', ['transferredChannel']),
-      fetchAddressArgs() {
+      filterByChannelId() {
         return this.isImportingMore ? this.transferredChannel.id : '';
       },
     },

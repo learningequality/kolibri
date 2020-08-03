@@ -20,6 +20,7 @@ export default {
     examLog: {},
     memberships: [],
     canAccessUnassignedContentSetting: plugin_data.allowLearnerUnassignedResourceAccess,
+    allowGuestAccess: plugin_data.allowGuestAccess,
   },
   actions,
   getters,
