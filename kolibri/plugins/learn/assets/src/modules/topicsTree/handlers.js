@@ -20,19 +20,18 @@ export function showTopicsContent(store, id) {
   const promises = [
     ContentNodeResource.fetchModel({ id }),
     ContentNodeResource.fetchNextContent(id),
-    ContentNodeResource.fetchAncestors(id),
     store.dispatch('setChannelInfo'),
   ];
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([content, nextContent, ancestors]) => {
+    ([content, nextContent]) => {
       const currentChannel = store.getters.getChannelObject(content.channel_id);
       if (!currentChannel) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       store.commit('topicsTree/SET_STATE', {
-        content: contentState(content, nextContent, ancestors),
+        content: contentState(content, nextContent),
         channel: currentChannel,
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
@@ -55,13 +54,12 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
           user_kind: store.getters.getUserKind,
         },
       }), // the topic's children
-      ContentNodeResource.fetchAncestors(id), // the topic's ancestors
       store.dispatch('setChannelInfo'),
     ];
 
     return ConditionalPromise.all(promises).only(
       samePageCheckGenerator(store),
-      ([topic, children, ancestors]) => {
+      ([topic, children]) => {
         const currentChannel = store.getters.getChannelObject(topic.channel_id);
         if (!currentChannel) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
@@ -75,7 +73,7 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
         store.commit('topicsTree/SET_STATE', {
           isRoot,
           channel: currentChannel,
-          topic: normalizeContentNode(topic, ancestors),
+          topic: normalizeContentNode(topic),
           contents: _collectionState(children),
         });
 

@@ -54,10 +54,9 @@ export function showExamCreationTopicPage(store, params) {
         kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
       },
     });
-    const ancestorsPromise = ContentNodeResource.fetchAncestors(topicId);
-    const loadRequirements = [topicNodePromise, childNodesPromise, ancestorsPromise];
+    const loadRequirements = [topicNodePromise, childNodesPromise];
 
-    return Promise.all(loadRequirements).then(([topicNode, childNodes, ancestors]) => {
+    return Promise.all(loadRequirements).then(([topicNode, childNodes]) => {
       return filterAndAnnotateContentList(childNodes).then(contentList => {
         store.commit('SET_TOOLBAR_ROUTE', {
           name: PageNames.EXAMS,
@@ -67,7 +66,7 @@ export function showExamCreationTopicPage(store, params) {
           classId: params.classId,
           contentList,
           pageName: PageNames.EXAM_CREATION_TOPIC,
-          ancestors: [...ancestors, topicNode],
+          ancestors: [...topicNode.ancestors, topicNode],
         });
       });
     });
