@@ -67,8 +67,9 @@ class LessonViewset(ValuesViewset):
 
     def consolidate(self, items, queryset):
         if items:
+            lesson_ids = [l["id"] for l in items]
             adhoc_assignments = LessonAssignment.objects.filter(
-                lesson__in=queryset, collection__kind=ADHOCLEARNERSGROUP
+                lesson_id__in=lesson_ids, collection__kind=ADHOCLEARNERSGROUP
             )
             adhoc_assignments = annotate_array_aggregate(
                 adhoc_assignments, learner_ids="collection__membership__user_id"
