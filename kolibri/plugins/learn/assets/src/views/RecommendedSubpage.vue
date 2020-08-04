@@ -35,7 +35,7 @@
     mixins: [commonLearnStrings, learnIndexStrings],
     computed: {
       ...mapState(['pageName']),
-      ...mapState('recommended/subpage', ['recommendations']),
+      ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       documentTitle() {
         switch (this.pageName) {
           case PageNames.RECOMMENDED_POPULAR:
@@ -70,6 +70,18 @@
             text: this.header,
           },
         ];
+      },
+      recommendations() {
+        switch (this.pageName) {
+          case PageNames.RECOMMENDED_POPULAR:
+            return this.popular;
+          case PageNames.RECOMMENDED_RESUME:
+            return this.resume;
+          case PageNames.RECOMMENDED_NEXT_STEPS:
+            return this.nextSteps;
+          default:
+            return [];
+        }
       },
     },
     created() {

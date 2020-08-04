@@ -46,7 +46,23 @@ function _showRecSubpage(store, getContentPromise, pageName, channelId = null) {
 
   pagePrep.then(
     ([recommendations]) => {
-      store.commit('recommended/subpage/SET_STATE', { recommendations });
+      let recommendationsKey;
+      switch (pageName) {
+        case PageNames.RECOMMENDED_POPULAR:
+          recommendationsKey = 'popular';
+          break;
+        case PageNames.RECOMMENDED_RESUME:
+          recommendationsKey = 'resume';
+          break;
+        case PageNames.RECOMMENDED_NEXT_STEPS:
+          recommendationsKey = 'nextSteps';
+          break;
+        default:
+          break;
+      }
+      if (recommendationsKey) {
+        store.commit('recommended/SET_STATE', { [recommendationsKey]: recommendations });
+      }
       store.commit('SET_PAGE_NAME', pageName);
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
