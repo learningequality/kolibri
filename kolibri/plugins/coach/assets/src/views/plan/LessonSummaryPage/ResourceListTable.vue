@@ -101,13 +101,8 @@
     },
     mixins: [commonCoreStrings, coachStringsMixin],
     data() {
-      const workingResourcesIds = this.$store.state.lessonSummary.workingResources;
-      const resourceContentNodes = this.$store.state.lessonSummary.resourceCache;
-      const filteredContents = workingResourcesIds.filter(
-        resourceId => resourceContentNodes[resourceId]
-      );
       return {
-        workingResourcesBackup: filteredContents,
+        workingResourcesBackup: [...this.$store.state.lessonSummary.workingResources],
         firstRemovalTitle: '',
       };
     },
@@ -168,7 +163,7 @@
               hideCallback: () => {
                 if (this.workingResourcesBackup) {
                   // snackbar might carryover to another page (like select)
-                  this.workingResourcesBackup = this.workingResources;
+                  this.workingResourcesBackup = [...this.workingResources];
                 }
               },
             }
