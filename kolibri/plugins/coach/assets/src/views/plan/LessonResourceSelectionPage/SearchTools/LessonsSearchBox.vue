@@ -146,7 +146,6 @@
 
   .buttons-wrapper {
     display: table-cell;
-    width: 78px;
     height: 36px;
     text-align: right;
     vertical-align: middle;
