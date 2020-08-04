@@ -44,6 +44,7 @@
             <KButtonGroup>
               <KButton
                 :text="coreString('syncAction')"
+                appearance="flat-button"
                 @click="facilityForSync = facility"
               />
               <KDropdownMenu
