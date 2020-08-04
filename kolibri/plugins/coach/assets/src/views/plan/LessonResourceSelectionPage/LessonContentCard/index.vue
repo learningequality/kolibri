@@ -15,34 +15,32 @@
         :class="{ 'has-message': Boolean(message) }"
         dir="auto"
       >
-        {{ title }}
+        <KLabeledIcon
+
+          :label="title"
+        >
+          <ContentIcon
+            slot="icon"
+            :kind="kind"
+          />
+
+        </KLabeledIcon>
       </h3>
       <div v-if="message" class="message" :style="{ color: $themeTokens.text }">
         {{ message }}
       </div>
-      <!--
-      <p class="ancestors">
-        {{ $tr('topic') }} <KRouterLink text="TODO" :to="{}" />
-        {{ $tr('channel') }} <KRouterLink text="TODO" :to="{}" />
-      </p>
-       -->
       <TextTruncator
         :text="description"
         :maxHeight="80"
         class="description"
       />
-      <CoachContentLabel
-        class="coach-content-label"
-        :value="numCoachContents"
-        :isTopic="isTopic"
-      />
-      <p class="ancestors">
-        <KRouterLink
-          v-if="!isTopic"
-          :text="$tr('viewLabel')"
-          :to="link"
+      <div>
+        <CoachContentLabel
+          class="coach-content-label"
+          :value="numCoachContents"
+          :isTopic="isTopic"
         />
-      </p>
+      </div>
     </div>
 
   </router-link>
@@ -53,6 +51,7 @@
 <script>
 
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
@@ -62,6 +61,7 @@
     name: 'LessonContentCard',
     components: {
       CardThumbnail,
+      ContentIcon,
       TextTruncator,
       CoachContentLabel,
     },
@@ -105,13 +105,6 @@
         return this.kind === ContentNodeKinds.CHANNEL || this.kind === ContentNodeKinds.TOPIC;
       },
     },
-    $trs: {
-      // These strings are not used yet
-      viewLabel: 'View',
-      // Commented because unused above and not deleted for a reason - topic unused.
-      // topic: 'Topic:',
-      // channel: 'Channel:',
-    },
   };
 
 </script>
@@ -122,41 +115,33 @@
   @import '~kolibri-design-system/lib/styles/definitions';
   @import './card';
 
-  .coach-content-label {
-    padding: 8px 0;
-  }
-
   .content-card {
+    @extend %dropshadow-2dp;
+
+    position: relative;
     display: block;
-    height: $thumb-height;
+    min-height: $thumb-height + 16;
+    padding: 16px;
     margin-bottom: 24px;
     text-align: left;
     text-decoration: none;
     border-radius: 2px;
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
-      0 1px 5px 0 rgba(0, 0, 0, 0.12);
     transition: box-shadow $core-time ease;
     &:hover,
     &:focus {
-      box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12),
-        0 5px 5px -3px rgba(0, 0, 0, 0.2);
+      @extend %dropshadow-8dp;
     }
   }
 
-  .text {
-    $left-offset: $thumb-width + $checkbox-offset;
-
+  .thumbnail {
     position: absolute;
     top: 0;
-    bottom: 0;
-    left: $left-offset;
-    width: calc(100% - #{$left-offset});
-    padding: 16px;
+    left: 0;
+    margin: 8px;
   }
 
-  .title,
-  .description {
-    margin: 0;
+  .text {
+    margin-left: $thumb-width + 8;
   }
 
   .title,
@@ -172,26 +157,17 @@
   }
 
   .title {
-    padding-bottom: 8px;
-    font-size: 16px;
-  }
-
-  .description {
-    // HACK to get long descriptions to fit in the card
-    max-height: $thumb-height * 0.5;
-    overflow-y: visible;
-    font-size: 14px;
-  }
-
-  .ancestors {
-    margin-top: 8px;
-    font-size: smaller;
+    margin-top: 0;
   }
 
   .message {
     position: absolute;
     top: 16px;
     right: 16px;
+  }
+
+  .coach-content-label {
+    margin: 8px 0;
   }
 
 </style>
