@@ -21,7 +21,7 @@
           :showLabel="false"
           :checked="contentIsChecked(content)"
           :indeterminate="contentIsIndeterminate(content)"
-          @change="handleCheckboxChange(content.id, $event)"
+          @change="handleCheckboxChange(content, $event)"
         />
         <LessonContentCard
           :class="{ 'with-checkbox': needCheckboxes }"
@@ -131,8 +131,8 @@
       },
     },
     methods: {
-      handleCheckboxChange(contentId, checked) {
-        this.$emit('change_content_card', { contentId, checked });
+      handleCheckboxChange(content, checked) {
+        this.$emit('change_content_card', { content, checked });
       },
     },
     $trs: {

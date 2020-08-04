@@ -28,10 +28,7 @@ function showResourceSelectionPage(store, params) {
       // TODO make a state mapper
       // contains selections that were commited to server prior to opening this page
       if (!pendingSelections.length) {
-        const preselectedResources = currentLesson.resources.map(
-          resourceObj => resourceObj.contentnode_id
-        );
-        store.commit('lessonSummary/SET_WORKING_RESOURCES', preselectedResources);
+        store.commit('lessonSummary/SET_WORKING_RESOURCES', currentLesson.resources);
       }
 
       if (ancestors.length) {
