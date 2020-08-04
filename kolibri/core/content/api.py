@@ -58,6 +58,7 @@ from kolibri.core.content.utils.paths import get_local_content_storage_file_url
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.query import SQSum
@@ -904,9 +905,19 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
 
 
 class ContentNodeProgressFilter(IdFilter):
+    lesson = UUIDFilter(method="filter_by_lesson")
+
+    def filter_by_lesson(self, queryset, name, value):
+        try:
+            lesson = Lesson.objects.get(pk=value)
+            node_ids = list(map(lambda x: x["contentnode_id"], lesson.resources))
+            return queryset.filter(pk__in=node_ids)
+        except Lesson.DoesNotExist:
+            return queryset.none()
+
     class Meta:
         model = models.ContentNode
-        fields = ["ids", "parent"]
+        fields = ["ids", "parent", "lesson"]
 
 
 class ContentNodeProgressViewset(viewsets.ReadOnlyModelViewSet):
