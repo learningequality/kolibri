@@ -1,7 +1,6 @@
-import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
+import { ContentNodeResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import uniq from 'lodash/uniq';
 import uniqBy from 'lodash/uniqBy';
 import { PageNames } from '../../constants';
 import { contentState } from '../coreLearn/utils';
@@ -47,7 +46,23 @@ function _showRecSubpage(store, getContentPromise, pageName, channelId = null) {
 
   pagePrep.then(
     ([recommendations]) => {
-      store.commit('recommended/subpage/SET_STATE', { recommendations });
+      let recommendationsKey;
+      switch (pageName) {
+        case PageNames.RECOMMENDED_POPULAR:
+          recommendationsKey = 'popular';
+          break;
+        case PageNames.RECOMMENDED_RESUME:
+          recommendationsKey = 'resume';
+          break;
+        case PageNames.RECOMMENDED_NEXT_STEPS:
+          recommendationsKey = 'nextSteps';
+          break;
+        default:
+          break;
+      }
+      if (recommendationsKey) {
+        store.commit('recommended/SET_STATE', { [recommendationsKey]: recommendations });
+      }
       store.commit('SET_PAGE_NAME', pageName);
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
@@ -83,19 +98,6 @@ export function showRecommended(store) {
         popular: _mapContentSet(popular),
         resume: _mapContentSet(resume),
       });
-
-      // Only load contentnodes progress if the user is logged in
-      if (store.getters.isUserLoggedIn) {
-        const contentNodeIds = uniq([...nextSteps, ...popular, ...resume].map(({ id }) => id));
-
-        if (contentNodeIds.length > 0) {
-          ContentNodeProgressResource.fetchCollection({ getParams: { ids: contentNodeIds } }).then(
-            progresses => {
-              store.commit('recommended/SET_RECOMMENDED_NODES_PROGRESS', progresses);
-            }
-          );
-        }
-      }
 
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);

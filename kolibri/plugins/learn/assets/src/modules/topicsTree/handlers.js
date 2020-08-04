@@ -81,11 +81,9 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
 
         // Only load contentnode progress if the user is logged in
         if (store.getters.isUserLoggedIn) {
-          const contentNodeIds = children.map(({ id }) => id);
-
-          if (contentNodeIds.length > 0) {
+          if (children.length > 0) {
             ContentNodeProgressResource.fetchCollection({
-              getParams: { ids: contentNodeIds },
+              getParams: { parent: id },
             }).then(progresses => {
               store.commit('topicsTree/SET_NODE_PROGRESS', progresses);
             });
