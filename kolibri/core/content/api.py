@@ -906,7 +906,7 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
 class ContentNodeProgressFilter(IdFilter):
     class Meta:
         model = models.ContentNode
-        fields = ["ids"]
+        fields = ["ids", "parent"]
 
 
 class ContentNodeProgressViewset(viewsets.ReadOnlyModelViewSet):
