@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "કૃપા કરી માન્ય IP સરનામું, URL અથવા હોસ્ટનું નામ દાખલ કરો",
   "AddAddressForm.header": "નવું સરનામું",
   "AddAddressForm.nameDesc": "આ સરનામાં માટે નામ પસંદ કરો જેથી તમે તેને પછીથી યાદ રાખી શકો:",
-  "AddAddressForm.nameLabel": "નેટવર્ક નું નામ",
+  "AddAddressForm.nameLabel": "નામ",
   "AddAddressForm.namePlaceholder": "દા.ત. ઘરનું નેટવર્ક",
   "AddAddressForm.submitButtonLabel": "ઉમેરો",
   "AddAddressForm.tryingToConnect": "સર્વરથી કનેક્ટ કરવાનો પ્રયાસ કરી રહ્યું છે…",

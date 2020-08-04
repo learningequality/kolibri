@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "Моля, въведи валиден IP адрес, URL или име на хост",
   "AddAddressForm.header": "Нов адрес",
   "AddAddressForm.nameDesc": "Избери кратко име за адреса, което да можеш лесно да запомниш:",
-  "AddAddressForm.nameLabel": "Име на мрежата",
+  "AddAddressForm.nameLabel": "Име",
   "AddAddressForm.namePlaceholder": "например Домашна мрежа",
   "AddAddressForm.submitButtonLabel": "Добави",
   "AddAddressForm.tryingToConnect": "Опит за свързване към сървъра…",

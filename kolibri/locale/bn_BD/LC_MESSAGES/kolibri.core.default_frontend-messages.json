@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "অনুগ্রহ করে একটি বৈধ আইপি ঠিকানা, ইউআরএল বা হোস্টনেম লিখুন",
   "AddAddressForm.header": "নতুন ঠিকানা",
   "AddAddressForm.nameDesc": "এই ঠিকানাটিকে একটি নাম দিন যাতে এটা মনে রাখতে পারেন:",
-  "AddAddressForm.nameLabel": "নেটওয়ার্কের নাম",
+  "AddAddressForm.nameLabel": "নাম",
   "AddAddressForm.namePlaceholder": "যেমন বাড়ির নেটওয়ার্ক",
   "AddAddressForm.submitButtonLabel": "যোগ করুন",
   "AddAddressForm.tryingToConnect": "সার্ভারের সাথে যোগাযোগ করার চেষ্টা করা হচ্ছে…",
