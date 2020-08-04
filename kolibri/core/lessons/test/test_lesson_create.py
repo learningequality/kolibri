@@ -174,23 +174,3 @@ class LessonCreationTestCase(APITestCase):
             reverse("kolibri:core:lesson-list"), new_lesson, format="json"
         )
         self.assertEqual(post_response.status_code, 201)
-
-    def test_validate_unavailable_resources(self):
-        self.client.login(username="admin", password="password")
-        new_lesson = {
-            "title": "No Resources Available",
-            "created_by": self.admin_user.id,
-            "lesson_assignments": [self.classroom.id],
-            "collection": self.classroom.id,
-            "resources": [
-                {
-                    "contentnode_id": self.unavailable_node.id,
-                    "channel_id": self.unavailable_node.channel_id,
-                    "content_id": self.unavailable_node.content_id,
-                }
-            ],
-        }
-        post_response = self.client.post(
-            reverse("kolibri:core:lesson-list"), new_lesson, format="json"
-        )
-        self.assertEqual(post_response.status_code, 400)
