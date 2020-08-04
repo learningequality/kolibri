@@ -16,6 +16,7 @@
 
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeProgressResource } from 'kolibri.resources';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import commonLearnStrings from './commonLearnStrings';
@@ -70,6 +71,19 @@
           },
         ];
       },
+    },
+    created() {
+      if (this.$store.getters.isUserLoggedIn) {
+        if (this.recommendations.length > 0) {
+          for (let i = 0; i < this.recommendations.length; i += 50) {
+            ContentNodeProgressResource.fetchCollection({
+              getParams: { ids: this.recommendations.slice(i, i + 50).map(({ id }) => id) },
+            }).then(progresses => {
+              this.$store.commit('recommended/SET_RECOMMENDED_NODES_PROGRESS', progresses);
+            });
+          }
+        }
+      }
     },
     methods: {
       genContentLink(id, kind) {

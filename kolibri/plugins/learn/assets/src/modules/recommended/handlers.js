@@ -1,7 +1,6 @@
-import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
+import { ContentNodeResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import uniq from 'lodash/uniq';
 import uniqBy from 'lodash/uniqBy';
 import { PageNames } from '../../constants';
 import { contentState } from '../coreLearn/utils';
@@ -83,19 +82,6 @@ export function showRecommended(store) {
         popular: _mapContentSet(popular),
         resume: _mapContentSet(resume),
       });
-
-      // Only load contentnodes progress if the user is logged in
-      if (store.getters.isUserLoggedIn) {
-        const contentNodeIds = uniq([...nextSteps, ...popular, ...resume].map(({ id }) => id));
-
-        if (contentNodeIds.length > 0) {
-          ContentNodeProgressResource.fetchCollection({ getParams: { ids: contentNodeIds } }).then(
-            progresses => {
-              store.commit('recommended/SET_RECOMMENDED_NODES_PROGRESS', progresses);
-            }
-          );
-        }
-      }
 
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
