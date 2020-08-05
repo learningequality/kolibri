@@ -56,6 +56,7 @@ else:
     extra_python_path = os.path.abspath(os.path.dirname(__file__))
     root_dir = os.path.abspath(os.path.join(extra_python_path, '..'))
 
+assets_root_dir = os.path.join(root_dir, 'assets')
 locale_root_dir = os.path.join(root_dir, 'locale')
 
 sys.path.insert(0, extra_python_path)
@@ -246,13 +247,13 @@ class Application(pew.ui.PEWApp):
 
         # Set loading screen
         lang_id = locale_info['language']
-        loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format(lang_id)))
+        loader_page = os.path.join(assets_root_dir, '_load-{}.html'.format(lang_id))
         if not os.path.exists(loader_page):
             lang_id = lang_id.split('-')[0]
-            loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format(lang_id)))
+            loader_page = os.path.join(assets_root_dir, '_load-{}.html'.format(lang_id))
         if not os.path.exists(loader_page):
             # if we can't find anything in the given language, default to the English loading page.
-            loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format('en_US')))
+            loader_page = os.path.join(assets_root_dir, '_load-{}.html'.format('en_US'))
         self.loader_url = 'file://{}'.format(loader_page)
         self.kolibri_loaded = False
 
