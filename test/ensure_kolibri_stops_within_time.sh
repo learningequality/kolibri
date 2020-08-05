@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MAX=0
-for i in {1..$2}
+for i in $(seq 1 $2)
 do
   kolibri start --port=$3 > /dev/null 2>&1
   START_TIME=$SECONDS
