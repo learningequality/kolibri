@@ -101,7 +101,7 @@ elif not 'KOLIBRI_HOME' in os.environ:
 
     for adir in portable_dirs:
         kolibri_dir = os.path.join(adir, '.kolibri')
-        if os.path.exists(kolibri_dir):
+        if os.path.isdir(kolibri_dir):
             kolibri_home = kolibri_dir
     os.environ["KOLIBRI_HOME"] = kolibri_home
 
