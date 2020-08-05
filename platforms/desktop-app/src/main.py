@@ -92,7 +92,13 @@ if pew.ui.platform == "android":
     logging.info("Timezone: {}".format(os.environ["TZ"]))
 elif not 'KOLIBRI_HOME' in os.environ:
     kolibri_home = os.path.join(os.path.expanduser("~"), ".kolibri")
-    portable_dirs = [root_dir, os.path.abspath(os.path.join(root_dir, '..'))]
+
+    if sys.platform == 'darwin':
+        # In macOS we must look for the folder that's along side Kolibri.app
+        portable_dirs = [os.path.abspath(os.path.join(root_dir, '../../..'))]
+    else:
+        portable_dirs = [root_dir, os.path.abspath(os.path.join(root_dir, '..'))]
+
     for adir in portable_dirs:
         kolibri_dir = os.path.join(adir, '.kolibri')
         if os.path.exists(kolibri_dir):
