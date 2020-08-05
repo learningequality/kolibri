@@ -5,8 +5,6 @@
     :style="thumbnailBackground"
   >
 
-    <CornerIcon :kind="kind" />
-
     <ContentIcon
       v-if="!thumbnail"
       :kind="kind"
@@ -23,13 +21,11 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
-  import CornerIcon from './CornerIcon';
 
   export default {
     name: 'CardThumbnail',
     components: {
       ContentIcon,
-      CornerIcon,
     },
     props: {
       thumbnail: {
