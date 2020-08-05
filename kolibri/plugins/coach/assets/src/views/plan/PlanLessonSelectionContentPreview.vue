@@ -94,7 +94,7 @@
       ...mapActions('lessonSummary', ['addToResourceCache']),
       handleAddResource(content) {
         this.$router.push(this.returnBackRoute).then(() => {
-          this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', content.id);
+          this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', [content]);
           this.addToResourceCache({ node: content });
           this.showSnackbarNotification('resourcesAddedWithCount', { count: 1 });
         });
@@ -103,7 +103,7 @@
         // We need to remove the resource immediately to prevent that occurs when removing
         // the only resource
         this.justRemovedResource = true;
-        this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', content.id);
+        this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', [content]);
         this.$router.push(this.returnBackRoute).then(() => {
           this.showSnackbarNotification('resourcesRemovedWithCount', { count: 1 });
         });

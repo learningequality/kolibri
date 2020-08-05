@@ -1,6 +1,5 @@
 from collections import OrderedDict
 
-from django.db.models import Q
 from rest_framework.serializers import ListField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
@@ -16,7 +15,6 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
 from kolibri.core.auth.utils import create_adhoc_group_for_learners
-from kolibri.core.content.models import ContentNode
 
 
 class ResourceSerializer(Serializer):
@@ -88,27 +86,6 @@ class LessonSerializer(ModelSerializer):
                 "The fields title, collection must make a unique set.",
                 code=error_constants.UNIQUE,
             )
-
-    def validate_resources(self, resources):
-        # Validates that every ContentNode passed into resources is actually installed
-        # on the server. NOTE that this could cause problems if content is deleted from
-        # device.
-        resource_query = Q()
-        for resource in resources:
-            resource_query |= Q(
-                content_id=resource["content_id"],
-                channel_id=resource["channel_id"],
-                id=resource["contentnode_id"],
-            )
-
-        available_resources = ContentNode.objects.filter(
-            resource_query, available=True
-        ).count()
-        if available_resources < len(resources):
-            raise ValidationError(
-                "One or more of the selected resources is not available"
-            )
-        return resources
 
     def to_internal_value(self, data):
         data = OrderedDict(data)
