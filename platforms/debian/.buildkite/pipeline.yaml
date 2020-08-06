@@ -12,7 +12,9 @@ steps:
     env:
       DOCKER_IMAGES: ubuntu:focal
     command: .buildkite/test.sh
-    
+
+  - block: "Test :debian:?"
+  
   - label: Test ubuntu:bionic
     env:
       DOCKER_IMAGES: ubuntu:bionic
