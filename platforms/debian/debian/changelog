@@ -1,3 +1,10 @@
+kolibri-source (0.14.0~rc1-0ubuntu1) focal; urgency=low
+
+  * New upstream release candidate
+  * debian/control: iproute2 dependency is not needed anymore (Kolibri #7209)
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 06 Aug 2020 13:30:19 +0200
+
 kolibri-source (0.13.3-0ubuntu2) trusty; urgency=high
 
   * debian/control: Added iproute2 dependency
