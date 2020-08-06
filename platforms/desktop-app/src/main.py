@@ -34,27 +34,33 @@ class LoggerWriter(object):
 # initialize logging before loading any third-party modules, as they may cause logging to get configured.
 logging.basicConfig(level=logging.DEBUG)
 
-# make sure we add Kolibri's dist folder to the path early on so that we avoid import errors
+# Set the root_dir to the path where assets and locale dirs are
 if getattr(sys, 'frozen', False):
-    root_dir = os.path.dirname(os.path.abspath(sys.executable))
-else:
-    root_dir = os.path.dirname(os.path.abspath(__file__))
-locale_root_dir = os.path.join(root_dir, 'locale')
-if root_dir.endswith('src'):
-    locale_root_dir = os.path.join(root_dir, '..', 'locale')
-
-if getattr(sys, 'frozen', False):
+    # In the app bundle context sys.executable will be:
+    #   On Windows: The Kolibri.exe path
+    #   On macOS: Kolibri.app/Contents/MacOS/python
     if sys.platform == 'darwin':
-        # On Mac, included Python packages go into the lib/python3.6
-        root_dir = os.path.join(root_dir, "lib", "python3.6")
+        root_dir = os.path.abspath(os.path.join(os.path.dirname(sys.executable), '..', 'Resources'))
+        extra_python_path = os.path.join(
+            root_dir, 'lib',
+            'python{}.{}'.format(sys.version_info.major, sys.version_info.minor))
+    else:
+        root_dir = os.path.abspath(os.path.dirname(sys.executable))
+        extra_python_path = root_dir
 
-    # make sure we send all app output to logs as we have no console to view them on.
+    # Make sure we send all app output to logs as we have no console to view them on.
     sys.stdout = LoggerWriter(logging.debug)
     sys.stderr = LoggerWriter(logging.warning)
+else:
+    # In this case we use src/main.py
+    extra_python_path = os.path.abspath(os.path.dirname(__file__))
+    root_dir = os.path.abspath(os.path.join(extra_python_path, '..'))
 
-kolibri_package_dir = os.path.join(root_dir, "kolibri", "dist")
-sys.path.insert(0, root_dir)
-sys.path.insert(0, kolibri_package_dir)
+assets_root_dir = os.path.join(root_dir, 'assets')
+locale_root_dir = os.path.join(root_dir, 'locale')
+
+sys.path.insert(0, extra_python_path)
+sys.path.insert(0, os.path.join(extra_python_path, "kolibri", "dist"))
 
 import pew
 import pew.ui
@@ -87,10 +93,16 @@ if pew.ui.platform == "android":
     logging.info("Timezone: {}".format(os.environ["TZ"]))
 elif not 'KOLIBRI_HOME' in os.environ:
     kolibri_home = os.path.join(os.path.expanduser("~"), ".kolibri")
-    portable_dirs = [root_dir, os.path.abspath(os.path.join(root_dir, '..'))]
+
+    if sys.platform == 'darwin':
+        # In macOS we must look for the folder that's along side Kolibri.app
+        portable_dirs = [os.path.abspath(os.path.join(root_dir, '../../..'))]
+    else:
+        portable_dirs = [root_dir, os.path.abspath(os.path.join(root_dir, '..'))]
+
     for adir in portable_dirs:
         kolibri_dir = os.path.join(adir, '.kolibri')
-        if os.path.exists(kolibri_dir):
+        if os.path.isdir(kolibri_dir):
             kolibri_home = kolibri_dir
     os.environ["KOLIBRI_HOME"] = kolibri_home
 
@@ -235,13 +247,13 @@ class Application(pew.ui.PEWApp):
 
         # Set loading screen
         lang_id = locale_info['language']
-        loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format(lang_id)))
+        loader_page = os.path.join(assets_root_dir, '_load-{}.html'.format(lang_id))
         if not os.path.exists(loader_page):
             lang_id = lang_id.split('-')[0]
-            loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format(lang_id)))
+            loader_page = os.path.join(assets_root_dir, '_load-{}.html'.format(lang_id))
         if not os.path.exists(loader_page):
             # if we can't find anything in the given language, default to the English loading page.
-            loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format('en_US')))
+            loader_page = os.path.join(assets_root_dir, '_load-{}.html'.format('en_US'))
         self.loader_url = 'file://{}'.format(loader_page)
         self.kolibri_loaded = False
 
