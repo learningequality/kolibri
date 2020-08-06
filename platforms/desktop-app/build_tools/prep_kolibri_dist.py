@@ -93,7 +93,8 @@ def get_kolibri_release_whl(release_tag):
     url_temp = "https://github.com/learningequality/kolibri/releases/download/{version}/kolibri-{version_short}-py2.py3-none-any.whl"
     build_version = release_tag[1:]
     build_monikers = {
-        '-beta': 'b'
+        '-beta': 'b',
+        '-rc': 'rc'
     }
     for m in build_monikers:
         build_version = build_version.replace(m, build_monikers[m])
