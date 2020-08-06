@@ -147,7 +147,7 @@
       },
       duplicateFacilityNamesExplanation: {
         message: "This facility is different from '{facilities}'. These facilities will not sync.",
-        context: 'Explanation that is shown if two facilities with the same name are on the device',
+        context: 'Explanation displayed when two facilities with the same name are on the device',
       },
     },
   };
