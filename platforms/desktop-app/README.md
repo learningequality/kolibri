@@ -8,6 +8,9 @@ Kolibri installer source for macOS
 
 ### Getting Started
 
+IMPORTANT: On Windows, there is a bug with PyInstaller and the latest virutalenv.
+Please downgrade your virtualenv to version 16.1.0 until the bug is fixed.
+
 Run pipenv to download and install dependencies:
  
 `pipenv sync --dev`
