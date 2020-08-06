@@ -12,10 +12,6 @@ KOLIBRI_EXCLUDE_DIRS = [
     # remove python2-only stuff
     "src/kolibri/dist/py2only",
 
-    # remove pycountry and replace with stub
-    # (only used by getlang_by_alpha2 in le-utils, which Kolibri doesn't call)
-    "src/kolibri/dist/pycountry/*",
-
     # remove source maps
     "src/kolibri/**/*.js.map",
 

@@ -45,7 +45,11 @@ if getattr(sys, 'frozen', False):
             root_dir, 'lib',
             'python{}.{}'.format(sys.version_info.major, sys.version_info.minor))
     else:
-        root_dir = os.path.abspath(os.path.dirname(sys.executable))
+        # This env var points to where PyInstaller extracted the sources in single file mode.
+        if hasattr(sys, '_MEIPASS'):
+            root_dir = sys._MEIPASS
+        else:
+            root_dir = os.path.abspath(os.path.dirname(sys.executable))
         extra_python_path = root_dir
 
     # Make sure we send all app output to logs as we have no console to view them on.
