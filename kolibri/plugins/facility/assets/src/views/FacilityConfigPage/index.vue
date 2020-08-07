@@ -61,7 +61,8 @@
                 :key="setting + 'learner_can_edit_password'"
                 :disabled="enableChangePassword"
                 :label="$tr('learnerCanEditPassword')"
-                :checked="!settings['learner_can_login_with_no_password'] && settings['learner_can_edit_password']"
+                :checked="!settings['learner_can_login_with_no_password']
+                  && settings['learner_can_edit_password']"
                 class="checkbox-password"
                 @change="toggleSetting('learner_can_edit_password')"
               />
