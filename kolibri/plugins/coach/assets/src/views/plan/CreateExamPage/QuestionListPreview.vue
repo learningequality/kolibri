@@ -21,7 +21,8 @@
                 :draggable="true"
                 :isSelected="isSelected(question)"
                 :exerciseName="question.title"
-                :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
+                :isCoachContent="numCoachContents(question.exercise_id)"
+                :available="available(question.exercise_id)"
                 :questionNumberOfExercise="question.counterInExercise"
                 :isFirst="questionIndex === 0"
                 :isLast="questionIndex === annotatedQuestions.length - 1"
@@ -40,8 +41,9 @@
           :draggable="false"
           :isSelected="isSelected(question)"
           :exerciseName="question.title"
-          :isCoachContent="Boolean(numCoachContents(question.exercise_id))"
+          :isCoachContent="numCoachContents(question.exercise_id)"
           :questionNumberOfExercise="question.counterInExercise"
+          :available="available(question.exercise_id)"
           @select="currentQuestionIndex = questionIndex"
         />
       </ul>
@@ -81,6 +83,10 @@
         :showCorrectAnswer="true"
         :interactive="false"
       />
+      <p v-else>
+        <KIcon icon="warning" :style=" { fill: $themePalette.orange.v_400 }" />
+        {{ resourceMissingText }}
+      </p>
     </KGridItem>
   </KGrid>
 
@@ -92,6 +98,7 @@
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
 
   export default {
@@ -102,6 +109,7 @@
       DragContainer,
       DragHandle,
     },
+    mixins: [coachStringsMixin],
     props: {
       // If set to true, question buttons will be draggable
       fixedOrder: {
@@ -156,6 +164,9 @@
       questionId() {
         return this.currentQuestion.question_id;
       },
+      resourceMissingText() {
+        return this.getMissingContentString('resourceNotFoundOnDevice');
+      },
     },
     methods: {
       handleUserSort({ newArray, newIndex, oldIndex }) {
@@ -186,7 +197,11 @@
         return question.exercise_id + question.question_id;
       },
       numCoachContents(exerciseId) {
-        return this.selectedExercises[exerciseId].num_coach_contents;
+        // Do this to handle missing content
+        return Boolean((this.selectedExercises[exerciseId] || {}).num_coach_contents);
+      },
+      available(exerciseId) {
+        return Boolean(this.selectedExercises[exerciseId]);
       },
       isSelected(question) {
         return (

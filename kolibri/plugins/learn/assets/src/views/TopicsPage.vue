@@ -20,12 +20,7 @@
           :layout12="{ span: 12 }"
         >
           <h3 class="title">
-            <TextTruncator
-              :text="topicOrChannel.title"
-              :maxHeight="90"
-              :showTooltip="false"
-              dir="auto"
-            />
+            {{ topicOrChannel.title }}
           </h3>
         </KGridItem>
 
@@ -89,7 +84,6 @@
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
@@ -115,7 +109,6 @@
       CardThumbnail,
       ContentCardGroupGrid,
       ProgressIcon,
-      TextTruncator,
     },
     mixins: [responsiveWindowMixin],
     computed: {

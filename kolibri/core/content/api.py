@@ -58,9 +58,11 @@ from kolibri.core.content.utils.paths import get_local_content_storage_file_url
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.query import SQSum
+
 
 logger = logging.getLogger(__name__)
 
@@ -305,6 +307,9 @@ class ContentNodeViewset(ValuesViewset):
         "parent",
         "sort_order",
         "title",
+        "lft",
+        "rght",
+        "tree_id",
     )
 
     field_map = {
@@ -314,55 +319,72 @@ class ContentNodeViewset(ValuesViewset):
     read_only = True
 
     def consolidate(self, items, queryset):
-        assessmentmetadata = {
-            a["contentnode"]: a
-            for a in models.AssessmentMetaData.objects.filter(
-                contentnode__in=queryset
-            ).values(
-                "assessment_item_ids",
-                "number_of_assessments",
-                "mastery_model",
-                "randomize",
-                "is_manipulable",
-                "contentnode",
-            )
-        }
-
-        files = {}
-
-        for f in models.File.objects.filter(contentnode__in=queryset).values(
-            "id",
-            "contentnode",
-            "local_file__id",
-            "priority",
-            "local_file__available",
-            "local_file__file_size",
-            "local_file__extension",
-            "preset",
-            "lang__id",
-            "lang__lang_code",
-            "lang__lang_subcode",
-            "lang__lang_name",
-            "lang__lang_direction",
-            "supplementary",
-            "thumbnail",
-        ):
-            if f["contentnode"] not in files:
-                files[f["contentnode"]] = []
-            f["checksum"] = f.pop("local_file__id")
-            f["available"] = f.pop("local_file__available")
-            f["file_size"] = f.pop("local_file__file_size")
-            f["extension"] = f.pop("local_file__extension")
-            files[f["contentnode"]].append(f)
-
         output = []
 
-        for item in items:
-            item["assessmentmetadata"] = assessmentmetadata.get(item["id"])
-            item["files"] = list(
-                map(lambda x: map_file(x, item), files.get(item["id"], []))
+        if items:
+            assessmentmetadata = {
+                a["contentnode"]: a
+                for a in models.AssessmentMetaData.objects.filter(
+                    contentnode__in=queryset
+                ).values(
+                    "assessment_item_ids",
+                    "number_of_assessments",
+                    "mastery_model",
+                    "randomize",
+                    "is_manipulable",
+                    "contentnode",
+                )
+            }
+
+            files = {}
+
+            for f in models.File.objects.filter(contentnode__in=queryset).values(
+                "id",
+                "contentnode",
+                "local_file__id",
+                "priority",
+                "local_file__available",
+                "local_file__file_size",
+                "local_file__extension",
+                "preset",
+                "lang__id",
+                "lang__lang_code",
+                "lang__lang_subcode",
+                "lang__lang_name",
+                "lang__lang_direction",
+                "supplementary",
+                "thumbnail",
+            ):
+                if f["contentnode"] not in files:
+                    files[f["contentnode"]] = []
+                f["checksum"] = f.pop("local_file__id")
+                f["available"] = f.pop("local_file__available")
+                f["file_size"] = f.pop("local_file__file_size")
+                f["extension"] = f.pop("local_file__extension")
+                files[f["contentnode"]].append(f)
+
+            ancestors = queryset.get_ancestors().values(
+                "id", "title", "lft", "rght", "tree_id"
             )
-            output.append(item)
+
+            for item in items:
+                item["assessmentmetadata"] = assessmentmetadata.get(item["id"])
+                item["files"] = list(
+                    map(lambda x: map_file(x, item), files.get(item["id"], []))
+                )
+
+                lft = item.pop("lft")
+                rght = item.pop("rght")
+                tree_id = item.pop("tree_id")
+                item["ancestors"] = list(
+                    filter(
+                        lambda x: x["lft"] < lft
+                        and x["rght"] > rght
+                        and x["tree_id"] == tree_id,
+                        ancestors,
+                    )
+                )
+                output.append(item)
         return output
 
     def get_queryset(self):
@@ -510,19 +532,6 @@ class ContentNodeViewset(ValuesViewset):
         return Response(
             {"kind": next_item.kind, "id": next_item.id, "title": next_item.title}
         )
-
-    @detail_route(methods=["get"])
-    def ancestors(self, request, **kwargs):
-        cache_key = "contentnode_ancestors_{pk}".format(pk=kwargs.get("pk"))
-
-        if cache.get(cache_key) is not None:
-            return Response(cache.get(cache_key))
-
-        ancestors = list(self.get_object().get_ancestors().values("id", "title"))
-
-        cache.set(cache_key, ancestors, 60 * 10)
-
-        return Response(ancestors)
 
     @detail_route(methods=["get"])
     def recommendations_for(self, request, **kwargs):
@@ -904,9 +913,19 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
 
 
 class ContentNodeProgressFilter(IdFilter):
+    lesson = UUIDFilter(method="filter_by_lesson")
+
+    def filter_by_lesson(self, queryset, name, value):
+        try:
+            lesson = Lesson.objects.get(pk=value)
+            node_ids = list(map(lambda x: x["contentnode_id"], lesson.resources))
+            return queryset.filter(pk__in=node_ids)
+        except Lesson.DoesNotExist:
+            return queryset.none()
+
     class Meta:
         model = models.ContentNode
-        fields = ["ids"]
+        fields = ["ids", "parent", "lesson"]
 
 
 class ContentNodeProgressViewset(viewsets.ReadOnlyModelViewSet):

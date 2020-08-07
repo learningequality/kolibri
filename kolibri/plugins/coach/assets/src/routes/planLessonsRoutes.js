@@ -83,7 +83,7 @@ export default [
       if (fromRoute.name === LessonsPageNames.SELECTION_CONTENT_PREVIEW) {
         preHandlerPromise = store.dispatch('lessonSummary/saveLessonResources', {
           lessonId: toRoute.params.lessonId,
-          resourceIds: store.state.lessonSummary.workingResources,
+          resources: store.state.lessonSummary.workingResources,
         });
       } else {
         preHandlerPromise = Promise.resolve();

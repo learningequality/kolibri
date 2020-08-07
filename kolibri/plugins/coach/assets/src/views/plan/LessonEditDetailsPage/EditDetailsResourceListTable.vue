@@ -15,7 +15,7 @@
     >
       <Draggable
         v-for="(resource, index) in resourceListItems"
-        :key="resource.id"
+        :key="resource.contentnode_id"
       >
         <DragHandle>
           <KFixedGrid
@@ -36,19 +36,32 @@
               </div>
             </KFixedGridItem>
             <KFixedGridItem span="4">
-              <div class="resource-title">
-                <ContentIcon :kind="resource.kind" />
-                <KRouterLink
-                  :text="resource.title"
-                  :to="$router.getRoute('RESOURCE_CONTENT_PREVIEW', {
-                    contentId: resource.id
-                  }, { last: 'LessonReportEditDetailsPage' })"
+              <template v-if="resource.available">
+                <div class="resource-title">
+                  <ContentIcon :kind="resource.kind" />
+                  <KRouterLink
+                    :text="resource.title"
+                    :to="$router.getRoute('RESOURCE_CONTENT_PREVIEW', {
+                      contentId: resource.contentnode_id
+                    }, { last: 'LessonReportEditDetailsPage' })"
+                  />
+                  <p dir="auto" class="channel-title" :style="{ color: $themeTokens.annotation }">
+                    <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
+                    {{ resource.channelTitle }}
+                  </p>
+                </div>
+                <CoachContentLabel
+                  class="coach-content-label"
+                  :value="resource.num_coach_contents"
+                  :isTopic="false"
                 />
-                <p dir="auto" class="channel-title" :style="{ color: $themeTokens.annotation }">
-                  <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
-                  {{ resource.channelTitle }}
+              </template>
+              <template v-else>
+                <p>
+                  <KIcon icon="warning" :style=" { fill: $themePalette.orange.v_400 }" />
+                  {{ resourceMissingText }}
                 </p>
-              </div>
+              </template>
             </KFixedGridItem>
             <KFixedGridItem span="3" alignment="right">
               <KButton
@@ -75,6 +88,7 @@
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   // This is a simplified version of ResourceListTable that is supposed to work
@@ -87,6 +101,7 @@
       DragHandle,
       DragSortWidget,
       ContentIcon,
+      CoachContentLabel,
     },
     mixins: [coachStringsMixin, commonCoreStrings],
     props: {
@@ -119,24 +134,27 @@
         });
       },
       resourceListItems() {
-        return this.resources
-          .map(resource => {
-            const { contentnode_id } = resource;
-            const match = this.contentNodeMap[contentnode_id];
-            if (match) {
-              return {
-                id: contentnode_id,
-                title: match.title,
-                kind: match.kind,
-                channelTitle: this.resourceChannelTitle(contentnode_id),
-              };
-            } else {
-              // Need to filter out objects not in the contentNodeMap.
-              // Hopefully the contentNodeMap is always updated.
-              return null;
-            }
-          })
-          .filter(Boolean);
+        return this.resources.map(resource => {
+          const { contentnode_id } = resource;
+          const match = this.contentNodeMap[contentnode_id];
+          if (match) {
+            return {
+              ...resource,
+              available: true,
+              title: match.title,
+              kind: match.kind,
+              num_coach_contents: match.num_coach_contents,
+              channelTitle: this.resourceChannelTitle(contentnode_id),
+            };
+          } else {
+            // Need to filter out objects not in the contentNodeMap.
+            // Hopefully the contentNodeMap is always updated.
+            return resource;
+          }
+        });
+      },
+      resourceMissingText() {
+        return this.getMissingContentString('resourceNotFoundOnDevice');
       },
     },
     methods: {
@@ -178,9 +196,9 @@
       },
       shiftOne(oldIndex, newIndex) {
         const resources = [...this.resources];
-        const oldResourceId = resources[newIndex];
+        const oldResource = resources[newIndex];
         resources[newIndex] = resources[oldIndex];
-        resources[oldIndex] = oldResourceId;
+        resources[oldIndex] = oldResource;
         this.emitUpdatedResources(resources);
       },
       handleDrag({ newArray }) {

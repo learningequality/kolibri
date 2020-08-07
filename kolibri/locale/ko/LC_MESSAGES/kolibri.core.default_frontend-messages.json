@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "유효한 IP주소나, URL, 혹은 호스트네임을 입력하세요",
   "AddAddressForm.header": "새 주소",
   "AddAddressForm.nameDesc": "나중에 기억하기 위해 주소의 이름을 선택하세요",
-  "AddAddressForm.nameLabel": "네트워크 이름",
+  "AddAddressForm.nameLabel": "이름",
   "AddAddressForm.namePlaceholder": "예) 집 네트워크",
   "AddAddressForm.submitButtonLabel": "추가",
   "AddAddressForm.tryingToConnect": "서버에 접속하는 중..",

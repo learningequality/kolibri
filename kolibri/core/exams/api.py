@@ -88,8 +88,9 @@ class ExamViewset(ValuesViewset):
 
     def consolidate(self, items, queryset):
         if items:
+            exam_ids = [e["id"] for e in items]
             adhoc_assignments = models.ExamAssignment.objects.filter(
-                exam__in=queryset, collection__kind=ADHOCLEARNERSGROUP
+                exam_id__in=exam_ids, collection__kind=ADHOCLEARNERSGROUP
             )
             adhoc_assignments = annotate_array_aggregate(
                 adhoc_assignments, learner_ids="collection__membership__user_id"

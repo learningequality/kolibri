@@ -84,7 +84,6 @@
   import debounce from 'lodash/debounce';
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
-  import xor from 'lodash/xor';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -120,7 +119,6 @@
           role: this.$route.query.role || null,
         },
         isExiting: false,
-        workingResourcesCopy: [...this.$store.state.lessonSummary.workingResources],
         moreResultsState: null,
       };
     },
@@ -194,7 +192,8 @@
         return 'visible';
       },
       contentIsInLesson() {
-        return ({ id }) => this.workingResources.includes(id);
+        return ({ id }) =>
+          Boolean(this.workingResources.find(resource => resource.contentnode_id === id));
       },
       addableContent() {
         // Content in the topic that can be added if 'Select All' is clicked
@@ -240,37 +239,31 @@
       },
     },
     beforeRouteLeave(to, from, next) {
-      // Only autosave if changes have been made
-      if (xor(this.workingResources, this.workingResourcesCopy).length > 0) {
-        // Block the UI and show a notification in case last save takes too long
-        this.isExiting = true;
-        const isSamePage = samePageCheckGenerator(this.$store);
-        setTimeout(() => {
-          if (isSamePage()) {
-            this.createSnackbar(this.$tr('saveBeforeExitSnackbarText'));
-          }
-        }, 500);
+      // Block the UI and show a notification in case last save takes too long
+      this.isExiting = true;
+      const isSamePage = samePageCheckGenerator(this.$store);
+      setTimeout(() => {
+        if (isSamePage()) {
+          this.createSnackbar(this.$tr('saveBeforeExitSnackbarText'));
+        }
+      }, 500);
 
-        // Cancel any debounced calls
-        this.debouncedSaveResources.cancel();
-        this.saveLessonResources({
-          lessonId: this.lessonId,
-          resourceIds: [...this.workingResources],
+      // Cancel any debounced calls
+      this.debouncedSaveResources.cancel();
+      this.saveLessonResources({
+        lessonId: this.lessonId,
+        resources: [...this.workingResources],
+      })
+        .then(() => {
+          this.clearSnackbar();
+          this.isExiting = false;
+          next();
         })
-          .then(() => {
-            this.clearSnackbar();
-            this.isExiting = false;
-            next();
-          })
-          .catch(() => {
-            this.showResourcesChangedError();
-            this.isExiting = false;
-            next(false);
-          });
-      } else {
-        this.isExiting = false;
-        next();
-      }
+        .catch(() => {
+          this.showResourcesChangedError();
+          this.isExiting = false;
+          next(false);
+        });
     },
     methods: {
       ...mapActions(['createSnackbar', 'clearSnackbar']),
@@ -300,16 +293,16 @@
               node: { ...resource },
             });
           });
-          this.addToWorkingResources(this.addableContent.map(({ id }) => id));
+          this.addToWorkingResources(this.addableContent);
         } else {
-          this.removeFromSelectedResources(this.contentList.map(({ id }) => id));
+          this.removeFromSelectedResources(this.contentList);
         }
       },
-      addToSelectedResources(contentId) {
+      addToSelectedResources(content) {
         this.addToResourceCache({
-          node: this.contentList.find(n => n.id === contentId),
+          node: this.contentList.find(n => n.id === content.id),
         });
-        this.addToWorkingResources([contentId]);
+        this.addToWorkingResources([content]);
       },
       contentIsDirectoryKind({ kind }) {
         return kind === ContentNodeKinds.TOPIC || kind === ContentNodeKinds.CHANNEL;
@@ -360,11 +353,11 @@
         }
         return '';
       },
-      toggleSelected({ checked, contentId }) {
+      toggleSelected({ checked, content }) {
         if (checked) {
-          this.addToSelectedResources(contentId);
+          this.addToSelectedResources(content);
         } else {
-          this.removeFromSelectedResources(contentId);
+          this.removeFromSelectedResources(content);
         }
       },
       handleSearchTerm(searchTerm) {

@@ -12,13 +12,32 @@
       @click="handleSelect"
       @keyup.enter.stop.prevent="handleSelect"
     >
-      <span class="text">{{ text }}</span>
+      <span class="text">
+        {{ text }}
+        <KIcon
+          v-if="!available"
+          ref="missing"
+          icon="warning"
+          :style=" {
+            fill: $themePalette.orange.v_400, float: isRtl ? 'left' : 'right'
+          }"
+        />
+      </span>
       <CoachContentLabel
         class="coach-content-label"
         :value="isCoachContent ? 1 : 0"
         :isTopic="false"
       />
     </a>
+    <KTooltip
+      v-if="!available"
+      reference="missing"
+      placement="bottom"
+      style="position: relative;"
+      :refs="$refs"
+    >
+      {{ getMissingContentString('someResourcesMissingOrNotSupported') }}
+    </KTooltip>
     <div v-if="draggable" class="handle">
       <DragSortWidget
         :isFirst="isFirst"
@@ -75,6 +94,10 @@
       isLast: {
         type: Boolean,
         default: false,
+      },
+      available: {
+        type: Boolean,
+        required: true,
       },
     },
     computed: {

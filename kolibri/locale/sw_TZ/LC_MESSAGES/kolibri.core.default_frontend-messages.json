@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "Tafadhali ingiza anwani ya IP halali, URL au jina la mwenyeji",
   "AddAddressForm.header": "Anwani mpya",
   "AddAddressForm.nameDesc": "Chagua jina la anwani hii ili uweze kukumbuka baadaye:",
-  "AddAddressForm.nameLabel": "Jina la mtandao",
+  "AddAddressForm.nameLabel": "Jina",
   "AddAddressForm.namePlaceholder": "k.m Mtandao wa nyumba",
   "AddAddressForm.submitButtonLabel": "Ongeza",
   "AddAddressForm.tryingToConnect": "Kujaribu kuunganisha kwenye seva…",

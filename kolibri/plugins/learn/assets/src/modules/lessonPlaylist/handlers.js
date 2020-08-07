@@ -28,10 +28,9 @@ export function showLessonPlaylist(store, { lessonId }) {
         store.commit('lessonPlaylist/SET_LESSON_CONTENTNODES', sortedContentNodes);
         // Only load contentnode progress if the user is logged in
         if (store.getters.isUserLoggedIn) {
-          const contentNodeIds = contentNodes.map(({ id }) => id);
-          if (contentNodeIds.length > 0) {
+          if (contentNodes.length > 0) {
             ContentNodeProgressResource.fetchCollection({
-              getParams: { ids: contentNodeIds },
+              getParams: { lesson: lessonId },
             }).then(progresses => {
               store.commit('lessonPlaylist/SET_LESSON_CONTENTNODES_PROGRESS', progresses);
             });

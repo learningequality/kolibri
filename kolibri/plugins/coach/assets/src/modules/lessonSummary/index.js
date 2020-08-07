@@ -1,4 +1,3 @@
-import isArray from 'lodash/isArray';
 import lessonResources from '../lessonResources';
 import * as actions from './actions';
 
@@ -37,21 +36,20 @@ export default {
     SET_WORKING_RESOURCES(state, workingResources) {
       state.workingResources = [...workingResources];
     },
-    ADD_TO_WORKING_RESOURCES(state, ids) {
-      if (typeof ids === 'string') {
-        state.workingResources.push(ids);
-      } else if (isArray(ids)) {
-        state.workingResources = [...state.workingResources, ...ids];
-      }
+    ADD_TO_WORKING_RESOURCES(state, resources) {
+      state.workingResources = [
+        ...state.workingResources,
+        ...resources.map(r => ({
+          contentnode_id: r.id,
+          content_id: r.content_id,
+          channel_id: r.channel_id,
+        })),
+      ];
     },
-    REMOVE_FROM_WORKING_RESOURCES(state, ids) {
-      if (typeof ids === 'string') {
-        state.workingResources = state.workingResources.filter(resourceId => resourceId !== ids);
-      } else if (isArray(ids)) {
-        state.workingResources = state.workingResources.filter(
-          resourceId => !ids.includes(resourceId)
-        );
-      }
+    REMOVE_FROM_WORKING_RESOURCES(state, resources) {
+      state.workingResources = state.workingResources.filter(
+        workingResource => !resources.find(r => r.id === workingResource.contentnode_id)
+      );
     },
     ADD_TO_RESOURCE_CACHE(state, { node, channelTitle }) {
       if (node && node.id) {

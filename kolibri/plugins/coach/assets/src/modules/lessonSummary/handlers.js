@@ -25,7 +25,7 @@ export function setLessonSummaryState(store, params) {
       const resourceIds = currentLesson.resources.map(resourceObj => resourceObj.contentnode_id);
 
       return store.dispatch('lessonSummary/getResourceCache', resourceIds).then(() => {
-        store.commit('lessonSummary/SET_WORKING_RESOURCES', resourceIds);
+        store.commit('lessonSummary/SET_WORKING_RESOURCES', currentLesson.resources);
         store.commit('lessonSummary/SET_LEARNER_GROUPS', learnerGroups);
         store.commit('SET_PAGE_NAME', LessonsPageNames.SUMMARY);
       });
