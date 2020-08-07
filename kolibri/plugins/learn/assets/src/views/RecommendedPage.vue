@@ -68,8 +68,10 @@
 <script>
 
   import { mapState } from 'vuex';
+  import uniq from 'lodash/uniq';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeProgressResource } from 'kolibri.resources';
   import { PageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
   import ContentCardGroupCarousel from './ContentCardGroupCarousel';
@@ -122,6 +124,23 @@
       trimmedResume() {
         return this.resume.slice(0, this.carouselLimit);
       },
+    },
+    created() {
+      if (this.$store.getters.isUserLoggedIn) {
+        const contentNodeIds = uniq(
+          [...this.trimmedNextSteps, ...this.trimmedPopular, ...this.trimmedResume].map(
+            ({ id }) => id
+          )
+        );
+
+        if (contentNodeIds.length > 0) {
+          ContentNodeProgressResource.fetchCollection({ getParams: { ids: contentNodeIds } }).then(
+            progresses => {
+              this.$store.commit('recommended/SET_RECOMMENDED_NODES_PROGRESS', progresses);
+            }
+          );
+        }
+      }
     },
     methods: {
       genContentLink(id, kind) {

@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "ایک جائز آئی پی ایڈرس، یو آر ایل یا ہوسٹ نیم داخل کریں",
   "AddAddressForm.header": "نیا ایڈریس",
   "AddAddressForm.nameDesc": "اس پتے کے لئے ایک نام منتخب کریں جو آپ بعد میں یاد کرسکتے ہوں:",
-  "AddAddressForm.nameLabel": "نیٹ ورک کا نام",
+  "AddAddressForm.nameLabel": "نام",
   "AddAddressForm.namePlaceholder": "مثلا گھر کا نیٹ ورک",
   "AddAddressForm.submitButtonLabel": "شامل کیجئے",
   "AddAddressForm.tryingToConnect": "سرور سے رابطے کی کوشش…",

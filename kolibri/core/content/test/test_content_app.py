@@ -792,17 +792,6 @@ class ContentNodeAPITestCase(APITestCase):
         for i in range(len(children)):
             self.assertEqual(response.data[i]["title"], children[i].title)
 
-    def test_contentnode_ancestors(self):
-        node = content.ContentNode.objects.get(title="c2c2")
-        ancestors = node.get_ancestors()
-        ancestors_titles = {n.title for n in ancestors}
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-ancestors", kwargs={"pk": node.id})
-        )
-        response_titles = {n["title"] for n in response.data}
-        self.assertEqual(len(response.data), ancestors.count())
-        self.assertEqual(ancestors_titles, response_titles)
-
     def test_channelmetadata_list(self):
         response = self.client.get(reverse("kolibri:core:channel-list", kwargs={}))
         self.assertEqual(response.data[0]["name"], "testing")

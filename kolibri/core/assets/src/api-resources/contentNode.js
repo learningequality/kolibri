@@ -22,9 +22,6 @@ export default new Resource({
   fetchNodeAssessments(ids) {
     return this.getListEndpoint('node_assessments', { ids });
   },
-  fetchAncestors(id) {
-    return this.fetchDetailCollection('ancestors', id);
-  },
   fetchRecommendationsFor(id, getParams) {
     return this.fetchDetailCollection('recommendations_for', id, getParams);
   },

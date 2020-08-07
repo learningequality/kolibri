@@ -1,3 +1,5 @@
-$thumb-width: 158px;
-$thumb-height: $thumb-width;
+$ratio: 16 / 9;
+
+$thumb-height: 125px;
+$thumb-width: round($thumb-height * $ratio);
 $checkbox-offset: 42px;

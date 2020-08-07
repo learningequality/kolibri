@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "لطفن یک آدرس IP، URL یا نام میزبان (hostname) معتبر وارد کنید",
   "AddAddressForm.header": "آدرس جدید",
   "AddAddressForm.nameDesc": "یک نام برای این آدرس انتخاب کنید تا در آینده بتوانید آن را به یاد داشته باشید:",
-  "AddAddressForm.nameLabel": "نام شبکه",
+  "AddAddressForm.nameLabel": "نام",
   "AddAddressForm.namePlaceholder": "برای مثال شبکه‌ی خانگی",
   "AddAddressForm.submitButtonLabel": "افزودن",
   "AddAddressForm.tryingToConnect": "تلاش برای اتصال به سِرور…",

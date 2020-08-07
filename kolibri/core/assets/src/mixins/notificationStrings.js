@@ -12,7 +12,8 @@ export default createTranslator('NotificationStrings', {
   },
   coachesAssignedNoCount: {
     message: '{count, plural, one {Coach assigned} other {Coaches assigned}}',
-    context: 'Assigning an unspecified number of coaches to a class',
+    context:
+      'String appears as a short notification in a bottom left corner of the screen when more than one coach is assigned to a class, but without specifying the number.',
   },
   coachesRemovedNoCount: {
     message: '{count, plural, one {Coach removed} other {Coaches removed}}',

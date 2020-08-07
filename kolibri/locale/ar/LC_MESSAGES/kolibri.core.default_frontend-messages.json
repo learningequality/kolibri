@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "الرجاء إدخال عنوان بروتوكل الإنترنت، أو عنوان رابط، أو اسم مضيف صالح",
   "AddAddressForm.header": "عنوان شبكة جديد",
   "AddAddressForm.nameDesc": "اختر اسماً لهذا العنوان لتتمكن من تذكّره لاحقاً:",
-  "AddAddressForm.nameLabel": "اسم الشبكة",
+  "AddAddressForm.nameLabel": "الاسم",
   "AddAddressForm.namePlaceholder": "مثال: شبكة المنزل",
   "AddAddressForm.submitButtonLabel": "إضافة",
   "AddAddressForm.tryingToConnect": "جاري محاولة الاتصال بالخادم…",

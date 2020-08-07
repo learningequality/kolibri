@@ -2,6 +2,46 @@
 
 List of the most important changes for each release.
 
+## 0.14.0
+
+### Internationalization and localization
+
+- Added German
+- Added Khmer
+- CSV data files have localized headers and filenames
+
+### Added
+
+- In the Setup Wizard, users can import an existing facility from peer Kolibri devices on the network
+- Facility admins can sync facility data with peer Kolibri devices on the network or Kolibri Data Portal
+- Facility admins can import and export user accounts to and from a CSV file
+- Channels can display a learner-facing "tagline" on Learn channel list
+- Device and facility names can now be edited by admins
+- Super admins can delete facilities from a device
+- Quizzes and lessons can be assigned to individual learners in addition to whole groups or classes
+- Super admins can view the Facility and Coach pages for all facilities
+- Pingbacks to the telemetry server can now be disabled
+
+### Changed
+
+- New card layout for channels on Learn Page is more efficient and displays new taglines
+- Simplified setup process when using Kolibri for personal use
+- Improved sign-in flow, especially for devices with multiple facilities
+- The experience for upgrading channels has been improved with resource highlighting, improved statistics, and more efficient navigation
+- Improved icons for facilities, classrooms, quizzes, and other items
+- More consistent wording of notifications in the application
+- Quizzes and lessons with missing resources are more gracefully handled
+- Shut-down times are faster and more consistent
+
+### Fixed
+
+- Many visual and user experience issues
+- Language filter not working when viewing channels for import/export
+- A variety of mobile responsiveness issues have been addressed
+
+
+([0.14.0 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.14.0))
+
 ## 0.13.3
 
 ### Changed or fixed

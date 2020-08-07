@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "Inserisci un indirizzo IP, un URL o un nome host validi",
   "AddAddressForm.header": "Nuovo indirizzo",
   "AddAddressForm.nameDesc": "Scegli un nome per questo indirizzo in modo da poterlo ricordare in seguito:",
-  "AddAddressForm.nameLabel": "Nome rete",
+  "AddAddressForm.nameLabel": "Nome",
   "AddAddressForm.namePlaceholder": "per esempio: Rete domestica",
   "AddAddressForm.submitButtonLabel": "Aggiungi",
   "AddAddressForm.tryingToConnect": "Tentativo di connessione al server...",

@@ -27,20 +27,4 @@ export default {
       });
     },
   },
-  modules: {
-    subpage: {
-      namespaced: true,
-      state: {
-        recommendations: [],
-      },
-      mutations: {
-        SET_STATE(state, payload) {
-          state.recommendations = payload.recommendations;
-        },
-        RESET_STATE(state) {
-          state.recommendations = [];
-        },
-      },
-    },
-  },
 };
