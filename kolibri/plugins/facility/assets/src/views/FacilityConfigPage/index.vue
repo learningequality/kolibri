@@ -55,7 +55,12 @@
                 :key="setting"
                 :label="$tr('learnerNeedPasswordToLogin')"
                 :checked="!settings['learner_can_login_with_no_password']"
-                @change="toggleSetting('learner_can_login_with_no_password')"
+                @change="() => {
+                  toggleSetting('learner_can_login_with_no_password')
+                  settings['learner_can_edit_password'] &&
+                    !settings['learner_can_login_with_no_password'] ?
+                      toggleSetting('learner_can_edit_password') : null
+                }"
               />
               <KCheckbox
                 :key="setting + 'learner_can_edit_password'"
