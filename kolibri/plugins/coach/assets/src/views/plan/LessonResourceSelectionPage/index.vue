@@ -335,7 +335,7 @@
       saveResources() {
         return this.saveLessonResources({
           lessonId: this.lessonId,
-          resourceIds: this.workingResources,
+          resources: this.workingResources,
         });
       },
       selectionMetadata(content) {
