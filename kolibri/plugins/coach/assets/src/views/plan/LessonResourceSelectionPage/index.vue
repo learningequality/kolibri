@@ -357,7 +357,7 @@
         if (checked) {
           this.addToSelectedResources(content);
         } else {
-          this.removeFromSelectedResources(content);
+          this.removeFromSelectedResources([content]);
         }
       },
       handleSearchTerm(searchTerm) {
