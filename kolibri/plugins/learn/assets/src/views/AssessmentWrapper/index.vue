@@ -198,7 +198,10 @@ oriented data synchronization.
       ...mapGetters(['isUserLoggedIn']),
       ...mapState({
         mastered: state => state.core.logging.mastery.complete,
-        currentInteractions: state => state.core.logging.attempt.interaction_history.length,
+        currentInteractions: state =>
+          state.core.logging.attempt.interaction_history
+            ? state.core.logging.attempt.interaction_history.length
+            : 0,
         totalattempts: state => state.core.logging.mastery.totalattempts,
         pastattempts: state =>
           (state.core.logging.mastery.pastattempts || []).filter(attempt => attempt.error !== true),
