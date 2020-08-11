@@ -63,10 +63,11 @@
           </td>
           <td>
             <span :ref="`coachNames${classroom.id}`">
-              <template v-if="coachNames(classroom).length">
-                {{ formattedCoachNames(classroom) }}
-              </template>
-              <KEmptyPlaceholder v-else />
+              <KOptionalText>
+                <template v-if="coachNames(classroom).length">
+                  {{ formattedCoachNames(classroom) }}
+                </template>
+              </KOptionalText>
             </span>
             <KTooltip
               v-if="formattedCoachNamesTooltip(classroom)"

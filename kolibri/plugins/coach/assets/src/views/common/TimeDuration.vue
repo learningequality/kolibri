@@ -1,7 +1,6 @@
 <template>
 
-  <span v-if="seconds">{{ formattedTime }}</span>
-  <KEmptyPlaceholder v-else />
+  <KOptionalText :text="formattedTime" />
 
 </template>
 
@@ -22,7 +21,9 @@
     },
     computed: {
       formattedTime() {
-        if (this.seconds < 2 * MINUTE) {
+        if (!this.seconds) {
+          return '';
+        } else if (this.seconds < 2 * MINUTE) {
           return this.$tr('seconds', { value: Math.floor(this.seconds) });
         } else if (this.seconds < HOUR) {
           return this.$tr('minutes', { value: Math.floor(this.seconds / MINUTE) });

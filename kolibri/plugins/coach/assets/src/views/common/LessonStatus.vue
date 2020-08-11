@@ -48,10 +48,7 @@
           {{ coachString('descriptionLabel') }}
         </KGridItem>
         <KGridItem :layout12="layout12Value">
-          <template v-if="lesson.description">
-            {{ lesson.description }}
-          </template>
-          <KEmptyPlaceholder v-else />
+          <KOptionalText :text="lesson.description || ''" />
         </KGridItem>
       </div>
     </KGrid>

@@ -1,9 +1,6 @@
 <template>
 
-  <span v-if="date">
-    {{ $formatRelative(ceilingDate, { now: now }) }}
-  </span>
-  <KEmptyPlaceholder v-else />
+  <KOptionalText :text="data ? $formatRelative(ceilingDate, { now }) : ''" />
 
 </template>
 

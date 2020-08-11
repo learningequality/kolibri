@@ -1,9 +1,6 @@
 <template>
 
-  <span v-if="isSpecified && birthYear">
-    {{ birthYear }}
-  </span>
-  <KEmptyPlaceholder v-else />
+  <KOptionalText :text="isSpecified ? birthYear : ''" />
 
 </template>
 

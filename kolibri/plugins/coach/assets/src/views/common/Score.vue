@@ -1,9 +1,6 @@
 <template>
 
-  <span>
-    <KEmptyPlaceholder v-if="value === undefined || value === null" />
-    <template v-else>{{ coachString('percentage', { value }) }}</template>
-  </span>
+  <KOptionalText :text="scoreText" />
 
 </template>
 
@@ -22,6 +19,15 @@
         validator(value) {
           return value >= 0 && value <= 1;
         },
+      },
+    },
+    computed: {
+      scoreText() {
+        if (this.value === undefined || this.value === null) {
+          return '';
+        } else {
+          return this.coachString('percentage', { value: this.value });
+        }
       },
     },
   };

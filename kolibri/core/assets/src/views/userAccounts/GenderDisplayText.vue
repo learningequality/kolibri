@@ -1,9 +1,6 @@
 <template>
 
-  <span v-if="isSpecified && displayText">
-    {{ displayText }}
-  </span>
-  <KEmptyPlaceholder v-else />
+  <KOptionalText :text="isSpecified ? displayText : ''" />
 
 </template>
 
@@ -33,7 +30,7 @@
         } else if (this.gender === FEMALE) {
           return this.coreString('genderOptionFemale');
         }
-        return null;
+        return '';
       },
     },
   };
