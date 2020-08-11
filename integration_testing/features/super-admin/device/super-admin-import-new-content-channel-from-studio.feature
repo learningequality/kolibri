@@ -78,6 +78,17 @@ Feature: Super admin imports content from Studio
       And I do not see the number of *resources selected* flag for the unchecked topic
       And I see the *0 resources selected* at the bottom
 
+  Scenario: Navigating a topic with many subtopics
+    Given I am navigating a <topic> topic enough subtopics to fill up the window height
+      And one <subtopic> subtopics also has enough in it items to fill up the window height
+    When I scroll down to the bottom of the page while inside the <topic>
+    Then I see that the topic name has scrolled out of view
+    When I click the <subtopic> subtopic link
+    Then I see the list of its subtopics
+      And I see that the page is scrolled so that the <subtopic> name and breadcrumb links are now aligned to the top of the window
+    When I click the parent <topic> topic in the breadcrumb link
+      And I see that the page still displays the breadcrumb links aligned to the top of the window
+
   Scenario: Click the Import button
     Given that I have selected at least one topic or subtopic
     When I click the *Import* button

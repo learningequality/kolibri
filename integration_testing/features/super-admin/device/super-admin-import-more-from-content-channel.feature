@@ -22,6 +22,17 @@ Feature: Super admin imports more content
       And I see *0 resources selected* at the bottom bar
       And I see the *Import* button is not active
 
+  Scenario: Navigating a topic with many subtopics
+    Given I am navigating a <topic> topic enough subtopics to fill up the window height
+      And one <subtopic> subtopics also has enough in it items to fill up the window height
+    When I scroll down to the bottom of the page while inside the <topic>
+    Then I see that the topic name has scrolled out of view
+    When I click the <subtopic> subtopic link
+    Then I see the list of its subtopics
+      And I see that the page is scrolled so that the <subtopic> name and breadcrumb links are now aligned to the top of the window
+    When I click the parent <topic> topic in the breadcrumb link
+      And I see that the page still displays the breadcrumb links aligned to the top of the window
+
 # continue testing using the select and import scenarios from `super-admin-import-new-content-channel-from-studio.feature`
 
   Scenario: Import more content into channel from local drive
