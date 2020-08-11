@@ -63,7 +63,7 @@
               <KButton
                 :text="coreString('removeAction')"
                 appearance="flat-button"
-                @click="removeResource(resource.contentnode_id)"
+                @click="removeResource(resource)"
               />
             </KFixedGridItem>
           </KFixedGrid>
@@ -141,9 +141,9 @@
       resourceKind(resourceId) {
         return this.resourceContentNodes[resourceId].kind;
       },
-      removeResource(resourceId) {
-        this.firstRemovalTitle = this.resourceTitle(resourceId);
-        this.removeFromWorkingResources(resourceId);
+      removeResource(resource) {
+        this.firstRemovalTitle = this.resourceTitle(resource.contentnode_id);
+        this.removeFromWorkingResources([resource]);
 
         this.autoSave(this.lessonId, this.workingResources);
 

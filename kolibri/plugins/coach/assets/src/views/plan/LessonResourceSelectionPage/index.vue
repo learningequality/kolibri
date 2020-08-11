@@ -335,7 +335,7 @@
       saveResources() {
         return this.saveLessonResources({
           lessonId: this.lessonId,
-          resourceIds: this.workingResources,
+          resources: this.workingResources,
         });
       },
       selectionMetadata(content) {
@@ -357,7 +357,7 @@
         if (checked) {
           this.addToSelectedResources(content);
         } else {
-          this.removeFromSelectedResources(content);
+          this.removeFromSelectedResources([content]);
         }
       },
       handleSearchTerm(searchTerm) {

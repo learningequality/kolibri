@@ -145,6 +145,9 @@ export default {
   getRecipientNamesForLesson(state) {
     return function(lesson) {
       const fullLesson = state.lessonMap[lesson.id];
+      if (!fullLesson) {
+        return [];
+      }
       const recipientsForGroups = fullLesson.groups.length
         ? this.getLearnersForGroups(fullLesson.groups)
         : [];
