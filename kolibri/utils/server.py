@@ -549,7 +549,7 @@ def installation_type(cmd_line=None):  # noqa:C901
         try:
             check_output(["apt-cache", "show", "kolibri"])
             apt_repo = str(check_output(["apt-cache", "madison", "kolibri"]))
-            if apt_repo:
+            if len(apt_repo) > 4:  # repo will have at least http
                 install_type = "apt"
         except (
             CalledProcessError,
