@@ -549,13 +549,14 @@ def installation_type(cmd_line=None):  # noqa:C901
         try:
             check_output(["apt-cache", "show", "kolibri"])
             apt_repo = str(check_output(["apt-cache", "madison", "kolibri"]))
-            if apt_repo:
+            if len(apt_repo) > 4:  # repo will have at least http
                 install_type = "apt"
         except (
             CalledProcessError,
             FileNotFoundError,
         ):  # kolibri package not installed!
-            install_type = "whl"
+            if sys.path[-1] != "/usr/lib/python3/dist-packages":
+                install_type = "whl"
         return install_type
 
     def is_kolibri_server():
