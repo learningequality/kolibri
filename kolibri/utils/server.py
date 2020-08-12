@@ -555,7 +555,8 @@ def installation_type(cmd_line=None):  # noqa:C901
             CalledProcessError,
             FileNotFoundError,
         ):  # kolibri package not installed!
-            install_type = "whl"
+            if sys.path[-1] != "/usr/lib/python3/dist-packages":
+                install_type = "whl"
         return install_type
 
     def is_kolibri_server():
