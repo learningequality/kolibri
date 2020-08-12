@@ -1,3 +1,15 @@
+kolibri-source (0.14.1~rc1-0ubuntu1) focal; urgency=medium
+
+  * New upstream release candidate
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 12 Aug 2020 21:09:37 +0200
+
+kolibri-source (0.14.0-0ubuntu1) focal; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Fri, 07 Aug 2020 16:30:06 +0200
+
 kolibri-source (0.14.0~rc1-0ubuntu1) focal; urgency=low
 
   * New upstream release candidate
