@@ -67,9 +67,8 @@
     }),
     computed: {
       cardColumnSpan() {
-        if (this.windowBreakpoint <= 1) return 4;
-        if (this.windowBreakpoint === 2) return 8;
-        if (this.windowBreakpoint <= 4) return 6;
+        if (this.windowBreakpoint <= 2) return 4;
+        if (this.windowBreakpoint <= 3) return 6;
         if (this.windowBreakpoint <= 6) return 4;
         return 3;
       },
