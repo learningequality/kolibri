@@ -12,6 +12,7 @@ import { i18nSetup } from 'kolibri.utils.i18n';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 import KContentPlugin from 'kolibri-design-system/lib/content/KContentPlugin';
 import KSelect from '../../../kolibri/core/assets/src/views/KSelect';
+import KOptionalText from '../../../kolibri/core/assets/src/views/KOptionalText';
 
 global.beforeEach(() => {
   return new Promise(resolve => {
@@ -36,6 +37,7 @@ Vue.use(VueMeta);
 Vue.use(KThemePlugin);
 Vue.use(KContentPlugin);
 Vue.component('KSelect', KSelect);
+Vue.component('KOptionalText', KOptionalText);
 
 Vue.config.silent = true;
 Vue.config.devtools = false;

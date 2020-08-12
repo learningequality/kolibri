@@ -1,19 +1,21 @@
 <template>
 
-  <KOptionalText class="items-label">
-    <template v-if="items.length === 1">
-      {{ items[0] }}
-    </template>
-    <template v-else-if="items.length === 2">
-      {{ $tr('twoItems', { item1: items[0], item2: items[1] }) }}
-    </template>
-    <template v-else-if="items.length === 3">
-      {{ $tr('threeItems', { item1: items[0], item2: items[1], item3: items[2] }) }}
-    </template>
-    <template v-else>
-      {{ $tr('manyItems', { item1: items[0], item2: items[1], count: items.length - 2 }) }}
-    </template>
-  </KOptionalText>
+  <div class="items-label">
+    <KOptionalText>
+      <template v-if="items.length === 1">
+        {{ items[0] }}
+      </template>
+      <template v-else-if="items.length === 2">
+        {{ $tr('twoItems', { item1: items[0], item2: items[1] }) }}
+      </template>
+      <template v-else-if="items.length === 3">
+        {{ $tr('threeItems', { item1: items[0], item2: items[1], item3: items[2] }) }}
+      </template>
+      <template v-else>
+        {{ $tr('manyItems', { item1: items[0], item2: items[1], count: items.length - 2 }) }}
+      </template>
+    </KOptionalText>
+  </div>
 
 </template>
 
