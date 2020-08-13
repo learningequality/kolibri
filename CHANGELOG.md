@@ -4,6 +4,8 @@ List of the most important changes for each release.
 
 ## 0.14.1
 
+(Note: 0.14.0 contained a regression and was superseded by 0.14.1)
+
 ### Changed
 
 - Responsive layout for channel cards of Learn Page changed to use horizontal space more efficiently
