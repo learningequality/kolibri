@@ -12,15 +12,11 @@ KOLIBRI_BIN = "kolibri"
 
 
 class KolibriServiceSetupProcess(multiprocessing.Process):
-    def __init__(self):
-        self.__ready_event = multiprocessing.Event()
+    def __init__(self, context):
+        self.__context = context
         self.__cached_extensions = ContentExtensionsList.from_cache()
         self.__active_extensions = ContentExtensionsList.from_flatpak_info()
         super().__init__()
-
-    @property
-    def ready_event(self):
-        return self.__ready_event
 
     def run(self):
         self.__active_extensions.update_kolibri_environ(os.environ)
@@ -38,7 +34,7 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         else:
             logger.warning("Failed to update content extensions.")
 
-        self.__ready_event.set()
+        self.__context.set_is_setup_complete(True)
 
     def __run_kolibri_command(self, *args):
         result = subprocess.run([KOLIBRI_BIN, "manage", *args], check=False)

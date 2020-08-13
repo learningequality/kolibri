@@ -2,16 +2,18 @@ import multiprocessing
 
 
 class KolibriServiceStopProcess(multiprocessing.Process):
-    def __init__(self, loaded_event):
-        self.__loaded_event = loaded_event
+    def __init__(self, context):
+        self.__context = context
         super().__init__()
 
     def run(self):
-        self.__loaded_event.wait()
+        if not self.__context.await_is_responding():
+            return
+
         from kolibri.utils.cli import stop
 
         try:
-            result = stop.callback()
+            stop.callback()
         except SystemExit:
             # Kolibri calls sys.exit here, but we don't want to exit
             pass

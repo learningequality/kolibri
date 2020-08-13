@@ -134,8 +134,8 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
             )
 
     def __do_redirect_on_load(self):
-        if self.delegate.wait_for_kolibri():
-            self.load_url(self.__target_url)
+        self.delegate.wait_for_kolibri()
+        self.load_url(self.__target_url)
 
     def open_window(self):
         target_url = self.get_url()
@@ -245,7 +245,7 @@ class Application(pew.ui.PEWApp):
         )
         self.__loader_url = "file://{path}".format(path=os.path.abspath(loader_path))
 
-        self.__kolibri_service_manager = KolibriServiceManager(retry_timeout_secs=10)
+        self.__kolibri_service_manager = KolibriServiceManager()
 
         self.__windows = []
         self.__did_init_service = False
@@ -292,7 +292,7 @@ class Application(pew.ui.PEWApp):
         elif self.__is_loader_url(url):
             return (
                 self.__kolibri_service_manager.is_kolibri_loading()
-                or not self.__kolibri_service_manager.is_kolibri_loaded()
+                or not self.__kolibri_service_manager.is_kolibri_responding()
             )
         elif not url.startswith("about:"):
             subprocess.call(["xdg-open", url])
@@ -302,7 +302,7 @@ class Application(pew.ui.PEWApp):
     def get_redirect_url(self, url):
         if self.__kolibri_service_manager.is_kolibri_loading():
             raise RedirectLoading()
-        elif not self.__kolibri_service_manager.is_kolibri_loaded():
+        elif not self.__kolibri_service_manager.is_kolibri_responding():
             raise RedirectError()
         elif self.__kolibri_service_manager.is_kolibri_url(url):
             return self.__kolibri_service_manager.get_initialize_url(url)

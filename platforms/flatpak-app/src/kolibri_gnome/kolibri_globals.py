@@ -14,7 +14,9 @@ from kolibri.utils.conf import OPTIONS
 KOLIBRI_HTTP_PORT = OPTIONS["Deployment"]["HTTP_PORT"]
 KOLIBRI_URL_PATH_PREFIX = OPTIONS["Deployment"]["URL_PATH_PREFIX"]
 
-KOLIBRI_BASE_URL = urljoin("http://localhost:{}".format(KOLIBRI_HTTP_PORT), KOLIBRI_URL_PATH_PREFIX)
+KOLIBRI_BASE_URL = urljoin(
+    "http://localhost:{}".format(KOLIBRI_HTTP_PORT), KOLIBRI_URL_PATH_PREFIX
+)
 
 
 class KolibriAPIError(Exception):
@@ -36,7 +38,7 @@ def is_kolibri_responding():
 
 def kolibri_api_get_json(path, query={}):
     base_url = urlsplit(KOLIBRI_BASE_URL)
-    path = urljoin(base_url.path, path.lstrip('/'))
+    path = urljoin(base_url.path, path.lstrip("/"))
     request_url = base_url._replace(path=path, query=urlencode(query))
     request = Request(urlunsplit(request_url))
 
