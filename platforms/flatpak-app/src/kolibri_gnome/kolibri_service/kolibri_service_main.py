@@ -56,23 +56,8 @@ class KolibriServiceMainProcess(multiprocessing.Process):
 
         self.__active_extensions.update_kolibri_environ(os.environ)
 
-        from ..kolibri_globals import KOLIBRI_URL
-
         while self.__keep_alive_event.is_set():
-            try:
-                with singleton_service("kolibri", KOLIBRI_URL):
-                    return self.__run_kolibri_start()
-            except io.BlockingIOError:
-                logger.warning("Kolibri is already running in another process.")
-                if self.__retry_timeout_secs is not None:
-                    logger.info(
-                        "Trying again in %d seconds...", self.__retry_timeout_secs
-                    )
-                    time.sleep(self.__retry_timeout_secs)
-                else:
-                    return None
-
-        logger.info("Kolibri is not starting. Giving up.")
+            return self.__run_kolibri_start()
 
     def __run_kolibri_start(self):
         from kolibri.plugins.registry import registered_plugins

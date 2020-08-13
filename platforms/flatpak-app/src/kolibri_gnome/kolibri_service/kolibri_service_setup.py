@@ -8,7 +8,7 @@ import subprocess
 
 from .content_extensions import ContentExtensionsList
 
-KOLIBRI = "kolibri"
+KOLIBRI_BIN = "kolibri"
 
 
 class KolibriServiceSetupProcess(multiprocessing.Process):
@@ -41,7 +41,7 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         self.__ready_event.set()
 
     def __run_kolibri_command(self, *args):
-        result = subprocess.run([KOLIBRI, "manage", *args], check=False)
+        result = subprocess.run([KOLIBRI_BIN, "manage", *args], check=False)
         return result.returncode == 0
 
     def __iter_content_operations(self):
