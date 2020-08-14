@@ -284,25 +284,22 @@ class Application(pew.ui.PEWApp):
         self.__kolibri_service_manager.join()
 
     def wait_for_kolibri(self):
-        return self.__kolibri_service_manager.wait_for_kolibri()
+        return self.__kolibri_service_manager.await_is_responding()
 
     def should_load_url(self, url):
         if self.__kolibri_service_manager.is_kolibri_url(url):
             return True
         elif self.__is_loader_url(url):
-            return (
-                self.__kolibri_service_manager.is_kolibri_loading()
-                or not self.__kolibri_service_manager.is_kolibri_responding()
-            )
+            return not self.__kolibri_service_manager.is_responding
         elif not url.startswith("about:"):
             subprocess.call(["xdg-open", url])
             return False
         return True
 
     def get_redirect_url(self, url):
-        if self.__kolibri_service_manager.is_kolibri_loading():
+        if self.__kolibri_service_manager.is_responding is None:
             raise RedirectLoading()
-        elif not self.__kolibri_service_manager.is_kolibri_responding():
+        elif self.__kolibri_service_manager.is_responding is False:
             raise RedirectError()
         elif self.__kolibri_service_manager.is_kolibri_url(url):
             return self.__kolibri_service_manager.get_initialize_url(url)

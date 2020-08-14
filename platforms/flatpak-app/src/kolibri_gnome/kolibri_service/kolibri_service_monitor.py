@@ -17,11 +17,11 @@ class KolibriServiceMonitorProcess(multiprocessing.Process):
         self.__context.await_is_starting()
 
         while not is_kolibri_responding():
-            if self.__context.get_is_stopped():
+            if self.__context.is_stopped:
                 logger.warning("Kolibri service has died")
-                self.__context.set_is_responding(False)
+                self.__context.is_responding = False
                 return
             time.sleep(1)
 
         logger.info("Kolibri service is responding")
-        self.__context.set_is_responding(True)
+        self.__context.is_responding = True

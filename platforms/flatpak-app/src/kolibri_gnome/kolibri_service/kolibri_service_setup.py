@@ -34,7 +34,7 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         else:
             logger.warning("Failed to update content extensions.")
 
-        self.__context.set_is_setup_complete(True)
+        self.__context.is_setup_complete = True
 
     def __run_kolibri_command(self, *args):
         result = subprocess.run([KOLIBRI_BIN, "manage", *args], check=False)
