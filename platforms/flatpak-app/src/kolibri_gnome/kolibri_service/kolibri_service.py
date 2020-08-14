@@ -146,10 +146,19 @@ class KolibriServiceManager(KolibriServiceContext):
         target_url = base_url._replace(**kwargs)
         return urlunsplit(target_url)
 
-    def is_kolibri_url(self, url):
+    def is_kolibri_app_url(self, url):
         from ..kolibri_globals import KOLIBRI_BASE_URL
 
-        return url and url.startswith(KOLIBRI_BASE_URL)
+        if not url:
+            return False
+        elif not url.startswith(KOLIBRI_BASE_URL):
+            return False
+        elif url.startswith(KOLIBRI_BASE_URL + 'static/'):
+            return False
+        elif url.startswith(KOLIBRI_BASE_URL + 'downloadcontent/'):
+            return False
+        else:
+            return True
 
     def join(self):
         if self.__main_process.is_alive():
