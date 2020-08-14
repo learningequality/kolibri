@@ -205,7 +205,10 @@ class MenuEventHandler:
         webbrowser.open(self.get_url())
 
     def on_open_kolibri_home(self):
-        os.startfile(os.environ['KOLIBRI_HOME'])
+        if sys.platform.startswith('win'):
+            os.startfile(os.environ['KOLIBRI_HOME'])
+        elif sys.platform.startswith('darwin'):
+            subprocess.call(['open', os.environ['KOLIBRI_HOME']])
 
     def on_back(self):
         self.go_back()
