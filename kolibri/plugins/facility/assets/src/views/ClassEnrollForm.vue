@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
 
   <form @submit.prevent="$emit('submit', selectedUsers)">
 
@@ -16,15 +16,15 @@
         />
       </template>
     </PaginatedListContainer>
-
-    <div class="footer">
-      <KButton
-        :text="coreString('confirmAction')"
-        :primary="true"
-        type="submit"
-        :disabled="selectedUsers.length === 0"
-      />
-    </div>
+    <SelectionBottomBar :counts="selectedUsers.length" type="learner" />
+    <!--<div class="footer">-->
+    <!--<KButton-->
+    <!--:text="coreString('confirmAction')"-->
+    <!--:primary="true"-->
+    <!--type="submit"-->
+    <!--:disabled="selectedUsers.length === 0"-->
+    <!--/>-->
+    <!--</div>-->
 
   </form>
 
@@ -38,11 +38,13 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
+  import SelectionBottomBar from './SelectionBottomBar';
   import UserTable from './UserTable';
 
   export default {
     name: 'ClassEnrollForm',
     components: {
+      SelectionBottomBar,
       PaginatedListContainer,
       UserTable,
     },
