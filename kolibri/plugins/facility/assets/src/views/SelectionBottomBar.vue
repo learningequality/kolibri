@@ -6,7 +6,7 @@
       :disabled="$attrs.disabled || buttonsDisabled"
       :text="coreString('confirmAction')"
       :primary="true"
-      @click="$emit('clickconfirm')"
+      @click="$emit('click-confirm')"
     />
   </BottomAppBar>
 
@@ -15,9 +15,7 @@
 
 <script>
 
-  import sumBy from 'lodash/sumBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
@@ -38,7 +36,7 @@
         type: String,
         required: true,
         validator(value) {
-          return value === 'learner' || value === 'coach';
+          return value === 'learners' || value === 'coaches';
         },
       },
     },
@@ -52,9 +50,7 @@
           : this.$tr('selectedMessage', { counts: this.counts, type: this.type });
       },
     },
-    watch: {},
     $trs: {
-      confirmAction: 'Confirm',
       zeroSelectedMessage: '0 {type} selected',
       selectedMessage: '{counts} {type} selected',
     },

@@ -1,6 +1,6 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
 
-  <form @submit.prevent="$emit('submit', selectedUsers)">
+  <form>
 
     <PaginatedListContainer
       :items="usersNotInClass"
@@ -16,16 +16,11 @@
         />
       </template>
     </PaginatedListContainer>
-    <SelectionBottomBar :counts="selectedUsers.length" type="learner" />
-    <!--<div class="footer">-->
-    <!--<KButton-->
-    <!--:text="coreString('confirmAction')"-->
-    <!--:primary="true"-->
-    <!--type="submit"-->
-    <!--:disabled="selectedUsers.length === 0"-->
-    <!--/>-->
-    <!--</div>-->
-
+    <SelectionBottomBar
+      :counts="selectedUsers.length"
+      :type="pageType"
+      @click-confirm="$emit('submit', selectedUsers)"
+    />
   </form>
 
 </template>
@@ -58,6 +53,10 @@
         type: Array,
         required: true,
       },
+      pageType: {
+        type: String,
+        required: true,
+      },
     },
     data() {
       return {
@@ -66,6 +65,8 @@
     },
     computed: {
       usersNotInClass() {
+        console.log(this.facilityUsers);
+        console.log(this.classUsers);
         return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
       },
     },
