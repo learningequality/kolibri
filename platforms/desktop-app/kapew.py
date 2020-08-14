@@ -16,6 +16,10 @@ def notarize_mac_build(args):
     build_tools.codesigning.notarize_mac_build()
 
 
+def codesign_win_build(args):
+    build_tools.codesigning.codesign_windows_build()
+
+
 def build(args):
     build_tools.build.do_build()
 
@@ -29,6 +33,9 @@ def main():
 
     notarize = commands.add_parser('notarize-mac', help="Submit Mac build for notarization.")
     notarize.set_defaults(func=notarize_mac_build)
+
+    notarize = commands.add_parser('codesign-win', help="Codesign Windows build.")
+    notarize.set_defaults(func=codesign_win_build)
 
     prebuild = commands.add_parser('prep-kolibri-dist', help="Prepare a bundled Kolibri for app build.")
     prebuild.add_argument('--kolibri-version', default=None,

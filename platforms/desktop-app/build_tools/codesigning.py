@@ -34,3 +34,23 @@ def notarize_mac_build():
         assert False, "os.environ = {}".format(os.environ)
 
     subprocess.call(cmd)
+
+def codesign_windows_build():
+    pfx = os.path.abspath(os.environ['WIN_CODESIGN_PFX'])
+    cert = os.path.abspath(os.environ['WIN_CODESIGN_CERT'])
+
+    assert os.path.exists(pfx), "Cannot find PFX file for signing."
+    assert os.path.exists(cert), "Cannot find certificate for signing at {}.".format(cert)
+
+    os.chdir('dist/win')
+    binary = 'kolibri.exe'
+    if not os.path.exists(binary):
+        binary = r'Kolibri\kolibri.exe'
+
+    signtool = r"C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe"
+
+    cmd = [signtool, "sign", "/f", pfx, "/p", os.environ['WIN_CODESIGN_PWD'],
+           "/ac", cert, "/tr", "http://timestamp.ssl.trustwave.com", "/td", "SHA256",
+           "/fd", "SHA256", binary]
+
+    subprocess.call(cmd)
