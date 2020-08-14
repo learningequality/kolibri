@@ -2,6 +2,7 @@ import datetime
 import gettext
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -68,6 +69,7 @@ sys.path.insert(0, os.path.join(extra_python_path, "kolibri", "dist"))
 
 import pew
 import pew.ui
+from pew.ui import PEWShortcut
 
 pew.set_app_name("Kolibri")
 
@@ -109,6 +111,13 @@ elif not 'KOLIBRI_HOME' in os.environ:
         if os.path.isdir(kolibri_dir):
             kolibri_home = kolibri_dir
     os.environ["KOLIBRI_HOME"] = kolibri_home
+
+
+# move in a templated Kolibri data directory, including pre-migrated DB, to speed up startup
+HOME_TEMPLATE_PATH = "assets/preseeded_kolibri_home"
+HOME_PATH = os.environ["KOLIBRI_HOME"]
+if not os.path.exists(HOME_PATH) and os.path.exists(HOME_TEMPLATE_PATH):
+    shutil.copytree(HOME_TEMPLATE_PATH, HOME_PATH)
 
 
 from kolibri.utils.logger import KolibriTimedRotatingFileHandler
@@ -165,6 +174,9 @@ logging.info("Locale info = {}".format(locale_info))
 
 def start_django(port=5000):
     from kolibri.utils.cli import initialize, setup_logging, start
+    from kolibri.plugins.registry import registered_plugins
+
+    registered_plugins.register_plugins(['kolibri.plugins.app'])
 
     logging.info("Starting server...")
     setup_logging(debug=False)
@@ -235,7 +247,8 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
         """
         app = pew.ui.get_app()
         if app:
-            app.windows.remove(self)
+            if self in app.windows:
+                app.windows.remove(self)
             if len(app.windows) > 0:
                 # if we still have open windows, don't run shutdown
                 return
@@ -304,27 +317,27 @@ class Application(pew.ui.PEWApp):
         menu_bar.add_menu(file_menu)
 
         edit_menu = pew.ui.PEWMenu(_('Edit'))
-        edit_menu.add(_('Undo'), handler=window.on_undo, shortcut='CTRL+Z')
-        edit_menu.add(_('Redo'), handler=window.on_redo, shortcut='CTRL+SHIFT+Z')
+        edit_menu.add(_('Undo'), handler=window.on_undo, shortcut=PEWShortcut('Z', modifiers=['CTRL']))
+        edit_menu.add(_('Redo'), handler=window.on_redo, shortcut=PEWShortcut('Z', modifiers=['CTRL', 'SHIFT']))
         edit_menu.add_separator()
-        edit_menu.add(_('Cut'), command='cut', shortcut='CTRL+X')
-        edit_menu.add(_('Copy'), command='copy', shortcut='CTRL+C')
-        edit_menu.add(_('Paste'), command='paste', shortcut='CTRL+V')
-        edit_menu.add(_('Select All'), command='select-all', shortcut='CTRL+A')
+        edit_menu.add(_('Cut'), command='cut', shortcut=PEWShortcut('X', modifiers=['CTRL']))
+        edit_menu.add(_('Copy'), command='copy', shortcut=PEWShortcut('C', modifiers=['CTRL']))
+        edit_menu.add(_('Paste'), command='paste', shortcut=PEWShortcut('V', modifiers=['CTRL']))
+        edit_menu.add(_('Select All'), command='select-all', shortcut=PEWShortcut('A', modifiers=['CTRL']))
         menu_bar.add_menu(edit_menu)
 
         view_menu = pew.ui.PEWMenu(_('View'))
         view_menu.add(_('Reload'), handler=window.on_reload)
-        view_menu.add(_('Actual Size'), handler=window.on_actual_size, shortcut='CTRL+0')
-        view_menu.add(_('Zoom In'), handler=window.on_zoom_in, shortcut='CTRL++')
-        view_menu.add(_('Zoom Out'), handler=window.on_zoom_out, shortcut='CTRL+-')
+        view_menu.add(_('Actual Size'), handler=window.on_actual_size, shortcut=PEWShortcut('0', modifiers=['CTRL']))
+        view_menu.add(_('Zoom In'), handler=window.on_zoom_in, shortcut=PEWShortcut('+', modifiers=['CTRL']))
+        view_menu.add(_('Zoom Out'), handler=window.on_zoom_out, shortcut=PEWShortcut('-', modifiers=['CTRL']))
         view_menu.add_separator()
         view_menu.add(_('Open in Browser'), handler=window.on_open_in_browser)
         menu_bar.add_menu(view_menu)
 
         history_menu = pew.ui.PEWMenu(_('History'))
-        history_menu.add(_('Back'), handler=window.on_back, shortcut='CTRL+[')
-        history_menu.add(_('Forward'), handler=window.on_forward, shortcut='CTRL+]')
+        history_menu.add(_('Back'), handler=window.on_back, shortcut=PEWShortcut('[', modifiers=['CTRL']))
+        history_menu.add(_('Forward'), handler=window.on_forward, shortcut=PEWShortcut(']', modifiers=['CTRL']))
         menu_bar.add_menu(history_menu)
 
         help_menu = pew.ui.PEWMenu(_('Help'))
@@ -397,11 +410,16 @@ class Application(pew.ui.PEWApp):
         saved_state = self.view.get_view_state()
         logging.debug('Persisted View State: {}'.format(self.view.get_view_state()))
 
+        # activate app mode
+        from kolibri.plugins.app.utils import interface
+        next_url = None
         if "URL" in saved_state and saved_state["URL"].startswith(home_url):
-            pew.ui.run_on_main_thread(self.view.load_url, saved_state["URL"])
-            return
+            next_url = saved_state["URL"]
 
-        pew.ui.run_on_main_thread(self.view.load_url, home_url)
+        root_url = KOLIBRI_ROOT_URL + interface.get_initialize_url(next_url=next_url)
+        logging.debug("root_url = {}".format(root_url))
+
+        pew.ui.run_on_main_thread(self.view.load_url, root_url)
 
     def get_main_window(self):
         return self.view
