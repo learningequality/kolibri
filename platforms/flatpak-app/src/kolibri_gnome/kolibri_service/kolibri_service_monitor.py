@@ -7,6 +7,13 @@ import time
 
 
 class KolibriServiceMonitorProcess(multiprocessing.Process):
+    """
+    Polls Kolibri at the expected URL to detect when it is responding to
+    requests.
+    - Sets context.is_responding to True when Kolibri is responding to
+      requests, or to False if Kolibri fails to start.
+    """
+
     def __init__(self, context):
         self.__context = context
         super().__init__()

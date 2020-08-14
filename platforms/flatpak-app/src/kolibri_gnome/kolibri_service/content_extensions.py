@@ -13,8 +13,10 @@ CONTENT_EXTENSION_RE = r"^org.learningequality.Kolibri.Content.(?P<name>\w+)$"
 class ContentExtensionsList(object):
     """
     Keeps track of a list of content extensions, either cached from a file in
-    $KOLIBRI_HOME, or generated from /.flatpak-info. Multiple lists can be
-    compared to detect changes in the environment.
+    KOLIBRI_HOME, or generated from /.flatpak-info. It is possible to compare
+    instances of ContentExtensionsList to detect changes. At the moment, this
+    expects to be running as a Flatpak. Otherwise, the from_flatpak_info
+    function will always return an empty ContentExtensionsList.
     """
 
     CONTENT_EXTENSIONS_STATE_PATH = os.path.join(

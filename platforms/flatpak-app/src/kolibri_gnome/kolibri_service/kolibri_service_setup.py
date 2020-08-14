@@ -12,6 +12,11 @@ KOLIBRI_BIN = "kolibri"
 
 
 class KolibriServiceSetupProcess(multiprocessing.Process):
+    """
+    Does initial setup for Kolibri such as scanning for pre-installed content.
+    - Sets context.is_setup_complete to True when setup is complete.
+    """
+
     def __init__(self, context):
         self.__context = context
         self.__cached_extensions = ContentExtensionsList.from_cache()

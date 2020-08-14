@@ -7,6 +7,12 @@ from .content_extensions import ContentExtensionsList
 
 
 class KolibriServiceMainProcess(multiprocessing.Process):
+    """
+    Starts Kolibri in the foreground and shares its device app key.
+    - Sets context.is_starting to True when Kolibri is being started.
+    - Sets context.is_stopped to True when Kolibri stops for any reason.
+    """
+
     def __init__(self, context):
         self.__context = context
         self.__active_extensions = ContentExtensionsList.from_flatpak_info()

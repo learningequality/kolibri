@@ -13,6 +13,11 @@ from .kolibri_service_stop import KolibriServiceStopProcess
 
 
 class KolibriServiceContext(object):
+    """
+    Common context passed to KolibriService processes. This includes events
+    and shared values to facilitate communication.
+    """
+
     APP_KEY_LENGTH = 32
 
     def __init__(self):

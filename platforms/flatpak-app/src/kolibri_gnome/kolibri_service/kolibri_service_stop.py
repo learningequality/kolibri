@@ -2,6 +2,11 @@ import multiprocessing
 
 
 class KolibriServiceStopProcess(multiprocessing.Process):
+    """
+    Stops Kolibri using the cli command. This runs as a separate process to
+    avoid blocking the rest of the program while Kolibri is stopping.
+    """
+
     def __init__(self, context):
         self.__context = context
         super().__init__()
