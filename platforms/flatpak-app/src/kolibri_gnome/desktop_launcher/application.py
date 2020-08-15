@@ -220,6 +220,7 @@ class KolibriWindow(KolibriView):
 
     def show(self):
         # TODO: Implement this in pyeverywhere
+        self.gtk_webview.connect('decide-policy', self.__gtk_webview_on_decide_policy)
         self.gtk_webview.connect("create", self.__gtk_webview_on_create)
 
         # Maximize windows on Endless OS
@@ -227,6 +228,17 @@ class KolibriWindow(KolibriView):
             self.gtk_window.maximize()
 
         super().show()
+
+    def __gtk_webview_on_decide_policy(self, webview, decision, decision_type):
+        if decision_type == WebKit2.PolicyDecisionType.NEW_WINDOW_ACTION:
+            # Force internal _blank links to open in the same window
+            target_uri = decision.get_request().get_uri()
+            frame_name = decision.get_frame_name()
+            if frame_name == '_blank' and self.delegate.is_kolibri_app_url(target_uri):
+                decision.ignore()
+                pew.ui.run_on_main_thread(self.load_url, target_uri)
+                return True
+        return False
 
     def __gtk_webview_on_create(self, webview, navigation_action):
         # TODO: Implement this behaviour in pyeverywhere, and pass the related
