@@ -414,7 +414,7 @@ def _by_uuids(field, ids, validate, include, vendor=None):
     return UnaryExpression(field, modifier=operators.custom_op(empty_query))
 
 
-checksum_re = re.compile("^[0-9a-e]{32}$")
+checksum_re = re.compile("^[0-9a-f]{32}$")
 
 
 def _validate_checksums(checksums):
