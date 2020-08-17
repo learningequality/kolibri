@@ -2,9 +2,17 @@
 
 List of the most important changes for each release.
 
-## 0.14.1
+## 0.14.2
 
-(Note: 0.14.0 contained a regression and was superseded by 0.14.1)
+(Note: 0.14.0 and 0.14.1 contained regressions and were superseded by 0.14.2)
+
+### Fixed
+
+- Prevent SQL checksum related too many variables errors  
+
+([0.14.2 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.14.2))
+
+## 0.14.1
 
 ### Changed
 
