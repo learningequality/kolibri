@@ -157,6 +157,8 @@ class KolibriServiceManager(KolibriServiceContext):
             return False
         elif url.startswith(KOLIBRI_BASE_URL + 'downloadcontent/'):
             return False
+        elif url.startswith(KOLIBRI_BASE_URL + 'content/storage/'):
+            return False
         else:
             return True
 
