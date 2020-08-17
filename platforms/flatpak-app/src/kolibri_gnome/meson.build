@@ -3,6 +3,7 @@ python_installation = python.find_installation('python3')
 
 kolibri_gnome_sources = [
     'globals.py',
+    'kolibri_globals.py',
     'kolibri_settings.py',
     '__init__.py',
 ]
@@ -26,8 +27,12 @@ python_installation.install_sources(
 
 kolibri_service_sources = [
     'kolibri_service/__init__.py',
+    'kolibri_service/content_extensions.py',
     'kolibri_service/kolibri_service.py',
-    'kolibri_service/utils.py',
+    'kolibri_service/kolibri_service_main.py',
+    'kolibri_service/kolibri_service_monitor.py',
+    'kolibri_service/kolibri_service_setup.py',
+    'kolibri_service/kolibri_service_stop.py',
 ]
 
 python_installation.install_sources(
