@@ -420,7 +420,7 @@ checksum_re = re.compile("^[0-9a-f]{32}$")
 def _validate_checksums(checksums):
     for checksum in checksums:
         if not checksum_re.match(checksum):
-            raise ValueError("Invalid checksum")
+            raise ValueError("Invalid checksum: {}".format(checksum))
 
 
 def filter_by_checksums(field, checksums):
