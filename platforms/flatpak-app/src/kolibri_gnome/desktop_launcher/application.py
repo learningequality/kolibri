@@ -16,6 +16,11 @@ import pew.ui
 
 from pew.ui import PEWShortcut
 
+import gi
+
+gi.require_version('WebKit2', '4.0')
+from gi.repository import WebKit2
+
 from .. import config
 
 from ..globals import KOLIBRI_HOME, XDG_CURRENT_DESKTOP
@@ -214,7 +219,8 @@ class KolibriWindow(KolibriView):
         self.set_menubar(menu_bar)
 
     def show(self):
-        # TODO: Handle this in pyeverywhere
+        # TODO: Implement this in pyeverywhere
+        self.gtk_webview.connect('decide-policy', self.__gtk_webview_on_decide_policy)
         self.gtk_webview.connect("create", self.__gtk_webview_on_create)
 
         # Maximize windows on Endless OS
@@ -223,14 +229,28 @@ class KolibriWindow(KolibriView):
 
         super().show()
 
+    def __gtk_webview_on_decide_policy(self, webview, decision, decision_type):
+        if decision_type == WebKit2.PolicyDecisionType.NEW_WINDOW_ACTION:
+            # Force internal _blank links to open in the same window
+            target_uri = decision.get_request().get_uri()
+            frame_name = decision.get_frame_name()
+            if frame_name == '_blank' and self.delegate.is_kolibri_app_url(target_uri):
+                decision.ignore()
+                pew.ui.run_on_main_thread(self.load_url, target_uri)
+                return True
+        return False
+
     def __gtk_webview_on_create(self, webview, navigation_action):
-        # TODO: It would be nice to do a bit more of this ourselves so we can
-        #       get to handling downloads: write file to  disk and open it.
-        #       Using xdg-open and letting the default browser take care of it
-        #       is a convenient shortcut, but less pleasant to use.
-        request_uri = navigation_action.get_request().get_uri()
-        subprocess.call(["xdg-open", request_uri])
-        return None
+        # TODO: Implement this behaviour in pyeverywhere, and pass the related
+        #       webview to the new window so it can use
+        #       `WebKit2.WebView.new_with_related_view`
+        target_uri = navigation_action.get_request().get_uri()
+        if self.delegate.is_kolibri_app_url(target_uri):
+            window = self.delegate.open_window(target_uri)
+            return window.gtk_webview
+        else:
+            subprocess.call(["xdg-open", target_uri])
+            return None
 
 
 class Application(pew.ui.PEWApp):
@@ -265,7 +285,7 @@ class Application(pew.ui.PEWApp):
         logger.debug("Persisted View State: %s", saved_state)
 
         saved_url = saved_state.get("URL")
-        if self.__kolibri_service_manager.is_kolibri_url(saved_url):
+        if self.__kolibri_service_manager.is_kolibri_app_url(saved_url):
             pew.ui.run_on_main_thread(main_window.load_url, saved_url)
 
     def __init_service(self):
@@ -287,7 +307,7 @@ class Application(pew.ui.PEWApp):
         return self.__kolibri_service_manager.await_is_responding()
 
     def should_load_url(self, url):
-        if self.__kolibri_service_manager.is_kolibri_url(url):
+        if self.is_kolibri_app_url(url):
             return True
         elif self.__is_loader_url(url):
             return not self.__kolibri_service_manager.is_responding
@@ -296,22 +316,21 @@ class Application(pew.ui.PEWApp):
             return False
         return True
 
+    def is_kolibri_app_url(self, url):
+        return self.__kolibri_service_manager.is_kolibri_app_url(url)
+
     def get_redirect_url(self, url):
         if self.__kolibri_service_manager.is_responding is None:
             raise RedirectLoading()
         elif self.__kolibri_service_manager.is_responding is False:
             raise RedirectError()
-        elif self.__kolibri_service_manager.is_kolibri_url(url):
+        elif self.__kolibri_service_manager.is_kolibri_app_url(url):
             return self.__kolibri_service_manager.get_initialize_url(url)
+        else:
+            return url
 
     def open_window(self, target_url=None):
-        self.__open_window(target_url)
-
-    def add_window(self, window):
-        self.__windows.append(window)
-
-    def remove_window(self, window):
-        self.__windows.remove(window)
+        return self.__open_window(target_url)
 
     def __open_window(self, target_url=None):
         target_url = target_url or self.__kolibri_service_manager.get_kolibri_url()
@@ -321,6 +340,12 @@ class Application(pew.ui.PEWApp):
         self.add_window(window)
         window.show()
         return window
+
+    def add_window(self, window):
+        self.__windows.append(window)
+
+    def remove_window(self, window):
+        self.__windows.remove(window)
 
     def handle_open_file_uris(self, uris):
         for uri in uris:
