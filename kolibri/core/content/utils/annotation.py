@@ -25,6 +25,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.sqlalchemybridge import filter_by_checksums
 from kolibri.core.device.models import ContentCacheKey
 
 logger = logging.getLogger(__name__)
@@ -408,7 +409,11 @@ def mark_local_files_availability(checksums, availability, destination=None):
         for i in range(0, len(checksums), CHUNKSIZE):
             connection.execute(
                 LocalFileTable.update()
-                .where(LocalFileTable.c.id.in_(checksums[i : i + CHUNKSIZE]))
+                .where(
+                    filter_by_checksums(
+                        LocalFileTable.c.id, checksums[i : i + CHUNKSIZE]
+                    )
+                )
                 .values(available=availability)
             )
 
