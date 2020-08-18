@@ -298,7 +298,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isSuperuser']),
+      ...mapGetters(['isAdmin', 'isAppContext', 'isSuperuser']),
       ...mapState({
         error: state => state.core.error,
         loading: state => state.core.loading,
@@ -374,6 +374,7 @@
       showNotification() {
         if (
           (this.isAdmin || this.isSuperuser) &&
+          !this.isAppContext &&
           !Lockr.get(UPDATE_MODAL_DISMISSED) &&
           this.notificationModalShown &&
           this.notifications.length !== 0
