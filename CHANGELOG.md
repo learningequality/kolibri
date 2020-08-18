@@ -8,7 +8,7 @@ List of the most important changes for each release.
 
 ### Fixed
 
-- Prevent SQL checksum related too many variables errors  
+- Prevent SQL checksum related too many variables errors
 
 ([0.14.2 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.14.2))
 
