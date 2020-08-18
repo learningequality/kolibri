@@ -2,9 +2,17 @@
 
 List of the most important changes for each release.
 
-## 0.14.2
+## 0.14.3
 
-(Note: 0.14.0 and 0.14.1 contained regressions and were superseded by 0.14.2)
+(Note: 0.14.0-2 contained regressions and were superseded by 0.14.3)
+
+### Fixed
+
+- Some links were opening in new browser windows
+
+([0.14.3 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.14.3))
+
+## 0.14.2
 
 ### Fixed
 
