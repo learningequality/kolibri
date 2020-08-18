@@ -19,8 +19,6 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
-  // Shows a 'EXPORT', 'IMPORT', or 'DELETE' button next to a message
-  // of how many items are selected plus their size.
   export default {
     name: 'SelectionBottomBar',
     components: {

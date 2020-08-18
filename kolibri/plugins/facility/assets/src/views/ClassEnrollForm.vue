@@ -65,8 +65,6 @@
     },
     computed: {
       usersNotInClass() {
-        console.log(this.facilityUsers);
-        console.log(this.classUsers);
         return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
       },
     },
