@@ -11,10 +11,12 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import importlib
+import json
 import logging
 import os
 import signal
 import sys
+from collections import Mapping
 from sqlite3 import DatabaseError as SQLite3DatabaseError
 
 import click
@@ -30,6 +32,7 @@ from . import sanity_checks
 from . import server
 from .debian_check import check_debian_user
 from .system import become_daemon
+from kolibri.core.device.utils import device_provisioned
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
@@ -53,6 +56,11 @@ from kolibri.utils.sanity_checks import DatabaseNotMigrated
 from kolibri.utils.system import symlink_capability_check
 
 
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
 logger = logging.getLogger(__name__)
 
 
@@ -62,6 +70,8 @@ logger = logging.getLogger(__name__)
 # https://github.com/learningequality/kolibri/pull/5494#discussion_r318057385
 # https://github.com/PythonCharmers/python-future/issues/22
 click.disable_unicode_literals_warning = True
+
+automatic_provision_file = os.path.join(KOLIBRI_HOME, "automatic_provision.json")
 
 
 def version_file():
@@ -188,6 +198,32 @@ def _migrate_databases():
 
     # load morango fixtures needed for certificate related operations
     call_command("loaddata", "scopedefinitions")
+
+
+def _automatic_provisiondevice():
+    try:
+        with open(automatic_provision_file, "r") as f:
+            logging.info("Running initial setup from 'provisiondevice.json'")
+            options = json.load(f)
+    except ValueError as e:
+        logging.error(
+            "Attempted to load 'provisiondevice.json' but failed to parse JSON:\n{}".format(
+                e
+            )
+        )
+        sys.exit(1)
+    except FileNotFoundError:
+        options = None
+
+    if isinstance(options, Mapping):
+        options.setdefault("superusername", None)
+        options.setdefault("superuserpassword", None)
+        options.setdefault("preset", "nonformal")
+        options.setdefault("language_id", None)
+        options.setdefault("facility_settings", {})
+        options.setdefault("device_settings", {})
+        call_command("provisiondevice", interactive=False, **options)
+        os.remove(automatic_provision_file)
 
 
 def get_initialize_params():
@@ -411,6 +447,9 @@ def initialize(skip_update=False):  # noqa: max-complexity=12
                 "and an error occurred: {}".format(e)
             )
             sys.exit(1)
+
+        if os.path.exists(automatic_provision_file) and not device_provisioned():
+            _automatic_provisiondevice()
 
 
 def update(old_version, new_version):
