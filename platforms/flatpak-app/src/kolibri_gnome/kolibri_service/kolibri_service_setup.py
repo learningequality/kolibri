@@ -14,7 +14,9 @@ KOLIBRI_BIN = "kolibri"
 class KolibriServiceSetupProcess(multiprocessing.Process):
     """
     Does initial setup for Kolibri such as scanning for pre-installed content.
-    - Sets context.is_setup_complete to True when setup is complete.
+    Initial database migrations and provisioning will also happen here, as
+    this is the first time running the Kolibri CLI inside our KOLIBRI_HOME.
+    - Sets context.setup_result to True if sucessful, or to False if not.
     """
 
     def __init__(self, context):
@@ -36,10 +38,10 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         if success:
             logger.info("Finished updating content extensions.")
             self.__active_extensions.write_to_cache()
+            self.__context.setup_result = True
         else:
             logger.warning("Failed to update content extensions.")
-
-        self.__context.is_setup_complete = True
+            self.__context.setup_result = False
 
     def __run_kolibri_command(self, *args):
         result = subprocess.run([KOLIBRI_BIN, "manage", *args], check=False)

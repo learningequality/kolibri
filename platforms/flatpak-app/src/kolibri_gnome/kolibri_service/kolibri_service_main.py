@@ -25,11 +25,18 @@ class KolibriServiceMainProcess(multiprocessing.Process):
     @contextmanager
     def __set_is_stopped_on_exit(self):
         self.__context.is_stopped = False
-        yield
-        self.__context.is_stopped = True
+        try:
+            yield
+        finally:
+            self.__context.is_stopped = True
 
     def __run_kolibri_start(self):
-        self.__context.await_is_setup_complete()
+        if not self.__context.await_setup_result():
+            self.__context.is_starting = False
+            return
+
+        self.__context.is_starting = True
+
         self.__active_extensions.update_kolibri_environ(os.environ)
 
         from kolibri.plugins.registry import registered_plugins
@@ -43,7 +50,6 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         from kolibri.core.device.models import DeviceAppKey
 
         self.__context.app_key = DeviceAppKey.get_app_key()
-        self.__context.is_starting = True
 
         try:
             from ..kolibri_globals import KOLIBRI_HTTP_PORT

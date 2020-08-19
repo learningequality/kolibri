@@ -18,7 +18,7 @@ from pew.ui import PEWShortcut
 
 import gi
 
-gi.require_version('WebKit2', '4.0')
+gi.require_version("WebKit2", "4.0")
 from gi.repository import WebKit2
 
 from .. import config
@@ -220,7 +220,7 @@ class KolibriWindow(KolibriView):
 
     def show(self):
         # TODO: Implement this in pyeverywhere
-        self.gtk_webview.connect('decide-policy', self.__gtk_webview_on_decide_policy)
+        self.gtk_webview.connect("decide-policy", self.__gtk_webview_on_decide_policy)
         self.gtk_webview.connect("create", self.__gtk_webview_on_create)
 
         # Maximize windows on Endless OS
@@ -234,7 +234,7 @@ class KolibriWindow(KolibriView):
             # Force internal _blank links to open in the same window
             target_uri = decision.get_request().get_uri()
             frame_name = decision.get_frame_name()
-            if frame_name == '_blank' and self.delegate.is_kolibri_app_url(target_uri):
+            if frame_name == "_blank" and self.delegate.is_kolibri_app_url(target_uri):
                 decision.ignore()
                 pew.ui.run_on_main_thread(self.load_url, target_uri)
                 return True
