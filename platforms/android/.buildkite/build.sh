@@ -8,7 +8,7 @@ echo "--- Downloading whl file"
 if [[ $LE_TRIGGERED_FROM_BUILD_ID ]]
 then
   echo "Downloading from triggered build"
-  buildkite-agent artifact download 'dist/*.whl' . --build ${BUILDKITE_TRIGGERED_FROM_BUILD_ID}
+  buildkite-agent artifact download 'dist/*.whl' . --build ${LE_TRIGGERED_FROM_BUILD_ID}
   mv dist whl
 else
   echo "Downloading from pip"
@@ -25,11 +25,11 @@ make run_docker
 # Making folder structure match other installers (convention)
 mv ./dist/android/*.apk ./dist
 
-if [[ $LE_TRIGGERED_FROM_JOB_ID && $BUILDKITE_TRIGGERED_FROM_BUILD_ID ]]
-then
-  echo "--- Uploading artifact to parent job"
-  buildkite-agent artifact upload dist/*-release.apk --job $LE_TRIGGERED_FROM_JOB_ID
-fi
+# if [[ $LE_TRIGGERED_FROM_JOB_ID && $BUILDKITE_TRIGGERED_FROM_BUILD_ID ]]
+# then
+#   echo "--- Uploading artifact to parent job"
+#   buildkite-agent artifact upload dist/*.apk --job $LE_TRIGGERED_FROM_JOB_ID
+# fi
 
 echo "--- Uploading artifact"
-buildkite-agent artifact upload dist/*-release.apk
+buildkite-agent artifact upload dist/*.apk

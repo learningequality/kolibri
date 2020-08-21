@@ -1,8 +1,10 @@
+import initialization  # keep this first, to ensure we're set up for other imports
+
 import logging
 import os
-import sys
 import time
-import urllib2
+import urllib.error
+import urllib.request
 
 # initialize logging before loading any third-party modules, as they may cause logging to get configured.
 logging.basicConfig(level=logging.DEBUG)
@@ -10,53 +12,56 @@ logging.basicConfig(level=logging.DEBUG)
 import pew
 import pew.ui
 
+from config import KOLIBRI_PORT
+
 pew.set_app_name("Kolibri")
 logging.info("Entering main.py...")
 
 
 if pew.ui.platform == "android":
-    from jnius import autoclass
 
-    PythonActivity = autoclass("org.kivy.android.PythonActivity")
-    File = autoclass("java.io.File")
-    Timezone = autoclass("java.util.TimeZone")
+    from android_utils import get_home_folder, get_version_name
 
-
-# TODO check for storage availibility, allow user to chose sd card or internal
-def get_home_folder():
-    kolibri_home_file = PythonActivity.getExternalFilesDir(None)
-    return kolibri_home_file.toString()
-
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(script_dir)
-sys.path.append(os.path.join(script_dir, "kolibri", "dist"))
-
-os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base"
-
-if pew.ui.platform == "android":
     os.environ["KOLIBRI_HOME"] = get_home_folder()
-    os.environ["TZ"] = Timezone.getDefault().getDisplayName()
-    os.environ["LC_ALL"] = "en_US.UTF-8"
+    os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
+    # We can't use symlinks as at least some Android devices have the user storage
+    # and app data directories on different mount points.
+    os.environ['KOLIBRI_STATIC_USE_SYMLINKS'] = "False"
 
-    logging.info("Home folder: {}".format(os.environ["KOLIBRI_HOME"]))
-    logging.info("Timezone: {}".format(os.environ["TZ"]))
+
+def get_init_url(next_url='/'):
+    # we need to initialize Kolibri to allow us to access the app key
+    from kolibri.utils.cli import initialize
+    initialize(skip_update=True)
+
+    from kolibri.plugins.app.utils import interface
+    return interface.get_initialize_url(next_url=next_url)
 
 
-def start_django():
+def start_kolibri(port):
 
-    # remove this after Kolibri no longer needs it
-    if sys.version[0] == "2":
-        reload(sys)
-        sys.setdefaultencoding("utf8")
+    os.environ["KOLIBRI_HTTP_PORT"] = str(port)
 
-    logging.info("Starting server...")
-    from kolibri.utils.cli import main
+    if pew.ui.platform == "android":
 
-    main(["start", "--foreground", "--port=5000"])
+        logging.info("Starting kolibri server via Android service...")
+
+        from android_utils import start_service
+        start_service("kolibri", dict(os.environ))
+
+    else:
+
+        logging.info("Starting kolibri server directly as thread...")
+
+        from kolibri_utils import start_kolibri_server
+
+        thread = pew.ui.PEWThread(target=start_kolibri_server)
+        thread.daemon = True
+        thread.start()
 
 
 class Application(pew.ui.PEWApp):
+
     def setUp(self):
         """
         Start your UI and app run loop here.
@@ -68,10 +73,8 @@ class Application(pew.ui.PEWApp):
         self.kolibri_loaded = False
         self.view = pew.ui.WebUIView("Kolibri", self.loader_url, delegate=self)
 
-        # start thread
-        self.thread = pew.ui.PEWThread(target=start_django)
-        self.thread.daemon = True
-        self.thread.start()
+        # start kolibri server
+        start_kolibri(KOLIBRI_PORT)
 
         self.load_thread = pew.ui.PEWThread(target=self.wait_for_server)
         self.load_thread.daemon = True
@@ -103,16 +106,14 @@ class Application(pew.ui.PEWApp):
             self.view.webview.webview.clearHistory()
 
     def wait_for_server(self):
-        from kolibri.utils import server
-
-        home_url = "http://localhost:5000"
-
-        # test url to see if servr has started
+        home_url = "http://localhost:{port}".format(port=KOLIBRI_PORT)
+        # test url to see if server has started
         def running():
             try:
-                urllib2.urlopen(home_url)
+                with urllib.request.urlopen(home_url) as response:
+                   response.read()
                 return True
-            except urllib2.URLError:
+            except urllib.error.URLError:
                 return False
 
         # Tie up this thread until the server is running
@@ -126,11 +127,18 @@ class Application(pew.ui.PEWApp):
         saved_state = self.view.get_view_state()
         logging.debug("Persisted View State: {}".format(self.view.get_view_state()))
 
+        next_url = '/'
         if "URL" in saved_state and saved_state["URL"].startswith(home_url):
-            pew.ui.run_on_main_thread(self.view.load_url(saved_state["URL"]))
-            return
+            next_url = saved_state["URL"].replace(home_url, '')
 
-        pew.ui.run_on_main_thread(self.view.load_url(home_url))
+        start_url = home_url + get_init_url(next_url)
+        pew.ui.run_on_main_thread(self.view.load_url, start_url)
+
+        if pew.ui.platform == "android":
+            from remoteshell import launch_remoteshell
+            self.remoteshell_thread = pew.ui.PEWThread(target=launch_remoteshell)
+            self.remoteshell_thread.daemon = True
+            self.remoteshell_thread.start()
 
     def get_main_window(self):
         return self.view

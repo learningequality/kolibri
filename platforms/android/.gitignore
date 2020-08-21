@@ -1,4 +1,7 @@
 src/kolibri
+src/preseeded_kolibri_home
+src/extra-packages
+tmpenv
 whl/*
 
 # File format for signing key
@@ -9,6 +12,11 @@ project_info.json
 # pew output folder
 dist/
 
+__pycache__
 *.pyc
 build_docker
+build/
 bin/
+build.log
+tmphome/
+static/
