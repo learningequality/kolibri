@@ -1,6 +1,9 @@
 import json
 import logging
 import os
+import re
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
 from jnius import autoclass, cast, jnius
 
 logging.basicConfig(level=logging.DEBUG)
@@ -47,8 +50,12 @@ def get_service_args():
     return json.loads(os.environ.get("PYTHON_SERVICE_ARGUMENT") or "{}")
 
 
+def get_package_info(package_name="org.learningequality.Kolibri", flags=0):
+    return get_activity().getPackageManager().getPackageInfo(package_name, flags)
+
+
 def get_version_name():
-    return get_activity().getPackageManager().getPackageInfo(PythonActivity.getPackageName(), 0).versionName
+    return get_package_info().versionName
 
 
 def get_activity():
@@ -133,3 +140,16 @@ def make_service_foreground(title, message):
     notification_builder.setAutoCancel(True)
     new_notification = notification_builder.getNotification()
     service.startForeground(1, new_notification)
+
+
+def get_signature_key_issuer():
+    signature = get_package_info(flags=PackageManager.GET_SIGNATURES).signatures[0]
+    cert = x509.load_der_x509_certificate(signature.toByteArray().tostring(), default_backend())
+
+    return cert.issuer.rfc4514_string()
+
+
+def get_signature_key_issuing_organization():
+    signer = get_signature_key_issuer()
+    orgs = re.findall(r"\bO=([^,]+)", signer)
+    return orgs[0] if orgs else ""
