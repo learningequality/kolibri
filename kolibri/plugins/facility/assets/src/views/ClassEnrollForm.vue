@@ -17,7 +17,7 @@
       </template>
     </PaginatedListContainer>
     <SelectionBottomBar
-      :counts="selectedUsers.length"
+      :count="selectedUsers.length"
       :type="pageType"
       @click-confirm="$emit('submit', selectedUsers)"
     />

@@ -17,16 +17,15 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   export default {
     name: 'SelectionBottomBar',
     components: {
       BottomAppBar,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
     props: {
-      counts: {
+      count: {
         type: Number,
         required: true,
       },
@@ -40,17 +39,19 @@
     },
     computed: {
       buttonsDisabled() {
-        return this.counts === 0;
+        return this.count === 0;
       },
       selectedMessage() {
-        return this.counts === 0
-          ? this.$tr('zeroSelectedMessage', { type: this.type })
-          : this.$tr('selectedMessage', { counts: this.counts, type: this.type });
+        return this.type === 'learners'
+          ? this.$tr('learnersSelectedMessage', { count: this.count })
+          : this.$tr('coachesSelectedMessage', { count: this.count });
       },
     },
     $trs: {
-      zeroSelectedMessage: '0 {type} selected',
-      selectedMessage: '{counts} {type} selected',
+      coachesSelectedMessage:
+        '{count, number} {count, plural, one {coach} other {coaches}} selected',
+      learnersSelectedMessage:
+        '{count, number} {count, plural, one {learner} other {learners}} selected',
     },
   };
 
