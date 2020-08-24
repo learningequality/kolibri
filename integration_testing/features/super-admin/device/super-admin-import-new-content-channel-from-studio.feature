@@ -79,7 +79,7 @@ Feature: Super admin imports content from Studio
       And I see the *0 resources selected* at the bottom
 
   Scenario: Navigating a topic with many subtopics
-    Given I am navigating a <topic> topic enough subtopics to fill up the window height
+    Given I am navigating a <topic> topic with enough subtopics to fill up the window height
       And one <subtopic> subtopics also has enough in it items to fill up the window height
     When I scroll down to the bottom of the page while inside the <topic>
     Then I see that the topic name has scrolled out of view
