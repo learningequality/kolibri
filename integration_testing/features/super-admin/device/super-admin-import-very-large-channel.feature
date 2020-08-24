@@ -1,5 +1,5 @@
 Feature: Super admin imports entire large channel
-    Super admin needs to be able to importing large channel with several thousands of resources
+    Super admin needs to be able to import a large channel with several thousands of resources
     # Contact content-dev team to get the token of the testing channel for this scenario
     # Since it may take some time to import this channel, consider when is the best time for you to run this scenario
 
