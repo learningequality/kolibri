@@ -2,6 +2,29 @@
 
 List of the most important changes for each release.
 
+## 0.14.2
+
+(Note: 0.14.0 and 0.14.1 contained regressions and were superseded by 0.14.2)
+
+### Fixed
+
+- Prevent SQL checksum related too many variables errors
+
+([0.14.2 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.14.2))
+
+## 0.14.1
+
+### Changed
+
+- Responsive layout for channel cards of Learn Page changed to use horizontal space more efficiently
+
+### Fixed
+
+- Resources could not be removed from lessons
+- Inaccurate information on Device > Info page when using Debian installer
+
+([0.14.1 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.14.1))
+
 ## 0.14.0
 
 ### Internationalization and localization

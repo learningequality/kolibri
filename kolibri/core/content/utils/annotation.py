@@ -25,6 +25,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.sqlalchemybridge import filter_by_checksums
 from kolibri.core.device.models import ContentCacheKey
 
 logger = logging.getLogger(__name__)
@@ -408,7 +409,11 @@ def mark_local_files_availability(checksums, availability, destination=None):
         for i in range(0, len(checksums), CHUNKSIZE):
             connection.execute(
                 LocalFileTable.update()
-                .where(LocalFileTable.c.id.in_(checksums[i : i + CHUNKSIZE]))
+                .where(
+                    filter_by_checksums(
+                        LocalFileTable.c.id, checksums[i : i + CHUNKSIZE]
+                    )
+                )
                 .values(available=availability)
             )
 
@@ -417,55 +422,71 @@ def mark_local_files_availability(checksums, availability, destination=None):
         bridge.end()
 
 
-def set_local_file_availability_from_disk(checksums=None, destination=None):
-    bridge = Bridge(app_name=CONTENT_APP_NAME, sqlite_file_path=destination)
-
-    LocalFileClass = bridge.get_class(LocalFile)
-
-    if checksums is None:
-        logger.info(
-            "Setting availability of LocalFile objects based on disk availability"
-        )
-        files = bridge.session.query(
-            LocalFileClass.id, LocalFileClass.available, LocalFileClass.extension
-        ).all()
-    elif type(checksums) == list:
-        logger.info(
-            "Setting availability of {number} LocalFile objects based on disk availability".format(
-                number=len(checksums)
-            )
-        )
-        files = (
-            bridge.session.query(
-                LocalFileClass.id, LocalFileClass.available, LocalFileClass.extension
-            )
-            .filter(LocalFileClass.id.in_(checksums))
-            .all()
-        )
-    else:
-        logger.info(
-            "Setting availability of LocalFile object with checksum {checksum} based on disk availability".format(
-                checksum=checksums
-            )
-        )
-        files = [bridge.session.query(LocalFileClass).get(checksums)]
-
+def _check_file_availability(files):
     checksums_to_set_available = []
     checksums_to_set_unavailable = []
     for file in files:
         try:
             # Update if the file exists, *and* the localfile is set as unavailable.
             if os.path.exists(
-                get_content_storage_file_path(get_content_file_name(file))
+                get_content_storage_file_path(
+                    get_content_file_name({"id": file[0], "extension": file[2]})
+                )
             ):
-                if not file.available:
-                    checksums_to_set_available.append(file.id)
+                if not file[1]:
+                    checksums_to_set_available.append(file[0])
             # Update if the file does not exist, *and* the localfile is set as available.
             else:
-                if file.available:
-                    checksums_to_set_unavailable.append(file.id)
+                if file[1]:
+                    checksums_to_set_unavailable.append(file[0])
         except InvalidStorageFilenameError:
             continue
+
+    return checksums_to_set_available, checksums_to_set_unavailable
+
+
+def set_local_file_availability_from_disk(checksums=None, destination=None):
+    if type(checksums) == list and len(checksums) > CHUNKSIZE:
+        for i in range(0, len(checksums), CHUNKSIZE):
+            set_local_file_availability_from_disk(
+                checksums=checksums[i : i + CHUNKSIZE], destination=destination
+            )
+        return
+
+    bridge = Bridge(app_name=CONTENT_APP_NAME, sqlite_file_path=destination)
+
+    LocalFileTable = bridge.get_table(LocalFile)
+
+    query = select(
+        [LocalFileTable.c.id, LocalFileTable.c.available, LocalFileTable.c.extension]
+    )
+
+    if checksums is None:
+        logger.info(
+            "Setting availability of LocalFile objects based on disk availability"
+        )
+    elif type(checksums) == list:
+        logger.info(
+            "Setting availability of {number} LocalFile objects based on disk availability".format(
+                number=len(checksums)
+            )
+        )
+        query = query.where(filter_by_checksums(LocalFileTable.c.id, checksums))
+    else:
+        logger.info(
+            "Setting availability of LocalFile object with checksum {checksum} based on disk availability".format(
+                checksum=checksums
+            )
+        )
+        query = query.where(LocalFileTable.c.id == checksums)
+
+    connection = bridge.get_connection()
+
+    files = connection.execute(query).fetchall()
+
+    checksums_to_set_available, checksums_to_set_unavailable = _check_file_availability(
+        files
+    )
 
     bridge.end()
 
