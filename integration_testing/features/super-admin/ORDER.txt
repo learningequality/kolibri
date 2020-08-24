@@ -7,12 +7,12 @@ super-admin-sign-out.feature
 device/super-admin-select-import-content-location.feature
 device/super-admin-auto-discovering-new-network-addresses.feature
 device/super-admin-manage-import-network-addresses.feature
-device/super-admin-import-more-from-content-channel.feature
 device/super-admin-import-granular-from-peer.feature
 device/super-admin-import-new-content-channel-from-studio.feature
 device/super-admin-import-new-content-channel-with-token.feature
 device/super-admin-import-new-content-channel-from-local-drive.feature
 device/super-admin-switch-between-import-channels-or-resources.feature
+device/super-admin-import-very-large-channel.feature
 device/super-admin-cancel-import-channel.feature
 device/super-admin-update-channel-import-more.feature
 device/super-admin-export-content-to-local-drive.feature
