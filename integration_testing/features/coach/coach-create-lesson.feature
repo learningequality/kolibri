@@ -58,21 +58,9 @@ Feature: Coach creates lessons
         And I see the *Add* button
       When I click *Add* button
       Then I see the snackbar notification
-        And I see the *Added* state notification
-        And I see the *Remove* button
-      When I click on *back arrow* button near the <topic> page title at the top
-      # The back arrow button is not visible when user has scrolled down at the page or
-      # when viewing the page in a small window like the iPad 2.
-      Then I see the *Manage resources in '<lesson>'* page again
-        And I see the *1 resource in this lesson* counter
-      When I uncheck the checkbox(es) for other resource(s)
-      Then I see the *N resources in this lesson* counter changed
-        And I see the snackbar notification
-      When I check the checkbox(es) for other resource(s)
-      # This allows us to have a selected resource for the lesson before clicking the Finish button.
-      Then I see the *N resources in this lesson* counter changed
-        And I see the snackbar notification
-      When I click the *Finish* button at the bottom
+        And I see the *Manage resources in '<lesson>'* page again
+        And I see the *N resources in this lesson* value is increased by 1
+      When I click the *Close* button at the bottom
       Then *Manage resources in '<lesson>'* page closes
         And I see the <lesson> lesson page again
         And I see the resources I added to the <lesson> lesson
