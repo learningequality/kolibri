@@ -91,7 +91,7 @@
               class="login-btn"
               :text="$tr('nextLabel')"
               :primary="true"
-              :disabled="busy"
+              :disabled="!isNextValid"
               @click="signIn"
             />
           </div>
@@ -334,6 +334,9 @@
         return (
           this.hasMultipleFacilities || get(this.selectedFacility, 'dataset.preset') !== 'informal'
         );
+      },
+      isNextValid() {
+        return !this.busy && validateUsername(this.username);
       },
     },
     watch: {
