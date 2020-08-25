@@ -6,6 +6,7 @@
     <ClassEnrollForm
       :facilityUsers="facilityUsers"
       :classUsers="classUsers"
+      pageType="coaches"
       @submit="assignCoaches"
     />
   </KPageContainer>
