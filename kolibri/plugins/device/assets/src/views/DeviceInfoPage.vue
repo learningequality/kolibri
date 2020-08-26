@@ -108,6 +108,7 @@
           `Free disk space:   ${this.deviceInfo.content_storage_free_space}`,
           `Server time:       ${this.deviceInfo.server_time}`,
           `Server timezone:   ${this.deviceInfo.server_timezone}`,
+          `Device ID:         ${this.deviceInfo.device_id}`,
         ].join('\n');
       },
       deviceNameWithId() {
