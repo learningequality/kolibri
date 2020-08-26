@@ -31,7 +31,7 @@ def load_plugins_from_file(file_path):
     if file_path.startswith("http"):
         if requests is None:
             raise ImportError("Requests is required to import plugins from urls")
-        print(
+        logger.info(
             "Downloading plugins manifest from {file_path}".format(file_path=file_path)
         )
         _, path = tempfile.mkstemp(suffix=".txt", text=True)
