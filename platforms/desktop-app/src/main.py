@@ -1,5 +1,6 @@
 import datetime
 import gettext
+import json
 import logging
 import os
 import shutil
@@ -7,6 +8,7 @@ import subprocess
 import sys
 import time
 import webbrowser
+from collections import Mapping
 
 try:
     from urllib2 import urlopen, URLError
@@ -181,7 +183,45 @@ def start_django(port=5000):
     logging.info("Starting server...")
     setup_logging(debug=False)
     initialize()
+    automatic_provisiondevice()
     start.callback(port, background=False)
+
+
+def automatic_provisiondevice():
+    from kolibri.core.device.utils import device_provisioned
+    from kolibri.dist.django.core.management import call_command
+    from kolibri.utils.conf import KOLIBRI_HOME
+
+    AUTOMATIC_PROVISION_FILE = os.path.join(
+        KOLIBRI_HOME, "automatic_provision.json"
+    )
+
+    if not os.path.exists(AUTOMATIC_PROVISION_FILE):
+        return
+    elif device_provisioned():
+        return
+
+    try:
+        with open(AUTOMATIC_PROVISION_FILE, "r") as f:
+            logging.info("Running provisiondevice from 'automatic_provision.json'")
+            options = json.load(f)
+    except ValueError as e:
+        logging.error(
+            "Attempted to load 'automatic_provision.json' but failed to parse JSON:\n{}".format(
+                e
+            )
+        )
+    except FileNotFoundError:
+        options = None
+
+    if isinstance(options, Mapping):
+        options.setdefault("superusername", None)
+        options.setdefault("superuserpassword", None)
+        options.setdefault("preset", "nonformal")
+        options.setdefault("language_id", None)
+        options.setdefault("facility_settings", {})
+        options.setdefault("device_settings", {})
+        call_command("provisiondevice", interactive=False, **options)
 
 
 class MenuEventHandler:
