@@ -64,7 +64,7 @@
               :invalid="usernameIsInvalid"
               :invalidText="usernameIsInvalidText"
               @blur="handleUsernameBlur"
-              @input="showDropdown = true"
+              @input="handleUsernameInput"
               @keydown="handleKeyboardNav"
             />
           </transition>
@@ -486,6 +486,10 @@
           // focus on input after selection
           this.$refs.username.focus();
         }
+      },
+      handleUsernameInput() {
+        this.showDropdown = true;
+        this.usernameBlurred = true;
       },
       handlePasswordBlur() {
         setTimeout(() => (this.passwordBlurred = true), 200);
