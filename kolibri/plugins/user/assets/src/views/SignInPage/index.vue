@@ -336,7 +336,7 @@
         );
       },
       isNextButtonEnabled() {
-        return !this.busy && validateUsername(this.username);
+        return !this.busy && this.username !== '' && validateUsername(this.username);
       },
     },
     watch: {
@@ -498,6 +498,10 @@
         this.showDropdown = false;
       },
       signIn() {
+        if (!this.isNextButtonEnabled) {
+          return;
+        }
+
         this.busy = true;
 
         const sessionPayload = {
