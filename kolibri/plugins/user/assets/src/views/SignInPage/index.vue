@@ -64,7 +64,7 @@
               :invalid="usernameIsInvalid"
               :invalidText="usernameIsInvalidText"
               @blur="handleUsernameBlur"
-              @input="showDropdown = true"
+              @input="handleUsernameInput"
               @keydown="handleKeyboardNav"
             />
           </transition>
@@ -91,7 +91,7 @@
               class="login-btn"
               :text="$tr('nextLabel')"
               :primary="true"
-              :disabled="busy"
+              :disabled="!isNextButtonEnabled"
               @click="signIn"
             />
           </div>
@@ -335,6 +335,9 @@
           this.hasMultipleFacilities || get(this.selectedFacility, 'dataset.preset') !== 'informal'
         );
       },
+      isNextButtonEnabled() {
+        return !this.busy && this.username !== '' && validateUsername(this.username);
+      },
     },
     watch: {
       username(newVal) {
@@ -484,6 +487,10 @@
           this.$refs.username.focus();
         }
       },
+      handleUsernameInput() {
+        this.showDropdown = true;
+        this.usernameBlurred = true;
+      },
       handlePasswordBlur() {
         setTimeout(() => (this.passwordBlurred = true), 200);
       },
@@ -495,6 +502,10 @@
         this.showDropdown = false;
       },
       signIn() {
+        if (!this.isNextButtonEnabled) {
+          return;
+        }
+
         this.busy = true;
 
         const sessionPayload = {
