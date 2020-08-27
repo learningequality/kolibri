@@ -1,6 +1,6 @@
 steps:
   - block: "Build Mac App?"
-    if: build.source == "trigger_job"
+    if: build.env("LE_KOLIBRI_RELEASE") == "false"
   - label: "Build Dev Package"
     command: ".buildkite/build.sh"
     agents:
