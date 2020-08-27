@@ -1,6 +1,7 @@
+import json
 import multiprocessing
 import os
-
+from collections import Mapping
 from contextlib import contextmanager
 
 from .content_extensions import ContentExtensionsList
@@ -47,9 +48,8 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         setup_logging(debug=False)
         initialize()
 
-        from kolibri.core.device.models import DeviceAppKey
-
-        self.__context.app_key = DeviceAppKey.get_app_key()
+        self.__automatic_provisiondevice()
+        self.__update_app_key()
 
         try:
             from ..kolibri_globals import KOLIBRI_HTTP_PORT
@@ -62,3 +62,48 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         except SystemExit:
             # Kolibri sometimes calls sys.exit, but we don't want to exit
             pass
+
+    def __update_app_key(self):
+        from kolibri.core.device.models import DeviceAppKey
+
+        self.__context.app_key = DeviceAppKey.get_app_key()
+
+    def __automatic_provisiondevice(self):
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        from kolibri.core.device.utils import device_provisioned
+        from kolibri.dist.django.core.management import call_command
+        from kolibri.utils.conf import KOLIBRI_HOME
+
+        AUTOMATIC_PROVISION_FILE = os.path.join(
+            KOLIBRI_HOME, "automatic_provision.json"
+        )
+
+        if not os.path.exists(AUTOMATIC_PROVISION_FILE):
+            return
+        elif device_provisioned():
+            return
+
+        try:
+            with open(AUTOMATIC_PROVISION_FILE, "r") as f:
+                logger.info("Running provisiondevice from 'automatic_provision.json'")
+                options = json.load(f)
+        except ValueError as e:
+            logger.error(
+                "Attempted to load 'automatic_provision.json' but failed to parse JSON:\n{}".format(
+                    e
+                )
+            )
+        except FileNotFoundError:
+            options = None
+
+        if isinstance(options, Mapping):
+            options.setdefault("superusername", None)
+            options.setdefault("superuserpassword", None)
+            options.setdefault("preset", "nonformal")
+            options.setdefault("language_id", None)
+            options.setdefault("facility_settings", {})
+            options.setdefault("device_settings", {})
+            call_command("provisiondevice", interactive=False, **options)
