@@ -26,7 +26,6 @@
 
   export default {
     name: 'MasteryModel',
-    components: {},
     props: {
       model: {
         type: String,

@@ -44,9 +44,20 @@
         </KGridItem>
       </KGrid>
       <CoachContentLabel :value="content.num_coach_contents" :isTopic="false" />
-      <p v-if="completionRequirements">
-        {{ completionRequirements }}
-      </p>
+      <HeaderTable>
+        <HeaderTableRow
+          v-if="completionData"
+          :keyText="coachString('masteryModelLabel')"
+        >
+          <template #value>
+            <MasteryModel
+              :model="completionData.type"
+              :m="completionData.m"
+              :n="completionData.n"
+            />
+          </template>
+        </HeaderTableRow>
+      </HeaderTable>
       <!-- eslint-disable-next-line vue/no-v-html -->
       <p v-if="description" dir="auto" v-html="description"></p>
       <ul class="meta">
@@ -103,6 +114,8 @@
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
   import markdownIt from 'markdown-it';
+  import MasteryModel from '../../common/MasteryModel';
+  import commonCoach from '../../common';
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
 
@@ -119,8 +132,9 @@
       CoachContentLabel,
       InfoIcon,
       MultiPaneLayout,
+      MasteryModel,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonCoach],
     props: {
       currentContentNode: {
         type: Object,
@@ -161,13 +175,6 @@
           return this.questions[this.selectedQuestionIndex];
         }
         return '';
-      },
-      completionRequirements() {
-        if (this.completionData) {
-          const { m: correct, n: total } = this.completionData;
-          return this.$tr('completionRequirements', { correct, total });
-        }
-        return false;
       },
       description() {
         if (this.content) {
@@ -213,7 +220,6 @@
       },
     },
     $trs: {
-      completionRequirements: 'Completion: {correct, number} out of {total, number} correct',
       authorDataHeader: 'Author',
       licenseDataHeader: 'License',
       copyrightHolderDataHeader: 'Copyright holder',

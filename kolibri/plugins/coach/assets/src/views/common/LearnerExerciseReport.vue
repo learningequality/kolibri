@@ -25,7 +25,11 @@
               {{ coachString('masteryModelLabel') }}
             </template>
             <template v-slot:value>
-              <MasteryModel />
+              <MasteryModel
+                :model="exercise.assessmentmetadata.mastery_model.type"
+                :m="exercise.assessmentmetadata.mastery_model.m"
+                :n="exercise.assessmentmetadata.mastery_model.n"
+              />
             </template>
           </HeaderTableRow>
           <HeaderTableRow>
@@ -91,6 +95,7 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import MasteryModel from './MasteryModel';
 
   export default {
     name: 'LearnerExerciseReport',
@@ -99,6 +104,7 @@
       InteractionList,
       MultiPaneLayout,
       CoachContentLabel,
+      MasteryModel,
     },
     mixins: [commonCoach, commonCoreStrings],
     data() {
