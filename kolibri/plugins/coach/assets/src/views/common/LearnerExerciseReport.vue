@@ -20,22 +20,15 @@
           />
         </p>
         <HeaderTable>
-          <HeaderTableRow>
-            <template v-slot:key>
-              {{ coachString('masteryModelLabel') }}
-            </template>
+          <HeaderTableRow
+            v-if="exercise.assessmentmetadata.mastery_model"
+            :keyText="coachString('masteryModelLabel')"
+          >
             <template v-slot:value>
-              <MasteryModel
-                :model="exercise.assessmentmetadata.mastery_model.type"
-                :m="exercise.assessmentmetadata.mastery_model.m"
-                :n="exercise.assessmentmetadata.mastery_model.n"
-              />
+              <MasteryModel :masteryModel="exercise.assessmentmetadata.mastery_model" />
             </template>
           </HeaderTableRow>
-          <HeaderTableRow>
-            <template v-slot:key>
-              {{ coachString('statusLabel') }}
-            </template>
+          <HeaderTableRow :keyText="coachString('statusLabel')">
             <template v-slot:value>
               <StatusSimple :status="status" />
             </template>

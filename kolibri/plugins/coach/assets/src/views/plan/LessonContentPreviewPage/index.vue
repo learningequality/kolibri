@@ -50,11 +50,7 @@
           :keyText="coachString('masteryModelLabel')"
         >
           <template #value>
-            <MasteryModel
-              :model="completionData.type"
-              :m="completionData.m"
-              :n="completionData.n"
-            />
+            <MasteryModel :masteryModel="completionData" />
           </template>
         </HeaderTableRow>
       </HeaderTable>
