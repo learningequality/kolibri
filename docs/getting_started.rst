@@ -45,16 +45,16 @@ Next, initialize Git LFS:
 
 .. code-block:: bash
 
+  cd kolibri  # Enter the Kolibri directory
   git lfs install
 
 Finally, add the Learning Equality repo as a remote. That way you can keep your local checkout updated with the most recent changes:
 
 .. code-block:: bash
 
-  cd kolibri  # Enter the Kolibri directory
   git remote add upstream git@github.com:learningequality/kolibri.git
   git fetch --all  # Check if there are changes upstream
-  git checkout develop # Checkout the development branch
+  git checkout --track origin/develop # Checkout the development branch of your fork
 
 
 
