@@ -10,6 +10,8 @@ import time
 import webbrowser
 from collections import Mapping
 
+import wx
+
 try:
     from urllib2 import urlopen, URLError
 except ModuleNotFoundError:
@@ -304,6 +306,11 @@ class Application(pew.ui.PEWApp):
         """
         Start your UI and app run loop here.
         """
+
+        instance_name = "{}_{}".format(pew.get_app_name(), wx.GetUserId())
+        self._checker = wx.SingleInstanceChecker(instance_name)
+        if self._checker.IsAnotherRunning():
+            return 1
 
         # Set loading screen
         lang_id = locale_info['language']
