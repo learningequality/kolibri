@@ -302,7 +302,7 @@ class ChannelBuilder(object):
                 node = self.generate_leaf(parent_id)
             else:
                 node = self.generate_topic(parent_id=parent_id)
-                node["children"] = self.recurse_and_generate(parent_id, levels - 1)
+                node["children"] = self.recurse_and_generate(node["id"], levels - 1)
             children.append(node)
         return children
 
