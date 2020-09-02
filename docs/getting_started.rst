@@ -365,6 +365,7 @@ You can initialize the server using:
 
   kolibri manage migrate
 
+To use a PostgreSQL database, you would edit the `options.ini` file in `KOLIBRI_HOME`, setting options under the `[Database]` section to appropriate values. For the `DATABASE_ENGINE` option, use the value `postgres`.
 
 .. _workflow_intro:
 
