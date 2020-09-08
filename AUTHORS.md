@@ -1,15 +1,11 @@
+# Contributors
 
-# Credits
+Kolibri is copyrighted by Learning Equality under the MIT License.
 
-## Development Lead and Copyright Holder
-
-Learning Equality – info@learningequality.org
-
-## Community
-
-Please feel free to add your name to this list if you make a PR
+If you have contributed to Kolibri, feel free to add your name and Github account to this list:
 
 | Name | Github user |
+|------|-------------|
 | Eli Dai | 66eli77 |
 | Akshay Mahajan | akshaymahajans |
 | Alan Chen | alanchenz |
