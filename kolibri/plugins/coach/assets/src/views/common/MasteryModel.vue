@@ -7,62 +7,58 @@
 
 <script>
 
-  // from le-utils/le_utils/constants/exercises.py
-  const DO_ALL = 'do_all';
-  const NUM_CORRECT_IN_A_ROW_10 = 'num_correct_in_a_row_10';
-  const NUM_CORRECT_IN_A_ROW_2 = 'num_correct_in_a_row_2';
-  const NUM_CORRECT_IN_A_ROW_3 = 'num_correct_in_a_row_3';
-  const NUM_CORRECT_IN_A_ROW_5 = 'num_correct_in_a_row_5';
-  const M_OF_N = 'm_of_n';
+  import { MasteryModelTypes } from 'kolibri.coreVue.vuex.constants';
 
-  const models = [
-    DO_ALL,
-    NUM_CORRECT_IN_A_ROW_10,
-    NUM_CORRECT_IN_A_ROW_2,
-    NUM_CORRECT_IN_A_ROW_3,
-    NUM_CORRECT_IN_A_ROW_5,
-    M_OF_N,
-  ];
+  function masteryModelValidator({ type, m, n }) {
+    let isValid = true;
+    const typeIsValid = Object.values(MasteryModelTypes).includes(type);
+    if (!typeIsValid) {
+      // eslint-disable-next-line no-console
+      console.error(`Invalid mastery model type: ${type}`);
+      isValid = false;
+    }
+    if (type === MasteryModelTypes.m_of_n) {
+      if (typeof n !== 'number' || typeof m !== 'number') {
+        // eslint-disable-next-line no-console
+        console.error(`Invalid value of m and/or n. m: ${m}, n: ${n}`);
+        isValid = false;
+      }
+    }
+    return isValid;
+  }
 
   export default {
     name: 'MasteryModel',
-    components: {},
     props: {
-      model: {
-        type: String,
-        default: M_OF_N,
-        validator(value) {
-          return models.includes(value);
-        },
-      },
-      m: {
-        type: Number,
-        default: 1,
-      },
-      n: {
-        type: Number,
-        default: 1,
+      masteryModel: {
+        type: Object,
+        required: false,
+        validator: masteryModelValidator,
       },
     },
     computed: {
       text() {
-        if (this.model === M_OF_N) {
-          if (this.m === this.n) {
-            if (this.m === 1) {
+        if (!this.masteryModel) {
+          return '';
+        }
+        const { type, m, n } = this.masteryModel;
+        if (type === MasteryModelTypes.m_of_n) {
+          if (m === n) {
+            if (m === 1) {
               return this.$tr('one');
             }
-            return this.$tr('streak', { m: this.m });
+            return this.$tr('streak', { count: m });
           }
-          return this.$tr('mOfN', { M: this.m, N: this.n });
-        } else if (this.model === NUM_CORRECT_IN_A_ROW_10) {
+          return this.$tr('mOfN', { M: m, N: n });
+        } else if (type === MasteryModelTypes.num_correct_in_a_row_10) {
           return this.$tr('streak', { count: 10 });
-        } else if (this.model === NUM_CORRECT_IN_A_ROW_2) {
+        } else if (type === MasteryModelTypes.num_correct_in_a_row_2) {
           return this.$tr('streak', { count: 2 });
-        } else if (this.model === NUM_CORRECT_IN_A_ROW_3) {
+        } else if (type === MasteryModelTypes.num_correct_in_a_row_3) {
           return this.$tr('streak', { count: 3 });
-        } else if (this.model === NUM_CORRECT_IN_A_ROW_5) {
+        } else if (type === MasteryModelTypes.num_correct_in_a_row_5) {
           return this.$tr('streak', { count: 5 });
-        } else if (this.model === DO_ALL) {
+        } else if (type === MasteryModelTypes.do_all) {
           return this.$tr('doAll');
         } else {
           return this.$tr('unknown');
@@ -71,6 +67,7 @@
     },
     $trs: {
       one: 'Get one question correct',
+      // TODO(i18n) add pluralized versions of 'streak', and 'mofN'
       streak: 'Get {count, number, integer} questions in a row correct',
       mOfN: 'Get {M, number, integer} of the last {N, number, integer} questions correct',
       doAll: 'Get every question correct',

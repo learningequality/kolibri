@@ -70,16 +70,27 @@ export const InteractionTypes = {
   error: 'error',
 };
 
+// enum values for `assessmentdata.mastery_model.type` field
+// from le-utils/le_utils/constants/exercises.py
+export const MasteryModelTypes = Object.freeze({
+  do_all: 'do_all',
+  num_correct_in_a_row_2: 'num_correct_in_a_row_2',
+  num_correct_in_a_row_3: 'num_correct_in_a_row_3',
+  num_correct_in_a_row_5: 'num_correct_in_a_row_5',
+  num_correct_in_a_row_10: 'num_correct_in_a_row_10',
+  m_of_n: 'm_of_n',
+});
+
 export const MasteryModelGenerators = {
-  do_all: assessmentIds => ({
+  [MasteryModelTypes.do_all]: assessmentIds => ({
     m: assessmentIds.length,
     n: assessmentIds.length,
   }),
-  num_correct_in_a_row_10: () => ({ m: 10, n: 10 }),
-  num_correct_in_a_row_3: () => ({ m: 3, n: 3 }),
-  num_correct_in_a_row_5: () => ({ m: 5, n: 5 }),
-  num_correct_in_a_row_2: () => ({ m: 2, n: 2 }),
-  m_of_n: (assessmentIds, masteryModel) => masteryModel,
+  [MasteryModelTypes.num_correct_in_a_row_2]: () => ({ m: 2, n: 2 }),
+  [MasteryModelTypes.num_correct_in_a_row_3]: () => ({ m: 3, n: 3 }),
+  [MasteryModelTypes.num_correct_in_a_row_5]: () => ({ m: 5, n: 5 }),
+  [MasteryModelTypes.num_correct_in_a_row_10]: () => ({ m: 10, n: 10 }),
+  [MasteryModelTypes.m_of_n]: (assessmentIds, masteryModel) => masteryModel,
 };
 
 // How many points is a completed content item worth?
