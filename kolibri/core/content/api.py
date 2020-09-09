@@ -144,17 +144,11 @@ class IdFilter(FilterSet):
 
 
 class ContentNodeFilter(IdFilter):
-    recommendations_for = CharFilter(method="filter_recommendations_for")
-    next_steps = CharFilter(method="filter_next_steps")
-    popular = CharFilter(method="filter_popular")
-    resume = CharFilter(method="filter_resume")
     kind = ChoiceFilter(
         method="filter_kind",
         choices=(content_kinds.choices + (("content", _("Resource")),)),
     )
     user_kind = ChoiceFilter(method="filter_user_kind", choices=user_kinds.choices)
-    in_lesson = CharFilter(method="filter_in_lesson")
-    in_exam = CharFilter(method="filter_in_exam")
     exclude_content_ids = CharFilter(method="filter_exclude_content_ids")
     kind_in = CharFilter(method="filter_kind_in")
     parent = UUIDFilter("parent")
@@ -167,10 +161,6 @@ class ContentNodeFilter(IdFilter):
             "has_prerequisite",
             "related",
             "exclude_content_ids",
-            "recommendations_for",
-            "next_steps",
-            "popular",
-            "resume",
             "ids",
             "content_id",
             "channel_id",
