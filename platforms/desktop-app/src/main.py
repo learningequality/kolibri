@@ -111,9 +111,17 @@ elif not 'KOLIBRI_HOME' in os.environ:
         portable_dirs = [root_dir, os.path.abspath(os.path.join(root_dir, '..'))]
 
     for adir in portable_dirs:
+        kolibri_data_dir = os.path.join(adir, 'KOLIBRI_DATA')
         kolibri_dir = os.path.join(adir, '.kolibri')
+        if os.path.isdir(kolibri_data_dir):
+            db_file = os.path.join(kolibri_data_dir, 'db.sqlite3')
+            if os.path.exists(db_file):
+                kolibri_home = kolibri_data_dir
+                break
         if os.path.isdir(kolibri_dir):
             kolibri_home = kolibri_dir
+            break
+
     os.environ["KOLIBRI_HOME"] = kolibri_home
 
 
