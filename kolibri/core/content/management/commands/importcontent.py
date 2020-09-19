@@ -1,3 +1,4 @@
+import concurrent.futures
 import logging
 import os
 
@@ -290,6 +291,7 @@ class Command(AsyncCommand):
             if method == DOWNLOAD_METHOD:
                 session = requests.Session()
 
+            file_transfers = []
             for f in files_to_download:
 
                 if self.is_cancelled():
@@ -318,6 +320,7 @@ class Command(AsyncCommand):
                     filetransfer = transfer.FileDownload(
                         url, dest, session=session, cancel_check=self.is_cancelled
                     )
+                    file_transfers.append((f, filetransfer))
                 elif method == COPY_METHOD:
                     try:
                         srcpath = paths.get_content_storage_file_path(
@@ -330,37 +333,45 @@ class Command(AsyncCommand):
                     filetransfer = transfer.FileCopy(
                         srcpath, dest, cancel_check=self.is_cancelled
                     )
+                    file_transfers.append((f, filetransfer))
 
-                try:
-                    status = self._start_file_transfer(
+            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                future_file_transfers = {}
+                for f, filetransfer in file_transfers:
+                    future = executor.submit(self._start_file_transfer,
                         f, filetransfer, overall_progress_update
                     )
+                    future_file_transfers[future] = (f, filetransfer)
 
-                    if self.is_cancelled():
-                        break
+                for future in concurrent.futures.as_completed(future_file_transfers):
+                    f, filetransfer = future_file_transfers[future]
+                    try:
+                        status = future.result()
+                        if self.is_cancelled():
+                            break
 
-                    if status == FILE_SKIPPED:
-                        number_of_skipped_files += 1
-                    else:
-                        file_checksums_to_annotate.append(f.id)
-                        transferred_file_size += f.file_size
-                except transfer.TransferCanceled:
-                    break
-                except Exception as e:
-                    logger.error(
-                        "An error occurred during content import: {}".format(e)
-                    )
-                    if (
-                        isinstance(e, requests.exceptions.HTTPError)
-                        and e.response.status_code == 404
-                    ) or (isinstance(e, OSError) and e.errno == 2):
-                        # Continue file import when the current file is not found from the source and is skipped.
-                        overall_progress_update(f.file_size)
-                        number_of_skipped_files += 1
-                        continue
-                    else:
-                        exception = e
+                        if status == FILE_SKIPPED:
+                            number_of_skipped_files += 1
+                        else:
+                            file_checksums_to_annotate.append(f.id)
+                            transferred_file_size += f.file_size
+                    except transfer.TransferCanceled:
                         break
+                    except Exception as e:
+                        logger.error(
+                            "An error occurred during content import: {}".format(e)
+                        )
+                        if (
+                            isinstance(e, requests.exceptions.HTTPError)
+                            and e.response.status_code == 404
+                        ) or (isinstance(e, OSError) and e.errno == 2):
+                            # Continue file import when the current file is not found from the source and is skipped.
+                            overall_progress_update(f.file_size)
+                            number_of_skipped_files += 1
+                            continue
+                        else:
+                            exception = e
+                            break
 
             with db_task_write_lock:
                 annotation.set_content_visibility(
