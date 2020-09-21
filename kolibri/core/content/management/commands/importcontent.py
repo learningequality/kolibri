@@ -286,8 +286,6 @@ class Command(AsyncCommand):
         with self.start_progress(
             total=total_bytes_to_transfer + dummy_bytes_for_annotation
         ) as overall_progress_update:
-            exception = None  # Exception that is not caught by the retry logic
-
             if method == DOWNLOAD_METHOD:
                 session = requests.Session()
 
@@ -370,7 +368,7 @@ class Command(AsyncCommand):
                             number_of_skipped_files += 1
                             continue
                         else:
-                            exception = e
+                            self.exception = e
                             break
 
             with db_task_write_lock:
@@ -406,8 +404,8 @@ class Command(AsyncCommand):
 
             overall_progress_update(dummy_bytes_for_annotation)
 
-            if exception:
-                raise exception
+            if self.exception:
+                raise self.exception
 
             if self.is_cancelled():
                 self.cancel()
