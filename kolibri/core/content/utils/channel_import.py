@@ -1,10 +1,14 @@
+import io
 import json
 import logging
+import time
 
 from django.apps import apps
 from django.db.models.fields.related import ForeignKey
+from sqlalchemy import or_
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.sql import select
 from sqlalchemy.sql import text
 
 from .channels import read_channel_metadata_from_db_file
@@ -66,6 +70,54 @@ def convert_to_sqlite_value(python_value):
         return '"{}"'.format(json.dumps(python_value))
     else:
         return repr(python_value)
+
+
+def clean_csv_value(value):
+    if value is None:
+        return r"\N"
+    return (
+        str(value)
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t")
+        .replace("\\.", ".")
+    )
+
+
+class StringIteratorIO(io.TextIOBase):
+    def __init__(self, iter):
+        self._iter = iter
+        self._buff = ""
+
+    def readable(self):
+        return True
+
+    def _read1(self, n=None):
+        while not self._buff:
+            try:
+                self._buff = next(self._iter)
+            except StopIteration:
+                break
+        ret = self._buff[:n]
+        self._buff = self._buff[len(ret) :]
+        return ret
+
+    def read(self, n=None):
+        buff = []
+        if n is None or n < 0:
+            while True:
+                m = self._read1()
+                if not m:
+                    break
+                buff.append(m)
+        else:
+            while n > 0:
+                m = self._read1(n)
+                if not m:
+                    break
+                n -= len(m)
+                buff.append(m)
+        return "".join(buff)
 
 
 class ChannelImport(object):
@@ -150,7 +202,7 @@ class ChannelImport(object):
         # Get the next available tree_id in our database
         self.available_tree_id = self.find_unique_tree_id()
 
-        self.default_to_not_available = 0
+        self.default_to_not_available = False
 
         self.set_blank_text = ""
 
@@ -263,9 +315,7 @@ class ChannelImport(object):
         # If we got here, there is an invalid table mapping
         raise AttributeError("Table mapping specified but no valid method found")
 
-    def raw_attached_sqlite_table_import(
-        self, model, row_mapper, table_mapper, unflushed_rows
-    ):
+    def raw_attached_sqlite_table_import(self, model, table_mapper, unflushed_rows):
 
         self.check_cancelled()
 
@@ -339,6 +389,136 @@ class ChannelImport(object):
         # no need to flush/commit as a result of the transfer in this method
         return 1
 
+    def get_and_set_postgres_column_default(self, column_obj):
+        if hasattr(column_obj, "k_memoized_default"):
+            default = getattr(column_obj, "k_memoized_default")
+        else:
+            default = None
+            if column_obj.default is not None:
+                if column_obj.default.is_scalar:
+                    default = column_obj.default.arg
+                elif column_obj.default.is_callable:
+                    default = column_obj.default.arg(None)
+            setattr(column_obj, "k_memoized_default", default)
+        return default
+
+    def postgres_table_import(self, model, row_mapper, table_mapper, unflushed_rows):
+        dest_table = self.destination.get_table(model)
+
+        # If the source table does not exist (i.e. this table is undefined in the source database)
+        # this will raise an error - as we do not allow custom table mappings for this optimized
+        # postgres import, this should never happen.
+        source_table = self.source.get_table(model)
+
+        # Filter out columns that are auto-incrementing integer primary keys, as these can cause collisions in the
+        # database. As all of our content database models use UUID primary keys, the only tables using these
+        # primary keys are intermediary tables for ManyToMany fields, and so nothing should be Foreign Keying
+        # to these ids.
+        # By filtering them here, the database should autoset an incremented id.
+        columns = [
+            column_obj
+            for column_name, column_obj in dest_table.columns.items()
+            if column_not_auto_integer_pk(column_obj)
+        ]
+        column_names = [column.name for column in columns]
+        merge = model in merge_models
+        do_not_overwrite = model in models_not_to_overwrite
+        self.check_cancelled()
+
+        raw_connection = self.destination.get_raw_connection()
+        cursor = raw_connection.cursor()
+
+        results = (
+            self.source.get_connection().execute(select([source_table])).fetchall()
+        )
+
+        def generate_data_with_default(record):
+            for column_obj in columns:
+                default = self.get_and_set_postgres_column_default(column_obj)
+                value = row_mapper(record, column_obj.name)
+                yield value if value is not None else default
+
+        if not merge:
+
+            separator = "\t"
+            data_string_iterator = StringIteratorIO(
+                (
+                    separator.join(
+                        map(
+                            clean_csv_value,
+                            (datum for datum in generate_data_with_default(record)),
+                        )
+                    )
+                    + "\n"
+                    for record in results
+                )
+            )
+            cursor.copy_from(
+                data_string_iterator,
+                dest_table.name,
+                sep=separator,
+                columns=column_names,
+            )
+        else:
+            # Import here so that we don't need to depend on psycopg2 for Kolibri in general.
+            from psycopg2.extras import execute_values
+
+            pk_name = dest_table.primary_key.columns.values()[0].name
+            if do_not_overwrite:
+
+                execute_values(
+                    cursor,
+                    "INSERT INTO {table} ({column_names}) VALUES %s ON CONFLICT ({pk_name}) DO NOTHING;".format(
+                        table=dest_table.name,
+                        column_names=", ".join(column_names),
+                        pk_name=pk_name,
+                    ),
+                    (
+                        tuple(datum for datum in generate_data_with_default(record))
+                        for record in results
+                    ),
+                    template="(" + "%s, " * (len(columns) - 1) + "%s)",
+                )
+            else:
+
+                def generate_data(record):
+                    for column_obj in columns:
+                        value = row_mapper(record, column_obj.name)
+                        yield value
+
+                execute_values(
+                    cursor,
+                    # We want to overwrite new values that we are inserting here, so we use an ON CONFLICT DO UPDATE here
+                    # for the resulting SET statement, we generate a statement for each column we are trying to update
+                    "INSERT INTO {table} AS SOURCE ({column_names}) VALUES %s ON CONFLICT ({pk_name}) DO UPDATE SET {set_statement};".format(
+                        table=dest_table.name,
+                        column_names=", ".join(column_names),
+                        pk_name=pk_name,
+                        set_statement=", ".join(
+                            [
+                                # Here we generate a value assignment for the set statement for
+                                # each column, except for the primary key column, which we leave alone.
+                                # We set the column value to COALESCE (take the first non-null value)
+                                # from either the value we tried to set (EXCLUDED) or the original value
+                                # (SOURCE) - this should have the effect of replacing columns for which
+                                # we have a value to insert, but ignoring columns that we do not.
+                                "{column} = COALESCE(EXCLUDED.{column}, SOURCE.{column})".format(
+                                    column=column_name
+                                )
+                                for column_name in column_names
+                                if column_name != pk_name
+                            ]
+                        ),
+                    ),
+                    (
+                        tuple(datum for datum in generate_data(record))
+                        for record in results
+                    ),
+                    template="(" + "%s, " * (len(columns) - 1) + "%s)",
+                )
+        cursor.close()
+        return unflushed_rows
+
     def orm_table_import(self, model, row_mapper, table_mapper, unflushed_rows):
         DestinationRecord = self.destination.get_class(model)
         dest_table = self.destination.get_table(model)
@@ -361,9 +541,9 @@ class ChannelImport(object):
             for column_name, column_obj in dest_table.columns.items()
             if column_not_auto_integer_pk(column_obj)
         ]
-        data_to_insert = []
         merge = model in merge_models
         do_not_overwrite = model in models_not_to_overwrite
+        data_to_insert = []
         for record in table_mapper(SourceRecord):
             self.check_cancelled()
             data = {
@@ -386,13 +566,20 @@ class ChannelImport(object):
                     data_to_insert = []
                 self.destination.session.flush()
                 unflushed_rows = 0
+
         if not merge and data_to_insert:
             self.destination.session.bulk_insert_mappings(
                 DestinationRecord, data_to_insert
             )
         return unflushed_rows
 
-    def can_use_sqlite_attach_method(self, model, row_mapper, table_mapper):
+    def is_simple_import(self):
+        # Is a simple import in the case that we are
+        # using the base class of ChannelImport
+        # otherwise, not simple!
+        return type(self) == ChannelImport
+
+    def can_use_sqlite_attach_method(self, model, table_mapper):
 
         # Check whether we can directly "attach" the sqlite database and do a one-line transfer
         # First check that we are not doing any mapping to construct the tables
@@ -426,8 +613,12 @@ class ChannelImport(object):
         # keep track of which model is currently being imported
         self.current_model_being_imported = model
 
-        if self.can_use_sqlite_attach_method(model, row_mapper, table_mapper):
+        if self.can_use_sqlite_attach_method(model, table_mapper):
             result = self.raw_attached_sqlite_table_import(
+                model, table_mapper, unflushed_rows
+            )
+        elif self.destination.engine.name == "postgresql" and self.is_simple_import():
+            result = self.postgres_table_import(
                 model, row_mapper, table_mapper, unflushed_rows
             )
         else:
@@ -503,22 +694,10 @@ class ChannelImport(object):
     def _can_use_optimized_pre_deletion(self, model):
         # check whether we can skip fully deleting this model, if we'll be using REPLACE on it anyway
         mapping = self.schema_mapping.get(model, {})
-        row_mapper = self.generate_row_mapper(mapping.get("per_row"))
         table_mapper = self.generate_table_mapper(mapping.get("per_table"))
-        return self.can_use_sqlite_attach_method(model, row_mapper, table_mapper)
+        return self.can_use_sqlite_attach_method(model, table_mapper)
 
     def delete_old_channel_data(self, old_tree_id):
-
-        # construct a template for deleting records for models that foreign key onto ContentNode
-        delete_related_template = """
-            DELETE FROM {table}
-                WHERE {fk_field} IN (
-                    SELECT id FROM {cn_table} WHERE tree_id = '{tree_id}'
-                )
-        """
-
-        # construct a template for deleting the ContentNode records themselves
-        delete_contentnode_template = "DELETE FROM {table} WHERE tree_id = '{tree_id}'"
 
         # we want to delete all content models, but not "merge models" (ones that might also be used by other channels), and ContentNode last
         models_to_delete = [
@@ -527,41 +706,52 @@ class ChannelImport(object):
             if model is not ContentNode and model not in merge_models
         ] + [ContentNode]
 
+        ContentNodeTable = self.destination.get_table(ContentNode)
+
         for model in models_to_delete:
+            table = self.destination.get_table(model)
+            query = table.delete()
 
             # we do a few things differently if it's the ContentNode model, vs a model related to ContentNode
             if model is ContentNode:
-                template = delete_contentnode_template
-                fields = ["id"]
+                query = query.where(ContentNodeTable.c.tree_id == old_tree_id)
             else:
-                template = delete_related_template
-                fields = [
+                columns = [
                     f.column
                     for f in model._meta.fields
                     if isinstance(f, ForeignKey) and f.target_field.model is ContentNode
                 ]
+                # run a query for each field this model has that foreignkeys onto ContentNode
+                or_queries = [
+                    getattr(table.c, column).in_(
+                        select([ContentNodeTable.c.id]).where(
+                            ContentNodeTable.c.tree_id == old_tree_id
+                        )
+                    )
+                    for column in columns
+                ]
+                query = query.where(or_(*or_queries))
 
+            pk_column = table.primary_key.columns.values()[0]
             # if the external database is attached and there are no incompatible schema mappings for a table,
+            # and it doesn't use an autoincrementing integer pk
             # we can skip deleting records that will be REPLACED during import, which helps efficiency
-            if self._can_use_optimized_pre_deletion(model):
-                template += " AND NOT id IN (SELECT id FROM sourcedb.{table})"
-
-            # run a query for each field this model has that foreignkeys onto ContentNode
-            for field in fields:
-
-                # construct the actual query by filling in variables
-                query = template.format(
-                    table=model._meta.db_table,
-                    fk_field=field,
-                    tree_id=old_tree_id,
-                    cn_table=ContentNode._meta.db_table,
+            if self._can_use_optimized_pre_deletion(
+                model
+            ) and column_not_auto_integer_pk(pk_column):
+                pk_name = pk_column.name
+                query = query.where(
+                    text(
+                        "NOT {pk_name} IN (SELECT id FROM sourcedb.{table})".format(
+                            pk_name=pk_name, table=table.name
+                        )
+                    )
                 )
+            # check that the import operation hasn't since been cancelled
+            self.check_cancelled()
 
-                # check that the import operation hasn't since been cancelled
-                self.check_cancelled()
-
-                # execute the actual query
-                self.destination.session.execute(text(query))
+            # execute the actual query
+            self.destination.session.execute(query)
 
     def check_cancelled(self):
         if callable(self.cancel_check):
@@ -597,6 +787,9 @@ class ChannelImport(object):
 
     def import_channel_data(self):
 
+        logger.debug("Beginning channel metadata import")
+        start = time.time()
+
         unflushed_rows = 0
         import_ran = False
 
@@ -613,6 +806,8 @@ class ChannelImport(object):
                     )
                 import_ran = True
             self.destination.session.commit()
+            if self.destination.engine.name == "postgresql":
+                self.destination.get_raw_connection().commit()
             self.try_detaching_sqlite_database()
         except (SQLAlchemyError, ImportCancelError) as e:
             # Rollback the transaction if any error occurs during the transaction
@@ -620,8 +815,18 @@ class ChannelImport(object):
             if self.destination.engine.name == "postgresql":
                 self.destination.get_raw_connection().rollback()
             self.try_detaching_sqlite_database()
+            logger.debug(
+                "Channel metadata import did not complete after {} seconds".format(
+                    time.time() - start
+                )
+            )
             # Reraise the exception to prevent other errors occuring due to the non-completion
             raise e
+        logger.debug(
+            "Channel metadata import successfully completed in {} seconds".format(
+                time.time() - start
+            )
+        )
         return import_ran
 
     def end(self):
