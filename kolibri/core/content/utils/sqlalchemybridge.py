@@ -373,6 +373,7 @@ class Bridge(object):
         self.session.close()
         if self.connection:
             self.connection.close()
+        self.engine.dispose()
 
 
 def filter_by_uuids(field, ids, validate=True, vendor=None):
