@@ -41,7 +41,8 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
                 port=":" + conf.OPTIONS["Database"]["DATABASE_PORT"]
                 if conf.OPTIONS["Database"]["DATABASE_PORT"]
                 else "",
-            )
+            ),
+            pool_pre_ping=True,
         )
 
 
