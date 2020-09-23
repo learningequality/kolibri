@@ -1,6 +1,6 @@
 <template>
 
-  <div @keydown.esc="$emit('close')">
+  <div tabindex="0" @keyup.esc="$emit('close')">
     <ul
       role="menu"
       class="ui-menu"
@@ -86,7 +86,6 @@
         };
       },
     },
-
     watch: {
       isOpen(val) {
         if (val === false) {
