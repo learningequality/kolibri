@@ -101,10 +101,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
         "notification_event",
     )
 
-    field_map = {
-        "object": "notification_object",
-        "event": "notification_event",
-    }
+    field_map = {"object": "notification_object", "event": "notification_event"}
 
     def check_after(self):
         """

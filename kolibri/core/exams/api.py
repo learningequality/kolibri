@@ -74,9 +74,7 @@ class ExamViewset(ValuesViewset):
         "learners_see_fixed_order",
     )
 
-    field_map = {
-        "assignments": "assignment_collections",
-    }
+    field_map = {"assignments": "assignment_collections"}
 
     def get_queryset(self):
         return models.Exam.objects.all()
@@ -97,7 +95,7 @@ class ExamViewset(ValuesViewset):
             )
             adhoc_assignments = {
                 a["exam"]: a
-                for a in adhoc_assignments.values("collection", "exam", "learner_ids",)
+                for a in adhoc_assignments.values("collection", "exam", "learner_ids")
             }
             for item in items:
                 if item["id"] in adhoc_assignments:

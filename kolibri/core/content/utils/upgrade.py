@@ -198,7 +198,7 @@ def get_new_resources_available_for_import(destination, channel_id):
     # Set everything to False to start with
     connection.execute(
         ContentNodeTable.update()
-        .where(ContentNodeTable.c.channel_id == channel_id,)
+        .where(ContentNodeTable.c.channel_id == channel_id)
         .values(available=False)
     )
 
@@ -213,7 +213,7 @@ def get_new_resources_available_for_import(destination, channel_id):
                         ContentNodeTable.c.id, node_ids, vendor=bridge.engine.name
                     ),
                     ContentNodeTable.c.channel_id == channel_id,
-                ),
+                )
             )
             .values(available=True)
         )
@@ -318,7 +318,7 @@ def get_new_resources_available_for_import(destination, channel_id):
                         vendor=bridge.engine.name,
                     ),
                     ContentNodeTable.c.channel_id == channel_id,
-                ),
+                )
             )
             .values(available=True)
         )

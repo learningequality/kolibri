@@ -8,8 +8,6 @@ from .api import SetupWizardFacilityImportTaskView
 router = routers.DefaultRouter()
 
 router.register(r"facilityimport", FacilityImportViewSet, base_name="facilityimport")
-router.register(
-    r"tasks", SetupWizardFacilityImportTaskView, base_name="tasks",
-)
+router.register(r"tasks", SetupWizardFacilityImportTaskView, base_name="tasks")
 
 urlpatterns = [url(r"^", include(router.urls))]

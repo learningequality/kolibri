@@ -223,10 +223,12 @@ class Job(object):
             return self.progress
 
     def __repr__(self):
-        return "<Job id: {id} state: {state} progress: {p}/{total} func: {func}>".format(
-            id=self.job_id,
-            state=self.state,
-            func=self.func,
-            p=self.progress,
-            total=self.total_progress,
+        return (
+            "<Job id: {id} state: {state} progress: {p}/{total} func: {func}>".format(
+                id=self.job_id,
+                state=self.state,
+                func=self.func,
+                p=self.progress,
+                total=self.total_progress,
+            )
         )

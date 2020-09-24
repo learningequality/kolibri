@@ -240,10 +240,12 @@ class HierarchyRelationsFilter(object):
             else ""
         )
 
-        joined_condition = "EXISTS (SELECT * FROM {tables} {left_join_tables} WHERE {where})".format(
-            tables=", ".join(self.tables),
-            left_join_tables=left_join_sql,
-            where=self._join_with_logical_operator(self.where, "AND"),
+        joined_condition = (
+            "EXISTS (SELECT * FROM {tables} {left_join_tables} WHERE {where})".format(
+                tables=", ".join(self.tables),
+                left_join_tables=left_join_sql,
+                where=self._join_with_logical_operator(self.where, "AND"),
+            )
         )
 
         return self.queryset.extra(where=[joined_condition])

@@ -312,9 +312,7 @@ class ContentNodeViewset(ValuesViewset):
         "tree_id",
     )
 
-    field_map = {
-        "lang": map_lang,
-    }
+    field_map = {"lang": map_lang}
 
     read_only = True
 

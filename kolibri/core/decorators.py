@@ -257,8 +257,8 @@ class ParamValidator(object):
 
 def query_params_required(**kwargs):
     """
-        Request fn decorator that builds up a list of params and automatically returns a 400 if they are invalid.
-        The validated params are passed to the wrapped function as kwargs.
+    Request fn decorator that builds up a list of params and automatically returns a 400 if they are invalid.
+    The validated params are passed to the wrapped function as kwargs.
     """
     validators = {}
 

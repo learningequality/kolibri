@@ -338,9 +338,7 @@ class FacilityViewSet(ValuesViewset):
             dataset[stripped_key] = facility.pop(dataset_key)
         return dataset
 
-    field_map = {
-        "dataset": _map_dataset,
-    }
+    field_map = {"dataset": _map_dataset}
 
     def annotate_queryset(self, queryset):
         return (

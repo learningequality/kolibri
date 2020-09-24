@@ -65,7 +65,7 @@ repos:
         kolibri/core/logger/migrations/0003_auto_20170531_1140\.py|
         kolibri/core/logger/migrations/0005_auto_20180514_1419\.py|
       )$
--   repo: https://github.com/psf/black
+-   repo: git@github.com:psf/black.git
     rev: stable
     hooks:
     - id: black

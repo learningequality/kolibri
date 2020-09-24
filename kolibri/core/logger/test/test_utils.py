@@ -25,5 +25,5 @@ class BytesForHumans(TestCase):
 
     def test_petabytes(self):
         self.assertEqual(
-            "611.77PB", bytes_for_humans(611.77 * 1024 * 1024 * 1024 * 1024 * 1024),
+            "611.77PB", bytes_for_humans(611.77 * 1024 * 1024 * 1024 * 1024 * 1024)
         )

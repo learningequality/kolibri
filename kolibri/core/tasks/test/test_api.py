@@ -174,7 +174,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             state="testing",
             percentage_progress=42,
             cancellable=False,
-            extra_metadata=dict(this_is_extra=True,),
+            extra_metadata=dict(this_is_extra=True),
         )
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
 
@@ -219,7 +219,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             state="testing",
             percentage_progress=42,
             cancellable=False,
-            extra_metadata=dict(this_is_extra=True,),
+            extra_metadata=dict(this_is_extra=True),
         )
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
 
@@ -314,13 +314,13 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             state="testing",
             percentage_progress=42,
             cancellable=False,
-            extra_metadata=dict(this_is_extra=True,),
+            extra_metadata=dict(this_is_extra=True),
         )
         fake_job_data["extra_metadata"].update(extra_metadata)
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
 
         req_data = dict(
-            facility=self.facility.id, baseurl="https://some.server.test/extra/stuff",
+            facility=self.facility.id, baseurl="https://some.server.test/extra/stuff"
         )
 
         response = self.client.post(
@@ -332,13 +332,13 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         self.assertJobResponse(fake_job_data, response)
 
         validate_and_prepare_peer_sync_job.assert_has_calls(
-            [call(ANY, no_push=True, no_provision=True, extra_metadata=extra_metadata,)]
+            [call(ANY, no_push=True, no_provision=True, extra_metadata=extra_metadata)]
         )
         facility_queue.enqueue.assert_called_with(call_command, "sync", **prepared_data)
 
     @patch("kolibri.core.tasks.api.validate_and_prepare_peer_sync_job")
     def test_startpeerfacilitysync(
-        self, validate_and_prepare_peer_sync_job, facility_queue,
+        self, validate_and_prepare_peer_sync_job, facility_queue
     ):
         user = self._setup_device()
 
@@ -372,13 +372,13 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             state="testing",
             percentage_progress=42,
             cancellable=False,
-            extra_metadata=dict(this_is_extra=True,),
+            extra_metadata=dict(this_is_extra=True),
         )
         fake_job_data["extra_metadata"].update(extra_metadata)
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
 
         req_data = dict(
-            facility=self.facility.id, baseurl="https://some.server.test/extra/stuff",
+            facility=self.facility.id, baseurl="https://some.server.test/extra/stuff"
         )
 
         response = self.client.post(
@@ -390,7 +390,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         self.assertJobResponse(fake_job_data, response)
 
         validate_and_prepare_peer_sync_job.assert_has_calls(
-            [call(ANY, extra_metadata=extra_metadata,)]
+            [call(ANY, extra_metadata=extra_metadata)]
         )
         facility_queue.enqueue.assert_called_with(call_command, "sync", **prepared_data)
 
@@ -584,14 +584,14 @@ class FacilityTaskHelperTestCase(TestCase):
         )
 
     def test_validate_and_prepare_peer_sync_job__no_baseurl(self):
-        req = Mock(spec=Request, data=dict(facility=123,),)
+        req = Mock(spec=Request, data=dict(facility=123))
 
         with self.assertRaises(ParseError, msg="Missing `baseurl` parameter"):
             validate_and_prepare_peer_sync_job(req)
 
     def test_validate_and_prepare_peer_sync_job__bad_url(self):
         req = Mock(
-            spec=Request, data=dict(facility=123, baseurl="/com.bad.url.www//:sptth",),
+            spec=Request, data=dict(facility=123, baseurl="/com.bad.url.www//:sptth")
         )
 
         with self.assertRaises(ParseError, msg="Invalid URL"):
@@ -600,8 +600,7 @@ class FacilityTaskHelperTestCase(TestCase):
     @patch("kolibri.core.tasks.api.NetworkClient")
     def test_validate_and_prepare_peer_sync_job__cannot_connect(self, NetworkClient):
         req = Mock(
-            spec=Request,
-            data=dict(facility=123, baseurl="https://www.notfound.never",),
+            spec=Request, data=dict(facility=123, baseurl="https://www.notfound.never")
         )
 
         NetworkClient.side_effect = NetworkLocationNotFound()
@@ -650,7 +649,7 @@ class FacilityTaskHelperTestCase(TestCase):
     ):
         req = Mock(
             spec=Request,
-            data=dict(facility=123, baseurl="https://some.server.test/extra/stuff",),
+            data=dict(facility=123, baseurl="https://some.server.test/extra/stuff"),
         )
 
         client = NetworkClient.return_value
