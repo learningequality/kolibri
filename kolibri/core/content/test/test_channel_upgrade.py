@@ -180,7 +180,7 @@ class ChannelBuilder(object):
                 new_localfiles.append(thumbnail)
         self.node_to_files_map[node["id"]] = list(
             filter(
-                lambda x: x not in keys_to_remove, self.node_to_files_map[node["id"]],
+                lambda x: x not in keys_to_remove, self.node_to_files_map[node["id"]]
             )
         )
         return new_localfiles
@@ -308,7 +308,7 @@ class ChannelBuilder(object):
 
     def generate_topic(self, parent_id=None):
         data = self.contentnode_data(
-            kind=content_kinds.TOPIC, root=parent_id is None, parent_id=parent_id,
+            kind=content_kinds.TOPIC, root=parent_id is None, parent_id=parent_id
         )
         thumbnail = self.localfile_data(extension="png")
         self.file_data(
@@ -386,7 +386,7 @@ class ChannelBuilder(object):
         return data
 
     def contentnode_data(
-        self, node_id=None, content_id=None, parent_id=None, kind=None, root=False,
+        self, node_id=None, content_id=None, parent_id=None, kind=None, root=False
     ):
         return {
             "options": "{}",
@@ -522,12 +522,8 @@ class ChannelDeleteAllTestCase(ChannelUpdateTestBase):
         )
 
         self.assertEqual(new_resource_ids, [])
-        self.assertEqual(
-            new_resource_content_ids, [],
-        )
-        self.assertEqual(
-            new_resource_total_size, 0,
-        )
+        self.assertEqual(new_resource_content_ids, [])
+        self.assertEqual(new_resource_total_size, 0)
 
     def test_deleted_resources(self):
         resources_to_be_deleted_count = count_removed_resources(
@@ -595,7 +591,7 @@ class ChannelMixedTestCase(ChannelUpdateTestBase):
 
         self.assertEqual(
             new_resource_total_size,
-            sum(map(lambda x: x["file_size"], new_resource_local_files,)),
+            sum(map(lambda x: x["file_size"], new_resource_local_files)),
         )
 
     def test_deleted_resources(self):
@@ -660,9 +656,7 @@ class ChannelDuplicateTestCase(ChannelUpdateTestBase):
             set(new_resource_ids),
             set(map(lambda x: x["id"], self.upgraded_channel.duplicated_resources)),
         )
-        self.assertEqual(
-            set(new_resource_content_ids), set(),
-        )
+        self.assertEqual(set(new_resource_content_ids), set())
 
         self.assertEqual(new_resource_total_size, 0)
 
@@ -680,12 +674,8 @@ class ChannelDuplicateTestCase(ChannelUpdateTestBase):
             updated_resource_total_size,
         ) = get_automatically_updated_resources(self.content_db_path, self.channel_id)
 
-        self.assertEqual(
-            set(updated_resource_ids), set(),
-        )
-        self.assertEqual(
-            set(updated_resource_content_ids), set(),
-        )
+        self.assertEqual(set(updated_resource_ids), set())
+        self.assertEqual(set(updated_resource_content_ids), set())
         self.assertEqual(updated_resource_total_size, 0)
 
 
@@ -717,9 +707,7 @@ class ChannelNodesMovedTestCase(ChannelUpdateTestBase):
             set(map(lambda x: x["id"], self.upgraded_channel.moved_resources)),
         )
 
-        self.assertEqual(
-            set(new_resource_content_ids), set(),
-        )
+        self.assertEqual(set(new_resource_content_ids), set())
 
         self.assertEqual(new_resource_total_size, 0)
 
@@ -739,10 +727,6 @@ class ChannelNodesMovedTestCase(ChannelUpdateTestBase):
             updated_resource_total_size,
         ) = get_automatically_updated_resources(self.content_db_path, self.channel_id)
 
-        self.assertEqual(
-            set(updated_resource_ids), set(),
-        )
-        self.assertEqual(
-            set(updated_resource_content_ids), set(),
-        )
+        self.assertEqual(set(updated_resource_ids), set())
+        self.assertEqual(set(updated_resource_content_ids), set())
         self.assertEqual(updated_resource_total_size, 0)

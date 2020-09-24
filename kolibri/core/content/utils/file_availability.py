@@ -103,8 +103,10 @@ def get_available_checksums_from_disk(channel_id, drive_id):
     except KeyError:
         raise LocationError("Drive with id {} does not exist".format(drive_id))
     PER_DISK_CACHE_KEY = "DISK_AVAILABLE_CHECKSUMS_{basepath}".format(basepath=basepath)
-    PER_DISK_PER_CHANNEL_CACHE_KEY = "DISK_AVAILABLE_CHECKSUMS_{basepath}_{channel_id}".format(
-        basepath=basepath, channel_id=channel_id
+    PER_DISK_PER_CHANNEL_CACHE_KEY = (
+        "DISK_AVAILABLE_CHECKSUMS_{basepath}_{channel_id}".format(
+            basepath=basepath, channel_id=channel_id
+        )
     )
     if PER_DISK_PER_CHANNEL_CACHE_KEY not in process_cache:
         if PER_DISK_CACHE_KEY not in process_cache:

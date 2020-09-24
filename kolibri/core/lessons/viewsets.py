@@ -76,9 +76,7 @@ class LessonViewset(ValuesViewset):
             )
             adhoc_assignments = {
                 a["lesson"]: a
-                for a in adhoc_assignments.values(
-                    "collection", "lesson", "learner_ids",
-                )
+                for a in adhoc_assignments.values("collection", "lesson", "learner_ids")
             }
             for item in items:
                 if item["id"] in adhoc_assignments:

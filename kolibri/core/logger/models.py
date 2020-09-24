@@ -189,8 +189,10 @@ class UserSessionLog(BaseLogModel):
             except ObjectDoesNotExist:
                 user_session_log = None
 
-            if not user_session_log or timezone.now() - user_session_log.last_interaction_timestamp > timedelta(
-                minutes=5
+            if (
+                not user_session_log
+                or timezone.now() - user_session_log.last_interaction_timestamp
+                > timedelta(minutes=5)
             ):
                 user_session_log = cls(user=user)
             user_session_log.last_interaction_timestamp = local_now()

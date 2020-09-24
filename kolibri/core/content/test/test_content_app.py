@@ -753,7 +753,7 @@ class ContentNodeAPITestCase(APITestCase):
         node_id = content.ContentNode.objects.get(title="c2c2").id
         response = self.client.get(
             reverse(
-                "kolibri:core:contentnode-recommendations-for", kwargs={"pk": node_id},
+                "kolibri:core:contentnode-recommendations-for", kwargs={"pk": node_id}
             )
         )
         self.assertEqual(len(response.data), 2)
@@ -765,7 +765,7 @@ class ContentNodeAPITestCase(APITestCase):
         node_id = node.id
         response = self.client.get(
             reverse(
-                "kolibri:core:contentnode-recommendations-for", kwargs={"pk": node_id},
+                "kolibri:core:contentnode-recommendations-for", kwargs={"pk": node_id}
             )
         )
         self.assertEqual(response.status_code, 404)

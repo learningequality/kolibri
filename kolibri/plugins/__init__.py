@@ -247,7 +247,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
             except Exception as e:
                 logging.warn(
                     "Tried to import module {module_name} from {plugin} but an error was raised".format(
-                        plugin=self.module_path, module_name=module_name,
+                        plugin=self.module_path, module_name=module_name
                     )
                 )
                 logging.exception(e)

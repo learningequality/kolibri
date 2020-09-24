@@ -8,9 +8,7 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("kolibriauth", "0017_remove_facilitydataset_allow_guest_access"),
-    ]
+    dependencies = [("kolibriauth", "0017_remove_facilitydataset_allow_guest_access")]
 
     operations = [
         migrations.AlterField(
@@ -25,5 +23,5 @@ class Migration(migrations.Migration):
                 ],
                 max_length=20,
             ),
-        ),
+        )
     ]

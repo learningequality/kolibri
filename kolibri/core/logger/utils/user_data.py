@@ -106,7 +106,7 @@ def get_or_create_classrooms(**options):
                 # P2P sync tests. The facility name already has the device_name prepended.
                 class_name = "{0} {1}".format(facility, class_name)
             classroom, created = Classroom.objects.get_or_create(
-                parent=facility, name=class_name,
+                parent=facility, name=class_name
             )
             if created:
                 logger_info("==> CREATED Class {c}".format(c=classroom), verbosity)
