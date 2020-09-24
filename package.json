@@ -33,9 +33,6 @@
     "lint-frontend:format": "yarn run lint-frontend --write",
     "lint-frontend:watch": "yarn run lint-frontend --monitor",
     "lint-frontend:watch:format": "yarn run lint-frontend --monitor --write",
-    "fmt-backend": "yarn run black-fmt",
-    "fmt-backend:check": "yarn run black-fmt --check",
-    "fmt-backend:watch": "yarn run black-fmt --watch",
     "build-kolibri-tools": "yarn workspace kolibri-tools run build-kolibri-tools",
     "publish-packages": "node ./packages/publish.js",
     "hashi-dev": "yarn workspace hashi run dev",
@@ -53,7 +50,6 @@
   "private": true,
   "devDependencies": {
     "@types/jest": "^24.0.12",
-    "black-fmt": "https://github.com/learningequality/black-fmt#v0.1.3",
     "kolibri-tools": "0.13.0-dev.10",
     "xhr-mock": "^2.5.1",
     "yarn-run-all": "^3.1.1"
