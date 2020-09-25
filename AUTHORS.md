@@ -9,6 +9,7 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Eli Dai | 66eli77 |
 | Akshay Mahajan | akshaymahajans |
 | Alan Chen | alanchenz |
+| Alexandros Metaxas | alexMet |
 | Eduard James Aban | arceduardvincent |
 | Arky | arky |
 | Aron Fyodor Asor | aronasorman |
