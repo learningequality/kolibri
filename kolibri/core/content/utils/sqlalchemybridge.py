@@ -271,3 +271,4 @@ class Bridge(object):
         self.session.close()
         for connection in self.connections:
             connection.close()
+        self.engine.dispose()
