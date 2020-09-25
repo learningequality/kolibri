@@ -250,7 +250,7 @@
 
   .user-menu-dropdown {
     position: fixed;
-    right: 0;
+    right: 8px;
     z-index: 8;
 
     // Holdover from previous CoreMenuOption format. Will keep the profile
