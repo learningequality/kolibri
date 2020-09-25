@@ -9,14 +9,12 @@ import kolibri.core.fields
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("content", "0025_add_h5p_kind"),
-    ]
+    dependencies = [("content", "0025_add_h5p_kind")]
 
     operations = [
         migrations.AddField(
             model_name="contentnode",
             name="options",
             field=kolibri.core.fields.JSONField(blank=True, default={}, null=True),
-        ),
+        )
     ]

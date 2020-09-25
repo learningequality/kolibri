@@ -10,9 +10,7 @@ import kolibri.core.device.models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("device", "0007_deviceappkey"),
-    ]
+    dependencies = [("device", "0007_deviceappkey")]
 
     operations = [
         migrations.AddField(
@@ -21,5 +19,5 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 default=kolibri.core.device.models.app_is_enabled
             ),
-        ),
+        )
     ]

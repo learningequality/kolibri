@@ -31,8 +31,7 @@ def is_valid_hostname(hostname):
 
 # from https://stackoverflow.com/a/319293
 def is_valid_ipv4_address(ip):
-    """Validates IPv4 addresses.
-    """
+    """Validates IPv4 addresses."""
     pattern = re.compile(
         r"""
         ^
@@ -75,8 +74,7 @@ def is_valid_ipv4_address(ip):
 
 # from https://stackoverflow.com/a/319293
 def is_valid_ipv6_address(ip):
-    """Validates IPv6 addresses.
-    """
+    """Validates IPv6 addresses."""
     pattern = re.compile(
         r"""
         ^

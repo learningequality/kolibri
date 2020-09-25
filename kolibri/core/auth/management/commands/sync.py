@@ -181,14 +181,10 @@ class Command(AsyncCommand):
         try:
             # pull from server
             if not no_pull:
-                self._handle_pull(
-                    sync_session_client, noninteractive, dataset_id,
-                )
+                self._handle_pull(sync_session_client, noninteractive, dataset_id)
             # and push our own data to server
             if not no_push:
-                self._handle_push(
-                    sync_session_client, noninteractive, dataset_id,
-                )
+                self._handle_push(sync_session_client, noninteractive, dataset_id)
 
             if not no_provision:
                 with self._lock():
@@ -228,9 +224,7 @@ class Command(AsyncCommand):
         if self.is_cancelled() and (not self.job or self.job.cancellable):
             raise UserCancelledError()
 
-    def _handle_pull(
-        self, sync_session_client, noninteractive, dataset_id,
-    ):
+    def _handle_pull(self, sync_session_client, noninteractive, dataset_id):
         """
         :type sync_session_client: morango.sync.syncsession.SyncSessionClient
         :type noninteractive: bool
@@ -270,9 +264,7 @@ class Command(AsyncCommand):
         with self._lock():
             sync_client.finalize()
 
-    def _handle_push(
-        self, sync_session_client, noninteractive, dataset_id,
-    ):
+    def _handle_push(self, sync_session_client, noninteractive, dataset_id):
         """
         :type sync_session_client: morango.sync.syncsession.SyncSessionClient
         :type noninteractive: bool

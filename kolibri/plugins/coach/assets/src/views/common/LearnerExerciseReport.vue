@@ -20,18 +20,15 @@
           />
         </p>
         <HeaderTable>
-          <HeaderTableRow>
-            <template v-slot:key>
-              {{ coachString('masteryModelLabel') }}
-            </template>
+          <HeaderTableRow
+            v-if="exercise.assessmentmetadata.mastery_model"
+            :keyText="coachString('masteryModelLabel')"
+          >
             <template v-slot:value>
-              <MasteryModel />
+              <MasteryModel :masteryModel="exercise.assessmentmetadata.mastery_model" />
             </template>
           </HeaderTableRow>
-          <HeaderTableRow>
-            <template v-slot:key>
-              {{ coachString('statusLabel') }}
-            </template>
+          <HeaderTableRow :keyText="coachString('statusLabel')">
             <template v-slot:value>
               <StatusSimple :status="status" />
             </template>
@@ -91,6 +88,7 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import MasteryModel from './MasteryModel';
 
   export default {
     name: 'LearnerExerciseReport',
@@ -99,6 +97,7 @@
       InteractionList,
       MultiPaneLayout,
       CoachContentLabel,
+      MasteryModel,
     },
     mixins: [commonCoach, commonCoreStrings],
     data() {

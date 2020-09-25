@@ -578,46 +578,6 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .fh {
-    height: 100%;
-  }
-
-  .wrapper-table {
-    display: table;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-  }
-
-  .table-row {
-    display: table-row;
-  }
-
-  .main-row {
-    text-align: center;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-  }
-
-  .table-cell {
-    display: table-cell;
-  }
-
-  .main-cell {
-    height: 100%;
-    vertical-align: middle;
-  }
-
-  .box {
-    @extend %dropshadow-16dp;
-
-    width: 300px;
-    padding: 16px 32px;
-    margin: 16px auto;
-    border-radius: $radius;
-  }
-
   .login-form {
     text-align: left;
   }
@@ -625,34 +585,6 @@
   .login-btn {
     width: 100%;
     margin-top: 16px;
-  }
-
-  .create {
-    margin-top: 32px;
-    margin-bottom: 8px;
-  }
-
-  .guest {
-    margin-top: 8px;
-    margin-bottom: 16px;
-  }
-
-  .small-text {
-    font-size: 0.8em;
-  }
-
-  .version-string {
-    white-space: nowrap;
-  }
-
-  .footer-cell {
-    @extend %dropshadow-8dp;
-
-    padding: 16px;
-  }
-
-  .footer-cell .small-text {
-    margin-top: 8px;
   }
 
   .suggestions-wrapper {
@@ -671,45 +603,6 @@
     // Move up snug against the textbox
     margin-top: -2em;
     list-style-type: none;
-  }
-
-  .textbox-enter-active {
-    transition: opacity 0.5s;
-  }
-
-  .textbox-enter {
-    opacity: 0;
-  }
-
-  .list-leave-active {
-    transition: opacity 0.1s;
-  }
-
-  .textbox-leave {
-    transition: opacity 0s;
-  }
-
-  .logo {
-    width: 100%;
-    max-width: 65vh; // not compatible with older browsers
-    height: auto;
-  }
-
-  .kolibri-title {
-    margin-top: 0;
-    margin-bottom: 8px;
-    font-size: 24px;
-    font-weight: 100;
-  }
-
-  .footer-logo {
-    position: relative;
-    top: -1px;
-    display: inline-block;
-    height: 24px;
-    margin-right: 10px;
-    margin-left: 8px;
-    vertical-align: middle;
   }
 
 </style>

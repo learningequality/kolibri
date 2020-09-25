@@ -36,9 +36,7 @@ class QuestionSourceSerializer(Serializer):
 class ExamSerializer(ModelSerializer):
 
     assignments = ListField(
-        child=PrimaryKeyRelatedField(
-            read_only=False, queryset=Collection.objects.all()
-        ),
+        child=PrimaryKeyRelatedField(read_only=False, queryset=Collection.objects.all())
     )
     learner_ids = ListField(
         child=PrimaryKeyRelatedField(

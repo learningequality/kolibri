@@ -6,7 +6,7 @@
       :link="$store.getters.facilityPageLinks.ManageClassPage"
     >
       <KIcon
-        icon="domain"
+        icon="classes"
         :color="$themeTokens.textInverted"
         style="top: 0; width: 24px; height: 24px;"
       />

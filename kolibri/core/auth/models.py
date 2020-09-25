@@ -620,13 +620,17 @@ def validate_birth_year(value):
 
     try:
         if int(value) < 1900:
-            error = "Birth year {value} is invalid, as it is prior to the year 1900".format(
-                value=value
+            error = (
+                "Birth year {value} is invalid, as it is prior to the year 1900".format(
+                    value=value
+                )
             )
 
         elif int(value) > 3000:
-            error = "Birth year {value} is invalid, as it is after the year 3000".format(
-                value=value
+            error = (
+                "Birth year {value} is invalid, as it is after the year 3000".format(
+                    value=value
+                )
             )
 
     except ValueError:

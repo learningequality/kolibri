@@ -308,7 +308,7 @@
     @extend %dropshadow-16dp;
 
     width: 360px;
-    padding: 24px 32px;
+    padding: 32px;
     margin: 16px auto;
     border-radius: $radius;
   }
@@ -318,7 +318,8 @@
   }
 
   .create {
-    margin: 24px auto 16px;
+    margin-top: 24px;
+    margin-bottom: 0;
   }
 
   .guest {
