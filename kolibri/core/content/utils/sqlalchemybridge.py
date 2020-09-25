@@ -47,10 +47,7 @@ def get_engine(connection_string):
     Get a SQLAlchemy engine that allows us to connect to a database.
     """
     # Set echo to False, as otherwise we get full SQL Query outputted, which can overwhelm the terminal
-    engine_kwargs = {
-        "echo": False,
-        "convert_unicode": True,
-    }
+    engine_kwargs = {"echo": False, "convert_unicode": True}
 
     if connection_string.startswith("sqlite"):
         # Set timeout to 60s, as with most of our content import write operations

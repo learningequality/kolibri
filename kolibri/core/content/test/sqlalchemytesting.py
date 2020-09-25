@@ -48,4 +48,6 @@ def django_connection_engine():
         return create_engine(
             get_default_db_string(), poolclass=SharingPool, convert_unicode=True
         )
-    return create_engine(get_default_db_string(), convert_unicode=True, pool_pre_ping=True)
+    return create_engine(
+        get_default_db_string(), convert_unicode=True, pool_pre_ping=True
+    )
