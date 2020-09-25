@@ -257,22 +257,22 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
 
 
 class CollectionRelatedObjectTestCase(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create()
 
-        self.facility = Facility.objects.create()
-
-        users = self.users = [
-            FacilityUser.objects.create(username="foo%s" % i, facility=self.facility)
+        users = cls.users = [
+            FacilityUser.objects.create(username="foo%s" % i, facility=cls.facility)
             for i in range(10)
         ]
 
-        self.facility.add_admins(users[8:9])
+        cls.facility.add_admins(users[8:9])
 
-        self.cr = Classroom.objects.create(parent=self.facility)
-        self.cr.add_coaches(users[5:8])
+        cls.cr = Classroom.objects.create(parent=cls.facility)
+        cls.cr.add_coaches(users[5:8])
 
-        self.lg = LearnerGroup.objects.create(parent=self.cr)
-        self.lg.add_learners(users[0:5])
+        cls.lg = LearnerGroup.objects.create(parent=cls.cr)
+        cls.lg.add_learners(users[0:5])
 
     def test_get_learner_groups(self):
         self.assertSetEqual(
@@ -289,9 +289,10 @@ class CollectionRelatedObjectTestCase(TestCase):
 
 
 class CollectionsTestCase(TestCase):
-    def setUp(self):
-        self.facility = Facility.objects.create()
-        self.classroom = Classroom.objects.create(parent=self.facility)
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create()
+        cls.classroom = Classroom.objects.create(parent=cls.facility)
 
     def test_add_and_remove_admin(self):
         user = FacilityUser.objects.create(username="foo", facility=self.facility)
@@ -458,15 +459,16 @@ class RoleErrorTestCase(TestCase):
 
 
 class SuperuserRoleMembershipTestCase(TestCase):
-    def setUp(self):
-        self.facility = Facility.objects.create()
-        self.classroom = Classroom.objects.create(parent=self.facility)
-        self.learner_group = LearnerGroup.objects.create(parent=self.classroom)
-        self.facility_user = FacilityUser.objects.create(
-            username="blah", password="#", facility=self.facility
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create()
+        cls.classroom = Classroom.objects.create(parent=cls.facility)
+        cls.learner_group = LearnerGroup.objects.create(parent=cls.classroom)
+        cls.facility_user = FacilityUser.objects.create(
+            username="blah", password="#", facility=cls.facility
         )
-        self.superuser = create_superuser(self.facility)
-        self.superuser2 = create_superuser(self.facility, username="superuser2")
+        cls.superuser = create_superuser(cls.facility)
+        cls.superuser2 = create_superuser(cls.facility, username="superuser2")
 
     def test_superuser_is_not_member_of_any_sub_collection(self):
         self.assertFalse(self.superuser.is_member_of(self.classroom))
@@ -501,49 +503,49 @@ class SuperuserRoleMembershipTestCase(TestCase):
 
 
 class SuperuserTestCase(TestCase):
-    def setUp(self):
-        self.facility = Facility.objects.create()
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create()
+        cls.superuser = create_superuser(cls.facility, username="the_superuser")
 
     def test_superuser_is_superuser(self):
-        superuser = create_superuser(self.facility)
-        self.assertTrue(superuser.is_superuser)
+        self.assertTrue(self.superuser.is_superuser)
 
     def test_superuser_manager_supports_superuser_creation(self):
-        superusername = "boss"
-        create_superuser(self.facility, username=superusername)
-        self.assertEqual(FacilityUser.objects.get().username, superusername)
+        self.assertEqual(FacilityUser.objects.get().username, "the_superuser")
 
     def test_superuser_has_all_django_perms_for_django_admin(self):
-        superuser = create_superuser(self.facility)
-        self.assertTrue(superuser.has_perm("someperm", object()))
-        self.assertTrue(superuser.has_perms(["someperm"], object()))
-        self.assertTrue(superuser.has_module_perms("module.someapp"))
+        fake_permission = "fake_permission"
+        fake_module = "module.someapp"
+        self.assertTrue(self.superuser.has_perm(fake_permission, object()))
+        self.assertTrue(self.superuser.has_perms([fake_permission], object()))
+        self.assertTrue(self.superuser.has_module_perms(fake_module))
 
 
 class StringMethodTestCase(TestCase):
-    def setUp(self):
-
-        self.facility = Facility.objects.create(name="Arkham")
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create(name="Arkham")
 
         learner, classroom_coach, facility_admin = (
-            self.learner,
-            self.classroom_coach,
-            self.facility_admin,
+            cls.learner,
+            cls.classroom_coach,
+            cls.facility_admin,
         ) = (
-            FacilityUser.objects.create(username="foo", facility=self.facility),
-            FacilityUser.objects.create(username="bar", facility=self.facility),
-            FacilityUser.objects.create(username="baz", facility=self.facility),
+            FacilityUser.objects.create(username="foo", facility=cls.facility),
+            FacilityUser.objects.create(username="bar", facility=cls.facility),
+            FacilityUser.objects.create(username="baz", facility=cls.facility),
         )
 
-        self.facility.add_admin(facility_admin)
+        cls.facility.add_admin(facility_admin)
 
-        self.cr = Classroom.objects.create(name="Classroom X", parent=self.facility)
-        self.cr.add_coach(classroom_coach)
+        cls.cr = Classroom.objects.create(name="Classroom X", parent=cls.facility)
+        cls.cr.add_coach(classroom_coach)
 
-        self.lg = LearnerGroup.objects.create(name="Oodles of Fun", parent=self.cr)
-        self.lg.add_learner(learner)
+        cls.lg = LearnerGroup.objects.create(name="Oodles of Fun", parent=cls.cr)
+        cls.lg.add_learner(learner)
 
-        self.superuser = create_superuser(self.facility)
+        cls.superuser = create_superuser(cls.facility)
 
     def test_facility_user_str_method(self):
         self.assertEqual(str(self.learner), '"foo"@"Arkham"')

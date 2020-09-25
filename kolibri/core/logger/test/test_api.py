@@ -39,22 +39,23 @@ from kolibri.core.logger.models import ExamLog
 
 
 class ContentSessionLogAPITestCase(APITestCase):
-    def setUp(self):
-        self.facility = FacilityFactory.create()
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
         provision_device()
-        self.superuser = create_superuser(self.facility)
-        self.user1 = FacilityUserFactory.create(facility=self.facility)
-        self.user2 = FacilityUserFactory.create(facility=self.facility)
+        cls.superuser = create_superuser(cls.facility)
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.user2 = FacilityUserFactory.create(facility=cls.facility)
 
         # add admin to 1st facility
-        self.admin = FacilityUserFactory.create(facility=self.facility)
-        self.facility.add_admin(self.admin)
+        cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_admin(cls.admin)
 
         # create logs for each user
-        self.interaction_logs = [
+        cls.interaction_logs = [
             ContentSessionLogFactory.create(
-                user=self.user1,
+                user=cls.user1,
                 content_id=uuid.uuid4().hex,
                 channel_id=uuid.uuid4().hex,
             )
@@ -62,7 +63,7 @@ class ContentSessionLogAPITestCase(APITestCase):
         ]
         [
             ContentSessionLogFactory.create(
-                user=self.user2,
+                user=cls.user2,
                 content_id=uuid.uuid4().hex,
                 channel_id=uuid.uuid4().hex,
             )
@@ -70,10 +71,11 @@ class ContentSessionLogAPITestCase(APITestCase):
         ]
 
         # create classroom, learner group, add user2
-        self.classroom = ClassroomFactory.create(parent=self.facility)
-        self.learner_group = LearnerGroupFactory.create(parent=self.classroom)
-        self.learner_group.add_learner(self.user2)
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+        cls.learner_group = LearnerGroupFactory.create(parent=cls.classroom)
+        cls.learner_group.add_learner(cls.user2)
 
+    def setUp(self):
         self.payload = {
             "user": self.user1.pk,
             "content_id": uuid.uuid4().hex,
@@ -82,22 +84,21 @@ class ContentSessionLogAPITestCase(APITestCase):
             "start_timestamp": str(datetime.datetime.now()),
         }
 
-    def test_contentsessionlog_list(self):
         self.client.login(
             username=self.admin.username,
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
+
+    def tearDown(self):
+        self.client.logout()
+
+    def test_contentsessionlog_list(self):
         response = self.client.get(reverse("kolibri:core:contentsessionlog-list"))
         expected_count = ContentSessionLog.objects.count()
         self.assertEqual(len(response.data), expected_count)
 
     def test_contentsessionlog_detail(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         log_id = self.interaction_logs[0].id
         response = self.client.get(
             reverse("kolibri:core:contentsessionlog-detail", kwargs={"pk": log_id})
@@ -109,11 +110,6 @@ class ContentSessionLogAPITestCase(APITestCase):
         )
 
     def test_admin_can_create_contentsessionlog(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         response = self.client.post(
             reverse("kolibri:core:contentsessionlog-list"),
             data=self.payload,
@@ -122,11 +118,6 @@ class ContentSessionLogAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_learner_can_create_contentsessionlog(self):
-        self.client.login(
-            username=self.user1.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         response = self.client.post(
             reverse("kolibri:core:contentsessionlog-list"),
             data=self.payload,
@@ -135,6 +126,8 @@ class ContentSessionLogAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_anonymous_user_cannot_create_contentsessionlog_for_learner(self):
+        # logout for anonymous session
+        self.client.logout()
         response = self.client.post(
             reverse("kolibri:core:contentsessionlog-list"),
             data=self.payload,
@@ -143,6 +136,8 @@ class ContentSessionLogAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_anonymous_user_can_create_contentsessionlog(self):
+        # logout for anonymous session
+        self.client.logout()
         del self.payload["user"]
         response = self.client.post(
             reverse("kolibri:core:contentsessionlog-list"),
@@ -152,11 +147,6 @@ class ContentSessionLogAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_user_log_filtering(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         response = self.client.get(
             reverse("kolibri:core:contentsessionlog-list"),
             data={"user_id": self.user2.id},
@@ -166,18 +156,19 @@ class ContentSessionLogAPITestCase(APITestCase):
         ).count()
         self.assertEqual(len(response.data), expected_count)
 
-    def test_facility_log_filtering(self):
+    def test_superuser_facility_log_filtering(self):
+        # login as superuser
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
         # add user3 to new facility
-        self.facility2 = FacilityFactory.create()
-        self.user3 = FacilityUserFactory.create(facility=self.facility2)
+        facility3 = FacilityFactory.create()
+        user3 = FacilityUserFactory.create(facility=facility3)
         [
             ContentSessionLogFactory.create(
-                user=self.user3,
+                user=user3,
                 content_id=uuid.uuid4().hex,
                 channel_id=uuid.uuid4().hex,
             )
@@ -185,19 +176,14 @@ class ContentSessionLogAPITestCase(APITestCase):
         ]
         response = self.client.get(
             reverse("kolibri:core:contentsessionlog-list"),
-            data={"facility": self.facility2.id},
+            data={"facility": facility3.id},
         )
         expected_count = ContentSessionLog.objects.filter(
-            user__facility_id=self.facility2.id
+            user__facility_id=facility3.id
         ).count()
         self.assertEqual(len(response.data), expected_count)
 
     def test_classroom_log_filtering(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         response = self.client.get(
             reverse("kolibri:core:contentsessionlog-list"),
             data={"classroom": self.classroom.id},
@@ -208,11 +194,6 @@ class ContentSessionLogAPITestCase(APITestCase):
         self.assertEqual(len(response.data), expected_count)
 
     def test_learner_group_log_filtering(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         response = self.client.get(
             reverse("kolibri:core:contentsessionlog-list"),
             data={"learner_group": self.learner_group.id},
@@ -222,27 +203,25 @@ class ContentSessionLogAPITestCase(APITestCase):
         ).count()
         self.assertEqual(len(response.data), expected_count)
 
-    def tearDown(self):
-        self.client.logout()
-
 
 class ContentSummaryLogAPITestCase(APITestCase):
-    def setUp(self):
-        self.facility = FacilityFactory.create()
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
         provision_device()
-        self.superuser = create_superuser(self.facility)
-        self.user1 = FacilityUserFactory.create(facility=self.facility)
-        self.user2 = FacilityUserFactory.create(facility=self.facility)
+        cls.superuser = create_superuser(cls.facility)
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.user2 = FacilityUserFactory.create(facility=cls.facility)
 
         # add admin to 1st facility
-        self.admin = FacilityUserFactory.create(facility=self.facility)
-        self.facility.add_admin(self.admin)
+        cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_admin(cls.admin)
 
         # create logs for each user
-        self.summary_logs = [
+        cls.summary_logs = [
             ContentSummaryLogFactory.create(
-                user=self.user1,
+                user=cls.user1,
                 content_id=uuid.uuid4().hex,
                 channel_id=uuid.uuid4().hex,
             )
@@ -250,7 +229,7 @@ class ContentSummaryLogAPITestCase(APITestCase):
         ]
         [
             ContentSummaryLogFactory.create(
-                user=self.user2,
+                user=cls.user2,
                 content_id=uuid.uuid4().hex,
                 channel_id=uuid.uuid4().hex,
             )
@@ -258,10 +237,11 @@ class ContentSummaryLogAPITestCase(APITestCase):
         ]
 
         # create classroom, learner group, add user2
-        self.classroom = ClassroomFactory.create(parent=self.facility)
-        self.learner_group = LearnerGroupFactory.create(parent=self.classroom)
-        self.learner_group.add_learner(self.user2)
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+        cls.learner_group = LearnerGroupFactory.create(parent=cls.classroom)
+        cls.learner_group.add_learner(cls.user2)
 
+    def setUp(self):
         self.payload = {
             "user": self.user1.pk,
             "content_id": uuid.uuid4().hex,
@@ -269,13 +249,13 @@ class ContentSummaryLogAPITestCase(APITestCase):
             "kind": "video",
             "start_timestamp": str(datetime.datetime.now()),
         }
-
-    def test_summarylog_list(self):
         self.client.login(
             username=self.admin.username,
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
+
+    def test_summarylog_list(self):
         response = self.client.get(reverse("kolibri:core:contentsummarylog-list"))
         expected_count = ContentSummaryLog.objects.filter(
             user__facility_id=self.facility.id
@@ -283,11 +263,6 @@ class ContentSummaryLogAPITestCase(APITestCase):
         self.assertEqual(len(response.data), expected_count)
 
     def test_summarylog_detail(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         log_id = self.summary_logs[0].id
         response = self.client.get(
             reverse("kolibri:core:contentsummarylog-detail", kwargs={"pk": log_id})
@@ -299,11 +274,6 @@ class ContentSummaryLogAPITestCase(APITestCase):
         )
 
     def test_admin_can_create_summarylog(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         with patch("kolibri.core.logger.serializers.wrap_to_save_queue"):
             response = self.client.post(
                 reverse("kolibri:core:contentsummarylog-list"),
@@ -327,6 +297,7 @@ class ContentSummaryLogAPITestCase(APITestCase):
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_anonymous_user_cannot_create_summarylog_for_learner(self):
+        self.client.logout()
         response = self.client.post(
             reverse("kolibri:core:contentsummarylog-list"),
             data=self.payload,
@@ -335,6 +306,7 @@ class ContentSummaryLogAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_anonymous_user_cannot_create_summarylog(self):
+        self.client.logout()
         del self.payload["user"]
         response = self.client.post(
             reverse("kolibri:core:contentsummarylog-list"),
@@ -344,11 +316,6 @@ class ContentSummaryLogAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_user_log_filtering(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         response = self.client.get(
             reverse("kolibri:core:contentsummarylog-list"),
             data={"user_id": self.user2.id},
@@ -383,11 +350,6 @@ class ContentSummaryLogAPITestCase(APITestCase):
         self.assertEqual(len(response.data), expected_count)
 
     def test_classroom_log_filtering(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         response = self.client.get(
             reverse("kolibri:core:contentsummarylog-list"),
             data={"classroom": self.classroom.id},
@@ -398,11 +360,6 @@ class ContentSummaryLogAPITestCase(APITestCase):
         self.assertEqual(len(response.data), expected_count)
 
     def test_learner_group_log_filtering(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         response = self.client.get(
             reverse("kolibri:core:contentsummarylog-list"),
             data={"learner_group": self.learner_group.id},
@@ -417,35 +374,41 @@ class ContentSummaryLogAPITestCase(APITestCase):
 
 
 class UserSessionLogAPITestCase(APITestCase):
-    def setUp(self):
-        self.facility = FacilityFactory.create()
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
         provision_device()
-        self.superuser = create_superuser(self.facility)
-        self.user1 = FacilityUserFactory.create(facility=self.facility)
-        self.user2 = FacilityUserFactory.create(facility=self.facility)
+        cls.superuser = create_superuser(cls.facility)
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.user2 = FacilityUserFactory.create(facility=cls.facility)
 
         # add admin to 1st facility
-        self.admin = FacilityUserFactory.create(facility=self.facility)
-        self.facility.add_admin(self.admin)
+        cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_admin(cls.admin)
 
         # create logs for each user
-        self.session_logs = [
-            UserSessionLogFactory.create(user=self.user1) for _ in range(3)
+        cls.session_logs = [
+            UserSessionLogFactory.create(user=cls.user1) for _ in range(3)
         ]
-        [UserSessionLogFactory.create(user=self.user2) for _ in range(2)]
+        [UserSessionLogFactory.create(user=cls.user2) for _ in range(2)]
 
         # create classroom, learner group, add user2
-        self.classroom = ClassroomFactory.create(parent=self.facility)
-        self.learner_group = LearnerGroupFactory.create(parent=self.classroom)
-        self.learner_group.add_learner(self.user2)
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+        cls.learner_group = LearnerGroupFactory.create(parent=cls.classroom)
+        cls.learner_group.add_learner(cls.user2)
 
-    def test_sessionlog_list(self):
+    def setUp(self):
         self.client.login(
             username=self.admin.username,
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
+
+    def tearDown(self):
+        self.client.logout()
+
+    def test_sessionlog_list(self):
         response = self.client.get(reverse("kolibri:core:usersessionlog-list"))
         expected_count = UserSessionLog.objects.filter(
             user__facility_id=self.facility.id
@@ -453,11 +416,6 @@ class UserSessionLogAPITestCase(APITestCase):
         self.assertEqual(len(response.data), expected_count)
 
     def test_sessionlog_detail(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         log_id = self.session_logs[0].id
         response = self.client.get(
             reverse("kolibri:core:usersessionlog-detail", kwargs={"pk": log_id})
@@ -466,11 +424,6 @@ class UserSessionLogAPITestCase(APITestCase):
         self.assertEqual(response.data["user"], log.user.id)
 
     def test_admin_can_create_sessionlog(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         response = self.client.post(
             reverse("kolibri:core:usersessionlog-list"),
             data={"user": self.user1.pk},
@@ -492,6 +445,7 @@ class UserSessionLogAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_anonymous_user_cannot_create_sessionlog_for_learner(self):
+        self.client.logout()
         response = self.client.post(
             reverse("kolibri:core:usersessionlog-list"),
             data={"user": self.user1.pk},
@@ -500,17 +454,13 @@ class UserSessionLogAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_anonymous_user_cannot_create_sessionlog(self):
+        self.client.logout()
         response = self.client.post(
             reverse("kolibri:core:usersessionlog-list"), format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_user_log_filtering(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         response = self.client.get(
             reverse("kolibri:core:usersessionlog-list"), data={"user_id": self.user2.id}
         )
@@ -535,11 +485,6 @@ class UserSessionLogAPITestCase(APITestCase):
         self.assertEqual(len(response.data), expected_count)
 
     def test_classroom_log_filtering(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         response = self.client.get(
             reverse("kolibri:core:usersessionlog-list"),
             data={"classroom": self.classroom.id},
@@ -548,11 +493,6 @@ class UserSessionLogAPITestCase(APITestCase):
         self.assertEqual(len(response.data), expected_count)
 
     def test_learner_group_log_filtering(self):
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         response = self.client.get(
             reverse("kolibri:core:usersessionlog-list"),
             data={"learner_group": self.learner_group.id},
@@ -560,29 +500,27 @@ class UserSessionLogAPITestCase(APITestCase):
         expected_count = UserSessionLog.objects.filter(user__pk=self.user2.id).count()
         self.assertEqual(len(response.data), expected_count)
 
-    def tearDown(self):
-        self.client.logout()
-
 
 class ContentSummaryLogCSVExportTestCase(APITestCase):
 
     fixtures = ["content_test.json"]
 
-    def setUp(self):
-        self.facility = FacilityFactory.create()
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
         provision_device()
-        self.admin = FacilityUserFactory.create(facility=self.facility)
-        self.user1 = FacilityUserFactory.create(facility=self.facility)
-        self.summary_logs = [
+        cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.summary_logs = [
             ContentSummaryLogFactory.create(
-                user=self.user1,
+                user=cls.user1,
                 content_id=uuid.uuid4().hex,
                 channel_id="6199dde695db4ee4ab392222d5af1e5c",
             )
             for _ in range(3)
         ]
-        self.facility.add_admin(self.admin)
+        cls.facility.add_admin(cls.admin)
 
     def test_csv_download(self):
         expected_count = ContentSummaryLog.objects.count()
@@ -623,21 +561,22 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
 
     fixtures = ["content_test.json"]
 
-    def setUp(self):
-        self.facility = FacilityFactory.create()
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
         provision_device()
-        self.admin = FacilityUserFactory.create(facility=self.facility)
-        self.user = FacilityUserFactory.create(facility=self.facility)
-        self.interaction_logs = [
+        cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
+        cls.interaction_logs = [
             ContentSessionLogFactory.create(
-                user=self.user,
+                user=cls.user,
                 content_id=uuid.uuid4().hex,
                 channel_id="6199dde695db4ee4ab392222d5af1e5c",
             )
             for _ in range(3)
         ]
-        self.facility.add_admin(self.admin)
+        cls.facility.add_admin(cls.admin)
 
     def test_csv_download(self):
         expected_count = ContentSessionLog.objects.count()
@@ -675,25 +614,26 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
 
 
 class ExamAttemptLogAPITestCase(APITestCase):
-    def setUp(self):
-        self.facility = FacilityFactory.create()
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
         provision_device()
-        self.user1 = FacilityUserFactory.create(facility=self.facility)
-        self.user2 = FacilityUserFactory.create(facility=self.facility)
-        self.exam = Exam.objects.create(
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.user2 = FacilityUserFactory.create(facility=cls.facility)
+        cls.exam = Exam.objects.create(
             title="",
             question_count=1,
-            collection=self.facility,
-            creator=self.user2,
+            collection=cls.facility,
+            creator=cls.user2,
             active=True,
         )
-        self.examlog = ExamLog.objects.create(exam=self.exam, user=self.user1)
+        cls.examlog = ExamLog.objects.create(exam=cls.exam, user=cls.user1)
         [
             ExamAttemptLog.objects.create(
                 item="d4623921a2ef5ddaa39048c0f7a6fe06",
-                examlog=self.examlog,
-                user=self.user1,
+                examlog=cls.examlog,
+                user=cls.user1,
                 content_id=uuid.uuid4().hex,
                 start_timestamp=str(
                     datetime.datetime.now().replace(minute=x, hour=x, second=x)
@@ -706,23 +646,28 @@ class ExamAttemptLogAPITestCase(APITestCase):
             for x in range(3)
         ]
 
-        self.examattemptdata = {
+        cls.examattemptdata = {
             "item": "test",
             "start_timestamp": timezone.now(),
             "end_timestamp": timezone.now(),
             "correct": 0,
-            "user": self.user1.pk,
-            "examlog": self.examlog.pk,
+            "user": cls.user1.pk,
+            "examlog": cls.examlog.pk,
             "content_id": "77b57a14a1f0466bb27ea7de8ff468be",
             "channel_id": "77b57a14a1f0466bb27ea7de8ff468be",
         }
 
-    def test_exam_not_active_permissions(self):
+    def setUp(self):
         self.client.login(
             username=self.user1.username,
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
+
+    def tearDown(self):
+        self.client.logout()
+
+    def test_exam_not_active_permissions(self):
         self.exam.active = False
         self.exam.save()
         response = self.client.post(
@@ -733,11 +678,6 @@ class ExamAttemptLogAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_examlog_closed_permissions(self):
-        self.client.login(
-            username=self.user1.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         self.examlog.closed = True
         self.examlog.save()
         response = self.client.post(
@@ -762,11 +702,6 @@ class ExamAttemptLogAPITestCase(APITestCase):
             "examlog": self.examlog,
             "content_id": "77b57a14a1f0466bb27ea7de8ff468be",
         }
-        self.client.login(
-            username=self.user1.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         examattemptlog = ExamAttemptLog.objects.create(**examattemptdata)
         self.exam.active = False
         self.exam.save()
@@ -790,11 +725,6 @@ class ExamAttemptLogAPITestCase(APITestCase):
             "examlog": self.examlog,
             "content_id": "77b57a14a1f0466bb27ea7de8ff468be",
         }
-        self.client.login(
-            username=self.user1.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
         examattemptlog = ExamAttemptLog.objects.create(**examattemptdata)
         self.examlog.closed = True
         self.examlog.save()
@@ -806,6 +736,3 @@ class ExamAttemptLogAPITestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 403)
-
-    def tearDown(self):
-        self.client.logout()

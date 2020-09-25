@@ -23,18 +23,19 @@ from kolibri.core.auth.test.test_api import FacilityUserFactory
 @mock.patch.object(connections, "check_connection_info", mock_device_info)
 @mock.patch.object(connections, "check_if_port_open", lambda *a: True)
 class NetworkLocationAPITestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility)
-        self.learner = FacilityUserFactory(facility=self.facility)
-        self.existing_happy_netloc = models.NetworkLocation.objects.create(
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.learner = FacilityUserFactory(facility=cls.facility)
+        cls.existing_happy_netloc = models.NetworkLocation.objects.create(
             base_url="https://kolibrihappyurl.qqq/"
         )
-        self.existing_nonkolibri_netloc = models.NetworkLocation.objects.create(
+        cls.existing_nonkolibri_netloc = models.NetworkLocation.objects.create(
             base_url="https://nonkolibrihappyurl.qqq/"
         )
-        self.existing_sad_netloc = models.NetworkLocation.objects.create(
+        cls.existing_sad_netloc = models.NetworkLocation.objects.create(
             base_url="https://sadurl.qqq/"
         )
 

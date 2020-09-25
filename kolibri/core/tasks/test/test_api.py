@@ -49,24 +49,23 @@ def fake_job(**kwargs):
 
 
 class BaseAPITestCase(APITestCase):
-    def _setup_device(self):
+    @classmethod
+    def setUpTestData(cls):
         DeviceSettings.objects.create(is_provisioned=True)
-        self.facility = Facility.objects.create(name="facility")
-        superuser = FacilityUser.objects.create(
-            username="superuser", facility=self.facility
+        cls.facility = Facility.objects.create(name="facility")
+        cls.superuser = FacilityUser.objects.create(
+            username="superuser", facility=cls.facility
         )
-        superuser.set_password(DUMMY_PASSWORD)
-        superuser.save()
-        DevicePermissions.objects.create(user=superuser, is_superuser=True)
-        self.client.login(username=superuser.username, password=DUMMY_PASSWORD)
-        return superuser
+        cls.superuser.set_password(DUMMY_PASSWORD)
+        cls.superuser.save()
+        DevicePermissions.objects.create(user=cls.superuser, is_superuser=True)
+
+    def setUp(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
 
 
 @patch("kolibri.core.tasks.api.queue")
 class TaskAPITestCase(BaseAPITestCase):
-    def setUp(self):
-        self._setup_device()
-
     def test_task_cancel(self, queue_mock):
         queue_mock.fetch_job.return_value = fake_job(state=State.CANCELED)
         response = self.client.post(
@@ -158,15 +157,13 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         self.assertEqual(response.data, [])
 
     def test_list_provisioned(self, facility_queue):
-        DeviceSettings.objects.create(is_provisioned=True)
-
         response = self.client.get(
             reverse("kolibri:core:facilitytask-list"), format="json"
         )
         self.assertEqual(response.status_code, 200)
 
     def test_startdataportalsync(self, facility_queue):
-        user = self._setup_device()
+        user = self.superuser
 
         facility_queue.enqueue.return_value = 123
         fake_job_data = dict(
@@ -207,7 +204,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         )
 
     def test_startdataportalbulksync(self, facility_queue):
-        user = self._setup_device()
+        user = self.superuser
 
         facility2 = Facility.objects.create(name="facility 2")
         facility3 = Facility.objects.create(name="facility 3")
@@ -281,7 +278,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         validate_and_prepare_peer_sync_job,
         facility_queue,
     ):
-        user = self._setup_device()
+        user = self.superuser
 
         extra_metadata = dict(
             facility=self.facility.id,
@@ -340,7 +337,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
     def test_startpeerfacilitysync(
         self, validate_and_prepare_peer_sync_job, facility_queue
     ):
-        user = self._setup_device()
+        user = self.superuser
 
         extra_metadata = dict(
             facility=self.facility.id,
@@ -395,7 +392,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         facility_queue.enqueue.assert_called_with(call_command, "sync", **prepared_data)
 
     def test_startdeletefacility(self, facility_queue):
-        user = self._setup_device()
+        user = self.superuser
         facility2 = Facility.objects.create(name="facility2")
 
         extra_metadata = dict(
@@ -436,8 +433,6 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         )
 
     def test_startdeletefacility__sole_facility(self, facility_queue):
-        self._setup_device()
-
         response = self.client.post(
             reverse("kolibri:core:facilitytask-startdeletefacility"),
             dict(facility=self.facility.id),
@@ -447,7 +442,6 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         self.assertEqual("SOLE_FACILITY", response.data.get("code"))
 
     def test_startdeletefacility__not_superuser(self, facility_queue):
-        DeviceSettings.objects.create(is_provisioned=True)
         facility1 = Facility.objects.create(name="facility1")
         Facility.objects.create(name="facility2")
 
@@ -469,7 +463,6 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_startdeletefacility__facility_member(self, facility_queue):
-        self._setup_device()
         Facility.objects.create(name="facility2")
 
         response = self.client.post(

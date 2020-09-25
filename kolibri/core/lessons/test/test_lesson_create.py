@@ -22,20 +22,21 @@ class LessonCreationTestCase(APITestCase):
     Tests for creating and fetching new Lessons
     """
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = Facility.objects.create(name="My Facility")
-        self.classroom = Classroom.objects.create(
-            name="My Classroom", parent=self.facility
+        cls.facility = Facility.objects.create(name="My Facility")
+        cls.classroom = Classroom.objects.create(
+            name="My Classroom", parent=cls.facility
         )
 
-        self.admin_user = FacilityUser.objects.create(
-            username="admin", facility=self.facility
+        cls.admin_user = FacilityUser.objects.create(
+            username="admin", facility=cls.facility
         )
-        self.admin_user.set_password("password")
-        self.admin_user.save()
+        cls.admin_user.set_password("password")
+        cls.admin_user.save()
 
-        self.facility.add_coach(self.admin_user)
+        cls.facility.add_coach(cls.admin_user)
 
         channel_id = "15f32edcec565396a1840c5413c92450"
         content_ids = [
@@ -50,7 +51,7 @@ class LessonCreationTestCase(APITestCase):
         ]
 
         # Available ContentNode
-        self.available_node = ContentNode.objects.create(
+        cls.available_node = ContentNode.objects.create(
             title="Available Content",
             available=True,
             id=contentnode_ids[0],
@@ -59,7 +60,7 @@ class LessonCreationTestCase(APITestCase):
         )
 
         # Unavailable ContentNode
-        self.unavailable_node = ContentNode.objects.create(
+        cls.unavailable_node = ContentNode.objects.create(
             title="Unavailable Content",
             available=False,
             id=contentnode_ids[1],
