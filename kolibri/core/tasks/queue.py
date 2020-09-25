@@ -30,7 +30,8 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
             user=conf.OPTIONS["Database"]["DATABASE_USER"],
             host=conf.OPTIONS["Database"]["DATABASE_HOST"],
             port=conf.OPTIONS["Database"]["DATABASE_PORT"],
-        )
+        ),
+        pool_pre_ping=True,
     )
 
 
