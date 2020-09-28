@@ -55,13 +55,14 @@
                 :key="setting"
                 :label="$tr('learnerNeedPasswordToLogin')"
                 :checked="!settings['learner_can_login_with_no_password']"
-                @change="toggleSetting('learner_can_login_with_no_password')"
+                @change="toggleLearnerLoginPassword()"
               />
               <KCheckbox
                 :key="setting + 'learner_can_edit_password'"
                 :disabled="enableChangePassword"
                 :label="$tr('learnerCanEditPassword')"
-                :checked="settings['learner_can_edit_password']"
+                :checked="!settings['learner_can_login_with_no_password']
+                  && settings['learner_can_edit_password']"
                 class="checkbox-password"
                 @change="toggleSetting('learner_can_edit_password')"
               />
@@ -207,6 +208,15 @@
           name: settingName,
           value: !this.settings[settingName],
         });
+      },
+      toggleLearnerLoginPassword() {
+        this.toggleSetting('learner_can_login_with_no_password');
+        if (
+          this.settings['learner_can_edit_password'] &&
+          !this.settings['learner_can_login_with_no_password']
+        ) {
+          this.toggleSetting('learner_can_edit_password');
+        }
       },
       dismissNotification() {
         this.$store.commit('facilityConfig/CONFIG_PAGE_NOTIFY', null);
