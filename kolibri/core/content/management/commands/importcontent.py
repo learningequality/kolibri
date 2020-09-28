@@ -417,13 +417,10 @@ class Command(AsyncCommand):
             * FILE_TRANSFERRED - successfully transfer the file.
             * FILE_SKIPPED - the file does not exist so it is skipped.
         """
-        with filetransfer, self.start_progress(
-            total=filetransfer.total_size
-        ) as file_dl_progress_update:
+        with filetransfer:
             for chunk in filetransfer:
                 length = len(chunk)
                 overall_progress_update(length)
-                file_dl_progress_update(length)
 
             # Ensure that if for some reason the total file size for the transfer
             # is less than what we have marked in the database that we make up
