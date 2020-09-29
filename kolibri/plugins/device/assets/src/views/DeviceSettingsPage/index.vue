@@ -16,22 +16,6 @@
     </section>
 
     <section>
-      <UiAlert
-        v-if="saveStatus === 'SUCCESS'"
-        type="success"
-        @dismiss="resetSaveStatus"
-      >
-        {{ $tr('saveSuccessNotification') }}
-      </UiAlert>
-      <UiAlert
-        v-if="saveStatus === 'ERROR'"
-        type="error"
-        @dismiss="resetSaveStatus"
-      >
-        {{ $tr('saveFailureNotification') }}
-      </UiAlert>
-    </section>
-    <section>
       <KSelect
         v-model="language"
         :label="$tr('selectedLanguageLabel')"
@@ -122,7 +106,6 @@
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import sortLanguages from 'kolibri.utils.sortLanguages';
   import { LandingPageChoices } from '../../constants';
@@ -135,9 +118,6 @@
         title: this.$tr('pageHeader'),
       };
     },
-    components: {
-      UiAlert,
-    },
     mixins: [commonCoreStrings],
     data() {
       return {
@@ -147,7 +127,6 @@
         allowLearnerUnassignedResourceAccess: null,
         allowPeerUnlistedChannelImport: null,
         allowOtherBrowsersToConnect: null,
-        saveStatus: null,
         landingPageChoices: LandingPageChoices,
         browserDefaultOption: {
           value: null,
@@ -214,9 +193,6 @@
       });
     },
     methods: {
-      resetSaveStatus() {
-        this.saveStatus = null;
-      },
       getFacilitySettingsPath(facilityId = '') {
         const getUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
         if (getUrl) {
@@ -237,7 +213,6 @@
           allowOtherBrowsersToConnect,
         } = this;
 
-        this.resetSaveStatus();
         this.saveDeviceSettings({
           languageId: language.value,
           landingPage,
@@ -247,10 +222,10 @@
           allowOtherBrowsersToConnect,
         })
           .then(() => {
-            this.saveStatus = 'SUCCESS';
+            this.$store.dispatch('createSnackbar', this.$tr('saveSuccessNotification'));
           })
           .catch(() => {
-            this.saveStatus = 'ERROR';
+            this.$store.dispatch('createSnackbar', this.$tr('saveFailureNotification'));
           });
       },
       getDeviceSettings,
@@ -296,6 +271,7 @@
   .save-button {
     margin-left: 0;
   }
+
   .description {
     width: 100%;
     font-size: 12px;
