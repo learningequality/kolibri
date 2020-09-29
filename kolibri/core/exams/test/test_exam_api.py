@@ -19,21 +19,20 @@ DUMMY_PASSWORD = "password"
 
 
 class ExamAPITestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = Facility.objects.create(name="MyFac")
-        self.admin = FacilityUser.objects.create(
-            username="admin", facility=self.facility
-        )
-        self.admin.set_password(DUMMY_PASSWORD)
-        self.admin.save()
-        self.facility.add_admin(self.admin)
-        self.exam = models.Exam.objects.create(
+        cls.facility = Facility.objects.create(name="MyFac")
+        cls.admin = FacilityUser.objects.create(username="admin", facility=cls.facility)
+        cls.admin.set_password(DUMMY_PASSWORD)
+        cls.admin.save()
+        cls.facility.add_admin(cls.admin)
+        cls.exam = models.Exam.objects.create(
             title="title",
             question_count=1,
             active=True,
-            collection=self.facility,
-            creator=self.admin,
+            collection=cls.facility,
+            creator=cls.admin,
         )
 
     def make_basic_exam(self):

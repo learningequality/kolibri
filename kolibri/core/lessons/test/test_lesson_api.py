@@ -18,20 +18,19 @@ DUMMY_PASSWORD = "password"
 
 
 class LessonAPITestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = Facility.objects.create(name="MyFac")
-        self.admin = FacilityUser.objects.create(
-            username="admin", facility=self.facility
-        )
-        self.admin.set_password(DUMMY_PASSWORD)
-        self.admin.save()
-        self.facility.add_admin(self.admin)
-        self.lesson = models.Lesson.objects.create(
+        cls.facility = Facility.objects.create(name="MyFac")
+        cls.admin = FacilityUser.objects.create(username="admin", facility=cls.facility)
+        cls.admin.set_password(DUMMY_PASSWORD)
+        cls.admin.save()
+        cls.facility.add_admin(cls.admin)
+        cls.lesson = models.Lesson.objects.create(
             title="title",
             is_active=True,
-            collection=self.facility,
-            created_by=self.admin,
+            collection=cls.facility,
+            created_by=cls.admin,
         )
 
     def test_logged_in_user_lesson_no_delete(self):

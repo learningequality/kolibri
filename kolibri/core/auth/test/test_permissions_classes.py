@@ -16,15 +16,16 @@ from .helpers import create_superuser
 
 
 class BasePermissionsThrowExceptionsTestCase(TestCase):
-    def setUp(self):
-        self.facility = Facility.objects.create()
-        self.object = object()  # shouldn't matter what the object is, for these tests
-        self.facility_user = FacilityUser.objects.create(
-            username="qqq", facility=self.facility
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create()
+        cls.object = object()  # shouldn't matter what the object is, for these tests
+        cls.facility_user = FacilityUser.objects.create(
+            username="qqq", facility=cls.facility
         )
-        self.superuser = create_superuser(self.facility)
-        self.anon_user = KolibriAnonymousUser()
-        self.permissions = BasePermissions()
+        cls.superuser = create_superuser(cls.facility)
+        cls.anon_user = KolibriAnonymousUser()
+        cls.permissions = BasePermissions()
 
     def test_user_cannot_create(self):
         with self.assertRaises(NotImplementedError):
@@ -84,13 +85,14 @@ class BasePermissionsThrowExceptionsTestCase(TestCase):
 
 
 class TestBooleanOperationsOnPermissionClassesTestCase(TestCase):
-    def setUp(self):
-        self.facility = Facility.objects.create()
-        self.obj = object()
-        self.user = FacilityUser.objects.create(
-            username="dummyuser", facility=self.facility
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create()
+        cls.obj = object()
+        cls.user = FacilityUser.objects.create(
+            username="dummyuser", facility=cls.facility
         )
-        self.queryset = FacilityUser.objects.all()
+        cls.queryset = FacilityUser.objects.all()
 
     def assertAllowAll(self, perms, test_filtering=True):
         self.assertTrue(perms.user_can_create_object(self.user, self.obj))

@@ -55,17 +55,18 @@ def test_map_output():
 
 
 class UserExportTestCase(TestCase):
-    def setUp(self):
-        self.data = create_dummy_facility_data(
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data(
             classroom_count=CLASSROOMS, learnergroup_count=1
         )
-        self.facility = self.data["facility"]
+        cls.facility = cls.data["facility"]
 
-        _, self.filepath = tempfile.mkstemp(suffix=".csv")
+        _, cls.filepath = tempfile.mkstemp(suffix=".csv")
 
-        self.csv_rows = []
-        for row in b.csv_file_generator(self.facility, self.filepath, True):
-            self.csv_rows.append(row)
+        cls.csv_rows = []
+        for row in b.csv_file_generator(cls.facility, cls.filepath, True):
+            cls.csv_rows.append(row)
 
     def test_exported_rows(self):
         # total number of users created by create_dummy_facility_data:

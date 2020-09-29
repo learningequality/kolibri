@@ -26,8 +26,9 @@ def flatten(lst):
 
 
 class RolesWithinFacilityTestCase(TestCase):
-    def setUp(self):
-        self.data = create_dummy_facility_data()
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data()
 
     def test_admin_has_admin_role_for_own_facility(self):
         admin = self.data["facility_admin"]
@@ -61,14 +62,13 @@ class RolesWithinFacilityTestCase(TestCase):
 
 
 class ImplicitMembershipTestCase(TestCase):
-    def setUp(self):
-        self.facility = Facility.objects.create(name="My Facility")
-        self.admin = FacilityUser.objects.create(
-            username="admin", facility=self.facility
-        )
-        self.facility.add_admin(self.admin)
-        self.learner = FacilityUser.objects.create(
-            username="learner", facility=self.facility
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create(name="My Facility")
+        cls.admin = FacilityUser.objects.create(username="admin", facility=cls.facility)
+        cls.facility.add_admin(cls.admin)
+        cls.learner = FacilityUser.objects.create(
+            username="learner", facility=cls.facility
         )
 
     def test_has_admin_role_for_learner(self):
@@ -89,21 +89,19 @@ class ImplicitMembershipTestCase(TestCase):
 
 
 class ExplicitMembershipTestCase(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create(name="My Facility")
 
-        self.facility = Facility.objects.create(name="My Facility")
+        cls.admin = FacilityUser.objects.create(username="admin", facility=cls.facility)
+        cls.classroom = Classroom.objects.create(name="Class", parent=cls.facility)
+        cls.classroom.add_admin(cls.admin)
 
-        self.admin = FacilityUser.objects.create(
-            username="admin", facility=self.facility
+        cls.learner = FacilityUser.objects.create(
+            username="learner", facility=cls.facility
         )
-        self.classroom = Classroom.objects.create(name="Class", parent=self.facility)
-        self.classroom.add_admin(self.admin)
-
-        self.learner = FacilityUser.objects.create(
-            username="learner", facility=self.facility
-        )
-        self.group = LearnerGroup.objects.create(name="Group", parent=self.classroom)
-        self.group.add_member(self.learner)
+        cls.group = LearnerGroup.objects.create(name="Group", parent=cls.classroom)
+        cls.group.add_member(cls.learner)
 
     def test_has_admin_role_for_learner(self):
         self.assertTrue(self.admin.has_role_for(role_kinds.ADMIN, self.learner))
@@ -123,9 +121,10 @@ class ExplicitMembershipTestCase(TestCase):
 
 
 class RolesAcrossFacilitiesTestCase(TestCase):
-    def setUp(self):
-        self.data1 = create_dummy_facility_data()
-        self.data2 = create_dummy_facility_data()
+    @classmethod
+    def setUpTestData(cls):
+        cls.data1 = create_dummy_facility_data()
+        cls.data2 = create_dummy_facility_data()
 
     def test_no_roles_between_users_across_facilities(self):
         users1 = self.data1["all_users"]
@@ -153,9 +152,10 @@ class RolesAcrossFacilitiesTestCase(TestCase):
 
 
 class MembershipWithinFacilityTestCase(TestCase):
-    def setUp(self):
-        self.data = create_dummy_facility_data()
-        self.anon_user = KolibriAnonymousUser()
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data()
+        cls.anon_user = KolibriAnonymousUser()
 
     def test_facility_membership(self):
         actual_members = flatten(
@@ -207,9 +207,10 @@ class MembershipWithinFacilityTestCase(TestCase):
 
 
 class MembershipAcrossFacilitiesTestCase(TestCase):
-    def setUp(self):
-        self.data1 = create_dummy_facility_data()
-        self.data2 = create_dummy_facility_data()
+    @classmethod
+    def setUpTestData(cls):
+        cls.data1 = create_dummy_facility_data()
+        cls.data2 = create_dummy_facility_data()
 
     def test_users_are_not_members_of_other_facility(self):
         for user in self.data1["all_users"]:
@@ -225,10 +226,11 @@ class MembershipAcrossFacilitiesTestCase(TestCase):
 
 
 class SuperuserRolesTestCase(TestCase):
-    def setUp(self):
-        self.data = create_dummy_facility_data()
-        self.superuser = self.data["superuser"]
-        self.superuser2 = create_superuser(self.data["facility"], username="superuser2")
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data()
+        cls.superuser = cls.data["superuser"]
+        cls.superuser2 = create_superuser(cls.data["facility"], username="superuser2")
 
     def test_superuser_has_admin_role_for_everyone(self):
         for user in self.data["all_users"]:
@@ -246,9 +248,10 @@ class SuperuserRolesTestCase(TestCase):
 
 
 class AnonymousUserRolesTestCase(TestCase):
-    def setUp(self):
-        self.data = create_dummy_facility_data()
-        self.anon_user = KolibriAnonymousUser()
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data()
+        cls.anon_user = KolibriAnonymousUser()
 
     def test_anon_user_has_no_admin_role_for_anyone(self):
         for user in self.data["all_users"]:

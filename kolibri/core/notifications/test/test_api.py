@@ -36,10 +36,13 @@ from kolibri.utils.time_utils import local_now
 
 
 class NotificationsAPITestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility)
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+
+    def setUp(self):
         self.user1 = FacilityUserFactory.create(facility=self.facility)
         self.user2 = FacilityUserFactory.create(facility=self.facility)
         # create classroom, learner group, add user1

@@ -17,8 +17,9 @@ class GetFacilityTestCase(TestCase):
     Tests getting facility or by ID.
     """
 
-    def setUp(self):
-        self.facility = Facility.objects.create(name="facility")
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create(name="facility")
 
     def test_get_facility_with_id(self):
         self.assertEqual(
@@ -32,11 +33,6 @@ class GetFacilityTestCase(TestCase):
     def test_get_facility_with_no_id(self):
         self.assertEqual(self.facility, utils.get_facility())
 
-    def test_get_facility_no_facilities(self):
-        self.facility.delete()
-        with self.assertRaisesRegexp(CommandError, "no facilities"):
-            utils.get_facility()
-
     def test_get_facility_multiple_facilities_noninteractive(self):
         Facility.objects.create(name="facility2")
         with self.assertRaisesRegexp(CommandError, "multiple facilities"):
@@ -48,3 +44,9 @@ class GetFacilityTestCase(TestCase):
         Facility.objects.create(name="a_facility")
         Facility.objects.create(name="b_facility")
         self.assertEqual(self.facility, utils.get_facility())
+
+
+class GetFacilityFailureTestCase(TestCase):
+    def test_get_facility_no_facilities(self):
+        with self.assertRaisesRegexp(CommandError, "no facilities"):
+            utils.get_facility()

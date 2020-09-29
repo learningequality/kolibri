@@ -10,11 +10,12 @@ from ..models import FacilityUser
 
 
 class FacilityUserBackendTestCase(TestCase):
-    def setUp(self):
-        self.facility = Facility.objects.create()
-        user = self.user = FacilityUser(username="Mike", facility=self.facility)
-        user.set_password("foo")
-        user.save()
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create()
+        cls.user = FacilityUser(username="Mike", facility=cls.facility)
+        cls.user.set_password("foo")
+        cls.user.save()
 
     def test_facility_user_authenticated(self):
         self.assertEqual(
