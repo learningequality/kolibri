@@ -5,7 +5,7 @@ Page not found
 
 It seems you are searching for a topic that has been moved elsewhere in our documentation. Please try the following to find what you were looking for:
 
-* Browse the table of content in the sidebar
+* Browse the table of contents in the sidebar
 * Use the search box
 
 We apologize for the inconvenience!
