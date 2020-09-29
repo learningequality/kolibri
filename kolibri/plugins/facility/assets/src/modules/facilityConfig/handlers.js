@@ -1,5 +1,4 @@
 import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
-import { notificationTypes } from '../../constants';
 
 export function showFacilityConfigPage(store, toRoute) {
   const facilityId = toRoute.params.facility_id || store.getters.activeFacilityId;
@@ -21,7 +20,6 @@ export function showFacilityConfigPage(store, toRoute) {
         settings: { ...dataset },
         // this copy is kept for the purpose of undoing if save fails
         settingsCopy: { ...dataset },
-        notification: null,
         facilities: facilities,
       });
 
@@ -31,7 +29,6 @@ export function showFacilityConfigPage(store, toRoute) {
       store.commit('facilityConfig/SET_STATE', {
         facilityName: '',
         settings: null,
-        notification: notificationTypes.PAGELOAD_FAILURE,
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
     });

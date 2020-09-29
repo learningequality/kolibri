@@ -2,11 +2,6 @@
 
   <KPageContainer>
 
-    <Notifications
-      :notification="notification"
-      @dismiss="dismissNotification()"
-    />
-
     <div class="mb">
       <h1>{{ $tr('pageHeader') }}</h1>
       <p>
@@ -115,6 +110,7 @@
 
 <script>
 
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { mapActions, mapGetters, mapState } from 'vuex';
   import camelCase from 'lodash/camelCase';
   import isEqual from 'lodash/isEqual';
@@ -122,6 +118,7 @@
   import urls from 'kolibri.urls';
   import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
+  // TODO: Notification component is empty and should be removed on 0.15 version
   import Notifications from './ConfigPageNotifications';
 
   // See FacilityDataset in core.auth.models for details
@@ -144,7 +141,6 @@
     components: {
       ConfirmResetModal,
       EditFacilityNameModal,
-      Notifications,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -159,7 +155,6 @@
         'facilityName',
         'facilityId',
         'settings',
-        'notification',
         'facilityNameSaved',
         'facilityNameError',
       ]),
@@ -180,6 +175,9 @@
       },
       enableChangePassword() {
         return this.settings['learner_can_login_with_no_password'];
+      },
+      NotificationsStrings() {
+        return crossComponentTranslator(Notifications);
       },
     },
     watch: {
@@ -218,23 +216,30 @@
           this.toggleSetting('learner_can_edit_password');
         }
       },
-      dismissNotification() {
-        this.$store.commit('facilityConfig/CONFIG_PAGE_NOTIFY', null);
+      updateSettings(action) {
+        this.$store
+          .dispatch(action)
+          .then(() => {
+            // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
+            this.createSnackbar(this.NotificationsStrings.$tr('saveSuccess'));
+            this.copySettings();
+          })
+          .catch(() => {
+            // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
+            this.createSnackbar(this.NotificationsStrings.$tr('saveFailure'));
+            this.$store.commit('CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
+          });
       },
       resetToDefaultSettings() {
         this.showModal = false;
-        this.$store.dispatch('facilityConfig/resetFacilityConfig').then(() => {
-          this.copySettings();
-        });
+        this.updateSettings('facilityConfig/resetFacilityConfig');
       },
       sendFacilityName(name) {
         this.showEditFacilityModal = false;
         if (name != this.facilityName) this.saveFacilityName({ name: name, id: this.facilityId });
       },
       saveConfig() {
-        this.$store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
-          this.copySettings();
-        });
+        this.updateSettings('facilityConfig/saveFacilityConfig');
       },
       copySettings() {
         this.settingsCopy = Object.assign({}, this.settings);
