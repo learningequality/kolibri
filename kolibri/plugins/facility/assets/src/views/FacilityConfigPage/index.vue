@@ -227,7 +227,7 @@
           .catch(() => {
             // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
             this.createSnackbar(this.NotificationsStrings.$tr('saveFailure'));
-            this.$store.commit('CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
+            this.$store.commit('facilityConfig/CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
           });
       },
       resetToDefaultSettings() {
