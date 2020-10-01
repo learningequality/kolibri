@@ -143,7 +143,7 @@ describe('facility config page actions', () => {
 
     it('when save fails', () => {
       const saveStub = DatasetStub.__getModelSaveReturns('heck no', true);
-      return store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
+      return store.dispatch('facilityConfig/saveFacilityConfig').catch(() => {
         expect(saveStub).toHaveBeenCalled();
         expect(store.state.facilityConfig.settings).toEqual({
           learner_can_edit_name: true,
