@@ -98,8 +98,9 @@ describe('facility config page view', () => {
     assertModalIsUp(wrapper);
     confirmResetModal().vm.$emit('submit');
     await wrapper.vm.$nextTick();
-    expect(mock).toHaveBeenCalledTimes(1);
+    expect(mock).toHaveBeenCalledTimes(2);
     expect(mock).toHaveBeenCalledWith('facilityConfig/resetFacilityConfig');
+    expect(mock).toHaveBeenCalledWith('createSnackbar', 'Facility settings updated');
     assertModalIsDown(wrapper);
   });
   // not tested: notifications

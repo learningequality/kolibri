@@ -1,7 +1,5 @@
 import { FacilityDatasetResource, FacilityResource } from 'kolibri.resources';
 
-import { notificationTypes } from '../../constants';
-
 export function saveFacilityName(store, payload) {
   return FacilityResource.saveModel({
     id: payload.id,
@@ -25,7 +23,6 @@ export function saveFacilityName(store, payload) {
 }
 
 export function saveFacilityConfig(store) {
-  store.commit('CONFIG_PAGE_NOTIFY', null);
   const { facilityDatasetId, settings } = store.state;
   const resourceRequests = [
     FacilityDatasetResource.saveModel({
@@ -33,15 +30,9 @@ export function saveFacilityConfig(store) {
       data: settings,
     }),
   ];
-  return Promise.all(resourceRequests)
-    .then(function onSuccess() {
-      store.commit('CONFIG_PAGE_NOTIFY', notificationTypes.SAVE_SUCCESS);
-      store.commit('CONFIG_PAGE_COPY_SETTINGS');
-    })
-    .catch(function onFailure() {
-      store.commit('CONFIG_PAGE_NOTIFY', notificationTypes.SAVE_FAILURE);
-      store.commit('CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
-    });
+  return Promise.all(resourceRequests).then(function onSuccess() {
+    store.commit('CONFIG_PAGE_COPY_SETTINGS');
+  });
 }
 
 export function resetFacilityConfig(store) {

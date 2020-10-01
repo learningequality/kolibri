@@ -1,58 +1,16 @@
-<template>
-
-  <div>
-    <UiAlert
-      v-if="notification === notificationTypes.PAGELOAD_FAILURE"
-      type="error"
-      @dismiss="dismiss()"
-    >
-      {{ $tr('pageloadFailure') }}
-    </UiAlert>
-
-    <UiAlert
-      v-if="notification === notificationTypes.SAVE_SUCCESS"
-      type="success"
-      @dismiss="dismiss()"
-    >
-      {{ $tr('saveSuccess') }}
-    </UiAlert>
-
-    <UiAlert
-      v-if="notification === notificationTypes.SAVE_FAILURE"
-      type="error"
-      @dismiss="dismiss()"
-    >
-      {{ $tr('saveFailure') }}
-    </UiAlert>
-  </div>
-
-</template>
-
-
 <script>
 
-  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import { notificationTypes } from '../../constants';
+  // TODO: This component is kept for $trs strings, delete on 0.15 version
+  // Strings should be moved to FacilityConfigPage/index.vue and translations updated
 
   export default {
     name: 'ConfigPageNotifications',
-    components: { UiAlert },
-    props: {
-      notification: {
-        type: String,
-        required: false,
-      },
-    },
-    computed: { notificationTypes: () => notificationTypes },
-    methods: {
-      dismiss() {
-        this.$emit('dismiss');
-      },
-    },
     $trs: {
+      /* eslint-disable kolibri/vue-no-unused-translations */
       saveFailure: 'There was a problem saving your settings',
       saveSuccess: 'Facility settings updated',
       pageloadFailure: 'There was a problem loading your settings',
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 

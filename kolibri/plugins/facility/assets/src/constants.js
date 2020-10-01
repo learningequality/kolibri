@@ -25,12 +25,6 @@ export const Modals = {
   DELETE_USER: 'DELETE_USER',
 };
 
-export const notificationTypes = {
-  PAGELOAD_FAILURE: 'PAGELOAD_FAILURE',
-  SAVE_FAILURE: 'SAVE_FAILURE',
-  SAVE_SUCCESS: 'SAVE_SUCCESS',
-};
-
 export const pageNameToModuleMap = {
   [PageNames.CLASS_MGMT_PAGE]: 'classManagement',
   [PageNames.CLASS_EDIT_MGMT_PAGE]: 'classEditManagement',
