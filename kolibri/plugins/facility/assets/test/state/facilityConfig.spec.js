@@ -83,7 +83,6 @@ describe('facility config page actions', () => {
       const expectedState = {
         facilityName: '',
         settings: null,
-        notification: 'PAGELOAD_FAILURE',
       };
       it('when fetching Facility fails', () => {
         FacilityStub.__getModelFetchReturns('incomprehensible error', true);
@@ -139,15 +138,13 @@ describe('facility config page actions', () => {
       return store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
         expect(DatasetStub.getModel).toHaveBeenCalledWith(1000, {});
         expect(saveStub).toHaveBeenCalledWith(expect.objectContaining(expectedRequest), false);
-        expect(store.state.facilityConfig.notification).toEqual('SAVE_SUCCESS');
       });
     });
 
     it('when save fails', () => {
       const saveStub = DatasetStub.__getModelSaveReturns('heck no', true);
-      return store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
+      return store.dispatch('facilityConfig/saveFacilityConfig').catch(() => {
         expect(saveStub).toHaveBeenCalled();
-        expect(store.state.facilityConfig.notification).toEqual('SAVE_FAILURE');
         expect(store.state.facilityConfig.settings).toEqual({
           learner_can_edit_name: true,
           learner_can_edit_username: false,

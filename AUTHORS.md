@@ -44,6 +44,7 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Julián Duque | julianduque |
 | Karla Avila | k2avila |
 | Kevin Ollivier | kollivier |
+| Leo Lin | mdctleo |
 | Paul Luna | luna215 |
 | Lingyi Wang | lyw07 |
 | Magali Boizot-Roche | magali-br |

@@ -66,18 +66,21 @@ class FacilityUserFactory(factory.DjangoModelFactory):
 
 
 class LearnerGroupAPITestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility)
-        self.classrooms = [
-            ClassroomFactory.create(parent=self.facility) for _ in range(3)
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.classrooms = [
+            ClassroomFactory.create(parent=cls.facility) for _ in range(3)
         ]
-        self.learner_groups = []
-        for classroom in self.classrooms:
-            self.learner_groups += [
+        cls.learner_groups = []
+        for classroom in cls.classrooms:
+            cls.learner_groups += [
                 LearnerGroupFactory.create(parent=classroom) for _ in range(5)
             ]
+
+    def setUp(self):
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -161,14 +164,17 @@ class LearnerGroupAPITestCase(APITestCase):
 
 
 class ClassroomAPITestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility)
-        self.classrooms = [
-            ClassroomFactory.create(parent=self.facility) for _ in range(10)
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.classrooms = [
+            ClassroomFactory.create(parent=cls.facility) for _ in range(10)
         ]
-        self.learner_group = LearnerGroupFactory.create(parent=self.classrooms[0])
+        cls.learner_group = LearnerGroupFactory.create(parent=cls.classrooms[0])
+
+    def setUp(self):
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -281,13 +287,14 @@ class ClassroomAPITestCase(APITestCase):
 
 
 class FacilityAPITestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility1 = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility1)
-        self.facility2 = FacilityFactory.create()
-        self.user1 = FacilityUserFactory.create(facility=self.facility1)
-        self.user2 = FacilityUserFactory.create(facility=self.facility2)
+        cls.facility1 = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility1)
+        cls.facility2 = FacilityFactory.create()
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility1)
+        cls.user2 = FacilityUserFactory.create(facility=cls.facility2)
 
     def test_sanity(self):
         self.assertTrue(
@@ -412,10 +419,13 @@ class FacilityAPITestCase(APITestCase):
 
 
 class UserCreationTestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility)
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+
+    def setUp(self):
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -479,16 +489,22 @@ class UserCreationTestCase(APITestCase):
 
 
 class UserUpdateTestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility)
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+
+    def setUp(self):
         self.user = FacilityUserFactory.create(facility=self.facility)
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
+
+    def tearDown(self):
+        self.user.delete()
 
     def test_user_update_info(self):
         self.client.patch(
@@ -551,16 +567,22 @@ class UserUpdateTestCase(APITestCase):
 
 
 class UserDeleteTestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility)
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+
+    def setUp(self):
         self.user = FacilityUserFactory.create(facility=self.facility)
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
+
+    def tearDown(self):
+        self.user.delete()
 
     def test_user_delete(self):
         response = self.client.delete(
@@ -580,12 +602,15 @@ class UserDeleteTestCase(APITestCase):
 
 
 class UserRetrieveTestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility)
-        self.facility.add_admin(self.superuser)
-        self.user = FacilityUserFactory.create(facility=self.facility)
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.facility.add_admin(cls.superuser)
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
+
+    def setUp(self):
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -631,30 +656,33 @@ class UserRetrieveTestCase(APITestCase):
 
 
 class FacilityUserFilterTestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
         # Fixtures: 2 facilities with 1 learner + 1 admin each
-        self.facility_1 = FacilityFactory.create()
-        self.facility_2 = FacilityFactory.create()
+        cls.facility_1 = FacilityFactory.create()
+        cls.facility_2 = FacilityFactory.create()
 
-        self.user_1 = FacilityUserFactory.create(
-            facility=self.facility_1, username="learner_1"
+        cls.user_1 = FacilityUserFactory.create(
+            facility=cls.facility_1, username="learner_1"
         )
-        self.admin_1 = FacilityUserFactory.create(
-            facility=self.facility_1, username="admin_1"
+        cls.admin_1 = FacilityUserFactory.create(
+            facility=cls.facility_1, username="admin_1"
         )
-        self.facility_1.add_admin(self.admin_1)
+        cls.facility_1.add_admin(cls.admin_1)
 
-        self.user_2 = FacilityUserFactory.create(
-            facility=self.facility_2, username="learner_2"
+        cls.user_2 = FacilityUserFactory.create(
+            facility=cls.facility_2, username="learner_2"
         )
-        self.admin_2 = FacilityUserFactory.create(
-            facility=self.facility_2, username="admin_2"
+        cls.admin_2 = FacilityUserFactory.create(
+            facility=cls.facility_2, username="admin_2"
         )
-        self.facility_2.add_admin(self.admin_2)
+        cls.facility_2.add_admin(cls.admin_2)
 
         # Superuser is in facility 1
-        self.superuser = create_superuser(self.facility_1, username="a_superuser")
+        cls.superuser = create_superuser(cls.facility_1, username="a_superuser")
+
+    def setUp(self):
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -676,16 +704,17 @@ class FacilityUserFilterTestCase(APITestCase):
 
 
 class LoginLogoutTestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility)
-        self.user = FacilityUserFactory.create(facility=self.facility)
-        self.admin = FacilityUserFactory.create(facility=self.facility, password="bar")
-        self.facility.add_admin(self.admin)
-        self.cr = ClassroomFactory.create(parent=self.facility)
-        self.cr.add_coach(self.admin)
-        self.session_store = import_module(settings.SESSION_ENGINE).SessionStore()
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
+        cls.admin = FacilityUserFactory.create(facility=cls.facility, password="bar")
+        cls.facility.add_admin(cls.admin)
+        cls.cr = ClassroomFactory.create(parent=cls.facility)
+        cls.cr.add_coach(cls.admin)
+        cls.session_store = import_module(settings.SESSION_ENGINE).SessionStore()
 
     def test_login_and_logout_superuser(self):
         self.client.post(
@@ -771,8 +800,9 @@ class LoginLogoutTestCase(APITestCase):
 
 
 class AnonSignUpTestCase(APITestCase):
-    def setUp(self):
-        self.facility = FacilityFactory.create()
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
         provision_device()
 
     def post_to_sign_up(self, data):
@@ -856,14 +886,15 @@ class AnonSignUpTestCase(APITestCase):
 
 
 class FacilityDatasetAPITestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.facility2 = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility)
-        self.admin = FacilityUserFactory.create(facility=self.facility)
-        self.user = FacilityUserFactory.create(facility=self.facility)
-        self.facility.add_admin(self.admin)
+        cls.facility = FacilityFactory.create()
+        cls.facility2 = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_admin(cls.admin)
 
     def test_return_all_datasets_for_an_admin(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
@@ -921,23 +952,24 @@ class FacilityDatasetAPITestCase(APITestCase):
 
 
 class MembershipCascadeDeletion(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility)
-        self.user = FacilityUserFactory.create(facility=self.facility)
-        self.other_user = FacilityUserFactory.create(facility=self.facility)
-        self.classroom = ClassroomFactory.create(parent=self.facility)
-        self.lg = LearnerGroupFactory.create(parent=self.classroom)
-        self.classroom_membership = models.Membership.objects.create(
-            collection=self.classroom, user=self.user
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
+        cls.other_user = FacilityUserFactory.create(facility=cls.facility)
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+        cls.lg = LearnerGroupFactory.create(parent=cls.classroom)
+        cls.classroom_membership = models.Membership.objects.create(
+            collection=cls.classroom, user=cls.user
         )
-        models.Membership.objects.create(collection=self.lg, user=self.user)
+        models.Membership.objects.create(collection=cls.lg, user=cls.user)
         # create other user memberships
-        models.Membership.objects.create(
-            collection=self.classroom, user=self.other_user
-        )
-        models.Membership.objects.create(collection=self.lg, user=self.other_user)
+        models.Membership.objects.create(collection=cls.classroom, user=cls.other_user)
+        models.Membership.objects.create(collection=cls.lg, user=cls.other_user)
+
+    def setUp(self):
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -977,22 +1009,25 @@ class MembershipCascadeDeletion(APITestCase):
 
 
 class GroupMembership(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility)
-        self.user = FacilityUserFactory.create(facility=self.facility)
-        self.classroom1 = ClassroomFactory.create(parent=self.facility)
-        self.classroom2 = ClassroomFactory.create(parent=self.facility)
-        self.lg11 = LearnerGroupFactory.create(parent=self.classroom1)
-        self.lg12 = LearnerGroupFactory.create(parent=self.classroom1)
-        self.lg21 = LearnerGroupFactory.create(parent=self.classroom2)
-        self.classroom1_membership = models.Membership.objects.create(
-            collection=self.classroom1, user=self.user
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
+        cls.classroom1 = ClassroomFactory.create(parent=cls.facility)
+        cls.classroom2 = ClassroomFactory.create(parent=cls.facility)
+        cls.lg11 = LearnerGroupFactory.create(parent=cls.classroom1)
+        cls.lg12 = LearnerGroupFactory.create(parent=cls.classroom1)
+        cls.lg21 = LearnerGroupFactory.create(parent=cls.classroom2)
+        cls.classroom1_membership = models.Membership.objects.create(
+            collection=cls.classroom1, user=cls.user
         )
-        self.classroom2_membership = models.Membership.objects.create(
-            collection=self.classroom2, user=self.user
+        cls.classroom2_membership = models.Membership.objects.create(
+            collection=cls.classroom2, user=cls.user
         )
+
+    def setUp(self):
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,

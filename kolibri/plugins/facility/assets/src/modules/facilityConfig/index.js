@@ -5,7 +5,6 @@ function defaultState() {
     facilityDatasetId: '',
     facilityId: '',
     facilityName: '',
-    notification: null,
     settings: {},
     settingsCopy: {},
     facilityNameSaved: false,
@@ -23,9 +22,6 @@ export default {
     },
     RESET_STATE(state) {
       Object.assign(state, defaultState());
-    },
-    CONFIG_PAGE_NOTIFY(state, notificationType) {
-      state.notification = notificationType;
     },
     CONFIG_PAGE_UNDO_SETTINGS_CHANGE(state) {
       state.settings = Object.assign({}, state.settingsCopy);

@@ -14,10 +14,13 @@ from kolibri.core.auth.test.test_api import FacilityUserFactory
 
 
 class PingbackNotificationTestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.user = FacilityUserFactory(facility=self.facility)
+        cls.facility = FacilityFactory.create()
+        cls.user = FacilityUserFactory(facility=cls.facility)
+
+    def setUp(self):
         self.client.login(
             username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility
         )
@@ -28,6 +31,9 @@ class PingbackNotificationTestCase(APITestCase):
             "source": PINGBACK,
         }
         self.notification = PingbackNotification.objects.create(**data)
+
+    def tearDown(self):
+        self.notification.delete()
 
     def test_get_notification(self):
         response = self.client.get(
@@ -65,12 +71,15 @@ class PingbackNotificationTestCase(APITestCase):
 
 
 class PingbackNotificationDismissedTestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.admin = FacilityUserFactory(facility=self.facility)
-        self.facility.add_role(self.admin, role_kinds.ADMIN)
-        self.user = FacilityUserFactory(facility=self.facility)
+        cls.facility = FacilityFactory.create()
+        cls.admin = FacilityUserFactory(facility=cls.facility)
+        cls.facility.add_role(cls.admin, role_kinds.ADMIN)
+        cls.user = FacilityUserFactory(facility=cls.facility)
+
+    def setUp(self):
         self.client.login(
             username=self.admin.username,
             password=DUMMY_PASSWORD,
@@ -84,6 +93,9 @@ class PingbackNotificationDismissedTestCase(APITestCase):
             "source": PINGBACK,
         }
         self.notification = PingbackNotification.objects.create(**data)
+
+    def tearDown(self):
+        self.notification.delete()
 
     def test_create_notification(self):
         response = self.client.post(

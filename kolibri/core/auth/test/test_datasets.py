@@ -12,10 +12,14 @@ from ..models import LearnerGroup
 
 
 class FacilityDatasetTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create()
+        cls.facility_2 = Facility.objects.create()
+        cls.classroom = Classroom.objects.create(parent=cls.facility)
+        cls.learner_group = LearnerGroup.objects.create(parent=cls.classroom)
+
     def setUp(self):
-        self.facility = Facility.objects.create()
-        self.classroom = Classroom.objects.create(parent=self.facility)
-        self.learner_group = LearnerGroup.objects.create(parent=self.classroom)
         self.facility_user = FacilityUser.objects.create(
             username="blah", password="#", facility=self.facility
         )
@@ -27,35 +31,30 @@ class FacilityDatasetTestCase(TestCase):
         self.assertEqual(self.learner_group.dataset, self.facility_user.dataset)
 
     def test_cannot_create_role_across_datasets(self):
-        facility2 = Facility.objects.create()
         with self.assertRaises(IntegrityError):
-            facility2.add_admin(self.facility_user)
+            self.facility_2.add_admin(self.facility_user)
 
     def test_cannot_create_membership_across_datasets(self):
-        facility2 = Facility.objects.create()
-        facility_user2 = FacilityUser.objects.create(
-            username="blah", password="#", facility=facility2
-        )
         with self.assertRaises(IntegrityError):
+            facility_user2 = FacilityUser.objects.create(
+                username="blah", password="#", facility=self.facility_2
+            )
             self.learner_group.add_learner(facility_user2)
 
     def test_cannot_pass_inappropriate_dataset(self):
-        facility2 = Facility.objects.create()
         with self.assertRaises(IntegrityError):
             FacilityUser.objects.create(
-                facility=self.facility, dataset=facility2.dataset
+                facility=self.facility, dataset=self.facility_2.dataset
             )
 
     def test_cannot_change_dataset(self):
-        facility2 = Facility.objects.create()
-        self.facility_user.dataset = facility2.dataset
         with self.assertRaises(IntegrityError):
+            self.facility_user.dataset = self.facility_2.dataset
             self.facility_user.save()
 
     def test_cannot_change_facility(self):
-        facility2 = Facility.objects.create()
-        self.facility_user.facility = facility2
         with self.assertRaises(IntegrityError):
+            self.facility_user.facility = self.facility_2
             self.facility_user.save()
 
     def test_manually_passing_dataset_for_new_facility(self):
