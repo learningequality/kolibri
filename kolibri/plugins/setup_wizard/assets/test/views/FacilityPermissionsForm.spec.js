@@ -11,8 +11,7 @@ function makeWrapper() {
   const els = {
     nonFormalRadioButton: () => wrapper.findAllComponents({ name: 'KRadioButton' }).at(0),
     formalRadioButton: () => wrapper.findAllComponents({ name: 'KRadioButton' }).at(1),
-    nonFormalTextbox: () => wrapper.findAllComponents({ name: 'FacilityNameTextbox' }).at(0),
-    formalTextbox: () => wrapper.findAllComponents({ name: 'FacilityNameTextbox' }).at(1),
+    facilityNameTextbox: () => wrapper.findAllComponents({ name: 'FacilityNameTextbox' }).at(0),
   }
   const actions = {
     simulateSubmit: () => wrapper.findComponent({ name: 'OnboardingForm' }).vm.$emit('submit'),
@@ -23,20 +22,21 @@ function makeWrapper() {
 }
 
 describe('FacilityPermissionsForm', () => {
-  it('"non-formal" option is selected by default and facility name textbox is visible', () => {
+  it('"non-formal" option is selected by default and facility name textbox is focused', () => {
     const { els } = makeWrapper();
     expect(els.nonFormalRadioButton().vm.isChecked).toEqual(true);
-    expect(els.nonFormalTextbox().element).toBeVisible();
+    const elementThatIsFocused = document.activeElement;
+    expect(elementThatIsFocused.classList.contains('ui-textbox-input')).toBe(true);
   });
 
-  it('selecting "formal" shows facility name textbox', async () => {
+  it('selecting "formal" focuses on facility name textbox', async () => {
     const { els, actions, wrapper } = makeWrapper();
     actions.selectPreset('formal');
     await wrapper.vm.$nextTick();
     expect(els.nonFormalRadioButton().vm.isChecked).toEqual(false);
-    expect(els.nonFormalTextbox().element).not.toBeVisible();
     expect(els.formalRadioButton().vm.isChecked).toEqual(true);
-    expect(els.formalTextbox().element).toBeVisible();
+    const elementThatIsFocused = document.activeElement;
+    expect(elementThatIsFocused.classList.contains('ui-textbox-input')).toBe(true);
   });
 
   describe('submitting', () => {
@@ -48,8 +48,7 @@ describe('FacilityPermissionsForm', () => {
 
     it('does not submit if "non-formal" and facility name is empty', () => {
       const { els, actions, wrapper } = makeWrapper();
-      els.nonFormalTextbox().setData({ facilityName: '' });
-      els.formalTextbox().setData({ facilityName: 'Unused Name' });
+      els.facilityNameTextbox().setData({ facilityName: '' });
       actions.simulateSubmit();
       expect(wrapper.vm.$emit).not.toHaveBeenCalled();
     });
@@ -57,15 +56,14 @@ describe('FacilityPermissionsForm', () => {
     it('does not submit if "formal" and facility name is empty', () => {
       const { els, actions, wrapper } = makeWrapper();
       actions.selectPreset('formal');
-      els.formalTextbox().setData({ facilityName: '' });
-      els.nonFormalTextbox().setData({ facilityName: 'Unused Name' });
+      els.facilityNameTextbox().setData({ facilityName: '' });
       actions.simulateSubmit();
       expect(wrapper.vm.$emit).not.toHaveBeenCalled();
     });
 
     it('submitting with "non-formal" updates vuex correctly', () => {
       const { els, actions, store, wrapper } = makeWrapper();
-      els.nonFormalTextbox().setData({
+      els.facilityNameTextbox().setData({
         facilityName: 'Non-Formal Facility',
       });
       actions.simulateSubmit();
@@ -78,7 +76,7 @@ describe('FacilityPermissionsForm', () => {
     it('submitting with "formal" updates vuex correctly', () => {
       const { els, actions, store, wrapper } = makeWrapper();
       actions.selectPreset('formal');
-      els.formalTextbox().setData({
+      els.facilityNameTextbox().setData({
         facilityName: 'Formal Facility',
       });
       actions.simulateSubmit();
