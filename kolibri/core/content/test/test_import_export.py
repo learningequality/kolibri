@@ -717,9 +717,11 @@ class ImportContentTestCase(TestCase):
         ).update(file_size=1)
         path_mock.side_effect = [local_dest_path, local_src_path]
         files_to_transfer_mock.return_value = (
-            [LocalFile.objects.filter(
-                files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c"
-            ).first()],
+            [
+                LocalFile.objects.filter(
+                    files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c"
+                ).first()
+            ],
             10,
         )
         call_command(
@@ -908,7 +910,7 @@ class ImportContentTestCase(TestCase):
     @patch(
         "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
         # We have to return False for 30 1-second checks to ensure we actually retry.
-        side_effect=[False] * 32 + [True] * 5
+        side_effect=[False] * 32 + [True] * 5,
     )
     def test_remote_import_file_compressed_on_gcs(
         self,
