@@ -148,17 +148,19 @@ export function showLessonResourceContentPreview(store, params) {
 
 export function showLessonSelectionContentPreview(store, params, query = {}) {
   const { classId, lessonId, contentId } = params;
+
   return store.dispatch('loading').then(() => {
     const pendingSelections = store.state.lessonSummary.workingResources || [];
+
     return Promise.all([
       _prepLessonContentPreview(store, classId, lessonId, contentId),
       store.dispatch('lessonSummary/updateCurrentLesson', lessonId),
     ])
       .then(([contentNode, lesson]) => {
         // TODO state mapper
-        const preselectedResources = lesson.resources.map(({ contentnode_id }) => contentnode_id);
-
+        const preselectedResources = lesson.resources;
         const { searchTerm, ...otherQueryParams } = query;
+
         if (searchTerm) {
           store.commit('SET_TOOLBAR_ROUTE', {
             name: LessonsPageNames.SELECTION_SEARCH,
