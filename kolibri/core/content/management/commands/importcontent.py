@@ -1,7 +1,7 @@
-import concurrent.futures
 import logging
 import os
 
+import concurrent.futures
 import requests
 from django.core.management.base import CommandError
 from le_utils.constants import content_kinds
@@ -336,8 +336,11 @@ class Command(AsyncCommand):
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 future_file_transfers = {}
                 for f, filetransfer in file_transfers:
-                    future = executor.submit(self._start_file_transfer,
-                        f, filetransfer, overall_progress_update
+                    future = executor.submit(
+                        self._start_file_transfer,
+                        f,
+                        filetransfer,
+                        overall_progress_update,
                     )
                     future_file_transfers[future] = (f, filetransfer)
 
