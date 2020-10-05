@@ -71,13 +71,6 @@
         return this.submittedFacilityName !== '';
       },
     },
-    watch: {
-      selected() {
-        return this.$nextTick().then(() => {
-          this.focusOnTextbox();
-        });
-      },
-    },
     mounted() {
       this.focusOnTextbox();
     },

@@ -29,16 +29,6 @@ describe('FacilityPermissionsForm', () => {
     expect(elementThatIsFocused.classList.contains('ui-textbox-input')).toBe(true);
   });
 
-  it('selecting "formal" focuses on facility name textbox', async () => {
-    const { els, actions, wrapper } = makeWrapper();
-    actions.selectPreset('formal');
-    await wrapper.vm.$nextTick();
-    expect(els.nonFormalRadioButton().vm.isChecked).toEqual(false);
-    expect(els.formalRadioButton().vm.isChecked).toEqual(true);
-    const elementThatIsFocused = document.activeElement;
-    expect(elementThatIsFocused.classList.contains('ui-textbox-input')).toBe(true);
-  });
-
   describe('submitting', () => {
     function testVuex(store, wrapper, expected) {
       expect(store.state.onboardingData.facility.name).toEqual(expected.name);
