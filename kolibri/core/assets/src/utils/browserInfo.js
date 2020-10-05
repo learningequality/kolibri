@@ -185,7 +185,7 @@ export const userAgent =
  */
 const isAndroid = /Android/.test(userAgent);
 export const isAndroidWebView =
-  (isAndroid && /wv/.test(userAgent)) || /Version\/\d+\.\d+/.test(userAgent);
+  isAndroid && (/wv/.test(userAgent) || /Version\/\d+\.\d+/.test(userAgent));
 
 /**
  * Embedded WebViews on Mac have no app identifier, while all the major browsers do, so check
