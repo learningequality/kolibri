@@ -1,4 +1,4 @@
-# Build Pipeline Documentation
+# Build System Documentation
 
 ## FAQs
 
@@ -88,7 +88,7 @@ Apart from the job allocation functionality, Buildkite conveniently provides us 
 
 Here's a visual of what concept is a property of which:
 
-![Pipeline_vocab_illustrated.png](build_system/Pipeline_vocab_illustrated.png)
+![Mapping of terms](Pipeline_vocab_illustrated.png)
 
 #### Github Integration
 

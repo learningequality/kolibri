@@ -27,7 +27,7 @@ Table of contents
   frontend_architecture/index
   backend_architecture/index
   dataflow/index
-  build_system
+  build_system/index
   development_workflow
   release_process
   i18n
