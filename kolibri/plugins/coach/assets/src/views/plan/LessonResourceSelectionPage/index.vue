@@ -353,7 +353,7 @@
         }
         return '';
       },
-      toggleSelected({ checked, content }) {
+      toggleSelected({ content, checked }) {
         if (checked) {
           this.addToSelectedResources(content);
         } else {
