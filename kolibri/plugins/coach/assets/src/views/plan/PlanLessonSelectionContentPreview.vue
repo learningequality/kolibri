@@ -75,7 +75,9 @@
           return true;
         }
         if (this.workingResources && this.currentContentNode && this.currentContentNode.id) {
-          return this.workingResources.includes(this.currentContentNode.id);
+          return this.workingResources.some(
+            resource => resource.contentnode_id === this.currentContentNode.id
+          );
         }
         return false;
       },
