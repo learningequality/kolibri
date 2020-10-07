@@ -24,8 +24,10 @@ jest.mock('kolibri.heartbeat', () => ({
 class TestApp extends KolibriApp {
   get pluginModule() {
     return {
-      state: {
-        count: 0,
+      state() {
+        return {
+          count: 0,
+        };
       },
       getters: {
         countGetter(state) {

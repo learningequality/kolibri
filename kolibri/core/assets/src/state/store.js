@@ -21,15 +21,16 @@ export function coreStoreFactory(pluginModule) {
       getters: pluginModule.getters || {},
       mutations: pluginModule.mutations || {},
     });
-    store.replaceState({
-      ...(pluginModule.state || {}),
-    });
+
+    if (typeof pluginModule.state !== 'function') {
+      throw TypeError('pluginModule.state must be a function returning a state object');
+    }
+    store.replaceState(pluginModule.state());
     // Registers any modules defined in `pluginModule`. Their state objects will be organized
     // under `state.submoduleState`. Actions, getters, and mutations can be namespaced.
     forEach(pluginModule.modules, (module, name) => {
       store.registerModule(name, module);
     });
-
   }
 
   // Register core module last
