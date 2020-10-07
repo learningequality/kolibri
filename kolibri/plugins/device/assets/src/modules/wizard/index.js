@@ -32,7 +32,7 @@ function defaultState() {
 
 export default {
   namespaced: true,
-  state: defaultState(),
+  state: defaultState,
   actions: {
     ...availableChannelsActions,
     ...contentTreeViewerActions,
