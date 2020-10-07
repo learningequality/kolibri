@@ -12,11 +12,7 @@ Vue.use(Vuex);
 export function coreStoreFactory(pluginModule) {
   // Core state is organized under `state.core`, but actions, getters, and mutations
   // are not namespaced.
-  const store = new Vuex.Store({
-    modules: {
-      core: coreModule,
-    },
-  });
+  const store = new Vuex.Store();
   // Appends any pluginModule components to the store. `pluginModule.state`
   // is added to `state`. Actions, getters, and mutations cannot be namespaced.
   if (pluginModule) {
@@ -26,7 +22,6 @@ export function coreStoreFactory(pluginModule) {
       mutations: pluginModule.mutations || {},
     });
     store.replaceState({
-      core: { ...coreModule.state },
       ...(pluginModule.state || {}),
     });
     // Registers any modules defined in `pluginModule`. Their state objects will be organized
@@ -34,7 +29,12 @@ export function coreStoreFactory(pluginModule) {
     forEach(pluginModule.modules, (module, name) => {
       store.registerModule(name, module);
     });
+
   }
+
+  // Register core module last
+  store.registerModule('core', coreModule);
+
   return store;
 }
 
