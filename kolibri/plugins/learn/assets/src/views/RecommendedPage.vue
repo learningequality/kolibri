@@ -8,7 +8,7 @@
 
     <template v-if="popular.length">
       <ContentCardGroupHeader
-        :header="$tr('popularSectionHeader')"
+        :header="learnString('mostPopularLabel')"
         :viewMorePageLink="popularPageLink"
         :showViewMore="popular.length > trimmedPopular.length"
       />
@@ -26,7 +26,7 @@
 
     <template v-if="nextSteps.length">
       <ContentCardGroupHeader
-        :header="$tr('suggestedNextStepsSectionHeader')"
+        :header="learnString('nextStepsLabel')"
         :viewMorePageLink="nextStepsPageLink"
         :showViewMore="nextSteps.length > trimmedNextSteps.length"
       />
@@ -44,7 +44,7 @@
 
     <template v-if="resume.length">
       <ContentCardGroupHeader
-        :header="learnIndexString('documentTitleForResume')"
+        :header="learnString('documentTitleForResume')"
         :viewMorePageLink="resumePageLink"
         :showViewMore="resume.length > trimmedResume.length"
       />
@@ -77,7 +77,6 @@
   import ContentCardGroupCarousel from './ContentCardGroupCarousel';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import ContentCardGroupHeader from './ContentCardGroupHeader';
-  import learnIndexStrings from './learnIndexStrings';
 
   const mobileCarouselLimit = 3;
   const desktopCarouselLimit = 15;
@@ -94,7 +93,7 @@
       ContentCardGroupGrid,
       ContentCardGroupHeader,
     },
-    mixins: [commonLearnStrings, responsiveWindowMixin, learnIndexStrings],
+    mixins: [commonLearnStrings, responsiveWindowMixin],
     computed: {
       ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       carouselLimit() {
@@ -152,10 +151,6 @@
           },
         };
       },
-    },
-    $trs: {
-      popularSectionHeader: 'Most popular',
-      suggestedNextStepsSectionHeader: 'Next steps',
     },
   };
 

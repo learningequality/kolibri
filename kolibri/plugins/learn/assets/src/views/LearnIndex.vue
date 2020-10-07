@@ -190,10 +190,10 @@
             // 'last' should only be route names for Recommended Page and its subpages
             immersivePageRoute = this.$router.getRoute(last);
             const trString = {
-              [PageNames.RECOMMENDED_POPULAR]: 'documentTitleForPopular',
-              [PageNames.RECOMMENDED_RESUME]: 'documentTitleForResume',
-              [PageNames.RECOMMENDED_NEXT_STEPS]: 'documentTitleForNextSteps',
-              [PageNames.RECOMMENDED]: 'recommended',
+              [PageNames.RECOMMENDED_POPULAR]: this.learnString('popularLabel'),
+              [PageNames.RECOMMENDED_RESUME]: this.learnString('resumeLabel'),
+              [PageNames.RECOMMENDED_NEXT_STEPS]: this.learnString('nextStepsLabel'),
+              [PageNames.RECOMMENDED]: this.learnString('recommendedLabel'),
             }[last];
             appBarTitle = this.$tr(trString);
           } else if (this.topicsTreeContent.parent) {
@@ -317,10 +317,6 @@
     },
     $trs: {
       examReportTitle: '{examTitle} report',
-      recommended: 'Recommended',
-      documentTitleForPopular: 'Popular',
-      documentTitleForResume: 'Resume',
-      documentTitleForNextSteps: 'Next Steps',
     },
   };
 
