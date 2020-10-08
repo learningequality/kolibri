@@ -21,7 +21,7 @@
 
       <template v-if="isUnlistedChannel" v-slot:belowname>
         <KTooltip reference="lockicon" :refs="$refs" placement="top">
-          {{ $tr('unlistedChannelTooltip') }}
+          {{ deviceString('unlistedChannelLabel') }}
         </KTooltip>
         <div class="private-icons">
           <KIcon
@@ -35,7 +35,7 @@
               color: $themeTokens.textInverted,
               backgroundColor: $themeTokens.success
             }"
-          >{{ $tr('newLabel') }}</span>
+          >{{ deviceString('newChannelLabel') }}</span>
         </div>
       </template>
 
@@ -91,6 +91,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { selectContentPageLink } from '../manageContentLinks';
   import { PageNames } from '../../../constants';
+  import commonDeviceStrings from '../../commonDeviceStrings';
   import ChannelDetails from './ChannelDetails';
 
   export default {
@@ -98,7 +99,7 @@
     components: {
       ChannelDetails,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings, responsiveWindowMixin, commonDeviceStrings],
     props: {
       channel: {
         type: Object,
@@ -170,12 +171,6 @@
     $trs: {
       onYourDevice: 'Resources on device',
       selectResourcesAction: 'Select resources',
-      newLabel: {
-        message: 'New',
-        context:
-          '\nRefers to CHANNEL; indicates that it was recently updated, imported, and unlocked',
-      },
-      unlistedChannelTooltip: 'Unlisted channel',
       newVersionMessage: 'New version available',
       moreInformationLabel: 'More information',
       channelSelectedNoFileSize: 'Selected',

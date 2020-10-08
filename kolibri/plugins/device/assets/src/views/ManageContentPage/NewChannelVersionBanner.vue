@@ -6,7 +6,7 @@
         class="new-label"
         :style="{ color: $themeTokens.textInverted, backgroundColor: $themeTokens.success }"
       >
-        {{ newString }}
+        {{ deviceString('newResourceLabel') }}
       </span>
 
       <span class="version-available">
@@ -26,23 +26,15 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import ChannelUpdateAnnotations from '../SelectContentPage/ChannelUpdateAnnotations';
-
-  const UpdateStrings = crossComponentTranslator(ChannelUpdateAnnotations);
+  import commonDeviceStrings from '../commonDeviceStrings';
 
   export default {
     name: 'NewChannelVersionBanner',
+    mixins: [commonDeviceStrings],
     props: {
       version: {
         type: Number,
         required: true,
-      },
-    },
-    computed: {
-      newString() {
-        // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
-        return UpdateStrings.$tr('newResource');
       },
     },
     $trs: {
