@@ -117,6 +117,12 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "\nCould also be translated as \"View information about providing identifier\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to the user indicating that they can access more information and examples about the 'Identifier' through the 'i' icon.",
   },
+
+  // Content activity
+  notStartedLabel: {
+    message: 'Not started',
+    context: 'For content that has not been viewed or engaged with yet',
+  },
 });
 
 export default {

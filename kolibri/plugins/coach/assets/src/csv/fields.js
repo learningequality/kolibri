@@ -1,7 +1,6 @@
 import pad from 'lodash/padStart';
 import get from 'lodash/get';
-import { crossComponentTranslator, createTranslator, formatList } from 'kolibri.utils.i18n';
-import PageStatus from 'kolibri.coreVue.components.PageStatus';
+import { createTranslator, formatList } from 'kolibri.utils.i18n';
 import coreStringsMixin from 'kolibri.coreVue.mixins.commonCoreStrings';
 import { STATUSES } from '../modules/classSummary/constants';
 import { VERBS } from '../views/common/status/constants';
@@ -35,7 +34,6 @@ const VERB_MAP = {
   [STATUSES.completed]: VERBS.completed,
 };
 const coreStrings = coreStringsMixin.methods.coreString;
-const examStrings = crossComponentTranslator(PageStatus);
 
 /*
  * Common CSV export fields and formats
@@ -189,7 +187,7 @@ export function score() {
 export function tally() {
   return [
     {
-      name: examStrings.$tr('notStartedLabel'),
+      name: coreStrings('notStartedLabel'),
       key: 'tally.notStarted',
     },
     {

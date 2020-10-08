@@ -5,18 +5,18 @@
     immersivePageIcon="close"
     :immersivePagePrimary="false"
     :immersivePageRoute="{ name: 'PLAN_LESSONS_ROOT' }"
-    :appBarTitle="lessonCreationStrings.$tr('newLessonModalTitle')"
+    :appBarTitle="coachString('createLessonAction')"
     :authorized="true"
     authorizedRole="adminOrCoach"
-    :pageTitle="lessonCreationStrings.$tr('newLessonModalTitle')"
+    :pageTitle="coachString('createLessonAction')"
     :marginBottom="72"
   >
     <KPageContainer>
       <AssignmentDetailsModal
         ref="detailsModal"
         assignmentType="new_lesson"
-        :modalTitleErrorMessage="lessonCreationStrings.$tr('duplicateTitle')"
-        :submitErrorMessage="lessonCreationStrings.$tr('saveLessonError')"
+        :modalTitleErrorMessage="coachString('duplicateLessonTitleErrorTitle')"
+        :submitErrorMessage="coachString('saveLessonError')"
         :initialDescription="''"
         :initialTitle="''"
         :initialSelectedCollectionIds="[classId]"
@@ -35,10 +35,8 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
-  import LessonRootPage from '../LessonsRootPage';
   import commonCoach from '../../common';
 
   export default {
@@ -48,9 +46,6 @@
     computed: {
       classId() {
         return this.$route.params.classId;
-      },
-      lessonCreationStrings() {
-        return crossComponentTranslator(LessonRootPage);
       },
     },
     mounted() {
