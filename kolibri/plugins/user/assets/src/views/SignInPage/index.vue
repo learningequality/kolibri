@@ -217,6 +217,7 @@
   import getUrlParameter from '../getUrlParameter';
   import AuthBase from '../AuthBase';
   import UsersList from '../UsersList';
+  import commonUserStrings from '../commonUserStrings';
   import SignInHeading from './SignInHeading';
   import plugin_data from 'plugin_data';
 
@@ -237,7 +238,7 @@
       UiAlert,
       UsersList,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings, commonUserStrings],
     data() {
       return {
         username: '',
@@ -547,27 +548,13 @@
       },
     },
     $trs: {
-      // TODO: Remove the comments in $trs, run the linter, fix the issues
-      // Disabling this altogether for now because we use some with crossComponentTranslator
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      changeLabel: {
-        message: 'Change',
-        context:
-          '(verb) Link to change the facility to sign in when the device has more than one facility',
-      },
-      signInToFacilityLabel: "Sign into '{facility}'",
-      greetUser: 'Hi, {user}',
       signInError: 'Incorrect username or password',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
       documentTitle: 'User Sign In',
       needToMakeNewPasswordLabel: 'Hi, {user}. You need to set a new password for your account.',
       nextLabel: 'Next',
-      signingInToFacilityAsUserLabel: "Signing in to '{facility}' as '{user}'",
-      signingInAsUserLabel: "Signing in as '{user}'",
       changeUser: 'Change user',
       changeFacility: 'Change facility',
-      multiFacilitySignInError: 'Incorrect username, password, or facility',
-      /* eslint-enable */
     },
   };
 

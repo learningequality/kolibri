@@ -5,7 +5,7 @@
       <KRouterLink
         class="backlink"
         :to="backTo"
-        :text="AuthMessageStrings.$tr('goBackToHomeAction')"
+        :text="userString('goBackToHomeAction')"
         icon="back"
       />
       <div v-if="facilityList['enabled'].length">
@@ -55,16 +55,15 @@
 
   import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import partition from 'lodash/partition';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { ComponentMap } from '../constants';
   import AuthBase from './AuthBase';
+  import commonUserStrings from './commonUserStrings';
 
   export default {
     name: 'FacilitySelect',
     components: { AuthBase },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonUserStrings],
     props: {
       // This component is interstitial and needs to know where to go when it's done
       // The type is Object, but it needs to be one of the listed routes in the validator
@@ -99,9 +98,6 @@
         return this.whereToNext.name === ComponentMap.SIGN_UP
           ? this.$tr('canSignUpForFacilityLabel')
           : this.$tr('selectFacilityLabel');
-      },
-      AuthMessageStrings() {
-        return crossComponentTranslator(AuthMessage);
       },
     },
     methods: {

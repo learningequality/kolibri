@@ -10,7 +10,7 @@
       <template v-slot:belowname>
         <div class="private-icons">
           <KTooltip reference="lockicon" :refs="$refs" placement="top">
-            {{ WithImportDetailsStrings.$tr('unlistedChannelTooltip') }}
+            {{ deviceString('unlistedChannelLabel') }}
           </KTooltip>
           <KIcon
             v-if="channel.public === false"
@@ -25,7 +25,7 @@
               color: $themeTokens.textInverted,
               backgroundColor: $themeTokens.success
             }"
-          >{{ WithImportDetailsStrings.$tr('newLabel') }}</span>
+          >{{ deviceString('newChannelLabel') }}</span>
         </div>
       </template>
     </ChannelDetails>
@@ -57,18 +57,15 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import commonDeviceStrings from '../../commonDeviceStrings';
   import ChannelDetails from './ChannelDetails';
-  import WithImportDetails from './WithImportDetails';
-
-  const WithImportDetailsStrings = crossComponentTranslator(WithImportDetails);
 
   export default {
     name: 'WithSizeAndOptions',
     components: {
       ChannelDetails,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings, commonDeviceStrings],
     props: {
       channel: {
         type: Object,
@@ -86,9 +83,6 @@
     computed: {
       resourcesSizeText() {
         return bytesForHumans(this.channel.on_device_file_size);
-      },
-      WithImportDetailsStrings() {
-        return WithImportDetailsStrings;
       },
     },
     methods: {
