@@ -27,7 +27,7 @@
       "learner_can_edit_username": true,
       "learner_can_edit_name": true,
       "learner_can_edit_password": true,
-      "learner_can_sign_up": false,
+      "learner_can_sign_up": true,
       "learner_can_delete_account": true,
       "learner_can_login_with_no_password": false,
       "show_download_button_in_learn": true
