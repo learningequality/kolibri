@@ -7,6 +7,7 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Name | Github user |
 |------|-------------|
 | Eli Dai | 66eli77 |
+| Adam Stasiw | AdamStasiw |
 | Akshay Mahajan | akshaymahajans |
 | Alan Chen | alanchenz |
 | Alexandros Metaxas | alexMet |
