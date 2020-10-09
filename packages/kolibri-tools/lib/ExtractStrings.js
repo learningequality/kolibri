@@ -4,12 +4,9 @@ const espree = require('espree');
 const escodegen = require('escodegen');
 const mkdirp = require('mkdirp');
 const sortBy = require('lodash/sortBy');
+const get = require('lodash/get');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const logging = require('./logging');
-const coreAliases = require('./apiSpecExportTools').coreAliases;
-
-// Find alias for i18n utils, do this so that we don't have to hard code it here
-const i18nAlias = Object.keys(coreAliases()).find(key => key.includes('i18n'));
 
 // String appended prior to the identifier for context.
 const CONTEXT_LINE = '\n-- CONTEXT --\n';
@@ -54,7 +51,7 @@ ExtractStrings.prototype.apply = function(compiler) {
     compiler.hooks.emit.tapAsync('extractStrings', function(compilation, callback) {
       var messageExport = {};
       var nameSpaces = [];
-      function registerFoundMessages(messageNameSpace, messages, module) {
+      function registerFoundMessages(messageNameSpace, messages = {}, module) {
         if (messageNameSpace) {
           // Warn about duplicate nameSpaces *within* a bundle (no way to warn across).
           if (nameSpaces.indexOf(messageNameSpace) !== -1) {
@@ -119,7 +116,7 @@ ExtractStrings.prototype.apply = function(compiler) {
               // or variable name that defines it.
               if (
                 node.type === 'VariableDeclaration' &&
-                node.declarations[0].init.type === 'ObjectExpression'
+                get(node, 'declarations[0].init.type', false)
               ) {
                 componentCache[node.declarations[0].id.name] = node.declarations[0].init.properties;
               }
@@ -160,7 +157,7 @@ ExtractStrings.prototype.apply = function(compiler) {
                     if (property.key.name === '$trs') {
                       // Grab every message in our $trs property and
                       // save it into our messages object.
-                      property.value.properties.forEach(function(messageNode) {
+                      get(property, 'value.properties', []).forEach(function(messageNode) {
                         // Check that the trs id is camelCase.
                         if (!isCamelCase(messageNode.key.name)) {
                           logging.error(
@@ -225,15 +222,16 @@ ExtractStrings.prototype.apply = function(compiler) {
             var createTranslateFn;
             // First find the reference being used for the create translator function
             ast.body.forEach(node => {
-              // Check if an import
+              // Check if we import a token from a file with "i18n" in the name - we
+              // care particularly about our own i18n.js file where createTranslator is
+              // defined
               if (
                 node.type === espree.Syntax.ImportDeclaration &&
-                // Check if importing from the i18n alias
-                node.source.value === i18nAlias
+                node.source.value.includes('i18n')
               ) {
                 node.specifiers.forEach(spec => {
                   // Check if this import spec is for the createTranslator function
-                  if (spec.imported.name === 'createTranslator') {
+                  if (get(spec, 'imported.name', false) === 'createTranslator') {
                     // If so store the locally imported variable name it was assigned to
                     createTranslateFn = spec.local.name;
                   }
