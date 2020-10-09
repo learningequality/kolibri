@@ -156,8 +156,7 @@ export function showLessonSelectionContentPreview(store, params, query = {}) {
     ])
       .then(([contentNode, lesson]) => {
         // TODO state mapper
-        const preselectedResources = lesson.resources.map(({ contentnode_id }) => contentnode_id);
-
+        const preselectedResources = lesson.resources;
         const { searchTerm, ...otherQueryParams } = query;
         if (searchTerm) {
           store.commit('SET_TOOLBAR_ROUTE', {
