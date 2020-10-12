@@ -92,7 +92,7 @@
         this.$refs.searchinput.focus();
       },
       search() {
-        if (this.searchTerm !== '') {
+        if (this.searchTerm !== '' && this.searchTermHasChanged) {
           this.$emit('searchterm', this.searchTerm);
         }
       },
