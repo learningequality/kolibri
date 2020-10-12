@@ -73,7 +73,7 @@ class DeviceProvisionTestCase(APITestCase):
         self.assertEqual(settings.learner_can_edit_username, True)
         self.assertEqual(settings.learner_can_edit_name, True)
         self.assertEqual(settings.learner_can_edit_password, True)
-        self.assertEqual(settings.learner_can_sign_up, False)
+        self.assertEqual(settings.learner_can_sign_up, True)
         self.assertEqual(settings.learner_can_delete_account, True)
         self.assertEqual(settings.learner_can_login_with_no_password, False)
         self.assertEqual(settings.show_download_button_in_learn, True)
