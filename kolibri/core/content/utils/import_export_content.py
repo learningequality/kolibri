@@ -100,8 +100,10 @@ def get_files_to_transfer(
 
 
 def calculate_files_to_transfer(nodes_to_include, available):
+    nodes_to_include_and_ancestors = nodes_to_include.get_ancestors(include_self=True)
+
     files_to_transfer = LocalFile.objects.filter(
-        available=available, files__contentnode__in=nodes_to_include
+        available=available, files__contentnode__in=nodes_to_include_and_ancestors
     )
 
     # Make sure the files are unique, to avoid duplicating downloads
