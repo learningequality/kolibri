@@ -36,6 +36,8 @@
 <script>
 
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import LessonRootPage from '../LessonsRootPage';
@@ -65,6 +67,14 @@
           })
           .then(() => {
             this.showSnackbarNotification('lessonCreated');
+          })
+          .catch(error => {
+            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            if (errors) {
+              this.$refs.detailsModal.handleSubmitTitleFailure();
+            } else {
+              this.$refs.detailsModal.handleSubmitFailure();
+            }
           });
       },
     },
