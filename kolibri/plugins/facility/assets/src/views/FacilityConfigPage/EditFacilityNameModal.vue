@@ -36,6 +36,10 @@
     name: 'EditFacilityNameModal',
     mixins: [commonCoreStrings],
     props: {
+      facilityId: {
+        type: String,
+        required: true,
+      },
       facilityName: {
         type: String,
         required: true,
@@ -68,7 +72,8 @@
       },
       facilityNameIsUnique(value) {
         this.isDuplicated = !!this.facilities.find(
-          ({ name }) => name.toLowerCase() === value.toLowerCase()
+          facility =>
+            facility.id != this.facilityId && facility.name.toLowerCase() === value.toLowerCase()
         );
       },
       handleSubmit() {
