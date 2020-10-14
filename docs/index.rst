@@ -27,8 +27,8 @@ Table of contents
   frontend_architecture/index
   backend_architecture/index
   dataflow/index
-  build_system/index
   development_workflow
+  build_system/index
   release_process
   i18n
   manual_testing/index
