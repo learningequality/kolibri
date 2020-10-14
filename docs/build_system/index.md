@@ -1,4 +1,4 @@
-# Build System Documentation
+# Build system and workflow
 
 ## FAQs
 
@@ -33,7 +33,7 @@
     The best way to do so is from Github. Navigate to the "Tags" page on Github. On the left of the Tag name, you should see the short-SHA of a Github commit. This short SHA is also a link. Clicking on it will take you to the Github page for that commit. Underneath the commit message, you should find a green checkmark (or a red "X" if it didn't build properly).
     Clicking on the symbol should link to the build page you're looking for.
 
-## Design Goals
+## Design goals
 
 The build pipeline currently uses Buildkite as its build system. Buildkite is flexible in that the build queue is hosted on their servers, while the build agents (the servers that actually run the build scripts) are self hosted.
 
@@ -68,7 +68,7 @@ Without diving too deep (LINK please visit their official documentation if you'd
 1. The Buildkite Agent API
 2. The Buildkite Agent Daemon
 
-#### API and Vocabulary
+#### API and vocabulary
 
 The API is hosted on Buildkite servers. It's primary purpose is to receive build *steps* in the form of (mostly) YAML, and distribute them as *jobs* to Agents.
 
@@ -90,7 +90,7 @@ Here's a visual of what concept is a property of which:
 
 ![Mapping of terms](Pipeline_vocab_illustrated.png)
 
-#### Github Integration
+#### Github integration
 
 The Webhook client functionality is critical, as it allows us to integrate with Github.
 
@@ -109,7 +109,7 @@ Apart from the obvious authentication components that are required to access the
 - [An agent-level hooks system](https://buildkite.com/docs/agent/v3/hooks)
 - The ability to completely self-manage our build environments and secrets
 
-#### The Value of Self Hosted
+#### The value of self hosted
 
 Many build systems provide a free tier of hosting. In the best of those cases, you provide them a Docker image that they then deploy. Your jobs run inside of that image. The mechanism with which secrets (envars and files) are passed to these systems vary wildly.
 
@@ -123,9 +123,9 @@ We could probably make those systems work if need be. By self hosting, however, 
 - The ability to invest in the one-time-cost (as opposed to the ongoing cost of cloud-provided hosting) of physical hardware , customized to our workload.
     - "Hybrid Cloud" setups - where the bulk of the workload is on-premises, with some off-premises secondary workloads.
 
-### How LE Uses Buildkite
+### How LE uses Buildkite
 
-#### LE Pipelines
+#### LE pipelines
 
 There is one pipeline per installer, each is configured to listen to a different GH repository. :
 
@@ -151,7 +151,7 @@ By default, it will use `.buildkite/pipeline.json`. This can be changed, but we 
 
 With one exception, each pipeline's sole concern is to build the asset it is named for, then upload it to the appropriate destinations. The exception, and the "appropriate destinations", will be explained below.
 
-#### LE Pipeline Orchestration
+#### LE pipeline orchestration
 
 Presently, the `Kolibri Python Package` Pipeline carries more responsibility than the rest.
 
@@ -161,7 +161,7 @@ After building the `.whl` and `.pex` in a single step, the `Kolibri Python Packa
 
 These *trigger steps* live inside of the `Kolibri Python Package`, but send metadata to each of the other pipelines and trigger an entirely new build in each one.
 
-##### Block Steps
+##### Block steps
 
 These triggered builds are created simultaneously; this does not mean that the jobs belonging to the builds are assigned simultaneously. The very first thing a new build does is pull the repository and de-serialize the steps living inside the `.buildkite` folder.
 
@@ -171,7 +171,7 @@ The "finished" signal on the triggered builds report back to the `Kolibri Python
 
 **This allows for efficiency: Time won't be wasted waiting for every single installer to be built for non-release pipelines. If a developer *wants* one of the other installers, they may navigate to the appropriate pipeline and unblock the step.**
 
-##### Release Builds
+##### Release builds
 
 In the case that this build belongs to a release-tagged Git commit, a few conditions are triggered:
 
