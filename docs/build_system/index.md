@@ -55,11 +55,9 @@ These goals are described at a high level, and carry some implicit meaning. Thes
 
 There is certainly overlap in those goals. For example, a faster build translates to a more convenient release process for our release managers, who must ensure that assets build after tagging a release.
 
-## Architecture
+## Overview of Buildkite
 
 Before describing the current architecture, it might be helpful to provide context by giving an overview of how Buildkite works.
-
-### Buildkite
 
 This entire section will not be describing any of LE's build pipelines in particular - only how Buildkite manages pipelines.
 
@@ -68,7 +66,7 @@ Without diving too deep (LINK please visit their official documentation if you'd
 1. The Buildkite Agent API
 2. The Buildkite Agent Daemon
 
-#### API and vocabulary
+### API and vocabulary
 
 The API is hosted on Buildkite servers. It's primary purpose is to receive build *steps* in the form of (mostly) YAML, and distribute them as *jobs* to Agents.
 
@@ -90,7 +88,7 @@ Here's a visual of what concept is a property of which:
 
 ![Mapping of terms](Pipeline_vocab_illustrated.png)
 
-#### Github integration
+### Github integration
 
 The Webhook client functionality is critical, as it allows us to integrate with Github.
 
@@ -98,7 +96,7 @@ Github alerts Buildkite that a new PR, commit, or tag has been created via webho
 
 The step that defines this job cannot not be defined inside of the `pipeline.yaml` file commited to the repository. This *must* be defined on Buildkite's servers using their web GUI.
 
-#### Agent
+### Agent
 
 The agent is hosted on LE servers. Some of these servers are physically located in the LE physical office, and others are physically located in a cloud provider's server farm.
 
@@ -109,7 +107,7 @@ Apart from the obvious authentication components that are required to access the
 - [An agent-level hooks system](https://buildkite.com/docs/agent/v3/hooks)
 - The ability to completely self-manage our build environments and secrets
 
-#### The value of self hosted
+### The value of self hosted
 
 Many build systems provide a free tier of hosting. In the best of those cases, you provide them a Docker image that they then deploy. Your jobs run inside of that image. The mechanism with which secrets (envars and files) are passed to these systems vary wildly.
 
@@ -123,9 +121,7 @@ We could probably make those systems work if need be. By self hosting, however, 
 - The ability to invest in the one-time-cost (as opposed to the ongoing cost of cloud-provided hosting) of physical hardware , customized to our workload.
     - "Hybrid Cloud" setups - where the bulk of the workload is on-premises, with some off-premises secondary workloads.
 
-### How LE uses Buildkite
-
-#### LE pipelines
+## Learning Equality's pipelines
 
 There is one pipeline per installer, each is configured to listen to a different GH repository. :
 
@@ -151,7 +147,7 @@ By default, it will use `.buildkite/pipeline.json`. This can be changed, but we 
 
 With one exception, each pipeline's sole concern is to build the asset it is named for, then upload it to the appropriate destinations. The exception, and the "appropriate destinations", will be explained below.
 
-#### LE pipeline orchestration
+### Pipeline orchestration
 
 Presently, the `Kolibri Python Package` Pipeline carries more responsibility than the rest.
 
@@ -161,7 +157,7 @@ After building the `.whl` and `.pex` in a single step, the `Kolibri Python Packa
 
 These *trigger steps* live inside of the `Kolibri Python Package`, but send metadata to each of the other pipelines and trigger an entirely new build in each one.
 
-##### Block steps
+### Block steps
 
 These triggered builds are created simultaneously; this does not mean that the jobs belonging to the builds are assigned simultaneously. The very first thing a new build does is pull the repository and de-serialize the steps living inside the `.buildkite` folder.
 
@@ -171,7 +167,7 @@ The "finished" signal on the triggered builds report back to the `Kolibri Python
 
 **This allows for efficiency: Time won't be wasted waiting for every single installer to be built for non-release pipelines. If a developer *wants* one of the other installers, they may navigate to the appropriate pipeline and unblock the step.**
 
-##### Release builds
+### Release builds
 
 In the case that this build belongs to a release-tagged Git commit, a few conditions are triggered:
 
