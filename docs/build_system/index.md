@@ -1,6 +1,6 @@
 # Build system and workflow
 
-## FAQs
+## Frequently asked questions
 
 - How does the build system work overall?
 
