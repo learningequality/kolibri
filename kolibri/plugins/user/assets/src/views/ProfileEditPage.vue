@@ -47,8 +47,7 @@
           :disabled="formDisabled"
           appearance="raised-button"
           :primary="false"
-
-          @click="$router.push($router.getRoute('PROFILE'))"
+          @click="$router.push($router.getRoute(ComponentMap.PROFILE))"
         />
       </KButtonGroup>
     </form>
@@ -99,6 +98,7 @@
         formSubmitted: false,
         status: '',
         userCopy: {},
+        ComponentMap,
       };
     },
     computed: {
