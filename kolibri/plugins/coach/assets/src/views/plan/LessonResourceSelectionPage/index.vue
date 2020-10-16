@@ -165,7 +165,7 @@
         return this.pageName === LessonsPageNames.SELECTION_SEARCH;
       },
       searchTerm() {
-        return this.$route.params.searchTerm;
+        return this.$route.params.searchTerm || '';
       },
       routerParams() {
         return { classId: this.classId, lessonId: this.lessonId };

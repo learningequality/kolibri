@@ -58,13 +58,13 @@
           :text="coreString('cancelAction')"
           appearance="flat-button"
           :primary="false"
-          :disabled="disabled"
+          :disabled="disabled || formIsSubmitted"
           @click="$emit('cancel')"
         />
         <KButton
           :text="coreString('saveChangesAction')"
           :primary="true"
-          :disabled="disabled"
+          :disabled="disabled || formIsSubmitted"
           @click="submitData"
         />
       </KButtonGroup>
@@ -156,7 +156,7 @@
     computed: {
       titleIsInvalidText() {
         // submission is handled because "blur" event happens on submit
-        if (!this.disabled && this.titleIsVisited) {
+        if (!this.disabled && !this.formIsSubmitted && this.titleIsVisited) {
           if (this.title === '') {
             return this.coreString('requiredFieldError');
           }
@@ -220,6 +220,7 @@
         }
 
         if (this.formIsValid) {
+          this.formIsSubmitted = true;
           this.$emit('submit', {
             title: this.title,
             description: this.description,

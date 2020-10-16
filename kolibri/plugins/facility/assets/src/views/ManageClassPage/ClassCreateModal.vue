@@ -5,7 +5,7 @@
     size="small"
     :submitText="coreString('saveAction')"
     :cancelText="coreString('cancelAction')"
-    :submitDisabled="submitting"
+    :disabled="submitting"
     @submit="createNewClass"
     @cancel="$emit('cancel')"
   >
@@ -15,6 +15,7 @@
       type="text"
       :label="coreString('classNameLabel')"
       :autofocus="true"
+      :disabled="submitting"
       :invalid="nameIsInvalid"
       :invalidText="nameIsInvalidText"
       :maxlength="50"
@@ -48,16 +49,12 @@
     },
     computed: {
       duplicateName() {
-        const index = this.classes.findIndex(
+        return !!this.classes.find(
           classroom => classroom.name.toUpperCase() === this.name.toUpperCase()
         );
-        if (index === -1) {
-          return false;
-        }
-        return true;
       },
       nameIsInvalidText() {
-        if (this.nameBlurred || this.formSubmitted) {
+        if (!this.formSubmitted) {
           if (this.name === '') {
             return this.coreString('requiredFieldError');
           }
@@ -76,14 +73,15 @@
     },
     methods: {
       createNewClass() {
-        this.formSubmitted = true;
+        this.submitting = true;
         if (this.formIsValid) {
-          this.submitting = true;
+          this.formSubmitted = true;
           this.$store.dispatch('classManagement/createClass', this.name).then(() => {
             this.$emit('success');
             this.showSnackbarNotification('classCreated');
           });
         } else {
+          this.submitting = false;
           this.$refs.name.focus();
         }
       },
