@@ -11,7 +11,7 @@
       <p>{{ $tr('renameFacilityExplanation') }}</p>
       <KTextbox
         ref="name"
-        v-model.trim="name"
+        v-model="name"
         type="text"
         :label="coreString('facilityName')"
         :autofocus="true"
@@ -56,7 +56,7 @@
     computed: {
       ...mapState('facilityConfig', ['facilities']),
       nameIsInvalidText() {
-        if (this.name === '') {
+        if (this.name.trim() === '') {
           return this.coreString('requiredFieldError');
         }
         if (this.isDuplicated) return this.coreString('facilityDuplicated');
