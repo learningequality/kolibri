@@ -99,6 +99,7 @@
     <EditFacilityNameModal
       v-if="showEditFacilityModal"
       id="edit-facility"
+      :facilityId="facilityId"
       :facilityName="facilityName"
       @submit="sendFacilityName"
       @cancel="showEditFacilityModal = false"

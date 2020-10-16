@@ -11,7 +11,7 @@
       <p>{{ $tr('renameFacilityExplanation') }}</p>
       <KTextbox
         ref="name"
-        v-model.trim="name"
+        v-model="name"
         type="text"
         :label="coreString('facilityName')"
         :autofocus="true"
@@ -36,6 +36,10 @@
     name: 'EditFacilityNameModal',
     mixins: [commonCoreStrings],
     props: {
+      facilityId: {
+        type: String,
+        required: true,
+      },
       facilityName: {
         type: String,
         required: true,
@@ -52,7 +56,7 @@
     computed: {
       ...mapState('facilityConfig', ['facilities']),
       nameIsInvalidText() {
-        if (this.name === '') {
+        if (this.name.trim() === '') {
           return this.coreString('requiredFieldError');
         }
         if (this.isDuplicated) return this.coreString('facilityDuplicated');
@@ -68,7 +72,8 @@
       },
       facilityNameIsUnique(value) {
         this.isDuplicated = !!this.facilities.find(
-          ({ name }) => name.toLowerCase() === value.toLowerCase()
+          facility =>
+            facility.id != this.facilityId && facility.name.toLowerCase() === value.toLowerCase()
         );
       },
       handleSubmit() {
