@@ -425,7 +425,6 @@ class ImportContentTestCase(TestCase):
         cancel_mock.assert_called_with()
         annotation_mock.set_content_visibility.assert_called()
 
-    @patch("kolibri.core.content.management.commands.importcontent.len")
     @patch(
         "kolibri.core.content.utils.transfer.Transfer.next",
         side_effect=ConnectionError("connection error"),
@@ -440,7 +439,6 @@ class ImportContentTestCase(TestCase):
         is_cancelled_mock,
         cancel_mock,
         next_mock,
-        len_mock,
         annotation_mock,
         files_to_transfer_mock,
         channel_list_status_mock,
@@ -467,7 +465,6 @@ class ImportContentTestCase(TestCase):
             node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
         )
         cancel_mock.assert_called_with()
-        len_mock.assert_not_called()
         annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.management.commands.importcontent.logger.warning")
@@ -587,7 +584,6 @@ class ImportContentTestCase(TestCase):
             self.the_channel_id, [], node_ids=None, exclude_node_ids=None, public=False
         )
 
-    @patch("kolibri.core.content.management.commands.importcontent.len")
     @patch("kolibri.core.content.utils.transfer.sleep")
     @patch(
         "kolibri.core.content.utils.transfer.Transfer.next",
@@ -604,7 +600,6 @@ class ImportContentTestCase(TestCase):
         cancel_mock,
         error_mock,
         sleep_mock,
-        len_mock,
         annotation_mock,
         files_to_transfer_mock,
         channel_list_status_mock,
@@ -631,7 +626,6 @@ class ImportContentTestCase(TestCase):
             node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
         )
         cancel_mock.assert_called_with()
-        len_mock.assert_not_called()
         annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.management.commands.importcontent.logger.warning")
