@@ -333,46 +333,57 @@ class Command(AsyncCommand):
                     )
                     file_transfers.append((f, filetransfer))
 
-            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                future_file_transfers = {}
-                for f, filetransfer in file_transfers:
-                    future = executor.submit(
-                        self._start_file_transfer,
-                        f,
-                        filetransfer,
-                        overall_progress_update,
-                    )
-                    future_file_transfers[future] = (f, filetransfer)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+                batch_size = 100
+                # ThreadPoolExecutor allows us to download files concurrently,
+                # greatly reducing download time in most cases. However, loading
+                # all the downloads into the pool requires considerable memory,
+                # so we divide the downloads into batches to keep memory usage down.
+                # In batches of 100, total RAM usage doesn't exceed 250MB in testing.
+                while len(file_transfers) > 0:
+                    future_file_transfers = {}
+                    for i in range(batch_size):
+                        if len(file_transfers) > 0:
+                            f, filetransfer = file_transfers.pop()
+                            future = executor.submit(
+                                self._start_file_transfer,
+                                f,
+                                filetransfer,
+                                overall_progress_update,
+                            )
+                            future_file_transfers[future] = (f, filetransfer)
 
-                for future in concurrent.futures.as_completed(future_file_transfers):
-                    f, filetransfer = future_file_transfers[future]
-                    try:
-                        status = future.result()
-                        if self.is_cancelled():
-                            break
+                    for future in concurrent.futures.as_completed(
+                        future_file_transfers
+                    ):
+                        f, filetransfer = future_file_transfers[future]
+                        try:
+                            status = future.result()
+                            if self.is_cancelled():
+                                break
 
-                        if status == FILE_SKIPPED:
-                            number_of_skipped_files += 1
-                        else:
-                            file_checksums_to_annotate.append(f.id)
-                            transferred_file_size += f.file_size
-                    except transfer.TransferCanceled:
-                        break
-                    except Exception as e:
-                        logger.error(
-                            "An error occurred during content import: {}".format(e)
-                        )
-                        if (
-                            isinstance(e, requests.exceptions.HTTPError)
-                            and e.response.status_code == 404
-                        ) or (isinstance(e, OSError) and e.errno == 2):
-                            # Continue file import when the current file is not found from the source and is skipped.
-                            overall_progress_update(f.file_size)
-                            number_of_skipped_files += 1
-                            continue
-                        else:
-                            self.exception = e
+                            if status == FILE_SKIPPED:
+                                number_of_skipped_files += 1
+                            else:
+                                file_checksums_to_annotate.append(f.id)
+                                transferred_file_size += f.file_size
+                        except transfer.TransferCanceled:
                             break
+                        except Exception as e:
+                            logger.error(
+                                "An error occurred during content import: {}".format(e)
+                            )
+                            if (
+                                isinstance(e, requests.exceptions.HTTPError)
+                                and e.response.status_code == 404
+                            ) or (isinstance(e, OSError) and e.errno == 2):
+                                # Continue file import when the current file is not found from the source and is skipped.
+                                overall_progress_update(f.file_size)
+                                number_of_skipped_files += 1
+                                continue
+                            else:
+                                self.exception = e
+                                break
 
             with db_task_write_lock:
                 annotation.set_content_visibility(
