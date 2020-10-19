@@ -3,9 +3,11 @@ import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 
 export default {
   namespaced: true,
-  state: {
-    contentNodes: [],
-    currentLesson: {},
+  state() {
+    return {
+      contentNodes: [],
+      currentLesson: {},
+    };
   },
   mutations: {
     SET_LESSON_CONTENTNODES(state, contentNodes) {

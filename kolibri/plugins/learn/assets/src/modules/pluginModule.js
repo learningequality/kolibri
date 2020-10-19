@@ -14,13 +14,15 @@ import topicsTree from './topicsTree';
 import plugin_data from 'plugin_data';
 
 export default {
-  state: {
-    pageName: '',
-    examAttemptLogs: {},
-    examLog: {},
-    memberships: [],
-    canAccessUnassignedContentSetting: plugin_data.allowLearnerUnassignedResourceAccess,
-    allowGuestAccess: plugin_data.allowGuestAccess,
+  state() {
+    return {
+      pageName: '',
+      examAttemptLogs: {},
+      examLog: {},
+      memberships: [],
+      canAccessUnassignedContentSetting: plugin_data.allowLearnerUnassignedResourceAccess,
+      allowGuestAccess: plugin_data.allowGuestAccess,
+    };
   },
   actions,
   getters,
