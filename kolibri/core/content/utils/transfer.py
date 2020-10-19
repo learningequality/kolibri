@@ -82,6 +82,7 @@ class Transfer(object):
         # record whether the destination file already exists, so it can be checked, but don't error out
         self.dest_exists = os.path.isfile(dest)
 
+    def start(self):
         # open the destination file for writing
         self.dest_file_obj = open(self.dest_tmp, "wb")
 
@@ -159,6 +160,7 @@ class FileDownload(Transfer):
         super(FileDownload, self).__init__(*args, **kwargs)
 
     def start(self):
+        super(FileDownload, self).start()
         # initiate the download, check for status errors, and calculate download size
         try:
             self.response = self.session.get(
@@ -276,6 +278,7 @@ class FileCopy(Transfer):
         assert (
             not self.started
         ), "File copy has already been started, and cannot be started again"
+        super(FileCopy, self).start()
         self.total_size = os.path.getsize(self.source)
         self.source_file_obj = open(self.source, "rb")
         self.started = True
