@@ -6,10 +6,7 @@
       :description="$tr('facilityPermissionsSetupFormDescription')"
       @submit="handleSubmit"
     >
-      <FacilityNameTextbox
-        ref="facility-name"
-        class="facility-name-form"
-      />
+      <FacilityNameTextbox ref="facility-name" />
 
       <KRadioButton
         ref="first-button"
@@ -68,7 +65,7 @@
         }
       },
       formIsValid() {
-        return this.submittedFacilityName !== '';
+        return !this.$refs['facility-name'].facilityNameIsInvalid;
       },
     },
     mounted() {
@@ -79,6 +76,7 @@
         return this.$refs['facility-name'].focus();
       },
       handleSubmit() {
+        this.$refs['facility-name'].validateFacilityName();
         if (this.formIsValid) {
           this.$store.commit('SET_FACILITY_NAME', this.submittedFacilityName);
 
