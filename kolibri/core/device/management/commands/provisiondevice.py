@@ -58,13 +58,16 @@ def check_device_setting(name):
     )
 
 
-def get_user_response(prompt, valid_answers=None):
+def get_user_response(prompt, valid_answers=None, to_lower_case=True):
     answer = None
     while not answer or (
         valid_answers is not None and answer.lower() not in valid_answers
     ):
         answer = six.moves.input(prompt)
-    return answer.lower()
+    if to_lower_case:
+        return answer.lower()
+    else:
+        return answer
 
 
 languages = dict(settings.LANGUAGES)
@@ -77,23 +80,23 @@ def create_facility(facility_name=None, preset=None, interactive=False):
         )
         if answer == "y":
             facility_name = get_user_response(
-                "What do you wish to name your facility? "
+                "What do you wish to name your facility? ", to_lower_case=False
             )
         else:
             sys.exit(1)
 
     if facility_name:
-        facility, created = Facility.objects.get_or_create(name=facility_name)
+        facility, created = Facility.objects.get_or_create(name__iexact=facility_name)
 
         if not created:
             logger.warn(
-                "Facility with name {name} already exists, not modifying preset.".format(
-                    name=facility_name
+                "Facility with name '{name}' already exists, not modifying preset.".format(
+                    name=facility.name
                 )
             )
             return facility
 
-        logger.info("Facility with name {name} created.".format(name=facility_name))
+        logger.info("Facility with name '{name}' created.".format(name=facility_name))
 
         if preset is None and interactive:
             preset = get_user_response(
@@ -125,7 +128,9 @@ def update_facility_settings(facility, new_settings):
         check_facility_setting(key)
         setattr(facility.dataset, key, value)
     facility.dataset.save()
-    logger.info("Facility settings updated with {}".format(new_settings))
+
+    if new_settings:
+        logger.info("Facility settings updated with {}".format(new_settings))
 
 
 def create_superuser(username=None, password=None, interactive=False, facility=None):
@@ -142,13 +147,13 @@ def create_superuser(username=None, password=None, interactive=False, facility=N
         try:
             FacilityUser.objects.create_superuser(username, password, facility=facility)
             logger.info(
-                "Superuser created with username {username} in facility {facility}.".format(
+                "Superuser created with username '{username}' in facility '{facility}'.".format(
                     username=username, facility=facility
                 )
             )
         except ValidationError:
             logger.warn(
-                "An account with username {username} already exists in facility {facility}, not creating user account.".format(
+                "An account with username '{username}' already exists in facility '{facility}', not creating user account.".format(
                     username=username, facility=facility
                 )
             )
