@@ -2,7 +2,7 @@
 
   <YesNoForm
     :noOptionLabel="$tr('noOptionLabel')"
-    :noOptionTooltip="$tr('noOptionTooltip')"
+    :noOptionDescription="$tr('noOptionTooltip')"
     :settingIsEnabled="settingIsEnabled"
     :headerText="$tr('header')"
     @submit="handleSubmit"
