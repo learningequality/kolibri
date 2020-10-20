@@ -86,17 +86,21 @@ def create_facility(facility_name=None, preset=None, interactive=False):
             sys.exit(1)
 
     if facility_name:
-        facility, created = Facility.objects.get_or_create(name__iexact=facility_name)
+        facility_query = Facility.objects.filter(name__iexact=facility_name)
 
-        if not created:
+        if facility_query.exists():
+            facility = facility_query.get()
             logger.warn(
                 "Facility with name '{name}' already exists, not modifying preset.".format(
                     name=facility.name
                 )
             )
             return facility
-
-        logger.info("Facility with name '{name}' created.".format(name=facility_name))
+        else:
+            facility = Facility.objects.create(name=facility_name)
+            logger.info(
+                "Facility with name '{name}' created.".format(name=facility.name)
+            )
 
         if preset is None and interactive:
             preset = get_user_response(
