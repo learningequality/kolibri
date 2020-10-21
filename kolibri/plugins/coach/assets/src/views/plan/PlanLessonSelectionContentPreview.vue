@@ -58,6 +58,16 @@
     computed: {
       returnBackRoute() {
         if (this.$route.query && this.$route.query.last) {
+          // HACK to fix #7583 and #7584
+          if (this.$route.query.last === 'ReportsLessonReportPage') {
+            return {
+              name: 'SELECTION',
+              params: {
+                topicId: this.currentContentNode.parent,
+              },
+              query: this.$route.query,
+            };
+          }
           return this.backRouteForQuery(this.$route.query);
         }
 

@@ -222,6 +222,11 @@
           return this.topicListingLink({ ...this.routerParams, topicId: lastId });
         } else if (this.inSearchMode) {
           return this.selectionRootLink({ ...this.routerParams });
+        } else if (this.$route.query.last === 'ReportsLessonReportPage') {
+          // HACK to fix #7583 and #7584
+          return {
+            name: 'ReportsLessonReportPage',
+          };
         } else {
           return this.toolbarRoute;
         }
