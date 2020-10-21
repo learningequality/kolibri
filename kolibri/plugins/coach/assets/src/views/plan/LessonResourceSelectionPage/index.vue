@@ -147,7 +147,7 @@
         if (!this.inSearchMode) {
           return this.contentList;
         }
-        return this.searchResults.results.filter(contentNode => {
+        return this.contentList.filter(contentNode => {
           let passesFilters = true;
           if (role === 'nonCoach') {
             passesFilters = passesFilters && contentNode.num_coach_contents === 0;
