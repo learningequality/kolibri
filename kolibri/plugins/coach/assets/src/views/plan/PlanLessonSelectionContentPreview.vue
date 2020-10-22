@@ -28,6 +28,7 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import get from 'lodash/get';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
@@ -57,9 +58,13 @@
     },
     computed: {
       returnBackRoute() {
-        if (this.$route.query && this.$route.query.last) {
+        const lastRoute = get(this.$route, ['query', 'last']);
+        if (lastRoute) {
           // HACK to fix #7583 and #7584
-          if (this.$route.query.last === 'ReportsLessonReportPage') {
+          if (
+            lastRoute === 'ReportsLessonReportPage' ||
+            lastRoute === 'ReportsLessonLearnerListPage'
+          ) {
             return {
               name: 'SELECTION',
               params: {

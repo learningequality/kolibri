@@ -227,6 +227,11 @@
           return {
             name: 'ReportsLessonReportPage',
           };
+        } else if (this.$route.query.last === 'ReportsLessonLearnerListPage') {
+          // HACK to fix similar bug in Learner version of the report page
+          return {
+            name: 'ReportsLessonLearnerListPage',
+          };
         } else {
           return this.toolbarRoute;
         }
