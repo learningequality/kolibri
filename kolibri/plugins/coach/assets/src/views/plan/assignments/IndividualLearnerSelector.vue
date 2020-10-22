@@ -9,6 +9,7 @@
     >
       <KLabeledIcon icon="people" :label="$tr('individualLearnersLabel')" />
     </KCheckbox>
+
     <div v-if="showAsChecked">
       <div class="table-title">
         {{ $tr("selectedIndividualLearnersLabel") }}
@@ -69,6 +70,7 @@
                     {{ groupsForLearner(learner.id) }}
                   </td>
                 </template>
+
                 <template v-else>
                   <td>
                     <KCheckbox
@@ -76,7 +78,7 @@
                       :label="learner.name"
                       :checked="selectedAdHocIds.includes(learner.id)"
                       :disabled="disabled"
-                      @change="toggleSelectedLearnerId(learner.id)"
+                      @change="toggleSelectedLearnerId($event, learner.id)"
                     />
                   </td>
                   <td class="table-data">
@@ -101,10 +103,11 @@
 <script>
 
   import { mapState } from 'vuex';
+  import { formatList } from 'kolibri.utils.i18n';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import uniq from 'lodash/uniq';
+  import flatMap from 'lodash/flatMap';
   import countBy from 'lodash/countBy';
   import ClassSummaryResource from '../../../apiResources/classSummary';
   import commonCoachStrings from '../../common';
@@ -179,7 +182,7 @@
         }
       },
       currentGroupMap() {
-        return this.groupMapFromOtherClass ? this.groupMapFromOtherClass : this.groupMap;
+        return this.groupMapFromOtherClass || this.groupMap;
       },
       currentPageLearners() {
         const baseIndex = (this.currentPage - 1) * this.itemsPerPage;
@@ -189,11 +192,9 @@
         );
       },
       hiddenLearnerIds() {
-        let hiddenLearnerIds = [];
-        this.selectedGroupIds.forEach(groupId => {
-          hiddenLearnerIds = hiddenLearnerIds.concat(this.currentGroupMap[groupId].member_ids);
-        });
-        return uniq(hiddenLearnerIds);
+        // If a learner is part of a Learner Group that has already been selected
+        // in RecipientSelector, then disable their row
+        return flatMap(this.selectedGroupIds, groupId => this.currentGroupMap[groupId].member_ids);
       },
       showAsChecked() {
         return this.entireClassIsSelected ? false : this.isChecked;
@@ -225,8 +226,9 @@
       },
     },
     watch: {
-      entireClassIsSelected() {
-        if (this.entireClassIsSelected && this.isChecked) {
+      entireClassIsSelected(newVal) {
+        // If the "Individual learners" option is unselected, return to the first page
+        if (newVal && this.isChecked) {
           this.toggleChecked();
           this.currentPage = 1;
         }
@@ -248,17 +250,16 @@
           this.fetchingOutside = false;
         });
       },
-      toggleChecked() {
-        this.isChecked = !this.isChecked;
+      toggleChecked(checked) {
+        this.isChecked = checked;
         this.$emit('updateLearners', this.isChecked ? this.selectedAdHocIds : []);
         this.$emit('change', this.isChecked);
       },
-      toggleSelectedLearnerId(learnerId) {
-        const index = this.selectedAdHocIds.indexOf(learnerId);
-        if (index === -1) {
+      toggleSelectedLearnerId(checked, learnerId) {
+        if (checked) {
           this.selectedAdHocIds.push(learnerId);
         } else {
-          this.selectedAdHocIds.splice(index, 1);
+          this.selectedAdHocIds = this.selectedAdHocIds.filter(id => id !== learnerId);
         }
       },
       selectVisiblePage() {
@@ -281,13 +282,10 @@
         return this.hiddenLearnerIds.includes(learnerId);
       },
       groupsForLearner(learnerId) {
-        let learnerGroups = [];
-        this.groups.forEach(group => {
-          if (group.member_ids.includes(learnerId)) {
-            learnerGroups.push(group.name);
-          }
-        });
-        return learnerGroups.join(', ');
+        const groupNames = this.groups
+          .filter(group => group.member_ids.includes(learnerId))
+          .map(group => group.name);
+        return formatList(groupNames);
       },
       filterLearners(learners, searchText) {
         this.searchText = searchText;

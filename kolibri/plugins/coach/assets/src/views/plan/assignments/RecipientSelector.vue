@@ -1,6 +1,7 @@
 <template>
 
   <div>
+    <!-- Entire class -->
     <KRadioButton
       :value="true"
       :currentValue="entireClassIsSelected"
@@ -12,6 +13,8 @@
         icon="classes"
       />
     </KRadioButton>
+
+    <!-- Learner groups -->
     <KCheckbox
       v-for="group in groups"
       :key="group.id"
@@ -24,6 +27,8 @@
         icon="group"
       />
     </KCheckbox>
+
+    <!-- Individual learners -->
     <IndividualLearnerSelector
       :selectedGroupIds="selectedGroupIds"
       :entireClassIsSelected="entireClassIsSelected"
