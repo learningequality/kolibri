@@ -3,16 +3,13 @@ import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import UserIndex from '../../src/views/UserIndex';
 import makeStore from '../makeStore';
-import routes from '../../src/routes';
-
-jest.mock('kolibri.urls');
 
 const localVue = createLocalVue();
 
 localVue.use(VueRouter);
 localVue.use(Vuex);
 
-const router = new VueRouter({ routes });
+const router = new VueRouter();
 
 function makeWrapper() {
   return mount(UserIndex, {

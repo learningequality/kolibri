@@ -15,7 +15,7 @@ function defaultState() {
 
 export default {
   namespaced: true,
-  state: defaultState(),
+  state: defaultState,
   mutations: {
     SET_STATE(state, payload) {
       Object.assign(state, payload);
