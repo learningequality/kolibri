@@ -37,7 +37,7 @@
 
       <div class="channels-list">
         <ChannelPanel
-          v-for="channel in sortedChannels"
+          v-for="channel in installedChannelsWithResources"
           :key="channel.id"
           :channel="channel"
           :disabled="channelIsBeingDeleted(channel.id)"
@@ -67,7 +67,6 @@
 
   import find from 'lodash/find';
   import get from 'lodash/get';
-  import sortBy from 'lodash/sortBy';
   import { mapState, mapGetters, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
@@ -109,14 +108,6 @@
       ...mapState('manageContent/wizard', ['pageName']),
       doneTasks() {
         return this.managedTasks.filter(task => task.status === TaskStatuses.COMPLETED).length;
-      },
-      sortedChannels() {
-        return sortBy(this.installedChannelsWithResources, channel => {
-          // Push Channels with Tasks to the top
-          const order = -this.channelOrders[channel.id];
-          // Need to explicitly return a number to correctly sort in Firefox
-          return Number.isNaN(order) ? 1 : order;
-        });
       },
       channelsAreInstalled() {
         return this.installedChannelsWithResources.length > 0;
