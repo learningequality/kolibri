@@ -59,6 +59,32 @@ class KolibriTagNavigationTestCase(APITestCase):
             response.get("location"), reverse("kolibri:kolibri.plugins.learn:learn")
         )
 
+    def test_redirect_coach_role_to_coach_root(self):
+        facility = FacilityFactory.create()
+        user = FacilityUserFactory.create(facility=facility)
+        facility.add_role(user, "coach")
+
+        provision_device()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse("kolibri:core:root_redirect"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.get("location"), reverse("kolibri:kolibri.plugins.coach:coach")
+        )
+
+    def test_redirect_class_coach_role_to_coach_root(self):
+        facility = FacilityFactory.create()
+        user = FacilityUserFactory.create(facility=facility)
+        facility.add_role(user, "classroom assignable coach")
+
+        provision_device()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse("kolibri:core:root_redirect"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.get("location"), reverse("kolibri:kolibri.plugins.coach:coach")
+        )
+
 
 class AllUrlsTest(APITransactionTestCase):
 
