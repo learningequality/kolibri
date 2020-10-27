@@ -1,0 +1,113 @@
+{
+  "fonts": {
+    "NotoSans": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSans/NotoSans-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSans/NotoSans-Regular.ttf"
+    },
+    "NotoSansArabic": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansArabicUI/NotoSansArabicUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansArabicUI/NotoSansArabicUI-Regular.ttf"
+    },
+    "NotoSansArmenian": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansArmenian/NotoSansArmenian-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansArmenian/NotoSansArmenian-Regular.ttf"
+    },
+    "NotoSansBengali": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansBengaliUI/NotoSansBengaliUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansBengaliUI/NotoSansBengaliUI-Regular.ttf"
+    },
+    "NotoSansCanadianAboriginal": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansCanadianAboriginal/NotoSansCanadianAboriginal-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansCanadianAboriginal/NotoSansCanadianAboriginal-Regular.ttf"
+    },
+    "NotoSansCham": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansCham-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansCham-Regular.ttf"
+    },
+    "NotoSansCherokee": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansCherokee/NotoSansCherokee-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansCherokee/NotoSansCherokee-Regular.ttf"
+    },
+    "NotoSansDevanagari": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansDevanagariUI/NotoSansDevanagariUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansDevanagariUI/NotoSansDevanagariUI-Regular.ttf"
+    },
+    "NotoSansEthiopic": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansEthiopic/NotoSansEthiopic-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansEthiopic/NotoSansEthiopic-Regular.ttf"
+    },
+    "NotoSansGeorgian": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansGeorgian/NotoSansGeorgian-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansGeorgian/NotoSansGeorgian-Regular.ttf"
+    },
+    "NotoSansGujarati": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansGujaratiUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansGujaratiUI-Regular.ttf"
+    },
+    "NotoSansGurmukhi": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansGurmukhiUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansGurmukhiUI-Regular.ttf"
+    },
+    "NotoSansHebrew": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansHebrew/NotoSansHebrew-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansHebrew/NotoSansHebrew-Regular.ttf"
+    },
+    "NotoSansJavanese": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansJavanese-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansJavanese-Regular.ttf"
+    },
+    "NotoSansKannada": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansKannadaUI/NotoSansKannadaUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansKannadaUI/NotoSansKannadaUI-Regular.ttf"
+    },
+    "NotoSansKhmer": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansKhmerUI/NotoSansKhmerUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansKhmerUI/NotoSansKhmerUI-Regular.ttf"
+    },
+    "NotoSansLao": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansLaoUI/NotoSansLaoUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansLaoUI/NotoSansLaoUI-Regular.ttf"
+    },
+    "NotoSansMalayalam": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansMalayalamUI/NotoSansMalayalamUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansMalayalamUI/NotoSansMalayalamUI-Regular.ttf"
+    },
+    "NotoSansMyanmar": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansMyanmarUI/NotoSansMyanmarUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansMyanmarUI/NotoSansMyanmarUI-Regular.ttf"
+    },
+    "NotoSansOriya": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansOriyaUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansOriyaUI-Regular.ttf"
+    },
+    "NotoSansSinhala": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansSinhalaUI/NotoSansSinhalaUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansSinhalaUI/NotoSansSinhalaUI-Regular.ttf"
+    },
+    "NotoSansSymbols": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansSymbols/NotoSansSymbols-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansSymbols/NotoSansSymbols-Regular.ttf"
+    },
+    "NotoSansTamil": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansTamilUI/NotoSansTamilUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansTamilUI/NotoSansTamilUI-Regular.ttf"
+    },
+    "NotoSansTelugu": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansTeluguUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansTeluguUI-Regular.ttf"
+    },
+    "NotoSansThaana": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansThaana-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansThaana-Regular.ttf"
+    },
+    "NotoSansThai": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansThaiUI/NotoSansThaiUI-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/phaseIII_only/hinted/ttf/NotoSansThaiUI/NotoSansThaiUI-Regular.ttf"
+    },
+    "NotoSansTibetan": {
+      "bold_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansTibetan-Bold.ttf",
+      "reg_url": "https://raw.githubusercontent.com/googlei18n/noto-fonts/c30307083469f0c05e216ac75216fd454a517858/hinted/NotoSansTibetan-Regular.ttf"
+    }
+  },
+  "ref": "c30307083469f0c05e216ac75216fd454a517858"
+}

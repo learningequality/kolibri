@@ -47,7 +47,9 @@ ExtractStrings.prototype.apply = function(compiler) {
   var self = this;
   // Only do this in non-production mode, as otherwise the module detection code
   // does not work for .vue files.
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'profiling') {
+    console.log('yes will EXTRACT');
+    console.log('process.env', process.env.NODE_ENV);
     compiler.hooks.emit.tapAsync('extractStrings', function(compilation, callback) {
       var messageExport = {};
       var nameSpaces = [];
