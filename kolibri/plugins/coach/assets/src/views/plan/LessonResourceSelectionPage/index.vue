@@ -147,7 +147,7 @@
         if (!this.inSearchMode) {
           return this.contentList;
         }
-        return this.searchResults.results.filter(contentNode => {
+        return this.contentList.filter(contentNode => {
           let passesFilters = true;
           if (role === 'nonCoach') {
             passesFilters = passesFilters && contentNode.num_coach_contents === 0;
@@ -222,6 +222,16 @@
           return this.topicListingLink({ ...this.routerParams, topicId: lastId });
         } else if (this.inSearchMode) {
           return this.selectionRootLink({ ...this.routerParams });
+        } else if (this.$route.query.last === 'ReportsLessonReportPage') {
+          // HACK to fix #7583 and #7584
+          return {
+            name: 'ReportsLessonReportPage',
+          };
+        } else if (this.$route.query.last === 'ReportsLessonLearnerListPage') {
+          // HACK to fix similar bug in Learner version of the report page
+          return {
+            name: 'ReportsLessonLearnerListPage',
+          };
         } else {
           return this.toolbarRoute;
         }

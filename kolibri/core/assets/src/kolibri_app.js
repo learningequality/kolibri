@@ -67,10 +67,14 @@ export default class KolibriApp extends KolibriModule {
       mutations: this.pluginModule.mutations || {},
     });
 
-    // Add the plugin state
+    if (typeof this.pluginModule.state !== 'function') {
+      throw TypeError('pluginModule.state must be a function returning a state object');
+    }
+
+    // Add the plugin state to the initial core module state
     this.store.replaceState({
       ...this.store.state,
-      ...this.pluginModule.state,
+      ...this.pluginModule.state(),
     });
 
     // Register plugin sub-modules

@@ -8,22 +8,24 @@ import mutations from './mutations';
 import plugin_data from 'plugin_data';
 
 export default {
-  state: {
-    error: '',
-    blockDoubleClicks: false,
-    loading: true,
-    pageSessionId: 0,
-    totalProgress: null,
-    notifications: [],
-    channels: {
-      list: [],
-      currentId: null,
-    },
-    allowRemoteAccess: plugin_data.allowRemoteAccess,
-    // facility
-    facilityConfig: {},
-    facilities: [],
-    pageVisible: true,
+  state() {
+    return {
+      error: '',
+      blockDoubleClicks: false,
+      loading: true,
+      pageSessionId: 0,
+      totalProgress: null,
+      notifications: [],
+      channels: {
+        list: [],
+        currentId: null,
+      },
+      allowRemoteAccess: plugin_data.allowRemoteAccess,
+      // facility
+      facilityConfig: {},
+      facilities: [],
+      pageVisible: true,
+    };
   },
   getters,
   actions,

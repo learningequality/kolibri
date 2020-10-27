@@ -24,8 +24,10 @@ jest.mock('kolibri.heartbeat', () => ({
 class TestApp extends KolibriApp {
   get pluginModule() {
     return {
-      state: {
-        count: 0,
+      state() {
+        return {
+          count: 0,
+        };
       },
       getters: {
         countGetter(state) {
@@ -50,7 +52,7 @@ class TestApp extends KolibriApp {
 describe('KolibriApp', function() {
   it('it should register the core vuex component', () => {
     const app = new TestApp();
-    expect(app.store.state.core).toMatchObject(coreModule.state);
+    expect(app.store.state.core).toMatchObject(coreModule.state());
     // just checking on keys, since vuex transforms the actions
     expect(Object.keys(app.store._actions)).toEqual(Object.keys(coreModule.actions));
     // only checks intersection with core getters; doesn't include sub-modules

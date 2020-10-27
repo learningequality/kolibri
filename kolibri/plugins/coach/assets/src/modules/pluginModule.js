@@ -18,12 +18,14 @@ import questionList from './questionList';
 const logging = logger.getLogger(__filename);
 
 export default {
-  state: {
-    busy: false,
-    classList: [],
-    pageName: '',
-    toolbarRoute: {},
-    toolbarTitle: '',
+  state() {
+    return {
+      busy: false,
+      classList: [],
+      pageName: '',
+      toolbarRoute: {},
+      toolbarTitle: '',
+    };
   },
   mutations: {
     SET_PAGE_NAME(state, pageName) {

@@ -17,14 +17,8 @@
       v-model="setting"
       :label="noOptionLabel"
       :value="false"
-    >
-      <CoreInfoIcon
-        v-if="noOptionTooltip"
-        class="info-icon"
-        :iconAriaLabel="noOptionLabel"
-        :tooltipText="noOptionTooltip"
-      />
-    </KRadioButton>
+      :description="noOptionDescription"
+    />
 
     <p slot="footer">
       {{ $tr('details') }}
@@ -36,13 +30,11 @@
 
 <script>
 
-  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import OnboardingForm from './OnboardingForm';
 
   export default {
     name: 'YesNoForm',
     components: {
-      CoreInfoIcon,
       OnboardingForm,
     },
     props: {
@@ -56,7 +48,7 @@
         type: String,
         required: true,
       },
-      noOptionTooltip: {
+      noOptionDescription: {
         type: String,
       },
       headerText: {

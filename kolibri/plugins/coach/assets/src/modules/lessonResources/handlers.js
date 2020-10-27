@@ -224,10 +224,13 @@ export function showLessonResourceSearchPage(store, params, query = {}) {
         }),
       },
     }).then(results => {
+      const contentList = results.results.map(node => {
+        return { ...node, thumbnail: getContentNodeThumbnail(node) };
+      });
       return showResourceSelectionPage(store, {
         classId: params.classId,
         lessonId: params.lessonId,
-        contentList: results.results,
+        contentList,
         searchResults: results,
         pageName: LessonsPageNames.SELECTION_SEARCH,
       });

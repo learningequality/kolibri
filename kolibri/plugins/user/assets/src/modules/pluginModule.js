@@ -4,11 +4,13 @@ import profile from './profile';
 import signIn from './signIn';
 
 export default {
-  state: {
-    facilityId: Lockr.get('facilityId') || null,
-    redirect: null,
-    pageName: '',
-    appBarTitle: '',
+  state() {
+    return {
+      facilityId: Lockr.get('facilityId') || null,
+      redirect: null,
+      pageName: '',
+      appBarTitle: '',
+    };
   },
   actions: {
     reset(store) {

@@ -12,7 +12,7 @@ function defaultState() {
 
 export default {
   namespaced: true,
-  state: defaultState(),
+  state: defaultState,
   getters: {
     getChannelForNode(state, getters, rootState) {
       return function getter(node) {
