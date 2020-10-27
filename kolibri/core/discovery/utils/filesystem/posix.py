@@ -43,6 +43,7 @@ FILESYSTEM_BLACKLIST = set(
         "ecryptfs",
         "fuse",
         "fuse.gvfsd-fuse",
+        "fuse.portal",
         "fusectl",
         "hugetlbfs",
         "mqueue",
