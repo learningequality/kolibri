@@ -18,7 +18,7 @@
     <KCheckbox
       v-for="group in groups"
       :key="group.id"
-      :checked="groupIsChecked(group.id)"
+      :checked="groupIdIsSelected(group.id)"
       :disabled="disabled"
       @change="toggleGroup($event, group.id)"
     >
@@ -45,6 +45,7 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
+  import every from 'lodash/every';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import IndividualLearnerSelector from './IndividualLearnerSelector';
 
@@ -59,17 +60,12 @@
         type: Array,
         required: true,
       },
-      // Array of objects, each with 'group' and 'name'
+      // Array of objects, each with (group) 'id' and 'name'
       groups: {
         type: Array,
         required: true,
         validator(value) {
-          for (let i = 0; i < value.length; i++) {
-            if (!value[i].name || !value[i].id) {
-              return false;
-            }
-          }
-          return true;
+          return every(value, val => val.name && val.id);
         },
       },
       // For the 'Entire Class' option
@@ -90,6 +86,8 @@
     data() {
       return {
         individualSelectorIsVisible: this.initialAdHocLearners.length > 0,
+        // This is .sync'd with IndividualLearnerSelector, but not with AssignmentDetailsModal
+        // which recieves updates via handler in watch.selectedLearnerIds
         selectedLearnerIds: [...this.initialAdHocLearners],
       };
     },
@@ -98,7 +96,7 @@
         return this.selectedLearnerIds.length === 0 && isEqual(this.value, [this.classId]);
       },
       selectedGroupIds() {
-        return this.groups.filter(group => this.groupIsChecked(group.id)).map(group => group.id);
+        return this.groups.filter(group => this.groupIdIsSelected(group.id)).map(group => group.id);
       },
     },
     watch: {
@@ -114,7 +112,7 @@
           this.individualSelectorIsVisible = true;
         }
       },
-      groupIsChecked(groupId) {
+      groupIdIsSelected(groupId) {
         return this.value.includes(groupId);
       },
       closeIndividualSelector() {
