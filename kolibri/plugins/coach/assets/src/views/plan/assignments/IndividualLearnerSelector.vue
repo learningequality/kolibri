@@ -60,7 +60,7 @@
                     :label="learner.name"
                     :checked="learnerIsSelected(learner)"
                     :disabled="learnerIsNotSelectable(learner)"
-                    @change="toggleSelectedLearnerId($event, learner.id)"
+                    @change="toggleLearner($event, learner)"
                   />
                 </td>
                 <td class="table-data">
@@ -212,14 +212,14 @@
         });
       },
       // Event handlers
-      toggleSelectedLearnerId(checked, learnerId) {
-        let newIds = [...this.selectedLearnerIds];
+      toggleLearner(checked, { id }) {
+        let newLearnerIds = [...this.selectedLearnerIds];
         if (checked) {
-          newIds.push(learnerId);
+          newLearnerIds.push(id);
         } else {
-          newIds = newIds.filter(id => id !== learnerId);
+          newLearnerIds = newLearnerIds.filter(learnerId => learnerId !== id);
         }
-        this.$emit('update:selectedLearnerIds', newIds);
+        this.$emit('update:selectedLearnerIds', newLearnerIds);
       },
       selectVisiblePage() {
         let newIds = [...this.selectedLearnerIds];
