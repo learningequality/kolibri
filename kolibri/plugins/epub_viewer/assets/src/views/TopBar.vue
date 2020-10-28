@@ -38,6 +38,7 @@
 
         <SearchButton
           ref="searchButton"
+          :class="{ invisible: $attrs.hideSearchButton }"
           @click="$emit('searchButtonClicked')"
         />
 
@@ -109,6 +110,12 @@
 <style lang="scss" scoped>
 
   @import './EpubStyles';
+
+  .invisible {
+    // When the SearchSideBar is shown, hide this SearchButton so it does not appear
+    // under the second SearchButton rendered inside EpubRendererIndex
+    opacity: 0;
+  }
 
   .top-bar {
     z-index: 1;
