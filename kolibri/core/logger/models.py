@@ -177,7 +177,7 @@ class UserSessionLog(BaseLogModel):
     pages = models.TextField(blank=True)
 
     @classmethod
-    def update_log(cls, user):
+    def update_log(cls, user, user_agent):
         """
         Update the current UserSessionLog for a particular user.
         """
