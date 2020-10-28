@@ -1,16 +1,18 @@
 <template>
 
   <div>
+    <!-- Main checkbox -->
     <KCheckbox
       key="adHocLearners"
-      :checked="showAsChecked"
+      :checked="isVisible"
       :disabled="disabled"
-      @change="toggleChecked"
+      @change="$emit('togglevisibility', $event)"
     >
       <KLabeledIcon icon="people" :label="$tr('individualLearnersLabel')" />
     </KCheckbox>
 
-    <div v-if="showAsChecked">
+    <!-- Paginated list of learners -->
+    <div v-if="isVisible">
       <div class="table-title">
         {{ $tr("selectedIndividualLearnersLabel") }}
       </div>
@@ -121,6 +123,11 @@
     components: { CoreTable, PaginatedListContainer },
     mixins: [commonCoreStrings, commonCoachStrings],
     props: {
+      // If true, the main checkbox is checked and the list of learners is shown
+      isVisible: {
+        type: Boolean,
+        required: true,
+      },
       selectedGroupIds: {
         type: Array,
         required: true,
@@ -196,9 +203,6 @@
         // in RecipientSelector, then disable their row
         return flatMap(this.selectedGroupIds, groupId => this.currentGroupMap[groupId].member_ids);
       },
-      showAsChecked() {
-        return this.entireClassIsSelected ? false : this.isChecked;
-      },
       allOfCurrentPageIsSelected() {
         const selectedVisibleLearners = this.currentPageLearners.filter(visible => {
           return this.selectedAdHocIds.includes(visible.id);
@@ -229,7 +233,7 @@
       entireClassIsSelected(newVal) {
         // If the "Individual learners" option is unselected, return to the first page
         if (newVal && this.isChecked) {
-          this.toggleChecked();
+          this.toggleLearnersAreVisible();
           this.currentPage = 1;
         }
       },
@@ -250,7 +254,7 @@
           this.fetchingOutside = false;
         });
       },
-      toggleChecked(checked) {
+      toggleLearnersAreVisible(checked) {
         this.isChecked = checked;
         this.$emit('updateLearners', this.isChecked ? this.selectedAdHocIds : []);
         this.$emit('change', this.isChecked);

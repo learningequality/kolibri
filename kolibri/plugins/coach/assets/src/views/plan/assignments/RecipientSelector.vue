@@ -30,13 +30,14 @@
 
     <!-- Individual learners -->
     <IndividualLearnerSelector
+      :isVisible="individualSelectorIsVisible"
       :selectedGroupIds="selectedGroupIds"
       :entireClassIsSelected="entireClassIsSelected"
       :initialAdHocLearners="initialAdHocLearners"
       :targetClassId="classId"
       :disabled="disabled"
       @updateLearners="learners => $emit('updateLearners', learners)"
-      @change="toggleGroup"
+      @togglevisibility="toggleIndividualSelector"
     />
   </div>
 
@@ -88,6 +89,11 @@
         default: new Array(),
       },
     },
+    data() {
+      return {
+        individualSelectorIsVisible: false,
+      };
+    },
     computed: {
       entireClassIsSelected() {
         return isEqual(this.value, [this.classId]);
@@ -97,6 +103,9 @@
       },
     },
     methods: {
+      toggleIndividualSelector(isChecked) {
+        this.individualSelectorIsVisible = Boolean(isChecked);
+      },
       groupIsChecked(groupId) {
         return this.value.includes(groupId);
       },
