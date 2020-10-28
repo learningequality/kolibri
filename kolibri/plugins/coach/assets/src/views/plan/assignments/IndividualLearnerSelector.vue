@@ -90,6 +90,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import flatMap from 'lodash/flatMap';
   import countBy from 'lodash/countBy';
+  import every from 'lodash/every';
   import ClassSummaryResource from '../../../apiResources/classSummary';
   import commonCoachStrings from '../../common';
   import { userMatchesFilter, filterAndSortUsers } from '../../../userSearchUtils';
@@ -112,20 +113,16 @@
         type: Array,
         required: true,
       },
-      entireClassIsSelected: {
-        type: Boolean,
+      // List of selected learner IDs (must be .sync'd with parent form)
+      selectedLearnerIds: {
+        type: Array,
         required: true,
-        default: false,
       },
       // Disables the entire form
       disabled: {
         type: Boolean,
         required: true,
         default: false,
-      },
-      initialAdHocLearners: {
-        type: Array,
-        required: true,
       },
       // Only given when not used in current class context
       targetClassId: {
@@ -136,8 +133,6 @@
     },
     data() {
       return {
-        isChecked: Boolean(this.initialAdHocLearners.length),
-        selectedAdHocIds: this.initialAdHocLearners,
         currentPage: 1,
         searchText: '',
         fetchingOutside: false,
@@ -183,18 +178,12 @@
         // in RecipientSelector, then disable their row
         return flatMap(this.selectedGroupIds, groupId => this.currentGroupMap[groupId].member_ids);
       },
-      allOfCurrentPageIsSelected() {
-        const selectedVisibleLearners = this.currentPageLearners.filter(visible => {
-          return this.selectedAdHocIds.includes(visible.id);
-        });
-        return selectedVisibleLearners.length === this.currentPageLearners.length;
-      },
       selectAllCheckboxProps() {
         const currentCount = this.currentPageLearners.length;
         const counts = countBy(this.currentPageLearners, learner => {
           if (this.learnerIsInSelectedGroup(learner.id)) {
             return 'disabled';
-          } else if (this.selectedAdHocIds.includes(learner.id)) {
+          } else if (this.selectedLearnerIds.includes(learner.id)) {
             return 'checked';
           } else {
             return 'unchecked';
@@ -207,18 +196,6 @@
       },
       itemsPerPage() {
         return this.targetClassId ? SHORT_ITEMS_PER_PAGE : DEFAULT_ITEMS_PER_PAGE;
-      },
-    },
-    watch: {
-      entireClassIsSelected(newVal) {
-        // If the "Individual learners" option is unselected, return to the first page
-        if (newVal && this.isChecked) {
-          this.toggleLearnersAreVisible();
-          this.currentPage = 1;
-        }
-      },
-      selectedAdHocIds() {
-        this.$emit('updateLearners', this.selectedAdHocIds);
       },
     },
     methods: {
@@ -234,39 +211,42 @@
           this.fetchingOutside = false;
         });
       },
-      toggleLearnersAreVisible(checked) {
-        this.isChecked = checked;
-        this.$emit('updateLearners', this.isChecked ? this.selectedAdHocIds : []);
-        this.$emit('change', this.isChecked);
-      },
+      // Event handlers
       toggleSelectedLearnerId(checked, learnerId) {
+        let newIds = [...this.selectedLearnerIds];
         if (checked) {
-          this.selectedAdHocIds.push(learnerId);
+          newIds.push(learnerId);
         } else {
-          this.selectedAdHocIds = this.selectedAdHocIds.filter(id => id !== learnerId);
+          newIds = newIds.filter(id => id !== learnerId);
         }
+        this.$emit('update:selectedLearnerIds', newIds);
       },
       selectVisiblePage() {
-        const isWholePageSelected = this.allOfCurrentPageIsSelected;
+        let newIds = [...this.selectedLearnerIds];
+        const isWholePageSelected = every(this.currentPageLearners, learner =>
+          this.selectedLearnerIds.includes(learner.id)
+        );
         this.currentPageLearners.forEach(learner => {
-          const index = this.selectedAdHocIds.indexOf(learner.id);
+          const index = newIds.indexOf(learner.id);
 
           if (isWholePageSelected) {
             // Deselect all if we're going from all selected to none.
-            this.selectedAdHocIds.splice(index, 1);
+            newIds.splice(index, 1);
           } else {
             // Or add every one of them if it isn't there already
             if (index === -1) {
-              this.selectedAdHocIds.push(learner.id);
+              newIds.push(learner.id);
             }
           }
+          this.$emit('update:selectedLearnerIds', newIds);
         });
       },
+      // Utilities for table
       learnerIsInSelectedGroup(learnerId) {
         return this.learnerIdsFromSelectedGroups.includes(learnerId);
       },
       learnerIsSelected({ id }) {
-        return this.learnerIsInSelectedGroup(id) || this.selectedAdHocIds.includes(id);
+        return this.learnerIsInSelectedGroup(id) || this.selectedLearnerIds.includes(id);
       },
       learnerIsNotSelectable({ id }) {
         // If learner is unselectable if already part of a selected group or

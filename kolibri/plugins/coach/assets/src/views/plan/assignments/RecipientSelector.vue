@@ -32,11 +32,9 @@
     <IndividualLearnerSelector
       :isVisible="individualSelectorIsVisible"
       :selectedGroupIds="selectedGroupIds"
-      :entireClassIsSelected="entireClassIsSelected"
-      :initialAdHocLearners="initialAdHocLearners"
+      :selectedLearnerIds.sync="selectedLearnerIds"
       :targetClassId="classId"
       :disabled="disabled"
-      @updateLearners="learners => $emit('updateLearners', learners)"
       @togglevisibility="toggleIndividualSelector"
     />
   </div>
@@ -91,25 +89,40 @@
     },
     data() {
       return {
-        individualSelectorIsVisible: false,
+        individualSelectorIsVisible: this.initialAdHocLearners.length > 0,
+        selectedLearnerIds: [...this.initialAdHocLearners],
       };
     },
     computed: {
       entireClassIsSelected() {
-        return isEqual(this.value, [this.classId]);
+        return this.selectedLearnerIds.length === 0 && isEqual(this.value, [this.classId]);
       },
       selectedGroupIds() {
         return this.groups.filter(group => this.groupIsChecked(group.id)).map(group => group.id);
       },
     },
+    watch: {
+      selectedLearnerIds(newVal) {
+        this.$emit('updateLearners', newVal);
+      },
+    },
     methods: {
       toggleIndividualSelector(isChecked) {
-        this.individualSelectorIsVisible = Boolean(isChecked);
+        if (!isChecked) {
+          this.closeIndividualSelector();
+        } else {
+          this.individualSelectorIsVisible = true;
+        }
       },
       groupIsChecked(groupId) {
         return this.value.includes(groupId);
       },
+      closeIndividualSelector() {
+        this.selectedLearnerIds = [];
+        this.individualSelectorIsVisible = false;
+      },
       selectEntireClass() {
+        this.closeIndividualSelector();
         this.$emit('input', [this.classId]);
       },
       toggleGroup(isChecked, newId) {
