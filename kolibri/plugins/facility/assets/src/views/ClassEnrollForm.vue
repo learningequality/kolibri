@@ -12,6 +12,7 @@
           v-model="selectedUsers"
           :users="items"
           :selectable="true"
+          :disabled="disabled"
           :emptyMessage="emptyMessageForItems(items, filterInput)"
         />
       </template>
@@ -22,7 +23,7 @@
         :text="coreString('confirmAction')"
         :primary="true"
         type="submit"
-        :disabled="selectedUsers.length === 0"
+        :disabled="disabled || selectedUsers.length === 0"
       />
     </div>
 
@@ -55,6 +56,10 @@
       classUsers: {
         type: Array,
         required: true,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
