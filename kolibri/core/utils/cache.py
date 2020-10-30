@@ -26,12 +26,12 @@ class ProcessLock(object):
     def __init__(self, key, expire=None):
         """
         :param key: The lock key
-        :param expire: The cache key expiration in seconds
+        :param expire: The cache key expiration in seconds (defaults to the CACHE_LOCK_TTL option if not set)
         :type key: str
         :type expire: int
         """
         self.key = key
-        self.expire = expire
+        self.expire = expire if expire else OPTIONS["Cache"]["CACHE_LOCK_TTL"]
 
         self._lock_object = None
 
@@ -39,7 +39,7 @@ class ProcessLock(object):
     def _lock(self):
         if self._lock_object is None:
             if OPTIONS["Cache"]["CACHE_BACKEND"] == "redis":
-                expire = self.expire * 1000 if self.expire is not None else None
+                expire = self.expire * 1000
                 # if we're using Redis, be sure we use Redis' locking mechanism which uses
                 # `SET NX` under the hood. See redis.lock.Lock
                 # The Django RedisCache backend provide the lock method to proxy this
