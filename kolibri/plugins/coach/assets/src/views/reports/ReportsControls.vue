@@ -65,7 +65,7 @@
 
   .report-controls {
     position: relative;
-    min-height: 10px;
+    min-height: 40px;
     padding-right: 80px;
   }
 
