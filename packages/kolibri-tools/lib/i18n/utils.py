@@ -6,22 +6,67 @@ import logging
 import os
 import sys
 
-import kolibri_exercise_perseus_plugin
+try:
+    import kolibri_exercise_perseus_plugin
+
+    PERSEUS_LOCALE_PATH = os.path.join(
+        os.path.dirname(kolibri_exercise_perseus_plugin.__file__), "locale"
+    )
+    PERSEUS_SOURCE_PATH = os.path.join(PERSEUS_LOCALE_PATH, "en", "LC_MESSAGES")
+    os.makedirs(PERSEUS_SOURCE_PATH)
+except:
+    PERSEUS_LOCALE_PATH = None
+    PERSEUS_SOURCE_PATH = None
+    pass
 
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
 
 
-LOCALE_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "kolibri", "locale")
-)
+PROJECT_NAME = os.getenv("CROWDIN_PROJECT", "kolibri")
+
+
+def calculated_locale_path():
+    path_to_here = os.path.dirname(__file__)
+    if "node_modules" in path_to_here:
+        locale_path = os.path.abspath(
+            os.path.join(
+                path_to_here,
+                os.pardir,
+                os.pardir,
+                os.pardir,
+                os.pardir,
+                "{}-locale".format(PROJECT_NAME),
+            )
+        )
+    else:
+        locale_path = os.path.abspath(
+            os.path.join(
+                path_to_here,
+                os.pardir,
+                os.pardir,
+                "{}-locale".format(PROJECT_NAME),
+            )
+        )
+    if not os.path.exists(locale_path):
+        os.makedirs(locale_path)
+
+    return locale_path
+
+
+LOCALE_PATH = os.getenv("CROWDIN_LOCALE_ABSOLUTE_PATH", calculated_locale_path())
+
+if not os.path.exists(LOCALE_PATH):
+    os.makedirs(LOCALE_PATH)
+
 SOURCE_PATH = os.path.join(LOCALE_PATH, "en", "LC_MESSAGES")
-LANGUAGE_INFO_PATH = os.path.join(LOCALE_PATH, "language_info.json")
-PERSEUS_LOCALE_PATH = os.path.join(
-    os.path.dirname(kolibri_exercise_perseus_plugin.__file__), "locale"
-)
-PERSEUS_SOURCE_PATH = os.path.join(PERSEUS_LOCALE_PATH, "en", "LC_MESSAGES")
+
+if not os.path.exists(SOURCE_PATH):
+    os.makedirs(SOURCE_PATH)
+
+
+LANGUAGE_INFO_PATH = os.path.join(os.path.dirname(__file__), "language_info.json")
 
 # Keys used in language_info.json
 KEY_CROWDIN_CODE = "crowdin_code"
@@ -78,26 +123,36 @@ def available_languages(include_in_context=False, include_english=False):
 
 @memoize
 def local_locale_path(lang_object):
-    return os.path.join(
-        LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
+    local_path = os.path.abspath(
+        os.path.join(LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES")
     )
+    if not os.path.exists(local_path):
+        os.makedirs(local_path)
+    return local_path
 
 
 @memoize
 def local_locale_csv_path():
-    return os.path.join(LOCALE_PATH, "CSV_FILES")
+    csv_path = os.path.abspath(os.path.join(LOCALE_PATH, "CSV_FILES"))
+    if not os.path.exists(csv_path):
+        os.makedirs(csv_path)
+    return csv_path
 
 
 @memoize
 def local_perseus_locale_path(lang_object):
-    return os.path.join(
-        PERSEUS_LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
-    )
+    if PERSEUS_LOCALE_PATH:
+        return os.path.join(
+            PERSEUS_LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
+        )
+    return ""
 
 
 @memoize
 def local_perseus_locale_csv_path():
-    return os.path.join(PERSEUS_LOCALE_PATH, "CSV_FILES")
+    if PERSEUS_LOCALE_PATH:
+        return os.path.join(PERSEUS_LOCALE_PATH, "CSV_FILES")
+    return ""
 
 
 def json_dump_formatted(data, file_path, file_name):
