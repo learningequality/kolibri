@@ -2,9 +2,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import logging
-import json
-
 import time
 from datetime import datetime
 from datetime import timedelta
@@ -71,7 +68,6 @@ from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
 from kolibri.plugins.app.utils import interface
 
-logger = logging.getLogger(__name__)
 
 class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
     """
@@ -632,7 +628,6 @@ class SessionViewSet(viewsets.ViewSet):
         return self.get_session_response(request)
 
     def get_session_response(self, request):
-        logger.info( "LOGGER" + json.dumps(request.META.get('HTTP_USER_AGENT', '') ) )
         user = request.user
         session_key = "current"
         server_time = now()
