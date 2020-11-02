@@ -1,14 +1,16 @@
 <template>
 
-  <KPageContainer style="padding-top: 16px;">
+  <KPageContainer
+    style="padding-top: 24px;"
+  >
     <BackLink
       :to="backlink"
       :text="backlinkLabel"
     />
 
     <!-- Cheating to get the same layout effect but not
-         using a backlink...
-    -->
+           using a backlink...
+      -->
     <HeaderWithOptions>
       <div slot="header">
         <h1 class="exam-title">
