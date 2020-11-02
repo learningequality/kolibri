@@ -11,6 +11,7 @@ CACHE_TIMEOUT
 CACHE_MAX_ENTRIES
 CACHE_PASSWORD
 CACHE_LOCATION
+CACHE_LOCK_TTL
 CACHE_REDIS_MIN_DB
 CACHE_REDIS_MAX_POOL_SIZE
 CACHE_REDIS_POOL_TIMEOUT
@@ -214,6 +215,11 @@ base_option_spec = {
             "type": "string",
             "default": "localhost:6379",
             "envvars": ("KOLIBRI_CACHE_LOCATION",),
+        },
+        "CACHE_LOCK_TTL": {
+            "type": "integer",
+            "default": 30,
+            "envvars": ("KOLIBRI_CACHE_LOCK_TTL",),
         },
         "CACHE_REDIS_MIN_DB": {
             "type": "integer",

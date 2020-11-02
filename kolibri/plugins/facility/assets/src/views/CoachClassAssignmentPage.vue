@@ -7,6 +7,7 @@
       :facilityUsers="facilityUsers"
       :classUsers="classUsers"
       pageType="coaches"
+      :disabled="formIsDisabled"
       @submit="assignCoaches"
     />
   </KPageContainer>
@@ -31,6 +32,11 @@
       ClassEnrollForm,
     },
     mixins: [commonCoreStrings],
+    data() {
+      return {
+        formIsDisabled: false,
+      };
+    },
     computed: {
       ...mapState('classAssignMembers', ['class', 'classUsers', 'facilityUsers']),
       className() {
@@ -40,12 +46,18 @@
     methods: {
       ...mapActions('classAssignMembers', ['assignCoachesToClass']),
       assignCoaches(coaches) {
-        this.assignCoachesToClass({ classId: this.class.id, coaches }).then(() => {
-          // do this in action?
-          this.$router.push(this.$store.getters.facilityPageLinks.ClassEditPage).then(() => {
-            this.showSnackbarNotification('coachesAssignedNoCount', { count: coaches.length });
+        this.formIsDisabled = true;
+        this.assignCoachesToClass({ classId: this.class.id, coaches })
+          .then(() => {
+            // do this in action?
+            this.$router.push(this.$store.getters.facilityPageLinks.ClassEditPage).then(() => {
+              this.showSnackbarNotification('coachesAssignedNoCount', { count: coaches.length });
+            });
+          })
+          .catch(() => {
+            this.formIsDisabled = false;
+            this.$store.dispatch('createSnackbar', this.coreString('changesNotSavedNotification'));
           });
-        });
       },
     },
     $trs: {

@@ -12,15 +12,18 @@
           v-model="selectedUsers"
           :users="items"
           :selectable="true"
+          :disabled="disabled"
           :emptyMessage="emptyMessageForItems(items, filterInput)"
         />
       </template>
     </PaginatedListContainer>
     <SelectionBottomBar
       :count="selectedUsers.length"
+      :disabled="disabled || selectedUsers.length === 0"
       :type="pageType"
       @click-confirm="$emit('submit', selectedUsers)"
     />
+
   </form>
 
 </template>
@@ -56,6 +59,10 @@
       pageType: {
         type: String,
         required: true,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
