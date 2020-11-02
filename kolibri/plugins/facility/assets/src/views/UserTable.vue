@@ -14,7 +14,7 @@
               :showLabel="true"
               :checked="allAreSelected"
               class="overflow-label"
-              :disabled="users.length === 0"
+              :disabled="disabled || users.length === 0"
               @change="selectAll($event)"
             />
           </th>
@@ -66,6 +66,7 @@
             <KCheckbox
               :label="$tr('userCheckboxLabel')"
               :showLabel="false"
+              :disabled="disabled"
               :checked="userIsSelected(user.id)"
               @change="selectUser(user.id, $event)"
             />
@@ -177,6 +178,10 @@
       },
       // If true, shows ID number, gender, and birth year columns
       showDemographicInfo: {
+        type: Boolean,
+        default: false,
+      },
+      disabled: {
         type: Boolean,
         default: false,
       },

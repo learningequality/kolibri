@@ -19,45 +19,58 @@ from kolibri.core.device.translation import get_settings_language
 from kolibri.deployment.default.urls import urlpatterns
 
 
-class KolibriTagNavigationTestCase(APITestCase):
+class BeforeDeviceProvisionTests(APITestCase):
     def test_redirect_to_setup_wizard(self):
-        with patch("kolibri.core.views.is_provisioned", return_value=False):
-            response = self.client.get(reverse("kolibri:core:root_redirect"))
-            self.assertEqual(response.status_code, 302)
-            self.assertEqual(
-                response.get("location"),
-                reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard"),
-            )
-
-    def test_redirect_root_to_user_if_not_logged_in(self):
-        provision_device()
-        response = self.client.get(reverse("kolibri:core:root_redirect"))
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(
-            response.get("location"), reverse("kolibri:kolibri.plugins.user:user")
-        )
-
-    def test_redirect_root_to_device_if_superuser_logged_in(self):
-        facility = FacilityFactory.create()
-        do = create_superuser(facility)
-        provision_device()
-        self.client.login(username=do.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse("kolibri:core:root_redirect"))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.get("location"),
-            reverse("kolibri:kolibri.plugins.device:device_management"),
+            reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard"),
         )
 
-    def test_redirect_root_to_learn_if_logged_in(self):
-        do = FacilityUserFactory.create()
+
+class KolibriTagNavigationTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.client.login(username=do.username, password=DUMMY_PASSWORD)
+        facility = cls.facility = FacilityFactory.create()
+        cls.learner = FacilityUserFactory.create(facility=facility)
+        cls.facility_coach = FacilityUserFactory.create(facility=facility)
+        facility.add_role(cls.facility_coach, "coach")
+        cls.class_coach = FacilityUserFactory.create(facility=facility)
+        facility.add_role(cls.class_coach, "classroom assignable coach")
+        cls.superuser = create_superuser(cls.facility)
+
+    def tearDown(self):
+        self.client.logout()
+
+    def _assert_location_reverse_url(self, url_name):
         response = self.client.get(reverse("kolibri:core:root_redirect"))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(
-            response.get("location"), reverse("kolibri:kolibri.plugins.learn:learn")
+        self.assertEqual(response.get("location"), reverse(url_name))
+
+    def test_anonymous_user_is_redirected_to_user_plugin(self):
+        self._assert_location_reverse_url("kolibri:kolibri.plugins.user:user")
+
+    def test_superuser_is_redirected_to_device_plugin(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+        self._assert_location_reverse_url(
+            "kolibri:kolibri.plugins.device:device_management"
         )
+
+    def test_learner_is_redirected_to_learn_plugin(self):
+        self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
+        self._assert_location_reverse_url("kolibri:kolibri.plugins.learn:learn")
+
+    def test_facility_coach_is_redirected_to_coach_plugin(self):
+        self.client.login(
+            username=self.facility_coach.username, password=DUMMY_PASSWORD
+        )
+        self._assert_location_reverse_url("kolibri:kolibri.plugins.coach:coach")
+
+    def test_class_coach_is_redirected_to_coach_plugin(self):
+        self.client.login(username=self.class_coach.username, password=DUMMY_PASSWORD)
+        self._assert_location_reverse_url("kolibri:kolibri.plugins.coach:coach")
 
 
 class AllUrlsTest(APITransactionTestCase):
