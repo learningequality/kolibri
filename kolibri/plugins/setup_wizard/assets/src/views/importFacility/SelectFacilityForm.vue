@@ -74,7 +74,8 @@
     },
     data() {
       return {
-        selectedFacilityId: '',
+        // Need to initialize to non-empty string to fix #7595
+        selectedFacilityId: 'selectedFacilityId',
         facilities: [],
         shouldValidate: false,
         formDisabled: false,
