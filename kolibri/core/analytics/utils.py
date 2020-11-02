@@ -197,6 +197,11 @@ def extract_facility_statistics(facility):
     )
     sesslogs_by_kind = {log["kind"]: log["count"] for log in sesslogs_by_kind}
 
+    usersess_devinf = (
+        usersessions.values("device_info").exclude(device_info='').annotate(count=Count("device_info"))
+    )
+    usersess_devinf = {devinf["device_info"]: devinf["count"] for devinf in usersess_devinf}
+
     summarylogs = ContentSummaryLog.objects.filter(dataset_id=dataset_id)
 
     contsessions_user = contsessions.exclude(user=None)
@@ -237,6 +242,8 @@ def extract_facility_statistics(facility):
         "uwl": users_with_logs,
         # anon_visitors_with_logs
         "vwl": anon_visitors_with_logs,
+        # device info stats
+        "dis": usersess_devinf,
         # first
         "f" : first_interaction_timestamp("%Y-%m-%d") if first_interaction_timestamp else None,
         # last
