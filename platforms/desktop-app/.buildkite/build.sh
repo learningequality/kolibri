@@ -32,10 +32,7 @@ rm -rf ./src/kolibri/dist/enum
 
 
 echo "Downloading deps"
-# Will remove this command on next run, need to clear out the venv
-# after switching to pip-tools
-pipenv --rm
-
+# Don't use Pipfile for dependency management due to bugs with git repos.
 pipenv install -r requirements-mac.txt
 
 echo "--- Build .app"
