@@ -2,6 +2,9 @@ name: No zombie threads
 
 on:
   push:
+    paths:
+      - '**.py'
+      - 'requirements/base.txt'
   pull_request:
     paths:
       - '**.py'

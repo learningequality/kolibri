@@ -1,6 +1,14 @@
 name: Python tests
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - '**.py'
+      - 'requirements/*.txt'
+  pull_request:
+    paths:
+      - '**.py'
+      - 'requirements/*.txt'
 
 jobs:
   unit_test:

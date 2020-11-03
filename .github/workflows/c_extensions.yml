@@ -2,6 +2,10 @@ name: Static dependencies with and without C extensions
 
 on:
   push:
+    paths:
+      - '**.py'
+      - 'requirements/base.txt'
+      - 'requirements/build.txt'
   pull_request:
     paths:
       - '**.py'

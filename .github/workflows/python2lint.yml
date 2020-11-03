@@ -1,6 +1,12 @@
 name: Python 2 linting
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - 'kolibri/**.py'
+  pull_request:
+    paths:
+      - 'kolibri/**.py'
 
 jobs:
   lint:

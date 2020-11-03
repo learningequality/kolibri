@@ -2,6 +2,8 @@ name: Licenses
 
 on:
   push:
+    paths:
+      - 'requirements/*.txt'
   pull_request:
     paths:
       - 'requirements/*.txt'

@@ -1,6 +1,15 @@
 name: Linting
 
-on: [push, pull_request]
+on:
+  push:
+    paths-ignore:
+      - '**.po'
+      - '**.json'
+  pull_request:
+    paths-ignore:
+      - '**.po'
+      - '**.json'
+
 
 jobs:
   linting:
