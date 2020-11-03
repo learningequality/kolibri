@@ -12,10 +12,11 @@ from kolibri.core.auth.test.helpers import create_dummy_facility_data
 
 
 class ContentSessionLogPermissionsTestCase(TestCase):
-    def setUp(self):
-        self.data = create_dummy_facility_data()
-        self.data["interaction_log"] = ContentSessionLogFactory.create(
-            user=self.data["learners_one_group"][0][0],
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data()
+        cls.data["interaction_log"] = ContentSessionLogFactory.create(
+            user=cls.data["learners_one_group"][0][0],
             content_id=uuid.uuid4().hex,
             channel_id=uuid.uuid4().hex,
         )
@@ -61,10 +62,11 @@ class ContentSessionLogPermissionsTestCase(TestCase):
 
 
 class ContentSummaryLogPermissionsTestCase(TestCase):
-    def setUp(self):
-        self.data = create_dummy_facility_data()
-        self.data["summary_log"] = ContentSummaryLogFactory.create(
-            user=self.data["learners_one_group"][0][1],
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data()
+        cls.data["summary_log"] = ContentSummaryLogFactory.create(
+            user=cls.data["learners_one_group"][0][1],
             content_id=uuid.uuid4().hex,
             channel_id=uuid.uuid4().hex,
         )
@@ -102,10 +104,11 @@ class ContentSummaryLogPermissionsTestCase(TestCase):
 
 
 class UserSessionLogPermissionsTestCase(TestCase):
-    def setUp(self):
-        self.data = create_dummy_facility_data()
-        self.data["session_log"] = UserSessionLogFactory.create(
-            user=self.data["learners_one_group"][1][1]
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data()
+        cls.data["session_log"] = UserSessionLogFactory.create(
+            user=cls.data["learners_one_group"][1][1]
         )
 
     def test_facilityadmin_sessionlog_permissions(self):

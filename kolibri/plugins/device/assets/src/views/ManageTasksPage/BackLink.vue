@@ -2,14 +2,12 @@
 
   <!-- TODO: move this to be a core KBackLink -->
   <span class="offset">
-    <router-link :to="to">
-      <KLabeledIcon
-        icon="back"
-        :label="text"
-        :color="$themeTokens.primary"
-        :style="`text-decoration: underline; color: ${$themeTokens.primary}`"
-      />
-    </router-link>
+    <KRouterLink
+      icon="back"
+      :text="text"
+      :color="$themeTokens.primary"
+      :to="to"
+    />
   </span>
 
 </template>

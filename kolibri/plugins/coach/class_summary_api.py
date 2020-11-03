@@ -199,7 +199,12 @@ def serialize_users(queryset):
 
 
 def _map_lesson(item):
-    item["node_ids"] = [resource["contentnode_id"] for resource in item["resources"]]
+    if item["resources"]:
+        item["node_ids"] = [
+            resource["contentnode_id"] for resource in item["resources"]
+        ]
+    else:
+        item["node_ids"] = []
     return item
 
 
@@ -319,7 +324,7 @@ class ClassSummaryViewSet(viewsets.ViewSet):
         content_id_map = {
             resource["contentnode_id"]: resource["content_id"]
             for lesson in lesson_data
-            for resource in lesson.pop("resources")
+            for resource in (lesson.pop("resources") or [])
         }
         query_content = ContentNode.objects.filter_by_uuids(all_node_ids)
         # final list of available nodes

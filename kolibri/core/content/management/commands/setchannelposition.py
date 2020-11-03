@@ -36,10 +36,10 @@ class Command(BaseCommand):
             sys.exit(1)
 
         ChannelMetadata.objects.filter(
-            order__lt=target_channel.order, order__gte=position
+            order__lt=(target_channel.order or 0), order__gte=position
         ).update(order=F("order") + 1)
         ChannelMetadata.objects.filter(
-            order__gt=target_channel.order, order__lte=position
+            order__gt=(target_channel.order or 0), order__lte=position
         ).update(order=F("order") - 1)
         target_channel.order = position
         target_channel.save()

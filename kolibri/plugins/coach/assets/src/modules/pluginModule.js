@@ -8,7 +8,6 @@ import examReportDetail from './examReportDetail';
 import examsRoot from './examsRoot';
 import exerciseDetail from './exerciseDetail';
 import groups from './groups';
-import adHocLearners from './adHocLearners';
 import lessonSummary from './lessonSummary';
 import lessonsRoot from './lessonsRoot';
 import classSummary from './classSummary';
@@ -19,12 +18,14 @@ import questionList from './questionList';
 const logging = logger.getLogger(__filename);
 
 export default {
-  state: {
-    busy: false,
-    classList: [],
-    pageName: '',
-    toolbarRoute: {},
-    toolbarTitle: '',
+  state() {
+    return {
+      busy: false,
+      classList: [],
+      pageName: '',
+      toolbarRoute: {},
+      toolbarTitle: '',
+    };
   },
   mutations: {
     SET_PAGE_NAME(state, pageName) {
@@ -127,7 +128,6 @@ export default {
     examsRoot,
     exerciseDetail,
     groups,
-    adHocLearners,
     lessonSummary,
     lessonsRoot,
     questionDetail,

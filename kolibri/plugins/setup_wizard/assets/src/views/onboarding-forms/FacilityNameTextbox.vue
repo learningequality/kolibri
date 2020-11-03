@@ -27,7 +27,7 @@
     },
     computed: {
       facilityNameErrorMessage() {
-        if (this.facilityName === '') {
+        if (this.facilityName.trim() === '') {
           return this.$tr('facilityNameFieldEmptyErrorMessage');
         }
         if (this.facilityName.length > 100) {
@@ -47,8 +47,8 @@
        * @public
        */
       focus() {
-        if (this.$refs['facilityName']) {
-          this.$refs['facilityName'].focus();
+        if (this.$refs.facilityName) {
+          this.$refs.facilityName.focus();
         }
       },
     },

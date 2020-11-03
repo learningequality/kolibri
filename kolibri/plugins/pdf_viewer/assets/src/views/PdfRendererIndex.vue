@@ -444,8 +444,9 @@
     right: 0;
     left: 0;
     z-index: 24;
+    display: flex;
+    justify-content: flex-end;
     height: $controls-height;
-    text-align: end;
   }
 
   .slide-enter-active {

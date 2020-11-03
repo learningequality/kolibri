@@ -1,8 +1,10 @@
 import json
 import logging
 import os
+import sys
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 from django.db import transaction
@@ -56,13 +58,16 @@ def check_device_setting(name):
     )
 
 
-def get_user_response(prompt, valid_answers=None):
+def get_user_response(prompt, valid_answers=None, to_lower_case=True):
     answer = None
     while not answer or (
         valid_answers is not None and answer.lower() not in valid_answers
     ):
         answer = six.moves.input(prompt)
-    return answer.lower()
+    if to_lower_case:
+        return answer.lower()
+    else:
+        return answer
 
 
 languages = dict(settings.LANGUAGES)
@@ -71,30 +76,36 @@ languages = dict(settings.LANGUAGES)
 def create_facility(facility_name=None, preset=None, interactive=False):
     if facility_name is None and interactive:
         answer = get_user_response(
-            "Do you wish to create a facility? [yn] ", ["y", "n"]
+            "Do you wish to create a facility? [y/n] ", ["y", "n"]
         )
         if answer == "y":
             facility_name = get_user_response(
-                "What do you wish to name your facility? "
+                "What do you wish to name your facility? ", to_lower_case=False
             )
+        else:
+            sys.exit(1)
 
     if facility_name:
-        facility, created = Facility.objects.get_or_create(name=facility_name)
+        facility_query = Facility.objects.filter(name__iexact=facility_name)
 
-        if not created:
+        if facility_query.exists():
+            facility = facility_query.get()
             logger.warn(
-                "Facility with name {name} already exists, not modifying preset.".format(
-                    name=facility_name
+                "Facility with name '{name}' already exists, not modifying preset.".format(
+                    name=facility.name
                 )
             )
             return facility
-
-        logger.info("Facility with name {name} created.".format(name=facility_name))
+        else:
+            facility = Facility.objects.create(name=facility_name)
+            logger.info(
+                "Facility with name '{name}' created.".format(name=facility.name)
+            )
 
         if preset is None and interactive:
             preset = get_user_response(
                 "Which preset do you wish to use? [{presets}]: ".format(
-                    presets=",".join(presets.keys())
+                    presets="/".join(presets.keys())
                 ),
                 valid_answers=presets,
             )
@@ -102,6 +113,7 @@ def create_facility(facility_name=None, preset=None, interactive=False):
         # Only set preset data if we have created the facility, otherwise leave previous data intact
         if preset:
             dataset_data = mappings[preset]
+            facility.dataset.preset = preset
             for key, value in dataset_data.items():
                 check_facility_setting(key)
                 setattr(facility.dataset, key, value)
@@ -120,10 +132,12 @@ def update_facility_settings(facility, new_settings):
         check_facility_setting(key)
         setattr(facility.dataset, key, value)
     facility.dataset.save()
-    logger.info("Facility settings updated with {}".format(new_settings))
+
+    if new_settings:
+        logger.info("Facility settings updated with {}".format(new_settings))
 
 
-def create_superuser(username=None, password=None, interactive=False):
+def create_superuser(username=None, password=None, interactive=False, facility=None):
     if username is None and interactive:
         username = get_user_response("Enter a username for the super user: ")
 
@@ -134,15 +148,17 @@ def create_superuser(username=None, password=None, interactive=False):
             confirm = get_user_response("Confirm password for the super user: ")
 
     if username and password:
-        if not FacilityUser.objects.filter(username__icontains=username).exists():
-            FacilityUser.objects.create_superuser(username, password)
+        try:
+            FacilityUser.objects.create_superuser(username, password, facility=facility)
             logger.info(
-                "Superuser created with username {username}.".format(username=username)
+                "Superuser created with username '{username}' in facility '{facility}'.".format(
+                    username=username, facility=facility
+                )
             )
-        else:
+        except ValidationError:
             logger.warn(
-                "An account with username {username} already exists, not creating user account.".format(
-                    username=username
+                "An account with username '{username}' already exists in facility '{facility}', not creating user account.".format(
+                    username=username, facility=facility
                 )
             )
 
@@ -262,4 +278,5 @@ class Command(BaseCommand):
                 username=options["superusername"],
                 password=options["superuserpassword"],
                 interactive=options["interactive"],
+                facility=facility,
             )

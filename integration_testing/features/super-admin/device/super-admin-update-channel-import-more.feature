@@ -27,7 +27,7 @@ Feature: Super admin imports more content
 
   Scenario: Review changes in the new channel version
     When I click the *View changes* button
-    Then I see the *'<channel>' > Version N of '<channel>' is available* page
+    Then I see the *Version N of '<channel>' is available* page
       And I see list of changes of the resources (new, to be deleted, to be updated) if I choose to update the channel
       And I see the *Update channel* button
       And I see the information about the changes in previous versions of the channel # if stated on Studio during publishing
@@ -36,10 +36,20 @@ Feature: Super admin imports more content
     When I click the *Update channel* button
     Then I see *Update channel* modal asking for confirmation
     When I click *Continue* button
-    Then I see *Device > Task manager* page with the *Update '<channel>' to version N* task in progress
+    Then I see the information about resources on version N of <channel>
+      And I see the *Import more* button
+    When I click the *Import more* button
+      And I select the source
+    Then for each topic with new resources I see the information about those that are already on my device
+      And I see green label with number of the new resources that can be imported on my device with this new channel version
+      And I see the *0 resources selected* and the inactive *Import* button at the bottom of the screen
+    When I select the checkbox(es) for topic(s) with the new resources
+      Or I use the *Select all* checkbox
+    Then I see the *X resources selected*
+      And I see an active *Import* button at the bottom of the screen
+    When I click the *Import* button
+    Then I see *Device > Tasks* page with the *Update '<channel>' to version N* task in progress
       And I see the green progress bar with the percentage increasing
-      And I see the number and size of the resources being updated
-      And the number of resources needs to be close/identical to the *Resources to be updated* value in the previous scenario
       And I see the *Cancel* button
     When the update process concludes
     Then I see the task is labeled as *Finished*
@@ -53,11 +63,13 @@ Feature: Super admin imports more content
       Then I am on *Device > Channels* page
         And I see the <channel> I've updated
         And I see the version of the channel is N
+        And I see the green *New* label
       When I click the *Manage* button
         And I click *Import more*
         And I select *Kolibri Studio*
       Then I am on <channel> channel page
-        And I see *Channel up-to-date* flag
+        And I see that all the topic checkboxes are inactive
+        And I see *X new* label for topic(s) with new resources
 
   Scenario: Do not update channel to the new version
     Given that I am on *'<channel>' > Version N of '<channel>' is available* page

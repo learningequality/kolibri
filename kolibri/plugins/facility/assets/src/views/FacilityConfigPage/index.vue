@@ -2,11 +2,6 @@
 
   <KPageContainer>
 
-    <Notifications
-      :notification="notification"
-      @dismiss="dismissNotification()"
-    />
-
     <div class="mb">
       <h1>{{ $tr('pageHeader') }}</h1>
       <p>
@@ -55,13 +50,14 @@
                 :key="setting"
                 :label="$tr('learnerNeedPasswordToLogin')"
                 :checked="!settings['learner_can_login_with_no_password']"
-                @change="toggleSetting('learner_can_login_with_no_password')"
+                @change="toggleLearnerLoginPassword()"
               />
               <KCheckbox
                 :key="setting + 'learner_can_edit_password'"
                 :disabled="enableChangePassword"
                 :label="$tr('learnerCanEditPassword')"
-                :checked="settings['learner_can_edit_password']"
+                :checked="!settings['learner_can_login_with_no_password']
+                  && settings['learner_can_edit_password']"
                 class="checkbox-password"
                 @change="toggleSetting('learner_can_edit_password')"
               />
@@ -103,6 +99,7 @@
     <EditFacilityNameModal
       v-if="showEditFacilityModal"
       id="edit-facility"
+      :facilityId="facilityId"
       :facilityName="facilityName"
       @submit="sendFacilityName"
       @cancel="showEditFacilityModal = false"
@@ -121,7 +118,6 @@
   import urls from 'kolibri.urls';
   import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
-  import Notifications from './ConfigPageNotifications';
 
   // See FacilityDataset in core.auth.models for details
   const settingsList = [
@@ -143,7 +139,6 @@
     components: {
       ConfirmResetModal,
       EditFacilityNameModal,
-      Notifications,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -158,7 +153,6 @@
         'facilityName',
         'facilityId',
         'settings',
-        'notification',
         'facilityNameSaved',
         'facilityNameError',
       ]),
@@ -208,23 +202,37 @@
           value: !this.settings[settingName],
         });
       },
-      dismissNotification() {
-        this.$store.commit('facilityConfig/CONFIG_PAGE_NOTIFY', null);
+      toggleLearnerLoginPassword() {
+        this.toggleSetting('learner_can_login_with_no_password');
+        if (
+          this.settings['learner_can_edit_password'] &&
+          !this.settings['learner_can_login_with_no_password']
+        ) {
+          this.toggleSetting('learner_can_edit_password');
+        }
+      },
+      updateSettings(action) {
+        this.$store
+          .dispatch(action)
+          .then(() => {
+            this.createSnackbar(this.$tr('saveSuccess'));
+            this.copySettings();
+          })
+          .catch(() => {
+            this.createSnackbar(this.$tr('saveFailure'));
+            this.$store.commit('facilityConfig/CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
+          });
       },
       resetToDefaultSettings() {
         this.showModal = false;
-        this.$store.dispatch('facilityConfig/resetFacilityConfig').then(() => {
-          this.copySettings();
-        });
+        this.updateSettings('facilityConfig/resetFacilityConfig');
       },
       sendFacilityName(name) {
         this.showEditFacilityModal = false;
         if (name != this.facilityName) this.saveFacilityName({ name: name, id: this.facilityId });
       },
       saveConfig() {
-        this.$store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
-          this.copySettings();
-        });
+        this.updateSettings('facilityConfig/saveFacilityConfig');
       },
       copySettings() {
         this.settingsCopy = Object.assign({}, this.settings);
@@ -243,6 +251,8 @@
       showDownloadButtonInLearn: "Show 'download' button with resources",
       allowGuestAccess: 'Allow users to access resources without signing in',
       /* eslint-enable kolibri/vue-no-unused-translations */
+      saveFailure: 'There was a problem saving your settings',
+      saveSuccess: 'Facility settings updated',
       pageDescription: {
         message: 'Configure facility settings here.',
         context: '\nInterpret as "[You can] configure facility settings here"',

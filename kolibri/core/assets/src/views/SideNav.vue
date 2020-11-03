@@ -1,6 +1,6 @@
 <template>
 
-  <div ref="sideNav" class="side-nav-wrapper" @keyup.esc="toggleNav">
+  <div ref="sideNav" class="side-nav-wrapper" tabindex="0" @keyup.esc="toggleNav">
     <transition name="side-nav">
       <div
         v-show="navShown"
@@ -45,6 +45,7 @@
             :style="$kolibriBranding.sideNav.topLogo.style"
           >
           <CoreMenu
+            ref="coreMenu"
             role="navigation"
             :style="{ backgroundColor: $themeTokens.surface }"
             :aria-label="$tr('navigationLabel')"
@@ -247,7 +248,7 @@
           return event;
         }
         if (!this.$refs.sideNav.contains(event.target)) {
-          this.$refs.toggleButton.$el.focus();
+          this.$refs.coreMenu.$el.focus();
         }
         return event;
       },

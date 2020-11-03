@@ -16,10 +16,10 @@
 
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeProgressResource } from 'kolibri.resources';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import commonLearnStrings from './commonLearnStrings';
-  import learnIndexStrings from './learnIndexStrings';
 
   export default {
     name: 'RecommendedSubpage',
@@ -31,18 +31,18 @@
     components: {
       ContentCardGroupGrid,
     },
-    mixins: [commonLearnStrings, learnIndexStrings],
+    mixins: [commonLearnStrings],
     computed: {
       ...mapState(['pageName']),
-      ...mapState('recommended/subpage', ['recommendations']),
+      ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       documentTitle() {
         switch (this.pageName) {
           case PageNames.RECOMMENDED_POPULAR:
-            return this.$tr('documentTitleForPopular');
+            return this.learnString('popularLabel');
           case PageNames.RECOMMENDED_RESUME:
-            return this.learnIndexString('documentTitleForResume');
+            return this.learnString('resumeLabel');
           case PageNames.RECOMMENDED_NEXT_STEPS:
-            return this.$tr('documentTitleForNextSteps');
+            return this.learnString('nextStepsLabel');
           default:
             return '';
         }
@@ -50,11 +50,11 @@
       header() {
         switch (this.pageName) {
           case PageNames.RECOMMENDED_POPULAR:
-            return this.$tr('popularPageHeader');
+            return this.learnString('mostPopularLabel');
           case PageNames.RECOMMENDED_RESUME:
-            return this.learnIndexString('documentTitleForResume');
+            return this.learnString('resumeLabel');
           case PageNames.RECOMMENDED_NEXT_STEPS:
-            return this.$tr('nextStepsPageHeader');
+            return this.learnString('nextStepsLabel');
           default:
             return null;
         }
@@ -70,6 +70,31 @@
           },
         ];
       },
+      recommendations() {
+        switch (this.pageName) {
+          case PageNames.RECOMMENDED_POPULAR:
+            return this.popular;
+          case PageNames.RECOMMENDED_RESUME:
+            return this.resume;
+          case PageNames.RECOMMENDED_NEXT_STEPS:
+            return this.nextSteps;
+          default:
+            return [];
+        }
+      },
+    },
+    created() {
+      if (this.$store.getters.isUserLoggedIn) {
+        if (this.recommendations.length > 0) {
+          for (let i = 0; i < this.recommendations.length; i += 50) {
+            ContentNodeProgressResource.fetchCollection({
+              getParams: { ids: this.recommendations.slice(i, i + 50).map(({ id }) => id) },
+            }).then(progresses => {
+              this.$store.commit('recommended/SET_RECOMMENDED_NODES_PROGRESS', progresses);
+            });
+          }
+        }
+      }
     },
     methods: {
       genContentLink(id, kind) {
@@ -77,12 +102,6 @@
           kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT;
         return this.$router.getRoute(pageName, { id }, { last: this.pageName });
       },
-    },
-    $trs: {
-      popularPageHeader: 'Most popular',
-      nextStepsPageHeader: 'Next steps',
-      documentTitleForPopular: 'Popular',
-      documentTitleForNextSteps: 'Next Steps',
     },
   };
 

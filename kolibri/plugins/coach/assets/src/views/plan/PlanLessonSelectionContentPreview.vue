@@ -28,6 +28,7 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import get from 'lodash/get';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
@@ -57,7 +58,21 @@
     },
     computed: {
       returnBackRoute() {
-        if (this.$route.query && this.$route.query.last) {
+        const lastRoute = get(this.$route, ['query', 'last']);
+        if (lastRoute) {
+          // HACK to fix #7583 and #7584
+          if (
+            lastRoute === 'ReportsLessonReportPage' ||
+            lastRoute === 'ReportsLessonLearnerListPage'
+          ) {
+            return {
+              name: 'SELECTION',
+              params: {
+                topicId: this.currentContentNode.parent,
+              },
+              query: this.$route.query,
+            };
+          }
           return this.backRouteForQuery(this.$route.query);
         }
 
@@ -75,7 +90,9 @@
           return true;
         }
         if (this.workingResources && this.currentContentNode && this.currentContentNode.id) {
-          return this.workingResources.includes(this.currentContentNode.id);
+          return this.workingResources.some(
+            resource => resource.contentnode_id === this.currentContentNode.id
+          );
         }
         return false;
       },
@@ -94,7 +111,7 @@
       ...mapActions('lessonSummary', ['addToResourceCache']),
       handleAddResource(content) {
         this.$router.push(this.returnBackRoute).then(() => {
-          this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', content.id);
+          this.$store.commit('lessonSummary/ADD_TO_WORKING_RESOURCES', [content]);
           this.addToResourceCache({ node: content });
           this.showSnackbarNotification('resourcesAddedWithCount', { count: 1 });
         });
@@ -103,7 +120,7 @@
         // We need to remove the resource immediately to prevent that occurs when removing
         // the only resource
         this.justRemovedResource = true;
-        this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', content.id);
+        this.$store.commit('lessonSummary/REMOVE_FROM_WORKING_RESOURCES', [content]);
         this.$router.push(this.returnBackRoute).then(() => {
           this.showSnackbarNotification('resourcesRemovedWithCount', { count: 1 });
         });

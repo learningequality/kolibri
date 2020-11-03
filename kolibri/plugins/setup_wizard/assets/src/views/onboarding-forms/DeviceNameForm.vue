@@ -42,7 +42,7 @@
         if (!this.shouldValidate) {
           return '';
         }
-        if (this.value === '') {
+        if (this.value.trim() === '') {
           return this.coreString('requiredFieldError');
         }
         return '';

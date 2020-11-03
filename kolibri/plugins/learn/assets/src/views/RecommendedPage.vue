@@ -8,7 +8,7 @@
 
     <template v-if="popular.length">
       <ContentCardGroupHeader
-        :header="$tr('popularSectionHeader')"
+        :header="learnString('mostPopularLabel')"
         :viewMorePageLink="popularPageLink"
         :showViewMore="popular.length > trimmedPopular.length"
       />
@@ -26,7 +26,7 @@
 
     <template v-if="nextSteps.length">
       <ContentCardGroupHeader
-        :header="$tr('suggestedNextStepsSectionHeader')"
+        :header="learnString('nextStepsLabel')"
         :viewMorePageLink="nextStepsPageLink"
         :showViewMore="nextSteps.length > trimmedNextSteps.length"
       />
@@ -44,7 +44,7 @@
 
     <template v-if="resume.length">
       <ContentCardGroupHeader
-        :header="learnIndexString('documentTitleForResume')"
+        :header="learnString('documentTitleForResume')"
         :viewMorePageLink="resumePageLink"
         :showViewMore="resume.length > trimmedResume.length"
       />
@@ -68,14 +68,15 @@
 <script>
 
   import { mapState } from 'vuex';
+  import uniq from 'lodash/uniq';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeProgressResource } from 'kolibri.resources';
   import { PageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
   import ContentCardGroupCarousel from './ContentCardGroupCarousel';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import ContentCardGroupHeader from './ContentCardGroupHeader';
-  import learnIndexStrings from './learnIndexStrings';
 
   const mobileCarouselLimit = 3;
   const desktopCarouselLimit = 15;
@@ -92,7 +93,7 @@
       ContentCardGroupGrid,
       ContentCardGroupHeader,
     },
-    mixins: [commonLearnStrings, responsiveWindowMixin, learnIndexStrings],
+    mixins: [commonLearnStrings, responsiveWindowMixin],
     computed: {
       ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       carouselLimit() {
@@ -123,6 +124,23 @@
         return this.resume.slice(0, this.carouselLimit);
       },
     },
+    created() {
+      if (this.$store.getters.isUserLoggedIn) {
+        const contentNodeIds = uniq(
+          [...this.trimmedNextSteps, ...this.trimmedPopular, ...this.trimmedResume].map(
+            ({ id }) => id
+          )
+        );
+
+        if (contentNodeIds.length > 0) {
+          ContentNodeProgressResource.fetchCollection({ getParams: { ids: contentNodeIds } }).then(
+            progresses => {
+              this.$store.commit('recommended/SET_RECOMMENDED_NODES_PROGRESS', progresses);
+            }
+          );
+        }
+      }
+    },
     methods: {
       genContentLink(id, kind) {
         return {
@@ -133,10 +151,6 @@
           },
         };
       },
-    },
-    $trs: {
-      popularSectionHeader: 'Most popular',
-      suggestedNextStepsSectionHeader: 'Next steps',
     },
   };
 

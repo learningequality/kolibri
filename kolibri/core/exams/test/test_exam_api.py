@@ -19,21 +19,20 @@ DUMMY_PASSWORD = "password"
 
 
 class ExamAPITestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = Facility.objects.create(name="MyFac")
-        self.admin = FacilityUser.objects.create(
-            username="admin", facility=self.facility
-        )
-        self.admin.set_password(DUMMY_PASSWORD)
-        self.admin.save()
-        self.facility.add_admin(self.admin)
-        self.exam = models.Exam.objects.create(
+        cls.facility = Facility.objects.create(name="MyFac")
+        cls.admin = FacilityUser.objects.create(username="admin", facility=cls.facility)
+        cls.admin.set_password(DUMMY_PASSWORD)
+        cls.admin.save()
+        cls.facility.add_admin(cls.admin)
+        cls.exam = models.Exam.objects.create(
             title="title",
             question_count=1,
             active=True,
-            collection=self.facility,
-            creator=self.admin,
+            collection=cls.facility,
+            creator=cls.admin,
         )
 
     def make_basic_exam(self):
@@ -91,7 +90,7 @@ class ExamAPITestCase(APITestCase):
     def test_logged_in_admin_exam_create_with_assignments(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
-        exam["assignments"] = [{"collection": self.facility.id}]
+        exam["assignments"] = [self.facility.id]
         response = self.post_new_exam(exam)
         exam_id = response.data["id"]
         self.assertEqual(response.status_code, 201)
@@ -103,7 +102,7 @@ class ExamAPITestCase(APITestCase):
     def test_logged_in_admin_exam_update_no_assignments(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
-        exam["assignments"] = [{"collection": self.facility.id}]
+        exam["assignments"] = [self.facility.id]
         post_response = self.post_new_exam(exam)
         exam_id = post_response.data["id"]
         exam["assignments"] = []
@@ -114,11 +113,11 @@ class ExamAPITestCase(APITestCase):
     def test_logged_in_admin_exam_update_different_assignments(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
-        exam["assignments"] = [{"collection": self.facility.id}]
+        exam["assignments"] = [self.facility.id]
         post_response = self.post_new_exam(exam)
         exam_id = post_response.data["id"]
         group = LearnerGroup.objects.create(name="test", parent=self.facility)
-        exam["assignments"] = [{"collection": group.id}]
+        exam["assignments"] = [group.id]
         put_response = self.put_updated_exam(exam_id, exam)
         self.assertEqual(put_response.status_code, 200)
         assignments = models.Exam.objects.get(id=exam_id).assignments
@@ -128,11 +127,11 @@ class ExamAPITestCase(APITestCase):
     def test_logged_in_admin_exam_update_additional_assignments(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
-        exam["assignments"] = [{"collection": self.facility.id}]
+        exam["assignments"] = [self.facility.id]
         post_response = self.post_new_exam(exam)
         exam_id = post_response.data["id"]
         group = LearnerGroup.objects.create(name="test", parent=self.facility)
-        exam["assignments"].append({"collection": group.id})
+        exam["assignments"].append(group.id)
         put_response = self.put_updated_exam(exam_id, exam)
         self.assertEqual(put_response.status_code, 200)
         assignments = models.Exam.objects.get(id=exam_id).assignments
@@ -211,14 +210,14 @@ class ExamAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data[0]["id"], error_constants.UNIQUE)
 
-    def test_exam_with_invalid_question_sources_fails(self):
+    def test_exam_with_no_counter_in_exercise_fails(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
         title = "invalid_question_sources"
         exam["title"] = title
         exam["question_sources"].append(
             {
-                "exercise_id": "e1",
+                "exercise_id": "e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1",
                 "question_id": "q1",
                 "title": "Title",
                 # missing 'counter_in_exercise'
@@ -228,7 +227,7 @@ class ExamAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertFalse(models.Exam.objects.filter(title=title).exists())
 
-    def test_exam_with_valid_question_sources_succeeds(self):
+    def test_exam_with_invalid_exercise_id(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
         exam["question_sources"].append(
@@ -240,67 +239,18 @@ class ExamAPITestCase(APITestCase):
             }
         )
         response = self.post_new_exam(exam)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 400)
 
-
-class ExamAssignmentAPITestCase(APITestCase):
-    def setUp(self):
-        provision_device()
-        self.facility = Facility.objects.create(name="MyFac")
-        self.admin = FacilityUser.objects.create(
-            username="admin", facility=self.facility
+    def test_exam_with_valid_question_sources_succeeds(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        exam["question_sources"].append(
+            {
+                "exercise_id": "e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1",
+                "question_id": "q1",
+                "title": "Title",
+                "counter_in_exercise": 1,
+            }
         )
-        self.facility.add_admin(self.admin)
-        self.exam = models.Exam.objects.create(
-            title="title",
-            question_count=1,
-            active=True,
-            collection=self.facility,
-            creator=self.admin,
-        )
-        self.assignment = models.ExamAssignment.objects.create(
-            exam=self.exam, collection=self.facility, assigned_by=self.admin
-        )
-
-    def test_logged_in_user_examassignment_no_delete(self):
-
-        user = FacilityUser.objects.create(username="learner", facility=self.facility)
-        user.set_password("pass")
-        user.save()
-
-        self.client.login(username=user.username, password="pass")
-
-        response = self.client.delete(
-            reverse(
-                "kolibri:core:examassignment-detail", kwargs={"pk": self.assignment.id}
-            )
-        )
-        self.assertEqual(response.status_code, 403)
-
-    def test_logged_in_admin_examassignment_can_delete(self):
-        self.admin.set_password(DUMMY_PASSWORD)
-        self.admin.save()
-
-        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
-
-        response = self.client.delete(
-            reverse(
-                "kolibri:core:examassignment-detail", kwargs={"pk": self.assignment.id}
-            )
-        )
-        self.assertEqual(response.status_code, 204)
-
-    def test_logged_in_admin_examassignment_can_create(self):
-        self.admin.set_password(DUMMY_PASSWORD)
-        self.admin.save()
-
-        self.assignment.delete()
-
-        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
-
-        response = self.client.post(
-            reverse("kolibri:core:examassignment-list"),
-            {"exam": self.exam.id, "collection": self.facility.id},
-            format="json",
-        )
+        response = self.post_new_exam(exam)
         self.assertEqual(response.status_code, 201)

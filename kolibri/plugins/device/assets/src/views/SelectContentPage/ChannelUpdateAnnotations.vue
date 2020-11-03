@@ -9,8 +9,11 @@
 
 <script>
 
+  import commonDeviceStrings from '../commonDeviceStrings';
+
   export default {
     name: 'ChannelUpdateAnnotations',
+    mixins: [commonDeviceStrings],
     props: {
       newResources: {
         type: Number,
@@ -48,7 +51,7 @@
       },
       label() {
         if (this.new && this.isTopic === false) {
-          return this.$tr('newResource');
+          return this.deviceString('newResourceLabel');
         } else if (this.new && this.isTopic === true) {
           return this.$tr('newResourcesInTopic', { count: this.newResources });
         } else if (this.importing) {
@@ -58,10 +61,6 @@
       },
     },
     $trs: {
-      newResource: {
-        message: 'New',
-        context: 'Label that is shown with resources that were added after upgrading the channel',
-      },
       newResourcesInTopic: {
         message: '{count} {count, plural, one {new} other {new}}',
         context:

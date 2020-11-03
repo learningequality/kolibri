@@ -5,22 +5,22 @@ import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import tail from 'lodash/tail';
 
 // adds progress, thumbnail, and breadcrumbs. normalizes pk/id and kind
-export function normalizeContentNode(node, ancestors = []) {
+export function normalizeContentNode(node) {
   return {
     ...node,
     kind: node.parent ? node.kind : ContentNodeKinds.CHANNEL,
     thumbnail: getContentNodeThumbnail(node) || undefined,
-    breadcrumbs: tail(ancestors),
+    breadcrumbs: tail(node.ancestors),
     progress: Math.min(node.progress_fraction || 0, 1.0),
     copies_count: node.copies_count,
   };
 }
 
-export function contentState(node, next_content = [], ancestors = []) {
+export function contentState(node, next_content = []) {
   if (!node) return null;
   return {
     next_content,
-    ...normalizeContentNode(node, ancestors),
+    ...normalizeContentNode(node),
     ...assessmentMetaDataState(node),
   };
 }

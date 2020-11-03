@@ -6,8 +6,8 @@
   >
     <transition-group tag="div" name="list" class="wrapper">
       <Draggable
-        v-for="(resourceId, index) in workingResources"
-        :key="resourceId"
+        v-for="(resource, index) in workingResources"
+        :key="resource.contentnode_id"
       >
         <DragHandle>
           <KFixedGrid
@@ -28,28 +28,43 @@
               </div>
             </KFixedGridItem>
             <KFixedGridItem span="4">
-              <div class="resource-title">
-                <ContentIcon :kind="resourceKind(resourceId)" />
-                <KRouterLink
-                  :text="resourceTitle(resourceId)"
-                  :to="$router.getRoute('RESOURCE_CONTENT_PREVIEW', { contentId: resourceId })"
+              <template v-if="getCachedResource(resource.contentnode_id)">
+                <div class="resource-title">
+                  <div class="content-icon">
+                    <ContentIcon :kind="resourceKind(resource.contentnode_id)" />
+                  </div>
+                  <div class="content-link">
+                    <KRouterLink
+                      :text="resourceTitle(resource.contentnode_id)"
+                      :to="$router.getRoute(
+                        'RESOURCE_CONTENT_PREVIEW', { contentId: resource.contentnode_id }
+                      )"
+                    />
+                  </div>
+                  <p dir="auto" class="channel-title" :style="{ color: $themeTokens.annotation }">
+                    <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
+                    {{ resourceChannelTitle(resource.contentnode_id) }}
+                  </p>
+                </div>
+                <CoachContentLabel
+                  class="coach-content-label"
+                  :value="getCachedResource(resource.contentnode_id).num_coach_contents"
+                  :isTopic="false"
                 />
-                <p dir="auto" class="channel-title" :style="{ color: $themeTokens.annotation }">
-                  <dfn class="visuallyhidden"> {{ $tr('parentChannelLabel') }} </dfn>
-                  {{ resourceChannelTitle(resourceId) }}
+              </template>
+              <template v-else>
+                <p>
+                  <KIcon icon="warning" :style=" { fill: $themePalette.orange.v_400 }" />
+                  {{ resourceMissingText }}
                 </p>
-              </div>
-              <CoachContentLabel
-                class="coach-content-label"
-                :value="getCachedResource(resourceId).num_coach_contents"
-                :isTopic="false"
-              />
+              </template>
             </KFixedGridItem>
             <KFixedGridItem :style="{ 'padding-top': '16px' }" span="3" alignment="right">
               <KButton
                 :text="coreString('removeAction')"
                 appearance="flat-button"
-                @click="removeResource(resourceId)"
+                class="remove-resource-button"
+                @click="removeResource(resource)"
               />
             </KFixedGridItem>
           </KFixedGrid>
@@ -71,6 +86,7 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   const removalSnackbarTime = 5000;
 
@@ -84,48 +100,31 @@
       CoachContentLabel,
       ContentIcon,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, coachStringsMixin],
     data() {
-      const workingResourcesIds = this.$store.state.lessonSummary.workingResources;
-      const resourceContentNodes = this.$store.state.lessonSummary.resourceCache;
-      const filteredContents = workingResourcesIds.filter(
-        resourceId => resourceContentNodes[resourceId]
-      );
       return {
-        workingResourcesBackup: filteredContents,
+        workingResourcesBackup: [...this.$store.state.lessonSummary.workingResources],
         firstRemovalTitle: '',
-        contentMightBeDeleted: filteredContents.length < workingResourcesIds.length,
       };
     },
     computed: {
       ...mapState('lessonSummary', {
         lessonId: state => state.currentLesson.id,
-        workingResourcesIds: state => state.workingResources,
+        workingResources: state => state.workingResources,
         // consider loading this async?
         resourceContentNodes: state => state.resourceCache,
         getCachedResource(state) {
           return function getter(resourceId) {
-            return state.resourceCache[resourceId] || {};
+            return state.resourceCache[resourceId];
           };
         },
       }),
-      // HACK for broken lessons: Prior to 0.12, lessons can hold resources that have
-      // been deleted. We need to filter them out here. As a remedy for users
-      // with 'broken' lessons, they can visit the lesson and the 'mounted' hook
-      // will save the fixed lesson.
-      workingResources() {
-        return this.workingResourcesIds.filter(resourceId => this.resourceContentNodes[resourceId]);
-      },
       numberOfRemovals() {
         return this.workingResourcesBackup.length - this.workingResources.length;
       },
-    },
-    mounted() {
-      // HACK for broken lessons: Automatically save the lesson if we
-      // infer that is has missing items at first render.
-      if (this.contentMightBeDeleted) {
-        this.autoSave(this.lessonId, this.workingResources);
-      }
+      resourceMissingText() {
+        return this.getMissingContentString('resourceNotFoundOnDevice');
+      },
     },
     methods: {
       ...mapActions(['clearSnackbar']),
@@ -143,9 +142,9 @@
       resourceKind(resourceId) {
         return this.resourceContentNodes[resourceId].kind;
       },
-      removeResource(resourceId) {
-        this.firstRemovalTitle = this.resourceTitle(resourceId);
-        this.removeFromWorkingResources(resourceId);
+      removeResource(resource) {
+        this.firstRemovalTitle = this.resourceTitle(resource.contentnode_id);
+        this.removeFromWorkingResources([resource]);
 
         this.autoSave(this.lessonId, this.workingResources);
 
@@ -165,7 +164,7 @@
               hideCallback: () => {
                 if (this.workingResourcesBackup) {
                   // snackbar might carryover to another page (like select)
-                  this.workingResourcesBackup = this.workingResources;
+                  this.workingResourcesBackup = [...this.workingResources];
                 }
               },
             }
@@ -180,9 +179,9 @@
       },
       shiftOne(oldIndex, newIndex) {
         const resources = [...this.workingResources];
-        const oldResourceId = resources[newIndex];
+        const oldResource = resources[newIndex];
         resources[newIndex] = resources[oldIndex];
-        resources[oldIndex] = oldResourceId;
+        resources[oldIndex] = oldResource;
 
         this.setWorkingResources(resources);
         this.autoSave(this.lessonId, resources);
@@ -195,11 +194,9 @@
         this.showSnackbarNotification('resourceOrderSaved');
       },
       autoSave(id, resources) {
-        this.saveLessonResources({ lessonId: id, resourceIds: resources }).catch(() => {
+        this.saveLessonResources({ lessonId: id, resources: resources }).catch(() => {
           this.updateCurrentLesson(id).then(currentLesson => {
-            this.setWorkingResources(
-              currentLesson.resources.map(resourceObj => resourceObj.contentnode_id)
-            );
+            this.setWorkingResources(currentLesson.resources);
           });
         });
       },
@@ -290,6 +287,21 @@
 
   .list-move {
     transition: transform $core-time ease;
+  }
+
+  .content-icon {
+    display: inline-block;
+    width: 16px; // match the icon
+    vertical-align: top;
+  }
+
+  .content-link {
+    display: inline-block;
+    width: calc(100% - 16px);
+  }
+
+  .remove-resource-button {
+    padding-top: 10px;
   }
 
 </style>

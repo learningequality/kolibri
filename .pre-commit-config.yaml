@@ -17,13 +17,12 @@ repos:
         language_version: python2.7
 -   repo: local
     hooks:
-    -   id: frontend-lint
+    -   id: lint-frontend
         name: Linting of JS, Vue, SCSS and CSS files
         description: This hook handles all frontend linting for Kolibri
-        entry: yarn run kolibri-tools lint --write
+        entry: yarn run lint-frontend:format
         language: system
         files: \.(js|vue|scss|css)$
-        exclude: '^kolibri/core/static/assets/fonts/.+?\.css$|^kolibri/core/content/static/assets/'
 - repo: local
   hooks:
   - id: no-auto-migrations
@@ -66,7 +65,7 @@ repos:
         kolibri/core/logger/migrations/0003_auto_20170531_1140\.py|
         kolibri/core/logger/migrations/0005_auto_20180514_1419\.py|
       )$
--   repo: https://github.com/psf/black
-    rev: stable
+-   repo: https://github.com/python/black
+    rev: 20.8b1
     hooks:
     - id: black

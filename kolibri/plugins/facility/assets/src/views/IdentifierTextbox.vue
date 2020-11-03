@@ -12,6 +12,7 @@
     <CoreInfoIcon
       class="info-icon"
       :tooltipText="coreString('identifierInputTooltip')"
+      :tooltipPlacement="tooltipPlacement"
       :iconAriaLabel="coreString('identifierAriaLabel')"
     />
   </div>
@@ -23,16 +24,25 @@
 
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   export default {
     name: 'IdentifierTextbox',
     components: {
       CoreInfoIcon,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       value: {
         type: String,
+      },
+    },
+    computed: {
+      tooltipPlacement() {
+        if (this.windowIsSmall) {
+          return 'left';
+        }
+        return 'bottom';
       },
     },
     $trs: {

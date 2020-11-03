@@ -5,7 +5,6 @@
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
     size="medium"
-    :submitDisabled="submitDisabled"
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
@@ -29,13 +28,14 @@
       </UiAlert>
 
       <KButton
-        v-show="!newAddressButtonDisabled"
+        v-show="!newAddressButtonDisabled && !formDisabled"
         class="new-address-button"
         :text="$tr('newAddressButtonLabel')"
         appearance="basic-link"
         @click="$emit('click_add_address')"
       />
 
+      <!-- Static Addresses -->
       <template v-for="(a, idx) in savedAddresses">
         <div :key="`div-${idx}`">
           <KRadioButton
@@ -45,7 +45,7 @@
             :value="a.id"
             :label="a.nickname"
             :description="a.base_url"
-            :disabled="!a.available || !a.hasContent"
+            :disabled="formDisabled || !a.available || !a.hasContent"
           />
           <KButton
             v-if="!hideSavedAddresses"
@@ -59,6 +59,7 @@
 
       <hr v-if="!hideSavedAddresses && discoveredAddresses.length > 0">
 
+      <!-- Dynamic Addresses -->
       <template v-for="d in discoveredAddresses">
         <div :key="`div-${d.id}`">
           <KRadioButton
@@ -68,7 +69,7 @@
             :value="d.instance_id"
             :label="formatNameAndId(d.device_name, d.id)"
             :description="d.base_url"
-            :disabled="!d.available || discoveryFailed"
+            :disabled="formDisabled || !d.available || discoveryFailed || !d.hasContent"
           />
         </div>
       </template>
@@ -91,12 +92,13 @@
           <KButton
             :text="coreString('cancelAction')"
             appearance="flat-button"
+            :disabled="formDisabled"
             @click="$emit('cancel')"
           />
           <KButton
             :text="coreString('continueAction')"
             :primary="true"
-            :disabled="submitDisabled"
+            :disabled="formDisabled || submitDisabled"
             type="submit"
           />
         </KButtonGroup>
@@ -116,7 +118,7 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { deleteAddress, fetchStaticAddresses, fetchDynamicAddresses } from './api';
 
-  const Stages = {
+  const Stages = Object.freeze({
     FETCHING_ADDRESSES: 'FETCHING_ADDRESSES',
     FETCHING_SUCCESSFUL: 'FETCHING_SUCCESSFUL',
     FETCHING_FAILED: 'FETCHING_FAILED',
@@ -126,7 +128,7 @@
     PEER_DISCOVERY_STARTED: 'PEER_DISCOVERY_STARTED',
     PEER_DISCOVERY_SUCCESSFUL: 'PEER_DISCOVERY_SUCCESSFUL',
     PEER_DISCOVERY_FAILED: 'PEER_DISCOVERY_FAILED',
-  };
+  });
 
   export default {
     name: 'SelectAddressForm',
@@ -136,11 +138,15 @@
     mixins: [commonCoreStrings, commonSyncElements],
     props: {
       discoverySpinnerTime: { type: Number, default: 2500 },
-      // Arg that's passed to fetchDynamic/StaticAddresses
-      fetchAddressArgs: {
+      // Facility filter only needed on SyncFacilityModalGroup
+      filterByFacilityId: {
         type: String,
         required: false,
-        default: '',
+      },
+      // Channel filter only needed on ManageContentPage/SelectNetworkAddressModal
+      filterByChannelId: {
+        type: String,
+        required: false,
       },
       // Hides "New address" button and other saved locations
       hideSavedAddresses: {
@@ -151,6 +157,11 @@
       selectedId: {
         type: String,
         required: false,
+      },
+      // Disables all the form controls
+      formDisabled: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -167,6 +178,15 @@
       };
     },
     computed: {
+      fetchAddressArgs() {
+        if (this.filterByChannelId) {
+          return { channelId: this.filterByChannelId };
+        } else if (this.filterByFacilityId) {
+          return { facilityId: this.filterByFacilityId };
+        } else {
+          return {};
+        }
+      },
       addresses() {
         return this.savedAddresses.concat(this.discoveredAddresses);
       },

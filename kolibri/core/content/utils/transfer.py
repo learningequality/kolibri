@@ -82,6 +82,7 @@ class Transfer(object):
         # record whether the destination file already exists, so it can be checked, but don't error out
         self.dest_exists = os.path.isfile(dest)
 
+    def start(self):
         # open the destination file for writing
         self.dest_file_obj = open(self.dest_tmp, "wb")
 
@@ -159,6 +160,7 @@ class FileDownload(Transfer):
         super(FileDownload, self).__init__(*args, **kwargs)
 
     def start(self):
+        super(FileDownload, self).start()
         # initiate the download, check for status errors, and calculate download size
         try:
             self.response = self.session.get(
@@ -219,15 +221,14 @@ class FileDownload(Transfer):
         super(FileDownload, self).close()
 
     def resume(self):
-        if self.cancel_check():
-            return
+        logger.info("Waiting 30s before retrying import: {}".format(self.source))
+        for i in range(30):
+            if self.cancel_check():
+                logger.info("Canceling import: {}".format(self.source))
+                return
+            sleep(1)
+
         try:
-            logger.info(
-                "Waiting for 30 seconds before retrying import: {}\n".format(
-                    self.source
-                )
-            )
-            sleep(30)
 
             byte_range_resume = None
             # When internet connection is lost at the beginning of start(),
@@ -277,6 +278,7 @@ class FileCopy(Transfer):
         assert (
             not self.started
         ), "File copy has already been started, and cannot be started again"
+        super(FileCopy, self).start()
         self.total_size = os.path.getsize(self.source)
         self.source_file_obj = open(self.source, "rb")
         self.started = True

@@ -2,7 +2,12 @@
 
   <AuthBase :hideCreateAccount="true">
     <div class="facility-select">
-      <KRouterLink class="backlink" :to="backTo" :text="coreString('goBackAction')" icon="back" />
+      <KRouterLink
+        class="backlink"
+        :to="backTo"
+        :text="userString('goBackToHomeAction')"
+        icon="back"
+      />
       <div v-if="facilityList['enabled'].length">
         <p class="label">
           {{ label }}
@@ -53,11 +58,12 @@
   import partition from 'lodash/partition';
   import { ComponentMap } from '../constants';
   import AuthBase from './AuthBase';
+  import commonUserStrings from './commonUserStrings';
 
   export default {
     name: 'FacilitySelect',
     components: { AuthBase },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonUserStrings],
     props: {
       // This component is interstitial and needs to know where to go when it's done
       // The type is Object, but it needs to be one of the listed routes in the validator
@@ -80,7 +86,6 @@
             this.facilities,
             f => f.dataset.learner_can_sign_up
           );
-          console.log(partitionedFacilities);
           return {
             enabled: partitionedFacilities[0],
             disabled: partitionedFacilities[1],
@@ -90,7 +95,7 @@
         }
       },
       label() {
-        return this.$route.query.next === ComponentMap.SIGN_UP
+        return this.whereToNext.name === ComponentMap.SIGN_UP
           ? this.$tr('canSignUpForFacilityLabel')
           : this.$tr('selectFacilityLabel');
       },

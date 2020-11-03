@@ -145,15 +145,17 @@ export default {
   getRecipientNamesForLesson(state) {
     return function(lesson) {
       const fullLesson = state.lessonMap[lesson.id];
+      if (!fullLesson) {
+        return [];
+      }
       const recipientsForGroups = fullLesson.groups.length
         ? this.getLearnersForGroups(fullLesson.groups)
         : [];
       const learnersInSelectedGroups = recipientsForGroups.map(
         learnerId => state.learnerMap[learnerId].name
       );
-      const assignments = lesson.lesson_assignments.map(l => l.collection);
       return this.getGroupNames(fullLesson.groups).concat(
-        this.getAdHocLearners(assignments)
+        lesson.learner_ids
           .map(learnerId => state.learnerMap[learnerId].name)
           .filter(learner => !learnersInSelectedGroups.includes(learner))
       );

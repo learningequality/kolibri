@@ -4,7 +4,7 @@
     <div class="auth-select">
       <div>
         <div class="label">
-          {{ $tr("signInPrompt") }}
+          {{ userString('signInPrompt') }}
         </div>
         <KRouterLink
           :text="coreString('signInLabel')"
@@ -19,7 +19,7 @@
           {{ $tr("newUserPrompt") }}
         </div>
         <KRouterLink
-          :text="$tr('createAccountAction')"
+          :text="userString('createAccountAction')"
           :to="signUpRoute"
           :primary="false"
           style="width: 100%;"
@@ -37,11 +37,12 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ComponentMap } from '../constants';
   import AuthBase from './AuthBase';
+  import commonUserStrings from './commonUserStrings';
 
   export default {
     name: 'AuthSelect',
     components: { AuthBase },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonUserStrings],
     computed: {
       signUpRoute() {
         const whereToNext = this.$router.getRoute(ComponentMap.SIGN_UP);
@@ -56,16 +57,10 @@
       },
     },
     $trs: {
-      createAccountAction: 'Create an account',
       newUserPrompt: {
         message: 'Are you a new user?',
         context:
           'When a device has multiple facilities, the user is asked if they are a new user in association with a button that allows the user to create a new account',
-      },
-      signInPrompt: {
-        message: 'Sign in if you have an existing account',
-        context:
-          'When a device has multiple facilities, this message is above a button which leads the user to the rest of the sign in process.',
       },
     },
   };

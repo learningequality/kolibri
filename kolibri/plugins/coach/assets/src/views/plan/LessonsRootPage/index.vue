@@ -59,7 +59,8 @@
             <td>
               <Recipients
                 :groupNames="getRecipientNamesForLesson(lesson)"
-                :hasAssignments="lesson.lesson_assignments.length > 0"
+                :hasAssignments="lesson.lesson_assignments.length > 0 ||
+                  lesson.learner_ids.length > 0"
               />
             </td>
             <td>
@@ -86,7 +87,7 @@
 
       <KModal
         v-if="showModal"
-        :title="$tr('newLessonModalTitle')"
+        :title="coachString('createLessonAction')"
         :submitText="coreString('continueAction')"
         :cancelText="coreString('cancelAction')"
         :submitDisabled="detailsModalIsDisabled"
@@ -97,8 +98,8 @@
         <AssignmentDetailsModal
           ref="detailsModal"
           assignmentType="new_lesson"
-          :modalTitleErrorMessage="$tr('duplicateTitle')"
-          :submitErrorMessage="$tr('saveLessonError')"
+          :modalTitleErrorMessage="coachString('duplicateLessonTitleError')"
+          :submitErrorMessage="coachString('saveLessonError')"
           :initialDescription="''"
           :initialTitle="''"
           :initialSelectedCollectionIds="[classId]"
@@ -186,10 +187,7 @@
         this.detailsModalIsDisabled = true;
         this.createLesson({
           classId: this.classId,
-          payload: {
-            ...payload,
-            lesson_assignments: payload.assignments,
-          },
+          payload,
         })
           .then() // If successful, should redirect to LessonSummaryPage
           .catch(error => {
@@ -226,13 +224,10 @@
       allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
-      newLessonModalTitle: 'Create new lesson',
       size: 'Size',
       noLessons: 'You do not have any lessons',
       noActiveLessons: 'No active lessons',
       noInactiveLessons: 'No inactive lessons',
-      saveLessonError: 'There was a problem saving this lesson',
-      duplicateTitle: 'A lesson with that name already exists',
       visibleToLearnersLabel: {
         message: 'Visible to learners',
         context:

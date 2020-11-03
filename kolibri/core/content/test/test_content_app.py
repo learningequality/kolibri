@@ -172,15 +172,14 @@ class ContentNodeQuerysetTestCase(TestCase):
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = Facility.objects.create(name="facility")
-        self.admin = FacilityUser.objects.create(
-            username="admin", facility=self.facility
-        )
-        self.admin.set_password(DUMMY_PASSWORD)
-        self.admin.save()
-        self.facility.add_admin(self.admin)
+        cls.facility = Facility.objects.create(name="facility")
+        cls.admin = FacilityUser.objects.create(username="admin", facility=cls.facility)
+        cls.admin.set_password(DUMMY_PASSWORD)
+        cls.admin.save()
+        cls.facility.add_admin(cls.admin)
 
     def test_filter_uuid(self):
         content_ids = content.ContentNode.objects.values_list("id", flat=True)
@@ -205,15 +204,14 @@ class ContentNodeAPITestCase(APITestCase):
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = Facility.objects.create(name="facility")
-        self.admin = FacilityUser.objects.create(
-            username="admin", facility=self.facility
-        )
-        self.admin.set_password(DUMMY_PASSWORD)
-        self.admin.save()
-        self.facility.add_admin(self.admin)
+        cls.facility = Facility.objects.create(name="facility")
+        cls.admin = FacilityUser.objects.create(username="admin", facility=cls.facility)
+        cls.admin.set_password(DUMMY_PASSWORD)
+        cls.admin.save()
+        cls.facility.add_admin(cls.admin)
 
     def test_prerequisite_for_filter(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
@@ -753,7 +751,7 @@ class ContentNodeAPITestCase(APITestCase):
         node_id = content.ContentNode.objects.get(title="c2c2").id
         response = self.client.get(
             reverse(
-                "kolibri:core:contentnode-recommendations-for", kwargs={"pk": node_id},
+                "kolibri:core:contentnode-recommendations-for", kwargs={"pk": node_id}
             )
         )
         self.assertEqual(len(response.data), 2)
@@ -765,7 +763,7 @@ class ContentNodeAPITestCase(APITestCase):
         node_id = node.id
         response = self.client.get(
             reverse(
-                "kolibri:core:contentnode-recommendations-for", kwargs={"pk": node_id},
+                "kolibri:core:contentnode-recommendations-for", kwargs={"pk": node_id}
             )
         )
         self.assertEqual(response.status_code, 404)
@@ -791,17 +789,6 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(len(response.data), children.count())
         for i in range(len(children)):
             self.assertEqual(response.data[i]["title"], children[i].title)
-
-    def test_contentnode_ancestors(self):
-        node = content.ContentNode.objects.get(title="c2c2")
-        ancestors = node.get_ancestors()
-        ancestors_titles = {n.title for n in ancestors}
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-ancestors", kwargs={"pk": node.id})
-        )
-        response_titles = {n["title"] for n in response.data}
-        self.assertEqual(len(response.data), ancestors.count())
-        self.assertEqual(ancestors_titles, response_titles)
 
     def test_channelmetadata_list(self):
         response = self.client.get(reverse("kolibri:core:channel-list", kwargs={}))
@@ -1505,16 +1492,20 @@ def mock_patch_decorator(func):
 
 
 class KolibriStudioAPITestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         DeviceSettings.objects.create(is_provisioned=True)
-        self.facility = Facility.objects.create(name="facility")
+        cls.facility = Facility.objects.create(name="facility")
         superuser = FacilityUser.objects.create(
-            username="superuser", facility=self.facility
+            username="superuser", facility=cls.facility
         )
         superuser.set_password(DUMMY_PASSWORD)
         superuser.save()
+        cls.superuser = superuser
         DevicePermissions.objects.create(user=superuser, is_superuser=True)
-        self.client.login(username=superuser.username, password=DUMMY_PASSWORD)
+
+    def setUp(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
 
     @mock_patch_decorator
     def test_channel_list(self):

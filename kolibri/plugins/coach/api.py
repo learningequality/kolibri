@@ -7,20 +7,17 @@ from django.db.models import Q
 from django.db.models import Sum
 from django.db.utils import DatabaseError
 from django.db.utils import OperationalError
-from rest_framework import pagination
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from .serializers import LearnerNotificationSerializer
 from .serializers import LessonReportSerializer
+from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.filters import HierarchyRelationsFilter
-from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.decorators import query_params_required
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -34,17 +31,6 @@ from kolibri.core.sqlite.utils import repair_sqlite_db
 collection_kind_choices = tuple(
     [choice[0] for choice in collection_kinds.choices] + ["user"]
 )
-
-
-class OptionalPageNumberPagination(pagination.PageNumberPagination):
-    """
-    Pagination class that allows for page number-style pagination, when requested.
-    To activate, the `page_size` argument must be set. For example, to request the first 20 records:
-    `?page_size=20&page=1`
-    """
-
-    page_size = None
-    page_size_query_param = "page_size"
 
 
 class LessonReportPermissions(permissions.BasePermission):
@@ -82,25 +68,40 @@ class ClassroomNotificationsPermissions(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        collection_id = view.kwargs.get("collection_id")
+        classroom_id = view.kwargs.get("classroom_id")
 
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
 
         try:
             return request.user.has_role_for(
-                allowed_roles, Collection.objects.get(pk=collection_id)
+                allowed_roles, Collection.objects.get(pk=classroom_id)
             )
         except (Collection.DoesNotExist, ValueError):
             return False
 
 
-@query_params_required(collection_id=str)
-class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
+@query_params_required(classroom_id=str)
+class ClassroomNotificationsViewset(ValuesViewset):
 
     permission_classes = (ClassroomNotificationsPermissions,)
-    serializer_class = LearnerNotificationSerializer
-    pagination_class = OptionalPageNumberPagination
-    pagination_class.page_size = 10
+
+    values = (
+        "id",
+        "timestamp",
+        "user_id",
+        "classroom_id",
+        "lesson_id",
+        "assignment_collections",
+        "reason",
+        "quiz_id",
+        "quiz_num_correct",
+        "quiz_num_answered",
+        "contentnode_id",
+        "notification_object",
+        "notification_event",
+    )
+
+    field_map = {"object": "notification_object", "event": "notification_event"}
 
     def check_after(self):
         """
@@ -115,6 +116,32 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
                 pass  # if after has not a valid format, let's not use it
         return after
 
+    def check_before(self):
+        """
+        Check if before parameter must be used for the query
+        """
+        notifications_before = self.request.query_params.get("before", None)
+        before = None
+        if notifications_before:
+            try:
+                before = int(notifications_before)
+            except ValueError:
+                pass  # if before has not a valid format, let's not use it
+        return before
+
+    def check_limit(self):
+        """
+        Check if limit parameter must be used for the query
+        """
+        notifications_limit = self.request.query_params.get("limit", None)
+        limit = None
+        if notifications_limit:
+            try:
+                limit = int(notifications_limit)
+            except ValueError:
+                pass  # if limit has not a valid format, let's not use it
+        return limit
+
     def apply_learner_filter(self, query):
         """
         Filter the notifications by learner_id if applicable
@@ -124,12 +151,14 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             return query.filter(user_id=learner_id)
         return query
 
-    def remove_default_page_size(self):
+    def apply_group_filter(self, query):
         """
-        This is a hack because DRF sets pagination always if pagination_class.page_size is set
+        Filter the notifications by group_id if applicable
         """
-        if self.request.query_params.get("page", None) is None:
-            self.paginator.page_size = None
+        group_id = self.request.query_params.get("group_id", None)
+        if group_id:
+            return query.filter(assignment_collections__contains=group_id)
+        return query
 
     def get_queryset(self):
         """
@@ -139,42 +168,30 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         If a 'page' parameter is used, the past day limit is not applied.
 
         Some url examples:
-        /coach/api/notifications/?collection_id=9da65157a8603788fd3db890d2035a9f
-        /coach/api/notifications/?collection_id=9da65157a8603788fd3db890d2035a9f&after=8&page=2
-        /coach/api/notifications/?page_size=5&page=2&collection_id=9da65157a8603788fd3db890d2035a9f&learner_id=94117bb5868a1ef529b8be60f17ff41a
-        /coach/api/notifications/?collection_id=9da65157a8603788fd3db890d2035a9f&page=2
+        /coach/api/notifications/?classroom_id=9da65157a8603788fd3db890d2035a9f
+        /coach/api/notifications/?classroom_id=9da65157a8603788fd3db890d2035a9f&after=8&limit=10
+        /coach/api/notifications/?limit=5&classroom_id=9da65157a8603788fd3db890d2035a9f&learner_id=94117bb5868a1ef529b8be60f17ff41a
+        /coach/api/notifications/?classroom_id=9da65157a8603788fd3db890d2035a9f
 
-        :param: collection_id uuid: classroom or learner group identifier (mandatory)
+        :param: classroom_id uuid: classroom or learner group identifier (mandatory)
         :param: learner_id uuid: user identifier
+        :param: group_id uuid: group identifier
         :param: after integer: all the notifications after this id will be sent.
-        :param: page_size integer: sets the number of notifications to provide for pagination (defaults: 10)
-        :param: page integer: sets the page to provide when paginating.
+        :param: limit integer: sets the number of notifications to provide
         """
-        collection_id = self.kwargs["collection_id"]
+        classroom_id = self.kwargs["classroom_id"]
 
-        if collection_id:
-            try:
-                collection = Collection.objects.get(pk=collection_id)
-            except (Collection.DoesNotExist, ValueError):
-                return []
-        if collection.kind == collection_kinds.CLASSROOM:
-            classroom_groups = list(LearnerGroup.objects.filter(parent=collection))
-            classroom_groups += list(AdHocGroup.objects.filter(parent=collection))
-            learner_groups = [group.id for group in classroom_groups]
-            learner_groups.append(collection_id)
-            notifications_query = LearnerProgressNotification.objects.filter(
-                classroom_id__in=learner_groups
-            )
-        else:
-            notifications_query = LearnerProgressNotification.objects.filter(
-                classroom_id=collection_id
-            )
+        notifications_query = LearnerProgressNotification.objects.filter(
+            classroom_id=classroom_id
+        )
         notifications_query = self.apply_learner_filter(notifications_query)
+        notifications_query = self.apply_group_filter(notifications_query)
         after = self.check_after()
-        self.remove_default_page_size()
         if after:
             notifications_query = notifications_query.filter(id__gt=after)
-        elif self.request.query_params.get("page", None) is None:
+        before = self.check_before()
+
+        if not after and not before:
             try:
                 last_id_record = notifications_query.latest("id")
                 # returns all the notifications 24 hours older than the latest
@@ -183,12 +200,24 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
                     timestamp__gte=last_24h
                 )
             except (LearnerProgressNotification.DoesNotExist):
-                return []
+                return LearnerProgressNotification.objects.none()
             except DatabaseError:
                 repair_sqlite_db(connections["notifications_db"])
-                return []
+                return LearnerProgressNotification.objects.none()
 
-        return notifications_query.order_by("-id")
+        limit = self.check_limit()
+        if before and limit:
+            # Don't allow arbitrary backwards lookups
+            notifications_query = notifications_query.filter(id__lt=before)
+
+        return notifications_query
+
+    def annotate_queryset(self, queryset):
+        queryset = queryset.order_by("-id")
+        limit = self.check_limit()
+        if limit:
+            return queryset[:limit]
+        return queryset
 
     def list(self, request, *args, **kwargs):
         """
@@ -196,11 +225,8 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
         Then it fetches and saves the needed information to know how many coaches
         are requesting notifications in the last five minutes
         """
-        # Use super on the parent class to prevent an infinite recursion.
         try:
-            response = super(viewsets.ReadOnlyModelViewSet, self).list(
-                request, *args, **kwargs
-            )
+            queryset = self.filter_queryset(self.prefetch_queryset(self.get_queryset()))
         except (OperationalError, DatabaseError):
             repair_sqlite_db(connections["notifications_db"])
 
@@ -222,14 +248,20 @@ class ClassroomNotificationsViewset(viewsets.ReadOnlyModelViewSet):
             notification_info.coach_id = request.user.id
             notification_info.save()
             NotificationsLog.objects.filter(timestamp__lt=logging_interval).delete()
-        if "results" not in response.data:
-            response.data = {
-                "results": response.data,
+
+        more_results = False
+        limit = self.check_limit()
+        if limit:
+            # If we are limiting responses, check if more results are available
+            more_results = queryset.order_by("-id")[limit:].exists()
+
+        return Response(
+            {
+                "results": self.serialize(queryset),
                 "coaches_polling": logged_notifications,
+                "more_results": more_results,
             }
-        else:
-            response.data["coaches_polling"] = logged_notifications
-        return response
+        )
 
 
 class ExerciseDifficultiesPermissions(permissions.BasePermission):

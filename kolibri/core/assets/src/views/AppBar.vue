@@ -43,7 +43,7 @@
           class="user-menu-button"
           :class="$computedClass({ ':focus': $coreOutline })"
           :ariaLabel="$tr('userMenu')"
-          @click="userMenuDropdownIsOpen = !userMenuDropdownIsOpen"
+          @click="handleUserMenuButtonClick"
         >
           <KIcon
             slot="icon"
@@ -174,6 +174,15 @@
       window.removeEventListener('click', this.handleWindowClick);
     },
     methods: {
+      handleUserMenuButtonClick(event) {
+        this.userMenuDropdownIsOpen = !this.userMenuDropdownIsOpen;
+        if (this.userMenuDropdownIsOpen) {
+          this.$nextTick(() => {
+            this.$refs.userMenuDropdown.$el.focus();
+          });
+        }
+        return event;
+      },
       handleWindowClick(event) {
         if (
           !this.$refs.userMenuDropdown.$el.contains(event.target) &&
@@ -186,8 +195,8 @@
       },
       handleCoreMenuClose() {
         this.userMenuDropdownIsOpen = false;
-        if (this.$refs.userMenuButton.$refs.button) {
-          this.$refs.userMenuButton.$refs.button.focus();
+        if (this.$refs.userMenuButton) {
+          this.$refs.userMenuButton.$el.focus();
         }
       },
       handleChangeLanguage() {
@@ -241,7 +250,7 @@
 
   .user-menu-dropdown {
     position: fixed;
-    right: 0;
+    right: 8px;
     z-index: 8;
 
     // Holdover from previous CoreMenuOption format. Will keep the profile

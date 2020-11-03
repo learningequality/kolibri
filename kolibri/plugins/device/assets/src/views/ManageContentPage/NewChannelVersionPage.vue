@@ -37,7 +37,7 @@
           <th>{{ $tr('resourcesToBeDeleted') }}</th>
           <td>
             <span
-              :class="{ 'count-deleted': deletedResources }"
+              :class="{ 'count-deleted': deletedResources > 0 }"
               :style="{ color: $themeTokens.error }"
             >
               {{ deletedResources }}
@@ -66,15 +66,6 @@
         :delay="false"
       />
 
-      <BottomAppBar>
-        <KButton
-          :text="$tr('updateChannelAction')"
-          appearance="raised-button"
-          :primary="true"
-          :disabled="loadingChannel || loadingTask"
-          @click="showModal = true"
-        />
-      </BottomAppBar>
     </section>
 
     <dl>
@@ -99,13 +90,17 @@
     >
       <p>{{ $tr('updateConfirmationQuestion', { channelName, version: nextVersion }) }}</p>
     </KModal>
+
+    <BottomAppBar>
+      <KButton
+        :text="$tr('updateChannelAction')"
+        appearance="raised-button"
+        :primary="true"
+        :disabled="loadingChannel || loadingTask"
+        @click="showModal = true"
+      />
+    </BottomAppBar>
   </div>
-  <KLinearLoader
-    v-else
-    :indeterminate="true"
-    :delay="false"
-    class="main-loader"
-  />
 
 </template>
 
@@ -120,7 +115,7 @@
   import { TaskResource } from 'kolibri.resources';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import { taskIsClearable, PageNames, TaskStatuses } from '../../constants';
+  import { taskIsClearable, TaskStatuses } from '../../constants';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 
   export default {
@@ -172,12 +167,13 @@
         });
       },
       sortedFilteredVersionNotes() {
+        // Show version notes for all versions since the current one
         const versionArray = map(this.versionNotes, (val, key) => {
           return {
             version: Number(key),
             notes: val,
           };
-        }).filter(note => note.version >= this.currentVersion);
+        }).filter(note => note.version > this.currentVersion);
         return sortBy(versionArray, note => -note.version);
       },
       watchedTaskHasFinished() {
@@ -226,6 +222,8 @@
         // Create the import channel task
         return TaskResource.postListEndpoint('startchannelupdate', updateParams)
           .then(taskResponse => {
+            // If there are new resources in the new version, wait until the new
+            // metadata DB is loaded, then redirect to the "Import More from Studio" flow.
             if (this.newResources) {
               this.loadingTask = true;
               const taskId = taskResponse.data.id;
@@ -234,7 +232,7 @@
                 const match = tasks.find(task => task.id === taskId) || {};
                 if (match && match.database_ready) {
                   stopWatching();
-                  this.$router.push(this.$router.getRoute(PageNames.MANAGE_CHANNEL));
+                  this.$router.push(this.$router.getRoute('SELECT_CONTENT'));
                 } else if (match.status === TaskStatuses.FAILED) {
                   stopWatching();
                   this.$router.push(this.$router.getRoute('MANAGE_TASKS'));

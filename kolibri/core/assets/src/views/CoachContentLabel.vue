@@ -63,6 +63,8 @@
 <style lang="scss" scoped>
 
   .counter {
+    position: relative;
+    left: -4px;
     font-size: 11px;
   }
 

@@ -92,7 +92,7 @@
         this.$refs.searchinput.focus();
       },
       search() {
-        if (this.searchTerm !== '') {
+        if (this.searchTerm !== '' && this.searchTermHasChanged) {
           this.$emit('searchterm', this.searchTerm);
         }
       },
@@ -146,7 +146,6 @@
 
   .buttons-wrapper {
     display: table-cell;
-    width: 78px;
     height: 36px;
     text-align: right;
     vertical-align: middle;

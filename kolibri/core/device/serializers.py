@@ -75,6 +75,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             facility = Facility.objects.create(**validated_data.pop("facility"))
             preset = validated_data.pop("preset")
             dataset_data = mappings[preset]
+            facility.dataset.preset = preset
             for key, value in dataset_data.items():
                 setattr(facility.dataset, key, value)
             # overwrite the settings in dataset_data with validated_data.settings

@@ -1,15 +1,15 @@
-import os
-import time
+import logging
 
-try:
-    from thread import get_ident
-except ImportError:
-    from threading import get_ident
-
+from diskcache.recipes import RLock
 from django.core.cache import caches
 from django.core.cache import InvalidCacheBackendError
 from django.core.cache.backends.base import BaseCache
 from django.utils.functional import SimpleLazyObject
+
+from kolibri.utils.conf import OPTIONS
+
+
+logger = logging.getLogger(__name__)
 
 
 def __get_process_cache():
@@ -22,44 +22,46 @@ def __get_process_cache():
 process_cache = SimpleLazyObject(__get_process_cache)
 
 
-class DiskCacheRLock(object):
-    """
-    Vendored from
-    https://github.com/grantjenks/python-diskcache/blob/2d1f43ea2be4c82a430d245de6260c3e18059ba1/diskcache/recipes.py
-    """
-
+class ProcessLock(object):
     def __init__(self, key, expire=None):
-        self._cache = process_cache
-        self._key = key
-        self._expire = expire
+        """
+        :param key: The lock key
+        :param expire: The cache key expiration in seconds
+        :type key: str
+        :type expire: int
+        """
+        self.key = key
+        self.expire = expire
+
+        self._lock_object = None
+
+    @property
+    def _lock(self):
+        if self._lock_object is None:
+            if OPTIONS["Cache"]["CACHE_BACKEND"] == "redis":
+                expire = self.expire * 1000 if self.expire is not None else None
+                # if we're using Redis, be sure we use Redis' locking mechanism which uses
+                # `SET NX` under the hood. See redis.lock.Lock
+                # The Django RedisCache backend provide the lock method to proxy this
+                self._lock_object = process_cache.lock(
+                    self.key,
+                    timeout=expire,  # milliseconds
+                    sleep=0.01,  # seconds
+                    blocking_timeout=100,  # seconds
+                    thread_local=True,
+                )
+            else:
+                # we can't pass in the `process_cache` because it's an instance of DjangoCache
+                # and we need a DiskCache Cache instance
+                cache = process_cache.cache("locks")
+                self._lock_object = RLock(cache, self.key, expire=self.expire)
+        return self._lock_object
 
     def acquire(self):
-        "Acquire lock by incrementing count using spin-lock algorithm."
-        pid = os.getpid()
-        tid = get_ident()
-        pid_tid = "{}-{}".format(pid, tid)
-
-        while True:
-            value, count = self._cache.get(self._key, (None, 0))
-            if pid_tid == value or count == 0:
-                self._cache.set(self._key, (pid_tid, count + 1), self._expire)
-                return
-            time.sleep(0.001)
+        self._lock.acquire()
 
     def release(self):
-        "Release lock by decrementing count."
-        pid = os.getpid()
-        tid = get_ident()
-        pid_tid = "{}-{}".format(pid, tid)
-
-        value, count = self._cache.get(self._key, default=(None, 0))
-        is_owned = pid_tid == value and count > 0
-        assert is_owned, "cannot release un-acquired lock"
-        self._cache.set(self._key, (value, count - 1), self._expire)
-
-        # RLOCK leaves the db connection open after releasing the lock
-        # Let's ensure it's correctly closed
-        self._cache.close()
+        self._lock.release()
 
     def __enter__(self):
         self.acquire()
@@ -82,7 +84,7 @@ class NamespacedCacheProxy(BaseCache):
         params.update(KEY_PREFIX=namespace)
         super(NamespacedCacheProxy, self).__init__(params)
         self.cache = cache
-        self._lock = DiskCacheRLock("namespaced_cache_{}".format(namespace))
+        self._lock = ProcessLock("namespaced_cache_{}".format(namespace))
 
     def _get_keys(self):
         """
@@ -149,3 +151,48 @@ class NamespacedCacheProxy(BaseCache):
             for key in self._get_keys():
                 self.cache.delete(self.make_key(key))
             self._set_keys([])
+
+
+class RedisSettingsHelper(object):
+    """
+    Small wrapper for the Redis client to explicitly get/set values from the client
+    """
+
+    def __init__(self, client):
+        """
+        :type client: redis.Redis
+        """
+        self.client = client
+        self.changed = False
+
+    def get(self, key, default_value=None):
+        return self.client.config_get(key).get(key, default_value)
+
+    def set(self, key, value):
+        self.changed = True
+        logger.info("Configuring Redis: {} {}".format(key, value))
+        return self.client.config_set(key, value)
+
+    def get_used_memory(self):
+        return self.client.info(section="memory").get("used_memory")
+
+    def get_maxmemory(self):
+        return int(self.get("maxmemory", default_value=0))
+
+    def set_maxmemory(self, maxmemory):
+        return self.set("maxmemory", maxmemory)
+
+    def get_maxmemory_policy(self):
+        return self.get("maxmemory-policy", default_value="noeviction")
+
+    def set_maxmemory_policy(self, policy):
+        return self.set("maxmemory-policy", policy)
+
+    def save(self):
+        """
+        Saves the changes to the redis.conf using the CONFIG REWRITE command
+        """
+        if self.changed:
+            logger.info("Overwriting Redis config")
+            self.client.config_rewrite()
+            self.changed = False

@@ -73,7 +73,7 @@ class DeviceProvisionTestCase(APITestCase):
         self.assertEqual(settings.learner_can_edit_username, True)
         self.assertEqual(settings.learner_can_edit_name, True)
         self.assertEqual(settings.learner_can_edit_password, True)
-        self.assertEqual(settings.learner_can_sign_up, False)
+        self.assertEqual(settings.learner_can_sign_up, True)
         self.assertEqual(settings.learner_can_delete_account, True)
         self.assertEqual(settings.learner_can_login_with_no_password, False)
         self.assertEqual(settings.show_download_button_in_learn, True)
@@ -170,19 +170,22 @@ class DeviceProvisionTestCase(APITestCase):
 
 
 class DeviceSettingsTestCase(APITestCase):
-    settings = {
-        "language_id": "en",
-        "allow_guest_access": False,
-        "allow_peer_unlisted_channel_import": True,
-        "allow_learner_unassigned_resource_access": False,
-    }
+    @classmethod
+    def setUpTestData(cls):
+        cls.settings = {
+            "language_id": "en",
+            "allow_guest_access": False,
+            "allow_peer_unlisted_channel_import": True,
+            "allow_learner_unassigned_resource_access": False,
+        }
+
+        cls.facility = FacilityFactory.create()
+        provision_device(language_id="es", default_facility=cls.facility)
+        cls.superuser = create_superuser(cls.facility)
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
 
     def setUp(self):
         super(DeviceSettingsTestCase, self).setUp()
-        self.facility = FacilityFactory.create()
-        provision_device(language_id="es", default_facility=self.facility)
-        self.superuser = create_superuser(self.facility)
-        self.user = FacilityUserFactory.create(facility=self.facility)
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -227,11 +230,14 @@ class DeviceSettingsTestCase(APITestCase):
 
 
 class DevicePermissionsTestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility)
-        self.user = FacilityUserFactory.create(facility=self.facility)
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
+
+    def setUp(self):
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -299,11 +305,14 @@ class FreeSpaceTestCase(APITestCase):
 
 
 class DeviceInfoTestCase(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
         DatabaseIDModel.objects.create()
-        self.facility = FacilityFactory.create()
-        self.superuser = create_superuser(self.facility)
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+
+    def setUp(self):
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -393,14 +402,16 @@ class DeviceInfoTestCase(APITestCase):
 
 
 class DeviceNameTestCase(APITestCase):
-    device_name = {"name": "test device"}
+    @classmethod
+    def setUpTestData(cls):
+        cls.device_name = {"name": "test device"}
+        cls.facility = FacilityFactory.create()
+        provision_device(language_id="es", default_facility=cls.facility)
+        cls.superuser = create_superuser(cls.facility)
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
 
     def setUp(self):
         super(DeviceNameTestCase, self).setUp()
-        self.facility = FacilityFactory.create()
-        provision_device(language_id="es", default_facility=self.facility)
-        self.superuser = create_superuser(self.facility)
-        self.user = FacilityUserFactory.create(facility=self.facility)
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -441,8 +452,8 @@ class DeviceNameTestCase(APITestCase):
         )
 
     def test_device_name_max_length(self):
-        exceeds_max_length_name = {"name": "a" * 60}
         with self.assertRaises(ValidationError):
+            exceeds_max_length_name = {"name": "a" * 60}
             self.client.patch(
                 reverse("kolibri:core:devicename"),
                 exceeds_max_length_name,

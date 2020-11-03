@@ -1,13 +1,115 @@
 import orderBy from 'lodash/orderBy';
 import groupBy from 'lodash/groupBy';
-import get from 'lodash/get';
 import find from 'lodash/find';
-import maxBy from 'lodash/maxBy';
-import { NotificationObjects } from '../../constants/notificationsConstants';
+import sortedUniqBy from 'lodash/sortedUniqBy';
+import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+import { NotificationObjects, NotificationEvents } from '../../constants/notificationsConstants';
 import { CollectionTypes } from '../../constants/lessonsConstants';
-import { partitionCollectionByEvents, getCollectionsForAssignment } from './gettersUtils';
 
 const { LESSON, RESOURCE, QUIZ } = NotificationObjects;
+
+export function allNotifications(state, getters, rootState, rootGetters) {
+  const classSummary = rootGetters['classSummary/notificationModuleData'];
+
+  function getResource(contentnode_id) {
+    if (classSummary.contentNodes[contentnode_id]) {
+      return {
+        name: classSummary.contentNodes[contentnode_id].title,
+        type: classSummary.contentNodes[contentnode_id].kind,
+        id: contentnode_id,
+        content_id: classSummary.contentNodes[contentnode_id].content_id,
+      };
+    }
+    return {
+      name: '',
+      type: '',
+      id: contentnode_id,
+      content_id: '',
+    };
+  }
+
+  function reshapeNotification(notification) {
+    // Discard notifications for users that we have no info for
+    if (!classSummary.learners[notification.user_id]) {
+      return null;
+    }
+
+    const { object } = notification;
+    // Finds the first group the user_id is in and just uses that label.
+    // Does not make additional notifications if the user is in more than
+    // one group that has been assigned lesson or quiz.
+    if (object === QUIZ) {
+      const examMatch = classSummary.exams[notification.quiz_id];
+      if (!examMatch) {
+        return null;
+      }
+    } else if (object === LESSON || object === RESOURCE) {
+      const lessonMatch = classSummary.lessons[notification.lesson_id];
+      if (!lessonMatch) {
+        return null;
+      }
+    }
+    const groups = notification.assignment_collections
+      .map(idx => classSummary.learnerGroups[idx])
+      .filter(Boolean);
+
+    let collection;
+    if (!groups.length) {
+      collection = {
+        id: classSummary.classId,
+        name: classSummary.className,
+        type: CollectionTypes.CLASSROOM,
+      };
+    } else {
+      const groupMatch =
+        find(groups, group => {
+          return group.member_ids.includes(notification.user_id);
+          // If the learner was removed from all groups, generate the notification for
+          // the first group
+        }) || groups[0];
+      collection = {
+        id: groupMatch.id,
+        name: groupMatch.name,
+        type: CollectionTypes.LEARNERGROUP,
+      };
+    }
+
+    let assignment = {};
+    if (object === QUIZ) {
+      assignment = {
+        name: classSummary.exams[notification.quiz_id].title,
+        type: ContentNodeKinds.EXAM,
+        id: notification.quiz_id,
+      };
+    } else {
+      assignment = {
+        name: classSummary.lessons[notification.lesson_id].title,
+        type: ContentNodeKinds.LESSON,
+        id: notification.lesson_id,
+      };
+    }
+
+    return {
+      ...notification,
+      object,
+      collection,
+      id: Number(notification.id),
+      assignment,
+      resource: getResource(notification.contentnode_id),
+      learnerSummary: {
+        firstUserName: classSummary.learners[notification.user_id].name,
+        firstUserId: notification.user_id,
+        total: 1,
+      },
+    };
+  }
+
+  return orderBy(
+    state.notifications.map(reshapeNotification).filter(n => n),
+    'timestamp',
+    ['desc']
+  );
+}
 
 export function summarizedNotifications(state, getters, rootState, rootGetters) {
   const summaryEvents = [];
@@ -16,144 +118,69 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
   // Group notifications by certain shared values
   // Resource Completed/Needs Help - Same Node and Lesson
   // Lesson/Quiz Completed - Same Lesson/Quiz
-  const groupedNotifications = groupBy(state.notifications, n => {
-    if (n.object === RESOURCE) {
-      // Contains both Needs Help and Resource Completed-typed notifications
-      return `${n.type}_${n.lesson_id}_${n.contentnode_id}`;
+  const groupedNotifications = groupBy(
+    getters.allNotifications.filter(
+      // Filter out "Answered" notifications to avoid flooding the list
+      n => n.event !== NotificationEvents.ANSWERED
+    ),
+    n => {
+      if (n.object === RESOURCE) {
+        // Contains both Needs Help and Resource Completed-typed notifications
+        return `${n.object}_${n.lesson_id}_${n.contentnode_id}`;
+      }
+      if (n.object === LESSON) {
+        return `${n.object}_${n.lesson_id}`;
+      }
+      if (n.object === QUIZ) {
+        return `${n.object}_${n.quiz_id}`;
+      }
     }
-    if (n.object === LESSON) {
-      return `${n.type}_${n.lesson_id}`;
-    }
-    if (n.object === QUIZ) {
-      return `${n.type}_${n.quiz_id}`;
-    }
-  });
+  );
 
   for (let groupCode in groupedNotifications) {
-    const allEvents = groupedNotifications[groupCode];
+    // Filter out all bust the most recent event for each user
+    const allEvents = sortedUniqBy(groupedNotifications[groupCode], 'user_id');
 
-    // Use first event in list as exemplar for summary object
-    const firstEvent = allEvents[0];
-
-    // Get the ID of the most recent event in the collection
-    const lastId = maxBy(allEvents, n => Number(n.id)).id;
-
-    const { object, type, event } = firstEvent;
-
-    // Set details about Lesson or Quiz
-    let assignment;
-
-    if (object === RESOURCE || object === LESSON) {
-      assignment = {
-        id: firstEvent.lesson_id,
-        type: 'lesson',
-        name: firstEvent.lesson,
-      };
-    }
-
-    if (object === QUIZ) {
-      assignment = {
-        id: firstEvent.quiz_id,
-        type: 'exam', // using 'exam' here since it matches string used in ContentIcon
-        name: firstEvent.quiz,
-      };
-    }
-
-    // If notification is for a single Resource, set up details about it
-    let resource = {};
-
-    if (object === RESOURCE) {
-      resource = {
-        id: firstEvent.contentnode_id,
-        content_id: get(classSummary.contentNodes, [firstEvent.contentnode_id, 'content_id'], ''),
-        type: firstEvent.contentnode_kind,
-        name: firstEvent.resource,
-      };
-    }
-
-    const assigneeCollections = getCollectionsForAssignment({
-      classSummary,
-      assignment,
-    });
-
-    // If 'assigneeCollections' is null, then the quiz or lesson was deleted
-    if (assigneeCollections === null) continue;
+    const eventsByCollection = groupBy(allEvents, e => e.collection.id);
 
     // Iterate through each of the assignee collections and create one
-    // summarizing notification for each.
-    for (let collIdx in assigneeCollections) {
-      const collection = assigneeCollections[collIdx];
+    // summarizing notification for each event type in the collection.
+    for (let collIdx in eventsByCollection) {
+      const collectionEvents = eventsByCollection[collIdx];
 
-      const partitioning = partitionCollectionByEvents({
-        classSummary,
-        events: allEvents,
-        collectionId: collection.collection,
-        collectionType: collection.collection_kind,
-      });
+      const eventTypeEvents = groupBy(collectionEvents, 'event');
 
-      // If 'partitioning' is null, then the assignee collection is a learnergroup
-      // that has been deleted.
-      if (partitioning === null || partitioning.hasEvent.length === 0) continue;
+      for (let eventType in eventTypeEvents) {
+        const orderedEvents = eventTypeEvents[eventType];
 
-      const firstUser = find(orderBy(allEvents, 'timestamp', ['desc']), event => {
-        return partitioning.hasEvent.includes(event.user_id);
-      });
+        const firstEvent = orderedEvents.slice(-1)[0];
 
-      // Ad hoc groups will not have notifications bundled up like
-      // "Joe and N others..." for now. Each Individual learner's behavior
-      // will have a notification shown.
-      if (collection.collection_kind === CollectionTypes.ADHOCLEARNERSGROUP) {
-        partitioning.hasEvent.forEach((userId, idx) => {
-          const user = find(orderBy(allEvents, 'timestamp', ['desc']), event => {
-            return event.user_id === userId;
-          });
-          summaryEvents.push({
-            type,
-            object,
-            event,
-            groupCode: groupCode + '_' + collIdx + '_' + idx,
-            lastId,
-            assignment,
-            resource,
-            collection: {
-              id: collection.collection,
-              type: collection.collection_kind,
-              name: collection.name,
-            },
-            learnerSummary: {
-              firstUserName: user.user,
-              firstUserId: user.user_id,
-              total: 1,
-              // not used for Needs Help
-              completesCollection: false,
-            },
-          });
-        });
-      } else {
+        const lastEvent = orderedEvents[0];
+
+        let collectionSize = 1;
+
+        if (firstEvent.collection.type === CollectionTypes.CLASSROOM) {
+          collectionSize = classSummary.learners.length;
+        } else if (firstEvent.collection.type === CollectionTypes.LEARNERGROUP) {
+          collectionSize = classSummary.learnerGroups[collIdx].member_ids.length;
+        } else if (firstEvent.collection.type === CollectionTypes.ADHOCLEARNERSGROUP) {
+          collectionSize = classSummary.adHocGroupsMap[collIdx].length;
+        }
+
         summaryEvents.push({
-          type,
-          object,
-          event,
+          ...firstEvent,
           groupCode: groupCode + '_' + collIdx,
-          lastId,
-          assignment,
-          resource,
-          collection: {
-            id: collection.collection,
-            type: collection.collection_kind,
-            name: collection.name,
-          },
+          timestamp: lastEvent.timestamp,
           learnerSummary: {
-            firstUserName: firstUser.user,
-            firstUserId: firstUser.user_id,
-            total: partitioning.hasEvent.length,
+            ...firstEvent.learnerSummary,
+            total: orderedEvents.length,
             // not used for Needs Help
-            completesCollection: partitioning.rest.length === 0,
+            completesCollection: orderedEvents.length === collectionSize,
           },
         });
       }
     }
   }
 
-  return summaryEvents;
+  return orderBy(summaryEvents, 'timestamp', ['desc']);
 }

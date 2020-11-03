@@ -66,10 +66,10 @@
     computed: {
       ...mapState('classSummary', ['examMap', 'lessonMap']),
       exam() {
-        return this.examMap[this.$route.params.quizId];
+        return this.examMap[this.$route.params.quizId] || {};
       },
       lesson() {
-        return this.lessonMap[this.$route.params.lessonId];
+        return this.lessonMap[this.$route.params.lessonId] || {};
       },
       resource() {
         return this.examOrLesson === 'lesson' ? this.lesson : this.exam;

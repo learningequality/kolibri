@@ -6,9 +6,11 @@ import userPermissions from './userPermissions';
 import coreBase from './coreBase';
 
 export default {
-  state: {
-    pageName: '',
-    welcomeModalVisible: false,
+  state() {
+    return {
+      pageName: '',
+      welcomeModalVisible: false,
+    };
   },
   mutations: {
     SET_PAGE_NAME(state, name) {

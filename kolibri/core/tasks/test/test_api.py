@@ -49,24 +49,23 @@ def fake_job(**kwargs):
 
 
 class BaseAPITestCase(APITestCase):
-    def _setup_device(self):
+    @classmethod
+    def setUpTestData(cls):
         DeviceSettings.objects.create(is_provisioned=True)
-        self.facility = Facility.objects.create(name="facility")
-        superuser = FacilityUser.objects.create(
-            username="superuser", facility=self.facility
+        cls.facility = Facility.objects.create(name="facility")
+        cls.superuser = FacilityUser.objects.create(
+            username="superuser", facility=cls.facility
         )
-        superuser.set_password(DUMMY_PASSWORD)
-        superuser.save()
-        DevicePermissions.objects.create(user=superuser, is_superuser=True)
-        self.client.login(username=superuser.username, password=DUMMY_PASSWORD)
-        return superuser
+        cls.superuser.set_password(DUMMY_PASSWORD)
+        cls.superuser.save()
+        DevicePermissions.objects.create(user=cls.superuser, is_superuser=True)
+
+    def setUp(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
 
 
 @patch("kolibri.core.tasks.api.queue")
 class TaskAPITestCase(BaseAPITestCase):
-    def setUp(self):
-        self._setup_device()
-
     def test_task_cancel(self, queue_mock):
         queue_mock.fetch_job.return_value = fake_job(state=State.CANCELED)
         response = self.client.post(
@@ -158,29 +157,27 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         self.assertEqual(response.data, [])
 
     def test_list_provisioned(self, facility_queue):
-        DeviceSettings.objects.create(is_provisioned=True)
-
         response = self.client.get(
             reverse("kolibri:core:facilitytask-list"), format="json"
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
     def test_startdataportalsync(self, facility_queue):
-        user = self._setup_device()
+        user = self.superuser
 
         facility_queue.enqueue.return_value = 123
         fake_job_data = dict(
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=True,
-            extra_metadata=dict(this_is_extra=True,),
+            cancellable=False,
+            extra_metadata=dict(this_is_extra=True),
         )
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
 
         response = self.client.post(
             reverse("kolibri:core:facilitytask-startdataportalsync"),
-            {"facility": self.facility.id},
+            {"facility": self.facility.id, "facility_name": "my facility name"},
             format="json",
         )
         self.assertEqual(response.status_code, 200)
@@ -194,6 +191,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             noninteractive=True,
             extra_metadata=dict(
                 facility=self.facility.id,
+                facility_name="my facility name",
                 started_by=user.pk,
                 started_by_username=user.username,
                 sync_state="PENDING",
@@ -202,11 +200,11 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                 type="SYNCDATAPORTAL",
             ),
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
         )
 
     def test_startdataportalbulksync(self, facility_queue):
-        user = self._setup_device()
+        user = self.superuser
 
         facility2 = Facility.objects.create(name="facility 2")
         facility3 = Facility.objects.create(name="facility 3")
@@ -217,8 +215,8 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=True,
-            extra_metadata=dict(this_is_extra=True,),
+            cancellable=False,
+            extra_metadata=dict(this_is_extra=True),
         )
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
 
@@ -238,6 +236,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                     noninteractive=True,
                     extra_metadata=dict(
                         facility=facility2.id,
+                        facility_name="facility 2",
                         started_by=user.pk,
                         started_by_username=user.username,
                         sync_state="PENDING",
@@ -246,7 +245,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                         type="SYNCDATAPORTAL",
                     ),
                     track_progress=True,
-                    cancellable=True,
+                    cancellable=False,
                 ),
                 call(
                     call_command,
@@ -256,6 +255,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                     noninteractive=True,
                     extra_metadata=dict(
                         facility=facility3.id,
+                        facility_name="facility 3",
                         started_by=user.pk,
                         started_by_username=user.username,
                         sync_state="PENDING",
@@ -264,7 +264,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                         type="SYNCDATAPORTAL",
                     ),
                     track_progress=True,
-                    cancellable=True,
+                    cancellable=False,
                 ),
             ],
             any_order=True,
@@ -278,7 +278,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         validate_and_prepare_peer_sync_job,
         facility_queue,
     ):
-        user = self._setup_device()
+        user = self.superuser
 
         extra_metadata = dict(
             facility=self.facility.id,
@@ -301,7 +301,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             noninteractive=True,
             extra_metadata=extra_metadata,
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
         )
         validate_and_prepare_peer_sync_job.return_value = prepared_data.copy()
 
@@ -310,14 +310,14 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=True,
-            extra_metadata=dict(this_is_extra=True,),
+            cancellable=False,
+            extra_metadata=dict(this_is_extra=True),
         )
         fake_job_data["extra_metadata"].update(extra_metadata)
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
 
         req_data = dict(
-            facility=self.facility.id, baseurl="https://some.server.test/extra/stuff",
+            facility=self.facility.id, baseurl="https://some.server.test/extra/stuff"
         )
 
         response = self.client.post(
@@ -329,15 +329,15 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         self.assertJobResponse(fake_job_data, response)
 
         validate_and_prepare_peer_sync_job.assert_has_calls(
-            [call(ANY, no_push=True, no_provision=True, extra_metadata=extra_metadata,)]
+            [call(ANY, no_push=True, no_provision=True, extra_metadata=extra_metadata)]
         )
         facility_queue.enqueue.assert_called_with(call_command, "sync", **prepared_data)
 
     @patch("kolibri.core.tasks.api.validate_and_prepare_peer_sync_job")
     def test_startpeerfacilitysync(
-        self, validate_and_prepare_peer_sync_job, facility_queue,
+        self, validate_and_prepare_peer_sync_job, facility_queue
     ):
-        user = self._setup_device()
+        user = self.superuser
 
         extra_metadata = dict(
             facility=self.facility.id,
@@ -359,7 +359,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             noninteractive=True,
             extra_metadata=extra_metadata,
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
         )
         validate_and_prepare_peer_sync_job.return_value = prepared_data.copy()
 
@@ -368,14 +368,14 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             job_id=123,
             state="testing",
             percentage_progress=42,
-            cancellable=True,
-            extra_metadata=dict(this_is_extra=True,),
+            cancellable=False,
+            extra_metadata=dict(this_is_extra=True),
         )
         fake_job_data["extra_metadata"].update(extra_metadata)
         facility_queue.fetch_job.return_value = fake_job(**fake_job_data)
 
         req_data = dict(
-            facility=self.facility.id, baseurl="https://some.server.test/extra/stuff",
+            facility=self.facility.id, baseurl="https://some.server.test/extra/stuff"
         )
 
         response = self.client.post(
@@ -387,12 +387,12 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         self.assertJobResponse(fake_job_data, response)
 
         validate_and_prepare_peer_sync_job.assert_has_calls(
-            [call(ANY, extra_metadata=extra_metadata,)]
+            [call(ANY, extra_metadata=extra_metadata)]
         )
         facility_queue.enqueue.assert_called_with(call_command, "sync", **prepared_data)
 
     def test_startdeletefacility(self, facility_queue):
-        user = self._setup_device()
+        user = self.superuser
         facility2 = Facility.objects.create(name="facility2")
 
         extra_metadata = dict(
@@ -433,8 +433,6 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         )
 
     def test_startdeletefacility__sole_facility(self, facility_queue):
-        self._setup_device()
-
         response = self.client.post(
             reverse("kolibri:core:facilitytask-startdeletefacility"),
             dict(facility=self.facility.id),
@@ -444,13 +442,17 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         self.assertEqual("SOLE_FACILITY", response.data.get("code"))
 
     def test_startdeletefacility__not_superuser(self, facility_queue):
-        DeviceSettings.objects.create(is_provisioned=True)
         facility1 = Facility.objects.create(name="facility1")
         Facility.objects.create(name="facility2")
 
-        user = FacilityUser.objects.create(username="superuser", facility=facility1)
+        user = FacilityUser.objects.create(username="notasuperuser", facility=facility1)
         user.set_password(DUMMY_PASSWORD)
         user.save()
+
+        DevicePermissions.objects.create(
+            user=user, is_superuser=False, can_manage_content=True
+        )
+        self.client.logout()
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -461,7 +463,6 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_startdeletefacility__facility_member(self, facility_queue):
-        self._setup_device()
         Facility.objects.create(name="facility2")
 
         response = self.client.post(
@@ -498,7 +499,7 @@ class FacilityTaskHelperTestCase(TestCase):
             chunk_size=200,
             noninteractive=True,
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
             extra_metadata=dict(type="test"),
         )
         actual = validate_prepare_sync_job(req, extra_metadata=dict(type="test"))
@@ -554,7 +555,7 @@ class FacilityTaskHelperTestCase(TestCase):
             chunk_size=200,
             noninteractive=True,
             track_progress=True,
-            cancellable=True,
+            cancellable=False,
             extra_metadata=dict(type="test"),
         )
         actual = validate_and_prepare_peer_sync_job(
@@ -576,14 +577,14 @@ class FacilityTaskHelperTestCase(TestCase):
         )
 
     def test_validate_and_prepare_peer_sync_job__no_baseurl(self):
-        req = Mock(spec=Request, data=dict(facility=123,),)
+        req = Mock(spec=Request, data=dict(facility=123))
 
         with self.assertRaises(ParseError, msg="Missing `baseurl` parameter"):
             validate_and_prepare_peer_sync_job(req)
 
     def test_validate_and_prepare_peer_sync_job__bad_url(self):
         req = Mock(
-            spec=Request, data=dict(facility=123, baseurl="/com.bad.url.www//:sptth",),
+            spec=Request, data=dict(facility=123, baseurl="/com.bad.url.www//:sptth")
         )
 
         with self.assertRaises(ParseError, msg="Invalid URL"):
@@ -592,8 +593,7 @@ class FacilityTaskHelperTestCase(TestCase):
     @patch("kolibri.core.tasks.api.NetworkClient")
     def test_validate_and_prepare_peer_sync_job__cannot_connect(self, NetworkClient):
         req = Mock(
-            spec=Request,
-            data=dict(facility=123, baseurl="https://www.notfound.never",),
+            spec=Request, data=dict(facility=123, baseurl="https://www.notfound.never")
         )
 
         NetworkClient.side_effect = NetworkLocationNotFound()
@@ -642,7 +642,7 @@ class FacilityTaskHelperTestCase(TestCase):
     ):
         req = Mock(
             spec=Request,
-            data=dict(facility=123, baseurl="https://some.server.test/extra/stuff",),
+            data=dict(facility=123, baseurl="https://some.server.test/extra/stuff"),
         )
 
         client = NetworkClient.return_value

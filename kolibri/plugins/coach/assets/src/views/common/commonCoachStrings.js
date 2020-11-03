@@ -3,6 +3,7 @@ import { createTranslator } from 'kolibri.utils.i18n';
 const coachStrings = createTranslator('CommonCoachStrings', {
   // actions
   copyAction: 'Copy',
+  createLessonAction: 'Create new lesson',
   exportCSVAction: 'Export as CSV',
   manageResourcesAction: 'Manage resources',
   newLessonAction: 'New lesson',
@@ -78,6 +79,10 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   updatedNotification: 'Updated',
   createdNotification: 'Created',
   deletedNotification: 'Deleted',
+
+  // errors
+  saveLessonError: 'There was a problem saving this lesson',
+  duplicateLessonTitleError: 'A lesson with that name already exists',
 
   // empty states
   activityListEmptyState: 'There is no activity',

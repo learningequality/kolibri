@@ -5,15 +5,15 @@ ENV NODE_VERSION=10.14.1
 # install required packages
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
-      curl \
-      software-properties-common \
-      gettext \
-      git \
-      git-lfs \
-      psmisc \
-      python2.7 \
-      python-pip \
-      python-sphinx
+    curl \
+    software-properties-common \
+    gettext \
+    git \
+    git-lfs \
+    psmisc \
+    python2.7 \
+    python-pip \
+    python-sphinx
 
 # add yarn ppa
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -

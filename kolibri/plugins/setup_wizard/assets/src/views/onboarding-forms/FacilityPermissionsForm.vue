@@ -6,6 +6,8 @@
       :description="$tr('facilityPermissionsSetupFormDescription')"
       @submit="handleSubmit"
     >
+      <FacilityNameTextbox ref="facility-name" />
+
       <KRadioButton
         ref="first-button"
         v-model="selected"
@@ -14,11 +16,6 @@
         :label="$tr('nonFormalLabel')"
         :description="$tr('nonFormalDescription')"
       />
-      <FacilityNameTextbox
-        v-show="nonformalIsSelected"
-        ref="facility-name-nonformal"
-        class="facility-name-form"
-      />
 
       <KRadioButton
         v-model="selected"
@@ -26,11 +23,6 @@
         :value="Presets.FORMAL"
         :label="$tr('formalLabel')"
         :description="$tr('formalDescription')"
-      />
-      <FacilityNameTextbox
-        v-show="formalIsSelected"
-        ref="facility-name-formal"
-        class="facility-name-form"
       />
     </OnboardingForm>
   </div>
@@ -64,10 +56,8 @@
         return this.selected === Presets.NONFORMAL;
       },
       submittedFacilityName() {
-        if (this.nonformalIsSelected) {
-          return this.$refs['facility-name-nonformal'].facilityName;
-        } else if (this.formalIsSelected) {
-          return this.$refs['facility-name-formal'].facilityName;
+        if (this.nonformalIsSelected || this.formalIsSelected) {
+          return this.$refs['facility-name'].facilityName;
         } else {
           // Will be turned into a default "Home Facility {{ full name }}" after it is provided
           // in SuperuserCredentialsForm
@@ -75,14 +65,7 @@
         }
       },
       formIsValid() {
-        return this.submittedFacilityName !== '';
-      },
-    },
-    watch: {
-      selected() {
-        return this.$nextTick().then(() => {
-          this.focusOnTextbox();
-        });
+        return !this.$refs['facility-name'].facilityNameIsInvalid;
       },
     },
     mounted() {
@@ -90,13 +73,10 @@
     },
     methods: {
       focusOnTextbox() {
-        if (this.nonformalIsSelected) {
-          return this.$refs['facility-name-nonformal'].focus();
-        } else if (this.formalIsSelected) {
-          return this.$refs['facility-name-formal'].focus();
-        }
+        return this.$refs['facility-name'].focus();
       },
       handleSubmit() {
+        this.$refs['facility-name'].validateFacilityName();
         if (this.formIsValid) {
           this.$store.commit('SET_FACILITY_NAME', this.submittedFacilityName);
 
@@ -146,10 +126,6 @@
 <style lang="scss" scoped>
 
   $margin-of-radio-button-text: 32px;
-
-  .facility-name-form {
-    margin-left: 32px;
-  }
 
   .permission-preset {
     cursor: pointer;

@@ -1,29 +1,21 @@
 <template>
 
-  <div
-    class="new-version-banner"
-    :style="{ backgroundColor: $themePalette.lightblue.v_100 }"
-  >
-    <!-- stubs -->
-    <template v-if="false">
-      <UpdateChannelModal />
-      <NewChannelVersionPage />
-      {{ strings }}
-    </template>
-    <!-- end stubs -->
+  <div>
     <span class="version">
-      <KIcon
-        class="icon"
-        icon="error"
-        :style="{ fill: $themePalette.lightblue.v_500 }"
-      />
+      <span
+        class="new-label"
+        :style="{ color: $themeTokens.textInverted, backgroundColor: $themeTokens.success }"
+      >
+        {{ deviceString('newResourceLabel') }}
+      </span>
+
       <span class="version-available">
         {{ $tr('versionAvailable', { version }) }}
       </span>
     </span>
     <KButton
       :text="$tr('viewChangesAction')"
-      appearance="flat-button"
+      appearance="basic-link"
       :primary="false"
       @click="$emit('click')"
     />
@@ -34,26 +26,15 @@
 
 <script>
 
-  import channelUpdateStrings from './channelUpdateStrings.js';
-  import UpdateChannelModal from './UpdateChannelModal';
-  import NewChannelVersionPage from './NewChannelVersionPage';
+  import commonDeviceStrings from '../commonDeviceStrings';
 
   export default {
     name: 'NewChannelVersionBanner',
-    components: {
-      UpdateChannelModal,
-      NewChannelVersionPage,
-    },
+    mixins: [commonDeviceStrings],
     props: {
       version: {
         type: Number,
         required: true,
-      },
-    },
-    computed: {
-      // Stubbed out
-      strings() {
-        return channelUpdateStrings;
       },
     },
     $trs: {
@@ -71,30 +52,18 @@
 
 <style lang="scss" scoped>
 
-  .new-version-banner {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 0 16px;
+  .version-available {
+    margin-right: 8px;
+    font-weight: bold;
   }
 
-  .version {
-    display: flex;
-    align-items: center;
-    // Slight nudge to align with button text
-    margin-bottom: 4px;
-  }
-
-  .icon {
-    margin-right: 16px;
-    margin-bottom: 4px;
-  }
-
-  svg.icon {
-    width: 24px;
-    height: 24px;
+  .new-label {
+    display: inline-block;
+    padding: 2px 8px;
+    margin-right: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 2px;
   }
 
 </style>

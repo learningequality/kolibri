@@ -15,19 +15,26 @@
           icon="back"
           :text="$tr('changeFacility')"
           :to="backToFacilitySelectionRoute"
-          style="margin-top: 24px;"
+          style="margin-top: 24px; margin-left: -4px;"
         />
 
         <!-- When password form shows, show a change user link -->
         <!-- Not using v-else here to be more explicit -->
         <KButton
           v-if="showPasswordForm"
-          icon="back"
           appearance="basic-link"
           :text="$tr('changeUser')"
-          style="margin-top: 24px;"
+          style="margin-top: 24px;margin-left: 4px;"
           @click="clearUser"
-        />
+        >
+          <KIcon
+            slot="icon"
+            style="width: 24px; height: 24px; top: 6px; right: 8px;"
+            icon="back"
+            :color="$themeTokens.primary"
+          />
+        </KButton>
+
       </div>
 
       <SignInHeading
@@ -57,7 +64,7 @@
               :invalid="usernameIsInvalid"
               :invalidText="usernameIsInvalidText"
               @blur="handleUsernameBlur"
-              @input="showDropdown = true"
+              @input="handleUsernameInput"
               @keydown="handleKeyboardNav"
             />
           </transition>
@@ -84,7 +91,7 @@
               class="login-btn"
               :text="$tr('nextLabel')"
               :primary="true"
-              :disabled="busy"
+              :disabled="!isNextButtonEnabled"
               @click="signIn"
             />
           </div>
@@ -210,6 +217,7 @@
   import getUrlParameter from '../getUrlParameter';
   import AuthBase from '../AuthBase';
   import UsersList from '../UsersList';
+  import commonUserStrings from '../commonUserStrings';
   import SignInHeading from './SignInHeading';
   import plugin_data from 'plugin_data';
 
@@ -230,7 +238,7 @@
       UiAlert,
       UsersList,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings, commonUserStrings],
     data() {
       return {
         username: '',
@@ -327,6 +335,9 @@
         return (
           this.hasMultipleFacilities || get(this.selectedFacility, 'dataset.preset') !== 'informal'
         );
+      },
+      isNextButtonEnabled() {
+        return !this.busy && this.username !== '' && validateUsername(this.username);
       },
     },
     watch: {
@@ -477,6 +488,10 @@
           this.$refs.username.focus();
         }
       },
+      handleUsernameInput() {
+        this.showDropdown = true;
+        this.usernameBlurred = true;
+      },
       handlePasswordBlur() {
         setTimeout(() => (this.passwordBlurred = true), 200);
       },
@@ -488,6 +503,10 @@
         this.showDropdown = false;
       },
       signIn() {
+        if (!this.isNextButtonEnabled) {
+          return;
+        }
+
         this.busy = true;
 
         const sessionPayload = {
@@ -518,8 +537,7 @@
             }
             this.busy = false;
           })
-          .catch(e => {
-            console.log(e);
+          .catch(() => {
             this.busy = false;
           });
       },
@@ -530,27 +548,13 @@
       },
     },
     $trs: {
-      // TODO: Remove the comments in $trs, run the linter, fix the issues
-      // Disabling this altogether for now because we use some with crossComponentTranslator
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      changeLabel: {
-        message: 'Change',
-        context:
-          '(verb) Link to change the facility to sign in when the device has more than one facility',
-      },
-      signInToFacilityLabel: "Sign into '{facility}'",
-      greetUser: 'Hi, {user}',
       signInError: 'Incorrect username or password',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
       documentTitle: 'User Sign In',
       needToMakeNewPasswordLabel: 'Hi, {user}. You need to set a new password for your account.',
       nextLabel: 'Next',
-      signingInToFacilityAsUserLabel: "Signing in to '{facility}' as '{user}'",
-      signingInAsUserLabel: "Signing in as '{user}'",
       changeUser: 'Change user',
       changeFacility: 'Change facility',
-      multiFacilitySignInError: 'Incorrect username, password, or facility',
-      /* eslint-enable */
     },
   };
 
@@ -561,46 +565,6 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .fh {
-    height: 100%;
-  }
-
-  .wrapper-table {
-    display: table;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-  }
-
-  .table-row {
-    display: table-row;
-  }
-
-  .main-row {
-    text-align: center;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-  }
-
-  .table-cell {
-    display: table-cell;
-  }
-
-  .main-cell {
-    height: 100%;
-    vertical-align: middle;
-  }
-
-  .box {
-    @extend %dropshadow-16dp;
-
-    width: 300px;
-    padding: 16px 32px;
-    margin: 16px auto;
-    border-radius: $radius;
-  }
-
   .login-form {
     text-align: left;
   }
@@ -608,34 +572,6 @@
   .login-btn {
     width: 100%;
     margin-top: 16px;
-  }
-
-  .create {
-    margin-top: 32px;
-    margin-bottom: 8px;
-  }
-
-  .guest {
-    margin-top: 8px;
-    margin-bottom: 16px;
-  }
-
-  .small-text {
-    font-size: 0.8em;
-  }
-
-  .version-string {
-    white-space: nowrap;
-  }
-
-  .footer-cell {
-    @extend %dropshadow-8dp;
-
-    padding: 16px;
-  }
-
-  .footer-cell .small-text {
-    margin-top: 8px;
   }
 
   .suggestions-wrapper {
@@ -654,45 +590,6 @@
     // Move up snug against the textbox
     margin-top: -2em;
     list-style-type: none;
-  }
-
-  .textbox-enter-active {
-    transition: opacity 0.5s;
-  }
-
-  .textbox-enter {
-    opacity: 0;
-  }
-
-  .list-leave-active {
-    transition: opacity 0.1s;
-  }
-
-  .textbox-leave {
-    transition: opacity 0s;
-  }
-
-  .logo {
-    width: 100%;
-    max-width: 65vh; // not compatible with older browsers
-    height: auto;
-  }
-
-  .kolibri-title {
-    margin-top: 0;
-    margin-bottom: 8px;
-    font-size: 24px;
-    font-weight: 100;
-  }
-
-  .footer-logo {
-    position: relative;
-    top: -1px;
-    display: inline-block;
-    height: 24px;
-    margin-right: 10px;
-    margin-left: 8px;
-    vertical-align: middle;
   }
 
 </style>

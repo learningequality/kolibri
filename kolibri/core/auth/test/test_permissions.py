@@ -28,11 +28,12 @@ class ImproperUsageIsProperlyHandledTestCase(TestCase):
     Tests that error cases and misuse of the interface are properly caught.
     """
 
-    def setUp(self):
-        self.data1 = create_dummy_facility_data()
-        self.data2 = create_dummy_facility_data()
-        self.superuser = self.data1["superuser"]
-        self.anon_user = KolibriAnonymousUser()
+    @classmethod
+    def setUpTestData(cls):
+        cls.data1 = create_dummy_facility_data()
+        cls.data2 = create_dummy_facility_data()
+        cls.superuser = cls.data1["superuser"]
+        cls.anon_user = KolibriAnonymousUser()
 
     def test_that_checking_creation_perms_on_invalid_model_returns_false(self):
         # cannot create a LearnerGroup with invalid attribute name
@@ -80,11 +81,12 @@ class FacilityDatasetPermissionsTestCase(TestCase):
     Tests of permissions for reading/modifying FacilityData instances
     """
 
-    def setUp(self):
-        self.data1 = create_dummy_facility_data()
-        self.data2 = create_dummy_facility_data()
-        self.superuser = self.data1["superuser"]
-        self.anon_user = KolibriAnonymousUser()
+    @classmethod
+    def setUpTestData(cls):
+        cls.data1 = create_dummy_facility_data()
+        cls.data2 = create_dummy_facility_data()
+        cls.superuser = cls.data1["superuser"]
+        cls.anon_user = KolibriAnonymousUser()
 
     def test_facility_users_and_anon_users_cannot_create_facility_dataset(self):
         """ FacilityUsers can't create new Facilities, regardless of their roles """
@@ -178,11 +180,12 @@ class FacilityPermissionsTestCase(TestCase):
     Tests of permissions for reading/modifying Facility instances
     """
 
-    def setUp(self):
-        self.data1 = create_dummy_facility_data()
-        self.data2 = create_dummy_facility_data(allow_sign_ups=True)
-        self.superuser = self.data1["superuser"]
-        self.anon_user = KolibriAnonymousUser()
+    @classmethod
+    def setUpTestData(cls):
+        cls.data1 = create_dummy_facility_data()
+        cls.data2 = create_dummy_facility_data(allow_sign_ups=True)
+        cls.superuser = cls.data1["superuser"]
+        cls.anon_user = KolibriAnonymousUser()
 
     def test_facility_users_and_anon_users_cannot_create_facility(self):
         """ FacilityUsers can't create new Facilities, regardless of their roles """
@@ -300,15 +303,16 @@ class ClassroomPermissionsTestCase(TestCase):
     Tests of permissions for reading/modifying Classroom instances
     """
 
-    def setUp(self):
-        self.data = create_dummy_facility_data()
-        self.member = self.data["learners_one_group"][0][0]
-        self.own_classroom = self.data["classrooms"][0]
-        self.other_classroom = self.data["classrooms"][1]
-        self.own_classroom_coach = self.data["classroom_coaches"][0]
-        self.own_classroom_admin = self.data["classroom_admins"][0]
-        self.superuser = self.data["superuser"]
-        self.anon_user = KolibriAnonymousUser()
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data()
+        cls.member = cls.data["learners_one_group"][0][0]
+        cls.own_classroom = cls.data["classrooms"][0]
+        cls.other_classroom = cls.data["classrooms"][1]
+        cls.own_classroom_coach = cls.data["classroom_coaches"][0]
+        cls.own_classroom_admin = cls.data["classroom_admins"][0]
+        cls.superuser = cls.data["superuser"]
+        cls.anon_user = KolibriAnonymousUser()
 
     def test_only_facility_admin_can_create_classroom(self):
         """ The only FacilityUser who can create a Classroom is a facility admin for the Facility """
@@ -398,18 +402,19 @@ class LearnerGroupPermissionsTestCase(TestCase):
     Tests of permissions for reading/modifying LearnerGroup instances
     """
 
-    def setUp(self):
-        self.data = create_dummy_facility_data()
-        self.member = self.data["learners_one_group"][0][0]
-        self.own_learnergroup = self.data["learnergroups"][0][0]
-        self.other_learnergroup = self.data["learnergroups"][1][1]
-        self.own_classroom = self.data["classrooms"][0]
-        self.own_classroom_coach = self.data["classroom_coaches"][0]
-        self.own_classroom_admin = self.data["classroom_admins"][0]
-        self.other_classroom_admin = self.data["classroom_admins"][1]
-        self.other_classroom_coach = self.data["classroom_coaches"][1]
-        self.superuser = self.data["superuser"]
-        self.anon_user = KolibriAnonymousUser()
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data()
+        cls.member = cls.data["learners_one_group"][0][0]
+        cls.own_learnergroup = cls.data["learnergroups"][0][0]
+        cls.other_learnergroup = cls.data["learnergroups"][1][1]
+        cls.own_classroom = cls.data["classrooms"][0]
+        cls.own_classroom_coach = cls.data["classroom_coaches"][0]
+        cls.own_classroom_admin = cls.data["classroom_admins"][0]
+        cls.other_classroom_admin = cls.data["classroom_admins"][1]
+        cls.other_classroom_coach = cls.data["classroom_coaches"][1]
+        cls.superuser = cls.data["superuser"]
+        cls.anon_user = KolibriAnonymousUser()
 
     def test_facility_or_classroom_admins_or_classroom_coach_can_create_learnergroup(
         self,
@@ -499,19 +504,20 @@ class FacilityUserPermissionsTestCase(TestCase):
     Tests of permissions for reading/modifying FacilityUser instances
     """
 
-    def setUp(self):
-        self.data = create_dummy_facility_data()
-        self.data2 = create_dummy_facility_data()
-        self.member = self.data["learners_one_group"][0][0]
-        self.member2 = self.data2["learners_one_group"][0][0]
-        self.other_member = self.data["learners_one_group"][1][1]
-        self.own_learnergroup = self.data["learnergroups"][0][0]
-        self.own_classroom = self.data["classrooms"][0]
-        self.own_classroom_coach = self.data["classroom_coaches"][0]
-        self.own_classroom_admin = self.data["classroom_admins"][0]
-        self.other_classroom_admin = self.data["classroom_admins"][1]
-        self.superuser = self.data["superuser"]
-        self.anon_user = KolibriAnonymousUser()
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data()
+        cls.data2 = create_dummy_facility_data()
+        cls.member = cls.data["learners_one_group"][0][0]
+        cls.member2 = cls.data2["learners_one_group"][0][0]
+        cls.other_member = cls.data["learners_one_group"][1][1]
+        cls.own_learnergroup = cls.data["learnergroups"][0][0]
+        cls.own_classroom = cls.data["classrooms"][0]
+        cls.own_classroom_coach = cls.data["classroom_coaches"][0]
+        cls.own_classroom_admin = cls.data["classroom_admins"][0]
+        cls.other_classroom_admin = cls.data["classroom_admins"][1]
+        cls.superuser = cls.data["superuser"]
+        cls.anon_user = KolibriAnonymousUser()
 
     def test_only_facility_admins_can_create_facility_user(self):
         """ The only FacilityUser who can create a FacilityUser is a facility admin for the Facility """
@@ -713,14 +719,15 @@ class SuperuserPermissionsTestCase(TestCase):
     Tests of permissions for reading/modifying superuser permissions
     """
 
-    def setUp(self):
-        self.data = create_dummy_facility_data()
-        self.member = self.data["learners_one_group"][0][0]
-        self.own_classroom_coach = self.data["classroom_coaches"][0]
-        self.own_classroom_admin = self.data["classroom_admins"][0]
-        self.superuser = self.data["superuser"]
-        self.superuser2 = create_superuser(self.data["facility"], username="ubermensch")
-        self.anon_user = KolibriAnonymousUser()
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data()
+        cls.member = cls.data["learners_one_group"][0][0]
+        cls.own_classroom_coach = cls.data["classroom_coaches"][0]
+        cls.own_classroom_admin = cls.data["classroom_admins"][0]
+        cls.superuser = cls.data["superuser"]
+        cls.superuser2 = create_superuser(cls.data["facility"], username="ubermensch")
+        cls.anon_user = KolibriAnonymousUser()
 
     def test_non_superusers_cannot_create_superuser(self):
         """ Users who are not Superusers cannot create a DevicePermissions """
@@ -845,18 +852,19 @@ class RolePermissionsTestCase(TestCase):
     Tests of permissions for reading/modifying Role instances
     """
 
-    def setUp(self):
-        self.data = create_dummy_facility_data()
-        self.member = self.data["learners_one_group"][0][0]
-        self.own_classroom = self.data["classrooms"][0]
-        self.other_classroom = self.data["classrooms"][1]
-        self.own_classroom_coach = self.data["classroom_coaches"][0]
-        self.own_classroom_admin = self.data["classroom_admins"][0]
-        self.other_classroom_coach = self.data["classroom_coaches"][1]
-        self.other_classroom_admin = self.data["classroom_admins"][1]
-        self.superuser = self.data["superuser"]
-        self.role_user = self.data["unattached_users"][0]
-        self.anon_user = KolibriAnonymousUser()
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data()
+        cls.member = cls.data["learners_one_group"][0][0]
+        cls.own_classroom = cls.data["classrooms"][0]
+        cls.other_classroom = cls.data["classrooms"][1]
+        cls.own_classroom_coach = cls.data["classroom_coaches"][0]
+        cls.own_classroom_admin = cls.data["classroom_admins"][0]
+        cls.other_classroom_coach = cls.data["classroom_coaches"][1]
+        cls.other_classroom_admin = cls.data["classroom_admins"][1]
+        cls.superuser = cls.data["superuser"]
+        cls.role_user = cls.data["unattached_users"][0]
+        cls.anon_user = KolibriAnonymousUser()
 
     def test_facility_admin_can_create_facility_admin_role(self):
         new_role_data = {
@@ -1039,19 +1047,20 @@ class MembershipPermissionsTestCase(TestCase):
     Tests of permissions for reading/modifying Membership instances
     """
 
-    def setUp(self):
-        self.data = create_dummy_facility_data()
-        self.member = self.data["learners_one_group"][0][0]
-        self.own_classroom = self.data["classrooms"][0]
-        self.other_classroom = self.data["classrooms"][1]
-        self.own_learnergroup = self.data["learnergroups"][0][0]
-        self.other_learnergroup = self.data["learnergroups"][1][1]
-        self.own_classroom_coach = self.data["classroom_coaches"][0]
-        self.own_classroom_admin = self.data["classroom_admins"][0]
-        self.other_classroom_coach = self.data["classroom_coaches"][1]
-        self.other_classroom_admin = self.data["classroom_admins"][1]
-        self.superuser = self.data["superuser"]
-        self.anon_user = KolibriAnonymousUser()
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data()
+        cls.member = cls.data["learners_one_group"][0][0]
+        cls.own_classroom = cls.data["classrooms"][0]
+        cls.other_classroom = cls.data["classrooms"][1]
+        cls.own_learnergroup = cls.data["learnergroups"][0][0]
+        cls.other_learnergroup = cls.data["learnergroups"][1][1]
+        cls.own_classroom_coach = cls.data["classroom_coaches"][0]
+        cls.own_classroom_admin = cls.data["classroom_admins"][0]
+        cls.other_classroom_coach = cls.data["classroom_coaches"][1]
+        cls.other_classroom_admin = cls.data["classroom_admins"][1]
+        cls.superuser = cls.data["superuser"]
+        cls.anon_user = KolibriAnonymousUser()
 
     def test_admin_or_coach_for_user_can_create_membership(self):
         # try adding member of own_classroom as a member of other_classroom

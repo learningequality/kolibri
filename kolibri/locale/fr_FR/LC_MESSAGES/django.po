@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-06-11 09:07-0700\n"
-"PO-Revision-Date: 2020-07-14 17:14\n"
+"PO-Revision-Date: 2020-07-27 17:56\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -31,7 +31,7 @@ msgstr "Groupe d'apprenants"
 
 #: kolibri/core/auth/constants/collection_kinds.py:18
 msgid "Ad hoc learners group"
-msgstr "Ad hoc learners group"
+msgstr "Groupe ad hoc d'apprenants"
 
 #: kolibri/core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
@@ -121,7 +121,7 @@ msgstr "Sexe ({})"
 #: kolibri/core/auth/management/commands/bulkexportusers.py:61
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "Inscription de l'élève ({})"
+msgstr "Inscription de l'apprenant ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:68
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
@@ -136,7 +136,7 @@ msgstr "Type d'utilisateur ({})"
 #: kolibri/core/auth/management/commands/bulkexportusers.py:143
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "Inscription de l'élève ({})"
+msgstr "Inscription de l'apprenant ({})"
 
 #: kolibri/core/auth/management/commands/bulkexportusers.py:150
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"

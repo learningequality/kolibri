@@ -213,7 +213,7 @@ class Command(AsyncCommand):
 
     def _get_morango_models(self, dataset_id):
         querysets = [
-            DatabaseMaxCounter.objects.filter(partition__startswith=dataset_id),
+            DatabaseMaxCounter.objects.filter(partition__startswith=dataset_id)
         ]
 
         stores = Store.objects.filter(partition__startswith=dataset_id)

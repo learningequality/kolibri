@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "Lembani IP adiresi, URL, kapena dzina la netiweki lolondola",
   "AddAddressForm.header": "Adiresi yatsopano",
   "AddAddressForm.nameDesc": "Sankhani dzina la adiresi iyi kuti mudzayikumbukire:",
-  "AddAddressForm.nameLabel": "Dzina la netiweki",
+  "AddAddressForm.nameLabel": "Dzina",
   "AddAddressForm.namePlaceholder": "mwachitsanzo, Netiweki ya panyumba",
   "AddAddressForm.submitButtonLabel": "Wonjezerani",
   "AddAddressForm.tryingToConnect": "Tikuyesa kulumikiza ku seva…",

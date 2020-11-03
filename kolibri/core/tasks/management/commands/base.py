@@ -97,6 +97,12 @@ class AsyncCommand(BaseCommand):
 
     def __init__(self, *args, **kwargs):
         self.progresstrackers = []
+
+        # The importcontent command stores an unhandled exception and re-raises it
+        # later. We check it in is_cancelled so that we cancel remaining tasks once
+        # an unhandled exception has occurred.
+        self.exception = None
+
         super(AsyncCommand, self).__init__(*args, **kwargs)
 
     def _update_all_progress(self, progress_fraction, progress):
@@ -129,6 +135,8 @@ class AsyncCommand(BaseCommand):
         return tracker
 
     def is_cancelled(self):
+        if self.exception is not None:
+            return True
         try:
             self.check_for_cancel()
             return False

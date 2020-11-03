@@ -421,9 +421,9 @@
           this.removeFromSelectedExercises(this.allExercises);
         }
       },
-      toggleSelected({ checked, contentId }) {
+      toggleSelected({ content, checked }) {
         let exercises;
-        const contentNode = this.contentList.find(item => item.id === contentId);
+        const contentNode = this.contentList.find(item => item.id === content.id);
         const isTopic = contentNode.kind === ContentNodeKinds.TOPIC;
         if (checked && isTopic) {
           this.showError = false;

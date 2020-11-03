@@ -14,6 +14,10 @@ RUN apt-get update && \
     python-pip \
     python-sphinx
 
+# Upgrade pip. Otherwise pip cannot install c extension packages that are not
+# for current platform
+RUN pip install -U pip
+
 # add yarn ppa
 RUN (curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -) && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
@@ -27,7 +31,8 @@ RUN apt-get update && \
 
 RUN git lfs install &&\
     mkdir kolibri &&\
-    mkdir yarn_cache
+    mkdir yarn_cache &&\
+    mkdir cext_cache
 
 WORKDIR /kolibri
 

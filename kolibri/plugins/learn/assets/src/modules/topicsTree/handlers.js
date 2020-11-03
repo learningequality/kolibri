@@ -20,19 +20,18 @@ export function showTopicsContent(store, id) {
   const promises = [
     ContentNodeResource.fetchModel({ id }),
     ContentNodeResource.fetchNextContent(id),
-    ContentNodeResource.fetchAncestors(id),
     store.dispatch('setChannelInfo'),
   ];
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([content, nextContent, ancestors]) => {
+    ([content, nextContent]) => {
       const currentChannel = store.getters.getChannelObject(content.channel_id);
       if (!currentChannel) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       store.commit('topicsTree/SET_STATE', {
-        content: contentState(content, nextContent, ancestors),
+        content: contentState(content, nextContent),
         channel: currentChannel,
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
@@ -48,20 +47,19 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
   return store.dispatch('loading').then(() => {
     store.commit('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
     const promises = [
-      ContentNodeResource.fetchModel({ id }), // the topic
+      ContentNodeResource.fetchModel({ id, force: true }), // the topic
       ContentNodeResource.fetchCollection({
         getParams: {
           parent: id,
           user_kind: store.getters.getUserKind,
         },
       }), // the topic's children
-      ContentNodeResource.fetchAncestors(id), // the topic's ancestors
       store.dispatch('setChannelInfo'),
     ];
 
     return ConditionalPromise.all(promises).only(
       samePageCheckGenerator(store),
-      ([topic, children, ancestors]) => {
+      ([topic, children]) => {
         const currentChannel = store.getters.getChannelObject(topic.channel_id);
         if (!currentChannel) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
@@ -75,17 +73,15 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
         store.commit('topicsTree/SET_STATE', {
           isRoot,
           channel: currentChannel,
-          topic: normalizeContentNode(topic, ancestors),
+          topic: normalizeContentNode(topic),
           contents: _collectionState(children),
         });
 
         // Only load contentnode progress if the user is logged in
         if (store.getters.isUserLoggedIn) {
-          const contentNodeIds = children.map(({ id }) => id);
-
-          if (contentNodeIds.length > 0) {
+          if (children.length > 0) {
             ContentNodeProgressResource.fetchCollection({
-              getParams: { ids: contentNodeIds },
+              getParams: { parent: id },
             }).then(progresses => {
               store.commit('topicsTree/SET_NODE_PROGRESS', progresses);
             });

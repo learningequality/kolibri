@@ -1,6 +1,7 @@
 import importlib
 import logging
 import os
+import re
 from uuid import UUID
 
 from django.apps import apps
@@ -93,17 +94,17 @@ def get_engine(connection_string):
     Get a SQLAlchemy engine that allows us to connect to a database.
     """
     # Set echo to False, as otherwise we get full SQL Query outputted, which can overwhelm the terminal
-    engine = create_engine(
-        connection_string,
-        echo=False,
+    engine_kwargs = {"echo": False, "convert_unicode": True}
+
+    if connection_string.startswith("sqlite"):
         # Set timeout to 60s, as with most of our content import write operations
         # it is more important to complete, than to do so quickly.
-        connect_args={"check_same_thread": False, "timeout": 60}
-        if connection_string.startswith("sqlite")
-        else {},
-        poolclass=NullPool,
-        convert_unicode=True,
-    )
+        engine_kwargs["connect_args"] = {"check_same_thread": False, "timeout": 60}
+        engine_kwargs["poolclass"] = NullPool
+    else:
+        engine_kwargs["pool_pre_ping"] = True
+
+    engine = create_engine(connection_string, **engine_kwargs)
     if connection_string == get_default_db_string() and connection_string.startswith(
         "sqlite"
     ):
@@ -177,10 +178,7 @@ def set_all_class_defaults(Base):
             pass
 
 
-__SQLALCHEMY_CLASSES_PATH = (
-    "contentschema",
-    "versions",
-)
+__SQLALCHEMY_CLASSES_PATH = ("contentschema", "versions")
 
 __SQLALCHEMY_CLASSES_MODULE_NAME = "content_schema_{name}"
 
@@ -369,6 +367,7 @@ class Bridge(object):
         self.session.close()
         if self.connection:
             self.connection.close()
+        self.engine.dispose()
 
 
 def filter_by_uuids(field, ids, validate=True, vendor=None):
@@ -413,6 +412,15 @@ def _by_uuids(field, ids, validate, include, vendor=None):
     return UnaryExpression(field, modifier=operators.custom_op(empty_query))
 
 
+checksum_re = re.compile("^[0-9a-f]{32}$")
+
+
+def _validate_checksums(checksums):
+    for checksum in checksums:
+        if not checksum_re.match(checksum):
+            raise ValueError("Invalid checksum: {}".format(checksum))
+
+
 def filter_by_checksums(field, checksums):
     query = "IN ("
     # trick to workaround postgresql, it does not allow returning ():
@@ -425,10 +433,17 @@ def filter_by_checksums(field, checksums):
                 these should be batched into separate querysets to avoid SQL Query too large errors in SQLite
             """
             )
-        checksums_list = ["'{}'".format(identifier) for identifier in checksums]
-        return UnaryExpression(
-            field, modifier=operators.custom_op(query + ",".join(checksums_list) + ")")
-        )
+        try:
+            _validate_checksums(checksums)
+            checksums_list = ["'{}'".format(identifier) for identifier in checksums]
+            return UnaryExpression(
+                field,
+                modifier=operators.custom_op(query + ",".join(checksums_list) + ")"),
+            )
+        except ValueError:
+            # the value is not a valid hex code for a checksum, so fall through to the
+            # empty case and don't return any results
+            pass
     return UnaryExpression(field, modifier=operators.custom_op(empty_query))
 
 

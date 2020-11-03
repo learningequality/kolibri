@@ -37,12 +37,14 @@
               :facility="facility"
               :isSyncing="facilityIsSyncing(facility)"
               :isDeleting="facilityIsDeleting(facility)"
+              :syncHasFailed="facility.syncHasFailed"
             />
           </td>
           <td class="button-col">
             <KButtonGroup>
               <KButton
                 :text="coreString('syncAction')"
+                appearance="flat-button"
                 @click="facilityForSync = facility"
               />
               <KDropdownMenu
@@ -117,13 +119,13 @@
     FacilityNameAndSyncStatus,
     RegisterFacilityModal,
     ConfirmationRegisterModal,
+    SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
   import TasksBar from '../ManageContentPage/TasksBar';
   import HeaderWithOptions from '../HeaderWithOptions';
   import { TaskStatuses, TaskTypes } from '../../constants';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
-  import SyncFacilityModalGroup from './SyncFacilityModalGroup';
   import ImportFacilityModalGroup from './ImportFacilityModalGroup';
   import facilityTaskQueue from './facilityTasksQueue';
 
@@ -161,7 +163,7 @@
         facilityForSync: null,
         facilityForRemoval: null,
         facilityForRegister: null,
-        kdpProject: null,
+        kdpProject: null, // { name, token }
         taskIdsToWatch: [],
         // (facilityTaskQueue) facilityTasks
       };
@@ -178,6 +180,11 @@
                 this.showFacilityRemovedSnackbar(task.facility_name);
               }
               this.taskIdsToWatch = this.taskIdsToWatch.filter(x => x !== task.id);
+            } else if (this.isSyncTask(task) && task.status === TaskStatuses.FAILED) {
+              const match = this.facilities.find(({ id }) => id === task.facility);
+              if (match) {
+                this.$set(match, 'syncHasFailed', true);
+              }
             }
           }
         }
@@ -226,7 +233,8 @@
         this.facilityForRegister = null;
         this.kdpProject = null;
       },
-      handleStartSyncSuccess() {
+      handleStartSyncSuccess(taskId) {
+        this.taskIdsToWatch.push(taskId);
         this.facilityForSync = null;
       },
       handleSyncAllSuccess() {

@@ -261,7 +261,7 @@ all the necessary prerequisites for running Kolibri.
 
 The ``docker/`` directory contains the docker files and startup scripts needed for various tasks.
 
- * ``docker/base.dockerfile``: the base layer that installs JavaScript and Python dependencies (image tag ``leaningequality:kolibirbase``).
+ * ``docker/base.dockerfile``: the base layer that installs JavaScript and Python dependencies (image tag ``learningequality/kolibri``).
  * ``docker/build_whl.dockerfile``: generates a ``.whl``, ``tar.gz``, and ``.pex`` files in ``dist/``
  * ``docker/build_windows.dockerfile``: used to generate the Windows installer.
  * ``docker/dev.dockerfile``: container with full development setup, running devserver.

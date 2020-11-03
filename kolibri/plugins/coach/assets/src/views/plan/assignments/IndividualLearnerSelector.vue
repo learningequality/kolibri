@@ -62,12 +62,10 @@
                       :disabled="true"
                     />
                   </td>
-                  <td class="table-data">
+                  <td class="table-username">
                     {{ learner.username }}
                   </td>
-                  <td class="table-data">
-                    {{ groupsForLearner(learner.id) }}
-                  </td>
+                  <td> {{ groupsForLearner(learner.id) }} </td>
                 </template>
                 <template v-else>
                   <td>
@@ -79,12 +77,10 @@
                       @change="toggleSelectedLearnerId(learner.id)"
                     />
                   </td>
-                  <td class="table-data">
+                  <td class="table-username">
                     {{ learner.username }}
                   </td>
-                  <td class="table-data">
-                    {{ groupsForLearner(learner.id) }}
-                  </td>
+                  <td> {{ groupsForLearner(learner.id) }} </td>
                 </template>
               </tr>
             </tbody>
@@ -226,10 +222,9 @@
     },
     watch: {
       entireClassIsSelected() {
-        if (this.entireClassIsSelected) {
-          this.isChecked = false;
+        if (this.entireClassIsSelected && this.isChecked) {
+          this.toggleChecked();
           this.currentPage = 1;
-          this.$emit('toggleCheck', this.isChecked, this.$store.state.adHocLearners.id);
         }
       },
       selectedAdHocIds() {
@@ -251,7 +246,8 @@
       },
       toggleChecked() {
         this.isChecked = !this.isChecked;
-        this.$emit('toggleCheck', this.isChecked, this.$store.state.adHocLearners.id);
+        this.$emit('updateLearners', this.isChecked ? this.selectedAdHocIds : []);
+        this.$emit('change', this.isChecked);
       },
       toggleSelectedLearnerId(learnerId) {
         const index = this.selectedAdHocIds.indexOf(learnerId);
@@ -353,6 +349,11 @@
   .table-description {
     margin-bottom: 8px;
     font-size: 16px;
+  }
+
+  .table-username {
+    padding-top: 6px;
+    vertical-align: middle;
   }
 
   .filter-input {

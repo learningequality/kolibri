@@ -54,7 +54,7 @@ class ClassroomNotificationsTestCase(APITestCase):
 
     def test_anon_user_cannot_access_list(self):
         response = self.client.get(
-            reverse(self.list_name), {"collection_id": self.classroom.id}
+            reverse(self.list_name), {"classroom_id": self.classroom.id}
         )
 
         self.assertEqual(response.status_code, 403)
@@ -62,7 +62,7 @@ class ClassroomNotificationsTestCase(APITestCase):
     def test_learner_cannot_access_list(self):
         self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
         response = self.client.get(
-            reverse(self.list_name), {"collection_id": self.classroom.id}
+            reverse(self.list_name), {"classroom_id": self.classroom.id}
         )
 
         self.assertEqual(response.status_code, 403)
@@ -72,7 +72,7 @@ class ClassroomNotificationsTestCase(APITestCase):
             username=self.another_classroom_coach.username, password=DUMMY_PASSWORD
         )
         response = self.client.get(
-            reverse(self.list_name), {"collection_id": self.classroom.id}
+            reverse(self.list_name), {"classroom_id": self.classroom.id}
         )
 
         self.assertEqual(response.status_code, 403)
@@ -82,7 +82,7 @@ class ClassroomNotificationsTestCase(APITestCase):
             username=self.classroom_coach.username, password=DUMMY_PASSWORD
         )
         response = self.client.get(
-            reverse(self.list_name), {"collection_id": self.classroom.id}
+            reverse(self.list_name), {"classroom_id": self.classroom.id}
         )
 
         self.assertEqual(response.status_code, 200)
@@ -92,7 +92,7 @@ class ClassroomNotificationsTestCase(APITestCase):
             username=self.facility_coach.username, password=DUMMY_PASSWORD
         )
         response = self.client.get(
-            reverse(self.list_name), {"collection_id": self.classroom.id}
+            reverse(self.list_name), {"classroom_id": self.classroom.id}
         )
 
         self.assertEqual(response.status_code, 200)
@@ -102,7 +102,7 @@ class ClassroomNotificationsTestCase(APITestCase):
             username=self.facility_admin.username, password=DUMMY_PASSWORD
         )
         response = self.client.get(
-            reverse(self.list_name), {"collection_id": self.classroom.id}
+            reverse(self.list_name), {"classroom_id": self.classroom.id}
         )
 
         self.assertEqual(response.status_code, 200)

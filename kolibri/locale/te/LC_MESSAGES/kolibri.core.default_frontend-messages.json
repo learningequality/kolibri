@@ -6,7 +6,7 @@
   "AddAddressForm.errorInvalidAddress": "దయచేసి చెల్లుబాటయ్యే IP చిరునామా, URL లేదా హోస్ట్ పేరుని నమోదు చేయండి",
   "AddAddressForm.header": "కొత్త చిరునామా",
   "AddAddressForm.nameDesc": "ఈ చిరునామాకి ఒక పేరుని ఎంచుకోండి తద్వారా మీరు దీనిని తర్వాత గుర్తుంచుకోవచ్చు:",
-  "AddAddressForm.nameLabel": "నెట్‌వర్క్ పేరు",
+  "AddAddressForm.nameLabel": "పేరు",
   "AddAddressForm.namePlaceholder": "ఉదా. హౌస్ నెట్‌వర్క్",
   "AddAddressForm.submitButtonLabel": "జోడించండి",
   "AddAddressForm.tryingToConnect": "సర్వర్‌కి అనుసంధానమయ్యేందుకు ప్రయత్నిస్తోంది…",

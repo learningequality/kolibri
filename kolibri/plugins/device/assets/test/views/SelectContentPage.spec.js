@@ -42,7 +42,7 @@ describe('SelectContentPage', () => {
     expect(summary.find('h1').text()).toEqual('Awesome Channel');
     const pTags = summary.findAll('p');
     expect(pTags.at(0).text()).toEqual('Version 10');
-    expect(pTags.at(1).text()).toEqual('An awesome channel');
+    expect(pTags.at(2).text()).toEqual('An awesome channel');
   });
 
   it('shows the total size of the channel', () => {

@@ -9,7 +9,9 @@ import manageCSV from './manageCSV';
 import importCSV from './importCSV';
 
 export default {
-  state: {},
+  state() {
+    return {};
+  },
   actions: {
     preparePage(store, options = {}) {
       const { isAsync = true } = options;

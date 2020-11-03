@@ -142,7 +142,10 @@
       errorInvalidAddress: 'Please enter a valid IP address, URL, or hostname',
       header: 'New address',
       nameDesc: 'Choose a name for this address so you can remember it later:',
-      nameLabel: 'Network name',
+      nameLabel: {
+        message: 'Name',
+        context: "\nThis should be just 'Name', not 'Network name'",
+      },
       namePlaceholder: 'e.g. House network',
       submitButtonLabel: 'Add',
       tryingToConnect: 'Trying to connect to server…',

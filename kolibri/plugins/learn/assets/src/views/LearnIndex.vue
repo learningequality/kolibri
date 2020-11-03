@@ -6,6 +6,7 @@
     :authorized="userIsAuthorized"
     authorizedRole="registeredUser"
     v-bind="immersivePageProps"
+    :maxMainWidth="maxWidth"
   >
     <template slot="app-bar-actions">
       <ActionBarSearchBox v-if="showSearch" />
@@ -189,10 +190,10 @@
             // 'last' should only be route names for Recommended Page and its subpages
             immersivePageRoute = this.$router.getRoute(last);
             const trString = {
-              [PageNames.RECOMMENDED_POPULAR]: 'documentTitleForPopular',
-              [PageNames.RECOMMENDED_RESUME]: 'documentTitleForResume',
-              [PageNames.RECOMMENDED_NEXT_STEPS]: 'documentTitleForNextSteps',
-              [PageNames.RECOMMENDED]: 'recommended',
+              [PageNames.RECOMMENDED_POPULAR]: this.learnString('popularLabel'),
+              [PageNames.RECOMMENDED_RESUME]: this.learnString('resumeLabel'),
+              [PageNames.RECOMMENDED_NEXT_STEPS]: this.learnString('nextStepsLabel'),
+              [PageNames.RECOMMENDED]: this.learnString('recommendedLabel'),
             }[last];
             appBarTitle = this.$tr(trString);
           } else if (this.topicsTreeContent.parent) {
@@ -249,6 +250,12 @@
         const isAssessment = content && content.assessment;
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? ASSESSMENT_FOOTER : 0;
+      },
+      maxWidth() {
+        // ref: https://www.figma.com/file/zbxBoJUUkOynZtgK0wO9KD/Channel-descriptions?node-id=281%3A1270
+        if (this.pageName !== PageNames.TOPICS_ROOT) return undefined;
+        if (this.windowBreakpoint <= 1) return 400;
+        return 1800;
       },
       profileNeedsUpdate() {
         return (
@@ -310,10 +317,6 @@
     },
     $trs: {
       examReportTitle: '{examTitle} report',
-      recommended: 'Recommended',
-      documentTitleForPopular: 'Popular',
-      documentTitleForResume: 'Resume',
-      documentTitleForNextSteps: 'Next Steps',
     },
   };
 

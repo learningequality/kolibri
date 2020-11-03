@@ -67,12 +67,16 @@ export default {
     fetchNetworkLocationFacilities(locationId) {
       return client({
         url: urls['kolibri:core:networklocation_facilities-detail'](locationId),
-      }).then(response => {
-        return response.data;
-      });
+      })
+        .then(response => {
+          return response.data;
+        })
+        .catch(() => {
+          return [];
+        });
     },
-    startKdpSyncTask(facilityId) {
-      return FacilityTaskResource.dataportalsync(facilityId).then(response => {
+    startKdpSyncTask({ id, name }) {
+      return FacilityTaskResource.dataportalsync({ id, name }).then(response => {
         return response.data;
       });
     },
@@ -82,8 +86,10 @@ export default {
       });
     },
     startPeerImportTask(data) {
-      const { facility, facility_name, baseurl, username, password } = data;
+      const { facility, facility_name, baseurl, username, password, device_name, device_id } = data;
       return FacilityTaskResource.startpeerfacilityimport({
+        device_name,
+        device_id,
         facility,
         facility_name,
         baseurl,

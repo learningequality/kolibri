@@ -27,8 +27,9 @@ def get_tag_name():
         return os.getenv("BUILDKITE_TAG")
     elif os.getenv("BUILDKITE_PULL_REQUEST_BASE_BRANCH"):
         return os.getenv("BUILDKITE_PULL_REQUEST_BASE_BRANCH")
-    else:
-        return "develop"
+    elif os.getenv("BUILDKITE_BRANCH"):
+        return os.getenv("BUILDKITE_BRANCH")
+    return "develop"
 
 
 SHEET_TAG = get_tag_name()
@@ -113,9 +114,9 @@ def create_artifact(str_arg):
 
 def fetch_feature_files():
     """
-        Fetch all the .features scenarios at the Integration testing directory
-        The order of the scenarios at the spreadsheet will based on the ORDER.txt
-        This will return a list and a count of .features scenarios
+    Fetch all the .features scenarios at the Integration testing directory
+    The order of the scenarios at the spreadsheet will based on the ORDER.txt
+    This will return a list and a count of .features scenarios
     """
     feature_dir = get_feature_dir_path()
     order_name = "/ORDER.txt"
@@ -161,8 +162,8 @@ def fetch_feature_files():
 
 def sheet_insert_rows(sheet, wrk_sheet, start_index=0, end_index=0):
     """
-        REF: https://github.com/burnash/gspread
-        I reuse the gspread function to make this API request.
+    REF: https://github.com/burnash/gspread
+    I reuse the gspread function to make this API request.
     """
     body = {
         "requests": [
@@ -183,8 +184,8 @@ def sheet_insert_rows(sheet, wrk_sheet, start_index=0, end_index=0):
 
 def rename_worksheet(sheet, wrk_sheet, sheet_name):
     """
-        REF: https://github.com/burnash/gspread
-        I reuse the gspread function to make this API request.
+    REF: https://github.com/burnash/gspread
+    I reuse the gspread function to make this API request.
     """
     body = {
         "requests": [
@@ -201,8 +202,8 @@ def rename_worksheet(sheet, wrk_sheet, sheet_name):
 
 def search_file_name(file_name):
     """
-        REF: https://github.com/burnash/gspread
-        I reuse the gspread function to make this API request.
+    REF: https://github.com/burnash/gspread
+    I reuse the gspread function to make this API request.
     """
     self = G_ACCESS
     files = []
@@ -228,8 +229,8 @@ def search_file_name(file_name):
 
 def create_sheet_container(file_id, dir_name):
     """
-        REF: https://github.com/burnash/gspread
-        I reuse the gspread function to make this API request.
+    REF: https://github.com/burnash/gspread
+    I reuse the gspread function to make this API request.
     """
     self = G_ACCESS
     payload = {
@@ -243,8 +244,8 @@ def create_sheet_container(file_id, dir_name):
 
 def sheet_copy(file_id, dist_id, title=None, copy_permissions=False):
     """
-        REF: https://github.com/burnash/gspread
-        I reuse the gspread function to make this request.
+    REF: https://github.com/burnash/gspread
+    I reuse the gspread function to make this request.
     """
     self = G_ACCESS
 
@@ -281,7 +282,7 @@ def sheet_copy(file_id, dist_id, title=None, copy_permissions=False):
 
 def sheet_container():
     """
-        Return the spreadsheet container ID.
+    Return the spreadsheet container ID.
     """
     drive_search = search_file_name(SHEET_TAG)
     if len(drive_search) == 0:

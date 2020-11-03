@@ -58,25 +58,14 @@ export function getResourceCache(store, resourceIds) {
   }
 }
 
-export function saveLessonResources(store, { lessonId, resourceIds }) {
-  return store.dispatch('getResourceCache', resourceIds).then(resourceCache => {
-    const resources = resourceIds.map(resourceId => {
-      const node = resourceCache[resourceId];
-      return {
-        contentnode_id: resourceId,
-        channel_id: node.channel_id,
-        content_id: node.content_id,
-      };
-    });
-
-    return LessonResource.saveModel({
-      id: lessonId,
-      data: { resources },
-    }).then(lesson => {
-      // Update the class summary now that there is a change to a lesson
-      return store.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
-        return lesson;
-      });
+export function saveLessonResources(store, { lessonId, resources }) {
+  return LessonResource.saveModel({
+    id: lessonId,
+    data: { resources },
+  }).then(lesson => {
+    // Update the class summary now that there is a change to a lesson
+    return store.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
+      return lesson;
     });
   });
 }

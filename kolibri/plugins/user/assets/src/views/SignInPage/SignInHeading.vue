@@ -5,7 +5,7 @@
       v-if="showFacilityName && !showPasswordForm"
       style="margin-top: 24px; margin-bottom: 16px; text-align: left;"
     >
-      {{ strings.$tr("signInToFacilityLabel", { facility: selectedFacility.name }) }}
+      {{ userString('signInToFacilityLabel', { facility: selectedFacility.name }) }}
     </div>
 
     <!-- Asking for password, has multiple facilities or is not informal -->
@@ -14,8 +14,8 @@
       style="margin-top: 24px; margin-bottom: 16px; text-align: left;"
     >
       {{
-        strings.$tr(
-          "signingInToFacilityAsUserLabel",
+        userString(
+          'signingInToFacilityAsUserLabel',
           { facility: selectedFacility.name, user: username }
         )
       }}
@@ -23,7 +23,7 @@
 
     <!-- Asking for password, has one facility which is informal -->
     <div v-else-if="showPasswordForm">
-      {{ strings.$tr("signingInAsUserLabel", { user: username }) }}
+      {{ userString('signingInAsUserLabel', { user: username }) }}
     </div>
   </div>
 
@@ -33,11 +33,11 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import SignInPage from './index';
+  import commonUserStrings from '../commonUserStrings';
 
   export default {
     name: 'SignInHeading',
+    mixins: [commonUserStrings],
     props: {
       showFacilityName: {
         type: Boolean,
@@ -54,10 +54,6 @@
     },
     computed: {
       ...mapGetters(['selectedFacility']),
-      strings() {
-        // Gross
-        return crossComponentTranslator(SignInPage);
-      },
     },
   };
 
