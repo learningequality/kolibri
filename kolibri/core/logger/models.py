@@ -202,10 +202,12 @@ class UserSessionLog(BaseLogModel):
                 > timedelta(minutes=5)
             ):
                 parsed_string = user_agent_parser.Parse(user_agent)
-                device_info = parsed_string['os'].get("family", "") + ","           \
-                              + (parsed_string["os"].get("major", "") or "") + "/"  \
-                              + parsed_string['user_agent'].get("family", "") + "," \
-                              + (parsed_string["user_agent"].get("major", "") or "")
+                device_info = "{os_family},{os_major}/{browser_family},{browser_major}".format(
+                    os_family=parsed_string["os"].get("family", ""),
+                    os_major=parsed_string["os"].get("major", ""),
+                    browser_family=parsed_string["user_agent"].get("family", ""),
+                    browser_major=parsed_string["user_agent"].get("major", "")
+                )
                 user_session_log = cls(user=user, device_info=device_info)
             user_session_log.last_interaction_timestamp = local_now()
             user_session_log.save()
