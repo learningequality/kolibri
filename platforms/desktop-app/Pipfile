@@ -3,15 +3,7 @@ name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
 
-[dev-packages]
-py2app = {version = "==0.14",sys_platform = "== 'darwin'"}
-
 [packages]
-pyeverywhere = {git = "https://github.com/kollivier/pyeverywhere",ref = "dev"}
-wxpython = "==4.0.6"
-dmgbuild = "*"
-requests = "*"
-cryptography = "==2.3"
 
 [requires]
 python_version = "3.6"
