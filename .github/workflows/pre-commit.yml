@@ -3,7 +3,8 @@ name: Linting
 on: [push, pull_request]
 
 jobs:
-  Linting:
+  linting:
+    name: All file linting
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
