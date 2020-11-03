@@ -198,9 +198,13 @@ def extract_facility_statistics(facility):
     sesslogs_by_kind = {log["kind"]: log["count"] for log in sesslogs_by_kind}
 
     usersess_devinf = (
-        usersessions.values("device_info").exclude(device_info='').annotate(count=Count("device_info"))
+        usersessions.values("device_info")
+        .exclude(device_info="")
+        .annotate(count=Count("device_info"))
     )
-    usersess_devinf = {devinf["device_info"]: devinf["count"] for devinf in usersess_devinf}
+    usersess_devinf = {
+        devinf["device_info"]: devinf["count"] for devinf in usersess_devinf
+    }
 
     summarylogs = ContentSummaryLog.objects.filter(dataset_id=dataset_id)
 

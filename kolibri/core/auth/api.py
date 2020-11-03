@@ -664,7 +664,7 @@ class SessionViewSet(viewsets.ViewSet):
 
         # Can only record user session log data for FacilityUsers.
         if active and isinstance(user, FacilityUser):
-            user_agent = request.META.get('HTTP_USER_AGENT', '')
+            user_agent = request.META.get("HTTP_USER_AGENT", "")
             UserSessionLog.update_log(user, user_agent)
 
         response = Response(session)

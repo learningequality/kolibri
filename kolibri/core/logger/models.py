@@ -22,6 +22,7 @@ from django.db import models
 from django.utils import timezone
 from morango.models import SyncableModelQuerySet
 from morango.models import UUIDField
+from ua_parser import user_agent_parser
 
 from .permissions import AnyoneCanWriteAnonymousLogs
 from kolibri.core.auth.constants import role_kinds
@@ -34,8 +35,6 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.fields import JSONField
 from kolibri.utils.time_utils import local_now
-
-from ua_parser import user_agent_parser
 
 
 class BaseLogQuerySet(SyncableModelQuerySet):
@@ -202,11 +201,13 @@ class UserSessionLog(BaseLogModel):
                 > timedelta(minutes=5)
             ):
                 parsed_string = user_agent_parser.Parse(user_agent)
-                device_info = "{os_family},{os_major}/{browser_family},{browser_major}".format(
-                    os_family=parsed_string["os"].get("family", ""),
-                    os_major=parsed_string["os"].get("major", ""),
-                    browser_family=parsed_string["user_agent"].get("family", ""),
-                    browser_major=parsed_string["user_agent"].get("major", "")
+                device_info = (
+                    "{os_family},{os_major}/{browser_family},{browser_major}".format(
+                        os_family=parsed_string["os"].get("family", ""),
+                        os_major=parsed_string["os"].get("major", ""),
+                        browser_family=parsed_string["user_agent"].get("family", ""),
+                        browser_major=parsed_string["user_agent"].get("major", ""),
+                    )
                 )
                 user_session_log = cls(user=user, device_info=device_info)
             user_session_log.last_interaction_timestamp = local_now()
