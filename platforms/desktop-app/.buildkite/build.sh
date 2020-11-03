@@ -32,7 +32,8 @@ rm -rf ./src/kolibri/dist/enum
 
 
 echo "Downloading deps"
-pipenv sync --dev 
+# Don't use Pipfile for dependency management due to bugs with git repos.
+pipenv install -r requirements-mac.txt
 
 echo "--- Build .app"
 

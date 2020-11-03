@@ -1,0 +1,3 @@
+cryptography==2.3
+-e git://github.com/kollivier/pyeverywhere.git@dev#egg=pyeverywhere
+requests

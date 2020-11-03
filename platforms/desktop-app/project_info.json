@@ -1,21 +1,30 @@
 {
+  "id": "8e33d642-00e1-4542-9848-018cce59189d",
   "name": "Kolibri",
   "version": "0.1.1",
-  "build_number": "24",
+  "build_number": "28",
   "identifier": "org.learningequality.Kolibri",
   "requirements": {"android": ["python2","pyjnius","genericndkbuild", "sqlite3", "cryptography", "pyopenssl", "openssl", "six"]},
   "whitelist_file": {"android": "whitelist.txt"},
-  "icons": {"android": "icon.png", "osx": "icons/kolibri.icns"},
+  "icons": {"android": "icon.png", "osx": "icons/kolibri.icns", "win": "icons/kolibri.ico"},
   "launch_images": {"android": "assets/launch-image.png"},
-  "asset_dirs": ["assets", "locale"],
-  "includes": ["html.parser", "kolibri.deployment.default.settings.base", "six"],
-  "packages": ["django", "kolibri", "morango", "mptt", "sqlite3", "wx", "pkg_resources"],
+  "asset_dirs": ["assets", "locale", "src/kolibri"],
+  "build_tool": {
+      "win": "pyinstaller"
+  },
+  "import_hooks_file": "stdlib_imports.py",
+  "includes": ["html.parser", "http.cookies", "kolibri.deployment.default.settings.base", "logging.config", "logging.handlers"],
+  "excludes": ["numpy"],
+  "packages": {
+    "common": ["pkg_resources", "sqlite3", "six", "wx"],
+    "osx": ["kolibri"]
+  },
   "disk_image": {
     "background": "assets/disk_image/Layout.png",
     "window_rect": "((20, 100000), (734, 550))",
     "app_icon_pos": "(210, 210)",
     "apps_icon_pos": "(520, 210)",
-    "filename": "kolibri-0.14.0beta14-mac-0.1.1",
-    "volume_name": "Kolibri 0.14.0"
+    "filename": "kolibri-0.14.3-mac-0.1.1",
+    "volume_name": "Kolibri 0.14.3"
   }
 }

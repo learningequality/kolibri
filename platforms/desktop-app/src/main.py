@@ -1,5 +1,6 @@
 import datetime
 import gettext
+import json
 import logging
 import os
 import shutil
@@ -7,6 +8,9 @@ import subprocess
 import sys
 import time
 import webbrowser
+from collections import Mapping
+
+import wx
 
 try:
     from urllib2 import urlopen, URLError
@@ -35,24 +39,37 @@ class LoggerWriter(object):
 # initialize logging before loading any third-party modules, as they may cause logging to get configured.
 logging.basicConfig(level=logging.DEBUG)
 
-# make sure we add Kolibri's dist folder to the path early on so that we avoid import errors
-root_dir = os.path.dirname(os.path.abspath(__file__))
-locale_root_dir = os.path.join(root_dir, 'locale')
-if root_dir.endswith('src'):
-    locale_root_dir = os.path.join(root_dir, '..', 'locale')
-
+# Set the root_dir to the path where assets and locale dirs are
 if getattr(sys, 'frozen', False):
+    # In the app bundle context sys.executable will be:
+    #   On Windows: The Kolibri.exe path
+    #   On macOS: Kolibri.app/Contents/MacOS/python
     if sys.platform == 'darwin':
-        # On Mac, included Python packages go into the lib/python3.6
-        root_dir = os.path.join(root_dir, "lib", "python3.6")
+        root_dir = os.path.abspath(os.path.join(os.path.dirname(sys.executable), '..', 'Resources'))
+        extra_python_path = os.path.join(
+            root_dir, 'lib',
+            'python{}.{}'.format(sys.version_info.major, sys.version_info.minor))
+    else:
+        # This env var points to where PyInstaller extracted the sources in single file mode.
+        if hasattr(sys, '_MEIPASS'):
+            root_dir = sys._MEIPASS
+        else:
+            root_dir = os.path.abspath(os.path.dirname(sys.executable))
+        extra_python_path = root_dir
 
-    # make sure we send all app output to logs as we have no console to view them on.
+    # Make sure we send all app output to logs as we have no console to view them on.
     sys.stdout = LoggerWriter(logging.debug)
     sys.stderr = LoggerWriter(logging.warning)
+else:
+    # In this case we use src/main.py
+    extra_python_path = os.path.abspath(os.path.dirname(__file__))
+    root_dir = os.path.abspath(os.path.join(extra_python_path, '..'))
 
-kolibri_package_dir = os.path.join(root_dir, "kolibri", "dist")
-sys.path.append(kolibri_package_dir)
+assets_root_dir = os.path.join(root_dir, 'assets')
+locale_root_dir = os.path.join(root_dir, 'locale')
 
+sys.path.insert(0, extra_python_path)
+sys.path.insert(0, os.path.join(extra_python_path, "kolibri", "dist"))
 
 import pew
 import pew.ui
@@ -85,7 +102,27 @@ if pew.ui.platform == "android":
     logging.info("Home folder: {}".format(os.environ["KOLIBRI_HOME"]))
     logging.info("Timezone: {}".format(os.environ["TZ"]))
 elif not 'KOLIBRI_HOME' in os.environ:
-    os.environ["KOLIBRI_HOME"] = os.path.join(os.path.expanduser("~"), ".kolibri")
+    kolibri_home = os.path.join(os.path.expanduser("~"), ".kolibri")
+
+    if sys.platform == 'darwin':
+        # In macOS we must look for the folder that's along side Kolibri.app
+        portable_dirs = [os.path.abspath(os.path.join(root_dir, '../../..'))]
+    else:
+        portable_dirs = [root_dir, os.path.abspath(os.path.join(root_dir, '..'))]
+
+    for adir in portable_dirs:
+        kolibri_data_dir = os.path.join(adir, 'KOLIBRI_DATA')
+        kolibri_dir = os.path.join(adir, '.kolibri')
+        if os.path.isdir(kolibri_data_dir):
+            db_file = os.path.join(kolibri_data_dir, 'db.sqlite3')
+            if os.path.exists(db_file):
+                kolibri_home = kolibri_data_dir
+                break
+        if os.path.isdir(kolibri_dir):
+            kolibri_home = kolibri_dir
+            break
+
+    os.environ["KOLIBRI_HOME"] = kolibri_home
 
 
 # move in a templated Kolibri data directory, including pre-migrated DB, to speed up startup
@@ -129,7 +166,7 @@ if sys.platform == 'darwin':
 
 locale_info = {}
 try:
-    t = gettext.translation('macapp', locale_root_dir, languages=languages, fallback=True)
+    t = gettext.translation('macapp', locale_root_dir, languages=languages, fallback=False)
     locale_info = t.info()
     # We have not been able to reproduce, but we have seen this happen in user tracebacks, so
     # trigger the exception handling fallback if locale_info doesn't have a language key.
@@ -156,7 +193,45 @@ def start_django(port=5000):
     logging.info("Starting server...")
     setup_logging(debug=False)
     initialize()
+    automatic_provisiondevice()
     start.callback(port, background=False)
+
+
+def automatic_provisiondevice():
+    from kolibri.core.device.utils import device_provisioned
+    from kolibri.dist.django.core.management import call_command
+    from kolibri.utils.conf import KOLIBRI_HOME
+
+    AUTOMATIC_PROVISION_FILE = os.path.join(
+        KOLIBRI_HOME, "automatic_provision.json"
+    )
+
+    if not os.path.exists(AUTOMATIC_PROVISION_FILE):
+        return
+    elif device_provisioned():
+        return
+
+    try:
+        with open(AUTOMATIC_PROVISION_FILE, "r") as f:
+            logging.info("Running provisiondevice from 'automatic_provision.json'")
+            options = json.load(f)
+    except ValueError as e:
+        logging.error(
+            "Attempted to load 'automatic_provision.json' but failed to parse JSON:\n{}".format(
+                e
+            )
+        )
+    except FileNotFoundError:
+        options = None
+
+    if isinstance(options, Mapping):
+        options.setdefault("superusername", None)
+        options.setdefault("superuserpassword", None)
+        options.setdefault("preset", "nonformal")
+        options.setdefault("language_id", None)
+        options.setdefault("facility_settings", {})
+        options.setdefault("device_settings", {})
+        call_command("provisiondevice", interactive=False, **options)
 
 
 class MenuEventHandler:
@@ -180,7 +255,10 @@ class MenuEventHandler:
         webbrowser.open(self.get_url())
 
     def on_open_kolibri_home(self):
-        subprocess.call(['open', os.environ['KOLIBRI_HOME']])
+        if sys.platform.startswith('win'):
+            os.startfile(os.environ['KOLIBRI_HOME'])
+        elif sys.platform.startswith('darwin'):
+            subprocess.call(['open', os.environ['KOLIBRI_HOME']])
 
     def on_back(self):
         self.go_back()
@@ -237,15 +315,20 @@ class Application(pew.ui.PEWApp):
         Start your UI and app run loop here.
         """
 
+        instance_name = "{}_{}".format(pew.get_app_name(), wx.GetUserId())
+        self._checker = wx.SingleInstanceChecker(instance_name)
+        if self._checker.IsAnotherRunning():
+            return 1
+
         # Set loading screen
         lang_id = locale_info['language']
-        loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format(lang_id)))
+        loader_page = os.path.join(assets_root_dir, '_load-{}.html'.format(lang_id))
         if not os.path.exists(loader_page):
             lang_id = lang_id.split('-')[0]
-            loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format(lang_id)))
+            loader_page = os.path.join(assets_root_dir, '_load-{}.html'.format(lang_id))
         if not os.path.exists(loader_page):
             # if we can't find anything in the given language, default to the English loading page.
-            loader_page = os.path.abspath(os.path.join('assets', '_load-{}.html'.format('en_US')))
+            loader_page = os.path.join(assets_root_dir, '_load-{}.html'.format('en_US'))
         self.loader_url = 'file://{}'.format(loader_page)
         self.kolibri_loaded = False
 
@@ -359,7 +442,9 @@ class Application(pew.ui.PEWApp):
             except URLError as e:
                 logging.info("Error pinging Kolibri server: {}".format(e))
                 # debugging code to check if native cli tools succeed when urlopen fails.
-                return subprocess.call(['curl', '-I', home_url]) == 0
+                if sys.platform == 'darwin':
+                    return subprocess.call(['curl', '-I', home_url]) == 0
+                return False
 
         # Tie up this thread until the server is running
         while not running():
@@ -398,5 +483,20 @@ class Application(pew.ui.PEWApp):
         return self.view
 
 if __name__ == "__main__":
+    import multiprocessing
+    # This call fixes some issues with using multiprocessing when packaged as an app. (e.g. fork can start the app
+    # multiple times)
+    multiprocessing.freeze_support()
+    if sys.platform.startswith('win'):
+        import winreg
+
+        try:
+            root = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
+            KEY = r"SOFTWARE\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BROWSER_EMULATION"
+            with winreg.CreateKeyEx(root, KEY, 0, winreg.KEY_ALL_ACCESS) as regkey:
+                winreg.SetValueEx(regkey, os.path.basename(sys.executable), 0, winreg.REG_DWORD, 11000)
+            print("Key created?")
+        except:
+            raise
     app = Application()
     app.run()
