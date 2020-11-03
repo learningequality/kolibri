@@ -62,12 +62,10 @@
                       :disabled="true"
                     />
                   </td>
-                  <td class="table-data">
+                  <td class="table-username">
                     {{ learner.username }}
                   </td>
-                  <td class="table-data">
-                    {{ groupsForLearner(learner.id) }}
-                  </td>
+                  <td> {{ groupsForLearner(learner.id) }} </td>
                 </template>
                 <template v-else>
                   <td>
@@ -79,12 +77,10 @@
                       @change="toggleSelectedLearnerId(learner.id)"
                     />
                   </td>
-                  <td class="table-data">
+                  <td class="table-username">
                     {{ learner.username }}
                   </td>
-                  <td class="table-data">
-                    {{ groupsForLearner(learner.id) }}
-                  </td>
+                  <td> {{ groupsForLearner(learner.id) }} </td>
                 </template>
               </tr>
             </tbody>
@@ -353,6 +349,11 @@
   .table-description {
     margin-bottom: 8px;
     font-size: 16px;
+  }
+
+  .table-username {
+    padding-top: 6px;
+    vertical-align: middle;
   }
 
   .filter-input {
