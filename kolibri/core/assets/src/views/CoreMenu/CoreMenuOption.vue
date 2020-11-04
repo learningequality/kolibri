@@ -62,6 +62,7 @@
             ':hover': {
               backgroundColor: this.$themeBrand.primary.v_100,
             },
+            ':focus': this.$coreOutline,
           };
         }
         return {
