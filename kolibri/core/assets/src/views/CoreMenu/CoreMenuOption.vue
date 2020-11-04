@@ -69,6 +69,7 @@
           ':hover': {
             backgroundColor: this.$themeBrand.primary.v_50,
           },
+          ':focus': this.$coreOutline,
         };
       },
       optionIconStyle() {
