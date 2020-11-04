@@ -68,3 +68,5 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Whitney Zhu | whitzhu |
 | Carol Willing | willingc |
 | Yixuan Liu | yil039 |
+| Marcella Maki | marcellamaki |
+| Sairina Merino Tsui | sairina |
