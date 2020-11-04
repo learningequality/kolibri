@@ -23,7 +23,7 @@ from gi.repository import WebKit2
 
 from .. import config
 
-from ..globals import KOLIBRI_HOME, XDG_CURRENT_DESKTOP
+from ..globals import KOLIBRI_APP_DEVELOPER_EXTRAS, KOLIBRI_HOME, XDG_CURRENT_DESKTOP
 from ..kolibri_service.kolibri_service import KolibriServiceManager
 from .utils import get_localized_file
 
@@ -220,6 +220,8 @@ class KolibriWindow(KolibriView):
 
     def show(self):
         # TODO: Implement this in pyeverywhere
+        if KOLIBRI_APP_DEVELOPER_EXTRAS:
+            self.gtk_webview.get_settings().set_enable_developer_extras(True)
         self.gtk_webview.connect("decide-policy", self.__gtk_webview_on_decide_policy)
         self.gtk_webview.connect("create", self.__gtk_webview_on_create)
 

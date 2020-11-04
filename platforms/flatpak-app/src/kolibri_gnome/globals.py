@@ -15,6 +15,8 @@ XDG_DATA_HOME = os.environ.get(
     "XDG_DATA_HOME", os.path.join(USER_HOME, ".local", "share")
 )
 
+KOLIBRI_APP_DEVELOPER_EXTRAS = os.environ.get("KOLIBRI_APP_DEVELOPER_EXTRAS")
+
 DEFAULT_KOLIBRI_HOME = os.path.join(USER_HOME, ".kolibri")
 KOLIBRI_HOME = os.environ.get("KOLIBRI_HOME", DEFAULT_KOLIBRI_HOME)
 
