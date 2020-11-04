@@ -43,6 +43,7 @@ FILESYSTEM_BLACKLIST = set(
         "ecryptfs",
         "fuse",
         "fuse.gvfsd-fuse",
+        "fuse.portal",
         "fusectl",
         "hugetlbfs",
         "mqueue",
@@ -116,7 +117,12 @@ def get_drive_list():
             continue
 
         # attempt to get some additional metadata about the drive
-        usage = _get_drive_usage(path)
+        try:
+            usage = _get_drive_usage(path)
+        except OSError:
+            # skip if we don't have access to get drive usage
+            continue
+
         dbus_drive_info = _try_to_get_drive_info_from_dbus(drive["device"])
         diskutil_info = _try_to_get_drive_info_from_diskutil(drive["device"])
 

@@ -1,5 +1,6 @@
-import os
 import unittest
+
+from django.conf import settings
 
 from kolibri.core.auth.constants.role_kinds import ADMIN
 from kolibri.core.auth.models import Classroom
@@ -9,7 +10,8 @@ from kolibri.core.auth.test.migrationtestcase import TestMigrations
 
 
 @unittest.skipIf(
-    os.environ.get("TOX_ENV") == "postgres",
+    getattr(settings, "DATABASES")["default"]["ENGINE"]
+    == "django.db.backends.postgresql",
     "Skipping postgres due to unsupported upgrade",
 )
 class MultipleCollectionTestCase(TestMigrations):
