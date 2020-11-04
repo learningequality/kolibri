@@ -12,7 +12,7 @@
           :label="$tr('contentKindFilterLabel')"
           :options="contentKindFilterOptions"
           :inline="true"
-          :disabled="!contentKindFilterOptions.length"
+          :disabled="contentKindFilterOptions.length === 1"
           :value="contentKindValue"
           class="filter"
           @change="updateFilter('kind', $event)"
@@ -25,7 +25,7 @@
           :label="$tr('channelFilterLabel')"
           :options="channelFilterOptions"
           :inline="true"
-          :disabled="!channelFilterOptions.length"
+          :disabled="channelFilterOptions.length === 1"
           :value="channelValue"
           class="filter"
           @change="updateFilter('channel', $event)"
@@ -97,12 +97,16 @@
       ...mapGetters({
         channels: 'getChannels',
       }),
+      noResults() {
+        return this.searchResults.results.length === 0;
+      },
       searchResultsSubheader() {
-        const msg =
-          this.searchResults.results.length === 0
-            ? 'noSearchResultsMessage'
-            : 'searchResultsMessage';
-        return this.$tr(msg, { searchTerm: this.searchTerm });
+        const trOptions = { searchTerm: this.searchTerm };
+        if (this.noResults) {
+          return this.$tr('noSearchResultsMessage', trOptions);
+        } else {
+          return this.$tr('searchResultsMessage', trOptions);
+        }
       },
       allFilter() {
         return { label: this.coreString('allLabel'), value: null };
@@ -164,11 +168,8 @@
       topics: 'Topics',
       videos: 'Videos',
       hideAction: 'Hide',
-      // Linter will not find these dynamic uses.
-      /* eslint-disable kolibri/vue-no-unused-translations */
       searchResultsMessage: `Results for '{searchTerm}'`,
       noSearchResultsMessage: `No results for '{searchTerm}'`,
-      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 

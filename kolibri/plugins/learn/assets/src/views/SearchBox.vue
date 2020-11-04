@@ -155,7 +155,7 @@
       channelFilterStyle() {
         const maxWidth = 375;
         // If window is small, just let it have its default width
-        if (this.elementWidth < maxWidth + 32) {
+        if (this.channelFilterOptions.length === 0 || this.elementWidth < maxWidth + 32) {
           return {};
         }
         // Otherwise, adjust the width based on the longest channel name,
