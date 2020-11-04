@@ -5,6 +5,12 @@
       :title="coreString('channelsLabel')"
       class="visuallyhidden"
     />
+    <ShortcutCardGroupGrid
+      v-if="shortcuts.length"
+      class="grid"
+      :shortcuts="shortcuts"
+      :genContentLink="genShortcutLink"
+    />
     <ChannelCardGroupGrid
       v-if="channels.length"
       class="grid"
@@ -20,8 +26,10 @@
 
   import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import PageHeader from './PageHeader';
+  import ShortcutCardGroupGrid from './ShortcutCardGroupGrid';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
 
   export default {
@@ -33,17 +41,24 @@
     },
     components: {
       PageHeader,
+      ShortcutCardGroupGrid,
       ChannelCardGroupGrid,
     },
     mixins: [commonCoreStrings],
     computed: {
-      ...mapState('topicsRoot', { channels: 'rootNodes' }),
+      ...mapState('topicsRoot', { channels: 'rootNodes', shortcuts: 'shortcutNodes' }),
     },
     methods: {
       genChannelLink(channel_id) {
         return {
           name: PageNames.TOPICS_CHANNEL,
           params: { channel_id },
+        };
+      },
+      genShortcutLink(id, kind) {
+        return {
+          name: kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT,
+          params: { id },
         };
       },
     },

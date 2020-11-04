@@ -47,13 +47,22 @@
       :isTopic="isTopic"
     />
 
+    <ol
+      v-if="breadcrumbs.length > 0"
+      class="shortcut-breadcrumbs"
+      :style="{ borderTop: `1px solid ${$themeTokens.fineLine}` }"
+    >
+      <template v-for="(breadcrumb, index) in breadcrumbs">
+        <li>{{ breadcrumb.text }}</li>
+      </template>
+    </ol>
+
   </router-link>
 
 </template>
 
 
 <script>
-
   import { mapGetters } from 'vuex';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -114,6 +123,11 @@
         type: Boolean,
         default: false,
       },
+      breadcrumbs: {
+        type: Array,
+        required: false,
+        default: [],
+      }
     },
     computed: {
       ...mapGetters(['isLearner', 'isUserLoggedIn']),
@@ -187,6 +201,29 @@
 
   /deep/.card-thumbnail-wrapper {
     max-width: 100%;
+  }
+
+  .shortcut-breadcrumbs {
+    display: block;
+    list-style: none;
+    margin: 16px 0 0 0;
+    padding: 12px 16px 0 16px;
+    font-size: 0.9rem;
+  }
+
+  .shortcut-breadcrumbs li {
+    display: inline-block;
+    color: rgb(97, 97, 97);
+  }
+
+  .shortcut-breadcrumbs li::after {
+    content: "\203A";
+    margin-left: 8px;
+    margin-right: 8px;
+  }
+
+  .shortcut-breadcrumbs li:last-child::after {
+    content: none;
   }
 
 </style>

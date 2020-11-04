@@ -110,6 +110,8 @@ class IsOwn(BasePermissions):
             return queryset.none()
         return queryset.filter(**{self.field_name: user.id})
 
+        return queryset.filter(id=user.id)
+
 
 class IsFromSameFacility(BasePermissions):
     """
