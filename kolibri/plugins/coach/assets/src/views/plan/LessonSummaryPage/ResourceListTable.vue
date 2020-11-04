@@ -63,7 +63,6 @@
               <KButton
                 :text="coreString('removeAction')"
                 appearance="flat-button"
-                class="remove-resource-button"
                 @click="removeResource(resource)"
               />
             </KFixedGridItem>
@@ -298,10 +297,6 @@
   .content-link {
     display: inline-block;
     width: calc(100% - 16px);
-  }
-
-  .remove-resource-button {
-    padding-top: 10px;
   }
 
 </style>
