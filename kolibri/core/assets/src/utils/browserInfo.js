@@ -5,6 +5,8 @@
  * the more general purpose code therein.
  */
 
+import store from 'kolibri.coreVue.vuex.store';
+
 const NAME = 'name';
 const VERSION = 'version';
 const browserTests = [
@@ -184,21 +186,25 @@ export const userAgent =
  * First checks for 'wv' (Lolipop+), then for 'Version/x.x'
  */
 const isAndroid = /Android/.test(userAgent);
-export const isAndroidWebView =
-  isAndroid && (/wv/.test(userAgent) || /Version\/\d+\.\d+/.test(userAgent));
-
-/**
- * Embedded WebViews on Mac have no app identifier, while all the major browsers do, so check
- * for browser app strings and mark as embedded if none are found.
- */
 const isMac = /Macintosh/.test(userAgent);
-export const isMacWebView =
-  isMac && !(/Safari/.test(userAgent) || /Chrome/.test(userAgent) || /Firefox/.test(userAgent));
+const isWindows = /Windows/.test(userAgent);
 
 /**
  * All web views
+ * TODO: Refactor calling code to check isAppContext explicitly rather than
+ * calling this method. (Or ideally switch to calling checkAppCapabilities
+ * for the functionality we want to expose, including file download.)
+ *
+ * Note that we explicitly exclude Linux from this check because the GNOME
+ * app currently does not set this.
  */
-export const isEmbeddedWebView = isAndroidWebView || isMacWebView;
+export const isEmbeddedWebView = (isAndroid || isMac || isWindows) && store.getters.isAppContext;
+
+/**
+ * CoreFullscreen checks for embedded Android specifically
+ * TODO: See if we can enable fullscreen on embedded Android
+ */
+export const isAndroidWebView = isAndroid && isEmbeddedWebView;
 
 /**
  * General browser info
