@@ -1,6 +1,12 @@
 <template>
 
-  <div ref="sideNav" class="side-nav-wrapper" tabindex="0" @keyup.esc="toggleNav">
+  <div
+    v-show="navShown"
+    ref="sideNav"
+    class="side-nav-wrapper"
+    tabindex="0"
+    @keyup.esc="toggleNav"
+  >
     <transition name="side-nav">
       <div
         v-show="navShown"
