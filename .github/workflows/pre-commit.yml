@@ -1,0 +1,37 @@
+name: Linting
+
+on:
+  push:
+    paths-ignore:
+      - '**.po'
+      - '**.json'
+  pull_request:
+    paths-ignore:
+      - '**.po'
+      - '**.json'
+
+
+jobs:
+  linting:
+    name: All file linting
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '10.x'
+    - name: Cache Node.js modules
+      uses: actions/cache@v2
+      with:
+        path: '**/node_modules'
+        key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.OS }}-node-
+          ${{ runner.OS }}-
+    - name: Install dependencies
+      run: |
+        yarn --frozen-lockfile
+        npm rebuild node-sass
+    - uses: pre-commit/action@v2.0.0
