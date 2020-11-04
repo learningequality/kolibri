@@ -22,6 +22,7 @@ from django.db import models
 from django.utils import timezone
 from morango.models import SyncableModelQuerySet
 from morango.models import UUIDField
+from ua_parser import user_agent_parser
 
 from .permissions import AnyoneCanWriteAnonymousLogs
 from kolibri.core.auth.constants import role_kinds
@@ -175,11 +176,16 @@ class UserSessionLog(BaseLogModel):
     start_timestamp = DateTimeTzField(default=local_now)
     last_interaction_timestamp = DateTimeTzField(null=True, blank=True)
     pages = models.TextField(blank=True)
+    device_info = models.CharField(blank=True, max_length=100)
 
     @classmethod
-    def update_log(cls, user):
+    def update_log(cls, user, user_agent):
         """
         Update the current UserSessionLog for a particular user.
+
+        ua_parser never defaults the setting of os.family and user_agent.family
+        It uses the value 'other' whenever the values are not recognized or the parsing
+        fails. The code depends on this behaviour.
         """
         if user and isinstance(user, FacilityUser):
             try:
@@ -194,7 +200,16 @@ class UserSessionLog(BaseLogModel):
                 or timezone.now() - user_session_log.last_interaction_timestamp
                 > timedelta(minutes=5)
             ):
-                user_session_log = cls(user=user)
+                parsed_string = user_agent_parser.Parse(user_agent)
+                device_info = (
+                    "{os_family},{os_major}/{browser_family},{browser_major}".format(
+                        os_family=parsed_string["os"].get("family", ""),
+                        os_major=parsed_string["os"].get("major", ""),
+                        browser_family=parsed_string["user_agent"].get("family", ""),
+                        browser_major=parsed_string["user_agent"].get("major", ""),
+                    )
+                )
+                user_session_log = cls(user=user, device_info=device_info)
             user_session_log.last_interaction_timestamp = local_now()
             user_session_log.save()
 

@@ -152,6 +152,7 @@ class BaseDeviceSetupMixin(object):
                             user=user,
                             start_timestamp=min_timestamp,
                             last_interaction_timestamp=max_timestamp,
+                            device_info="Android,9/Chrome Mobile,86",
                         )
                     for _ in range(1):
                         ContentSummaryLog.objects.create(
@@ -240,6 +241,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
             "sacnv": 20,  # sess_anon_count_no_visitor_id
             "uwl": 20,  # users_with_logs
             "vwl": 0,  # anon_visitors_with_logs
+            "dis": {"Android,9/Chrome Mobile,86": 20},  # device info
         }
 
         assert actual == expected
