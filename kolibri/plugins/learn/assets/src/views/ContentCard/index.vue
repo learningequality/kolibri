@@ -3,7 +3,10 @@
   <router-link
     :to="link"
     class="card"
-    :class="{ 'mobile-card': isMobile }"
+    :class="[
+      { 'mobile-card': isMobile },
+      $computedClass({ ':focus': $coreOutline })
+    ]"
     :style="{ backgroundColor: $themeTokens.surface }"
   >
     <CardThumbnail

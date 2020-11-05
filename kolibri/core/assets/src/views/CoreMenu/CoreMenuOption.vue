@@ -62,6 +62,7 @@
             ':hover': {
               backgroundColor: this.$themeBrand.primary.v_100,
             },
+            ':focus': this.$coreOutline,
           };
         }
         return {
@@ -69,6 +70,7 @@
           ':hover': {
             backgroundColor: this.$themeBrand.primary.v_50,
           },
+          ':focus': this.$coreOutline,
         };
       },
       optionIconStyle() {

@@ -71,18 +71,15 @@
             <slot></slot>
 
             <p v-if="!hideCreateAccount && canSignUp" class="create">
-              <router-link :to="signUpPage">
-                <KButton
-                  :text="AuthSelectStrings.$tr('createAccountAction')"
-                  :to="signUpPage"
-                  :primary="false"
-                  appearance="raised-button"
-                  :disabled="busy"
-                  style="width: 100%;"
-                  data-test="createUser"
-                />
-              </router-link>
-
+              <KRouterLink
+                :text="AuthSelectStrings.$tr('createAccountAction')"
+                :to="signUpPage"
+                :primary="false"
+                appearance="raised-button"
+                :disabled="busy"
+                style="width: 100%;"
+                data-test="createUser"
+              />
             </p>
 
             <div slot="options">
