@@ -15,10 +15,12 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.db.models import Func
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models import TextField
+from django.db.models import Value
 from django.db.models.functions import Cast
 from django.db.models.query import F
 from django.http import Http404
@@ -355,7 +357,13 @@ class FacilityViewSet(ValuesViewset):
             .annotate(
                 last_synced=Subquery(
                     TransferSession.objects.filter(
-                        filter=Cast(OuterRef("dataset"), TextField())
+                        filter=Func(
+                            Cast(OuterRef("dataset"), TextField()),
+                            Value("-"),
+                            Value(""),
+                            function="replace",
+                            output_field=TextField(),
+                        )
                     )
                     .order_by("-last_activity_timestamp")
                     .values("last_activity_timestamp")
