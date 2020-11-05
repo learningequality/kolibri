@@ -67,9 +67,13 @@ export default class SandboxEnvironment {
     // iframe - this is to prevent other generated iframes from doing anything here.
     if (contentWindow === this.iframe.contentWindow) {
       // Initialize the local storage
-      this.localStorage.iframeInitialize(this.iframe.contentWindow);
-      this.sessionStorage.iframeInitialize(this.iframe.contentWindow);
-      this.cookie.iframeInitialize(this.iframe.contentWindow);
+      try {
+        this.localStorage.iframeInitialize(this.iframe.contentWindow);
+        this.sessionStorage.iframeInitialize(this.iframe.contentWindow);
+        this.cookie.iframeInitialize(this.iframe.contentWindow);
+      } catch (e) {
+        console.log('Shimming storage APIs failed, data will not persist'); // eslint-disable-line no-console
+      }
       this.iframe.contentWindow.addEventListener('resize', this.resizeIframe);
       this.iframe.contentWindow.addEventListener('DOMContentLoaded', this.resizeIframe, {
         once: true,
@@ -92,7 +96,9 @@ export default class SandboxEnvironment {
     }
     this.iframe = document.createElement('iframe');
     this.iframe.src = srcUrl;
-    this.iframe.style = 'border: 0; padding: 0; width: 100%;';
+    this.iframe.style.border = 0;
+    this.iframe.style.padding = 0;
+    this.iframe.style.width = '100%';
     this.iframe.height = document.documentElement.scrollHeight;
     document.body.appendChild(this.iframe);
     this.initializeIframe(this.iframe.contentWindow);
