@@ -63,6 +63,9 @@ const urls = {
         port: this.__zipContentPort,
       });
     }
+    if (!this.__contentUrl) {
+      throw new ReferenceError('Zipcontent Url is not defined');
+    }
     return generateUrl(this.__contentUrl, { url: `${filename[0]}/${filename[1]}/${filename}` });
   },
 };
