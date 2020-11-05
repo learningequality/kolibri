@@ -6,7 +6,7 @@
     <ClassEnrollForm
       :facilityUsers="facilityUsers"
       :classUsers="classUsers"
-      pageType="learners"
+      :disabled="formIsDisabled"
       @submit="enrollLearners"
     />
   </KPageContainer>
@@ -31,6 +31,11 @@
       ClassEnrollForm,
     },
     mixins: [commonCoreStrings],
+    data() {
+      return {
+        formIsDisabled: false,
+      };
+    },
     computed: {
       ...mapState('classAssignMembers', ['class', 'facilityUsers', 'classUsers']),
       className() {
@@ -40,13 +45,19 @@
     methods: {
       ...mapActions('classAssignMembers', ['enrollLearnersInClass']),
       enrollLearners(selectedUsers) {
-        this.enrollLearnersInClass({ classId: this.class.id, users: selectedUsers }).then(() => {
-          this.$router.push(this.$store.getters.facilityPageLinks.ClassEditPage).then(() => {
-            this.showSnackbarNotification('learnersEnrolledNoCount', {
-              count: selectedUsers.length,
+        this.formIsDisabled = true;
+        this.enrollLearnersInClass({ classId: this.class.id, users: selectedUsers })
+          .then(() => {
+            this.$router.push(this.$store.getters.facilityPageLinks.ClassEditPage).then(() => {
+              this.showSnackbarNotification('learnersEnrolledNoCount', {
+                count: selectedUsers.length,
+              });
             });
+          })
+          .catch(() => {
+            this.formIsDisabled = false;
+            this.$store.dispatch('createSnackbar', this.coreString('changesNotSavedNotification'));
           });
-        });
       },
     },
     $trs: {

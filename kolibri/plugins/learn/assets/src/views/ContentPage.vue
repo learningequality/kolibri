@@ -230,7 +230,7 @@
       },
       description() {
         if (this.content && this.content.description) {
-          const md = new markdownIt('zero', { breaks: true });
+          const md = new markdownIt({ breaks: true });
           return md.render(this.content.description);
         }
         return '';

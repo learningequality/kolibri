@@ -157,6 +157,7 @@ Feature: Coach creates lessons
   Scenario: View metadata on topic cards in search results
     Given I am on the search results page
       And there are topics in the search results
+      And one of those topics has content for coaches
     When I see a topic card
     Then I see its title
       And I see its description

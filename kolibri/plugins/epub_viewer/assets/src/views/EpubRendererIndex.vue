@@ -23,6 +23,7 @@
         ref="topBar"
         class="top-bar-component"
         :isInFullscreen="isInFullscreen"
+        :hideSearchButton="searchSideBarIsOpen"
         @tableOfContentsButtonClicked="handleTocToggle"
         @settingsButtonClicked="handleSettingToggle"
         @searchButtonClicked="handleSearchToggle"
@@ -777,7 +778,9 @@
   }
 
   .search-button {
-    right: 36px;
+    // Positioned to be in the exact same spot as the TopBar's SearchButton,
+    // which is given opacity: 0 when this button is shown
+    right: 32px;
   }
 
   .bottom-bar {

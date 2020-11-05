@@ -149,7 +149,7 @@ class RootURLRedirectView(View):
             )
             if user_kinds.ADMIN in roles:
                 url = url or get_url_by_role(user_kinds.ADMIN)
-            if user_kinds.COACH in roles:
+            if user_kinds.COACH in roles or user_kinds.ASSIGNABLE_COACH in roles:
                 url = url or get_url_by_role(user_kinds.COACH)
             url = url or get_url_by_role(user_kinds.LEARNER)
         else:

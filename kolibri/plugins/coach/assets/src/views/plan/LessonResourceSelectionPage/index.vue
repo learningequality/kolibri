@@ -243,8 +243,12 @@
         this.debouncedSaveResources();
       },
       filters(newVal) {
+        const newQuery = {
+          ...this.$route.query,
+          ...newVal,
+        };
         this.$router.push({
-          query: { ...this.$route.query, ...pickBy(newVal) },
+          query: pickBy(newQuery),
         });
       },
     },

@@ -12,15 +12,21 @@
           v-model="selectedUsers"
           :users="items"
           :selectable="true"
+          :disabled="disabled"
           :emptyMessage="emptyMessageForItems(items, filterInput)"
         />
       </template>
     </PaginatedListContainer>
-    <SelectionBottomBar
-      :count="selectedUsers.length"
-      :type="pageType"
-      @click-confirm="$emit('submit', selectedUsers)"
-    />
+
+    <div class="footer">
+      <KButton
+        :text="coreString('confirmAction')"
+        :primary="true"
+        type="submit"
+        :disabled="disabled || selectedUsers.length === 0"
+      />
+    </div>
+
   </form>
 
 </template>
@@ -33,13 +39,11 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
-  import SelectionBottomBar from './SelectionBottomBar';
   import UserTable from './UserTable';
 
   export default {
     name: 'ClassEnrollForm',
     components: {
-      SelectionBottomBar,
       PaginatedListContainer,
       UserTable,
     },
@@ -53,9 +57,9 @@
         type: Array,
         required: true,
       },
-      pageType: {
-        type: String,
-        required: true,
+      disabled: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
