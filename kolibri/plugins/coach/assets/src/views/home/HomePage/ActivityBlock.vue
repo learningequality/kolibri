@@ -6,9 +6,13 @@
     :showAllLink="notifications.length > 0"
   >
 
-    <KLabeledIcon slot="title" :label="$tr('classActivityLabel')" />
+    <template #title>
+      <KLabeledIcon :label="$tr('classActivityLabel')" />
+    </template>
 
-    <ContentIcon slot="icon" :kind="ContentNodeKinds.ACTIVITY" />
+    <template #icon>
+      <ContentIcon :kind="ContentNodeKinds.ACTIVITY" />
+    </template>
 
     <p v-if="notifications.length === 0">
       {{ $tr('noActivityLabel') }}
