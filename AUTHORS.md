@@ -49,6 +49,7 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Paul Luna | luna215 |
 | Lingyi Wang | lyw07 |
 | Magali Boizot-Roche | magali-br |
+| Marcella Maki | marcellamaki |
 | Maureen Hernandez | MauHernandez |
 | Michael Gallaspy | MCGallaspy |
 | Michael Gamlem III | mgamlem3 |
@@ -64,6 +65,7 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Hyun Ahn | rationality6 |
 | Rachel Kim | rayykim |
 | Richard Tibbles | rtibbles |
+| Sairina Merino Tsui | sairina |
 | Shanavas M | shanavas786 |
 | Whitney Zhu | whitzhu |
 | Carol Willing | willingc |
