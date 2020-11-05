@@ -55,11 +55,21 @@ export default class SandboxEnvironment {
     // At this point we are ready, so send the message, in case we misssed the
     // the ready check request.
     this.mediator.sendMessage({ nameSpace, event: events.IFRAMEREADY, data: true });
+
+    // this.resizeIframe = debounce(this.resizeIframe.bind(this), 500);
   }
 
   resizeIframe() {
-    this.iframe.width = this.iframe.contentWindow.document.documentElement.scrollWidth + 'px';
-    this.iframe.height = this.iframe.contentWindow.document.documentElement.scrollHeight + 'px';
+    this.iframe.width =
+      Math.max(
+        this.iframe.contentWindow.document.documentElement.scrollWidth,
+        window.document.documentElement.clientWidth
+      ) + 'px';
+    this.iframe.height =
+      Math.max(
+        this.iframe.contentWindow.document.documentElement.scrollHeight,
+        window.document.documentElement.clientHeight
+      ) + 'px';
   }
 
   initializeIframe(contentWindow) {
@@ -74,7 +84,9 @@ export default class SandboxEnvironment {
       } catch (e) {
         console.log('Shimming storage APIs failed, data will not persist'); // eslint-disable-line no-console
       }
-      this.iframe.contentWindow.addEventListener('resize', this.resizeIframe);
+      this.iframe.contentWindow.addEventListener('resize', this.resizeIframe, {
+        once: true,
+      });
       this.iframe.contentWindow.addEventListener('DOMContentLoaded', this.resizeIframe, {
         once: true,
       });
@@ -98,6 +110,8 @@ export default class SandboxEnvironment {
     this.iframe.src = srcUrl;
     this.iframe.style.border = 0;
     this.iframe.style.padding = 0;
+    this.iframe.style.margin = 0;
+    this.iframe.style.position = 'absolute';
     this.iframe.style.width = '100%';
     this.iframe.height = document.documentElement.scrollHeight;
     document.body.appendChild(this.iframe);
