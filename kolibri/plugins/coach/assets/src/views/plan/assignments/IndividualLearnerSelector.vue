@@ -53,43 +53,22 @@
             </thead>
 
             <tbody slot="tbody">
-              <!-- Disable the line and check the box if the
-                   learner is in a selected group -->
               <tr v-for="learner in items" :key="learner.id">
-                <template v-if="learnerIsInSelectedGroup(learner.id)">
-                  <td>
-                    <KCheckbox
-                      :key="`select-learner-${learner.id}`"
-                      :label="learner.name"
-                      :checked="true"
-                      :disabled="true"
-                    />
-                  </td>
-                  <td class="table-data">
-                    {{ learner.username }}
-                  </td>
-                  <td class="table-data">
-                    {{ groupsForLearner(learner.id) }}
-                  </td>
-                </template>
-
-                <template v-else>
-                  <td>
-                    <KCheckbox
-                      :key="`select-learner-${learner.id}`"
-                      :label="learner.name"
-                      :checked="selectedAdHocIds.includes(learner.id)"
-                      :disabled="disabled"
-                      @change="toggleSelectedLearnerId($event, learner.id)"
-                    />
-                  </td>
-                  <td class="table-data">
-                    {{ learner.username }}
-                  </td>
-                  <td class="table-data">
-                    {{ groupsForLearner(learner.id) }}
-                  </td>
-                </template>
+                <td>
+                  <KCheckbox
+                    :key="`select-learner-${learner.id}`"
+                    :label="learner.name"
+                    :checked="learnerIsSelected(learner)"
+                    :disabled="learnerIsNotSelectable(learner)"
+                    @change="toggleSelectedLearnerId($event, learner.id)"
+                  />
+                </td>
+                <td class="table-data">
+                  {{ learner.username }}
+                </td>
+                <td class="table-data">
+                  {{ groupNamesForLearner(learner) }}
+                </td>
               </tr>
             </tbody>
           </CoreTable>
@@ -128,16 +107,17 @@
         type: Boolean,
         required: true,
       },
+      // Used to disable learner rows if already assigned via learner group
       selectedGroupIds: {
         type: Array,
         required: true,
-        default: new Array(),
       },
       entireClassIsSelected: {
         type: Boolean,
         required: true,
         default: false,
       },
+      // Disables the entire form
       disabled: {
         type: Boolean,
         required: true,
@@ -198,7 +178,7 @@
           baseIndex + this.itemsPerPage
         );
       },
-      hiddenLearnerIds() {
+      learnerIdsFromSelectedGroups() {
         // If a learner is part of a Learner Group that has already been selected
         // in RecipientSelector, then disable their row
         return flatMap(this.selectedGroupIds, groupId => this.currentGroupMap[groupId].member_ids);
@@ -283,11 +263,19 @@
         });
       },
       learnerIsInSelectedGroup(learnerId) {
-        return this.hiddenLearnerIds.includes(learnerId);
+        return this.learnerIdsFromSelectedGroups.includes(learnerId);
       },
-      groupsForLearner(learnerId) {
+      learnerIsSelected({ id }) {
+        return this.learnerIsInSelectedGroup(id) || this.selectedAdHocIds.includes(id);
+      },
+      learnerIsNotSelectable({ id }) {
+        // If learner is unselectable if already part of a selected group or
+        // if the whole form is disabled,
+        return this.learnerIsInSelectedGroup(id) || this.disabled;
+      },
+      groupNamesForLearner({ id }) {
         const groupNames = this.groups
-          .filter(group => group.member_ids.includes(learnerId))
+          .filter(group => group.member_ids.includes(id))
           .map(group => group.name);
         return formatList(groupNames);
       },
