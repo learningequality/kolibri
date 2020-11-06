@@ -1,0 +1,40 @@
+name: No zombie threads
+
+on:
+  push:
+    paths:
+      - '**.py'
+      - 'requirements/base.txt'
+  pull_request:
+    paths:
+      - '**.py'
+      - 'requirements/base.txt'
+
+jobs:
+  zombies:
+    name: No zombies
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.6
+    - name: pip cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-base-${{ hashFiles('requirements/base.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-base
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements/base.txt
+        pip install -r requirements/cext.txt
+    - name: Check proper shutdown
+      run: |
+        pip install .
+
+        # ensure kolibri stops within 20 seconds 10 times in a row
+        ./test/ensure_kolibri_stops_within_time.sh 20 10 8082
+        ./test/ensure_no_kolibris_running_on_port.sh 8082

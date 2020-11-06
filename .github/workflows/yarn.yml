@@ -1,0 +1,40 @@
+name: Javascript Tests
+
+on:
+  push:
+    paths:
+      - '**.vue'
+      - '**.js'
+      - 'yarn.lock'
+  pull_request:
+    paths:
+      - '**.vue'
+      - '**.js'
+      - 'yarn.lock'
+
+jobs:
+  test:
+    name: Frontend tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '10.x'
+    - name: Cache Node.js modules
+      uses: actions/cache@v2
+      with:
+        path: '**/node_modules'
+        key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.OS }}-node-
+          ${{ runner.OS }}-
+    - name: Install dependencies
+      run: |
+        yarn --frozen-lockfile
+        npm rebuild node-sass
+    - name: Run tests
+      run: yarn run coverage
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1

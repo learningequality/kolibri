@@ -1,15 +1,18 @@
 <template>
 
   <div>
+    <!-- Main checkbox -->
     <KCheckbox
       key="adHocLearners"
-      :checked="showAsChecked"
+      :checked="isVisible"
       :disabled="disabled"
-      @change="toggleChecked"
+      @change="$emit('togglevisibility', $event)"
     >
       <KLabeledIcon icon="people" :label="$tr('individualLearnersLabel')" />
     </KCheckbox>
-    <div v-if="showAsChecked">
+
+    <!-- Paginated list of learners -->
+    <div v-if="isVisible">
       <div class="table-title">
         {{ $tr("selectedIndividualLearnersLabel") }}
       </div>
@@ -50,34 +53,22 @@
             </thead>
 
             <tbody slot="tbody">
-              <!-- Disable the line and check the box if the
-                   learner is in a selected group -->
               <tr v-for="learner in items" :key="learner.id">
-                <template v-if="learnerIsInSelectedGroup(learner.id)">
-                  <td>
-                    <KCheckbox
-                      :key="`select-learner-${learner.id}`"
-                      :label="learner.name"
-                      :checked="true"
-                      :disabled="true"
-                    />
-                  </td>
-                  <td> {{ learner.username }} </td>
-                  <td> {{ groupsForLearner(learner.id) }} </td>
-                </template>
-                <template v-else>
-                  <td>
-                    <KCheckbox
-                      :key="`select-learner-${learner.id}`"
-                      :label="learner.name"
-                      :checked="selectedAdHocIds.includes(learner.id)"
-                      :disabled="disabled"
-                      @change="toggleSelectedLearnerId(learner.id)"
-                    />
-                  </td>
-                  <td> {{ learner.username }} </td>
-                  <td> {{ groupsForLearner(learner.id) }} </td>
-                </template>
+                <td>
+                  <KCheckbox
+                    :key="`select-learner-${learner.id}`"
+                    :label="learner.name"
+                    :checked="learnerIsSelected(learner)"
+                    :disabled="learnerIsNotSelectable(learner)"
+                    @change="toggleLearner($event, learner)"
+                  />
+                </td>
+                <td class="table-data">
+                  {{ learner.username }}
+                </td>
+                <td class="table-data">
+                  {{ groupNamesForLearner(learner) }}
+                </td>
               </tr>
             </tbody>
           </CoreTable>
@@ -93,11 +84,13 @@
 <script>
 
   import { mapState } from 'vuex';
+  import { formatList } from 'kolibri.utils.i18n';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import uniq from 'lodash/uniq';
+  import flatMap from 'lodash/flatMap';
   import countBy from 'lodash/countBy';
+  import every from 'lodash/every';
   import ClassSummaryResource from '../../../apiResources/classSummary';
   import commonCoachStrings from '../../common';
   import { userMatchesFilter, filterAndSortUsers } from '../../../userSearchUtils';
@@ -110,24 +103,26 @@
     components: { CoreTable, PaginatedListContainer },
     mixins: [commonCoreStrings, commonCoachStrings],
     props: {
+      // If true, the main checkbox is checked and the list of learners is shown
+      isVisible: {
+        type: Boolean,
+        required: true,
+      },
+      // Used to disable learner rows if already assigned via learner group
       selectedGroupIds: {
         type: Array,
         required: true,
-        default: new Array(),
       },
-      entireClassIsSelected: {
-        type: Boolean,
+      // List of selected learner IDs (must be .sync'd with parent form)
+      selectedLearnerIds: {
+        type: Array,
         required: true,
-        default: false,
       },
+      // Disables the entire form
       disabled: {
         type: Boolean,
         required: true,
         default: false,
-      },
-      initialAdHocLearners: {
-        type: Array,
-        required: true,
       },
       // Only given when not used in current class context
       targetClassId: {
@@ -138,8 +133,6 @@
     },
     data() {
       return {
-        isChecked: Boolean(this.initialAdHocLearners.length),
-        selectedAdHocIds: this.initialAdHocLearners,
         currentPage: 1,
         searchText: '',
         fetchingOutside: false,
@@ -171,7 +164,7 @@
         }
       },
       currentGroupMap() {
-        return this.groupMapFromOtherClass ? this.groupMapFromOtherClass : this.groupMap;
+        return this.groupMapFromOtherClass || this.groupMap;
       },
       currentPageLearners() {
         const baseIndex = (this.currentPage - 1) * this.itemsPerPage;
@@ -180,28 +173,17 @@
           baseIndex + this.itemsPerPage
         );
       },
-      hiddenLearnerIds() {
-        let hiddenLearnerIds = [];
-        this.selectedGroupIds.forEach(groupId => {
-          hiddenLearnerIds = hiddenLearnerIds.concat(this.currentGroupMap[groupId].member_ids);
-        });
-        return uniq(hiddenLearnerIds);
-      },
-      showAsChecked() {
-        return this.entireClassIsSelected ? false : this.isChecked;
-      },
-      allOfCurrentPageIsSelected() {
-        const selectedVisibleLearners = this.currentPageLearners.filter(visible => {
-          return this.selectedAdHocIds.includes(visible.id);
-        });
-        return selectedVisibleLearners.length === this.currentPageLearners.length;
+      learnerIdsFromSelectedGroups() {
+        // If a learner is part of a Learner Group that has already been selected
+        // in RecipientSelector, then disable their row
+        return flatMap(this.selectedGroupIds, groupId => this.currentGroupMap[groupId].member_ids);
       },
       selectAllCheckboxProps() {
         const currentCount = this.currentPageLearners.length;
         const counts = countBy(this.currentPageLearners, learner => {
           if (this.learnerIsInSelectedGroup(learner.id)) {
             return 'disabled';
-          } else if (this.selectedAdHocIds.includes(learner.id)) {
+          } else if (this.selectedLearnerIds.includes(learner.id)) {
             return 'checked';
           } else {
             return 'unchecked';
@@ -214,17 +196,6 @@
       },
       itemsPerPage() {
         return this.targetClassId ? SHORT_ITEMS_PER_PAGE : DEFAULT_ITEMS_PER_PAGE;
-      },
-    },
-    watch: {
-      entireClassIsSelected() {
-        if (this.entireClassIsSelected && this.isChecked) {
-          this.toggleChecked();
-          this.currentPage = 1;
-        }
-      },
-      selectedAdHocIds() {
-        this.$emit('updateLearners', this.selectedAdHocIds);
       },
     },
     methods: {
@@ -240,46 +211,53 @@
           this.fetchingOutside = false;
         });
       },
-      toggleChecked() {
-        this.isChecked = !this.isChecked;
-        this.$emit('updateLearners', this.isChecked ? this.selectedAdHocIds : []);
-        this.$emit('change', this.isChecked);
-      },
-      toggleSelectedLearnerId(learnerId) {
-        const index = this.selectedAdHocIds.indexOf(learnerId);
-        if (index === -1) {
-          this.selectedAdHocIds.push(learnerId);
+      // Event handlers
+      toggleLearner(checked, { id }) {
+        let newLearnerIds = [...this.selectedLearnerIds];
+        if (checked) {
+          newLearnerIds.push(id);
         } else {
-          this.selectedAdHocIds.splice(index, 1);
+          newLearnerIds = newLearnerIds.filter(learnerId => learnerId !== id);
         }
+        this.$emit('update:selectedLearnerIds', newLearnerIds);
       },
       selectVisiblePage() {
-        const isWholePageSelected = this.allOfCurrentPageIsSelected;
+        let newIds = [...this.selectedLearnerIds];
+        const isWholePageSelected = every(this.currentPageLearners, learner =>
+          this.selectedLearnerIds.includes(learner.id)
+        );
         this.currentPageLearners.forEach(learner => {
-          const index = this.selectedAdHocIds.indexOf(learner.id);
+          const index = newIds.indexOf(learner.id);
 
           if (isWholePageSelected) {
             // Deselect all if we're going from all selected to none.
-            this.selectedAdHocIds.splice(index, 1);
+            newIds.splice(index, 1);
           } else {
             // Or add every one of them if it isn't there already
             if (index === -1) {
-              this.selectedAdHocIds.push(learner.id);
+              newIds.push(learner.id);
             }
           }
+          this.$emit('update:selectedLearnerIds', newIds);
         });
       },
+      // Utilities for table
       learnerIsInSelectedGroup(learnerId) {
-        return this.hiddenLearnerIds.includes(learnerId);
+        return this.learnerIdsFromSelectedGroups.includes(learnerId);
       },
-      groupsForLearner(learnerId) {
-        let learnerGroups = [];
-        this.groups.forEach(group => {
-          if (group.member_ids.includes(learnerId)) {
-            learnerGroups.push(group.name);
-          }
-        });
-        return learnerGroups.join(', ');
+      learnerIsSelected({ id }) {
+        return this.learnerIsInSelectedGroup(id) || this.selectedLearnerIds.includes(id);
+      },
+      learnerIsNotSelectable({ id }) {
+        // If learner is unselectable if already part of a selected group or
+        // if the whole form is disabled,
+        return this.learnerIsInSelectedGroup(id) || this.disabled;
+      },
+      groupNamesForLearner({ id }) {
+        const groupNames = this.groups
+          .filter(group => group.member_ids.includes(id))
+          .map(group => group.name);
+        return formatList(groupNames);
       },
       filterLearners(learners, searchText) {
         this.searchText = searchText;
@@ -345,6 +323,11 @@
   .table-description {
     margin-bottom: 8px;
     font-size: 16px;
+  }
+
+  .table-data {
+    padding-top: 6px;
+    vertical-align: middle;
   }
 
   .filter-input {

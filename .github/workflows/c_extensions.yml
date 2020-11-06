@@ -1,0 +1,86 @@
+name: Static dependencies with and without C extensions
+
+on:
+  push:
+    paths:
+      - '**.py'
+      - 'requirements/base.txt'
+      - 'requirements/build.txt'
+  pull_request:
+    paths:
+      - '**.py'
+      - 'requirements/base.txt'
+      - 'requirements/build.txt'
+
+jobs:
+  c_ext:
+    name: C Extensions
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 2.7
+    - name: pip cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-ext-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-ext
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements/base.txt
+        pip install -r requirements/build.txt
+        pip install -r requirements/test.txt
+    - name: Check C extensions build and run
+      run: |
+        # Ensure that for this Python version, we can actually compile ALL files
+        # in the kolibri directory
+        python -m compileall -q kolibri -x py2only
+        # Until we have staged builds, we will be running this in each and every
+        # environment even though builds should be done in Py 2.7
+        make staticdeps
+        make staticdeps-cext
+        pip install .
+        # Start and stop kolibri
+        coverage run -p kolibri start --port=8081
+        coverage run -p kolibri stop
+        # Run just tests in test/
+        py.test --cov=kolibri --cov-report= --cov-append --color=no test/
+  no_c_ext:
+    name: No C Extensions
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 2.7
+    - name: pip cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-no-ext-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-no-ext
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements/base.txt
+        pip install -r requirements/build.txt
+        pip install -r requirements/test.txt
+    - name: Check No C extensions build and run
+      run: |
+        # Ensure that for this Python version, we can actually compile ALL files
+        # in the kolibri directory
+        python -m compileall -q kolibri -x py2only
+        # Until we have staged builds, we will be running this in each and every
+        # environment even though builds should be done in Py 2.7
+        make staticdeps
+        pip install .
+        # Start and stop kolibri
+        coverage run -p kolibri start --port=8081
+        coverage run -p kolibri stop
+        # Run just tests in test/
+        py.test --cov=kolibri --cov-report= --cov-append --color=no test/

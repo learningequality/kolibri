@@ -5,11 +5,19 @@
     :allLinkRoute="$router.getRoute('HomeActivityPage')"
     :showAllLink="notifications.length > 0"
   >
-    <template v-slot:title>
-      {{ $tr('classActivityLabel') }}
+
+    <template #title>
+      <KLabeledIcon :label="$tr('classActivityLabel')" />
     </template>
 
-    <ContentIcon slot="icon" :kind="ContentNodeKinds.ACTIVITY" />
+    <template #icon>
+      <ContentIcon :kind="ContentNodeKinds.ACTIVITY" />
+    </template>
+
+    <p v-if="notifications.length === 0">
+      {{ $tr('noActivityLabel') }}
+    </p>
+
     <transition-group name="list">
       <BlockItem
         v-for="notification in notifications"
@@ -21,9 +29,6 @@
         />
       </BlockItem>
     </transition-group>
-    <div v-if="notifications.length === 0">
-      {{ $tr('noActivityLabel') }}
-    </div>
   </Block>
 
 </template>
