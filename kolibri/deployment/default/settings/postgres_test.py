@@ -20,15 +20,19 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "USER": "postgres",
-        "PASSWORD": "",
+        "PASSWORD": "postgres",
         "NAME": os.environ.get("POSTGRES_DB") or "default",  # noqa
-        "TEST": {"NAME": "travis_ci_default"},
+        "HOST": "localhost",
+        "PORT": "5432",
+        "TEST": {"NAME": "test"},
     },
     "default-serializable": {
         "ENGINE": "django.db.backends.postgresql",
         "USER": "postgres",
-        "PASSWORD": "",
+        "PASSWORD": "postgres",
         "NAME": os.environ.get("POSTGRES_DB") or "default",  # noqa
+        "HOST": "localhost",
+        "PORT": "5432",
         "OPTIONS": {"isolation_level": isolation_level},
         "TEST": {"MIRROR": "default"},
     },

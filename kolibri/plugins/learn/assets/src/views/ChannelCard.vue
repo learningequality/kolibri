@@ -4,6 +4,7 @@
     :to="link"
     class="card-main-wrapper"
     :style="cardStyle"
+    :class="$computedClass({ ':focus': $coreOutline })"
   >
 
     <h3
