@@ -147,7 +147,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
-  import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
+  import { isEmbeddedWebView } from 'kolibri.utils.appInfo';
   import { shareFile } from 'kolibri.utils.appCapabilities';
   import markdownIt from 'markdown-it';
   import {

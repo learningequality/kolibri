@@ -38,7 +38,7 @@
 
 <script>
 
-  import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
+  import { isEmbeddedWebView } from 'kolibri.utils.appInfo';
   import commonCoach from '../common';
 
   export default {

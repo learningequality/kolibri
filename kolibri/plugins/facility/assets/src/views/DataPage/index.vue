@@ -89,7 +89,7 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
+  import { isEmbeddedWebView } from 'kolibri.utils.appInfo';
   import urls from 'kolibri.urls';
   import { FacilityResource } from 'kolibri.resources';
   import { PageNames } from '../../constants';

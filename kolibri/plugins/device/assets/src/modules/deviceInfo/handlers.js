@@ -3,7 +3,7 @@ import urls from 'kolibri.urls';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import bytesForHumans from 'kolibri.utils.bytesForHumans';
-import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
+import { isEmbeddedWebView } from 'kolibri.utils.appInfo';
 
 /* Function to fetch device info from the backend
  * and resolve validated data
