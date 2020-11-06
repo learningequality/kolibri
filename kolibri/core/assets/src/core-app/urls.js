@@ -53,7 +53,7 @@ const urls = {
   },
   storageUrl(fileId, extension, embeddedFilePath = '') {
     const filename = `${fileId}.${extension}`;
-    if (['perseus', 'zip', 'h5p'].includes(extension)) {
+    if (['zip', 'h5p'].includes(extension)) {
       if (!this.__zipContentUrl) {
         throw new ReferenceError('Zipcontent Url is not defined');
       }

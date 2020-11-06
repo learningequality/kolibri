@@ -14,8 +14,7 @@ from kolibri.utils import conf
 VALID_STORAGE_FILENAME = re.compile(r"[0-9a-f]{32}(-data)?\.[0-9a-z]+")
 
 # set of file extensions that should be considered zip files and allow access to internal files
-POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".perseus", ".zip", ".h5p"])
-# TODO: add ".epub" and ".epub3" if epub-equivalent of ZipContentView implemented
+POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".zip", ".h5p"])
 
 
 def _maybe_makedirs(path):
