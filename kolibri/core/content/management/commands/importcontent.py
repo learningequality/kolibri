@@ -346,10 +346,7 @@ class Command(AsyncCommand):
                         if len(file_transfers) > 0:
                             f, filetransfer = file_transfers.pop()
                             future = executor.submit(
-                                self._start_file_transfer,
-                                f,
-                                filetransfer,
-                                overall_progress_update,
+                                self._start_file_transfer, f, filetransfer
                             )
                             future_file_transfers[future] = (f, filetransfer)
 
@@ -358,7 +355,8 @@ class Command(AsyncCommand):
                     ):
                         f, filetransfer = future_file_transfers[future]
                         try:
-                            status = future.result()
+                            status, data_transferred = future.result()
+                            overall_progress_update(data_transferred)
                             if self.is_cancelled():
                                 break
 
@@ -424,24 +422,25 @@ class Command(AsyncCommand):
             if self.is_cancelled():
                 self.cancel()
 
-    def _start_file_transfer(self, f, filetransfer, overall_progress_update):
+    def _start_file_transfer(self, f, filetransfer):
         """
         Start to transfer the file from network/disk to the destination.
         Return value:
             * FILE_TRANSFERRED - successfully transfer the file.
             * FILE_SKIPPED - the file does not exist so it is skipped.
         """
+        data_transferred = 0
+
         with filetransfer:
             for chunk in filetransfer:
-                length = len(chunk)
-                overall_progress_update(length)
+                data_transferred += len(chunk)
 
             # Ensure that if for some reason the total file size for the transfer
             # is less than what we have marked in the database that we make up
             # the difference so that the overall progress is never incorrect.
             # This could happen, for example for a local transfer if a file
             # has been replaced or corrupted (which we catch below)
-            overall_progress_update(f.file_size - filetransfer.total_size)
+            data_transferred += f.file_size - filetransfer.total_size
 
             # If checksum of the destination file is different from the localfile
             # id indicated in the database, it means that the destination file
@@ -452,9 +451,9 @@ class Command(AsyncCommand):
                 e = "File {} is corrupted.".format(filetransfer.source)
                 logger.error("An error occurred during content import: {}".format(e))
                 os.remove(filetransfer.dest)
-                return FILE_SKIPPED
+                return FILE_SKIPPED, data_transferred
 
-        return FILE_TRANSFERRED
+        return FILE_TRANSFERRED, data_transferred
 
     def handle_async(self, *args, **options):
         if options["command"] == "network":
