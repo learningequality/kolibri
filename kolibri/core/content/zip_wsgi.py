@@ -8,6 +8,7 @@ import logging
 import mimetypes
 import os
 import re
+import time
 import zipfile
 from collections import OrderedDict
 from xml.etree.ElementTree import Element
@@ -21,19 +22,20 @@ from django.core.cache import cache
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
 from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotModified
 from django.http import HttpResponseRedirect
 from django.http.response import FileResponse
 from django.http.response import StreamingHttpResponse
 from django.template import loader
 from django.utils.cache import get_conditional_response
-from django.utils.cache import patch_cache_control
+from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
+from django.utils.http import http_date
 from django.utils.http import quote_etag
 from django.utils.safestring import mark_safe
 
-from .utils.paths import get_content_storage_file_path
-from kolibri import __version__ as kolibri_version
 from kolibri.core.content.errors import InvalidStorageFilenameError
+from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.utils.paths import get_hashi_base_path
 from kolibri.core.content.utils.paths import get_hashi_filename
 from kolibri.core.content.utils.paths import get_hashi_path
@@ -41,6 +43,22 @@ from kolibri.core.content.utils.paths import get_zip_content_base_path
 
 
 logger = logging.getLogger(__name__)
+
+
+def add_security_headers(request, response):
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    requested_headers = request.META.get("HTTP_ACCESS_CONTROL_REQUEST_HEADERS", "")
+    if requested_headers:
+        response["Access-Control-Allow-Headers"] = requested_headers
+    # restrict CSP to only allow resources to be loaded from the Kolibri host, to prevent info leakage
+    # (e.g. via passing user info out as GET parameters to an attacker's server), or inadvertent data usage
+    host = request.get_host()
+    response["Content-Security-Policy"] = (
+        "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: " + host
+    )
+
+    return response
 
 
 def django_response_to_wsgi(response, environ, start_response):
@@ -58,7 +76,6 @@ def django_response_to_wsgi(response, environ, start_response):
 
 hashi_template = """
 <!DOCTYPE html>
-
 <html>
     <head>
         <meta charset="utf-8">
@@ -106,7 +123,7 @@ def get_hashi_view_response(environ):
     )
     response["Content-Length"] = len(response.content)
     response["ETag"] = etag
-    patch_cache_control(response, max_age=YEAR_IN_SECONDS)
+    patch_response_headers(response, cache_timeout=YEAR_IN_SECONDS)
     cache.set(CACHE_KEY, response, YEAR_IN_SECONDS)
     return response
 
@@ -148,6 +165,9 @@ def recursive_h5p_dependencies(zf, data, prefix=""):
     return jsfiles, cssfiles
 
 
+INITIALIZE_HASHI_FROM_IFRAME = "if (window.parent && window.parent.hashi) {try {window.parent.hashi.initializeIframe(window);} catch (e) {}}"
+
+
 def parse_html(content):
     try:
         document = html5lib.parse(content, namespaceHTMLElements=False)
@@ -159,16 +179,9 @@ def parse_html(content):
         # Because html5lib parses like a browser, it will
         # always create head and body tags if they are missing.
         head = document.find("head")
-        initialize_hashi_from_iframe = """
-            if (window.parent && window.parent.hashi) {
-                try {
-                    window.parent.hashi.initializeIframe(window);
-                } catch (e) {}
-            }
-        """
 
         script_tag = Element("script", attrib={"type": "text/javascript"})
-        script_tag.text = initialize_hashi_from_iframe
+        script_tag.text = INITIALIZE_HASHI_FROM_IFRAME
         head.insert(0, script_tag)
         # Currently, html5lib strips the doctype, but it's important for correct rendering, so check the original
         # content for the doctype and, if found, prepend it to the content serialized by html5lib
@@ -353,15 +366,12 @@ def generate_zip_content_response(environ):
     embedded_filepath = embedded_filepath.replace("//", "/")
 
     request = WSGIRequest(environ)
-    etag = quote_etag(kolibri_version)
     # if client has a cached version, use that (we can safely assume nothing has changed, due to MD5)
-    conditional_response = get_conditional_response(request, etag=etag)
+    if request.META.get("HTTP_IF_MODIFIED_SINCE"):
+        return HttpResponseNotModified()
 
-    if conditional_response is not None:
-        return conditional_response
-
-    CACHE_KEY = "ZIPCONTENT_VIEW_RESPONSE_{}_{}/{}".format(
-        etag, zipped_filename, embedded_filepath
+    CACHE_KEY = "ZIPCONTENT_VIEW_RESPONSE_{}/{}".format(
+        zipped_filename, embedded_filepath
     )
     cached_response = cache.get(CACHE_KEY)
     if cached_response is not None:
@@ -382,9 +392,9 @@ def generate_zip_content_response(environ):
     # ensure the browser knows not to try byte-range requests, as we don't support them here
     response["Accept-Ranges"] = "none"
 
-    response["ETag"] = etag
+    response["Last-Modified"] = http_date(time.time())
 
-    patch_cache_control(response, max_age=YEAR_IN_SECONDS)
+    add_security_headers(request, response)
 
     if not isinstance(response, StreamingHttpResponse):
 
