@@ -24,10 +24,11 @@ export default class MainClient {
     };
     this.now = now;
     this.ready = false;
+    this.baseUrl = null;
     this.startUrl = null;
     this.__setData = this.__setData.bind(this);
   }
-  initialize(contentState, userData, startUrl) {
+  initialize(contentState, userData, baseUrl, startUrl = '') {
     /*
      * userData should be an object with the following keys, all optional:
      * userId: <user ID>,
@@ -39,13 +40,23 @@ export default class MainClient {
      */
     this.__setData(contentState, userData);
     this.__setListeners();
+
+    this.baseUrl = baseUrl;
     this.startUrl = startUrl;
+
     // Set this here so that any time the inner frame declares it is ready
     // it can reinitialize its SandboxEnvironment.
     this.on(this.events.IFRAMEREADY, () => {
       this.__setData(this.data, this.userData);
       this.ready = true;
-      this.mediator.sendMessage({ nameSpace, event: events.MAINREADY, data: this.startUrl });
+      this.mediator.sendMessage({
+        nameSpace,
+        event: events.MAINREADY,
+        data: {
+          baseUrl,
+          startUrl,
+        },
+      });
     });
     this.mediator.sendMessage({ nameSpace, event: events.READYCHECK, data: true });
   }

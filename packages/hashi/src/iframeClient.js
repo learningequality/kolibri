@@ -102,12 +102,12 @@ export default class SandboxEnvironment {
     } catch (e) {} // eslint-disable-line no-empty
   }
 
-  createIframe(srcUrl) {
+  createIframe({ baseUrl, startUrl = '' } = {}) {
     if (this.iframe) {
       this.clearIframe(this.iframe);
     }
     this.iframe = document.createElement('iframe');
-    this.iframe.src = srcUrl;
+    this.iframe.src = `${baseUrl}${startUrl}`;
     this.iframe.style.border = 0;
     this.iframe.style.padding = 0;
     this.iframe.style.margin = 0;
