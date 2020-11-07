@@ -122,7 +122,8 @@
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},
         this.userData,
-        this.defaultFile.storage_url
+        this.defaultFile.storage_url,
+        this.defaultFile.checksum
       );
       this.$emit('startTracking');
       this.startTime = now();

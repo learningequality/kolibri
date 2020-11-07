@@ -3,6 +3,7 @@ import LocalStorage from './localStorage';
 import SessionStorage from './sessionStorage';
 import Cookie from './cookie';
 import SCORM from './SCORM';
+import patchIndexedDB from './patchIndexedDB';
 import { events, nameSpace } from './hashiBase';
 
 /*
@@ -55,8 +56,6 @@ export default class SandboxEnvironment {
     // At this point we are ready, so send the message, in case we misssed the
     // the ready check request.
     this.mediator.sendMessage({ nameSpace, event: events.IFRAMEREADY, data: true });
-
-    // this.resizeIframe = debounce(this.resizeIframe.bind(this), 500);
   }
 
   resizeIframe() {
@@ -81,6 +80,7 @@ export default class SandboxEnvironment {
         this.localStorage.iframeInitialize(this.iframe.contentWindow);
         this.sessionStorage.iframeInitialize(this.iframe.contentWindow);
         this.cookie.iframeInitialize(this.iframe.contentWindow);
+        patchIndexedDB(this.contentNamespace, this.iframe.contentWindow);
       } catch (e) {
         console.log('Shimming storage APIs failed, data will not persist'); // eslint-disable-line no-console
       }
@@ -102,12 +102,13 @@ export default class SandboxEnvironment {
     } catch (e) {} // eslint-disable-line no-empty
   }
 
-  createIframe({ baseUrl, startUrl = '' } = {}) {
+  createIframe({ contentNamespace, startUrl = '' } = {}) {
     if (this.iframe) {
       this.clearIframe(this.iframe);
     }
+    this.contentNamespace = contentNamespace;
     this.iframe = document.createElement('iframe');
-    this.iframe.src = `${baseUrl}${startUrl}`;
+    this.iframe.src = startUrl;
     this.iframe.style.border = 0;
     this.iframe.style.padding = 0;
     this.iframe.style.margin = 0;

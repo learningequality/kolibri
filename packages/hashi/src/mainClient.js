@@ -24,11 +24,11 @@ export default class MainClient {
     };
     this.now = now;
     this.ready = false;
-    this.baseUrl = null;
+    this.contentNamespace = null;
     this.startUrl = null;
     this.__setData = this.__setData.bind(this);
   }
-  initialize(contentState, userData, baseUrl, startUrl = '') {
+  initialize(contentState, userData, startUrl, contentNamespace) {
     /*
      * userData should be an object with the following keys, all optional:
      * userId: <user ID>,
@@ -41,7 +41,7 @@ export default class MainClient {
     this.__setData(contentState, userData);
     this.__setListeners();
 
-    this.baseUrl = baseUrl;
+    this.contentNamespace = contentNamespace;
     this.startUrl = startUrl;
 
     // Set this here so that any time the inner frame declares it is ready
@@ -53,7 +53,7 @@ export default class MainClient {
         nameSpace,
         event: events.MAINREADY,
         data: {
-          baseUrl,
+          contentNamespace,
           startUrl,
         },
       });
