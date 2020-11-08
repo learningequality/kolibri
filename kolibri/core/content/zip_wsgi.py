@@ -21,17 +21,16 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import cache
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
+from django.http import HttpResponseNotAllowed
 from django.http import HttpResponseNotFound
 from django.http import HttpResponseNotModified
-from django.http import HttpResponseRedirect
+from django.http import HttpResponsePermanentRedirect
 from django.http.response import FileResponse
 from django.http.response import StreamingHttpResponse
 from django.template import loader
-from django.utils.cache import get_conditional_response
 from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
 from django.utils.http import http_date
-from django.utils.http import quote_etag
 from django.utils.safestring import mark_safe
 
 from kolibri.core.content.errors import InvalidStorageFilenameError
@@ -51,12 +50,11 @@ def add_security_headers(request, response):
     requested_headers = request.META.get("HTTP_ACCESS_CONTROL_REQUEST_HEADERS", "")
     if requested_headers:
         response["Access-Control-Allow-Headers"] = requested_headers
-    # restrict CSP to only allow resources to be loaded from the Kolibri host, to prevent info leakage
+    # restrict CSP to only allow resources to be loaded from self, to prevent info leakage
     # (e.g. via passing user info out as GET parameters to an attacker's server), or inadvertent data usage
-    host = request.get_host()
-    response["Content-Security-Policy"] = (
-        "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: " + host
-    )
+    response[
+        "Content-Security-Policy"
+    ] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:"
 
     return response
 
@@ -89,15 +87,23 @@ hashi_template = """
 </html>
 """
 
+allowed_methods = set(["GET", "OPTIONS"])
 
-def get_hashi_view_response(environ):
-    if environ["PATH_INFO"].lstrip("/") != get_hashi_filename():
-        return HttpResponseRedirect(get_hashi_path())
-    request = WSGIRequest(environ)
-    etag = quote_etag(get_hashi_filename())
-    conditional_response = get_conditional_response(request, etag=etag)
-    if conditional_response is not None:
-        return conditional_response
+
+def _hashi_response_from_request(request):
+    if request.method not in allowed_methods:
+        return HttpResponseNotAllowed(allowed_methods)
+
+    if request.path_info.lstrip("/") != get_hashi_filename():
+        return HttpResponsePermanentRedirect(get_hashi_path())
+
+    if request.method == "OPTIONS":
+        return HttpResponse()
+
+    # if client has a cached version, use that we can safely assume nothing has changed
+    # as we provide a unique path per compiled hashi JS file.
+    if request.META.get("HTTP_IF_MODIFIED_SINCE"):
+        return HttpResponseNotModified()
     CACHE_KEY = "HASHI_VIEW_RESPONSE_{}".format(get_hashi_filename())
     cached_response = cache.get(CACHE_KEY)
     if cached_response is not None:
@@ -122,9 +128,16 @@ def get_hashi_view_response(environ):
         mark_safe(hashi_template.format(content)), content_type=content_type
     )
     response["Content-Length"] = len(response.content)
-    response["ETag"] = etag
+    response["Last-Modified"] = http_date(time.time())
     patch_response_headers(response, cache_timeout=YEAR_IN_SECONDS)
     cache.set(CACHE_KEY, response, YEAR_IN_SECONDS)
+    return response
+
+
+def get_hashi_view_response(environ):
+    request = WSGIRequest(environ)
+    response = _hashi_response_from_request(request)
+    add_security_headers(request, response)
     return response
 
 
@@ -281,42 +294,51 @@ def get_h5p(zf, embedded_filepath):
     return response
 
 
-def get_embedded_file(zf, zipped_filename, embedded_filepath):
-    # if no path, or a directory, is being referenced, look for an index.html file
-    if not embedded_filepath or embedded_filepath.endswith("/"):
-        embedded_filepath += "index.html"
+def get_embedded_file(zipped_path, zipped_filename, embedded_filepath):
+    with zipfile.ZipFile(zipped_path) as zf:
 
-    # get the details about the embedded file, and ensure it exists
-    try:
-        info = zf.getinfo(embedded_filepath)
-    except KeyError:
-        return HttpResponseNotFound(
-            '"{}" does not exist inside "{}"'.format(embedded_filepath, zipped_filename)
+        # handle H5P files
+        if zipped_path.endswith("h5p") and (
+            not embedded_filepath or embedded_filepath.startswith("dist/")
+        ):
+            return get_h5p(zf, embedded_filepath)
+        # if no path, or a directory, is being referenced, look for an index.html file
+        if not embedded_filepath or embedded_filepath.endswith("/"):
+            embedded_filepath += "index.html"
+
+        # get the details about the embedded file, and ensure it exists
+        try:
+            info = zf.getinfo(embedded_filepath)
+        except KeyError:
+            return HttpResponseNotFound(
+                '"{}" does not exist inside "{}"'.format(
+                    embedded_filepath, zipped_filename
+                )
+            )
+
+        # file size
+        file_size = 0
+
+        # try to guess the MIME type of the embedded file being referenced
+        content_type = (
+            mimetypes.guess_type(embedded_filepath)[0] or "application/octet-stream"
         )
+        if zipped_filename.endswith("zip") and (
+            embedded_filepath.endswith("htm") or embedded_filepath.endswith("html")
+        ):
+            content = zf.open(info).read()
+            html = parse_html(content)
+            response = HttpResponse(html, content_type=content_type)
+            file_size = len(response.content)
+        else:
+            # generate a streaming response object, pulling data from within the zip file
+            response = FileResponse(zf.open(info), content_type=content_type)
+            file_size = info.file_size
 
-    # file size
-    file_size = 0
-
-    # try to guess the MIME type of the embedded file being referenced
-    content_type = (
-        mimetypes.guess_type(embedded_filepath)[0] or "application/octet-stream"
-    )
-    if zipped_filename.endswith("zip") and (
-        embedded_filepath.endswith("htm") or embedded_filepath.endswith("html")
-    ):
-        content = zf.open(info).read()
-        html = parse_html(content)
-        response = HttpResponse(html, content_type=content_type)
-        file_size = len(response.content)
-    else:
-        # generate a streaming response object, pulling data from within the zip file
-        response = FileResponse(zf.open(info), content_type=content_type)
-        file_size = info.file_size
-
-    # set the content-length header to the size of the embedded file
-    if file_size:
-        response["Content-Length"] = file_size
-    return response
+        # set the content-length header to the size of the embedded file
+        if file_size:
+            response["Content-Length"] = file_size
+        return response
 
 
 path_regex = re.compile("/(?P<zipped_filename>[^/]+)/(?P<embedded_filepath>.*)")
@@ -334,10 +356,16 @@ def get_zipped_file_path(zipped_filename):
 YEAR_IN_SECONDS = 60 * 60 * 24 * 365
 
 
-def generate_zip_content_response(environ):
-    match = path_regex.match(environ["PATH_INFO"])
+def _zip_content_from_request(request):
+    if request.method not in allowed_methods:
+        return HttpResponseNotAllowed(allowed_methods)
+
+    match = path_regex.match(request.path_info)
     if match is None:
         return HttpResponseNotFound("Path not found")
+
+    if request.method == "OPTIONS":
+        return HttpResponse()
 
     zipped_filename, embedded_filepath = match.groups()
 
@@ -365,7 +393,6 @@ def generate_zip_content_response(environ):
     # This would change our example embedded_filepath to "path/file.html" which will resolve properly.
     embedded_filepath = embedded_filepath.replace("//", "/")
 
-    request = WSGIRequest(environ)
     # if client has a cached version, use that (we can safely assume nothing has changed, due to MD5)
     if request.META.get("HTTP_IF_MODIFIED_SINCE"):
         return HttpResponseNotModified()
@@ -377,29 +404,26 @@ def generate_zip_content_response(environ):
     if cached_response is not None:
         return cached_response
 
-    with zipfile.ZipFile(zipped_path) as zf:
-
-        # handle H5P files
-        if zipped_path.endswith("h5p"):
-            if not embedded_filepath or embedded_filepath.startswith("dist/"):
-                response = get_h5p(zf, embedded_filepath)
-            else:
-                # Don't bother doing any hashi parsing of HTML content for h5p
-                response = get_embedded_file(zf, zipped_filename, embedded_filepath)
-        else:
-            response = get_embedded_file(zf, zipped_filename, embedded_filepath)
+    response = get_embedded_file(zipped_path, zipped_filename, embedded_filepath)
 
     # ensure the browser knows not to try byte-range requests, as we don't support them here
     response["Accept-Ranges"] = "none"
 
     response["Last-Modified"] = http_date(time.time())
 
-    add_security_headers(request, response)
+    patch_response_headers(response, cache_timeout=YEAR_IN_SECONDS)
 
     if not isinstance(response, StreamingHttpResponse):
 
         cache.set(CACHE_KEY, response, YEAR_IN_SECONDS)
 
+    return response
+
+
+def generate_zip_content_response(environ):
+    request = WSGIRequest(environ)
+    response = _zip_content_from_request(request)
+    add_security_headers(request, response)
     return response
 
 

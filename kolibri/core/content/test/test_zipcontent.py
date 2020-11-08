@@ -8,12 +8,15 @@ from wsgiref.util import setup_testing_defaults
 from django.test import override_settings
 from django.test import TestCase
 from django.utils.http import http_date
+from mock import mock_open
 from mock import patch
 
-from ..models import LocalFile
-from ..utils.paths import get_content_storage_file_path
-from ..zip_wsgi import generate_zip_content_response
-from ..zip_wsgi import INITIALIZE_HASHI_FROM_IFRAME
+from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.paths import get_content_storage_file_path
+from kolibri.core.content.zip_wsgi import generate_zip_content_response
+from kolibri.core.content.zip_wsgi import get_hashi_view_response
+from kolibri.core.content.zip_wsgi import hashi_template
+from kolibri.core.content.zip_wsgi import INITIALIZE_HASHI_FROM_IFRAME
 from kolibri.utils.tests.helpers import override_option
 
 
@@ -28,7 +31,6 @@ empty_content = "<html><head>{}</head><body></body></html>".format(hashi_injecti
 caching_http_date = http_date(datetime.datetime(2016, 9, 10, 19, 14, 7).timestamp())
 
 
-@patch("kolibri.core.content.zip_wsgi.get_hashi_filename", return_value=DUMMY_FILENAME)
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class ZipContentTestCase(TestCase):
     """
@@ -94,13 +96,13 @@ class ZipContentTestCase(TestCase):
         self.environ.update(kwargs)
         return generate_zip_content_response(self.environ)
 
-    def test_zip_file_url_reversal(self, filename_patch):
+    def test_zip_file_url_reversal(self):
         file = LocalFile(id=self.hash, extension=self.extension, available=True)
         self.assertEqual(
             file.get_storage_url(), "/zipcontent/{}/".format(self.filename)
         )
 
-    def test_non_zip_file_url_reversal(self, filename_patch):
+    def test_non_zip_file_url_reversal(self):
         file = LocalFile(id=self.hash, extension="otherextension", available=True)
         filename = file.get_filename()
         self.assertEqual(
@@ -108,7 +110,7 @@ class ZipContentTestCase(TestCase):
             "/content/storage/{}/{}/{}".format(filename[0], filename[1], filename),
         )
 
-    def test_zip_file_internal_file_access(self, filename_patch):
+    def test_zip_file_internal_file_access(self):
         # test reading the data from file #1 inside the zip
         response = self._get_file(self.test_name_1)
         self.assertEqual(next(response.streaming_content).decode(), self.test_str_1)
@@ -117,76 +119,82 @@ class ZipContentTestCase(TestCase):
         response = self._get_file(self.test_name_2)
         self.assertEqual(next(response.streaming_content).decode(), self.test_str_2)
 
-    def test_nonexistent_zip_file_access(self, filename_patch):
+    def test_nonexistent_zip_file_access(self):
         bad_base_url = self.zip_file_base_url.replace(
             self.zip_file_base_url[20:25], "aaaaa"
         )
         response = self._get_file(self.test_name_1, base_url=bad_base_url)
         self.assertEqual(response.status_code, 404)
 
-    def test_zip_file_nonexistent_internal_file_access(self, filename_patch):
+    def test_zip_file_nonexistent_internal_file_access(self):
         response = self._get_file("qqq" + self.test_name_1)
         self.assertEqual(response.status_code, 404)
 
-    def test_non_allowed_file_internal_file_access(self, filename_patch):
+    def test_non_allowed_file_internal_file_access(self):
         response = self._get_file(
             self.test_name_1, base_url=self.zip_file_base_url.replace("zip", "png")
         )
         self.assertEqual(response.status_code, 404)
 
-    def test_not_modified_response_when_if_modified_since_header_set(
-        self, filename_patch
-    ):
+    def test_not_modified_response_when_if_modified_since_header_set(self):
         response = self._get_file(
             self.test_name_1, HTTP_IF_MODIFIED_SINCE=caching_http_date
         )
         self.assertEqual(response.status_code, 304)
 
-    def test_last_modified_set_on_response(self, filename_patch):
+    def test_last_modified_set_on_response(self):
         response = self._get_file(self.test_name_1)
         self.assertIsNotNone(response.get("Last-Modified"))
 
-    def test_content_security_policy_header_http_host(self, filename_patch):
+    def test_expires_set_on_response(self):
+        response = self._get_file(self.test_name_1)
+        self.assertIsNotNone(response.get("Expires"))
+
+    def test_content_security_policy_header_http_host(self):
         response = self._get_file(self.test_name_1, HTTP_HOST="testserver.com")
         self.assertEqual(
             response.get("Content-Security-Policy"),
-            "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: testserver.com",
+            "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:",
         )
 
-    def test_content_security_policy_header_server_name(self, filename_patch):
+    def test_content_security_policy_header_server_name(self):
         self.environ.pop("HTTP_HOST")
         response = self._get_file(self.test_name_1, SERVER_NAME="testserver.com")
         self.assertEqual(
             response.get("Content-Security-Policy"),
-            "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: testserver.com",
+            "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:",
         )
 
     @override_settings(USE_X_FORWARDED_HOST=True)
-    def test_content_security_policy_header_forward_for(self, filename_patch):
+    def test_content_security_policy_header_forward_for(self):
         response = self._get_file(
             self.test_name_1,
             HTTP_X_FORWARDED_HOST="testserver:1234",
         )
         self.assertEqual(
             response.get("Content-Security-Policy"),
-            "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: testserver:1234",
+            "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:",
         )
 
-    def test_access_control_allow_origin_header(self, filename_patch):
+    def test_access_control_allow_origin_header(self):
         response = self._get_file(self.test_name_1)
         self.assertEqual(response.get("Access-Control-Allow-Origin"), "*")
-        response = self._get_file(self.test_name_1, METHOD="OPTIONS")
+        response = self._get_file(self.test_name_1, REQUEST_METHOD="OPTIONS")
         self.assertEqual(response.get("Access-Control-Allow-Origin"), "*")
 
-    def test_x_frame_options_header(self, filename_patch):
+    def test_options_returns_empty(self):
+        response = self._get_file(self.test_name_1, REQUEST_METHOD="OPTIONS")
+        self.assertEqual(response.content.decode(), "")
+
+    def test_x_frame_options_header(self):
         response = response = self._get_file(self.test_name_1)
         self.assertEqual(response.get("X-Frame-Options", ""), "")
 
-    def test_access_control_allow_headers(self, filename_patch):
+    def test_access_control_allow_headers(self):
         headerval = "X-Penguin-Dance-Party"
         response = self._get_file(
             self.test_name_1,
-            METHOD="OPTIONS",
+            REQUEST_METHOD="OPTIONS",
             HTTP_ACCESS_CONTROL_REQUEST_HEADERS=headerval,
         )
         self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)
@@ -196,19 +204,15 @@ class ZipContentTestCase(TestCase):
         )
         self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)
 
-    def test_request_for_html_no_head_return_hashi_modified_html(self, filename_patch):
+    def test_request_for_html_no_head_return_hashi_modified_html(self):
         response = self._get_file("")
         self.assertEqual(response.content.decode("utf-8"), empty_content)
 
-    def test_request_for_html_body_no_script_return_hashi_modified_html(
-        self, filename_patch
-    ):
+    def test_request_for_html_body_no_script_return_hashi_modified_html(self):
         response = self._get_file(self.other_name)
         self.assertEqual(response.content.decode("utf-8"), empty_content)
 
-    def test_request_for_html_body_script_return_hashi_modified_html(
-        self, filename_patch
-    ):
+    def test_request_for_html_body_script_return_hashi_modified_html(self):
         response = self._get_file(self.script_name)
         content = (
             "<html><head>{}<script>test</script></head><body></body></html>".format(
@@ -218,7 +222,7 @@ class ZipContentTestCase(TestCase):
         self.assertEqual(response.content.decode("utf-8"), content)
 
     def test_request_for_html_body_script_with_extra_slash_return_hashi_modified_html(
-        self, filename_patch
+        self,
     ):
         response = self._get_file("/" + self.script_name)
         content = (
@@ -228,35 +232,31 @@ class ZipContentTestCase(TestCase):
         )
         self.assertEqual(response.content.decode("utf-8"), content)
 
-    def test_request_for_embedded_file_return_embedded_file(self, filename_patch):
+    def test_request_for_embedded_file_return_embedded_file(self):
         response = self._get_file(self.embedded_file_name)
         self.assertEqual(
             next(response.streaming_content).decode(), self.embedded_file_str
         )
 
-    def test_request_for_embedded_file_with_double_slashes_return_embedded_file(
-        self, filename_patch
-    ):
+    def test_request_for_embedded_file_with_double_slashes_return_embedded_file(self):
         response = self._get_file(self.embedded_file_name.replace("/", "//"))
         self.assertEqual(
             next(response.streaming_content).decode(), self.embedded_file_str
         )
 
-    def test_request_for_html_doctype_return_with_doctype(self, filename_patch):
+    def test_request_for_html_doctype_return_with_doctype(self):
         response = self._get_file(self.doctype_name)
         content = response.content.decode("utf-8")
         self.assertEqual(
             content[:92].lower().replace("  ", " "), self.doctype.strip().lower()
         )
 
-    def test_request_for_html5_doctype_return_with_doctype(self, filename_patch):
+    def test_request_for_html5_doctype_return_with_doctype(self):
         response = self._get_file(self.html5_doctype_name)
         content = response.content.decode("utf-8")
         self.assertEqual(content[:15].lower(), self.html5_doctype.strip().lower())
 
-    def test_request_for_html_body_script_return_correct_length_header(
-        self, filename_patch
-    ):
+    def test_request_for_html_body_script_return_correct_length_header(self):
         response = self._get_file(self.script_name)
         expected_content = (
             "<html><head>{}<script>test</script></head><body></body></html>".format(
@@ -266,20 +266,94 @@ class ZipContentTestCase(TestCase):
         file_size = len(expected_content)
         self.assertEqual(int(response["Content-Length"]), file_size)
 
-    def test_request_for_html_empty_html(self, filename_patch):
+    def test_request_for_html_empty_html(self):
         response = self._get_file(self.empty_html_name)
         self.assertEqual(response.content.decode("utf-8"), empty_content)
 
-    def test_not_modified_response_when_if_modified_since_header_set_index_file(
-        self, filename_patch
-    ):
+    def test_not_modified_response_when_if_modified_since_header_set_index_file(self):
         response = self._get_file("", HTTP_IF_MODIFIED_SINCE=caching_http_date)
         self.assertEqual(response.status_code, 304)
 
     def test_not_modified_response_when_if_modified_since_header_set_other_html_file(
-        self, filename_patch
+        self,
     ):
         response = self._get_file(
             self.other_name, HTTP_IF_MODIFIED_SINCE=caching_http_date
         )
         self.assertEqual(response.status_code, 304)
+
+    def test_post_not_allowed(self):
+        response = self._get_file(self.test_name_1, REQUEST_METHOD="POST")
+        self.assertEqual(response.status_code, 405)
+
+    def test_put_not_allowed(self):
+        response = self._get_file(self.test_name_1, REQUEST_METHOD="PUT")
+        self.assertEqual(response.status_code, 405)
+
+    def test_patch_not_allowed(self):
+        response = self._get_file(self.test_name_1, REQUEST_METHOD="PATCH")
+        self.assertEqual(response.status_code, 405)
+
+    def test_delete_not_allowed(self):
+        response = self._get_file(self.test_name_1, REQUEST_METHOD="DELETE")
+        self.assertEqual(response.status_code, 405)
+
+
+class HashiViewTestCase(TestCase):
+    def setUp(self):
+        self.environ = {}
+        self.hashi_js = "test"
+        setup_testing_defaults(self.environ)
+
+    def _get_hashi(self, **kwargs):
+        self.environ["PATH_INFO"] = "/" + DUMMY_FILENAME
+        self.environ.update(kwargs)
+        m = mock_open(read_data=self.hashi_js)
+        with patch("kolibri.core.content.zip_wsgi.codecs.open", m), patch(
+            "kolibri.core.content.zip_wsgi.get_hashi_filename",
+            return_value=DUMMY_FILENAME,
+        ):
+            return get_hashi_view_response(self.environ)
+
+    def test_not_modified_response_when_if_modified_since_header_set(self):
+        response = self._get_hashi(HTTP_IF_MODIFIED_SINCE=caching_http_date)
+        self.assertEqual(response.status_code, 304)
+
+    def test_last_modified_set_on_response(self):
+        response = self._get_hashi()
+        self.assertIsNotNone(response.get("Last-Modified"))
+
+    def test_expires_set_on_response(self):
+        response = self._get_hashi()
+        self.assertIsNotNone(response.get("Expires"))
+
+    def test_response_content(self):
+        response = self._get_hashi()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.content.decode(), hashi_template.format(self.hashi_js)
+        )
+
+    def test_redirect_if_wrong_filename(self):
+        response = self._get_hashi(PATH_INFO="test")
+        self.assertEqual(response.status_code, 301)
+
+    def test_options_returns_empty(self):
+        response = self._get_hashi(REQUEST_METHOD="OPTIONS")
+        self.assertEqual(response.content.decode(), "")
+
+    def test_post_not_allowed(self):
+        response = self._get_hashi(REQUEST_METHOD="POST")
+        self.assertEqual(response.status_code, 405)
+
+    def test_put_not_allowed(self):
+        response = self._get_hashi(REQUEST_METHOD="PUT")
+        self.assertEqual(response.status_code, 405)
+
+    def test_patch_not_allowed(self):
+        response = self._get_hashi(REQUEST_METHOD="PATCH")
+        self.assertEqual(response.status_code, 405)
+
+    def test_delete_not_allowed(self):
+        response = self._get_hashi(REQUEST_METHOD="DELETE")
+        self.assertEqual(response.status_code, 405)
