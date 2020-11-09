@@ -72,7 +72,7 @@
 
             <p v-if="!hideCreateAccount && canSignUp" class="create">
               <KRouterLink
-                :text="AuthSelectStrings.$tr('createAccountAction')"
+                :text="userString('createAccountAction')"
                 :to="signUpPage"
                 :primary="false"
                 appearance="raised-button"
