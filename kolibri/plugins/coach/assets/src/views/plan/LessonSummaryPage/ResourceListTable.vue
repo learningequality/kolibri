@@ -193,11 +193,15 @@
         this.showSnackbarNotification('resourceOrderSaved');
       },
       autoSave(id, resources) {
-        this.saveLessonResources({ lessonId: id, resources: resources }).catch(() => {
-          this.updateCurrentLesson(id).then(currentLesson => {
-            this.setWorkingResources(currentLesson.resources);
+        this.saveLessonResources({ lessonId: id, resources: resources })
+          .then(() => {
+            this.updateCurrentLesson(id);
+          })
+          .catch(() => {
+            this.updateCurrentLesson(id).then(currentLesson => {
+              this.setWorkingResources(currentLesson.resources);
+            });
           });
-        });
       },
     },
     $trs: {
