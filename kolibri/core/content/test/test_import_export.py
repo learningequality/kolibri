@@ -761,7 +761,6 @@ class ImportContentTestCase(TestCase):
         local_src_path = tempfile.mkstemp()[1]
         with open(local_src_path, "w") as f:
             f.write("This is just a test")
-        src_file_size = os.path.getsize(local_src_path)
         expected_file_size = 10000
         local_dest_path = tempfile.mkstemp()[1]
         os.remove(local_dest_path)
@@ -798,7 +797,7 @@ class ImportContentTestCase(TestCase):
                 node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
             )
 
-            mock_overall_progress.assert_any_call(expected_file_size - src_file_size)
+            mock_overall_progress.assert_any_call(expected_file_size)
 
     @patch(
         "kolibri.core.content.management.commands.importcontent.transfer.FileDownload.finalize"
