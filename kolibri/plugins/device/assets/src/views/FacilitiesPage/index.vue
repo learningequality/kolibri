@@ -42,7 +42,6 @@
                 :syncHasFailed="facility.syncHasFailed"
                 style="display: inline-block"
               />
-
             </span>
           </td>
           <td class="button-col">
