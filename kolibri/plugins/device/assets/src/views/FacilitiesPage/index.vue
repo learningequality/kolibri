@@ -39,7 +39,6 @@
                 :isSyncing="facilityIsSyncing(facility)"
                 :isDeleting="facilityIsDeleting(facility)"
                 :syncHasFailed="facility.syncHasFailed"
-                style="display: inline-block"
               />
             </span>
           </td>
