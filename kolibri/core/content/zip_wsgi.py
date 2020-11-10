@@ -11,7 +11,6 @@ import re
 import time
 import zipfile
 from collections import OrderedDict
-from xml.etree.ElementTree import Element
 
 import html5lib
 from cheroot import wsgi
@@ -193,8 +192,12 @@ def parse_html(content):
         # always create head and body tags if they are missing.
         head = document.find("head")
 
-        script_tag = Element("script", attrib={"type": "text/javascript"})
+        # Use the makeelement method of the head tag here to ensure that we use the same
+        # Element class for both. Depending on the system and python version we are on,
+        # we may be using the C implementation or the pure python and a mismatch will cause an error.
+        script_tag = head.makeelement("script", {"type": "text/javascript"})
         script_tag.text = INITIALIZE_HASHI_FROM_IFRAME
+
         head.insert(0, script_tag)
         # Currently, html5lib strips the doctype, but it's important for correct rendering, so check the original
         # content for the doctype and, if found, prepend it to the content serialized by html5lib

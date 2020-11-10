@@ -1,4 +1,3 @@
-import datetime
 import hashlib
 import os
 import tempfile
@@ -28,7 +27,10 @@ hashi_injection = '<script type="text/javascript">{}</script>'.format(
 
 empty_content = "<html><head>{}</head><body></body></html>".format(hashi_injection)
 
-caching_http_date = http_date(datetime.datetime(2016, 9, 10, 19, 14, 7).timestamp())
+# datetime.datetime(2016, 9, 10, 19, 14, 7) in time from EPOCH
+# do this to avoid having to backport `timestamp` method of datetime
+# to Python 2.7
+caching_http_date = http_date(1473560047.0)
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
@@ -311,6 +313,9 @@ class HashiViewTestCase(TestCase):
         m = mock_open(read_data=self.hashi_js)
         with patch("kolibri.core.content.zip_wsgi.codecs.open", m), patch(
             "kolibri.core.content.zip_wsgi.get_hashi_filename",
+            return_value=DUMMY_FILENAME,
+        ), patch(
+            "kolibri.core.content.utils.paths.get_hashi_filename",
             return_value=DUMMY_FILENAME,
         ):
             return get_hashi_view_response(self.environ)
