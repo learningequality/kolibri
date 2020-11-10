@@ -33,14 +33,12 @@
       <tbody slot="tbody">
         <tr v-for="(facility, idx) in facilities" :key="idx">
           <td>
-            <span>
-              <FacilityNameAndSyncStatus
-                :facility="facility"
-                :isSyncing="facilityIsSyncing(facility)"
-                :isDeleting="facilityIsDeleting(facility)"
-                :syncHasFailed="facility.syncHasFailed"
-              />
-            </span>
+            <FacilityNameAndSyncStatus
+              :facility="facility"
+              :isSyncing="facilityIsSyncing(facility)"
+              :isDeleting="facilityIsDeleting(facility)"
+              :syncHasFailed="facility.syncHasFailed"
+            />
           </td>
           <td class="button-col">
             <KButtonGroup>
