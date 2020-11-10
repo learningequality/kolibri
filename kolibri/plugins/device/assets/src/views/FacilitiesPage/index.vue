@@ -34,7 +34,6 @@
         <tr v-for="(facility, idx) in facilities" :key="idx">
           <td>
             <span>
-              <KLabeledIcon icon="facility" style="vertical-align: top; top: 8px" />
               <FacilityNameAndSyncStatus
                 :facility="facility"
                 :isSyncing="facilityIsSyncing(facility)"
@@ -297,10 +296,6 @@
     .sync {
       margin-right: 0;
     }
-  }
-
-  .facility-col {
-    display: inline-block;
   }
 
 </style>

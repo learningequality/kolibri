@@ -103,10 +103,10 @@
       <ul class="ul-reset">
         <template v-for="(facility, idx) in facilities">
           <li :key="idx">
-            <KLabeledIcon icon="facility" />
             <KExternalLink
               :text="facility.name"
               :href="getFacilitySettingsPath(facility.id)"
+              icon="facility"
             />
           </li>
         </template>
