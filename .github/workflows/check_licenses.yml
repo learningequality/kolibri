@@ -1,16 +1,23 @@
 name: Licenses
 
-on:
-  push:
-    paths:
-      - 'requirements/*.txt'
-  pull_request:
-    paths:
-      - 'requirements/*.txt'
+on: [push, pull_request]
 
 jobs:
+  pre_job:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          github_token: ${{ github.token }}
+          paths: '["requirements/*.txt"]'
   licenses:
     name: Licenses check
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
