@@ -33,12 +33,17 @@
       <tbody slot="tbody">
         <tr v-for="(facility, idx) in facilities" :key="idx">
           <td>
-            <FacilityNameAndSyncStatus
-              :facility="facility"
-              :isSyncing="facilityIsSyncing(facility)"
-              :isDeleting="facilityIsDeleting(facility)"
-              :syncHasFailed="facility.syncHasFailed"
-            />
+            <span>
+              <KLabeledIcon icon="facility" style="vertical-align: top; top: 8px" />
+              <FacilityNameAndSyncStatus
+                :facility="facility"
+                :isSyncing="facilityIsSyncing(facility)"
+                :isDeleting="facilityIsDeleting(facility)"
+                :syncHasFailed="facility.syncHasFailed"
+                style="display: inline-block"
+              />
+
+            </span>
           </td>
           <td class="button-col">
             <KButtonGroup>
@@ -293,6 +298,10 @@
     .sync {
       margin-right: 0;
     }
+  }
+
+  .facility-col {
+    display: inline-block;
   }
 
 </style>
