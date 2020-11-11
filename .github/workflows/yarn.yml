@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   pre_job:
+    name: Path match check
     runs-on: ubuntu-latest
     # Map a step output to a job output
     outputs:
