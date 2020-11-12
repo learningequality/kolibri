@@ -1,6 +1,9 @@
 import hashlib
+from math import ceil
 
-from django.db.models import Sum
+from django.db.models import Max
+from django.db.models import Q
+from le_utils.constants import content_kinds
 from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
@@ -30,37 +33,64 @@ except ImportError:
 RETRY_STATUS_CODE = [502, 503, 504, 521, 522, 523, 524]
 
 
-def get_nodes_to_transfer(
-    channel_id,
-    node_ids,
-    exclude_node_ids,
-    available,
-    renderable_only=True,
-    drive_id=None,
-    peer_id=None,
-):
-    nodes_to_include = ContentNode.objects.filter(channel_id=channel_id)
+CHUNKSIZE = 10000
 
-    # if requested, filter down to only include particular topics/nodes
-    if node_ids:
-        nodes_to_include = nodes_to_include.filter_by_uuids(node_ids).get_descendants(
-            include_self=True
+
+def _calculate_batch_params(channel_id, node_ids, exclude_node_ids):
+    # To chunk the tree, we first find the full extent of the tree - this gives the
+    # highest rght value for this channel.
+    max_rght = ContentNode.objects.filter(channel_id=channel_id).aggregate(Max("rght"))[
+        "rght__max"
+    ]
+
+    # Count the total number of constraints
+    constraint_count = len(node_ids or []) + len(exclude_node_ids or [])
+
+    # Aim for a constraint per batch count of about 250 on average
+    # This means that there will be at most 750 parameters from the constraints
+    # and should therefore also limit the overall SQL expression size.
+    dynamic_chunksize = int(
+        min(CHUNKSIZE, ceil(250 * max_rght / (constraint_count or 1)))
+    )
+
+    return max_rght, dynamic_chunksize
+
+
+def _mptt_descendant_ids(channel_id, node_ids, min_boundary, max_boundary):
+    non_topic_nodes = (
+        ContentNode.objects.filter(
+            channel_id=channel_id, rght__gte=min_boundary, rght__lte=max_boundary
         )
+        .exclude(kind=content_kinds.TOPIC)
+        .filter_by_uuids(node_ids)
+        .order_by()
+    )
 
-    # if requested, filter out nodes we're not able to render
-    if renderable_only:
-        nodes_to_include = nodes_to_include.filter(renderable_contentnodes_q_filter)
-
-    # filter down the query to remove files associated with nodes we've specifically been asked to exclude
-    if exclude_node_ids:
-        nodes_to_exclude = ContentNode.objects.filter_by_uuids(
-            exclude_node_ids
-        ).get_descendants(include_self=True)
-
-        nodes_to_include = nodes_to_include.order_by().exclude_by_uuids(
-            nodes_to_exclude.values("pk")
+    descendants_queryset = (
+        ContentNode.objects.filter(
+            channel_id=channel_id,
+            # We are only interested in nodes that are ancestors of
+            # the nodes in the range, but they could be ancestors of any node
+            # in this range, so we filter the lft value by being less than
+            # or equal to the max_boundary, and the rght value by being
+            # greater than or equal to the min_boundary.
+            lft__lte=max_boundary,
+            rght__gte=min_boundary,
+            kind=content_kinds.TOPIC,
         )
+        .filter_by_uuids(node_ids)
+        .get_descendants(include_self=False)
+        .filter(rght__gte=min_boundary, rght__lte=max_boundary)
+        .exclude(kind=content_kinds.TOPIC)
+        .order_by()
+    )
 
+    return list(
+        non_topic_nodes.union(descendants_queryset).values_list("pk", flat=True)
+    )
+
+
+def filter_by_file_availability(nodes_to_include, channel_id, drive_id, peer_id):
     # By default don't filter node ids by their underlying file importability
     file_based_node_id_list = None
     if drive_id:
@@ -72,49 +102,107 @@ def get_nodes_to_transfer(
         file_based_node_id_list = get_channel_stats_from_peer(
             channel_id, peer_id
         ).keys()
+
     if file_based_node_id_list is not None:
         nodes_to_include = nodes_to_include.filter_by_uuids(file_based_node_id_list)
-    return nodes_to_include.filter(available=available).order_by()
+
+    return nodes_to_include
 
 
-def get_files_to_transfer(
+def get_import_export_data(
     channel_id,
     node_ids,
     exclude_node_ids,
     available,
-    renderable_only=True,
     drive_id=None,
     peer_id=None,
+    renderable_only=True,
+    topic_thumbnails=True,
 ):
 
-    nodes_to_include = get_nodes_to_transfer(
-        channel_id,
-        node_ids,
-        exclude_node_ids,
-        available,
-        renderable_only=renderable_only,
-        drive_id=drive_id,
-        peer_id=peer_id,
-    )
-    return calculate_files_to_transfer(nodes_to_include, available)
+    min_boundary = 1
 
-
-def calculate_files_to_transfer(nodes_to_include, available):
-    nodes_to_include_and_ancestors = nodes_to_include.get_ancestors(include_self=True)
-
-    files_to_transfer = LocalFile.objects.filter(
-        available=available, files__contentnode__in=nodes_to_include_and_ancestors
+    max_rght, dynamic_chunksize = _calculate_batch_params(
+        channel_id, node_ids, exclude_node_ids
     )
 
-    # Make sure the files are unique, to avoid duplicating downloads
-    files_to_transfer = files_to_transfer.distinct()
-
-    # calculate the total file sizes across all files being returned in the queryset
-    total_bytes_to_transfer = (
-        files_to_transfer.aggregate(Sum("file_size"))["file_size__sum"] or 0
+    nodes_to_include = ContentNode.objects.filter(channel_id=channel_id).exclude(
+        kind=content_kinds.TOPIC
     )
 
-    return files_to_transfer, total_bytes_to_transfer
+    nodes_to_include = filter_by_file_availability(
+        nodes_to_include, channel_id, drive_id, peer_id
+    )
+
+    queried_file_objects = {}
+
+    content_ids = set()
+
+    while min_boundary < max_rght:
+
+        max_boundary = min_boundary + dynamic_chunksize
+
+        nodes_segment = nodes_to_include
+
+        # if requested, filter down to only include particular topics/nodes
+        if node_ids:
+            nodes_segment = nodes_segment.filter_by_uuids(
+                _mptt_descendant_ids(
+                    channel_id, node_ids, min_boundary, min_boundary + dynamic_chunksize
+                )
+            )
+
+        # if requested, filter out nodes we're not able to render
+        if renderable_only:
+            nodes_segment = nodes_segment.filter(renderable_contentnodes_q_filter)
+
+        # filter down the query to remove files associated with nodes we've specifically been asked to exclude
+        if exclude_node_ids:
+            nodes_segment = nodes_segment.order_by().exclude_by_uuids(
+                _mptt_descendant_ids(
+                    channel_id,
+                    exclude_node_ids,
+                    min_boundary,
+                    max_boundary,
+                )
+            )
+
+        included_content_ids = nodes_segment.values_list(
+            "content_id", flat=True
+        ).distinct()
+
+        content_ids.update(included_content_ids)
+
+        # Only bother with this query if there were any resources returned above.
+        if included_content_ids:
+            queried_file_objects.update(
+                LocalFile.objects.filter(
+                    available=available, files__contentnode__in=nodes_segment
+                ).in_bulk()
+            )
+
+            if topic_thumbnails:
+                # Do a query to get all the descendant and ancestor topics for this segment
+                segment_topics = ContentNode.objects.filter(
+                    channel_id=channel_id, kind=content_kinds.TOPIC
+                ).filter(
+                    Q(rght__gte=min_boundary, rght__lte=max_boundary)
+                    | Q(lft__lte=max_boundary, rght__gte=min_boundary)
+                )
+                queried_file_objects.update(
+                    LocalFile.objects.filter(
+                        available=available,
+                        files__contentnode__in=segment_topics,
+                    ).in_bulk()
+                )
+
+        min_boundary += dynamic_chunksize
+
+    files_to_download = list(queried_file_objects.values())
+
+    total_bytes_to_transfer = sum(map(lambda x: x.file_size or 0, files_to_download))
+
+    return len(content_ids), files_to_download, total_bytes_to_transfer
 
 
 def _get_node_ids(node_ids):

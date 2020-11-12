@@ -12,9 +12,8 @@ from ...utils import transfer
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.file_availability import LocationError
-from kolibri.core.content.utils.import_export_content import calculate_files_to_transfer
 from kolibri.core.content.utils.import_export_content import compare_checksums
-from kolibri.core.content.utils.import_export_content import get_nodes_to_transfer
+from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.upgrade import get_import_data_for_update
 from kolibri.core.tasks.management.commands.base import AsyncCommand
@@ -204,7 +203,11 @@ class Command(AsyncCommand):
     ):
         try:
             if not import_updates:
-                nodes_for_transfer = get_nodes_to_transfer(
+                (
+                    total_resource_count,
+                    files_to_download,
+                    total_bytes_to_transfer,
+                ) = get_import_export_data(
                     channel_id,
                     node_ids,
                     exclude_node_ids,
@@ -213,17 +216,6 @@ class Command(AsyncCommand):
                     drive_id=drive_id,
                     peer_id=peer_id,
                 )
-                total_resource_count = (
-                    nodes_for_transfer.exclude(kind=content_kinds.TOPIC)
-                    .values("content_id")
-                    .distinct()
-                    .count()
-                )
-
-                (
-                    files_to_download,
-                    total_bytes_to_transfer,
-                ) = calculate_files_to_transfer(nodes_for_transfer, False)
             else:
                 (
                     total_resource_count,
