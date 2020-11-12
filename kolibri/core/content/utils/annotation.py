@@ -4,6 +4,7 @@ import os
 from itertools import groupby
 from math import ceil
 
+from django.db.models import Max
 from django.db.models import Sum
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
@@ -749,11 +750,10 @@ def calculate_included_languages(channel):
 
 
 def calculate_next_order(channel, model=ChannelMetadata):
-    latest_order = model.objects.latest("order").order
-    if latest_order is None:
-        channel.order = 1
-
     if channel.order is None or channel.order == 0:
-        channel.order = latest_order + 1
+        max_order = model.objects.aggregate(Max("order")).get("order__max", 0)
+        if max_order is None:
+            max_order = 0
+        channel.order = max_order + 1
 
     channel.save()
