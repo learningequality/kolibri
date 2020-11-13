@@ -16,7 +16,7 @@
   import ScreenFull from 'screenfull';
   import { isAndroidWebView } from 'kolibri.utils.appInfo';
 
-  const fullscreenApiIsSupported = ScreenFull.enabled && !isAndroidWebView;
+  const fullscreenApiIsSupported = ScreenFull.enabled && !isAndroidWebView();
 
   const NORMALIZE_FULLSCREEN_CLASS = 'normalize-fullscreen';
   const MIMIC_FULLSCREEN_CLASS = 'mimic-fullscreen';

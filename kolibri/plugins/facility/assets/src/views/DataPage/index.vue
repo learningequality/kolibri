@@ -125,7 +125,7 @@
       // NOTE: We disable CSV file upload/download on embedded web views like the Mac
       // and Android apps
       canUploadDownloadFiles() {
-        return !isEmbeddedWebView;
+        return !isEmbeddedWebView();
       },
       pollForTasks() {
         return this.$route.name === PageNames.DATA_EXPORT_PAGE;

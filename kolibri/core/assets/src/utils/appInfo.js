@@ -19,10 +19,14 @@ const isWindows = /Windows/.test(userAgent);
  * Note that we explicitly exclude Linux from this check because the GNOME
  * app currently does not set this.
  */
-export const isEmbeddedWebView = (isAndroid || isMac || isWindows) && store.getters.isAppContext;
+export const isEmbeddedWebView = function() {
+  return (isAndroid || isMac || isWindows) && store.getters.isAppContext;
+};
 
 /**
  * CoreFullscreen checks for embedded Android specifically
  * TODO: See if we can enable fullscreen on embedded Android
  */
-export const isAndroidWebView = isAndroid && isEmbeddedWebView;
+export const isAndroidWebView = function() {
+  return isAndroid && isEmbeddedWebView;
+};

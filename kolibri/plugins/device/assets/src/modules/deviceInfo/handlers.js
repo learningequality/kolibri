@@ -23,7 +23,7 @@ export function getDeviceInfo() {
     const { server } = infoResponse.headers;
 
     if (server.includes('0.0.0.0')) {
-      if (isEmbeddedWebView) {
+      if (isEmbeddedWebView()) {
         data.server_type = 'Kolibri app server';
       } else {
         data.server_type = 'Kolibri internal server';
