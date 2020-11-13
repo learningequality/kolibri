@@ -147,7 +147,7 @@
           @click="reset"
         />
         <KButton
-          v-if="!isError"
+          v-if="!isError & hasChanges"
           :text="$tr('import')"
           appearance="raised-button"
           primary
@@ -176,6 +176,11 @@
     computed: {
       isError() {
         return this.status === CSVImportStatuses.ERRORS;
+      },
+      hasChanges() {
+        const classes_changes = Object.values(this.classes_report).reduce((a, b) => a + b, 0);
+        const user_changes = Object.values(this.users_report).reduce((a, b) => a + b, 0);
+        return classes_changes + user_changes != 0;
       },
       isFinished() {
         return this.status === CSVImportStatuses.FINISHED;

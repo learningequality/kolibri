@@ -63,7 +63,7 @@
                 </p>
               </template>
             </KFixedGridItem>
-            <KFixedGridItem span="3" alignment="right">
+            <KFixedGridItem :style="{ 'padding-top': '16px' }" span="3" alignment="right">
               <KButton
                 :text="coreString('removeAction')"
                 appearance="flat-button"

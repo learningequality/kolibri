@@ -180,7 +180,7 @@
           .trim();
 
         const className = find(this.classList, { id: classroomId }).name;
-        const assignments = serverAssignmentPayload(groupIds, this.classId);
+        const assignments = serverAssignmentPayload(groupIds, classroomId);
 
         this.$store
           .dispatch('examReport/copyExam', {

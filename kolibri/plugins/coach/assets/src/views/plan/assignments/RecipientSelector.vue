@@ -1,6 +1,7 @@
 <template>
 
   <div>
+    <!-- Entire class -->
     <KRadioButton
       :value="true"
       :currentValue="entireClassIsSelected"
@@ -12,26 +13,29 @@
         icon="classes"
       />
     </KRadioButton>
+
+    <!-- Learner groups -->
     <KCheckbox
       v-for="group in groups"
       :key="group.id"
-      :checked="groupIsChecked(group.id)"
+      :checked="groupIsSelected(group)"
       :disabled="disabled"
-      @change="toggleGroup($event, group.id)"
+      @change="toggleGroup($event, group)"
     >
       <KLabeledIcon
         :label="group.name"
         icon="group"
       />
     </KCheckbox>
+
+    <!-- Individual learners -->
     <IndividualLearnerSelector
+      :isVisible="individualSelectorIsVisible"
       :selectedGroupIds="selectedGroupIds"
-      :entireClassIsSelected="entireClassIsSelected"
-      :initialAdHocLearners="initialAdHocLearners"
+      :selectedLearnerIds.sync="selectedLearnerIds"
       :targetClassId="classId"
       :disabled="disabled"
-      @updateLearners="learners => $emit('updateLearners', learners)"
-      @change="toggleGroup"
+      @togglevisibility="toggleIndividualSelector"
     />
   </div>
 
@@ -40,7 +44,7 @@
 
 <script>
 
-  import isEqual from 'lodash/isEqual';
+  import every from 'lodash/every';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import IndividualLearnerSelector from './IndividualLearnerSelector';
 
@@ -55,17 +59,12 @@
         type: Array,
         required: true,
       },
-      // Array of objects, each with 'group' and 'name'
+      // Array of objects, each with (group) 'id' and 'name'
       groups: {
         type: Array,
         required: true,
         validator(value) {
-          for (let i = 0; i < value.length; i++) {
-            if (!value[i].name || !value[i].id) {
-              return false;
-            }
-          }
-          return true;
+          return every(value, val => val.name && val.id);
         },
       },
       // For the 'Entire Class' option
@@ -83,37 +82,64 @@
         default: new Array(),
       },
     },
+    data() {
+      return {
+        // Determines whether the individual learner table is visible.
+        // Is initially open if item is assigned to individuals.
+        individualSelectorIsVisible: this.initialAdHocLearners.length > 0,
+        // This is .sync'd with IndividualLearnerSelector, but not with AssignmentDetailsModal
+        // which recieves updates via handler in watch.selectedLearnerIds
+        selectedLearnerIds: [...this.initialAdHocLearners],
+        // Determines whether the group's checkbox is checked and affects which
+        // learners are selectable in IndividualLearnerSelector
+        selectedGroupIds: this.value.filter(id => id !== this.classId),
+      };
+    },
     computed: {
       entireClassIsSelected() {
-        return isEqual(this.value, [this.classId]);
+        return this.selectedLearnerIds.length === 0 && this.selectedGroupIds.length === 0;
       },
-      selectedGroupIds() {
-        return this.groups.filter(group => this.groupIsChecked(group.id)).map(group => group.id);
+      currentCollectionIds() {
+        if (this.entireClassIsSelected) {
+          return [this.classId];
+        } else {
+          return this.selectedGroupIds;
+        }
+      },
+    },
+    watch: {
+      selectedLearnerIds(newVal) {
+        this.$emit('updateLearners', newVal);
+      },
+      currentCollectionIds(newVal) {
+        this.$emit('input', newVal);
       },
     },
     methods: {
-      groupIsChecked(groupId) {
-        return this.value.includes(groupId);
+      toggleIndividualSelector(isChecked) {
+        if (!isChecked) {
+          this.clearLearnerIds();
+        } else {
+          this.individualSelectorIsVisible = true;
+        }
+      },
+      groupIsSelected({ id }) {
+        return this.value.includes(id);
+      },
+      clearLearnerIds() {
+        this.selectedLearnerIds = [];
+        this.individualSelectorIsVisible = false;
       },
       selectEntireClass() {
-        this.$emit('input', [this.classId]);
+        this.clearLearnerIds();
+        this.selectedGroupIds = [];
       },
-      toggleGroup(isChecked, newId) {
-        let newValue;
+      toggleGroup(isChecked, { id }) {
         if (isChecked) {
-          // If a group is selected, remove classId if it is there
-          newValue = this.value.filter(id => id !== this.classId);
-          if (newId) {
-            newValue.push(newId);
-          }
+          this.selectedGroupIds.push(id);
         } else {
-          newValue = this.value.filter(groupId => newId !== groupId);
-          // If un-selecting the last group, auto-select 'Entire Class'
-          if (newValue.length === 0) {
-            newValue = [this.classId];
-          }
+          this.selectedGroupIds = this.selectedGroupIds.filter(groupId => groupId !== id);
         }
-        this.$emit('input', newValue);
       },
     },
   };
