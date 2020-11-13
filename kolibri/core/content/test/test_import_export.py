@@ -1003,7 +1003,7 @@ class ExportChannelTestCase(TestCase):
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
-@patch("kolibri.core.content.management.commands.importcontent.get_import_export_data")
+@patch("kolibri.core.content.management.commands.exportcontent.get_import_export_data")
 class ExportContentTestCase(TestCase):
     """
     Test case for the exportcontent management command.

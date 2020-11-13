@@ -72,12 +72,7 @@ class Command(AsyncCommand):
             total_resource_count,
             files,
             total_bytes_to_transfer,
-        ) = get_import_export_data(
-            channel_id,
-            node_ids,
-            exclude_node_ids,
-            False,
-        )
+        ) = get_import_export_data(channel_id, node_ids, exclude_node_ids, True)
 
         self.update_job_metadata(total_bytes_to_transfer, total_resource_count)
 

@@ -37,10 +37,14 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
             channel.id,
             node_ids,
             exclude_node_ids,
-            True,
+            # Don't filter by availability as we have set nodes invisible
+            # above, but the localfiles we are trying to delete are still
+            # available
+            None,
             renderable_only=False,
             topic_thumbnails=False,
         )
+
         with db_task_write_lock:
             propagate_forced_localfile_removal(unused_files)
 

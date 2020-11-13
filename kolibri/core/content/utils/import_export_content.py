@@ -126,11 +126,12 @@ def get_import_export_data(
         channel_id, node_ids, exclude_node_ids
     )
 
-    nodes_to_include = ContentNode.objects.filter(
-        channel_id=channel_id, available=available
-    ).exclude(
-        kind=content_kinds.TOPIC,
+    nodes_to_include = ContentNode.objects.filter(channel_id=channel_id).exclude(
+        kind=content_kinds.TOPIC
     )
+
+    if available is not None:
+        nodes_to_include = nodes_to_include.filter(available=available)
 
     nodes_to_include = filter_by_file_availability(
         nodes_to_include, channel_id, drive_id, peer_id
@@ -177,11 +178,12 @@ def get_import_export_data(
 
         # Only bother with this query if there were any resources returned above.
         if included_content_ids:
-            queried_file_objects.update(
-                LocalFile.objects.filter(
-                    available=available, files__contentnode__in=nodes_segment
-                ).in_bulk()
+            file_objects = LocalFile.objects.filter(
+                files__contentnode__in=nodes_segment
             )
+            if available is not None:
+                file_objects = file_objects.filter(available=available)
+            queried_file_objects.update(file_objects.in_bulk())
 
             if topic_thumbnails:
                 # Do a query to get all the descendant and ancestor topics for this segment
@@ -191,12 +193,13 @@ def get_import_export_data(
                     Q(rght__gte=min_boundary, rght__lte=max_boundary)
                     | Q(lft__lte=max_boundary, rght__gte=min_boundary)
                 )
-                queried_file_objects.update(
-                    LocalFile.objects.filter(
-                        available=available,
-                        files__contentnode__in=segment_topics,
-                    ).in_bulk()
+
+                file_objects = LocalFile.objects.filter(
+                    files__contentnode__in=segment_topics,
                 )
+                if available is not None:
+                    file_objects = file_objects.filter(available=available)
+                queried_file_objects.update(file_objects.in_bulk())
 
         min_boundary += dynamic_chunksize
 
