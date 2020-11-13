@@ -126,8 +126,10 @@ def get_import_export_data(
         channel_id, node_ids, exclude_node_ids
     )
 
-    nodes_to_include = ContentNode.objects.filter(channel_id=channel_id).exclude(
-        kind=content_kinds.TOPIC
+    nodes_to_include = ContentNode.objects.filter(
+        channel_id=channel_id, available=available
+    ).exclude(
+        kind=content_kinds.TOPIC,
     )
 
     nodes_to_include = filter_by_file_availability(
