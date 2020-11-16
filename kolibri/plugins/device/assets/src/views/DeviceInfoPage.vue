@@ -69,7 +69,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import TechnicalTextBlock from 'kolibri.coreVue.components.TechnicalTextBlock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import DeviceNameModal from './DeviceNameModal';
@@ -93,16 +93,20 @@
       };
     },
     computed: {
+      ...mapGetters(['isAppContext']),
       ...mapState('deviceInfo', ['deviceInfo', 'deviceName']),
       buttonText() {
         return this.advancedShown ? this.$tr('hide') : this.coreString('showAction');
+      },
+      installer() {
+        return this.isAppContext ? 'App' : this.deviceInfo.installer;
       },
       infoText() {
         return [
           `Version:           ${this.deviceInfo.version}`,
           `OS:                ${this.deviceInfo.os}`,
           `Python:            ${this.deviceInfo.python_version}`,
-          `Installer:         ${this.deviceInfo.installer}`,
+          `Installer:         ${this.installer}`,
           `Server:            ${this.deviceInfo.server_type}`,
           `Database:          ${this.deviceInfo.database_path}`,
           `Free disk space:   ${this.deviceInfo.content_storage_free_space}`,
