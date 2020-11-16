@@ -40,6 +40,8 @@ def main():
     prebuild = commands.add_parser('prep-kolibri-dist', help="Prepare a bundled Kolibri for app build.")
     prebuild.add_argument('--kolibri-version', default=None,
                          help='Specify a particular Kolibri version to bundle.')
+    prebuild.add_argument('--custom-whl', action="store_true",
+                          help="If set, uses the custom whl file placed in the whl subdirectory of the root.")
     prebuild.add_argument('--exclude-prereleases', action="store_true",
                           help="When checking for the latest Kolibri version, do not include prereleases such as alphas or betas.")
     prebuild.add_argument('--skip-preseed', action="store_true",

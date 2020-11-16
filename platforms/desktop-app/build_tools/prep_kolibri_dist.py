@@ -119,6 +119,8 @@ def get_kolibri_release_whl(release_tag):
 def update_kolibri(args):
     if args.kolibri_version is not None:
         whl = get_kolibri_release_whl(args.kolibri_version)
+    elif args.custom_whl:
+        whl = glob.glob('whl/*.whl')[0]
     else:
         whl = get_latest_kolibri_release(include_prereleases=(not args.exclude_prereleases))
 
