@@ -247,7 +247,7 @@
     watch: {
       addresses(addresses) {
         this.availableAddressIds = addresses
-          .filter(address => address.available || address.hasContent)
+          .filter(address => address.available)
           .map(address => address.id);
         this.resetSelectedAddress();
       },
@@ -275,9 +275,6 @@
             this.savedAddresses = addresses;
             this.stage = this.Stages.FETCHING_SUCCESSFUL;
             this.savedAddressesInitiallyFetched = true;
-            if (this.savedAddresses.find(({ id }) => this.selectedId === id)) {
-              this.selectedAddressId = this.selectedId;
-            }
           })
           .catch(() => {
             this.stage = this.Stages.FETCHING_FAILED;
@@ -285,7 +282,9 @@
       },
       resetSelectedAddress() {
         if (this.availableAddressIds.length !== 0) {
-          this.selectedAddressId = this.availableAddressIds[0];
+          const selectedId = this.selectedId ? this.selectedId : this.selectedAddressId;
+          this.selectedAddressId =
+            this.availableAddressIds.find(id => selectedId === id) || this.availableAddressIds[0];
         } else {
           this.selectedAddressId = '';
         }
