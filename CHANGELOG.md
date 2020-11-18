@@ -2,6 +2,28 @@
 
 List of the most important changes for each release.
 
+## 0.14.4
+
+### Changed
+
+* File downloads now run concurrently, taking better advantage of a device's bandwidth and reducing the time needed to import resources from Kolibri Studio or other content sources
+* When setting up a new device using the [Setup Wizard's "Quick Start" option](https://kolibri.readthedocs.io/en/latest/install/initial_setup.html#quick-start), the ["Allow learners to create accounts" setting](https://kolibri.readthedocs.io/en/latest/install/initial_setup.html#quick-start) is enabled by default.
+* The `provisiondevice` management command no longer converts the user-provided facility name to all lower-case
+* Markdown descriptions for resources now preserve line breaks from the original source
+
+### Fixed
+
+* Multiple bugs when creating, editing, and copying quizzes/lessons
+* Multiple bugs when navigating throughout the Coach page
+* Multiple bugs specific to Kolibri servers using PostgreSQL
+* On Safari, sections of the Facility > Data page would disappear unexpectedly after syncing a facility
+* On IE11, it was not possible to setup a new device by importing a facility
+* Missing thumbnails on resource cards when searching/browsing in channels
+* Numerous visual and accessibility issues
+* Facilities could not be renamed if the only changes were to the casing of the name (e.g. changing "Facility" to "FACILITY")
+
+([0.14.4 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.14.4))
+
 ## 0.14.3
 
 (Note: 0.14.0-2 contained regressions and were superseded by 0.14.3)
