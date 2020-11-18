@@ -45,7 +45,7 @@
             :value="a.id"
             :label="a.nickname"
             :description="a.base_url"
-            :disabled="formDisabled || !a.available || !a.hasContent"
+            :disabled="formDisabled || !isAddressAvailable(a.id)"
           />
           <KButton
             v-if="!hideSavedAddresses"
@@ -69,7 +69,7 @@
             :value="d.instance_id"
             :label="formatNameAndId(d.device_name, d.id)"
             :description="d.base_url"
-            :disabled="formDisabled || !d.available || discoveryFailed || !d.hasContent"
+            :disabled="formDisabled || discoveryFailed || !isAddressAvailable(d.id)"
           />
         </div>
       </template>
@@ -166,6 +166,7 @@
     },
     data() {
       return {
+        availableAddressIds: [],
         savedAddresses: [],
         savedAddressesInitiallyFetched: false,
         discoveredAddresses: [],
@@ -190,6 +191,11 @@
       addresses() {
         return this.savedAddresses.concat(this.discoveredAddresses);
       },
+      isAddressAvailable() {
+        return function(addressId) {
+          return Boolean(this.availableAddressIds.find(id => id === addressId));
+        };
+      },
       initialFetchingComplete() {
         return this.savedAddressesInitiallyFetched && this.discoveredAddressesInitiallyFetched;
       },
@@ -198,7 +204,8 @@
           this.selectedAddressId === '' ||
           this.stage === this.Stages.FETCHING_ADDRESSES ||
           this.stage === this.Stages.DELETING_ADDRESS ||
-          this.discoveryStage === this.Stages.PEER_DISCOVERY_FAILED
+          this.discoveryStage === this.Stages.PEER_DISCOVERY_FAILED ||
+          this.availableAddressIds.length === 0
         );
       },
       newAddressButtonDisabled() {
@@ -237,6 +244,14 @@
         return null;
       },
     },
+    watch: {
+      addresses(addresses) {
+        this.availableAddressIds = addresses
+          .filter(address => address.available)
+          .map(address => address.id);
+        this.resetSelectedAddress();
+      },
+    },
     beforeMount() {
       this.startDiscoveryPolling();
       return this.refreshSavedAddressList();
@@ -258,21 +273,18 @@
         return fetchStaticAddresses(this.fetchAddressArgs)
           .then(addresses => {
             this.savedAddresses = addresses;
-            this.resetSelectedAddress();
             this.stage = this.Stages.FETCHING_SUCCESSFUL;
             this.savedAddressesInitiallyFetched = true;
-            if (this.savedAddresses.find(({ id }) => this.selectedId === id)) {
-              this.selectedAddressId = this.selectedId;
-            }
           })
           .catch(() => {
             this.stage = this.Stages.FETCHING_FAILED;
           });
       },
       resetSelectedAddress() {
-        const availableAddress = find(this.addresses, { available: true });
-        if (availableAddress) {
-          this.selectedAddressId = availableAddress.id;
+        if (this.availableAddressIds.length !== 0) {
+          const selectedId = this.selectedId ? this.selectedId : this.selectedAddressId;
+          this.selectedAddressId =
+            this.availableAddressIds.find(id => selectedId === id) || this.availableAddressIds[0];
         } else {
           this.selectedAddressId = '';
         }
@@ -282,7 +294,6 @@
         return deleteAddress(id)
           .then(() => {
             this.savedAddresses = this.savedAddresses.filter(a => a.id !== id);
-            this.resetSelectedAddress(this.savedAddresses);
             this.stage = this.Stages.DELETING_SUCCESSFUL;
             this.$emit('removed_address');
           })
