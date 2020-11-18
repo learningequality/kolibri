@@ -26,7 +26,8 @@ from django.http import HttpResponseNotModified
 from django.http import HttpResponsePermanentRedirect
 from django.http.response import FileResponse
 from django.http.response import StreamingHttpResponse
-from django.template import loader
+from django.template import Context
+from django.template.engine import Engine
 from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
 from django.utils.http import http_date
@@ -239,6 +240,12 @@ def parse_html(content):
         return content
 
 
+h5p_engine = Engine(
+    dirs=[os.path.join(os.path.dirname(__file__), "./templates/content")]
+)
+h5p_template = h5p_engine.get_template("h5p.html")
+
+
 def get_h5p(zf, embedded_filepath):
     file_size = 0
     if not embedded_filepath:
@@ -257,25 +264,27 @@ def get_h5p(zf, embedded_filepath):
             if "-" in [name for name in zf.namelist() if "/" in name][0]
             else "false"
         )
-        template = loader.get_template("content/h5p.html")
         main_library_data = [
             lib
             for lib in h5pdata["preloadedDependencies"]
             if lib["machineName"] == h5pdata["mainLibrary"]
         ][0]
-        bootstrap_content = template.render(
-            {
-                "jsfiles": jsfiles,
-                "cssfiles": cssfiles,
-                "content": json.dumps(
-                    json.dumps(contentdata, separators=(",", ":"), ensure_ascii=False)
-                ),
-                "library": "{machineName} {majorVersion}.{minorVersion}".format(
-                    **main_library_data
-                ),
-                "path_includes_version": path_includes_version,
-            },
-            None,
+        bootstrap_content = h5p_template.render(
+            Context(
+                {
+                    "jsfiles": jsfiles,
+                    "cssfiles": cssfiles,
+                    "content": json.dumps(
+                        json.dumps(
+                            contentdata, separators=(",", ":"), ensure_ascii=False
+                        )
+                    ),
+                    "library": "{machineName} {majorVersion}.{minorVersion}".format(
+                        **main_library_data
+                    ),
+                    "path_includes_version": path_includes_version,
+                }
+            ),
         )
         content = parse_html(bootstrap_content)
         content_type = "text/html"
