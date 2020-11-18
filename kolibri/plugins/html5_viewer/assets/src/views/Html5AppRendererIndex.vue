@@ -33,8 +33,8 @@
       <iframe
         ref="iframe"
         class="iframe"
+        sandbox="allow-scripts allow-same-origin"
         :style="{ backgroundColor: $themePalette.grey.v_100 }"
-        :sandbox="sandbox"
         frameBorder="0"
         :src="rooturl"
       >
@@ -51,7 +51,6 @@
   import { now } from 'kolibri.utils.serverClock';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
-  import plugin_data from 'plugin_data';
 
   const defaultContentHeight = '500px';
   const frameTopbarHeight = '37px';
@@ -79,9 +78,6 @@
       },
       contentRendererHeight() {
         return pxStringAdd(this.iframeHeight, frameTopbarHeight);
-      },
-      sandbox() {
-        return plugin_data.html5_sandbox_tokens;
       },
       fullscreenText() {
         return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
