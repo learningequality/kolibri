@@ -1,18 +1,24 @@
 name: Python tests
 
-on:
-  push:
-    paths:
-      - '**.py'
-      - 'requirements/*.txt'
-  pull_request:
-    paths:
-      - '**.py'
-      - 'requirements/*.txt'
+on: [push, pull_request]
 
 jobs:
+  pre_job:
+    name: Path match check
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          github_token: ${{ github.token }}
+          paths: '["**.py", "requirements/*.txt"]'
   unit_test:
     name: Python unit tests
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
@@ -40,6 +46,8 @@ jobs:
       uses: codecov/codecov-action@v1
   postgres:
     name: Python postgres unit tests
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     services:
       # Label used to access the service container

@@ -3,7 +3,6 @@ import uuid
 from django.db.models import Case
 from django.db.models import When
 from django_filters.rest_framework import DjangoFilterBackend
-from le_utils.constants import content_kinds
 from rest_framework import viewsets
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
@@ -20,8 +19,7 @@ from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_without_topics_q_filter,
 )
 from kolibri.core.content.utils.file_availability import LocationError
-from kolibri.core.content.utils.import_export_content import calculate_files_to_transfer
-from kolibri.core.content.utils.import_export_content import get_nodes_to_transfer
+from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.upgrade import CHANNEL_UPDATE_STATS_CACHE_KEY
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.utils.cache import process_cache
@@ -125,7 +123,11 @@ class CalculateImportExportSizeView(APIView):
         if for_export:
             available = True
         try:
-            nodes_for_transfer = get_nodes_to_transfer(
+            (
+                total_resource_count,
+                files_to_download,
+                total_bytes_to_transfer,
+            ) = get_import_export_data(
                 channel_id,
                 node_ids,
                 exclude_node_ids,
@@ -145,16 +147,11 @@ class CalculateImportExportSizeView(APIView):
                     "The network location with the id {} does not exist".format(peer_id)
                 )
 
-        total_resource_count = (
-            nodes_for_transfer.exclude(kind=content_kinds.TOPIC)
-            .values("content_id")
-            .distinct()
-            .count()
-        )
-        _, total_file_size = calculate_files_to_transfer(nodes_for_transfer, available)
-
         return Response(
-            {"resource_count": total_resource_count, "file_size": total_file_size}
+            {
+                "resource_count": total_resource_count,
+                "file_size": total_bytes_to_transfer,
+            }
         )
 
 

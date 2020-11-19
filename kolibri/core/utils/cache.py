@@ -61,7 +61,12 @@ class ProcessLock(object):
         self._lock.acquire()
 
     def release(self):
-        self._lock.release()
+        try:
+            self._lock.release()
+        except AssertionError:
+            logger.warning(
+                "Got an AssertionError when releasing a lock! This is likely from the lock TTL expiring."
+            )
 
     def __enter__(self):
         self.acquire()

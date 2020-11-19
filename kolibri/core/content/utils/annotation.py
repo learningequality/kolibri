@@ -94,7 +94,9 @@ def _generate_MPTT_descendants_statement(mptt_values, ContentNodeTable):
     return queries
 
 
-def _MPTT_descendant_ids_statement(bridge, node_ids, min_boundary, max_boundary):
+def _MPTT_descendant_ids_statement(
+    bridge, channel_id, node_ids, min_boundary, max_boundary
+):
     ContentNodeTable = bridge.get_table(ContentNode)
     connection = bridge.get_connection()
     # Setup list to collect queries
@@ -105,6 +107,7 @@ def _MPTT_descendant_ids_statement(bridge, node_ids, min_boundary, max_boundary)
     non_topic_results = connection.execute(
         select([ContentNodeTable.c.id]).where(
             and_(
+                ContentNodeTable.c.channel_id == channel_id,
                 filter_by_uuids(ContentNodeTable.c.id, node_ids),
                 # Also filter by the boundary conditions
                 # We are only interested in non-topic nodes that
@@ -144,6 +147,7 @@ def _MPTT_descendant_ids_statement(bridge, node_ids, min_boundary, max_boundary)
         )
         .where(
             and_(
+                ContentNodeTable.c.channel_id == channel_id,
                 filter_by_uuids(ContentNodeTable.c.id, node_ids),
                 # Add constraints specific to our requirements, in terms of batching:
                 # Also filter by the boundary conditions
@@ -197,7 +201,7 @@ def _create_batch_update_statement(
         # Construct a statement that restricts which nodes we update
         # in this batch by the specified inclusion constraints
         node_ids_statement = _MPTT_descendant_ids_statement(
-            bridge, node_ids, min_boundary, max_boundary
+            bridge, channel_id, node_ids, min_boundary, max_boundary
         )
         # Add this statement to the query
         batch_statement = batch_statement.where(
@@ -208,7 +212,7 @@ def _create_batch_update_statement(
         # Construct a statement that restricts nodes we update
         # in this batch by the specified exclusion constraints
         exclude_node_ids_statement = _MPTT_descendant_ids_statement(
-            bridge, exclude_node_ids, min_boundary, max_boundary
+            bridge, channel_id, exclude_node_ids, min_boundary, max_boundary
         )
         # Add this statement to the query
         batch_statement = batch_statement.where(
@@ -657,8 +661,8 @@ def calculate_dummy_progress_for_annotation(node_ids, exclude_node_ids, total_pr
     return int(annotation_proportion * total_progress / (100 - annotation_proportion))
 
 
-def propagate_forced_localfile_removal(localfiles):
-    files = File.objects.filter(supplementary=False, local_file__in=localfiles)
+def propagate_forced_localfile_removal(localfiles_list):
+    files = File.objects.filter(supplementary=False, local_file__in=localfiles_list)
     ContentNode.objects.filter(files__in=files).update(available=False)
     for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
         recurse_annotation_up_tree(channel_id)

@@ -8,7 +8,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import propagate_forced_localfile_removal
 from kolibri.core.content.utils.annotation import set_content_invisible
-from kolibri.core.content.utils.import_export_content import get_files_to_transfer
+from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.tasks.management.commands.base import AsyncCommand
@@ -33,9 +33,18 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
         # Do this before we delete all the metadata, as otherwise we lose
         # track of which local files were associated with the channel we
         # just deleted.
-        unused_files, _ = get_files_to_transfer(
-            channel.id, node_ids, exclude_node_ids, True, renderable_only=False
+        _, unused_files, _ = get_import_export_data(
+            channel.id,
+            node_ids,
+            exclude_node_ids,
+            # Don't filter by availability as we have set nodes invisible
+            # above, but the localfiles we are trying to delete are still
+            # available
+            None,
+            renderable_only=False,
+            topic_thumbnails=False,
         )
+
         with db_task_write_lock:
             propagate_forced_localfile_removal(unused_files)
 

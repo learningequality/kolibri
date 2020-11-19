@@ -3,7 +3,9 @@
   <div>
     <div>
       <h2 class="name">
-        {{ facility.name }}
+        <KLabeledIcon icon="facility">
+          {{ facility.name }}
+        </KLabeledIcon>
         <UiIcon v-if="facility.dataset.registered" ref="icon">
           <KIcon
             icon="registered"

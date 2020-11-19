@@ -123,6 +123,7 @@ class DeleteContentTestCase(TransactionTestCase):
         )
 
     def _setup_test_node(self, node, available=True):
+        node.available = available
         node.id = uuid.uuid4().hex
         node.channel_id = uuid.uuid4().hex
         node.available = available
@@ -143,11 +144,14 @@ class DeleteContentTestCase(TransactionTestCase):
         call_command("deletecontent", test_channel_id, **kwargs)
 
     def test_include_all_nodes_all_deleted(self):
+        LocalFile.objects.all().update(available=True)
         ContentNode.objects.all().update(available=True)
         call_command("deletecontent", test_channel_id, node_ids=self._get_node_ids())
         self.assertEqual(ContentNode.objects.all().count(), 0)
 
     def test_include_all_nodes_other_channel_node_still_available(self):
+        LocalFile.objects.all().update(available=True)
+        ContentNode.objects.all().update(available=True)
         test = ContentNode.objects.filter(kind=content_kinds.VIDEO).first()
         original_id = test.id
         test = self._setup_test_node(test)
@@ -157,6 +161,8 @@ class DeleteContentTestCase(TransactionTestCase):
         self.assertTrue(test.available)
 
     def test_include_all_nodes_force_delete_other_channel_node_not_available(self):
+        LocalFile.objects.all().update(available=True)
+        ContentNode.objects.all().update(available=True)
         test = ContentNode.objects.filter(kind=content_kinds.VIDEO).first()
         original_id = test.id
         test = self._setup_test_node(test)
@@ -168,6 +174,8 @@ class DeleteContentTestCase(TransactionTestCase):
     def test_exclude_all_nodes_force_delete_other_channel_node_not_available_no_delete(
         self,
     ):
+        LocalFile.objects.all().update(available=True)
+        ContentNode.objects.all().update(available=True)
         test = ContentNode.objects.filter(kind=content_kinds.VIDEO).first()
         original_id = test.id
         test = self._setup_test_node(test, available=False)
