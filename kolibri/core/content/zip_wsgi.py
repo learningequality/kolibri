@@ -292,7 +292,13 @@ def get_h5p(zf, embedded_filepath):
         file_size = len(response.content)
     elif embedded_filepath.startswith("dist/"):
         # return static H5P dist resources
-        path = find("assets/h5p-standalone-" + embedded_filepath)
+        # First try finding the file using the storage class.
+        # This is skipped in DEVELOPER_MODE mode as files might be outdated
+        basename = "assets/h5p-standalone-" + embedded_filepath
+        if not getattr(settings, "DEVELOPER_MODE", False):
+            path = staticfiles_storage.path(basename)
+        else:
+            path = find(basename)
         if path is None:
             return HttpResponseNotFound("{} not found".format(embedded_filepath))
         # try to guess the MIME type of the embedded file being referenced
