@@ -1,18 +1,24 @@
 name: No zombie threads
 
-on:
-  push:
-    paths:
-      - '**.py'
-      - 'requirements/base.txt'
-  pull_request:
-    paths:
-      - '**.py'
-      - 'requirements/base.txt'
+on: [push, pull_request]
 
 jobs:
+  pre_job:
+    name: Path match check
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          github_token: ${{ github.token }}
+          paths: '["kolibri/**.py", "requirements/base.txt"]'
   zombies:
     name: No zombies
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

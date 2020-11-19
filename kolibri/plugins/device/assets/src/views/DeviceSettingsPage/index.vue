@@ -90,6 +90,7 @@
             <KExternalLink
               :text="facility.name"
               :href="getFacilitySettingsPath(facility.id)"
+              icon="facility"
             />
           </li>
         </template>

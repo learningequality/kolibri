@@ -1,20 +1,24 @@
 name: Static dependencies with and without C extensions
 
-on:
-  push:
-    paths:
-      - '**.py'
-      - 'requirements/base.txt'
-      - 'requirements/build.txt'
-  pull_request:
-    paths:
-      - '**.py'
-      - 'requirements/base.txt'
-      - 'requirements/build.txt'
+on: [push, pull_request]
 
 jobs:
+  pre_job:
+    name: Path match check
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          github_token: ${{ github.token }}
+          paths: '["**.py", "requirements/base.txt", "requirements/build.txt"]'
   c_ext:
     name: C Extensions
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -51,6 +55,8 @@ jobs:
         py.test --cov=kolibri --cov-report= --cov-append --color=no test/
   no_c_ext:
     name: No C Extensions
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
