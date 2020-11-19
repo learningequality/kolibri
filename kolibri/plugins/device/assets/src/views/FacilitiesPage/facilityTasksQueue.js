@@ -93,7 +93,7 @@ export default {
             task =>
               task.type === TaskTypes.DELETEFACILITY &&
               taskFacilityMatch(task, facility) &&
-              !taskIsClearable(task.status)
+              !taskIsClearable(task)
           )
         );
       };
