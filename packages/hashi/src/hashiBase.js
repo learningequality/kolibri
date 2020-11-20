@@ -1,6 +1,7 @@
 export const events = {
   READYCHECK: 'readycheck',
-  READY: 'ready',
+  MAINREADY: 'mainready',
+  IFRAMEREADY: 'iframeready',
   STATEUPDATE: 'stateupdate',
   USERDATAUPDATE: 'userdataupdate',
 };

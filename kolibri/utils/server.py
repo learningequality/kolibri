@@ -6,7 +6,9 @@ from subprocess import check_output
 
 import cherrypy
 import requests
+from cheroot import wsgi
 from cherrypy.process.plugins import SimplePlugin
+from cherrypy.process.servers import ServerAdapter
 from django.conf import settings
 from zeroconf import get_all_addresses
 
@@ -14,6 +16,7 @@ import kolibri
 from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
+from kolibri.core.content.zip_wsgi import get_application
 from kolibri.core.deviceadmin.utils import schedule_vacuum
 from kolibri.core.tasks.main import initialize_workers
 from kolibri.core.tasks.main import queue
@@ -266,17 +269,18 @@ def configure_http_server(port):
 
     cherrypy.tree.graft(application, "/")
 
-    # Mount static files
-    cherrypy.tree.mount(
-        cherrypy.tools.staticdir.handler(section="/", dir=settings.STATIC_ROOT),
-        settings.STATIC_URL,
-        config={
-            "/": {
-                "tools.gzip.on": True,
-                "tools.gzip.mime_types": ["text/*", "application/javascript"],
-            }
-        },
-    )
+    if not getattr(settings, "DEVELOPER_MODE", False):
+        # Mount static files
+        cherrypy.tree.mount(
+            cherrypy.tools.staticdir.handler(section="/", dir=settings.STATIC_ROOT),
+            settings.STATIC_URL,
+            config={
+                "/": {
+                    "tools.gzip.on": True,
+                    "tools.gzip.mime_types": ["text/*", "application/javascript"],
+                }
+            },
+        )
 
     # Mount media files
     cherrypy.tree.mount(
@@ -296,21 +300,41 @@ def configure_http_server(port):
         config={"/": {"tools.caching.on": False, "request.dispatch": dispatcher}},
     )
 
+    cherrypy_server_config = {
+        "server.socket_host": LISTEN_ADDRESS,
+        "server.socket_port": port,
+        "server.thread_pool": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
+        "server.socket_timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
+        "server.accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+        "server.accepted_queue_timeout": conf.OPTIONS["Server"][
+            "CHERRYPY_QUEUE_TIMEOUT"
+        ],
+    }
+
     # Configure the server
-    cherrypy.config.update(
-        {
-            "server.socket_host": LISTEN_ADDRESS,
-            "server.socket_port": port,
-            "server.thread_pool": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
-            "server.socket_timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
-            "server.accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
-            "server.accepted_queue_timeout": conf.OPTIONS["Server"][
-                "CHERRYPY_QUEUE_TIMEOUT"
-            ],
-        }
+    cherrypy.config.update(cherrypy_server_config)
+
+    alt_port_addr = (
+        LISTEN_ADDRESS,
+        conf.OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
     )
-    # Subscribe this server
+
+    alt_port_server = ServerAdapter(
+        cherrypy.engine,
+        wsgi.Server(
+            alt_port_addr,
+            get_application(),
+            numthreads=conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
+            request_queue_size=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+            timeout=conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
+            accepted_queue_size=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+            accepted_queue_timeout=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_TIMEOUT"],
+        ),
+        alt_port_addr,
+    )
+    # Subscribe these servers
     cherrypy.server.subscribe()
+    alt_port_server.subscribe()
 
 
 def run_server(port, serve_http=True):
@@ -322,7 +346,7 @@ def run_server(port, serve_http=True):
 
     cherrypy.config.update(
         {
-            "engine.autoreload.on": False,
+            "engine.autoreload.on": getattr(settings, "DEVELOPER_MODE", False),
             "checker.on": False,
             "request.show_tracebacks": False,
             "request.show_mismatched_params": False,

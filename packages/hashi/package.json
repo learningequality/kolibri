@@ -7,9 +7,7 @@
     "build-base": "webpack --config ./webpack.config.js",
     "build": "yarn run build-base --mode=production",
     "dev": "yarn run build-base --mode=development --watch",
-    "compat": "eslint -c ./compat.js ./src/*.js",
-    "integration": "JEST_PUPPETEER_CONFIG=jest.puppeteer.config.js jest --config=jest.integration.conf.js",
-    "integration-coverage": "yarn run integration --coverage"
+    "compat": "eslint -c ./compat.js ./src/*.js"
   },
   "author": "Learning Equality",
   "license": "MIT",

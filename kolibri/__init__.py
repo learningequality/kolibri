@@ -32,7 +32,6 @@ INTERNAL_PLUGINS = [
     "kolibri.plugins.demo_server",
     "kolibri.plugins.device",
     "kolibri.plugins.epub_viewer",
-    "kolibri.plugins.h5p_viewer",
     "kolibri.plugins.html5_viewer",
     "kolibri.plugins.facility",
     "kolibri.plugins.learn",

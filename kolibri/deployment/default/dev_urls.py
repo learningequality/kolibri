@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls import include
 from django.conf.urls import url
+from django.conf.urls.static import static
 from django.http.response import HttpResponseRedirect
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -28,23 +29,29 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
-urlpatterns = urlpatterns + [
-    url(r"^__open-in-editor/", webpack_redirect_view),
-    url(
-        r"^swagger(?P<format>\.json|\.yaml)$",
-        schema_view.without_ui(cache_timeout=0),
-        name="schema-json",
-    ),
-    url(
-        r"^api_explorer/$",
-        schema_view.with_ui("swagger", cache_timeout=0),
-        name="schema-swagger-ui",
-    ),
-    url(
-        r"^redoc/$", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"
-    ),
-    url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
-]
+urlpatterns = (
+    urlpatterns
+    + [
+        url(r"^__open-in-editor/", webpack_redirect_view),
+        url(
+            r"^swagger(?P<format>\.json|\.yaml)$",
+            schema_view.without_ui(cache_timeout=0),
+            name="schema-json",
+        ),
+        url(
+            r"^api_explorer/$",
+            schema_view.with_ui("swagger", cache_timeout=0),
+            name="schema-swagger-ui",
+        ),
+        url(
+            r"^redoc/$",
+            schema_view.with_ui("redoc", cache_timeout=0),
+            name="schema-redoc",
+        ),
+        url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    ]
+    + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+)
 
 if getattr(settings, "DEBUG_PANEL_ACTIVE", False):
 
