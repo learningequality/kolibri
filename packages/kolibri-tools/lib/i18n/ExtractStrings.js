@@ -6,7 +6,7 @@ const mkdirp = require('mkdirp');
 const sortBy = require('lodash/sortBy');
 const get = require('lodash/get');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-const logging = require('./logging');
+const logging = require('../logging');
 
 // String appended prior to the identifier for context.
 const CONTEXT_LINE = '\n-- CONTEXT --\n';
@@ -48,8 +48,6 @@ ExtractStrings.prototype.apply = function(compiler) {
   // Only do this in non-production mode, as otherwise the module detection code
   // does not work for .vue files.
   if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'profiling') {
-    console.log('yes will EXTRACT');
-    console.log('process.env', process.env.NODE_ENV);
     compiler.hooks.emit.tapAsync('extractStrings', function(compilation, callback) {
       var messageExport = {};
       var nameSpaces = [];

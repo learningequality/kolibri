@@ -9,7 +9,7 @@ const csv = require('csv-parser');
 const reduce = require('lodash/reduce');
 const isEqual = require('lodash/isEqual');
 const vueCompiler = require('vue-template-compiler');
-const logging = require('./logging');
+const logging = require('../logging');
 
 const PROFILES_FOLDER = 'profiles';
 

@@ -141,7 +141,7 @@ program
     const buildModule = {
       [modes.PROD]: 'production.js',
       [modes.DEV]: 'webpackdevserver.js',
-      [modes.I18N]: 'i18n.js',
+      [modes.I18N]: 'i18n/index.js',
       [modes.STATS]: 'bundleStats.js',
       [modes.CLEAN]: 'clean.js',
     }[mode];
