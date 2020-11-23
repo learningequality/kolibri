@@ -13,7 +13,7 @@
     "test-jest-cov": "yarn run test-jest --coverage",
     "coverage": "yarn run test-jest-cov",
     "build": "kolibri-tools build prod --file ./build_tools/build_plugins.txt && yarn run hashi-build",
-    "makemessages": "kolibri-tools build i18n --file ./build_tools/build_plugins.txt",
+    "makemessages": "node ./packages/kolibri-tools/lib/i18n/ExtractMessages.js --project=kolibri",
     "combineprofiles": "node ./packages/kolibri-tools/lib/i18n/combineStringProfiles.js ./kolibri/locale/en/LC_MESSAGES/profiles/",
     "transfercontext": "node ./packages/kolibri-tools/lib/i18n/SyncContext.js run && yarn lint-frontend:format",
     "watch": "kolibri-tools build dev --file ./build_tools/build_plugins.txt",
