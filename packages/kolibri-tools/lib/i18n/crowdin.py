@@ -310,7 +310,7 @@ Convert CSV to JSON command
 """
 
 
-def _process_downloaded_files():
+def _process_downloaded_files():  # noqa: C901
     """
     Convert all CSV json files to JSON and ensure consistent diffs with ordered keys.
     Also copy over django.po files
