@@ -14,7 +14,7 @@ try:
     )
     PERSEUS_SOURCE_PATH = os.path.join(PERSEUS_LOCALE_PATH, "en", "LC_MESSAGES")
 except ModuleNotFoundError:
-    # We don't throw an error here as it will be handled later if needed. 
+    # We don't throw an error here as it will be handled later if needed.
     # Not all projects depend on our Perseus plugin
     PERSEUS_LOCALE_PATH = None
     PERSEUS_SOURCE_PATH = None
@@ -31,14 +31,33 @@ logging.StreamHandler(sys.stdout)
 
 PROJECT_NAME = os.getenv("CROWDIN_PROJECT", "kolibri")
 
-LOCALE_PATH = os.getenv("CROWDIN_LOCALE_ABSOLUTE_PATH")
+THIS_FILE_PATH = os.path.abspath(os.getcwd())
+
+LOCALE_OPTIONS = {
+    "kolibri": os.path.join(THIS_FILE_PATH, "kolibri/locale"),
+    "kolibri-studio": os.path.join(THIS_FILE_PATH, "contentcuration/locale"),
+}
+
+LOCALE_PATH = LOCALE_OPTIONS[PROJECT_NAME]
 
 if not LOCALE_PATH:
-    logging.error("\nEnvironment Variable CROWDIN_LOCALE_ABSOLUTE_PATH must be defined\n")
+    logging.error(
+        "\nCould not get LOCALE_PATH for CROWDIN_PROJECT {}".format(PROJECT_NAME)
+    )
     sys.exit(1)
 
-if not os.path.exists(LOCALE_PATH):
-    os.makedirs(LOCALE_PATH)
+try:
+    if not os.path.exists(LOCALE_PATH):
+        os.makedirs(LOCALE_PATH)
+except NotADirectoryError:
+    # This means you're not using the correct CROWDIN_PROJECT
+    logging.error(
+        "Please ensure that CROWDIN_PROJECT {} is correct and that you're running this command from the\
+                  root of that project. This failed trying to make this directory: {}".format(
+            PROJECT_NAME, LOCALE_PATH
+        )
+    )
+    sys.exit(1)
 
 SOURCE_PATH = os.path.join(LOCALE_PATH, "en", "LC_MESSAGES")
 
