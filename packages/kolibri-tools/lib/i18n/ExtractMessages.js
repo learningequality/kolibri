@@ -14,7 +14,8 @@ const logging = require('../logging');
 const GLOB = '/**/*.@(vue|js)';
 const CONTEXT_LINE = '\n-- CONTEXT --\n';
 
-/* 
+/*
+ * READ THIS
  * HEY! Are you adding a product to be covered by this script? I've added some comments
  * with the characters NP (New Project) - search the file for them for some helpful hints
  * at what you need to do or add when making this work with another project
@@ -52,48 +53,48 @@ const KOLIBRI_CORE = KOLIBRI_ROOT + '/core';
 // inside of that folder are what we download from Crowdin before converting to JSON
 const KOLIBRI_CSV_PATH = KOLIBRI_ROOT + '/locale/CSV_FILES/en';
 
-
-
 /* Studio */
 
 const STUDIO_ROOT = path.resolve('./contentcuration/contentcuration/frontend');
 const STUDIO_CSV_PATH = path.resolve('./contentcuration/locale/CSV_FILES/en');
 
 /*
- * NP - You'll want to add a *_ROOT path for your project - which is where this script will 
- * begin it's search for JS and Vue files to process. 
+ * NP - You'll want to add a *_ROOT path for your project - which is where this script will
+ * begin it's search for JS and Vue files to process.
  *
  * Also, add a *_CSV_PATH which is where you expect this script's output to go.
  */
 
 /* End Project Specific Setup */
 
+/* Begin a slew of functions not in any particular order */
 
 /*
- * These functions will always return the paths for the current project
- * NP - Be sure to add cases to the switch statements here for filesPaths and csvPath 
+ * NP - Be sure to add cases to the switch statements here for filesPaths and csvPath
  * functions
+ *
+ * These functions will always return the paths for the current project
  */
 
 function filesPaths() {
-  switch(PROJECT) {
+  switch (PROJECT) {
     case 'kolibri':
       return [KOLIBRI_CORE, KOLIBRI_PLUGINS_PATHS];
     case 'studio':
       return [STUDIO_ROOT];
     default:
-      logging.error("Cannot give you filesPaths if there is no PROJECT set.");
+      logging.error('Cannot give you filesPaths if there is no PROJECT set.');
   }
 }
 
 function csvPath() {
-  switch(PROJECT) {
+  switch (PROJECT) {
     case 'kolibri':
       return KOLIBRI_CSV_PATH;
     case 'studio':
       return STUDIO_CSV_PATH;
     default:
-      logging.error("Cannot give you CSV path if there is no PROJECT set.");
+      logging.error('Cannot give you CSV path if there is no PROJECT set.');
   }
 }
 
@@ -118,9 +119,9 @@ function clearCsvPath() {
  * Definitions:
  *
  * 'namespace': In this context, we are referring to Django apps / plugins which house their own
- * frontend assets. Example: coach, device, etc in Kolibri. 
+ * frontend assets. Example: coach, device, etc in Kolibri.
  *
- * 'messageKey': The key used to access the message. This is always associated with 
+ * 'messageKey': The key used to access the message. This is always associated with
  * of the name of the component it is defined in OR the name given to a `createTranslator`.
  * extractedMessages <object>: This is where we will store all of the found messages.
  *
@@ -159,26 +160,29 @@ function clearCsvPath() {
  * }
  */
 
-// A global object for storing our messages. Will Object.assign(extractedMessages, updates) for each 
+// A global object for storing our messages. Will Object.assign(extractedMessages, updates) for each
 // update to the values of this variable
 var extractedMessages = {};
 // We'll track Vue files with defined explicitly with empty objects in Vue files
 var empty$trs = [];
 
-// 
+//
 function processFiles(files) {
   logging.info('Processing ', files.length, ' files...');
 
-
   files.forEach(filePath => {
     // Skip node_modules
-    if (filePath.includes('node_modules')) { return; }
+    if (filePath.includes('node_modules')) {
+      return;
+    }
 
     // We extract the namespace of the file we're working on from the file's path & read the file
     const namespace = getNamespace(filePath);
 
     // Using namespace, skip paths with `<namespace>/static` in the path
-    if (filePath.includes(`${namespace}/static`)) { return; }
+    if (filePath.includes(`${namespace}/static`)) {
+      return;
+    }
 
     const file = fs.readFileSync(filePath);
 
@@ -195,9 +199,12 @@ function processFiles(files) {
     // We want the SFC script content if it's an SFC, otherwise the file itself works
     const scriptContent = vueSFC ? get(vueSFC, 'script.content') : file;
 
-    // At this point - if we basically don't have any JS to parse, so we should let the user know and leave
+    // At this point - if we basically don't have any JS to parse,
+    // so we should let the user know and leave
     if (!scriptContent) {
-      logging.error(`Tried to find parsable Javascript in ${filePath} but could not. Will skip the file for now. This is a problem if you are expecting to translate any messages in that file - otherwise - you may ignore this message.`);
+      logging.error(
+        `Tried to find parsable Javascript in ${filePath} but could not. Will skip the file for now. This is a problem if you are expecting to translate any messages in that file - otherwise - you may ignore this message.`
+      );
       return;
     }
 
@@ -206,12 +213,8 @@ function processFiles(files) {
   });
 }
 
-/*
- * Helper Functions
- */
-
 // getNamespace abstracts the conditional logic for getting the namespace
-// from the filePath. 
+// from the filePath in whatever case(s) it is necessary (such as Kolibri)
 //
 // NP - You'll need to account for your product's namespace here as well
 function getNamespace(filePath) {
@@ -221,8 +224,7 @@ function getNamespace(filePath) {
       'contentcuration';
 }
 
-
-// For plugins we take the dir name right after the previously defined KOLIBRI_PLUGINS_PATHS 
+// For plugins we take the dir name right after the previously defined KOLIBRI_PLUGINS_PATHS
 // variable - otherwise return 'core'
 function _getKolibriNamespace(filePath) {
   if (filePath.includes(KOLIBRI_PLUGINS_PATHS)) {
@@ -264,12 +266,11 @@ function isCreateTranslator(node) {
   );
 }
 
-
 // Returns { message, context } for a given node. We're getting the AST nodes
 // of what was assigned to $trs or is a part of the object where messages are
 // defined (what was passed as the 2nd arg to createTranslator())
 //
-// Also - this encapsulates the extraction of the data from 'ObjectProerty' nodes
+// Also - this encapsulates the extraction of the data from 'ObjectProperty' nodes
 function getObjectifiedValue(nodePropertyValue) {
   // If the value is not an object, then we'll make it into one to
   // have consistent data to work with (some will have an obj that
@@ -281,7 +282,7 @@ function getObjectifiedValue(nodePropertyValue) {
     const messageNode = nodePropertyValue.properties.find(n => n.key.name === 'message');
 
     const message = stringFromAnyLiteral(messageNode.value);
-    const context = stringFromAnyLiteral(contextNode.value)
+    const context = stringFromAnyLiteral(contextNode.value);
 
     if (!message) {
       // This is mostly for dev debugging. If this happens then somethings wrong enough that
@@ -289,7 +290,7 @@ function getObjectifiedValue(nodePropertyValue) {
       logging.error(
         'Trying to get the message from an object in $trs but did not find a `message` key.\n\n',
         'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing. Sorry. Here is the node:\n\n',
-        messageNode.value,
+        messageNode.value
       );
       process.exit(1);
     }
@@ -298,26 +299,206 @@ function getObjectifiedValue(nodePropertyValue) {
   }
 }
 
-// If the key for a string has spaces like "CC BY" then the node assigns that to
-// the node.key.value but if it has no spaces, it stores it in node.key.name. 
-// AST parsing is fun!
-function getPropertyKey(node) {
-  return node.key.name || node.key.value;
+// This function takes a node - a child of an object wherein messages were defined,
+// and the ast of the source file and the path to that file.
+//
+// With this information, we reliably extract the runtime value of the key - even
+// if it was given a name using an Identifier (variable) or
+// MemberExpression (object.property eg Constants.video).
+//
+// This will follow imports and parse the ASTs of files found through following
+// the imports. If we `import Constants from './constants'` - then we'll go to
+// `./constants.js` - parse its AST and get the value that is used to key the message
+//
+// If an import is relative, that's easy to resolve.
+//
+// If an import is not relative, then we have to find matching paths in our globs
+// which is where things get a little uncertain.
+//
+// TODO: This needs testing more than anything else. How to test it reliably though with
+// regard to the imports - especially non-relative imports?!
+//
+// ARGS:
+// node => Should be a node where strings were defined
+// ast => Should be the whole ast of the file we're working on
+// filePath => Path to the file from which the ast was generated
+//
+function getPropertyKey(node, ast, filePath) {
+  var foundValue; // The key we're trying to get
+
+  // This means the key given is the value of another object's property
+  // like `[ConstantKeys.keyValue]: { ... message definition object ... }`
+  if (node.key.type === 'MemberExpression') {
+    // obj is the ConstantKeys in "ConstantKeys.keyValue" per the above example
+    const obj = node.key.object.name;
+    // prop is the keyValue in "ConstantKeys.keyValue" per the above example
+    const prop = node.key.property.name;
+
+    traverse(ast, {
+      pre: node => {
+        // See if we're finding where the variable was defined and if it has the key we want
+        if (
+          node.type === 'VariableDeclarator' &&
+          // This node is where the variable we want is defined
+          get(node, 'id.name') === obj
+        ) {
+          try {
+            foundValue = stringFromAnyLiteral(
+              get(node, 'init.properties').find(p => get(p, 'key.name') === prop)
+            ).value;
+          } catch (e) {
+            logging.error(
+              `Tried to get the value of ${obj}.${prop} from ${filePath} but failed.\n`,
+              'This is an unrecoverable error.'
+            );
+            logging.error(e);
+            process.exit(1);
+          }
+        }
+
+        // Good chance we're using an external file - load it in and find the value given.
+        // This code only runs if we find that the value of `obj` above is defined in an import
+        // statement
+        if (
+          node.type === 'ImportDeclaration' &&
+          get(node, 'specifiers', []).find(f => get(f, 'local.name') === obj)
+        ) {
+          let fileImportedFrom = get(node, 'source.value');
+
+          const currentFilePathWithoutFilename = filePath
+            .split('/')
+            .slice(0, -1)
+            .join('/');
+
+          let targetFile; // File we're going to read and parse
+
+          // If we're looking for a relative import it will have ./ in the first 3 chars
+          if (fileImportedFrom.slice(0, 3).includes('./')) {
+            targetFile = path.resolve(currentFilePathWithoutFilename, fileImportedFrom);
+          } else {
+            // Now we turn into webpack and resolve some paths.
+            // We will get every file in the glob we're processing
+            // and find matching files. This should return one file.
+            // If it doesn't, we'll complain about it enough
+            // that it can be easily figured out.
+            const matchedFiles = glob
+              .sync(filesPaths() + GLOB)
+              .filter(fp => fp.includes(fileImportedFrom));
+            if (matchedFiles.length > 1) {
+              logging.error(
+                `\nTrying to follow imports to find value of ${obj}.${prop}. Found ${matchedFiles.length} files trying to resolve ${fileImportedFrom}. Try to find ${obj}.${prop} in one of these files:\n`
+              );
+              logging.info(matchedFiles.join('\n'));
+              process.exit(1);
+            } else {
+              targetFile = matchedFiles[0];
+            }
+          }
+
+          // Give it a .js if it doesn't have one
+          const pathToFile =
+            targetFile && targetFile.includes('.js') ? targetFile : targetFile + '.js';
+
+          if (!targetFile) {
+            logging.error(
+              `A message's key was defined using the value of a variable imported from a JS file. I tried to find that file, but could not find ${fileImportedFrom} relative to ${filePath}.\n`,
+              `${targetFile} does not exist\n`,
+              `This is an unrecoverable error.`
+            );
+            process.exit(1);
+          } else if (!fs.existsSync(pathToFile)) {
+            logging.error(
+              `Tried to open ${pathToFile} - which I got by resolving ${filePath} with ${fileImportedFrom} -- is it a non JS file? If so - how and why are you importing from it to get a value that you use to define a i18n message?\n`,
+              `This is an unrecoverable error.`
+            );
+            process.exit(1);
+          }
+
+          const file = fs.readFileSync(pathToFile);
+
+          const importedAst = recast.parse(file, {
+            parser: require('recast/parsers/babylon'),
+            tabWidth: 2,
+            reuseWhitespace: false,
+          });
+
+          // Remember - we're only here because we're looking for the value of an Object's property
+          traverse(importedAst, {
+            pre: node => {
+              // See if we're finding where the variable was defined and if it has the key we want
+              if (
+                node.type === 'VariableDeclarator' &&
+                // This node is where the variable we want is defined
+                get(node, 'id.name') === obj
+                // And it has a property with a key name of prop
+                // (so we're sure this is the right object)
+              ) {
+                try {
+                  foundValue = stringFromAnyLiteral(
+                    get(node, 'init.properties').find(p => get(p, 'key.name') === prop).value
+                  );
+                } catch (e) {
+                  logging.error(
+                    `Tried to get the value of ${obj}.${prop} from ${filePath} but failed.\n`,
+                    'This is an unrecoverable error.'
+                  );
+                  logging.error(e);
+                  process.exit(1);
+                }
+              }
+            },
+          });
+
+          // If we found the import defition, read the file and still have nothing,
+          // show an error and leave
+          if (!foundValue) {
+            logging.error(
+              `Tried to import ${pathToFile} to find ${obj}.${prop} but could not extract the value.`
+            );
+            process.exit(1);
+          }
+        }
+      },
+    });
+  } else if (node.computed) {
+    // In this case - we're looking for a variable itself and it's defined in this file
+    const varToken = node.key.name;
+    // Need to find where this variable is defined and get its value
+    traverse(ast, {
+      pre: node => {
+        if (node.type === 'VariableDeclarator' && get(node, 'id.name') === varToken) {
+          foundValue = stringFromAnyLiteral(node.init);
+        }
+      },
+    });
+  }
+  // Now - we've either found a value with all of the stuff above
+  // OR we skipped it and we just need to get the node's name.
+  //
+  //
+  // AST Fun Fact:
+  // If the key has a space like "CC BY", it is located in `node.key.value`.
+  // If the key has no spaces like "CC_BY", it is located in `node.key.name`.
+  // (╯°□°)╯︵ ┻━┻
+  return foundValue || node.key.name || node.key.value;
 }
 
 // Get the value we care about from a node that is type TemplateLiteral or StringLiteral
 function stringFromAnyLiteral(node) {
-  if(['TemplateLiteral', 'StringLiteral'].includes(node.type)) {
+  if (['TemplateLiteral', 'StringLiteral'].includes(node.type)) {
     return node.type === 'TemplateLiteral'
-        ? get(node, 'quasis[0].value.raw')
-        : get(node, 'value', null);
+      ? get(node, 'quasis[0].value.raw')
+      : get(node, 'value', null);
   } else {
-    logging.error("Tried to get string value from a node that is not a TemplateLiteral or a StringLiteral", "\n\n", node);
+    logging.error(
+      'Tried to get string value from a node that is not a TemplateLiteral or a StringLiteral',
+      '\n\n',
+      node
+    );
   }
 }
 
-
-// This will pull out the defined messages accounting for $trs: {} and uses of 
+// This will pull out the defined messages accounting for $trs: {} and uses of
 // createTranslator()
 function extract$trs(scriptString, namespace, filePath) {
   // Initialize the namespace in extractedMessages as an object if we haven't
@@ -336,9 +517,9 @@ function extract$trs(scriptString, namespace, filePath) {
     pre: node => {
       // If we find a $trs definition, we're in a Vue SFC and have found some defined messages
       if (is$trs(node)) {
-        // We may run into a file with `$trs: {}` and we want to throw an error if there are messages
-        // we want but are unable to get later on
-        if(node.value.properties.length === 0) {
+        // We may run into a file with `$trs: {}` and we want to throw an error
+        // if there are messages we want but are unable to get later on
+        if (node.value.properties.length === 0) {
           empty$trs.push(filePath);
           return;
         }
@@ -351,8 +532,10 @@ function extract$trs(scriptString, namespace, filePath) {
               splitPath[splitPath.length - 2]
             : fileName.replace('.vue', '');
 
-        if(!componentName) {
-          logging.error(`I found $trs in ${filePath} but cannot get the name of the component. This is certainly a bug with the extraction.`)
+        if (!componentName) {
+          logging.error(
+            `I found $trs in ${filePath} but cannot get the name of the component. This is certainly a bug with the extraction.`
+          );
           process.exit(1);
         }
 
@@ -361,9 +544,11 @@ function extract$trs(scriptString, namespace, filePath) {
 
         // Grab the definitions
         node.value.properties.forEach($trProperty => {
-          component$trs[getPropertyKey($trProperty)] = getObjectifiedValue($trProperty.value);
+          component$trs[getPropertyKey($trProperty, ast, filePath)] = getObjectifiedValue(
+            $trProperty.value
+          );
         });
-        
+
         // If component$trs and componentName are defined, then we found $trs
         // in there somewhere and need to add them to extractedMessages
         if (Object.keys(component$trs).length && componentName) {
@@ -376,30 +561,32 @@ function extract$trs(scriptString, namespace, filePath) {
 
           Object.assign(extractedMessages[namespace], $trs);
         } else {
-          logging.error(`Failed to extract messages from ${filePath}. This is like indicative of a bug in the message extraction - but is probably because you have strings defined in a way that has never been done before. Please review the strings defined in ${filePath} and include its contents in the issue you create at https://github.com/learningequality/kolibri/issues/new`);
-          process.exit(1);          
+          logging.error(
+            `Failed to extract messages from ${filePath}. This is like indicative of a bug in the message extraction - but is probably because you have strings defined in a way that has never been done before. Please review the strings defined in ${filePath} and include its contents in the issue you create at https://github.com/learningequality/kolibri/issues/new`
+          );
+          process.exit(1);
         }
       }
 
-      // Handle the process of getting definitions and component name from a call to createTranslator()
+      // Handle the process of getting messages and component name from a call to createTranslator()
       // The first argument is the component name, the second is an object with message definitions
       if (isCreateTranslator(node)) {
         // If the first item passed is an Identifier (variable token) then we need
         // to find it's definition and get it's value.
-        if(node.arguments[0].type === 'Identifier') {
+        if (node.arguments[0].type === 'Identifier') {
           // Get the name of the variable storing the string we want
           const componentNameVarToken = node.arguments[0].name;
           // Find the node where that variable is defined, get the string we want from it
           traverse(ast, {
             pre: _node => {
-              if(
+              if (
                 _node.type === 'VariableDeclarator' &&
                 get(_node, 'id.name') === componentNameVarToken &&
                 ['StringLiteral', 'TemplateLiteral'].includes(_node.init.type)
               ) {
                 componentName = stringFromAnyLiteral(_node.init);
               }
-            }
+            },
           });
         } else {
           // We were given a (String|Template)Literal as our first argument
@@ -432,7 +619,7 @@ function extract$trs(scriptString, namespace, filePath) {
 
           // We expect messageNodeProperties to have a value after this or we're going to bail.
           // Since we know we are in a createTranslator and we cannot find it's message definitions
-          // then we should note that there is a problem here or in the code from which 
+          // then we should note that there is a problem here or in the code from which
           // we're extracting
           if (!messageNodeProperties) {
             logging.error(
@@ -450,7 +637,7 @@ function extract$trs(scriptString, namespace, filePath) {
         // Now that we have the properties we care about, let's do the thing we're here to do!
         messageNodeProperties.forEach($trProperty => {
           const newMessages = {
-            [`${componentName}.${getPropertyKey($trProperty)}`]: getObjectifiedValue(
+            [`${componentName}.${getPropertyKey($trProperty, ast, filePath)}`]: getObjectifiedValue(
               $trProperty.value
             ),
           };
@@ -517,36 +704,36 @@ function toCSV(namespace, messages) {
  * --help or -h: Show help message
  */
 
-var PROJECT, DRY_RUN, HELP;
+var PROJECT, DRY_RUN, HELP, DUMP;
 
-// Just getting the few args we care about here. 
+// Just getting the few args we care about here.
 try {
-  HELP = process.argv.find(arg => arg === "--help" || arg === "-h");
+  HELP = process.argv.find(arg => arg === '--help' || arg === '-h');
   // If we're asked for help then we'll just print the message and not run anything else
-  if(!HELP) {
-    DRY_RUN = process.argv.find(arg => arg === '--dry-run')
+  if (!HELP) {
+    DRY_RUN = process.argv.find(arg => arg === '--dry-run');
     DUMP = process.argv.find(arg => arg === '--dump-extracted');
     PROJECT = process.argv.find(arg => arg.includes('--project=')).split('=')[1];
   } else {
     logging.info(
-      "\n\n== Kolibri Tools Frontend Message Extraction ==\n\n",
-      "This script is intended to be run directly and is hard-coded to work for specific projects: ",
-      SUPPORTED_PROJECTS.join(" and "),
-      "\n\n",
-      "Example: node ./path/to/kolibri-tools/lib/i18n/ExtractMessages.js --project=kolibri",
-      "\n\n",
-      "[Options]\n\n",
-      "--project=<PROJECT> - (REQUIRED) <PROJECT> must be one of:",
-      SUPPORTED_PROJECTS.join(" or "),
-      "\n",
-      "--dump-extracted - Will dump extractedMessages to a json file in the root where you ran this script. The file will be timestamped for uniqueness.",
-      "\n",
-      "--dry-run - Will not read or process any files. A minimally useful debugging assistant only left here because it was helpful to have while writing the script.",
-      "\n",
-      "--help or -h - Show this message.",
-      "\n",
+      '\n\n== Kolibri Tools Frontend Message Extraction ==\n\n',
+      'This script is intended to be run directly and is hard-coded to work for specific projects: ',
+      SUPPORTED_PROJECTS.join(' and '),
+      '\n\n',
+      'Example: node ./path/to/kolibri-tools/lib/i18n/ExtractMessages.js --project=kolibri',
+      '\n\n',
+      '[Options]\n\n',
+      '--project=<PROJECT> - (REQUIRED) <PROJECT> must be one of:',
+      SUPPORTED_PROJECTS.join(' or '),
+      '\n',
+      '--dump-extracted - Will dump extractedMessages to a json file in the root where you ran this script. The file will be timestamped for uniqueness.',
+      '\n',
+      '--dry-run - Will not read or process any files. A minimally useful debugging assistant only left here because it was helpful to have while writing the script.',
+      '\n',
+      '--help or -h - Show this message.',
+      '\n'
     );
-    process.exit(0)
+    process.exit(0);
   }
 } catch (e) {
   logging.error(
@@ -559,7 +746,11 @@ try {
 
 // Make sure we have a supported project given to us
 if (!SUPPORTED_PROJECTS.includes(PROJECT.toLowerCase())) {
-  logging.info(`Project ${PROJECT} is not supported. Supported project include only: ${SUPPORTED_PROJECTS.join(' or ')}`);
+  logging.info(
+    `Project ${PROJECT} is not supported. Supported project include only: ${SUPPORTED_PROJECTS.join(
+      ' or '
+    )}`
+  );
   process.exit(9);
 } else {
   logging.info(`Extracting messages for ${PROJECT}`);
@@ -585,8 +776,12 @@ if (!DRY_RUN) {
     return toCSV(namespace, extractedMessages[namespace]);
   });
 
-  if(empty$trs.length) {
-    logging.log(`The following Vue files were skipped because their $trs property was given an empty object (I think) - this is pointless and should be removed: ${empty$trs.join("\n")}`);
+  if (empty$trs.length) {
+    logging.log(
+      `The following Vue files were skipped because their $trs property was given an empty object (I think) - this is pointless and should be removed: ${empty$trs.join(
+        '\n'
+      )}`
+    );
   }
 
   let messageCount = 0;
@@ -594,10 +789,12 @@ if (!DRY_RUN) {
     ns => (messageCount += Object.keys(extractedMessages[ns]).length)
   );
 
-  if(DUMP) {
+  if (DUMP) {
     const timestamp = Math.floor(Date.now() / 1000);
     fs.writeFileSync(`extractedMessages-${timestamp}.json`, JSON.stringify(extractedMessages));
-    logging.info(`--dump-extracted --> extractedMessages dumped to extractedMessages-${timestamp}.json`);
+    logging.info(
+      `--dump-extracted --> extractedMessages dumped to extractedMessages-${timestamp}.json`
+    );
   }
 
   Promise.all(PromisesToWriteCSVs).then(() => logging.info('Message extraction is complete.'));
