@@ -13,12 +13,17 @@ try:
         os.path.dirname(kolibri_exercise_perseus_plugin.__file__), "locale"
     )
     PERSEUS_SOURCE_PATH = os.path.join(PERSEUS_LOCALE_PATH, "en", "LC_MESSAGES")
-    os.makedirs(PERSEUS_SOURCE_PATH)
-except:
+except ModuleNotFoundError:
+    # We don't throw an error here as it will be handled later if needed. 
+    # Not all projects depend on our Perseus plugin
     PERSEUS_LOCALE_PATH = None
     PERSEUS_SOURCE_PATH = None
-    pass
 
+# Let's make sure the paths actually exist
+if PERSEUS_SOURCE_PATH and not os.path.exists(PERSEUS_SOURCE_PATH):
+    os.makedirs(PERSEUS_SOURCE_PATH)
+if PERSEUS_LOCALE_PATH and not os.path.exists(PERSEUS_LOCALE_PATH):
+    os.makedirs(PERSEUS_LOCALE_PATH)
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
@@ -26,36 +31,11 @@ logging.StreamHandler(sys.stdout)
 
 PROJECT_NAME = os.getenv("CROWDIN_PROJECT", "kolibri")
 
+LOCALE_PATH = os.getenv("CROWDIN_LOCALE_ABSOLUTE_PATH")
 
-def calculated_locale_path():
-    path_to_here = os.path.dirname(__file__)
-    if "node_modules" in path_to_here:
-        locale_path = os.path.abspath(
-            os.path.join(
-                path_to_here,
-                os.pardir,
-                os.pardir,
-                os.pardir,
-                os.pardir,
-                "{}-locale".format(PROJECT_NAME),
-            )
-        )
-    else:
-        locale_path = os.path.abspath(
-            os.path.join(
-                path_to_here,
-                os.pardir,
-                os.pardir,
-                "{}-locale".format(PROJECT_NAME),
-            )
-        )
-    if not os.path.exists(locale_path):
-        os.makedirs(locale_path)
-
-    return locale_path
-
-
-LOCALE_PATH = os.getenv("CROWDIN_LOCALE_ABSOLUTE_PATH", calculated_locale_path())
+if not LOCALE_PATH:
+    logging.error("\nEnvironment Variable CROWDIN_LOCALE_ABSOLUTE_PATH must be defined\n")
+    sys.exit(1)
 
 if not os.path.exists(LOCALE_PATH):
     os.makedirs(LOCALE_PATH)
@@ -131,6 +111,16 @@ def local_locale_path(lang_object):
     return local_path
 
 
+# Defines where we find the extracted messages
+@memoize
+def local_locale_csv_source_path():
+    csv_path = os.path.abspath(os.path.join(LOCALE_PATH, "CSV_FILES", "en"))
+    if not os.path.exists(csv_path):
+        os.makedirs(csv_path)
+    return csv_path
+
+
+# Defines where we'll find the downloaded CSV files from Crowdin (non english files)
 @memoize
 def local_locale_csv_path():
     csv_path = os.path.abspath(os.path.join(LOCALE_PATH, "CSV_FILES"))

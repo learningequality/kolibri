@@ -72,7 +72,9 @@ CROWDIN_LOGIN = os.getenv("CROWDIN_LOGIN", None)
 
 # We need the login to interact with the API at all
 if not CROWDIN_LOGIN:
-    logging.error("\nPlease set the `CROWDIN_LOGIN` environment variable to your Crowdin username.\n")
+    logging.error(
+        "\nPlease set the `CROWDIN_LOGIN` environment variable to your Crowdin username.\n"
+    )
     sys.exit(1)
 
 
@@ -562,7 +564,9 @@ def _source_upload_ref(file_name):
     if file_name == PERSEUS_CSV:  # hack for perseus, assumes the same file name
         file_pointer = open(os.path.join(utils.PERSEUS_SOURCE_PATH, file_name), "rb")
     else:
-        file_pointer = open(os.path.join(utils.local_locale_csv_source_path(), file_name), "rb")
+        file_pointer = open(
+            os.path.join(utils.local_locale_csv_source_path(), file_name), "rb"
+        )
     return ("files[{0}]".format(file_name), file_pointer)
 
 
@@ -609,7 +613,7 @@ def upload_sources(branch):
     )
 
     # hack for perseus
-    if(utils.PERSEUS_LOCALE_PATH and utils.PERSEUS_SOURCE_PATH):
+    if utils.PERSEUS_LOCALE_PATH and utils.PERSEUS_SOURCE_PATH:
         source_files.add(PERSEUS_CSV)
 
     current_files = crowdin_files(branch, details)
