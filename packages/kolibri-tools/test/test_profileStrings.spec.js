@@ -5,7 +5,7 @@ const vueCompiler = require('vue-template-compiler');
 const rewire = require('rewire');
 
 // Rewiring the functions to test.
-const ProfileStrings = rewire('../lib/ProfileStrings');
+const ProfileStrings = rewire('../lib/i18n/ProfileStrings');
 const getStringDefinitions = ProfileStrings.__get__('getStringDefinitions');
 const profileVueScript = ProfileStrings.__get__('profileVueScript');
 const profileVueTemplate = ProfileStrings.__get__('profileVueTemplate');
