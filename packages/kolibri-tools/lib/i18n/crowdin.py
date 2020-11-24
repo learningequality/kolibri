@@ -72,14 +72,17 @@ CROWDIN_LOGIN = os.getenv("CROWDIN_LOGIN", None)
 
 # We need the login to interact with the API at all
 if not CROWDIN_LOGIN:
-    raise "Please set the `CROWDIN_LOGIN` environment variable to your Crowdin username."
+    logging.error("\nPlease set the `CROWDIN_LOGIN` environment variable to your Crowdin username.\n")
+    sys.exit(1)
 
 
 def checkPerseus():
     if CROWDIN_PROJECT != "kolibri":
         return
 
-    if not (os.path.exists(utils.PERSEUS_LOCALE_PATH)):
+    print("THE PROJECT IS {}".format(CROWDIN_PROJECT))
+
+    if not utils.PERSEUS_LOCALE_PATH or not (os.path.exists(utils.PERSEUS_LOCALE_PATH)):
         logging.error("Cannot find Perseus locale directory.")
         logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
         sys.exit(1)
@@ -559,7 +562,7 @@ def _source_upload_ref(file_name):
     if file_name == PERSEUS_CSV:  # hack for perseus, assumes the same file name
         file_pointer = open(os.path.join(utils.PERSEUS_SOURCE_PATH, file_name), "rb")
     else:
-        file_pointer = open(os.path.join(utils.SOURCE_PATH, file_name), "rb")
+        file_pointer = open(os.path.join(utils.local_locale_csv_source_path(), file_name), "rb")
     return ("files[{0}]".format(file_name), file_pointer)
 
 
@@ -601,12 +604,13 @@ def upload_sources(branch):
 
     source_files = set(
         file_name
-        for file_name in os.listdir(utils.SOURCE_PATH)
+        for file_name in os.listdir(utils.local_locale_csv_source_path())
         if is_string_file(file_name)
     )
 
     # hack for perseus
-    source_files.add(PERSEUS_CSV)
+    if(utils.PERSEUS_LOCALE_PATH and utils.PERSEUS_SOURCE_PATH):
+        source_files.add(PERSEUS_CSV)
 
     current_files = crowdin_files(branch, details)
     to_add = source_files.difference(current_files)
