@@ -392,13 +392,13 @@ In order to update the version of the repo that we're using to the latest HEAD, 
 
 .. code-block:: bash
 
-  python build_tools/i18n/fonts.py update-font-manifest
+  python packages/kolibri-tools/lib/i18n/fonts.py update-font-manifest
 
 You can also specify a particular git hash or tag:
 
 .. code-block:: bash
 
-  python build_tools/i18n/fonts.py update-font-manifest [commit hash]
+  python packages/kolibri-tools/lib/i18n/fonts.py update-font-manifest [commit hash]
 
 Make sure to test re-generating font files after updating the sources.
 

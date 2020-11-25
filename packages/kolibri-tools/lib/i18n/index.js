@@ -4,10 +4,10 @@
  */
 const os = require('os');
 const webpack = require('webpack');
-const logger = require('./logging');
+const logger = require('../logging');
+const { getEnvVars } = require('../build');
+const webpackBaseConfig = require('../webpack.config.base');
 const ProfileStrings = require('./ProfileStrings');
-const webpackBaseConfig = require('./webpack.config.base');
-const { getEnvVars } = require('./build');
 
 function webpackConfig(pluginData) {
   const pluginBundle = webpackBaseConfig(pluginData);

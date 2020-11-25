@@ -16,7 +16,7 @@ const glob = require('glob');
 const uniqWith = require('lodash/uniqWith');
 const isEqual = require('lodash/isEqual');
 const has = require('lodash/has');
-const logger = require('./logging');
+const logger = require('../logging');
 const writeProfileToCSV = require('./ProfileStrings').writeProfileToCSV;
 
 const logging = logger.getLogger('Kolibri String Profiler');

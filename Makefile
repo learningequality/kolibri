@@ -183,7 +183,7 @@ pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
 i18n-extract-backend:
-	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
+	cd kolibri && python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
 
 i18n-extract-frontend:
 	yarn run makemessages
@@ -199,30 +199,30 @@ i18n-django-compilemessages:
 	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages
 
 i18n-upload: i18n-extract
-	python build_tools/i18n/crowdin.py upload-sources ${branch}
+	python packages/kolibri-tools/lib/i18n/crowdin.py upload-sources ${branch}
 
 i18n-pretranslate:
-	python build_tools/i18n/crowdin.py pretranslate ${branch}
+	python packages/kolibri-tools/lib/i18n/crowdin.py pretranslate ${branch}
 
 i18n-pretranslate-approve-all:
-	python build_tools/i18n/crowdin.py pretranslate ${branch} --approve-all
+	python packages/kolibri-tools/lib/i18n/crowdin.py pretranslate ${branch} --approve-all
 
 i18n-convert:
-	python build_tools/i18n/crowdin.py convert-files
+	python packages/kolibri-tools/lib/i18n/crowdin.py convert-files
 
 i18n-download-translations:
-	python build_tools/i18n/crowdin.py rebuild-translations ${branch}
-	python build_tools/i18n/crowdin.py download-translations ${branch}
-	node build_tools/i18n/intl_code_gen.js
+	python packages/kolibri-tools/lib/i18n/crowdin.py rebuild-translations ${branch}
+	python packages/kolibri-tools/lib/i18n/crowdin.py download-translations ${branch}
+	node packages/kolibri-tools/lib/i18n/intl_code_gen.js
 	$(MAKE) i18n-django-compilemessages
-	python build_tools/i18n/crowdin.py convert-files
+	python packages/kolibri-tools/lib/i18n/crowdin.py convert-files
 
 i18n-download-source-fonts:
-	python build_tools/i18n/fonts.py download-source-fonts
+	python packages/kolibri-tools/lib/i18n/fonts.py download-source-fonts
 
 i18n-regenerate-fonts:
-	python build_tools/i18n/fonts.py generate-full-fonts
-	python build_tools/i18n/fonts.py generate-subset-fonts
+	python packages/kolibri-tools/lib/i18n/fonts.py generate-full-fonts
+	python packages/kolibri-tools/lib/i18n/fonts.py generate-subset-fonts
 
 i18n-download: i18n-download-translations i18n-regenerate-fonts i18n-transfer-context
 
@@ -232,16 +232,16 @@ i18n-update:
 	echo "WARNING: i18n-update has been renamed to i18n-download"
 
 i18n-stats:
-	python build_tools/i18n/crowdin.py translation-stats ${branch}
+	python packages/kolibri-tools/lib/i18n/crowdin.py translation-stats ${branch}
 
 i18n-install-font:
-	python build_tools/i18n/fonts.py add-source-font ${name}
+	python packages/kolibri-tools/lib/i18n/fonts.py add-source-font ${name}
 
 i18n-download-glossary:
-	python build_tools/i18n/crowdin.py download-glossary
+	python packages/kolibri-tools/lib/i18n/crowdin.py download-glossary
 
 i18n-upload-glossary:
-	python build_tools/i18n/crowdin.py upload-glossary
+	python packages/kolibri-tools/lib/i18n/crowdin.py upload-glossary
 
 docker-whl: writeversion docker-envlist
 	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .

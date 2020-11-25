@@ -5,10 +5,11 @@ const mkdirp = require('mkdirp');
 const espree = require('espree');
 const traverse = require('ast-traverse');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const csv = require('csv-parser');
 const reduce = require('lodash/reduce');
 const isEqual = require('lodash/isEqual');
 const vueCompiler = require('vue-template-compiler');
-const logging = require('./logging');
+const logging = require('../logging');
 
 const PROFILES_FOLDER = 'profiles';
 
@@ -37,83 +38,85 @@ ProfileStrings.prototype.apply = function(compiler) {
   const self = this;
 
   // Only works in non-production mode.
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV === 'profiling') {
     compiler.hooks.emit.tapAsync('profileStrings', function(compilation, callback) {
-      let strProfile = getStringDefinitions(self.localePath, self.moduleName);
+      function processChunks(strProfile) {
+        compilation.chunks.forEach(chunk => {
+          let parsedUrl;
+          let ast;
 
-      // Not all modules have messages files - bail if we don't get one.
-      if (!strProfile) {
-        callback();
-        return;
-      }
+          // Walk through the modules being given to us in compilation.
+          for (const module of chunk.modulesIterable) {
+            parsedUrl = module.resource && url.parse(module.resource);
 
-      compilation.chunks.forEach(chunk => {
-        let parsedUrl;
-        let ast;
-
-        // Walk through the modules being given to us in compilation.
-        for (const module of chunk.modulesIterable) {
-          parsedUrl = module.resource && url.parse(module.resource);
-
-          // Processing Vue files only here.
-          if (urlIsVue(parsedUrl, module)) {
-            // module._source.source() returns the part of the Vue file between the
-            // <script> tags only - will not parse the <template> tag content at all.
-            ast = espree.parse(module._source.source(), {
-              sourceType: 'module',
-              ecmaVersion: 2018,
-            });
-            strProfile = profileVueScript(strProfile, ast, parsedUrl.pathname, self.moduleName);
-
-            if (parsedUrl.pathname) {
-              // If we have a pathname - which ostensibly points to a Vue file - we
-              // can now parse the <template> portion of the Vue file.
-              const vueFile = fs.readFileSync(parsedUrl.pathname);
-              // Compile the <template>.
-              const template = vueCompiler.compile(vueFile.toString(), {
-                whitespace: 'condense',
-              });
-
-              /**
-               * The vueCompiler.compile() function returns an object including an anemic AST
-               * and a property called `render` which has some stringified JS code.
-               *
-               * That code is what Vue would use to render the component - but it's wrapped in
-               * a `with(this) {}` expression which returns an array of valid JS expressions in
-               * an array.
-               *
-               * It's a string - which is what espree wants anyway - so we can strip the `with()`
-               * altogether, leaving us with a stringified array containing everything we need to
-               * create a thorough AST of the compiled Vue template.               *
-               */
-              const render = template.render.replace(/^.{18}|.{1}$/g, '');
-              ast = espree.parse(render, {
-                ecmaVersion: '2018',
+            // Processing Vue files only here.
+            if (urlIsVue(parsedUrl, module)) {
+              // module._source.source() returns the part of the Vue file between the
+              // <script> tags only - will not parse the <template> tag content at all.
+              ast = espree.parse(module._source.source(), {
                 sourceType: 'module',
-                ecmaFeatures: { jsx: true, templateStrings: true },
+                ecmaVersion: 2018,
+              });
+              strProfile = profileVueScript(strProfile, ast, parsedUrl.pathname, self.moduleName);
+
+              if (parsedUrl.pathname) {
+                // If we have a pathname - which ostensibly points to a Vue file - we
+                // can now parse the <template> portion of the Vue file.
+                const vueFile = fs.readFileSync(parsedUrl.pathname);
+                // Compile the <template>.
+                const template = vueCompiler.compile(vueFile.toString(), {
+                  whitespace: 'condense',
+                });
+
+                /**
+                 * The vueCompiler.compile() function returns an object including an anemic AST
+                 * and a property called `render` which has some stringified JS code.
+                 *
+                 * That code is what Vue would use to render the component - but it's wrapped in
+                 * a `with(this) {}` expression which returns an array of valid JS expressions in
+                 * an array.
+                 *
+                 * It's a string - which is what espree wants anyway - so we can strip the `with()`
+                 * altogether, leaving us with a stringified array containing everything we need to
+                 * create a thorough AST of the compiled Vue template.               *
+                 */
+                const render = template.render.replace(/^.{18}|.{1}$/g, '');
+                ast = espree.parse(render, {
+                  ecmaVersion: '2018',
+                  sourceType: 'module',
+                  ecmaFeatures: { jsx: true, templateStrings: true },
+                });
+
+                strProfile = profileVueTemplate(
+                  strProfile,
+                  ast,
+                  parsedUrl.pathname,
+                  self.moduleName
+                );
+              }
+            }
+
+            // Processing *.js files now
+            if (urlIsJS(module)) {
+              ast = espree.parse(module._source.source(), {
+                sourceType: 'module',
               });
 
-              strProfile = profileVueTemplate(strProfile, ast, parsedUrl.pathname, self.moduleName);
+              strProfile = profileJSFile(strProfile, ast, parsedUrl.pathname, self.moduleName);
             }
           }
+          // Write this module out to CSV.
+          writeProfileToCSV(strProfile, self.moduleName, self.localePath);
+          // Also dump the JSON profiles so that we can easily combine data.
+          fs.writeFileSync(
+            `${self.localePath}/${PROFILES_FOLDER}/${self.moduleName}.json`,
+            JSON.stringify(strProfile)
+          );
+        });
+      }
 
-          // Processing *.js files now
-          if (urlIsJS(module)) {
-            ast = espree.parse(module._source.source(), {
-              sourceType: 'module',
-            });
+      getStringDefinitions(self.localePath, self.moduleName, processChunks, callback);
 
-            strProfile = profileJSFile(strProfile, ast, parsedUrl.pathname, self.moduleName);
-          }
-        }
-      });
-      // Write this module out to CSV.
-      writeProfileToCSV(strProfile, self.moduleName, self.localePath);
-      // Also dump the JSON profiles so that we can easily combine data.
-      fs.writeFileSync(
-        `${self.localePath}/${PROFILES_FOLDER}/${self.moduleName}.json`,
-        JSON.stringify(strProfile)
-      );
       callback();
     });
   }
@@ -138,47 +141,75 @@ ProfileStrings.prototype.apply = function(compiler) {
  * that literal string of text is called upon as well as other related information.
  *
  */
-function getStringDefinitions(localeBasePath, moduleName) {
-  const localeFilePath = `${localeBasePath}/${moduleName}-messages.json`;
-  let coreStringsFilePath = `${localeBasePath}/default_frontend-messages.json`;
-  let fileContents;
+function getStringDefinitions(localeBasePath, moduleName, callback, failureCb) {
+  const localeFilePath = `${localeBasePath}/${moduleName}-messages.csv`;
+  let coreStringsFilePath = `${localeBasePath}/default_frontend-messages.csv`;
+  let fileContents = [];
   let definitions = {};
 
+  /*
+   * fileContents will be loaded with each row of the following headers, in order:
+   *
+   * Identifier | String | Context | Translation
+   *
+   *  We only care about Identifier ( eg, ComponentName.helloWorld )
+   *  and String ( eg, "Hello world" )
+   *
+   *  Each row is an object structured as follows, and acts like an array
+   *
+   *  {
+   *    0: 'ComponentName.hellowWorld',
+   *    1: 'Hello world',
+   *    2: <context>,
+   *    3: <translation>
+   *  }
+   *
+   * Some modules (particularly in Kolibri) have a shared or "core" strings file.
+   *
+   * We try to get that file if we can, but if not it is fine but we warn in case
+   * the user is expecting differently.
+   */
   try {
-    fileContents = JSON.parse(fs.readFileSync(localeFilePath));
-    // If we aren't processing default_frontend, ensure we include definitions
-    // there that are in the CommonCoreStrings namespace.
-    if (moduleName !== 'default_frontend') {
-      const coreContents = JSON.parse(fs.readFileSync(coreStringsFilePath));
-      fileContents = { ...fileContents, ...coreContents };
-    }
+    [localeFilePath, coreStringsFilePath].forEach(path => {
+      if (fs.existsSync(path)) {
+        fs.createReadStream(path)
+          .pipe(csv({ headers: false, skipLines: 1 }))
+          .on('data', data => fileContents.push(data))
+          .on('end', () => {
+            console.log('Successfully loaded CSV from ', path);
+
+            fileContents.forEach(defRow => {
+              const nsAndKey = defRow[0].split('.');
+              const namespace = nsAndKey[0];
+              const key = nsAndKey[1];
+              const string = defRow[1];
+
+              if (definitions[string]) {
+                definitions[string].definitions.push({
+                  namespace,
+                  key,
+                });
+              } else {
+                definitions[string] = {
+                  definitions: [{ namespace, key }],
+                  uses: [],
+                };
+              }
+            });
+            callback(definitions);
+          });
+      } else {
+        console.warn('Could not find string definitions at ', path);
+      }
+    });
   } catch (e) {
     // Not all modules have messages files - return null and we'll bail.
     if (!fileContents) {
-      return null;
+      console.error(e);
+      failureCb();
+      return;
     }
   }
-
-  Object.keys(fileContents).forEach(nsKeyPair => {
-    const nsAndKey = nsKeyPair.split('.');
-    const namespace = nsAndKey[0];
-    const key = nsAndKey[1];
-    const string = fileContents[nsKeyPair];
-
-    if (definitions[string]) {
-      definitions[string].definitions.push({
-        namespace,
-        key,
-      });
-    } else {
-      definitions[string] = {
-        definitions: [{ namespace, key }],
-        uses: [],
-      };
-    }
-  });
-
-  return definitions;
 }
 
 // Instantiates the CSV data and writes to a file.
