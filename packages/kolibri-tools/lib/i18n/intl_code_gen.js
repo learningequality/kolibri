@@ -1,8 +1,8 @@
 const path = require('path');
 const fs = require('fs');
-const { lint } = require('kolibri-tools/lib/lint');
+const { lint } = require('../lint');
 
-const languageInfo = require('../../kolibri/locale/language_info.json');
+const languageInfo = require('./language_info.json');
 
 const commonHeader = `
 /*
@@ -41,10 +41,7 @@ const vueIntlFooter = `
 const vueIntlModule =
   commonHeader + vueIntlHeader + languageInfo.map(generateVueIntlItems).join('') + vueIntlFooter;
 
-const vueIntlModulePath = path.resolve(
-  __dirname,
-  '../../kolibri/core/assets/src/utils/vue-intl-locale-data.js'
-);
+const vueIntlModulePath = path.resolve('./vue-intl-locale-data.js');
 
 const intlHeader = `module.exports = function(locale) {
   switch (locale) {`;
@@ -123,10 +120,7 @@ const intlFooter = `
 const intlModule =
   commonHeader + intlHeader + languageInfo.map(generateIntlItems).join('') + intlFooter;
 
-const intlModulePath = path.resolve(
-  __dirname,
-  '../../kolibri/core/assets/src/utils/intl-locale-data.js'
-);
+const intlModulePath = path.resolve('./intl-locale-data.js');
 
 fs.writeFileSync(vueIntlModulePath, vueIntlModule, { encoding: 'utf-8' });
 
