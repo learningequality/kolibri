@@ -1,3 +1,4 @@
+import compileall
 import distutils.sysconfig as sysconfig
 import os
 import sys
@@ -32,6 +33,9 @@ if sys.platform.startswith('win'):
         'tty',
         'termios',
     ])
+
+def generate_python_bytecode(module_dir):
+    compileall.compile_dir(module_dir)
 
 def generate_stdlib_imports():
     """
