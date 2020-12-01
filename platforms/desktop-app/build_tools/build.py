@@ -14,6 +14,7 @@ def do_build():
 
         stdlib.generate_stdlib_imports()
         subprocess.call(['pew', 'build'])
+        stdlib.generate_python_bytecode(kolibri_dest_dir)
 
     except Exception as e:
         raise e
