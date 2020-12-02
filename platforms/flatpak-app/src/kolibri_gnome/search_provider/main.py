@@ -11,6 +11,7 @@ from ..globals import init_gettext
 
 
 def main():
+    init_env()
     init_gettext()
     # init_logging('kolibri-gnome-search-provider.txt')
 
