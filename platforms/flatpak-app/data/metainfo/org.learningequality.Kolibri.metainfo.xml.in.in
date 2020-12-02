@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>org.learningequality.Kolibri</id>
+  <id>@APPLICATION_ID@</id>
   <name>Kolibri</name>
   <developer_name>Learning Equality</developer_name>
   <summary>Offline education technology platform</summary>
@@ -14,7 +14,7 @@
   <description>
     <p>Kolibri makes high quality education technology available in low-resource communities such as rural schools, refugee camps, orphanages, non-formal school systems, and prison systems. Running on a wide variety of hardware, it enables offline access to a rich set of content and tools to support learners, coaches, and administrators.</p>
   </description>
-  <launchable type="desktop-id">org.learningequality.Kolibri.desktop</launchable>
+  <launchable type="desktop-id">@APPLICATION_ID@.desktop</launchable>
   <screenshots>
     <screenshot type="default">
       <caption>Browsing content channels in Kolibri</caption>

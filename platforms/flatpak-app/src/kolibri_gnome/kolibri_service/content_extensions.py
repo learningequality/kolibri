@@ -32,16 +32,26 @@ class ContentExtensionsList(object):
 
         flatpak_info = ConfigParser()
         flatpak_info.read("/.flatpak-info")
-        app_extensions = flatpak_info.get("Instance", "app-extensions", fallback="")
-        for extension_str in app_extensions.split(";"):
-            extension_ref, extension_commit = extension_str.split("=")
-            content_extension = ContentExtension.from_ref(
-                extension_ref, commit=extension_commit
-            )
+        app_extensions = flatpak_info.get(
+            "Instance", "app-extensions", fallback=""
+        ).split(";")
+        if len(app_extensions) == 1 and app_extensions[0] == "":
+            app_extensions = []
+        for extension_str in app_extensions:
+            content_extension = cls.content_extension_from_str(extension_str)
             if content_extension and content_extension.is_valid():
                 extensions.add(content_extension)
 
         return cls(extensions)
+
+    @staticmethod
+    def content_extension_from_str(extension_str):
+        extension_str_split = extension_str.split("=", 1)
+        if len(extension_str_split) == 2:
+            extension_ref, extension_commit = extension_str
+            return ContentExtension.from_ref(extension_ref, extension_commit)
+        else:
+            return None
 
     @classmethod
     def from_cache(cls):

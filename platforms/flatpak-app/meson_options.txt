@@ -1,4 +1,14 @@
 option(
+    'profile',
+    type: 'combo',
+    choices: [
+        'default',
+        'development'
+    ],
+    value: 'default'
+)
+
+option(
     'kolibri_home_template_dir',
     type: 'string',
     value: '',

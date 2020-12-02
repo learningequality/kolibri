@@ -256,7 +256,7 @@ class KolibriWindow(KolibriView):
 
 
 class Application(pew.ui.PEWApp):
-    application_id = config.APP_ID
+    application_id = config.APPLICATION_ID
 
     handles_open_file_uris = True
 
