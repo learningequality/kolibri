@@ -35,6 +35,7 @@
       />
     </NavbarLink>
     <NavbarLink
+      v-if="isSuperuser"
       :title="$tr('infoLabel')"
       :link="$router.getRoute('DEVICE_INFO_PAGE')"
     >
@@ -45,6 +46,7 @@
       />
     </NavbarLink>
     <NavbarLink
+      v-if="isSuperuser"
       :title="$tr('settingsLabel')"
       :link="$router.getRoute('DEVICE_SETTINGS_PAGE')"
     >
