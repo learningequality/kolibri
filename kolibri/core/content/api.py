@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 from functools import reduce
 from random import sample
@@ -62,6 +63,8 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.query import SQSum
+from kolibri.utils import conf
+from kolibri.utils.search import searching
 
 
 logger = logging.getLogger(__name__)
@@ -730,63 +733,80 @@ class ContentNodeSearchViewset(ContentNodeViewset):
         When filter is used, this object must have a request attribute having
         a 'query_params' QueryDict containing the filters to be applied
         """
+
         if filter:
             queryset = self.filter_queryset(self.get_queryset())
         else:
             queryset = self.get_queryset()
-        # all words with punctuation removed
-        all_words = [w for w in re.split('[?.,!";: ]', value) if w]
-        # words in all_words that are not stopwords
-        critical_words = [w for w in all_words if w not in stopwords_set]
-        # queries ordered by relevance priority
-        all_queries = [
-            # all words in title
-            intersection([Q(title__icontains=w) for w in all_words]),
-            # all critical words in title
-            intersection([Q(title__icontains=w) for w in critical_words]),
-            # all words in description
-            intersection([Q(description__icontains=w) for w in all_words]),
-            # all critical words in description
-            intersection([Q(description__icontains=w) for w in critical_words]),
-        ]
-        # any critical word in title, reverse-sorted by word length
-        for w in sorted(critical_words, key=len, reverse=True):
-            all_queries.append(Q(title__icontains=w))
-        # any critical word in description, reverse-sorted by word length
-        for w in sorted(critical_words, key=len, reverse=True):
-            all_queries.append(Q(description__icontains=w))
 
-        # only execute if query is meaningful
-        all_queries = [query for query in all_queries if query]
+        # TODO: make a configuration option for this.
+        fulltext_indexing_enabled = True
 
         results = []
         content_ids = set()
         BUFFER_SIZE = max_results * 2  # grab some extras, but not too many
 
-        # iterate over each query type, and build up search results
-        for query in all_queries:
+        if fulltext_indexing_enabled:
+            index_root = os.path.join(conf.KOLIBRI_HOME, "indexes")
+            all_queries = []
 
-            # in each pass, don't take any items already in the result set
-            matches = (
-                queryset.exclude_by_content_ids(list(content_ids), validate=False)
-                .filter(query)
-                .values("content_id", "id")[:BUFFER_SIZE]
-            )
-
-            for match in matches:
-                # filter the dupes
-                if match["content_id"] in content_ids:
+            searcher = searching.IndexSearcher(index_root=index_root)
+            index_results = searcher.search(value)
+            for result in index_results:
+                if result["content_id"] in content_ids:
                     continue
-                # add new, unique results
-                content_ids.add(match["content_id"])
-                results.append(match["id"])
+                results.append(result["node_id"])
+                content_ids.add(result["content_id"])
+        else:
+            # all words with punctuation removed
+            all_words = [w for w in re.split('[?.,!";: ]', value) if w]
+            # words in all_words that are not stopwords
+            critical_words = [w for w in all_words if w not in stopwords_set]
+            # queries ordered by relevance priority
+            all_queries = [
+                # all words in title
+                intersection([Q(title__icontains=w) for w in all_words]),
+                # all critical words in title
+                intersection([Q(title__icontains=w) for w in critical_words]),
+                # all words in description
+                intersection([Q(description__icontains=w) for w in all_words]),
+                # all critical words in description
+                intersection([Q(description__icontains=w) for w in critical_words]),
+            ]
+            # any critical word in title, reverse-sorted by word length
+            for w in sorted(critical_words, key=len, reverse=True):
+                all_queries.append(Q(title__icontains=w))
+            # any critical word in description, reverse-sorted by word length
+            for w in sorted(critical_words, key=len, reverse=True):
+                all_queries.append(Q(description__icontains=w))
 
+            # only execute if query is meaningful
+            all_queries = [query for query in all_queries if query]
+
+            # iterate over each query type, and build up search results
+            for query in all_queries:
+
+                # in each pass, don't take any items already in the result set
+                matches = (
+                    queryset.exclude_by_content_ids(list(content_ids), validate=False)
+                    .filter(query)
+                    .values("content_id", "id")[:BUFFER_SIZE]
+                )
+
+                for match in matches:
+                    # filter the dupes
+                    if match["content_id"] in content_ids:
+                        continue
+                    # add new, unique results
+                    content_ids.add(match["content_id"])
+                    results.append(match["id"])
+
+                    # bail out as soon as we reach the quota
+                    if len(results) >= max_results:
+                        break
                 # bail out as soon as we reach the quota
                 if len(results) >= max_results:
                     break
-            # bail out as soon as we reach the quota
-            if len(results) >= max_results:
-                break
 
         results = queryset.filter_by_uuids(results, validate=False)
 
@@ -826,6 +846,7 @@ class ContentNodeSearchViewset(ContentNodeViewset):
             value, max_results
         )
         data = self.serialize(results)
+
         return Response(
             {
                 "channel_ids": channel_ids,

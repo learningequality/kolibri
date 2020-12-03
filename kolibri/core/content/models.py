@@ -291,6 +291,9 @@ class LocalFile(base_models.LocalFile):
     def get_filename(self):
         return self.__str__()
 
+    def get_file_on_disk(self):
+        return paths.get_content_storage_file_path(self.get_filename())
+
     def get_storage_url(self):
         """
         Return a url for the client side to retrieve the content file.
