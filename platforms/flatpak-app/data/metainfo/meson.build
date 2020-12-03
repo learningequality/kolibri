@@ -20,6 +20,6 @@ if appstream_util.found()
     test(
         'Validate metainfo file',
         appstream_util,
-        args: ['validate', metainfo_file]
+        args: ['validate', '--nonet', metainfo_file]
     )
 endif
