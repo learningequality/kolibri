@@ -7,6 +7,7 @@ from django.core.management.base import CommandError
 from le_utils.constants import content_kinds
 
 from ...utils import annotation
+from ...utils import freedesktop
 from ...utils import paths
 from ...utils import transfer
 from kolibri.core.content.errors import InvalidStorageFilenameError
@@ -413,6 +414,8 @@ class Command(AsyncCommand):
 
             if self.is_cancelled():
                 self.cancel()
+            elif resources_after_transfer > 0:
+                freedesktop.create_channel_freedesktop_files(channel_id)
 
     def _start_file_transfer(self, f, filetransfer):
         """

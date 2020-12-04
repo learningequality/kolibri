@@ -8,6 +8,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import propagate_forced_localfile_removal
 from kolibri.core.content.utils.annotation import set_content_invisible
+from kolibri.core.content.utils.freedesktop import delete_channel_freedesktop_files
 from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
 from kolibri.core.content.utils.paths import get_content_database_file_path
@@ -50,6 +51,7 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
 
     if delete_all_metadata:
         logger.info("Deleting all channel metadata")
+        delete_channel_freedesktop_files(channel.id)
         with db_task_write_lock:
             channel.delete_content_tree_and_files()
 

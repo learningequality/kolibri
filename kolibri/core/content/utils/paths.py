@@ -151,6 +151,20 @@ def get_annotated_content_database_file_path(
     )
 
 
+def get_content_share_dir_path(datafolder=None, contentfolder=None):
+    """
+    Returns the path to the directory where Freedesktop files (like .desktop launchers
+    and AppData) are in
+    ($HOME/.kolibri/content/share on POSIX systems, by default)
+    """
+    path = os.path.join(
+        get_content_dir_path(datafolder=datafolder, contentfolder=contentfolder),
+        "share",
+    )
+    _maybe_makedirs(path)
+    return path
+
+
 def get_content_storage_dir_path(datafolder=None, contentfolder=None):
     path = os.path.join(
         get_content_dir_path(datafolder=datafolder, contentfolder=contentfolder),
