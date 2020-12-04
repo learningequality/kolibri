@@ -108,7 +108,7 @@ Feature: Super admin edits users
       And I re-enter the new password
       And I click the *Save* button
     Then the modal closes
-      And I see the confirmation message *Password for '<username>' changed*
+      And I see the confirmation message *Password reset*
 
   Scenario: Super admin can see the label *Super admin* next to their full name, not their facility role
       When I see my name in the user list
