@@ -50,7 +50,6 @@ Feature: Admin changes facility settings
   Scenario: Allow password change for learners
     Given the *Require password for learners* checkbox is checked
       And the *Allow learners to change their password when signed in* checkbox is disabled (grayed out)
-    When I check the *Allow learners to change their password when signed in* checkbox
       And I click the *Save changes* button
       And I sign out
       And I sign in as learner <learner>
@@ -65,7 +64,7 @@ Feature: Admin changes facility settings
 
   Scenario: Allow content download
     Given the *Show 'download' button with content* checkbox is unchecked
-    When I check the *Show 'download' button with content* checkbox
+    When I check the *Show 'download' button with resources* checkbox
       And I click the *Save changes* button
     When I go to *Learn > Channels* page
       And browse any channel's topics until I open an single resource
