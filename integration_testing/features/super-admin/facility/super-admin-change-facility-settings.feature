@@ -16,6 +16,7 @@ Feature: Admin changes facility settings
       And I sign in as learner <learner>
       And I (as learner <learner>) open the user menu
       And I select *Profile*
+      And The user clicks the Edit button
     Then I (as learner <learner>) see that the *Username* field is not editable
 
   Scenario: Allow full name edit
@@ -26,6 +27,7 @@ Feature: Admin changes facility settings
       And I sign in as learner <learner>
       And I (as learner <learner>) open the user menu
       And I select *Profile*
+      And The user clicks the Edit button
     Then I (as learner <learner>) see that the *Full name* field is not editable
 
   Scenario: Allow visitors to create accounts
