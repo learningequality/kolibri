@@ -109,14 +109,14 @@ Feature: Coach creates lessons
     Given I am on the search results page
       And there are resources available in the search results
     When I check one resource checkbox
-    Then I see a snackbar confirmation that *Added 1 resource to the lesson*
+    Then I see a snackbar confirmation that *N resources added*
 
   Scenario: Remove a topic or exercise from the search results page
     Given I am on the search results page
       And there are resources available in the search results
       And some of them are selected
     When I uncheck one checkbox
-    Then I see the a snackbar confirmation *Removed 1 resource from the lesson*
+    Then I see the a snackbar confirmation *N resources removed*
 
   Scenario: Filter search results by type
     Given I am on the search results page
