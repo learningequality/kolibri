@@ -57,11 +57,6 @@ Feature: Admin changes facility settings
       And I select *Profile*
     Then I (as learner <learner>) can see the *Change password* link
 
-
-
-
-
-
   Scenario: Allow content download
     Given the *Show 'download' button with content* checkbox is unchecked
     When I check the *Show 'download' button with resources* checkbox
