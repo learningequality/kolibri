@@ -169,7 +169,6 @@ Feature: Coach creates lessons
     Then I am on the preview page for exercise <exercise>
     When I click the *Add* button
     Then I see a snackbar confirmation *Added 1 resource to the lesson*
-      And I see the *Added* label
       And I see the *Remove* button
     When I click the *Remove* button
     Then I see a snackbar confirmation *Removed 1 resource from the lesson*

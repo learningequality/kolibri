@@ -18,7 +18,6 @@ Feature: Learner engages ePUB content
     Scenario: Open paginated ePUB
       Given that <resource> resource does not contain tables
         When I click the <resource> resource
-        Then I see the *Channels > '<channel>' > '<topic>' > '<resource>'* breadcrumb
           And I see the <resource> content
             But I cannot scroll vertically to see the next page
         When I click the right arrow button to go to next page

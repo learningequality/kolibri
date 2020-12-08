@@ -12,12 +12,12 @@ Feature: Super admin creates new facility during the device setup
     Scenario: Create new facility
       Given I see *Create or import facility*
         When I click *New facility*
-        Then I see *What kind of facility are you installing Kolibri in?*
+        Then I see *What kind of learning environment is your facility?*
           And I see *New facility - 1 of 6* in the app bar
 
     Scenario: Facility setup options
       Given that I am on the *New facility - 1 of 6* of the setup wizard
-        And I see *What kind of facility are you installing Kolibri in?*
+        And I see *What kind of learning environment is your facility?*
         And I see *Non-formal* option
         And I see *Formal* option
       When I select *Non-formal* or *Formal* options
@@ -72,5 +72,5 @@ Feature: Super admin creates new facility during the device setup
       When I click *Finish*
       Then I see the *Setting up the facility...* page
         And I see the *Welcome to Kolibri!* modal
-      When I click *OK*
+      When I click *Continue*
       Then I see the *Device > Channels* page
