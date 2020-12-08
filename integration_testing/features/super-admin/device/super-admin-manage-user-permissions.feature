@@ -26,7 +26,7 @@ Feature: Super admin grants and revokes the super-admin and content import permi
       When I check the *Can manage resources on this device* checkbox under *Device permissions*
         And I see that *Save changes* is still active
       When I click *Save changes*
-      Then I remain on this page
+      Then I'm redirected to "Device Permissions" page
         And I see a confirmation snackbar *Changes saved*
         And I see *User type* for <full_name> has returned to their previous facility role
         And I see *Save changes* button in disabled

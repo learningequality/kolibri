@@ -38,7 +38,7 @@ Feature: Learner finds content item
         And I see the list of links to N locations where the search result item is present
       When I click one of the links
       Then I see the *Search > '<content item>'> page
-      When I click *back* arrow button in the left upper corner
+      When I click the *X* icon in the left upper corner
       Then I see the results of the previous search
       When I click the *N locations* link on one of the items
       Then I see the *Locations* modal again
