@@ -30,8 +30,8 @@ Feature: Learner sign-in
 
     Scenario: Sign-in on a new browser (no recorded cookies of my previous signing in; one facility; no password)
       Given I am viewing Kolibri for the first time in my current browser
-        And the device has only one facility
-        And that signing in without password is disabled in the *Facility Settings*
+        And The device has only one facility
+        And That signing in without password is enabled in the *Facility Settings*
       When I open Kolibri in my browser
       Then I see *Sign into '<facility>'*
         And I see the username input field
