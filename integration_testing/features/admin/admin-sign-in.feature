@@ -3,14 +3,14 @@ Feature: Admin sign-in
   If the admin account is registered correctly, they will arrive at the Facility > Classes page upon sign-in
 
   Background:
-    Given that I am on the Kolibri sign-in page
-      And that there is a registered facility admin <username> with password <password>
+    Given That the user is on the Kolibri sign-in page
+      And That there is a registered facility admin <username> with password <password>
 
   Scenario: Sign-in
-    When I fill out my username <username>
-      And I fill out my password <password>
-      And I click the *Sign in* button
-    Then I am signed in and I can see the *Facility > Classes* page
+    When The user fills out his/her username <username>
+      And The user fills out his/her password <password>
+      And The user clicks the *Sign in* button
+    Then The user is signed in and can see the *Facility > Classes* page
 
   Examples:
   | username | password |
