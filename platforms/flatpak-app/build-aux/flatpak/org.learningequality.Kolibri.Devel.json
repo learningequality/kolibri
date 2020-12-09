@@ -1,0 +1,124 @@
+{
+    "app-id" : "org.learningequality.Kolibri.Devel",
+    "runtime" : "org.gnome.Platform",
+    "runtime-version" : "3.36",
+    "sdk" : "org.gnome.Sdk",
+    "command" : "kolibri-daemon",
+    "desktop-file-name-suffix" : " ☢️",
+    "finish-args" : [
+        "--device=dri",
+        "--share=ipc",
+        "--share=network",
+        "--socket=fallback-x11",
+        "--socket=pulseaudio",
+        "--socket=wayland",
+        "--socket=x11",
+        "--env=KOLIBRI_HOME=~/.var/app/org.learningequality.Kolibri.Devel/data/kolibri",
+        "--env=KOLIBRI_HTTP_PORT=8080"
+    ],
+    "add-extensions" : {
+        "org.learningequality.Kolibri.Content" : {
+            "version" : "1.0",
+            "directory" : "share/kolibri-content",
+            "subdirectories" : true,
+            "no-autodownload" : true
+        }
+    },
+    "modules" : [
+        {
+            "name" : "iproute2",
+            "buildsystem" : "autotools",
+            "make-install-args" : [
+                "PREFIX=${FLATPAK_DEST}",
+                "SBINDIR=${FLATPAK_DEST}/bin",
+                "CONFDIR=${FLATPAK_DEST}/etc/iproute2"
+            ],
+            "sources" : [
+                {
+                    "type" : "archive",
+                    "url" : "https://mirrors.edge.kernel.org/pub/linux/utils/net/iproute2/iproute2-5.7.0.tar.xz",
+                    "sha256" : "725dc7ba94aae54c6f8d4223ca055d9fb4fe89d6994b1c03bfb4411c4dd10f21"
+                }
+            ]
+        },
+        "python3-kolibri.json",
+        {
+            "name" : "kolibri-home-template",
+            "buildsystem" : "simple",
+            "build-options" : {
+                "env" : {
+                    "KOLIBRI_HOME" : "/app/share/kolibri-home-template"
+                }
+            },
+            "build-commands" : [
+                "install -d ${KOLIBRI_HOME}",
+                "yes 'yes' | kolibri manage migrate",
+                "yes 'yes' | kolibri manage collectstatic",
+                "yes 'yes' | kolibri manage deprovision",
+                "rm -rf ${KOLIBRI_HOME}/logs",
+                "rm -rf ${KOLIBRI_HOME}/sessions",
+                "rm -rf ${KOLIBRI_HOME}/process_cache",
+                "touch ${KOLIBRI_HOME}/was_preseeded"
+            ]
+        },
+        {
+            "name" : "kolibri-home-template",
+            "buildsystem" : "simple",
+            "build-options" : {
+                "env" : {
+                    "KOLIBRI_HOME" : "/app/share/kolibri-home-template"
+                }
+            },
+            "build-commands" : [
+                "install -d ${KOLIBRI_HOME}",
+                "yes 'yes' | kolibri manage migrate",
+                "yes 'yes' | kolibri manage collectstatic",
+                "yes 'yes' | kolibri manage deprovision",
+                "rm -rf ${KOLIBRI_HOME}/logs",
+                "rm -rf ${KOLIBRI_HOME}/sessions",
+                "rm -rf ${KOLIBRI_HOME}/process_cache",
+                "touch ${KOLIBRI_HOME}/was_preseeded"
+            ]
+        },
+        "python3-requests.json",
+        "python3-virtualenv-api.json",
+        {
+            "name" : "pyeverywhere",
+            "buildsystem" : "simple",
+            "build-commands" : [
+                "pip3 install --prefix=${FLATPAK_DEST} ."
+            ],
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/kollivier/pyeverywhere.git",
+                    "commit" : "63cdb6dd642ebce4af6a5134dbabcd4bd4f2a96d"
+                }
+            ]
+        },
+        {
+            "name" : "kolibri-content-dir",
+            "buildsystem" : "simple",
+            "build-commands" : [
+                "install -d -m 755 ${FLATPAK_DEST}/share/kolibri-content"
+            ]
+        },
+        {
+            "name" : "kolibri-daemon",
+            "buildsystem" : "meson",
+            "builddir" : true,
+            "run-tests" : true,
+            "config-opts" : [
+                "-Dkolibri_home_template_dir=/app/share/kolibri-home-template",
+                "-Dprofile=development"
+            ],
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/learningequality/kolibri-installer-gnome.git",
+                    "branch" : "master"
+                }
+            ]
+        }
+    ]
+}
