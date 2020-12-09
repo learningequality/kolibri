@@ -29,19 +29,24 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         try:
             yield
         finally:
+            self.__context.is_starting = False
             self.__context.is_stopped = True
 
     def __run_kolibri_start(self):
+        self.__context.await_is_stopped()
+
         if not self.__context.await_setup_result():
             self.__context.is_starting = False
             return
 
         self.__context.is_starting = True
+        self.__context.is_stopped = False
+        self.__context.start_result = None
 
         self.__active_extensions.update_kolibri_environ(os.environ)
 
         from kolibri.plugins.registry import registered_plugins
-        from kolibri.utils.cli import initialize, setup_logging, start
+        from kolibri.utils.cli import initialize, setup_logging, start_with_ready_cb
 
         registered_plugins.register_plugins(["kolibri.plugins.app"])
 
@@ -52,16 +57,24 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         self.__update_app_key()
 
         try:
-            from ..kolibri_globals import KOLIBRI_HTTP_PORT
-
-            # TODO: Start on port 0 and get randomized port number from
-            #       Kolibri. This requires some changes in Kolibri itself.
-            #       After doing this, we should be able to remove some weird
-            #       dependencies with Kolibri in the globals module.
-            start.callback(KOLIBRI_HTTP_PORT, background=False)
+            KOLIBRI_HTTP_PORT = 0
+            start_with_ready_cb(
+                port=KOLIBRI_HTTP_PORT,
+                background=False,
+                ready_cb=self.__kolibri_ready_cb
+            )
         except SystemExit:
             # Kolibri sometimes calls sys.exit, but we don't want to exit
+            self.__context.start_result = False
             pass
+        except Exception as error:
+            self.__context.start_result = False
+            raise error
+
+    def __kolibri_ready_cb(self, urls):
+        self.__context.is_starting = False
+        self.__context.start_result = True
+        self.__context.base_url = urls[0]
 
     def __update_app_key(self):
         from kolibri.core.device.models import DeviceAppKey

@@ -14,7 +14,7 @@
   <description>
     <p>Kolibri makes high quality education technology available in low-resource communities such as rural schools, refugee camps, orphanages, non-formal school systems, and prison systems. Running on a wide variety of hardware, it enables offline access to a rich set of content and tools to support learners, coaches, and administrators.</p>
   </description>
-  <launchable type="desktop-id">@APPLICATION_ID@.desktop</launchable>
+  <launchable type="desktop-id">@FRONTEND_APPLICATION_ID@.desktop</launchable>
   <screenshots>
     <screenshot type="default">
       <caption>Browsing content channels in Kolibri</caption>

@@ -21,9 +21,11 @@ class KolibriServiceMonitorProcess(multiprocessing.Process):
     def run(self):
         from ..kolibri_globals import is_kolibri_responding
 
+        base_url = self.__context.await_base_url()
+
         self.__context.await_is_starting()
 
-        while not is_kolibri_responding():
+        while not is_kolibri_responding(base_url):
             if self.__context.is_stopped:
                 logger.warning("Kolibri service has died")
                 self.__context.is_responding = False

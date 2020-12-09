@@ -19,13 +19,16 @@ elif build_profile == 'development'
     application_id = 'org.learningequality.Kolibri.Devel'
 endif
 
+daemon_application_id = application_id + '.Daemon'
+frontend_application_id = application_id
+search_provider_application_id = application_id + '.SearchProvider'
+
 po_dir = join_paths(meson.source_root(), 'po')
 
 kolibri_gnome_libexecdir = join_paths(libexecdir, 'kolibri-gnome')
 kolibri_gnome_datadir = join_paths(datadir, 'kolibri-gnome')
 
 kolibri_gnome_config = configuration_data()
-kolibri_gnome_config.set('APPLICATION_ID', application_id)
 kolibri_gnome_config.set('BINDIR', bindir)
 kolibri_gnome_config.set('PYTHON', 'python3')
 kolibri_gnome_config.set('GETTEXT_PACKAGE', meson.project_name())
@@ -33,6 +36,10 @@ kolibri_gnome_config.set('LOCALE_DIR', locale_dir)
 kolibri_gnome_config.set('KOLIBRI_GNOME_LIBEXECDIR', kolibri_gnome_libexecdir)
 kolibri_gnome_config.set('KOLIBRI_GNOME_DATADIR', kolibri_gnome_datadir)
 kolibri_gnome_config.set('KOLIBRI_HOME_TEMPLATE_DIR', kolibri_home_template_dir)
+kolibri_gnome_config.set('APPLICATION_ID', application_id)
+kolibri_gnome_config.set('DAEMON_APPLICATION_ID', daemon_application_id)
+kolibri_gnome_config.set('FRONTEND_APPLICATION_ID', frontend_application_id)
+kolibri_gnome_config.set('SEARCH_PROVIDER_APPLICATION_ID', search_provider_application_id)
 
 subdir('data')
 subdir('po')

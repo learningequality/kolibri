@@ -81,8 +81,11 @@ class MenuEventHandler:
 
 
 class KolibriView(pew.ui.WebUIView, MenuEventHandler):
-    def __init__(self, name, url, loader_url=None, **kwargs):
+    def __init__(
+        self, name, url, loader_url=None, await_kolibri_fn=lambda: None, **kwargs
+    ):
         self.__loader_url = loader_url
+        self.__await_kolibri_fn = await_kolibri_fn
         self.__target_url = None
         self.__load_url_lock = threading.Lock()
         self.__redirect_thread = None
@@ -139,7 +142,7 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
             )
 
     def __do_redirect_on_load(self):
-        self.delegate.wait_for_kolibri()
+        self.__await_kolibri_fn()
         self.load_url(self.__target_url)
 
     def open_window(self):
@@ -270,13 +273,10 @@ class Application(pew.ui.PEWApp):
         self.__kolibri_service_manager = KolibriServiceManager()
 
         self.__windows = []
-        self.__did_init_service = False
 
         super().__init__(*args, **kwargs)
 
     def init_ui(self):
-        self.__init_service()
-
         if len(self.__windows) > 0:
             return
 
@@ -290,13 +290,6 @@ class Application(pew.ui.PEWApp):
         if self.__kolibri_service_manager.is_kolibri_app_url(saved_url):
             pew.ui.run_on_main_thread(main_window.load_url, saved_url)
 
-    def __init_service(self):
-        if self.__did_init_service:
-            return
-
-        self.__did_init_service = True
-        self.__kolibri_service_manager.start_kolibri()
-
     def shutdown(self):
         logger.info("Stopping Kolibri service...")
         self.__kolibri_service_manager.stop_kolibri()
@@ -304,9 +297,6 @@ class Application(pew.ui.PEWApp):
 
     def join(self):
         self.__kolibri_service_manager.join()
-
-    def wait_for_kolibri(self):
-        return self.__kolibri_service_manager.await_is_responding()
 
     def should_load_url(self, url):
         if self.is_kolibri_app_url(url):
@@ -335,9 +325,15 @@ class Application(pew.ui.PEWApp):
         return self.__open_window(target_url)
 
     def __open_window(self, target_url=None):
+        self.__kolibri_service_manager.start_kolibri()
+
         target_url = target_url or self.__kolibri_service_manager.get_kolibri_url()
         window = KolibriWindow(
-            _("Kolibri"), target_url, delegate=self, loader_url=self.__loader_url
+            _("Kolibri"),
+            target_url,
+            delegate=self,
+            loader_url=self.__loader_url,
+            await_kolibri_fn=self.__kolibri_service_manager.await_is_responding,
         )
         self.add_window(window)
         window.show()

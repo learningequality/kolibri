@@ -2,11 +2,11 @@ applications_dir = join_paths(datadir, 'applications')
 
 desktop_file = i18n.merge_file(
     input: configure_file(
-        input: 'org.learningequality.Kolibri.desktop.in.in',
-        output: 'org.learningequality.Kolibri.desktop.in',
+        input: 'org.learningequality.Kolibri.Frontend.desktop.in.in',
+        output: 'org.learningequality.Kolibri.Frontend.desktop.in',
         configuration: kolibri_gnome_config
     ),
-    output: application_id + '.desktop',
+    output: frontend_application_id + '.desktop',
     type: 'desktop',
     po_dir: po_dir,
     install: true,

@@ -26,13 +26,16 @@ python_installation.install_sources(
 )
 
 kolibri_service_sources = [
-    'kolibri_service/__init__.py',
+    'kolibri_service/application.py',
     'kolibri_service/content_extensions.py',
-    'kolibri_service/kolibri_service.py',
+    'kolibri_service/__init__.py',
     'kolibri_service/kolibri_service_main.py',
     'kolibri_service/kolibri_service_monitor.py',
+    'kolibri_service/kolibri_service.py',
     'kolibri_service/kolibri_service_setup.py',
     'kolibri_service/kolibri_service_stop.py',
+    'kolibri_service/main.py',
+    'kolibri_service/utils.py',
 ]
 
 python_installation.install_sources(

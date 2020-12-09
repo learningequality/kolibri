@@ -13,7 +13,7 @@ from ..globals import init_env, init_gettext
 def main():
     init_env()
     init_gettext()
-    # init_logging('kolibri-gnome-search-provider.txt')
+    # init_logging('kolibri-daemon.txt')
 
     application = Application()
     return application.run()

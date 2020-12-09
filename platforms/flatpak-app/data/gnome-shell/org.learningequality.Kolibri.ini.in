@@ -1,5 +1,5 @@
 [Shell Search Provider]
-DesktopId=@APPLICATION_ID@.desktop
-BusName=@APPLICATION_ID@.SearchProvider
+DesktopId=@FRONTEND_APPLICATION_ID@.desktop
+BusName=@SEARCH_PROVIDER_APPLICATION_ID@
 ObjectPath=/org/learningequality/Kolibri/SearchProvider
 Version=2

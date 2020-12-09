@@ -1,0 +1,3 @@
+#!/bin/sh
+
+@PYTHON@ -m "kolibri_gnome.kolibri_service.main"

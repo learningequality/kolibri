@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=@DAEMON_APPLICATION_ID@
+Exec=@KOLIBRI_GNOME_LIBEXECDIR@/kolibri-daemon
