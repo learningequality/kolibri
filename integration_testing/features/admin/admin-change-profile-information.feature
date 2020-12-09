@@ -10,7 +10,7 @@ Feature: Admin changes profile information
     Then I see the *Edit profile* page
     When I change my full name
       And I change my username
-      And If my changes are valid (I did not leave the fields empty)
+      And if my changes are valid (I did not leave the fields empty)
       And I click the “Save” button
     Then I see the *Changes saved* snackbar notification
     When I go back to my *Profile > Details* page

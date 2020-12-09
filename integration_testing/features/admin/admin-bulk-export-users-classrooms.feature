@@ -2,7 +2,7 @@ Feature: Admin bulk export of users and classrooms
   Admin needs to be able to export users and their classrooms
 
   Background:
-      Given I am signed in to Kolibri as a facility admin user
+    Given I am signed in to Kolibri as a facility admin user
       And I am on *Facility > Data* page
       And there are learners enrolled in classrooms and coaches assigned to them
 

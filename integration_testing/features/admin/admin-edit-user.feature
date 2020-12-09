@@ -111,7 +111,7 @@ Feature: Admin edit users
       And I click or tab into *Confirm new password* field
       And I re-enter the new password
       And I click the *Save* button
-    Then The modal closes
+    Then the modal closes
       And I see the confirmation message *Password for '<username>' changed*
 
 Scenario: Admin can see the label *Admin* next to their full name, not their facility role

@@ -10,7 +10,7 @@ Scenario: Admin changes language
     Then I see the *Change language* modal
     When I select <language>
      And I click *Confirm* button
-    Then The modal closes
+    Then the modal closes
       And I see Kolibri UI in <language> language
 
   Scenario: Admin has changed their own language from <device_language> to <language> prior to logging in

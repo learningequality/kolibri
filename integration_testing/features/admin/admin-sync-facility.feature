@@ -3,7 +3,7 @@ Feature: Admin syncs facility
 
  Background:
     Given I am logged in as a Facility admin
-      And My facility has been registered before
+      And my facility has been registered before
       And I want to sync my facility data to Kolibri Data Portal
       And I am in the Data tab in the Facility plugin
 
@@ -15,7 +15,7 @@ Feature: Admin syncs facility
     When I click *Sync*
     Then I see an indeterminate loading spinner under the facility name
       And I see *Syncing* next to the spinner
-    When Syncing successfully completes
+    When syncing successfully completes
     Then I see *Last successful sync: Just now* underneath the facility name
 
   Scenario: Failed sync
