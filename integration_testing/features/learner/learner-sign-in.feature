@@ -30,8 +30,8 @@ Feature: Learner sign-in
 
     Scenario: Sign-in on a new browser (no recorded cookies of my previous signing in; one facility; no password)
       Given I am viewing Kolibri for the first time in my current browser
-        And the device has only one facility
-        And that signing in without password is disabled in the *Facility Settings*
+        And The device has only one facility
+        And That signing in without password is enabled in the *Facility Settings*
       When I open Kolibri in my browser
       Then I see *Sign into '<facility>'*
         And I see the username input field
@@ -127,7 +127,7 @@ Feature: Learner sign-in
         And there is only one facility on the device
         And the use context is personal
       When I open Kolibri in my browser
-      Then see the input field for entering my password
+      Then see the input field for entering my username
         And I see the *Sign in* button
         And I see a *Create an account* button
         And I see a *Explore without account* link
@@ -142,7 +142,7 @@ Feature: Learner sign-in
         And the use context is formal or non formal
       When I open Kolibri in my browser
       Then I see *Sign into '<facility>'*
-        And see the input field for entering my password
+        And see the input field for entering my username
         And I see the *Sign in* button
         And I see a *Create an account* button
         And I see a *Explore without account* link

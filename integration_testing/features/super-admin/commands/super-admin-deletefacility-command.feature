@@ -10,7 +10,7 @@ Feature: Super Admin deletes facility from the command line
 
   Scenario: Execute the deletefacility command and review that facility has been deleted
     When I run the 'kolibri manage deletefacility' command in the Terminal
-    Then I see the output *Please choose a facility to sync*
+    Then I see the output *Please choose a facility*
       And I see the list of the facilities on the device
     When i type the number of the facility
       And I press the *Enter* key

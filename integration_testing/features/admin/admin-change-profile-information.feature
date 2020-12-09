@@ -1,7 +1,7 @@
 Feature: Admin changes profile information
   Admin needs to be able to change their own profile information
 
-  Background:
+ Background:
     Given I am signed in to Kolibri as a facility admin
       And I am on the *User > Profile* page
 
@@ -16,7 +16,7 @@ Feature: Admin changes profile information
     When I go back to my *Profile > Details* page
     Then I see the new full name and username on the profile page
 
-  Scenario: Admin selects gender and birth year
+Scenario: Admin selects gender and birth year
     When I click the *Edit* button
     Then I see the *Edit profile* page
     When I select my gender

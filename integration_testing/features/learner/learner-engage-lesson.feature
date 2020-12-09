@@ -13,7 +13,8 @@ Feature: Learner engages with an assigned lesson
     When I click on <exercise1> exercise content card
     Then I am on *'<lesson>' > '<exercise1>'* page
       And I see the <exercise> questions
-      And I see the blue *Started* icon added to the title
+      When I start the <exercise>
+      Then I see the blue *Started* icon added to the title
       And I see the *Next in lesson* heading and <video> video content card under the exercise
     When I answer 2 questions correctly
       And I see two green checkmarks at the bottom of the lesson viewer

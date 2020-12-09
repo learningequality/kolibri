@@ -31,7 +31,7 @@ Feature: Coach edits lessons
     When I edit the lesson <lesson> *Description*
       And I click the *Save changes* button
     Then I see the lesson <lesson> page again
-      And I see the title of the lesson is changed
+      And I see the description of the lesson is changed
       # And I see the snackbar notification “Lesson changes saved” # No snackbar
 
   Scenario: Reassign existing lesson to different recipient groups

@@ -8,19 +8,19 @@ Feature: Super admin changes device settings
       And there is another Kolibri instance on my network
 
   Scenario: Allow guest browsing
-    Given the *Allow users to access content without signing in* checkbox is unchecked
+    Given the *Allow users to access resources without signing in* checkbox is unchecked
       And the *Landing page* option is set to the *Sign-in page*
       And the *Learners should only see resources assigned to them in classes* is unchecked
     When I check the *Allow users to access resources without signing in* checkbox
     Then I see that the *Learners should only see resources assigned to them in classes* options is disabled (grayed out)
     When I click the *Save* button
       And I sign out
-    Then I see the *Continues as a guest* link on the sign-in page
+    Then I see the *Explore without account* link on the sign-in page
     When I click *Continues as a guest*
     Then I see the *Learn > Channels* page
 
   Scenario: The landing page is the learn page
-    Given the *Allow users to access content without signing in* checkbox is unchecked
+    Given the *Allow users to access resources without signing in* checkbox is unchecked
       And the *Landing page* option is set to the *Sign-in page*
       And the *Learners should only see resources assigned to them in classes* is unchecked
     When I select *Learn page* for the *Landing page*
@@ -34,7 +34,7 @@ Feature: Super admin changes device settings
   Scenario: Learners can only access assigned resources
     Given the *Learners should only see resources assigned to them in classes* is unchecked
       And the *Landing page* option is set to the *Sign-in page*
-      And the *Allow users to access content without signing in* checkbox is unchecked
+      And the *Allow users to access resources without signing in* checkbox is unchecked
     When I check the *Learners should only see resources assigned to them in classes* checkbox
       And I click the *Save* button
       And I sign out
