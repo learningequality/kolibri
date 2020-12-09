@@ -22,9 +22,9 @@ Feature: Admin bulk export of users and classrooms
     When I click the *Next* button
     Then I see the *Import users* window
       And I see the loading indicator
-    When The file is processed
+    When the file is processed
     Then I see a list of the users and classes that are going to be updated and created
-      AAnd I see the list of errors, if any
+      And I see the list of errors, if any
       And I see the *Back* and *Import* buttons
     When I click the *Import* button
     Then I see the *Success* message

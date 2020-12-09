@@ -4,8 +4,8 @@ Feature: Admin enrolls learners and assign coaches to classes
   Background:
     Given I am signed in to Kolibri as a facility admin user
       And I am on *Facility > Classes* page
-      And There is a class created in the facility
-      And There are learner and coach users created in the facility
+      And there is a class created in the facility
+      And there are learner and coach users created in the facility
 
    Scenario: Enroll learners to a class
     When I click on class <class>
@@ -21,12 +21,12 @@ Feature: Admin enrolls learners and assign coaches to classes
       And I see the selected learner user accounts listed under *Learners*
 
   Scenario: Remove learner from a class
-    Given The learner <learner> is enrolled in the class <class>
+    Given the learner <learner> is enrolled in the class <class>
       And I am on class <class> page
     When I click the *Remove* button for <learner>
     Then I see the *Remove user* modal asking for confirmation
     When I click *Remove* button
-    Then The modal closes
+    Then the modal closes
       And I don't see <learner> user account listed under *Learners*
 
   Scenario: Assign coaches to a class
@@ -43,12 +43,12 @@ Feature: Admin enrolls learners and assign coaches to classes
       And I see the selected coach user accounts listed under *Coaches*
 
   Scenario: Remove coach from a class
-    Given The coach <coach> is assigned to the class <class>
+    Given the coach <coach> is assigned to the class <class>
       And I am on class <class> page
     When I click the *Remove* button for <coach>
     Then I see the *Remove user* modal asking for confirmation
     When I click *Remove* button
-    Then The modal closes
+    Then the modal closes
       And I don't see <coach> user account listed under *Coaches*
 
 Examples:

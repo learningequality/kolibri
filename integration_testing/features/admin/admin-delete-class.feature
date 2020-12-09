@@ -4,7 +4,7 @@ Feature: Admin can delete classes
   Background:
     Given I am signed in to Kolibri as a facility admin user
       And I am on *Facility > Classes* page
-      And There is a class <class> created in the facility
+      And there is a class <class> created in the facility
 
   Scenario: Delete class
     When I click on *Delete class* button for the class <class>

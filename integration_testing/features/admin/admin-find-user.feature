@@ -8,7 +8,7 @@ Feature: Admin find users
   Background:
     Given I am signed in to Kolibri as a facility admin user
       And I am on *Facility > Users* page
-      And There are more than 150 users in the facility
+      And there are more than 150 users in the facility
 
   Scenario: Search by navigating pages
     When I click the right arrow (next page) button
