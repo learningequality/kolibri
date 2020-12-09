@@ -2,36 +2,36 @@ Feature: Admin bulk export of users and classrooms
   Admin needs to be able to import users and their classrooms
 
   Background:
-    Given The user is signed in to Kolibri as a facility admin user
-      And The user is on *Facility > Data* page
+    Given I am signed in to Kolibri as a facility admin user
+      And I am on *Facility > Data* page
 
   Scenario: See the CSV file format requirements
-    When The user clicks the *Import* button under *Import and export users* heading
-    Then The user sees a new window with a text explaining the consequences of importing
-    When The user clicks on the *View spreadsheet format reference* link
-    Then The user sees a new modal window with the CSV file fields formats, requirements and validation rules
+    When I click the *Import* button under *Import and export users* heading
+    Then I see a new window with a text explaining the consequences of importing
+    When I click on the *View spreadsheet format reference* link
+    Then I see a new modal window with the CSV file fields formats, requirements and validation rules
 
   Scenario: Bulk import of users from a CSV file
-    When The user clicks the *Import* button under *Import and export users* heading
-    Then The user sees a new window with a text explaining the consequences of importing
-      And The user sees the *Cancel* enabled button
-      And The user sees the *Next* disabled button
-    When The user clicks the *Browse* button
-      And The user selects a CSV file with the right format
-    Then The user sees the *Next* button is now enabled
-    When The user clicks the *Next* button
-    Then The user sees the *Import users* window
-      And The user sees the loading indicator
+   When I click the *Import* button under *Import and export users* heading
+    Then I see a new window with a text explaining the consequences of importing
+      And I see the *Cancel* enabled button
+      And I see the *Next* disabled button
+    When I click the *Browse* button
+      And select a CSV file with the right format
+    Then I see the *Next* button is now enabled
+    When I click the *Next* button
+    Then I see the *Import users* window
+      And I see the loading indicator
     When The file is processed
-    Then The user sees a list of the users and classes that are going to be updated and created
-      And The user sees the list of errors, if any
-      And The user sees the *Back* and *Import* buttons
-    When The user clicks the *Import* button
-    Then The user sees the *Success* message
-      And The user sees a report with the changes made in the database
-    When The user clicks the top left X button to close the modal
-      And The user clicks on the *Classes* top menu
-    Then The user sees that classes, enrolled learners and assigned coaches now match what was in the CSV
+    Then I see a list of the users and classes that are going to be updated and created
+      AAnd I see the list of errors, if any
+      And I see the *Back* and *Import* buttons
+    When I click the *Import* button
+    Then I see the *Success* message
+      And I see a report with the changes made in the database
+    When I click the top left X button to close the modal
+      And I click on the *Classes* top menu
+    Then I see that classes, enrolled learners and assigned coaches now match what was in the CSV
 
 # Example CSV file (for the first row, texts not inside parenthesis may be translated) :
 Username (USERNAME),Password (PASSWORD),Full name (FULL_NAME),User type (USER_TYPE),Identifier (IDENTIFIER),Birth year (BIRTH_YEAR),Gender (GENDER),Enrolled in (ENROLLED_IN),Assigned to (ASSIGNED_TO)
