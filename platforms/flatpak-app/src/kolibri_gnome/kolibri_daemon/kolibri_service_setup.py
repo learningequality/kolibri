@@ -46,10 +46,10 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         if success:
             logger.info("Finished updating content extensions.")
             self.__active_extensions.write_to_cache()
-            self.__context.setup_result = True
+            self.__context.setup_result = self.__context.SetupResult.SUCCESS
         else:
             logger.warning("Failed to update content extensions.")
-            self.__context.setup_result = False
+            self.__context.setup_result = self.__context.SetupResult.ERROR
 
     def __update_from_home_template(self)
         # TODO: This code should probably be in Kolibri itself

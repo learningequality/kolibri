@@ -2,8 +2,8 @@ from gi.repository import Gio
 from gi.repository import GLib
 
 from .. import config
+from ..dbus_utils import DBusServer
 from ..globals import IS_KOLIBRI_LOCAL
-from .utils import gapplication_hold
 
 
 ICON_LOOKUP = {
@@ -17,43 +17,7 @@ ICON_LOOKUP = {
 }
 
 
-class DbusMethodJob(object):
-    def __init__(self, application, method_name, method, args, out_args, invocation):
-        self.__application = application
-        self.__method_name = method_name
-        self.__method = method
-        self.__args = args
-        self.__out_args = out_args
-        self.__invocation = invocation
-
-    def __return_value(self, result):
-        if not isinstance(result, tuple):
-            result = (result,)
-
-        if self.__out_args != "()":
-            variant = GLib.Variant(self.__out_args, result)
-            self.__invocation.return_value(variant)
-        else:
-            self.__invocation.return_value(None)
-
-    def __return_error(self, domain, code, message):
-        self.__invocation.return_error_literal(domain, code, message)
-
-    def run(self, cancellable=None):
-        with gapplication_hold(self.__application):
-            try:
-                result = self.__method(*self.__args, cancellable=cancellable)
-                self.__return_value(result)
-            except Exception as error:
-                self.__return_error(
-                    Gio.io_error_quark(), Gio.IOErrorEnum.FAILED, str(error)
-                )
-
-    def run_async(self, job, cancellable, user_data):
-        self.run(cancellable=cancellable)
-
-
-class SearchProvider(object):
+class SearchProvider(DBusServer):
     INTERFACE_XML = """
     <!DOCTYPE node PUBLIC
      '-//freedesktop//DTD D-BUS Object Introspection 1.0//EN'
@@ -90,11 +54,23 @@ class SearchProvider(object):
         pass
 
     def __init__(self, application, search_handlers=tuple()):
-        self.__application = application
+        super().__init__(application)
         self.__search_handlers = search_handlers
-        self.__registration_ids = []
-        self.__method_outargs = {}
-        self.__existing_jobs = dict()
+
+    def GetInitialResultSet(self, terms, context, cancellable=None):
+        return self.__get_item_ids_for_search(" ".join(terms))
+
+    def GetSubsearchResultSet(self, previous_results, terms, context, cancellable=None):
+        return self.__get_item_ids_for_search(" ".join(terms))
+
+    def GetResultMetas(self, item_ids, context, cancellable=None):
+        return self.__get_nodes_for_item_ids(item_ids)
+
+    def ActivateResult(self, item_id, terms, timestamp, context, cancellable=None):
+        self.__activate_kolibri(item_id, terms)
+
+    def LaunchSearch(self, terms, timestamp, context, cancellable=None):
+        self.__activate_kolibri("", terms)
 
     def get_search_results(self, *args):
         for search_handler in self.__search_handlers:
@@ -115,65 +91,6 @@ class SearchProvider(object):
             else:
                 return result
         raise self.NoSearchHandlersError("No search handlers available")
-
-    def register_on_connection(self, connection, object_path):
-        info = Gio.DBusNodeInfo.new_for_xml(self.INTERFACE_XML)
-        for interface in info.interfaces:
-            for method in interface.methods:
-                self.__method_outargs[method.name] = "({})".format(
-                    "".join([arg.signature for arg in method.out_args])
-                )
-
-            object_id = connection.register_object(
-                object_path=object_path,
-                interface_info=interface,
-                method_call_closure=self.__on_method_call,
-            )
-            self.__registration_ids.append(object_id)
-
-    def unregister_on_connection(self, connection):
-        for registration_id in self.__registration_ids:
-            connection.unregister_object(registration_id)
-
-    def __on_method_call(
-        self,
-        connection,
-        sender,
-        object_path,
-        interface_name,
-        method_name,
-        parameters,
-        invocation,
-    ):
-        args = list(parameters.unpack())
-        out_args = self.__method_outargs[method_name]
-        method = getattr(self, method_name)
-
-        job = DbusMethodJob(
-            self.__application, method_name, method, args, out_args, invocation
-        )
-        cancellable = Gio.Cancellable()
-        if self.__existing_jobs.get(method_name):
-            self.__existing_jobs[method_name].cancel()
-        self.__existing_jobs[method_name] = cancellable
-        Gio.io_scheduler_push_job(
-            job.run_async, None, GLib.PRIORITY_DEFAULT, cancellable
-        )
-
-    def GetInitialResultSet(self, terms, cancellable=None):
-        return self.__get_item_ids_for_search(" ".join(terms))
-
-    def GetSubsearchResultSet(self, previous_results, terms, cancellable=None):
-        return self.__get_item_ids_for_search(" ".join(terms))
-
-    def GetResultMetas(self, item_ids, cancellable=None):
-        return self.__get_nodes_for_item_ids(item_ids)
-
-    def ActivateResult(self, item_id, terms, timestamp, cancellable=None):
-        self.__activate_kolibri(item_id, terms)
-
-    def LaunchSearch(self, terms, timestamp, cancellable=None):
-        self.__activate_kolibri("", terms)
 
     def __activate_kolibri(self, item_id, terms):
         kolibri_url = "kolibri:///{item_id}?searchTerm={term}".format(

@@ -34,7 +34,6 @@ def main():
 
     app = Application()
     app.run()
-    app.join()
 
     logger.info("Stopped at: {}".format(datetime.datetime.today()))
 

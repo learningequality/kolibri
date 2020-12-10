@@ -20,12 +20,13 @@ import gi
 
 gi.require_version("WebKit2", "4.0")
 from gi.repository import WebKit2
+from gi.repository import Gio
 
 from .. import config
 
 from ..globals import KOLIBRI_APP_DEVELOPER_EXTRAS, KOLIBRI_HOME, XDG_CURRENT_DESKTOP
-from ..kolibri_service.kolibri_service import KolibriServiceManager
-from .utils import get_localized_file
+from ..kolibri_daemon_proxy import KolibriDaemonProxy
+from .utils import get_kolibri_initialize_url, get_localized_file
 
 
 class RedirectLoading(Exception):
@@ -100,6 +101,7 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
         self.delegate.remove_window(self)
 
     def load_url(self, url, with_redirect=True):
+        print("LOAD URL", url)
         with self.__load_url_lock:
             self.__target_url = url
             try:
@@ -270,7 +272,7 @@ class Application(pew.ui.PEWApp):
         )
         self.__loader_url = "file://{path}".format(path=os.path.abspath(loader_path))
 
-        self.__kolibri_service_manager = KolibriServiceManager()
+        self.__kolibri_service_manager = KolibriDaemonProxy(self)
 
         self.__windows = []
 
@@ -291,12 +293,8 @@ class Application(pew.ui.PEWApp):
             pew.ui.run_on_main_thread(main_window.load_url, saved_url)
 
     def shutdown(self):
-        logger.info("Stopping Kolibri service...")
-        self.__kolibri_service_manager.stop_kolibri()
+        self.__kolibri_service_manager.release()
         super().shutdown()
-
-    def join(self):
-        self.__kolibri_service_manager.join()
 
     def should_load_url(self, url):
         if self.is_kolibri_app_url(url):
@@ -325,9 +323,9 @@ class Application(pew.ui.PEWApp):
         return self.__open_window(target_url)
 
     def __open_window(self, target_url=None):
-        self.__kolibri_service_manager.start_kolibri()
+        self.__kolibri_service_manager.hold()
 
-        target_url = target_url or self.__kolibri_service_manager.get_kolibri_url()
+        target_url = target_url or self.__kolibri_service_manager.get_base_url()
         window = KolibriWindow(
             _("Kolibri"),
             target_url,
@@ -374,7 +372,7 @@ class Application(pew.ui.PEWApp):
         if parse.query:
             item_fragment += "?{}".format(parse.query)
 
-        target_url = self.__kolibri_service_manager.get_kolibri_url(
+        target_url = self.__kolibri_service_manager.get_base_url(
             path=item_path, fragment=item_fragment
         )
 
@@ -390,7 +388,7 @@ class Application(pew.ui.PEWApp):
         # treat it as a "blank" window which can be reused to show content
         # from handle_open_file_uris.
         for window in reversed(self.__windows):
-            if window.target_url == self.__kolibri_service_manager.get_kolibri_url():
+            if window.target_url == self.__kolibri_service_manager.get_base_url():
                 return window
         return None
 

@@ -34,8 +34,9 @@ class KolibriServiceMainProcess(multiprocessing.Process):
 
     def __run_kolibri_start(self):
         self.__context.await_is_stopped()
+        setup_result = self.__context.await_setup_result()
 
-        if not self.__context.await_setup_result():
+        if setup_result != self.__context.SetupResult.SUCCESS:
             self.__context.is_starting = False
             return
 
@@ -65,15 +66,15 @@ class KolibriServiceMainProcess(multiprocessing.Process):
             )
         except SystemExit:
             # Kolibri sometimes calls sys.exit, but we don't want to exit
-            self.__context.start_result = False
+            self.__context.start_result = self.__context.StartResult.ERROR
             pass
         except Exception as error:
-            self.__context.start_result = False
+            self.__context.start_result = self.__context.StartResult.ERROR
             raise error
 
     def __kolibri_ready_cb(self, urls):
         self.__context.is_starting = False
-        self.__context.start_result = True
+        self.__context.start_result = self.__context.StartResult.SUCCESS
         self.__context.base_url = urls[0]
 
     def __update_app_key(self):

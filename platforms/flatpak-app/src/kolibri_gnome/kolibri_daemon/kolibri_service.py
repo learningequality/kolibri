@@ -4,7 +4,8 @@ logger = logging.getLogger(__name__)
 
 import multiprocessing
 
-from ctypes import c_bool, c_char
+from ctypes import c_bool, c_char, c_int
+from enum import Enum
 
 from .kolibri_service_main import KolibriServiceMainProcess
 from .kolibri_service_monitor import KolibriServiceMonitorProcess
@@ -21,17 +22,27 @@ class KolibriServiceContext(object):
     APP_KEY_LENGTH = 32
     BASE_URL_LENGTH = 128
 
+    class SetupResult(Enum):
+        NONE = 1
+        SUCCESS = 2
+        ERROR = 3
+
+    class StartResult(Enum):
+        NONE = 1
+        SUCCESS = 2
+        ERROR = 3
+
     def __init__(self):
         self.__is_starting_value = multiprocessing.Value(c_bool)
         self.__is_starting_set_event = multiprocessing.Event()
 
-        self.__start_result_value = multiprocessing.Value(c_bool)
+        self.__start_result_value = multiprocessing.Value(c_int)
         self.__start_result_set_event = multiprocessing.Event()
 
         self.__is_stopped_value = multiprocessing.Value(c_bool)
         self.__is_stopped_set_event = multiprocessing.Event()
 
-        self.__setup_result_value = multiprocessing.Value(c_bool)
+        self.__setup_result_value = multiprocessing.Value(c_int)
         self.__setup_result_set_event = multiprocessing.Event()
 
         self.__is_responding_value = multiprocessing.Value(c_bool)
@@ -52,10 +63,11 @@ class KolibriServiceContext(object):
 
     @is_starting.setter
     def is_starting(self, is_starting):
-        self.__is_starting_value.value = is_starting
         if is_starting is None:
             self.__is_starting_set_event.clear()
+            self.__is_starting_value.value = False
         else:
+            self.__is_starting_value.value = bool(is_starting)
             self.__is_starting_set_event.set()
 
     def await_is_starting(self):
@@ -65,16 +77,17 @@ class KolibriServiceContext(object):
     @property
     def start_result(self):
         if self.__start_result_set_event.is_set():
-            return self.__start_result_value.value
+            return self.StartResult(self.__start_result_value.value)
         else:
             return None
 
     @start_result.setter
     def start_result(self, start_result):
-        self.__start_result_value.value = start_result
         if start_result is None:
             self.__start_result_set_event.clear()
+            self.__start_result_value.value = 0
         else:
+            self.__start_result_value.value = start_result.value
             self.__start_result_set_event.set()
 
     def await_start_result(self):
@@ -103,16 +116,17 @@ class KolibriServiceContext(object):
     @property
     def setup_result(self):
         if self.__setup_result_set_event.is_set():
-            return self.__setup_result_value.value
+            return self.SetupResult(self.__setup_result_value.value)
         else:
             return None
 
     @setup_result.setter
     def setup_result(self, setup_result):
-        self.__setup_result_value.value = setup_result
         if setup_result is None:
             self.__setup_result_set_event.clear()
+            self.__setup_result_value.value = 0
         else:
+            self.__setup_result_value.value = setup_result.value
             self.__setup_result_set_event.set()
 
     def await_setup_result(self):
@@ -183,11 +197,12 @@ class KolibriServiceManager(KolibriServiceContext):
     processes, and checking for availability.
     """
 
-    APP_INITIALIZE_URL = "/app/api/initialize/{key}"
-
-    class State:
-        STARTING = 1
-        STOPPING = 2
+    class Status(Enum):
+        NONE = 1
+        STARTING = 2
+        STOPPED = 3
+        STARTED = 4
+        ERROR = 5
 
     def __init__(self):
         super().__init__()
@@ -199,13 +214,17 @@ class KolibriServiceManager(KolibriServiceContext):
         self.__setup_process = None
         self.__stop_process = None
 
-    def get_initialize_url(self, next_url=None):
-        app_key = self.await_app_key()
-        base_url = self.await_base_url()
-        url = self.APP_INITIALIZE_URL.format(key=app_key)
-        if next_url:
-            url += "?next={next_url}".format(next_url=next_url)
-        return base_url + url.lstrip("/")
+    def get_status(self):
+        if self.is_starting:
+            return self.Status.STARTING
+        elif self.is_stopped:
+            return self.Status.STOPPED
+        elif self.start_result == self.StartResult.SUCCESS:
+            return self.Status.STARTED
+        elif self.start_result == self.StartResult.ERROR:
+            return self.Status.ERROR
+        else:
+            return self.Status.NONE
 
     def get_kolibri_url(self, **kwargs):
         from urllib.parse import urljoin
@@ -219,22 +238,6 @@ class KolibriServiceManager(KolibriServiceContext):
             kwargs["path"] = urljoin(base_url.path, kwargs["path"].lstrip("/"))
         target_url = base_url._replace(**kwargs)
         return urlunsplit(target_url)
-
-    def is_kolibri_app_url(self, url):
-        base_url = self.await_base_url()
-
-        if not url:
-            return False
-        elif not url.startswith(base_url):
-            return False
-        elif url.startswith(base_url + "static/"):
-            return False
-        elif url.startswith(base_url + "downloadcontent/"):
-            return False
-        elif url.startswith(base_url + "content/storage/"):
-            return False
-        else:
-            return True
 
     def join(self):
         if self.__main_process and self.__main_process.is_alive():
