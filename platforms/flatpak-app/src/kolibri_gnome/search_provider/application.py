@@ -199,7 +199,7 @@ class Application(Gio.Application):
 
     def do_dbus_unregister(self, dbus_connection, object_path):
         if self.__search_provider:
-            self.__search_provider.unregister_on_connection(dbus_connection)
+            self.__search_provider.unregister()
         return True
 
     def __on_activate(self, application):

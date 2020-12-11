@@ -101,7 +101,6 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
         self.delegate.remove_window(self)
 
     def load_url(self, url, with_redirect=True):
-        print("LOAD URL", url)
         with self.__load_url_lock:
             self.__target_url = url
             try:
@@ -316,6 +315,8 @@ class Application(pew.ui.PEWApp):
             raise RedirectError()
         elif self.__kolibri_service_manager.is_kolibri_app_url(url):
             return self.__kolibri_service_manager.get_initialize_url(url)
+        elif callable(url):
+            return url()
         else:
             return url
 
@@ -325,7 +326,7 @@ class Application(pew.ui.PEWApp):
     def __open_window(self, target_url=None):
         self.__kolibri_service_manager.hold()
 
-        target_url = target_url or self.__kolibri_service_manager.get_base_url()
+        target_url = target_url or self.__get_base_url
         window = KolibriWindow(
             _("Kolibri"),
             target_url,
@@ -336,6 +337,9 @@ class Application(pew.ui.PEWApp):
         self.add_window(window)
         window.show()
         return window
+
+    def __get_base_url(self):
+        return self.__kolibri_service_manager.base_url
 
     def add_window(self, window):
         self.__windows.append(window)
@@ -372,6 +376,7 @@ class Application(pew.ui.PEWApp):
         if parse.query:
             item_fragment += "?{}".format(parse.query)
 
+        # FIXME: This is broken. Fix before merging.
         target_url = self.__kolibri_service_manager.get_base_url(
             path=item_path, fragment=item_fragment
         )
@@ -388,9 +393,9 @@ class Application(pew.ui.PEWApp):
         # treat it as a "blank" window which can be reused to show content
         # from handle_open_file_uris.
         for window in reversed(self.__windows):
-            if window.target_url == self.__kolibri_service_manager.get_base_url():
+            if window.target_url == self.__kolibri_service_manager.base_url:
                 return window
         return None
 
     def __is_loader_url(self, url):
-        return url and url.startswith(self.__loader_url)
+        return url and not callable(url) and url.startswith(self.__loader_url)
