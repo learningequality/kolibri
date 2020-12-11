@@ -84,7 +84,7 @@
           return '/';
         } else {
           const currentURL = window.encodeURIComponent(window.location.href);
-          return `${this.userPluginUrl()}?next=${currentURL}`;
+          return `${this.userPluginUrl()}#/signin?next=${currentURL}`;
         }
       },
     },
