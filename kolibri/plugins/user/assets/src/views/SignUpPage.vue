@@ -128,7 +128,6 @@
   import AuthSelect from './AuthSelect';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import getUrlParameter from './getUrlParameter';
-  import plugin_data from 'plugin_data';
 
   const { DEFERRED } = DemographicConstants;
 
@@ -167,7 +166,7 @@
     computed: {
       ...mapGetters(['selectedFacility', 'facilityConfig']),
       atFirstStep() {
-        return !this.$route.query.step;
+        return !this.$route.query.step || this.$route.query.step === 1;
       },
       firstStepIsValid() {
         return every([this.nameValid, this.usernameValid, this.passwordValid]);
@@ -229,13 +228,23 @@
         }
       },
       goToFirstStep() {
-        if (this.$router.query != undefined) this.$router.replace({ query: {} });
+        this.$router.replace({
+          query: {
+            ...this.$route.query,
+            step: 1,
+          },
+        });
       },
       goToSecondStep() {
         if (this.firstStepIsValid) {
           this.checkForDuplicateUsername(this.username).then(() => {
             if (this.firstStepIsValid) {
-              this.$router.push({ query: { step: 2 } });
+              this.$router.push({
+                query: {
+                  ...this.$route.query,
+                  step: 2,
+                },
+              });
             } else {
               this.focusOnInvalidField();
             }
@@ -266,12 +275,13 @@
             gender: this.gender || DEFERRED,
             birth_year: this.birthYear || DEFERRED,
           };
-          if (plugin_data.oidcProviderEnabled) {
-            payload['next'] = this.nextParam;
-          }
           SignUpResource.saveModel({ data: payload })
             .then(() => {
-              redirectBrowser();
+              if (this.nextParam) {
+                redirectBrowser(this.nextParam);
+              } else {
+                redirectBrowser();
+              }
             })
             .catch(error => {
               this.busy = false;

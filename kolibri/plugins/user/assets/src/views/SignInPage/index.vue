@@ -218,7 +218,6 @@
   import AuthBase from '../AuthBase';
   import UsersList from '../UsersList';
   import SignInHeading from './SignInHeading';
-  import plugin_data from 'plugin_data';
 
   const MAX_USERS_FOR_LISTING_VIEW = 16;
 
@@ -260,7 +259,6 @@
     computed: {
       ...mapGetters(['selectedFacility', 'isAppContext']),
       ...mapState('signIn', ['hasMultipleFacilities']),
-      ...mapState(['redirect']),
       backToFacilitySelectionRoute() {
         const facilityRoute = this.$router.getRoute(ComponentMap.FACILITY_SELECT);
         const whereToNext = this.$router.getRoute(ComponentMap.SIGN_IN);
@@ -503,11 +501,8 @@
           facility: this.selectedFacility.id,
         };
 
-        if (plugin_data.oidcProviderEnabled) {
+        if (this.nextParam) {
           sessionPayload['next'] = this.nextParam;
-        } else if (this.redirect && !this.nextParam) {
-          // Go to URL in 'redirect' query param, if arriving from AuthMessage
-          sessionPayload['next'] = this.redirect;
         }
 
         this.kolibriLogin(sessionPayload)

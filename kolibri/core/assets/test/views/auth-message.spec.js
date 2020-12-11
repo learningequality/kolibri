@@ -76,7 +76,7 @@ describe('auth message component', () => {
     const wrapper = makeWrapper();
     const link = wrapper.find('kexternallink-stub');
     expect(link.attributes()).toMatchObject({
-      href: 'http://localhost:8000/en/user/?redirect=http%3A%2F%2Fkolibri.time%2F',
+      href: 'http://localhost:8000/en/user/#/signin?next=http%3A%2F%2Fkolibri.time%2F',
       text: 'Sign in to Kolibri',
     });
     delete urls['kolibri:kolibri.plugins.user:user'];
