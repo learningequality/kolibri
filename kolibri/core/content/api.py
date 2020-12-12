@@ -35,6 +35,7 @@ from rest_framework.response import Response
 
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants import user_kinds
+from kolibri.core.auth.middleware import session_exempt
 from kolibri.core.content import models
 from kolibri.core.content import serializers
 from kolibri.core.content.permissions import CanManageContent
@@ -91,11 +92,11 @@ def cache_forever(some_func):
             if any(
                 map(lambda x: x in request.path, ["popular", "next_steps", "resume"])
             ):
-                timeout = 600
+                timeout = 0
         patch_response_headers(response, cache_timeout=timeout)
         return response
 
-    return wrapper_func
+    return session_exempt(wrapper_func)
 
 
 class ChannelMetadataFilter(FilterSet):
