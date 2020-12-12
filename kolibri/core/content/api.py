@@ -89,10 +89,10 @@ def cache_forever(some_func):
         except IndexError:
             request = kwargs.get("request", None)
         if isinstance(request, HttpRequest):
-            if any(
-                map(lambda x: x in request.path, ["popular", "next_steps", "resume"])
-            ):
+            if any(map(lambda x: x in request.path, ["next_steps", "resume"])):
                 timeout = 0
+            elif "popular" in request.path:
+                timeout = 600
         patch_response_headers(response, cache_timeout=timeout)
         return response
 
