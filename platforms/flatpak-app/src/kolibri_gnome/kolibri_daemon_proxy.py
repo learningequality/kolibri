@@ -1,3 +1,5 @@
+import threading
+
 from gi.repository import Gio
 
 from . import config
@@ -15,69 +17,61 @@ class KolibriDaemonProxy(object):
             "org.learningequality.Kolibri.Daemon",
             None
         )
+        self.__is_ready_event = threading.Event()
+        self.__is_ready_value = None
         self.__proxy.connect("g_properties_changed", self.__on_proxy_g_properties_changed)
+        self.__update_is_ready_event()
 
     def __on_proxy_g_properties_changed(self, proxy, changed_properties, invalidated_properties):
-        print("PROXY PROPERTIES CHANGED")
+        self.__update_is_ready_event()
 
     @property
     def app_key(self):
         variant = self.__proxy.get_cached_property("AppKey")
-        print("get_app_key", variant.get_string())
         return variant.get_string()
 
     @property
     def base_url(self):
         variant = self.__proxy.get_cached_property("BaseURL")
-        print("get_base_url", variant.get_string())
         return variant.get_string()
 
     @property
     def status(self):
         variant = self.__proxy.get_cached_property("Status")
-        print("get_status", variant.get_string())
         return variant.get_string()
 
     def hold(self):
-        print("hold")
         self.__proxy.call_sync("Hold", None, Gio.DBusCallFlags.NONE, -1, None)
 
     def release(self):
-        print("release")
         self.__proxy.call_sync("Release", None, Gio.DBusCallFlags.NONE, -1, None)
 
-    @property
-    def is_responding(self):
-        return self.get_is_responding()
-
-    def get_is_responding(self):
-        print("get_is_responding")
-        if not self.base_url or not self.app_key:
-            return None
-        elif self.status in ["STARTED"]:
+    def is_loading(self):
+        if not self.app_key or not self.base_url:
             return True
-        elif self.status in ["STOPPED", "ERROR"]:
-            return False
         else:
-            return None
+            return self.status in ["NONE", "STARTING"]
 
-    def await_is_responding(self):
-        print("await_is_responding")
-        import time
-        # FIXME: This is of course terrible and we should subscribe to the
-        #        IsReady signal instead.
-        while True:
-            is_responding = self.get_is_responding()
-            if is_responding is None:
-                time.sleep(1)
-            else:
-                return is_responding
+    def is_started(self):
+        if self.app_key and self.base_url:
+            return self.status in ["STARTED"]
+        else:
+            return False
+
+    def is_error(self):
+        return self.status in ["ERROR"]
+
+    def __update_is_ready_event(self):
+        if self.is_started() or self.is_error():
+            self.__is_ready_event.set()
+        else:
+            self.__is_ready_event.clear()
+
+    def await_is_ready(self):
+        self.__is_ready_event.wait()
+        return self.is_started()
 
     def is_kolibri_app_url(self, url):
-        if not self.base_url:
-            print("is_kolibri_app_url called but base_url is unset")
-            return True
-
         if callable(url):
             return True
 
@@ -95,11 +89,13 @@ class KolibriDaemonProxy(object):
             return True
 
     def get_initialize_url(self, next_url):
-        print("get_initialize_url")
-        if not self.base_url or not self.app_key:
-            print("get_initialize_url called but base_url or app_key are unset")
-            return None
         if callable(next_url):
             next_url = next_url()
-        return get_kolibri_initialize_url(self.base_url, self.app_key, next_url)
+        return self.__get_kolibri_initialize_url(next_url)
+
+    def __get_kolibri_initialize_url(self, next_url):
+        path = "app/api/initialize/{key}".format(key=self.app_key)
+        if next_url:
+            path += "?next={next_url}".format(next_url=next_url)
+        return self.base_url + path.lstrip("/")
 

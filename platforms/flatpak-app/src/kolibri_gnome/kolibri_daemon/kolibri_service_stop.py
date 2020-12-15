@@ -12,7 +12,7 @@ class KolibriServiceStopProcess(multiprocessing.Process):
         super().__init__()
 
     def run(self):
-        if not self.__context.await_is_responding():
+        if self.__context.await_start_result() != self.__context.StartResult.SUCCESS:
             return
 
         from kolibri.utils.cli import stop

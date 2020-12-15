@@ -9,7 +9,6 @@ from ctypes import c_bool, c_char, c_int
 from enum import Enum
 
 from .kolibri_service_main import KolibriServiceMainProcess
-from .kolibri_service_monitor import KolibriServiceMonitorProcess
 from .kolibri_service_setup import KolibriServiceSetupProcess
 from .kolibri_service_stop import KolibriServiceStopProcess
 
@@ -47,9 +46,6 @@ class KolibriServiceContext(object):
 
         self.__setup_result_value = multiprocessing.Value(c_int)
         self.__setup_result_set_event = multiprocessing.Event()
-
-        self.__is_responding_value = multiprocessing.Value(c_bool)
-        self.__is_responding_set_event = multiprocessing.Event()
 
         self.__app_key_value = multiprocessing.Array(c_char, self.APP_KEY_LENGTH)
         self.__app_key_set_event = multiprocessing.Event()
@@ -151,26 +147,6 @@ class KolibriServiceContext(object):
         return self.setup_result
 
     @property
-    def is_responding(self):
-        if self.__is_responding_set_event.is_set():
-            return self.__is_responding_value.value
-        else:
-            return None
-
-    @is_responding.setter
-    def is_responding(self, is_responding):
-        self.__is_responding_value.value = is_responding
-        if is_responding is None:
-            self.__is_responding_set_event.clear()
-        else:
-            self.__is_responding_set_event.set()
-        self.changed()
-
-    def await_is_responding(self):
-        self.__is_responding_set_event.wait()
-        return self.is_responding
-
-    @property
     def app_key(self):
         if self.__app_key_set_event.is_set():
             return self.__app_key_value.value.decode("ascii")
@@ -230,7 +206,6 @@ class KolibriServiceManager(KolibriServiceContext):
         self.is_stopped = True
 
         self.__main_process = None
-        self.__monitor_process = None
         self.__setup_process = None
         self.__stop_process = None
 
@@ -263,8 +238,6 @@ class KolibriServiceManager(KolibriServiceContext):
     def join(self):
         if self.__main_process and self.__main_process.is_alive():
             self.__main_process.join()
-        if self.__monitor_process and self.__monitor_process.is_alive():
-            self.__monitor_process.join()
         if self.__setup_process and self.__setup_process.is_alive():
             self.__setup_process.join()
         if self.__stop_process and self.__stop_process.is_alive():
@@ -284,12 +257,6 @@ class KolibriServiceManager(KolibriServiceContext):
         else:
             self.__main_process = KolibriServiceMainProcess(self)
             self.__main_process.start()
-
-        if self.__monitor_process and self.__monitor_process.is_alive():
-            return
-        else:
-            self.__monitor_process = KolibriServiceMonitorProcess(self)
-            self.__monitor_process.start()
 
     def stop_kolibri(self):
         if self.__stop_process and self.__stop_process.is_alive():

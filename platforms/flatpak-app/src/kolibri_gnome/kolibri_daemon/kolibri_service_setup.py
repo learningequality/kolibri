@@ -51,7 +51,7 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
             logger.warning("Failed to update content extensions.")
             self.__context.setup_result = self.__context.SetupResult.ERROR
 
-    def __update_from_home_template(self)
+    def __update_from_home_template(self):
         # TODO: This code should probably be in Kolibri itself
 
         if not os.path.isdir(KOLIBRI_HOME_TEMPLATE_DIR):
@@ -62,7 +62,7 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
 
         compare = filecmp.dircmp(KOLIBRI_HOME_TEMPLATE_DIR, KOLIBRI_HOME, ignore=['logs'])
 
-        if len(compare.common) == 0:
+        if len(compare.common) > 0:
             return
 
         # If Kolibri home was not already initialized, copy files from the

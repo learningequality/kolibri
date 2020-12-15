@@ -26,7 +26,7 @@ from .. import config
 
 from ..globals import KOLIBRI_APP_DEVELOPER_EXTRAS, KOLIBRI_HOME, XDG_CURRENT_DESKTOP
 from ..kolibri_daemon_proxy import KolibriDaemonProxy
-from .utils import get_kolibri_initialize_url, get_localized_file
+from .utils import get_localized_file
 
 
 class RedirectLoading(Exception):
@@ -100,7 +100,7 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
     def shutdown(self):
         self.delegate.remove_window(self)
 
-    def load_url(self, url, with_redirect=True):
+    def load_url(self, url):
         with self.__load_url_lock:
             self.__target_url = url
             try:
@@ -260,7 +260,7 @@ class KolibriWindow(KolibriView):
 
 
 class Application(pew.ui.PEWApp):
-    application_id = config.APPLICATION_ID
+    application_id = config.FRONTEND_APPLICATION_ID
 
     handles_open_file_uris = True
 
@@ -299,7 +299,7 @@ class Application(pew.ui.PEWApp):
         if self.is_kolibri_app_url(url):
             return True
         elif self.__is_loader_url(url):
-            return not self.__kolibri_service_manager.is_responding
+            return not self.__kolibri_service_manager.is_started()
         elif not url.startswith("about:"):
             subprocess.call(["xdg-open", url])
             return False
@@ -309,14 +309,12 @@ class Application(pew.ui.PEWApp):
         return self.__kolibri_service_manager.is_kolibri_app_url(url)
 
     def get_redirect_url(self, url):
-        if self.__kolibri_service_manager.is_responding is None:
-            raise RedirectLoading()
-        elif self.__kolibri_service_manager.is_responding is False:
+        if self.__kolibri_service_manager.is_error():
             raise RedirectError()
+        elif self.__kolibri_service_manager.is_loading():
+            raise RedirectLoading()
         elif self.__kolibri_service_manager.is_kolibri_app_url(url):
             return self.__kolibri_service_manager.get_initialize_url(url)
-        elif callable(url):
-            return url()
         else:
             return url
 
@@ -332,7 +330,7 @@ class Application(pew.ui.PEWApp):
             target_url,
             delegate=self,
             loader_url=self.__loader_url,
-            await_kolibri_fn=self.__kolibri_service_manager.await_is_responding,
+            await_kolibri_fn=self.__kolibri_service_manager.await_is_ready,
         )
         self.add_window(window)
         window.show()

@@ -96,7 +96,7 @@ class SearchProvider(DBusServer):
         kolibri_url = "kolibri:///{item_id}?searchTerm={term}".format(
             item_id=item_id, term=" ".join(terms)
         )
-        app_info = Gio.DesktopAppInfo.new(config.APPLICATION_ID + ".desktop")
+        app_info = Gio.DesktopAppInfo.new(config.FRONTEND_APPLICATION_ID + ".desktop")
         return app_info.launch_uris([kolibri_url], None)
 
     def __get_item_ids_for_search(self, search):
@@ -181,7 +181,7 @@ class LocalSearchHandler(SearchHandler):
 class Application(Gio.Application):
     def __init__(self):
         super().__init__(
-            application_id=config.APPLICATION_ID + ".SearchProvider",
+            application_id=config.SEARCH_PROVIDER_APPLICATION_ID,
             flags=Gio.ApplicationFlags.IS_SERVICE,
             inactivity_timeout=30000,
         )

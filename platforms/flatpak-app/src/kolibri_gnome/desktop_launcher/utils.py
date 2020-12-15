@@ -3,9 +3,6 @@ import os
 from ..globals import get_current_language
 
 
-APP_INITIALIZE_URL = "/app/api/initialize/{key}"
-
-
 def get_localized_file(file_path_template, file_path_fallback):
     language = get_current_language()
 
@@ -26,11 +23,4 @@ def get_localized_file(file_path_template, file_path_fallback):
         file_path = file_path_fallback
 
     return file_path
-
-
-def get_kolibri_initialize_url(base_url, app_key, next_url=None):
-    url = APP_INITIALIZE_URL.format(key=app_key)
-    if next_url:
-        url += "?next={next_url}".format(next_url=next_url)
-    return base_url + url.lstrip("/")
 

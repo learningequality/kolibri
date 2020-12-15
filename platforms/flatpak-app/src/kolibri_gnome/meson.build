@@ -6,7 +6,6 @@ kolibri_gnome_sources = [
     'globals.py',
     '__init__.py',
     'kolibri_daemon_proxy.py',
-    'kolibri_globals.py',
     'kolibri_settings.py',
 ]
 
@@ -32,7 +31,6 @@ kolibri_daemon_sources = [
     'kolibri_daemon/content_extensions.py',
     'kolibri_daemon/__init__.py',
     'kolibri_daemon/kolibri_service_main.py',
-    'kolibri_daemon/kolibri_service_monitor.py',
     'kolibri_daemon/kolibri_service.py',
     'kolibri_daemon/kolibri_service_setup.py',
     'kolibri_daemon/kolibri_service_stop.py',
