@@ -324,6 +324,12 @@
         if (!Number.isInteger(this.numQuestions)) {
           return this.$tr('numQuestionsBetween');
         }
+        if (this.availableQuestions == 0 || this.availableQuestions == null) {
+          return this.$tr('numQuestionsExceedNoExercises', {
+            inputNumQuestions: this.numQuestions,
+            maxQuestionsFromSelection: 0,
+          });
+        }
         if (this.numQuestions > this.availableQuestions) {
           return this.$tr('numQuestionsExceed', {
             inputNumQuestions: this.numQuestions,
@@ -500,6 +506,8 @@
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+      numQuestionsExceedNoExercises:
+        'The max number of questions based on the exercises you selected is 0. Select more exercises to reach {inputNumQuestions} questions.',
       noneSelected: 'No exercises are selected',
       exitSearchButtonLabel: 'Exit search',
       selectionInformation:
