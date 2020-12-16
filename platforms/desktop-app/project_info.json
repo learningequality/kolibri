@@ -1,8 +1,8 @@
 {
   "id": "8e33d642-00e1-4542-9848-018cce59189d",
   "name": "Kolibri",
-  "version": "0.1.1",
-  "build_number": "28",
+  "version": "0.1.2",
+  "build_number": "29",
   "identifier": "org.learningequality.Kolibri",
   "requirements": {"android": ["python2","pyjnius","genericndkbuild", "sqlite3", "cryptography", "pyopenssl", "openssl", "six"]},
   "whitelist_file": {"android": "whitelist.txt"},

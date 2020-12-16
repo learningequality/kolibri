@@ -139,7 +139,7 @@ log_dir = os.path.join(os.environ['KOLIBRI_HOME'], 'logs')
 os.makedirs(log_dir, exist_ok=True)
 log_filename = os.path.join(log_dir, log_basename)
 root_logger = logging.getLogger()
-file_handler = KolibriTimedRotatingFileHandler(filename=log_filename, when='midnight', backupCount=30)
+file_handler = KolibriTimedRotatingFileHandler(filename=log_filename, encoding='utf-8', when='midnight', backupCount=30)
 root_logger.addHandler(file_handler)
 
 # Since the log files can contain multiple runs, make the first printout very visible to quickly show
