@@ -10,7 +10,7 @@
         <LessonActive slot="value" :active="active" />
       </HeaderTableRow>
       <HeaderTableRow :keyText="coachString('recipientsLabel')">
-        <template v-slot:value>
+        <template #value>
           <Recipients
             :groupNames="groupNames"
             :hasAssignments="recipients.length > 0"

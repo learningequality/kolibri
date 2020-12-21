@@ -23,18 +23,18 @@
 
     <HeaderTable v-if="$isPrint">
       <HeaderTableRow>
-        <template v-slot:key>
+        <template #key>
           {{ coachString('groupNameLabel') }}
         </template>
-        <template v-slot:value>
+        <template #value>
           {{ group.name }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template v-slot:key>
+        <template #key>
           {{ coachString('lessonLabel') }}
         </template>
-        <template v-slot:value>
+        <template #value>
           {{ lesson.title }}
         </template>
       </HeaderTableRow>

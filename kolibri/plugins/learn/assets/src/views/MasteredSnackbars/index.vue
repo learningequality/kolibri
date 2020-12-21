@@ -10,11 +10,11 @@
         :key="SNACKBARS.POINTS"
         @close="currentSnackbar = SNACKBARS.NEXT_RESOURCE"
       >
-        <template v-slot:icon>
+        <template #icon>
           <ProgressIcon :progress="1" style="position: relative; top: -2px;" />
         </template>
 
-        <template v-slot:content>
+        <template #content>
           <PointsIcon class="points-icon" />
           <div
             class="points-amount"
@@ -41,7 +41,7 @@
         :key="SNACKBARS.NEXT_RESOURCE"
         @close="$emit('close')"
       >
-        <template v-slot:icon>
+        <template #icon>
           <ContentIcon
             class="content-icon icon-bg"
             :kind="nextContent.kind"
@@ -51,7 +51,7 @@
           />
         </template>
 
-        <template v-slot:content>
+        <template #content>
           <router-link
             class="rm-link-style"
             :style="{ color: $themeTokens.text }"

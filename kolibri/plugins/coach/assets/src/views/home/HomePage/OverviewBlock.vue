@@ -15,7 +15,7 @@
     <HeaderTable>
       <HeaderTableRow>
         <KLabeledIcon slot="key" icon="coach" :label="$tr('coach', { count: coachNames.length })" />
-        <template v-slot:value>
+        <template #value>
           <TruncatedItemList :items="coachNames" />
         </template>
       </HeaderTableRow>
@@ -25,7 +25,7 @@
           icon="people"
           :label="$tr('learner', { count: learnerNames.length })"
         />
-        <template v-slot:value>
+        <template #value>
           {{ coachString('integer', { value: learnerNames.length }) }}
         </template>
       </HeaderTableRow>

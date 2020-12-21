@@ -6,7 +6,7 @@
     :showSubNav="showSubNav"
     v-bind="immersivePageProps"
   >
-    <template v-slot:sub-nav>
+    <template #sub-nav>
       <FacilityTopNav />
     </template>
 

@@ -12,13 +12,13 @@
       :selectedChannels.sync="selectedChannels"
       :selectAllCheckbox="multipleMode"
     >
-      <template v-slot:header>
+      <template #header>
         <h1 v-if="status === ''" data-test="title">
           {{ multipleMode ? $tr('importChannelsHeader') : $tr('importResourcesHeader') }}
         </h1>
       </template>
 
-      <template v-slot:abovechannels>
+      <template #abovechannels>
         <p>
           <KButton
             v-if="channelsAreAvailable"
@@ -48,7 +48,7 @@
 
       </template>
 
-      <template v-slot:default="{ filteredItems, showItem, handleChange, itemIsSelected }">
+      <template #default="{ filteredItems, showItem, handleChange, itemIsSelected }">
         <p v-if="!channelsAreAvailable && !status">
           {{ $tr('noChannelsAvailable') }}
         </p>

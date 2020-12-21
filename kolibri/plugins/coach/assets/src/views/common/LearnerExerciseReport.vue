@@ -24,12 +24,12 @@
             v-if="exercise.assessmentmetadata.mastery_model"
             :keyText="coachString('masteryModelLabel')"
           >
-            <template v-slot:value>
+            <template #value>
               <MasteryModel :masteryModel="exercise.assessmentmetadata.mastery_model" />
             </template>
           </HeaderTableRow>
           <HeaderTableRow :keyText="coachString('statusLabel')">
-            <template v-slot:value>
+            <template #value>
               <StatusSimple :status="status" />
             </template>
           </HeaderTableRow>

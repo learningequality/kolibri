@@ -14,21 +14,21 @@
 
     <HeaderTable>
       <HeaderTableRow v-if="$isPrint">
-        <template v-slot:key>
+        <template #key>
           {{ coachString('groupNameLabel') }}
         </template>
-        <template v-slot:value>
+        <template #value>
           {{ group.name }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow v-show="!$isPrint">
-        <template v-slot:key>
+        <template #key>
           {{ coachString('statusLabel') }}
         </template>
         <QuizActive slot="value" :active="exam.active" />
       </HeaderTableRow>
       <HeaderTableRow>
-        <template v-slot:key>
+        <template #key>
           {{ coachString('avgScoreLabel') }}
         </template>
         <Score slot="value" :value="avgScore" />

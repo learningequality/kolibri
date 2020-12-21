@@ -7,7 +7,7 @@
   >
     <ChannelDetails :channel="channel">
 
-      <template v-slot:belowname>
+      <template #belowname>
         <div class="private-icons">
           <KTooltip reference="lockicon" :refs="$refs" placement="top">
             {{ WithImportDetailsStrings.$tr('unlistedChannelTooltip') }}

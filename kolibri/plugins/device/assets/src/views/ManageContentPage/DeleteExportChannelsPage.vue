@@ -6,11 +6,11 @@
       :selectedChannels.sync="selectedChannels"
       :selectAllCheckbox="true"
     >
-      <template v-slot:header>
+      <template #header>
         <h1>{{ $tr('channelsOnDevice') }}</h1>
       </template>
 
-      <template v-slot:default="{ filteredItems, showItem, handleChange, itemIsSelected }">
+      <template #default="{ filteredItems, showItem, handleChange, itemIsSelected }">
         <ChannelPanel
           v-for="channel in allChannels"
           v-show="showItem(channel)"

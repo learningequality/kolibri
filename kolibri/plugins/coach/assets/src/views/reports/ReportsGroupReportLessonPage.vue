@@ -24,7 +24,7 @@
       </p>
       <HeaderTable>
         <HeaderTableRow v-if="$isPrint" :keyText="coachString('groupNameLabel')">
-          <template v-slot:value>
+          <template #value>
             {{ group.name }}
           </template>
         </HeaderTableRow>

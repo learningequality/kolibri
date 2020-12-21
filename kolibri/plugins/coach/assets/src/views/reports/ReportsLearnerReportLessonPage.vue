@@ -23,26 +23,26 @@
       </h1>
       <HeaderTable>
         <HeaderTableRow v-if="$isPrint">
-          <template v-slot:key>
+          <template #key>
             {{ coreString('learnerLabel') }}
           </template>
-          <template v-slot:value>
+          <template #value>
             {{ learner.name }}
           </template>
         </HeaderTableRow>
         <HeaderTableRow v-show="!$isPrint">
-          <template v-slot:key>
+          <template #key>
             {{ coachString('statusLabel') }}
           </template>
-          <template v-slot:value>
+          <template #value>
             <LessonActive :active="lesson.active" />
           </template>
         </HeaderTableRow>
         <HeaderTableRow v-show="!$isPrint">
-          <template v-slot:key>
+          <template #key>
             {{ coachString('descriptionLabel') }}
           </template>
-          <template v-slot:value>
+          <template #value>
             <span dir="auto">
               {{ lesson.description || coachString('descriptionMissingLabel') }}
             </span>

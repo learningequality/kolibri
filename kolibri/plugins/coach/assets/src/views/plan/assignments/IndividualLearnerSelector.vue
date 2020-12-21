@@ -27,7 +27,7 @@
         :itemsPerPage="itemsPerPage"
         @pageChanged="pageNum => currentPage = pageNum"
       >
-        <template v-slot:default="{ items }">
+        <template #default="{ items }">
           <CoreTable
             :selectable="true"
             :emptyMessage="$tr('noUsersMatch')"
