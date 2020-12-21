@@ -62,7 +62,6 @@
 
   export default {
     name: 'ReportsGroupReportLessonExerciseHeader',
-    components: {},
     mixins: [commonCoach],
     computed: {
       lesson() {
@@ -75,7 +74,6 @@
         return this.groupMap[this.$route.params.groupId];
       },
     },
-    $trs: {},
   };
 
 </script>

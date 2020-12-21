@@ -23,7 +23,6 @@
       CoreMenuOption,
     },
     mixins: [commonCoreStrings],
-    $trs: {},
     computed: {
       url() {
         return urls['kolibri:kolibri.plugins.coach:coach']();

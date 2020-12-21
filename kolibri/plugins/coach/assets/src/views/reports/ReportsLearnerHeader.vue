@@ -72,7 +72,6 @@
 
   export default {
     name: 'ReportsLearnerHeader',
-    components: {},
     mixins: [commonCoach, commonCoreStrings],
     props: {
       enablePrint: {

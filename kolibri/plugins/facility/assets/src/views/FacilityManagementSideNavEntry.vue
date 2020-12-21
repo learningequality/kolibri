@@ -23,7 +23,6 @@
     components: {
       CoreMenuOption,
     },
-    $trs: {},
     computed: {
       url() {
         return urls['kolibri:kolibri.plugins.facility:facility_management']();

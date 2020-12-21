@@ -57,7 +57,6 @@
 
   export default {
     name: 'ReportsGroupReportQuizHeader',
-    components: {},
     mixins: [commonCoach],
     computed: {
       avgScore() {
@@ -73,7 +72,6 @@
         return this.getLearnersForGroups([this.$route.params.groupId]);
       },
     },
-    $trs: {},
   };
 
 </script>

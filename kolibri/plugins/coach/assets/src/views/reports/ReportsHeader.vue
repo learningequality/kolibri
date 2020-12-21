@@ -44,7 +44,6 @@
 
   export default {
     name: 'ReportsHeader',
-    components: {},
     mixins: [commonCoach, commonCoreStrings],
     props: {
       title: {

@@ -249,7 +249,6 @@
         this.panBackwards = true;
       },
     },
-    $trs: {},
   };
 
 </script>

@@ -55,7 +55,6 @@
       SelectAddressForm,
     },
     mixins: [commonSyncElements],
-    props: {},
     data() {
       return {
         step: Steps.WELCOME,

@@ -23,9 +23,7 @@
 
   export default {
     name: 'ReportsLessonManagerPage',
-    components: {},
     mixins: [commonCoach],
-    $trs: {},
   };
 
 </script>

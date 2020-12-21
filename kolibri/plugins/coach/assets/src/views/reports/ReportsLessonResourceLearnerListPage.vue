@@ -290,7 +290,6 @@
         exporter.export(data);
       },
     },
-    $trs: {},
   };
 
 </script>

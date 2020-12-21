@@ -55,7 +55,6 @@
         return this.contentMap[this.$route.params.exerciseId];
       },
     },
-    $trs: {},
   };
 
 </script>

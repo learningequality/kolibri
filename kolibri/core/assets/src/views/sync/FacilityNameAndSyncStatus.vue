@@ -83,7 +83,6 @@
         now: now(),
       };
     },
-    computed: {},
     methods: {
       formattedTime(datetime) {
         if (this.now - new Date(datetime) < 10000) {

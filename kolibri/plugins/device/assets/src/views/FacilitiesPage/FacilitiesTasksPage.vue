@@ -65,7 +65,6 @@
       BackLink,
     },
     mixins: [commonCoreStrings, commonTaskStrings, commonSyncElements, facilityTasksQueue],
-    props: {},
     data() {
       return {
         // (facilityTasksQueue) facilityTasks

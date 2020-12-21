@@ -32,7 +32,6 @@
   export default {
     name: 'Snackbar',
     mixins: [commonCoreStrings],
-    $trs: {},
   };
 
 </script>

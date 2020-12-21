@@ -47,7 +47,6 @@
         formDisabled: false,
       };
     },
-    computed: {},
     methods: {
       handleSubmit() {
         this.formDisabled = true;

@@ -28,7 +28,6 @@
       PlanHeader,
     },
     mixins: [commonCoreStrings],
-    $trs: {},
   };
 
 </script>

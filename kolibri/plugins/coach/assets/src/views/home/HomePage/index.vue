@@ -50,7 +50,6 @@
       QuizzesBlock,
     },
     mixins: [commonCoach],
-    $trs: {},
   };
 
 </script>

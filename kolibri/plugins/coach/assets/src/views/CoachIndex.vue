@@ -9,7 +9,6 @@
 
   export default {
     name: 'CoachIndex',
-    $trs: {},
   };
 
 </script>

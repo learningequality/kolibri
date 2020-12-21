@@ -88,7 +88,6 @@
         return groups.concat(adHocLearners);
       },
     },
-    $trs: {},
   };
 
 </script>
