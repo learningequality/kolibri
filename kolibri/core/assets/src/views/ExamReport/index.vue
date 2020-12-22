@@ -1,59 +1,62 @@
 <template>
 
   <MultiPaneLayout ref="multiPaneLayout">
-    <PageStatus
-      slot="header"
-      :contentName="exam.title"
-      :userName="userName"
-      :questions="examAttempts"
-      :completionTimestamp="completionTimestamp"
-      :completed="closed"
-    />
-
-    <AttemptLogList
-      slot="aside"
-      :attemptLogs="attemptLogs"
-      :selectedQuestionNumber="questionNumber"
-      @select="handleNavigateToQuestion"
-    />
-
-    <div
-      v-if="exercise"
-      slot="main"
-      class="exercise-container"
-      :style="{ backgroundColor: $themeTokens.surface }"
-    >
-      <h3>{{ coreString('questionNumberLabel', { questionNumber: questionNumber + 1 }) }}</h3>
-
-      <KCheckbox
-        :label="coreString('showCorrectAnswerLabel')"
-        :checked="showCorrectAnswer"
-        @change="toggleShowCorrectAnswer"
+    <template #header>
+      <PageStatus
+        :contentName="exam.title"
+        :userName="userName"
+        :questions="examAttempts"
+        :completionTimestamp="completionTimestamp"
+        :completed="closed"
       />
-      <InteractionList
-        v-if="!showCorrectAnswer"
-        :interactions="currentInteractionHistory"
-        :selectedInteractionIndex="selectedInteractionIndex"
-        @select="navigateToQuestionAttempt"
+    </template>
+
+    <template #aside>
+      <AttemptLogList
+        :attemptLogs="attemptLogs"
+        :selectedQuestionNumber="questionNumber"
+        @select="handleNavigateToQuestion"
       />
-      <KContentRenderer
+    </template>
+
+    <template #main>
+      <div
         v-if="exercise"
-        :itemId="itemId"
-        :allowHints="false"
-        :kind="exercise.kind"
-        :files="exercise.files"
-        :available="exercise.available"
-        :extraFields="exercise.extra_fields"
-        :interactive="false"
-        :assessment="true"
-        :answerState="answerState"
-        :showCorrectAnswer="showCorrectAnswer"
-      />
-    </div>
+        class="exercise-container"
+        :style="{ backgroundColor: $themeTokens.surface }"
+      >
+        <h3>{{ coreString('questionNumberLabel', { questionNumber: questionNumber + 1 }) }}</h3>
 
-    <p v-else slot="main">
-      {{ $tr('noItemId') }}
-    </p>
+        <KCheckbox
+          :label="coreString('showCorrectAnswerLabel')"
+          :checked="showCorrectAnswer"
+          @change="toggleShowCorrectAnswer"
+        />
+        <InteractionList
+          v-if="!showCorrectAnswer"
+          :interactions="currentInteractionHistory"
+          :selectedInteractionIndex="selectedInteractionIndex"
+          @select="navigateToQuestionAttempt"
+        />
+        <KContentRenderer
+          v-if="exercise"
+          :itemId="itemId"
+          :allowHints="false"
+          :kind="exercise.kind"
+          :files="exercise.files"
+          :available="exercise.available"
+          :extraFields="exercise.extra_fields"
+          :interactive="false"
+          :assessment="true"
+          :answerState="answerState"
+          :showCorrectAnswer="showCorrectAnswer"
+        />
+      </div>
+
+      <p v-else>
+        {{ $tr('noItemId') }}
+      </p>
+    </template>
   </MultiPaneLayout>
 
 </template>

@@ -2,30 +2,33 @@
 
   <KPageContainer noPadding>
     <MultiPaneLayout ref="multiPaneLayout">
-      <div slot="header">
-        <h1 class="item-detail-section title">
-          <ContentIcon
-            class="item-detail-icons"
-            :kind="kind"
-            :showTooltip="false"
-          />
-          {{ title }}
-          <CoachContentLabel
-            class="item-detail-icons"
-            :value="exercise.num_coach_contents || 0"
-            :isTopic="false"
-          />
-        </h1>
-      </div>
-      <template v-if="learners.length > 0">
+      <template #header>
+        <div>
+          <h1 class="item-detail-section title">
+            <ContentIcon
+              class="item-detail-icons"
+              :kind="kind"
+              :showTooltip="false"
+            />
+            {{ title }}
+            <CoachContentLabel
+              class="item-detail-icons"
+              :value="exercise.num_coach_contents || 0"
+              :isTopic="false"
+            />
+          </h1>
+        </div>
+      </template>
+
+      <template v-if="learners.length > 0" #aside>
         <QuestionDetailLearnerList
-          slot="aside"
           :learners="learners"
           :selectedLearnerNumber="learnerIndex"
           @select="navigateToNewAttempt($event)"
         />
+      </template>
+      <template v-if="learners.length > 0" #main>
         <div
-          slot="main"
           class="exercise-section"
           :style="{ backgroundColor: $themeTokens.surface }"
         >
@@ -137,7 +140,6 @@
         this.$forceUpdate();
       },
     },
-    $trs: {},
   };
 
 </script>

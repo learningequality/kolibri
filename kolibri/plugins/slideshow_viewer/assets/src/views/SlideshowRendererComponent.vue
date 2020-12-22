@@ -52,6 +52,7 @@
           {{ slide.caption }}
         </div>
       </Slide>
+      <!-- VUE3-COMPAT: Cannot have multiple components with same target slot -->
       <HooperNavigation
         slot="hooper-addons"
         :class="{ 'hooper-navigation-fullscreen': isInFullscreen }"

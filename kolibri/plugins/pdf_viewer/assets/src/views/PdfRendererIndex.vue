@@ -71,7 +71,7 @@
         keyField="index"
         @update="handleUpdate"
       >
-        <template v-slot="{ item }">
+        <template #default="{ item }">
           <PdfPage
             :key="item.index"
             :pageNum="item.index + 1"
