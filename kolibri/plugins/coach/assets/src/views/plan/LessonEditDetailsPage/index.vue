@@ -20,18 +20,17 @@
         @submit="handleSaveChanges"
       >
 
-        <section
-          v-if="showResourcesTable"
-          slot="resourceTable"
-        >
-          <h2 class="resource-header">
-            {{ coreString('resourcesLabel') }}
-          </h2>
-          <ResourceListTable
-            v-show="!disabled"
-            :resources.sync="updatedResources"
-          />
-        </section>
+        <template #resourceTable>
+          <section v-if="showResourcesTable">
+            <h2 class="resource-header">
+              {{ coreString('resourcesLabel') }}
+            </h2>
+            <ResourceListTable
+              v-show="!disabled"
+              :resources.sync="updatedResources"
+            />
+          </section>
+        </template>
       </AssignmentDetailsForm>
 
     </KPageContainer>

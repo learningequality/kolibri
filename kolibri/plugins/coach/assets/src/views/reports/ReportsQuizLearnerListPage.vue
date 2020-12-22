@@ -44,7 +44,9 @@
           </td>
           <td v-else>
             <KLabeledIcon>
-              <KIcon slot="icon" :color="$themeTokens.progress" icon="inProgress" />
+              <template #icon>
+                <KIcon :color="$themeTokens.progress" icon="inProgress" />
+              </template>
               {{
                 $tr('questionsCompletedRatioLabel',
                     { count: tableRow.statusObj.num_answered || 0, total: exam.question_count })

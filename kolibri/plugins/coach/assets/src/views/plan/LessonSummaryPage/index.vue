@@ -6,7 +6,10 @@
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
+
     <KGrid v-if="!loading">
       <KGridItem>
         <QuizLessonDetailsHeader
@@ -14,11 +17,12 @@
           :backlinkLabel="coreString('allLessonsLabel')"
           :backlink="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
         >
-          <LessonOptionsDropdownMenu
-            slot="dropdown"
-            optionsFor="plan"
-            @select="handleSelectOption"
-          />
+          <template #dropdown>
+            <LessonOptionsDropdownMenu
+              optionsFor="plan"
+              @select="handleSelectOption"
+            />
+          </template>
         </QuizLessonDetailsHeader>
       </KGridItem>
       <KGridItem :layout12="{ span: 4 }">

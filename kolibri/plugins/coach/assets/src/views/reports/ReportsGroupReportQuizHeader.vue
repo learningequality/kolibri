@@ -25,13 +25,17 @@
         <template #key>
           {{ coachString('statusLabel') }}
         </template>
-        <QuizActive slot="value" :active="exam.active" />
+        <template #value>
+          <QuizActive :active="exam.active" />
+        </template>
       </HeaderTableRow>
       <HeaderTableRow>
         <template #key>
           {{ coachString('avgScoreLabel') }}
         </template>
-        <Score slot="value" :value="avgScore" />
+        <template #value>
+          <Score :value="avgScore" />
+        </template>
       </HeaderTableRow>
     </HeaderTable>
 

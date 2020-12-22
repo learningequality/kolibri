@@ -2,7 +2,9 @@
 
   <div>
     <KLabeledIcon nowrap>
-      <CoachStatusIcon slot="icon" ref="status" :icon="icon" />
+      <template #icon>
+        <CoachStatusIcon ref="status" :icon="icon" />
+      </template>
       {{ text }}
     </KLabeledIcon>
     <KTooltip

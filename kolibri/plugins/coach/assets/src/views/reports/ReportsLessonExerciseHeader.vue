@@ -4,16 +4,18 @@
 
     <section>
       <HeaderWithOptions>
-        <BackLink
-          slot="header"
-          :to="classRoute('ReportsLessonReportPage')"
-          :text="coachString('backToLessonLabel', { lesson: lesson.title })"
-        />
-        <KButton
-          slot="options"
-          :text="coachString('previewAction')"
-          @click="$emit('previewClick')"
-        />
+        <template #header>
+          <BackLink
+            :to="classRoute('ReportsLessonReportPage')"
+            :text="coachString('backToLessonLabel', { lesson: lesson.title })"
+          />
+        </template>
+        <template #options>
+          <KButton
+            :text="coachString('previewAction')"
+            @click="$emit('previewClick')"
+          />
+        </template>
       </HeaderWithOptions>
       <h1>
         <KLabeledIcon icon="exercise" :label="exercise.title" />

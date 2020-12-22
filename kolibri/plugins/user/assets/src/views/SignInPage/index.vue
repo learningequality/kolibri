@@ -24,15 +24,16 @@
           v-if="showPasswordForm"
           appearance="basic-link"
           :text="$tr('changeUser')"
-          style="margin-top: 24px;margin-left: 4px;"
+          style="margin-top: 24px; margin-left: 4px;"
           @click="clearUser"
         >
-          <KIcon
-            slot="icon"
-            style="width: 24px; height: 24px; top: 6px; right: 8px;"
-            icon="back"
-            :color="$themeTokens.primary"
-          />
+          <template #icon>
+            <KIcon
+              style="width: 24px; height: 24px; top: 6px; right: 8px;"
+              icon="back"
+              :color="$themeTokens.primary"
+            />
+          </template>
         </KButton>
 
       </div>
@@ -160,18 +161,19 @@
         style="margin-bottom: 16px;"
         @click="clearUser"
       >
-        <KIcon
-          slot="icon"
-          icon="back"
-          :style="{
-            fill: $themeTokens.primary,
-            height: '1.125em',
-            width: '1.125em',
-            position: 'relative',
-            marginRight: '8px',
-            top: '2px',
-          }"
-        />{{ coreString('goBackAction') }}
+        <template #icon>
+          <KIcon
+            icon="back"
+            :style="{
+              fill: $themeTokens.primary,
+              height: '1.125em',
+              width: '1.125em',
+              position: 'relative',
+              marginRight: '8px',
+              top: '2px',
+            }"
+          />{{ coreString('goBackAction') }}
+        </template>
       </KButton>
 
       <p>{{ $tr("needToMakeNewPasswordLabel", { user: username }) }}</p>

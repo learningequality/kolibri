@@ -23,7 +23,9 @@
         <template #key>
           {{ coachString('groupsLabel') }}
         </template>
-        <TruncatedItemList slot="value" :items="getGroupNamesForLearner(learner.id)" />
+        <template #value>
+          <TruncatedItemList :items="getGroupNamesForLearner(learner.id)" />
+        </template>
       </HeaderTableRow>
       <HeaderTableRow>
         <template #key>

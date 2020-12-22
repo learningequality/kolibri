@@ -7,21 +7,25 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       <section>
         <HeaderWithOptions>
-          <BackLink
-            slot="header"
-            :to="classRoute('ReportsLessonReportPage', {})"
-            :text="coachString('backToLessonLabel', { lesson: lesson.title })"
-          />
-          <KButton
-            slot="options"
-            :text="coachString('previewAction')"
-            @click="onPreviewClick"
-          />
+          <template #header>
+            <BackLink
+              :to="classRoute('ReportsLessonReportPage', {})"
+              :text="coachString('backToLessonLabel', { lesson: lesson.title })"
+            />
+          </template>
+          <template #options>
+            <KButton
+              :text="coachString('previewAction')"
+              @click="onPreviewClick"
+            />
+          </template>
         </HeaderWithOptions>
         <h1>
           <KLabeledIcon :icon="resource.kind" :label="resource.title" />

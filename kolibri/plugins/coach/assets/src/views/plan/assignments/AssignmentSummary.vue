@@ -7,7 +7,9 @@
 
     <HeaderTable>
       <HeaderTableRow :keyText="coachString('statusLabel')">
-        <LessonActive slot="value" :active="active" />
+        <template #value>
+          <LessonActive :active="active" />
+        </template>
       </HeaderTableRow>
       <HeaderTableRow :keyText="coachString('recipientsLabel')">
         <template #value>
@@ -82,7 +84,6 @@
         return names;
       },
     },
-    $trs: {},
   };
 
 </script>

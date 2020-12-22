@@ -18,11 +18,12 @@
         <tr v-for="user in facilityUsers" :key="user.id">
           <td>
             <KLabeledIcon :label="fullNameLabel(user)">
-              <PermissionsIcon
-                v-if="Boolean(getPermissionType(user.id))"
-                slot="icon"
-                :permissionType="getPermissionType(user.id)"
-              />
+              <template #icon>
+                <PermissionsIcon
+                  v-if="Boolean(getPermissionType(user.id))"
+                  :permissionType="getPermissionType(user.id)"
+                />
+              </template>
             </KLabeledIcon>
           </td>
           <td>

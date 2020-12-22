@@ -5,7 +5,9 @@
     :allLinkRoute="classRoute('ReportsQuizListPage', {})"
     :showAllLink="table.length > 0"
   >
-    <KLabeledIcon slot="title" icon="quiz" :label="coreString('quizzesLabel')" />
+    <template #title>
+      <KLabeledIcon icon="quiz" :label="coreString('quizzesLabel')" />
+    </template>
 
     <p v-if="table.length === 0">
       {{ coachString('quizListEmptyState') }}

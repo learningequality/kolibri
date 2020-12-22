@@ -24,16 +24,17 @@
           </div>
         </template>
 
-        <UiAlert
-          v-if="!isUserLoggedIn"
-          slot="alert"
-          :dismissible="false"
-          :removeIcon="true"
-          type="warning"
-          class="alert"
-        >
-          {{ $tr('signIn') }}
-        </UiAlert>
+        <template #alert>
+          <UiAlert
+            v-if="!isUserLoggedIn"
+            :dismissible="false"
+            :removeIcon="true"
+            type="warning"
+            class="alert"
+          >
+            {{ $tr('signIn') }}
+          </UiAlert>
+        </template>
       </Snackbar>
 
       <Snackbar
