@@ -193,6 +193,7 @@ module.exports = {
     'vue/key-spacing': [ERROR, { afterColon: true }],
     'vue/space-infix-ops': ERROR,
     'vue/space-unary-ops': ERROR,
+    'vue/no-lone-template': OFF,
 
     'import/first': ERROR,
     'import/no-duplicates': ERROR,
