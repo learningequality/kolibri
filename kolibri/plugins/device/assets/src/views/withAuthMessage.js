@@ -17,7 +17,7 @@ const roleToGetterMap = {
 export default function withAuthMessage(component, authorizedRole) {
   const originalProps = component.props || [];
   const originalMethods = component.methods || [];
-  return Vue.component('withAuthMessage', {
+  return Vue.component('WithAuthMessage', {
     props: { ...originalProps },
     beforeRouteEnter: component.beforeRouteEnter,
     beforeRouteUpdate: component.beforeRouteUpdate,

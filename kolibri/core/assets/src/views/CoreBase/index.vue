@@ -68,7 +68,7 @@
       :style="contentStyles"
     >
       <CoreBanner v-if="coreBannerComponent && showDemoBanner">
-        <template slot-scope="props">
+        <template #default="props">
           <component :is="coreBannerComponent" :bannerClosed="props.bannerClosed" />
         </template>
       </CoreBanner>

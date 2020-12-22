@@ -48,7 +48,7 @@
 
       </template>
 
-      <template #default="{ filteredItems, showItem, handleChange, itemIsSelected }">
+      <template #default="{ showItem, handleChange, itemIsSelected }">
         <p v-if="!channelsAreAvailable && !status">
           {{ $tr('noChannelsAvailable') }}
         </p>
