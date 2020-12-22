@@ -59,6 +59,7 @@
 
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import sortBy from 'lodash/sortBy';
   import commonCoach from '../common';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
@@ -75,7 +76,7 @@
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       table() {
-        const sorted = this._.sortBy(this.groups, ['name']);
+        const sorted = sortBy(this.groups, ['name']);
         return sorted.map(group => {
           const groupLessons = this.lessons.filter(
             lesson => lesson.groups.includes(group.id) || !lesson.groups.length

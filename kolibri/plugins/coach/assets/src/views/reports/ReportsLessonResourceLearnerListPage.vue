@@ -119,6 +119,7 @@
 
 <script>
 
+  import sortBy from 'lodash/sortBy';
   import { LastPages } from '../../constants/lastPagesConstants';
   import commonCoach from '../common';
   import HeaderWithOptions from '../common/HeaderWithOptions';
@@ -167,7 +168,7 @@
       },
       allEntries() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
-        const sorted = this._.sortBy(learners, ['name']);
+        const sorted = sortBy(learners, ['name']);
         return sorted.map(learner => {
           const groups = this.getLearnerLessonGroups(learner.id);
           const tableRow = {
