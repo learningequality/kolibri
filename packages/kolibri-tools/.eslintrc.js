@@ -183,8 +183,8 @@ module.exports = {
     'vue/no-deprecated-scope-attribute': ERROR,
     'vue/valid-v-bind-sync': ERROR,
     // TODO Enforcing these rules requires bigger refactor
-    // 'vue/no-deprecated-slot-attribute': ERROR,
     // 'vue/no-deprecated-slot-scope-attribute': ERROR,
+    'vue/no-deprecated-slot-scope-attribute': ERROR,
     'vue/valid-v-slot': ERROR,
     'vue/v-slot-style': ERROR,
     // ESLint rules for interpolated JS
