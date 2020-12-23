@@ -113,6 +113,19 @@ class DeviceInfoView(views.APIView):
         info["python_version"] = "{major}.{minor}.{micro}".format(
             major=version_info.major, minor=version_info.minor, micro=version_info.micro
         )
+
+        if not request.user.is_superuser:
+            # If user is not superuser, return just free space available
+            info.pop("version")
+            info.pop("urls")
+            info.pop("database_path")
+            info.pop("device_id")
+            info.pop("os")
+            info.pop("server_time")
+            info.pop("server_timezone")
+            info.pop("installer")
+            info.pop("python_version")
+
         return Response(info)
 
 
