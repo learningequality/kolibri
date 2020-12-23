@@ -127,7 +127,7 @@ class DeviceInfoView(views.APIView):
                 "python_version",
             ]
             for key in keys_to_remove:
-                info.pop(key)
+                del info[key]
 
         return Response(info)
 
