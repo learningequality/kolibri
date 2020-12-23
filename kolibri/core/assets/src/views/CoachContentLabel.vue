@@ -5,11 +5,12 @@
     ref="something"
     :style="{ color: $themeTokens.coachContent }"
   >
-    <KIcon
-      slot="icon"
-      icon="coach"
-      :color="$themeTokens.coachContent"
-    />
+    <template #icon>
+      <KIcon
+        icon="coach"
+        :color="$themeTokens.coachContent"
+      />
+    </template>
     <span v-if="isTopic" class="counter">
       {{ $formatNumber(value) }}
     </span>

@@ -7,7 +7,9 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
 
@@ -85,6 +87,7 @@
 
 <script>
 
+  import sortBy from 'lodash/sortBy';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import { LastPages } from '../../constants/lastPagesConstants';
@@ -130,7 +133,7 @@
       allEntries() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
 
-        const sorted = this._.sortBy(learners, ['name']);
+        const sorted = sortBy(learners, ['name']);
         return sorted.map(learner => {
           const groups = this.getLearnerLessonGroups(learner.id);
           const tableRow = {

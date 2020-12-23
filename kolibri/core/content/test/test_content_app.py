@@ -1208,13 +1208,13 @@ class ContentNodeAPITestCase(APITestCase):
         response_content_ids = [node["content_id"] for node in response.json()]
         self.assertEqual([], response_content_ids)
 
-    def test_resume_ten_minute_cache(self):
+    def test_resume_zero_cache(self):
         user, expected_content_ids = self._create_summary_logs()
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
         response = self.client.get(
             reverse("kolibri:core:contentnode-resume", kwargs={"pk": user.id})
         )
-        self.assertEqual(response["Cache-Control"], "max-age=600")
+        self.assertEqual(response["Cache-Control"], "max-age=0")
 
     def test_next_steps_prereq(self):
         facility = Facility.objects.create(name="MyFac")
@@ -1239,7 +1239,7 @@ class ContentNodeAPITestCase(APITestCase):
         response_content_ids = set(node["content_id"] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
-    def test_next_steps_prereq_ten_minute_cache(self):
+    def test_next_steps_prereq_zero_cache(self):
         facility = Facility.objects.create(name="MyFac")
         user = FacilityUser.objects.create(username="user", facility=facility)
         root = content.ContentNode.objects.get(title="root")
@@ -1257,7 +1257,7 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(
             reverse("kolibri:core:contentnode-next-steps", kwargs={"pk": user.id})
         )
-        self.assertEqual(response["Cache-Control"], "max-age=600")
+        self.assertEqual(response["Cache-Control"], "max-age=0")
 
     def test_next_steps_prereq_wrong_id(self):
         facility = Facility.objects.create(name="MyFac")

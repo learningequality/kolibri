@@ -15,15 +15,10 @@
         :class="{ 'has-message': Boolean(message) }"
         dir="auto"
       >
-        <KLabeledIcon
-
-          :label="title"
-        >
-          <ContentIcon
-            slot="icon"
-            :kind="kind"
-          />
-
+        <KLabeledIcon :label="title">
+          <template #icon>
+            <ContentIcon :kind="kind" />
+          </template>
         </KLabeledIcon>
       </h3>
       <div v-if="message" class="message" :style="{ color: $themeTokens.text }">

@@ -18,7 +18,9 @@
             :primary="false"
             @click="setFacility(facility.id)"
           >
-            <KIcon slot="icon" icon="facility" style="margin-right: 16px;" />
+            <template #icon>
+              <KIcon icon="facility" style="margin-right: 16px;" />
+            </template>
             {{ facility.name }}
           </KButton>
         </div>
@@ -40,7 +42,9 @@
             :primary="false"
             appearance="raised-button"
           >
-            <KIcon slot="icon" icon="facility" style="margin-right: 16px;" />
+            <template #icon>
+              <KIcon icon="facility" style="margin-right: 16px;" />
+            </template>
             {{ facility.name }}
           </KButton>
         </div>

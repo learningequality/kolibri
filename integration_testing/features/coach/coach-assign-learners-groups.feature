@@ -29,7 +29,7 @@ Feature: Assign and remove learners to and from groups
     Then I see *Remove user* modal
     When I click the *Remove* button
     Then the modal closes
-      And I see the snackbar notification *Updated*
+      And I see the snackbar notification *Learner removed*
       And I see the <group> group page again
       And I see the name of removed learner(s) is not listed
       And I see the number of learners is decreased

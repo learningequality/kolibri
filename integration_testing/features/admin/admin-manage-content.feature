@@ -4,7 +4,7 @@ Feature: Facility admin device management
   Background:
     Given I am signed into Kolibri as a facility admin user with device permissions for content import
 
-  Scenario: View all the options for managing content
+   Scenario: View all the options for managing content
     When I go to *Device > Channels* page
     Then I see the list of already imported channels
       And I see the *Options* button for each channel

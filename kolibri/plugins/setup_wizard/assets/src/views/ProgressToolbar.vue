@@ -7,13 +7,14 @@
     textColor="white"
     :removeNavIcon="$attrs.removeNavIcon"
   >
-    <KIconButton
-      slot="icon"
-      icon="back"
-      color="white"
-      :class="{ 'rtl-icon': isRtl }"
-      @click="$emit('click_back')"
-    />
+    <template #icon>
+      <KIconButton
+        icon="back"
+        color="white"
+        :class="{ 'rtl-icon': isRtl }"
+        @click="$emit('click_back')"
+      />
+    </template>
     <span>
       {{ title || coreString('kolibriLabel') }}
     </span>

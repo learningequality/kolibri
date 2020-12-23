@@ -20,9 +20,11 @@
       :description="noOptionDescription"
     />
 
-    <p slot="footer">
-      {{ $tr('details') }}
-    </p>
+    <template #footer>
+      <p>
+        {{ $tr('details') }}
+      </p>
+    </template>
   </OnboardingForm>
 
 </template>

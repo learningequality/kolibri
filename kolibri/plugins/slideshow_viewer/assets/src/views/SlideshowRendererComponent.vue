@@ -52,11 +52,14 @@
           {{ slide.caption }}
         </div>
       </Slide>
+      <!-- VUE3-COMPAT: Cannot have multiple components with same target slot -->
+      <!-- eslint-disable vue/no-deprecated-slot-attribute -->
       <HooperNavigation
         slot="hooper-addons"
         :class="{ 'hooper-navigation-fullscreen': isInFullscreen }"
       />
       <HooperPagination slot="hooper-addons" />
+      <!-- eslint-enable -->
     </Hooper>
   </CoreFullscreen>
 

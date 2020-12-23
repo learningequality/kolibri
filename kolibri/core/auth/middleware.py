@@ -2,6 +2,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user
 from django.contrib.auth.middleware import AuthenticationMiddleware
+from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import SimpleLazyObject
 
@@ -86,3 +87,29 @@ class XhrPreventLoginPromptMiddleware(object):
         if response and response.status_code == 401 and request.is_ajax():
             del response["WWW-Authenticate"]
         return response
+
+
+SESSION_EXEMPT = "_session_exempt"
+
+
+def session_exempt(view):
+    def wrapper_func(*args, **kwargs):
+        return view(*args, **kwargs)
+
+    setattr(wrapper_func, SESSION_EXEMPT, True)
+    return wrapper_func
+
+
+class KolibriSessionMiddleware(SessionMiddleware):
+    def _is_exempt(self, obj):
+        return hasattr(obj, SESSION_EXEMPT)
+
+    def process_view(self, request, callback, callback_args, callback_kwargs):
+        if self._is_exempt(callback):
+            setattr(request, SESSION_EXEMPT, True)
+        return None
+
+    def process_response(self, request, response):
+        if self._is_exempt(request):
+            return response
+        return super(KolibriSessionMiddleware, self).process_response(request, response)

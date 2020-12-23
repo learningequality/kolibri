@@ -77,33 +77,37 @@
 
     <slot name="underbuttons"></slot>
 
-    <KFixedGrid slot="actions" class="actions" numCols="4">
-      <KFixedGridItem span="1">
-        <transition name="spinner-fade">
-          <div v-if="discoveringPeers">
-            <KLabeledIcon>
-              <KCircularLoader slot="icon" :size="16" :stroke="6" class="loader" />
-            </KLabeledIcon>
-          </div>
-        </transition>
-      </KFixedGridItem>
-      <KFixedGridItem span="3" alignment="right">
-        <KButtonGroup style="margin-top: 8px;">
-          <KButton
-            :text="coreString('cancelAction')"
-            appearance="flat-button"
-            :disabled="formDisabled"
-            @click="$emit('cancel')"
-          />
-          <KButton
-            :text="coreString('continueAction')"
-            :primary="true"
-            :disabled="formDisabled || submitDisabled"
-            type="submit"
-          />
-        </KButtonGroup>
-      </KFixedGridItem>
-    </KFixedGrid>
+    <template #actions>
+      <KFixedGrid class="actions" numCols="4">
+        <KFixedGridItem span="1">
+          <transition name="spinner-fade">
+            <div v-if="discoveringPeers">
+              <KLabeledIcon>
+                <template #icon>
+                  <KCircularLoader :size="16" :stroke="6" class="loader" />
+                </template>
+              </KLabeledIcon>
+            </div>
+          </transition>
+        </KFixedGridItem>
+        <KFixedGridItem span="3" alignment="right">
+          <KButtonGroup style="margin-top: 8px;">
+            <KButton
+              :text="coreString('cancelAction')"
+              appearance="flat-button"
+              :disabled="formDisabled"
+              @click="$emit('cancel')"
+            />
+            <KButton
+              :text="coreString('continueAction')"
+              :primary="true"
+              :disabled="formDisabled || submitDisabled"
+              type="submit"
+            />
+          </KButtonGroup>
+        </KFixedGridItem>
+      </KFixedGrid>
+    </template>
 
   </KModal>
 

@@ -1,99 +1,103 @@
 <template>
 
   <MultiPaneLayout>
-    <div slot="header">
-      <KGrid>
-        <KGridItem
-          :layout8="{ span: 4 }"
-          :layout12="{ span: 6 }"
-        >
-          <h1>
-            <KLabeledIcon :icon="content.kind" :label="content.title" />
-          </h1>
-        </KGridItem>
-        <KGridItem
-          :layout="{ alignment: 'right' }"
-          :layout8="{ span: 4 }"
-          :layout12="{ span: 6 }"
-        >
-          <template v-if="displaySelectOptions">
-            <template v-if="isSelected">
-              <mat-svg
-                class="selected-icon"
-                category="action"
-                name="check_circle"
+    <template #header>
+      <div>
+        <KGrid>
+          <KGridItem
+            :layout8="{ span: 4 }"
+            :layout12="{ span: 6 }"
+          >
+            <h1>
+              <KLabeledIcon :icon="content.kind" :label="content.title" />
+            </h1>
+          </KGridItem>
+          <KGridItem
+            :layout="{ alignment: 'right' }"
+            :layout8="{ span: 4 }"
+            :layout12="{ span: 6 }"
+          >
+            <template v-if="displaySelectOptions">
+              <template v-if="isSelected">
+                <mat-svg
+                  class="selected-icon"
+                  category="action"
+                  name="check_circle"
+                />
+                {{ $tr('addedIndicator') }}
+              </template>
+
+              <KButton
+                v-if="isSelected"
+                :text="coreString('removeAction')"
+                :primary="true"
+                :disabled="disableSelectButton"
+                @click="removeResource"
               />
-              {{ $tr('addedIndicator') }}
+              <KButton
+                v-else
+                :text="$tr('addButtonLabel')"
+                :primary="true"
+                :disabled="disableSelectButton"
+                @click="addResource"
+              />
             </template>
-
-            <KButton
-              v-if="isSelected"
-              :text="coreString('removeAction')"
-              :primary="true"
-              :disabled="disableSelectButton"
-              @click="removeResource"
+          </KGridItem>
+        </KGrid>
+        <CoachContentLabel :value="content.num_coach_contents" :isTopic="false" />
+        <HeaderTable>
+          <HeaderTableRow
+            v-if="completionData"
+            :keyText="coachString('masteryModelLabel')"
+          >
+            <template #value>
+              <MasteryModel :masteryModel="completionData" />
+            </template>
+          </HeaderTableRow>
+        </HeaderTable>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <p v-if="description" dir="auto" v-html="description"></p>
+        <ul class="meta">
+          <li v-if="content.author">
+            {{ $tr('authorDataHeader') }}:
+            {{ content.author }}
+          </li>
+          <li v-if="licenseName">
+            {{ $tr('licenseDataHeader') }}:
+            {{ licenseName }}
+            <InfoIcon
+              v-if="licenseDescription"
+              :tooltipText="licenseDescription"
+              :iconAriaLabel="licenseDescription"
             />
-            <KButton
-              v-else
-              :text="$tr('addButtonLabel')"
-              :primary="true"
-              :disabled="disableSelectButton"
-              @click="addResource"
-            />
-          </template>
-        </KGridItem>
-      </KGrid>
-      <CoachContentLabel :value="content.num_coach_contents" :isTopic="false" />
-      <HeaderTable>
-        <HeaderTableRow
-          v-if="completionData"
-          :keyText="coachString('masteryModelLabel')"
-        >
-          <template #value>
-            <MasteryModel :masteryModel="completionData" />
-          </template>
-        </HeaderTableRow>
-      </HeaderTable>
-      <!-- eslint-disable-next-line vue/no-v-html -->
-      <p v-if="description" dir="auto" v-html="description"></p>
-      <ul class="meta">
-        <li v-if="content.author">
-          {{ $tr('authorDataHeader') }}:
-          {{ content.author }}
-        </li>
-        <li v-if="licenseName">
-          {{ $tr('licenseDataHeader') }}:
-          {{ licenseName }}
-          <InfoIcon
-            v-if="licenseDescription"
-            :tooltipText="licenseDescription"
-            :iconAriaLabel="licenseDescription"
-          />
-        </li>
-        <li v-if="content.license_owner">
-          {{ $tr('copyrightHolderDataHeader') }}:
-          {{ content.license_owner }}
-        </li>
-      </ul>
-    </div>
+          </li>
+          <li v-if="content.license_owner">
+            {{ $tr('copyrightHolderDataHeader') }}:
+            {{ content.license_owner }}
+          </li>
+        </ul>
+      </div>
+    </template>
 
-    <QuestionList
-      v-if="isExercise"
-      slot="aside"
-      :questions="questions"
-      :questionLabel="questionLabel"
-      :selectedIndex="selectedQuestionIndex"
-      @select="selectedQuestionIndex = $event"
-    />
+    <template #aside>
+      <QuestionList
+        v-if="isExercise"
+        :questions="questions"
+        :questionLabel="questionLabel"
+        :selectedIndex="selectedQuestionIndex"
+        @select="selectedQuestionIndex = $event"
+      />
+    </template>
 
-    <ContentArea
-      slot="main"
-      class="content-area"
-      :header="questionLabel(selectedQuestionIndex)"
-      :selectedQuestion="selectedQuestion"
-      :content="content"
-      :isExercise="isExercise"
-    />
+    <template #main>
+      <ContentArea
+        class="content-area"
+        :header="questionLabel(selectedQuestionIndex)"
+        :selectedQuestion="selectedQuestion"
+        :content="content"
+        :isExercise="isExercise"
+      />
+    </template>
   </MultiPaneLayout>
 
 </template>

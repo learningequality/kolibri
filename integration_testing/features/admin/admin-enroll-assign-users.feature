@@ -7,7 +7,7 @@ Feature: Admin enrolls learners and assign coaches to classes
       And there is a class created in the facility
       And there are learner and coach users created in the facility
 
-  Scenario: Enroll learners to a class
+   Scenario: Enroll learners to a class
     When I click on class <class>
     Then I see the class <class> page
     When I click the *Enroll learners* button

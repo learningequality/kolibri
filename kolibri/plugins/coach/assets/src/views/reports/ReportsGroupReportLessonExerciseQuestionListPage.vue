@@ -7,7 +7,9 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
 
@@ -117,7 +119,6 @@
         exporter.export(this.table);
       },
     },
-    $trs: {},
   };
 
 </script>

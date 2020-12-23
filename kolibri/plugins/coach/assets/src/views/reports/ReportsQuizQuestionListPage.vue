@@ -90,7 +90,6 @@
         exporter.export(this.table);
       },
     },
-    $trs: {},
   };
 
 </script>

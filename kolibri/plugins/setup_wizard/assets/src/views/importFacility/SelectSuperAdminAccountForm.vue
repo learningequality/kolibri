@@ -7,7 +7,7 @@
     :uniqueUsernameValidator="uniqueUsernameValidator"
     @click_next="handleClickNext"
   >
-    <template v-slot:aboveform>
+    <template #aboveform>
       <p v-if="error" class="error">
         {{ coreString('invalidCredentialsError') }}
       </p>
@@ -35,7 +35,7 @@
    -->
     <template
       v-if="importedUserIsSelected"
-      v-slot:form
+      #form
     >
       <p>
         {{ $tr('enterPasswordPrompt', { username: selected.label }) }}

@@ -7,7 +7,9 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
 
@@ -52,6 +54,7 @@
 
 <script>
 
+  import sortBy from 'lodash/sortBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
@@ -100,7 +103,7 @@
       },
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
-        const sorted = this._.sortBy(learners, ['name']);
+        const sorted = sortBy(learners, ['name']);
         return sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
@@ -136,7 +139,6 @@
         exporter.export(this.table);
       },
     },
-    $trs: {},
   };
 
 </script>

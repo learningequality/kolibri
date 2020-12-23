@@ -12,40 +12,42 @@
     </h1>
     <HeaderTable>
       <HeaderTableRow>
-        <template v-slot:key>
+        <template #key>
           {{ coreString('usernameLabel') }}
         </template>
-        <template v-slot:value>
+        <template #value>
           {{ learner.username }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template v-slot:key>
+        <template #key>
           {{ coachString('groupsLabel') }}
         </template>
-        <TruncatedItemList slot="value" :items="getGroupNamesForLearner(learner.id)" />
+        <template #value>
+          <TruncatedItemList :items="getGroupNamesForLearner(learner.id)" />
+        </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template v-slot:key>
+        <template #key>
           {{ coachString('avgQuizScoreLabel') }}
         </template>
-        <template v-slot:value>
+        <template #value>
           {{ coachString('percentage', { value: avgScore }) }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template v-slot:key>
+        <template #key>
           {{ coachString('exercisesCompletedLabel') }}
         </template>
-        <template v-slot:value>
+        <template #value>
           {{ coachString('integer', { value: exercisesCompleted }) }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template v-slot:key>
+        <template #key>
           {{ coachString('resourcesViewedLabel') }}
         </template>
-        <template v-slot:value>
+        <template #value>
           {{ coachString('integer', { value: resourcesViewed }) }}
         </template>
       </HeaderTableRow>
@@ -72,7 +74,6 @@
 
   export default {
     name: 'ReportsLearnerHeader',
-    components: {},
     mixins: [commonCoach, commonCoreStrings],
     props: {
       enablePrint: {

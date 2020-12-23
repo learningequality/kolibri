@@ -7,21 +7,25 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       <section>
         <HeaderWithOptions>
-          <BackLink
-            slot="header"
-            :to="classRoute('ReportsLessonReportPage', {})"
-            :text="coachString('backToLessonLabel', { lesson: lesson.title })"
-          />
-          <KButton
-            slot="options"
-            :text="coachString('previewAction')"
-            @click="onPreviewClick"
-          />
+          <template #header>
+            <BackLink
+              :to="classRoute('ReportsLessonReportPage', {})"
+              :text="coachString('backToLessonLabel', { lesson: lesson.title })"
+            />
+          </template>
+          <template #options>
+            <KButton
+              :text="coachString('previewAction')"
+              @click="onPreviewClick"
+            />
+          </template>
         </HeaderWithOptions>
         <h1>
           <KLabeledIcon :icon="resource.kind" :label="resource.title" />
@@ -115,6 +119,7 @@
 
 <script>
 
+  import sortBy from 'lodash/sortBy';
   import { LastPages } from '../../constants/lastPagesConstants';
   import commonCoach from '../common';
   import HeaderWithOptions from '../common/HeaderWithOptions';
@@ -163,7 +168,7 @@
       },
       allEntries() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
-        const sorted = this._.sortBy(learners, ['name']);
+        const sorted = sortBy(learners, ['name']);
         return sorted.map(learner => {
           const groups = this.getLearnerLessonGroups(learner.id);
           const tableRow = {
@@ -290,7 +295,6 @@
         exporter.export(data);
       },
     },
-    $trs: {},
   };
 
 </script>

@@ -14,24 +14,28 @@
 
     <HeaderTable>
       <HeaderTableRow v-if="$isPrint">
-        <template v-slot:key>
+        <template #key>
           {{ coachString('groupNameLabel') }}
         </template>
-        <template v-slot:value>
+        <template #value>
           {{ group.name }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow v-show="!$isPrint">
-        <template v-slot:key>
+        <template #key>
           {{ coachString('statusLabel') }}
         </template>
-        <QuizActive slot="value" :active="exam.active" />
+        <template #value>
+          <QuizActive :active="exam.active" />
+        </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template v-slot:key>
+        <template #key>
           {{ coachString('avgScoreLabel') }}
         </template>
-        <Score slot="value" :value="avgScore" />
+        <template #value>
+          <Score :value="avgScore" />
+        </template>
       </HeaderTableRow>
     </HeaderTable>
 
@@ -57,7 +61,6 @@
 
   export default {
     name: 'ReportsGroupReportQuizHeader',
-    components: {},
     mixins: [commonCoach],
     computed: {
       avgScore() {
@@ -73,7 +76,6 @@
         return this.getLearnersForGroups([this.$route.params.groupId]);
       },
     },
-    $trs: {},
   };
 
 </script>

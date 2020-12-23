@@ -47,8 +47,7 @@ Feature: Super admin selects to import entire channels or only topics/resources
       When I click the *Back to channels* link from the task manager page
       Then I am on *Device > Channels* page
         And I see the <channel> I've imported
-      When I click the *Options* button
-        And I select *Manage*
+      When I click the *Manage* button next to channel's title
       Then I am on *Manage '<channel>'* page
       When I click *Import more* button
         And I select the source

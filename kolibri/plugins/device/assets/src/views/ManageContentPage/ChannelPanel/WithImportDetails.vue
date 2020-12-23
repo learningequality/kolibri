@@ -9,7 +9,7 @@
       :channel="channel"
       :channelVersion="versionNumber"
     >
-      <template v-if="multipleMode" v-slot:beforethumbnail>
+      <template v-if="multipleMode" #beforethumbnail>
         <KCheckbox
           class="checkbox"
           :label="channel.name"
@@ -19,7 +19,7 @@
         />
       </template>
 
-      <template v-if="isUnlistedChannel" v-slot:belowname>
+      <template v-if="isUnlistedChannel" #belowname>
         <KTooltip reference="lockicon" :refs="$refs" placement="top">
           {{ deviceString('unlistedChannelLabel') }}
         </KTooltip>
@@ -39,7 +39,7 @@
         </div>
       </template>
 
-      <template v-slot:abovedescription>
+      <template #abovedescription>
         <div v-if="newVersionAvailable">
           <KIcon
             class="update-icon"
@@ -59,7 +59,7 @@
         </div>
       </template>
 
-      <template v-slot:append>
+      <template #append>
         <div class="col-3">
           <p v-if="multipleMode && $attrs.checked" class="selected-msg">
             {{ channelSelectedMessage }}

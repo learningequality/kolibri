@@ -68,7 +68,9 @@
                 @click="goToQuestion(questionNumber + 1)"
               >
                 {{ $tr('nextQuestion') }}
-                <KIcon slot="iconAfter" icon="forward" color="white" class="forward-icon" />
+                <template #iconAfter>
+                  <KIcon icon="forward" color="white" class="forward-icon" />
+                </template>
               </KButton>
               <UiIconButton
                 v-if="windowBreakpoint === 0"
@@ -93,7 +95,9 @@
                 :class="{ 'left-align': windowIsSmall }"
                 @click="goToQuestion(questionNumber - 1)"
               >
-                <KIcon slot="icon" icon="back" color="white" class="back-icon" />
+                <template #icon>
+                  <KIcon icon="back" color="white" class="back-icon" />
+                </template>
                 {{ $tr('previousQuestion') }}
               </KButton>
             </KButtonGroup>

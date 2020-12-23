@@ -7,7 +7,10 @@
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
+
     <KPageContainer>
       <PlanHeader />
       Learner list
@@ -28,7 +31,6 @@
       PlanHeader,
     },
     mixins: [commonCoreStrings],
-    $trs: {},
   };
 
 </script>

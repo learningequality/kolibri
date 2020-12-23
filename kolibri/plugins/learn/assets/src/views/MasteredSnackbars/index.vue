@@ -10,11 +10,11 @@
         :key="SNACKBARS.POINTS"
         @close="currentSnackbar = SNACKBARS.NEXT_RESOURCE"
       >
-        <template v-slot:icon>
+        <template #icon>
           <ProgressIcon :progress="1" style="position: relative; top: -2px;" />
         </template>
 
-        <template v-slot:content>
+        <template #content>
           <PointsIcon class="points-icon" />
           <div
             class="points-amount"
@@ -24,16 +24,17 @@
           </div>
         </template>
 
-        <UiAlert
-          v-if="!isUserLoggedIn"
-          slot="alert"
-          :dismissible="false"
-          :removeIcon="true"
-          type="warning"
-          class="alert"
-        >
-          {{ $tr('signIn') }}
-        </UiAlert>
+        <template #alert>
+          <UiAlert
+            v-if="!isUserLoggedIn"
+            :dismissible="false"
+            :removeIcon="true"
+            type="warning"
+            class="alert"
+          >
+            {{ $tr('signIn') }}
+          </UiAlert>
+        </template>
       </Snackbar>
 
       <Snackbar
@@ -41,7 +42,7 @@
         :key="SNACKBARS.NEXT_RESOURCE"
         @close="$emit('close')"
       >
-        <template v-slot:icon>
+        <template #icon>
           <ContentIcon
             class="content-icon icon-bg"
             :kind="nextContent.kind"
@@ -51,7 +52,7 @@
           />
         </template>
 
-        <template v-slot:content>
+        <template #content>
           <router-link
             class="rm-link-style"
             :style="{ color: $themeTokens.text }"

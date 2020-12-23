@@ -115,7 +115,8 @@
       playerVolume: 1.0,
       playerMuted: false,
       playerRate: 1.0,
-      defaultLangCode: GlobalLangCode,
+      // TODO figure if this prop is supposed to be used
+      // defaultLangCode: GlobalLangCode,
       updateContentStateInterval: null,
       isFullscreen: false,
     }),
