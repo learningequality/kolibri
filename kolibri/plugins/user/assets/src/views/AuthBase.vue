@@ -82,7 +82,7 @@
               />
             </p>
 
-            <div slot="options">
+            <div>
               <component :is="component" v-for="component in loginOptions" :key="component.name" />
             </div>
             <p v-if="showGuestAccess" class="guest small-text">

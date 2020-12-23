@@ -2,48 +2,52 @@
 
   <KPageContainer noPadding>
     <MultiPaneLayout ref="multiPaneLayout">
-      <div slot="header">
-        <h1 class="learner-name">
-          {{ learner.name }}
-        </h1>
-        <p class="exercise-detail-section">
-          <ContentIcon
-            class="exercise-detail-icons"
-            :kind="ContentNodeKinds.EXERCISE"
-            :showTooltip="false"
-          />
-          {{ exercise.title }}
-          <CoachContentLabel
-            class="exercise-detail-icons"
-            :value="exercise.num_coach_contents || 0"
-            :isTopic="false"
-          />
-        </p>
-        <HeaderTable>
-          <HeaderTableRow
-            v-if="exercise.assessmentmetadata.mastery_model"
-            :keyText="coachString('masteryModelLabel')"
-          >
-            <template #value>
-              <MasteryModel :masteryModel="exercise.assessmentmetadata.mastery_model" />
-            </template>
-          </HeaderTableRow>
-          <HeaderTableRow :keyText="coachString('statusLabel')">
-            <template #value>
-              <StatusSimple :status="status" />
-            </template>
-          </HeaderTableRow>
-        </HeaderTable>
-      </div>
-      <template v-if="attemptLogs.length > 0">
+      <template #header>
+        <div>
+          <h1 class="learner-name">
+            {{ learner.name }}
+          </h1>
+          <p class="exercise-detail-section">
+            <ContentIcon
+              class="exercise-detail-icons"
+              :kind="ContentNodeKinds.EXERCISE"
+              :showTooltip="false"
+            />
+            {{ exercise.title }}
+            <CoachContentLabel
+              class="exercise-detail-icons"
+              :value="exercise.num_coach_contents || 0"
+              :isTopic="false"
+            />
+          </p>
+          <HeaderTable>
+            <HeaderTableRow
+              v-if="exercise.assessmentmetadata.mastery_model"
+              :keyText="coachString('masteryModelLabel')"
+            >
+              <template #value>
+                <MasteryModel :masteryModel="exercise.assessmentmetadata.mastery_model" />
+              </template>
+            </HeaderTableRow>
+            <HeaderTableRow :keyText="coachString('statusLabel')">
+              <template #value>
+                <StatusSimple :status="status" />
+              </template>
+            </HeaderTableRow>
+          </HeaderTable>
+        </div>
+      </template>
+
+      <template v-if="attemptLogs.length > 0" #aside>
         <AttemptLogList
-          slot="aside"
           :attemptLogs="attemptLogs"
           :selectedQuestionNumber="attemptLogIndex"
           @select="navigateToNewAttempt($event)"
         />
+      </template>
+
+      <template v-if="attemptLogs.length > 0" #main>
         <div
-          slot="main"
           class="exercise-section"
           :style="{ backgroundColor: $themeTokens.surface }"
         >
