@@ -115,16 +115,19 @@ class DeviceInfoView(views.APIView):
         )
 
         if not request.user.is_superuser:
-            # If user is not superuser, return just free space available
-            info.pop("version")
-            info.pop("urls")
-            info.pop("database_path")
-            info.pop("device_id")
-            info.pop("os")
-            info.pop("server_time")
-            info.pop("server_timezone")
-            info.pop("installer")
-            info.pop("python_version")
+            # If user is not superuser, return just free space available and kolibri version
+            keys_to_remove = [
+                "urls",
+                "database_path",
+                "device_id",
+                "os",
+                "server_time",
+                "server_timezone",
+                "installer",
+                "python_version",
+            ]
+            for key in keys_to_remove:
+                info.pop(key)
 
         return Response(info)
 
