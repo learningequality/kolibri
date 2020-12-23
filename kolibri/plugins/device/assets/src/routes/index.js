@@ -86,7 +86,7 @@ const routes = [
   },
   {
     name: PageNames.DEVICE_INFO_PAGE,
-    component: withAuthMessage(DeviceInfoPage, 'contentManager'),
+    component: withAuthMessage(DeviceInfoPage, 'superuser'),
     path: '/info',
     handler: ({ name }) => {
       store.dispatch('preparePage', { name });
