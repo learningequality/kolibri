@@ -13,7 +13,7 @@
     </p>
 
 
-    <template v-slot:actions>
+    <template #actions>
       <KButtonGroup>
         <KButton
           :text="coreString('cancelAction')"

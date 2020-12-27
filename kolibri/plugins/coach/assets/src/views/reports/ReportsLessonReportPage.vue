@@ -7,7 +7,10 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
+
     <KGrid gutter="16">
       <KGridItem>
         <QuizLessonDetailsHeader
@@ -15,11 +18,12 @@
           :backlinkLabel="coreString('allLessonsLabel')"
           :backlink="classRoute('ReportsLessonListPage')"
         >
-          <LessonOptionsDropdownMenu
-            slot="dropdown"
-            optionsFor="report"
-            @select="handleSelectOption"
-          />
+          <template #dropdown>
+            <LessonOptionsDropdownMenu
+              optionsFor="report"
+              @select="handleSelectOption"
+            />
+          </template>
         </QuizLessonDetailsHeader>
       </KGridItem>
       <KGridItem :layout12="{ span: $isPrint ? 12 : 4 }">
@@ -174,7 +178,6 @@
         exporter.export(this.table);
       },
     },
-    $trs: {},
   };
 
 </script>

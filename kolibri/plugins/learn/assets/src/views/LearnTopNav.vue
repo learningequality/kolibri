@@ -56,7 +56,6 @@
       NavbarLink,
     },
     mixins: [commonCoreStrings, commonLearnStrings],
-    props: {},
     data() {
       return {
         allClassesLink: {
@@ -79,7 +78,6 @@
         return this.isUserLoggedIn && (this.userHasMemberships || !this.canAccessUnassignedContent);
       },
     },
-    methods: {},
   };
 
 </script>

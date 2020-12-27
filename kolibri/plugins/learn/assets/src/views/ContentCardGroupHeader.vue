@@ -31,7 +31,6 @@
       viewMorePageLink: { type: Object },
       showViewMore: { type: Boolean },
     },
-    $trs: {},
   };
 
 </script>

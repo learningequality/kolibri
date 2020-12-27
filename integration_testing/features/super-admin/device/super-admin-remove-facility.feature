@@ -32,7 +32,6 @@ Feature: Remove facility
       And I see *Remove <facility>*
       And I see the 4 digit unique ID of <facility>
       And I see my username in *Started by 'username'*
-      And I see a *Cancel* button for the task
     When the removal task begins
     Then I see *Removing facility*
       And I see an indeterminate spinner

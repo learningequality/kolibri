@@ -12,7 +12,7 @@ Feature: Admin bulk export of users and classrooms
     Then I see a new modal window with the CSV file fields formats, requirements and validation rules
 
   Scenario: Bulk import of users from a CSV file
-    When I click the *Import* button under *Import and export users* heading
+   When I click the *Import* button under *Import and export users* heading
     Then I see a new window with a text explaining the consequences of importing
       And I see the *Cancel* enabled button
       And I see the *Next* disabled button

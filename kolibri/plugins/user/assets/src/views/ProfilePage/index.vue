@@ -53,11 +53,12 @@
           </th>
           <td>
             <KLabeledIcon>
-              <PermissionsIcon
-                slot="icon"
-                :permissionType="permissionType"
-                class="permissions-icon"
-              />
+              <template #icon>
+                <PermissionsIcon
+                  :permissionType="permissionType"
+                  class="permissions-icon"
+                />
+              </template>
               {{ permissionTypeText }}
             </KLabeledIcon>
             <p>

@@ -38,7 +38,6 @@
 
   export default {
     name: 'PlanHeader',
-    components: {},
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       ...mapGetters(['classListPageEnabled']),

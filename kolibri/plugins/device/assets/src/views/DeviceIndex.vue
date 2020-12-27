@@ -9,7 +9,9 @@
     :toolbarTitle="currentPageAppBarTitle"
     :showSubNav="canManageContent && !currentPageIsImmersive"
   >
-    <DeviceTopNav slot="sub-nav" />
+    <template #sub-nav>
+      <DeviceTopNav />
+    </template>
 
     <transition name="delay-entry">
       <PostSetupModalGroup

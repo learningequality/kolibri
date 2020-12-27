@@ -13,87 +13,92 @@
       :raised="false"
       :removeBrandDivider="true"
     >
-      <KIconButton
-        slot="icon"
-        icon="menu"
-        :color="$themeTokens.textInverted"
-        :ariaLabel="$tr('openNav')"
-        @click="$emit('toggleSideNav')"
-      />
+      <template #icon>
+        <KIconButton
+          icon="menu"
+          :color="$themeTokens.textInverted"
+          :ariaLabel="$tr('openNav')"
+          @click="$emit('toggleSideNav')"
+        />
+      </template>
 
-      <img
-        v-if="$kolibriBranding.appBar.topLogo"
-        slot="brand"
-        :src="$kolibriBranding.appBar.topLogo.src"
-        :alt="$kolibriBranding.appBar.topLogo.alt"
-        :style="$kolibriBranding.appBar.topLogo.style"
-        class="brand-logo"
-      >
-
-      <div slot="actions">
-        <slot name="app-bar-actions"></slot>
-        <div class="total-points">
-          <slot name="totalPointsMenuItem"></slot>
-        </div>
-
-        <UiButton
-          ref="userMenuButton"
-          type="primary"
-          color="clear"
-          class="user-menu-button"
-          :class="$computedClass({ ':focus': $coreOutline })"
-          :ariaLabel="$tr('userMenu')"
-          @click="handleUserMenuButtonClick"
+      <template #brand>
+        <img
+          v-if="$kolibriBranding.appBar.topLogo"
+          :src="$kolibriBranding.appBar.topLogo.src"
+          :alt="$kolibriBranding.appBar.topLogo.alt"
+          :style="$kolibriBranding.appBar.topLogo.style"
+          class="brand-logo"
         >
-          <KIcon
-            slot="icon"
-            icon="person"
-            :style="{ fill: $themeTokens.textInverted, height: '24px', width: '24px', top: 0, }"
-          />
-          <span v-if="isUserLoggedIn" class="username" tabindex="-1">{{ dropdownName }}</span>
-          <KIcon
-            icon="dropdown"
-            :style="{ fill: $themeTokens.textInverted, height: '24px', width: '24px', top: 0, }"
-          />
-        </UiButton>
+      </template>
 
-        <CoreMenu
-          v-show="userMenuDropdownIsOpen"
-          ref="userMenuDropdown"
-          class="user-menu-dropdown"
-          :isOpen="userMenuDropdownIsOpen"
-          :raised="true"
-          :containFocus="true"
-          :showActive="false"
-          :style="{ backgroundColor: $themeTokens.surface }"
-          @close="handleCoreMenuClose"
-        >
-          <template v-if="isUserLoggedIn" v-slot:header>
-            <div class="role">
-              {{ coreString('userTypeLabel') }}
-            </div>
-            <div>
-              <UserTypeDisplay
-                :distinguishCoachTypes="false"
-                :userType="getUserKind"
+      <template #actions>
+        <div>
+          <slot name="app-bar-actions"></slot>
+          <div class="total-points">
+            <slot name="totalPointsMenuItem"></slot>
+          </div>
+
+          <UiButton
+            ref="userMenuButton"
+            type="primary"
+            color="clear"
+            class="user-menu-button"
+            :class="$computedClass({ ':focus': $coreOutline })"
+            :ariaLabel="$tr('userMenu')"
+            @click="handleUserMenuButtonClick"
+          >
+            <template #icon>
+              <KIcon
+                icon="person"
+                :style="{ fill: $themeTokens.textInverted, height: '24px', width: '24px', top: 0, }"
               />
-            </div>
-          </template>
-
-          <template v-slot:options>
-            <component :is="component" v-for="component in menuOptions" :key="component.name" />
-            <CoreMenuOption
-              :label="$tr('languageSwitchMenuOption')"
-              icon="language"
-              style="cursor: pointer;"
-              @select="handleChangeLanguage"
+            </template>
+            <span v-if="isUserLoggedIn" class="username" tabindex="-1">{{ dropdownName }}</span>
+            <KIcon
+              icon="dropdown"
+              :style="{ fill: $themeTokens.textInverted, height: '24px', width: '24px', top: 0, }"
             />
-            <LogoutSideNavEntry v-if="isUserLoggedIn" />
-          </template>
+          </UiButton>
 
-        </CoreMenu>
+          <CoreMenu
+            v-show="userMenuDropdownIsOpen"
+            ref="userMenuDropdown"
+            class="user-menu-dropdown"
+            :isOpen="userMenuDropdownIsOpen"
+            :raised="true"
+            :containFocus="true"
+            :showActive="false"
+            :style="{ backgroundColor: $themeTokens.surface }"
+            @close="handleCoreMenuClose"
+          >
+            <template v-if="isUserLoggedIn" #header>
+              <div class="role">
+                {{ coreString('userTypeLabel') }}
+              </div>
+              <div>
+                <UserTypeDisplay
+                  :distinguishCoachTypes="false"
+                  :userType="getUserKind"
+                />
+              </div>
+            </template>
 
-      </div>
+            <template #options>
+              <component :is="component" v-for="component in menuOptions" :key="component.name" />
+              <CoreMenuOption
+                :label="$tr('languageSwitchMenuOption')"
+                icon="language"
+                style="cursor: pointer;"
+                @select="handleChangeLanguage"
+              />
+              <LogoutSideNavEntry v-if="isUserLoggedIn" />
+            </template>
+
+          </CoreMenu>
+
+        </div>
+      </template>
     </UiToolbar>
     <div class="subpage-nav">
       <slot name="sub-nav"></slot>

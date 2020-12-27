@@ -13,8 +13,7 @@ Feature: Super admin edits users
       And I edit the full name as needed
       And I click the *Save* button
     Then I see the confirmation message *Changes saved*
-    When I click the back arrow button in the upper left corner
-      Or I click the *Close* button
+    When I click the *Close* button
     Then I see the *Facility > Users* page
       And I see the user with edited full name
 
@@ -26,8 +25,7 @@ Feature: Super admin edits users
       And I edit the username as needed
       And I click the *Save* button
     Then I see the confirmation message *Changes saved*
-    When I click the back arrow button in the upper left corner
-      Or I click the *Close* button
+    When I click the *Close* button
     Then I see the *Facility > Users* page
       And I see the user with edited username
 
@@ -39,8 +37,7 @@ Feature: Super admin edits users
       And I edit the identifier as needed
       And I click the *Save* button
     Then I see the confirmation message *Changes saved*
-    When I click the back arrow button in the upper left corner
-      Or I click the *Close* button
+    When I click the *Close* button
     Then I see the *Facility > Users* page
       And I see the user with edited identifier
 
@@ -52,8 +49,7 @@ Feature: Super admin edits users
       And I select the desired year
       And I click the *Save* button
     Then I see the confirmation message *Changes saved*
-    When I click the back arrow button in the upper left corner
-      Or I click the *Close* button
+    When I click the *Close* button
     Then I see the *Facility > Users* page
       And I see the user with edited birth year
 
@@ -65,8 +61,7 @@ Feature: Super admin edits users
       And I select the desired gender option
       And I click the *Save* button
     Then I see the confirmation message *Changes saved*
-    When I click the back arrow button in the upper left corner
-      Or I click the *Close* button
+    When I click the *Close* button
     Then I see the *Facility > Users* page
       And I see the user with edited gender option
 
@@ -79,8 +74,7 @@ Feature: Super admin edits users
     When I select the new role
       And I click the *Save* button
     Then I see the confirmation message *Changes saved*
-    When I click the back arrow button in the upper left corner
-      Or I click the *Close* button
+    When I click the *Close* button
     Then I see the *Facility > Users* page
       And I see the user with edited type (label or no label depending on the change)
 
@@ -93,8 +87,7 @@ Feature: Super admin edits users
     When I click and make the *Facility coach* radio button active
       And I click the *Save* button
     Then I see the confirmation message *Changes saved*
-    When I click the back arrow button in the upper left corner
-      Or I click the *Close* button
+    When I click the *Close* button
     Then I see the *Facility > Users* page
       And I see the user <username> with the *Facility coach* label
 
@@ -108,7 +101,7 @@ Feature: Super admin edits users
       And I re-enter the new password
       And I click the *Save* button
     Then the modal closes
-      And I see the confirmation message *Password for '<username>' changed*
+      And I see the confirmation message *Password reset*
 
   Scenario: Super admin can see the label *Super admin* next to their full name, not their facility role
       When I see my name in the user list

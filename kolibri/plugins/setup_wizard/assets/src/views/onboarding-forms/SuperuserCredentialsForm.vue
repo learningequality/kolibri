@@ -9,6 +9,9 @@
     <slot name="aboveform"></slot>
 
     <!-- HACK in Import mode, this slot will be replaced by Password-only form -->
+    <!-- VUE3-COMPAT: linter doesn't like that we are injecting "footer" slot from
+         inside a slot default
+    -->
     <slot name="form">
       <FullNameTextbox
         ref="fullNameTextbox"
@@ -39,14 +42,17 @@
 
       <PrivacyLinkAndModal v-if="!hidePrivacyLink" />
 
-      <div slot="footer" class="reminder">
-        <div class="icon">
-          <mat-svg category="alert" name="warning" />
+      <!-- eslint-disable-next-line -->
+      <template #footer>
+        <div class="reminder">
+          <div class="icon">
+            <mat-svg category="alert" name="warning" />
+          </div>
+          <p class="text">
+            {{ $tr('rememberThisAccountInformation') }}
+          </p>
         </div>
-        <p class="text">
-          {{ $tr('rememberThisAccountInformation') }}
-        </p>
-      </div>
+      </template>
     </slot>
   </OnboardingForm>
 

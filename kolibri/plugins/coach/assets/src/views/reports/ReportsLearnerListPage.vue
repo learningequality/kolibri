@@ -7,7 +7,9 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
@@ -49,6 +51,7 @@
 
 <script>
 
+  import sortBy from 'lodash/sortBy';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoach from '../common';
   import CSVExporter from '../../csv/exporter';
@@ -66,7 +69,7 @@
     mixins: [commonCoach],
     computed: {
       table() {
-        const sorted = this._.sortBy(this.learners, ['name']);
+        const sorted = sortBy(this.learners, ['name']);
         return sorted.map(learner => {
           const groupNames = this.getGroupNames(
             this._.map(

@@ -183,16 +183,17 @@ module.exports = {
     'vue/no-deprecated-scope-attribute': ERROR,
     'vue/valid-v-bind-sync': ERROR,
     // TODO Enforcing these rules requires bigger refactor
-    // 'vue/no-deprecated-slot-attribute': ERROR,
     // 'vue/no-deprecated-slot-scope-attribute': ERROR,
+    'vue/no-deprecated-slot-scope-attribute': ERROR,
     'vue/valid-v-slot': ERROR,
-
+    'vue/v-slot-style': ERROR,
     // ESLint rules for interpolated JS
     'vue/object-curly-spacing': [ERROR, 'always'],
     'vue/eqeqeq': [ERROR, 'always'],
     'vue/key-spacing': [ERROR, { afterColon: true }],
     'vue/space-infix-ops': ERROR,
     'vue/space-unary-ops': ERROR,
+    'vue/no-lone-template': OFF,
 
     'import/first': ERROR,
     'import/no-duplicates': ERROR,

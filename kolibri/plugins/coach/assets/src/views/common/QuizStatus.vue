@@ -126,7 +126,6 @@
         >
           <div>
             <Recipients
-              slot="value"
               :groupNames="groupAndAdHocLearnerNames"
               :hasAssignments="exam.assignments.length > 0"
             />

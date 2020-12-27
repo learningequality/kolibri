@@ -18,7 +18,6 @@
 
   export default {
     name: 'PrivacyModal',
-    components: {},
     methods: {
       closeModal() {
         this.$emit('cancel');

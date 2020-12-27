@@ -16,7 +16,9 @@
     :showSubNav="false"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       <h1>{{ coachString('classesLabel') }}</h1>

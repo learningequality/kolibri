@@ -22,7 +22,7 @@ Feature: Admin edit users
     Then I see the *Facility > Users* page
       And I see the user with edited full name
 
-  Scenario: Edit user's username
+   Scenario: Edit user's username
     When I click on *Options* button for the user I want to edit
       And I select *Edit details* option
     Then I see *Edit user details* page
@@ -88,7 +88,7 @@ Feature: Admin edit users
     Then I see the *Facility > Users* page
       And I see the user with edited type (label or no label depending on the change)
 
-  Scenario: Change class coach user to facility coach user
+   Scenario: Change class coach user to facility coach user
     Given there is class coach <username> in the facility
     When I click on *Options* button for the user <username>
       And I select *Edit details* option
@@ -102,7 +102,7 @@ Feature: Admin edit users
     Then I see the *Facility > Users* page
       And I see the user <username> with the *Facility coach* label
 
-  Scenario: Reset user's password
+   Scenario: Reset user's password
     When I click on *Options* button of the user I want to reset password for
       And I select *Reset password* option
     Then I see *Reset user password* modal
@@ -114,7 +114,7 @@ Feature: Admin edit users
     Then the modal closes
       And I see the confirmation message *Password for '<username>' changed*
 
-  Scenario: Admin can see the label *Admin* next to their full name, not their facility role
+Scenario: Admin can see the label *Admin* next to their full name, not their facility role
       When I scroll to my name in the user list
       Then I see a label *Admin* next to my full name
 

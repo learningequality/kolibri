@@ -154,7 +154,6 @@
       TasksBar,
     },
     mixins: [commonCoreStrings, commonSyncElements, facilityTaskQueue],
-    props: {},
     data() {
       return {
         showSyncAllModal: false,

@@ -23,18 +23,18 @@
 
     <HeaderTable v-if="$isPrint">
       <HeaderTableRow>
-        <template v-slot:key>
+        <template #key>
           {{ coachString('groupNameLabel') }}
         </template>
-        <template v-slot:value>
+        <template #value>
           {{ group.name }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
-        <template v-slot:key>
+        <template #key>
           {{ coachString('lessonLabel') }}
         </template>
-        <template v-slot:value>
+        <template #value>
           {{ lesson.title }}
         </template>
       </HeaderTableRow>
@@ -62,7 +62,6 @@
 
   export default {
     name: 'ReportsGroupReportLessonExerciseHeader',
-    components: {},
     mixins: [commonCoach],
     computed: {
       lesson() {
@@ -75,7 +74,6 @@
         return this.groupMap[this.$route.params.groupId];
       },
     },
-    $trs: {},
   };
 
 </script>

@@ -7,7 +7,9 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       Resource manager
@@ -23,9 +25,7 @@
 
   export default {
     name: 'ReportsLessonManagerPage',
-    components: {},
     mixins: [commonCoach],
-    $trs: {},
   };
 
 </script>

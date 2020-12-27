@@ -8,7 +8,10 @@
     :maxMainWidth="1440"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
+
     <KGrid gutter="16">
       <KGridItem>
         <QuizLessonDetailsHeader
@@ -16,11 +19,12 @@
           :backlinkLabel="coachString('allQuizzesLabel')"
           examOrLesson="exam"
         >
-          <QuizOptionsDropdownMenu
-            slot="dropdown"
-            optionsFor="plan"
-            @select="setCurrentAction"
-          />
+          <template #dropdown>
+            <QuizOptionsDropdownMenu
+              optionsFor="plan"
+              @select="setCurrentAction"
+            />
+          </template>
         </QuizLessonDetailsHeader>
       </KGridItem>
       <KGridItem :layout12="{ span: 4 }">

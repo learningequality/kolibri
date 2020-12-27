@@ -39,7 +39,7 @@
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-jest": "^23.3.0",
     "eslint-plugin-kolibri": "0.13.0-dev.10",
-    "eslint-plugin-vue": "^6.1.2",
+    "eslint-plugin-vue": "^7.3.0",
     "espree": "^5.0.1",
     "esquery": "^1.0.1",
     "express": "^4.16.4",

@@ -12,7 +12,6 @@
 
   export default {
     name: 'DragContainer',
-    components: {},
     props: {
       items: {
         type: Array,

@@ -7,7 +7,9 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       <ReportsGroupHeader :enablePrint="true" />
@@ -47,6 +49,7 @@
 
 <script>
 
+  import sortBy from 'lodash/sortBy';
   import commonCoach from '../common';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
@@ -70,7 +73,7 @@
         );
       },
       table() {
-        const sorted = this._.sortBy(this.groupMembers, ['name']);
+        const sorted = sortBy(this.groupMembers, ['name']);
         return sorted.map(learner => {
           const examStatuses = this.examStatuses.filter(status => learner.id === status.learner_id);
           const contentStatuses = this.contentStatuses.filter(

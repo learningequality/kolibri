@@ -7,7 +7,9 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       <p>
@@ -24,12 +26,14 @@
       </p>
       <HeaderTable>
         <HeaderTableRow v-if="$isPrint" :keyText="coachString('groupNameLabel')">
-          <template v-slot:value>
+          <template #value>
             {{ group.name }}
           </template>
         </HeaderTableRow>
         <HeaderTableRow v-show="!$isPrint" :keyText="coachString('statusLabel')">
-          <LessonActive slot="value" :active="lesson.active" />
+          <template #value>
+            <LessonActive :active="lesson.active" />
+          </template>
         </HeaderTableRow>
         <HeaderTableRow
           v-show="!$isPrint"

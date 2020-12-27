@@ -12,7 +12,6 @@
       <KFixedGridItem :span="showTime ? 3 : 4">
         <div class="icon-spacer">
           <ContentIcon
-            slot="icon"
             class="content-icon"
             :kind="contentIcon"
             :showTooltip="false"

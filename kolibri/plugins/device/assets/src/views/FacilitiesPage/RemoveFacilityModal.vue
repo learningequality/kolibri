@@ -47,7 +47,6 @@
 
   export default {
     name: 'RemoveFacilityModal',
-    components: {},
     mixins: [commonCoreStrings, commonSyncElements],
     props: {
       facility: {

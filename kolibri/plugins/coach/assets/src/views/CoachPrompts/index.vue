@@ -1058,7 +1058,6 @@
 
   export default {
     name: 'CoachPrompts',
-    $trs: {},
   };
 
 </script>

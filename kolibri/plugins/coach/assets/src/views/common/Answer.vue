@@ -48,7 +48,6 @@
 
   export default {
     name: 'Answer',
-    components: {},
     props: {
       type: {
         type: String,

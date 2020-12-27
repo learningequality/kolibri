@@ -28,7 +28,7 @@
       :filterFunction="filterUsers"
       :filterPlaceholder="$tr('searchText')"
     >
-      <template v-slot:otherFilter>
+      <template #otherFilter>
         <KSelect
           v-model="roleFilter"
           :label="coreString('userTypeLabel')"
@@ -38,14 +38,14 @@
         />
       </template>
 
-      <template v-slot:default="{ items, filterInput }">
+      <template #default="{ items, filterInput }">
         <UserTable
           class="move-down user-roster"
           :users="items"
           :emptyMessage="emptyMessageForItems(items, filterInput)"
           :showDemographicInfo="true"
         >
-          <template v-slot:action="userRow">
+          <template #action="userRow">
             <KDropdownMenu
               :text="$tr('optionsButtonLabel')"
               :options="manageUserOptions(userRow.user.id)"

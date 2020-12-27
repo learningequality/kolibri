@@ -8,13 +8,17 @@
     v-bind="immersivePageProps"
     :maxMainWidth="maxWidth"
   >
-    <template slot="app-bar-actions">
+    <template #app-bar-actions>
       <ActionBarSearchBox v-if="showSearch" />
     </template>
 
-    <LearnTopNav slot="sub-nav" />
+    <template #sub-nav>
+      <LearnTopNav />
+    </template>
 
-    <TotalPoints slot="totalPointsMenuItem" />
+    <template #totalPointsMenuItem>
+      <TotalPoints />
+    </template>
 
     <!--
       Topics pages have a different heading style which
@@ -22,7 +26,9 @@
     -->
     <div v-if="currentPageIsTopic">
       <component :is="currentPage">
-        <Breadcrumbs slot="breadcrumbs" />
+        <template #breadcrumbs>
+          <Breadcrumbs />
+        </template>
       </component>
       <router-view />
     </div>

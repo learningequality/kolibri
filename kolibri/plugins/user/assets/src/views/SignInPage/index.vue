@@ -24,15 +24,16 @@
           v-if="showPasswordForm"
           appearance="basic-link"
           :text="$tr('changeUser')"
-          style="margin-top: 24px;margin-left: 4px;"
+          style="margin-top: 24px; margin-left: 4px;"
           @click="clearUser"
         >
-          <KIcon
-            slot="icon"
-            style="width: 24px; height: 24px; top: 6px; right: 8px;"
-            icon="back"
-            :color="$themeTokens.primary"
-          />
+          <template #icon>
+            <KIcon
+              style="width: 24px; height: 24px; top: 6px; right: 8px;"
+              icon="back"
+              :color="$themeTokens.primary"
+            />
+          </template>
         </KButton>
 
       </div>
@@ -160,18 +161,19 @@
         style="margin-bottom: 16px;"
         @click="clearUser"
       >
-        <KIcon
-          slot="icon"
-          icon="back"
-          :style="{
-            fill: $themeTokens.primary,
-            height: '1.125em',
-            width: '1.125em',
-            position: 'relative',
-            marginRight: '8px',
-            top: '2px',
-          }"
-        />{{ coreString('goBackAction') }}
+        <template #icon>
+          <KIcon
+            icon="back"
+            :style="{
+              fill: $themeTokens.primary,
+              height: '1.125em',
+              width: '1.125em',
+              position: 'relative',
+              marginRight: '8px',
+              top: '2px',
+            }"
+          />{{ coreString('goBackAction') }}
+        </template>
       </KButton>
 
       <p>{{ $tr("needToMakeNewPasswordLabel", { user: username }) }}</p>
@@ -219,7 +221,6 @@
   import UsersList from '../UsersList';
   import commonUserStrings from '../commonUserStrings';
   import SignInHeading from './SignInHeading';
-  import plugin_data from 'plugin_data';
 
   const MAX_USERS_FOR_LISTING_VIEW = 16;
 
@@ -261,7 +262,6 @@
     computed: {
       ...mapGetters(['selectedFacility', 'isAppContext']),
       ...mapState('signIn', ['hasMultipleFacilities']),
-      ...mapState(['redirect']),
       backToFacilitySelectionRoute() {
         const facilityRoute = this.$router.getRoute(ComponentMap.FACILITY_SELECT);
         const whereToNext = this.$router.getRoute(ComponentMap.SIGN_IN);
@@ -515,11 +515,8 @@
           facility: this.selectedFacility.id,
         };
 
-        if (plugin_data.oidcProviderEnabled) {
+        if (this.nextParam) {
           sessionPayload['next'] = this.nextParam;
-        } else if (this.redirect && !this.nextParam) {
-          // Go to URL in 'redirect' query param, if arriving from AuthMessage
-          sessionPayload['next'] = this.redirect;
         }
 
         this.kolibriLogin(sessionPayload)

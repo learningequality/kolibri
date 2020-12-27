@@ -7,10 +7,12 @@
 
     <HeaderTable>
       <HeaderTableRow :keyText="coachString('statusLabel')">
-        <LessonActive slot="value" :active="active" />
+        <template #value>
+          <LessonActive :active="active" />
+        </template>
       </HeaderTableRow>
       <HeaderTableRow :keyText="coachString('recipientsLabel')">
-        <template v-slot:value>
+        <template #value>
           <Recipients
             :groupNames="groupNames"
             :hasAssignments="recipients.length > 0"
@@ -82,7 +84,6 @@
         return names;
       },
     },
-    $trs: {},
   };
 
 </script>

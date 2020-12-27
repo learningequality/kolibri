@@ -12,7 +12,7 @@
       :filterFunction="filterUsers"
       :filterPlaceholder="$tr('searchPlaceholder')"
     >
-      <template v-slot:otherFilter>
+      <template #otherFilter>
         <KSelect
           v-model="permissionsFilter"
           :label="$tr('permissionsLabel')"
@@ -36,7 +36,7 @@
           class="type-filter"
         />
       </template>
-      <template v-slot:default="{ items, filterInput }">
+      <template #default="{ items, filterInput }">
         <UserGrid
           :searchFilter="searchFilterText"
           :facilityUsers="items"

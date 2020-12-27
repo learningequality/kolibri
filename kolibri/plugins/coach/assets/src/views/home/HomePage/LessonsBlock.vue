@@ -5,7 +5,9 @@
     :allLinkRoute="classRoute('ReportsLessonListPage', {})"
     :showAllLink="table.length > 0"
   >
-    <KLabeledIcon slot="title" icon="lesson" :label="coreString('lessonsLabel')" />
+    <template #title>
+      <KLabeledIcon icon="lesson" :label="coreString('lessonsLabel')" />
+    </template>
 
     <p v-if="table.length === 0">
       {{ coachString('lessonListEmptyState') }}
@@ -88,7 +90,6 @@
         return groups.concat(adHocLearners);
       },
     },
-    $trs: {},
   };
 
 </script>

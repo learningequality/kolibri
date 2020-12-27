@@ -14,10 +14,9 @@
 
     <td class="title">
       <KLabeledIcon>
-        <ContentIcon
-          slot="icon"
-          :kind="node.kind"
-        />
+        <template #icon>
+          <ContentIcon :kind="node.kind" />
+        </template>
         <KRouterLink
           v-if="isTopic"
           name="select-node"

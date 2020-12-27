@@ -56,7 +56,7 @@
             :style="{ backgroundColor: $themeTokens.surface }"
             :aria-label="$tr('navigationLabel')"
           >
-            <template v-slot:options>
+            <template #options>
               <component :is="component" v-for="component in menuOptions" :key="component.name" />
               <SideNavDivider />
             </template>
