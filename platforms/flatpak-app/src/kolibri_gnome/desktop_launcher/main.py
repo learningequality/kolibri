@@ -10,7 +10,7 @@ gi.require_version("Gtk", "3.0")
 import datetime
 import sys
 
-from ..globals import init_env, init_gettext, init_logging
+from ..globals import init_gettext, init_logging
 
 import pew
 
@@ -18,7 +18,6 @@ from .application import Application
 
 
 def main():
-    init_env()
     init_logging("kolibri-gnome.txt")
     init_gettext()
 

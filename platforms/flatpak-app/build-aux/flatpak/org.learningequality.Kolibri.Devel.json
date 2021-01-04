@@ -13,8 +13,7 @@
         "--socket=pulseaudio",
         "--socket=wayland",
         "--socket=x11",
-        "--env=KOLIBRI_HOME=~/.var/app/org.learningequality.Kolibri.Devel/data/kolibri",
-        "--env=KOLIBRI_HTTP_PORT=8080"
+        "--env=KOLIBRI_HOME=~/.var/app/org.learningequality.Kolibri.Devel/data/kolibri"
     ],
     "add-extensions" : {
         "org.learningequality.Kolibri.Content" : {

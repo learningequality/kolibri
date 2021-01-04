@@ -4,7 +4,6 @@ logger = logging.getLogger(__name__)
 
 import gettext
 import os
-import shutil
 
 from . import config
 
@@ -28,17 +27,6 @@ if IS_KOLIBRI_LOCAL:
     LOCAL_KOLIBRI_HOME = KOLIBRI_HOME
 else:
     LOCAL_KOLIBRI_HOME = os.environ.get("LOCAL_KOLIBRI_HOME", DEFAULT_KOLIBRI_HOME)
-
-
-def init_env():
-    os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_gnome.kolibri_settings"
-
-    # TODO: This code should probably be in Kolibri itself
-    if os.path.isdir(config.KOLIBRI_HOME_TEMPLATE_DIR) and not os.path.exists(
-        KOLIBRI_HOME
-    ):
-        logging.info("Copying KOLIBRI_HOME template to '{}'".format(KOLIBRI_HOME))
-        shutil.copytree(config.KOLIBRI_HOME_TEMPLATE_DIR, KOLIBRI_HOME)
 
 
 def init_gettext():
