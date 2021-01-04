@@ -32,45 +32,45 @@
             :selectable="true"
             :emptyMessage="$tr('noUsersMatch')"
           >
-            <thead slot="thead">
-              <tr>
-                <th class="table-checkbox-header">
-                  <KCheckbox
-                    key="selectAllOnPage"
-                    :label="$tr('selectAllLabel')"
-                    :checked="selectAllCheckboxProps.checked"
-                    :disabled="selectAllCheckboxProps.disabled"
-                    @change="selectVisiblePage"
-                  />
-                </th>
-                <th class="table-header">
-                  {{ coreString('usernameLabel') }}
-                </th>
-                <th class="table-header">
-                  {{ coachString('groupsLabel') }}
-                </th>
-              </tr>
-            </thead>
+            <template #headers>
+              <th class="table-checkbox-header">
+                <KCheckbox
+                  key="selectAllOnPage"
+                  :label="$tr('selectAllLabel')"
+                  :checked="selectAllCheckboxProps.checked"
+                  :disabled="selectAllCheckboxProps.disabled"
+                  @change="selectVisiblePage"
+                />
+              </th>
+              <th class="table-header">
+                {{ coreString('usernameLabel') }}
+              </th>
+              <th class="table-header">
+                {{ coachString('groupsLabel') }}
+              </th>
+            </template>
 
-            <tbody slot="tbody">
-              <tr v-for="learner in items" :key="learner.id">
-                <td>
-                  <KCheckbox
-                    :key="`select-learner-${learner.id}`"
-                    :label="learner.name"
-                    :checked="learnerIsSelected(learner)"
-                    :disabled="learnerIsNotSelectable(learner)"
-                    @change="toggleLearner($event, learner)"
-                  />
-                </td>
-                <td class="table-data">
-                  {{ learner.username }}
-                </td>
-                <td class="table-data">
-                  {{ groupNamesForLearner(learner) }}
-                </td>
-              </tr>
-            </tbody>
+            <template #tbody>
+              <tbody>
+                <tr v-for="learner in items" :key="learner.id">
+                  <td>
+                    <KCheckbox
+                      :key="`select-learner-${learner.id}`"
+                      :label="learner.name"
+                      :checked="learnerIsSelected(learner)"
+                      :disabled="learnerIsNotSelectable(learner)"
+                      @change="toggleLearner($event, learner)"
+                    />
+                  </td>
+                  <td class="table-data">
+                    {{ learner.username }}
+                  </td>
+                  <td class="table-data">
+                    {{ groupNamesForLearner(learner) }}
+                  </td>
+                </tr>
+              </tbody>
+            </template>
           </CoreTable>
         </template>
       </PaginatedListContainer>

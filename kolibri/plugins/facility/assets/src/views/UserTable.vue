@@ -2,121 +2,120 @@
 
   <div>
     <CoreTable>
-
-      <thead slot="thead">
-        <tr>
-          <th
-            v-if="selectable"
-            class="core-table-checkbox-col select-all"
-          >
-            <KCheckbox
-              :label="$tr('selectAllLabel')"
-              :showLabel="true"
-              :checked="allAreSelected"
-              class="overflow-label"
-              :disabled="disabled || users.length === 0"
-              @change="selectAll($event)"
-            />
-          </th>
-          <th>
-            <!-- "Full name" header visually hidden if checkbox is on -->
-            <span :class="{ visuallyhidden: selectable }">
-              {{ coreString('fullNameLabel') }}
-            </span>
-          </th>
-          <th>
-            <span class="visuallyhidden">
-              {{ $tr('role') }}
-            </span>
-          </th>
-          <th>{{ coreString('usernameLabel') }}</th>
-          <th v-if="$scopedSlots.info">
-            {{ infoDescriptor }}
-          </th>
-          <template v-if="showDemographicInfo">
-            <th>
-              <span>{{ coreString('identifierLabel') }}</span>
-              <CoreInfoIcon
-                class="tooltip"
-                :iconAriaLabel="coreString('identifierAriaLabel')"
-                :tooltipText="coreString('identifierTooltip')"
-              />
-            </th>
-            <th>
-              {{ coreString('genderLabel') }}
-            </th>
-            <th>
-              {{ coreString('birthYearLabel') }}
-            </th>
-          </template>
-          <th v-if="$scopedSlots.action" class="user-action-button">
-            <span class="visuallyhidden">
-              {{ $tr('userActionsColumnHeader') }}
-            </span>
-          </th>
-        </tr>
-      </thead>
-
-      <tbody slot="tbody">
-        <tr
-          v-for="user in users"
-          :key="user.id"
+      <template #headers>
+        <th
+          v-if="selectable"
+          class="core-table-checkbox-col select-all"
         >
-          <td v-if="selectable" class="core-table-checkbox-col">
-            <KCheckbox
-              :label="$tr('userCheckboxLabel')"
-              :showLabel="false"
-              :disabled="disabled"
-              :checked="userIsSelected(user.id)"
-              @change="selectUser(user.id, $event)"
+          <KCheckbox
+            :label="$tr('selectAllLabel')"
+            :showLabel="true"
+            :checked="allAreSelected"
+            class="overflow-label"
+            :disabled="disabled || users.length === 0"
+            @change="selectAll($event)"
+          />
+        </th>
+        <th>
+          <!-- "Full name" header visually hidden if checkbox is on -->
+          <span :class="{ visuallyhidden: selectable }">
+            {{ coreString('fullNameLabel') }}
+          </span>
+        </th>
+        <th>
+          <span class="visuallyhidden">
+            {{ $tr('role') }}
+          </span>
+        </th>
+        <th>{{ coreString('usernameLabel') }}</th>
+        <th v-if="$scopedSlots.info">
+          {{ infoDescriptor }}
+        </th>
+        <template v-if="showDemographicInfo">
+          <th>
+            <span>{{ coreString('identifierLabel') }}</span>
+            <CoreInfoIcon
+              class="tooltip"
+              :iconAriaLabel="coreString('identifierAriaLabel')"
+              :tooltipText="coreString('identifierTooltip')"
             />
-          </td>
-          <td>
-            <KLabeledIcon
-              :icon="isCoach ? 'coach' : 'person'"
-              :label="user.full_name"
-            />
-            <UserTypeDisplay
-              aria-hidden="true"
-              :userType="user.kind"
-              :omitLearner="true"
-              class="role-badge"
-              :style="{
-                color: $themeTokens.textInverted,
-                backgroundColor: $themeTokens.annotation,
-              }"
-            />
-          </td>
-          <td class="visuallyhidden">
-            {{ user.kind }}
-          </td>
-          <td>
-            <span dir="auto">
-              {{ user.username }}
-            </span>
-          </td>
-          <template v-if="showDemographicInfo">
-            <td class="id-col">
-              <span v-if="user.id_number">
-                {{ user.id_number }}
+          </th>
+          <th>
+            {{ coreString('genderLabel') }}
+          </th>
+          <th>
+            {{ coreString('birthYearLabel') }}
+          </th>
+        </template>
+        <th v-if="$scopedSlots.action" class="user-action-button">
+          <span class="visuallyhidden">
+            {{ $tr('userActionsColumnHeader') }}
+          </span>
+        </th>
+      </template>
+
+      <template #tbody>
+        <tbody>
+          <tr
+            v-for="user in users"
+            :key="user.id"
+          >
+            <td v-if="selectable" class="core-table-checkbox-col">
+              <KCheckbox
+                :label="$tr('userCheckboxLabel')"
+                :showLabel="false"
+                :disabled="disabled"
+                :checked="userIsSelected(user.id)"
+                @change="selectUser(user.id, $event)"
+              />
+            </td>
+            <td>
+              <KLabeledIcon
+                :icon="isCoach ? 'coach' : 'person'"
+                :label="user.full_name"
+              />
+              <UserTypeDisplay
+                aria-hidden="true"
+                :userType="user.kind"
+                :omitLearner="true"
+                class="role-badge"
+                :style="{
+                  color: $themeTokens.textInverted,
+                  backgroundColor: $themeTokens.annotation,
+                }"
+              />
+            </td>
+            <td class="visuallyhidden">
+              {{ user.kind }}
+            </td>
+            <td>
+              <span dir="auto">
+                {{ user.username }}
               </span>
-              <KEmptyPlaceholder v-else />
             </td>
-            <td>
-              <GenderDisplayText :gender="user.gender" />
+            <template v-if="showDemographicInfo">
+              <td class="id-col">
+                <span v-if="user.id_number">
+                  {{ user.id_number }}
+                </span>
+                <KEmptyPlaceholder v-else />
+              </td>
+              <td>
+                <GenderDisplayText :gender="user.gender" />
+              </td>
+              <td>
+                <BirthYearDisplayText :birthYear="user.birth_year" />
+              </td>
+            </template>
+            <td v-if="$scopedSlots.info">
+              <slot name="info" :user="user"></slot>
             </td>
-            <td>
-              <BirthYearDisplayText :birthYear="user.birth_year" />
+            <td v-if="$scopedSlots.action" class="core-table-button-col">
+              <slot name="action" :user="user"></slot>
             </td>
-          </template>
-          <td v-if="$scopedSlots.info">
-            <slot name="info" :user="user"></slot>
-          </td>
-          <td v-if="$scopedSlots.action" class="core-table-button-col">
-            <slot name="action" :user="user"></slot>
-          </td>
-        </tr>
-      </tbody>
+          </tr>
+        </tbody>
+      </template>
     </CoreTable>
 
     <p

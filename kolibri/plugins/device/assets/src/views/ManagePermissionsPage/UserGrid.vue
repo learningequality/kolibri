@@ -3,49 +3,49 @@
   <div>
 
     <CoreTable :emptyMessage="emptyMessage">
-      <thead slot="thead">
-        <tr>
-          <th>{{ coreString('fullNameLabel') }}</th>
-          <th>{{ coreString('usernameLabel') }}</th>
-          <th v-if="hasMultipleFacilities">
-            {{ coreString('facilityLabel') }}
-          </th>
-          <th></th>
-        </tr>
-      </thead>
+      <template #headers>
+        <th>{{ coreString('fullNameLabel') }}</th>
+        <th>{{ coreString('usernameLabel') }}</th>
+        <th v-if="hasMultipleFacilities">
+          {{ coreString('facilityLabel') }}
+        </th>
+        <th></th>
+      </template>
 
-      <tbody slot="tbody">
-        <tr v-for="user in facilityUsers" :key="user.id">
-          <td>
-            <KLabeledIcon :label="fullNameLabel(user)">
-              <template #icon>
-                <PermissionsIcon
-                  v-if="Boolean(getPermissionType(user.id))"
-                  :permissionType="getPermissionType(user.id)"
-                />
-              </template>
-            </KLabeledIcon>
-          </td>
-          <td>
-            <span dir="auto" class="maxwidth">
-              {{ user.username }}
-            </span>
-          </td>
-          <td v-if="hasMultipleFacilities">
-            <span dir="auto" class="maxwidth">
-              {{ memoizedFacilityName(user.facility) }}
-            </span>
-          </td>
-          <td class="btn-col">
-            <KButton
-              appearance="flat-button"
-              :text="permissionsButtonText(user)"
-              style="margin-top: 6px;"
-              @click="goToUserPermissionsPage(user.id)"
-            />
-          </td>
-        </tr>
-      </tbody>
+      <template #tbody>
+        <tbody>
+          <tr v-for="user in facilityUsers" :key="user.id">
+            <td>
+              <KLabeledIcon :label="fullNameLabel(user)">
+                <template #icon>
+                  <PermissionsIcon
+                    v-if="Boolean(getPermissionType(user.id))"
+                    :permissionType="getPermissionType(user.id)"
+                  />
+                </template>
+              </KLabeledIcon>
+            </td>
+            <td>
+              <span dir="auto" class="maxwidth">
+                {{ user.username }}
+              </span>
+            </td>
+            <td v-if="hasMultipleFacilities">
+              <span dir="auto" class="maxwidth">
+                {{ memoizedFacilityName(user.facility) }}
+              </span>
+            </td>
+            <td class="btn-col">
+              <KButton
+                appearance="flat-button"
+                :text="permissionsButtonText(user)"
+                style="margin-top: 6px;"
+                @click="goToUserPermissionsPage(user.id)"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </template>
     </CoreTable>
 
   </div>
