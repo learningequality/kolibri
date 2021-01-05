@@ -1,7 +1,7 @@
 // Mixin that can be used for a component to view and manage
 // the task queue
 import { FacilityTaskResource } from 'kolibri.resources';
-import { taskIsClearable, TaskTypes } from '../../constants';
+import { TaskTypes } from '../../constants';
 
 function isSyncTask(task) {
   return task.type === TaskTypes.SYNCDATAPORTAL || task.type === TaskTypes.SYNCPEERFULL;
@@ -82,7 +82,7 @@ export default {
   computed: {
     facilityIsSyncing() {
       return function isSyncing(facility) {
-        const syncTasks = this.facilityTasks.filter(t => isSyncTask(t) && !taskIsClearable(t));
+        const syncTasks = this.facilityTasks.filter(t => isSyncTask(t) && !t.clearable);
         return Boolean(syncTasks.find(task => taskFacilityMatch(task, facility)));
       };
     },
@@ -93,7 +93,7 @@ export default {
             task =>
               task.type === TaskTypes.DELETEFACILITY &&
               taskFacilityMatch(task, facility) &&
-              !taskIsClearable(task)
+              !task.clearable
           )
         );
       };

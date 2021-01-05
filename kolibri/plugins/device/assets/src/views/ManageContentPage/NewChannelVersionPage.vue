@@ -115,7 +115,7 @@
   import { TaskResource } from 'kolibri.resources';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import { taskIsClearable, TaskStatuses } from '../../constants';
+  import { TaskStatuses } from '../../constants';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 
   export default {
@@ -270,7 +270,7 @@
           channelId: this.params.channelId,
           ...sourceParams,
         }).then(task => {
-          if (taskIsClearable(task)) {
+          if (task.clearable) {
             // If the task actually just failed, re-start the task
             if (task.status === TaskStatuses.FAILED) {
               this.startDiffStatsTask({

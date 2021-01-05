@@ -56,7 +56,7 @@
   import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { PageNames, taskIsClearable } from '../../constants';
+  import { PageNames } from '../../constants';
 
   import TaskPanel from './TaskPanel';
   import BackLink from './BackLink';
@@ -85,7 +85,7 @@
         return reverse(this.managedTasks);
       },
       showClearCompletedButton() {
-        return some(this.managedTasks, taskIsClearable);
+        return some(this.managedTasks, task => task.clearable);
       },
       homeRoute() {
         return PageNames.MANAGE_CONTENT_PAGE;

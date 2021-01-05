@@ -55,10 +55,6 @@ export const TaskStatuses = Object.freeze({
   CANCELING: 'CANCELING',
 });
 
-export function taskIsClearable(task) {
-  return task.clearable;
-}
-
 export const TransferTypes = {
   LOCALEXPORT: 'localexport',
   LOCALIMPORT: 'localimport',

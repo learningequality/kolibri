@@ -1,7 +1,7 @@
 import find from 'lodash/find';
 import findLastIndex from 'lodash/findLastIndex';
 import wizard from '../wizard';
-import { TaskTypes, TaskStatuses, taskIsClearable } from '../../constants';
+import { TaskTypes, TaskStatuses } from '../../constants';
 import actions from './actions';
 
 function defaultState() {
@@ -81,7 +81,7 @@ export default {
           channel_id: channelId,
         });
         if (match) {
-          return !taskIsClearable(match);
+          return !match.clearable;
         }
         return false;
       };
@@ -92,7 +92,7 @@ export default {
           return null;
         }
         const match = find(state.taskList, { id: taskId });
-        if (match && taskIsClearable(match)) {
+        if (match && match.clearable) {
           return match.id;
         }
         return null;
