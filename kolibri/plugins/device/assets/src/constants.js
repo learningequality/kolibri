@@ -56,7 +56,7 @@ export const TaskStatuses = Object.freeze({
 });
 
 export function taskIsClearable(task) {
-  return [TaskStatuses.COMPLETED, TaskStatuses.CANCELED, TaskStatuses.FAILED].includes(task.status);
+  return task.clearable;
 }
 
 export const TransferTypes = {
