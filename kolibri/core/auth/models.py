@@ -164,6 +164,9 @@ class FacilityDataset(FacilityDataSyncableModel):
             tree_id=self.get_root_certificate().tree_id
         ).exclude(_private_key=None)
 
+    def reset_to_default_settings(self):
+        pass
+
 
 class AbstractFacilityDataModel(FacilityDataSyncableModel):
     """
