@@ -164,8 +164,14 @@ class FacilityDataset(FacilityDataSyncableModel):
             tree_id=self.get_root_certificate().tree_id
         ).exclude(_private_key=None)
 
-    def reset_to_default_settings(self):
-        pass
+    def reset_to_default_settings(self, preset=None):
+        from kolibri.core.auth.constants.facility_presets import mappings
+
+        # use the current preset if it is not passed in
+        dataset_data = mappings[preset or self.preset]
+        for key, value in dataset_data.items():
+            setattr(self, key, value)
+        self.save()
 
 
 class AbstractFacilityDataModel(FacilityDataSyncableModel):
