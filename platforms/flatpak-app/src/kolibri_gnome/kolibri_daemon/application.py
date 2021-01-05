@@ -8,7 +8,7 @@ from ..dbus_utils import DBusServer
 from .kolibri_service import KolibriServiceManager
 
 
-INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000 # 5 minutes in milliseconds
+INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000  # 5 minutes in milliseconds
 
 
 class KolibriDaemon(DBusServer):
@@ -23,6 +23,7 @@ class KolibriDaemon(DBusServer):
         <property name="Status" type="s" access="read" />
         <property name="BaseURL" type="s" access="read" />
         <property name="AppKey" type="s" access="read" />
+        <property name="KolibriHome" type="s" access="read" />
       </interface>
     </node>
     """
@@ -31,7 +32,7 @@ class KolibriDaemon(DBusServer):
         Status: str
         BaseURL: str
         AppKey: str
-
+        KolibriHome: str
 
     def __init__(self, application, kolibri_service_manager):
         super().__init__(application)
@@ -48,14 +49,14 @@ class KolibriDaemon(DBusServer):
         new_properties = KolibriDaemon.Properties(
             Status=self.__kolibri_service_manager.status.name or "",
             BaseURL=self.__kolibri_service_manager.base_url or "",
-            AppKey=self.__kolibri_service_manager.app_key or ""
+            AppKey=self.__kolibri_service_manager.app_key or "",
+            KolibriHome=self.__kolibri_service_manager.kolibri_home or "",
         )
 
         if new_properties != self.__cached_properties:
             self.__cached_properties = new_properties
             self.notify_properties_changed(
-                "org.learningequality.Kolibri.Daemon",
-                new_properties._asdict()
+                "org.learningequality.Kolibri.Daemon", new_properties._asdict()
             )
 
     def Hold(self, context, cancellable=None):
@@ -72,6 +73,9 @@ class KolibriDaemon(DBusServer):
 
     def GetAppKey(self, context, cancellable=None):
         return self.__cached_properties.AppKey
+
+    def GetKolibriHome(self, context, cancellable=None):
+        return self.__cached_properties.KolibriHome
 
     def __hold_for_client(self, connection, name):
         if name in self.__hold_clients.keys():

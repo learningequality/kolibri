@@ -15,14 +15,18 @@ class KolibriDaemonProxy(object):
             config.DAEMON_APPLICATION_ID,
             "/org/learningequality/Kolibri/Devel/Daemon",
             "org.learningequality.Kolibri.Daemon",
-            None
+            None,
         )
         self.__is_ready_event = threading.Event()
         self.__is_ready_value = None
-        self.__proxy.connect("g_properties_changed", self.__on_proxy_g_properties_changed)
+        self.__proxy.connect(
+            "g_properties_changed", self.__on_proxy_g_properties_changed
+        )
         self.__update_is_ready_event()
 
-    def __on_proxy_g_properties_changed(self, proxy, changed_properties, invalidated_properties):
+    def __on_proxy_g_properties_changed(
+        self, proxy, changed_properties, invalidated_properties
+    ):
         self.__update_is_ready_event()
 
     @property
@@ -38,6 +42,11 @@ class KolibriDaemonProxy(object):
     @property
     def status(self):
         variant = self.__proxy.get_cached_property("Status")
+        return variant.get_string()
+
+    @property
+    def kolibri_home(self):
+        variant = self.__proxy.get_cached_property("KolibriHome")
         return variant.get_string()
 
     def hold(self):

@@ -23,4 +23,3 @@ def get_localized_file(file_path_template, file_path_fallback):
         file_path = file_path_fallback
 
     return file_path
-

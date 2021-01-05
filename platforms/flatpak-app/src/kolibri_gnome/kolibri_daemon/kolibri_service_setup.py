@@ -8,10 +8,11 @@ import os
 import shutil
 import subprocess
 
+from kolibri.utils.conf import KOLIBRI_HOME
+
 from .content_extensions import ContentExtensionsList
 
 from ..config import KOLIBRI_HOME_TEMPLATE_DIR
-from ..globals import KOLIBRI_HOME
 
 
 KOLIBRI_BIN = "kolibri"
@@ -60,7 +61,9 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         if not os.path.isdir(KOLIBRI_HOME):
             os.makedirs(KOLIBRI_HOME, exist_ok=True)
 
-        compare = filecmp.dircmp(KOLIBRI_HOME_TEMPLATE_DIR, KOLIBRI_HOME, ignore=['logs'])
+        compare = filecmp.dircmp(
+            KOLIBRI_HOME_TEMPLATE_DIR, KOLIBRI_HOME, ignore=["logs"]
+        )
 
         if len(compare.common) > 0:
             return

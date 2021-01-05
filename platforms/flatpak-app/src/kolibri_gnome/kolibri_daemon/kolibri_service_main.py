@@ -5,6 +5,8 @@ import threading
 from collections import Mapping
 from contextlib import contextmanager
 
+from kolibri.utils.conf import KOLIBRI_HOME
+
 from .content_extensions import ContentExtensionsList
 
 # TODO: We need to use multiprocessing because Kolibri occasionally calls
@@ -70,13 +72,14 @@ class KolibriServiceMainProcess(multiprocessing.Process):
 
         self.__automatic_provisiondevice()
         self.__update_app_key()
+        self.__update_kolibri_home()
 
         try:
             KOLIBRI_HTTP_PORT = 0
             start_with_ready_cb(
                 port=KOLIBRI_HTTP_PORT,
                 background=False,
-                ready_cb=self.__kolibri_ready_cb
+                ready_cb=self.__kolibri_ready_cb,
             )
         except SystemExit:
             # Kolibri sometimes calls sys.exit, but we don't want to exit
@@ -96,6 +99,9 @@ class KolibriServiceMainProcess(multiprocessing.Process):
 
         self.__context.app_key = DeviceAppKey.get_app_key()
 
+    def __update_kolibri_home(self):
+        self.__context.kolibri_home = KOLIBRI_HOME
+
     def __automatic_provisiondevice(self):
         import logging
 
@@ -103,7 +109,6 @@ class KolibriServiceMainProcess(multiprocessing.Process):
 
         from kolibri.core.device.utils import device_provisioned
         from kolibri.dist.django.core.management import call_command
-        from kolibri.utils.conf import KOLIBRI_HOME
 
         AUTOMATIC_PROVISION_FILE = os.path.join(
             KOLIBRI_HOME, "automatic_provision.json"
@@ -151,4 +156,3 @@ class KolibriServiceMainProcessWatchThread(threading.Thread):
     def run(self):
         self.__main_process.join()
         self.__main_process._set_is_stopped()
-

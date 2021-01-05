@@ -20,7 +20,8 @@ class KolibriServiceContext(object):
     """
 
     APP_KEY_LENGTH = 32
-    BASE_URL_LENGTH = 128
+    BASE_URL_LENGTH = 1024
+    KOLIBRI_HOME_LENGTH = 4096
 
     class SetupResult(Enum):
         NONE = 1
@@ -52,6 +53,11 @@ class KolibriServiceContext(object):
 
         self.__base_url_value = multiprocessing.Array(c_char, self.BASE_URL_LENGTH)
         self.__base_url_set_event = multiprocessing.Event()
+
+        self.__kolibri_home_value = multiprocessing.Array(
+            c_char, self.KOLIBRI_HOME_LENGTH
+        )
+        self.__kolibri_home_set_event = multiprocessing.Event()
 
     def changed(self):
         with self.__changed_condition:
@@ -186,6 +192,26 @@ class KolibriServiceContext(object):
         self.__base_url_set_event.wait()
         return self.base_url
 
+    @property
+    def kolibri_home(self):
+        if self.__kolibri_home_set_event.is_set():
+            return self.__kolibri_home_value.value.decode("ascii")
+        else:
+            return None
+
+    @kolibri_home.setter
+    def kolibri_home(self, kolibri_home):
+        self.__kolibri_home_value.value = bytes(kolibri_home, encoding="ascii")
+        if kolibri_home is None:
+            self.__kolibri_home_set_event.clear()
+        else:
+            self.__kolibri_home_set_event.set()
+        self.changed()
+
+    def await_kolibri_home(self):
+        self.__kolibri_home_set_event.wait()
+        return self.kolibri_home
+
 
 class KolibriServiceManager(KolibriServiceContext):
     """
@@ -275,4 +301,3 @@ class WatchChangesThread(threading.Thread):
     def run(self):
         while self.__kolibri_service_manager.wait_for_changes():
             self.__callback()
-

@@ -4,7 +4,7 @@ import os
 import re
 from configparser import ConfigParser
 
-from ..globals import KOLIBRI_HOME
+from kolibri.utils.conf import KOLIBRI_HOME
 
 CONTENT_EXTENSIONS_DIR = "/app/share/kolibri-content"
 CONTENT_EXTENSION_RE = r"^org.learningequality.Kolibri.Content.(?P<name>\w+)$"

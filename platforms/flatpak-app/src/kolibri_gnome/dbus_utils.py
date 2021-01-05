@@ -86,9 +86,7 @@ class DBusMethodCallJob(object):
         return self.__context
 
     def __return_value(self, result):
-        self.__invocation.return_value(
-            self.method_info.get_variant_for_result(result)
-        )
+        self.__invocation.return_value(self.method_info.get_variant_for_result(result))
 
     def __return_error(self, domain, code, message):
         self.__invocation.return_error_literal(domain, code, message)
@@ -96,7 +94,9 @@ class DBusMethodCallJob(object):
     def run(self, cancellable=None):
         with _gapplication_hold(self.__application):
             try:
-                result = self.method_info.method_fn(*self.__args, self.context, cancellable=cancellable)
+                result = self.method_info.method_fn(
+                    *self.__args, self.context, cancellable=cancellable
+                )
                 self.__return_value(result)
             except Exception as error:
                 self.__return_error(
@@ -163,7 +163,7 @@ class DBusServer(object):
                 interface_info=interface,
                 method_call_closure=self.__on_method_call,
                 get_property_closure=self.__on_get_property,
-                set_property_closure=None
+                set_property_closure=None,
             )
             self.__registration_ids.append(object_id)
 
@@ -180,23 +180,32 @@ class DBusServer(object):
         for property_name, property_value in properties.items():
             property_fname = self.__fname(interface_name, property_name)
             property_info = self.__properties[property_fname]
-            changed_properties[property_name] = property_info.get_variant_for_value(property_value)
+            changed_properties[property_name] = property_info.get_variant_for_value(
+                property_value
+            )
 
-        self.PropertiesChanged(self.__object_path, interface_name, changed_properties, [])
+        self.PropertiesChanged(
+            self.__object_path, interface_name, changed_properties, []
+        )
 
     def PropertiesChanged(self, *args):
         signal_info = DBusSignalInfo(
-            "org.freedesktop.DBus.Properties",
-            "PropertiesChanged",
-            "(sa{sv}as)"
+            "org.freedesktop.DBus.Properties", "PropertiesChanged", "(sa{sv}as)"
         )
         return self.__emit_signal(signal_info, *args)
 
     def __emit_signal(self, signal_info, object_path, *args, destination_bus_name=None):
+        if not self.__connection:
+            return
+
         parameters = signal_info.get_variant_for_args(args)
 
         self.__connection.emit_signal(
-            destination_bus_name, object_path, signal_info.interface_name, signal_info.signal_name, parameters
+            destination_bus_name,
+            object_path,
+            signal_info.interface_name,
+            signal_info.signal_name,
+            parameters,
         )
 
     def __fname(self, interface_name, method_name):
@@ -226,7 +235,9 @@ class DBusServer(object):
         args = list(parameters.unpack())
 
         context = DBusMethodCallContext(connection, sender, object_path, method_info)
-        job = DBusMethodCallJob(self.application, method_info, args, invocation, context)
+        job = DBusMethodCallJob(
+            self.application, method_info, args, invocation, context
+        )
         cancellable = Gio.Cancellable()
 
         old_job = self.__method_calls.pop(method_name, None)
@@ -238,7 +249,9 @@ class DBusServer(object):
             job.run_async, None, GLib.PRIORITY_DEFAULT, cancellable
         )
 
-    def __on_get_property(self, connection, sender, object_path, interface_name, property_name):
+    def __on_get_property(
+        self, connection, sender, object_path, interface_name, property_name
+    ):
         property_fname = self.__fname(interface_name, property_name)
         property_info = self.__properties[property_fname]
 
@@ -254,4 +267,3 @@ def _gapplication_hold(application):
         yield
     finally:
         application.release()
-
