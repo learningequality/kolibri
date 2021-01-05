@@ -1,4 +1,4 @@
-kolibri-server (0.3.7~beta1-0ubuntu4) UNRELEASED; urgency=medium
+kolibri-server (0.3.8~beta1-0ubuntu1) UNRELEASED; urgency=medium
 
   [ José L. Redrejo Rodríguez ]
   * Build kolibri-server as a native package
@@ -7,6 +7,8 @@ kolibri-server (0.3.7~beta1-0ubuntu4) UNRELEASED; urgency=medium
   [ Benjamin Bach ]
   * Silence startup error when redis cache is empty #63
   * Move HTML error pages to /usr/share/kolibri/error_pages/ #70
+  * Use --pidfile2 option for UWSGI #68
+  * System service does not start if UWSGI does not start #68
 
  -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 27 Apr 2020 19:45:44 +0200
 
