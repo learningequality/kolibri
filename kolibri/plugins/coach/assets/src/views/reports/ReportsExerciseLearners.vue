@@ -1,50 +1,50 @@
 <template>
 
   <CoreTable :emptyMessage="coachString('activityListEmptyState')">
-    <thead slot="thead">
-      <tr>
-        <th>{{ coachString('nameLabel') }}</th>
-        <th>{{ coreString('progressLabel') }}</th>
-        <th>{{ coachString('timeSpentLabel') }}</th>
-        <th v-if="showGroupsColumn">
-          {{ coachString('groupsLabel') }}
-        </th>
-        <th>{{ coachString('lastActivityLabel') }}</th>
-      </tr>
-    </thead>
-    <transition-group slot="tbody" tag="tbody" name="list">
-      <tr v-for="entry in entries" :key="entry.id" data-test="entry">
-        <td>
-          <KLabeledIcon icon="person">
-            <KRouterLink
-              v-if="showLink(entry)"
-              :text="entry.name"
-              :to="entry.exerciseLearnerLink"
-              data-test="exercise-learner-link"
+    <template #headers>
+      <th>{{ coachString('nameLabel') }}</th>
+      <th>{{ coreString('progressLabel') }}</th>
+      <th>{{ coachString('timeSpentLabel') }}</th>
+      <th v-if="showGroupsColumn">
+        {{ coachString('groupsLabel') }}
+      </th>
+      <th>{{ coachString('lastActivityLabel') }}</th>
+    </template>
+    <template #tbody>
+      <transition-group tag="tbody" name="list">
+        <tr v-for="entry in entries" :key="entry.id" data-test="entry">
+          <td>
+            <KLabeledIcon icon="person">
+              <KRouterLink
+                v-if="showLink(entry)"
+                :text="entry.name"
+                :to="entry.exerciseLearnerLink"
+                data-test="exercise-learner-link"
+              />
+              <template v-else>
+                {{ entry.name }}
+              </template>
+            </KLabeledIcon>
+          </td>
+          <td>
+            <StatusSimple :status="entry.statusObj.status" />
+          </td>
+          <td>
+            <TimeDuration
+              :seconds="timeDuration(entry)"
             />
-            <template v-else>
-              {{ entry.name }}
-            </template>
-          </KLabeledIcon>
-        </td>
-        <td>
-          <StatusSimple :status="entry.statusObj.status" />
-        </td>
-        <td>
-          <TimeDuration
-            :seconds="timeDuration(entry)"
-          />
-        </td>
-        <td v-if="showGroupsColumn">
-          <TruncatedItemList :items="getGroupNames(entry)" />
-        </td>
-        <td>
-          <ElapsedTime
-            :date="elapsedTime(entry)"
-          />
-        </td>
-      </tr>
-    </transition-group>
+          </td>
+          <td v-if="showGroupsColumn">
+            <TruncatedItemList :items="getGroupNames(entry)" />
+          </td>
+          <td>
+            <ElapsedTime
+              :date="elapsedTime(entry)"
+            />
+          </td>
+        </tr>
+      </transition-group>
+    </template>
   </CoreTable>
 
 </template>

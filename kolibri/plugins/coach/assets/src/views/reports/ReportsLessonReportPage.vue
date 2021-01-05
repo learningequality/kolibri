@@ -48,49 +48,49 @@
             />
           </HeaderTabs>
           <CoreTable :emptyMessage="emptyMessage">
-            <thead slot="thead">
-              <tr>
-                <th>{{ coachString('titleLabel') }}</th>
-                <th>{{ coreString('progressLabel') }}</th>
-                <th>{{ coachString('avgTimeSpentLabel') }}</th>
-              </tr>
-            </thead>
-            <transition-group slot="tbody" tag="tbody" name="list">
-              <tr v-for="tableRow in table" :key="tableRow.node_id">
-                <td>
-                  <KLabeledIcon :icon="tableRow.kind">
-                    <KRouterLink
-                      v-if="tableRow.kind === 'exercise' && tableRow.hasAssignments"
-                      :text="tableRow.title"
-                      :to="classRoute(
-                        'ReportsLessonExerciseLearnerListPage',
-                        { exerciseId: tableRow.content_id }
-                      )"
+            <template #headers>
+              <th>{{ coachString('titleLabel') }}</th>
+              <th>{{ coreString('progressLabel') }}</th>
+              <th>{{ coachString('avgTimeSpentLabel') }}</th>
+            </template>
+            <template #tbody>
+              <transition-group tag="tbody" name="list">
+                <tr v-for="tableRow in table" :key="tableRow.node_id">
+                  <td>
+                    <KLabeledIcon :icon="tableRow.kind">
+                      <KRouterLink
+                        v-if="tableRow.kind === 'exercise' && tableRow.hasAssignments"
+                        :text="tableRow.title"
+                        :to="classRoute(
+                          'ReportsLessonExerciseLearnerListPage',
+                          { exerciseId: tableRow.content_id }
+                        )"
+                      />
+                      <KRouterLink
+                        v-else-if="tableRow.hasAssignments"
+                        :text="tableRow.title"
+                        :to="classRoute(
+                          'ReportsLessonResourceLearnerListPage',
+                          { resourceId: tableRow.content_id }
+                        )"
+                      />
+                      <template v-else>
+                        {{ tableRow.title }}
+                      </template>
+                    </KLabeledIcon>
+                  </td>
+                  <td>
+                    <StatusSummary
+                      :tally="tableRow.tally"
+                      :verbose="true"
                     />
-                    <KRouterLink
-                      v-else-if="tableRow.hasAssignments"
-                      :text="tableRow.title"
-                      :to="classRoute(
-                        'ReportsLessonResourceLearnerListPage',
-                        { resourceId: tableRow.content_id }
-                      )"
-                    />
-                    <template v-else>
-                      {{ tableRow.title }}
-                    </template>
-                  </KLabeledIcon>
-                </td>
-                <td>
-                  <StatusSummary
-                    :tally="tableRow.tally"
-                    :verbose="true"
-                  />
-                </td>
-                <td>
-                  <TimeDuration :seconds="tableRow.avgTimeSpent" />
-                </td>
-              </tr>
-            </transition-group>
+                  </td>
+                  <td>
+                    <TimeDuration :seconds="tableRow.avgTimeSpent" />
+                  </td>
+                </tr>
+              </transition-group>
+            </template>
           </CoreTable>
         </KPageContainer>
       </KGridItem>

@@ -23,48 +23,48 @@
         -->
       </ReportsControls>
       <CoreTable :emptyMessage="emptyMessage">
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachString('titleLabel') }}</th>
-            <th>{{ coreString('progressLabel') }}</th>
-            <th>{{ coachString('recipientsLabel') }}</th>
-            <th v-show="!$isPrint">
-              {{ $tr('visibleToLearnersLabel') }}
-            </th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="tableRow in table" :key="tableRow.id">
-            <td>
-              <KLabeledIcon icon="lesson">
-                <KRouterLink
-                  :text="tableRow.title"
-                  :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"
+        <template #headers>
+          <th>{{ coachString('titleLabel') }}</th>
+          <th>{{ coreString('progressLabel') }}</th>
+          <th>{{ coachString('recipientsLabel') }}</th>
+          <th v-show="!$isPrint">
+            {{ $tr('visibleToLearnersLabel') }}
+          </th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <tr v-for="tableRow in table" :key="tableRow.id">
+              <td>
+                <KLabeledIcon icon="lesson">
+                  <KRouterLink
+                    :text="tableRow.title"
+                    :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"
+                  />
+                </KLabeledIcon>
+              </td>
+              <td>
+                <StatusSummary
+                  :tally="tableRow.tally"
+                  :verbose="true"
                 />
-              </KLabeledIcon>
-            </td>
-            <td>
-              <StatusSummary
-                :tally="tableRow.tally"
-                :verbose="true"
-              />
-            </td>
-            <td>
-              <Recipients
-                :groupNames="getRecipientNamesForExam(tableRow)"
-                :hasAssignments="tableRow.assignments.length > 0"
-              />
-            </td>
-            <td v-show="!$isPrint">
-              <KSwitch
-                name="toggle-lesson-visibility"
-                :checked="tableRow.active"
-                :value="tableRow.active"
-                @change="handleToggleVisibility(tableRow)"
-              />
-            </td>
-          </tr>
-        </transition-group>
+              </td>
+              <td>
+                <Recipients
+                  :groupNames="getRecipientNamesForExam(tableRow)"
+                  :hasAssignments="tableRow.assignments.length > 0"
+                />
+              </td>
+              <td v-show="!$isPrint">
+                <KSwitch
+                  name="toggle-lesson-visibility"
+                  :checked="tableRow.active"
+                  :value="tableRow.active"
+                  @change="handleToggleVisibility(tableRow)"
+                />
+              </td>
+            </tr>
+          </transition-group>
+        </template>
       </CoreTable>
     </KPageContainer>
   </CoreBase>

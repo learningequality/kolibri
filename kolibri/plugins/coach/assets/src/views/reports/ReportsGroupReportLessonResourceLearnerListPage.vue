@@ -56,34 +56,34 @@
       </ReportsControls>
 
       <CoreTable :emptyMessage="coachString('activityListEmptyState')">
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachString('nameLabel') }}</th>
-            <th>{{ coachString('statusLabel') }}</th>
-            <th>{{ coachString('timeSpentLabel') }}</th>
-            <th>{{ coachString('groupsLabel') }}</th>
-            <th>{{ coachString('lastActivityLabel') }}</th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="tableRow in table" :key="tableRow.id">
-            <td>
-              <KLabeledIcon icon="person" :label="tableRow.name" />
-            </td>
-            <td>
-              <StatusSimple :status="tableRow.statusObj.status" />
-            </td>
-            <td>
-              <TimeDuration :seconds="tableRow.statusObj.time_spent" />
-            </td>
-            <td>
-              <TruncatedItemList :items="tableRow.groups" />
-            </td>
-            <td>
-              <ElapsedTime :date="tableRow.statusObj.last_activity" />
-            </td>
-          </tr>
-        </transition-group>
+        <template #headers>
+          <th>{{ coachString('nameLabel') }}</th>
+          <th>{{ coachString('statusLabel') }}</th>
+          <th>{{ coachString('timeSpentLabel') }}</th>
+          <th>{{ coachString('groupsLabel') }}</th>
+          <th>{{ coachString('lastActivityLabel') }}</th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <tr v-for="tableRow in table" :key="tableRow.id">
+              <td>
+                <KLabeledIcon icon="person" :label="tableRow.name" />
+              </td>
+              <td>
+                <StatusSimple :status="tableRow.statusObj.status" />
+              </td>
+              <td>
+                <TimeDuration :seconds="tableRow.statusObj.time_spent" />
+              </td>
+              <td>
+                <TruncatedItemList :items="tableRow.groups" />
+              </td>
+              <td>
+                <ElapsedTime :date="tableRow.statusObj.last_activity" />
+              </td>
+            </tr>
+          </transition-group>
+        </template>
       </CoreTable>
     </KPageContainer>
   </CoreBase>
