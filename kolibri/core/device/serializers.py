@@ -4,7 +4,6 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from kolibri.core.auth.constants.facility_presets import choices
-from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import FacilitySerializer
@@ -74,10 +73,8 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
         with transaction.atomic():
             facility = Facility.objects.create(**validated_data.pop("facility"))
             preset = validated_data.pop("preset")
-            dataset_data = mappings[preset]
             facility.dataset.preset = preset
-            for key, value in dataset_data.items():
-                setattr(facility.dataset, key, value)
+            facility.dataset.reset_to_default_settings(preset)
             # overwrite the settings in dataset_data with validated_data.settings
             custom_settings = validated_data.pop("settings")
             for key, value in custom_settings.items():
