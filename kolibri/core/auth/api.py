@@ -168,7 +168,7 @@ class FacilityDatasetViewSet(ValuesViewset):
             queryset = queryset.filter(collection__id=facility_id)
         return queryset
 
-    @decorators.action(methods=["patch"], detail=True)
+    @decorators.action(methods=["post"], detail=True)
     def resetsettings(self, request, pk):
         try:
             dataset = FacilityDataset.objects.get(pk=pk)

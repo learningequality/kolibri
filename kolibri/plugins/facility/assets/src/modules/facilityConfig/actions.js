@@ -1,4 +1,6 @@
 import { FacilityDatasetResource, FacilityResource } from 'kolibri.resources';
+import client from 'kolibri.client';
+import urls from 'kolibri.urls';
 
 export function saveFacilityName(store, payload) {
   return FacilityResource.saveModel({
@@ -36,14 +38,19 @@ export function saveFacilityConfig(store) {
 }
 
 export function resetFacilityConfig(store) {
-  store.commit('CONFIG_PAGE_MODIFY_ALL_SETTINGS', {
-    learner_can_edit_username: true,
-    learner_can_edit_name: true,
-    learner_can_edit_password: true,
-    learner_can_sign_up: true,
-    learner_can_delete_account: true,
-    learner_can_login_with_no_password: false,
-    show_download_button_in_learn: false,
+  const { facilityDatasetId } = store.state;
+  return client({
+    url: urls['kolibri:core:facilitydataset-resetsettings'](facilityDatasetId),
+    method: 'POST',
+  }).then(({ data }) => {
+    store.commit('CONFIG_PAGE_MODIFY_ALL_SETTINGS', {
+      learner_can_edit_username: data.learner_can_edit_username,
+      learner_can_edit_name: data.learner_can_edit_name,
+      learner_can_edit_password: data.learner_can_edit_password,
+      learner_can_sign_up: data.learner_can_sign_up,
+      learner_can_delete_account: data.learner_can_delete_account,
+      learner_can_login_with_no_password: data.learner_can_login_with_no_password,
+      show_download_button_in_learn: data.show_download_button_in_learn,
+    });
   });
-  return saveFacilityConfig(store);
 }
