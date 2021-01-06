@@ -1,7 +1,7 @@
 import coreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
 import bytesForHumans from 'kolibri.utils.bytesForHumans';
-import { taskIsClearable, TaskStatuses, TaskTypes } from '../constants';
+import { TaskStatuses, TaskTypes } from '../constants';
 
 export const SyncTaskStatuses = {
   SESSION_CREATION: 'SESSION_CREATION',
@@ -92,7 +92,7 @@ export function syncFacilityTaskDisplayInfo(task) {
     });
   }
 
-  const canClear = taskIsClearable(task);
+  const canClear = task.clearable;
 
   return {
     headingMsg: getTaskString('syncFacilityTaskLabel', { facilityName }),
@@ -123,8 +123,8 @@ export function removeFacilityTaskDisplayInfo(task) {
     statusMsg: statusDescription,
     startedByMsg: getTaskString('taskStartedByLabel', { username: task.started_by_username }),
     isRunning: task.status === 'RUNNING',
-    canClear: taskIsClearable(task),
-    canCancel: !taskIsClearable(task) && task.status !== 'RUNNING',
+    canClear: task.clearable,
+    canCancel: !task.clearable && task.status !== 'RUNNING',
     canRetry: task.status === TaskStatuses.FAILED,
   };
 }

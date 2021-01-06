@@ -123,7 +123,7 @@
   } from 'kolibri.coreVue.componentSets.sync';
   import TasksBar from '../ManageContentPage/TasksBar';
   import HeaderWithOptions from '../HeaderWithOptions';
-  import { TaskStatuses, TaskTypes, taskIsClearable } from '../../constants';
+  import { TaskStatuses, TaskTypes } from '../../constants';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
   import ImportFacilityModalGroup from './ImportFacilityModalGroup';
@@ -187,7 +187,7 @@
             }
           } else {
             // Add tasks that aren't being watched yet
-            if (!taskIsClearable(task)) {
+            if (!task.clearable) {
               this.taskIdsToWatch.push(task.id);
             }
           }
