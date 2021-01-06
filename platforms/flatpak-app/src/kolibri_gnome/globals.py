@@ -6,6 +6,7 @@ import gettext
 import os
 
 from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 
 from . import config
 
@@ -35,8 +36,6 @@ def init_gettext():
 
 def init_logging(logfile_name="kolibri-app.txt", level=logging.DEBUG):
     logging.basicConfig(level=level)
-
-    from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 
     os.makedirs(KOLIBRI_LOGS_DIR, exist_ok=True)
     log_filename = os.path.join(KOLIBRI_LOGS_DIR, logfile_name)

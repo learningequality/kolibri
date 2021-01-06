@@ -1,6 +1,6 @@
 import logging
 
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 import gi
 
@@ -22,6 +22,8 @@ def main():
     init_gettext()
 
     pew.set_app_name("Kolibri")
+
+    logger = logging.getLogger(__name__)
 
     # Since the log files can contain multiple runs, make the first printout very visible to quickly show
     # when a new run starts in the log files.

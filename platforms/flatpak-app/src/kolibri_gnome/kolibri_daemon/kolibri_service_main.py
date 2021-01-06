@@ -9,6 +9,8 @@ from kolibri.utils.conf import KOLIBRI_HOME
 
 from .content_extensions import ContentExtensionsList
 
+from ..globals import init_logging
+
 # TODO: We need to use multiprocessing because Kolibri occasionally calls
 #       os.kill against its own process ID.
 
@@ -31,6 +33,7 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         watch_thread.start()
 
     def run(self):
+        init_logging('kolibri-daemon-main.txt')
         with self.__set_is_stopped_on_exit():
             self.__run_kolibri_start()
 
