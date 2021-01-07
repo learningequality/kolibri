@@ -24,8 +24,11 @@ from gi.repository import Gio
 
 from .. import config
 
-from ..globals import KOLIBRI_APP_DEVELOPER_EXTRAS, XDG_CURRENT_DESKTOP
+from ..globals import KOLIBRI_APP_DEVELOPER_EXTRAS
+from ..globals import KOLIBRI_USE_SYSTEM_INSTANCE
+from ..globals import XDG_CURRENT_DESKTOP
 from ..kolibri_daemon_proxy import KolibriDaemonProxy
+
 from .utils import get_localized_file
 
 
@@ -281,7 +284,10 @@ class Application(pew.ui.PEWApp):
         )
         self.__loader_url = "file://{path}".format(path=os.path.abspath(loader_path))
 
-        self.__kolibri_service_manager = KolibriDaemonProxy(self)
+        if KOLIBRI_USE_SYSTEM_INSTANCE:
+            self.__kolibri_service_manager = KolibriDaemonProxy(self, Gio.BusType.SYSTEM)
+        else:
+            self.__kolibri_service_manager = KolibriDaemonProxy(self, Gio.BusType.SESSION)
 
         self.__windows = []
 

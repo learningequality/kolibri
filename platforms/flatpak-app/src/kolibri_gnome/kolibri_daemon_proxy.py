@@ -6,10 +6,10 @@ from . import config
 
 
 class KolibriDaemonProxy(object):
-    def __init__(self, application):
+    def __init__(self, application, bus_type):
         self.__application = application
         self.__proxy = Gio.DBusProxy.new_for_bus_sync(
-            Gio.BusType.SESSION,
+            bus_type,
             Gio.DBusProxyFlags.NONE,
             None,
             config.DAEMON_APPLICATION_ID,
@@ -32,22 +32,22 @@ class KolibriDaemonProxy(object):
     @property
     def app_key(self):
         variant = self.__proxy.get_cached_property("AppKey")
-        return variant.get_string()
+        return variant.get_string() if variant else None
 
     @property
     def base_url(self):
         variant = self.__proxy.get_cached_property("BaseURL")
-        return variant.get_string()
+        return variant.get_string() if variant else None
 
     @property
     def status(self):
         variant = self.__proxy.get_cached_property("Status")
-        return variant.get_string()
+        return variant.get_string() if variant else None
 
     @property
     def kolibri_home(self):
         variant = self.__proxy.get_cached_property("KolibriHome")
-        return variant.get_string()
+        return variant.get_string() if variant else None
 
     def hold(self):
         self.__proxy.call_sync("Hold", None, Gio.DBusCallFlags.NONE, -1, None)
@@ -84,7 +84,7 @@ class KolibriDaemonProxy(object):
         if callable(url):
             return True
 
-        if not url:
+        if not url or not self.base_url:
             return False
         elif not url.startswith(self.base_url):
             return False

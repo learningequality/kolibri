@@ -13,6 +13,7 @@
         "--socket=pulseaudio",
         "--socket=wayland",
         "--socket=x11",
+        "--system-talk-name=org.learningequality.Kolibri.Devel.Daemon",
         "--env=KOLIBRI_HOME=~/.var/app/org.learningequality.Kolibri.Devel/data/kolibri"
     ],
     "add-extensions" : {

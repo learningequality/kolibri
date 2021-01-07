@@ -5,6 +5,8 @@ from typing import NamedTuple
 
 from .. import config
 from ..dbus_utils import DBusServer
+from ..globals import KOLIBRI_USE_SYSTEM_INSTANCE
+
 from .kolibri_service import KolibriServiceManager
 
 
@@ -113,21 +115,48 @@ class Application(Gio.Application):
             inactivity_timeout=INACTIVITY_TIMEOUT_MS,
         )
         self.__kolibri_service_manager = KolibriServiceManager()
-        self.__kolibri_daemon = KolibriDaemon(self, self.__kolibri_service_manager)
+        self.__session_kolibri_daemon = None
+        self.__system_kolibri_daemon = None
         self.connect("startup", self.__on_startup)
         self.connect("activate", self.__on_activate)
         self.connect("shutdown", self.__on_shutdown)
 
-    def do_dbus_register(self, dbus_connection, object_path):
-        self.__kolibri_daemon.register_on_connection(dbus_connection, object_path)
+    def do_dbus_register(self, connection, object_path):
+        if not KOLIBRI_USE_SYSTEM_INSTANCE:
+            self.__session_kolibri_daemon = KolibriDaemon(self, self.__kolibri_service_manager)
+            self.__session_kolibri_daemon.register_on_connection(connection, object_path)
         return True
 
-    def do_dbus_unregister(self, dbus_connection, object_path):
-        self.__kolibri_daemon.unregister()
+    def do_dbus_unregister(self, connection, object_path):
+        if self.__session_kolibri_daemon:
+            self.__session_kolibri_daemon.unregister()
+            self.__session_kolibri_daemon = None
         return True
 
     def __on_startup(self, application):
+        if KOLIBRI_USE_SYSTEM_INSTANCE:
+            Gio.bus_own_name(
+                Gio.BusType.SYSTEM,
+                config.DAEMON_APPLICATION_ID,
+                Gio.BusNameOwnerFlags.NONE,
+                None,
+                self.__on_system_name_acquired,
+                self.__on_system_name_lost
+            )
         self.__kolibri_service_manager.start_kolibri()
+
+    def __on_system_name_acquired(self, connection, name):
+        print("__on_system_name_acquired", name)
+        if KOLIBRI_USE_SYSTEM_INSTANCE:
+            object_path = "/org/learningequality/Kolibri/Devel/Daemon"
+            self.__system_kolibri_daemon = KolibriDaemon(self, self.__kolibri_service_manager)
+            self.__system_kolibri_daemon.register_on_connection(connection, object_path)
+
+    def __on_system_name_lost(self, connection, name):
+        print("__on_system_name_lost", name)
+        if self.__system_kolibri_daemon:
+            self.__system_kolibri_daemon.unregister()
+            self.__system_kolibri_daemon = None
 
     def __on_activate(self, application):
         pass

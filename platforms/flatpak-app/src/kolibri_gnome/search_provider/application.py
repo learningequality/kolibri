@@ -188,16 +188,16 @@ class Application(Gio.Application):
         self.__search_provider = None
         self.connect("activate", self.__on_activate)
 
-    def do_dbus_register(self, dbus_connection, object_path):
+    def do_dbus_register(self, connection, object_path):
         if IS_KOLIBRI_LOCAL:
             search_handlers = [LocalSearchHandler()]
         else:
             search_handlers = []
         self.__search_provider = SearchProvider(self, search_handlers)
-        self.__search_provider.register_on_connection(dbus_connection, object_path)
+        self.__search_provider.register_on_connection(connection, object_path)
         return True
 
-    def do_dbus_unregister(self, dbus_connection, object_path):
+    def do_dbus_unregister(self, connection, object_path):
         if self.__search_provider:
             self.__search_provider.unregister()
         return True

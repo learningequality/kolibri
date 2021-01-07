@@ -117,12 +117,16 @@ class DBusServer(object):
         self.__properties = dict()
         self.__method_calls = dict()
         self.__connection = None
+        self.__object_path = None
 
     @property
     def application(self):
         return self.__application
 
     def register_on_connection(self, connection, object_path):
+        if self.__connection or self.__object_path:
+            raise RuntimeError()
+
         self.__connection = connection
         self.__object_path = object_path
 
@@ -170,8 +174,6 @@ class DBusServer(object):
     def unregister(self):
         for registration_id in self.__registration_ids:
             self.__connection.unregister_object(registration_id)
-        self.__connection = None
-        self.__object_path = None
 
     def notify_properties_changed(self, interface_name, properties={}):
         changed_properties = {}
