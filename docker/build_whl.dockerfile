@@ -23,10 +23,8 @@ RUN apt-get update && \
     curl -sSO https://deb.nodesource.com/node_10.x/pool/main/n/nodejs/nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
     dpkg -i ./nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
     rm nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
-    apt-get install yarn
-
-RUN git lfs install &&\
-    mkdir kolibri &&\
+    apt-get install yarn && \
+    mkdir kolibri && \
     mkdir yarn_cache
 
 WORKDIR /kolibri
@@ -34,8 +32,8 @@ WORKDIR /kolibri
 # Python dependencies
 COPY requirements/ requirements/
 RUN echo '--- Installing Python dependencies' && \
-    pip install -r requirements/dev.txt && \
-    pip install -r requirements/build.txt
+    pip install -r requirements/build.txt && \
+    pip install -r requirements/dev.txt
 
 # Set yarn cache folder for easy binding during runtime
 RUN yarn config set cache-folder /yarn_cache
@@ -43,7 +41,8 @@ RUN yarn config set cache-folder /yarn_cache
 # Copy all files in this directory
 COPY . .
 
-CMD echo '--- Installing JS dependencies' && \
+CMD git lfs install && \
+    echo '--- Installing JS dependencies' && \
     yarn install --pure-lockfile && \
     echo '--- Making whl' && \
     make dist && \
