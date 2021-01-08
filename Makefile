@@ -215,7 +215,7 @@ i18n-stats:
 i18n-install-font:
 	python build_tools/i18n/fonts.py add-source-font ${name}
 
-docker-whl: writeversion docker-envlist
+docker-whl: docker-envlist
 	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .
 	docker run \
 		--env-file ./docker/env.list \
