@@ -285,9 +285,13 @@ class Application(pew.ui.PEWApp):
         self.__loader_url = "file://{path}".format(path=os.path.abspath(loader_path))
 
         if KOLIBRI_USE_SYSTEM_INSTANCE:
-            self.__kolibri_service_manager = KolibriDaemonProxy(self, Gio.BusType.SYSTEM)
+            self.__kolibri_service_manager = KolibriDaemonProxy(
+                self, Gio.BusType.SYSTEM
+            )
         else:
-            self.__kolibri_service_manager = KolibriDaemonProxy(self, Gio.BusType.SESSION)
+            self.__kolibri_service_manager = KolibriDaemonProxy(
+                self, Gio.BusType.SESSION
+            )
 
         self.__windows = []
 
@@ -339,6 +343,7 @@ class Application(pew.ui.PEWApp):
 
     def __open_window(self, target_url=None):
         self.__kolibri_service_manager.hold()
+        self.__kolibri_service_manager.start()
 
         target_url = target_url or self.__get_base_url
         window = KolibriWindow(

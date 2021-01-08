@@ -139,14 +139,14 @@ class DBusServer(object):
                     interface_name=interface.name,
                     method_name=method.name,
                     method_outargs=self.__args_as_tuple(method.out_args),
-                    method_fn=method_fn
+                    method_fn=method_fn,
                 )
 
             for signal in interface.signals:
                 signal_info = DBusSignalInfo(
                     interface_name=interface.name,
                     signal_name=signal.name,
-                    signal_args=self.__args_as_tuple(signal.out_args)
+                    signal_args=self.__args_as_tuple(signal.out_args),
                 )
                 signal_fn = partial(self.__emit_signal, signal_info, object_path)
                 setattr(self, signal.name, signal_fn)
@@ -159,7 +159,7 @@ class DBusServer(object):
                     interface_name=interface.name,
                     property_name=property.name,
                     property_type=property_type,
-                    get_fn=get_fn
+                    get_fn=get_fn,
                 )
 
             object_id = connection.register_object(
@@ -216,9 +216,7 @@ class DBusServer(object):
     def __args_as_tuple(self, out_args):
         if not out_args:
             return None
-        out_args_types = [
-            GLib.VariantType(arg.signature) for arg in out_args
-        ]
+        out_args_types = [GLib.VariantType(arg.signature) for arg in out_args]
         return GLib.VariantType.new_tuple(out_args_types).dup_string()
 
     def __on_method_call(

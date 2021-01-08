@@ -274,15 +274,15 @@ class KolibriServiceManager(KolibriServiceContext):
         watch_changes_thread.start()
 
     def start_kolibri(self):
+        if self.__main_process and self.__main_process.is_alive():
+            return
+
         if not self.__setup_process:
             self.__setup_process = KolibriServiceSetupProcess(self)
             self.__setup_process.start()
 
-        if self.__main_process and self.__main_process.is_alive():
-            return
-        else:
-            self.__main_process = KolibriServiceMainProcess(self)
-            self.__main_process.start()
+        self.__main_process = KolibriServiceMainProcess(self)
+        self.__main_process.start()
 
     def stop_kolibri(self):
         if self.__stop_process and self.__stop_process.is_alive():
@@ -293,11 +293,11 @@ class KolibriServiceManager(KolibriServiceContext):
 
 
 class WatchChangesThread(threading.Thread):
-    def __init__(self, kolibri_service_manager, callback):
-        self.__kolibri_service_manager = kolibri_service_manager
+    def __init__(self, service_manager, callback):
+        self.__service_manager = service_manager
         self.__callback = callback
         super().__init__(daemon=True)
 
     def run(self):
-        while self.__kolibri_service_manager.wait_for_changes():
+        while self.__service_manager.wait_for_changes():
             self.__callback()

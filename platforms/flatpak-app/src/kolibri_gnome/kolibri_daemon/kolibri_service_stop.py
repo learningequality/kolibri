@@ -14,7 +14,7 @@ class KolibriServiceStopProcess(multiprocessing.Process):
         super().__init__()
 
     def run(self):
-        init_logging('kolibri-daemon-stop.txt')
+        init_logging("kolibri-daemon-stop.txt")
 
         if self.__context.await_start_result() != self.__context.StartResult.SUCCESS:
             return

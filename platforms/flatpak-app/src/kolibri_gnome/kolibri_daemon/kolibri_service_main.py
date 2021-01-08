@@ -33,7 +33,7 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         watch_thread.start()
 
     def run(self):
-        init_logging('kolibri-daemon-main.txt')
+        init_logging("kolibri-daemon-main.txt")
         with self.__set_is_stopped_on_exit():
             self.__run_kolibri_start()
 

@@ -30,6 +30,7 @@ kolibri_daemon_sources = [
     'kolibri_daemon/application.py',
     'kolibri_daemon/content_extensions.py',
     'kolibri_daemon/__init__.py',
+    'kolibri_daemon/kolibri_search_handler.py',
     'kolibri_daemon/kolibri_service_main.py',
     'kolibri_daemon/kolibri_service.py',
     'kolibri_daemon/kolibri_service_setup.py',

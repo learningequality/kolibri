@@ -34,7 +34,7 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         super().__init__()
 
     def run(self):
-        init_logging('kolibri-daemon-setup.txt')
+        init_logging("kolibri-daemon-setup.txt")
 
         self.__update_from_home_template()
 

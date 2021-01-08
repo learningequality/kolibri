@@ -55,6 +55,9 @@ class KolibriDaemonProxy(object):
     def release(self):
         self.__proxy.call_sync("Release", None, Gio.DBusCallFlags.NONE, -1, None)
 
+    def start(self):
+        self.__proxy.call_sync("Start", None, Gio.DBusCallFlags.NONE, -1, None)
+
     def is_loading(self):
         if not self.app_key or not self.base_url:
             return True
