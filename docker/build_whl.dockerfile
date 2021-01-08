@@ -45,7 +45,7 @@ CMD git lfs install && \
     echo '--- Installing JS dependencies' && \
     yarn install --pure-lockfile && \
     echo '--- Making whl' && \
-    make dist && \
+    make dist | grep -vE 'copying|adding' && \
     echo '--- Making pex' && \
     make pex && \
     cp /kolibri/dist/* /kolibridist/
