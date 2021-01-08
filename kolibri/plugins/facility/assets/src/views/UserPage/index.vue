@@ -24,8 +24,7 @@
     </KGrid>
 
     <PaginatedListContainer
-      :items="facilityUsers"
-      :filterFunction="filterUsers"
+      :items="usersFilteredByRow"
       :filterPlaceholder="$tr('searchText')"
     >
       <template #otherFilter>
@@ -87,7 +86,6 @@
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
-  import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
   import DeleteUserModal from './DeleteUserModal';
 
@@ -127,6 +125,9 @@
           { label: this.$tr('superAdmins'), value: UserKinds.SUPERUSER },
         ];
       },
+      usersFilteredByRow() {
+        return this.facilityUsers.filter(user => this.userMatchesRole(user, this.roleFilter));
+      },
     },
     beforeMount() {
       this.roleFilter = this.userKinds[0];
@@ -152,12 +153,6 @@
           return this.$tr('allUsersFilteredOut', { filterText });
         }
         return '';
-      },
-      filterUsers(users, filterText) {
-        return filterAndSortUsers(
-          users,
-          user => userMatchesFilter(user, filterText) && this.userMatchesRole(user, this.roleFilter)
-        );
       },
       closeModal() {
         this.modalShown = '';
