@@ -4,7 +4,7 @@ from gi.repository import GLib
 from typing import NamedTuple
 
 from .. import config
-from ..dbus_utils import DBusServer
+from ..dbus_utils import DBusServer, dict_to_vardict
 from ..globals import KOLIBRI_USE_SYSTEM_INSTANCE
 
 from .kolibri_service import KolibriServiceManager
@@ -36,7 +36,7 @@ class KolibriDaemon(DBusServer):
         <property name="BaseURL" type="s" access="read" />
         <property name="KolibriHome" type="s" access="read" />
         <property name="Status" type="s" access="read" />
-        <property name="Version" type="d" access="read" />
+        <property name="Version" type="u" access="read" />
       </interface>
     </node>
     """
@@ -92,7 +92,7 @@ class KolibriDaemon(DBusServer):
     def GetMetadataForItemIds(self, item_ids, context, cancellable=None):
         return list(
             map(
-                self.__search_metadata_to_vardict,
+                dict_to_vardict,
                 self.__search_handler.get_metadata_for_item_ids(item_ids),
             )
         )
@@ -111,14 +111,6 @@ class KolibriDaemon(DBusServer):
 
     def GetVersion(self, context, cancellable=None):
         return self.__cached_properties.Version
-
-    def __search_metadata_to_vardict(self, metadata):
-        return {
-            "id": GLib.Variant("s", metadata.get("id")),
-            "name": GLib.Variant("s", metadata.get("name")),
-            "description": GLib.Variant("s", metadata.get("description")),
-            "gicon": GLib.Variant("s", metadata.get("gicon")),
-        }
 
     def __hold_for_client(self, connection, name):
         if name in self.__hold_clients.keys():

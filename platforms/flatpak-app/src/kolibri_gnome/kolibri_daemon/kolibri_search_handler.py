@@ -1,3 +1,4 @@
+import collections
 import multiprocessing
 
 
@@ -51,8 +52,12 @@ class SearchHandler(object):
         Converts an item ID from a search result back to a Kolibri node ID.
         """
 
-        _kind_code, node_id = item_id.split("/", 1)
-        return node_id
+        try:
+            _kind_code, node_id = item_id.split("/", 1)
+        except ValueError:
+            raise ValueError("Invalid item_id")
+        else:
+            return node_id
 
     @staticmethod
     def _node_data_to_search_metadata(item_id, node_data):
@@ -61,6 +66,9 @@ class SearchHandler(object):
         GNOME Shell SearchProvider interface:
         <https://developer.gnome.org/SearchProvider/#The_SearchProvider_interface>
         """
+
+        if not isinstance(node_data, collections.Mapping):
+            return None
 
         node_icon = NODE_ICON_LOOKUP.get(node_data.get("kind"), DEFAULT_NODE_ICON)
 
@@ -98,7 +106,10 @@ class LocalSearchHandler(SearchHandler):
 
     def get_metadata_for_item_ids(self, item_ids):
         return list(
-            self.__pool.map(LocalSearchHandler._get_metadata_for_item_id, item_ids)
+            filter(
+                lambda metadata: metadata is not None,
+                self.__pool.map(LocalSearchHandler._get_metadata_for_item_id, item_ids),
+            )
         )
 
     @staticmethod

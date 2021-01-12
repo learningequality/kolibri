@@ -260,6 +260,12 @@ class DBusServer(object):
         return property_info.get_variant_for_value(result)
 
 
+def dict_to_vardict(data):
+    # For now, we assume the vardict consists only of string values, which is
+    # a safe assumption for the GNOME Shell Search Provider API.
+    return dict((key, GLib.Variant("s", value)) for key, value in data.items())
+
+
 @contextmanager
 def _gapplication_hold(application):
     application.hold()

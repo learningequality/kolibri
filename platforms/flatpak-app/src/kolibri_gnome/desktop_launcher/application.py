@@ -25,7 +25,6 @@ from gi.repository import Gio
 from .. import config
 
 from ..globals import KOLIBRI_APP_DEVELOPER_EXTRAS
-from ..globals import KOLIBRI_USE_SYSTEM_INSTANCE
 from ..globals import XDG_CURRENT_DESKTOP
 from ..kolibri_daemon_proxy import KolibriDaemonProxy
 
@@ -278,24 +277,34 @@ class Application(pew.ui.PEWApp):
     handles_open_file_uris = True
 
     def __init__(self, *args, **kwargs):
+        self.__is_ready_event = threading.Event()
+
         loader_path = get_localized_file(
             os.path.join(config.DATA_DIR, "assets", "_load-{}.html"),
             os.path.join(config.DATA_DIR, "assets", "_load.html"),
         )
         self.__loader_url = "file://{path}".format(path=os.path.abspath(loader_path))
 
-        if KOLIBRI_USE_SYSTEM_INSTANCE:
-            self.__kolibri_service_manager = KolibriDaemonProxy(
-                self, Gio.BusType.SYSTEM
-            )
-        else:
-            self.__kolibri_service_manager = KolibriDaemonProxy(
-                self, Gio.BusType.SESSION
-            )
+        self.__kolibri_daemon = KolibriDaemonProxy()
+        self.__kolibri_daemon.connect("notify", self.__kolibri_daemon_on_notify)
+
+        # TODO: Init kolibri_daemon asynchronously?
+
+        self.__kolibri_daemon.init()
 
         self.__windows = []
 
         super().__init__(*args, **kwargs)
+
+    def __kolibri_daemon_on_notify(self, kolibri_daemon, param_spec):
+        if self.__kolibri_daemon.is_started() or self.__kolibri_daemon.is_error():
+            self.__is_ready_event.set()
+        else:
+            self.__is_ready_event.clear()
+
+    def __await_kolibri_daemon_is_ready(self):
+        self.__is_ready_event.wait()
+        return self.__kolibri_daemon.is_started()
 
     def init_ui(self):
         if len(self.__windows) > 0:
@@ -308,33 +317,33 @@ class Application(pew.ui.PEWApp):
         logger.debug("Persisted View State: %s", saved_state)
 
         saved_url = saved_state.get("URL")
-        if self.__kolibri_service_manager.is_kolibri_app_url(saved_url):
+        if self.__kolibri_daemon.is_kolibri_app_url(saved_url):
             pew.ui.run_on_main_thread(main_window.load_url, saved_url)
 
     def shutdown(self):
-        self.__kolibri_service_manager.release()
+        self.__kolibri_daemon.release()
         super().shutdown()
 
     def should_load_url(self, url):
         if self.is_kolibri_app_url(url):
             return True
         elif self.__is_loader_url(url):
-            return not self.__kolibri_service_manager.is_started()
+            return not self.__kolibri_daemon.is_started()
         elif not url.startswith("about:"):
             subprocess.call(["xdg-open", url])
             return False
         return True
 
     def is_kolibri_app_url(self, url):
-        return self.__kolibri_service_manager.is_kolibri_app_url(url)
+        return self.__kolibri_daemon.is_kolibri_app_url(url)
 
     def get_redirect_url(self, url):
-        if self.__kolibri_service_manager.is_error():
+        if self.__kolibri_daemon.is_error():
             raise RedirectError()
-        elif self.__kolibri_service_manager.is_loading():
+        elif self.__kolibri_daemon.is_loading():
             raise RedirectLoading()
-        elif self.__kolibri_service_manager.is_kolibri_app_url(url):
-            return self.__kolibri_service_manager.get_initialize_url(url)
+        elif self.__kolibri_daemon.is_kolibri_app_url(url):
+            return self.__kolibri_daemon.get_initialize_url(url)
         else:
             return url
 
@@ -342,8 +351,8 @@ class Application(pew.ui.PEWApp):
         return self.__open_window(target_url)
 
     def __open_window(self, target_url=None):
-        self.__kolibri_service_manager.hold()
-        self.__kolibri_service_manager.start()
+        self.__kolibri_daemon.hold()
+        self.__kolibri_daemon.start()
 
         target_url = target_url or self.__get_base_url
         window = KolibriWindow(
@@ -351,14 +360,14 @@ class Application(pew.ui.PEWApp):
             target_url,
             delegate=self,
             loader_url=self.__loader_url,
-            await_kolibri_fn=self.__kolibri_service_manager.await_is_ready,
+            await_kolibri_fn=self.__await_kolibri_daemon_is_ready,
         )
         self.add_window(window)
         window.show()
         return window
 
     def __get_base_url(self):
-        return self.__kolibri_service_manager.base_url
+        return self.__kolibri_daemon.base_url
 
     def add_window(self, window):
         self.__windows.append(window)
@@ -396,7 +405,7 @@ class Application(pew.ui.PEWApp):
             item_fragment += "?{}".format(parse.query)
 
         # FIXME: This is broken. Fix before merging.
-        target_url = self.__kolibri_service_manager.get_base_url(
+        target_url = self.__kolibri_daemon.get_base_url(
             path=item_path, fragment=item_fragment
         )
 
@@ -412,7 +421,7 @@ class Application(pew.ui.PEWApp):
         # treat it as a "blank" window which can be reused to show content
         # from handle_open_file_uris.
         for window in reversed(self.__windows):
-            if window.target_url == self.__kolibri_service_manager.base_url:
+            if window.target_url == self.__kolibri_daemon.base_url:
                 return window
         return None
 
@@ -423,4 +432,4 @@ class Application(pew.ui.PEWApp):
         subprocess.call(["xdg-open", url])
 
     def open_kolibri_home(self):
-        subprocess.call(["xdg-open", self.__kolibri_service_manager.kolibri_home])
+        subprocess.call(["xdg-open", self.__kolibri_daemon.kolibri_home])
