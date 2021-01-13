@@ -1,8 +1,12 @@
 metainfo_dir = join_paths(datadir, 'metainfo')
 
 metainfo_file = i18n.merge_file(
-    input: 'org.learningequality.Kolibri.metainfo.xml.in',
-    output: 'org.learningequality.Kolibri.metainfo.xml',
+    input: configure_file(
+        input: 'org.learningequality.Kolibri.metainfo.xml.in.in',
+        output: 'org.learningequality.Kolibri.metainfo.xml.in',
+        configuration: kolibri_gnome_config
+    ),
+    output: application_id + '.metainfo.xml',
     type: 'xml',
     po_dir: po_dir,
     configuration: kolibri_gnome_config,
@@ -16,6 +20,6 @@ if appstream_util.found()
     test(
         'Validate metainfo file',
         appstream_util,
-        args: ['validate', metainfo_file]
+        args: ['validate', '--nonet', metainfo_file]
     )
 endif
