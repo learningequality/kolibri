@@ -95,9 +95,6 @@ class KolibriDaemonProxy(Gio.DBusProxy):
         return self.status in ["ERROR"]
 
     def is_kolibri_app_url(self, url):
-        if callable(url):
-            return True
-
         if not url or not self.base_url:
             return False
         elif not url.startswith(self.base_url):
@@ -112,11 +109,6 @@ class KolibriDaemonProxy(Gio.DBusProxy):
             return True
 
     def get_initialize_url(self, next_url):
-        if callable(next_url):
-            next_url = next_url()
-        return self.__get_kolibri_initialize_url(next_url)
-
-    def __get_kolibri_initialize_url(self, next_url):
         path = "app/api/initialize/{key}".format(key=self.app_key)
         if next_url:
             path += "?next={next_url}".format(next_url=next_url)
