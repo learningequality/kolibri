@@ -183,9 +183,10 @@ class Application(Gio.Application):
     def __on_system_name_acquired(self, connection, name):
         print("__on_system_name_acquired", name)
         if KOLIBRI_USE_SYSTEM_INSTANCE:
-            object_path = "/org/learningequality/Kolibri/Devel/Daemon"
             self.__system_kolibri_daemon = self.__create_kolibri_daemon()
-            self.__system_kolibri_daemon.register_on_connection(connection, object_path)
+            self.__system_kolibri_daemon.register_on_connection(
+                connection, config.DAEMON_OBJECT_PATH
+            )
 
     def __on_system_name_lost(self, connection, name):
         print("__on_system_name_lost", name)
