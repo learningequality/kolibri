@@ -171,21 +171,24 @@ class Application(Gio.Application):
 
     def __on_startup(self, application):
         if KOLIBRI_USE_SYSTEM_INSTANCE:
-            Gio.bus_own_name(
-                Gio.BusType.SYSTEM,
-                config.DAEMON_APPLICATION_ID,
-                Gio.BusNameOwnerFlags.NONE,
-                None,
-                self.__on_system_name_acquired,
-                self.__on_system_name_lost,
-            )
+            Gio.bus_get(Gio.BusType.SYSTEM, None, self.__system_bus_on_get)
+
+    def __system_bus_on_get(self, source, result):
+        connection = Gio.bus_get_finish(result)
+        self.__system_kolibri_daemon = self.__create_kolibri_daemon()
+        self.__system_kolibri_daemon.register_on_connection(
+            connection, config.DAEMON_OBJECT_PATH
+        )
+        Gio.bus_own_name_on_connection(
+            connection,
+            config.DAEMON_APPLICATION_ID,
+            Gio.BusNameOwnerFlags.NONE,
+            self.__on_system_name_acquired,
+            self.__on_system_name_lost,
+        )
 
     def __on_system_name_acquired(self, connection, name):
-        if KOLIBRI_USE_SYSTEM_INSTANCE:
-            self.__system_kolibri_daemon = self.__create_kolibri_daemon()
-            self.__system_kolibri_daemon.register_on_connection(
-                connection, config.DAEMON_OBJECT_PATH
-            )
+        pass
 
     def __on_system_name_lost(self, connection, name):
         if self.__system_kolibri_daemon:

@@ -64,20 +64,20 @@ class KolibriDaemonProxy(Gio.DBusProxy):
         variant = self.get_cached_property("Version")
         return variant.get_uint32() if variant else None
 
-    def hold(self):
-        return self.Hold()
+    def hold(self, **kwargs):
+        return self.Hold(**kwargs)
 
-    def release(self):
-        return self.Release()
+    def release(self, **kwargs):
+        return self.Release(**kwargs)
 
-    def start(self):
-        return self.Start()
+    def start(self, **kwargs):
+        return self.Start(**kwargs)
 
-    def get_item_ids_for_search(self, search):
-        return self.GetItemIdsForSearch("(s)", search)
+    def get_item_ids_for_search(self, search, **kwargs):
+        return self.GetItemIdsForSearch("(s)", search, **kwargs)
 
-    def get_metadata_for_item_ids(self, item_ids):
-        return self.GetMetadataForItemIds("(as)", item_ids)
+    def get_metadata_for_item_ids(self, item_ids, **kwargs):
+        return self.GetMetadataForItemIds("(as)", item_ids, **kwargs)
 
     def is_loading(self):
         if not self.app_key or not self.base_url:

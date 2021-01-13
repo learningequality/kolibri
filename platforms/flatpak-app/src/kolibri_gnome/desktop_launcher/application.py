@@ -19,8 +19,9 @@ from pew.ui import PEWShortcut
 import gi
 
 gi.require_version("WebKit2", "4.0")
-from gi.repository import WebKit2
 from gi.repository import Gio
+from gi.repository import GLib
+from gi.repository import WebKit2
 
 from .. import config
 
@@ -296,6 +297,37 @@ class Application(pew.ui.PEWApp):
 
         super().__init__(*args, **kwargs)
 
+    def init_ui(self):
+        if len(self.__windows) > 0:
+            return
+
+        self.__kolibri_daemon.init_async(
+            GLib.PRIORITY_DEFAULT, None, self.__kolibri_daemon_on_init
+        )
+
+        self.open_window()
+
+    def shutdown(self):
+        self.__kolibri_daemon.release()
+        super().shutdown()
+
+    def __kolibri_daemon_on_init(self, source, result):
+        success = self.__kolibri_daemon.init_finish(result)
+        if success:
+            self.__kolibri_daemon.connect("notify", self.__kolibri_daemon_on_notify)
+            self.__kolibri_daemon_on_notify(self.__kolibri_daemon, None)
+            self.__kolibri_daemon.hold(
+                result_handler=self.__kolibri_daemon_null_result_handler
+            )
+            self.__kolibri_daemon.start(
+                result_handler=self.__kolibri_daemon_null_result_handler
+            )
+        else:
+            logger.warning("Error initializing KolibriDaemonProxy")
+
+    def __kolibri_daemon_null_result_handler(self, proxy, result, user_data):
+        pass
+
     def __kolibri_daemon_on_notify(self, kolibri_daemon, param_spec):
         if self.__kolibri_daemon.is_started() or self.__kolibri_daemon.is_error():
             self.__is_ready_event.set()
@@ -305,24 +337,6 @@ class Application(pew.ui.PEWApp):
     def __await_kolibri_daemon_is_ready(self):
         self.__is_ready_event.wait()
         return self.__kolibri_daemon.is_started()
-
-    def init_ui(self):
-        if len(self.__windows) > 0:
-            return
-
-        main_window = self.__open_window()
-
-        # Check for saved URL, which exists when the app was put to sleep last time it ran
-        saved_state = main_window.get_view_state()
-        logger.debug("Persisted View State: %s", saved_state)
-
-        saved_url = saved_state.get("URL")
-        if self.__kolibri_daemon.is_kolibri_app_url(saved_url):
-            pew.ui.run_on_main_thread(main_window.load_url, saved_url)
-
-    def shutdown(self):
-        self.__kolibri_daemon.release()
-        super().shutdown()
 
     def should_load_url(self, url):
         if self.is_kolibri_app_url(url):
@@ -351,8 +365,6 @@ class Application(pew.ui.PEWApp):
         return self.__open_window(target_url)
 
     def __open_window(self, target_url=None):
-        self.__kolibri_daemon.hold()
-        self.__kolibri_daemon.start()
 
         target_url = target_url or self.__get_base_url
         window = KolibriWindow(
