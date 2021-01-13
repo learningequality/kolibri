@@ -1,0 +1,64 @@
+--- /tmp/cli.py	2021-01-12 12:32:45.657045098 +0100
++++ cli.py	2021-01-12 12:03:15.017278042 +0100
+@@ -502,6 +502,26 @@
+     Start the server on given port.
+     """
+ 
++    start_with_ready_cb(port, background, ready_cb=_on_ready)
++
++
++def _on_ready(urls, bind_addr=None, bind_port=None):
++    if not urls:
++        logger.error(
++            "Could not detect an IP address that Kolibri binds to, but try "
++            "opening up the following addresses:\n"
++        )
++        urls = [
++            "http://{}:{}".format(ip, bind_port) for ip in ("localhost", "127.0.0.1")
++        ]
++    else:
++        logger.info("Kolibri running on:\n")
++    for addr in urls:
++        sys.stderr.write("\t{}\n".format(addr))
++    sys.stderr.write("\n")
++
++
++def start_with_ready_cb(port, background, ready_cb=None):
+     # Check if there is an options.ini file exist inside the KOLIBRI_HOME folder
+     sanity_checks.check_default_options_exist()
+ 
+@@ -528,25 +548,6 @@
+     else:
+         logger.info("Running Kolibri as background process")
+ 
+-    if serve_http:
+-
+-        __, urls = server.get_urls(listen_port=port)
+-        if not urls:
+-            logger.error(
+-                "Could not detect an IP address that Kolibri binds to, but try "
+-                "opening up the following addresses:\n"
+-            )
+-            urls = [
+-                "http://{}:{}".format(ip, port) for ip in ("localhost", "127.0.0.1")
+-            ]
+-        else:
+-            logger.info("Kolibri running on:\n")
+-        for addr in urls:
+-            sys.stderr.write("\t{}\n".format(addr))
+-        sys.stderr.write("\n")
+-    else:
+-        logger.info("Starting Kolibri background workers")
+-
+     # Daemonize at this point, no more user output is needed
+     if background:
+ 
+@@ -564,7 +565,7 @@
+ 
+         become_daemon(**kwargs)
+ 
+-    server.start(port=port, serve_http=serve_http)
++    server.start(port=port, serve_http=serve_http, ready_cb=ready_cb)
+ 
+ 
+ @main.command(cls=KolibriCommand, help="Stop the Kolibri process")

@@ -1,0 +1,101 @@
+--- /tmp/server.py	2021-01-12 12:32:48.125058146 +0100
++++ server.py	2021-01-12 12:03:15.225278036 +0100
+@@ -77,12 +77,11 @@
+ 
+ 
+ class ServicesPlugin(SimplePlugin):
+-    def __init__(self, bus, port):
++    def __init__(self, bus):
+         self.bus = bus
+-        self.port = port
+         self.workers = None
+ 
+-    def start(self):
++    def start(self, *args, **kwargs):
+         # Initialize the iceqube scheduler to handle scheduled tasks
+         scheduler.clear_scheduler()
+ 
+@@ -105,13 +104,6 @@
+ 
+         scheduler.start_scheduler()
+ 
+-        # Register the Kolibri zeroconf service so it will be discoverable on the network
+-        from kolibri.core.discovery.utils.network.search import (
+-            register_zeroconf_service,
+-        )
+-
+-        register_zeroconf_service(port=self.port)
+-
+     def stop(self):
+         scheduler.shutdown_scheduler()
+         if self.workers is not None:
+@@ -143,7 +135,7 @@
+         _rm_pid_file(PID_FILE)
+ 
+ 
+-def start(port=8080, serve_http=True):
++def start(port=8080, serve_http=True, ready_cb=None):
+     """
+     Starts the server.
+ 
+@@ -155,7 +147,7 @@
+ 
+     logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
+ 
+-    run_server(port=port, serve_http=serve_http)
++    run_server(port=port, serve_http=serve_http, ready_cb=ready_cb)
+ 
+ 
+ def stop(pid=None, force=False):
+@@ -313,7 +305,7 @@
+     cherrypy.server.subscribe()
+ 
+ 
+-def run_server(port, serve_http=True):
++def run_server(port, serve_http=True, ready_cb=None):
+     # Unsubscribe the default server
+     cherrypy.server.unsubscribe()
+ 
+@@ -342,7 +334,7 @@
+         configure_http_server(port)
+ 
+     # Setup plugin for services
+-    service_plugin = ServicesPlugin(cherrypy.engine, port)
++    service_plugin = ServicesPlugin(cherrypy.engine)
+     service_plugin.subscribe()
+ 
+     # Setup plugin for handling PID file cleanup
+@@ -371,6 +363,24 @@
+ 
+     # Start the server engine (Option 1 *and* 2)
+     cherrypy.engine.start()
++
++    cherrypy.server.wait()
++    bind_addr, bind_port = cherrypy.server.bound_addr
++
++    # Write the PID file again, in case the port number has changed
++    _write_pid_file(PID_FILE, port=bind_port)
++
++    # Register the Kolibri zeroconf service so it will be discoverable on the network
++    from kolibri.core.discovery.utils.network.search import (
++        register_zeroconf_service,
++    )
++
++    register_zeroconf_service(port=bind_port)
++
++    if callable(ready_cb):
++        __, urls = get_urls(listen_port=bind_port)
++        ready_cb(urls, bind_addr=bind_addr, bind_port=bind_port)
++
+     cherrypy.engine.block()
+ 
+ 
+@@ -517,7 +527,7 @@
+                         other running instances.
+     """
+     try:
+-        if listen_port:
++        if listen_port is not None:
+             port = listen_port
+         else:
+             __, __, port = get_status()

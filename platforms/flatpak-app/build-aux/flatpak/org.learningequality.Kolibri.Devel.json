@@ -3,7 +3,7 @@
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "3.36",
     "sdk" : "org.gnome.Sdk",
-    "command" : "kolibri-daemon",
+    "command" : "/app/bin/kolibri-gnome",
     "desktop-file-name-suffix" : " ☢️",
     "finish-args" : [
         "--device=dri",
@@ -61,25 +61,6 @@
                 "touch ${KOLIBRI_HOME}/was_preseeded"
             ]
         },
-        {
-            "name" : "kolibri-home-template",
-            "buildsystem" : "simple",
-            "build-options" : {
-                "env" : {
-                    "KOLIBRI_HOME" : "/app/share/kolibri-home-template"
-                }
-            },
-            "build-commands" : [
-                "install -d ${KOLIBRI_HOME}",
-                "yes 'yes' | kolibri manage migrate",
-                "yes 'yes' | kolibri manage collectstatic",
-                "yes 'yes' | kolibri manage deprovision",
-                "rm -rf ${KOLIBRI_HOME}/logs",
-                "rm -rf ${KOLIBRI_HOME}/sessions",
-                "rm -rf ${KOLIBRI_HOME}/process_cache",
-                "touch ${KOLIBRI_HOME}/was_preseeded"
-            ]
-        },
         "python3-requests.json",
         "python3-virtualenv-api.json",
         {
@@ -104,7 +85,7 @@
             ]
         },
         {
-            "name" : "kolibri-daemon",
+            "name" : "kolibri-gnome",
             "buildsystem" : "meson",
             "builddir" : true,
             "run-tests" : true,

@@ -2,13 +2,23 @@
     "name": "python3-kolibri",
     "buildsystem": "simple",
     "build-commands": [
-        "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} kolibri"
+        "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} kolibri",
+        "patch /app/lib/python3.7/site-packages/kolibri/utils/server.py server.py.diff",
+        "patch /app/lib/python3.7/site-packages/kolibri/utils/cli.py cli.py.diff"
     ],
     "sources": [
         {
             "type": "file",
             "url": "https://files.pythonhosted.org/packages/bc/59/58f909354c05d1047980d8949c838566b1d4030dfec5d43ed48a6c77ca30/kolibri-0.14.3-py2.py3-none-any.whl",
             "sha256": "d1ecafd863fb257f870fb9529fe68d9aa1f7e4781b76952b1603d1ca87a8dbd1"
+        },
+        {
+            "type": "file",
+            "path": "server.py.diff"
+        },
+        {
+            "type": "file",
+            "path": "cli.py.diff"
         }
     ]
 }
