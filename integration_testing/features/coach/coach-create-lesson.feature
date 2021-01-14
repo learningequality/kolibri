@@ -45,59 +45,59 @@ Feature: Coach creates lessons
 
   Scenario: Manage lesson resources
     Given that I have created the lesson with title <lesson>
-      When I click *Manage resources* button
-      Then I am on the *Manage resources in '<lesson>'* page
-        And I see the content channel <channel>
-      When I select channel <channel>
-      Then I see its topics
-      When I navigate down to a single topic and click that <topic>
+    When I click *Manage resources* button
+    Then I am on the *Manage resources in '<lesson>'* page
+      And I see the content channel <channel>
+    When I select channel <channel>
+    Then I see its topics
+    When I navigate down to a single topic and click that <topic>
       # A topic may have one or more sub-topics in the topic tree.
-      Then I see the list of resources in that topic
-      When I click on a single resource
-      Then I see the preview page for the selected resource
-        And I see the *Add* button
-      When I click *Add* button
-      Then I see the snackbar notification
-        And I see the *Manage resources in '<lesson>'* page again
-        And I see the *N resources in this lesson* value is increased by 1
-      When I click the *Close* button at the bottom
-      Then *Manage resources in '<lesson>'* page closes
-        And I see the <lesson> lesson page again
-        And I see the resources I added to the <lesson> lesson
+    Then I see the list of resources in that topic
+    When I click on a single resource
+    Then I see the preview page for the selected resource
+      And I see the *Add* button
+    When I click *Add* button
+    Then I see the snackbar notification
+      And I see the *Manage resources in '<lesson>'* page again
+      And I see the *N resources in this lesson* value is increased by 1
+    When I click the *Close* button at the bottom
+    Then *Manage resources in '<lesson>'* page closes
+      And I see the <lesson> lesson page again
+      And I see the resources I added to the <lesson> lesson
 
   Scenario: Search from browse mode (with results)
-      Given I am browsing the topics
-      When I enter <searchterm> in the *Search* field
-        And I press the *Submit search* button (magnifying glass)
-      Then I see the *Results for '<searchterm>'* header
-        And I see the search results for <searchterm>
-        And I see the search filters
-        And I see the *Exit search* button
+    Given I am browsing the topics
+    When I enter <searchterm> in the *Search* field
+      And I press the *Submit search* button (magnifying glass)
+    Then I see the *Results for '<searchterm>'* header
+      And I see the search results for <searchterm>
+      And I see the search filters
+      And I see the *Exit search* button
 
-    Scenario: Search again from search results page
-      Given I am on the *Results for '<searchterm>'* page
-      When I enter a <searchterm2> in the *Search* textbox
-        And I press the *Submit search* button (magnifying glass)
-      Then the previous search results disappear
-        And I see the results for the <searchterm2>
+  Scenario: Search again from search results page
+    Given I am on the *Results for '<searchterm>'* page
+    When I enter a <searchterm2> in the *Search* textbox
+      And I press the *Submit search* button (magnifying glass)
+    Then the previous search results disappear
+      And I see the results for the <searchterm2>
 
-    Scenario: Exit search with no browser history
-      Given I am on the *Results for '<searchterm>'* page
-        And I arrived to this page directly from a URL
-      When I press the *Exit search* button
-      Then I return to the listing of channels
+  Scenario: Exit search with no browser history
+    Given I am on the *Results for '<searchterm>'* page
+      And I arrived to this page directly from a URL
+    When I press the *Exit search* button
+    Then I return to the listing of channels
 
-    Scenario: Exit search with browser history
-      Given I am on the *Results for '<searchterm>'* page
-        And I arrived to this page directly from a topic
-      When I press the *Exit search* button
-      Then I return to the the content listing of the last topic
+  Scenario: Exit search with browser history
+    Given I am on the *Results for '<searchterm>'* page
+      And I arrived to this page directly from a topic
+    When I press the *Exit search* button
+    Then I return to the the content listing of the last topic
 
-    Scenario: Search has no results
-      Given I am on the *Results for '<searchterm>'* page
-        And There are no results for <searchterm>
-      Then I see a message saying *No results for '<searchterm>'*
-        And I don't see available options in search filters
+  Scenario: Search has no results
+    Given I am on the *Results for '<searchterm>'* page
+      And There are no results for <searchterm>
+    Then I see a message saying *No results for '<searchterm>'*
+      And I don't see available options in search filters
 
   Scenario: Clear results and reset search
     Given that there are results from the previous search
@@ -120,14 +120,14 @@ Feature: Coach creates lessons
 
   Scenario: Filter search results by type
     Given I am on the search results page
-      When I open the *Type* filter dropdown
-      Then I can see the available formats I can filter by
-      When I select *Exercises* option
-      Then I see only exercises among search results
-      When I select *Topics* option
-      Then I see only topics among search results
-      When I select the option *All*
-      Then I see both topics and exercises in search results
+    When I open the *Type* filter dropdown
+    Then I can see the available formats I can filter by
+    When I select *Exercises* option
+    Then I see only exercises among search results
+    When I select *Topics* option
+    Then I see only topics among search results
+    When I select the option *All*
+    Then I see both topics and exercises in search results
 
   Scenario: Use the channel filter
     Given I am on the search results page
@@ -139,12 +139,12 @@ Feature: Coach creates lessons
 
   Scenario: Filter coach content in and out
     Given I am on the search results page
-      When I select *Coach* filter option
-      Then I see the search results are filtered and present only content for coaches
-      When I select *Non-coach* filter option
-      Then I see the search results are filtered and exclude content for coaches
-      When I select the *All* filter option
-      Then I see the search results include both coach and non-coach content
+    When I select *Coach* filter option
+    Then I see the search results are filtered and present only content for coaches
+    When I select *Non-coach* filter option
+    Then I see the search results are filtered and exclude content for coaches
+    When I select the *All* filter option
+    Then I see the search results include both coach and non-coach content
 
   Scenario: View metadata on exercise cards in search results
     Given I am on the search results page
@@ -178,8 +178,8 @@ Feature: Coach creates lessons
 
   Scenario: Exit the search results page
     Given I am on the search results page
-      When I click *Exit search*
-      Then I see the *Manage resources in '<lesson>'* page again
+    When I click *Exit search*
+    Then I see the *Manage resources in '<lesson>'* page again
 
 
 Examples:

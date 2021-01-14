@@ -4,10 +4,10 @@ Feature: Manage sign in options within app context
 	# For this testing scenario you may want to start with one facility on the device with less than 16 users, and then create or import another one.
 
 	Background:
-	  Given Kolibri is running in app context
-	  	And I am signed in to Kolibri as a super admin or a facility admin user
-	    And there are 16 or less users on the facility
-	    And that signing in without password is enabled in the *Facility Settings*
+	  	Given Kolibri is running in app context
+	  		And I am signed in to Kolibri as a super admin or a facility admin user
+	    	And there are 16 or less users on the facility
+	    	And that signing in without password is enabled in the *Facility Settings*
 
 	Scenario: Sign in page displays the list of usernames
 		Given there is only one facility on the device

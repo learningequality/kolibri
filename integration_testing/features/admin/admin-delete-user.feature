@@ -5,7 +5,7 @@ Feature: Admin deletes users
     Given I am signed in to Kolibri as a facility admin user
       And I am on *Facility > Users* page
 
-Scenario: Delete user
+  Scenario: Delete user
     When I click on *Options* button for the user I want to edit
       And I select *Delete* option
     Then I see *Delete user * modal
