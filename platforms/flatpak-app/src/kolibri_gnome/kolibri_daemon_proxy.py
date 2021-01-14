@@ -22,7 +22,7 @@ class KolibriDaemonProxy(Gio.DBusProxy):
         super().__init__(
             g_bus_type=Gio.BusType.SYSTEM,
             g_name=config.DAEMON_APPLICATION_ID,
-            g_object_path="/org/learningequality/Kolibri/Devel/Daemon",
+            g_object_path=config.DAEMON_OBJECT_PATH,
             g_interface_name="org.learningequality.Kolibri.Daemon",
         )
 

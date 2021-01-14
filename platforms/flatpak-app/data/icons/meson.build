@@ -8,10 +8,10 @@ install_data(
         'icon-512.png',
     ],
     rename: [
-        '64x64/apps/@0@.png'.format(application_id),
-        '128x128/apps/@0@.png'.format(application_id),
-        '256x256/apps/@0@.png'.format(application_id),
-        '512x512/apps/@0@.png'.format(application_id),
+        '64x64/apps/@0@.png'.format(base_application_id),
+        '128x128/apps/@0@.png'.format(base_application_id),
+        '256x256/apps/@0@.png'.format(base_application_id),
+        '512x512/apps/@0@.png'.format(base_application_id),
     ],
     install_dir: icons_dir
 )

@@ -159,7 +159,7 @@ class Application(Gio.Application):
         if not KOLIBRI_USE_SYSTEM_INSTANCE:
             self.__session_kolibri_daemon = self.__create_kolibri_daemon()
             self.__session_kolibri_daemon.register_on_connection(
-                connection, object_path
+                connection, config.DAEMON_OBJECT_PATH
             )
         return True
 
@@ -181,7 +181,6 @@ class Application(Gio.Application):
             )
 
     def __on_system_name_acquired(self, connection, name):
-        print("__on_system_name_acquired", name)
         if KOLIBRI_USE_SYSTEM_INSTANCE:
             self.__system_kolibri_daemon = self.__create_kolibri_daemon()
             self.__system_kolibri_daemon.register_on_connection(
@@ -189,7 +188,6 @@ class Application(Gio.Application):
             )
 
     def __on_system_name_lost(self, connection, name):
-        print("__on_system_name_lost", name)
         if self.__system_kolibri_daemon:
             self.__system_kolibri_daemon.unregister()
             self.__system_kolibri_daemon = None

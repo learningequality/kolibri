@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>@APPLICATION_ID@</id>
+  <id>@BASE_APPLICATION_ID@</id>
   <name>Kolibri</name>
   <developer_name>Learning Equality</developer_name>
   <summary>Offline education technology platform</summary>
