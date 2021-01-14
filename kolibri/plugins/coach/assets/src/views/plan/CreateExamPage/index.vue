@@ -324,6 +324,9 @@
         if (!Number.isInteger(this.numQuestions)) {
           return this.$tr('numQuestionsBetween');
         }
+        if (this.availableQuestions === 0) {
+          return this.$tr('noneSelected');
+        }
         if (this.numQuestions > this.availableQuestions) {
           return this.$tr('numQuestionsExceed', {
             inputNumQuestions: this.numQuestions,
