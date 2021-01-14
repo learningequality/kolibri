@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import AuthMessage from '../../src/views/AuthMessage';
+import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('urls', () => ({}));
 
@@ -33,6 +34,12 @@ function getElements(wrapper) {
 }
 
 describe('auth message component', () => {
+  stubWindowLocation(beforeAll, afterAll);
+
+  beforeEach(() => {
+    window.location.href = 'http://localhost:8000/#/test_url';
+  });
+
   it('shows the correct details when there are no props', () => {
     const wrapper = makeWrapper({ propsData: {} });
     const { headerText, detailsText } = getElements(wrapper);
@@ -77,17 +84,37 @@ describe('auth message component', () => {
     expect(detailsText()).toEqual('Must be device owner to manage resources');
   });
 
-  it('shows correct link text if there is a user plugin', () => {
-    const userUrl = jest.fn();
-    urls['kolibri:kolibri.plugins.user:user'] = userUrl;
-    userUrl.mockReturnValue('http://localhost:8000/en/user/');
-    const wrapper = makeWrapper();
-    const link = wrapper.find('kexternallink-stub');
-    expect(link.attributes()).toMatchObject({
-      href: 'http://localhost:8000/en/user/#/signin?next=http%3A%2F%2Fkolibri.time%2F%23%2F',
-      text: 'Sign in to Kolibri',
+  describe('tests for sign-in page link when user plugin exists', () => {
+    beforeAll(() => {
+      const userUrl = jest.fn();
+      urls['kolibri:kolibri.plugins.user:user'] = userUrl;
+      userUrl.mockReturnValue('http://localhost:8000/en/user/');
     });
-    delete urls['kolibri:kolibri.plugins.user:user'];
+
+    afterAll(() => {
+      delete urls['kolibri:kolibri.plugins.user:user'];
+    });
+
+    it('shows correct link text if there is a user plugin', () => {
+      const wrapper = makeWrapper();
+      const link = wrapper.find('kexternallink-stub');
+      expect(link.attributes()).toMatchObject({
+        href:
+          'http://localhost:8000/en/user/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Ftest_url',
+        text: 'Sign in to Kolibri',
+      });
+    });
+
+    it('if the next param is in URL, it is what is used in the sign-in page link', () => {
+      window.location.href = 'http://localhost:8000/#/some_other_url';
+      const wrapper = makeWrapper();
+      const link = wrapper.find('kexternallink-stub');
+      expect(link.attributes()).toMatchObject({
+        href:
+          'http://localhost:8000/en/user/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Fsome_other_url',
+        text: 'Sign in to Kolibri',
+      });
+    });
   });
 
   it('shows correct link text if there is not a user plugin', () => {
