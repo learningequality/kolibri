@@ -115,7 +115,7 @@
   import { TaskResource } from 'kolibri.resources';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import { TaskStatuses } from '../../constants';
+  import { TaskStatuses, PageNames } from '../../constants';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 
   export default {
@@ -232,14 +232,19 @@
                 const match = tasks.find(task => task.id === taskId) || {};
                 if (match && match.database_ready) {
                   stopWatching();
-                  this.$router.push(this.$router.getRoute('SELECT_CONTENT'));
+                  this.$router.push({
+                    ...this.$router.getRoute(PageNames.SELECT_CONTENT),
+                    query: {
+                      last: PageNames.MANAGE_CONTENT_PAGE,
+                    },
+                  });
                 } else if (match.status === TaskStatuses.FAILED) {
                   stopWatching();
-                  this.$router.push(this.$router.getRoute('MANAGE_TASKS'));
+                  this.$router.push(this.$router.getRoute(PageNames.MANAGE_TASKS));
                 }
               });
             } else {
-              this.$router.push(this.$router.getRoute('MANAGE_TASKS'));
+              this.$router.push(this.$router.getRoute(PageNames.MANAGE_TASKS));
             }
           })
           .catch(error => {
