@@ -52,7 +52,7 @@
                 :invalid="Boolean(showError && numQuestIsInvalidText)"
                 :invalidText="numQuestIsInvalidText"
                 :label="$tr('numQuestions')"
-                @blur="numQuestionsBlurred = true"
+                @blur="handleNumberQuestionsBlur"
               />
             </KGridItem>
             <KGridItem
@@ -222,6 +222,10 @@
           return this.numberOfQuestions;
         },
         set(value) {
+          // If value in the input doesn't match state, update it
+          if (value !== Number(this.$refs.questionsInput.currentText)) {
+            this.$refs.questionsInput.currentText = value;
+          }
           // If it is cleared out, then set vuex state to null so it can be caught during
           // validation
           if (value === '') {
@@ -492,6 +496,15 @@
             topicId,
           },
         };
+      },
+      handleNumberQuestionsBlur() {
+        this.numQuestionsBlurred = true;
+        if (Number(this.$refs.questionsInput.currentText) < 0) {
+          this.numQuestions = 1;
+        }
+        if (Number(this.$refs.questionsInput.currentText) > this.maxQs) {
+          this.numQuestions = this.maxQs;
+        }
       },
     },
     $trs: {
