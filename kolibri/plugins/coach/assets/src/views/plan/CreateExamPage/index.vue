@@ -327,7 +327,7 @@
         if (this.numQuestions > this.availableQuestions) {
           return this.$tr('numQuestionsExceed', {
             inputNumQuestions: this.numQuestions,
-            maxQuestionsFromSelection: this.availableQuestions,
+            maxQuestionsFromSelection: String(this.availableQuestions),
           });
         }
         return null;
