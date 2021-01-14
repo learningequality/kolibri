@@ -462,10 +462,8 @@
           });
       },
       continueProcess() {
-        if (this.numQuestionsInvalid) {
-          this.$refs.questionsInput.focus();
-        }
         if (this.selectionIsInvalidText) {
+          this.$refs.questionsInput.focus();
           this.showError = true;
         } else {
           this.$router.push({ name: PageNames.EXAM_CREATION_QUESTION_SELECTION });
