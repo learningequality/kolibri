@@ -1,9 +1,17 @@
 import urls from 'kolibri.urls';
 import Vuex from 'vuex';
-import { shallowMount } from '@vue/test-utils';
+import VueRouter from 'vue-router';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
 import AuthMessage from '../../src/views/AuthMessage';
 
 jest.mock('urls', () => ({}));
+
+const localVue = createLocalVue();
+
+localVue.use(Vuex);
+localVue.use(VueRouter);
+
+const router = new VueRouter();
 
 function makeWrapper(options) {
   const store = new Vuex.Store({
@@ -13,7 +21,7 @@ function makeWrapper(options) {
       },
     },
   });
-  return shallowMount(AuthMessage, { store, ...options });
+  return shallowMount(AuthMessage, { store, localVue, router, ...options });
 }
 
 // prettier-ignore
@@ -76,7 +84,7 @@ describe('auth message component', () => {
     const wrapper = makeWrapper();
     const link = wrapper.find('kexternallink-stub');
     expect(link.attributes()).toMatchObject({
-      href: 'http://localhost:8000/en/user/#/signin?next=http%3A%2F%2Fkolibri.time%2F',
+      href: 'http://localhost:8000/en/user/#/signin?next=http%3A%2F%2Fkolibri.time%2F%23%2F',
       text: 'Sign in to Kolibri',
     });
     delete urls['kolibri:kolibri.plugins.user:user'];
