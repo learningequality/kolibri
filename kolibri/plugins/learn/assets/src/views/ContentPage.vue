@@ -1,10 +1,11 @@
 <template>
 
   <KPageContainer>
-
+    <!-- isUserLoggedIn is used here to check if user is logged in or not.-->
+    <!-- If in guest mode, do not show progress icon at all-->
     <PageHeader
       :title="content.title"
-      :progress="progress"
+      :progress="isUserLoggedIn ? progress : null"
       dir="auto"
       :contentType="content.kind"
     />
