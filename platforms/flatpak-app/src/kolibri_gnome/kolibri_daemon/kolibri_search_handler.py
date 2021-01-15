@@ -91,9 +91,15 @@ class LocalSearchHandler(SearchHandler):
     """
 
     def __init__(self):
+        self.__pool = None
+
+    def init(self):
         self.__pool = multiprocessing.Pool(
             processes=1, initializer=self.__process_initializer
         )
+
+    def stop(self):
+        self.__pool.close()
 
     def __process_initializer(self):
         from kolibri.dist import django

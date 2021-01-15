@@ -152,6 +152,7 @@ class Application(Gio.Application):
         )
         self.__service_manager = KolibriServiceManager()
         self.__kolibri_search_handler = LocalSearchHandler()
+        self.__kolibri_search_handler.init()
         self.__session_kolibri_daemon = None
         self.__system_kolibri_daemon = None
         self.__system_name_id = 0
@@ -184,6 +185,7 @@ class Application(Gio.Application):
         if self.__system_name_id:
             Gio.bus_unown_name(self.__system_name_id)
             self.__system_name_id = 0
+        self.__kolibri_search_handler.stop()
         self.__service_manager.stop_kolibri()
         self.__service_manager.join()
 
