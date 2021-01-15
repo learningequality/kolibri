@@ -10,8 +10,9 @@ from ..globals import KOLIBRI_USE_SYSTEM_INSTANCE
 from .kolibri_service import KolibriServiceManager
 from .kolibri_search_handler import LocalSearchHandler
 
+
 # Use a different inactivity timeout after we have started Kolibri.
-DEFAULT_INACTIVITY_TIMEOUT_MS = 30 * 1000 # 30 seconds in milliseconds
+DEFAULT_INACTIVITY_TIMEOUT_MS = 30 * 1000  # 30 seconds in milliseconds
 STARTED_INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000  # 5 minutes in milliseconds
 
 

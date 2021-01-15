@@ -6,6 +6,9 @@ from ..dbus_utils import DBusServer, dict_to_vardict
 from ..kolibri_daemon_proxy import KolibriDaemonProxy
 
 
+INACTIVITY_TIMEOUT_MS = 30 * 1000  # 30 seconds in milliseconds
+
+
 class SearchProvider(DBusServer):
     INTERFACE_XML = """
     <!DOCTYPE node PUBLIC
@@ -93,7 +96,7 @@ class Application(Gio.Application):
         super().__init__(
             application_id=config.SEARCH_PROVIDER_APPLICATION_ID,
             flags=Gio.ApplicationFlags.IS_SERVICE,
-            inactivity_timeout=30000,
+            inactivity_timeout=INACTIVITY_TIMEOUT_MS,
         )
         self.__search_provider = SearchProvider(self)
 
