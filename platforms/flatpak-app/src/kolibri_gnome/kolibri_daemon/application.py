@@ -10,8 +10,9 @@ from ..globals import KOLIBRI_USE_SYSTEM_INSTANCE
 from .kolibri_service import KolibriServiceManager
 from .kolibri_search_handler import LocalSearchHandler
 
-
-INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000  # 5 minutes in milliseconds
+# Use a different inactivity timeout after we have started Kolibri.
+DEFAULT_INACTIVITY_TIMEOUT_MS = 30 * 1000 # 30 seconds in milliseconds
+STARTED_INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000  # 5 minutes in milliseconds
 
 
 class KolibriDaemon(DBusServer):
@@ -85,6 +86,7 @@ class KolibriDaemon(DBusServer):
 
     def Start(self, context, cancellable=None):
         self.__service_manager.start_kolibri()
+        self.application.set_inactivity_timeout(STARTED_INACTIVITY_TIMEOUT_MS)
 
     def GetItemIdsForSearch(self, search, context, cancellable=None):
         return self.__search_handler.get_item_ids_for_search(search)
@@ -145,12 +147,13 @@ class Application(Gio.Application):
         super().__init__(
             application_id=config.DAEMON_APPLICATION_ID,
             flags=Gio.ApplicationFlags.IS_SERVICE,
-            inactivity_timeout=INACTIVITY_TIMEOUT_MS,
+            inactivity_timeout=DEFAULT_INACTIVITY_TIMEOUT_MS,
         )
         self.__service_manager = KolibriServiceManager()
         self.__kolibri_search_handler = LocalSearchHandler()
         self.__session_kolibri_daemon = None
         self.__system_kolibri_daemon = None
+        self.__system_name_id = 0
         self.connect("startup", self.__on_startup)
         self.connect("activate", self.__on_activate)
         self.connect("shutdown", self.__on_shutdown)
@@ -173,13 +176,23 @@ class Application(Gio.Application):
         if KOLIBRI_USE_SYSTEM_INSTANCE:
             Gio.bus_get(Gio.BusType.SYSTEM, None, self.__system_bus_on_get)
 
+    def __on_activate(self, application):
+        pass
+
+    def __on_shutdown(self, application):
+        if self.__system_name_id:
+            Gio.bus_unown_name(self.__system_name_id)
+            self.__system_name_id = 0
+        self.__service_manager.stop_kolibri()
+        self.__service_manager.join()
+
     def __system_bus_on_get(self, source, result):
         connection = Gio.bus_get_finish(result)
         self.__system_kolibri_daemon = self.__create_kolibri_daemon()
         self.__system_kolibri_daemon.register_on_connection(
             connection, config.DAEMON_OBJECT_PATH
         )
-        Gio.bus_own_name_on_connection(
+        self.__system_name_id = Gio.bus_own_name_on_connection(
             connection,
             config.DAEMON_APPLICATION_ID,
             Gio.BusNameOwnerFlags.NONE,
@@ -194,12 +207,6 @@ class Application(Gio.Application):
         if self.__system_kolibri_daemon:
             self.__system_kolibri_daemon.unregister()
             self.__system_kolibri_daemon = None
-
-    def __on_activate(self, application):
-        pass
-
-    def __on_shutdown(self, shutdown):
-        self.__service_manager.stop_kolibri()
 
     def __create_kolibri_daemon(self):
         return KolibriDaemon(

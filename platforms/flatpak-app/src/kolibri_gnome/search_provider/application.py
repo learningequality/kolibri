@@ -98,6 +98,7 @@ class Application(Gio.Application):
         self.__search_provider = SearchProvider(self)
 
     def do_dbus_register(self, connection, object_path):
+        self.__search_provider = self.__create_search_provider()
         self.__search_provider.init()
         self.__search_provider.register_on_connection(connection, object_path)
         return True
@@ -105,4 +106,8 @@ class Application(Gio.Application):
     def do_dbus_unregister(self, connection, object_path):
         if self.__search_provider:
             self.__search_provider.unregister()
+            self.__search_provider = None
         return True
+
+    def __create_search_provider(self):
+        return SearchProvider(self)
