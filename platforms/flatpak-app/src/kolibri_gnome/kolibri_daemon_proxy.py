@@ -19,8 +19,13 @@ class KolibriDaemonProxy(Gio.DBusProxy):
     }
 
     def __init__(self):
+        if KOLIBRI_USE_SYSTEM_INSTANCE:
+            bus_type = Gio.BusType.SYSTEM
+        else:
+            bus_type = Gio.BusType.SESSION
+
         super().__init__(
-            g_bus_type=Gio.BusType.SYSTEM,
+            g_bus_type=bus_type,
             g_name=config.DAEMON_APPLICATION_ID,
             g_object_path=config.DAEMON_OBJECT_PATH,
             g_interface_name="org.learningequality.Kolibri.Daemon",
