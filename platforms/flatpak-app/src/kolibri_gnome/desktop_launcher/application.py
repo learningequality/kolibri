@@ -289,6 +289,7 @@ class Application(pew.ui.PEWApp):
         self.__loader_url = "file://{path}".format(path=os.path.abspath(loader_path))
 
         self.__kolibri_daemon = KolibriDaemonProxy()
+        self.__kolibri_daemon_init_success = None
 
         self.__windows = []
 
@@ -305,12 +306,19 @@ class Application(pew.ui.PEWApp):
         self.open_window()
 
     def shutdown(self):
-        self.__kolibri_daemon.release()
+        if self.__kolibri_daemon_init_success:
+            self.__kolibri_daemon.release()
         super().shutdown()
 
     def __kolibri_daemon_on_init(self, source, result):
-        success = self.__kolibri_daemon.init_finish(result)
-        if success:
+        try:
+            self.__kolibri_daemon.init_finish(result)
+        except GLib.Error as error:
+            logger.warning("Error initializing KolibriDaemonProxy: {}".format(error))
+            self.__kolibri_daemon_init_success = False
+            self.__is_ready_event.set()
+        else:
+            self.__kolibri_daemon_init_success = True
             self.__kolibri_daemon.connect("notify", self.__kolibri_daemon_on_notify)
             self.__kolibri_daemon_on_notify(self.__kolibri_daemon, None)
             self.__kolibri_daemon.hold(
@@ -319,8 +327,6 @@ class Application(pew.ui.PEWApp):
             self.__kolibri_daemon.start(
                 result_handler=self.__kolibri_daemon_null_result_handler
             )
-        else:
-            logger.warning("Error initializing KolibriDaemonProxy")
 
     def __kolibri_daemon_null_result_handler(self, proxy, result, user_data):
         pass
@@ -336,7 +342,10 @@ class Application(pew.ui.PEWApp):
         return self.__kolibri_daemon.is_started()
 
     def get_redirect_url(self, url):
-        if self.__kolibri_daemon.is_error():
+        if (
+            self.__kolibri_daemon_init_success is False
+            or self.__kolibri_daemon.is_error()
+        ):
             raise RedirectError()
         elif self.__kolibri_daemon.is_loading():
             raise RedirectLoading()
