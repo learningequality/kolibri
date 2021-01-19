@@ -13,7 +13,7 @@ def main():
     os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_gnome.kolibri_settings"
 
     application = Application()
-    return application.run()
+    return application.run(sys.argv)
 
 
 if __name__ == "__main__":

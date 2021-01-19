@@ -92,11 +92,13 @@ class SearchProvider(DBusServer):
 
 
 class Application(Gio.Application):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__(
+            *args,
             application_id=config.SEARCH_PROVIDER_APPLICATION_ID,
             flags=Gio.ApplicationFlags.IS_SERVICE,
             inactivity_timeout=INACTIVITY_TIMEOUT_MS,
+            **kwargs
         )
         self.__search_provider = SearchProvider(self)
 

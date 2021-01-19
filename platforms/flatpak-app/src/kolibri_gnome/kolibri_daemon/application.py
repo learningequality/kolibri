@@ -5,7 +5,6 @@ from typing import NamedTuple
 
 from .. import config
 from ..dbus_utils import DBusServer, dict_to_vardict
-from ..globals import KOLIBRI_USE_SYSTEM_INSTANCE
 
 from .kolibri_service import KolibriServiceManager
 from .kolibri_search_handler import LocalSearchHandler
@@ -144,24 +143,53 @@ class KolibriDaemon(DBusServer):
 
 
 class Application(Gio.Application):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__(
+            *args,
             application_id=config.DAEMON_APPLICATION_ID,
             flags=Gio.ApplicationFlags.IS_SERVICE,
             inactivity_timeout=DEFAULT_INACTIVITY_TIMEOUT_MS,
+            **kwargs
         )
+
+        self.__use_session_bus = None
+        self.__use_system_bus = None
+
+        self.add_main_option(
+            "session",
+            0,
+            GLib.OptionFlags.NONE,
+            GLib.OptionArg.NONE,
+            "Connect to the session bus",
+            None
+        )
+
+        self.add_main_option(
+            "system",
+            0,
+            GLib.OptionFlags.NONE,
+            GLib.OptionArg.NONE,
+            "Connect to the system bus",
+            None
+        )
+
         self.__service_manager = KolibriServiceManager()
         self.__kolibri_search_handler = LocalSearchHandler()
         self.__kolibri_search_handler.init()
         self.__session_kolibri_daemon = None
         self.__system_kolibri_daemon = None
         self.__system_name_id = 0
-        self.connect("startup", self.__on_startup)
-        self.connect("activate", self.__on_activate)
-        self.connect("shutdown", self.__on_shutdown)
+
+    @property
+    def use_session_bus(self):
+        return self.__use_session_bus
+
+    @property
+    def use_system_bus(self):
+        return self.__use_system_bus
 
     def do_dbus_register(self, connection, object_path):
-        if not KOLIBRI_USE_SYSTEM_INSTANCE:
+        if self.use_session_bus:
             self.__session_kolibri_daemon = self.__create_kolibri_daemon()
             self.__session_kolibri_daemon.register_on_connection(
                 connection, config.DAEMON_OBJECT_PATH
@@ -174,20 +202,36 @@ class Application(Gio.Application):
             self.__session_kolibri_daemon = None
         return True
 
-    def __on_startup(self, application):
-        if KOLIBRI_USE_SYSTEM_INSTANCE:
+    def do_handle_local_options(self, options):
+        use_system_bus = options.lookup_value("system", None)
+        if use_system_bus is not None:
+            self.__use_system_bus = use_system_bus.get_boolean()
+        else:
+            self.__use_system_bus = False
+
+        use_session_bus = options.lookup_value("session", None)
+        if use_session_bus is not None:
+            self.__use_session_bus = use_session_bus.get_boolean()
+        elif self.__use_system_bus:
+            self.__use_session_bus = False
+        else:
+            self.__use_session_bus = True
+
+        return -1
+
+    def do_startup(self):
+        if self.use_system_bus:
             Gio.bus_get(Gio.BusType.SYSTEM, None, self.__system_bus_on_get)
+        Gio.Application.do_startup(self)
 
-    def __on_activate(self, application):
-        pass
-
-    def __on_shutdown(self, application):
+    def do_shutdown(self):
         if self.__system_name_id:
             Gio.bus_unown_name(self.__system_name_id)
             self.__system_name_id = 0
         self.__kolibri_search_handler.stop()
         self.__service_manager.stop_kolibri()
         self.__service_manager.join()
+        Gio.Application.do_shutdown(self)
 
     def __system_bus_on_get(self, source, result):
         connection = Gio.bus_get_finish(result)
