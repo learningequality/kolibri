@@ -50,14 +50,11 @@ class SearchHandler(object):
     def _item_id_to_node_id(item_id):
         """
         Converts an item ID from a search result back to a Kolibri node ID.
+        Raises ValueError if item_id is an invalid format.
         """
 
-        try:
-            _kind_code, node_id = item_id.split("/", 1)
-        except ValueError:
-            raise ValueError("Invalid item_id")
-        else:
-            return node_id
+        _kind_code, node_id = item_id.split("/", 1)
+        return node_id
 
     @staticmethod
     def _node_data_to_search_metadata(item_id, node_data):
