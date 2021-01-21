@@ -2,11 +2,19 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-import os
+import filecmp
 import multiprocessing
+import os
+import shutil
 import subprocess
 
+from kolibri.utils.conf import KOLIBRI_HOME
+
 from .content_extensions import ContentExtensionsList
+
+from ..config import KOLIBRI_HOME_TEMPLATE_DIR
+from ..globals import init_logging
+
 
 KOLIBRI_BIN = "kolibri"
 
@@ -26,6 +34,10 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         super().__init__()
 
     def run(self):
+        init_logging("kolibri-daemon-setup.txt")
+
+        self.__update_from_home_template()
+
         self.__active_extensions.update_kolibri_environ(os.environ)
 
         logger.info("Updating content extensions...")
@@ -38,10 +50,39 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         if success:
             logger.info("Finished updating content extensions.")
             self.__active_extensions.write_to_cache()
-            self.__context.setup_result = True
+            self.__context.setup_result = self.__context.SetupResult.SUCCESS
         else:
             logger.warning("Failed to update content extensions.")
-            self.__context.setup_result = False
+            self.__context.setup_result = self.__context.SetupResult.ERROR
+
+    def __update_from_home_template(self):
+        # TODO: This code should probably be in Kolibri itself
+
+        if not os.path.isdir(KOLIBRI_HOME_TEMPLATE_DIR):
+            return
+
+        if not os.path.isdir(KOLIBRI_HOME):
+            os.makedirs(KOLIBRI_HOME, exist_ok=True)
+
+        compare = filecmp.dircmp(
+            KOLIBRI_HOME_TEMPLATE_DIR, KOLIBRI_HOME, ignore=["logs"]
+        )
+
+        if len(compare.common) > 0:
+            return
+
+        # If Kolibri home was not already initialized, copy files from the
+        # template directory to the new home directory.
+
+        logger.info("Copying KOLIBRI_HOME template to '{}'".format(KOLIBRI_HOME))
+
+        for filename in compare.left_only:
+            left_file = os.path.join(compare.left, filename)
+            right_file = os.path.join(compare.right, filename)
+            if os.path.isdir(left_file):
+                shutil.copytree(left_file, right_file)
+            else:
+                shutil.copy2(left_file, right_file)
 
     def __run_kolibri_command(self, *args):
         result = subprocess.run([KOLIBRI_BIN, "manage", *args], check=False)

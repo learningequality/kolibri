@@ -1,5 +1,7 @@
 import multiprocessing
 
+from ..globals import init_logging
+
 
 class KolibriServiceStopProcess(multiprocessing.Process):
     """
@@ -12,8 +14,12 @@ class KolibriServiceStopProcess(multiprocessing.Process):
         super().__init__()
 
     def run(self):
-        if not self.__context.await_is_responding():
+        if self.__context.is_stopped:
             return
+        elif self.__context.await_start_result() != self.__context.StartResult.SUCCESS:
+            return
+
+        init_logging("kolibri-daemon-stop.txt")
 
         from kolibri.utils.cli import stop
 

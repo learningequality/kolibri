@@ -4,7 +4,9 @@ logger = logging.getLogger(__name__)
 
 import gettext
 import os
-import shutil
+
+from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 
 from . import config
 
@@ -16,29 +18,15 @@ XDG_DATA_HOME = os.environ.get(
     "XDG_DATA_HOME", os.path.join(USER_HOME, ".local", "share")
 )
 
+KOLIBRI_USE_SYSTEM_INSTANCE = bool(os.environ.get("KOLIBRI_USE_SYSTEM_INSTANCE"))
 KOLIBRI_APP_DEVELOPER_EXTRAS = os.environ.get("KOLIBRI_APP_DEVELOPER_EXTRAS")
-
-DEFAULT_KOLIBRI_HOME = os.path.join(USER_HOME, ".kolibri")
-KOLIBRI_HOME = os.environ.get("KOLIBRI_HOME", DEFAULT_KOLIBRI_HOME)
-KOLIBRI_HOME = os.path.expanduser(KOLIBRI_HOME)
 
 IS_KOLIBRI_LOCAL = os.access(KOLIBRI_HOME, os.W_OK)
 
 if IS_KOLIBRI_LOCAL:
-    LOCAL_KOLIBRI_HOME = KOLIBRI_HOME
+    KOLIBRI_LOGS_DIR = os.path.join(KOLIBRI_HOME, "logs")
 else:
-    LOCAL_KOLIBRI_HOME = os.environ.get("LOCAL_KOLIBRI_HOME", DEFAULT_KOLIBRI_HOME)
-
-
-def init_env():
-    os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_gnome.kolibri_settings"
-
-    # TODO: This code should probably be in Kolibri itself
-    if os.path.isdir(config.KOLIBRI_HOME_TEMPLATE_DIR) and not os.path.exists(
-        KOLIBRI_HOME
-    ):
-        logging.info("Copying KOLIBRI_HOME template to '{}'".format(KOLIBRI_HOME))
-        shutil.copytree(config.KOLIBRI_HOME_TEMPLATE_DIR, KOLIBRI_HOME)
+    KOLIBRI_LOGS_DIR = os.path.join(USER_HOME, ".kolibri", "logs")
 
 
 def init_gettext():
@@ -49,11 +37,8 @@ def init_gettext():
 def init_logging(logfile_name="kolibri-app.txt", level=logging.DEBUG):
     logging.basicConfig(level=level)
 
-    from kolibri.utils.logger import KolibriTimedRotatingFileHandler
-
-    log_dir = os.path.join(LOCAL_KOLIBRI_HOME, "logs")
-    os.makedirs(log_dir, exist_ok=True)
-    log_filename = os.path.join(log_dir, logfile_name)
+    os.makedirs(KOLIBRI_LOGS_DIR, exist_ok=True)
+    log_filename = os.path.join(KOLIBRI_LOGS_DIR, logfile_name)
 
     root_logger = logging.getLogger()
     file_handler = KolibriTimedRotatingFileHandler(

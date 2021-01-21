@@ -13,7 +13,7 @@ StartupNotify=true
 DBusActivatable=true
 # TRANSLATORS: This is an icon file name.
 #              Do not translate or transliterate this text!
-Icon=@APPLICATION_ID@
+Icon=@FRONTEND_APPLICATION_ID@
 MimeType=x-scheme-handler/kolibri;
 X-Endless-LaunchMaximized=true
 
