@@ -48,7 +48,7 @@ class ContentExtensionsList(object):
     def content_extension_from_str(extension_str):
         extension_str_split = extension_str.split("=", 1)
         if len(extension_str_split) == 2:
-            extension_ref, extension_commit = extension_str
+            extension_ref, extension_commit = extension_str_split
             return ContentExtension.from_ref(extension_ref, extension_commit)
         else:
             return None
