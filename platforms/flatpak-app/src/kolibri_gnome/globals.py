@@ -5,28 +5,22 @@ logger = logging.getLogger(__name__)
 import gettext
 import os
 
+from pathlib import Path
+
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 
 from . import config
 
 
-USER_HOME = os.path.expanduser("~")
-
-XDG_CURRENT_DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")
-XDG_DATA_HOME = os.environ.get(
-    "XDG_DATA_HOME", os.path.join(USER_HOME, ".local", "share")
-)
-
-KOLIBRI_USE_SYSTEM_INSTANCE = bool(os.environ.get("KOLIBRI_USE_SYSTEM_INSTANCE"))
 KOLIBRI_APP_DEVELOPER_EXTRAS = os.environ.get("KOLIBRI_APP_DEVELOPER_EXTRAS")
+KOLIBRI_USE_SYSTEM_INSTANCE = bool(os.environ.get("KOLIBRI_USE_SYSTEM_INSTANCE"))
+XDG_CURRENT_DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")
 
-IS_KOLIBRI_LOCAL = os.access(KOLIBRI_HOME, os.W_OK)
-
-if IS_KOLIBRI_LOCAL:
-    KOLIBRI_LOGS_DIR = os.path.join(KOLIBRI_HOME, "logs")
+if os.access(KOLIBRI_HOME, os.W_OK):
+    KOLIBRI_LOGS_DIR = Path(KOLIBRI_HOME, "logs")
 else:
-    KOLIBRI_LOGS_DIR = os.path.join(USER_HOME, ".kolibri", "logs")
+    KOLIBRI_LOGS_DIR = Path.home().joinpath(".kolibri", "logs")
 
 
 def init_gettext():
@@ -37,12 +31,12 @@ def init_gettext():
 def init_logging(logfile_name="kolibri-app.txt", level=logging.DEBUG):
     logging.basicConfig(level=level)
 
-    os.makedirs(KOLIBRI_LOGS_DIR, exist_ok=True)
-    log_filename = os.path.join(KOLIBRI_LOGS_DIR, logfile_name)
+    KOLIBRI_LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    logfile_path = KOLIBRI_LOGS_DIR.joinpath(logfile_name)
 
     root_logger = logging.getLogger()
     file_handler = KolibriTimedRotatingFileHandler(
-        filename=log_filename, when="midnight", backupCount=30
+        filename=logfile_path.as_posix(), when="midnight", backupCount=30
     )
     root_logger.addHandler(file_handler)
 

@@ -1,9 +1,11 @@
 import json
 import multiprocessing
-import os
 import threading
+import os
+
 from collections import Mapping
 from contextlib import contextmanager
+from pathlib import Path
 
 from kolibri.utils.conf import KOLIBRI_HOME
 
@@ -113,17 +115,15 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         from kolibri.core.device.utils import device_provisioned
         from kolibri.dist.django.core.management import call_command
 
-        AUTOMATIC_PROVISION_FILE = os.path.join(
-            KOLIBRI_HOME, "automatic_provision.json"
-        )
+        AUTOMATIC_PROVISION_PATH = Path(KOLIBRI_HOME, "automatic_provision.json")
 
-        if not os.path.exists(AUTOMATIC_PROVISION_FILE):
+        if not AUTOMATIC_PROVISION_PATH.exists():
             return
         elif device_provisioned():
             return
 
         try:
-            with open(AUTOMATIC_PROVISION_FILE, "r") as f:
+            with AUTOMATIC_PROVISION_PATH.open("r") as f:
                 logger.info("Running provisiondevice from 'automatic_provision.json'")
                 options = json.load(f)
         except ValueError as e:

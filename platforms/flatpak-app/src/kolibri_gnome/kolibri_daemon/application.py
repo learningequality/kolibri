@@ -161,7 +161,7 @@ class Application(Gio.Application):
             GLib.OptionFlags.NONE,
             GLib.OptionArg.NONE,
             "Connect to the session bus",
-            None
+            None,
         )
 
         self.add_main_option(
@@ -170,7 +170,7 @@ class Application(Gio.Application):
             GLib.OptionFlags.NONE,
             GLib.OptionArg.NONE,
             "Connect to the system bus",
-            None
+            None,
         )
 
         self.__service_manager = KolibriServiceManager()

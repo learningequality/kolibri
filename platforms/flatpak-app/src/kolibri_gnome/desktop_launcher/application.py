@@ -3,13 +3,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 import json
-import os
 import subprocess
 import threading
 import time
 
 from functools import partial
 from gettext import gettext as _
+from pathlib import Path
 from urllib.parse import urljoin
 from urllib.parse import urlsplit
 from urllib.parse import urlunsplit
@@ -283,10 +283,10 @@ class Application(pew.ui.PEWApp):
         self.__is_ready_event = threading.Event()
 
         loader_path = get_localized_file(
-            os.path.join(config.DATA_DIR, "assets", "_load-{}.html"),
-            os.path.join(config.DATA_DIR, "assets", "_load.html"),
+            Path(config.DATA_DIR, "assets", "_load-{}.html").as_posix(),
+            Path(config.DATA_DIR, "assets", "_load.html"),
         )
-        self.__loader_url = "file://{path}".format(path=os.path.abspath(loader_path))
+        self.__loader_url = loader_path.as_uri()
 
         self.__kolibri_daemon = KolibriDaemonProxy()
         self.__kolibri_daemon_init_success = None

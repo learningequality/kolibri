@@ -8,6 +8,8 @@ import os
 import shutil
 import subprocess
 
+from pathlib import Path
+
 from kolibri.utils.conf import KOLIBRI_HOME
 
 from .content_extensions import ContentExtensionsList
@@ -58,14 +60,19 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
     def __update_from_home_template(self):
         # TODO: This code should probably be in Kolibri itself
 
-        if not os.path.isdir(KOLIBRI_HOME_TEMPLATE_DIR):
+        kolibri_home_template_dir = Path(KOLIBRI_HOME_TEMPLATE_DIR)
+        kolibri_home = Path(KOLIBRI_HOME)
+
+        if not kolibri_home_template_dir.is_dir():
             return
 
-        if not os.path.isdir(KOLIBRI_HOME):
-            os.makedirs(KOLIBRI_HOME, exist_ok=True)
+        if not kolibri_home.is_dir():
+            kolibri_home.mkdir(parents=True, exist_ok=True)
 
         compare = filecmp.dircmp(
-            KOLIBRI_HOME_TEMPLATE_DIR, KOLIBRI_HOME, ignore=["logs"]
+            kolibri_home_template_dir,
+            kolibri_home,
+            ignore=["logs", "job_storage.sqlite3"],
         )
 
         if len(compare.common) > 0:
@@ -77,9 +84,9 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         logger.info("Copying KOLIBRI_HOME template to '{}'".format(KOLIBRI_HOME))
 
         for filename in compare.left_only:
-            left_file = os.path.join(compare.left, filename)
-            right_file = os.path.join(compare.right, filename)
-            if os.path.isdir(left_file):
+            left_file = Path(compare.left, filename)
+            right_file = Path(compare.right, filename)
+            if left_file.is_dir():
                 shutil.copytree(left_file, right_file)
             else:
                 shutil.copy2(left_file, right_file)
