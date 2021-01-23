@@ -1,4 +1,16 @@
-kolibri-source (0.14.4-0ubuntu1) trusty; urgency=medium
+kolibri-source (0.14.6-0ubuntu1) trusty; urgency=low
+
+  * New upustream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Sat, 23 Jan 2021 13:12:59 +0100
+
+kolibri-source (0.14.5-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 02 Dec 2020 18:10:28 +0100
+
+kolibri-source (0.14.4-0ubuntu2) trusty; urgency=medium
 
   * New upstream release
 
