@@ -15,7 +15,6 @@ from kolibri.utils.conf import KOLIBRI_HOME
 from .content_extensions import ContentExtensionsList
 
 from ..config import KOLIBRI_HOME_TEMPLATE_DIR
-from ..globals import init_logging
 
 
 KOLIBRI_BIN = "kolibri"
@@ -36,6 +35,8 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         super().__init__()
 
     def run(self):
+        from ..globals import init_logging
+
         init_logging("kolibri-daemon-setup.txt")
 
         self.__update_from_home_template()

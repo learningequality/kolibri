@@ -99,8 +99,10 @@ class LocalSearchHandler(SearchHandler):
         self.__pool.close()
 
     def __process_initializer(self):
+        from ..globals import init_logging
         from kolibri.dist import django
 
+        init_logging("kolibri-daemon-search.txt")
         django.setup()
 
     def get_item_ids_for_search(self, search):
