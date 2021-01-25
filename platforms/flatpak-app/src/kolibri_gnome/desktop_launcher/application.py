@@ -288,7 +288,7 @@ class Application(pew.ui.PEWApp):
         )
         self.__loader_url = loader_path.as_uri()
 
-        self.__kolibri_daemon = KolibriDaemonProxy()
+        self.__kolibri_daemon = KolibriDaemonProxy.create_default()
         self.__kolibri_daemon_init_success = None
 
         self.__windows = []

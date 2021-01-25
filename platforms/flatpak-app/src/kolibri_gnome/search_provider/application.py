@@ -44,7 +44,7 @@ class SearchProvider(DBusServer):
 
     def __init__(self, application):
         super().__init__(application)
-        self.__kolibri_daemon = KolibriDaemonProxy()
+        self.__kolibri_daemon = KolibriDaemonProxy.create_default()
 
     def init(self):
         self.__kolibri_daemon.init()

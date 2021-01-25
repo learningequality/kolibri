@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 import itertools
 
 from gi.repository import Gio
@@ -7,6 +11,7 @@ from gi.repository import GObject
 from . import config
 
 from .globals import KOLIBRI_USE_SYSTEM_INSTANCE
+from .globals import local_kolibri_exists
 
 
 class KolibriDaemonProxy(Gio.DBusProxy):
@@ -18,18 +23,26 @@ class KolibriDaemonProxy(Gio.DBusProxy):
         "Version": "version",
     }
 
-    def __init__(self):
-        if KOLIBRI_USE_SYSTEM_INSTANCE:
-            bus_type = Gio.BusType.SYSTEM
-        else:
-            bus_type = Gio.BusType.SESSION
-
+    def __init__(self, bus_type):
         super().__init__(
             g_bus_type=bus_type,
             g_name=config.DAEMON_APPLICATION_ID,
             g_object_path=config.DAEMON_OBJECT_PATH,
             g_interface_name="org.learningequality.Kolibri.Daemon",
         )
+
+    @classmethod
+    def create_default(cls):
+        if not KOLIBRI_USE_SYSTEM_INSTANCE:
+            bus_type = Gio.BusType.SESSION
+        elif local_kolibri_exists():
+            logger.info(
+                "Local Kolibri data already exists, so ignoring KOLIBRI_USE_SYSTEM_INSTANCE"
+            )
+            bus_type = Gio.BusType.SESSION
+        else:
+            bus_type = Gio.BusType.SYSTEM
+        return cls(bus_type)
 
     def do_g_properties_changed(self, changed_properties, invalidated_properties):
         dbus_properties = itertools.chain(

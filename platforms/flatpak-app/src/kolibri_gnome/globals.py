@@ -22,6 +22,9 @@ if os.access(KOLIBRI_HOME, os.W_OK):
 else:
     KOLIBRI_LOGS_DIR = Path.home().joinpath(".kolibri", "logs")
 
+# Files that are considered indicative of a working Kolibri install
+_KOLIBRI_DATA_FILES = ("content", "db.sqlite3")
+
 
 def init_gettext():
     gettext.bindtextdomain(config.GETTEXT_PACKAGE, config.LOCALE_DIR)
@@ -54,3 +57,11 @@ def get_current_language():
         language = locale_info.get("language")
 
     return language
+
+
+def local_kolibri_exists():
+    data_file_paths = (Path(KOLIBRI_HOME, filename) for filename in _KOLIBRI_DATA_FILES)
+    if all(path.exists() for path in data_file_paths):
+        return True
+    else:
+        return False
