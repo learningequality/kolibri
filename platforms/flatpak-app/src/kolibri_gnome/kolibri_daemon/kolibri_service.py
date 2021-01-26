@@ -11,6 +11,7 @@ from enum import Enum
 from .kolibri_service_main import KolibriServiceMainProcess
 from .kolibri_service_setup import KolibriServiceSetupProcess
 from .kolibri_service_stop import KolibriServiceStopProcess
+from .utils import kolibri_update_from_home_template
 
 
 class KolibriServiceContext(object):
@@ -234,6 +235,9 @@ class KolibriServiceManager(KolibriServiceContext):
         self.__main_process = None
         self.__setup_process = None
         self.__stop_process = None
+
+    def init(self):
+        kolibri_update_from_home_template()
 
     @property
     def status(self):

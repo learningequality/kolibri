@@ -1,6 +1,8 @@
 import collections
 import multiprocessing
 
+from ..globals import init_logging
+
 
 NODE_ICON_LOOKUP = {
     "video": "video-x-generic",
@@ -99,7 +101,6 @@ class LocalSearchHandler(SearchHandler):
         self.__pool.close()
 
     def __process_initializer(self):
-        from ..globals import init_logging
         from kolibri.dist import django
 
         init_logging("kolibri-daemon-search.txt")

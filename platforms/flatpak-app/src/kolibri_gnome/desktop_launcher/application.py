@@ -29,6 +29,7 @@ from gi.repository import WebKit2
 from .. import config
 
 from ..globals import KOLIBRI_APP_DEVELOPER_EXTRAS
+from ..globals import KOLIBRI_HOME_PATH
 from ..globals import XDG_CURRENT_DESKTOP
 from ..kolibri_daemon_proxy import KolibriDaemonProxy
 
@@ -454,4 +455,7 @@ class Application(pew.ui.PEWApp):
         subprocess.call(["xdg-open", url])
 
     def open_kolibri_home(self):
-        subprocess.call(["xdg-open", self.__kolibri_daemon.kolibri_home])
+        # TODO: It would be better to open self.__kolibri_daemon.kolibri_home,
+        #       but the Flatpak's OpenURI portal only allows us to open files
+        #       that exist in our sandbox.
+        subprocess.call(["xdg-open", KOLIBRI_HOME_PATH.as_uri()])

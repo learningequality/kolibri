@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 from configparser import ConfigParser
 
-from kolibri.utils.conf import KOLIBRI_HOME
+from ..globals import KOLIBRI_HOME_PATH
 
 CONTENT_EXTENSIONS_DIR = "/app/share/kolibri-content"
 CONTENT_EXTENSION_RE = r"^org.learningequality.Kolibri.Content.(?P<name>\w+)$"
@@ -19,7 +19,9 @@ class ContentExtensionsList(object):
     function will always return an empty ContentExtensionsList.
     """
 
-    CONTENT_EXTENSIONS_STATE_PATH = Path(KOLIBRI_HOME, "content-extensions.json")
+    CONTENT_EXTENSIONS_STATE_PATH = KOLIBRI_HOME_PATH.joinpath(
+        "content-extensions.json"
+    )
 
     def __init__(self, extensions=set()):
         self.__extensions = set(extensions)

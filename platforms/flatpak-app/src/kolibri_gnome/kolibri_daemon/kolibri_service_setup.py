@@ -2,19 +2,15 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-import filecmp
 import multiprocessing
 import os
-import shutil
 import subprocess
 
 from pathlib import Path
 
-from kolibri.utils.conf import KOLIBRI_HOME
-
 from .content_extensions import ContentExtensionsList
 
-from ..config import KOLIBRI_HOME_TEMPLATE_DIR
+from ..globals import KOLIBRI_HOME_PATH, init_logging
 
 
 KOLIBRI_BIN = "kolibri"
@@ -35,11 +31,9 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         super().__init__()
 
     def run(self):
-        from ..globals import init_logging
-
         init_logging("kolibri-daemon-setup.txt")
 
-        self.__update_from_home_template()
+        self.__automatic_provisiondevice()
 
         self.__active_extensions.update_kolibri_environ(os.environ)
 
@@ -58,39 +52,44 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
             logger.warning("Failed to update content extensions.")
             self.__context.setup_result = self.__context.SetupResult.ERROR
 
-    def __update_from_home_template(self):
-        # TODO: This code should probably be in Kolibri itself
+    def __automatic_provisiondevice(self):
+        import logging
 
-        kolibri_home_template_dir = Path(KOLIBRI_HOME_TEMPLATE_DIR)
-        kolibri_home = Path(KOLIBRI_HOME)
+        logger = logging.getLogger(__name__)
 
-        if not kolibri_home_template_dir.is_dir():
-            return
+        from kolibri.core.device.utils import device_provisioned
+        from kolibri.dist.django.core.management import call_command
 
-        if not kolibri_home.is_dir():
-            kolibri_home.mkdir(parents=True, exist_ok=True)
-
-        compare = filecmp.dircmp(
-            kolibri_home_template_dir,
-            kolibri_home,
-            ignore=["logs", "job_storage.sqlite3"],
+        AUTOMATIC_PROVISION_PATH = KOLIBRI_HOME_PATH.joinpath(
+            "automatic_provision.json"
         )
 
-        if len(compare.common) > 0:
+        if not AUTOMATIC_PROVISION_PATH.exists():
+            return
+        elif device_provisioned():
             return
 
-        # If Kolibri home was not already initialized, copy files from the
-        # template directory to the new home directory.
+        try:
+            with AUTOMATIC_PROVISION_PATH.open("r") as f:
+                logger.info("Running provisiondevice from 'automatic_provision.json'")
+                options = json.load(f)
+        except ValueError as e:
+            logger.error(
+                "Attempted to load 'automatic_provision.json' but failed to parse JSON:\n{}".format(
+                    e
+                )
+            )
+        except FileNotFoundError:
+            options = None
 
-        logger.info("Copying KOLIBRI_HOME template to '{}'".format(KOLIBRI_HOME))
-
-        for filename in compare.left_only:
-            left_file = Path(compare.left, filename)
-            right_file = Path(compare.right, filename)
-            if left_file.is_dir():
-                shutil.copytree(left_file, right_file)
-            else:
-                shutil.copy2(left_file, right_file)
+        if isinstance(options, Mapping):
+            options.setdefault("superusername", None)
+            options.setdefault("superuserpassword", None)
+            options.setdefault("preset", "nonformal")
+            options.setdefault("language_id", None)
+            options.setdefault("facility_settings", {})
+            options.setdefault("device_settings", {})
+            call_command("provisiondevice", interactive=False, **options)
 
     def __run_kolibri_command(self, *args):
         result = subprocess.run([KOLIBRI_BIN, "manage", *args], check=False)
@@ -189,7 +188,13 @@ class _KolibriContentOperation_ImportContent(_KolibriContentOperation):
             args.extend(["--node_ids", ",".join(self.__include_node_ids)])
         if self.__exclude_node_ids:
             args.extend(["--exclude_node_ids", ",".join(self.__exclude_node_ids)])
-        args.extend(["disk", self.__channel_id, self.__extension_dir or KOLIBRI_HOME])
+        args.extend(
+            [
+                "disk",
+                self.__channel_id,
+                self.__extension_dir or KOLIBRI_HOME_PATH.as_posix(),
+            ]
+        )
         return run_command_fn("importcontent", *args)
 
 

@@ -174,6 +174,7 @@ class Application(Gio.Application):
         )
 
         self.__service_manager = KolibriServiceManager()
+        self.__service_manager.init()
         self.__kolibri_search_handler = LocalSearchHandler()
         self.__kolibri_search_handler.init()
         self.__session_kolibri_daemon = None

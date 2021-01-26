@@ -7,20 +7,19 @@ import os
 
 from pathlib import Path
 
-from kolibri.utils.conf import KOLIBRI_HOME
-from kolibri.utils.logger import KolibriTimedRotatingFileHandler
-
 from . import config
-
 
 KOLIBRI_APP_DEVELOPER_EXTRAS = os.environ.get("KOLIBRI_APP_DEVELOPER_EXTRAS")
 KOLIBRI_USE_SYSTEM_INSTANCE = bool(os.environ.get("KOLIBRI_USE_SYSTEM_INSTANCE"))
 XDG_CURRENT_DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")
 
-if os.access(KOLIBRI_HOME, os.W_OK):
-    KOLIBRI_LOGS_DIR = Path(KOLIBRI_HOME, "logs")
+# Logic for KOLIBRI_HOME is from kolibri.utils.conf. We avoid importing it from
+# Kolibri because the import comes with side-effects.
+DEFAULT_KOLIBRI_HOME_PATH = Path.home().joinpath(".kolibri")
+if "KOLIBRI_HOME" in os.environ:
+    KOLIBRI_HOME_PATH = Path(os.environ["KOLIBRI_HOME"]).expanduser().absolute()
 else:
-    KOLIBRI_LOGS_DIR = Path.home().joinpath(".kolibri", "logs")
+    KOLIBRI_HOME_PATH = DEFAULT_KOLIBRI_HOME_PATH
 
 # Files that are considered indicative of a working Kolibri install
 _KOLIBRI_DATA_FILES = ("content", "db.sqlite3")
@@ -31,17 +30,32 @@ def init_gettext():
     gettext.textdomain(config.GETTEXT_PACKAGE)
 
 
-def init_logging(logfile_name="kolibri-app.txt", level=logging.DEBUG):
+def init_logging(log_file_name="kolibri-app.txt", level=logging.DEBUG):
+    from kolibri.utils.logger import KolibriTimedRotatingFileHandler
+
     logging.basicConfig(level=level)
 
-    KOLIBRI_LOGS_DIR.mkdir(parents=True, exist_ok=True)
-    logfile_path = KOLIBRI_LOGS_DIR.joinpath(logfile_name)
+    try:
+        logs_dir_path = KOLIBRI_HOME_PATH.joinpath("logs")
+        logs_dir_path.mkdir(parents=True, exist_ok=True)
+    except PermissionError:
+        # This is handled in the following block
+        pass
+
+    if not os.access(logs_dir_path, os.W_OK):
+        logs_dir_path = DEFAULT_KOLIBRI_HOME_PATH.joinpath("logs")
+        logs_dir_path.mkdir(parents=True, exist_ok=True)
+
+    log_file_path = logs_dir_path.joinpath(log_file_name)
 
     root_logger = logging.getLogger()
     file_handler = KolibriTimedRotatingFileHandler(
-        filename=logfile_path.as_posix(), when="midnight", backupCount=30
+        filename=log_file_path.as_posix(), when="midnight", backupCount=30
     )
+
     root_logger.addHandler(file_handler)
+
+    return logs_dir_path
 
 
 def get_current_language():
@@ -60,7 +74,7 @@ def get_current_language():
 
 
 def local_kolibri_exists():
-    data_file_paths = (Path(KOLIBRI_HOME, filename) for filename in _KOLIBRI_DATA_FILES)
+    data_file_paths = map(KOLIBRI_HOME_PATH.joinpath, _KOLIBRI_DATA_FILES)
     if all(path.exists() for path in data_file_paths):
         return True
     else:
