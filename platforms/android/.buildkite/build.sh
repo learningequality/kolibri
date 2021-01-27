@@ -19,7 +19,6 @@ else
   docker rm $DOCKER_ID
 fi
 
-echo "--- :android: Build APK"
 make run_docker
 
 # Making folder structure match other installers (convention)

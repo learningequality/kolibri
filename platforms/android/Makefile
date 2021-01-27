@@ -38,6 +38,7 @@ endif
 .PHONY: kolibri.apk
 # Build the debug version of the apk
 kolibri.apk: p4a_android_distro preseeded_kolibri_home
+	echo "--- :android: Build APK"
 	pew build $(pew_release_flag) android ${ARCH}
 
 

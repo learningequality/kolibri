@@ -15,6 +15,7 @@ CID_FILE=kolibri-android-app-container-id.cid.txt
 docker create -it \
   --mount type=volume,src=${P4A_CACHE},dst=${CONTAINER_HOME}/.local \
   --mount type=volume,src=${PEW_CACHE},dst=${CONTAINER_HOME}/.pyeverywhere \
+  --env BUILDKITE_BUILD_NUMBER \
   --env P4A_RELEASE_KEYSTORE=${CONTAINER_HOME}/$(basename "${P4A_RELEASE_KEYSTORE}") \
   --env P4A_RELEASE_KEYALIAS \
   --env P4A_RELEASE_KEYSTORE_PASSWD \
