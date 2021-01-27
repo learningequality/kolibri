@@ -36,6 +36,7 @@ kolibri_daemon_sources = [
     'kolibri_daemon/kolibri_service_setup.py',
     'kolibri_daemon/kolibri_service_stop.py',
     'kolibri_daemon/main.py',
+    'kolibri_daemon/utils.py',
 ]
 
 python_installation.install_sources(

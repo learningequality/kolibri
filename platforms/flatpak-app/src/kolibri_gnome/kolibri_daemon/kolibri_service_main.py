@@ -1,15 +1,16 @@
 import json
 import multiprocessing
-import os
 import threading
+import os
+
 from collections import Mapping
 from contextlib import contextmanager
-
-from kolibri.utils.conf import KOLIBRI_HOME
+from pathlib import Path
 
 from .content_extensions import ContentExtensionsList
 
 from ..globals import init_logging
+from ..globals import KOLIBRI_HOME_PATH
 
 # TODO: We need to use multiprocessing because Kolibri occasionally calls
 #       os.kill against its own process ID.
@@ -33,7 +34,6 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         watch_thread.start()
 
     def run(self):
-        init_logging("kolibri-daemon-main.txt")
         with self.__set_is_stopped_on_exit():
             self.__run_kolibri_start()
 
@@ -59,9 +59,18 @@ class KolibriServiceMainProcess(multiprocessing.Process):
             self.__context.is_starting = False
             return
 
+        init_logging("kolibri-daemon-main.txt")
+
         self.__context.is_starting = True
         self.__context.is_stopped = False
         self.__context.start_result = None
+
+        # Crudely ignore if there is already a server.pid file
+        # This is probably safe because we are inside a (unique) dbus service.
+        try:
+            KOLIBRI_HOME_PATH.joinpath("server.pid").unlink()
+        except FileNotFoundError:
+            pass
 
         self.__active_extensions.update_kolibri_environ(os.environ)
 
@@ -73,7 +82,6 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         setup_logging(debug=False)
         initialize()
 
-        self.__automatic_provisiondevice()
         self.__update_app_key()
         self.__update_kolibri_home()
 
@@ -103,46 +111,7 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         self.__context.app_key = DeviceAppKey.get_app_key()
 
     def __update_kolibri_home(self):
-        self.__context.kolibri_home = KOLIBRI_HOME
-
-    def __automatic_provisiondevice(self):
-        import logging
-
-        logger = logging.getLogger(__name__)
-
-        from kolibri.core.device.utils import device_provisioned
-        from kolibri.dist.django.core.management import call_command
-
-        AUTOMATIC_PROVISION_FILE = os.path.join(
-            KOLIBRI_HOME, "automatic_provision.json"
-        )
-
-        if not os.path.exists(AUTOMATIC_PROVISION_FILE):
-            return
-        elif device_provisioned():
-            return
-
-        try:
-            with open(AUTOMATIC_PROVISION_FILE, "r") as f:
-                logger.info("Running provisiondevice from 'automatic_provision.json'")
-                options = json.load(f)
-        except ValueError as e:
-            logger.error(
-                "Attempted to load 'automatic_provision.json' but failed to parse JSON:\n{}".format(
-                    e
-                )
-            )
-        except FileNotFoundError:
-            options = None
-
-        if isinstance(options, Mapping):
-            options.setdefault("superusername", None)
-            options.setdefault("superuserpassword", None)
-            options.setdefault("preset", "nonformal")
-            options.setdefault("language_id", None)
-            options.setdefault("facility_settings", {})
-            options.setdefault("device_settings", {})
-            call_command("provisiondevice", interactive=False, **options)
+        self.__context.kolibri_home = KOLIBRI_HOME_PATH.as_posix()
 
 
 class KolibriServiceMainProcessWatchThread(threading.Thread):

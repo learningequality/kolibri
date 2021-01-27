@@ -1,0 +1,23 @@
+--- a/logger.py
++++ b/logger.py
+@@ -4,8 +4,6 @@ import re
+ from logging import Formatter
+ from logging.handlers import TimedRotatingFileHandler
+
+-from . import conf
+-
+
+ GET_FILES_TO_DELETE = "getFilesToDelete"
+ DO_ROLLOVER = "doRollover"
+@@ -125,6 +123,8 @@ class RequireDebugTrue(logging.Filter):
+     """A copy from Django to avoid loading Django's settings stack"""
+
+     def filter(self, record):
++        from . import conf
++
+         return conf.OPTIONS["Server"]["DEBUG"]
+
+
+--
+2.29.2
+

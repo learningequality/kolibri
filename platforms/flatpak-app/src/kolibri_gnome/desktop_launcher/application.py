@@ -3,13 +3,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 import json
-import os
 import subprocess
 import threading
 import time
 
 from functools import partial
 from gettext import gettext as _
+from pathlib import Path
 from urllib.parse import urljoin
 from urllib.parse import urlsplit
 from urllib.parse import urlunsplit
@@ -29,6 +29,7 @@ from gi.repository import WebKit2
 from .. import config
 
 from ..globals import KOLIBRI_APP_DEVELOPER_EXTRAS
+from ..globals import KOLIBRI_HOME_PATH
 from ..globals import XDG_CURRENT_DESKTOP
 from ..kolibri_daemon_proxy import KolibriDaemonProxy
 
@@ -283,12 +284,12 @@ class Application(pew.ui.PEWApp):
         self.__is_ready_event = threading.Event()
 
         loader_path = get_localized_file(
-            os.path.join(config.DATA_DIR, "assets", "_load-{}.html"),
-            os.path.join(config.DATA_DIR, "assets", "_load.html"),
+            Path(config.DATA_DIR, "assets", "_load-{}.html").as_posix(),
+            Path(config.DATA_DIR, "assets", "_load.html"),
         )
-        self.__loader_url = "file://{path}".format(path=os.path.abspath(loader_path))
+        self.__loader_url = loader_path.as_uri()
 
-        self.__kolibri_daemon = KolibriDaemonProxy()
+        self.__kolibri_daemon = KolibriDaemonProxy.create_default()
         self.__kolibri_daemon_init_success = None
 
         self.__windows = []
@@ -454,4 +455,7 @@ class Application(pew.ui.PEWApp):
         subprocess.call(["xdg-open", url])
 
     def open_kolibri_home(self):
-        subprocess.call(["xdg-open", self.__kolibri_daemon.kolibri_home])
+        # TODO: It would be better to open self.__kolibri_daemon.kolibri_home,
+        #       but the Flatpak's OpenURI portal only allows us to open files
+        #       that exist in our sandbox.
+        subprocess.call(["xdg-open", KOLIBRI_HOME_PATH.as_uri()])

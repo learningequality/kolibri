@@ -1,0 +1,45 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+import filecmp
+import shutil
+
+from pathlib import Path
+
+from ..config import KOLIBRI_HOME_TEMPLATE_DIR
+from ..globals import KOLIBRI_HOME_PATH
+
+
+def kolibri_update_from_home_template():
+    # TODO: This code should probably be in Kolibri itself
+
+    kolibri_home_template_dir = Path(KOLIBRI_HOME_TEMPLATE_DIR)
+
+    if not kolibri_home_template_dir.is_dir():
+        return
+
+    if not KOLIBRI_HOME_PATH.is_dir():
+        kolibri_home.mkdir(parents=True, exist_ok=True)
+
+    compare = filecmp.dircmp(
+        kolibri_home_template_dir,
+        KOLIBRI_HOME_PATH,
+        ignore=["logs", "job_storage.sqlite3"],
+    )
+
+    if len(compare.common) > 0:
+        return
+
+    # If Kolibri home was not already initialized, copy files from the
+    # template directory to the new home directory.
+
+    logger.info("Copying KOLIBRI_HOME template to '{}'".format(KOLIBRI_HOME_PATH))
+
+    for filename in compare.left_only:
+        left_file = Path(compare.left, filename)
+        right_file = Path(compare.right, filename)
+        if left_file.is_dir():
+            shutil.copytree(left_file, right_file)
+        else:
+            shutil.copy2(left_file, right_file)

@@ -1,10 +1,10 @@
 import itertools
 import json
-import os
 import re
+from pathlib import Path
 from configparser import ConfigParser
 
-from kolibri.utils.conf import KOLIBRI_HOME
+from ..globals import KOLIBRI_HOME_PATH
 
 CONTENT_EXTENSIONS_DIR = "/app/share/kolibri-content"
 CONTENT_EXTENSION_RE = r"^org.learningequality.Kolibri.Content.(?P<name>\w+)$"
@@ -19,8 +19,8 @@ class ContentExtensionsList(object):
     function will always return an empty ContentExtensionsList.
     """
 
-    CONTENT_EXTENSIONS_STATE_PATH = os.path.join(
-        KOLIBRI_HOME, "content-extensions.json"
+    CONTENT_EXTENSIONS_STATE_PATH = KOLIBRI_HOME_PATH.joinpath(
+        "content-extensions.json"
     )
 
     def __init__(self, extensions=set()):
@@ -58,7 +58,7 @@ class ContentExtensionsList(object):
         extensions = set()
 
         try:
-            with open(cls.CONTENT_EXTENSIONS_STATE_PATH, "r") as file:
+            with cls.CONTENT_EXTENSIONS_STATE_PATH.open("r") as file:
                 extensions_json = json.load(file)
         except (OSError, json.JSONDecodeError):
             pass
@@ -68,7 +68,7 @@ class ContentExtensionsList(object):
         return cls(extensions)
 
     def write_to_cache(self):
-        with open(self.CONTENT_EXTENSIONS_STATE_PATH, "w") as file:
+        with self.CONTENT_EXTENSIONS_STATE_PATH.open("w") as file:
             extensions_json = list(map(ContentExtension.to_json, self.__extensions))
             json.dump(extensions_json, file)
 
@@ -155,9 +155,7 @@ class ContentExtension(object):
         return self.__commit
 
     def is_valid(self):
-        return all(
-            [os.path.isdir(self.content_dir), os.path.isfile(self.__content_json_path)]
-        )
+        return all([self.content_dir.is_dir(), self.__content_json_path.is_file()])
 
     @property
     def content_json(self):
@@ -165,7 +163,7 @@ class ContentExtension(object):
             return self.__content_json
 
         try:
-            with open(self.__content_json_path, "r") as file:
+            with self.__content_json_path.open("r") as file:
                 self.__content_json = json.load(file)
         except (OSError, json.JSONDecodeError):
             self.__content_json = {}
@@ -193,15 +191,15 @@ class ContentExtension(object):
 
     @property
     def base_dir(self):
-        return os.path.join(CONTENT_EXTENSIONS_DIR, self.name)
+        return Path(CONTENT_EXTENSIONS_DIR, self.name)
 
     @property
     def content_dir(self):
-        return os.path.join(self.base_dir, "content")
+        return Path(self.base_dir, "content")
 
     @property
     def __content_json_path(self):
-        return os.path.join(self.content_dir, "content.json")
+        return Path(self.content_dir, "content.json")
 
 
 class ContentChannel(object):
