@@ -63,7 +63,16 @@ def build_number():
     Returns the build number for the apk. This is the mechanism used to understand whether one
     build is newer than another. Uses buildkite build number with time as local dev backup
     """
-    return os.getenv('BUILDKITE_BUILD_NUMBER', datetime.now().strftime('%y%m%d%H%M'))
+    build_base_number = 2009000000
+
+    buildkite_build_number = os.getenv('BUILDKITE_BUILD_NUMBER')
+
+    if buildkite_build_number is not None:
+        build_number = build_base_number + buildkite_build_number
+        print(build_number)
+        return build_number
+    alt_build_number = datetime.now().strftime('%y%m%d%H%M')
+    return alt_build_number
 
 def create_project_info():
     """
