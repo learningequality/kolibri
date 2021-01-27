@@ -13,34 +13,34 @@
       class="contents"
     >
       <CoreTable>
-        <thead slot="thead">
-          <tr>
-            <th class="core-table-checkbox-col select-all">
-              <KCheckbox
-                :label="$tr('selectAll')"
-                :checked="nodeIsChecked(annotatedTopicNode)"
-                :disabled="disableSelectAll"
-                @change="toggleSelectAll"
-              />
-            </th>
-            <th></th>
-            <th></th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <ContentNodeRow
-            v-for="cNode in showableAnnotatedChildNodes"
-            :key="cNode.id"
-            :checked="nodeIsChecked(cNode)"
-            :disabled="disabled || disableAll || cNode.disabled ||
-              (cNode.updated_resource && !cNode.available)"
-            :indeterminate="nodeIsIndeterminate(cNode)"
-            :message="cNode.message"
-            :node="cNode"
-            :getLinkObject="topicLinkObject"
-            @changeselection="toggleSelection(cNode)"
-          />
-        </transition-group>
+        <template #headers>
+          <th class="core-table-checkbox-col select-all">
+            <KCheckbox
+              :label="$tr('selectAll')"
+              :checked="nodeIsChecked(annotatedTopicNode)"
+              :disabled="disableSelectAll"
+              @change="toggleSelectAll"
+            />
+          </th>
+          <th></th>
+          <th></th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <ContentNodeRow
+              v-for="cNode in showableAnnotatedChildNodes"
+              :key="cNode.id"
+              :checked="nodeIsChecked(cNode)"
+              :disabled="disabled || disableAll || cNode.disabled ||
+                (cNode.updated_resource && !cNode.available)"
+              :indeterminate="nodeIsIndeterminate(cNode)"
+              :message="cNode.message"
+              :node="cNode"
+              :getLinkObject="topicLinkObject"
+              @changeselection="toggleSelection(cNode)"
+            />
+          </transition-group>
+        </template>
       </CoreTable>
     </div>
 

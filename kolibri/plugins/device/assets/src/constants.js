@@ -55,10 +55,6 @@ export const TaskStatuses = Object.freeze({
   CANCELING: 'CANCELING',
 });
 
-export function taskIsClearable(task) {
-  return [TaskStatuses.COMPLETED, TaskStatuses.CANCELED, TaskStatuses.FAILED].includes(task.status);
-}
-
 export const TransferTypes = {
   LOCALEXPORT: 'localexport',
   LOCALIMPORT: 'localimport',

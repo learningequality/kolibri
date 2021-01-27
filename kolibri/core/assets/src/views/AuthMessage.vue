@@ -83,8 +83,14 @@
           // In practice, this will only happen on select Learn pages.
           return '/';
         } else {
-          const currentURL = window.encodeURIComponent(window.location.href);
-          return `${this.userPluginUrl()}#/signin?next=${currentURL}`;
+          let next;
+          // If the current URL has a ?next param, use that instead of the current URL
+          if (this.$route.query.next) {
+            next = this.$route.query.next;
+          } else {
+            next = window.encodeURIComponent(window.location.href);
+          }
+          return `${this.userPluginUrl()}#/signin?next=${next}`;
         }
       },
     },

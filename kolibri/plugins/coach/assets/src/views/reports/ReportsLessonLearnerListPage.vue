@@ -53,31 +53,31 @@
           </h2>
 
           <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
-            <thead slot="thead">
-              <tr>
-                <th>{{ coachString('nameLabel') }}</th>
-                <th>{{ coreString('progressLabel') }}</th>
-                <th>{{ coachString('groupsLabel') }}</th>
-              </tr>
-            </thead>
-            <transition-group slot="tbody" tag="tbody" name="list">
-              <tr v-for="tableRow in table" :key="tableRow.id">
-                <td>
-                  <KLabeledIcon icon="person">
-                    <KRouterLink
-                      :text="tableRow.name"
-                      :to="classRoute('ReportsLessonLearnerPage', { learnerId: tableRow.id })"
-                    />
-                  </KLabeledIcon>
-                </td>
-                <td>
-                  <StatusSimple :status="tableRow.status" />
-                </td>
-                <td>
-                  <TruncatedItemList :items="tableRow.groups" />
-                </td>
-              </tr>
-            </transition-group>
+            <template #headers>
+              <th>{{ coachString('nameLabel') }}</th>
+              <th>{{ coreString('progressLabel') }}</th>
+              <th>{{ coachString('groupsLabel') }}</th>
+            </template>
+            <template #tbody>
+              <transition-group tag="tbody" name="list">
+                <tr v-for="tableRow in table" :key="tableRow.id">
+                  <td>
+                    <KLabeledIcon icon="person">
+                      <KRouterLink
+                        :text="tableRow.name"
+                        :to="classRoute('ReportsLessonLearnerPage', { learnerId: tableRow.id })"
+                      />
+                    </KLabeledIcon>
+                  </td>
+                  <td>
+                    <StatusSimple :status="tableRow.status" />
+                  </td>
+                  <td>
+                    <TruncatedItemList :items="tableRow.groups" />
+                  </td>
+                </tr>
+              </transition-group>
+            </template>
           </CoreTable>
         </KPageContainer>
       </KGridItem>

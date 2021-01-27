@@ -1,5 +1,7 @@
 <script>
 
+  import get from 'lodash/get';
+
   export default {
     name: 'CoreTable',
     props: {
@@ -40,15 +42,19 @@
     },
     render(createElement) {
       let tableHasRows = true;
-      this.$slots.thead.forEach(thead => {
-        thead.data.style = Object.assign(thead.data.style || {}, this.tHeadStyle);
-      });
 
-      this.$slots.tbody.forEach(tbody => {
+      // create <thead> element with #headers slot
+      const theadEl = createElement('thead', { style: this.tHeadStyle }, [
+        createElement('tr', {}, this.$slots.headers),
+      ]);
+
+      const tbodyCopy = [...this.$slots.tbody];
+      tbodyCopy.forEach(tbody => {
         // Need to check componentOptions if wrapped in <transition-group>, or just children
         // if in regular <tbody>
-        if (tbody.componentOptions && tbody.componentOptions.children) {
-          tableHasRows = tbody.componentOptions.children.length > 0;
+        const tgroupChildren = get(tbody, 'componentOptions.children');
+        if (tgroupChildren) {
+          tableHasRows = tgroupChildren.length > 0;
         }
 
         if (tbody.children) {
@@ -74,8 +80,8 @@
       return createElement('div', { class: 'core-table-container' }, [
         createElement('table', { class: 'core-table' }, [
           ...(this.$slots.default || []),
-          this.$slots.thead,
-          this.$slots.tbody,
+          theadEl,
+          tbodyCopy,
         ]),
         showEmptyMessage && createElement('p', this.emptyMessage),
       ]);

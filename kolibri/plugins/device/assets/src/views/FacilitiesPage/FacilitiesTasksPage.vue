@@ -43,7 +43,6 @@
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import HeaderWithOptions from '../HeaderWithOptions';
-  import { taskIsClearable } from '../../constants';
   import BackLink from '../ManageTasksPage/BackLink';
   import commonDeviceStrings from '../commonDeviceStrings';
   import FacilityTaskPanel from './FacilityTaskPanel';
@@ -75,7 +74,7 @@
     },
     computed: {
       someClearableTasks() {
-        return Boolean(this.facilityTasks.find(taskIsClearable));
+        return Boolean(this.facilityTasks.find(task => task.clearable));
       },
     },
     methods: {

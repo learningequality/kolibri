@@ -76,7 +76,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { TaskResource } from 'kolibri.resources';
   import TaskProgress from '../ManageContentPage/TaskProgress';
-  import { ContentWizardErrors, TaskTypes, PageNames, taskIsClearable } from '../../constants';
+  import { ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
   import { updateTreeViewTopic } from '../../modules/wizard/handlers';
@@ -174,7 +174,7 @@
         handler(val) {
           if (val) {
             this.metadataDownloadTaskId = val.id;
-            if (taskIsClearable(val)) {
+            if (val.clearable) {
               TaskResource.deleteFinishedTask(val.id);
             }
           } else {
