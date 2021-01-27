@@ -75,9 +75,9 @@ def build_number():
     print('--- Assigning Build Number')
 
     if buildkite_build_number is not None:
-        build_number = build_base_number + buildkite_build_number
+        build_number = build_base_number + int(buildkite_build_number)
         print(build_number)
-        return build_number
+        return str(build_number)
 
     print('Buildkite build # not found, using dev alternative')
     alt_build_number = datetime.now().strftime('%y%m%d%H%M')
