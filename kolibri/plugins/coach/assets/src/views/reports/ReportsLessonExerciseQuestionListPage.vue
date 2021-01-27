@@ -21,31 +21,31 @@
         {{ coachString('overallLabel') }}
       </h2>
       <CoreTable :emptyMessage="coachString('questionListEmptyState')">
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachString('questionLabel') }}</th>
-            <th>{{ coachString('helpNeededLabel') }}</th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="tableRow in table" :key="tableRow.question_id">
-            <td>
-              <KRouterLink
-                :text="tableRow.title"
-                :to="questionLink(tableRow.question_id)"
-              />
-            </td>
-            <td>
-              <LearnerProgressRatio
-                :verb="VERBS.needHelp"
-                :icon="ICONS.help"
-                :total="tableRow.total"
-                :count="tableRow.total - tableRow.correct"
-                :verbosity="1"
-              />
-            </td>
-          </tr>
-        </transition-group>
+        <template #headers>
+          <th>{{ coachString('questionLabel') }}</th>
+          <th>{{ coachString('helpNeededLabel') }}</th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <tr v-for="tableRow in table" :key="tableRow.question_id">
+              <td>
+                <KRouterLink
+                  :text="tableRow.title"
+                  :to="questionLink(tableRow.question_id)"
+                />
+              </td>
+              <td>
+                <LearnerProgressRatio
+                  :verb="VERBS.needHelp"
+                  :icon="ICONS.help"
+                  :total="tableRow.total"
+                  :count="tableRow.total - tableRow.correct"
+                  :verbosity="1"
+                />
+              </td>
+            </tr>
+          </transition-group>
+        </template>
       </CoreTable>
     </KPageContainer>
   </CoreBase>

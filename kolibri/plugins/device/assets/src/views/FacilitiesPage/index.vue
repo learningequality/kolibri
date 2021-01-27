@@ -25,38 +25,38 @@
     />
 
     <CoreTable>
-      <thead slot="thead">
-        <tr>
-          <th>{{ coreString('facilityLabel') }}</th>
-        </tr>
-      </thead>
-      <tbody slot="tbody">
-        <tr v-for="(facility, idx) in facilities" :key="idx">
-          <td>
-            <FacilityNameAndSyncStatus
-              :facility="facility"
-              :isSyncing="facilityIsSyncing(facility)"
-              :isDeleting="facilityIsDeleting(facility)"
-              :syncHasFailed="facility.syncHasFailed"
-            />
-          </td>
-          <td class="button-col">
-            <KButtonGroup>
-              <KButton
-                :text="coreString('syncAction')"
-                appearance="flat-button"
-                @click="facilityForSync = facility"
+      <template #headers>
+        <th>{{ coreString('facilityLabel') }}</th>
+      </template>
+      <template #tbody>
+        <tbody>
+          <tr v-for="(facility, idx) in facilities" :key="idx">
+            <td>
+              <FacilityNameAndSyncStatus
+                :facility="facility"
+                :isSyncing="facilityIsSyncing(facility)"
+                :isDeleting="facilityIsDeleting(facility)"
+                :syncHasFailed="facility.syncHasFailed"
               />
-              <KDropdownMenu
-                :text="coreString('optionsLabel')"
-                :options="facilityOptions(facility)"
-                appearance="flat-button"
-                @select="handleOptionSelect($event.value, facility)"
-              />
-            </KButtonGroup>
-          </td>
-        </tr>
-      </tbody>
+            </td>
+            <td class="button-col">
+              <KButtonGroup>
+                <KButton
+                  :text="coreString('syncAction')"
+                  appearance="flat-button"
+                  @click="facilityForSync = facility"
+                />
+                <KDropdownMenu
+                  :text="coreString('optionsLabel')"
+                  :options="facilityOptions(facility)"
+                  appearance="flat-button"
+                  @select="handleOptionSelect($event.value, facility)"
+                />
+              </KButtonGroup>
+            </td>
+          </tr>
+        </tbody>
+      </template>
     </CoreTable>
 
     <RemoveFacilityModal
@@ -184,6 +184,11 @@
               if (match) {
                 this.$set(match, 'syncHasFailed', true);
               }
+            }
+          } else {
+            // Add tasks that aren't being watched yet
+            if (!task.clearable) {
+              this.taskIdsToWatch.push(task.id);
             }
           }
         }

@@ -1,36 +1,36 @@
 <template>
 
   <CoreTable :emptyMessage="coachString('activityListEmptyState')">
-    <thead slot="thead">
-      <tr>
-        <th>{{ coachString('nameLabel') }}</th>
-        <th>{{ coachString('statusLabel') }}</th>
-        <th>{{ coachString('timeSpentLabel') }}</th>
-        <th v-if="showGroupsColumn">
-          {{ coachString('groupsLabel') }}
-        </th>
-        <th>{{ coachString('lastActivityLabel') }}</th>
-      </tr>
-    </thead>
-    <transition-group slot="tbody" tag="tbody" name="list">
-      <tr v-for="entry in entries" :key="entry.id">
-        <td>
-          <KLabeledIcon icon="person" :label="entry.name" />
-        </td>
-        <td>
-          <StatusSimple :status="entry.statusObj.status" />
-        </td>
-        <td>
-          <TimeDuration :seconds="entry.statusObj.time_spent" />
-        </td>
-        <td v-if="showGroupsColumn">
-          <TruncatedItemList :items="getGroupNames(entry)" />
-        </td>
-        <td>
-          <ElapsedTime :date="entry.statusObj.last_activity" />
-        </td>
-      </tr>
-    </transition-group>
+    <template #headers>
+      <th>{{ coachString('nameLabel') }}</th>
+      <th>{{ coachString('statusLabel') }}</th>
+      <th>{{ coachString('timeSpentLabel') }}</th>
+      <th v-if="showGroupsColumn">
+        {{ coachString('groupsLabel') }}
+      </th>
+      <th>{{ coachString('lastActivityLabel') }}</th>
+    </template>
+    <template #tbody>
+      <transition-group tag="tbody" name="list">
+        <tr v-for="entry in entries" :key="entry.id">
+          <td>
+            <KLabeledIcon icon="person" :label="entry.name" />
+          </td>
+          <td>
+            <StatusSimple :status="entry.statusObj.status" />
+          </td>
+          <td>
+            <TimeDuration :seconds="entry.statusObj.time_spent" />
+          </td>
+          <td v-if="showGroupsColumn">
+            <TruncatedItemList :items="getGroupNames(entry)" />
+          </td>
+          <td>
+            <ElapsedTime :date="entry.statusObj.last_activity" />
+          </td>
+        </tr>
+      </transition-group>
+    </template>
   </CoreTable>
 
 </template>

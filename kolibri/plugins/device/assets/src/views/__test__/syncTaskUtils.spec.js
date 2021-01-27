@@ -6,6 +6,8 @@ import {
   SyncTaskStatuses,
 } from '../syncTaskUtils';
 
+const CLEARABLE_STATUSES = ['COMPLETED', 'CANCELED', 'FAILED'];
+
 describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
   const CANCELLABLE_STATUSES = [
     SyncTaskStatuses.SESSION_CREATION,
@@ -28,6 +30,7 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
       bytes_sent: 1000000,
       bytes_received: 500000000,
       cancellable: CANCELLABLE_STATUSES.indexOf(status) >= 0,
+      clearable: CLEARABLE_STATUSES.indexOf(status) >= 0,
     };
   }
 
@@ -134,6 +137,7 @@ describe('syncTaskUtils.removeFacilityTaskDisplayInfo', () => {
     return {
       type: 'DELETEFACILITY',
       status,
+      clearable: CLEARABLE_STATUSES.indexOf(status) >= 0,
       facility_name: 'removed facility',
       facility: 'fac123',
       started_by_username: 'removing user',

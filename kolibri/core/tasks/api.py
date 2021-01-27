@@ -1229,6 +1229,7 @@ def _job_to_response(job):
             "progress": [],
             "id": None,
             "cancellable": False,
+            "clearable": False,
         }
     else:
         output = {
@@ -1238,6 +1239,7 @@ def _job_to_response(job):
             "percentage": job.percentage_progress,
             "id": job.job_id,
             "cancellable": job.cancellable,
+            "clearable": job.state in [State.FAILED, State.CANCELED, State.COMPLETED],
         }
         output.update(job.extra_metadata)
         return output

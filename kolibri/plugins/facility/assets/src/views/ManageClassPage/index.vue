@@ -36,59 +36,59 @@
       <caption class="visuallyhidden">
         {{ $tr('tableCaption') }}
       </caption>
-      <thead slot="thead">
-        <tr>
-          <th>{{ coreString('classNameLabel') }}</th>
-          <th>{{ coreString('coachesLabel') }}</th>
-          <th>{{ coreString('learnersLabel') }}</th>
-          <th>
-            <span class="visuallyhidden">
-              {{ $tr('actions') }}
-            </span>
-          </th>
-        </tr>
-      </thead>
-      <transition-group slot="tbody" tag="tbody" name="list">
-        <tr
-          v-for="classroom in sortedClassrooms"
-          :key="classroom.id"
-        >
-          <td>
-            <KLabeledIcon icon="classes">
-              <KRouterLink
-                :text="classroom.name"
-                :to="classEditLink(classroom.id)"
-              />
-            </KLabeledIcon>
-          </td>
-          <td>
-            <span :ref="`coachNames${classroom.id}`">
-              <template v-if="coachNames(classroom).length">
-                {{ formattedCoachNames(classroom) }}
-              </template>
-              <KEmptyPlaceholder v-else />
-            </span>
-            <KTooltip
-              v-if="formattedCoachNamesTooltip(classroom)"
-              :reference="`coachNames${classroom.id}`"
-              :refs="$refs"
-            >
-              {{ formattedCoachNamesTooltip(classroom) }}
-            </KTooltip>
-          </td>
+      <template #headers>
+        <th>{{ coreString('classNameLabel') }}</th>
+        <th>{{ coreString('coachesLabel') }}</th>
+        <th>{{ coreString('learnersLabel') }}</th>
+        <th>
+          <span class="visuallyhidden">
+            {{ $tr('actions') }}
+          </span>
+        </th>
+      </template>
+      <template #tbody>
+        <transition-group tag="tbody" name="list">
+          <tr
+            v-for="classroom in sortedClassrooms"
+            :key="classroom.id"
+          >
+            <td>
+              <KLabeledIcon icon="classes">
+                <KRouterLink
+                  :text="classroom.name"
+                  :to="classEditLink(classroom.id)"
+                />
+              </KLabeledIcon>
+            </td>
+            <td>
+              <span :ref="`coachNames${classroom.id}`">
+                <template v-if="coachNames(classroom).length">
+                  {{ formattedCoachNames(classroom) }}
+                </template>
+                <KEmptyPlaceholder v-else />
+              </span>
+              <KTooltip
+                v-if="formattedCoachNamesTooltip(classroom)"
+                :reference="`coachNames${classroom.id}`"
+                :refs="$refs"
+              >
+                {{ formattedCoachNamesTooltip(classroom) }}
+              </KTooltip>
+            </td>
 
-          <td>
-            {{ classroom.learner_count }}
-          </td>
-          <td class="core-table-button-col">
-            <KButton
-              appearance="flat-button"
-              :text="$tr('deleteClass')"
-              @click="openDeleteClassModal(classroom)"
-            />
-          </td>
-        </tr>
-      </transition-group>
+            <td>
+              {{ classroom.learner_count }}
+            </td>
+            <td class="core-table-button-col">
+              <KButton
+                appearance="flat-button"
+                :text="$tr('deleteClass')"
+                @click="openDeleteClassModal(classroom)"
+              />
+            </td>
+          </tr>
+        </transition-group>
+      </template>
     </CoreTable>
 
     <p v-if="noClassesExist">

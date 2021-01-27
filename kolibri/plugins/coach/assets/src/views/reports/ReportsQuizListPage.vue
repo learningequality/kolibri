@@ -24,75 +24,75 @@
         -->
       </ReportsControls>
       <CoreTable :emptyMessage="emptyMessage">
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachString('titleLabel') }}</th>
-            <th style="position:relative;">
-              {{ coachString('avgScoreLabel') }}
-              <AverageScoreTooltip v-show="!$isPrint" />
-            </th>
-            <th>{{ coreString('progressLabel') }}</th>
-            <th>{{ coachString('recipientsLabel') }}</th>
-            <th v-show="!$isPrint" class="center-text">
-              {{ coachString('statusLabel') }}
-            </th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="tableRow in table" :key="tableRow.id">
-            <td>
-              <KLabeledIcon icon="quiz">
-                <KRouterLink
-                  :text="tableRow.title"
-                  :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.id })"
+        <template #headers>
+          <th>{{ coachString('titleLabel') }}</th>
+          <th style="position:relative;">
+            {{ coachString('avgScoreLabel') }}
+            <AverageScoreTooltip v-show="!$isPrint" />
+          </th>
+          <th>{{ coreString('progressLabel') }}</th>
+          <th>{{ coachString('recipientsLabel') }}</th>
+          <th v-show="!$isPrint" class="center-text">
+            {{ coachString('statusLabel') }}
+          </th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <tr v-for="tableRow in table" :key="tableRow.id">
+              <td>
+                <KLabeledIcon icon="quiz">
+                  <KRouterLink
+                    :text="tableRow.title"
+                    :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.id })"
+                  />
+                </KLabeledIcon>
+              </td>
+              <td>
+                <Score :value="tableRow.avgScore" />
+              </td>
+              <td>
+                <StatusSummary
+                  :tally="tableRow.tally"
+                  :verbose="true"
+                  :includeNotStarted="true"
                 />
-              </KLabeledIcon>
-            </td>
-            <td>
-              <Score :value="tableRow.avgScore" />
-            </td>
-            <td>
-              <StatusSummary
-                :tally="tableRow.tally"
-                :verbose="true"
-                :includeNotStarted="true"
-              />
-            </td>
-            <td>
-              <Recipients
-                :groupNames="getRecipientNamesForExam(tableRow)"
-                :hasAssignments="tableRow.hasAssignments"
-              />
-            </td>
-            <td
-              v-show="!$isPrint"
-              class="button-col center-text core-table-button-col"
-            >
-              <!-- Open quiz button -->
-              <KButton
-                v-if="!tableRow.active && !tableRow.archive"
-                :text="coachString('openQuizLabel')"
-                appearance="flat-button"
-                class="table-left-aligned-button"
-                @click="showOpenConfirmationModal = true; modalQuizId = tableRow.id"
-              />
-              <!-- Close quiz button -->
-              <KButton
-                v-if="tableRow.active && !tableRow.archive"
-                :text="coachString('closeQuizLabel')"
-                appearance="flat-button"
-                class="table-left-aligned-button"
-                @click="showCloseConfirmationModal = true; modalQuizId = tableRow.id;"
-              />
-              <div
-                v-if="tableRow.archive"
-                class="quiz-closed-label"
+              </td>
+              <td>
+                <Recipients
+                  :groupNames="getRecipientNamesForExam(tableRow)"
+                  :hasAssignments="tableRow.hasAssignments"
+                />
+              </td>
+              <td
+                v-show="!$isPrint"
+                class="button-col center-text core-table-button-col"
               >
-                {{ coachString('quizClosedLabel') }}
-              </div>
-            </td>
-          </tr>
-        </transition-group>
+                <!-- Open quiz button -->
+                <KButton
+                  v-if="!tableRow.active && !tableRow.archive"
+                  :text="coachString('openQuizLabel')"
+                  appearance="flat-button"
+                  class="table-left-aligned-button"
+                  @click="showOpenConfirmationModal = true; modalQuizId = tableRow.id"
+                />
+                <!-- Close quiz button -->
+                <KButton
+                  v-if="tableRow.active && !tableRow.archive"
+                  :text="coachString('closeQuizLabel')"
+                  appearance="flat-button"
+                  class="table-left-aligned-button"
+                  @click="showCloseConfirmationModal = true; modalQuizId = tableRow.id;"
+                />
+                <div
+                  v-if="tableRow.archive"
+                  class="quiz-closed-label"
+                >
+                  {{ coachString('quizClosedLabel') }}
+                </div>
+              </td>
+            </tr>
+          </transition-group>
+        </template>
       </CoreTable>
       <!-- Modals for Close & Open of quiz from right-most column -->
       <KModal

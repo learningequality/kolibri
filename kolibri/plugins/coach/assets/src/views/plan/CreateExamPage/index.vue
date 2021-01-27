@@ -52,7 +52,7 @@
                 :invalid="Boolean(showError && numQuestIsInvalidText)"
                 :invalidText="numQuestIsInvalidText"
                 :label="$tr('numQuestions')"
-                @blur="numQuestionsBlurred = true"
+                @blur="handleNumberQuestionsBlur"
               />
             </KGridItem>
             <KGridItem
@@ -222,6 +222,10 @@
           return this.numberOfQuestions;
         },
         set(value) {
+          // If value in the input doesn't match state, update it
+          if (value !== Number(this.$refs.questionsInput.currentText)) {
+            this.$refs.questionsInput.currentText = value;
+          }
           // If it is cleared out, then set vuex state to null so it can be caught during
           // validation
           if (value === '') {
@@ -324,6 +328,9 @@
         if (!Number.isInteger(this.numQuestions)) {
           return this.$tr('numQuestionsBetween');
         }
+        if (this.availableQuestions === 0) {
+          return this.$tr('noneSelected');
+        }
         if (this.availableQuestions == 0 || this.availableQuestions == null) {
           return this.$tr('numQuestionsExceedNoExercises', {
             inputNumQuestions: this.numQuestions,
@@ -333,7 +340,7 @@
         if (this.numQuestions > this.availableQuestions) {
           return this.$tr('numQuestionsExceed', {
             inputNumQuestions: this.numQuestions,
-            maxQuestionsFromSelection: this.availableQuestions,
+            maxQuestionsFromSelection: String(this.availableQuestions),
           });
         }
         return null;
@@ -468,10 +475,8 @@
           });
       },
       continueProcess() {
-        if (this.numQuestionsInvalid) {
-          this.$refs.questionsInput.focus();
-        }
         if (this.selectionIsInvalidText) {
+          this.$refs.questionsInput.focus();
           this.showError = true;
         } else {
           this.$router.push({ name: PageNames.EXAM_CREATION_QUESTION_SELECTION });
@@ -497,6 +502,15 @@
             topicId,
           },
         };
+      },
+      handleNumberQuestionsBlur() {
+        this.numQuestionsBlurred = true;
+        if (Number(this.$refs.questionsInput.currentText) < 0) {
+          this.numQuestions = 1;
+        }
+        if (Number(this.$refs.questionsInput.currentText) > this.maxQs) {
+          this.numQuestions = this.maxQs;
+        }
       },
     },
     $trs: {

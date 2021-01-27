@@ -41,7 +41,6 @@
   import sumBy from 'lodash/sumBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
-  import { taskIsClearable } from '../../constants';
 
   export default {
     name: 'TasksBar',
@@ -58,16 +57,16 @@
     },
     computed: {
       showClearCompletedButton() {
-        return some(this.tasks, taskIsClearable);
+        return some(this.tasks, task => task.clearable);
       },
       totalTasks() {
         return this.tasks.length;
       },
       clearableTasks() {
-        return this.tasks.filter(t => taskIsClearable(t));
+        return this.tasks.filter(t => t.clearable);
       },
       inProgressTasks() {
-        return this.tasks.filter(t => !taskIsClearable(t));
+        return this.tasks.filter(t => !t.clearable);
       },
       progress() {
         return (
