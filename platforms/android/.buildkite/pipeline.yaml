@@ -7,10 +7,10 @@ steps:
   - label: "Build Dev Android APK (32bit) :tada:"
     command: ".buildkite/build.sh"
     env:
-      KOLIBRI_ANDROID_BUILD_MODE: build.env("LE_KOLIBRI_RELEASE", "dev")
+      KOLIBRI_ANDROID_BUILD_MODE: "dev"
 
   - label: "Build Dev Android APK (64bit) :tada:"
     command: ".buildkite/build.sh"
     env:
-      KOLIBRI_ANDROID_BUILD_MODE: build.env("LE_KOLIBRI_RELEASE", "dev")
+      KOLIBRI_ANDROID_BUILD_MODE: "dev"
       ARCH: "64bit"
