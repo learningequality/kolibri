@@ -86,6 +86,7 @@ class KolibriDaemonProxy(Gio.DBusProxy):
         return self.Hold(**kwargs)
 
     def release(self, **kwargs):
+        kwargs.setdefault("flags", Gio.DBusCallFlags.NO_AUTO_START)
         return self.Release(**kwargs)
 
     def start(self, **kwargs):

@@ -308,7 +308,12 @@ class Application(pew.ui.PEWApp):
 
     def shutdown(self):
         if self.__kolibri_daemon_init_success:
-            self.__kolibri_daemon.release()
+            try:
+                self.__kolibri_daemon.release()
+            except GLib.Error as error:
+                logger.warning(
+                    "Error calling KolibriDaemonProxy.release: {}".format(error)
+                )
         super().shutdown()
 
     def __kolibri_daemon_on_init(self, source, result):

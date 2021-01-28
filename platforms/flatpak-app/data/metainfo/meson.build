@@ -9,7 +9,6 @@ metainfo_file = i18n.merge_file(
     output: base_application_id + '.metainfo.xml',
     type: 'xml',
     po_dir: po_dir,
-    configuration: kolibri_gnome_config,
     install: true,
     install_dir: metainfo_dir
 )
