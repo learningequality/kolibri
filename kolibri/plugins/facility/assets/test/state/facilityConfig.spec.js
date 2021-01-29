@@ -1,7 +1,13 @@
 import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
+import client from 'kolibri.client';
 import { showFacilityConfigPage } from '../../src/modules/facilityConfig/handlers';
 import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import makeStore from '../makeStore';
+
+jest.mock('kolibri.client', () => jest.fn());
+jest.mock('kolibri.urls', () => ({
+  'kolibri:core:facilitydataset-resetsettings': () => {},
+}));
 
 const FacilityStub = jestMockResource(FacilityResource);
 const DatasetStub = jestMockResource(FacilityDatasetResource);
@@ -156,18 +162,18 @@ describe('facility config page actions', () => {
     });
 
     it('resetFacilityConfig action dispatches resets settings and makes a save request', () => {
-      const saveStub = DatasetStub.__getModelSaveReturns('ok default');
+      const expected = {
+        learner_can_edit_username: true,
+        learner_can_edit_name: false,
+        learner_can_edit_password: true,
+        learner_can_sign_up: false,
+        learner_can_delete_account: true,
+        learner_can_login_with_no_password: false,
+        show_download_button_in_learn: true,
+      };
+      client.mockResolvedValue({ data: expected });
       return store.dispatch('facilityConfig/resetFacilityConfig').then(() => {
-        expect(saveStub).toHaveBeenCalled();
-        expect(store.state.facilityConfig.settings).toEqual({
-          learner_can_edit_username: true,
-          learner_can_edit_name: true,
-          learner_can_edit_password: true,
-          learner_can_sign_up: true,
-          learner_can_delete_account: true,
-          learner_can_login_with_no_password: false,
-          show_download_button_in_learn: false,
-        });
+        expect(store.state.facilityConfig.settings).toEqual(expected);
       });
     });
   });
