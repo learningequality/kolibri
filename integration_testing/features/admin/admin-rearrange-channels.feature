@@ -1,7 +1,7 @@
 Feature: Admin can rearrange channels
   Admins need to be able to customize the order channels appear for Learners and Coaches
 
-    Background:
+  Background:
     Given I am signed in as an Admin or other user with content management permissions
     And I am on the *Device > Rearrange Channels* page
 

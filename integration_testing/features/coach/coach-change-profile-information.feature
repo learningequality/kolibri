@@ -17,7 +17,7 @@ Feature: Coach changes profile information
     Then I see the new full name and username on the profile page
       And I see the new username in the user menu
 
-    Scenario: Coach selects gender and birth year
+  Scenario: Coach selects gender and birth year
     When I click the *Edit* button
     Then I see the *Edit profile* page
     When I select my gender
