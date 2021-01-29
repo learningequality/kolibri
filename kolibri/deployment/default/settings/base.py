@@ -251,7 +251,7 @@ LANGUAGE_CODE = (
 
 try:
     TIME_ZONE = get_localzone().zone
-except pytz.UnknownTimeZoneError:
+except (pytz.UnknownTimeZoneError, ValueError):
     # Do not fail at this point because a timezone was not
     # detected.
     TIME_ZONE = pytz.utc.zone
