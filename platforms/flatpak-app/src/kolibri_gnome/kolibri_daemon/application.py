@@ -230,6 +230,7 @@ class Application(Gio.Application):
             Gio.bus_unown_name(self.__system_name_id)
             self.__system_name_id = 0
         self.__kolibri_search_handler.stop()
+        self.__kolibri_search_handler.join()
         self.__service_manager.stop_kolibri()
         self.__service_manager.join()
         Gio.Application.do_shutdown(self)

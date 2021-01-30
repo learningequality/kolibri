@@ -100,6 +100,9 @@ class LocalSearchHandler(SearchHandler):
     def stop(self):
         self.__pool.close()
 
+    def join(self):
+        self.__pool.join()
+
     def __process_initializer(self):
         from kolibri.dist import django
 
