@@ -135,7 +135,7 @@
       },
       currentSlideIndex() {
         if (this.currentSlideIndex + 1 === this.slides.length) {
-          this.updateProgress();
+          this.addProgress();
         }
       },
     },
@@ -158,7 +158,7 @@
       }
     },
     beforeDestroy() {
-      this.updateProgress();
+      this.addProgress();
       this.updateContentState();
       this.$emit('stopTracking');
     },
@@ -243,8 +243,8 @@
         this.extraFields.contentState.lastViewedSlideIndex = this.currentSlideIndex;
         this.$emit('updateContentState', this.extraFields.contentState);
       },
-      updateProgress() {
-        // updateProgress adds the percent to the existing value, so only pass
+      addProgress() {
+        // addProgress adds the percent to the existing value, so only pass
         // the percentage of progress in this session, not the full percentage.
         const progressPercent =
           this.highestViewedSlideIndex + 1 === this.slides.length
@@ -252,7 +252,7 @@
             : (this.highestViewedSlideIndex -
                 this.extraFields.contentState.highestViewedSlideIndex) /
               this.slides.length;
-        this.$emit('updateProgress', progressPercent);
+        this.$emit('addProgress', progressPercent);
       },
     },
     $trs: {

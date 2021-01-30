@@ -79,7 +79,7 @@
     methods: {
       recordProgress() {
         const totalTime = now() - this.startTime;
-        this.$emit('updateProgress', Math.max(0, totalTime / 300000));
+        this.$emit('addProgress', Math.max(0, totalTime / 300000));
         this.pollProgress();
       },
       pollProgress() {

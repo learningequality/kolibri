@@ -261,13 +261,13 @@
           this.progress = 1;
         }
         this.$emit('startTracking');
-        this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
+        this.updateContentStateInterval = setInterval(this.addProgress, 30000);
         // Automatically master after the targetTime, convert seconds -> milliseconds
-        this.timeout = setTimeout(this.updateProgress, this.targetTime * 1000);
+        this.timeout = setTimeout(this.addProgress, this.targetTime * 1000);
       });
     },
     beforeDestroy() {
-      this.updateProgress();
+      this.addProgress();
       this.updateContentState();
 
       if (this.timeout) {
@@ -365,8 +365,8 @@
       forceUpdateRecycleList() {
         this.$refs.recycleList.updateVisibleItems(false);
       },
-      updateProgress() {
-        this.$emit('updateProgress', this.sessionTimeSpent / this.targetTime);
+      addProgress() {
+        this.$emit('addProgress', this.sessionTimeSpent / this.targetTime);
       },
       updateContentState() {
         let contentState;
