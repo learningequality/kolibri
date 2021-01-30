@@ -2,17 +2,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-import json
 import subprocess
-import threading
-import time
 
-from functools import partial
 from gettext import gettext as _
 from pathlib import Path
-from urllib.parse import urljoin
+from urllib.parse import urlencode
 from urllib.parse import urlsplit
-from urllib.parse import urlunsplit
 
 import pew
 import pew.ui
@@ -21,10 +16,7 @@ from pew.ui import PEWShortcut
 
 import gi
 
-gi.require_version("WebKit2", "4.0")
-from gi.repository import Gio
 from gi.repository import GLib
-from gi.repository import WebKit2
 
 from .. import config
 
@@ -34,14 +26,6 @@ from ..globals import XDG_CURRENT_DESKTOP
 from ..kolibri_daemon_proxy import KolibriDaemonProxy
 
 from .utils import get_localized_file
-
-
-class RedirectLoading(Exception):
-    pass
-
-
-class RedirectError(Exception):
-    pass
 
 
 class MenuEventHandler:
@@ -92,52 +76,63 @@ class MenuEventHandler:
 
 
 class KolibriView(pew.ui.WebUIView, MenuEventHandler):
-    def __init__(
-        self, name, url, loader_url=None, await_kolibri_fn=lambda: None, **kwargs
-    ):
-        self.__loader_url = loader_url
-        self.__await_kolibri_fn = await_kolibri_fn
-        self.__target_url = None
-        self.__load_url_lock = threading.Lock()
-        self.__redirect_thread = None
+    """
+    PyEverywhere UIView subclass for Kolibri. This joins the provided URL with
+    Kolibri's base URL, so `load_url` can be given a relative path. In addition,
+    it will pin the URL to the application's `loader_url` depending on its
+    status.
+    """
 
+    def __init__(self, name, url=None, **kwargs):
         super().__init__(name, url, **kwargs)
-
-    @property
-    def target_url(self):
-        return self.__target_url
 
     def shutdown(self):
         self.delegate.remove_window(self)
 
+    def kolibri_change_notify(self):
+        if self.__target_url:
+            self.load_url(self.__target_url)
+        else:
+            self.load_url(self.current_url)
+
     def load_url(self, url):
-        with self.__load_url_lock:
+        if self.delegate.is_error():
             self.__target_url = url
-            try:
-                redirect_url = self.delegate.get_redirect_url(url)
-            except RedirectLoading:
-                self.__load_url_loading()
-            except RedirectError:
-                self.__load_url_error()
-            else:
-                super().load_url(redirect_url)
-        self.present_window()
+            self.__load_url_error()
+        elif not self.delegate.is_started():
+            self.__target_url = url
+            self.__load_url_loading()
+        else:
+            full_url = self.delegate.parse_kolibri_url(url)
+            if self.current_url != full_url:
+                self.__target_url = None
+                super().load_url(full_url)
+                self.present_window()
+
+    def __load_url_loading(self):
+        if not self.__is_showing_loading_screen():
+            super().load_url(self.delegate.loader_url)
+
+    def __load_url_error(self):
+        if self.__is_showing_loading_screen():
+            pew.ui.run_on_main_thread(self.evaluate_javascript, "show_error()")
+        else:
+            super().load_url(self.delegate.loader_url)
+            pew.ui.run_on_main_thread(
+                self.evaluate_javascript, "window.onload = function() { show_error() }"
+            )
+
+    def __is_showing_loading_screen(self):
+        return self.current_url == self.delegate.loader_url
 
     def get_current_or_target_url(self):
-        if self.current_url == self.__loader_url:
-            return self.__target_url
-        else:
+        if self.__target_url is None:
             return self.get_url()
-
-    def is_showing_loading_screen(self):
-        return self.current_url == self.__loader_url
+        else:
+            return self.__target_url
 
     def open_window(self):
-        target_url = self.get_url()
-        if target_url == self.__loader_url:
-            self.delegate.open_window(None)
-        else:
-            self.delegate.open_window(target_url)
+        self.delegate.open_window(None)
 
     def open_in_browser(self):
         url = self.get_current_or_target_url()
@@ -145,30 +140,6 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
 
     def open_kolibri_home(self):
         self.delegate.open_kolibri_home()
-
-    def __load_url_loading(self):
-        if self.current_url != self.__loader_url:
-            super().load_url(self.__loader_url)
-
-        if not self.__redirect_thread or not self.__redirect_thread.is_alive():
-            self.__redirect_thread = pew.ui.PEWThread(
-                target=self.__do_redirect_on_load, args=()
-            )
-            self.__redirect_thread.daemon = True
-            self.__redirect_thread.start()
-
-    def __load_url_error(self):
-        if self.current_url == self.__loader_url:
-            pew.ui.run_on_main_thread(self.evaluate_javascript, "show_error()")
-        else:
-            super().load_url(self.__loader_url)
-            pew.ui.run_on_main_thread(
-                self.evaluate_javascript, "window.onload = function() { show_error() }"
-            )
-
-    def __do_redirect_on_load(self):
-        self.__await_kolibri_fn()
-        self.load_url(self.__target_url)
 
 
 class KolibriWindow(KolibriView):
@@ -243,7 +214,6 @@ class KolibriWindow(KolibriView):
         # TODO: Implement this in pyeverywhere
         if KOLIBRI_APP_DEVELOPER_EXTRAS:
             self.gtk_webview.get_settings().set_enable_developer_extras(True)
-        self.gtk_webview.connect("decide-policy", self.__gtk_webview_on_decide_policy)
         self.gtk_webview.connect("create", self.__gtk_webview_on_create)
 
         # Maximize windows on Endless OS
@@ -251,17 +221,6 @@ class KolibriWindow(KolibriView):
             self.gtk_window.maximize()
 
         super().show()
-
-    def __gtk_webview_on_decide_policy(self, webview, decision, decision_type):
-        if decision_type == WebKit2.PolicyDecisionType.NEW_WINDOW_ACTION:
-            # Force internal _blank links to open in the same window
-            target_uri = decision.get_request().get_uri()
-            frame_name = decision.get_frame_name()
-            if frame_name == "_blank" and self.delegate.is_kolibri_app_url(target_uri):
-                decision.ignore()
-                pew.ui.run_on_main_thread(self.load_url, target_uri)
-                return True
-        return False
 
     def __gtk_webview_on_create(self, webview, navigation_action):
         # TODO: Implement this behaviour in pyeverywhere, and pass the related
@@ -281,8 +240,7 @@ class Application(pew.ui.PEWApp):
     handles_open_file_uris = True
 
     def __init__(self, *args, **kwargs):
-        self.__is_ready_event = threading.Event()
-        self.__last_base_url = None
+        self.__starting_kolibri = False
 
         loader_path = get_localized_file(
             Path(config.DATA_DIR, "assets", "_load-{}.html").as_posix(),
@@ -296,6 +254,10 @@ class Application(pew.ui.PEWApp):
         self.__windows = []
 
         super().__init__(*args, **kwargs)
+
+    @property
+    def loader_url(self):
+        return self.__loader_url
 
     def init_ui(self):
         if len(self.__windows) > 0:
@@ -323,97 +285,68 @@ class Application(pew.ui.PEWApp):
         except GLib.Error as error:
             logger.warning("Error initializing KolibriDaemonProxy: {}".format(error))
             self.__kolibri_daemon_init_success = False
-            self.__is_ready_event.set()
         else:
             self.__kolibri_daemon_init_success = True
             self.__kolibri_daemon.connect("notify", self.__kolibri_daemon_on_notify)
             self.__kolibri_daemon_on_notify(self.__kolibri_daemon, None)
-            self.__start_kolibri()
 
     def __kolibri_daemon_on_notify(self, kolibri_daemon, param_spec):
-        if kolibri_daemon.is_started() or kolibri_daemon.is_error():
-            logger.info("Kolibri is running")
-            self.__is_ready_event.set()
-        elif self.__is_ready_event.is_set():
-            logger.info("Kolibri has stopped")
-            self.__is_ready_event.clear()
-            # Restart Kolibri if it has stopped
-            GLib.idle_add(self.__start_kolibri)
-            GLib.idle_add(self.__update_window_urls)
+        if kolibri_daemon.is_stopped():
+            if not self.__starting_kolibri:
+                GLib.idle_add(self.__start_kolibri)
+                self.__starting_kolibri = True
+        else:
+            self.__starting_kolibri = False
 
-        if self.__last_base_url and kolibri_daemon.base_url != self.__last_base_url:
-            logger.info("Kolibri's base URL has changed")
-            GLib.idle_add(self.__update_window_urls)
-        self.__last_base_url = kolibri_daemon.base_url
+        for window in self.__windows:
+            window.kolibri_change_notify()
+
+    def is_started(self):
+        return self.__kolibri_daemon.is_started()
+
+    def is_error(self):
+        return self.__kolibri_daemon.is_error()
 
     def __start_kolibri(self):
-        logger.info("Starting Kolibri")
         self.__kolibri_daemon.hold(
             result_handler=self.__kolibri_daemon_null_result_handler
         )
         self.__kolibri_daemon.start(
             result_handler=self.__kolibri_daemon_null_result_handler
         )
+        return GLib.SOURCE_REMOVE
 
     def __kolibri_daemon_null_result_handler(self, proxy, result, user_data):
         pass
-
-    def __await_kolibri_daemon_is_ready(self):
-        self.__is_ready_event.wait()
-        return self.__kolibri_daemon.is_started()
-
-    def get_redirect_url(self, url):
-        if (
-            self.__kolibri_daemon_init_success is False
-            or self.__kolibri_daemon.is_error()
-        ):
-            raise RedirectError()
-        elif self.__kolibri_daemon.is_loading():
-            raise RedirectLoading()
-        elif self.is_kolibri_app_url(url):
-            return self.__kolibri_daemon.get_initialize_url(
-                url() if callable(url) else url
-            )
-        else:
-            return url
 
     def open_window(self, target_url=None):
         return self.__open_window(target_url)
 
     def __open_window(self, target_url=None):
-        target_url = target_url or self.__get_kolibri_url
+        target_url = target_url or "kolibri:/"
 
-        if not self.__should_load_url(target_url):
-            return None
+        if not self.should_load_url(target_url):
+            return
 
-        window = KolibriWindow(
-            _("Kolibri"),
-            target_url,
-            delegate=self,
-            loader_url=self.__loader_url,
-            await_kolibri_fn=self.__await_kolibri_daemon_is_ready,
-        )
+        window = KolibriWindow(_("Kolibri"), target_url, delegate=self)
 
         self.add_window(window)
         window.show()
 
         return window
 
-    def __should_load_url(self, url):
-        if self.is_kolibri_app_url(url):
+    def should_load_url(self, url):
+        # full_url = self.__kolibri_daemon.get_kolibri_url(url)
+        if url.startswith("kolibri:"):
             return True
-        elif self.__is_loader_url(url):
-            return not self.__kolibri_daemon.is_started()
+        elif self.__kolibri_daemon.is_kolibri_app_url(url):
+            return True
+        elif url == self.loader_url:
+            return not self.is_started()
         elif not url.startswith("about:"):
-            subprocess.call(["xdg-open", url])
+            self.open_in_browser(url)
             return False
         return True
-
-    def is_kolibri_app_url(self, url):
-        return callable(url) or self.__kolibri_daemon.is_kolibri_app_url(url)
-
-    def __is_loader_url(self, url):
-        return url and not callable(url) and url.startswith(self.__loader_url)
 
     def add_window(self, window):
         self.__windows.append(window)
@@ -432,14 +365,25 @@ class Application(pew.ui.PEWApp):
             logger.info("Invalid URI scheme: %s", kolibri_scheme_uri)
             return
 
+        try:
+            last_window = self.__windows[-1]
+        except IndexError:
+            last_window = None
+
+        if last_window:
+            last_window.load_url(kolibri_scheme_uri)
+        else:
+            self.open_window(kolibri_scheme_uri)
+
+    def parse_kolibri_url(self, url):
+        parse = urlsplit(url)
+
+        if parse.scheme != "kolibri":
+            return url
+
         if parse.path and parse.path != "/":
             item_path = "/learn"
-            if parse.path.startswith("/"):
-                # Sometimes the path has a / prefix. We need to avoid double
-                # slashes for Kolibri's JavaScript router.
-                item_fragment = "/topics" + parse.path
-            else:
-                item_fragment = "/topics/" + parse.path
+            item_fragment = "/topics/" + parse.path.lstrip("/")
         elif parse.query:
             item_path = "/learn"
             item_fragment = "/search"
@@ -450,43 +394,18 @@ class Application(pew.ui.PEWApp):
         if parse.query:
             item_fragment += "?{}".format(parse.query)
 
-        target_url = partial(
-            self.__get_kolibri_url, path=item_path, fragment=item_fragment
-        )
+        target_url = "{}#{}".format(item_path, item_fragment)
 
-        try:
-            last_window = self.__windows[-1]
-        except IndexError:
-            last_window = None
+        return self.__kolibri_daemon.get_kolibri_initialize_url(target_url)
 
-        if last_window:
-            last_window.load_url(target_url)
+    def get_kolibri_url(self, url):
+        if self.__kolibri_daemon.is_kolibri_app_url(url):
+            return self.__kolibri_daemon.get_kolibri_url(url)
         else:
-            self.open_window(target_url)
-
-    def __get_kolibri_url(self, **kwargs):
-        base_url = urlsplit(self.__kolibri_daemon.base_url)
-        if "path" in kwargs:
-            kwargs["path"] = urljoin(base_url.path, kwargs["path"].lstrip("/"))
-        target_url = base_url._replace(**kwargs)
-        return urlunsplit(target_url)
-
-    def __update_window_urls(self):
-        for window in self.__windows:
-            self.__update_window_url(window)
-
-    def __update_window_url(self, window):
-        original_url = window.get_current_or_target_url()
-
-        if callable(original_url):
-            # If original_url is a callable, we assume it will be up to date
-            # when it is called
-            target_url = original_url
-        else:
-            target_url_path = urlsplit(original_url)._replace(scheme="", netloc="")
-            target_url = urljoin(self.__kolibri_daemon.base_url, urlunsplit(target_url_path))
-
-        window.load_url(target_url)
+            initialize_url = "app/api/initialize/{key}?{query}".format(
+                key=self.__kolibri_daemon.app_key, query=urlencode({"next": url})
+            )
+            return self.__kolibri_daemon.get_kolibri_url(initialize_url)
 
     def open_in_browser(self, url):
         subprocess.call(["xdg-open", url])

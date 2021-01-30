@@ -4,6 +4,9 @@ logger = logging.getLogger(__name__)
 
 import itertools
 
+from urllib.parse import urlencode
+from urllib.parse import urljoin
+
 from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
@@ -98,11 +101,14 @@ class KolibriDaemonProxy(Gio.DBusProxy):
     def get_metadata_for_item_ids(self, item_ids, **kwargs):
         return self.GetMetadataForItemIds("(as)", item_ids, **kwargs)
 
+    def is_stopped(self):
+        return self.status is None or self.status in ["NONE", "STOPPED"]
+
     def is_loading(self):
         if not self.app_key or not self.base_url:
             return True
         else:
-            return self.status in ["NONE", "STARTING"]
+            return self.status in ["STARTING"]
 
     def is_started(self):
         if self.app_key and self.base_url:
@@ -127,8 +133,11 @@ class KolibriDaemonProxy(Gio.DBusProxy):
         else:
             return True
 
-    def get_initialize_url(self, next_url):
-        path = "app/api/initialize/{key}".format(key=self.app_key)
-        if next_url:
-            path += "?next={next_url}".format(next_url=next_url)
-        return self.base_url + path.lstrip("/")
+    def get_kolibri_url(self, url):
+        return urljoin(self.base_url, url)
+
+    def get_kolibri_initialize_url(self, next_url):
+        initialize_url = "app/api/initialize/{key}?{query}".format(
+            key=self.app_key, query=urlencode({"next": next_url})
+        )
+        return self.get_kolibri_url(initialize_url)

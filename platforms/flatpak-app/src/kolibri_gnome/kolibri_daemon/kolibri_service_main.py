@@ -42,11 +42,22 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         self.__context.is_stopped = False
         try:
             yield
-        finally:
+        except Exception as error:
+            self._set_is_error()
+            raise error
+        else:
             self._set_is_stopped()
+
+    def _set_is_error(self):
+        self.__context.is_starting = False
+        self.__context.start_result = self.__context.StartResult.ERROR
+        self.__context.is_stopped = True
+        self.__context.base_url = ""
+        self.__context.app_key = ""
 
     def _set_is_stopped(self):
         self.__context.is_starting = False
+        self.__context.start_result = None
         self.__context.is_stopped = True
         self.__context.base_url = ""
         self.__context.app_key = ""
@@ -93,11 +104,9 @@ class KolibriServiceMainProcess(multiprocessing.Process):
                 ready_cb=self.__kolibri_ready_cb,
             )
         except SystemExit:
-            # Kolibri sometimes calls sys.exit, but we don't want to exit
-            self.__context.start_result = self.__context.StartResult.ERROR
-            pass
+            # Kolibri sometimes calls sys.exit, but we don't want to stop this process
+            raise Exception("Caught SystemExit")
         except Exception as error:
-            self.__context.start_result = self.__context.StartResult.ERROR
             raise error
 
     def __kolibri_ready_cb(self, urls, bind_addr=None, bind_port=None):
