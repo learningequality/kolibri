@@ -48,6 +48,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import { now } from 'kolibri.utils.serverClock';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
@@ -73,6 +74,7 @@
       };
     },
     computed: {
+      ...mapGetters(['summaryTimeSpent']),
       name() {
         return nameSpace;
       },
@@ -135,7 +137,6 @@
         this.userData
       );
       this.$emit('startTracking');
-      this.startTime = now();
       this.pollProgress();
     },
     beforeDestroy() {
@@ -146,10 +147,10 @@
     },
     methods: {
       recordProgress() {
-        const totalTime = now() - this.startTime;
+        const totalTime = this.summaryTimeSpent * 1000;
         const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
         this.$emit(
-          'addProgress',
+          'updateProgress',
           hashiProgress === null ? Math.max(0, totalTime / 300000) : hashiProgress
         );
         this.pollProgress();

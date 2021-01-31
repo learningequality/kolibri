@@ -226,7 +226,7 @@
       };
     },
     computed: {
-      ...mapGetters(['sessionTimeSpent']),
+      ...mapGetters(['summaryTimeSpent']),
       isAtStart() {
         return get(this.rendition, 'location.atStart', false);
       },
@@ -452,7 +452,7 @@
     },
     beforeDestroy() {
       this.updateContentState();
-      this.addProgress();
+      this.updateProgress();
       this.$emit('stopTracking');
       window.removeEventListener('mousedown', this.handleMouseDown, { passive: true });
       clearInterval(this.updateContentStateInterval);
@@ -461,9 +461,9 @@
       delete global.ePub;
     },
     methods: {
-      addProgress() {
+      updateProgress() {
         if (this.locations.length > 0) {
-          this.$emit('addProgress', this.sessionTimeSpent / this.expectedTimeToRead);
+          this.$emit('updateProgress', this.summaryTimeSpent / this.expectedTimeToRead);
         }
       },
       handleReadyRendition() {
@@ -480,7 +480,7 @@
         this.book.locations.generate(LOCATIONS_INTERVAL).then(locations => {
           this.locations = locations;
           this.$emit('startTracking');
-          this.updateContentStateInterval = setInterval(this.addProgress, 30000);
+          this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
 
           // Update current location, .currentLocation() can return Promise or value
           Promise.resolve()

@@ -142,7 +142,7 @@
       showControls: true,
     }),
     computed: {
-      ...mapGetters(['sessionTimeSpent']),
+      ...mapGetters(['summaryTimeSpent']),
       // Returns whether or not the current device is iOS.
       // Probably not perfect, but worked in testing.
       iOS() {
@@ -261,13 +261,13 @@
           this.progress = 1;
         }
         this.$emit('startTracking');
-        this.updateContentStateInterval = setInterval(this.addProgress, 30000);
+        this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
         // Automatically master after the targetTime, convert seconds -> milliseconds
-        this.timeout = setTimeout(this.addProgress, this.targetTime * 1000);
+        this.timeout = setTimeout(this.updateProgress, this.targetTime * 1000);
       });
     },
     beforeDestroy() {
-      this.addProgress();
+      this.updateProgress();
       this.updateContentState();
 
       if (this.timeout) {
@@ -365,8 +365,8 @@
       forceUpdateRecycleList() {
         this.$refs.recycleList.updateVisibleItems(false);
       },
-      addProgress() {
-        this.$emit('addProgress', this.sessionTimeSpent / this.targetTime);
+      updateProgress() {
+        this.$emit('updateProgress', this.summaryTimeSpent / this.targetTime);
       },
       updateContentState() {
         let contentState;
