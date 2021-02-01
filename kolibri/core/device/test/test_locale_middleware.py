@@ -11,6 +11,7 @@ from django.utils import translation
 from django.utils._os import upath
 from mock import patch
 
+from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.tests.helpers import override_option
 
@@ -51,10 +52,12 @@ class URLTestCaseBase(TestCase):
     def setUp(self):
         # Make sure the cache is empty before we are doing our tests.
         clear_url_caches()
+        clear_process_cache()
 
     def tearDown(self):
         # Make sure we will leave an empty cache for other testcases.
         clear_url_caches()
+        clear_process_cache()
 
 
 class URLPrefixTestsBase(object):
