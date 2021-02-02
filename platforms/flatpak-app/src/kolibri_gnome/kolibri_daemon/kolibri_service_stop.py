@@ -28,3 +28,5 @@ class KolibriServiceStopProcess(multiprocessing.Process):
         except SystemExit:
             # Kolibri calls sys.exit here, but we don't want to exit
             pass
+
+        self.__context.is_stopped = True

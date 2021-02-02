@@ -25,6 +25,7 @@ class KolibriDaemon(DBusServer):
         <method name="Hold" />
         <method name="Release" />
         <method name="Start" />
+        <method name="Stop" />
         <method name="GetItemIdsForSearch">
           <arg direction="in" type="s" name="search" />
           <arg direction="out" type="as" name="item_ids" />
@@ -87,6 +88,10 @@ class KolibriDaemon(DBusServer):
     def Start(self, context, cancellable=None):
         self.__service_manager.start_kolibri()
         self.application.set_inactivity_timeout(STARTED_INACTIVITY_TIMEOUT_MS)
+
+    def Stop(self, context, cancellable=None):
+        self.__service_manager.stop_kolibri()
+        self.application.set_inactivity_timeout(DEFAULT_INACTIVITY_TIMEOUT_MS)
 
     def GetItemIdsForSearch(self, search, context, cancellable=None):
         return self.__search_handler.get_item_ids_for_search(search)
