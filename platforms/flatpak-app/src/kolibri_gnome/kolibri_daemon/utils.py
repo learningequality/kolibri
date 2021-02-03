@@ -20,7 +20,7 @@ def kolibri_update_from_home_template():
         return
 
     if not KOLIBRI_HOME_PATH.is_dir():
-        kolibri_home.mkdir(parents=True, exist_ok=True)
+        KOLIBRI_HOME_PATH.mkdir(parents=True, exist_ok=True)
 
     compare = filecmp.dircmp(
         kolibri_home_template_dir,

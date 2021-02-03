@@ -12,7 +12,7 @@ from .kolibri_search_handler import LocalSearchHandler
 
 INACTIVITY_TIMEOUT_MS = 30 * 1000  # 30 seconds in milliseconds
 
-STOP_KOLIBRI_TIMEOUT_SECONDS = 5 * 60  # 5 minutes in seconds
+DEFAULT_STOP_KOLIBRI_TIMEOUT_SECONDS = 60  # 1 minute in seconds
 
 
 class KolibriDaemon(DBusServer):
@@ -176,16 +176,28 @@ class Application(Gio.Application):
             None,
         )
 
+        self.add_main_option(
+            "stop-timeout",
+            0,
+            GLib.OptionFlags.NONE,
+            GLib.OptionArg.INT,
+            "Timeout in seconds before stopping Kolibri",
+            None,
+        )
+
         self.__service_manager = KolibriServiceManager()
         self.__service_manager.init()
         self.__kolibri_search_handler = LocalSearchHandler()
         self.__kolibri_search_handler.init()
+
         self.__session_kolibri_daemon = None
         self.__system_kolibri_daemon = None
         self.__system_name_id = 0
+
         self.__has_hold_for_kolibri_service = False
-        self.__update_holds_timeout = None
-        self.__stop_kolibri_timeout = None
+        self.__auto_stop_timeout_source = None
+        self.__stop_kolibri_timeout_source = None
+        self.__stop_kolibri_timeout_interval = DEFAULT_STOP_KOLIBRI_TIMEOUT_SECONDS
 
     @property
     def use_session_bus(self):
@@ -233,19 +245,25 @@ class Application(Gio.Application):
         else:
             self.__use_session_bus = True
 
+        stop_timeout = options.lookup_value("stop-timeout", GLib.VariantType("i"))
+        if stop_timeout is None:
+            self.__stop_kolibri_timeout_interval = DEFAULT_STOP_KOLIBRI_TIMEOUT_SECONDS
+        else:
+            self.__stop_kolibri_timeout_interval = stop_timeout.get_int32()
+
         return -1
 
     def do_startup(self):
         if self.use_system_bus:
             Gio.bus_get(Gio.BusType.SYSTEM, None, self.__system_bus_on_get)
-        self.__begin_update_holds_timeout()
+        self.__begin_auto_stop_timeout()
         Gio.Application.do_startup(self)
 
     def do_shutdown(self):
         if self.__system_name_id:
             Gio.bus_unown_name(self.__system_name_id)
             self.__system_name_id = 0
-        self.__cancel_update_holds_timeout()
+        self.__cancel_auto_stop_timeout()
         self.__kolibri_search_handler.stop()
         self.__kolibri_search_handler.join()
         self.__service_manager.stop_kolibri()
@@ -289,19 +307,19 @@ class Application(Gio.Application):
             self.__has_hold_for_kolibri_service = False
             self.release()
 
-    def __begin_update_holds_timeout(self):
-        if self.__update_holds_timeout:
+    def __begin_auto_stop_timeout(self):
+        if self.__auto_stop_timeout_source:
             return
-        self.__update_holds_timeout = GLib.timeout_add_seconds(
-            1, self.__update_holds_timeout_cb
+        self.__auto_stop_timeout_source = GLib.timeout_add_seconds(
+            1, self.__auto_stop_timeout_cb
         )
 
-    def __cancel_update_holds_timeout(self):
-        if self.__update_holds_timeout:
-            GLib.source_remove(self.__update_holds_timeout)
-            self.__update_holds_timeout = None
+    def __cancel_auto_stop_timeout(self):
+        if self.__auto_stop_timeout_source:
+            GLib.source_remove(self.__auto_stop_timeout_source)
+            self.__auto_stop_timeout_source = None
 
-    def __update_holds_timeout_cb(self):
+    def __auto_stop_timeout_cb(self):
         # We manage Kolibri separately from GApplication's built in lifecycle
         # code. This allows us to stop the Kolibri service while providing the
         # KolibriDaemon dbus interface, instead of stopping Kolibri after the
@@ -322,19 +340,19 @@ class Application(Gio.Application):
         return GLib.SOURCE_CONTINUE
 
     def __begin_stop_kolibri_timeout(self):
-        if self.__stop_kolibri_timeout:
+        if self.__stop_kolibri_timeout_source:
             return
-        self.__stop_kolibri_timeout = GLib.timeout_add_seconds(
-            STOP_KOLIBRI_TIMEOUT_SECONDS, self.__stop_kolibri_timeout_cb
+        self.__stop_kolibri_timeout_source = GLib.timeout_add_seconds(
+            self.__stop_kolibri_timeout_interval, self.__stop_kolibri_timeout_cb
         )
 
     def __cancel_stop_kolibri_timeout(self):
-        if self.__stop_kolibri_timeout:
-            GLib.source_remove(self.__stop_kolibri_timeout)
-            self.__stop_kolibri_timeout = None
+        if self.__stop_kolibri_timeout_source:
+            GLib.source_remove(self.__stop_kolibri_timeout_source)
+            self.__stop_kolibri_timeout_source = None
 
     def __stop_kolibri_timeout_cb(self):
         if self.clients_count == 0:
             self.__service_manager.stop_kolibri()
-        self.__stop_kolibri_timeout = None
+        self.__stop_kolibri_timeout_source = None
         return GLib.SOURCE_REMOVE
