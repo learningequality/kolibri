@@ -4,7 +4,6 @@ import hashlib
 import json
 import logging
 import math
-import sys
 
 import requests
 from django.core.serializers.json import DjangoJSONEncoder
@@ -229,19 +228,10 @@ def extract_facility_statistics(facility):
         dataset_id=dataset_id, learners=False
     )
 
-    if sys.version_info[0] >= 3:
-        # encodestring is a deprecated alias for
-        # encodebytes, which was finally removed
-        # in Python 3.9
-        encodestring = base64.encodebytes
-    else:
-        # encodebytes does not exist in Python 2.7
-        encodestring = base64.encodestring
-
     # fmt: off
     return {
         # facility_id
-        "fi": encodestring(hashlib.md5(facility.id.encode()).digest())[:10].decode(),
+        "fi": base64.encodestring(hashlib.md5(facility.id.encode()).digest())[:10].decode(),
         # settings
         "s": settings,
         # learners_count
