@@ -263,6 +263,7 @@ class Application(pew.ui.PEWApp):
         """
 
         if pew.ui.platform == 'wx':
+            import wx
             instance_name = "{}_{}".format(pew.get_app_name(), wx.GetUserId())
             self._checker = wx.SingleInstanceChecker(instance_name)
             if self._checker.IsAnotherRunning():
