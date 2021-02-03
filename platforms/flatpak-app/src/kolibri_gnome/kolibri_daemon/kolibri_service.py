@@ -252,6 +252,9 @@ class KolibriServiceManager(KolibriServiceContext):
         else:
             return self.Status.NONE
 
+    def is_running(self):
+        return self.status in [self.Status.STARTING, self.Status.STARTED]
+
     def get_kolibri_url(self, **kwargs):
         from urllib.parse import urljoin
         from urllib.parse import urlsplit
@@ -289,7 +292,9 @@ class KolibriServiceManager(KolibriServiceContext):
         self.__main_process.start()
 
     def stop_kolibri(self):
-        if self.__stop_process and self.__stop_process.is_alive():
+        if not self.is_running():
+            return
+        elif self.__stop_process and self.__stop_process.is_alive():
             return
         else:
             self.__stop_process = KolibriServiceStopProcess(self)

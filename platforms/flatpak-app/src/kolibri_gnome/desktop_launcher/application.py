@@ -257,6 +257,7 @@ class Application(pew.ui.PEWApp):
 
         self.__kolibri_daemon = KolibriDaemonProxy.create_default()
         self.__kolibri_daemon_init_success = None
+        self.__kolibri_daemon_owner = None
 
         self.__windows = []
 
@@ -295,18 +296,28 @@ class Application(pew.ui.PEWApp):
         else:
             self.__kolibri_daemon_init_success = True
             self.__kolibri_daemon.connect("notify", self.__kolibri_daemon_on_notify)
-            self.__kolibri_daemon_on_notify(self.__kolibri_daemon, None)
+            self.__kolibri_daemon_on_notify(self.__kolibri_daemon, None, first_run=True)
 
-    def __kolibri_daemon_on_notify(self, kolibri_daemon, param_spec):
-        if kolibri_daemon.is_stopped():
-            if not self.__starting_kolibri:
-                GLib.idle_add(self.__start_kolibri)
-                self.__starting_kolibri = True
-        else:
+    def __kolibri_daemon_on_notify(self, kolibri_daemon, param_spec, first_run=False):
+        if self.__kolibri_daemon_owner != kolibri_daemon.g_name_owner:
+            self.__kolibri_daemon_owner = kolibri_daemon.g_name_owner
+            self.__kolibri_daemon.hold(
+                result_handler=self.__kolibri_daemon_null_result_handler
+            )
+
+        if not kolibri_daemon.is_stopped():
             self.__starting_kolibri = False
+        elif not self.__starting_kolibri:
+            self.__kolibri_daemon.start(
+                result_handler=self.__kolibri_daemon_null_result_handler
+            )
+            self.__starting_kolibri = True
 
         for window in self.__windows:
             window.kolibri_change_notify()
+
+    def __kolibri_daemon_null_result_handler(self, proxy, result, user_data):
+        pass
 
     def is_started(self):
         return self.__kolibri_daemon.is_started()
@@ -317,17 +328,11 @@ class Application(pew.ui.PEWApp):
             or self.__kolibri_daemon.is_error()
         )
 
-    def __start_kolibri(self):
-        self.__kolibri_daemon.hold(
-            result_handler=self.__kolibri_daemon_null_result_handler
-        )
-        self.__kolibri_daemon.start(
-            result_handler=self.__kolibri_daemon_null_result_handler
-        )
+    def __kolibri_daemon_hold(self):
         return GLib.SOURCE_REMOVE
 
-    def __kolibri_daemon_null_result_handler(self, proxy, result, user_data):
-        pass
+    def __kolibri_daemon_start(self):
+        return GLib.SOURCE_REMOVE
 
     def open_window(self, target_url=None):
         target_url = target_url or "x-kolibri-app:/"
