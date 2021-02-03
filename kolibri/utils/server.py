@@ -319,7 +319,9 @@ def configure_http_server(port):
         conf.OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
     )
 
-    alt_port_app = wsgi.PathInfoDispatcher({"/": get_application(), CONTENT_ROOT: content_handler})
+    alt_port_app = wsgi.PathInfoDispatcher(
+        {"/": get_application(), CONTENT_ROOT: content_handler}
+    )
 
     alt_port_server = ServerAdapter(
         cherrypy.engine,
