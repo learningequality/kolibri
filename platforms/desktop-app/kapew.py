@@ -8,20 +8,20 @@ import build_tools.codesigning
 import build_tools.prep_kolibri_dist
 
 
-def prep_kolibri_dist(args):
+def prep_kolibri_dist(args, remainder):
     build_tools.prep_kolibri_dist.update_kolibri(args)
 
 
-def notarize_mac_build(args):
+def notarize_mac_build(args, remainder):
     build_tools.codesigning.notarize_mac_build()
 
 
-def codesign_win_build(args):
+def codesign_win_build(args, remainder):
     build_tools.codesigning.codesign_windows_build()
 
 
-def build(args):
-    build_tools.build.do_build()
+def build(args, remainder):
+    build_tools.build.do_build(remainder)
 
 
 def main():
@@ -49,9 +49,9 @@ def main():
 
     prebuild.set_defaults(func=prep_kolibri_dist)
 
-    args = parser.parse_args()
+    args, remainder = parser.parse_known_args()
 
-    sys.exit(args.func(args))
+    sys.exit(args.func(args, remainder))
 
 
 

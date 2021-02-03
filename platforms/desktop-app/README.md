@@ -4,16 +4,16 @@ Kolibri installer source for macOS
 ### Requirements
 
 - Python 3.6
-- pipenv
 
 ### Getting Started
 
 IMPORTANT: On Windows, there is a bug with PyInstaller and the latest virutalenv.
 Please downgrade your virtualenv to version 16.1.0 until the bug is fixed.
 
-Run pipenv to download and install dependencies:
+Run pip to download and install dependencies for the platform you want to target:
  
-`pipenv sync --dev`
+`pip install -r requirements-<platform>.txt`
+
 
 Download and unpack the desired Kolibri wheel to `src/kolibri`,
 then delete the `pyX.Y` subdirs in `src/kolibri/dist/cext` as

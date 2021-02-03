@@ -33,6 +33,11 @@ if sys.platform.startswith('win'):
         'tty',
         'termios',
     ])
+else:
+    excludes.extend([
+        '_sysconfigdata_m_linux_x86_64-linux-gnu'
+    ])
+
 
 def generate_python_bytecode(module_dir):
     compileall.compile_dir(module_dir)
