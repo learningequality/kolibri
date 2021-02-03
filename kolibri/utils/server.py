@@ -294,7 +294,7 @@ def configure_http_server(port):
     ).lstrip("/")
     content_dirs = [paths.get_content_dir_path()] + paths.get_content_fallback_paths()
     dispatcher = MultiStaticDispatcher(content_dirs)
-    cherrypy.tree.mount(
+    content_handler = cherrypy.tree.mount(
         None,
         CONTENT_ROOT,
         config={"/": {"tools.caching.on": False, "request.dispatch": dispatcher}},
@@ -319,11 +319,13 @@ def configure_http_server(port):
         conf.OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
     )
 
+    alt_port_app = wsgi.PathInfoDispatcher({"/": get_application(), CONTENT_ROOT: content_handler})
+
     alt_port_server = ServerAdapter(
         cherrypy.engine,
         wsgi.Server(
             alt_port_addr,
-            get_application(),
+            alt_port_app,
             numthreads=conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
             request_queue_size=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
             timeout=conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
