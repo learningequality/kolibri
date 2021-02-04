@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import argparse
+import subprocess
 import sys
 
 import build_tools.build
 import build_tools.codesigning
 import build_tools.prep_kolibri_dist
+import build_tools.version
 
 
 def prep_kolibri_dist(args, remainder):
@@ -24,12 +26,22 @@ def build(args, remainder):
     build_tools.build.do_build(remainder)
 
 
+def run(args, remainder):
+    cmd = ['pew', 'run']
+    cmd.extend(remainder)
+    env = build_tools.version.get_env_with_version_set(remainder)
+    return subprocess.call(cmd, env=env)
+
+
 def main():
     parser = argparse.ArgumentParser()
     commands = parser.add_subparsers(title='commands', help='Commands to operate on PyEverywhere projects')
 
-    prebuild = commands.add_parser('build', help="Build the Kolibri app.")
-    prebuild.set_defaults(func=build)
+    build_cmd = commands.add_parser('build', help="Build the Kolibri app.")
+    build_cmd.set_defaults(func=build)
+
+    run_cmd = commands.add_parser('run', help="Run the Kolibri app.")
+    run_cmd.set_defaults(func=run)
 
     notarize = commands.add_parser('notarize-mac', help="Submit Mac build for notarization.")
     notarize.set_defaults(func=notarize_mac_build)
@@ -50,8 +62,8 @@ def main():
     prebuild.set_defaults(func=prep_kolibri_dist)
 
     args, remainder = parser.parse_known_args()
-
     sys.exit(args.func(args, remainder))
+
 
 
 
