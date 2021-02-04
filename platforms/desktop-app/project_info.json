@@ -1,8 +1,9 @@
 {
   "id": "8e33d642-00e1-4542-9848-018cce59189d",
   "name": "Kolibri",
-  "version": "0.1.2",
-  "build_number": "29",
+  "version": "${FULL_VERSION}",
+  "app_version": "0.1.2",
+  "build_number": "${APP_BUILD_NUMBER}",
   "identifier": "org.learningequality.Kolibri",
   "requirements": {
     "android": [
@@ -29,8 +30,8 @@
     "window_rect": "((20, 100000), (734, 550))",
     "app_icon_pos": "(210, 210)",
     "apps_icon_pos": "(520, 210)",
-    "filename": "kolibri-0.14.3-mac-0.1.1",
-    "volume_name": "Kolibri 0.14.3"
+    "filename": "kolibri-${KOLIBRI_VERSION}-${FULL_VERSION}",
+    "volume_name": "Kolibri ${KOLIBRI_VERSION}"
   },
   "extra_build_options": {
     "android": {
