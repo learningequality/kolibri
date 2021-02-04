@@ -74,7 +74,7 @@ class ContentExtensionsList(object):
 
     def update_kolibri_environ(self, environ):
         environ["KOLIBRI_CONTENT_FALLBACK_DIRS"] = ";".join(
-            extension.content_dir for extension in self
+            extension.content_dir.as_posix() for extension in self
         )
         return environ
 
