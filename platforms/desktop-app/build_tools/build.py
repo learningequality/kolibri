@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 from datetime import datetime
 
 kolibri_dir = os.path.abspath(os.path.join('src', 'kolibri'))
@@ -22,7 +23,8 @@ def do_build(args):
         if args and len(args) > 0:
             cmd.extend(args)
         subprocess.call(cmd, env=env)
-        stdlib.generate_python_bytecode(kolibri_dest_dir)
+        if sys.platform.startswith('win'):
+            stdlib.generate_python_bytecode(kolibri_dest_dir)
 
     except Exception as e:
         raise e

@@ -1,8 +1,7 @@
+import json
 import os
 import subprocess
 from datetime import datetime
-
-from pew.config import load_project_info
 
 kolibri_dir = os.path.abspath(os.path.join('src', 'kolibri'))
 
@@ -83,7 +82,9 @@ def get_env_with_version_set(args):
     if 'android' in args:
         env['FULL_VERSION'] = apk_version()
     else:
-        info_json = load_project_info()
+        # TODO: Determine if there's a better place to store the app version info.
+        # Maybe it makes sense to have a kolibri_app module with everything except
+        # the main.py code in it?
+        info_json = json.load(open(os.path.join(os.getcwd(), 'project_info.json')))
         env['FULL_VERSION'] = info_json['app_version']
-
     return env
