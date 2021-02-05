@@ -26,4 +26,5 @@
   </releases>
   <content_rating type="oars-1.1" />
   <update_contact>info_at_learningequality.org</update_contact>
+  <translation type="gettext">kolibri-gnome</translation>
 </component>
