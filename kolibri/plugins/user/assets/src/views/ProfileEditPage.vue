@@ -47,7 +47,7 @@
           :disabled="formDisabled"
           appearance="raised-button"
           :primary="false"
-          @click="$router.push($router.getRoute(ComponentMap.PROFILE))"
+          @click="handleCancel"
         />
       </KButtonGroup>
     </form>
@@ -61,6 +61,7 @@
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
   import { mapGetters } from 'vuex';
+  import urls from 'kolibri.urls';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
@@ -98,7 +99,6 @@
         formSubmitted: false,
         status: '',
         userCopy: {},
-        ComponentMap,
       };
     },
     computed: {
@@ -123,6 +123,9 @@
       },
       formIsValid() {
         return every([this.fullNameValid, this.usernameValid]);
+      },
+      isReferredFromLearnPage() {
+        return this.$route.query.next_page === 'learn';
       },
     },
     mounted() {
@@ -152,6 +155,13 @@
           }
         );
       },
+      handleCancel() {
+        if (this.isReferredFromLearnPage) {
+          this.navigateToLearnPage();
+        } else {
+          this.$router.push(this.$router.getRoute(ComponentMap.PROFILE));
+        }
+      },
       handleSubmit() {
         this.formSubmitted = true;
         if (this.formIsValid) {
@@ -162,8 +172,12 @@
             })
             .then(() => {
               this.showSnackbarNotification('changesSaved');
-              const nextRoute = this.$router.getRoute(ComponentMap.PROFILE);
-              this.$router.push(nextRoute);
+              if (this.isReferredFromLearnPage) {
+                this.navigateToLearnPage();
+              } else {
+                const nextRoute = this.$router.getRoute(ComponentMap.PROFILE);
+                this.$router.push(nextRoute);
+              }
             })
             .catch(error => {
               this.status = 'FAILURE';
@@ -186,6 +200,9 @@
             this.$refs.usernameTextbox.focus();
           }
         });
+      },
+      navigateToLearnPage() {
+        window.location.href = urls['kolibri:kolibri.plugins.learn:learn']();
       },
     },
     $trs: {
