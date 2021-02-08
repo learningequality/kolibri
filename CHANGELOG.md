@@ -7,7 +7,7 @@ List of the most important changes for each release.
 ### Fixed
 
 * #7725 On Firefox, text in Khmer, Hindi, Marathi, and other languages did not render properly.
-* #7722, #7488 After viewing a restricted page then signing in, users were redirected to the original destination URL.
+* #7722, #7488 After viewing a restricted page, then signing in, users were not redirected back to the restricted page.
 * #7597, #7612 Quiz creation workflow did not properly validate the number of questions
 
 ([0.14.6 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.14.6))
