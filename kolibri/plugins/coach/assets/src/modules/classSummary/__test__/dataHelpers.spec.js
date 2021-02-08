@@ -178,6 +178,19 @@ describe('coach summary data helpers', () => {
         helpNeeded: 0,
       });
     });
+    it('tallies all learners as "not started" if the lesson has no resources', () => {
+      const output = store.getters.getLessonStatusTally('lesson_id_5', [
+        'learner_id_1',
+        'learner_id_3',
+        'learner_id_6',
+      ]);
+      expect(output).toEqual({
+        completed: 0,
+        started: 0,
+        notStarted: 3,
+        helpNeeded: 0,
+      });
+    });
   });
   describe('getContentAvgTimeSpent', () => {
     it('returns average time a list of learners has worked on an item, omitting not started', () => {
