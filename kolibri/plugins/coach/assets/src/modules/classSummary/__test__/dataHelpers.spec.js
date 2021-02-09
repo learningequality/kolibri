@@ -1,6 +1,5 @@
 import Vuex from 'vuex';
 import summaryModule from '../index';
-
 import sampleState from './sampleState2';
 
 describe('coach summary data helpers', () => {
