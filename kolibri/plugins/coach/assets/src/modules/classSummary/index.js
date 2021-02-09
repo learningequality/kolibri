@@ -2,7 +2,6 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import flatten from 'lodash/flatten';
 import find from 'lodash/find';
-
 import Vue from 'kolibri.lib.vue';
 import ClassSummaryResource from '../../apiResources/classSummary';
 import dataHelpers from './dataHelpers';
