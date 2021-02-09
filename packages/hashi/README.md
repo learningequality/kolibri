@@ -44,14 +44,51 @@ When Kolibri opens an HTML5 app content node, the Kolibri HTML5 renderer loads t
 
 HTML content is rendered within a sandboxed iframe on the Kolibri platform for security reasons.
 The [code](https://github.com/learningequality/kolibri/blob/develop/kolibri/plugins/html5_app_renderer/assets/src/views/Html5AppRendererIndex.vue#L18-L27) that loads the iframe is `<iframe sandbox="allow-scripts" src="host:port/zipcontent/{{md5offile}}.zip/></iframe>`. When the `sandbox` directive applied to iframe, the following limitation apply:
+
 1. No cookies
 2. No localStorage
-3. ?
-4. ?
-In order to increase the "out of the box" compatibility more HTML5 content, the Kolibri platform tries to workaround these limitations of sandboxed iframes by providing a `window.localStorage`-like and `document.cookie`-like functionality.
+
+In order to increase the "out of the box" compatibility more HTML5 content, the Kolibri platform tries to work around these limitations of sandboxed iframes by providing a `window.localStorage`-like and `document.cookie`-like functionality.
 
 This document, intended for web developers targeting the Kolibri platform, describes the Kolibri platform capabilities and limitations in regards to all HTML5 content rendered within the Kolibri ecosystem.
 
+### Initializing a new Hashi
+
+In a Vue component, you can initialize a new `Hashi` object in the component's `mounted` lifecycle hook.
+
+The constructor requires a `ref` to the iframe object in the DOM, as well as a `now` function that returns a JavaScript `Date` object signifying the current time.
+
+```vue
+<template>
+  <iframe ref="iframe"></iframe>
+</template>
+
+<script>
+  import { now } from 'kolibri.utils.serverClock';
+  import Hashi from 'hashi';
+
+  export default {
+    // ...
+    mounted() {
+      this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
+      this.hashi.onStateUpdate(data => {
+        this.handleHashiUpdate(data);
+      });
+      this.hashi.initialize({ ... });
+    },
+  }
+</script>
+```
+
+### `hashi.initialize(contentState, userData)`
+
+### `hashi.onStateUpdate(callback)`
+
+### `hashi.onProgressUpdate(callback)`
+
+### `hashi.updateData({ contentState, userData })`
+
+### `hashi.getProgress()`
 
 ### Cookies
 
