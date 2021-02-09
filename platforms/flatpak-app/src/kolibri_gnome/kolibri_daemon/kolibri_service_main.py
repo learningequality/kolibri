@@ -9,6 +9,7 @@ from pathlib import Path
 
 from .content_extensions import ContentExtensionsList
 
+from ..globals import init_kolibri
 from ..globals import init_logging
 from ..globals import KOLIBRI_HOME_PATH
 
@@ -85,13 +86,9 @@ class KolibriServiceMainProcess(multiprocessing.Process):
 
         self.__active_extensions.update_kolibri_environ(os.environ)
 
-        from kolibri.plugins.registry import registered_plugins
-        from kolibri.utils.cli import initialize, setup_logging, start_with_ready_cb
+        from kolibri.utils.cli import start_with_ready_cb
 
-        registered_plugins.register_plugins(["kolibri.plugins.app"])
-
-        setup_logging(debug=False)
-        initialize()
+        init_kolibri()
 
         self.__update_app_key()
         self.__update_kolibri_home()

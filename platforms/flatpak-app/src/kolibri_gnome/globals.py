@@ -58,6 +58,16 @@ def init_logging(log_file_name="kolibri-app.txt", level=logging.DEBUG):
     return logs_dir_path
 
 
+def init_kolibri():
+    from kolibri.plugins.registry import registered_plugins
+    from kolibri.utils.cli import initialize, setup_logging
+
+    registered_plugins.register_plugins(["kolibri.plugins.app"])
+
+    setup_logging(debug=False)
+    initialize()
+
+
 def get_current_language():
     try:
         translations = gettext.translation(
@@ -75,7 +85,4 @@ def get_current_language():
 
 def local_kolibri_exists():
     data_file_paths = map(KOLIBRI_HOME_PATH.joinpath, _KOLIBRI_DATA_FILES)
-    if all(path.exists() for path in data_file_paths):
-        return True
-    else:
-        return False
+    return all(path.exists() for path in data_file_paths)

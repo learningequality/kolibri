@@ -10,7 +10,9 @@ from pathlib import Path
 
 from .content_extensions import ContentExtensionsList
 
-from ..globals import KOLIBRI_HOME_PATH, init_logging
+from ..globals import init_kolibri
+from ..globals import init_logging
+from ..globals import KOLIBRI_HOME_PATH
 
 
 KOLIBRI_BIN = "kolibri"
@@ -59,6 +61,8 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
 
         from kolibri.core.device.utils import device_provisioned
         from kolibri.dist.django.core.management import call_command
+
+        init_kolibri()
 
         AUTOMATIC_PROVISION_PATH = KOLIBRI_HOME_PATH.joinpath(
             "automatic_provision.json"
