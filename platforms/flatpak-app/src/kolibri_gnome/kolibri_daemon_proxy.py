@@ -62,28 +62,23 @@ class KolibriDaemonProxy(Gio.DBusProxy):
 
     @GObject.Property
     def app_key(self):
-        variant = self.get_cached_property("AppKey")
-        return variant.get_string() if variant else None
+        return self.__get_cached_string_property("AppKey")
 
     @GObject.Property
     def base_url(self):
-        variant = self.get_cached_property("BaseURL")
-        return variant.get_string() if variant else None
+        return self.__get_cached_string_property("BaseURL")
 
     @GObject.Property
     def status(self):
-        variant = self.get_cached_property("Status")
-        return variant.get_string() if variant else None
+        return self.__get_cached_string_property("Status")
 
     @GObject.Property
     def kolibri_home(self):
-        variant = self.get_cached_property("KolibriHome")
-        return variant.get_string() if variant else None
+        return self.__get_cached_string_property("KolibriHome")
 
     @GObject.Property
     def version(self):
-        variant = self.get_cached_property("Version")
-        return variant.get_uint32() if variant else None
+        return self.__get_cached_uint32_property("Version")
 
     def hold(self, **kwargs):
         return self.Hold(**kwargs)
@@ -134,10 +129,27 @@ class KolibriDaemonProxy(Gio.DBusProxy):
             return True
 
     def get_kolibri_url(self, url):
-        return urljoin(self.base_url, url)
+        if self.base_url:
+            return urljoin(self.base_url, url)
+        else:
+            return None
 
     def get_kolibri_initialize_url(self, next_url):
         initialize_url = "app/api/initialize/{key}?{query}".format(
             key=self.app_key, query=urlencode({"next": next_url})
         )
         return self.get_kolibri_url(initialize_url)
+
+    def __get_cached_string_property(self, name, default=None):
+        variant = self.get_cached_property(name)
+        if variant and variant.is_of_type(GLib.VariantType("s")):
+            return variant.get_string()
+        else:
+            return default
+
+    def __get_cached_uint32_property(self, name, default=None):
+        variant = self.get_cached_property(name)
+        if variant and variant.is_of_type(GLib.VariantType("u")):
+            return variant.get_uint32()
+        else:
+            return default
