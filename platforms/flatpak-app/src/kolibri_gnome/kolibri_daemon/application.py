@@ -1,13 +1,13 @@
+from typing import NamedTuple
+
 from gi.repository import Gio
 from gi.repository import GLib
 
-from typing import NamedTuple
-
 from .. import config
-from ..dbus_utils import DBusServer, dict_to_vardict
-
-from .kolibri_service import KolibriServiceManager
+from ..dbus_utils import DBusServer
+from ..dbus_utils import dict_to_vardict
 from .kolibri_search_handler import LocalSearchHandler
+from .kolibri_service import KolibriServiceManager
 
 
 INACTIVITY_TIMEOUT_MS = 30 * 1000  # 30 seconds in milliseconds

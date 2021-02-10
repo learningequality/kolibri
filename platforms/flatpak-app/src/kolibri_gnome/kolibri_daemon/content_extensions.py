@@ -1,8 +1,8 @@
 import itertools
 import json
 import re
-from pathlib import Path
 from configparser import ConfigParser
+from pathlib import Path
 
 from ..globals import KOLIBRI_HOME_PATH
 

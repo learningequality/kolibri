@@ -1,9 +1,9 @@
-from gi.repository import Gio
-from gi.repository import GLib
-
 from contextlib import contextmanager
 from functools import partial
 from typing import NamedTuple
+
+from gi.repository import Gio
+from gi.repository import GLib
 
 # TODO: This should not be here, but the state of dbus Python bindings is
 #       problematic.

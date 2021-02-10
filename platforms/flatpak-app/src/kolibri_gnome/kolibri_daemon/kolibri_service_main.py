@@ -1,17 +1,15 @@
 import json
 import multiprocessing
-import threading
 import os
-
+import threading
 from collections import Mapping
 from contextlib import contextmanager
 from pathlib import Path
 
-from .content_extensions import ContentExtensionsList
-
 from ..globals import init_kolibri
 from ..globals import init_logging
 from ..globals import KOLIBRI_HOME_PATH
+from .content_extensions import ContentExtensionsList
 
 # TODO: We need to use multiprocessing because Kolibri occasionally calls
 #       os.kill against its own process ID.

@@ -2,7 +2,8 @@ from gi.repository import Gio
 from gi.repository import GLib
 
 from .. import config
-from ..dbus_utils import DBusServer, dict_to_vardict
+from ..dbus_utils import DBusServer
+from ..dbus_utils import dict_to_vardict
 from ..kolibri_daemon_proxy import KolibriDaemonProxy
 
 
