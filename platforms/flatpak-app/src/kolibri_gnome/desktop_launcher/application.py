@@ -256,7 +256,7 @@ class Application(pew.ui.PEWApp):
         self.__loader_url = loader_path.as_uri()
 
         self.__kolibri_daemon = KolibriDaemonProxy.create_default()
-        self.__kolibri_daemon_init_success = None
+        self.__kolibri_daemon_has_error = None
         self.__kolibri_daemon_owner = None
 
         self.__windows = []
@@ -278,7 +278,7 @@ class Application(pew.ui.PEWApp):
         self.open_window()
 
     def shutdown(self):
-        if self.__kolibri_daemon_init_success:
+        if self.__kolibri_daemon.get_name_owner():
             try:
                 self.__kolibri_daemon.release()
             except GLib.Error as error:
@@ -292,41 +292,51 @@ class Application(pew.ui.PEWApp):
             self.__kolibri_daemon.init_finish(result)
         except GLib.Error as error:
             logger.warning("Error initializing KolibriDaemonProxy: {}".format(error))
-            self.__kolibri_daemon_init_success = False
+            self.__kolibri_daemon_has_error = True
+            self.__notify_all_windows()
         else:
-            self.__kolibri_daemon_init_success = True
+            self.__kolibri_daemon_has_error = False
             self.__kolibri_daemon.connect("notify", self.__kolibri_daemon_on_notify)
-            self.__kolibri_daemon_on_notify(self.__kolibri_daemon, None, first_run=True)
+            self.__kolibri_daemon_on_notify(self.__kolibri_daemon, None)
 
-    def __kolibri_daemon_on_notify(self, kolibri_daemon, param_spec, first_run=False):
-        if self.__kolibri_daemon_owner != kolibri_daemon.g_name_owner:
-            self.__kolibri_daemon_owner = kolibri_daemon.g_name_owner
+    def __kolibri_daemon_on_notify(self, kolibri_daemon, param_spec):
+        kolibri_daemon_owner = kolibri_daemon.get_name_owner()
+        kolibri_daemon_owner_changed = bool(
+            self.__kolibri_daemon_owner != kolibri_daemon_owner
+        )
+        self.__kolibri_daemon_owner = kolibri_daemon_owner
+
+        if kolibri_daemon_owner_changed:
             self.__kolibri_daemon.hold(
                 result_handler=self.__kolibri_daemon_null_result_handler
             )
 
         if not kolibri_daemon.is_stopped():
             self.__starting_kolibri = False
-        elif not self.__starting_kolibri:
+        elif not self.__starting_kolibri or kolibri_daemon_owner_changed:
+            self.__starting_kolibri = True
             self.__kolibri_daemon.start(
                 result_handler=self.__kolibri_daemon_null_result_handler
             )
-            self.__starting_kolibri = True
 
-        for window in self.__windows:
-            window.kolibri_change_notify()
+        self.__notify_all_windows()
 
     def __kolibri_daemon_null_result_handler(self, proxy, result, user_data):
-        pass
+        if isinstance(result, Exception):
+            self.__kolibri_daemon_has_error = True
+        else:
+            self.__kolibri_daemon_has_error = False
+        self.__notify_all_windows()
+
+    def __notify_all_windows(self):
+        for window in self.__windows:
+            window.kolibri_change_notify()
 
     def is_started(self):
         return self.__kolibri_daemon.is_started()
 
     def is_error(self):
-        return (
-            self.__kolibri_daemon_init_success is False
-            or self.__kolibri_daemon.is_error()
-        )
+        return self.__kolibri_daemon_has_error or self.__kolibri_daemon.is_error()
 
     def __kolibri_daemon_hold(self):
         return GLib.SOURCE_REMOVE
