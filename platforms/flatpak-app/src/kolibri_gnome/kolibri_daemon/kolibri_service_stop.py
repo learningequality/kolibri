@@ -9,17 +9,23 @@ class KolibriServiceStopProcess(multiprocessing.Process):
     avoid blocking the rest of the program while Kolibri is stopping.
     """
 
+    PROCESS_NAME = "kolibri-daemon-stop"
+
     def __init__(self, context):
         self.__context = context
         super().__init__()
 
     def run(self):
+        from setproctitle import setproctitle
+
+        setproctitle(self.PROCESS_NAME)
+
         if self.__context.is_stopped:
             return
         elif self.__context.await_start_result() != self.__context.StartResult.SUCCESS:
             return
 
-        init_logging("kolibri-daemon-stop.txt")
+        init_logging("{}.txt".format(self.PROCESS_NAME))
 
         from kolibri.utils.cli import stop
 

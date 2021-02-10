@@ -10,6 +10,8 @@ gi.require_version("Gtk", "3.0")
 import datetime
 import sys
 
+from setproctitle import setproctitle
+
 from ..globals import init_gettext, init_logging
 
 import pew
@@ -17,8 +19,13 @@ import pew
 from .application import Application
 
 
+PROCESS_NAME = "kolibri-gnome"
+
+
 def main():
-    init_logging("kolibri-gnome.txt")
+    setproctitle(PROCESS_NAME)
+
+    init_logging("{}.txt".format(PROCESS_NAME))
     init_gettext()
 
     pew.set_app_name("Kolibri")

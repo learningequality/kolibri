@@ -26,6 +26,8 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
     - Sets context.setup_result to True if sucessful, or to False if not.
     """
 
+    PROCESS_NAME = "kolibri-daemon-setup"
+
     def __init__(self, context):
         self.__context = context
         self.__cached_extensions = ContentExtensionsList.from_cache()
@@ -33,7 +35,10 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         super().__init__()
 
     def run(self):
-        init_logging("kolibri-daemon-setup.txt")
+        from setproctitle import setproctitle
+
+        setproctitle(self.PROCESS_NAME)
+        init_logging("{}.txt".format(self.PROCESS_NAME))
 
         self.__automatic_provisiondevice()
 

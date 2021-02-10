@@ -105,7 +105,9 @@ class LocalSearchHandler(SearchHandler):
 
     def __process_initializer(self):
         from kolibri.dist import django
+        from setproctitle import setproctitle
 
+        setproctitle("kolibri-daemon-search")
         init_logging("kolibri-daemon-search.txt")
         django.setup()
 

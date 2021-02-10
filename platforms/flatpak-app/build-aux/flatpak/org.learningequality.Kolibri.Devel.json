@@ -61,6 +61,7 @@
                 "touch ${KOLIBRI_HOME}/was_preseeded"
             ]
         },
+        "python3-setproctitle.json",
         "python3-requests.json",
         "python3-virtualenv-api.json",
         {

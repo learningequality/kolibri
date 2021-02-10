@@ -24,6 +24,8 @@ class KolibriServiceMainProcess(multiprocessing.Process):
     - Sets context.is_stopped to True when Kolibri stops for any reason.
     """
 
+    PROCESS_NAME = "kolibri-daemon-main"
+
     def __init__(self, context):
         self.__context = context
         self.__active_extensions = ContentExtensionsList.from_flatpak_info()
@@ -35,6 +37,10 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         watch_thread.start()
 
     def run(self):
+        from setproctitle import setproctitle
+
+        setproctitle(self.PROCESS_NAME)
+
         with self.__set_is_stopped_on_exit():
             self.__run_kolibri_start()
 
@@ -71,7 +77,7 @@ class KolibriServiceMainProcess(multiprocessing.Process):
             self.__context.is_starting = False
             return
 
-        init_logging("kolibri-daemon-main.txt")
+        init_logging("{}.txt".format(self.PROCESS_NAME))
 
         self.__context.is_starting = True
         self.__context.is_stopped = False
