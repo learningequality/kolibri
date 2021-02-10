@@ -212,7 +212,7 @@ class Application(Gio.Application):
         count = 0
         if self.__session_kolibri_daemon:
             count += self.__session_kolibri_daemon.clients_count
-        if self.use_system_bus:
+        if self.__system_kolibri_daemon:
             count += self.__system_kolibri_daemon.clients_count
         return count
 
