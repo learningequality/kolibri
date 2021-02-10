@@ -474,3 +474,7 @@ class Application(pew.ui.PEWApp):
         #       but the Flatpak's OpenURI portal only allows us to open files
         #       that exist in our sandbox.
         subprocess.call(["xdg-open", KOLIBRI_HOME_PATH.as_uri()])
+
+    def quit(self):
+        for window in self.__windows:
+            window.close()

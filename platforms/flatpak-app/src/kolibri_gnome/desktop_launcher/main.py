@@ -8,8 +8,10 @@ gi.require_version("Gdk", "3.0")
 gi.require_version("Gtk", "3.0")
 
 import datetime
+import signal
 import sys
 
+from functools import partial
 from setproctitle import setproctitle
 
 from ..globals import init_gettext, init_logging
@@ -20,6 +22,10 @@ from .application import Application
 
 
 PROCESS_NAME = "kolibri-gnome"
+
+
+def application_signal_handler(application, sig, frame):
+    application.quit()
 
 
 def main():
@@ -41,8 +47,9 @@ def main():
     logger.info("")
     logger.info("Started at: {}".format(datetime.datetime.today()))
 
-    app = Application()
-    app.run()
+    application = Application()
+    signal.signal(signal.SIGTERM, partial(application_signal_handler, application))
+    application.run()
 
     logger.info("Stopped at: {}".format(datetime.datetime.today()))
 
