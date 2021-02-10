@@ -197,18 +197,21 @@ class DBusServer(object):
         return self.__emit_signal(signal_info, *args)
 
     def __emit_signal(self, signal_info, object_path, *args, destination_bus_name=None):
-        if not self.__connection:
+        if not self.__connection or self.__connection.is_closed():
             return
 
         parameters = signal_info.get_variant_for_args(args)
 
-        self.__connection.emit_signal(
-            destination_bus_name,
-            object_path,
-            signal_info.interface_name,
-            signal_info.signal_name,
-            parameters,
-        )
+        try:
+            self.__connection.emit_signal(
+                destination_bus_name,
+                object_path,
+                signal_info.interface_name,
+                signal_info.signal_name,
+                parameters,
+            )
+        except GLib.Error:
+            pass
 
     def __fname(self, interface_name, method_name):
         return ".".join((interface_name, method_name))
