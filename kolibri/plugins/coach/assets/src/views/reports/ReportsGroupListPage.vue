@@ -27,12 +27,11 @@
           <transition-group tag="tbody" name="list">
             <tr v-for="tableRow in table" :key="tableRow.id">
               <td>
-                <KLabeledIcon icon="group">
-                  <KRouterLink
-                    :text="tableRow.name"
-                    :to="classRoute('ReportsGroupReportPage', { groupId: tableRow.id })"
-                  />
-                </KLabeledIcon>
+                <KRouterLink
+                  :text="tableRow.name"
+                  :to="classRoute('ReportsGroupReportPage', { groupId: tableRow.id })"
+                  icon="group"
+                />
               </td>
               <td>
                 {{ coachString('integer', { value: tableRow.numLessons }) }}
