@@ -1,6 +1,8 @@
 import collections
-import multiprocessing
 
+from concurrent.futures import ProcessPoolExecutor
+
+from ..globals import init_kolibri
 from ..globals import init_logging
 
 
@@ -90,36 +92,39 @@ class LocalSearchHandler(SearchHandler):
     """
 
     def __init__(self):
-        self.__pool = None
+        self.__executor = None
 
     def init(self):
-        self.__pool = multiprocessing.Pool(
-            processes=1, initializer=self.__process_initializer
+        self.__executor = ProcessPoolExecutor(
+            max_workers=1, initializer=self.__process_initializer
         )
 
     def stop(self):
-        self.__pool.close()
-
-    def join(self):
-        self.__pool.join()
+        self.__executor.shutdown()
 
     def __process_initializer(self):
-        from kolibri.dist import django
         from setproctitle import setproctitle
 
         setproctitle("kolibri-daemon-search")
+
         init_logging("kolibri-daemon-search.txt")
-        django.setup()
+
+        init_kolibri()
 
     def get_item_ids_for_search(self, search):
         args = (search,)
-        return self.__pool.apply(LocalSearchHandler._get_item_ids_for_search, args)
+        future = self.__executor.submit(
+            LocalSearchHandler._get_item_ids_for_search, args
+        )
+        return future.result()
 
     def get_metadata_for_item_ids(self, item_ids):
         return list(
             filter(
                 lambda metadata: metadata is not None,
-                self.__pool.map(LocalSearchHandler._get_metadata_for_item_id, item_ids),
+                self.__executor.map(
+                    LocalSearchHandler._get_metadata_for_item_id, item_ids
+                ),
             )
         )
 

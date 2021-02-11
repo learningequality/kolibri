@@ -269,10 +269,10 @@ class KolibriServiceManager(KolibriServiceContext):
         return urlunsplit(target_url)
 
     def join(self):
-        if self.__main_process and self.__main_process.is_alive():
-            self.__main_process.join()
         if self.__setup_process and self.__setup_process.is_alive():
             self.__setup_process.join()
+        if self.__main_process and self.__main_process.is_alive():
+            self.__main_process.join()
         if self.__stop_process and self.__stop_process.is_alive():
             self.__stop_process.join()
 
