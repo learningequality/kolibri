@@ -14,15 +14,19 @@ def clean(args):
 
     if args.full:
         to_clean.append(os.path.join(project_root, 'build_docker'))
-        try:
-            # these steps aren't needed for all cases, so failure should not be
-            # fatal.
-            subprocess.call(['python-for-android', 'clean_dists'])
-            subprocess.call('yes y | docker system prune -a || true', shell=True)
-        except:
-            print("Attempts to clean Docker and Android build outputs failed.")
+        # these steps aren't needed for all cases, so failure should not be
+        # fatal. We'll just note the failure so users are aware.
+        if subprocess.call(['python-for-android', 'clean_dists']) != 0:
+            print("Attempt to clean Android dist failed. Can be ignored if not building for Android.")
+        else:
+            print("Android build files removed.")
+        if subprocess.call('yes y | docker system prune -a', shell=True, stdout=subprocess.DEVNULL) != 0:
+            print("Attempt to clean Docker build files failed. Can be ignored if not building using Docker.")
+        else:
+            print("Docker build files removed.")
 
     for path in to_clean:
+        print("Removing {}".format(path))
         if os.path.isdir(path):
             shutil.rmtree(path)
         elif os.path.isfile(path):
