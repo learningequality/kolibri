@@ -2,10 +2,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+import json
 import multiprocessing
 import os
 import subprocess
 
+from collections import Mapping
 from pathlib import Path
 
 from .content_extensions import ContentExtensionsList
