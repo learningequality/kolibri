@@ -5,6 +5,7 @@ import subprocess
 import sys
 
 import build_tools.build
+import build_tools.clean
 import build_tools.codesigning
 import build_tools.prep_kolibri_dist
 import build_tools.version
@@ -26,8 +27,26 @@ def build(args, remainder):
     build_tools.build.do_build(remainder)
 
 
+def clean(args, remainder):
+    build_tools.clean.clean(args)
+
+
 def run(args, remainder):
     cmd = ['pew', 'run']
+    cmd.extend(remainder)
+    env = build_tools.version.get_env_with_version_set(remainder)
+    return subprocess.call(cmd, env=env)
+
+
+def init(args, remainder):
+    cmd = ['pew', 'init']
+    cmd.extend(remainder)
+    env = build_tools.version.get_env_with_version_set(remainder)
+    return subprocess.call(cmd, env=env)
+
+
+def package(args, remainder):
+    cmd = ['pew', 'package']
     cmd.extend(remainder)
     env = build_tools.version.get_env_with_version_set(remainder)
     return subprocess.call(cmd, env=env)
@@ -40,8 +59,19 @@ def main():
     build_cmd = commands.add_parser('build', help="Build the Kolibri app.")
     build_cmd.set_defaults(func=build)
 
+    clean_cmd = commands.add_parser('clean', help="Removes build outputs")
+    clean_cmd.add_argument('--full', action="store_true",
+                         help='Also remove cached build environment setup (e.g. docker, p4a dists)')
+    clean_cmd.set_defaults(func=clean)
+
+    init_cmd = commands.add_parser('init', help="Initialize the build environment.")
+    init_cmd.set_defaults(func=init)
+
     run_cmd = commands.add_parser('run', help="Run the Kolibri app.")
     run_cmd.set_defaults(func=run)
+
+    pkg_cmd = commands.add_parser('package', help="Generate an installer package for the Kolibri app.")
+    pkg_cmd.set_defaults(func=package)
 
     notarize = commands.add_parser('notarize-mac', help="Submit Mac build for notarization.")
     notarize.set_defaults(func=notarize_mac_build)

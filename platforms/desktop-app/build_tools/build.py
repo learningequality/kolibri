@@ -11,6 +11,14 @@ from .version import get_env_with_version_set
 
 
 def do_build(args):
+    if 'android' in args and '--docker' in args:
+        subprocess.call(['docker', 'build', '-t', 'android_kolibri', '.'])
+        subprocess.call(['docker/android/rundocker.sh'])
+        return
+    elif '--docker' in args:
+        print("Docker builds not supported for this platform.")
+        print("Attempting non-docker build...")
+
     try:
         print("Building app...")
         from . import stdlib
