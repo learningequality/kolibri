@@ -3,7 +3,7 @@ Cross-platform Kolibri app sources
 
 ### Requirements
 
-- Python 3.6
+- Python 3.6 (use 32-bit builds on Windows)
 
 ### Supported Platforms
 
@@ -56,8 +56,6 @@ It can be controlled with a few options.
 
 `--skip-preseed`: skip the preseed process, only download and unpack the Kolibri release
 
-
-
 ### Building and running the app
 
 Once you have a `src/kolibri` folder after running `prep-kolibri-dist`, you can
@@ -73,6 +71,21 @@ now run the app from source or build and package the app.
 
 Outputs appear in the `dist/[platform]` folder. On *nix platforms, you can build
 for android by running `kapew build android`. Add `--docker` to build using Docker.
+
+#### Creating a signed build
+
+`kapew codesign`
+
+You will need to set the proper credentials for signing via environment variables. 
+The script will explain what environment variables you need to set if they aren't set.
+
+On Mac, after this process, you need to wait for an email from Apple explaining that
+the build was successfully verified. Then, run the following command, which adds Apple's
+verification to the app so that it can be recognized when run offline:
+
+`xcrun stapler staple dist/osx/Kolibri.app`
+
+Make sure these steps are performed before packaging the build.
 
 #### Creating an app installer package
 

@@ -15,12 +15,11 @@ def prep_kolibri_dist(args, remainder):
     build_tools.prep_kolibri_dist.update_kolibri(args)
 
 
-def notarize_mac_build(args, remainder):
-    build_tools.codesigning.notarize_mac_build()
-
-
-def codesign_win_build(args, remainder):
-    build_tools.codesigning.codesign_windows_build()
+def codesign_build(args, remainder):
+    if sys.platform.startswith('win'):
+        build_tools.codesigning.codesign_windows_build()
+    else:
+        build_tools.codesigning.notarize_mac_build()
 
 
 def build(args, remainder):
@@ -73,11 +72,8 @@ def main():
     pkg_cmd = commands.add_parser('package', help="Generate an installer package for the Kolibri app.")
     pkg_cmd.set_defaults(func=package)
 
-    notarize = commands.add_parser('notarize-mac', help="Submit Mac build for notarization.")
-    notarize.set_defaults(func=notarize_mac_build)
-
-    notarize = commands.add_parser('codesign-win', help="Codesign Windows build.")
-    notarize.set_defaults(func=codesign_win_build)
+    notarize = commands.add_parser('codesign', help="Codesign the latest app build.")
+    notarize.set_defaults(func=codesign_build)
 
     prebuild = commands.add_parser('prep-kolibri-dist', help="Prepare a bundled Kolibri for app build.")
     prebuild.add_argument('--kolibri-version', default=None,

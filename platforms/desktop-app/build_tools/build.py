@@ -23,6 +23,7 @@ def do_build(args):
         print("Building app...")
         from . import stdlib
 
+        # see function docstring for more info on why we do this.
         stdlib.generate_stdlib_imports()
 
         env = get_env_with_version_set(args)
