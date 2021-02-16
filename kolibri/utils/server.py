@@ -10,6 +10,7 @@ from cheroot import wsgi
 from cherrypy.process.plugins import SimplePlugin
 from cherrypy.process.servers import ServerAdapter
 from django.conf import settings
+from whitenoise import WhiteNoise
 from zeroconf import get_all_addresses
 
 import kolibri
@@ -267,20 +268,13 @@ def configure_http_server(port):
     # Mount the application
     from kolibri.deployment.default.wsgi import application
 
-    cherrypy.tree.graft(application, "/")
-
     if not getattr(settings, "DEVELOPER_MODE", False):
         # Mount static files
-        cherrypy.tree.mount(
-            cherrypy.tools.staticdir.handler(section="/", dir=settings.STATIC_ROOT),
-            settings.STATIC_URL,
-            config={
-                "/": {
-                    "tools.gzip.on": True,
-                    "tools.gzip.mime_types": ["text/*", "application/javascript"],
-                }
-            },
+        application = WhiteNoise(
+            application, root=settings.STATIC_ROOT, prefix=settings.STATIC_URL
         )
+
+    cherrypy.tree.graft(application, "/")
 
     # Mount media files
     cherrypy.tree.mount(
