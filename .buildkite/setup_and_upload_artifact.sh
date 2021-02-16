@@ -13,6 +13,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+pip install --upgrade "pip < 21.0"
 PIP_CMD="$PIP_PATH install -r requirements/release_upload.txt"
 echo "Running $PIP_CMD..."
 $PIP_CMD
