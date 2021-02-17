@@ -13,7 +13,7 @@ Cross-platform Kolibri app sources
 
 ## Getting Started
 
-**IMPORTANT:** On Windows, there is a bug with PyInstaller and the latest virutalenv.
+**IMPORTANT:** On Windows, there is a bug with PyInstaller and the latest virtualenv.
 If you're using virtualenv, please downgrade your virtualenv to version 16.1.0 until
 the bug is fixed.
 
