@@ -349,6 +349,26 @@ program
     require('jest-cli/build/cli').run();
   });
 
+// Test
+program
+  .command('compress')
+  .arguments('[files...]', 'List of custom file globs or file names to compress')
+  .allowUnknownOption()
+  .action(function(files) {
+    if (!files.length) {
+      program.help();
+    } else {
+      const glob = require('glob');
+      const compressFile = require('./compress');
+      Promise.all(
+        files.map(file => {
+          const matches = glob.sync(file);
+          return Promise.all(matches.map(compressFile));
+        })
+      );
+    }
+  });
+
 // Check engines, then process args
 const engines = require(path.resolve(__dirname, '../../../package.json')).engines;
 checkVersion(engines, (err, results) => {

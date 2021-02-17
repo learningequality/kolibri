@@ -93,6 +93,7 @@ test-all:
 assets:
 	yarn install
 	yarn run build
+	yarn run compress
 
 coverage:
 	coverage run --source kolibri setup.py test
