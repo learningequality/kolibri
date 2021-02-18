@@ -245,23 +245,21 @@
         this.search(true);
       },
       search(filterUpdate = false) {
-        if (this.searchQuery !== '') {
-          const query = {
-            searchTerm: this.searchQuery,
-          };
-          if (filterUpdate === true) {
-            if (this.$refs.contentKindFilter.selection.value) {
-              query.kind = this.$refs.contentKindFilter.selection.value;
-            }
-            if (this.$refs.channelFilter.selection.value) {
-              query.channel_id = this.$refs.channelFilter.selection.value;
-            }
+        const query = {
+          searchTerm: this.searchQuery || this.$route.query.searchTerm,
+        };
+        if (filterUpdate === true) {
+          if (this.$refs.contentKindFilter.selection.value) {
+            query.kind = this.$refs.contentKindFilter.selection.value;
           }
-          this.$router.push({
-            name: PageNames.SEARCH,
-            query,
-          });
+          if (this.$refs.channelFilter.selection.value) {
+            query.channel_id = this.$refs.channelFilter.selection.value;
+          }
         }
+        this.$router.push({
+          name: PageNames.SEARCH,
+          query,
+        });
       },
     },
     $trs: {
