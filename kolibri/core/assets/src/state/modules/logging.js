@@ -17,6 +17,9 @@ export default {
     sessionTimeSpent(state) {
       return state.session.time_spent;
     },
+    summaryTimeSpent(state) {
+      return state.summary.time_spent;
+    },
   },
   mutations: {
     SET_LOGGING_SUMMARY_STATE(state, summaryState) {
