@@ -15,9 +15,6 @@ def setup_env():
 
     os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_tools.django_app_settings"
 
-    # TODO: before shipping the app, make this contingent on debug vs production mode
-    os.environ["KOLIBRI_RUN_MODE"] = "pew-dev"
-
     if pew.ui.platform == "android":
         # initialize some system environment variables needed to run smoothly on Android
         from platforms.android.utils import get_timezone_name
