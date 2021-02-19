@@ -352,7 +352,7 @@ class Application(pew.ui.PEWApp):
 
         history_menu = pew.ui.PEWMenu(_('History'))
         history_menu.add(_('Back'), handler=window.on_back, shortcut=PEWShortcut('[', modifiers=['CTRL']))
-        history_menu.add(_('Forward'), handler=window.on_forward, shortcut=PEWShortcut(']fclas', modifiers=['CTRL']))
+        history_menu.add(_('Forward'), handler=window.on_forward, shortcut=PEWShortcut(']', modifiers=['CTRL']))
         menu_bar.add_menu(history_menu)
 
         help_menu = pew.ui.PEWMenu(_('Help'))
