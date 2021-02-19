@@ -2,33 +2,29 @@
 
 set -euo pipefail
 
-SCRIPTPATH=$(pwd)
-PIP_PATH="$SCRIPTPATH/env/bin/pip"
-PYTHON_PATH="$SCRIPTPATH/env/bin/python"
-
-echo "Now creating virtualenv..."
-virtualenv -p python3.5 env
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't create virtualenv."
-    exit 1
-fi
-
-pip install --upgrade "pip < 21.0"
-PIP_CMD="$PIP_PATH install -r requirements/release_upload.txt"
-echo "Running $PIP_CMD..."
-$PIP_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't install '$PIP_CMD'."
-    exit 1
-fi
-
-PYTHON_CMD="$PYTHON_PATH .buildkite/upload_artifacts.py"
-echo "Now excuting  upload artifacts script..."
+echo "--- Downloading all artifacts here for upload to GH"
 mkdir -p dist
 buildkite-agent artifact download 'dist/*' dist/
 
-$PYTHON_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't execute '$PYTHON_CMD'."
-    exit 1
-fi
+echo "--- Building docker environment in Docker"
+# Depends on relevant requirements file and script locations
+docker build \
+  --iidfile upload_artifacts.iid \
+  -f docker/upload_artifacts.dockerfile \
+  .
+
+IMAGE=$(cat upload_artifacts.iid)
+
+echo "--- Running script in Docker, image ID: $IMAGE"
+# Mounting dist so that we're not redundantly copying
+# Adding envars for GH access and Tag information
+docker run \
+  --mount type=bind,src=$PWD/dist,target=/dist \
+  -e GITHUB_ACCESS_TOKEN \
+  -e BUILDKITE_TAG \
+  --cidfile upload_artifacts.cid \
+  $IMAGE \
+
+CONTAINER=$(cat upload_artifacts.cid)
+
+trap "docker rm $CONTAINER" exit
