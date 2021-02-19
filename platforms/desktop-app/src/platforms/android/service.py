@@ -76,7 +76,7 @@ def do_share_by_intent():
 
     share_by_intent(**kwargs)
 
-    return "<html><body style='background: white;'>OK, boomer</body></html>"
+    return "<html><body style='background: white;'>Success</body></html>"
 
 
 if __name__ == "__main__":
