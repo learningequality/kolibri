@@ -271,7 +271,15 @@ def configure_http_server(port):
     if not getattr(settings, "DEVELOPER_MODE", False):
         # Mount static files
         application = WhiteNoise(
-            application, root=settings.STATIC_ROOT, prefix=settings.STATIC_URL
+            application,
+            root=settings.STATIC_ROOT,
+            prefix=settings.STATIC_URL,
+            # Use 1 day as the default cache time for static assets
+            max_age=24 * 60 * 60,
+            # Add a test for any file name that contains a semantic version number
+            # or a 32 digit number (assumed to be a file hash)
+            # these files will be cached indefinitely
+            immutable_file_test=r"((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)|[a-f0-9]{32})",
         )
 
     cherrypy.tree.graft(application, "/")
