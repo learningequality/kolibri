@@ -52,7 +52,7 @@
                 :invalid="Boolean(showError && numQuestIsInvalidText)"
                 :invalidText="numQuestIsInvalidText"
                 :label="$tr('numQuestions')"
-                @blur="numQuestionsBlurred = true"
+                @blur="handleNumberQuestionsBlur"
               />
             </KGridItem>
             <KGridItem
@@ -222,6 +222,10 @@
           return this.numberOfQuestions;
         },
         set(value) {
+          // If value in the input doesn't match state, update it
+          if (value !== Number(this.$refs.questionsInput.currentText)) {
+            this.$refs.questionsInput.currentText = value;
+          }
           // If it is cleared out, then set vuex state to null so it can be caught during
           // validation
           if (value === '') {
@@ -324,10 +328,19 @@
         if (!Number.isInteger(this.numQuestions)) {
           return this.$tr('numQuestionsBetween');
         }
+        if (this.availableQuestions === 0) {
+          return this.$tr('noneSelected');
+        }
+        if (this.availableQuestions == 0 || this.availableQuestions == null) {
+          return this.$tr('numQuestionsExceedNoExercises', {
+            inputNumQuestions: this.numQuestions,
+            maxQuestionsFromSelection: 0,
+          });
+        }
         if (this.numQuestions > this.availableQuestions) {
           return this.$tr('numQuestionsExceed', {
             inputNumQuestions: this.numQuestions,
-            maxQuestionsFromSelection: this.availableQuestions,
+            maxQuestionsFromSelection: String(this.availableQuestions),
           });
         }
         return null;
@@ -462,10 +475,8 @@
           });
       },
       continueProcess() {
-        if (this.numQuestionsInvalid) {
-          this.$refs.questionsInput.focus();
-        }
         if (this.selectionIsInvalidText) {
+          this.$refs.questionsInput.focus();
           this.showError = true;
         } else {
           this.$router.push({ name: PageNames.EXAM_CREATION_QUESTION_SELECTION });
@@ -492,6 +503,15 @@
           },
         };
       },
+      handleNumberQuestionsBlur() {
+        this.numQuestionsBlurred = true;
+        if (Number(this.$refs.questionsInput.currentText) < 0) {
+          this.numQuestions = 1;
+        }
+        if (Number(this.$refs.questionsInput.currentText) > this.maxQs) {
+          this.numQuestions = this.maxQs;
+        }
+      },
     },
     $trs: {
       createNewExamLabel: 'Create new quiz',
@@ -500,6 +520,8 @@
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+      numQuestionsExceedNoExercises:
+        'The max number of questions based on the exercises you selected is 0. Select more exercises to reach {inputNumQuestions} questions.',
       noneSelected: 'No exercises are selected',
       exitSearchButtonLabel: 'Exit search',
       selectionInformation:

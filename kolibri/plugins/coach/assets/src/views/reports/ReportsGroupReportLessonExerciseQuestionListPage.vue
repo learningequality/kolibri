@@ -7,7 +7,9 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
 
@@ -18,33 +20,33 @@
       </ReportsControls>
 
       <CoreTable :emptyMessage="coachString('questionListEmptyState')">
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachString('questionLabel') }}</th>
-            <th>{{ coachString('helpNeededLabel') }}</th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="tableRow in table" :key="tableRow.question_id">
-            <td>
-              <KLabeledIcon icon="person">
-                <KRouterLink
-                  :text="tableRow.title"
-                  :to="questionLink(tableRow.question_id)"
+        <template #headers>
+          <th>{{ coachString('questionLabel') }}</th>
+          <th>{{ coachString('helpNeededLabel') }}</th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <tr v-for="tableRow in table" :key="tableRow.question_id">
+              <td>
+                <KLabeledIcon icon="person">
+                  <KRouterLink
+                    :text="tableRow.title"
+                    :to="questionLink(tableRow.question_id)"
+                  />
+                </KLabeledIcon>
+              </td>
+              <td>
+                <LearnerProgressRatio
+                  :verb="VERBS.needHelp"
+                  :icon="ICONS.help"
+                  :total="tableRow.total"
+                  :count="tableRow.total - tableRow.correct"
+                  :verbosity="1"
                 />
-              </KLabeledIcon>
-            </td>
-            <td>
-              <LearnerProgressRatio
-                :verb="VERBS.needHelp"
-                :icon="ICONS.help"
-                :total="tableRow.total"
-                :count="tableRow.total - tableRow.correct"
-                :verbosity="1"
-              />
-            </td>
-          </tr>
-        </transition-group>
+              </td>
+            </tr>
+          </transition-group>
+        </template>
       </CoreTable>
     </KPageContainer>
   </CoreBase>
@@ -117,7 +119,6 @@
         exporter.export(this.table);
       },
     },
-    $trs: {},
   };
 
 </script>

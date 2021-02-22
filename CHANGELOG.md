@@ -2,7 +2,19 @@
 
 List of the most important changes for each release.
 
-## 0.14.4
+## 0.14.6
+
+### Fixed
+
+* #7725 On Firefox, text in Khmer, Hindi, Marathi, and other languages did not render properly.
+* #7722, #7488 After viewing a restricted page then signing in, users were redirected to the original destination URL.
+* #7597, #7612 Quiz creation workflow did not properly validate the number of questions
+
+([0.14.6 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.14.6))
+
+## 0.14.5
+
+(Note: 0.14.4 contained a critical issue and was superseded by 0.14.5)
 
 ### Changed
 
@@ -22,7 +34,7 @@ List of the most important changes for each release.
 * Numerous visual and accessibility issues
 * Facilities could not be renamed if the only changes were to the casing of the name (e.g. changing "Facility" to "FACILITY")
 
-([0.14.4 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.14.4))
+([0.14.5 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.14.5))
 
 ## 0.14.3
 

@@ -49,19 +49,21 @@
 
   import { mapState } from 'vuex';
   import { throttle } from 'frame-throttle';
-
   import { getLangDir } from 'kolibri.utils.i18n';
   import TranscriptCue from './TranscriptCue';
 
   export default {
     name: 'MediaPlayerTranscript',
     components: { TranscriptCue },
-    data: () => ({
-      langCode: null,
-      hovering: false,
-      nextScroll: null,
-      scrollThrottle: null,
-    }),
+    data() {
+      return {
+        // TODO figure if this is supposed to be used
+        // langCode: null,
+        hovering: false,
+        nextScroll: null,
+        scrollThrottle: null,
+      };
+    },
     computed: {
       ...mapState('mediaPlayer', ['player']),
       ...mapState('mediaPlayer/captions', ['transcript', 'language', 'cues', 'activeCueIds']),

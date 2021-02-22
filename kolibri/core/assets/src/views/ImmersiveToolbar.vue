@@ -11,41 +11,43 @@
     }"
     @nav-icon-click="$emit('navIconClick')"
   >
-    <router-link
-      v-if="hasRoute"
-      slot="icon"
-      :to="route"
-      class="link"
-      :class="$computedClass(linkStyle)"
-    >
-      <!-- TODO add aria label? -->
-      <KIconButton
-        v-if="icon === 'close'"
-        icon="close"
-        :color="$themeTokens.textInverted"
-        tabindex="-1"
-      />
-      <KIconButton
-        v-else
-        icon="back"
-        :color="$themeTokens.textInverted"
-      />
-    </router-link>
-    <span v-else slot="icon">
-      <KIconButton
-        v-if="icon === 'close'"
-        icon="close"
-        :color="$themeTokens.textInverted"
-        tabindex="-1"
-        @click="$emit('navIconClick')"
-      />
-      <KIconButton
-        v-else
-        icon="back"
-        :color="$themeTokens.textInverted"
-        @click="$emit('navIconClick')"
-      />
-    </span>
+    <template #icon>
+      <router-link
+        v-if="hasRoute"
+        :to="route"
+        class="link"
+        :class="$computedClass(linkStyle)"
+      >
+        <!-- TODO add aria label? -->
+        <KIconButton
+          v-if="icon === 'close'"
+          icon="close"
+          :color="$themeTokens.textInverted"
+          tabindex="-1"
+        />
+        <KIconButton
+          v-else
+          icon="back"
+          :color="$themeTokens.textInverted"
+        />
+      </router-link>
+
+      <span v-else>
+        <KIconButton
+          v-if="icon === 'close'"
+          icon="close"
+          :color="$themeTokens.textInverted"
+          tabindex="-1"
+          @click="$emit('navIconClick')"
+        />
+        <KIconButton
+          v-else
+          icon="back"
+          :color="$themeTokens.textInverted"
+          @click="$emit('navIconClick')"
+        />
+      </span>
+    </template>
   </UiToolbar>
 
 </template>

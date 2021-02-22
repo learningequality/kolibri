@@ -3,27 +3,27 @@
   <KPageContainer>
     <h1>{{ coreString('facilitiesLabel') }} </h1>
     <CoreTable>
-      <thead slot="thead">
-        <tr>
-          <th>{{ coreString('nameLabel') }}</th>
-          <th>{{ coreString('classesLabel') }}</th>
-        </tr>
-      </thead>
-      <tbody slot="tbody">
-        <tr v-for="facility in facilities" :key="facility.id">
-          <td>
-            <KLabeledIcon icon="facility">
-              <KRouterLink
-                :text="facility.name"
-                :to="facilityLink(facility)"
-              />
-            </KLabeledIcon>
-          </td>
-          <td>
-            {{ $formatNumber(facility.num_classrooms) }}
-          </td>
-        </tr>
-      </tbody>
+      <template #headers>
+        <th>{{ coreString('nameLabel') }}</th>
+        <th>{{ coreString('classesLabel') }}</th>
+      </template>
+      <template #tbody>
+        <tbody>
+          <tr v-for="facility in facilities" :key="facility.id">
+            <td>
+              <KLabeledIcon icon="facility">
+                <KRouterLink
+                  :text="facility.name"
+                  :to="facilityLink(facility)"
+                />
+              </KLabeledIcon>
+            </td>
+            <td>
+              {{ $formatNumber(facility.num_classrooms) }}
+            </td>
+          </tr>
+        </tbody>
+      </template>
     </CoreTable>
   </KPageContainer>
 

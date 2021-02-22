@@ -113,6 +113,22 @@ class DeviceInfoView(views.APIView):
         info["python_version"] = "{major}.{minor}.{micro}".format(
             major=version_info.major, minor=version_info.minor, micro=version_info.micro
         )
+
+        if not request.user.is_superuser:
+            # If user is not superuser, return just free space available and kolibri version
+            keys_to_remove = [
+                "urls",
+                "database_path",
+                "device_id",
+                "os",
+                "server_time",
+                "server_timezone",
+                "installer",
+                "python_version",
+            ]
+            for key in keys_to_remove:
+                del info[key]
+
         return Response(info)
 
 

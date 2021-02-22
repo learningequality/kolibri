@@ -32,7 +32,7 @@
           :emptyMessage="emptyMessage"
           :infoDescriptor="$tr('learnerGroups')"
         >
-          <template v-slot:info="userRow">
+          <template #info="userRow">
             <TruncatedItemList :items="getGroupsForLearner(userRow.user.id)" />
           </template>
         </UserTable>

@@ -43,7 +43,6 @@
         this.$emit('changeFullscreen', isFullscreen);
       },
     },
-    $trs: {},
   };
 
 </script>

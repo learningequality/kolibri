@@ -7,7 +7,9 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
 
@@ -19,55 +21,57 @@
         <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
           <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
           <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
-            <thead slot="thead">
-              <tr>
-                <th>{{ coachString('titleLabel') }}</th>
-                <th>{{ coreString('progressLabel') }}</th>
-              </tr>
-            </thead>
-            <transition-group slot="tbody" tag="tbody" name="list">
-              <tr v-for="tableRow in lessonsTable" :key="tableRow.id">
-                <td>
-                  <KLabeledIcon icon="lesson">
-                    <KRouterLink
-                      :to="classRoute('ReportsLearnerReportLessonPage', { lessonId: tableRow.id })"
-                      :text="tableRow.title"
-                    />
-                  </KLabeledIcon>
-                </td>
-                <td>
-                  <StatusSimple :status="tableRow.status" />
-                </td>
-              </tr>
-            </transition-group>
+            <template #headers>
+              <th>{{ coachString('titleLabel') }}</th>
+              <th>{{ coreString('progressLabel') }}</th>
+            </template>
+            <template #tbody>
+              <transition-group tag="tbody" name="list">
+                <tr v-for="tableRow in lessonsTable" :key="tableRow.id">
+                  <td>
+                    <KLabeledIcon icon="lesson">
+                      <KRouterLink
+                        :to="classRoute('ReportsLearnerReportLessonPage', {
+                          lessonId: tableRow.id
+                        })"
+                        :text="tableRow.title"
+                      />
+                    </KLabeledIcon>
+                  </td>
+                  <td>
+                    <StatusSimple :status="tableRow.status" />
+                  </td>
+                </tr>
+              </transition-group>
+            </template>
           </CoreTable>
         </KGridItem>
         <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
           <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
           <CoreTable :class="{ print: $isPrint }" :emptyMessage="coachString('quizListEmptyState')">
-            <thead slot="thead">
-              <tr>
-                <th>{{ coachString('titleLabel') }}</th>
-                <th>{{ coreString('progressLabel') }}</th>
-                <th>{{ coachString('scoreLabel') }}</th>
-              </tr>
-            </thead>
-            <transition-group slot="tbody" tag="tbody" name="list">
-              <tr v-for="tableRow in examsTable" :key="tableRow.id">
-                <td>
-                  <KLabeledIcon icon="quiz">
-                    <KRouterLink
-                      :to="quizLink(tableRow.id)"
-                      :text="tableRow.title"
-                    />
-                  </KLabeledIcon>
-                </td>
-                <td>
-                  <StatusSimple :status="tableRow.statusObj.status" />
-                </td>
-                <td><Score :value="tableRow.statusObj.score" /></td>
-              </tr>
-            </transition-group>
+            <template #headers>
+              <th>{{ coachString('titleLabel') }}</th>
+              <th>{{ coreString('progressLabel') }}</th>
+              <th>{{ coachString('scoreLabel') }}</th>
+            </template>
+            <template #tbody>
+              <transition-group tag="tbody" name="list">
+                <tr v-for="tableRow in examsTable" :key="tableRow.id">
+                  <td>
+                    <KLabeledIcon icon="quiz">
+                      <KRouterLink
+                        :to="quizLink(tableRow.id)"
+                        :text="tableRow.title"
+                      />
+                    </KLabeledIcon>
+                  </td>
+                  <td>
+                    <StatusSimple :status="tableRow.statusObj.status" />
+                  </td>
+                  <td><Score :value="tableRow.statusObj.score" /></td>
+                </tr>
+              </transition-group>
+            </template>
           </CoreTable>
         </KGridItem>
       </KGrid>

@@ -46,7 +46,7 @@
       <p>{{ $tr('kolibriAboutP4') }}</p>
       <p>{{ $tr('kolibriAboutP5') }}</p>
     </section>
-    <template v-slot:actions>
+    <template #actions>
       <!--
         Need to inject a button without type="submit" attribute
         so it doesn't force a submit event in the SetupWizard SuperuserCredentialsForm

@@ -6,7 +6,7 @@
     :style="{ borderTopColor: $themePalette.grey.v_200 }"
   >
     <ChannelDetails :channel="channel">
-      <template v-slot:beforethumbnail>
+      <template #beforethumbnail>
         <KCheckbox
           class="checkbox"
           :label="channel.name"
@@ -16,7 +16,7 @@
         />
       </template>
 
-      <template v-slot:abovedescription>
+      <template #abovedescription>
         <p v-if="resourcesOnDevice">
           {{ $tr('resourcesOnDevice') }}
         </p>

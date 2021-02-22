@@ -366,7 +366,7 @@ class FacilityViewSet(ValuesViewset):
                         )
                     )
                     .order_by("-last_activity_timestamp")
-                    .values("last_activity_timestamp")
+                    .values("last_activity_timestamp")[:1]
                 )
             )
         )

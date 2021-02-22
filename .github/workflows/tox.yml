@@ -14,16 +14,16 @@ jobs:
         uses: fkirc/skip-duplicate-actions@master
         with:
           github_token: ${{ github.token }}
-          paths: '["**.py", "requirements/*.txt"]'
+          paths: '["**.py", "requirements/*.txt", ".github/workflows/tox.yml", "tox.ini"]'
   unit_test:
     name: Python unit tests
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     strategy:
       max-parallel: 5
       matrix:
-        python-version: [2.7, 3.4, 3.5, 3.6, 3.7, 3.8]
+        python-version: [2.7, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9]
 
     steps:
     - uses: actions/checkout@v2
@@ -48,7 +48,7 @@ jobs:
     name: Python postgres unit tests
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     services:
       # Label used to access the service container
       postgres:

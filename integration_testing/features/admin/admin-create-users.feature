@@ -23,7 +23,7 @@ Feature: Admin creates users
       And I see the new user on the *Facility > Users* page
       And I see the *Facility coach* label besides their name
 
-  Scenario: Create class coach user account
+   Scenario: Create class coach user account
     When I click on *New user* button
     Then I see *Create new user* page
     When I enter user's full name <full_name>

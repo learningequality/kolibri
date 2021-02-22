@@ -7,7 +7,9 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
 
@@ -16,33 +18,33 @@
       <ReportsControls @export="exportCSV" />
 
       <CoreTable :emptyMessage="coachString('activityListEmptyState')">
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachString('nameLabel') }}</th>
-            <th>{{ coreString('progressLabel') }}</th>
-            <th>{{ coachString('scoreLabel') }}</th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="tableRow in table" :key="tableRow.id">
-            <td>
-              <KLabeledIcon icon="person">
-                <KRouterLink
-                  v-if="tableRow.statusObj.status !== STATUSES.notStarted"
-                  :text="tableRow.name"
-                  :to="detailLink(tableRow.id)"
-                />
-                <template v-else>
-                  {{ tableRow.name }}
-                </template>
-              </KLabeledIcon>
-            </td>
-            <td>
-              <StatusSimple :status="tableRow.statusObj.status" />
-            </td>
-            <td><Score :value="tableRow.statusObj.score" /></td>
-          </tr>
-        </transition-group>
+        <template #headers>
+          <th>{{ coachString('nameLabel') }}</th>
+          <th>{{ coreString('progressLabel') }}</th>
+          <th>{{ coachString('scoreLabel') }}</th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <tr v-for="tableRow in table" :key="tableRow.id">
+              <td>
+                <KLabeledIcon icon="person">
+                  <KRouterLink
+                    v-if="tableRow.statusObj.status !== STATUSES.notStarted"
+                    :text="tableRow.name"
+                    :to="detailLink(tableRow.id)"
+                  />
+                  <template v-else>
+                    {{ tableRow.name }}
+                  </template>
+                </KLabeledIcon>
+              </td>
+              <td>
+                <StatusSimple :status="tableRow.statusObj.status" />
+              </td>
+              <td><Score :value="tableRow.statusObj.score" /></td>
+            </tr>
+          </transition-group>
+        </template>
       </CoreTable>
     </KPageContainer>
   </CoreBase>
@@ -52,6 +54,7 @@
 
 <script>
 
+  import sortBy from 'lodash/sortBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
@@ -100,7 +103,7 @@
       },
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
-        const sorted = this._.sortBy(learners, ['name']);
+        const sorted = sortBy(learners, ['name']);
         return sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
@@ -136,7 +139,6 @@
         exporter.export(this.table);
       },
     },
-    $trs: {},
   };
 
 </script>

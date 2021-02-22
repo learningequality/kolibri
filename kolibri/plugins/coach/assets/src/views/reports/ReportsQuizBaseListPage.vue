@@ -6,7 +6,9 @@
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KGrid gutter="16">
       <KGridItem>
@@ -16,11 +18,12 @@
           :backlinkLabel="coachString('allQuizzesLabel')"
           optionsFor="report"
         >
-          <QuizOptionsDropdownMenu
-            slot="dropdown"
-            optionsFor="report"
-            @select="handleSelectOption"
-          />
+          <template #dropdown>
+            <QuizOptionsDropdownMenu
+              optionsFor="report"
+              @select="handleSelectOption"
+            />
+          </template>
         </QuizLessonDetailsHeader>
       </KGridItem>
       <KGridItem :layout12="{ span: $isPrint ? 12 : 4 }">

@@ -16,7 +16,7 @@ If you encounter issues:
 * Please let us know if our docs can be improved, either by filing an issue or submitting a PR!
 
 .. note::
-  Theoretically Windows can be used to develop Kolibri, but we haven't tested this lately. If you're running Windows you are likely to encounter issues with this guide. That said, we'd appreciate any help improving these docs for Windows developers!
+  Theoretically, Windows can be used to develop Kolibri, but we haven't tested this lately. If you're running Windows, you are likely to encounter issues with this guide. That said, we'd appreciate any help improving these docs for Windows developers!
 
 
 Git and GitHub
@@ -35,7 +35,7 @@ Git and GitHub
 Checking out the code
 ~~~~~~~~~~~~~~~~~~~~~
 
-First, clone your Kolibri fork to your local computer. In command below, replace ``$USERNAME`` with your own GitHub username:
+First, clone your Kolibri fork to your local computer. In the command below, replace ``$USERNAME`` with your own GitHub username:
 
 .. code-block:: bash
 
@@ -89,14 +89,14 @@ Once Pipenv is installed, you can use the following commands to set up and use a
   pipenv --python 3  # can also make a python 2 environment
   pipenv shell  # activates the virtual environment
 
-Now, any commands run with will target your virtual environment rather than the global Python installation. To deactivate the virtualenv, simply run:
+Now, any commands you run will target your virtual environment rather than the global Python installation. To deactivate the virtualenv, simply run:
 
 
 .. code-block:: bash
 
   exit
 
-(Note that you'll want to leave it activated for the remainder of project setup)
+(Note that you'll want to leave it activated for the remainder of the setup process)
 
 .. warning::
   Never install project dependencies using ``sudo pip install ...``
@@ -194,7 +194,7 @@ Or:
 
 .. warning::
 
-  Some functionality such as right-to-left language support is broken when hot-reload is enabled
+  Some functionality, such as right-to-left language support, is broken when hot-reload is enabled
 
 
 Development server - advanced
@@ -208,13 +208,13 @@ In the first terminal you can start the django development server with this comm
 
   kolibri manage --debug runserver --settings=kolibri.deployment.default.settings.dev "0.0.0.0:8000"
 
-In the second terminal you can start the webpack build process for frontend assets in 'watch' mode – meaning they will be automatically rebuilt if you modify them – with this command:
+In the second terminal, you can start the webpack build process for frontend assets in 'watch' mode – meaning they will be automatically rebuilt if you modify them – with this command:
 
 .. code-block:: bash
 
   yarn run watch
 
-If you need to make the development server available through the LAN, you need to do a production build of the assets, so use the following commands:
+If you need to make the development server available through the LAN, you need to do a production build of the assets; so use the following commands:
 
 .. code-block:: bash
 
@@ -228,7 +228,7 @@ Now you can simply use your server's IP from another device in the local network
 
 .. tip::
 
-  If get an error similar to "Node Sass could not find a binding for your current environment", try running ``npm rebuild node-sass``
+  If you get an error similar to "Node Sass could not find a binding for your current environment", try running ``npm rebuild node-sass``
 
 
 
@@ -353,7 +353,7 @@ Frontend dev tools
 
 `Vue.js devtools <https://github.com/vuejs/vue-devtools>`__ is a browser plugin that is very helpful when working with Vue.js components and Vuex.
 
-So ensure an more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylelint.
+To ensure a more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylelint.
 
 
 Database setup
@@ -374,7 +374,7 @@ Development workflows
 Design system
 ~~~~~~~~~~~~~
 
-We have a large number of reusable patterns, conventions, and components built into the application. Review the `Kolibri Design System <http://kolibribeta.learningequality.org/design>`__ to get a sense for the tools at your disposal, and to ensure that new changes stay consistent with established UI patterns.
+We have a large number of reusable patterns, conventions, and components built into the application. Review the `Kolibri Design System <https://design-system.learningequality.org/>`__ to get a sense for the tools at your disposal, and to ensure that new changes stay consistent with established UI patterns.
 
 
 Linting and auto-formatting
@@ -417,7 +417,7 @@ Automated testing
 ~~~~~~~~~~~~~~~~~
 
 
-Kolibri comes with a Javascript test suite based on `Jest <https://facebook.github.io/jest/>`__. To run all front-end tests:
+Kolibri comes with a Javascript test suite based on `Jest <https://jestjs.io/>`__. To run all front-end tests:
 
 .. code-block:: bash
 

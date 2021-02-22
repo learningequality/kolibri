@@ -82,7 +82,7 @@
               />
             </p>
 
-            <div slot="options">
+            <div>
               <component :is="component" v-for="component in loginOptions" :key="component.name" />
             </div>
             <p v-if="showGuestAccess" class="guest small-text">
@@ -159,6 +159,7 @@
   import { ComponentMap } from '../constants';
   import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
   import commonUserStrings from './commonUserStrings';
+  import getUrlParameter from './getUrlParameter';
   import plugin_data from 'plugin_data';
 
   export default {
@@ -203,6 +204,14 @@
       },
       canSignUp() {
         return this.facilityConfig.learner_can_sign_up;
+      },
+      nextParam() {
+        // query is after hash
+        if (this.$route.query.next) {
+          return this.$route.query.next;
+        }
+        // query is before hash
+        return getUrlParameter('next');
       },
       signUpPage() {
         const signUpRoute = this.$router.getRoute(ComponentMap.SIGN_UP);

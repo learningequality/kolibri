@@ -6,6 +6,7 @@ from mock import ANY
 from mock import call
 from mock import Mock
 from mock import patch
+from mock import PropertyMock
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import ParseError
 from rest_framework.exceptions import PermissionDenied
@@ -88,6 +89,34 @@ class TaskAPITestCase(BaseAPITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 404)
+
+    def test_tasks_clearable_flag(self, queue_mock):
+        with patch(
+            "kolibri.core.tasks.queue.Queue.jobs", new_callable=PropertyMock
+        ) as jobs_mock:
+            jobs_mock.return_value = [
+                fake_job(state=state)
+                for state in [
+                    # not clearable
+                    State.SCHEDULED,
+                    State.QUEUED,
+                    State.RUNNING,
+                    State.CANCELING,
+                    # clearable
+                    State.FAILED,
+                    State.CANCELED,
+                    State.COMPLETED,
+                ]
+            ]
+            response = self.client.get(reverse("kolibri:core:task-list"))
+
+            def assert_clearable(index, expected):
+                self.assertEqual(response.data[index]["clearable"], expected)
+
+            for i in [0, 1, 2, 3]:
+                assert_clearable(i, False)
+            for i in [4, 5, 6]:
+                assert_clearable(i, True)
 
 
 class TaskAPIPermissionsTestCase(APITestCase):

@@ -58,7 +58,8 @@
     },
     computed: {
       isInProgress() {
-        return this.progress !== null && this.progress >= 0 && this.progress < 1;
+        // this logic is updated to be consistent with the logic in CardThumbnail
+        return this.progress !== null && this.progress > 0 && this.progress < 1;
       },
       isCompleted() {
         return this.progress >= 1;

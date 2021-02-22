@@ -134,3 +134,6 @@ SQLITE_MAX_VARIABLE_NUMBER.cache
 
 # static c extensions cache folder
 cext_cache
+
+# ignore gzipped files
+*.gz

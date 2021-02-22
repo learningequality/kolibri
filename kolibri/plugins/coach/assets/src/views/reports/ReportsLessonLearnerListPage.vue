@@ -7,7 +7,10 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
+
     <KGrid gutter="16">
       <KGridItem>
         <QuizLessonDetailsHeader
@@ -15,11 +18,12 @@
           :backlinkLabel="coreString('allLessonsLabel')"
           :backlink="classRoute('ReportsLessonListPage')"
         >
-          <LessonOptionsDropdownMenu
-            slot="dropdown"
-            optionsFor="report"
-            @select="handleSelectOption"
-          />
+          <template #dropdown>
+            <LessonOptionsDropdownMenu
+              optionsFor="report"
+              @select="handleSelectOption"
+            />
+          </template>
         </QuizLessonDetailsHeader>
       </KGridItem>
       <KGridItem :layout12="{ span: $isPrint ? 12 : 4 }">
@@ -49,31 +53,31 @@
           </h2>
 
           <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
-            <thead slot="thead">
-              <tr>
-                <th>{{ coachString('nameLabel') }}</th>
-                <th>{{ coreString('progressLabel') }}</th>
-                <th>{{ coachString('groupsLabel') }}</th>
-              </tr>
-            </thead>
-            <transition-group slot="tbody" tag="tbody" name="list">
-              <tr v-for="tableRow in table" :key="tableRow.id">
-                <td>
-                  <KLabeledIcon icon="person">
-                    <KRouterLink
-                      :text="tableRow.name"
-                      :to="classRoute('ReportsLessonLearnerPage', { learnerId: tableRow.id })"
-                    />
-                  </KLabeledIcon>
-                </td>
-                <td>
-                  <StatusSimple :status="tableRow.status" />
-                </td>
-                <td>
-                  <TruncatedItemList :items="tableRow.groups" />
-                </td>
-              </tr>
-            </transition-group>
+            <template #headers>
+              <th>{{ coachString('nameLabel') }}</th>
+              <th>{{ coreString('progressLabel') }}</th>
+              <th>{{ coachString('groupsLabel') }}</th>
+            </template>
+            <template #tbody>
+              <transition-group tag="tbody" name="list">
+                <tr v-for="tableRow in table" :key="tableRow.id">
+                  <td>
+                    <KLabeledIcon icon="person">
+                      <KRouterLink
+                        :text="tableRow.name"
+                        :to="classRoute('ReportsLessonLearnerPage', { learnerId: tableRow.id })"
+                      />
+                    </KLabeledIcon>
+                  </td>
+                  <td>
+                    <StatusSimple :status="tableRow.status" />
+                  </td>
+                  <td>
+                    <TruncatedItemList :items="tableRow.groups" />
+                  </td>
+                </tr>
+              </transition-group>
+            </template>
           </CoreTable>
         </KPageContainer>
       </KGridItem>
@@ -85,6 +89,7 @@
 
 <script>
 
+  import sortBy from 'lodash/sortBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import CSVExporter from '../../csv/exporter';
@@ -108,7 +113,7 @@
       },
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
-        const sorted = this._.sortBy(learners, ['name']);
+        const sorted = sortBy(learners, ['name']);
         return sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
@@ -156,7 +161,6 @@
         exporter.export(this.table);
       },
     },
-    $trs: {},
   };
 
 </script>

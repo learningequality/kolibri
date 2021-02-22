@@ -53,10 +53,13 @@
         required: true,
       },
     },
-    data: () => ({
-      canvas: null,
-      rendered: false,
-    }),
+    data() {
+      return {
+        // TODO figure out if this is needed
+        // canvas: null,
+        rendered: false,
+      };
+    },
     computed: {
       actualHeight() {
         if (!this.pageReady) {

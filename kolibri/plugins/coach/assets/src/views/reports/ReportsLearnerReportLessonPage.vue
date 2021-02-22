@@ -7,7 +7,9 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       <p>
@@ -23,26 +25,26 @@
       </h1>
       <HeaderTable>
         <HeaderTableRow v-if="$isPrint">
-          <template v-slot:key>
+          <template #key>
             {{ coreString('learnerLabel') }}
           </template>
-          <template v-slot:value>
+          <template #value>
             {{ learner.name }}
           </template>
         </HeaderTableRow>
         <HeaderTableRow v-show="!$isPrint">
-          <template v-slot:key>
+          <template #key>
             {{ coachString('statusLabel') }}
           </template>
-          <template v-slot:value>
+          <template #value>
             <LessonActive :active="lesson.active" />
           </template>
         </HeaderTableRow>
         <HeaderTableRow v-show="!$isPrint">
-          <template v-slot:key>
+          <template #key>
             {{ coachString('descriptionLabel') }}
           </template>
-          <template v-slot:value>
+          <template #value>
             <span dir="auto">
               {{ lesson.description || coachString('descriptionMissingLabel') }}
             </span>
@@ -53,40 +55,40 @@
       <ReportsControls @export="exportCSV" />
 
       <CoreTable :emptyMessage="emptyMessage">
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachString('titleLabel') }}</th>
-            <th>{{ coreString('progressLabel') }}</th>
-            <th>{{ coachString('timeSpentLabel') }}</th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="tableRow in table" :key="tableRow.node_id">
-            <td>
-              <KLabeledIcon :icon="tableRow.kind">
-                <KRouterLink
-                  v-if="showLink(tableRow)"
-                  :text="tableRow.title"
-                  :to="classRoute(
-                    'ReportsLearnerReportLessonExercisePage',
-                    { exerciseId: tableRow.content_id }
-                  )"
+        <template #headers>
+          <th>{{ coachString('titleLabel') }}</th>
+          <th>{{ coreString('progressLabel') }}</th>
+          <th>{{ coachString('timeSpentLabel') }}</th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <tr v-for="tableRow in table" :key="tableRow.node_id">
+              <td>
+                <KLabeledIcon :icon="tableRow.kind">
+                  <KRouterLink
+                    v-if="showLink(tableRow)"
+                    :text="tableRow.title"
+                    :to="classRoute(
+                      'ReportsLearnerReportLessonExercisePage',
+                      { exerciseId: tableRow.content_id }
+                    )"
+                  />
+                  <template v-else>
+                    {{ tableRow.title }}
+                  </template>
+                </KLabeledIcon>
+              </td>
+              <td>
+                <StatusSimple :status="tableRow.statusObj.status" />
+              </td>
+              <td>
+                <TimeDuration
+                  :seconds="showTime(tableRow)"
                 />
-                <template v-else>
-                  {{ tableRow.title }}
-                </template>
-              </KLabeledIcon>
-            </td>
-            <td>
-              <StatusSimple :status="tableRow.statusObj.status" />
-            </td>
-            <td>
-              <TimeDuration
-                :seconds="showTime(tableRow)"
-              />
-            </td>
-          </tr>
-        </transition-group>
+              </td>
+            </tr>
+          </transition-group>
+        </template>
       </CoreTable>
     </KPageContainer>
   </CoreBase>
@@ -158,7 +160,6 @@
         exporter.export(this.table);
       },
     },
-    $trs: {},
   };
 
 </script>

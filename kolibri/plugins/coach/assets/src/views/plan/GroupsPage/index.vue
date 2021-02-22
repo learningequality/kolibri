@@ -6,7 +6,9 @@
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       <PlanHeader />
@@ -19,27 +21,22 @@
       </div>
 
       <CoreTable>
-        <thead slot="thead">
-          <tr>
-            <th>
-              {{ coachString('nameLabel') }}
-            </th>
-            <th>
-              {{ coreString('learnersLabel') }}
-            </th>
-            <th></th>
-          </tr>
-
-        </thead>
-        <tbody slot="tbody">
-          <GroupRowTr
-            v-for="group in sortedGroups"
-            :key="group.id"
-            :group="group"
-            @rename="openRenameGroupModal"
-            @delete="openDeleteGroupModal"
-          />
-        </tbody>
+        <template #headers>
+          <th>{{ coachString('nameLabel') }}</th>
+          <th>{{ coreString('learnersLabel') }}</th>
+          <th></th>
+        </template>
+        <template #tbody>
+          <tbody>
+            <GroupRowTr
+              v-for="group in sortedGroups"
+              :key="group.id"
+              :group="group"
+              @rename="openRenameGroupModal"
+              @delete="openDeleteGroupModal"
+            />
+          </tbody>
+        </template>
       </CoreTable>
 
       <p v-if="!sortedGroups.length">

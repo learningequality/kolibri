@@ -28,7 +28,14 @@ class LearnModule extends KolibriApp {
         !this.store.state.allowGuestAccess &&
         !this.store.getters.isUserLoggedIn
       ) {
-        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+        // Pass the ?next param on to AuthMessage
+        const currentURL = window.encodeURIComponent(window.location.href);
+        router.replace({
+          name: PageNames.CONTENT_UNAVAILABLE,
+          query: {
+            next: currentURL,
+          },
+        });
       } else {
         next();
       }

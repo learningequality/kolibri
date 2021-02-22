@@ -67,7 +67,7 @@
       isCoach
     >
       <!-- Don't need template in Vue 2.5+ -->
-      <template v-slot:action="userRow">
+      <template #action="userRow">
         <KButton
           :text="coreString('removeAction')"
           appearance="flat-button"
@@ -101,7 +101,7 @@
       :users="classLearners"
       :emptyMessage="$tr('noLearnersInClassMessage')"
     >
-      <template v-slot:action="userRow">
+      <template #action="userRow">
         <KButton
           :text="coreString('removeAction')"
           appearance="flat-button"

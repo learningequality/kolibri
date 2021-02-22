@@ -7,7 +7,9 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       <p>
@@ -22,26 +24,26 @@
 
       <HeaderTable>
         <HeaderTableRow v-if="$isPrint">
-          <template v-slot:key>
+          <template #key>
             {{ coachString('groupNameLabel') }}
           </template>
-          <template v-slot:value>
+          <template #value>
             {{ group.name }}
           </template>
         </HeaderTableRow>
         <HeaderTableRow v-if="$isPrint">
-          <template v-slot:key>
+          <template #key>
             {{ coachString('lessonLabel') }}
           </template>
-          <template v-slot:value>
+          <template #value>
             {{ lesson.title }}
           </template>
         </HeaderTableRow>
         <HeaderTableRow>
-          <template v-slot:key>
+          <template #key>
             {{ coachString('avgTimeSpentLabel') }}
           </template>
-          <template v-slot:value>
+          <template #value>
             <TimeDuration :seconds="360" />
           </template>
         </HeaderTableRow>
@@ -54,34 +56,34 @@
       </ReportsControls>
 
       <CoreTable :emptyMessage="coachString('activityListEmptyState')">
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachString('nameLabel') }}</th>
-            <th>{{ coachString('statusLabel') }}</th>
-            <th>{{ coachString('timeSpentLabel') }}</th>
-            <th>{{ coachString('groupsLabel') }}</th>
-            <th>{{ coachString('lastActivityLabel') }}</th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="tableRow in table" :key="tableRow.id">
-            <td>
-              <KLabeledIcon icon="person" :label="tableRow.name" />
-            </td>
-            <td>
-              <StatusSimple :status="tableRow.statusObj.status" />
-            </td>
-            <td>
-              <TimeDuration :seconds="tableRow.statusObj.time_spent" />
-            </td>
-            <td>
-              <TruncatedItemList :items="tableRow.groups" />
-            </td>
-            <td>
-              <ElapsedTime :date="tableRow.statusObj.last_activity" />
-            </td>
-          </tr>
-        </transition-group>
+        <template #headers>
+          <th>{{ coachString('nameLabel') }}</th>
+          <th>{{ coachString('statusLabel') }}</th>
+          <th>{{ coachString('timeSpentLabel') }}</th>
+          <th>{{ coachString('groupsLabel') }}</th>
+          <th>{{ coachString('lastActivityLabel') }}</th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <tr v-for="tableRow in table" :key="tableRow.id">
+              <td>
+                <KLabeledIcon icon="person" :label="tableRow.name" />
+              </td>
+              <td>
+                <StatusSimple :status="tableRow.statusObj.status" />
+              </td>
+              <td>
+                <TimeDuration :seconds="tableRow.statusObj.time_spent" />
+              </td>
+              <td>
+                <TruncatedItemList :items="tableRow.groups" />
+              </td>
+              <td>
+                <ElapsedTime :date="tableRow.statusObj.last_activity" />
+              </td>
+            </tr>
+          </transition-group>
+        </template>
       </CoreTable>
     </KPageContainer>
   </CoreBase>
@@ -91,6 +93,7 @@
 
 <script>
 
+  import sortBy from 'lodash/sortBy';
   import commonCoach from '../common';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
@@ -120,7 +123,7 @@
       },
       table() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
-        const sorted = this._.sortBy(learners, ['name']);
+        const sorted = sortBy(learners, ['name']);
         return sorted.map(learner => {
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
@@ -154,7 +157,6 @@
         exporter.export(this.table);
       },
     },
-    $trs: {},
   };
 
 </script>

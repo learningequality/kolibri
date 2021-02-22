@@ -6,7 +6,9 @@
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       <PlanHeader />
@@ -33,46 +35,46 @@
       </div>
 
       <CoreTable>
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachString('titleLabel') }}</th>
-            <th>{{ $tr('size') }}</th>
-            <th>{{ coachString('recipientsLabel') }}</th>
-            <th>{{ $tr('visibleToLearnersLabel') }}</th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr
-            v-for="lesson in sortedLessons"
-            v-show="showLesson(lesson)"
-            :key="lesson.id"
-          >
-            <td>
-              <KLabeledIcon icon="lesson">
-                <KRouterLink
-                  :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
-                  :text="lesson.title"
+        <template #headers>
+          <th>{{ coachString('titleLabel') }}</th>
+          <th>{{ $tr('size') }}</th>
+          <th>{{ coachString('recipientsLabel') }}</th>
+          <th>{{ $tr('visibleToLearnersLabel') }}</th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <tr
+              v-for="lesson in sortedLessons"
+              v-show="showLesson(lesson)"
+              :key="lesson.id"
+            >
+              <td>
+                <KLabeledIcon icon="lesson">
+                  <KRouterLink
+                    :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
+                    :text="lesson.title"
+                  />
+                </KLabeledIcon>
+              </td>
+              <td>{{ coachString('numberOfResources', { value: lesson.resources.length }) }}</td>
+              <td>
+                <Recipients
+                  :groupNames="getRecipientNamesForLesson(lesson)"
+                  :hasAssignments="lesson.lesson_assignments.length > 0 ||
+                    lesson.learner_ids.length > 0"
                 />
-              </KLabeledIcon>
-            </td>
-            <td>{{ coachString('numberOfResources', { value: lesson.resources.length }) }}</td>
-            <td>
-              <Recipients
-                :groupNames="getRecipientNamesForLesson(lesson)"
-                :hasAssignments="lesson.lesson_assignments.length > 0 ||
-                  lesson.learner_ids.length > 0"
-              />
-            </td>
-            <td>
-              <KSwitch
-                name="toggle-lesson-visibility"
-                :checked="lesson.is_active"
-                :value="lesson.is_active"
-                @change="handleToggleVisibility(lesson)"
-              />
-            </td>
-          </tr>
-        </transition-group>
+              </td>
+              <td>
+                <KSwitch
+                  name="toggle-lesson-visibility"
+                  :checked="lesson.is_active"
+                  :value="lesson.is_active"
+                  @change="handleToggleVisibility(lesson)"
+                />
+              </td>
+            </tr>
+          </transition-group>
+        </template>
       </CoreTable>
 
       <p v-if="!lessons.length">

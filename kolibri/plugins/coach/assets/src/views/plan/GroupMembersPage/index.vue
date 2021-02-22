@@ -6,7 +6,9 @@
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       <p>
@@ -41,42 +43,37 @@
         </KFixedGrid>
 
         <CoreTable>
-          <thead slot="thead">
-            <tr>
-              <th>
-                {{ coreString('fullNameLabel') }}
-              </th>
-              <th>
-                {{ coreString('usernameLabel') }}
-              </th>
-              <th></th>
-            </tr>
+          <template #headers>
+            <th>{{ coreString('fullNameLabel') }}</th>
+            <th>{{ coreString('usernameLabel') }}</th>
+            <th></th>
+          </template>
 
-          </thead>
-
-          <tbody slot="tbody">
-            <p v-if="currentGroup.users.length === 0">
-              {{ $tr('noLearnersInGroup') }}
-            </p>
-            <tr
-              v-for="user in currentGroup.users"
-              :key="user.id"
-            >
-              <td>
-                <KLabeledIcon icon="person" :label="user.full_name" />
-              </td>
-              <td>
-                {{ user.username }}
-              </td>
-              <td class="core-table-button-col">
-                <KButton
-                  :text="coreString('removeAction')"
-                  appearance="flat-button"
-                  @click="userForRemoval = user"
-                />
-              </td>
-            </tr>
-          </tbody>
+          <template #tbody>
+            <tbody>
+              <p v-if="currentGroup.users.length === 0">
+                {{ $tr('noLearnersInGroup') }}
+              </p>
+              <tr
+                v-for="user in currentGroup.users"
+                :key="user.id"
+              >
+                <td>
+                  <KLabeledIcon icon="person" :label="user.full_name" />
+                </td>
+                <td>
+                  {{ user.username }}
+                </td>
+                <td class="core-table-button-col">
+                  <KButton
+                    :text="coreString('removeAction')"
+                    appearance="flat-button"
+                    @click="userForRemoval = user"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </template>
         </CoreTable>
         <RemoveFromGroupModal
           v-if="userForRemoval"

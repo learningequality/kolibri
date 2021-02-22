@@ -3,7 +3,7 @@
   <div>
     <!-- visible text area, hidden to screenreaders -->
     <textarea
-      v-model="text"
+      :value="text"
       readonly
       class="error-log"
       wrap="soft"

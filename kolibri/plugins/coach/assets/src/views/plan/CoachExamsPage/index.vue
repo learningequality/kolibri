@@ -6,7 +6,9 @@
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       <PlanHeader />
@@ -32,60 +34,60 @@
         />
       </div>
       <CoreTable>
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachString('titleLabel') }}</th>
-            <th>{{ coachString('recipientsLabel') }}</th>
-            <th class="center-text">
-              {{ coachString('statusLabel') }}
-            </th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr
-            v-for="exam in filteredExams"
-            :key="exam.id"
-          >
-            <td>
-              <KLabeledIcon icon="quiz">
-                <KRouterLink
-                  :to="$router.getRoute('QuizSummaryPage', { quizId: exam.id })"
-                  appearance="basic-link"
-                  :text="exam.title"
+        <template #headers>
+          <th>{{ coachString('titleLabel') }}</th>
+          <th>{{ coachString('recipientsLabel') }}</th>
+          <th class="center-text">
+            {{ coachString('statusLabel') }}
+          </th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <tr
+              v-for="exam in filteredExams"
+              :key="exam.id"
+            >
+              <td>
+                <KLabeledIcon icon="quiz">
+                  <KRouterLink
+                    :to="$router.getRoute('QuizSummaryPage', { quizId: exam.id })"
+                    appearance="basic-link"
+                    :text="exam.title"
+                  />
+                </KLabeledIcon>
+              </td>
+
+              <td>
+                <Recipients
+                  :groupNames="getRecipientNamesForExam(exam)"
+                  :hasAssignments="exam.assignments.length > 0"
                 />
-              </KLabeledIcon>
-            </td>
+              </td>
 
-            <td>
-              <Recipients
-                :groupNames="getRecipientNamesForExam(exam)"
-                :hasAssignments="exam.assignments.length > 0"
-              />
-            </td>
+              <td class="button-col center-text core-table-button-col">
+                <!-- Open quiz button -->
+                <KButton
+                  v-if="!exam.active && !exam.archive"
+                  :text="coachString('openQuizLabel')"
+                  appearance="flat-button"
+                  @click="showOpenConfirmationModal = true; modalQuizId = exam.id"
+                />
+                <!-- Close quiz button -->
+                <KButton
+                  v-if="exam.active && !exam.archive"
+                  :text="coachString('closeQuizLabel')"
+                  appearance="flat-button"
+                  @click="showCloseConfirmationModal = true; modalQuizId = exam.id;"
+                />
+                <!-- Closed quiz label -->
+                <div v-if="exam.archive">
+                  {{ coachString('quizClosedLabel') }}
+                </div>
+              </td>
 
-            <td class="button-col center-text core-table-button-col">
-              <!-- Open quiz button -->
-              <KButton
-                v-if="!exam.active && !exam.archive"
-                :text="coachString('openQuizLabel')"
-                appearance="flat-button"
-                @click="showOpenConfirmationModal = true; modalQuizId = exam.id"
-              />
-              <!-- Close quiz button -->
-              <KButton
-                v-if="exam.active && !exam.archive"
-                :text="coachString('closeQuizLabel')"
-                appearance="flat-button"
-                @click="showCloseConfirmationModal = true; modalQuizId = exam.id;"
-              />
-              <!-- Closed quiz label -->
-              <div v-if="exam.archive">
-                {{ coachString('quizClosedLabel') }}
-              </div>
-            </td>
-
-          </tr>
-        </transition-group>
+            </tr>
+          </transition-group>
+        </template>
       </CoreTable>
 
       <p v-if="!exams.length">

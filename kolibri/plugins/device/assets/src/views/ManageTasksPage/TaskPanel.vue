@@ -93,7 +93,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
-  import { taskIsClearable, TaskStatuses, TaskTypes } from '../../constants';
+  import { TaskStatuses, TaskTypes } from '../../constants';
 
   const typeToTrMap = {
     [TaskTypes.REMOTECONTENTIMPORT]: 'importChannelPartial',
@@ -163,7 +163,7 @@
         return this.task.cancellable;
       },
       taskIsClearable() {
-        return taskIsClearable(this.task);
+        return this.task.clearable;
       },
       taskPercentage() {
         if (this.task.database_ready === false) {

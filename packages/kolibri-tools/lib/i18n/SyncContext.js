@@ -7,7 +7,7 @@ const traverse = require('ast-traverse');
 const get = require('lodash/get');
 const parseCsvSync = require('csv-parse/lib/sync');
 const vueCompiler = require('vue-template-compiler');
-const logging = require('./logging');
+const logging = require('../logging');
 // Constant for where we will split context strings
 const CONTEXT_LINE = require('./ExtractStrings').CONTEXT_LINE;
 

@@ -37,7 +37,6 @@
 
   export default {
     name: 'ReportsGroupHeader',
-    components: {},
     mixins: [commonCoach, commonCoreStrings],
     props: {
       enablePrint: {

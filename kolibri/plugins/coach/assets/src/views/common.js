@@ -11,7 +11,6 @@ import map from 'lodash/map';
 import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
 import filter from 'lodash/filter';
 import get from 'lodash/get';
-import sortBy from 'lodash/sortBy';
 import orderBy from 'lodash/orderBy';
 import { PageNames } from '../constants';
 import { LastPages } from '../constants/lastPagesConstants';
@@ -230,7 +229,6 @@ export default {
       return {
         maxBy,
         meanBy,
-        sortBy,
         orderBy,
         map,
         filter,

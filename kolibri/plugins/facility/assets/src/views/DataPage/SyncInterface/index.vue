@@ -12,38 +12,38 @@
     </p>
 
     <CoreTable>
-      <thead slot="thead">
-        <tr>
-          <th>{{ $tr('facility') }}</th>
-        </tr>
-      </thead>
-      <tbody slot="tbody">
-        <tr v-if="theFacility">
-          <td>
-            <FacilityNameAndSyncStatus
-              :facility="theFacility"
-              :isSyncing="isSyncing"
-              :syncHasFailed="syncHasFailed"
-            />
-          </td>
-          <td class="button-col">
-            <KButtonGroup style="margin-top: 8px; overflow: visible">
-              <KButton
-                appearance="raised-button"
-                :text="$tr('register')"
-                :disabled="Boolean(syncTaskId) || theFacility.dataset.registered"
-                @click="displayModal(Modals.REGISTER_FACILITY)"
+      <template #headers>
+        <th>{{ $tr('facility') }}</th>
+      </template>
+      <template #tbody>
+        <tbody>
+          <tr v-if="theFacility">
+            <td>
+              <FacilityNameAndSyncStatus
+                :facility="theFacility"
+                :isSyncing="isSyncing"
+                :syncHasFailed="syncHasFailed"
               />
-              <KButton
-                appearance="raised-button"
-                :text="$tr('sync')"
-                :disabled="Boolean(syncTaskId)"
-                @click="displayModal(Modals.SYNC_FACILITY)"
-              />
-            </KButtonGroup>
-          </td>
-        </tr>
-      </tbody>
+            </td>
+            <td class="button-col">
+              <KButtonGroup style="margin-top: 8px; overflow: visible">
+                <KButton
+                  appearance="raised-button"
+                  :text="$tr('register')"
+                  :disabled="Boolean(syncTaskId) || theFacility.dataset.registered"
+                  @click="displayModal(Modals.REGISTER_FACILITY)"
+                />
+                <KButton
+                  appearance="raised-button"
+                  :text="$tr('sync')"
+                  :disabled="Boolean(syncTaskId)"
+                  @click="displayModal(Modals.SYNC_FACILITY)"
+                />
+              </KButtonGroup>
+            </td>
+          </tr>
+        </tbody>
+      </template>
     </CoreTable>
 
     <PrivacyModal
@@ -89,7 +89,7 @@
   } from 'kolibri.coreVue.componentSets.sync';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { FacilityTaskResource, FacilityResource } from 'kolibri.resources';
-  import { TaskStatuses, taskIsClearable } from '../../../constants';
+  import { TaskStatuses } from '../../../constants';
   import PrivacyModal from './PrivacyModal';
 
   const Modals = Object.freeze({
@@ -144,7 +144,7 @@
       pollSyncTask() {
         // Like facilityTaskQueue, just keep polling until component is destroyed
         FacilityTaskResource.fetchModel({ id: this.syncTaskId, force: true }).then(task => {
-          if (taskIsClearable(task)) {
+          if (task.clearable) {
             this.isSyncing = false;
             this.syncTaskId = '';
             FacilityTaskResource.deleteFinishedTask(this.syncTaskId);

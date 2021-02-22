@@ -19,7 +19,7 @@ Feature: General navigation through the *Plan* tab
 
   Scenario: Navigate back to lesson list from a specific lesson
     Given that I am on a lesson details page
-      When I click “Lessons” tab
+      When I click “All Lessons” back arrow button
       Then I am back to the lessons list
 
   Scenario: Navigating between subtabs inside *Coach - '<class>' > Plan*

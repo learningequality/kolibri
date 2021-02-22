@@ -7,37 +7,39 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       <ReportsGroupHeader :enablePrint="true" />
       <ReportsControls @export="exportCSV" />
       <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachString('nameLabel') }}</th>
-            <th>{{ coachString('avgQuizScoreLabel') }}</th>
-            <th>{{ coachString('exercisesCompletedLabel') }}</th>
-            <th>{{ coachString('resourcesViewedLabel') }}</th>
-            <th>{{ coachString('lastActivityLabel') }}</th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="tableRow in table" :key="tableRow.id">
-            <td>
-              <KLabeledIcon icon="person">
-                <KRouterLink
-                  :text="tableRow.name"
-                  :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
-                />
-              </KLabeledIcon>
-            </td>
-            <td><Score :value="tableRow.avgScore" /></td>
-            <td>{{ coachString('integer', { value: tableRow.exercises }) }}</td>
-            <td>{{ coachString('integer', { value: tableRow.resources }) }}</td>
-            <td><ElapsedTime :date="tableRow.lastActivity" /></td>
-          </tr>
-        </transition-group>
+        <template #headers>
+          <th>{{ coachString('nameLabel') }}</th>
+          <th>{{ coachString('avgQuizScoreLabel') }}</th>
+          <th>{{ coachString('exercisesCompletedLabel') }}</th>
+          <th>{{ coachString('resourcesViewedLabel') }}</th>
+          <th>{{ coachString('lastActivityLabel') }}</th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <tr v-for="tableRow in table" :key="tableRow.id">
+              <td>
+                <KLabeledIcon icon="person">
+                  <KRouterLink
+                    :text="tableRow.name"
+                    :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
+                  />
+                </KLabeledIcon>
+              </td>
+              <td><Score :value="tableRow.avgScore" /></td>
+              <td>{{ coachString('integer', { value: tableRow.exercises }) }}</td>
+              <td>{{ coachString('integer', { value: tableRow.resources }) }}</td>
+              <td><ElapsedTime :date="tableRow.lastActivity" /></td>
+            </tr>
+          </transition-group>
+        </template>
       </CoreTable>
     </KPageContainer>
   </CoreBase>
@@ -47,6 +49,7 @@
 
 <script>
 
+  import sortBy from 'lodash/sortBy';
   import commonCoach from '../common';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
@@ -70,7 +73,7 @@
         );
       },
       table() {
-        const sorted = this._.sortBy(this.groupMembers, ['name']);
+        const sorted = sortBy(this.groupMembers, ['name']);
         return sorted.map(learner => {
           const examStatuses = this.examStatuses.filter(status => learner.id === status.learner_id);
           const contentStatuses = this.contentStatuses.filter(

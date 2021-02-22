@@ -92,7 +92,7 @@ MIDDLEWARE = [
     "kolibri.core.device.middleware.ProvisioningErrorHandler",
     "django.middleware.cache.UpdateCacheMiddleware",
     "kolibri.core.analytics.middleware.MetricsMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
+    "kolibri.core.auth.middleware.KolibriSessionMiddleware",
     "kolibri.core.device.middleware.KolibriLocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",

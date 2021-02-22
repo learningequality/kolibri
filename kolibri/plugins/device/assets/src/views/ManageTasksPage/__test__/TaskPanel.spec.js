@@ -10,6 +10,7 @@ describe('TaskPanel', () => {
   const exportTask = {
     type: 'DISKCONTENTEXPORT',
     status: 'CANCELED',
+    clearable: true,
     channel_name: 'Canceled disk export channel test',
     started_by_username: 'Tester',
     file_size: 5000,

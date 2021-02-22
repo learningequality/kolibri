@@ -34,15 +34,15 @@
         @toggleSideNav="navShown = !navShown"
         @showLanguageModal="languageModalShown = true"
       >
-        <template v-slot:totalPointsMenuItem>
+        <template #totalPointsMenuItem>
           <slot name="totalPointsMenuItem"></slot>
         </template>
-        <template v-slot:app-bar-actions>
+        <template #app-bar-actions>
           <div class="app-bar-actions">
             <slot name="app-bar-actions"></slot>
           </div>
         </template>
-        <template v-if="showSubNav" v-slot:sub-nav>
+        <template v-if="showSubNav" #sub-nav>
           <slot name="sub-nav"></slot>
         </template>
       </AppBar>
@@ -68,7 +68,7 @@
       :style="contentStyles"
     >
       <CoreBanner v-if="coreBannerComponent && showDemoBanner">
-        <template slot-scope="props">
+        <template #default="props">
           <component :is="coreBannerComponent" :bannerClosed="props.bannerClosed" />
         </template>
       </CoreBanner>

@@ -16,7 +16,7 @@ const WebpackRTLPlugin = require('webpack-rtl-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
-const ExtractStrings = require('./ExtractStrings');
+const ExtractStrings = require('./i18n/ExtractStrings');
 const logging = require('./logging');
 const coreExternals = require('./apiSpecExportTools').coreExternals();
 const coreAliases = require('./apiSpecExportTools').coreAliases();
@@ -154,7 +154,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
           test: /\.(png|jpe?g|gif|svg)$/,
           use: {
             loader: 'url-loader',
-            options: { limit: 10000, name: '[name].[ext]?[hash]' },
+            options: { limit: 10000, name: '[name]-[contenthash].[ext]' },
           },
         },
         // Use url loader to load font files.
@@ -162,7 +162,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
           test: /\.(eot|woff|ttf|woff2)$/,
           use: {
             loader: 'url-loader',
-            options: { name: '[name].[ext]?[hash]' },
+            options: { name: '[name]-[contenthash].[ext]' },
           },
         },
       ],

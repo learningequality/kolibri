@@ -4,20 +4,22 @@
     <ContentPage
       @updateProgress="updateProgress"
     >
-      <div slot="below_content" class="below-content-area">
-        <template v-if="nextLessonResource">
-          <h1>{{ $tr('nextInLesson') }}</h1>
-          <ContentCard
-            :isMobile="true"
-            :kind="nextLessonResource.kind"
-            :link="nextResourceLink"
-            :progress="nextLessonResource.progress_fraction"
-            :thumbnail="getContentNodeThumbnail(nextLessonResource)"
-            :numCoachContents="nextLessonResource.coach_content ? 1 : 0"
-            :title="nextLessonResource.title"
-          />
-        </template>
-      </div>
+      <template #below_content>
+        <div class="below-content-area">
+          <template v-if="nextLessonResource">
+            <h1>{{ $tr('nextInLesson') }}</h1>
+            <ContentCard
+              :isMobile="true"
+              :kind="nextLessonResource.kind"
+              :link="nextResourceLink"
+              :progress="nextLessonResource.progress_fraction"
+              :thumbnail="getContentNodeThumbnail(nextLessonResource)"
+              :numCoachContents="nextLessonResource.coach_content ? 1 : 0"
+              :title="nextLessonResource.title"
+            />
+          </template>
+        </div>
+      </template>
     </ContentPage>
   </div>
 

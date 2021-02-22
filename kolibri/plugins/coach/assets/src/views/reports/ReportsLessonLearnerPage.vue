@@ -7,7 +7,9 @@
     :showSubNav="true"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
       <p>
@@ -28,37 +30,37 @@
       <ReportsControls @export="exportCSV" />
 
       <CoreTable :emptyMessage="coachString('activityListEmptyState')">
-        <thead slot="thead">
-          <tr>
-            <th>{{ coachString('titleLabel') }}</th>
-            <th>{{ coreString('progressLabel') }}</th>
-            <th>{{ coachString('timeSpentLabel') }}</th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="tableRow in table" :key="tableRow.node_id">
-            <td>
-              <KLabeledIcon :icon="tableRow.kind">
-                <KRouterLink
-                  v-if="showLink(tableRow)"
-                  :text="tableRow.title"
-                  :to="exerciseLink(tableRow.content_id)"
+        <template #headers>
+          <th>{{ coachString('titleLabel') }}</th>
+          <th>{{ coreString('progressLabel') }}</th>
+          <th>{{ coachString('timeSpentLabel') }}</th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <tr v-for="tableRow in table" :key="tableRow.node_id">
+              <td>
+                <KLabeledIcon :icon="tableRow.kind">
+                  <KRouterLink
+                    v-if="showLink(tableRow)"
+                    :text="tableRow.title"
+                    :to="exerciseLink(tableRow.content_id)"
+                  />
+                  <template v-else>
+                    {{ tableRow.title }}
+                  </template>
+                </KLabeledIcon>
+              </td>
+              <td>
+                <StatusSimple :status="tableRow.statusObj.status" />
+              </td>
+              <td>
+                <TimeDuration
+                  :seconds="showTimeDuration(tableRow)"
                 />
-                <template v-else>
-                  {{ tableRow.title }}
-                </template>
-              </KLabeledIcon>
-            </td>
-            <td>
-              <StatusSimple :status="tableRow.statusObj.status" />
-            </td>
-            <td>
-              <TimeDuration
-                :seconds="showTimeDuration(tableRow)"
-              />
-            </td>
-          </tr>
-        </transition-group>
+              </td>
+            </tr>
+          </transition-group>
+        </template>
       </CoreTable>
     </KPageContainer>
   </CoreBase>
@@ -130,7 +132,6 @@
         exporter.export(this.table);
       },
     },
-    $trs: {},
   };
 
 </script>

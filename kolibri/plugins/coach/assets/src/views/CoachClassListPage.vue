@@ -8,7 +8,9 @@
     :showSubNav="false"
   >
 
-    <TopNavbar slot="sub-nav" />
+    <template #sub-nav>
+      <TopNavbar />
+    </template>
 
     <KPageContainer>
 
@@ -35,31 +37,31 @@
       </p>
 
       <CoreTable v-else>
-        <thead slot="thead">
-          <tr>
-            <th>{{ coreString('classNameLabel') }}</th>
-            <th>{{ coreString('coachesLabel') }}</th>
-            <th>{{ coreString('learnersLabel') }}</th>
-          </tr>
-        </thead>
-        <transition-group slot="tbody" tag="tbody" name="list">
-          <tr v-for="classObj in classList" :key="classObj.id">
-            <td>
-              <KLabeledIcon icon="classes">
-                <KRouterLink
-                  :text="classObj.name"
-                  :to="$router.getRoute('HomePage', { classId: classObj.id })"
-                />
-              </KLabeledIcon>
-            </td>
-            <td>
-              <TruncatedItemList :items="classObj.coaches.map(c => c.full_name)" />
-            </td>
-            <td>
-              {{ coachString('integer', { value: classObj.learner_count }) }}
-            </td>
-          </tr>
-        </transition-group>
+        <template #headers>
+          <th>{{ coreString('classNameLabel') }}</th>
+          <th>{{ coreString('coachesLabel') }}</th>
+          <th>{{ coreString('learnersLabel') }}</th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <tr v-for="classObj in classList" :key="classObj.id">
+              <td>
+                <KLabeledIcon icon="classes">
+                  <KRouterLink
+                    :text="classObj.name"
+                    :to="$router.getRoute('HomePage', { classId: classObj.id })"
+                  />
+                </KLabeledIcon>
+              </td>
+              <td>
+                <TruncatedItemList :items="classObj.coaches.map(c => c.full_name)" />
+              </td>
+              <td>
+                {{ coachString('integer', { value: classObj.learner_count }) }}
+              </td>
+            </tr>
+          </transition-group>
+        </template>
       </CoreTable>
     </KPageContainer>
 

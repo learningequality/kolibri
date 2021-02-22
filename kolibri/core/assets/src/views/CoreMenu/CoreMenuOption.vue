@@ -19,11 +19,12 @@
     >
       <slot>
         <KLabeledIcon>
-          <KIcon
-            slot="icon"
-            :icon="icon"
-            :class="$computedClass(optionIconStyle)"
-          />
+          <template #icon>
+            <KIcon
+              :icon="icon"
+              :class="$computedClass(optionIconStyle)"
+            />
+          </template>
           <div>{{ label }}</div>
         </KLabeledIcon>
         <div
