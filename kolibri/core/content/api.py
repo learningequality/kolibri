@@ -24,6 +24,7 @@ from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import UUIDFilter
+from kolibri_content_tools.search import searchers
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
 from rest_framework import mixins
@@ -65,7 +66,6 @@ from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.query import SQSum
 from kolibri.utils import conf
-from kolibri.utils.search import searching
 
 
 logger = logging.getLogger(__name__)
@@ -751,7 +751,7 @@ class ContentNodeSearchViewset(ContentNodeViewset):
             index_root = os.path.join(conf.KOLIBRI_HOME, "indexes")
             all_queries = []
 
-            searcher = searching.IndexSearcher(index_root=index_root)
+            searcher = searchers.IndexSearcher(index_root=index_root)
             index_results = searcher.search(value)
             for result in index_results:
                 if result["content_id"] in content_ids:
