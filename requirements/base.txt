@@ -34,5 +34,4 @@ ifcfg==0.21
 Click==7.0
 ua-parser==0.10.0
 whitenoise==4.1.4
-whoosh==2.7.4
-PyPDF2==1.26.0
+-e git://github.com/learningequality/kolibri-content-tools.git#egg=kolibri-content-tools
