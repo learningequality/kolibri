@@ -311,7 +311,7 @@ class Application(Gio.Application):
         if self.__auto_stop_timeout_source:
             return
         self.__auto_stop_timeout_source = GLib.timeout_add_seconds(
-            1, self.__auto_stop_timeout_cb
+            5, self.__auto_stop_timeout_cb
         )
 
     def __cancel_auto_stop_timeout(self):
@@ -324,6 +324,8 @@ class Application(Gio.Application):
         # code. This allows us to stop the Kolibri service while providing the
         # KolibriDaemon dbus interface, instead of stopping Kolibri after the
         # dbus connection has been closed.
+
+        self.__service_manager.cleanup()
 
         # Stop Kolibri if no clients are connected
         if self.clients_count == 0 and self.__service_manager.is_running():

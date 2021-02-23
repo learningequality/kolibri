@@ -276,6 +276,15 @@ class KolibriServiceManager(KolibriServiceContext):
         if self.__stop_process and self.__stop_process.is_alive():
             self.__stop_process.join()
 
+    def cleanup(self):
+        # Clean up finished processes to keep things tidy, without blocking.
+        if self.__setup_process and not self.__setup_process.is_alive():
+            self.__setup_process = None
+        if self.__main_process and not self.__main_process.is_alive():
+            self.__main_process = None
+        if self.__stop_process and not self.__stop_process.is_alive():
+            self.__stop_process = None
+
     def watch_changes(self, callback):
         watch_changes_thread = WatchChangesThread(self, callback)
         watch_changes_thread.start()
