@@ -29,6 +29,9 @@ from ..kolibri_daemon_proxy import KolibriDaemonProxy
 from .utils import get_localized_file
 
 
+INACTIVITY_TIMEOUT_MS = 10 * 1000  # 10 seconds in milliseconds
+
+
 class MenuEventHandler:
     def on_documentation(self):
         subprocess.call(["xdg-open", "https://kolibri.readthedocs.io/en/latest/"])
@@ -270,6 +273,10 @@ class Application(pew.ui.PEWApp):
     def init_ui(self):
         if len(self.__windows) > 0:
             return
+
+        gtk_application = getattr(self, "gtk_application", None)
+        if gtk_application:
+            gtk_application.set_inactivity_timeout(INACTIVITY_TIMEOUT_MS)
 
         self.__kolibri_daemon.init_async(
             GLib.PRIORITY_DEFAULT, None, self.__kolibri_daemon_on_init
