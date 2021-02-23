@@ -250,6 +250,7 @@ class Application(pew.ui.PEWApp):
     handles_open_file_uris = True
 
     def __init__(self, *args, **kwargs):
+        self.__did_init = False
         self.__starting_kolibri = False
 
         loader_path = get_localized_file(
@@ -266,6 +267,10 @@ class Application(pew.ui.PEWApp):
 
         super().__init__(*args, **kwargs)
 
+        gtk_application = getattr(self, "gtk_application", None)
+        if gtk_application:
+            gtk_application.set_inactivity_timeout(INACTIVITY_TIMEOUT_MS)
+
     @property
     def loader_url(self):
         return self.__loader_url
@@ -274,13 +279,12 @@ class Application(pew.ui.PEWApp):
         if len(self.__windows) > 0:
             return
 
-        gtk_application = getattr(self, "gtk_application", None)
-        if gtk_application:
-            gtk_application.set_inactivity_timeout(INACTIVITY_TIMEOUT_MS)
+        if not self.__did_init:
+            self.__kolibri_daemon.init_async(
+                GLib.PRIORITY_DEFAULT, None, self.__kolibri_daemon_on_init
+            )
 
-        self.__kolibri_daemon.init_async(
-            GLib.PRIORITY_DEFAULT, None, self.__kolibri_daemon_on_init
-        )
+            self.__did_init = True
 
         self.open_window()
 
