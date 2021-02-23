@@ -7,7 +7,7 @@ def notarize_mac_build():
     assert sys.platform.startswith("darwin"), "This command must be run on macOS."
     dev_email = os.getenv("MAC_DEV_ID_EMAIL")
     dev_pass = os.getenv("MAC_CODESIGN_PASSWORD")
-    if not dev_email or dev_pass:
+    if not dev_email or not dev_pass:
         print("You must specify your Apple developer account information using the MAC_DEV_ID_EMAIL")
         print("and MAC_CODESIGN_PASSWORD environment variables in order to codesign the build.")
         sys.exit(1)

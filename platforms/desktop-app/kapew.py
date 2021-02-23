@@ -17,9 +17,16 @@ def prep_kolibri_dist(args, remainder):
 
 def codesign_build(args, remainder):
     if sys.platform.startswith('win'):
+        build_tools.build.do_build()
         build_tools.codesigning.codesign_windows_build()
     else:
+        build_tools.build.do_build(['--sign'])
+        print("Uploading Mac build for notarization, this may take a while...")
         build_tools.codesigning.notarize_mac_build()
+        print("Once you receive a successful notarization message from Apple, run")
+        print("xcrun stapler staple dist/osx/Kolibri.app")
+        print("This will attach the notarization to the app. Then, to make the DMG, run")
+        print("kapew package")
 
 
 def build(args, remainder):
