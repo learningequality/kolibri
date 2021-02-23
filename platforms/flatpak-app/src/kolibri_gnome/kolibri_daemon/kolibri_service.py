@@ -317,5 +317,5 @@ class WatchChangesThread(threading.Thread):
         super().__init__(daemon=True)
 
     def run(self):
-        while self.__service_manager.wait_for_changes():
+        for _ in self.__service_manager.wait_for_changes():
             self.__callback()
