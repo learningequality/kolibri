@@ -46,13 +46,13 @@ mkdir -p logs
 # compile message catalogs
 pipenv run python i18n.py
 
-pipenv run pew build | tee logs/full_app_build_log.txt > /dev/null
+pipenv run python kapew.py build | tee logs/full_app_build_log.txt > /dev/null
 
 buildkite-agent artifact upload logs/full_app_build_log.txt
 
 echo "--- :mac: Build .dmg"
 
-pipenv run pew package
+pipenv run python kapew.py package
 
 echo "--- Uploading"
 

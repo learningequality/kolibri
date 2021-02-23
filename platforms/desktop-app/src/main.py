@@ -8,9 +8,6 @@ import subprocess
 import sys
 import time
 import webbrowser
-from collections import Mapping
-
-import wx
 
 try:
     from urllib2 import urlopen, URLError
@@ -37,7 +34,7 @@ class LoggerWriter(object):
             self._msg = ''
 
 # initialize logging before loading any third-party modules, as they may cause logging to get configured.
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 # Set the root_dir to the path where assets and locale dirs are
 if getattr(sys, 'frozen', False):
@@ -71,6 +68,8 @@ locale_root_dir = os.path.join(root_dir, 'locale')
 sys.path.insert(0, extra_python_path)
 sys.path.insert(0, os.path.join(extra_python_path, "kolibri", "dist"))
 
+from config import KOLIBRI_PORT
+
 import pew
 import pew.ui
 from pew.ui import PEWShortcut
@@ -78,30 +77,25 @@ from pew.ui import PEWShortcut
 pew.set_app_name("Kolibri")
 
 if pew.ui.platform == "android":
-    from jnius import autoclass
-    PythonActivity = autoclass('org.kivy.android.PythonActivity')
-    File = autoclass('java.io.File')
-    Timezone = autoclass('java.util.TimeZone')
+    assets_root_dir = os.path.abspath('assets')
+    locale_root_dir = os.path.abspath('locale')
+
+    from platforms.android.utils import get_home_folder, get_version_name
+
+    os.environ["KOLIBRI_HOME"] = get_home_folder()
+    os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
+    # We can't use symlinks as at least some Android devices have the user storage
+    # and app data directories on different mount points.
+    os.environ['KOLIBRI_STATIC_USE_SYMLINKS'] = "False"
 
 
-    # TODO check for storage availibility, allow user to chose sd card or internal
-    def get_home_folder():
-        kolibri_home_file = PythonActivity.getExternalFilesDir(None)
-        return kolibri_home_file.toString()
-
-KOLIBRI_ROOT_URL = 'http://localhost:5000'
+KOLIBRI_ROOT_URL = 'http://localhost:{}'.format(KOLIBRI_PORT)
 os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base"
 
 app_data_dir = pew.get_app_files_dir()
 os.makedirs(app_data_dir, exist_ok=True)
 
-if pew.ui.platform == "android":
-    os.environ["KOLIBRI_HOME"] = get_home_folder()
-    os.environ["TZ"] = Timezone.getDefault().getDisplayName()
-
-    logging.info("Home folder: {}".format(os.environ["KOLIBRI_HOME"]))
-    logging.info("Timezone: {}".format(os.environ["TZ"]))
-elif not 'KOLIBRI_HOME' in os.environ:
+if not 'KOLIBRI_HOME' in os.environ:
     kolibri_home = os.path.join(os.path.expanduser("~"), ".kolibri")
 
     if sys.platform == 'darwin':
@@ -183,55 +177,8 @@ except Exception as e:
 
 logging.info("Locale info = {}".format(locale_info))
 
-
-def start_django(port=5000):
-    from kolibri.utils.cli import initialize, setup_logging, start
-    from kolibri.plugins.registry import registered_plugins
-
-    registered_plugins.register_plugins(['kolibri.plugins.app'])
-
-    logging.info("Starting server...")
-    setup_logging(debug=False)
-    initialize()
-    automatic_provisiondevice()
-    start.callback(port, background=False)
-
-
-def automatic_provisiondevice():
-    from kolibri.core.device.utils import device_provisioned
-    from kolibri.dist.django.core.management import call_command
-    from kolibri.utils.conf import KOLIBRI_HOME
-
-    AUTOMATIC_PROVISION_FILE = os.path.join(
-        KOLIBRI_HOME, "automatic_provision.json"
-    )
-
-    if not os.path.exists(AUTOMATIC_PROVISION_FILE):
-        return
-    elif device_provisioned():
-        return
-
-    try:
-        with open(AUTOMATIC_PROVISION_FILE, "r") as f:
-            logging.info("Running provisiondevice from 'automatic_provision.json'")
-            options = json.load(f)
-    except ValueError as e:
-        logging.error(
-            "Attempted to load 'automatic_provision.json' but failed to parse JSON:\n{}".format(
-                e
-            )
-        )
-    except FileNotFoundError:
-        options = None
-
-    if isinstance(options, Mapping):
-        options.setdefault("superusername", None)
-        options.setdefault("superuserpassword", None)
-        options.setdefault("preset", "nonformal")
-        options.setdefault("language_id", None)
-        options.setdefault("facility_settings", {})
-        options.setdefault("device_settings", {})
-        call_command("provisiondevice", interactive=False, **options)
+from kolibri_tools.utils import get_initialize_url
+from kolibri_tools.utils import start_kolibri_server
 
 
 class MenuEventHandler:
@@ -315,10 +262,12 @@ class Application(pew.ui.PEWApp):
         Start your UI and app run loop here.
         """
 
-        instance_name = "{}_{}".format(pew.get_app_name(), wx.GetUserId())
-        self._checker = wx.SingleInstanceChecker(instance_name)
-        if self._checker.IsAnotherRunning():
-            return 1
+        if pew.ui.platform == 'wx':
+            import wx
+            instance_name = "{}_{}".format(pew.get_app_name(), wx.GetUserId())
+            self._checker = wx.SingleInstanceChecker(instance_name)
+            if self._checker.IsAnotherRunning():
+                return 1
 
         # Set loading screen
         lang_id = locale_info['language']
@@ -338,7 +287,7 @@ class Application(pew.ui.PEWApp):
 
         # start server
         self.server_thread = None
-        self.port = 5000
+        self.port = KOLIBRI_PORT
         self.start_server()
 
         self.load_thread = pew.ui.PEWThread(target=self.wait_for_server)
@@ -352,13 +301,21 @@ class Application(pew.ui.PEWApp):
         return 0
 
     def start_server(self):
-        if self.server_thread:
-            del self.server_thread
+        os.environ["KOLIBRI_HTTP_PORT"] = str(self.port)
 
-        logging.info("Preparing to start Kolibri server...")
-        self.server_thread = pew.ui.PEWThread(target=start_django, kwargs={'port': self.port})
-        self.server_thread.daemon = True
-        self.server_thread.start()
+        if pew.ui.platform == "android":
+            logging.info("Starting kolibri as Android service...")
+
+            from platforms.android.utils import start_service
+            start_service("kolibri", dict(os.environ))
+        else:
+            if self.server_thread:
+                del self.server_thread
+
+            logging.info("Preparing to start Kolibri server...")
+            self.server_thread = pew.ui.PEWThread(target=start_kolibri_server)
+            self.server_thread.daemon = True
+            self.server_thread.start()
 
     def create_kolibri_window(self, url):
         window = KolibriView("Kolibri", url, delegate=self)
@@ -469,15 +426,20 @@ class Application(pew.ui.PEWApp):
         logging.debug('Persisted View State: {}'.format(self.view.get_view_state()))
 
         # activate app mode
-        from kolibri.plugins.app.utils import interface
         next_url = None
         if "URL" in saved_state and saved_state["URL"].startswith(home_url):
             next_url = saved_state["URL"]
 
-        root_url = KOLIBRI_ROOT_URL + interface.get_initialize_url(next_url=next_url)
+        root_url = KOLIBRI_ROOT_URL + get_initialize_url(next_url=next_url)
         logging.debug("root_url = {}".format(root_url))
 
         pew.ui.run_on_main_thread(self.view.load_url, root_url)
+
+        if pew.ui.platform == "android":
+            from platforms.android.remoteshell import launch_remoteshell
+            self.remoteshell_thread = pew.ui.PEWThread(target=launch_remoteshell)
+            self.remoteshell_thread.daemon = True
+            self.remoteshell_thread.start()
 
     def get_main_window(self):
         return self.view

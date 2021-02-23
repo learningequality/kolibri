@@ -1,10 +1,16 @@
-import glob
 import os
 import subprocess
+import sys
 
 
 def notarize_mac_build():
-    dev_email = os.getenv("MAC_DEV_ID_EMAIL", "kevin@learningequality.org")
+    assert sys.platform.startswith("darwin"), "This command must be run on macOS."
+    dev_email = os.getenv("MAC_DEV_ID_EMAIL")
+    dev_pass = os.getenv("MAC_CODESIGN_PASSWORD")
+    if not dev_email or not dev_pass:
+        print("You must specify your Apple developer account information using the MAC_DEV_ID_EMAIL")
+        print("and MAC_CODESIGN_PASSWORD environment variables in order to codesign the build.")
+        sys.exit(1)
     bundle_id = "org.learningequality.Kolibri"
     app = "Kolibri.app"
     zip = '{}.zip'.format(app)
@@ -28,16 +34,20 @@ def notarize_mac_build():
         "--primary-bundle-id", bundle_id
     ]
 
-    if 'MAC_CODESIGN_PASSWORD' in os.environ:
-        cmd.extend(['--password', os.environ['MAC_CODESIGN_PASSWORD']])
-    else:
-        assert False, "os.environ = {}".format(os.environ)
+    cmd.extend(['--password', dev_pass])
 
     subprocess.call(cmd)
 
 def codesign_windows_build():
-    pfx = os.path.abspath(os.environ['WIN_CODESIGN_PFX'])
-    cert = os.path.abspath(os.environ['WIN_CODESIGN_CERT'])
+    assert sys.platform.startswith("win"), "This command must be run on Windows."
+
+    pfx = os.getenv("WIN_CODESIGN_PFX")
+    cert = os.getenv("WIN_CODESIGN_CERT")
+
+    assert pfx and cert, "To sign the build, you must set WIN_CODESIGN_PFX and WIN_CODESIGN_CERT environment variables."
+
+    pfx = os.path.abspath(pfx)
+    cert = os.path.abspath(cert)
 
     assert os.path.exists(pfx), "Cannot find PFX file for signing."
     assert os.path.exists(cert), "Cannot find certificate for signing at {}.".format(cert)

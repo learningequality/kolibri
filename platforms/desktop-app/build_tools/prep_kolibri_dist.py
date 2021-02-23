@@ -94,7 +94,8 @@ def get_kolibri_release_whl(release_tag):
     build_version = release_tag[1:]
     build_monikers = {
         '-beta': 'b',
-        '-rc': 'rc'
+        '-rc': 'rc',
+        '-alpha': 'a'
     }
     for m in build_monikers:
         build_version = build_version.replace(m, build_monikers[m])
