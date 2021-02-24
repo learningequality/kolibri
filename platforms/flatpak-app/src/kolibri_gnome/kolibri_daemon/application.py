@@ -150,7 +150,9 @@ class Application(Gio.Application):
         super().__init__(
             *args,
             application_id=config.DAEMON_APPLICATION_ID,
-            flags=Gio.ApplicationFlags.IS_SERVICE | Gio.ApplicationFlags.ALLOW_REPLACEMENT,
+            flags=(
+                Gio.ApplicationFlags.IS_SERVICE | Gio.ApplicationFlags.ALLOW_REPLACEMENT
+            ),
             inactivity_timeout=INACTIVITY_TIMEOUT_MS,
             **kwargs
         )
@@ -229,6 +231,9 @@ class Application(Gio.Application):
             self.__session_kolibri_daemon.unregister()
             self.__session_kolibri_daemon = None
         return True
+
+    def do_name_lost(self):
+        self.quit()
 
     def do_handle_local_options(self, options):
         use_system_bus = options.lookup_value("system", None)
