@@ -1,7 +1,6 @@
 import os
 import subprocess
 import sys
-from datetime import datetime
 
 kolibri_dir = os.path.abspath(os.path.join('src', 'kolibri'))
 win_dir = os.path.abspath(os.path.join('dist', 'win', 'Kolibri'))
@@ -27,6 +26,11 @@ def do_build(args):
         stdlib.generate_stdlib_imports()
 
         env = get_env_with_version_set(args)
+
+        # This is needed to avoid errors when scanning python
+        # code for dependencies.
+        if sys.platform.startswith('darwin'):
+            env['PYTHONPATH'] = os.path.join(kolibri_dir, 'dist')
 
         cmd = ['pew', 'build']
         if args and len(args) > 0:
