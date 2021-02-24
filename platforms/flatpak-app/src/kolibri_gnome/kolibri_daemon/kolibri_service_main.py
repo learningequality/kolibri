@@ -89,6 +89,7 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         self.__active_extensions.update_kolibri_environ(os.environ)
 
         from kolibri.utils.cli import start_with_ready_cb
+        from kolibri.utils.conf import OPTIONS
 
         init_kolibri()
 
@@ -96,9 +97,8 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         self.__update_kolibri_home()
 
         try:
-            KOLIBRI_HTTP_PORT = 0
             start_with_ready_cb(
-                port=KOLIBRI_HTTP_PORT,
+                port=OPTIONS["Deployment"]["HTTP_PORT"],
                 background=False,
                 ready_cb=self.__kolibri_ready_cb,
             )

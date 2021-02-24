@@ -150,7 +150,7 @@ class Application(Gio.Application):
         super().__init__(
             *args,
             application_id=config.DAEMON_APPLICATION_ID,
-            flags=Gio.ApplicationFlags.IS_SERVICE,
+            flags=Gio.ApplicationFlags.IS_SERVICE | Gio.ApplicationFlags.ALLOW_REPLACEMENT,
             inactivity_timeout=INACTIVITY_TIMEOUT_MS,
             **kwargs
         )
