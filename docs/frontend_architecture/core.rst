@@ -21,7 +21,7 @@ And **many** others. The complete specification for commonly shared modules can 
   import Vue from 'kolibri.lib.vue';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
 
-Adding additional globally-available objects is relatively straightforward due to the `plugin and webpack build system </pipeline/frontend_build_pipeline>`__.
+Adding additional globally-available objects is relatively straightforward due to the :doc:`plugin and webpack build system <frontend_build_pipeline>`.
 
 To expose something in the core app, add the module to the object in ``apiSpec.js``, scoping it to the appropriate property for better organization - e.g.:
 

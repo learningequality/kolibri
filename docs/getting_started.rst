@@ -76,7 +76,7 @@ Python virtual environment
 
 You should use a Python virtual environment to isolate the dependencies of your Python projects from each other and to avoid corrupting your system's Python installation.
 
-There are many ways to set up Python virtual environments: You can use `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__ as shown in the instructions below; you can also use `Virtualenv <https://virtualenv.pypa.io/en/stable/userguide/>`__, `Python 3 venv <https://docs.python.org/3/library/venv.html>`__, `Poetry <https://poetry.eustace.io>`__ etc.
+There are many ways to set up Python virtual environments: You can use `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__ as shown in the instructions below; you can also use `Virtualenv <https://virtualenv.pypa.io/en/latest/>`__, `Python 3 venv <https://docs.python.org/3/library/venv.html>`__, `Poetry <https://poetry.eustace.io>`__ etc.
 
 .. note::
   Most virtual environments will require special setup for non-Bash shells such as Fish and ZSH.
@@ -116,8 +116,12 @@ Environment variables can be set in many ways, including:
 
 There are two environment variables you should plan to set:
 
-* ``KOLIBRI_RUN_MODE`` (required): This variable is sent to our `pingback server <https://github.com/learningequality/nutritionfacts>`_, and you must set it to something besides an empty string. This allows us to filter development work out of our usage statistics. (There are also some `special testing behaviors <https://github.com/learningequality/nutritionfacts/blob/b150ec9fd80cd0f02c087956fd5f16b2592f94d4/nutritionfacts/views.py#L125-L179>`_ that can be triggered for special strings, as described elsewhere in the developer docs and integration testing gherkin stories.)
-* ``KOLIBRI_HOME`` (optional): This variable determines where Kolibri will store its content and databases. It is useful to set if you want to have multiple versions of Kolibri running simultaneously.
+* ``KOLIBRI_RUN_MODE`` (required)
+
+  This variable is sent to our `pingback server <https://github.com/learningequality/nutritionfacts>`_ (private repo), and you must set it to something besides an empty string. This allows us to filter development work out of our usage statistics. There are also some `special testing behaviors <https://github.com/learningequality/nutritionfacts/blob/b150ec9fd80cd0f02c087956fd5f16b2592f94d4/nutritionfacts/views.py#L125-L179>`_ that can be triggered for special strings, as described elsewhere in the developer docs and integration testing Gherkin scenarios.
+* ``KOLIBRI_HOME`` (optional)
+
+  This variable determines where Kolibri will store its content and databases. It is useful to set if you want to have multiple versions of Kolibri running simultaneously.
 
 
 Install Python dependencies
