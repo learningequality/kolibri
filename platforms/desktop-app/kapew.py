@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import os
 import subprocess
 import sys
 
@@ -20,6 +21,9 @@ def codesign_build(args, remainder):
         build_tools.build.do_build()
         build_tools.codesigning.codesign_windows_build()
     else:
+        if not os.getenv('MAC_CODESIGN_IDENTITY'):
+            print("To do a codesigned build, you must set MAC_CODESIGN_IDENTITY")
+            sys.exit(1)
         build_tools.build.do_build(['--sign'])
         print("Uploading Mac build for notarization, this may take a while...")
         build_tools.codesigning.notarize_mac_build()

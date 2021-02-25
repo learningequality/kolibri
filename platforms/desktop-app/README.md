@@ -13,9 +13,14 @@ Cross-platform Kolibri app sources
 
 ## Getting Started
 
-**IMPORTANT:** On Windows, there is a bug with PyInstaller and the latest virtualenv.
+**Windows Note:** On Windows, there is a bug with PyInstaller and the latest virtualenv.
 If you're using virtualenv, please downgrade your virtualenv to version 16.1.0 until
 the bug is fixed.
+
+**Mac Note:** Make sure you are using the
+[python.org Mac installer](https://www.python.org/ftp/python/3.6.8/python-3.6.8-macosx10.9.pkg)
+to install the package. Using pyenv, homebrew, etc. **will not work**. This is
+because they are configured differently from python.org builds.
 
 Run pip to download and install dependencies for the platform you want to target:
  
