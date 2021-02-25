@@ -5,7 +5,7 @@ Collections
 -----------
 
 A ``Collection`` is implemented as a Django model that inherits from
-`django-mptt's MPTTModel <http://django-mptt.github.io/django-mptt/>`__, which
+`django-mptt's MPTTModel <https://django-mptt.readthedocs.io/en/latest/index.html>`__, which
 allows for efficient traversal and querying of the collection hierarchy. For
 convenience, the specific types of collections -- ``Facility``, ``Classroom``,
 and ``LearnerGroup`` -- are implemented as _proxy models of the main
