@@ -65,7 +65,7 @@ ContentNode
 ``ContentNode`` is implemented as a Django model that inherits from two abstract classes, MPTTModel and ContentDatabaseModel.
 
 
- * `django-mptt's MPTTModel <http://django-mptt.github.io/django-mptt/overview.html/>`__ allows for efficient traversal and querying of the ContentNode tree.
+ * `django-mptt's MPTTModel <https://django-mptt.readthedocs.io/en/latest/overview.html>`__ allows for efficient traversal and querying of the ContentNode tree.
  * ``ContentDatabaseModel`` is used as a marker so that the content_db_router knows to query against the content database only if the model inherits from ContentDatabaseModel.
 
 The tree structure is established by the ``parent`` field that is a foreign key pointing to another ContentNode object. You can also create a symmetric relationship using the ``related`` field, or an asymmetric field using the ``is_prerequisite`` field.
