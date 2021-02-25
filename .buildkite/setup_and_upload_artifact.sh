@@ -18,6 +18,7 @@ IMAGE=$(cat upload_artifacts.iid)
 echo "--- Running script in Docker, image ID: $IMAGE"
 # Mounting dist so that we're not redundantly copying
 # Adding envars for GH access and Tag information
+# Binding google app creds for shared use
 docker run \
   --mount type=bind,src=$PWD/dist,target=/dist \
   -e GITHUB_ACCESS_TOKEN \
