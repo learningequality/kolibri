@@ -183,7 +183,7 @@
         :autofocus="true"
         :disabled="busy"
         :value.sync="createdPassword"
-        :isValid.sync="createdPasswordConfirmation"
+        :isValid.sync="createdPasswordIsValid"
         :shouldValidate="busy"
         @submitNewPassword="updatePasswordAndSignIn"
       />
@@ -252,7 +252,7 @@
         passwordBlurred: false,
         formSubmitted: false,
         createdPassword: '',
-        createdPasswordConfirmation: '',
+        createdPasswordIsValid: false,
         busy: false,
         loginError: null,
         usernameSubmittedWithoutPassword: false,
@@ -378,7 +378,6 @@
         this.username = '';
         this.password = '';
         this.createdPassword = '';
-        this.createdPasswordConfirmation = '';
         // This ensures we don't get '<field> required' when going back
         // and forth
         this.usernameBlurred = false;
@@ -394,18 +393,21 @@
         this.signIn();
       },
       updatePasswordAndSignIn() {
-        this.busy = true;
-        const payload = {
-          username: this.username,
-          password: this.createdPassword,
-          facility: this.selectedFacility.id,
-        };
-        this.kolibriSetUnspecifiedPassword(payload).then(() => {
-          // Password successfully set
-          // Use this password now to sign in
-          this.password = this.createdPassword;
-          this.signIn();
-        });
+        if (this.createdPasswordIsValid) {
+          this.busy = true;
+          this.kolibriSetUnspecifiedPassword({
+            username: this.username,
+            password: this.createdPassword,
+            facility: this.selectedFacility.id,
+          }).then(() => {
+            // Password successfully set
+            // Use this password now to sign in
+            this.password = this.createdPassword;
+            this.signIn();
+          });
+        } else {
+          this.$refs.createPassword.focus();
+        }
       },
       setSuggestionTerm(newVal) {
         if (newVal !== null && typeof newVal !== 'undefined') {
