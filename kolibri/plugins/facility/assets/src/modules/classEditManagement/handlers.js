@@ -1,8 +1,14 @@
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { ClassroomResource, FacilityUserResource } from 'kolibri.resources';
+import { localeCompare } from 'kolibri.utils.i18n';
 import { _userState } from '../mappers';
-import { filterAndSortUsers } from '../../userSearchUtils';
+
+export function sortUsersByFullName(users) {
+  return users.sort((a, b) => {
+    return localeCompare(a.full_name, b.full_name);
+  });
+}
 
 export function showClassEditPage(store, classId) {
   store.dispatch('preparePage');
@@ -20,8 +26,8 @@ export function showClassEditPage(store, classId) {
         modalShown: false,
         currentClass: classroom,
         classes: classrooms,
-        classLearners: filterAndSortUsers(facilityUsers).map(_userState),
-        classCoaches: filterAndSortUsers(classroom.coaches).map(_userState),
+        classLearners: sortUsersByFullName(facilityUsers).map(_userState),
+        classCoaches: sortUsersByFullName(classroom.coaches).map(_userState),
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
     },

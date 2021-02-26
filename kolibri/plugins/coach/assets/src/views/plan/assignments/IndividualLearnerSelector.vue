@@ -22,7 +22,6 @@
 
       <PaginatedListContainer
         :items="allLearners"
-        :filterFunction="filterLearners"
         :filterPlaceholder="$tr('searchPlaceholder')"
         :itemsPerPage="itemsPerPage"
         @pageChanged="pageNum => currentPage = pageNum"
@@ -93,7 +92,6 @@
   import every from 'lodash/every';
   import ClassSummaryResource from '../../../apiResources/classSummary';
   import commonCoachStrings from '../../common';
-  import { userMatchesFilter, filterAndSortUsers } from '../../../userSearchUtils';
 
   const DEFAULT_ITEMS_PER_PAGE = 50;
   const SHORT_ITEMS_PER_PAGE = 5;
@@ -258,14 +256,6 @@
           .filter(group => group.member_ids.includes(id))
           .map(group => group.name);
         return formatList(groupNames);
-      },
-      filterLearners(learners, searchText) {
-        this.searchText = searchText;
-        return filterAndSortUsers(learners, learner => {
-          // userMatchesFilter calls on full_name property
-          learner.full_name = learner.name;
-          return userMatchesFilter(learner, searchText);
-        });
       },
     },
     $trs: {
