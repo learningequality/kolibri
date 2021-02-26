@@ -38,6 +38,7 @@ pipenv install -r requirements-mac.txt
 echo "--- Build .app"
 
 # Sets the environment variable needed for the build to find packages in from whl
+# Might not need to do this anymore, baked into kapew
 echo "PYTHONPATH=$PWD/src/kolibri/dist" > .env
 
 # Putting output in file, errors stil log to stderr 

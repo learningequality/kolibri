@@ -9,6 +9,9 @@ endif
 .PHONY: p4a_android_distro
 p4a_android_distro:
 	python kapew.py prep-kolibri-dist --custom-whl
+	# Source kolibri folder extraction from whl
+	# Preseeds kolibri home. Extracts whl, run kolibri server locally.
+	# Gives a special kolibri home folder, and puts the generated files in the app
 	python kapew.py init android ${ARCH}
 
 ifdef P4A_RELEASE_KEYSTORE_PASSWD
@@ -32,7 +35,7 @@ build_docker: Dockerfile
 # Run the docker image.
 # TODO Would be better to just specify the file here?
 run_docker: build_docker
-	./scripts/rundocker.sh
+	./docker/android/rundocker.sh
 
 softbuild: project_info.json
-	pew build $(pew_release_flag) android ${ARCH}
+	python kapew.py build $(pew_release_flag) android ${ARCH}
