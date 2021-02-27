@@ -49,12 +49,11 @@
               :key="lesson.id"
             >
               <td>
-                <KLabeledIcon icon="lesson">
-                  <KRouterLink
-                    :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
-                    :text="lesson.title"
-                  />
-                </KLabeledIcon>
+                <KRouterLink
+                  :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
+                  :text="lesson.title"
+                  icon="lesson"
+                />
               </td>
               <td>{{ coachString('numberOfResources', { value: lesson.resources.length }) }}</td>
               <td>
