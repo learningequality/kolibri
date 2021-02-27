@@ -20,12 +20,11 @@
           <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
           <ul class="list">
             <li v-for="lesson in lessonsList" :key="lesson.id">
-              <KLabeledIcon icon="lesson">
-                <KRouterLink
-                  :to="classRoute('ReportsGroupReportLessonPage', { lessonId: lesson.id })"
-                  :text="lesson.title"
-                />
-              </KLabeledIcon>
+              <KRouterLink
+                :to="classRoute('ReportsGroupReportLessonPage', { lessonId: lesson.id })"
+                :text="lesson.title"
+                icon="lesson"
+              />
             </li>
           </ul>
           <p v-if="lessonsList.length === 0">
@@ -36,12 +35,11 @@
           <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
           <ul class="list">
             <li v-for="exam in examsList" :key="exam.id">
-              <KLabeledIcon icon="quiz">
-                <KRouterLink
-                  :to="classRoute('ReportsGroupReportQuizLearnerListPage', { quizId: exam.id })"
-                  :text="exam.title"
-                />
-              </KLabeledIcon>
+              <KRouterLink
+                :to="classRoute('ReportsGroupReportQuizLearnerListPage', { quizId: exam.id })"
+                :text="exam.title"
+                icon="quiz"
+              />
             </li>
           </ul>
           <p v-if="examsList.length === 0">

@@ -19,6 +19,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Role
+from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
@@ -30,6 +31,8 @@ DUMMY_PASSWORD = "password"
 
 
 class DeviceProvisionTestCase(APITestCase):
+    def setUp(self):
+        clear_process_cache()
 
     superuser_data = {"username": "superuser", "password": "password"}
     facility_data = {"name": "Wilson Elementary"}

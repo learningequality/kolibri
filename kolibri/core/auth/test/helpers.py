@@ -1,6 +1,9 @@
 """
 Helper functions for use across the user/auth/permission-related tests.
 """
+from django.core.cache import caches
+from django.core.cache.backends.base import InvalidCacheBackendError
+
 from ..models import Classroom
 from ..models import Facility
 from ..models import FacilityDataset
@@ -11,6 +14,14 @@ from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import provision_device  # noqa
 
 DUMMY_PASSWORD = "password"
+
+
+def clear_process_cache():
+    try:
+        process_cache = caches["process_cache"]
+        process_cache.clear()
+    except InvalidCacheBackendError:
+        pass
 
 
 def create_superuser(facility, username="superuser"):

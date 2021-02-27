@@ -14,6 +14,7 @@ from django.contrib.auth import logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Func
 from django.db.models import OuterRef
@@ -32,6 +33,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
 from morango.models import TransferSession
+from rest_framework import decorators
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
@@ -165,6 +167,18 @@ class FacilityDatasetViewSet(ValuesViewset):
         if facility_id is not None:
             queryset = queryset.filter(collection__id=facility_id)
         return queryset
+
+    @decorators.action(methods=["post"], detail=True)
+    def resetsettings(self, request, pk):
+        try:
+            dataset = FacilityDataset.objects.get(pk=pk)
+            if not request.user.can_update(dataset):
+                raise PermissionDenied("You cannot reset this facility's settings")
+            dataset.reset_to_default_settings()
+            data = FacilityDatasetSerializer(dataset).data
+            return Response(data)
+        except FacilityDataset.DoesNotExist:
+            raise Http404("Facility does not exist")
 
 
 class FacilityUserFilter(FilterSet):

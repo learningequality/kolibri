@@ -1,7 +1,7 @@
 Feature: Admin syncs facility
   Admin needs to be able to sync their facility data to Kolibri Data Portal
 
- Background:
+  Background:
     Given I am logged in as a Facility admin
       And my facility has been registered before
       And I want to sync my facility data to Kolibri Data Portal

@@ -226,7 +226,7 @@
       };
     },
     computed: {
-      ...mapGetters(['sessionTimeSpent']),
+      ...mapGetters(['summaryTimeSpent']),
       isAtStart() {
         return get(this.rendition, 'location.atStart', false);
       },
@@ -463,7 +463,7 @@
     methods: {
       updateProgress() {
         if (this.locations.length > 0) {
-          this.$emit('updateProgress', this.sessionTimeSpent / this.expectedTimeToRead);
+          this.$emit('updateProgress', this.summaryTimeSpent / this.expectedTimeToRead);
         }
       },
       handleReadyRendition() {

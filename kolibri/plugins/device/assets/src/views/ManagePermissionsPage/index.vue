@@ -9,7 +9,6 @@
 
     <PaginatedListContainer
       :items="usersFilteredByDropdown"
-      :filterFunction="filterUsers"
       :filterPlaceholder="$tr('searchPlaceholder')"
     >
       <template #otherFilter>
@@ -57,7 +56,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import { userMatchesFilter, filterAndSortUsers } from '../../userSearchUtils';
   import UserGrid from './UserGrid';
 
   const ALL_FILTER = 'all';
@@ -228,11 +226,6 @@
       this.facilityFilter = this.query.facilityFilter || this.facilityOptions[0];
       this.permissionsFilter = this.query.permissionsFilter || this.permissionsOptions[0];
       this.userTypeFilter = this.query.userTypeFilter || this.userTypeOptions[0];
-    },
-    methods: {
-      filterUsers(users, filterText) {
-        return filterAndSortUsers(users, user => userMatchesFilter(user, filterText));
-      },
     },
     $trs: {
       devicePermissionsDescription: 'Make changes to what users can manage on your device',

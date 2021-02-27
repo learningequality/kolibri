@@ -4,7 +4,6 @@
 
     <PaginatedListContainer
       :items="usersNotInClass"
-      :filterFunction="filterUsers"
       :filterPlaceholder="$tr('searchForUser')"
     >
       <template #default="{ items, filterInput }">
@@ -35,7 +34,6 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
-  import { userMatchesFilter, filterAndSortUsers } from '../userSearchUtils';
   import SelectionBottomBar from './SelectionBottomBar';
   import UserTable from './UserTable';
 
@@ -76,9 +74,6 @@
       },
     },
     methods: {
-      filterUsers(users, filterText) {
-        return filterAndSortUsers(users, user => userMatchesFilter(user, filterText));
-      },
       emptyMessageForItems(items, filterInput) {
         if (this.facilityUsers.length === 0) {
           return this.coreString('noUsersExistLabel');

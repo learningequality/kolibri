@@ -40,12 +40,11 @@
           <transition-group tag="tbody" name="list">
             <tr v-for="tableRow in table" :key="tableRow.id">
               <td>
-                <KLabeledIcon icon="quiz">
-                  <KRouterLink
-                    :text="tableRow.title"
-                    :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.id })"
-                  />
-                </KLabeledIcon>
+                <KRouterLink
+                  :text="tableRow.title"
+                  :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.id })"
+                  icon="quiz"
+                />
               </td>
               <td>
                 <Score :value="tableRow.avgScore" />
