@@ -142,7 +142,7 @@
       showControls: true,
     }),
     computed: {
-      ...mapGetters(['sessionTimeSpent']),
+      ...mapGetters(['summaryTimeSpent']),
       // Returns whether or not the current device is iOS.
       // Probably not perfect, but worked in testing.
       iOS() {
@@ -366,7 +366,7 @@
         this.$refs.recycleList.updateVisibleItems(false);
       },
       updateProgress() {
-        this.$emit('updateProgress', this.sessionTimeSpent / this.targetTime);
+        this.$emit('updateProgress', this.summaryTimeSpent / this.targetTime);
       },
       updateContentState() {
         let contentState;

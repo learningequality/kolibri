@@ -96,6 +96,7 @@ import ExamReport from '../views/ExamReport';
 import TextTruncator from '../views/TextTruncator';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
+import filterUsersByNames from '../utils/filterUsersByNames';
 import navComponents from '../utils/navComponents';
 import loginComponents from '../utils/loginComponents';
 import coreBannerContent from '../utils/coreBannerContent';
@@ -191,24 +192,25 @@ export default {
   urls,
   utils: {
     appCapabilities,
-    contentNode,
-    redirectBrowser,
+    branding,
     browserInfo,
+    bytesForHumans,
+    CatchErrors,
+    contentNode,
+    coreBannerContent,
     exams,
-    validators,
-    serverClock,
+    filterUsersByNames,
     i18n,
     licenseTranslations,
     loginComponents,
     navComponents,
-    coreBannerContent,
+    redirectBrowser,
     samePageCheckGenerator,
-    CatchErrors,
-    UserType,
-    shuffled,
-    bytesForHumans,
-    branding,
     scriptLoader,
+    serverClock,
+    shuffled,
     sortLanguages,
+    UserType,
+    validators,
   },
 };

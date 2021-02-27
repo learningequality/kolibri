@@ -10,6 +10,7 @@ from rest_framework.test import APITestCase
 from rest_framework.test import APITransactionTestCase
 
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import DUMMY_PASSWORD
@@ -20,6 +21,9 @@ from kolibri.deployment.default.urls import urlpatterns
 
 
 class BeforeDeviceProvisionTests(APITestCase):
+    def setUp(self):
+        clear_process_cache()
+
     def test_redirect_to_setup_wizard(self):
         response = self.client.get(reverse("kolibri:core:root_redirect"))
         self.assertEqual(response.status_code, 302)

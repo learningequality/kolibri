@@ -14,6 +14,7 @@ from rest_framework.test import APITestCase as BaseTestCase
 
 from .. import models
 from ..constants import role_kinds
+from ..constants.facility_presets import mappings
 from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
@@ -949,6 +950,42 @@ class FacilityDatasetAPITestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 403)
+
+    def test_facility_admin_can_reset_settings(self):
+        facility = FacilityFactory.create()
+        admin = FacilityUserFactory.create(facility=facility)
+        facility.add_admin(admin)
+
+        self.client.login(username=admin.username, password=DUMMY_PASSWORD)
+
+        def set_all_false_and_preset(facility, preset):
+            all_false = {
+                "learner_can_edit_username": False,
+                "learner_can_edit_name": False,
+                "learner_can_edit_password": False,
+                "learner_can_sign_up": False,
+                "learner_can_delete_account": False,
+                "learner_can_login_with_no_password": False,
+                "show_download_button_in_learn": False,
+            }
+            for key, value in all_false.items():
+                setattr(facility.dataset, key, value)
+            facility.dataset.preset = preset
+            facility.dataset.save()
+
+        def post_resetsettings():
+            return self.client.post(
+                reverse(
+                    "kolibri:core:facilitydataset-resetsettings",
+                    kwargs={"pk": facility.dataset_id},
+                ),
+            )
+
+        # test all three presets
+        for setting in ["formal", "nonformal", "informal"]:
+            set_all_false_and_preset(facility, setting)
+            response = post_resetsettings()
+            self.assertDictContainsSubset(mappings[setting], response.data)
 
 
 class MembershipCascadeDeletion(APITestCase):

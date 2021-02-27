@@ -31,7 +31,7 @@ Feature: Admin registers facility
     Then the modal closes
       And I still see the green checkmark next to the Facility name
 
-    Scenario: Registration to a Kolibri Data Portal project failed
+  Scenario: Registration to a Kolibri Data Portal project failed
     Given I have an invalid project token from Kolibri Data Portal
     When I click *Register*
     Then the register facility modal should appear

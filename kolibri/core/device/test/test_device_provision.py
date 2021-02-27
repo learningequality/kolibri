@@ -13,6 +13,7 @@ from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.auth.constants.facility_presets import presets
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.helpers import setup_device
 
@@ -21,6 +22,9 @@ class DeviceProvisionTestCase(TestCase):
     """
     Tests for functions used in provisiondevice command.
     """
+
+    def setUp(self):
+        clear_process_cache()
 
     def test_create_facility(self):
         create_facility(facility_name="test")

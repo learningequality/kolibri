@@ -1,6 +1,5 @@
 import Vuex from 'vuex';
 import summaryModule from '../index';
-
 import sampleState from './sampleState2';
 
 describe('coach summary data helpers', () => {
@@ -175,6 +174,19 @@ describe('coach summary data helpers', () => {
         completed: 1,
         started: 1,
         notStarted: 1,
+        helpNeeded: 0,
+      });
+    });
+    it('tallies all learners as "not started" if the lesson has no resources', () => {
+      const output = store.getters.getLessonStatusTally('lesson_id_5', [
+        'learner_id_1',
+        'learner_id_3',
+        'learner_id_6',
+      ]);
+      expect(output).toEqual({
+        completed: 0,
+        started: 0,
+        notStarted: 3,
         helpNeeded: 0,
       });
     });

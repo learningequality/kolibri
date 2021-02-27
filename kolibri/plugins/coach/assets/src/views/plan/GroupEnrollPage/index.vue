@@ -89,8 +89,8 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
   import commonCoach from '../../common';
-  import { userMatchesFilter, filterAndSortUsers } from '../../../userSearchUtils';
   import UserTable from '../../../../../../facility/assets/src/views/UserTable';
 
   export default {
@@ -127,9 +127,7 @@
         return differenceWith(this.classUsers, this.currentGroupUsers, (a, b) => a.id === b.id);
       },
       sortedFilteredUsers() {
-        return filterAndSortUsers(this.usersNotInClass, user =>
-          userMatchesFilter(user, this.filterInput)
-        );
+        return filterUsersByNames(this.usersNotInClass, this.filterInput);
       },
       numFilteredUsers() {
         return this.sortedFilteredUsers.length;

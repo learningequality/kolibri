@@ -13,7 +13,6 @@ from os import listdir
 
 import requests
 from github3 import login
-from google.cloud import storage
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -140,16 +139,6 @@ def upload_gh_release_artifacts(artifacts={}):
                 logging.error(
                     "Error uploading release asset: %s" % (artifact.get("name"))
                 )
-
-            logging.info("Uploading to Google")
-
-            client = storage.Client()
-            bucket = client.bucket("le-downloads")
-            blob = bucket.blob(
-                "kolibri-release-{artifact}".format(artifact=artifact["name"])
-            )
-            blob.upload_from_filename(filename=artifact["file_location"])
-            blob.make_public()
 
 
 def main():

@@ -3,7 +3,7 @@
 Release process
 ===============
 
-We maintain a set of `release process automation scripts <https://github.com/learningequality/kolibri-release-process/>`__ which automatically create internal next actions in `Notion <https://www.notion.so/learningequality/>`__. The processes there have separate sets of actions for:
+We maintain a set of `release process automation scripts <https://github.com/learningequality/kolibri-release-process/>`__ (private repo) which automatically create internal next actions in `Notion <https://www.notion.so/learningequality/>`__. The processes there have separate sets of actions for:
 
 * finals, beta, and release candidates
 * major versus patch releases

@@ -1,7 +1,0 @@
-coverage:
-  status:
-    project: off
-    patch: off
-
-comment:
-  layout: "files"

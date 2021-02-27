@@ -2,7 +2,7 @@
 
   <form
     class="search-box"
-    @submit.prevent="search"
+    @submit.prevent="updateSearchQuery"
     @keydown.esc.prevent="handleEscKey"
   >
     <div
@@ -17,7 +17,7 @@
       <input
         id="searchfield"
         ref="searchInput"
-        v-model.trim="searchQuery"
+        v-model.trim="searchInputValue"
         type="search"
         class="search-input"
         :class="$computedClass(searchInputStyle)"
@@ -30,7 +30,7 @@
           :color="$themeTokens.text"
           size="small"
           class="search-clear-button"
-          :class="searchQuery === '' ? '' : 'search-clear-button-visible'"
+          :class="searchInputValue === '' ? '' : 'search-clear-button-visible'"
           :ariaLabel="$tr('clearButtonLabel')"
           @click="handleClickClear"
         />
@@ -42,11 +42,11 @@
             :icon="icon"
             color="white"
             class="search-submit-button"
-            :disabled="!searchUpdate"
+            :disabled="searchBarDisabled"
             :class="{ 'rtl-icon': icon === 'forward' && isRtl }"
             :style="{ fill: $themeTokens.textInverted }"
             :ariaLabel="$tr('startSearchButtonLabel')"
-            @click="search"
+            type="submit"
           />
         </div>
       </div>
@@ -69,7 +69,7 @@
           :disabled="!contentKindFilterOptions.length"
           :value="contentKindFilterSelection"
           class="filter"
-          @change="updateFilter"
+          @change="updateSearchQuery"
         />
       </div>
       <div
@@ -89,7 +89,7 @@
           :value="channelFilterSelection"
           class="filter"
           :style="channelFilterStyle"
-          @change="updateFilter"
+          @change="updateSearchQuery"
         />
       </div>
     </div>
@@ -101,6 +101,7 @@
 <script>
 
   import maxBy from 'lodash/maxBy';
+  import pickBy from 'lodash/pickBy';
   import { mapGetters, mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -136,7 +137,7 @@
     },
     data() {
       return {
-        searchQuery: this.$store.state.search.searchTerm,
+        searchInputValue: this.$store.state.search.searchTerm,
         contentKindFilterSelection: {},
         channelFilterSelection: {},
       };
@@ -145,13 +146,7 @@
       ...mapGetters({
         channels: 'getChannels',
       }),
-      ...mapState('search', [
-        'searchTerm',
-        'channel_ids',
-        'content_kinds',
-        'kindFilter',
-        'channelFilter',
-      ]),
+      ...mapState('search', ['searchTerm', 'channel_ids', 'content_kinds']),
       channelFilterStyle() {
         const maxWidth = 375;
         // If window is small, just let it have its default width
@@ -196,14 +191,9 @@
         }
         return [];
       },
-      filterUpdate() {
-        return (
-          this.contentKindFilterSelection.value !== this.kindFilter ||
-          this.channelFilterSelection.value !== this.channelFilter
-        );
-      },
-      searchUpdate() {
-        return this.searchQuery !== this.searchTerm || this.filterUpdate;
+      searchBarDisabled() {
+        // Disable the search bar if it has been cleared or has not been changed
+        return this.searchInputValue === '' || this.searchInputValue === this.searchTerm;
       },
       searchInputStyle() {
         return {
@@ -214,54 +204,47 @@
         };
       },
     },
-    watch: {
-      searchTerm(val) {
-        this.searchQuery = val || '';
-      },
-    },
     beforeMount() {
-      this.contentKindFilterSelection =
-        this.contentKindFilterOptions.find(
-          option => option.value === this.$store.state.search.kindFilter
-        ) || this.allFilter;
-      this.channelFilterSelection =
-        this.channelFilterOptions.find(
-          option => option.value === this.$store.state.search.channelFilter
-        ) || this.allFilter;
+      if (this.filters) {
+        this.contentKindFilterSelection =
+          this.contentKindFilterOptions.find(
+            option => option.value === this.$store.state.search.kindFilter
+          ) || this.allFilter;
+        this.channelFilterSelection =
+          this.channelFilterOptions.find(
+            option => option.value === this.$store.state.search.channelFilter
+          ) || this.allFilter;
+      }
     },
     methods: {
+      clearInput() {
+        this.searchInputValue = '';
+      },
       handleEscKey() {
-        if (this.searchQuery === '') {
+        if (this.searchInputValue === '') {
           this.$emit('closeDropdownSearchBox');
         } else {
-          this.searchQuery = '';
+          this.clearInput();
         }
       },
       handleClickClear() {
-        this.searchQuery = '';
+        this.clearInput();
         this.$refs.searchInput.focus();
       },
-      updateFilter() {
-        this.search(true);
-      },
-      search(filterUpdate = false) {
-        if (this.searchQuery !== '') {
-          const query = {
-            searchTerm: this.searchQuery,
-          };
-          if (filterUpdate === true) {
-            if (this.$refs.contentKindFilter.selection.value) {
-              query.kind = this.$refs.contentKindFilter.selection.value;
-            }
-            if (this.$refs.channelFilter.selection.value) {
-              query.channel_id = this.$refs.channelFilter.selection.value;
-            }
-          }
-          this.$router.push({
-            name: PageNames.SEARCH,
-            query,
-          });
+      updateSearchQuery() {
+        const query = {
+          searchTerm: this.searchInputValue || this.$route.query.searchTerm,
+        };
+        if (this.filters) {
+          query.kind = this.$refs.contentKindFilter.selection.value;
+          query.channel_id = this.$refs.channelFilter.selection.value;
         }
+        this.$router
+          .push({
+            name: PageNames.SEARCH,
+            query: pickBy(query),
+          })
+          .catch(() => {});
       },
     },
     $trs: {

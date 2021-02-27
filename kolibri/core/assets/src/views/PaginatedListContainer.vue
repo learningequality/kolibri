@@ -52,6 +52,7 @@
 
   import clamp from 'lodash/clamp';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
+  import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
 
   export default {
     name: 'PaginatedListContainer',
@@ -63,9 +64,6 @@
       items: {
         type: Array,
         required: true,
-      },
-      filterFunction: {
-        type: Function,
       },
       filterPlaceholder: {
         type: String,
@@ -85,10 +83,7 @@
     },
     computed: {
       filteredItems() {
-        if (this.filterFunction) {
-          return this.filterFunction(this.items, this.filterInput);
-        }
-        return this.items;
+        return filterUsersByNames(this.items, this.filterInput);
       },
       numFilteredItems() {
         return this.filteredItems.length;

@@ -2,12 +2,11 @@
 
   <tr>
     <td>
-      <KLabeledIcon icon="group">
-        <KRouterLink
-          :text="group.name"
-          :to="$router.getRoute('GroupMembersPage', { groupId: group.id })"
-        />
-      </KLabeledIcon>
+      <KRouterLink
+        :text="group.name"
+        :to="$router.getRoute('GroupMembersPage', { groupId: group.id })"
+        icon="group"
+      />
     </td>
     <td>
       {{ group.users.length }}

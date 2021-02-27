@@ -5,12 +5,14 @@ from __future__ import unicode_literals
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase
 
+from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import create_dummy_facility_data
 from kolibri.core.auth.test.helpers import provision_device
 
 
 class GetFacilityAdminsTest(APITestCase):
     def setUp(self):
+        clear_process_cache()
         create_dummy_facility_data(classroom_count=1)
 
     def _make_request(self):
@@ -35,6 +37,8 @@ class GetFacilityAdminsTest(APITestCase):
 
 class GrantSuperuserPermissionsTest(APITestCase):
     def setUp(self):
+        clear_process_cache()
+
         facility_data = create_dummy_facility_data(classroom_count=1)
         self.admin = facility_data["facility_admin"]
         self.admin.set_password("password")
