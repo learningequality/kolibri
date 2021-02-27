@@ -33,9 +33,7 @@
                   :to="detailLink(tableRow.id)"
                   icon="person"
                 />
-                <template v-else>
-                  {{ tableRow.name }}
-                </template>
+                <KLabeledIcon v-else :label="tableRow.name" icon="person" />
               </td>
               <td>
                 <StatusSimple :status="tableRow.statusObj.status" />

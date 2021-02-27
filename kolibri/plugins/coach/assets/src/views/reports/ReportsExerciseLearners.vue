@@ -21,9 +21,7 @@
               data-test="exercise-learner-link"
               icon="person"
             />
-            <template v-else>
-              {{ entry.name }}
-            </template>
+            <KLabeledIcon v-else :label="entry.name" icon="person" />
           </td>
           <td>
             <StatusSimple :status="entry.statusObj.status" />
