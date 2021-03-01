@@ -94,7 +94,6 @@
   import commonCoachStrings from '../../common';
 
   const DEFAULT_ITEMS_PER_PAGE = 50;
-  const SHORT_ITEMS_PER_PAGE = 5;
 
   export default {
     name: 'IndividualLearnerSelector',
@@ -185,7 +184,7 @@
         };
       },
       itemsPerPage() {
-        return this.targetClassId ? SHORT_ITEMS_PER_PAGE : DEFAULT_ITEMS_PER_PAGE;
+        return DEFAULT_ITEMS_PER_PAGE;
       },
     },
     methods: {
