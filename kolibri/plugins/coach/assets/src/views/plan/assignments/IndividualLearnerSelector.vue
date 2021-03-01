@@ -24,7 +24,7 @@
         :items="allLearners"
         :filterPlaceholder="$tr('searchPlaceholder')"
         :itemsPerPage="itemsPerPage"
-        @pageChanged="pageNum => currentPage = pageNum"
+        @pageChanged="currentPageLearners = $event.items"
       >
         <template #default="{ items }">
           <CoreTable
@@ -131,8 +131,7 @@
     },
     data() {
       return {
-        currentPage: 1,
-        searchText: '',
+        currentPageLearners: [],
         fetchingOutside: false,
         learnersFromOtherClass: null,
         groupMapFromOtherClass: null,
@@ -163,13 +162,6 @@
       },
       currentGroupMap() {
         return this.groupMapFromOtherClass || this.groupMap;
-      },
-      currentPageLearners() {
-        const baseIndex = (this.currentPage - 1) * this.itemsPerPage;
-        return this.filterLearners(this.allLearners, this.searchText).slice(
-          baseIndex,
-          baseIndex + this.itemsPerPage
-        );
       },
       learnerIdsFromSelectedGroups() {
         // If a learner is part of a Learner Group that has already been selected
