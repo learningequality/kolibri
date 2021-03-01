@@ -88,6 +88,7 @@
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import flatMap from 'lodash/flatMap';
+  import forEach from 'lodash/forEach';
   import countBy from 'lodash/countBy';
   import every from 'lodash/every';
   import ClassSummaryResource from '../../../apiResources/classSummary';
@@ -243,9 +244,12 @@
         return this.learnerIsInSelectedGroup(id) || this.disabled;
       },
       groupNamesForLearner({ id }) {
-        const groupNames = this.groups
-          .filter(group => group.member_ids.includes(id))
-          .map(group => group.name);
+        const groupNames = [];
+        forEach(this.currentGroupMap, group => {
+          if (group.member_ids.includes(id)) {
+            groupNames.push(group.name);
+          }
+        });
         return formatList(groupNames);
       },
     },
