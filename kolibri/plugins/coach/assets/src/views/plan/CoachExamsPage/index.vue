@@ -48,12 +48,13 @@
               :key="exam.id"
             >
               <td>
-                <KRouterLink
-                  :to="$router.getRoute('QuizSummaryPage', { quizId: exam.id })"
-                  appearance="basic-link"
-                  :text="exam.title"
-                  icon="quiz"
-                />
+                <KLabeledIcon icon="quiz">
+                  <KRouterLink
+                    :to="$router.getRoute('QuizSummaryPage', { quizId: exam.id })"
+                    appearance="basic-link"
+                    :text="exam.title"
+                  />
+                </KLabeledIcon>
               </td>
 
               <td>

@@ -15,11 +15,12 @@
             <tr v-for="(tableRow, index) in table" :key="tableRow.question_id + index">
               <td>
                 <span v-if="$isPrint">{{ tableRow.title }}</span>
-                <KRouterLink
-                  :text="tableRow.title"
-                  :to="questionLink(tableRow.question_id)"
-                  icon="question"
-                />
+                <KLabeledIcon v-else icon="question">
+                  <KRouterLink
+                    :text="tableRow.title"
+                    :to="questionLink(tableRow.question_id)"
+                  />
+                </KLabeledIcon>
               </td>
               <td>
                 <LearnerProgressRatio

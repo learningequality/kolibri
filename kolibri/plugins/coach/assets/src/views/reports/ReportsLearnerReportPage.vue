@@ -29,13 +29,14 @@
               <transition-group tag="tbody" name="list">
                 <tr v-for="tableRow in lessonsTable" :key="tableRow.id">
                   <td>
-                    <KRouterLink
-                      :to="classRoute('ReportsLearnerReportLessonPage', {
-                        lessonId: tableRow.id
-                      })"
-                      :text="tableRow.title"
-                      icon="lesson"
-                    />
+                    <KLabeledIcon icon="lesson">
+                      <KRouterLink
+                        :to="classRoute('ReportsLearnerReportLessonPage', {
+                          lessonId: tableRow.id
+                        })"
+                        :text="tableRow.title"
+                      />
+                    </KLabeledIcon>
                   </td>
                   <td>
                     <StatusSimple :status="tableRow.status" />
@@ -57,11 +58,12 @@
               <transition-group tag="tbody" name="list">
                 <tr v-for="tableRow in examsTable" :key="tableRow.id">
                   <td>
-                    <KRouterLink
-                      :to="quizLink(tableRow.id)"
-                      :text="tableRow.title"
-                      icon="quiz"
-                    />
+                    <KLabeledIcon icon="quiz">
+                      <KRouterLink
+                        :to="quizLink(tableRow.id)"
+                        :text="tableRow.title"
+                      />
+                    </KLabeledIcon>
                   </td>
                   <td>
                     <StatusSimple :status="tableRow.statusObj.status" />

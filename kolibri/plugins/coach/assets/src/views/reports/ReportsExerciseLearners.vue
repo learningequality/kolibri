@@ -14,16 +14,17 @@
       <transition-group tag="tbody" name="list">
         <tr v-for="entry in entries" :key="entry.id" data-test="entry">
           <td>
-            <KRouterLink
-              v-if="showLink(entry)"
-              :text="entry.name"
-              :to="entry.exerciseLearnerLink"
-              data-test="exercise-learner-link"
-              icon="person"
-            />
-            <template v-else>
-              {{ entry.name }}
-            </template>
+            <KLabeledIcon icon="person">
+              <KRouterLink
+                v-if="showLink(entry)"
+                :text="entry.name"
+                :to="entry.exerciseLearnerLink"
+                data-test="exercise-learner-link"
+              />
+              <template v-else>
+                {{ entry.name }}
+              </template>
+            </KLabeledIcon>
           </td>
           <td>
             <StatusSimple :status="entry.statusObj.status" />
