@@ -115,7 +115,9 @@ class ExplicitMembershipTestCase(TestCase):
         self.assertTrue(self.admin.can_read(self.learner))
 
     def test_learner_is_in_list_of_readable_objects(self):
-        self.assertIn(
+        # This should not be present as we are no longer supporting classroom membership
+        # solely by virtue of being a member of a group in that class.
+        self.assertNotIn(
             self.learner, self.admin.filter_readable(FacilityUser.objects.all())
         )
 
