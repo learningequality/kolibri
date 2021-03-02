@@ -46,11 +46,12 @@
           <transition-group tag="tbody" name="list">
             <tr v-for="classObj in classList" :key="classObj.id">
               <td>
-                <KRouterLink
-                  :text="classObj.name"
-                  :to="$router.getRoute('HomePage', { classId: classObj.id })"
-                  icon="classes"
-                />
+                <KLabeledIcon icon="classes">
+                  <KRouterLink
+                    :text="classObj.name"
+                    :to="$router.getRoute('HomePage', { classId: classObj.id })"
+                  />
+                </KLabeledIcon>
               </td>
               <td>
                 <TruncatedItemList :items="classObj.coaches.map(c => c.full_name)" />
