@@ -9,6 +9,7 @@ import ProfilePage from './views/ProfilePage';
 import ProfileEditPage from './views/ProfileEditPage';
 import SignInPage from './views/SignInPage';
 import SignUpPage from './views/SignUpPage';
+import NewPasswordPage from './views/SignInPage/NewPasswordPage';
 
 router.beforeEach((to, from, next) => {
   const profileRoutes = [ComponentMap.PROFILE, ComponentMap.PROFILE_EDIT];
@@ -102,6 +103,24 @@ export default [
       } else {
         next();
       }
+    },
+  },
+  {
+    path: '/set-password',
+    component: NewPasswordPage,
+    beforeEnter(to, from, next) {
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      if (!to.query.facility || !to.query.username) {
+        next({ path: '/' });
+      } else {
+        next();
+      }
+    },
+    props(route) {
+      return {
+        facilityId: route.query.facility,
+        username: route.query.username,
+      };
     },
   },
   {
