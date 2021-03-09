@@ -44,11 +44,14 @@
         <KCheckbox
           class="super-admin-checkbox"
           :disabled="superuserDisabled"
-          :label="$tr('makeSuperAdmin')"
           :checked="superuserChecked"
           @change="superuserChecked = $event"
-        />
-        <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
+        >
+          <label>
+            <span>{{ $tr('makeSuperAdmin') }}</span>
+            <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
+          </label>
+        </KCheckbox>
 
         <ul
           class="checkbox-description"
