@@ -56,3 +56,10 @@ process.on('unhandledRejection', (reason, p) => {
   console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
   console.log(reason.stack);
 });
+
+// Copied from https://github.com/kentor/flush-promises/blob/f33ac564190c784019f1f689dd544187f4b77eb2/index.js
+global.flushPromises = function flushPromises() {
+  return new Promise(function(resolve) {
+    setImmediate(resolve);
+  });
+};
