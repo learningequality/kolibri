@@ -47,9 +47,13 @@
           :checked="superuserChecked"
           @change="superuserChecked = $event"
         >
-          <label>
+          <label :style="superuserLabelStyle">
             <span>{{ $tr('makeSuperAdmin') }}</span>
-            <PermissionsIcon permissionType="SUPERUSER" class="permissions-icon" />
+            <PermissionsIcon
+              permissionType="SUPERUSER"
+              class="permissions-icon"
+              :lightIcon="superuserDisabled"
+            />
           </label>
         </KCheckbox>
 
@@ -155,6 +159,9 @@
           this.permissions.is_superuser === this.superuserChecked &&
           this.permissions.can_manage_content === this.devicePermissionsChecked
         );
+      },
+      superuserLabelStyle() {
+        return { color: this.superuserDisabled ? this.$themeTokens.textDisabled : '' };
       },
     },
     watch: {
