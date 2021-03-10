@@ -137,7 +137,7 @@
   "NewChannelVersionPage.channelIsIncomplete": "ច្បាប់ចម្លងនេះ '{channel}' គឺមិនបានបញ្ចប់. វាផ្ទុក {resourcesInChannel} នៃ {totalResources} ធនធានពីឆានែលដើម",
   "NewChannelVersionPage.resourcesAvailableForImport": "មានធនធានថ្មី",
   "NewChannelVersionPage.resourcesToBeDeleted": "ធនធានដែលនឹងត្រូវលុប",
-  "NewChannelVersionPage.resourcesToBeDeletedTooltip": "នៅពេលដែលធ្វើបច្ចុប្បន្នភាពឆានែលនេះ ធនធានខ្លះនឹងត្រូវលុប។ នេះអាចនឹងប៉ះពាល់ដល់មេរៀន ឬសំណួរ Quiz ដែលកំពុងប្រើនៅក្នុងធនធានដែលបានលុបហើយនោះ",
+  "NewChannelVersionPage.resourcesToBeDeletedTooltip": "នៅពេលដែលធ្វើបច្ចុប្បន្នភាពឆានែលនេះ ធនធានខ្លះនឹងត្រូវលុប។ នេះអាចនឹងប៉ះពាល់ដល់មេរៀន ឬសំណួរ ដែលកំពុងប្រើនៅក្នុងធនធានដែលបានលុបហើយនោះ",
   "NewChannelVersionPage.resourcesToBeUpdated": "ធនធានដែលត្រូវធ្វើបច្ចុប្បន្នភាព",
   "NewChannelVersionPage.updateChannelAction": "ធ្វើបច្ចុប្បន្នភាពឆានែល",
   "NewChannelVersionPage.updateConfirmationQuestion": "តើអ្នកពិតជាចង់ធ្វើបច្ចុប្បន្នភាព '{channelName}' ទៅជំនាន់ {version}?",
