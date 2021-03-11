@@ -200,7 +200,10 @@
       KeenUiSelectOption,
     },
     props: {
-      name: String,
+      name: {
+        type: String,
+        default: null,
+      },
       value: {
         type: [String, Number, Object, Array],
         required: true,
@@ -211,13 +214,22 @@
           return [];
         },
       },
-      placeholder: String,
-      icon: String,
+      placeholder: {
+        type: String,
+        default: null,
+      },
+      icon: {
+        type: String,
+        default: null,
+      },
       iconPosition: {
         type: String,
         default: 'left', // 'left' or 'right'
       },
-      label: String,
+      label: {
+        type: String,
+        default: null,
+      },
       floatingLabel: {
         type: Boolean,
         default: false,
@@ -242,7 +254,10 @@
         type: String,
         default: 'Search',
       },
-      filter: Function,
+      filter: {
+        type: Function,
+        default: () => null,
+      },
       disableFilter: {
         type: Boolean,
         default: false,
@@ -265,8 +280,14 @@
         type: Boolean,
         default: false,
       },
-      help: String,
-      error: String,
+      help: {
+        type: String,
+        default: null,
+      },
+      error: {
+        type: String,
+        default: null,
+      },
       disabled: {
         type: Boolean,
         default: false,

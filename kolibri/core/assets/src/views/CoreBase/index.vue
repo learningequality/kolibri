@@ -220,15 +220,15 @@
       },
       authorizedRole: {
         type: String,
-        required: false,
+        default: null,
       },
       authorizationErrorHeader: {
         type: String,
-        required: false,
+        default: null,
       },
       authorizationErrorDetails: {
         type: String,
-        required: false,
+        default: null,
       },
       // IMMERSIVE-SPECIFIC
       immersivePage: {
@@ -245,7 +245,7 @@
       // link to where the 'back' button should go
       immersivePageRoute: {
         type: Object,
-        required: false,
+        required: true,
       },
       // determines the color, primary being the classic kolibri appbar color
       immersivePagePrimary: {

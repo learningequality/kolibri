@@ -42,11 +42,26 @@
   export default {
     name: 'CoreMenuOption',
     props: {
-      isDivider: Boolean,
-      label: String,
-      link: String,
-      secondaryText: String,
-      icon: String,
+      isDivider: {
+        type: Boolean,
+        default: false,
+      },
+      label: {
+        type: String,
+        default: null,
+      },
+      link: {
+        type: String,
+        default: null,
+      },
+      secondaryText: {
+        type: String,
+        default: null,
+      },
+      icon: {
+        type: String,
+        default: null,
+      },
     },
     inject: ['showActive'],
     computed: {

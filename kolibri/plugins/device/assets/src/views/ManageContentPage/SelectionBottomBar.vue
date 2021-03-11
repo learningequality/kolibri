@@ -59,19 +59,21 @@
       },
       resourceCounts: {
         type: Object,
-        required: false,
+        default: () => {},
         validator(value) {
           return typeof value.count === 'number' && typeof value.fileSize === 'number';
         },
       },
       objectType: {
         type: String,
+        default: null,
         validator(value) {
           return value === 'channel' || value === 'resource';
         },
       },
       actionType: {
         type: String,
+        default: null,
         validator(value) {
           return (
             value === 'import' || value === 'export' || value === 'delete' || value === 'manage'

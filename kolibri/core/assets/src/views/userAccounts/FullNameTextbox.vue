@@ -28,6 +28,7 @@
     props: {
       value: {
         type: String,
+        default: '',
       },
       shouldValidate: {
         type: Boolean,

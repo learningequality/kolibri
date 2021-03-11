@@ -48,12 +48,15 @@
     props: {
       avgTime: {
         type: Number,
+        default: null,
       },
       className: {
         type: String,
+        default: '',
       },
       lessonName: {
         type: String,
+        default: '',
       },
     },
   };

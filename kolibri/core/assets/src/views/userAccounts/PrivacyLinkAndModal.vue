@@ -32,7 +32,7 @@
     props: {
       text: {
         type: String,
-        required: false,
+        default: null,
       },
       modalProps: {
         type: Object,

@@ -35,7 +35,7 @@
       },
       modalConfirmation: {
         type: String,
-        required: false,
+        default: null,
       },
     },
   };

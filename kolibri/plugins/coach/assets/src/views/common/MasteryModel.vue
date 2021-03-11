@@ -32,7 +32,7 @@
     props: {
       masteryModel: {
         type: Object,
-        required: false,
+        default: null,
         validator: masteryModelValidator,
       },
     },

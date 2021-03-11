@@ -47,6 +47,7 @@
       // Should be 'COPY' or 'DELETE'
       currentAction: {
         type: String,
+        default: null,
       },
     },
     computed: {

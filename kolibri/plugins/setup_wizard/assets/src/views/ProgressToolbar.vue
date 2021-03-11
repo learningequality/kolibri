@@ -37,7 +37,7 @@
     props: {
       title: {
         type: String,
-        required: false,
+        default: null,
       },
     },
   };

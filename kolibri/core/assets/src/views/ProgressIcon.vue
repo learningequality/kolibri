@@ -50,7 +50,7 @@
     props: {
       progress: {
         type: Number,
-        required: false,
+        default: null,
         validator(value) {
           return value >= 0 && value <= 1;
         },

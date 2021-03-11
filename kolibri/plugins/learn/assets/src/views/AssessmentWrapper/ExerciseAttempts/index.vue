@@ -45,6 +45,7 @@
       // ordered from first to last
       log: {
         type: Array,
+        default: () => [],
         validator(arr) {
           return arr.every(val => ['right', 'wrong', 'hint', 'rectified'].includes(val));
         },

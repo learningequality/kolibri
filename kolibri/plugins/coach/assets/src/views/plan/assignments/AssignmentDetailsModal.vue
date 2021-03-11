@@ -93,7 +93,7 @@
     props: {
       modalTitleErrorMessage: {
         type: String,
-        required: false,
+        default: null,
       },
       submitErrorMessage: {
         type: String,

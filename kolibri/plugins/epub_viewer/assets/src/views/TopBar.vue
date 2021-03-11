@@ -72,7 +72,7 @@
     props: {
       title: {
         type: String,
-        required: false,
+        default: null,
       },
       isInFullscreen: {
         type: Boolean,

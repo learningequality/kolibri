@@ -21,6 +21,7 @@
     props: {
       birthYear: {
         type: String,
+        required: true,
       },
     },
     computed: {

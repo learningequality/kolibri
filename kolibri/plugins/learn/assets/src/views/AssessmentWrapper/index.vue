@@ -111,6 +111,7 @@ oriented data synchronization.
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import { defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
   import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
   import ExerciseAttempts from './ExerciseAttempts';
 
@@ -129,6 +130,7 @@ oriented data synchronization.
       },
       lang: {
         type: Object,
+        default: () => defaultLanguage,
       },
       kind: {
         type: String,
@@ -171,12 +173,15 @@ oriented data synchronization.
       // An identifier for the user interacting with this content
       userId: {
         type: String,
+        default: null,
       },
       userFullName: {
         type: String,
+        default: null,
       },
       timeSpent: {
         type: Number,
+        default: null,
       },
     },
     data() {

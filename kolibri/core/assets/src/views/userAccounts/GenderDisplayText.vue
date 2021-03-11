@@ -21,6 +21,7 @@
     props: {
       gender: {
         type: String,
+        required: true,
       },
     },
     computed: {

@@ -44,7 +44,7 @@
       },
       color: {
         type: String,
-        required: false,
+        default: null,
       },
       showPercentage: {
         type: Boolean,

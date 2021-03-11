@@ -17,7 +17,7 @@
     props: {
       date: {
         type: Date,
-        required: false,
+        default: null,
       },
     },
     data: () => ({

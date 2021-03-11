@@ -78,7 +78,10 @@
         type: Boolean,
         default: false,
       },
-      completionTimestamp: { type: Date },
+      completionTimestamp: {
+        type: Date,
+        default: null,
+      },
       contentName: {
         type: String,
         required: true,

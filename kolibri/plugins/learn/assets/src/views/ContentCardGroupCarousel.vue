@@ -93,6 +93,7 @@
       },
       genContentLink: {
         type: Function,
+        default: () => null,
         validator(genContentLinkFunc) {
           const dummyExercise = genContentLinkFunc(1, 'exercise');
           const isValidLinkGenerator = validateLinkObject(dummyExercise);

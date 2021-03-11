@@ -49,6 +49,7 @@
       },
       itemDescription: {
         type: Function,
+        default: () => '',
       },
     },
     computed: {

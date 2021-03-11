@@ -25,6 +25,7 @@
     props: {
       value: {
         type: String,
+        required: true,
       },
     },
     computed: {

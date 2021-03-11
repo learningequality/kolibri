@@ -53,11 +53,11 @@
       },
       linkText: {
         type: String,
-        required: false,
+        default: null,
       },
       linkUrl: {
         type: String,
-        required: false,
+        default: null,
       },
     },
     data() {

@@ -43,6 +43,7 @@
       // NOTE: 'value', and 'isValid' must be .sync'd with parent
       value: {
         type: String,
+        default: '',
       },
       shouldValidate: {
         type: Boolean,
