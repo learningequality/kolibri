@@ -21,13 +21,5 @@ class UserIsNotMemberError(KolibriError):
     pass
 
 
-class UserIsMemberOnlyIndirectlyThroughHierarchyError(KolibriError):
-    pass
-
-
-class InvalidHierarchyRelationsArgument(KolibriError):
-    pass
-
-
 class IncompatibleDeviceSettingError(KolibriError):
     pass

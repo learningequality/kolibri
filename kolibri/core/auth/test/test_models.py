@@ -14,7 +14,6 @@ from ..constants import role_kinds
 from ..errors import InvalidRoleKind
 from ..errors import UserDoesNotHaveRoleError
 from ..errors import UserHasRoleOnlyIndirectlyThroughHierarchyError
-from ..errors import UserIsMemberOnlyIndirectlyThroughHierarchyError
 from ..errors import UserIsNotMemberError
 from ..models import Classroom
 from ..models import Collection
@@ -51,6 +50,7 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
 
         self.cr = Classroom.objects.create(parent=self.facility)
         self.cr.add_coach(classroom_coach)
+        self.cr.add_member(learner)
 
         self.lg = LearnerGroup.objects.create(parent=self.cr)
         self.lg.add_learner(learner)
@@ -64,6 +64,7 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
         )
 
         self.lg.remove_learner(self.learner)
+        self.cr.remove_member(self.learner)
 
         self.assertFalse(self.learner.is_member_of(self.lg))
         self.assertFalse(self.learner.is_member_of(self.cr))
@@ -208,11 +209,6 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
         with self.assertRaises(UserHasRoleOnlyIndirectlyThroughHierarchyError):
             self.cr.remove_admin(self.facility_admin)
 
-    def test_remove_indirect_membership(self):
-        """ Trying to remove a learner's membership from a classroom doesn't actually remove anything. """
-        with self.assertRaises(UserIsMemberOnlyIndirectlyThroughHierarchyError):
-            self.cr.remove_member(self.learner)
-
     def test_delete_learner_group(self):
         """ Deleting a LearnerGroup should delete its associated Memberships as well """
         self.assertEqual(Membership.objects.filter(collection=self.lg.id).count(), 1)
@@ -251,9 +247,8 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
 
     def test_delete_facility_user(self):
         """ Deleting a FacilityUser should delete associated Memberships """
-        membership = Membership.objects.get(user=self.learner)
         self.learner.delete()
-        self.assertEqual(Membership.objects.filter(id=membership.id).count(), 0)
+        self.assertEqual(Membership.objects.filter(user=self.learner).count(), 0)
 
 
 class CollectionRelatedObjectTestCase(TestCase):
@@ -476,24 +471,6 @@ class SuperuserRoleMembershipTestCase(TestCase):
         self.assertFalse(self.superuser.is_member_of(self.learner_group))
 
     def test_superuser_is_admin_for_everything(self):
-        self.assertSetEqual(
-            self.superuser.get_roles_for_collection(self.classroom),
-            set([role_kinds.ADMIN]),
-        )
-        self.assertSetEqual(
-            self.superuser.get_roles_for_collection(self.facility),
-            set([role_kinds.ADMIN]),
-        )
-        self.assertSetEqual(
-            self.superuser.get_roles_for_user(self.facility_user),
-            set([role_kinds.ADMIN]),
-        )
-        self.assertSetEqual(
-            self.superuser.get_roles_for_user(self.superuser), set([role_kinds.ADMIN])
-        )
-        self.assertSetEqual(
-            self.superuser.get_roles_for_user(self.superuser2), set([role_kinds.ADMIN])
-        )
         self.assertTrue(
             self.superuser.has_role_for_user([role_kinds.ADMIN], self.facility_user)
         )

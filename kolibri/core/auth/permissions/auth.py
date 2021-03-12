@@ -55,6 +55,13 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
                 CollectionSpecificRoleBasedPermissions, self
             ).user_can_update_object(user, obj.parent)
 
+    def readable_by_user_filter(self, user, queryset):
+        if user.is_anonymous():
+            return queryset.none()
+
+        # By default can read all collections in facility
+        return queryset.filter(dataset_id=user.dataset_id)
+
 
 class AnonUserCanReadFacilities(DenyAll):
     """
@@ -182,10 +189,34 @@ class CoachesCanManageMembershipsForTheirGroups(BasePermissions):
         return False
 
     def user_can_update_object(self, user, obj):
-        return self._user_should_be_able_to_manage(user, obj)
+        # Memberships should be either created or destroyed, not updated.
+        return False
 
     def user_can_delete_object(self, user, obj):
         return self._user_should_be_able_to_manage(user, obj)
 
     def readable_by_user_filter(self, user, queryset):
         return queryset.none()
+
+
+class MembersCanReadMembershipsOfTheirCollections(BasePermissions):
+    def user_can_create_object(self, user, obj):
+        return False
+
+    def user_can_read_object(self, user, obj):
+        return user.is_member_of(obj.collection)
+
+    def user_can_update_object(self, user, obj):
+        return False
+
+    def user_can_delete_object(self, user, obj):
+        return False
+
+    def readable_by_user_filter(self, user, queryset):
+        if user.is_anonymous():
+            return queryset.none()
+        # Add a special case where users with memberships in the same collection
+        # can also read memberships for other members
+        return queryset.filter(
+            collection_id__in=user.memberships.all().values("collection_id")
+        )

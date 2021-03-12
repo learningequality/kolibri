@@ -23,7 +23,6 @@ from django.db.models import Subquery
 from django.db.models import TextField
 from django.db.models import Value
 from django.db.models.functions import Cast
-from django.db.models.query import F
 from django.http import Http404
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
@@ -43,7 +42,6 @@ from rest_framework.response import Response
 
 from .constants import collection_kinds
 from .constants import role_kinds
-from .filters import HierarchyRelationsFilter
 from .models import Classroom
 from .models import Collection
 from .models import Facility
@@ -402,13 +400,17 @@ class ClassroomFilter(FilterSet):
             return queryset
 
         # filter queryset by admin role and coach role
-        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            source_user=requesting_user,
-            role_kind=role_kinds.ADMIN,
-            descendant_collection=F("id"),
-        ) | HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            source_user=requesting_user, role_kind=value, descendant_collection=F("id")
-        )
+        roles = requesting_user.roles.exclude(kind=role_kinds.ASSIGNABLE_COACH)
+
+        if roles.filter(
+            collection_id=requesting_user.facility_id, kind=role_kinds.ADMIN
+        ).exists():
+            return queryset
+
+        if value == role_kinds.COACH:
+            roles = roles.filter(kind=value)
+
+        return queryset.filter(id__in=roles.values("collection_id"))
 
     class Meta:
         model = Classroom

@@ -65,6 +65,7 @@ def log_permissions(user_field):
             can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
             can_be_updated_by=(role_kinds.ADMIN,),
             can_be_deleted_by=(role_kinds.ADMIN,),
+            collection_field="{}__memberships__collection_id".format(user_field),
         )
     )
 

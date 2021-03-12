@@ -33,7 +33,6 @@ from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models.query import F
 from django.db.models.query import Q
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
@@ -53,16 +52,15 @@ from .errors import IncompatibleDeviceSettingError
 from .errors import InvalidRoleKind
 from .errors import UserDoesNotHaveRoleError
 from .errors import UserHasRoleOnlyIndirectlyThroughHierarchyError
-from .errors import UserIsMemberOnlyIndirectlyThroughHierarchyError
 from .errors import UserIsNotFacilityUser
 from .errors import UserIsNotMemberError
-from .filters import HierarchyRelationsFilter
 from .permissions.auth import AllCanReadFacilityDataset
 from .permissions.auth import AnonUserCanReadFacilities
 from .permissions.auth import CoachesCanManageGroupsForTheirClasses
 from .permissions.auth import CoachesCanManageMembershipsForTheirGroups
 from .permissions.auth import CollectionSpecificRoleBasedPermissions
 from .permissions.auth import FacilityAdminCanEditForOwnFacilityDataset
+from .permissions.auth import MembersCanReadMembershipsOfTheirCollections
 from .permissions.base import BasePermissions
 from .permissions.base import RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility
@@ -338,30 +336,6 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
             "Subclasses of KolibriAbstractBaseUser must override the `is_member_of` method."
         )
 
-    def get_roles_for_user(self, user):
-        """
-        Determine all the roles this user has in relation to the target user, and return a set containing the kinds of roles.
-
-        :param user: The target user for which this user has the roles.
-        :return: The kinds of roles this user has with respect to the target user.
-        :rtype: set of ``kolibri.core.auth.constants.role_kinds.*`` strings
-        """
-        raise NotImplementedError(
-            "Subclasses of KolibriAbstractBaseUser must override the `get_roles_for_user` method."
-        )
-
-    def get_roles_for_collection(self, coll):
-        """
-        Determine all the roles this user has in relation to the specified ``Collection``, and return a set containing the kinds of roles.
-
-        :param coll: The target ``Collection`` for which this user has the roles.
-        :return: The kinds of roles this user has with respect to the specified ``Collection``.
-        :rtype: set of ``kolibri.core.auth.constants.role_kinds.*`` strings
-        """
-        raise NotImplementedError(
-            "Subclasses of KolibriAbstractBaseUser must override the `get_roles_for_collection` method."
-        )
-
     def has_role_for_user(self, kinds, user):
         """
         Determine whether this user has (at least one of) the specified role kind(s) in relation to the specified user.
@@ -480,19 +454,6 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
             "Subclasses of KolibriAbstractBaseUser must override the `can_delete` method."
         )
 
-    def get_roles_for(self, obj):
-        """
-        Helper function that defers to ``get_roles_for_user`` or ``get_roles_for_collection`` based on the type of object passed in.
-        """
-        if isinstance(obj, KolibriAbstractBaseUser):
-            return self.get_roles_for_user(obj)
-        elif isinstance(obj, Collection):
-            return self.get_roles_for_collection(obj)
-        else:
-            raise ValueError(
-                "The `obj` argument to `get_roles_for` must be either an instance of KolibriAbstractBaseUser or Collection."
-            )
-
     def has_role_for(self, kinds, obj):
         """
         Helper function that defers to ``has_role_for_user`` or ``has_role_for_collection`` based on the type of object passed in.
@@ -538,12 +499,6 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
 
     def is_member_of(self, coll):
         return False
-
-    def get_roles_for_user(self, user):
-        return set([])
-
-    def get_roles_for_collection(self, coll):
-        return set([])
 
     def has_role_for_user(self, kinds, user):
         return False
@@ -665,24 +620,22 @@ def validate_birth_year(value):
         raise ValidationError(error)
 
 
-class FacilityUserRoleBasedPermissionsForCoach(RoleBasedPermissions):
-    def readable_by_user_filter(self, user, queryset):
-        if user.is_anonymous():
-            return queryset.none()
-        roles = user.roles.filter(kind__in=self.can_be_read_by)
+role_kinds_set = set(r[0] for r in role_kinds.choices)
 
-        if not roles:
-            return queryset.none()
 
-        filter = Q()
-
-        for role in roles:
-            filter |= Q(
-                Q(memberships__collection_id=role.collection_id)
-                | Q(facility_id=role.collection_id)
+def validate_role_kinds(kinds):
+    if isinstance(kinds, six.string_types):
+        kinds = set([kinds])
+    else:
+        try:
+            kinds = set(kinds)
+        except TypeError:
+            raise TypeError(
+                "kinds argument must be a string or an iterable coerceable to a set"
             )
-
-        return queryset.filter(filter)
+    if not role_kinds_set.issuperset(kinds):
+        raise InvalidRoleKind("kinds argument must only contain valid role kind names")
+    return kinds
 
 
 @python_2_unicode_compatible
@@ -700,12 +653,13 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     # FacilityUser can be read and written by a facility admin
     admin = IsAdminForOwnFacility()
     # FacilityUser can be read by admin or coach, and updated by admin, but not created/deleted by non-facility admin
-    role = FacilityUserRoleBasedPermissionsForCoach(
+    role = RoleBasedPermissions(
         target_field=".",
         can_be_created_by=(),  # we can't check creation permissions by role, as user doesn't exist yet
         can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
         can_be_updated_by=(role_kinds.ADMIN,),
         can_be_deleted_by=(),  # don't want a classroom admin deleting a user completely, just removing them from the class
+        collection_field="memberships__collection",
     )
     permissions = own | admin | role
 
@@ -807,95 +761,48 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         if self.dataset_id != coll.dataset_id:
             return False
         if coll.kind == collection_kinds.FACILITY:
-            return True  # FacilityUser is always a member of her own facility
-        return (
-            HierarchyRelationsFilter(FacilityUser.objects.all())
-            .filter_by_hierarchy(target_user=F("id"), ancestor_collection=coll.id)
-            .filter(id=self.id)
-            .exists()
-        )
-
-    def get_roles_for_user(self, user):
-        if self.is_superuser:
-            # a superuser has admin role for all users on the device
-            return set([role_kinds.ADMIN])
-        if not hasattr(user, "dataset_id") or self.dataset_id != user.dataset_id:
-            return set([])
-        role_instances = (
-            HierarchyRelationsFilter(Role)
-            .filter_by_hierarchy(
-                ancestor_collection=F("collection"),
-                source_user=F("user"),
-                target_user=user,
-            )
-            .filter(user=self)
-        )
-        return set(
-            [instance["kind"] for instance in role_instances.values("kind").distinct()]
-        )
-
-    def get_roles_for_collection(self, coll):
-        if self.is_superuser:
-            # a superuser has admin role for all collections on the device
-            return set([role_kinds.ADMIN])
-        if self.dataset_id != coll.dataset_id:
-            return set([])
-        role_instances = (
-            HierarchyRelationsFilter(Role)
-            .filter_by_hierarchy(
-                ancestor_collection=F("collection"),
-                source_user=F("user"),
-                descendant_collection=coll,
-            )
-            .filter(user=self)
-        )
-        return set(
-            [instance["kind"] for instance in role_instances.values("kind").distinct()]
-        )
+            return self.facility_id == coll.id
+        return Membership.objects.filter(user=self, collection=coll).exists()
 
     def has_role_for_user(self, kinds, user):
+        kinds = validate_role_kinds(kinds)
         if self.is_superuser:
-            if isinstance(kinds, six.string_types):
-                kinds = [kinds]
             # a superuser has admin role for all users on the device
             return role_kinds.ADMIN in kinds
         if not kinds:
             return False
         if not hasattr(user, "dataset_id") or self.dataset_id != user.dataset_id:
             return False
-        return (
-            HierarchyRelationsFilter(Role)
-            .filter_by_hierarchy(
-                ancestor_collection=F("collection"),
-                source_user=F("user"),
-                role_kind=kinds,
-                target_user=user,
+        return Role.objects.filter(
+            Q(user=self, collection_id=user.facility_id, kind__in=kinds)
+            | Q(
+                user=self,
+                collection_id__in=user.memberships.all().values_list(
+                    "collection_id", flat=True
+                ),
+                kind__in=kinds,
             )
-            .filter(user=self)
-            .exists()
-        )
+        ).exists()
 
     def has_role_for_collection(self, kinds, coll):
+        kinds = validate_role_kinds(kinds)
         if self.is_superuser:
-            if isinstance(kinds, six.string_types):
-                kinds = [kinds]
             # a superuser has admin role for all collections on the device
             return role_kinds.ADMIN in kinds
         if not kinds:
             return False
         if self.dataset_id != coll.dataset_id:
             return False
-        return (
-            HierarchyRelationsFilter(Role)
-            .filter_by_hierarchy(
-                ancestor_collection=F("collection"),
-                source_user=F("user"),
-                role_kind=kinds,
-                descendant_collection=coll,
-            )
-            .filter(user=self)
-            .exists()
-        )
+        coll_id = coll.id
+        if (
+            coll.kind == collection_kinds.LEARNERGROUP
+            or coll.kind == collection_kinds.ADHOCLEARNERSGROUP
+        ):
+            coll_id = coll.parent_id
+        return Role.objects.filter(
+            Q(user=self, collection_id=self.facility_id, kind__in=kinds)
+            | Q(user=self, collection_id=coll_id, kind__in=kinds)
+        ).exists()
 
     def can_create_instance(self, obj):
         if self.is_superuser:
@@ -1029,24 +936,22 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
             return FacilityUser.objects.filter(
                 dataset=self.dataset
             )  # FacilityUser is always a member of her own facility
-        return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
-            target_user=F("id"), ancestor_collection=self
-        )
+        return FacilityUser.objects.filter(memberships__collection=self)
 
     def get_coaches(self):
         """
         Returns users who have the coach role for this immediate collection.
         """
-        return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
-            source_user=F("id"), ancestor_collection=self, role_kind=role_kinds.COACH
+        return FacilityUser.objects.filter(dataset_id=self.dataset_id).filter(
+            roles__kind=role_kinds.COACH, roles__collection=self
         )
 
     def get_admins(self):
         """
         Returns users who have the admin role for this immediate collection.
         """
-        return HierarchyRelationsFilter(FacilityUser).filter_by_hierarchy(
-            source_user=F("id"), ancestor_collection=self, role_kind=role_kinds.ADMIN
+        return FacilityUser.objects.filter(dataset_id=self.dataset_id).filter(
+            roles__kind=role_kinds.ADMIN, roles__collection=self
         )
 
     def add_role(self, user, role_kind):
@@ -1060,7 +965,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
         """
 
         # ensure the specified role kind is valid
-        if role_kind not in (kind[0] for kind in role_kinds.choices):
+        if role_kind not in role_kinds_set:
             raise InvalidRoleKind(
                 "'{role_kind}' is not a valid role kind.".format(role_kind=role_kind)
             )
@@ -1085,7 +990,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
         """
 
         # ensure the specified role kind is valid
-        if role_kind not in (kind[0] for kind in role_kinds.choices):
+        if role_kind not in role_kinds_set:
             raise InvalidRoleKind(
                 "'{role_kind}' is not a valid role kind.".format(role_kind=role_kind)
             )
@@ -1152,14 +1057,8 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
                 "The user is not a member of the collection, and cannot be removed."
             )
 
-        # delete the appropriate membership, if it exists
-        results = Membership.objects.filter(user=user, collection=self).delete()
-
-        # if no Memberships were deleted, the user's membership must have been indirect (via the collection hierarchy)
-        if results[0] == 0:
-            raise UserIsMemberOnlyIndirectlyThroughHierarchyError(
-                "Membership cannot be removed, as user is a member only indirectly, through the collection hierarchy."
-            )
+        # delete the appropriate membership
+        Membership.objects.filter(user=user, collection=self).delete()
 
     def infer_dataset(self, *args, **kwargs):
         if self.parent:
@@ -1198,7 +1097,9 @@ class Membership(AbstractFacilityDataModel):
     )
     # Membership can be written by coaches under the coaches' group
     membership = CoachesCanManageMembershipsForTheirGroups()
-    permissions = own | role | membership
+    # Members can read memberships of collections they are members of
+    own_collections = MembersCanReadMembershipsOfTheirCollections()
+    permissions = own | role | membership | own_collections
 
     user = models.ForeignKey(
         "FacilityUser", related_name="memberships", blank=False, null=False

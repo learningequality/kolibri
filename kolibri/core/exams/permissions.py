@@ -1,7 +1,5 @@
 from django.db.models import Q
-from django.db.models.query import F
 
-from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.auth.models import AnonymousUser
 from kolibri.core.auth.permissions.general import DenyAll
 
@@ -21,11 +19,9 @@ class UserCanReadExamAssignmentData(DenyAll):
     def readable_by_user_filter(self, user, queryset):
         if isinstance(user, AnonymousUser):
             return queryset.none()
-        return (
-            HierarchyRelationsFilter(queryset)
-            .filter_by_hierarchy(target_user=user, ancestor_collection=F("collection"))
-            .filter(Q(exam__active=True) | Q(exam__examlogs__user=user))
-        )
+        return queryset.filter(
+            collection_id__in=user.memberships.all().values("collection_id")
+        ).filter(Q(exam__active=True) | Q(exam__examlogs__user=user))
 
 
 class UserCanReadExamData(DenyAll):
@@ -36,8 +32,8 @@ class UserCanReadExamData(DenyAll):
         from kolibri.core.logger.models import ExamLog
 
         # If they are not a member of the assignment's collection, don't bother with any other checks
-        return HierarchyRelationsFilter(obj.assignments.all()).filter_by_hierarchy(
-            target_user=user, ancestor_collection=F("collection")
+        return obj.assignments.objects.filter(
+            collection_id__in=user.memberships.all().values("collection_id")
         ).exists() and (
             obj.active or ExamLog.objects.filter(exam=obj, user=user).exists()
         )
@@ -47,9 +43,9 @@ class UserCanReadExamData(DenyAll):
             return queryset.none()
         from kolibri.core.exams.models import ExamAssignment
 
-        assignments = HierarchyRelationsFilter(
-            ExamAssignment.objects.all()
-        ).filter_by_hierarchy(target_user=user, ancestor_collection=F("collection"))
+        assignments = ExamAssignment.objects.filter(
+            collection_id__in=user.memberships.all().values("collection_id")
+        )
         return queryset.filter(assignments__in=assignments).filter(
             Q(active=True) | Q(examlogs__user=user)
         )

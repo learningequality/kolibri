@@ -8,8 +8,6 @@ from __future__ import unicode_literals
 from django.test import TestCase
 
 from ..constants import role_kinds
-from ..errors import InvalidHierarchyRelationsArgument
-from ..filters import HierarchyRelationsFilter
 from ..models import Classroom
 from ..models import Facility
 from ..models import FacilityDataset
@@ -51,8 +49,6 @@ class ImproperUsageIsProperlyHandledTestCase(TestCase):
 
     def test_that_getting_roles_for_noncollection_fails(self):
         with self.assertRaises(ValueError):
-            self.data1["facility_admin"].get_roles_for(object())
-        with self.assertRaises(ValueError):
             self.data1["facility_admin"].has_role_for([role_kinds.ADMIN], object())
 
     def test_that_getting_roles_for_anonuser_returns_false(self):
@@ -68,12 +64,6 @@ class ImproperUsageIsProperlyHandledTestCase(TestCase):
                 [role_kinds.ADMIN], self.data2["learners_one_group"][0][0]
             )
         )
-
-    def test_that_invalid_references_to_hierarchyrelationsfilter_throw_errors(self):
-        with self.assertRaises(InvalidHierarchyRelationsArgument):
-            HierarchyRelationsFilter(Facility).filter_by_hierarchy(target_user=object())
-        with self.assertRaises(InvalidHierarchyRelationsArgument):
-            HierarchyRelationsFilter(Facility).filter_by_hierarchy(target_user=["test"])
 
 
 class FacilityDatasetPermissionsTestCase(TestCase):
@@ -460,7 +450,6 @@ class LearnerGroupPermissionsTestCase(TestCase):
     def test_admins_or_coach_can_update_own_learnergroup(self):
         """ The only FacilityUsers who can update a LearnerGroup are admins for that LearnerGroup """
         self.assertTrue(self.data["facility_admin"].can_update(self.own_learnergroup))
-        self.assertTrue(self.own_classroom_admin.can_update(self.own_learnergroup))
         self.assertTrue(self.own_classroom_coach.can_update(self.own_learnergroup))
         self.assertFalse(self.member.can_update(self.own_learnergroup))
         self.assertFalse(self.anon_user.can_update(self.own_learnergroup))
@@ -586,7 +575,6 @@ class FacilityUserPermissionsTestCase(TestCase):
     def test_admins_and_coaches_can_read_facility_users(self):
         """ Users with admin/coach role for a FacilityUser can read that FacilityUser """
         for user in [
-            self.own_classroom_admin,
             self.own_classroom_coach,
             self.data["facility_admin"],
             self.data["facility_coach"],
@@ -1096,7 +1084,6 @@ class MembershipPermissionsTestCase(TestCase):
         )
         for user in [
             self.data["facility_admin"],
-            self.own_classroom_admin,
             self.member,
             self.superuser,
         ]:
@@ -1105,7 +1092,6 @@ class MembershipPermissionsTestCase(TestCase):
         for user in [self.data["facility_coach"], self.own_classroom_coach]:
             self.assertTrue(user.can_read(membership))
         for user in [
-            self.other_classroom_admin,
             self.other_classroom_coach,
             self.anon_user,
         ]:
@@ -1118,9 +1104,9 @@ class MembershipPermissionsTestCase(TestCase):
             user=self.member, collection=self.own_learnergroup
         )
         self.assertFalse(self.data["facility_admin"].can_update(membership))
-        self.assertTrue(self.data["facility_coach"].can_update(membership))
+        self.assertFalse(self.data["facility_coach"].can_update(membership))
         self.assertFalse(self.own_classroom_admin.can_update(membership))
-        self.assertTrue(self.own_classroom_coach.can_update(membership))
+        self.assertFalse(self.own_classroom_coach.can_update(membership))
         self.assertFalse(self.other_classroom_admin.can_update(membership))
         self.assertFalse(self.other_classroom_coach.can_update(membership))
         self.assertFalse(self.member.can_update(membership))
