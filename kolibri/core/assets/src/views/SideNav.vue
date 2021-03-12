@@ -1,7 +1,6 @@
 <template>
 
   <div
-    v-show="navShown"
     ref="sideNav"
     class="side-nav-wrapper"
     tabindex="0"
