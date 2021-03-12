@@ -48,6 +48,6 @@ Write documentation
 
 If you'd like to help improve Kolibri's `User Documentation <https://kolibri.readthedocs.io/en/latest/>`__, see the `Kolibri docs Github repo <https://github.com/learningequality/kolibri-docs>`__.
 
-You can also help improve our developer docuemntation that you're reading now! These are in the main Kolibri repo.
+You can also help improve our developer documentation that you're reading now! These are in the main Kolibri repo.
 
 Both our developer docs and the user docs are formatted using `reStructuredText <http://docutils.sourceforge.net/rst.html>`__.
