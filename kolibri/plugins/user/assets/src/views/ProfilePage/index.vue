@@ -2,6 +2,7 @@
 
   <CoreBase
     :immersivePage="false"
+    :appBarTitle="coreString('profileLabel')"
     :immersivePagePrimary="true"
   >
     <KPageContainer>
