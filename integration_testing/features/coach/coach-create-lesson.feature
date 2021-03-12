@@ -71,6 +71,7 @@ Feature: Coach creates lessons
       And I press the *Submit search* button (magnifying glass)
     Then I see the *Results for '<searchterm>'* header
       And I see the search results for <searchterm>
+      And I see the topic description in search results
       And I see the search filters
       And I see the *Exit search* button
 
@@ -80,6 +81,7 @@ Feature: Coach creates lessons
       And I press the *Submit search* button (magnifying glass)
     Then the previous search results disappear
       And I see the results for the <searchterm2>
+      And I see the topic description in search results
 
   Scenario: Exit search with no browser history
     Given I am on the *Results for '<searchterm>'* page
