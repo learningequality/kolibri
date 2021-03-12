@@ -67,6 +67,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   noUsersExistLabel: 'No users exist',
   optionsLabel: 'Options',
   passwordLabel: 'Password',
+  profileLabel: 'Profile',
   progressLabel: 'Progress',
   questionNumberLabel: 'Question { questionNumber, number }',
   quizzesLabel: 'Quizzes',
