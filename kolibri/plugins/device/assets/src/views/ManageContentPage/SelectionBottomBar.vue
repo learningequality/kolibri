@@ -59,7 +59,7 @@
       },
       resourceCounts: {
         type: Object,
-        default: () => {},
+        default: () => ({}),
         validator(value) {
           return typeof value.count === 'number' && typeof value.fileSize === 'number';
         },

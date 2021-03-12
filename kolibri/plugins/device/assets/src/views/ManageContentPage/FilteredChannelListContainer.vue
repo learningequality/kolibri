@@ -81,7 +81,7 @@
       },
       selectedChannels: {
         type: Array,
-        default: () => null,
+        default: () => [],
       },
     },
     data() {

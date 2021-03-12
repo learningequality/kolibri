@@ -51,7 +51,7 @@
         validator(value) {
           return validateLinkObject(value(1, 'exercise'));
         },
-        default: () => {},
+        default: () => ({}),
         required: false,
       },
     },

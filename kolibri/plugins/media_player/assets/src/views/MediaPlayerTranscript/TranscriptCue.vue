@@ -45,7 +45,7 @@
     props: {
       cue: {
         type: Object,
-        default: () => {},
+        default: () => ({}),
       },
       mediaDuration: {
         type: Number,

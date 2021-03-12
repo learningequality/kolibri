@@ -50,7 +50,7 @@
     props: {
       channel: {
         type: Object,
-        default: () => {},
+        default: () => ({}),
       },
       // Message that shows in the top-right corner when selected
       selectedMessage: {

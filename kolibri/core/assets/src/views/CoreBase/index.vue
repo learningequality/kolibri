@@ -245,7 +245,8 @@
       // link to where the 'back' button should go
       immersivePageRoute: {
         type: Object,
-        required: true,
+        required: false,
+        default: null,
       },
       // determines the color, primary being the classic kolibri appbar color
       immersivePagePrimary: {

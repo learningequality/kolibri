@@ -1,14 +1,7 @@
 <template>
 
   <li>
-    <span
-      v-if="isDivider"
-      class="divider"
-      :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
-    >
-    </span>
     <a
-      v-else
       :href="link"
       class="core-menu-option"
       role="menuitem"
@@ -42,13 +35,9 @@
   export default {
     name: 'CoreMenuOption',
     props: {
-      isDivider: {
-        type: Boolean,
-        default: false,
-      },
       label: {
         type: String,
-        default: null,
+        required: true,
       },
       link: {
         type: String,
@@ -60,7 +49,7 @@
       },
       icon: {
         type: String,
-        default: null,
+        required: true,
       },
     },
     inject: ['showActive'],
@@ -125,14 +114,6 @@
     &:hover {
       outline-offset: -1px; // override global styles
     }
-  }
-
-  .divider {
-    display: block;
-    min-width: 100%;
-    height: 1px;
-    margin: 8px 0;
-    overflow-y: hidden;
   }
 
 </style>

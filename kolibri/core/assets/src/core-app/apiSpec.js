@@ -61,6 +61,7 @@ import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import AppBar from '../views/AppBar';
 import CoreSnackbar from '../views/CoreSnackbar';
 import CoreMenu from '../views/CoreMenu';
+import CoreMenuDivider from '../views/CoreMenu/CoreMenuDivider';
 import CoreMenuOption from '../views/CoreMenu/CoreMenuOption';
 import heartbeat from '../heartbeat';
 import CoreTable from '../views/CoreTable';
@@ -144,6 +145,7 @@ export default {
       AppBar,
       CoreSnackbar,
       CoreMenu,
+      CoreMenuDivider,
       CoreMenuOption,
       CoreTable,
       CoreInfoIcon,

@@ -162,7 +162,7 @@ oriented data synchronization.
       },
       extraFields: {
         type: Object,
-        default: () => {},
+        default: () => ({}),
       },
       // An explicit record of the current progress through this
       // piece of content.

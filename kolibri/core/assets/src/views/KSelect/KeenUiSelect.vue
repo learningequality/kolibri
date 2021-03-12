@@ -216,7 +216,7 @@
       },
       placeholder: {
         type: String,
-        default: null,
+        default: '',
       },
       icon: {
         type: String,
@@ -256,7 +256,7 @@
       },
       filter: {
         type: Function,
-        default: () => null,
+        default: null,
       },
       disableFilter: {
         type: Boolean,

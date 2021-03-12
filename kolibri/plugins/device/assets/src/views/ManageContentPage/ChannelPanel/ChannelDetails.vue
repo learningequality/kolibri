@@ -70,7 +70,7 @@
     props: {
       channel: {
         type: Object,
-        default: () => {},
+        default: () => ({}),
       },
       // Used to override the version number in some cases
       channelVersion: {

@@ -47,7 +47,10 @@
       // Should be 'COPY' or 'DELETE'
       currentAction: {
         type: String,
-        default: null,
+        required: true,
+        validator: function(value) {
+          return ['COPY', 'DELETE'].includes(value.toUpperCase());
+        },
       },
     },
     computed: {
