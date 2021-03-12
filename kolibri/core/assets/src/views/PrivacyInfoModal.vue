@@ -38,7 +38,7 @@
         <KExternalLink
           text="https://learningequality.org"
           href="https://learningequality.org"
-          target="_blank"
+          openInNewTab="true"
         />
       </p>
       <p>{{ $tr('kolibriAboutP2') }}</p>
