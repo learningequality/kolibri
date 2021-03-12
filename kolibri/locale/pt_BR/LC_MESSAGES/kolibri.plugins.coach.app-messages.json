@@ -522,7 +522,7 @@
   "TruncatedItemList.manyItems": "{item1}, {item2}, e {count, number, integer} outros",
   "TruncatedItemList.threeItems": "{item1}, {item2}, {item3}",
   "TruncatedItemList.twoItems": "{item1}, {item2}",
-  "UserTable.role": "Perfil",
+  "UserTable.role": "Modo",
   "UserTable.selectAllLabel": "Selecionar todos",
   "UserTable.userActionsColumnHeader": "Ações",
   "UserTable.userCheckboxLabel": "Selecionar usuário"
