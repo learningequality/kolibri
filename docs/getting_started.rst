@@ -167,6 +167,16 @@ Running the Kolibri server
 
 .. _devserver:
 
+Database setup
+~~~~~~~~~~~~~~
+
+To initialize the database run the following command:
+
+.. code-block:: bash
+
+  kolibri manage migrate
+
+
 Development server
 ~~~~~~~~~~~~~~~~~~
 
@@ -359,15 +369,6 @@ Frontend dev tools
 
 To ensure a more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylelint.
 
-
-Database setup
-~~~~~~~~~~~~~~
-
-You can initialize the server using:
-
-.. code-block:: bash
-
-  kolibri manage migrate
 
 
 .. _workflow_intro:
