@@ -16,7 +16,7 @@ async function makeWrapper() {
     store,
   });
   // Have to wait to let the channels data load
-  await wrapper.vm.$nextTick();
+  await global.flushPromises();
   return { wrapper };
 }
 
@@ -27,10 +27,7 @@ describe('RearrangeChannelsPage', () => {
       newArray: [wrapper.vm.channels[1], wrapper.vm.channels[0]],
     });
     expect(wrapper.vm.postNewOrder).toHaveBeenCalledWith(['2', '1']);
-    // Have to wait a bunch of ticks for some reason
-    await wrapper.vm.$nextTick();
-    await wrapper.vm.$nextTick();
-    await wrapper.vm.$nextTick();
+    await global.flushPromises();
   }
 
   it('loads the data on mount', async () => {
