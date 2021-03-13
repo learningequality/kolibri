@@ -278,9 +278,10 @@ class FacilityUsernameViewSet(ValuesViewset):
             return FacilityUser.objects.filter(
                 dataset__learner_can_login_with_no_password=True, roles=None
             ).filter(
-                Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True)
+                Q(devicepermissions__is_superuser=False) 
+                | Q(devicepermissions__isnull=True)
             )
-            
+
 
 class MembershipFilter(FilterSet):
     user_ids = CharFilter(method="filter_user_ids")
