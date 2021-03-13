@@ -229,7 +229,7 @@
   }
 
   .username {
-    max-width: 200px;
+    max-width: 50px;
     // overflow-x hidden seems to affect overflow-y also, so include a fixed height
     height: 16px;
     // overflow: hidden on both x and y so that the -y doesn't show scroll buttons
@@ -285,6 +285,10 @@
 
   /deep/ .ui-toolbar__brand {
     min-width: inherit;
+  }
+
+  /deep/ .ui-toolbar__title {
+    margin-right: 10px;
   }
 
   .brand-logo {
