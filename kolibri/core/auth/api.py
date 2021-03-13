@@ -272,7 +272,7 @@ class FacilityUsernameViewSet(ValuesViewset):
     values = ("username",)
 
     def get_queryset(self):
-        user_name = self.request.query_params.get('search')
+        user_name = self.request.query_params.get("search")
         user = FacilityUser.objects.get(username=user_name)
         if user is not None:
             return FacilityUser.objects.filter(username=userName)
