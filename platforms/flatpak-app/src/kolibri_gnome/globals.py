@@ -3,6 +3,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import gettext
+import importlib.util
 import os
 
 from pathlib import Path
@@ -63,6 +64,9 @@ def init_kolibri():
     from kolibri.utils.cli import initialize, setup_logging
 
     registered_plugins.register_plugins(["kolibri.plugins.app"])
+
+    if importlib.util.find_spec("kolibri_app_desktop_xdg_plugin"):
+        registered_plugins.register_plugins(["kolibri_app_desktop_xdg_plugin"])
 
     setup_logging(debug=False)
     initialize()

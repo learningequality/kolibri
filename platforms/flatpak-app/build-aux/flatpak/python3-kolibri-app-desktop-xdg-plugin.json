@@ -1,0 +1,19 @@
+{
+    "name": "python3-kolibri-app-desktop-xdg-plugin",
+    "buildsystem": "simple",
+    "build-commands": [
+        "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} kolibri-app-desktop-xdg-plugin"
+    ],
+    "sources": [
+        {
+            "type": "file",
+            "url": "https://files.pythonhosted.org/packages/60/f0/dd2eb7911f948bf529f58f0c7931f6f6466f711bd6f1d81a69dc4edd4e2a/Pillow-8.1.2.tar.gz",
+            "sha256": "b07c660e014852d98a00a91adfbe25033898a9d90a8f39beb2437d22a203fc44"
+        },
+        {
+            "type": "file",
+            "url": "https://files.pythonhosted.org/packages/58/87/17a48121ec7998dc5ccf68b79de835c7ba95352973eb5c20b1581ea64554/kolibri_app_desktop_xdg_plugin-1.0.2-py3-none-any.whl",
+            "sha256": "2119db178f78eb8509a18bb460a71ab150d08ccc3f14521590c30812a058ac74"
+        }
+    ]
+}
