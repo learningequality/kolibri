@@ -36,6 +36,7 @@
 <script>
 
   import sumBy from 'lodash/sumBy';
+  import isEmpty from 'lodash/isEmpty';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
@@ -61,6 +62,9 @@
         type: Object,
         default: () => ({}),
         validator(value) {
+          if (isEmpty(value)) {
+            return true;
+          }
           return typeof value.count === 'number' && typeof value.fileSize === 'number';
         },
       },
