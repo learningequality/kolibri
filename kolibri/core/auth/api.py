@@ -272,7 +272,7 @@ class FacilityUsernameViewSet(ValuesViewset):
         user_name = self.request.query_params.get("search")
         user = FacilityUser.objects.get(username=user_name)
         if user is not None:
-            return FacilityUser.objects.filter(username=user_ame)
+            return FacilityUser.objects.filter(username=user_name)
         if valid_app_key_on_request(self.request):
             # Special case for app context to return usernames for
             # the list display
