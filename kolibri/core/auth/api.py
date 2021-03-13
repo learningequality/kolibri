@@ -259,9 +259,6 @@ class FacilityUserViewSet(ValuesViewset):
         self.set_password_if_needed(instance, serializer)
 
 
-
-
-
 class FacilityUsernameViewSet(ValuesViewset):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filter_fields = ("facility",)
@@ -275,7 +272,7 @@ class FacilityUsernameViewSet(ValuesViewset):
         user_name = self.request.query_params.get("search")
         user = FacilityUser.objects.get(username=user_name)
         if user is not None:
-            return FacilityUser.objects.filter(username=userName)
+            return FacilityUser.objects.filter(username=user_ame)
         if valid_app_key_on_request(self.request):
             # Special case for app context to return usernames for
             # the list display
