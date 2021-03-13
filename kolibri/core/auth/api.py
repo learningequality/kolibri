@@ -264,16 +264,16 @@ class FacilityUserViewSet(ValuesViewset):
 
 class FacilityUsernameViewSet(ValuesViewset):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filter_fields = ("facility",'username')
-    search_fields = ["username",]
+    filter_fields = ("facility",)
+    search_fields = ("^username",)
 
     read_only = True
 
     values = ("username",)
 
     def get_queryset(self):
-        userName = self.request.query_params.get('search')
-        user = FacilityUser.objects.get(username=userName)
+        user_name = self.request.query_params.get('search')
+        user = FacilityUser.objects.get(username=user_name)
         if user is not None:
             return FacilityUser.objects.filter(username=userName)
         if valid_app_key_on_request(self.request):
