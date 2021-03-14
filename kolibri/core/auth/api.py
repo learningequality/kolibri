@@ -269,18 +269,22 @@ class FacilityUsernameViewSet(ValuesViewset):
     values = ("username",)
 
     def get_queryset(self):
-        user_name = self.request.query_params.get("search")
-
-        try:
-            user = FacilityUser.objects.get(username=user_name)
-            return FacilityUser.objects.filter(username=user_name)
-        except:
-            return FacilityUser.objects.filter(
-                dataset__learner_can_login_with_no_password=True, roles=None
-            ).filter(
-                Q(devicepermissions__is_superuser=False) 
-                | Q(devicepermissions__isnull=True)
-            )
+        if valid_app_key_on_request(self.request):
+            # Special case for app context to return usernames for
+            # the list display
+            return FacilityUser.objects.all()
+        else:
+            user_name = self.request.query_params.get("search")
+            try:
+                user = FacilityUser.objects.get(username=user_name)
+                return FacilityUser.objects.filter(username=user_name)
+            except:
+                return FacilityUser.objects.filter(
+                    dataset__learner_can_login_with_no_password=True, roles=None
+                ).filter(
+                    Q(devicepermissions__is_superuser=False)
+                    | Q(devicepermissions__isnull=True)
+                )
 
 
 class MembershipFilter(FilterSet):
