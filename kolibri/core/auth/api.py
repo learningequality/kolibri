@@ -278,7 +278,7 @@ class FacilityUsernameViewSet(ValuesViewset):
             try:
                 user = FacilityUser.objects.get(username=user_name)
                 return FacilityUser.objects.filter(username=user_name)
-            except:
+            except user.DoesNotExist:
                 return FacilityUser.objects.filter(
                     dataset__learner_can_login_with_no_password=True, roles=None
                 ).filter(
