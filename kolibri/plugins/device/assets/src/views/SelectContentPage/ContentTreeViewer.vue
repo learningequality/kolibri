@@ -296,4 +296,8 @@
     opacity: 0;
   }
 
+  /deep/ .breadcrumbs-crumb-text {
+    max-width: 750px;
+  }
+
 </style>

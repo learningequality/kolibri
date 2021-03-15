@@ -114,4 +114,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  /deep/ .breadcrumb-visible-item-last .breadcrumbs-crumb-text {
+    max-width: 750px;
+  }
+
+</style>
