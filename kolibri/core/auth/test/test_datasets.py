@@ -71,3 +71,9 @@ class FacilityDatasetTestCase(TestCase):
         )
         new_dataset = FacilityDataset.objects.create()
         self.assertEqual(str(new_dataset), "FacilityDataset (no associated Facility)")
+
+    def test_dataset_incompatible_setting(self):
+        with self.assertRaises(IntegrityError):
+            FacilityDataset.objects.create(
+                learner_can_edit_password=True, learner_can_login_with_no_password=True
+            )
