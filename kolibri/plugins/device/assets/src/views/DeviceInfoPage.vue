@@ -14,7 +14,7 @@
             :text="url"
             :href="url"
             :primary="true"
-            openInNewTab="true"
+            :openInNewTab="true"
             appearance="basic-link"
           />
         </td>
