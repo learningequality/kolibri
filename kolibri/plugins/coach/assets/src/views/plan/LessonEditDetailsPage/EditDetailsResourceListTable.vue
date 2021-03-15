@@ -108,6 +108,7 @@
       // Array<{ contentnode_id, content_id, channel_id }>
       resources: {
         type: Array,
+        default: () => [],
       },
     },
     data() {

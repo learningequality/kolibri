@@ -54,7 +54,7 @@
     props: {
       heading: {
         type: String,
-        required: false,
+        default: null,
       },
       sliderValue: {
         type: Number,

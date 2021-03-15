@@ -56,6 +56,7 @@
     props: {
       value: {
         type: String,
+        default: null,
       },
     },
     computed: {

@@ -86,7 +86,7 @@
       },
       uniqueUsernameValidator: {
         type: Function,
-        required: false,
+        default: null,
       },
       hidePrivacyLink: {
         type: Boolean,

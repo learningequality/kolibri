@@ -15,7 +15,7 @@
       <AssignmentDetailsModal
         ref="detailsModal"
         assignmentType="new_lesson"
-        :modalTitleErrorMessage="coachString('duplicateLessonTitleErrorTitle')"
+        :modalTitleErrorMessage="coachString('duplicateLessonTitleError')"
         :submitErrorMessage="coachString('saveLessonError')"
         :initialDescription="''"
         :initialTitle="''"

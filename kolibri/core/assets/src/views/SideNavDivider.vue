@@ -1,18 +1,18 @@
 <template>
 
-  <CoreMenuOption isDivider />
+  <CoreMenuDivider />
 
 </template>
 
 
 <script>
 
-  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
+  import CoreMenuDivider from 'kolibri.coreVue.components.CoreMenuDivider';
 
   export default {
     name: 'SideNavDivider',
     components: {
-      CoreMenuOption,
+      CoreMenuDivider,
     },
   };
 

@@ -27,7 +27,7 @@
     props: {
       importedFacility: {
         type: Object,
-        required: false,
+        default: null,
       },
     },
     computed: {

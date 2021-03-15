@@ -72,11 +72,11 @@
       },
       subtitle: {
         type: String,
-        required: false,
+        default: null,
       },
       thumbnail: {
         type: String,
-        required: false,
+        default: null,
       },
       kind: {
         type: String,
@@ -113,11 +113,11 @@
       },
       contentId: {
         type: String,
-        required: false,
+        default: null,
       },
       copiesCount: {
         type: Number,
-        required: false,
+        default: null,
       },
     },
     computed: {

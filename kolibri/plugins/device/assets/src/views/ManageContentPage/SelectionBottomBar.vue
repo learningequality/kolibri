@@ -36,6 +36,7 @@
 <script>
 
   import sumBy from 'lodash/sumBy';
+  import isEmpty from 'lodash/isEmpty';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
@@ -59,19 +60,24 @@
       },
       resourceCounts: {
         type: Object,
-        required: false,
+        default: () => ({}),
         validator(value) {
+          if (isEmpty(value)) {
+            return true;
+          }
           return typeof value.count === 'number' && typeof value.fileSize === 'number';
         },
       },
       objectType: {
         type: String,
+        default: null,
         validator(value) {
           return value === 'channel' || value === 'resource';
         },
       },
       actionType: {
         type: String,
+        default: null,
         validator(value) {
           return (
             value === 'import' || value === 'export' || value === 'delete' || value === 'manage'

@@ -87,7 +87,7 @@
       },
       route: {
         type: Object,
-        required: false,
+        default: null,
         validator: validateLinkObject,
       },
       isFullscreen: {

@@ -231,7 +231,7 @@
       },
       avgScore: {
         type: Number,
-        required: false,
+        default: null,
       },
     },
     data() {

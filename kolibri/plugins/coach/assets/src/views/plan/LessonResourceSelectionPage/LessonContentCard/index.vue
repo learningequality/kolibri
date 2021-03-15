@@ -71,7 +71,7 @@
       },
       thumbnail: {
         type: String,
-        required: false,
+        default: null,
       },
       kind: {
         type: String,

@@ -17,7 +17,7 @@
     props: {
       seconds: {
         type: Number,
-        required: false,
+        default: null,
       },
     },
     computed: {

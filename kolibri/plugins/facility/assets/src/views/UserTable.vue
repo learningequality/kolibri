@@ -157,6 +157,7 @@
       },
       emptyMessage: {
         type: String,
+        default: null,
       },
       selectable: {
         type: Boolean,

@@ -48,7 +48,7 @@
       /* To provide an action button, provide text */
       actionText: {
         type: String,
-        required: false,
+        default: null,
       },
       /* Automatically dismiss the snackbar */
       autoDismiss: {
@@ -68,7 +68,7 @@
       /* Integer that over-rides the default 'bottom: 0' CSS */
       bottomPosition: {
         type: Number,
-        required: false,
+        default: null,
       },
     },
     data() {

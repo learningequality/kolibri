@@ -152,7 +152,7 @@
       completionData: {
         type: Object,
         required: false,
-        default: () => {},
+        default: () => ({}),
       },
       displaySelectOptions: {
         type: Boolean,

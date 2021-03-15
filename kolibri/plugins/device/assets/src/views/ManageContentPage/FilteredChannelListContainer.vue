@@ -73,6 +73,7 @@
     props: {
       channels: {
         type: Array,
+        default: () => [],
       },
       selectAllCheckbox: {
         type: Boolean,
@@ -80,7 +81,7 @@
       },
       selectedChannels: {
         type: Array,
-        required: false,
+        default: () => [],
       },
     },
     data() {

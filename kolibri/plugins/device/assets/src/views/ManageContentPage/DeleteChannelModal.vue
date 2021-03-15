@@ -31,7 +31,7 @@
     props: {
       channelTitle: {
         type: String,
-        required: false,
+        default: null,
       },
       numberOfChannels: {
         type: Number,

@@ -33,6 +33,7 @@
       // The scrollable height of the content area
       mainWrapperScrollHeight: {
         type: Number,
+        default: 100,
       },
       // Synced with CoreBase to handle changes when window is resized
       isHidden: {

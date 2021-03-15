@@ -52,6 +52,7 @@
       },
       noOptionDescription: {
         type: String,
+        default: null,
       },
       headerText: {
         type: String,
@@ -59,10 +60,11 @@
       },
       description: {
         type: String,
+        default: null,
       },
       submitText: {
         type: String,
-        required: false,
+        default: null,
       },
       settingIsEnabled: {
         type: Boolean,

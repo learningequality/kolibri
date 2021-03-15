@@ -68,7 +68,7 @@
       // is more than the drive's freespace
       exportFileSize: {
         type: Number,
-        required: false,
+        default: null,
       },
       manageMode: {
         type: Boolean,

@@ -58,7 +58,7 @@
       },
       to: {
         type: Object,
-        required: false,
+        required: true,
         validators: validateLinkObject,
       },
     },

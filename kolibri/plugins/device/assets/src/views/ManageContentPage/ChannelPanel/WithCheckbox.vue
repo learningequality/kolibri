@@ -50,11 +50,12 @@
     props: {
       channel: {
         type: Object,
+        default: () => ({}),
       },
       // Message that shows in the top-right corner when selected
       selectedMessage: {
         type: String,
-        required: false,
+        default: null,
       },
       // If 'true', will display a message about resources on device
       resourcesOnDevice: {

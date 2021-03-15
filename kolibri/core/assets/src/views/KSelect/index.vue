@@ -102,7 +102,7 @@
        */
       invalidText: {
         type: String,
-        required: false,
+        default: null,
       },
       /**
        * Whether or not display as inline block
@@ -117,7 +117,7 @@
       },
       placeholder: {
         type: String,
-        required: false,
+        default: null,
       },
     },
     data() {

@@ -71,6 +71,7 @@
     props: {
       entries: {
         type: Array,
+        default: () => [],
       },
       showGroupsColumn: {
         type: Boolean,
