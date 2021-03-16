@@ -27,6 +27,7 @@ from kolibri.utils.time_utils import local_now
 class ContentSessionLogSerializer(KolibriModelSerializer):
 
     extra_fields = serializers.JSONField(default="{}")
+    is_leaf = serializers.SerializerMethodField()
 
     """
     If we don't have a user, set the visitor_id to the session_key
@@ -54,7 +55,11 @@ class ContentSessionLogSerializer(KolibriModelSerializer):
             "kind",
             "extra_fields",
             "progress",
+            "is_leaf",
         )
+
+    def get_is_leaf(self, obj):
+        return obj.kind != content_kinds.TOPIC
 
 
 class ExamLogSerializer(KolibriModelSerializer):
@@ -233,6 +238,7 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
     currentmasterylog = serializers.SerializerMethodField()
     extra_fields = serializers.JSONField(default="{}")
     update_fields = ()
+    is_leaf = serializers.SerializerMethodField()
 
     class Meta:
         model = ContentSummaryLog
@@ -249,6 +255,7 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
             "progress",
             "kind",
             "extra_fields",
+            "is_leaf",
         )
 
     def get_currentmasterylog(self, obj):
@@ -257,6 +264,9 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
             return MasteryLogSerializer(current_log).data
         except MasteryLog.DoesNotExist:
             return None
+
+    def get_is_leaf(self, obj):
+        return obj.kind != content_kinds.TOPIC
 
     def create(self, validated_data):
         instance = super(ContentSummaryLogSerializer, self).create(validated_data)

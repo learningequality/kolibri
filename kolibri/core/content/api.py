@@ -373,6 +373,7 @@ class ContentNodeViewset(ValuesViewset):
                         ancestors,
                     )
                 )
+                item["is_leaf"] = item.get("kind") != content_kinds.TOPIC
                 output.append(item)
         return output
 
@@ -399,6 +400,7 @@ class ContentNodeViewset(ValuesViewset):
 
             def copy_node(new_node):
                 new_node["ancestor_id"] = node.id
+                new_node["is_leaf"] = new_node.get("kind") != content_kinds.TOPIC
                 return new_node
 
             node_data = node.get_descendants().filter(available=True)
@@ -516,10 +518,16 @@ class ContentNodeViewset(ValuesViewset):
                     "id": next_item.id,
                     "title": next_item.title,
                     "thumbnail": thumbnails[0]["storage_url"],
+                    "is_leaf": next_item.kind != content_kinds.TOPIC,
                 }
             )
         return Response(
-            {"kind": next_item.kind, "id": next_item.id, "title": next_item.title}
+            {
+                "kind": next_item.kind,
+                "id": next_item.id,
+                "title": next_item.title,
+                "is_leaf": next_item.kind != content_kinds.TOPIC,
+            }
         )
 
     @detail_route(methods=["get"])
