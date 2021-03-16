@@ -28,7 +28,7 @@
 </script>
 
 
-<style>
+<style lang="scss" scoped>
 
   .new-label {
     padding: 2px 8px;
