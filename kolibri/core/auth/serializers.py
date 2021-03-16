@@ -84,6 +84,21 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
             "preset",
         )
 
+    def validate(self, attrs):
+        learner_can_edit_password = attrs.get("learner_can_edit_password")
+        learner_can_login_with_no_password = attrs.get(
+            "learner_can_login_with_no_password"
+        )
+        if learner_can_login_with_no_password and learner_can_edit_password:
+            raise serializers.ValidationError(
+                "Device Settings [learner_can_login_with_no_password={}] & [learner_can_edit_password={}] values incompatible.".format(
+                    learner_can_login_with_no_password,
+                    learner_can_edit_password,
+                )
+            )
+        else:
+            return attrs
+
 
 class FacilitySerializer(serializers.ModelSerializer):
     class Meta:
