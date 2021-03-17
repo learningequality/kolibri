@@ -65,6 +65,7 @@
     data() {
       return {
         loadingTask: {},
+        isPolling: false,
       };
     },
     computed: {
@@ -76,6 +77,7 @@
       },
     },
     beforeMount() {
+      this.isPolling = true;
       this.pollTask();
     },
     methods: {
@@ -86,9 +88,11 @@
             facility_name: this.facilityName,
           };
         });
-        setTimeout(() => {
-          this.pollTask();
-        }, 2000);
+        if (this.isPolling) {
+          setTimeout(() => {
+            this.pollTask();
+          }, 2000);
+        }
       },
       retryImport() {
         this.clearTasks()
@@ -109,6 +113,7 @@
         return SetupTasksResource.canceltask(this.loadingTask.id);
       },
       startOver() {
+        this.isPolling = false;
         this.clearTasks().then(() => {
           this.$router.replace('/');
         });
