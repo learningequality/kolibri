@@ -1,5 +1,4 @@
 import collections
-
 from concurrent.futures import ProcessPoolExecutor
 
 from ..globals import init_kolibri
