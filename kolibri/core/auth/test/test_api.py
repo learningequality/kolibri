@@ -987,6 +987,21 @@ class FacilityDatasetAPITestCase(APITestCase):
             response = post_resetsettings()
             self.assertDictContainsSubset(mappings[setting], response.data)
 
+    def test_validation_for_incompatible_settings(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.patch(
+            reverse(
+                "kolibri:core:facilitydataset-detail",
+                kwargs={"pk": self.facility.dataset_id},
+            ),
+            {
+                "learner_can_login_with_no_password": "true",
+                "learner_can_edit_password": "true",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
 
 class MembershipCascadeDeletion(APITestCase):
     @classmethod
