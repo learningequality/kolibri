@@ -43,6 +43,7 @@
             ]
         },
         "python3-kolibri.json",
+        "python3-kolibri-app-desktop-xdg-plugin.json",
         {
             "name" : "kolibri-home-template",
             "buildsystem" : "simple",
