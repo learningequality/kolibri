@@ -58,7 +58,6 @@
   import { mapGetters } from 'vuex';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
@@ -91,6 +90,10 @@
         required: true,
         validator: validateContentNodeKind,
       },
+      isLeaf: {
+        type: Boolean,
+        required: true,
+      },
       // ContentNode.coach_content will be `0` if not a coach content leaf node,
       // or a topic without coach content. It will be a positive integer if a topic
       // with coach content, and `1` if a coach content leaf node.
@@ -119,7 +122,7 @@
     computed: {
       ...mapGetters(['isLearner', 'isUserLoggedIn']),
       isTopic() {
-        return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
+        return !this.isLeaf;
       },
       overallHeight() {
         return 258;

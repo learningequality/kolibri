@@ -36,9 +36,10 @@
           :title="content.title"
           :thumbnail="content.thumbnail"
           :kind="content.kind"
+          :isLeaf="content.is_leaf"
           :progress="content.progress"
           :numCoachContents="content.num_coach_contents"
-          :link="genContentLink(content.id, content.kind)"
+          :link="genContentLink(content.id, content.is_leaf)"
         />
       </transition-group>
 
