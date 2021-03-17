@@ -8,6 +8,7 @@ import KolibriApp from 'kolibri_app';
 
 const logging = logger.getLogger(__filename);
 
+class SetupWizardModule extends KolibriApp {
   get RootVue() {
     return RootVue;
   }
@@ -29,4 +30,4 @@ const logging = logger.getLogger(__filename);
   }
 }
 
-export default new OnboardingApp();
+export default new SetupWizardModule();

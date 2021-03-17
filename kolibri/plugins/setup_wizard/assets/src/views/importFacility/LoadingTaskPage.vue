@@ -9,7 +9,6 @@
       @cancel="cancelTask"
     />
     <template #buttons>
-      <!-- This span is to make sure slot contents get rendered -->
       <KButton
         v-if="loadingTask.status === 'COMPLETED'"
         primary
