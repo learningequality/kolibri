@@ -17,16 +17,18 @@
         @click="handleClickContinue"
       />
       <template v-else-if="loadingTask.status === 'FAILED'">
-        <KButton
-          primary
-          :text="coreString('retryAction')"
-          @click="retryImport"
-        />
-        <KButton
-          :text="coreString('startOverAction')"
-          appearance="flat-button"
-          @click="startOver"
-        />
+        <KButtonGroup>
+          <KButton
+            primary
+            :text="coreString('retryAction')"
+            @click="retryImport"
+          />
+          <KButton
+            :text="coreString('startOverAction')"
+            appearance="flat-button"
+            @click="startOver"
+          />
+        </KButtonGroup>
       </template>
       <span v-else></span>
     </template>
@@ -107,7 +109,9 @@
         return SetupTasksResource.canceltask(this.loadingTask.id);
       },
       startOver() {
-        this.$router.replace('/');
+        this.clearTasks().then(() => {
+          this.$router.replace('/');
+        });
       },
       clearTasks() {
         return SetupTasksResource.cleartasks();
