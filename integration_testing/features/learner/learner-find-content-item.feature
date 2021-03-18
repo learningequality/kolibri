@@ -11,7 +11,6 @@ Feature: Learner finds content item
 			And I press the ENTER key or click the search icon button
 		Then I see the *Search > N results for '<search_term>'* page
 			And I see the search results for <search_term>
-			And I see the topic description in search results
 
 	Scenario: Clear the previous search
 		Given that I've written something in the search field
@@ -20,7 +19,6 @@ Feature: Learner finds content item
 				Or I click/tap the *Clear* button directly
 		Then I see the search field is empty
 			But I can still see the results of the previous search
-			And I see the topic description in search results
 
 	Scenario: Filter search results
 		When I open the *Type* filter and select a type

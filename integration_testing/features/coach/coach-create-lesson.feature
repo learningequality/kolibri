@@ -71,7 +71,6 @@ Feature: Coach creates lessons
       And I press the *Submit search* button (magnifying glass)
     Then I see the *Results for '<searchterm>'* header
       And I see the search results for <searchterm>
-      And I see the topic description in search results
       And I see the search filters
       And I see the *Exit search* button
 
@@ -81,8 +80,7 @@ Feature: Coach creates lessons
       And I press the *Submit search* button (magnifying glass)
     Then the previous search results disappear
       And I see the results for the <searchterm2>
-      And I see the topic description in search results
-
+      
   Scenario: Exit search with no browser history
     Given I am on the *Results for '<searchterm>'* page
       And I arrived to this page directly from a URL
@@ -162,7 +160,7 @@ Feature: Coach creates lessons
       And one of those topics has content for coaches
     When I see a topic card
     Then I see its title
-      And I see its description
+      And I see its description if a description text is available as it is optional
       And I see how many coach exercises/topics it contains
 
   Scenario: Preview a resource from the search results and add/remove it to and from the lesson
