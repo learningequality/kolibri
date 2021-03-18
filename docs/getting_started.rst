@@ -370,6 +370,12 @@ Frontend dev tools
 To ensure a more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylelint.
 
 
+Import channels and resources
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
 
 .. _workflow_intro:
 
