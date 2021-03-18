@@ -11,7 +11,6 @@
         :title="content.title"
         :thumbnail="content.thumbnail"
         :kind="content.kind"
-        :isLeaf="content.is_leaf"
         :tagline="getTagLine(content)"
         :progress="content.progress || 0"
         :numCoachContents="content.num_coach_contents"

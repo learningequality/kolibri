@@ -97,7 +97,7 @@
     },
     methods: {
       genContentLink(id, isLeaf) {
-        const pageName = !isLeaf ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT;
+        const pageName = isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC;
         return this.$router.getRoute(pageName, { id }, { last: this.pageName });
       },
     },

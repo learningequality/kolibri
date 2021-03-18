@@ -45,7 +45,7 @@
       v-if="isUserLoggedIn && !isLearner"
       class="coach-content-label"
       :value="numCoachContents"
-      :isTopic="isTopic"
+      :isTopic="true"
     />
 
   </router-link>
@@ -90,10 +90,6 @@
         required: true,
         validator: validateContentNodeKind,
       },
-      isLeaf: {
-        type: Boolean,
-        required: true,
-      },
       // ContentNode.coach_content will be `0` if not a coach content leaf node,
       // or a topic without coach content. It will be a positive integer if a topic
       // with coach content, and `1` if a coach content leaf node.
@@ -121,9 +117,6 @@
     },
     computed: {
       ...mapGetters(['isLearner', 'isUserLoggedIn']),
-      isTopic() {
-        return !this.isLeaf;
-      },
       overallHeight() {
         return 258;
       },

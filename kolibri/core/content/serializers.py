@@ -34,7 +34,6 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
     lang_name = serializers.SerializerMethodField()
     available = serializers.SerializerMethodField()
     num_coach_contents = serializers.IntegerField(source="root.num_coach_contents")
-    is_leaf = serializers.SerializerMethodField()
 
     def get_lang_code(self, instance):
         if instance.root.lang is None:
@@ -50,9 +49,6 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
 
     def get_available(self, instance):
         return instance.root.available
-
-    def get_is_leaf(self, instance):
-        return False
 
     class Meta:
         model = ChannelMetadata
@@ -71,7 +67,6 @@ class ChannelMetadataSerializer(serializers.ModelSerializer):
             "available",
             "num_coach_contents",
             "public",
-            "is_leaf",
         )
 
 
@@ -81,7 +76,6 @@ class PublicChannelSerializer(serializers.ModelSerializer):
     language = serializers.SerializerMethodField()
     icon_encoding = serializers.SerializerMethodField()
     last_published = serializers.SerializerMethodField()
-    is_leaf = serializers.SerializerMethodField()
 
     def get_language(self, instance):
         if instance.root.lang is None:
@@ -102,9 +96,6 @@ class PublicChannelSerializer(serializers.ModelSerializer):
             else create_timezonestamp(instance.last_updated)
         )
 
-    def get_is_leaf(self, instance):
-        return False
-
     def match_tokens(self, channel):
         return []
 
@@ -124,7 +115,6 @@ class PublicChannelSerializer(serializers.ModelSerializer):
             "icon_encoding",
             "matching_tokens",
             "public",
-            "is_leaf",
         )
 
 

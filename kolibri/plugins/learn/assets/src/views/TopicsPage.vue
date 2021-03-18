@@ -137,7 +137,7 @@
     },
     methods: {
       genContentLink(id, isLeaf) {
-        const routeName = !isLeaf ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT;
+        const routeName = isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC;
         return {
           name: routeName,
           params: { id },
