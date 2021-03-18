@@ -96,12 +96,14 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
     def kolibri_change_notify(self):
         if self.__target_url:
             self.load_url(self.__target_url)
-        elif self.delegate.is_internal_url(self.current_url):
-            self.load_url(self.current_url)
+        elif self.delegate.is_internal_url(self.get_url()):
+            self.load_url(self.get_url())
         else:
-            # Convert self.current_url to a new-Kolibri URL
-            kolibri_app_url = urlsplit(self.current_url)._replace(
-                scheme="x-kolibri-app", netloc=""
+            # Convert current URL to a new kolibri-app URL for deferred loading
+            kolibri_app_url = (
+                urlsplit(self.get_url())
+                ._replace(scheme="x-kolibri-app", netloc="")
+                .geturl()
             )
             self.load_url(urlunsplit(kolibri_app_url))
 
@@ -114,7 +116,7 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
             self.__load_url_loading()
         else:
             full_url = self.delegate.get_full_url(url)
-            if self.current_url != full_url:
+            if self.get_url() != full_url:
                 self.__target_url = None
                 super().load_url(full_url)
                 self.present_window()
