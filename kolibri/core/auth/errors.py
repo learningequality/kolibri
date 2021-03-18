@@ -29,5 +29,5 @@ class InvalidHierarchyRelationsArgument(KolibriError):
     pass
 
 
-class IncompatibleDeviceSetting(KolibriError):
+class IncompatibleDeviceSettingError(KolibriError):
     pass

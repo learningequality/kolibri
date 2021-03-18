@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+from .errors import IncompatibleDeviceSettingError
 from .models import Classroom
 from .models import Facility
 from .models import FacilityDataset
@@ -84,20 +85,11 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
             "preset",
         )
 
-    def validate(self, attrs):
-        learner_can_edit_password = attrs.get("learner_can_edit_password")
-        learner_can_login_with_no_password = attrs.get(
-            "learner_can_login_with_no_password"
-        )
-        if learner_can_login_with_no_password and learner_can_edit_password:
-            raise serializers.ValidationError(
-                "Device Settings [learner_can_login_with_no_password={}] & [learner_can_edit_password={}] values incompatible.".format(
-                    learner_can_login_with_no_password,
-                    learner_can_edit_password,
-                )
-            )
-        else:
-            return attrs
+    def save(self, **kwargs):
+        try:
+            return super(FacilityDatasetSerializer, self).save(**kwargs)
+        except IncompatibleDeviceSettingError as e:
+            raise serializers.ValidationError(str(e))
 
 
 class FacilitySerializer(serializers.ModelSerializer):

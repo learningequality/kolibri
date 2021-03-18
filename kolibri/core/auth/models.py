@@ -48,7 +48,7 @@ from .constants import facility_presets
 from .constants import morango_sync
 from .constants import role_kinds
 from .constants import user_kinds
-from .errors import IncompatibleDeviceSetting
+from .errors import IncompatibleDeviceSettingError
 from .errors import InvalidRoleKind
 from .errors import UserDoesNotHaveRoleError
 from .errors import UserHasRoleOnlyIndirectlyThroughHierarchyError
@@ -141,15 +141,16 @@ class FacilityDataset(FacilityDataSyncableModel):
     def save(self, *args, **kwargs):
         try:
             self.ensure_compatibility()
-        except IncompatibleDeviceSetting as e:
-            raise IntegrityError(str(e))
+        except IncompatibleDeviceSettingError as e:
+            raise IncompatibleDeviceSettingError(str(e))
 
         super(FacilityDataset, self).save(*args, **kwargs)
 
     def ensure_compatibility(self, *args, **kwargs):
         if self.learner_can_login_with_no_password and self.learner_can_edit_password:
-            raise IncompatibleDeviceSetting(
-                "Device Settings [learner_can_login_with_no_password={}] & [learner_can_edit_password={}] values incompatible.".format(
+            raise IncompatibleDeviceSettingError(
+                "Device Settings [learner_can_login_with_no_password={}] & [learner_can_edit_password={}] "
+                "values incompatible togeather.".format(
                     self.learner_can_login_with_no_password,
                     self.learner_can_edit_password,
                 )
