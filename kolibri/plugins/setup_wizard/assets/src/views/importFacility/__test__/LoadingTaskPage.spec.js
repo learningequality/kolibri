@@ -64,6 +64,7 @@ describe('LoadingTaskPage', () => {
     continueButton.trigger('click');
     expect(continueSpy).toBeCalled();
     expect(wrapper.emitted().click_next).toBeTruthy();
+    expect(wrapper.vm.isPolling).toBe(false);
   });
 
   it('when task fails, the "retry" button is available', async () => {

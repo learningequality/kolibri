@@ -124,6 +124,7 @@
         return SetupTasksResource.cleartasks();
       },
       handleClickContinue() {
+        this.isPolling = false;
         this.clearTasks();
         this.$emit('click_next');
       },
