@@ -114,8 +114,11 @@
       startOver() {
         this.isPolling = false;
         this.clearTasks().then(() => {
-          this.$router.replace('/');
+          this.goToRootUrl();
         });
+      },
+      goToRootUrl() {
+        this.$router.replace('/');
       },
       clearTasks() {
         return SetupTasksResource.cleartasks();
