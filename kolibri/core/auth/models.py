@@ -139,11 +139,7 @@ class FacilityDataset(FacilityDataSyncableModel):
             return "FacilityDataset (no associated Facility)"
 
     def save(self, *args, **kwargs):
-        try:
-            self.ensure_compatibility()
-        except IncompatibleDeviceSettingError as e:
-            raise IncompatibleDeviceSettingError(str(e))
-
+        self.ensure_compatibility()
         super(FacilityDataset, self).save(*args, **kwargs)
 
     def ensure_compatibility(self, *args, **kwargs):

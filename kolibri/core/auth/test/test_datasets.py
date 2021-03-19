@@ -4,6 +4,7 @@ Tests related specifically to the FacilityDataset model.
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
+from ..errors import IncompatibleDeviceSettingError
 from ..models import Classroom
 from ..models import Facility
 from ..models import FacilityDataset
@@ -73,7 +74,7 @@ class FacilityDatasetTestCase(TestCase):
         self.assertEqual(str(new_dataset), "FacilityDataset (no associated Facility)")
 
     def test_dataset_incompatible_setting(self):
-        with self.assertRaises(IntegrityError):
+        with self.assertRaises(IncompatibleDeviceSettingError):
             FacilityDataset.objects.create(
                 learner_can_edit_password=True, learner_can_login_with_no_password=True
             )
