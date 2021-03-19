@@ -20,7 +20,7 @@ class SetupWizardModule extends KolibriApp {
   }
   ready() {
     return super.ready().then(() => {
-      logging.info('Clearning facility tasks created in previous sessions...');
+      logging.info('Clearing facility tasks created in previous sessions...');
       SetupTasksResource.cleartasks();
       // Fix for https://github.com/learningequality/kolibri/issues/3852
       // Don't call beat because it may cause a save in the session endpoint
