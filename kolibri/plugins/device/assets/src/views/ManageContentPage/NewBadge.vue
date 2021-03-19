@@ -1,7 +1,7 @@
 <template>
 
   <span
-    class="new-label"
+    class="new-badge"
     :style="{ color: $themeTokens.textInverted, backgroundColor: $themeTokens.success }"
   >
     {{ label }}
@@ -30,7 +30,7 @@
 
 <style lang="scss" scoped>
 
-  .new-label {
+  .new-badge {
     padding: 2px 8px;
     font-size: 14px;
     font-weight: bold;

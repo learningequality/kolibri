@@ -21,6 +21,7 @@
           <NewBadge
             v-if="showNewLabel"
             :label="deviceString('newChannelLabel')"
+            class="new-label"
           />
         </div>
       </template>

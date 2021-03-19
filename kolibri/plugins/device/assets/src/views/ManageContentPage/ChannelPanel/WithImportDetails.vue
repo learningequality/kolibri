@@ -32,6 +32,7 @@
           <NewBadge
             v-if="channel.newUnlistedChannel"
             :label="deviceString('newChannelLabel')"
+            class="new-label"
           />
         </div>
       </template>
