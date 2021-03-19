@@ -2,12 +2,7 @@
 
   <div>
     <span class="version">
-      <span
-        class="new-label"
-        :style="{ color: $themeTokens.textInverted, backgroundColor: $themeTokens.success }"
-      >
-        {{ deviceString('newResourceLabel') }}
-      </span>
+      <NewBadge :label="deviceString('newResourceLabel')" class="new-label" />
 
       <span class="version-available">
         {{ $tr('versionAvailable', { version }) }}
@@ -27,9 +22,11 @@
 <script>
 
   import commonDeviceStrings from '../commonDeviceStrings';
+  import NewBadge from './NewBadge';
 
   export default {
     name: 'NewChannelVersionBanner',
+    components: { NewBadge },
     mixins: [commonDeviceStrings],
     props: {
       version: {
@@ -59,11 +56,7 @@
 
   .new-label {
     display: inline-block;
-    padding: 2px 8px;
     margin-right: 8px;
-    font-size: 14px;
-    font-weight: bold;
-    border-radius: 2px;
   }
 
 </style>
