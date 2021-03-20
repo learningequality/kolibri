@@ -93,7 +93,7 @@ Feature: Coach creates quizzes
 			And I click the search icon button or press Enter
 		Then I am redirected to the search results page
 			And I see topic and/or exercise cards on the search results page
-			
+
 	Scenario: Fail to find by keyword
 		When I enter a keyword into the search box
 			And I click the search icon button or press Enter

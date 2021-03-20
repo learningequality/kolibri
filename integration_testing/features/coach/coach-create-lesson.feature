@@ -80,7 +80,7 @@ Feature: Coach creates lessons
 			And I press the *Submit search* button (magnifying glass)
 		Then the previous search results disappear
 			And I see the results for the <searchterm2>
-			
+
 	Scenario: Exit search with no browser history
 		Given I am on the *Results for '<searchterm>'* page
 			And I arrived to this page directly from a URL
