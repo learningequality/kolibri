@@ -121,7 +121,7 @@
       animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
     }
     0% {
-      transform: scale3d(01.15, 01.15, 01.15);
+      transform: scale3d(1.05, 1.05, 1.05);
     }
     50% {
       transform: scale3d(0.98, 0.98, 0.98);
