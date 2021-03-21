@@ -66,6 +66,22 @@ class Queue(object):
         job_id = self.storage.enqueue_job(job, self.name)
         return job_id
 
+    def restart_job(self, job_id):
+        """
+        Given a job_id, restart the job for that id. A job will only be restarted if
+        in CANCELED or FAILED state.
+
+        This will create a new job with a new job_id.
+        """
+
+        old_job = self.fetch_job(job_id)
+        if old_job.state in [State.CANCELED, State.FAILED]:
+            self.clear_job(job_id)
+            job = Job(old_job)
+            return self.enqueue(job)
+        else:
+            return None
+
     def cancel(self, job_id):
         """
         Mark a job as canceling, and let the worker pick this up to initiate

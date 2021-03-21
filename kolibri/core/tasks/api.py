@@ -221,6 +221,26 @@ class BaseViewSet(viewsets.ViewSet):
 
         return Response(task)
 
+    @decorators.action(methods=["post"], detail=False)
+    def restarttask(self, request):
+        """
+        Restart a task with its task id given in the task_id parameter.
+        """
+
+        if "task_id" not in request.data:
+            raise serializers.ValidationError("The 'task_id' field is required.")
+        if not isinstance(request.data["task_id"], string_types):
+            raise serializers.ValidationError("The 'task_id' should be a string.")
+
+        for _queue in self.queues:
+            try:
+                task_id = _queue.restart_job(request.data["task_id"])
+                break
+            except JobNotFound:
+                continue
+
+        return Response({"task_id": task_id})
+
     def destroy(self, request, pk=None):
         # unimplemented for now.
         pass
