@@ -1,3 +1,4 @@
+import os
 import tempfile
 import time
 import uuid
@@ -20,30 +21,34 @@ from kolibri.core.tasks.worker import Worker
 
 @pytest.fixture
 def backend():
-    with tempfile.NamedTemporaryFile() as f:
-        connection = create_engine(
-            "sqlite:///{path}".format(path=f.name),
-            connect_args={"check_same_thread": False},
-            poolclass=NullPool,
-        )
-        b = Storage(connection)
-        yield b
-        b.clear()
+    fd, filepath = tempfile.mkstemp()
+    connection = create_engine(
+        "sqlite:///{path}".format(path=filepath),
+        connect_args={"check_same_thread": False},
+        poolclass=NullPool,
+    )
+    b = Storage(connection)
+    yield b
+    b.clear()
+    os.close(fd)
+    os.remove(filepath)
 
 
 @pytest.fixture
 def inmem_queue():
-    with tempfile.NamedTemporaryFile() as f:
-        connection = create_engine(
-            "sqlite:///{path}".format(path=f.name),
-            connect_args={"check_same_thread": False},
-            poolclass=NullPool,
-        )
-        e = Worker(queues="pytest", connection=connection)
-        c = Queue(queue="pytest", connection=connection)
-        c.e = e
-        yield c
-        e.shutdown()
+    fd, filepath = tempfile.mkstemp()
+    connection = create_engine(
+        "sqlite:///{path}".format(path=filepath),
+        connect_args={"check_same_thread": False},
+        poolclass=NullPool,
+    )
+    e = Worker(queues="pytest", connection=connection)
+    c = Queue(queue="pytest", connection=connection)
+    c.e = e
+    yield c
+    e.shutdown()
+    os.close(fd)
+    os.remove(filepath)
 
 
 @pytest.fixture
