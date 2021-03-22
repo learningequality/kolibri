@@ -108,7 +108,7 @@ class FacilityDatasetTestCase(TestCase):
             self.lesson.cached_related_dataset_lookup("created_by"),
         )
         self.assertEqual(self.exam.infer_dataset(), self.facility.dataset.id)
-   
+
     def test_dataset_incompatible_setting(self):
         with self.assertRaises(IncompatibleDeviceSettingError):
             FacilityDataset.objects.create(
