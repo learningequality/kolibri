@@ -10,6 +10,8 @@ from ..models import Facility
 from ..models import FacilityDataset
 from ..models import FacilityUser
 from ..models import LearnerGroup
+from kolibri.core.exams.models import Exam
+from kolibri.core.lessons.models import Lesson
 
 
 class FacilityDatasetTestCase(TestCase):
@@ -19,6 +21,15 @@ class FacilityDatasetTestCase(TestCase):
         cls.facility_2 = Facility.objects.create()
         cls.classroom = Classroom.objects.create(parent=cls.facility)
         cls.learner_group = LearnerGroup.objects.create(parent=cls.classroom)
+        cls.user = FacilityUser.objects.create(
+            username="user", password="password", facility=cls.facility
+        )
+        cls.exam = Exam.objects.create(
+            title="", question_count=1, collection=cls.facility, creator=cls.user
+        )
+        cls.lesson = Lesson.objects.create(
+            created_by=cls.user, title="lesson", collection=cls.facility
+        )
 
     def setUp(self):
         self.facility_user = FacilityUser.objects.create(
@@ -72,6 +83,31 @@ class FacilityDatasetTestCase(TestCase):
         )
         new_dataset = FacilityDataset.objects.create()
         self.assertEqual(str(new_dataset), "FacilityDataset (no associated Facility)")
+
+    def test_exam_lesson_dataset(self):
+        self.assertTrue(self.facility.dataset is not None)
+        self.assertEqual(self.exam.infer_dataset(), self.lesson.infer_dataset())
+
+        # Check current implementation of infer_dataset on Lesson and Exam
+        self.assertEqual(
+            self.exam.infer_dataset(),
+            self.exam.cached_related_dataset_lookup("collection"),
+        )
+        self.assertEqual(
+            self.lesson.infer_dataset(),
+            self.lesson.cached_related_dataset_lookup("collection"),
+        )
+
+        # Check if the current implementation is equivalent to the previous implementation
+        self.assertEqual(
+            self.exam.infer_dataset(),
+            self.exam.cached_related_dataset_lookup("creator"),
+        )
+        self.assertEqual(
+            self.lesson.infer_dataset(),
+            self.lesson.cached_related_dataset_lookup("created_by"),
+        )
+        self.assertEqual(self.exam.infer_dataset(), self.facility.dataset.id)
 
     def test_dataset_incompatible_setting(self):
         with self.assertRaises(IncompatibleDeviceSettingError):

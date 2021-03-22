@@ -141,7 +141,7 @@ class Exam(AbstractFacilityDataModel):
     data_model_version = models.SmallIntegerField(default=2)
 
     def infer_dataset(self, *args, **kwargs):
-        return self.cached_related_dataset_lookup("creator")
+        return self.cached_related_dataset_lookup("collection")
 
     def calculate_partition(self):
         return self.dataset_id
