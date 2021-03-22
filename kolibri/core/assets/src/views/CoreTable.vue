@@ -108,8 +108,8 @@
   }
 
   /deep/ thead th {
-    vertical-align: bottom;
     text-align: left;
+    vertical-align: bottom;
   }
 
   /deep/ tr {
