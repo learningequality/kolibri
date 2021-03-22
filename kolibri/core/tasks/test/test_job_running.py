@@ -179,6 +179,19 @@ def update_progress_cancelable_job():
             return
 
 
+def wait_for_state_change(inmem_queue, job_id, state):
+    interval = 0.1
+    time_spent = 0
+
+    job = inmem_queue.fetch_job(job_id)
+
+    while job.state != state:
+        time.sleep(interval)
+        time_spent += interval
+        job = inmem_queue.fetch_job(job_id)
+        assert time_spent < 5
+
+
 class TestQueue(object):
     def test_enqueues_a_function(self, inmem_queue):
         job_id = inmem_queue.enqueue(id, 1)
@@ -300,4 +313,61 @@ class TestQueue(object):
             job = inmem_queue.fetch_job(job_id)
             assert time_spent < 5
         # and hopefully it's canceled by this point
+        assert job.state == State.CANCELED
+
+    def test_failed_job_can_restart(self, inmem_queue):
+        # Start a failng function and check for failure and
+        # the case of it being present in jobs as a failed state job
+        old_job_id = inmem_queue.enqueue(failing_func)
+
+        wait_for_state_change(inmem_queue, old_job_id, State.FAILED)
+
+        job = inmem_queue.fetch_job(old_job_id)
+        assert len(inmem_queue.jobs) == 1
+        assert job.state == State.FAILED
+
+        # Restart the function and assert the same case as above along with
+        # the new created job should have an another unique id.
+        new_job_id = inmem_queue.restart_job(old_job_id)
+
+        assert new_job_id != old_job_id
+
+        wait_for_state_change(inmem_queue, new_job_id, State.FAILED)
+
+        job = inmem_queue.fetch_job(new_job_id)
+
+        assert len(inmem_queue.jobs) == 1
+        assert job.state == State.FAILED
+
+    def test_cancelled_job_can_restart(self, inmem_queue):
+        # Start a function waiting to be cancelled. Once cancelled check
+        # the case of it being present in jobs as a cancelled state job
+        old_job_id = inmem_queue.enqueue(cancelable_job, cancellable=True)
+
+        # The job should go from Queued to Running. At that point we mark it for
+        # cancellation. Then the state should go from Cancelling to Cancelled.
+        wait_for_state_change(inmem_queue, old_job_id, State.RUNNING)
+
+        inmem_queue.cancel(old_job_id)
+        job = inmem_queue.fetch_job(old_job_id)
+        assert job.state == State.CANCELING
+
+        wait_for_state_change(inmem_queue, old_job_id, State.CANCELED)
+        job = inmem_queue.fetch_job(old_job_id)
+        assert job.state == State.CANCELED
+
+        # Restart the job, check that the new created job should have a
+        # unique id.
+        new_job_id = inmem_queue.restart_job(old_job_id)
+        assert new_job_id != old_job_id
+
+        # Test the remaing cases same as above.
+        wait_for_state_change(inmem_queue, new_job_id, State.RUNNING)
+
+        inmem_queue.cancel(new_job_id)
+        job = inmem_queue.fetch_job(new_job_id)
+        assert job.state == State.CANCELING
+
+        wait_for_state_change(inmem_queue, new_job_id, State.CANCELED)
+        job = inmem_queue.fetch_job(new_job_id)
         assert job.state == State.CANCELED

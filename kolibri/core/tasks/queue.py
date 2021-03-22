@@ -75,6 +75,7 @@ class Queue(object):
         """
 
         old_job = self.fetch_job(job_id)
+        print(old_job.state)
         if old_job.state in [State.CANCELED, State.FAILED]:
             self.clear_job(job_id)
             job = Job(old_job)

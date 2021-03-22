@@ -235,11 +235,12 @@ class BaseViewSet(viewsets.ViewSet):
         for _queue in self.queues:
             try:
                 task_id = _queue.restart_job(request.data["task_id"])
+                resp = _job_to_response(_queue.fetch_job(task_id))
                 break
             except JobNotFound:
                 continue
 
-        return Response({"task_id": task_id})
+        return Response(resp)
 
     def destroy(self, request, pk=None):
         # unimplemented for now.
