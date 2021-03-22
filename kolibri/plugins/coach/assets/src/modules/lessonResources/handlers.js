@@ -38,15 +38,10 @@ function showResourceSelectionPage(store, params) {
       const ancestorCounts = {};
 
       let resourceAncestors;
-      // Don't get ancestors if at the Channels page
-      if (pageName === LessonsPageNames.SELECTION_ROOT) {
-        resourceAncestors = [];
-      } else {
-        resourceAncestors = store.state.lessonSummary.workingResources.map(
-          resource => (cache[resource.contentnode_id] || {}).ancestors || []
-        );
-      }
 
+      resourceAncestors = store.state.lessonSummary.workingResources.map(
+        resource => (cache[resource.contentnode_id] || {}).ancestors || []
+      );
       // store ancestor ids to get their descendants later
       const ancestorIds = new Set();
 
