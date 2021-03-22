@@ -987,6 +987,64 @@ class FacilityDatasetAPITestCase(APITestCase):
             response = post_resetsettings()
             self.assertDictContainsSubset(mappings[setting], response.data)
 
+    def test_for_incompatible_settings_together(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.patch(
+            reverse(
+                "kolibri:core:facilitydataset-detail",
+                kwargs={"pk": self.facility.dataset_id},
+            ),
+            {
+                "learner_can_login_with_no_password": "true",
+                "learner_can_edit_password": "true",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_for_incompatible_settings_sequentially(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.patch(
+            reverse(
+                "kolibri:core:facilitydataset-detail",
+                kwargs={"pk": self.facility.dataset_id},
+            ),
+            {
+                "learner_can_edit_password": "true",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.patch(
+            reverse(
+                "kolibri:core:facilitydataset-detail",
+                kwargs={"pk": self.facility.dataset_id},
+            ),
+            {
+                "learner_can_login_with_no_password": "true",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_for_incompatible_settings_only_one(self):
+        # Test case handles the case when only `learner_can_login_with_no_password`
+        # is set to true in the patch request while `learner_can_edit_password`
+        # already being true due to it's default value
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.patch(
+            reverse(
+                "kolibri:core:facilitydataset-detail",
+                kwargs={"pk": self.facility.dataset_id},
+            ),
+            {
+                "learner_can_login_with_no_password": "true",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
 
 class MembershipCascadeDeletion(APITestCase):
     @classmethod

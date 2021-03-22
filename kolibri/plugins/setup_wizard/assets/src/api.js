@@ -22,7 +22,7 @@ export const FacilityImportResource = new Resource({
 export const SetupTasksResource = new Resource({
   name: 'tasks',
   namespace: 'kolibri.plugins.setup_wizard',
-  // Use SetupTasksResoure.fetchCollection to get tasks
+  // Use SetupTasksResource.fetchCollection to get tasks
   canceltask(task_id) {
     return this.postListEndpoint('canceltask', { task_id });
   },

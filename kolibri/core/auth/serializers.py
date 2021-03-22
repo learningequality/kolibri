@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+from .errors import IncompatibleDeviceSettingError
 from .models import Classroom
 from .models import Facility
 from .models import FacilityDataset
@@ -83,6 +84,12 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
             "registered",
             "preset",
         )
+
+    def save(self, **kwargs):
+        try:
+            return super(FacilityDatasetSerializer, self).save(**kwargs)
+        except IncompatibleDeviceSettingError as e:
+            raise serializers.ValidationError(str(e))
 
 
 class FacilitySerializer(serializers.ModelSerializer):
