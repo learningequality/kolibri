@@ -181,15 +181,19 @@
 <style lang="scss" scoped>
 
   .points-icon {
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-    margin-right: 4px;
-    vertical-align: middle;
+    display: inline;
+    margin: 8px 4px 0;
   }
 
   .icon-bg {
     border-radius: 50%;
+  }
+
+  /deep/ svg {
+    width: 16px;
+    height: 16px;
+    margin-top: -1px;
+    margin-left: 1px;
   }
 
   .points-amount {
