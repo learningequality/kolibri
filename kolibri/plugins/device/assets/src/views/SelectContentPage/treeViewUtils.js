@@ -17,6 +17,7 @@ const translator = createTranslator('TreeViewRowMessages', {
   someResourcesOnDevice: 'Some resources on this device',
   allResourcesSelected: 'All resources selected',
   allResourcesOnDevice: 'All resources on this device',
+  resourceSelected: 'Resource selected',
 });
 
 export const CheckboxTypes = {
@@ -46,7 +47,9 @@ function partiallySelectedNode(node) {
 function fullySelectedNode(node) {
   return {
     ...node,
-    message: translator.$tr('allResourcesSelected'),
+    message: node.is_leaf
+      ? translator.$tr('resourceSelected')
+      : translator.$tr('allResourcesSelected'),
     disabled: false,
     checkboxType: CheckboxTypes.CHECKED,
   };
