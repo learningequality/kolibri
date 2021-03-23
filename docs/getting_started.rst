@@ -116,10 +116,18 @@ Environment variables can be set in many ways, including:
 
 There are two environment variables you should plan to set:
 
-* ``KOLIBRI_RUN_MODE`` (required)
+* ``KOLIBRI_RUN_MODE`` is **required**.
 
   This variable is sent to our `pingback server <https://github.com/learningequality/nutritionfacts>`_ (private repo), and you must set it to something besides an empty string. This allows us to filter development work out of our usage statistics. There are also some `special testing behaviors <https://github.com/learningequality/nutritionfacts/blob/b150ec9fd80cd0f02c087956fd5f16b2592f94d4/nutritionfacts/views.py#L125-L179>`_ that can be triggered for special strings, as described elsewhere in the developer docs and integration testing Gherkin scenarios.
-* ``KOLIBRI_HOME`` (optional)
+  |br|
+  For example, you could add this line at the end of your ``~/.bash_profile`` file:
+
+  .. code-block:: bash
+
+    export KOLIBRI_RUN_MODE="dev"
+
+
+* ``KOLIBRI_HOME`` is optional.
 
   This variable determines where Kolibri will store its content and databases. It is useful to set if you want to have multiple versions of Kolibri running simultaneously.
 
@@ -368,6 +376,12 @@ Frontend dev tools
 `Vue.js devtools <https://github.com/vuejs/vue-devtools>`__ is a browser plugin that is very helpful when working with Vue.js components and Vuex.
 
 To ensure a more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylelint.
+
+
+Import channels and resources
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once you have the server running, proceed to import some channels and resources. To quickly import all available and supported Kolibri resource types, use the token ``nakav-mafak`` for the `Kolibri QA channel <https://kolibri-beta.learningequality.org/en/learn/#/topics/95a52b386f2c485cb97dd60901674a98>`__ (~350MB).
 
 
 
