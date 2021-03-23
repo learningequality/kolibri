@@ -220,7 +220,7 @@
       exitButtonRoute() {
         const lastId = this.$route.query.last_id;
         if (this.inSearchMode && lastId) {
-          const queryCopy = {...this.$route.query};
+          const queryCopy = { ...this.$route.query };
           delete queryCopy.last_id;
           return this.$router.getRoute(LessonsPageNames.SELECTION, { topicId: lastId }, queryCopy);
         } else if (this.inSearchMode) {
