@@ -3,6 +3,7 @@ import LocalStorage from './localStorage';
 import Cookie from './cookie';
 import SCORM from './SCORM';
 import { events, nameSpace } from './hashiBase';
+import Kolibri from './kolibri';
 
 /*
  * This is the main entry point for interacting with the Hashi library.
@@ -22,6 +23,7 @@ export default class MainClient {
       cookie: new Cookie(this.mediator),
       SCORM: new SCORM(this.mediator),
     };
+    this.kolibri = new Kolibri(this.mediator);
     this.now = now;
     this.ready = false;
     this.contentNamespace = null;

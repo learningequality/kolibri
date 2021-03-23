@@ -3,6 +3,7 @@ import LocalStorage from './localStorage';
 import SessionStorage from './sessionStorage';
 import Cookie from './cookie';
 import SCORM from './SCORM';
+import Kolibri from './kolibri';
 import patchIndexedDB from './patchIndexedDB';
 import { events, nameSpace } from './hashiBase';
 
@@ -24,6 +25,8 @@ export default class SandboxEnvironment {
     this.sessionStorage = new SessionStorage(this.mediator);
 
     this.cookie = new Cookie(this.mediator);
+
+    this.kolibri = new Kolibri(this.mediator);
 
     this.SCORM = new SCORM(this.mediator);
 
@@ -66,6 +69,7 @@ export default class SandboxEnvironment {
         this.localStorage.iframeInitialize(this.iframe.contentWindow);
         this.sessionStorage.iframeInitialize(this.iframe.contentWindow);
         this.cookie.iframeInitialize(this.iframe.contentWindow);
+        this.kolibri.iframeInitialize(this.iframe.contentWindow);
         patchIndexedDB(this.contentNamespace, this.iframe.contentWindow);
       } catch (e) {
         console.log('Shimming storage APIs failed, data will not persist'); // eslint-disable-line no-console
