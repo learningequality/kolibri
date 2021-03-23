@@ -232,6 +232,7 @@ class BaseViewSet(viewsets.ViewSet):
         if not isinstance(request.data["task_id"], string_types):
             raise serializers.ValidationError("The 'task_id' should be a string.")
 
+        resp = {}
         for _queue in self.queues:
             try:
                 task_id = _queue.restart_job(request.data["task_id"])
