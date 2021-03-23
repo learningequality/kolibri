@@ -48,7 +48,10 @@ def inmem_queue():
     yield c
     e.shutdown()
     os.close(fd)
-    os.remove(filepath)
+    try:
+        os.remove(filepath)
+    except OSError:
+        pass
 
 
 @pytest.fixture
