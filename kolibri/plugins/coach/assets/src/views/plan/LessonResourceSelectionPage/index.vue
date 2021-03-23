@@ -421,9 +421,8 @@
       },
     },
     $trs: {
-      // TODO: Handle singular/plural
       selectionInformation:
-        '{count, number, integer} of {total, number, integer} resources selected',
+        '{count, number, integer} of {total, number, integer} {total, plural, one {resource} other {resources}} selected',
       totalResourcesSelected:
         '{total, number, integer} {total, plural, one {resource} other {resources}} in this lesson',
       documentTitle: `Manage resources in '{lessonName}'`,
