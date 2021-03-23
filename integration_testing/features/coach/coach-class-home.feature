@@ -10,7 +10,7 @@ Feature: General navigation on *Class home* tab
   Scenario: Navigate back to the class list
     When I press the link “All classes”
     Then I am back on the class selection page
-        And I see a list of all the facility classes, or those I'm assigned to (if class coach)
+      And I see a list of all the facility classes, or those I'm assigned to (if class coach)
 
   Scenario: There are no quizzes
     Given there are no created quizzes
@@ -29,10 +29,10 @@ Feature: General navigation on *Class home* tab
 
   Scenario: No coaches assigned to class
     Given I am facility coach
-        And there are no coaches assigned to the class <class>
+      And there are no coaches assigned to the class <class>
     When I look at the <class> class home summary block at the top
     Then I see no coaches listed
-        And I see *-* instead
+      And I see *-* instead
 
   Scenario: No learners enrolled in the class
     Given there are no learners assigned to the class
