@@ -42,8 +42,6 @@ jobs:
         key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
     - name: Test with tox
       run: tox -e py${{ matrix.python-version }}
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
   postgres:
     name: Python postgres unit tests
     needs: pre_job
@@ -85,5 +83,3 @@ jobs:
         key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
     - name: Test with tox
       run: tox -e postgres
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1

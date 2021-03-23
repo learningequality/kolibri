@@ -17,7 +17,7 @@
   "AssessmentWrapper.tryDifferentQuestion": "សាកល្បងសំណួរផ្សេង",
   "AssessmentWrapper.tryNextQuestion": "សាកល្បងសំណួរ​បន្ទាប់",
   "AssignedExamsCards.completedPercentLabel": "ពិន្ទុ៖ {score}%",
-  "AssignedExamsCards.examsHeader": "សំណួរ Quiz នានា",
+  "AssignedExamsCards.examsHeader": "សំណួរនានា",
   "AssignedExamsCards.noExamsMessage": "អ្នកមិនមានសំណួរ Quiz ដែលបានចាត់តាំងទេ",
   "AssignedExamsCards.notStartedLabel": "មិន​បាន​ចាប់​ផ្ដើម",
   "AssignedExamsCards.questionsLeft": "នៅសល់សំណួរ {questionsLeft, number, integer}",
