@@ -220,7 +220,9 @@
       exitButtonRoute() {
         const lastId = this.$route.query.last_id;
         if (this.inSearchMode && lastId) {
-          return this.topicListingLink({ ...this.routerParams, topicId: lastId });
+          const queryCopy = {...this.$route.query};
+          delete queryCopy.last_id;
+          return this.$router.getRoute(LessonsPageNames.SELECTION, { topicId: lastId }, queryCopy);
         } else if (this.inSearchMode) {
           return this.selectionRootLink({ ...this.routerParams });
         } else if (this.$route.query.last === 'ReportsLessonReportPage') {
