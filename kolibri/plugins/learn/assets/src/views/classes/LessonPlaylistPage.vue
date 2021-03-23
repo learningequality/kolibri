@@ -27,6 +27,7 @@
         class="content-card"
         :isMobile="true"
         :kind="c.kind"
+        :isLeaf="c.is_leaf"
         :link="lessonResourceViewerLink(idx)"
         :progress="c.progress_fraction"
         :numCoachContents="c.coach_content ? 1 : 0"

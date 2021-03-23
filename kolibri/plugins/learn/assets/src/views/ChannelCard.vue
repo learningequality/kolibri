@@ -45,7 +45,7 @@
       v-if="isUserLoggedIn && !isLearner"
       class="coach-content-label"
       :value="numCoachContents"
-      :isTopic="isTopic"
+      :isTopic="true"
     />
 
   </router-link>
@@ -58,7 +58,6 @@
   import { mapGetters } from 'vuex';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
@@ -118,9 +117,6 @@
     },
     computed: {
       ...mapGetters(['isLearner', 'isUserLoggedIn']),
-      isTopic() {
-        return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
-      },
       overallHeight() {
         return 258;
       },

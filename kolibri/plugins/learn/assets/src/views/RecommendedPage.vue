@@ -70,7 +70,6 @@
   import { mapState } from 'vuex';
   import uniq from 'lodash/uniq';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { ContentNodeProgressResource } from 'kolibri.resources';
   import { PageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
@@ -142,9 +141,9 @@
       }
     },
     methods: {
-      genContentLink(id, kind) {
+      genContentLink(id, isLeaf) {
         return {
-          name: kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT,
+          name: isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
           params: { id },
           query: {
             last: this.$store.state.pageName,

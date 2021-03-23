@@ -372,7 +372,7 @@
         'fetchAdditionalSearchResults',
       ]),
       contentLink(content) {
-        if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
+        if (!content.is_leaf) {
           return {
             name: PageNames.EXAM_CREATION_TOPIC,
             params: {

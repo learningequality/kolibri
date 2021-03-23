@@ -84,7 +84,6 @@
   import debounce from 'lodash/debounce';
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
@@ -318,8 +317,8 @@
         });
         this.addToWorkingResources([content]);
       },
-      contentIsDirectoryKind({ kind }) {
-        return kind === ContentNodeKinds.TOPIC || kind === ContentNodeKinds.CHANNEL;
+      contentIsDirectoryKind({ is_leaf }) {
+        return !is_leaf;
       },
       selectionRootLink() {
         return this.$router.getRoute(LessonsPageNames.SELECTION_ROOT, {}, this.$route.query);

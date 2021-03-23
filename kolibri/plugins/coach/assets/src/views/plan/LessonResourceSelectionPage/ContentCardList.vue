@@ -32,6 +32,7 @@
           :message="contentCardMessage(content)"
           :link="contentCardLink(content)"
           :numCoachContents="content.num_coach_contents"
+          :isLeaf="content.is_leaf"
         />
       </li>
     </ul>

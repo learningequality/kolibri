@@ -14,7 +14,7 @@
         :tagline="getTagLine(content)"
         :progress="content.progress || 0"
         :numCoachContents="content.num_coach_contents"
-        :link="genContentLink(content.id, content.kind)"
+        :link="genContentLink(content.id, content.is_leaf)"
         :contentId="content.content_id"
         :copiesCount="content.copies_count"
         @openCopiesModal="openCopiesModal"

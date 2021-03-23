@@ -95,6 +95,7 @@ export function showLessonResourceSelectionRootPage(store, params) {
         ...channel,
         id: channel.root_id,
         kind: ContentNodeKinds.CHANNEL,
+        is_leaf: false,
       };
     });
 

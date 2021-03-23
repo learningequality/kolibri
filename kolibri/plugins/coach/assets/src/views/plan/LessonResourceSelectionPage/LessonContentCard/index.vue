@@ -47,7 +47,6 @@
 
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import CardThumbnail from './CardThumbnail';
@@ -78,6 +77,10 @@
         required: true,
         validator: validateContentNodeKind,
       },
+      isLeaf: {
+        type: Boolean,
+        required: true,
+      },
       link: {
         type: Object,
         required: true,
@@ -97,7 +100,7 @@
     },
     computed: {
       isTopic() {
-        return this.kind === ContentNodeKinds.CHANNEL || this.kind === ContentNodeKinds.TOPIC;
+        return !this.isLeaf;
       },
     },
   };
