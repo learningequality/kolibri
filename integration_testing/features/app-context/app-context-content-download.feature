@@ -2,7 +2,7 @@ Feature: Learner does not see the 'download' resource button
 
   Background:
     Given that Kolibri is running in app context
-    Given the *Show 'download' button with resources* option at *Facility > Settings* page is disabled
+      And the *Show 'download' button with resources* option at *Facility > Settings* page is disabled
 
   Scenario: Lesson content download
      When I go to *Learn > Classes > Lesson* page

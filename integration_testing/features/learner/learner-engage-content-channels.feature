@@ -40,7 +40,7 @@ Feature: Learner engages content channels
     Then I see the *Download resource* button
 
     Scenario: Channel content download
-     Given: A super admin has enabled the *Show 'download' button with resources* option at *Facility > Settings* page
+     Given a super admin has enabled the *Show 'download' button with resources* option at *Facility > Settings* page
      When I go to *Learn > Channels* page
       And I browse any channel's topics until I open an single resource
     Then I see the *Download resource* button
