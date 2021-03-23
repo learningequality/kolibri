@@ -58,7 +58,8 @@ Feature: Admin changes facility settings
     Then I (as learner <learner>) can see the *Change password* link
 
   Scenario: Allow content download
-    Given the *Show 'download' button with content* checkbox is unchecked
+    Given the *Show 'download' button with resources* checkbox is unchecked
+      And Kolibri is not running in the app context
     When I check the *Show 'download' button with resources* checkbox
       And I click the *Save changes* button
     When I go to *Learn > Channels* page
