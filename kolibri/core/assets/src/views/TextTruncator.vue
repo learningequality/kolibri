@@ -78,7 +78,7 @@
       handleUpdate() {
         // TODO make "View Less" disappear when user expands window
         // and text isn't truncated any more.
-        shave(this.$refs.shaveEl, this.maxHeight);
+        shave(this.$refs.shaveEl, this.maxHeight, { spaces: false });
         this.$nextTick(() => {
           this.textIsTruncated = Boolean(this.$el.querySelector('.js-shave'));
           // set title attribute for shaved text but
