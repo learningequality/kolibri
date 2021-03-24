@@ -81,6 +81,14 @@
         shave(this.$refs.shaveEl, this.maxHeight);
         this.$nextTick(() => {
           this.textIsTruncated = Boolean(this.$el.querySelector('.js-shave'));
+          // set title attribute for shaved text but
+          // skip if a title already exists
+          if (this.textIsTruncated && !this.$refs.shaveEl.title)
+            this.$refs.shaveEl.setAttribute('title', this.text);
+          // if the text is not shaved and a title has been previously set,
+          // remove it
+          else if (!this.textIsTruncated && this.$refs.shaveEl.title)
+            this.$refs.shaveEl.removeAttribute('title');
         });
       },
     },
