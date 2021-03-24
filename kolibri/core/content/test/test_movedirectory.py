@@ -1,4 +1,5 @@
 import os
+import sys
 
 from django.core.management import call_command
 from django.test import TestCase
@@ -6,13 +7,15 @@ from mock import patch
 
 from kolibri.utils.conf import OPTIONS
 
-success_path = os.path.join("/", "test", "success")
+path_prefix = "C:\\" if sys.platform == "win32" else "/"
 
-no_content_path = os.path.join("/", "test", "content_exists_no")
+success_path = os.path.join(path_prefix, "test", "success")
 
-yes_content_path = os.path.join("/", "test", "content_exists_yes")
+no_content_path = os.path.join(path_prefix, "test", "content_exists_no")
 
-random_content_path = os.path.join("/", "test", "content_exists_random")
+yes_content_path = os.path.join(path_prefix, "test", "content_exists_yes")
+
+random_content_path = os.path.join(path_prefix, "test", "content_exists_random")
 
 
 @patch("kolibri.core.content.management.commands.content.update_options_file")
@@ -25,7 +28,7 @@ class ContentMoveDirectoryTestCase(TestCase):
     def _path_exists_side_effect(*args):
         if args[0] == OPTIONS["Paths"]["CONTENT_DIR"]:
             return True
-        elif success_path in args[0]:
+        elif args[0].startswith(success_path):
             return False
         return True
 
