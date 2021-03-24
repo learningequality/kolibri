@@ -4,7 +4,7 @@
     <div v-if="viewAllText">
       {{ text }}
     </div>
-    <div v-else ref="shaveEl">
+    <div v-else ref="shaveEl" class="truncated">
       {{ text }}
     </div>
     <div
@@ -105,6 +105,13 @@
   .show-more {
     margin-top: 8px;
     text-align: right;
+  }
+
+  // If the text is a long single word (and not shortened by shave.js),
+  // then apply this CSS instead
+  .truncated {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
 </style>
