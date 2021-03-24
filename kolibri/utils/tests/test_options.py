@@ -210,11 +210,13 @@ def test_path_expansion():
 
     _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
 
-    with mock.patch.dict(os.environ, {"KOLIBRI_CONTENT_DIR": "/absolute"}):
+    absolute_path = "C:\\absolute" if sys.platform == "win32" else "/absolute"
+
+    with mock.patch.dict(os.environ, {"KOLIBRI_CONTENT_DIR": absolute_path}):
         OPTIONS = options.read_options_file(
             KOLIBRI_HOME_TEMP, ini_filename=tmp_ini_path
         )
-        assert OPTIONS["Paths"]["CONTENT_DIR"] == "/absolute"
+        assert OPTIONS["Paths"]["CONTENT_DIR"] == absolute_path
 
     with mock.patch.dict(os.environ, {"KOLIBRI_CONTENT_DIR": "relative"}):
         OPTIONS = options.read_options_file(
@@ -224,10 +226,10 @@ def test_path_expansion():
             KOLIBRI_HOME_TEMP, "relative"
         )
 
-    with mock.patch.dict(os.environ, {"KOLIBRI_CONTENT_DIR": "~/homeiswherethecatis"}):
+    user_path = os.path.join("~", "homeiswherethecatis")
+
+    with mock.patch.dict(os.environ, {"KOLIBRI_CONTENT_DIR": user_path}):
         OPTIONS = options.read_options_file(
             KOLIBRI_HOME_TEMP, ini_filename=tmp_ini_path
         )
-        assert OPTIONS["Paths"]["CONTENT_DIR"] == os.path.expanduser(
-            "~/homeiswherethecatis"
-        )
+        assert OPTIONS["Paths"]["CONTENT_DIR"] == os.path.expanduser(user_path)
