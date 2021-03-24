@@ -54,7 +54,7 @@ An example Vue component would then look like this
       name: 'someComponent',
       mounted() {
         // prints 'Hello world' to console
-        console.log((this.$trs('helloWorld'));
+        console.log(this.$trs('helloWorld'));
       },
       $trs: {
         helloWorld: 'Hello world',
