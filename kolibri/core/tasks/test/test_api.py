@@ -126,7 +126,9 @@ class TaskAPITestCase(BaseAPITestCase):
             reverse("kolibri:core:task-restarttask"), {"task_id": "1"}, format="json"
         )
 
-        self.assertEqual(response.data, {})  # TODO fix response as recieved.
+        self.assertEqual(
+            response.data.get("id", None), 2
+        )  # TODO fix response as recieved.
 
 
 class TaskAPIPermissionsTestCase(APITestCase):

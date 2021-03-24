@@ -54,6 +54,7 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
 from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
 from kolibri.core.tasks.exceptions import JobNotFound
+from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import facility_queue
@@ -240,6 +241,8 @@ class BaseViewSet(viewsets.ViewSet):
                 break
             except JobNotFound:
                 continue
+            except JobNotRestartable as e:
+                raise serializers.ValidationError(str(e))
 
         return Response(resp)
 

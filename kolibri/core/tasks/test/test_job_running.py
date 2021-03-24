@@ -7,6 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
 
 from kolibri.core.tasks.compat import Event
+from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.queue import Queue
@@ -371,3 +372,35 @@ class TestQueue(object):
         wait_for_state_change(inmem_queue, new_job_id, State.CANCELED)
         job = inmem_queue.fetch_job(new_job_id)
         assert job.state == State.CANCELED
+
+    def test_queued_job_cannot_restart(self, inmem_queue):
+        # Start a failing function task, ut do not wait for it to change it's
+        # state from QUEUED. Initating an immediate restart raises the
+        # JobNotRestartable Exception
+        old_job_id = inmem_queue.enqueue(failing_func)
+
+        job = inmem_queue.fetch_job(old_job_id)
+        assert job.state == State.QUEUED
+
+        with pytest.raises(JobNotRestartable) as excinfo:
+            inmem_queue.restart_job(old_job_id)
+
+        assert str(excinfo.value) == "Cannot restart job with state=QUEUED"
+
+    def test_successful_job_cannot_restart(self, inmem_queue, flag):
+        # Start a function and wait for it to be completed. Initiate a restart
+        # request for the task which should raise a JobNotRestartable Exception
+        old_job_id = inmem_queue.enqueue(set_flag, flag)
+
+        flag.wait(timeout=5)
+        assert flag.is_set()
+
+        time.sleep(0.5)
+
+        job = inmem_queue.fetch_job(old_job_id)
+        assert job.state == State.COMPLETED
+
+        with pytest.raises(JobNotRestartable) as excinfo:
+            inmem_queue.restart_job(old_job_id)
+
+        assert str(excinfo.value) == "Cannot restart job with state=COMPLETED"

@@ -1,3 +1,4 @@
+from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.storage import Storage
@@ -75,13 +76,14 @@ class Queue(object):
         """
 
         old_job = self.fetch_job(job_id)
-        print(old_job.state)
         if old_job.state in [State.CANCELED, State.FAILED]:
             self.clear_job(job_id)
             job = Job(old_job)
             return self.enqueue(job)
         else:
-            return None
+            raise JobNotRestartable(
+                "Cannot restart job with state={}".format(old_job.state)
+            )
 
     def cancel(self, job_id):
         """
