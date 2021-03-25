@@ -10,10 +10,10 @@ from cheroot import wsgi
 from cherrypy.process.plugins import SimplePlugin
 from cherrypy.process.servers import ServerAdapter
 from django.conf import settings
-from whitenoise import WhiteNoise
 from zeroconf import get_all_addresses
 
 import kolibri
+from .django_whitenoise import DjangoWhiteNoise
 from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
@@ -268,19 +268,20 @@ def configure_http_server(port):
     # Mount the application
     from kolibri.deployment.default.wsgi import application
 
-    if not getattr(settings, "DEVELOPER_MODE", False):
-        # Mount static files
-        application = WhiteNoise(
-            application,
-            root=settings.STATIC_ROOT,
-            prefix=settings.STATIC_URL,
-            # Use 1 day as the default cache time for static assets
-            max_age=24 * 60 * 60,
-            # Add a test for any file name that contains a semantic version number
-            # or a 32 digit number (assumed to be a file hash)
-            # these files will be cached indefinitely
-            immutable_file_test=r"((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)|[a-f0-9]{32})",
-        )
+    whitenoise_settings = {
+        "static_root": settings.STATIC_ROOT,
+        "static_prefix": settings.STATIC_URL,
+        # Use 1 day as the default cache time for static assets
+        "max_age": 24 * 60 * 60,
+        # Add a test for any file name that contains a semantic version number
+        # or a 32 digit number (assumed to be a file hash)
+        # these files will be cached indefinitely
+        "immutable_file_test": r"((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)|[a-f0-9]{32})",
+        "autorefresh": getattr(settings, "DEVELOPER_MODE", False),
+    }
+
+    # Mount static files
+    application = DjangoWhiteNoise(application, **whitenoise_settings)
 
     cherrypy.tree.graft(application, "/")
 
@@ -321,11 +322,14 @@ def configure_http_server(port):
         conf.OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
     )
 
+    # Mount static files
+    alt_port_app = DjangoWhiteNoise(get_application(), **whitenoise_settings)
+
     alt_port_server = ServerAdapter(
         cherrypy.engine,
         wsgi.Server(
             alt_port_addr,
-            get_application(),
+            alt_port_app,
             numthreads=conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
             request_queue_size=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
             timeout=conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
