@@ -7,19 +7,17 @@ from wsgiref.util import setup_testing_defaults
 from django.test import override_settings
 from django.test import TestCase
 from django.utils.http import http_date
-from mock import mock_open
 from mock import patch
 
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.zip_wsgi import generate_zip_content_response
 from kolibri.core.content.zip_wsgi import get_hashi_view_response
-from kolibri.core.content.zip_wsgi import hashi_template
 from kolibri.core.content.zip_wsgi import INITIALIZE_HASHI_FROM_IFRAME
 from kolibri.utils.tests.helpers import override_option
 
 
-DUMMY_FILENAME = "hashi123.js"
+DUMMY_FILENAME = "hashi123.html"
 
 hashi_injection = '<script type="text/javascript">{}</script>'.format(
     INITIALIZE_HASHI_FROM_IFRAME
@@ -304,18 +302,16 @@ class ZipContentTestCase(TestCase):
 class HashiViewTestCase(TestCase):
     def setUp(self):
         self.environ = {}
-        self.hashi_js = "test"
         setup_testing_defaults(self.environ)
 
     def _get_hashi(self, **kwargs):
         self.environ["PATH_INFO"] = "/" + DUMMY_FILENAME
         self.environ.update(kwargs)
-        m = mock_open(read_data=self.hashi_js)
-        with patch("kolibri.core.content.zip_wsgi.codecs.open", m), patch(
-            "kolibri.core.content.zip_wsgi.get_hashi_js_filename",
+        with patch(
+            "kolibri.core.content.zip_wsgi.get_hashi_html_filename",
             return_value=DUMMY_FILENAME,
         ), patch(
-            "kolibri.core.content.utils.paths.get_hashi_js_filename",
+            "kolibri.core.content.utils.paths.get_hashi_html_filename",
             return_value=DUMMY_FILENAME,
         ):
             return get_hashi_view_response(self.environ)
@@ -332,15 +328,8 @@ class HashiViewTestCase(TestCase):
         response = self._get_hashi()
         self.assertIsNotNone(response.get("Expires"))
 
-    def test_response_content(self):
-        response = self._get_hashi()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.content.decode(), hashi_template.format(self.hashi_js)
-        )
-
     def test_redirect_if_wrong_filename(self):
-        response = self._get_hashi(PATH_INFO="test")
+        response = self._get_hashi(PATH_INFO="test.html")
         self.assertEqual(response.status_code, 301)
 
     def test_options_returns_empty(self):
