@@ -17,7 +17,9 @@ from kolibri.core.content.zip_wsgi import INITIALIZE_HASHI_FROM_IFRAME
 from kolibri.utils.tests.helpers import override_option
 
 
-DUMMY_FILENAME = "hashi123.html"
+DUMMY_HTML_FILENAME = "hashi123.html"
+
+DUMMY_JS_FILENAME = "hashi123.js"
 
 hashi_injection = '<script type="text/javascript">{}</script>'.format(
     INITIALIZE_HASHI_FROM_IFRAME
@@ -305,14 +307,20 @@ class HashiViewTestCase(TestCase):
         setup_testing_defaults(self.environ)
 
     def _get_hashi(self, **kwargs):
-        self.environ["PATH_INFO"] = "/" + DUMMY_FILENAME
+        self.environ["PATH_INFO"] = "/" + DUMMY_HTML_FILENAME
         self.environ.update(kwargs)
         with patch(
             "kolibri.core.content.zip_wsgi.get_hashi_html_filename",
-            return_value=DUMMY_FILENAME,
+            return_value=DUMMY_HTML_FILENAME,
         ), patch(
             "kolibri.core.content.utils.paths.get_hashi_html_filename",
-            return_value=DUMMY_FILENAME,
+            return_value=DUMMY_HTML_FILENAME,
+        ), patch(
+            "kolibri.core.content.zip_wsgi.get_hashi_js_filename",
+            return_value=DUMMY_JS_FILENAME,
+        ), patch(
+            "kolibri.core.content.utils.paths.get_hashi_js_filename",
+            return_value=DUMMY_JS_FILENAME,
         ):
             return get_hashi_view_response(self.environ)
 
