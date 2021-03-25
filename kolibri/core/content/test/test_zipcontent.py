@@ -312,10 +312,10 @@ class HashiViewTestCase(TestCase):
         self.environ.update(kwargs)
         m = mock_open(read_data=self.hashi_js)
         with patch("kolibri.core.content.zip_wsgi.codecs.open", m), patch(
-            "kolibri.core.content.zip_wsgi.get_hashi_filename",
+            "kolibri.core.content.zip_wsgi.get_hashi_js_filename",
             return_value=DUMMY_FILENAME,
         ), patch(
-            "kolibri.core.content.utils.paths.get_hashi_filename",
+            "kolibri.core.content.utils.paths.get_hashi_js_filename",
             return_value=DUMMY_FILENAME,
         ):
             return get_hashi_view_response(self.environ)

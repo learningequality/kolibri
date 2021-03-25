@@ -322,11 +322,14 @@ def configure_http_server(port):
         conf.OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
     )
 
+    # Mount static files
+    alt_port_app = DjangoWhiteNoise(get_application(), **whitenoise_settings)
+
     alt_port_server = ServerAdapter(
         cherrypy.engine,
         wsgi.Server(
             alt_port_addr,
-            get_application(),
+            alt_port_app,
             numthreads=conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
             request_queue_size=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
             timeout=conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
