@@ -6,6 +6,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from .errors import IncompatibleDeviceSettingError
+from .errors import InvalidMembershipError
 from .models import Classroom
 from .models import Facility
 from .models import FacilityDataset
@@ -65,6 +66,12 @@ class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membership
         fields = ("id", "collection", "user")
+
+    def save(self, **kwargs):
+        try:
+            return super(MembershipSerializer, self).save(**kwargs)
+        except InvalidMembershipError as e:
+            raise serializers.ValidationError(str(e))
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):

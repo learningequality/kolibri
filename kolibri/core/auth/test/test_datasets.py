@@ -51,7 +51,7 @@ class FacilityDatasetTestCase(TestCase):
             facility_user2 = FacilityUser.objects.create(
                 username="blah", password="#", facility=self.facility_2
             )
-            self.learner_group.add_learner(facility_user2)
+            self.classroom.add_member(facility_user2)
 
     def test_cannot_pass_inappropriate_dataset(self):
         with self.assertRaises(IntegrityError):

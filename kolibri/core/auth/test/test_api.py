@@ -1159,3 +1159,11 @@ class GroupMembership(APITestCase):
             url, {"user": self.user.id, "collection": self.classroom2.id}, format="json"
         )
         self.assertEqual(response.status_code, 201)
+
+    def test_create_group_membership_no_class_membership(self):
+        self.classroom1_membership.delete()
+        url = reverse("kolibri:core:membership-list")
+        response = self.client.post(
+            url, {"user": self.user.id, "collection": self.lg11.id}, format="json"
+        )
+        self.assertEqual(response.status_code, 400)

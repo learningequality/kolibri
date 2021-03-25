@@ -111,9 +111,9 @@ def create_dummy_facility_data(
                 facility=facility,
             )
             data["learners_one_group"][i].append(learner)
+            group.get_classroom().add_member(learner)
             group.add_learner(learner)
             group.add_learner(data["learner_all_groups"])
-            group.get_classroom().add_member(learner)
 
     data["unattached_users"] = [
         FacilityUser.objects.create(

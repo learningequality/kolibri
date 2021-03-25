@@ -11,10 +11,12 @@ from django.test import TestCase
 
 from ..constants import collection_kinds
 from ..constants import role_kinds
+from ..errors import InvalidMembershipError
 from ..errors import InvalidRoleKind
 from ..errors import UserDoesNotHaveRoleError
 from ..errors import UserHasRoleOnlyIndirectlyThroughHierarchyError
 from ..errors import UserIsNotMemberError
+from ..models import AdHocGroup
 from ..models import Classroom
 from ..models import Collection
 from ..models import Facility
@@ -64,6 +66,28 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
         )
 
         self.lg.remove_learner(self.learner)
+        self.cr.remove_member(self.learner)
+
+        self.assertFalse(self.learner.is_member_of(self.lg))
+        self.assertFalse(self.learner.is_member_of(self.cr))
+        self.assertTrue(
+            self.learner.is_member_of(self.facility)
+        )  # always a member of one's own facility
+        self.assertEqual(
+            Membership.objects.filter(user=self.learner, collection=self.lg).count(), 0
+        )
+
+        with self.assertRaises(UserIsNotMemberError):
+            self.lg.remove_learner(self.learner)
+
+    def test_remove_learner_from_parent_removes_from_child(self):
+        self.assertTrue(self.learner.is_member_of(self.lg))
+        self.assertTrue(self.learner.is_member_of(self.cr))
+        self.assertTrue(self.learner.is_member_of(self.facility))
+        self.assertEqual(
+            Membership.objects.filter(user=self.learner, collection=self.lg).count(), 1
+        )
+
         self.cr.remove_member(self.learner)
 
         self.assertFalse(self.learner.is_member_of(self.lg))
@@ -265,6 +289,8 @@ class CollectionRelatedObjectTestCase(TestCase):
 
         cls.cr = Classroom.objects.create(parent=cls.facility)
         cls.cr.add_coaches(users[5:8])
+        for u in users[0:5]:
+            cls.cr.add_member(u)
 
         cls.lg = LearnerGroup.objects.create(parent=cls.cr)
         cls.lg.add_learners(users[0:5])
@@ -398,14 +424,42 @@ class CollectionsTestCase(TestCase):
         LearnerGroup.objects.create(parent=classroom)
         self.assertEqual(LearnerGroup.objects.count(), 1)
 
-    def test_learner(self):
+    def test_learner_cannot_be_added_to_learnergroup_if_not_classroom_member(self):
         user = FacilityUser.objects.create(username="foo", facility=self.facility)
         classroom = Classroom.objects.create(parent=self.facility)
+        learner_group = LearnerGroup.objects.create(name="blah", parent=classroom)
+        learner_group.full_clean()
+        with self.assertRaises(InvalidMembershipError):
+            learner_group.add_learner(user)
+
+    def test_learner_can_be_added_to_learnergroup_if_classroom_member(self):
+        user = FacilityUser.objects.create(username="foo", facility=self.facility)
+        classroom = Classroom.objects.create(parent=self.facility)
+        classroom.add_member(user)
         learner_group = LearnerGroup.objects.create(name="blah", parent=classroom)
         learner_group.full_clean()
         learner_group.add_learner(user)
         self.assertEqual(
             Membership.objects.filter(user=user, collection=learner_group).count(), 1
+        )
+
+    def test_learner_cannot_be_added_to_adhocgroup_if_not_classroom_member(self):
+        user = FacilityUser.objects.create(username="foo", facility=self.facility)
+        classroom = Classroom.objects.create(parent=self.facility)
+        adhoc_group = AdHocGroup.objects.create(name="blah", parent=classroom)
+        adhoc_group.full_clean()
+        with self.assertRaises(InvalidMembershipError):
+            adhoc_group.add_learner(user)
+
+    def test_learner_can_be_added_to_adhocgroup_if_classroom_member(self):
+        user = FacilityUser.objects.create(username="foo", facility=self.facility)
+        classroom = Classroom.objects.create(parent=self.facility)
+        classroom.add_member(user)
+        adhoc_group = AdHocGroup.objects.create(name="blah", parent=classroom)
+        adhoc_group.full_clean()
+        adhoc_group.add_learner(user)
+        self.assertEqual(
+            Membership.objects.filter(user=user, collection=adhoc_group).count(), 1
         )
 
     def test_parentless_classroom(self):
@@ -518,6 +572,7 @@ class StringMethodTestCase(TestCase):
 
         cls.cr = Classroom.objects.create(name="Classroom X", parent=cls.facility)
         cls.cr.add_coach(classroom_coach)
+        cls.cr.add_member(learner)
 
         cls.lg = LearnerGroup.objects.create(name="Oodles of Fun", parent=cls.cr)
         cls.lg.add_learner(learner)
@@ -538,7 +593,7 @@ class StringMethodTestCase(TestCase):
 
     def test_membership_str_method(self):
         self.assertEqual(
-            str(self.learner.memberships.all()[0]),
+            str(self.learner.memberships.filter(collection=self.lg)[0]),
             '"foo"@"Arkham"\'s membership in "Oodles of Fun" (learnergroup)',
         )
 

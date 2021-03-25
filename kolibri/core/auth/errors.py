@@ -1,7 +1,8 @@
 from kolibri.core.errors import KolibriError
+from kolibri.core.errors import KolibriValidationError
 
 
-class InvalidRoleKind(KolibriError):
+class InvalidRoleKind(KolibriValidationError):
     pass
 
 
@@ -22,4 +23,8 @@ class UserIsNotMemberError(KolibriError):
 
 
 class IncompatibleDeviceSettingError(KolibriError):
+    pass
+
+
+class InvalidMembershipError(KolibriValidationError):
     pass

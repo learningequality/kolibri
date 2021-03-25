@@ -13,6 +13,7 @@ from ..models import Facility
 from ..models import FacilityUser
 from ..models import KolibriAnonymousUser
 from ..models import LearnerGroup
+from ..models import Membership
 from .helpers import create_dummy_facility_data
 from .helpers import create_superuser
 
@@ -90,22 +91,29 @@ class ExplicitMembershipTestCase(TestCase):
         cls.learner = FacilityUser.objects.create(
             username="learner", facility=cls.facility
         )
+        cls.classroom.add_member(cls.learner)
         cls.group = LearnerGroup.objects.create(name="Group", parent=cls.classroom)
         cls.group.add_member(cls.learner)
 
     def test_has_admin_role_for_learner(self):
         # We do not support classroom admin roles
-        self.assertFalse(self.admin.has_role_for(role_kinds.ADMIN, self.learner))
+        self.assertTrue(self.admin.has_role_for(role_kinds.ADMIN, self.learner))
 
     def test_admin_can_read_learner_object(self):
         # We do not support classroom admin roles
-        self.assertFalse(self.admin.can_read(self.learner))
+        self.assertTrue(self.admin.can_read(self.learner))
 
     def test_learner_is_in_list_of_readable_objects(self):
         # This should not be present as we are no longer supporting classroom membership
         # solely by virtue of being a member of a group in that class.
         self.assertNotIn(
             self.learner, self.admin.filter_readable(FacilityUser.objects.all())
+        )
+
+    def test_learnergroup_membership_gets_deleted(self):
+        self.classroom.remove_member(self.learner)
+        self.assertFalse(
+            Membership.objects.filter(collection=self.group, user=self.learner).exists()
         )
 
 

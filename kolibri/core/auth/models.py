@@ -33,6 +33,7 @@ from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db import transaction
 from django.db.models.query import Q
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
@@ -49,6 +50,7 @@ from .constants import morango_sync
 from .constants import role_kinds
 from .constants import user_kinds
 from .errors import IncompatibleDeviceSettingError
+from .errors import InvalidMembershipError
 from .errors import InvalidRoleKind
 from .errors import UserDoesNotHaveRoleError
 from .errors import UserHasRoleOnlyIndirectlyThroughHierarchyError
@@ -1132,6 +1134,37 @@ class Membership(AbstractFacilityDataModel):
         return "{user}'s membership in {collection}".format(
             user=self.user, collection=self.collection
         )
+
+    def save(self, *args, **kwargs):
+        if self.collection.kind == collection_kinds.FACILITY:
+            raise InvalidMembershipError(
+                "Cannot create membership objects for facilities, as should already be a member by facility attribute"
+            )
+        # Can skip checking that the user facility and the classroom are properly related,
+        # as infer dataset will check they have the same dataset
+        if (
+            self.collection.kind == collection_kinds.LEARNERGROUP
+            or self.collection.kind == collection_kinds.ADHOCLEARNERSGROUP
+        ):
+            if not Membership.objects.filter(
+                collection_id=self.collection.parent_id, user=self.user
+            ).exists():
+                raise InvalidMembershipError(
+                    "Cannot create membership for a user in a LearnerGroup or AdHoGroup when they are not a member of the parent Classrooom"
+                )
+        return super(Membership, self).save(*args, **kwargs)
+
+    def delete(self, **kwargs):
+        with transaction.atomic():
+            # Wrap in a transaction so we don't accidentally wipe out child memberships
+            # when deleting the parent membership fails
+            if self.collection.kind == collection_kinds.CLASSROOM:
+                # If membership is membership of classroom, should also cleanup all
+                # memberships of child entities - Learner Groups and AdHoc Groups.
+                Membership.objects.filter(
+                    user=self.user, collection__in=self.collection.children.all()
+                ).delete()
+            return super(Membership, self).delete(**kwargs)
 
 
 @python_2_unicode_compatible
