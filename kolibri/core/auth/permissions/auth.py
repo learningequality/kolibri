@@ -2,6 +2,7 @@
 The permissions classes in this module define the specific permissions that govern access to the models in the auth app.
 """
 from django.contrib.auth.models import AnonymousUser
+from django.db.models import Q
 
 from ..constants.collection_kinds import ADHOCLEARNERSGROUP
 from ..constants.collection_kinds import FACILITY
@@ -9,6 +10,7 @@ from ..constants.collection_kinds import LEARNERGROUP
 from ..constants.role_kinds import ADMIN
 from ..constants.role_kinds import COACH
 from .base import BasePermissions
+from .base import q_none
 from .base import RoleBasedPermissions
 from .general import DenyAll
 
@@ -55,12 +57,12 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
                 CollectionSpecificRoleBasedPermissions, self
             ).user_can_update_object(user, obj.parent)
 
-    def readable_by_user_filter(self, user, queryset):
+    def readable_by_user_filter(self, user):
         if user.is_anonymous():
-            return queryset.none()
+            return q_none
 
         # By default can read all collections in facility
-        return queryset.filter(dataset_id=user.dataset_id)
+        return Q(dataset_id=user.dataset_id)
 
 
 class AnonUserCanReadFacilities(DenyAll):
@@ -74,10 +76,10 @@ class AnonUserCanReadFacilities(DenyAll):
         else:
             return False
 
-    def readable_by_user_filter(self, user, queryset):
+    def readable_by_user_filter(self, user):
         if isinstance(user, AnonymousUser):
-            return queryset.filter(kind=FACILITY)
-        return queryset.none()
+            return Q(kind=FACILITY)
+        return q_none
 
 
 class FacilityAdminCanEditForOwnFacilityDataset(BasePermissions):
@@ -118,8 +120,8 @@ class FacilityAdminCanEditForOwnFacilityDataset(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return False
 
-    def readable_by_user_filter(self, user, queryset):
-        return queryset.none()
+    def readable_by_user_filter(self, user):
+        return q_none
 
 
 class AllCanReadFacilityDataset(BasePermissions):
@@ -130,8 +132,8 @@ class AllCanReadFacilityDataset(BasePermissions):
     def user_can_read_object(self, user, obj):
         return True
 
-    def readable_by_user_filter(self, user, queryset):
-        return queryset
+    def readable_by_user_filter(self, user):
+        return ~q_none
 
     def user_can_create_object(self, user, obj):
         return False
@@ -162,8 +164,8 @@ class CoachesCanManageGroupsForTheirClasses(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return self._user_is_coach_for_classroom(user, obj)
 
-    def readable_by_user_filter(self, user, queryset):
-        return queryset.none()
+    def readable_by_user_filter(self, user):
+        return q_none
 
 
 class CoachesCanManageMembershipsForTheirGroups(BasePermissions):
@@ -195,8 +197,8 @@ class CoachesCanManageMembershipsForTheirGroups(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return self._user_should_be_able_to_manage(user, obj)
 
-    def readable_by_user_filter(self, user, queryset):
-        return queryset.none()
+    def readable_by_user_filter(self, user):
+        return q_none
 
 
 class MembersCanReadMembershipsOfTheirCollections(BasePermissions):
@@ -212,11 +214,9 @@ class MembersCanReadMembershipsOfTheirCollections(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return False
 
-    def readable_by_user_filter(self, user, queryset):
+    def readable_by_user_filter(self, user):
         if user.is_anonymous():
-            return queryset.none()
+            return q_none
         # Add a special case where users with memberships in the same collection
         # can also read memberships for other members
-        return queryset.filter(
-            collection_id__in=user.memberships.all().values("collection_id")
-        )
+        return Q(collection_id__in=user.memberships.all().values("collection_id"))

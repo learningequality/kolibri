@@ -537,8 +537,8 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
     def filter_readable(self, queryset):
         # check the object permissions, if available, just in case permissions are granted to anon users
         if _has_permissions_class(queryset.model):
-            return queryset.model.permissions.readable_by_user_filter(
-                self, queryset
+            return queryset.filter(
+                queryset.model.permissions.readable_by_user_filter(self)
             ).distinct()
         else:
             return queryset.none()
@@ -851,8 +851,8 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         if self.is_superuser:
             return queryset
         if _has_permissions_class(queryset.model):
-            return queryset.model.permissions.readable_by_user_filter(
-                self, queryset
+            return queryset.filter(
+                queryset.model.permissions.readable_by_user_filter(self)
             ).distinct()
         else:
             return queryset.none()

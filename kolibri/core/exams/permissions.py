@@ -1,6 +1,7 @@
 from django.db.models import Q
 
 from kolibri.core.auth.models import AnonymousUser
+from kolibri.core.auth.permissions.base import q_none
 from kolibri.core.auth.permissions.general import DenyAll
 
 
@@ -16,12 +17,12 @@ class UserCanReadExamAssignmentData(DenyAll):
             obj.exam.active or ExamLog.objects.filter(exam=obj.exam, user=user).exists()
         )
 
-    def readable_by_user_filter(self, user, queryset):
+    def readable_by_user_filter(self, user):
         if isinstance(user, AnonymousUser):
-            return queryset.none()
-        return queryset.filter(
-            collection_id__in=user.memberships.all().values("collection_id")
-        ).filter(Q(exam__active=True) | Q(exam__examlogs__user=user))
+            return q_none
+        return Q(collection_id__in=user.memberships.all().values("collection_id")) & Q(
+            Q(exam__active=True) | Q(exam__examlogs__user=user)
+        )
 
 
 class UserCanReadExamData(DenyAll):
@@ -38,14 +39,14 @@ class UserCanReadExamData(DenyAll):
             obj.active or ExamLog.objects.filter(exam=obj, user=user).exists()
         )
 
-    def readable_by_user_filter(self, user, queryset):
+    def readable_by_user_filter(self, user):
         if isinstance(user, AnonymousUser):
-            return queryset.none()
+            return q_none
         from kolibri.core.exams.models import ExamAssignment
 
         assignments = ExamAssignment.objects.filter(
             collection_id__in=user.memberships.all().values("collection_id")
         )
-        return queryset.filter(assignments__in=assignments).filter(
+        return Q(assignments__in=assignments) & Q(
             Q(active=True) | Q(examlogs__user=user)
         )
