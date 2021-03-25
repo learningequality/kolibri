@@ -56,6 +56,7 @@
               <td v-show="!$isPrint">
                 <KSwitch
                   name="toggle-lesson-visibility"
+                  label=""
                   :checked="tableRow.active"
                   :value="tableRow.active"
                   @change="handleToggleVisibility(tableRow)"

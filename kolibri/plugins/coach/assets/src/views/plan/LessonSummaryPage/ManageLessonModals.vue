@@ -49,7 +49,7 @@
         type: String,
         required: true,
         validator: function(value) {
-          return ['COPY', 'DELETE'].includes(value.toUpperCase());
+          return ['', 'COPY', 'DELETE'].includes(value.toUpperCase());
         },
       },
     },

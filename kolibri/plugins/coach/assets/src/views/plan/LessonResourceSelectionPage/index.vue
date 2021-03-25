@@ -119,6 +119,7 @@
         },
         isExiting: false,
         moreResultsState: null,
+        resourcesChanged: false,
       };
     },
     computed: {
@@ -218,7 +219,9 @@
       exitButtonRoute() {
         const lastId = this.$route.query.last_id;
         if (this.inSearchMode && lastId) {
-          return this.topicListingLink({ ...this.routerParams, topicId: lastId });
+          const queryCopy = { ...this.$route.query };
+          delete queryCopy.last_id;
+          return this.$router.getRoute(LessonsPageNames.SELECTION, { topicId: lastId }, queryCopy);
         } else if (this.inSearchMode) {
           return this.selectionRootLink({ ...this.routerParams });
         } else if (this.$route.query.last === 'ReportsLessonReportPage') {
@@ -254,29 +257,38 @@
     beforeRouteLeave(to, from, next) {
       // Block the UI and show a notification in case last save takes too long
       this.isExiting = true;
-      const isSamePage = samePageCheckGenerator(this.$store);
-      setTimeout(() => {
-        if (isSamePage()) {
-          this.createSnackbar(this.$tr('saveBeforeExitSnackbarText'));
-        }
-      }, 500);
 
-      // Cancel any debounced calls
-      this.debouncedSaveResources.cancel();
-      this.saveLessonResources({
-        lessonId: this.lessonId,
-        resources: [...this.workingResources],
-      })
-        .then(() => {
-          this.clearSnackbar();
-          this.isExiting = false;
-          next();
+      // If the working resources array hasn't changed at least once,
+      // just exit without autosaving
+      if (!this.resourcesChanged) {
+        next();
+        this.isExiting = false;
+      } else {
+        this.resourcesChanged = true;
+        const isSamePage = samePageCheckGenerator(this.$store);
+        setTimeout(() => {
+          if (isSamePage()) {
+            this.createSnackbar(this.$tr('saveBeforeExitSnackbarText'));
+          }
+        }, 500);
+
+        // Cancel any debounced calls
+        this.debouncedSaveResources.cancel();
+        this.saveLessonResources({
+          lessonId: this.lessonId,
+          resources: [...this.workingResources],
         })
-        .catch(() => {
-          this.showResourcesChangedError();
-          this.isExiting = false;
-          next(false);
-        });
+          .then(() => {
+            this.clearSnackbar();
+            this.isExiting = false;
+            next();
+          })
+          .catch(() => {
+            this.showResourcesChangedError();
+            this.isExiting = false;
+            next(false);
+          });
+      }
     },
     methods: {
       ...mapActions(['createSnackbar', 'clearSnackbar']),
@@ -290,6 +302,7 @@
         if (difference === 0) {
           return;
         }
+        this.resourcesChanged = true;
         if (difference > 0) {
           this.showSnackbarNotification('resourcesAddedWithCount', { count: difference });
         } else {
@@ -409,9 +422,8 @@
       },
     },
     $trs: {
-      // TODO: Handle singular/plural
       selectionInformation:
-        '{count, number, integer} of {total, number, integer} resources selected',
+        '{count, number, integer} of {total, number, integer} {total, plural, one {resource} other {resources}} selected',
       totalResourcesSelected:
         '{total, number, integer} {total, plural, one {resource} other {resources}} in this lesson',
       documentTitle: `Manage resources in '{lessonName}'`,

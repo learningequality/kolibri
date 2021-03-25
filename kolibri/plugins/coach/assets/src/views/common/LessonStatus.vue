@@ -20,6 +20,7 @@
         <KGridItem :layout12="{ span: 4 }">
           <KSwitch
             name="toggle-lesson-visibility"
+            label=""
             :checked="lesson[activeKey]"
             :value="lesson[activeKey]"
             @change="handleToggleVisibility"

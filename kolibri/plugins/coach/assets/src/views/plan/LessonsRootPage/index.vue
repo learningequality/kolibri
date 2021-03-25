@@ -66,6 +66,7 @@
               <td>
                 <KSwitch
                   name="toggle-lesson-visibility"
+                  label=""
                   :checked="lesson.is_active"
                   :value="lesson.is_active"
                   @change="handleToggleVisibility(lesson)"
