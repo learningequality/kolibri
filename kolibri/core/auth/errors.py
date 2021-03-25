@@ -28,3 +28,7 @@ class IncompatibleDeviceSettingError(KolibriError):
 
 class InvalidMembershipError(KolibriValidationError):
     pass
+
+
+class InvalidCollectionHierarchy(KolibriValidationError):
+    pass

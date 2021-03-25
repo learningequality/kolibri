@@ -50,6 +50,7 @@ from .constants import morango_sync
 from .constants import role_kinds
 from .constants import user_kinds
 from .errors import IncompatibleDeviceSettingError
+from .errors import InvalidCollectionHierarchy
 from .errors import InvalidMembershipError
 from .errors import InvalidRoleKind
 from .errors import UserDoesNotHaveRoleError
@@ -1336,6 +1337,12 @@ class Classroom(Collection):
             raise IntegrityError(
                 "Classroom cannot be the root of a collection tree, and must have a parent."
             )
+
+        if not self.parent.kind == collection_kinds.FACILITY:
+            raise InvalidCollectionHierarchy(
+                "Classroom must be the child of a Facility"
+            )
+
         super(Classroom, self).save(*args, **kwargs)
 
     def get_facility(self):
@@ -1401,6 +1408,10 @@ class LearnerGroup(Collection):
             raise IntegrityError(
                 "LearnerGroup cannot be the root of a collection tree, and must have a parent."
             )
+        if not self.parent.kind == collection_kinds.CLASSROOM:
+            raise InvalidCollectionHierarchy(
+                "LearnerGroup must be the child of a Classroom"
+            )
         super(LearnerGroup, self).save(*args, **kwargs)
 
     def get_classroom(self):
@@ -1444,6 +1455,10 @@ class AdHocGroup(Collection):
         if not self.parent:
             raise IntegrityError(
                 "AdHocGroup cannot be the root of a collection tree, and must have a parent."
+            )
+        if not self.parent.kind == collection_kinds.CLASSROOM:
+            raise InvalidCollectionHierarchy(
+                "AdHocGroup must be the child of a Classroom"
             )
         super(AdHocGroup, self).save(*args, **kwargs)
 

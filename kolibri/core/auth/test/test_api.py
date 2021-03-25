@@ -163,6 +163,18 @@ class LearnerGroupAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data[0]["id"], error_constants.UNIQUE)
 
+    def test_cannot_create_learnergroup_no_classroom_parent(self):
+        classroom_id = self.classrooms[0].id
+        learner_group_id = (
+            models.LearnerGroup.objects.filter(parent_id=classroom_id).first().id
+        )
+        response = self.client.post(
+            reverse("kolibri:core:learnergroup-list"),
+            {"parent": learner_group_id, "name": "some name"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class ClassroomAPITestCase(APITestCase):
     @classmethod
@@ -285,6 +297,15 @@ class ClassroomAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data[0]["id"], error_constants.UNIQUE)
+
+    def test_cannot_create_classroom_no_facility_parent(self):
+        classroom_id = self.classrooms[0].id
+        response = self.client.post(
+            reverse("kolibri:core:classroom-list"),
+            {"parent": classroom_id, "name": "another name"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class FacilityAPITestCase(APITestCase):

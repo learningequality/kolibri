@@ -6,6 +6,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from .errors import IncompatibleDeviceSettingError
+from .errors import InvalidCollectionHierarchy
 from .errors import InvalidMembershipError
 from .models import Classroom
 from .models import Facility
@@ -124,6 +125,12 @@ class ClassroomSerializer(serializers.ModelSerializer):
             )
         ]
 
+    def save(self, **kwargs):
+        try:
+            return super(ClassroomSerializer, self).save(**kwargs)
+        except InvalidCollectionHierarchy as e:
+            raise serializers.ValidationError(str(e))
+
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -135,3 +142,9 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
                 queryset=LearnerGroup.objects.all(), fields=("parent", "name")
             )
         ]
+
+    def save(self, **kwargs):
+        try:
+            return super(LearnerGroupSerializer, self).save(**kwargs)
+        except InvalidCollectionHierarchy as e:
+            raise serializers.ValidationError(str(e))

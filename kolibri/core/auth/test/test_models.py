@@ -11,6 +11,7 @@ from django.test import TestCase
 
 from ..constants import collection_kinds
 from ..constants import role_kinds
+from ..errors import InvalidCollectionHierarchy
 from ..errors import InvalidMembershipError
 from ..errors import InvalidRoleKind
 from ..errors import UserDoesNotHaveRoleError
@@ -645,3 +646,42 @@ class FacilityUserTestCase(TestCase):
         user = FacilityUser.deserialize(dict(username="bob", password=""))
         self.assertEqual("bob", user.username)
         self.assertEqual("NOT_SPECIFIED", user.password)
+
+
+class CollectionHierarchyTestCase(TestCase):
+    def test_facility_with_parent(self):
+        facility = Facility.objects.create()
+        with self.assertRaises(IntegrityError):
+            Facility.objects.create(parent=facility)
+
+    def test_classroom_no_parent(self):
+        with self.assertRaises(IntegrityError):
+            Classroom.objects.create()
+
+    def test_classroom_no_facility_parent(self):
+        facility = Facility.objects.create()
+        clsroom = Classroom.objects.create(parent=facility)
+        with self.assertRaises(InvalidCollectionHierarchy):
+            Classroom.objects.create(parent=clsroom)
+
+    def test_learnergroup_no_parent(self):
+        with self.assertRaises(IntegrityError):
+            LearnerGroup.objects.create()
+
+    def test_learnergroup_no_facility_parent(self):
+        facility = Facility.objects.create()
+        clsroom = Classroom.objects.create(parent=facility)
+        lgroup = LearnerGroup.objects.create(parent=clsroom)
+        with self.assertRaises(InvalidCollectionHierarchy):
+            LearnerGroup.objects.create(parent=lgroup)
+
+    def test_adhocgroup_no_parent(self):
+        with self.assertRaises(IntegrityError):
+            AdHocGroup.objects.create()
+
+    def test_adhocgroup_no_facility_parent(self):
+        facility = Facility.objects.create()
+        clsroom = Classroom.objects.create(parent=facility)
+        adhocgroup = AdHocGroup.objects.create(parent=clsroom)
+        with self.assertRaises(InvalidCollectionHierarchy):
+            AdHocGroup.objects.create(parent=adhocgroup)
