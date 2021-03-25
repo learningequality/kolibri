@@ -75,12 +75,25 @@
       },
     },
     methods: {
+      titleIsShaved() {
+        return Boolean(this.$el.querySelector('.js-shave'));
+      },
+      titleIsOverflowing() {
+        // This checks to see if shave.js did not work, but the text is still
+        // overflowing. This can happen if `text` prop is one long string.
+        const $shaveEl = this.$refs.shaveEl;
+        if (!$shaveEl) {
+          return false;
+        } else {
+          return $shaveEl.clientWidth < $shaveEl.scrollWidth;
+        }
+      },
       handleUpdate() {
         // TODO make "View Less" disappear when user expands window
         // and text isn't truncated any more.
         shave(this.$refs.shaveEl, this.maxHeight, { spaces: false });
         this.$nextTick(() => {
-          this.textIsTruncated = Boolean(this.$el.querySelector('.js-shave'));
+          this.textIsTruncated = this.titleIsShaved() || this.titleIsOverflowing();
           // set title attribute for shaved text but
           // skip if a title already exists
           if (this.textIsTruncated && !this.$refs.shaveEl.title)
