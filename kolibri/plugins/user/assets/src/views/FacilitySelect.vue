@@ -106,10 +106,14 @@
     },
     methods: {
       setFacility(facilityId) {
+        let whereToNext = { ...this.whereToNext };
+        if (this.$route.query.next) {
+          whereToNext.query.next = this.$route.query.next;
+        }
         // Save the selected facility, get its config, then move along to next route
         this.$store.dispatch('setFacilityId', { facilityId }).then(() => {
           this.$store.dispatch('getFacilityConfig', facilityId).then(() => {
-            this.$router.push(this.whereToNext);
+            this.$router.push(whereToNext);
           });
         });
       },

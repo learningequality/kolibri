@@ -52,9 +52,14 @@ export default [
         if (store.getters.facilities.length > 1 && !store.state.facilityId) {
           // Go to FacilitySelect with whereToNext => SignUpPage
           const whereToNext = router.getRoute(ComponentMap.SIGN_IN);
+          let query = {};
+          if (to.query.next) {
+            query = { next: to.query.next };
+          }
           const route = {
             ...router.getRoute(ComponentMap.FACILITY_SELECT),
             params: { whereToNext },
+            query: query,
           };
           next(route);
         } else {
