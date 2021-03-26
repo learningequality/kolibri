@@ -211,7 +211,11 @@
       backToFacilitySelectionRoute() {
         const facilityRoute = this.$router.getRoute(ComponentMap.FACILITY_SELECT);
         const whereToNext = this.$router.getRoute(ComponentMap.SIGN_IN);
-        return { ...facilityRoute, params: { whereToNext } };
+        let query = {};
+        if (this.nextParam) {
+          query = { next: this.nextParam };
+        }
+        return { ...facilityRoute, params: { whereToNext }, query };
       },
       showPasswordForm() {
         return (
