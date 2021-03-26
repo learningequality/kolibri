@@ -58,112 +58,14 @@ Efficient hierarchy calculations
 In order to make decisions about whether a user has a certain permission for
 an object, we need an efficient way to retrieve the set of roles the user has
 in relation to that object. This involves traversing the Role table,
-Collection hierarchy, and possibly the Membership table, but we can delegate
-most of the work to the database engine (and leverage efficient hierarchy
-lookups afforded by MPTT). The following algorithms and explanations will
-refer to the naming in the following diagram:
+Collection hierarchy, and possibly the Membership table. Because we require
+explicit representation of membership at any level in the hierarchy, we can rely
+solely on the transitivity of role permissions in order to determine the role that
+a user has with respect to some data.
 
 .. image:: ./img/uap_role_membership_queries.svg
 .. Source: https://docs.google.com/drawings/d/1QPQoUGxm5u4WFhcg97IY5sqe7NjxXXKremmwfe4jYtc/edit
 
-In pseudocode, the query for "What Roles does Source User have in relation to
-Target User?" would be implemented in the following way::
-
-    Fetch all Roles with:
-        User: Source User
-        Collection: Ancestor Collection
-    For which there is a Membership with:
-        User: Target User
-        Collection: Descendant Collection
-    And where:
-        Ancestor Collection is an ancestor of (or equal to) Descendant Collection
-
-At the database level, this can be written in the following way, as a single
-multi-table SQL query::
-
-    SELECT DISTINCT
-        source_role.kind
-    FROM
-        collection_table AS ancestor_coll,
-        collection_table AS descendant_coll,
-        role_table,
-        membership_table
-    WHERE
-        role_table.user_id = {source_user_id} AND
-        role_table.collection_id = ancestor_coll.id AND
-        membership_table.user_id = {target_user_id}
-        membership_table.collection_id = descendant_coll.id AND
-        descendant_coll.lft BETWEEN ancestor_coll.lft AND ancestor_coll.rght AND
-        descendant_coll.tree_id = ancestor_coll.tree_id;
-
-Similarly, performing a queryset filter like "give me all ``ContentLogs``
-associated with ``FacilityUsers`` for which Source User has an admin role" can
-be written as::
-
-    SELECT
-        contentlog_table.*
-    FROM
-        contentlog_table
-    WHERE EXISTS
-        (SELECT
-             *
-         FROM
-             collection_table AS ancestor_coll,
-             collection_table AS descendant_coll,
-             role_table,
-             membership_table
-         WHERE
-             role_table.user_id = {source_user_id} AND
-             role_table.collection_id = ancestor_coll.id AND
-             membership_table.user_id = contentlog_table.user_id
-             membership_table.collection_id = descendant_coll.id AND
-             descendant_coll.lft BETWEEN ancestor_coll.lft AND ancestor_coll.rght AND
-             descendant_coll.tree_id = ancestor_coll.tree_id
-        )
-
-Note the ``membership_table.user_id = contentlog_table.user_id`` condition,
-which links the role-membership-collection hierarchy subquery into the main
-query. We refer to this condition as the "anchor".
-
-To facilitate making queries that leverage the role-membership-collection
-hierarchy, without needing to write custom SQL each time, we have implemented
-a ``HierarchyRelationsFilter`` helper class. The class is instantiated by
-passing in a queryset, and then exposes a ``filter_by_hierarchy`` method that
-allows various parts of the role-membership-collection hierarchy to be
-constrained, and anchored back into the queryset's main table. It then returns
-a filtered queryset (with appropriate conditions applied) upon which further
-filters or other queryset operations can be applied.
-
-The signature for ``filter_by_hierarchy`` is::
-
-    def filter_by_hierarchy(self,
-                            source_user=None,
-                            role_kind=None,
-                            ancestor_collection=None,
-                            descendant_collection=None,
-                            target_user=None):
-
-With the exception of ``role_kind`` (which is either a string or list of
-strings, of role kinds), these parameters accept either:
-
-- A model instance (either a ``FacilityUser`` or a ``Collection`` subclass,
-  as appropriate) or its ID
-- An `F expression`_ that anchors some part of the hierarchy back into the
-  base queryset model (the simplest usage is just to put the name of a field
-  from the base model in the ``F`` function, but you can also indirectly reference
-  fields of related models, e.g. ``F("collection__parent")``)
-
-.. _F expression: https://docs.djangoproject.com/en/1.11/ref/models/expressions/#f-expressions
-
-For example, the ``ContentLog`` query described above ("give me all
-``ContentLogs`` associated with ``FacilityUsers`` for which Source User has an
-admin role") can be implemented as::
-
-    contentlogs = HierarchyRelationsFilter(ContentLog.objects.all()).filter_by_hierarchy(
-        source_user=my_source_user,  # specify the specific user to be the source user
-        role_kind=role_kinds.ADMIN,  # make sure the Role is an admin role
-        target_user=F("user"),  # anchor the target user to the "user" field of the ContentLog model
-    )
 
 Managing Roles and Memberships
 ------------------------------
@@ -178,8 +80,7 @@ modifying roles and memberships:
   additional convenience methods, such as ``add_admin``, that exist on the
   proxy models).
 - To check whether a user is a member of a ``Collection``, use
-  ``KolibriAbstractBaseUser.is_member_of`` (for ``DeviceOwner``, this always
-  returns ``False``)
+  ``KolibriAbstractBaseUser.is_member_of``
 - To check whether a user has a particular kind of role for a collection or
   another user, use the ``has_role_for_collection`` and ``has_role_for_user``
   methods of ``KolibriAbstractBaseUser``.
@@ -210,8 +111,8 @@ the following overridable methods:
   - ``user_can_update_object``
   - ``user_can_delete_object``
 - The queryset-filtering ``readable_by_user_filter`` method, which takes in a
-  queryset and returns a queryset filtered down to just objects that should be
-  readable by the user.
+  user and returns a Django Q object that can be used to filter to just
+  objects that should be readable by the user.
 
 Associating permissions with models
 -----------------------------------
