@@ -27,16 +27,15 @@
           <transition-group tag="tbody" name="list">
             <tr v-for="tableRow in table" :key="tableRow.id">
               <td>
-                <KLabeledIcon icon="person">
-                  <KRouterLink
-                    v-if="tableRow.statusObj.status !== STATUSES.notStarted"
-                    :text="tableRow.name"
-                    :to="detailLink(tableRow.id)"
-                  />
-                  <template v-else>
-                    {{ tableRow.name }}
-                  </template>
-                </KLabeledIcon>
+                <KRouterLink
+                  v-if="tableRow.statusObj.status !== STATUSES.notStarted"
+                  :text="tableRow.name"
+                  :to="detailLink(tableRow.id)"
+                  icon="person"
+                />
+                <template v-else>
+                  {{ tableRow.name }}
+                </template>
               </td>
               <td>
                 <StatusSimple :status="tableRow.statusObj.status" />

@@ -53,12 +53,11 @@
             :key="classroom.id"
           >
             <td>
-              <KLabeledIcon icon="classes">
-                <KRouterLink
-                  :text="classroom.name"
-                  :to="classEditLink(classroom.id)"
-                />
-              </KLabeledIcon>
+              <KRouterLink
+                :text="classroom.name"
+                :to="classEditLink(classroom.id)"
+                icon="classes"
+              />
             </td>
             <td>
               <span :ref="`coachNames${classroom.id}`">

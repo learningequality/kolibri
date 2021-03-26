@@ -11,12 +11,11 @@
         <tbody>
           <tr v-for="facility in facilities" :key="facility.id">
             <td>
-              <KLabeledIcon icon="facility">
-                <KRouterLink
-                  :text="facility.name"
-                  :to="facilityLink(facility)"
-                />
-              </KLabeledIcon>
+              <KRouterLink
+                :text="facility.name"
+                :to="facilityLink(facility)"
+                icon="facility"
+              />
             </td>
             <td>
               {{ $formatNumber(facility.num_classrooms) }}
