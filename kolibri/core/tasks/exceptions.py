@@ -11,3 +11,7 @@ class UserCancelledError(CancelledError):
 
 class JobNotFound(Exception):
     pass
+
+
+class JobNotRestartable(Exception):
+    pass

@@ -118,6 +118,26 @@ class TaskAPITestCase(BaseAPITestCase):
             for i in [4, 5, 6]:
                 assert_clearable(i, True)
 
+    def test_restart_task(self, queue_mock):
+        queue_mock.restart_job.return_value = 2
+        queue_mock.fetch_job.return_value = fake_job(state=State.QUEUED, job_id=2)
+
+        response = self.client.post(
+            reverse("kolibri:core:task-restarttask"), {"task_id": "1"}, format="json"
+        )
+
+        expected_response = {
+            "status": "QUEUED",
+            "exception": "",
+            "traceback": "",
+            "percentage": 0,
+            "id": 2,
+            "cancellable": False,
+            "clearable": False,
+        }
+
+        self.assertDictEqual(response.data, expected_response)
+
 
 class TaskAPIPermissionsTestCase(APITestCase):
     def setUp(self):
