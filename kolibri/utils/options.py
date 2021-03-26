@@ -45,7 +45,16 @@ DATA_PORTAL_SYNCING_BASE_URL
 HTTP_PORT
 RUN_MODE
 URL_PATH_PREFIX
+    Serve Kolibri from a subpath under the main domain. Used when serving multiple applications from
+    the same origin. This option is not heavily tested, but is provided for user convenience.
 LANGUAGES
+ZIP_CONTENT_URL_PATH_PREFIX
+    The zip content equivalent of URL_PATH_PREFIX - allows all zip content URLs to be prefixed with
+    a fixed path. This both changes the URL from which the endpoints are served by the alternate
+    origin server, and the URL prefix where the Kolibri frontend looks for it.
+    In the case that ZIP_CONTENT_ORIGIN is pointing to an entirely separate origin, this setting
+    can still be used to set a URL prefix that the frontend of Kolibri will look to when
+    retrieving alternate origin URLs.
 ZIP_CONTENT_ORIGIN
     When running in default operation, this will default to blank, and the Kolibri
     frontend will look for the zipcontent endpoints on the same domain as Kolibri proper
@@ -224,7 +233,7 @@ def origin_or_port(value):
             url = urlparse(value)
             if not url.scheme or not url.netloc:
                 raise VdtValueError(value)
-            value = urlunparse((url.scheme, url.netloc, url.path, "", "", ""))
+            value = urlunparse((url.scheme, url.netloc, "", "", "", ""))
     return value
 
 
@@ -408,8 +417,14 @@ base_option_spec = {
         },
         "ZIP_CONTENT_PORT": {
             "type": "port",
-            "default": 8888,
+            "default": 8765,
             "envvars": ("KOLIBRI_ZIP_CONTENT_PORT",),
+        },
+        "ZIP_CONTENT_URL_PATH_PREFIX": {
+            "type": "string",
+            "default": "/",
+            "envvars": ("KOLIBRI_ZIP_CONTENT_URL_PATH_PREFIX",),
+            "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
         },
     },
     "Python": {
