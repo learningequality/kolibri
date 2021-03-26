@@ -83,12 +83,6 @@ def create_dummy_facility_data(
     data["facility_coach"] = FacilityUser.objects.create(
         username="faccoach", password="***", facility=facility
     )
-    data["classroom_admins"] = [
-        FacilityUser.objects.create(
-            username="classadmin%d" % i, password="***", facility=facility
-        )
-        for i, classroom in enumerate(data["classrooms"])
-    ]
     data["classroom_coaches"] = [
         FacilityUser.objects.create(
             username="classcoach%d" % i, password="***", facility=facility
@@ -130,10 +124,7 @@ def create_dummy_facility_data(
     # create Roles linking users with Collections
     facility.add_admin(data["facility_admin"])
     facility.add_coach(data["facility_coach"])
-    for classroom, admin, coach in zip(
-        data["classrooms"], data["classroom_admins"], data["classroom_coaches"]
-    ):
-        classroom.add_admin(admin)
+    for classroom, coach in zip(data["classrooms"], data["classroom_coaches"]):
         classroom.add_coach(coach)
         facility.add_role(coach, role_kinds.ASSIGNABLE_COACH)
 

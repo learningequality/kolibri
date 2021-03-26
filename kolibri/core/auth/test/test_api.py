@@ -248,7 +248,15 @@ class ClassroomAPITestCase(APITestCase):
                     "is_superuser": True,
                     "full_name": self.superuser.full_name,
                     "username": self.superuser.username,
-                    "roles": [],
+                    "roles": [
+                        {
+                            "collection": self.facility.id,
+                            "kind": role_kinds.ASSIGNABLE_COACH,
+                            "id": self.superuser.roles.get(
+                                collection=self.facility.id
+                            ).id,
+                        }
+                    ],
                 }
             ],
         }

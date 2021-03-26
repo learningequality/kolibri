@@ -54,7 +54,6 @@ from .errors import InvalidCollectionHierarchy
 from .errors import InvalidMembershipError
 from .errors import InvalidRoleKind
 from .errors import UserDoesNotHaveRoleError
-from .errors import UserHasRoleOnlyIndirectlyThroughHierarchyError
 from .errors import UserIsNotFacilityUser
 from .errors import UserIsNotMemberError
 from .permissions.auth import AllCanReadFacilityDataset
@@ -1003,21 +1002,15 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
             raise UserIsNotFacilityUser("You can only remove roles for FacilityUsers.")
 
         # make sure the user has the role to begin with
-        if not user.has_role_for_collection(role_kind, self):
+        try:
+            role = Role.objects.get(user=user, collection=self, kind=role_kind)
+        except Role.DoesNotExist:
             raise UserDoesNotHaveRoleError(
                 "User does not have this role for this collection."
             )
 
         # delete the appropriate role, if it exists
-        results = Role.objects.filter(
-            user=user, collection=self, kind=role_kind
-        ).delete()
-
-        # if no Roles were deleted, the user's role must have been indirect (via the collection hierarchy)
-        if results[0] == 0:
-            raise UserHasRoleOnlyIndirectlyThroughHierarchyError(
-                "Role cannot be removed, as user has it only indirectly, through the collection hierarchy."
-            )
+        role.delete()
 
     def add_member(self, user):
         """
@@ -1229,6 +1222,48 @@ class Role(AbstractFacilityDataModel):
         return "{user}'s {kind} role for {collection}".format(
             user=self.user, kind=self.kind, collection=self.collection
         )
+
+    def save(self, *args, **kwargs):
+        if (
+            self.collection.kind == collection_kinds.LEARNERGROUP
+            or self.collection.kind == collection_kinds.ADHOCLEARNERSGROUP
+        ):
+            # We do not currently support roles at the learner group or ad hoc group level
+            raise InvalidRoleKind(
+                "Cannot assign roles to Learner Groups or AdHoc Groups"
+            )
+        with transaction.atomic():
+            if self.collection.kind == collection_kinds.CLASSROOM:
+                # We only support coaches to be assigned at the classroom level currently
+                if self.kind != role_kinds.COACH:
+                    raise InvalidRoleKind("Can only assign Coach roles to Classrooms")
+                if not Role.objects.filter(
+                    user=self.user, collection_id=self.collection.parent_id
+                ).exists():
+                    # If the user doesn't already have a facility role, then create the assignable coach role for the user
+                    # at the facility level.
+                    Role.objects.create(
+                        user=self.user,
+                        collection_id=self.collection.parent_id,
+                        kind=role_kinds.ASSIGNABLE_COACH,
+                    )
+            return super(Role, self).save(*args, **kwargs)
+
+    def delete(self, **kwargs):
+        with transaction.atomic():
+            # Wrap in a transaction so we don't accidentally wipe out role assignments
+            # when the base delete fails.
+            if (
+                self.collection.kind == collection_kinds.FACILITY
+                and self.kind == role_kinds.ASSIGNABLE_COACH
+            ):
+                # If deleting the ASSIGNABLE_COACH role, also delete any classroom coach roles
+                Role.objects.filter(
+                    user=self.user,
+                    collection__in=self.collection.children.all(),
+                    kind=role_kinds.COACH,
+                ).delete()
+            return super(Role, self).delete(**kwargs)
 
 
 class CollectionProxyManager(MorangoMPTTTreeManager):

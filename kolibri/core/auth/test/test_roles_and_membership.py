@@ -86,7 +86,7 @@ class ExplicitMembershipTestCase(TestCase):
 
         cls.admin = FacilityUser.objects.create(username="admin", facility=cls.facility)
         cls.classroom = Classroom.objects.create(name="Class", parent=cls.facility)
-        cls.classroom.add_admin(cls.admin)
+        cls.facility.add_admin(cls.admin)
 
         cls.learner = FacilityUser.objects.create(
             username="learner", facility=cls.facility
@@ -104,9 +104,7 @@ class ExplicitMembershipTestCase(TestCase):
         self.assertTrue(self.admin.can_read(self.learner))
 
     def test_learner_is_in_list_of_readable_objects(self):
-        # This should not be present as we are no longer supporting classroom membership
-        # solely by virtue of being a member of a group in that class.
-        self.assertNotIn(
+        self.assertIn(
             self.learner, self.admin.filter_readable(FacilityUser.objects.all())
         )
 
@@ -130,7 +128,6 @@ class MembershipWithinFacilityTestCase(TestCase):
             + self.data["unattached_users"]
             + [self.data["facility_admin"]]
             + [self.data["facility_coach"]]
-            + self.data["classroom_admins"]
             + self.data["classroom_coaches"]
             + [self.data["superuser"]]
         )

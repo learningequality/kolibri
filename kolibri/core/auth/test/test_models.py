@@ -15,7 +15,6 @@ from ..errors import InvalidCollectionHierarchy
 from ..errors import InvalidMembershipError
 from ..errors import InvalidRoleKind
 from ..errors import UserDoesNotHaveRoleError
-from ..errors import UserHasRoleOnlyIndirectlyThroughHierarchyError
 from ..errors import UserIsNotMemberError
 from ..models import AdHocGroup
 from ..models import Classroom
@@ -231,7 +230,7 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
 
     def test_remove_indirect_admin_role(self):
         """ Trying to remove the admin role for a a Facility admin from a descendant classroom doesn't actually remove anything. """
-        with self.assertRaises(UserHasRoleOnlyIndirectlyThroughHierarchyError):
+        with self.assertRaises(UserDoesNotHaveRoleError):
             self.cr.remove_admin(self.facility_admin)
 
     def test_delete_learner_group(self):
@@ -254,7 +253,7 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
 
     def test_delete_facility_pt1(self):
         """ Deleting a Facility should delete associated Roles as well """
-        self.assertEqual(Role.objects.filter(collection=self.facility.id).count(), 1)
+        self.assertEqual(Role.objects.filter(collection=self.facility.id).count(), 2)
         self.facility.delete()
         self.assertEqual(Role.objects.filter(collection=self.facility.id).count(), 0)
 
@@ -318,28 +317,14 @@ class CollectionsTestCase(TestCase):
 
     def test_add_and_remove_admin(self):
         user = FacilityUser.objects.create(username="foo", facility=self.facility)
-        self.classroom.add_admin(user)
         self.facility.add_admin(user)
-        self.assertEqual(
-            Role.objects.filter(
-                user=user, kind=role_kinds.ADMIN, collection=self.classroom
-            ).count(),
-            1,
-        )
         self.assertEqual(
             Role.objects.filter(
                 user=user, kind=role_kinds.ADMIN, collection=self.facility
             ).count(),
             1,
         )
-        self.classroom.remove_admin(user)
         self.facility.remove_admin(user)
-        self.assertEqual(
-            Role.objects.filter(
-                user=user, kind=role_kinds.ADMIN, collection=self.classroom
-            ).count(),
-            0,
-        )
         self.assertEqual(
             Role.objects.filter(
                 user=user, kind=role_kinds.ADMIN, collection=self.facility
@@ -363,6 +348,12 @@ class CollectionsTestCase(TestCase):
             ).count(),
             1,
         )
+        self.assertEqual(
+            Role.objects.filter(
+                user=user, kind=role_kinds.ASSIGNABLE_COACH, collection=self.facility
+            ).count(),
+            1,
+        )
         self.classroom.remove_coach(user)
         self.facility.remove_coach(user)
         self.assertEqual(
@@ -374,6 +365,35 @@ class CollectionsTestCase(TestCase):
         self.assertEqual(
             Role.objects.filter(
                 user=user, kind=role_kinds.COACH, collection=self.facility
+            ).count(),
+            0,
+        )
+
+    def test_add_and_remove_classroom_coach(self):
+        user = FacilityUser.objects.create(username="foo", facility=self.facility)
+        self.classroom.add_coach(user)
+        self.assertEqual(
+            Role.objects.filter(
+                user=user, kind=role_kinds.COACH, collection=self.classroom
+            ).count(),
+            1,
+        )
+        self.assertEqual(
+            Role.objects.filter(
+                user=user, kind=role_kinds.ASSIGNABLE_COACH, collection=self.facility
+            ).count(),
+            1,
+        )
+        self.facility.remove_role(user, role_kinds.ASSIGNABLE_COACH)
+        self.assertEqual(
+            Role.objects.filter(
+                user=user, kind=role_kinds.COACH, collection=self.classroom
+            ).count(),
+            0,
+        )
+        self.assertEqual(
+            Role.objects.filter(
+                user=user, kind=role_kinds.ASSIGNABLE_COACH, collection=self.facility
             ).count(),
             0,
         )
@@ -399,14 +419,9 @@ class CollectionsTestCase(TestCase):
     def test_add_admins(self):
         user1 = FacilityUser.objects.create(username="foo1", facility=self.facility)
         user2 = FacilityUser.objects.create(username="foo2", facility=self.facility)
-        self.classroom.add_admins([user1, user2])
+        with self.assertRaises(InvalidRoleKind):
+            self.classroom.add_admins([user1, user2])
         self.facility.add_admins([user1, user2])
-        self.assertEqual(
-            Role.objects.filter(
-                kind=role_kinds.ADMIN, collection=self.classroom
-            ).count(),
-            2,
-        )
         self.assertEqual(
             Role.objects.filter(
                 kind=role_kinds.ADMIN, collection=self.facility
@@ -493,6 +508,7 @@ class RoleErrorTestCase(TestCase):
         self.facility = Facility.objects.create()
         self.classroom = Classroom.objects.create(parent=self.facility)
         self.learner_group = LearnerGroup.objects.create(parent=self.classroom)
+        self.adhoc_group = AdHocGroup.objects.create(parent=self.classroom)
         self.facility_user = FacilityUser.objects.create(
             username="blah", password="#", facility=self.facility
         )
@@ -506,6 +522,22 @@ class RoleErrorTestCase(TestCase):
             self.learner_group.remove_role(
                 self.facility_user, "blahblahnonexistentroletype"
             )
+
+    def test_invalid_learner_group_roles(self):
+        with self.assertRaises(InvalidRoleKind):
+            self.learner_group.add_role(self.facility_user, role_kinds.ADMIN)
+        with self.assertRaises(InvalidRoleKind):
+            self.learner_group.add_role(self.facility_user, role_kinds.COACH)
+
+    def test_invalid_adhoc_group_roles(self):
+        with self.assertRaises(InvalidRoleKind):
+            self.learner_group.add_role(self.facility_user, role_kinds.ADMIN)
+        with self.assertRaises(InvalidRoleKind):
+            self.learner_group.add_role(self.facility_user, role_kinds.COACH)
+
+    def test_invalid_classroom_roles(self):
+        with self.assertRaises(InvalidRoleKind):
+            self.learner_group.add_role(self.facility_user, role_kinds.ADMIN)
 
 
 class SuperuserRoleMembershipTestCase(TestCase):
@@ -600,7 +632,7 @@ class StringMethodTestCase(TestCase):
 
     def test_role_str_method(self):
         self.assertEqual(
-            str(self.classroom_coach.roles.all()[0]),
+            str(self.classroom_coach.roles.filter(kind=role_kinds.COACH)[0]),
             '"bar"@"Arkham"\'s coach role for "Classroom X" (classroom)',
         )
 

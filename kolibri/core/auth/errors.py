@@ -10,10 +10,6 @@ class UserDoesNotHaveRoleError(KolibriError):
     pass
 
 
-class UserHasRoleOnlyIndirectlyThroughHierarchyError(KolibriError):
-    pass
-
-
 class UserIsNotFacilityUser(KolibriError):
     pass
 
