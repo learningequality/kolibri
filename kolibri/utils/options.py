@@ -84,6 +84,7 @@ from django.utils.six import string_types
 from six.moves.urllib.parse import urlparse
 from six.moves.urllib.parse import urlunparse
 from validate import Validator
+from validate import VdtTypeError
 from validate import VdtValueError
 
 try:
@@ -216,7 +217,7 @@ def port(value):
     try:
         return validate_port_number(int(value))
     except ValueError:
-        raise VdtValueError(value)
+        raise VdtTypeError(value)
 
 
 def origin_or_port(value):
