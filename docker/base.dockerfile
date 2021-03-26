@@ -36,4 +36,4 @@ RUN cd /kolibri \
     && pip install -r requirements/dev.txt \
     && pip install -r requirements/build.txt \
     && pip install -r requirements/test.txt \
-    && yarn install
+    && yarn install --network-timeout 100000

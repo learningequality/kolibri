@@ -24,7 +24,7 @@
         :items="allLearners"
         :filterPlaceholder="$tr('searchPlaceholder')"
         :itemsPerPage="itemsPerPage"
-        @pageChanged="pageNum => currentPage = pageNum"
+        @pageChanged="currentPageLearners = $event.items"
       >
         <template #default="{ items }">
           <CoreTable
@@ -88,13 +88,13 @@
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import flatMap from 'lodash/flatMap';
+  import forEach from 'lodash/forEach';
   import countBy from 'lodash/countBy';
   import every from 'lodash/every';
   import ClassSummaryResource from '../../../apiResources/classSummary';
   import commonCoachStrings from '../../common';
 
   const DEFAULT_ITEMS_PER_PAGE = 50;
-  const SHORT_ITEMS_PER_PAGE = 5;
 
   export default {
     name: 'IndividualLearnerSelector',
@@ -131,8 +131,7 @@
     },
     data() {
       return {
-        currentPage: 1,
-        searchText: '',
+        currentPageLearners: [],
         fetchingOutside: false,
         learnersFromOtherClass: null,
         groupMapFromOtherClass: null,
@@ -164,13 +163,6 @@
       currentGroupMap() {
         return this.groupMapFromOtherClass || this.groupMap;
       },
-      currentPageLearners() {
-        const baseIndex = (this.currentPage - 1) * this.itemsPerPage;
-        return this.filterLearners(this.allLearners, this.searchText).slice(
-          baseIndex,
-          baseIndex + this.itemsPerPage
-        );
-      },
       learnerIdsFromSelectedGroups() {
         // If a learner is part of a Learner Group that has already been selected
         // in RecipientSelector, then disable their row
@@ -193,7 +185,7 @@
         };
       },
       itemsPerPage() {
-        return this.targetClassId ? SHORT_ITEMS_PER_PAGE : DEFAULT_ITEMS_PER_PAGE;
+        return DEFAULT_ITEMS_PER_PAGE;
       },
     },
     methods: {
@@ -252,9 +244,12 @@
         return this.learnerIsInSelectedGroup(id) || this.disabled;
       },
       groupNamesForLearner({ id }) {
-        const groupNames = this.groups
-          .filter(group => group.member_ids.includes(id))
-          .map(group => group.name);
+        const groupNames = [];
+        forEach(this.currentGroupMap, group => {
+          if (group.member_ids.includes(id)) {
+            groupNames.push(group.name);
+          }
+        });
         return formatList(groupNames);
       },
     },

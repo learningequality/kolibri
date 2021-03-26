@@ -158,7 +158,7 @@
   "Preview.updated": "अद्यतन किए गए",
   "Preview.users": "उपयोगकर्ता",
   "Preview.value": "मूल्य",
-  "PrivacyModal.close": "बंद (close)",
+  "PrivacyModal.close": "बंद",
   "PrivacyModal.privacyText": "इस सुविधा को कोलिब्री डेटा पोर्टल के साथ सिंक्रनाइज़ करके, आप कोलिब्री डेटा पोर्टल पर संगठन के प्रवेश के लिए अपने डेटा तक पहुंच प्रदान कर रहे हैं। इसे लर्निंग इक्वेलिटी द्वारा संचालित क्लाउड सर्वर पर अपलोड किया जाएगा, जिनके पास इस डेटा की पहुंच भी होगी।",
   "PrivacyModal.syncToKDP": "कोलिब्री डेटा पोर्टल",
   "ResetUserPasswordModal.resetPassword": "अपना पासवर्ड रीसेट करें",

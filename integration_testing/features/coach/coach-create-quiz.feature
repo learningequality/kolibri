@@ -12,13 +12,13 @@ Feature: Coach creates quizzes
       And I see a list of channels that contain exercises
         But I don't see any checkboxes
 
-  # Given there are no channels that have exercises
-  # Then there should not be any channels available to select
+    # Given there are no channels that have exercises
+    # Then there should not be any channels available to select
   Scenario: Try and fail to create new quiz when no channel on device contains exercises
     When I click the *New quiz* button
     Then I see a new *Create new quiz* page
       And I see empty *Title* and *Number of questions* fields
-      But I don't see any channels
+        But I don't see any channels
 
   Scenario: Check validation for the number of questions field
     When I input a number outside the range of 1-50
@@ -104,7 +104,7 @@ Feature: Coach creates quizzes
     Given that there are results from the previous search
     When I press the *X* button in the search field
       Or I delete the previous search term and press *Enter*
-    Then I see the list of all *Channels* with exercises under *Select topics or exercises* again
+    Then I still see the previous search results (no change)
 
   Scenario: Add a topic or exercise from the search results page
     Given I am on the search results page
@@ -221,8 +221,8 @@ Feature: Coach creates quizzes
       But I did not save the quiz
     When I click the *back arrow* button
     Then I am redirected to the *Coach - '<class>' > Plan > Quizzes* page
-      And I loose all quiz creation progress
+    And I loose all quiz creation progress
 
 Examples:
-  | quiz          | number_of_question | exercises_questions | channel                | topic               |
-  | First Quarter | 5                  | Mathématiques       | Khan Academy (English) | Recognize fractions |
+    | quiz          | number_of_question | exercises_questions | channel                | topic               |
+    | First Quarter | 5                  | Mathématiques       | Khan Academy (English) | Recognize fractions |

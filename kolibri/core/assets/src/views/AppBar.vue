@@ -238,6 +238,12 @@
     text-overflow: ellipsis;
   }
 
+  @media (max-width: 750px) {
+    .username {
+      max-width: 50px;
+    }
+  }
+
   // Holdover from keen-ui to keep dropdown profile correctly formatted.
   /deep/ .ui-menu {
     min-width: 10.5rem;
@@ -285,6 +291,10 @@
 
   /deep/ .ui-toolbar__brand {
     min-width: inherit;
+  }
+
+  /deep/ .ui-toolbar__title {
+    margin-right: 10px;
   }
 
   .brand-logo {

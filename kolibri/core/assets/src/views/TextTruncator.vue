@@ -4,7 +4,7 @@
     <div v-if="viewAllText">
       {{ text }}
     </div>
-    <div v-else ref="shaveEl">
+    <div v-else ref="shaveEl" class="truncated">
       {{ text }}
     </div>
     <div
@@ -75,12 +75,33 @@
       },
     },
     methods: {
+      titleIsShaved() {
+        return Boolean(this.$el.querySelector('.js-shave'));
+      },
+      titleIsOverflowing() {
+        // This checks to see if shave.js did not work, but the text is still
+        // overflowing. This can happen if `text` prop is one long string.
+        const $shaveEl = this.$refs.shaveEl;
+        if (!$shaveEl) {
+          return false;
+        } else {
+          return $shaveEl.clientWidth < $shaveEl.scrollWidth;
+        }
+      },
       handleUpdate() {
         // TODO make "View Less" disappear when user expands window
         // and text isn't truncated any more.
-        shave(this.$refs.shaveEl, this.maxHeight);
+        shave(this.$refs.shaveEl, this.maxHeight, { spaces: false });
         this.$nextTick(() => {
-          this.textIsTruncated = Boolean(this.$el.querySelector('.js-shave'));
+          this.textIsTruncated = this.titleIsShaved() || this.titleIsOverflowing();
+          // set title attribute for shaved text but
+          // skip if a title already exists
+          if (this.textIsTruncated && !this.$refs.shaveEl.title)
+            this.$refs.shaveEl.setAttribute('title', this.text);
+          // if the text is not shaved and a title has been previously set,
+          // remove it
+          else if (!this.textIsTruncated && this.$refs.shaveEl.title)
+            this.$refs.shaveEl.removeAttribute('title');
         });
       },
     },
@@ -97,6 +118,13 @@
   .show-more {
     margin-top: 8px;
     text-align: right;
+  }
+
+  // If the text is a long single word (and not shortened by shave.js),
+  // then apply this CSS instead
+  .truncated {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
 </style>
