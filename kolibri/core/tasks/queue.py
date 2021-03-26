@@ -74,7 +74,6 @@ class Queue(object):
 
         This will create a new job with a new job_id.
         """
-
         old_job = self.fetch_job(job_id)
         if old_job.state in [State.CANCELED, State.FAILED]:
             self.clear_job(job_id)

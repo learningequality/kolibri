@@ -309,7 +309,9 @@ class BaseViewSet(viewsets.ViewSet):
 
 
 class TasksViewSet(BaseViewSet):
-    queues = [queue, priority_queue]
+    @property
+    def queues(self):
+        return [queue, priority_queue]
 
     def default_permission_classes(self):
         # exclusive permission for facility management
