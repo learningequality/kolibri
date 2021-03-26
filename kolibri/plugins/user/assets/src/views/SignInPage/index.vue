@@ -215,7 +215,7 @@
         if (this.nextParam) {
           query = { next: this.nextParam };
         }
-        return { ...facilityRoute, params: { whereToNext }, query: query };
+        return { ...facilityRoute, params: { whereToNext }, query };
       },
       showPasswordForm() {
         return (

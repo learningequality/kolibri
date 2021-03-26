@@ -59,7 +59,7 @@ export default [
           const route = {
             ...router.getRoute(ComponentMap.FACILITY_SELECT),
             params: { whereToNext },
-            query: query,
+            query,
           };
           next(route);
         } else {

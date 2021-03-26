@@ -106,7 +106,7 @@
     },
     methods: {
       setFacility(facilityId) {
-        let whereToNext = { ...this.whereToNext };
+        const whereToNext = { ...this.whereToNext };
         if (this.$route.query.next) {
           whereToNext.query.next = this.$route.query.next;
         }
