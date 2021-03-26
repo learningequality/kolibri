@@ -137,6 +137,16 @@
         return '';
       },
     },
+    watch: {
+      channels(newVal, oldVal) {
+        if (newVal.length !== oldVal.length) {
+          // HACK: Whenever `this.channels` is updated with an unlisted channel, update
+          // `this.channelsCopy`. In `this.filteredItems`, we still cannot directly
+          // pull from `this.channels` because of #6989
+          this.channelsCopy = [...newVal];
+        }
+      },
+    },
     beforeMount() {
       this.languageFilter = { ...this.allLanguagesOption };
     },

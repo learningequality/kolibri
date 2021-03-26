@@ -34,6 +34,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.query import F
+from django.db.models.query import Q
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
 from morango.models import Certificate
@@ -664,6 +665,26 @@ def validate_birth_year(value):
         raise ValidationError(error)
 
 
+class FacilityUserRoleBasedPermissionsForCoach(RoleBasedPermissions):
+    def readable_by_user_filter(self, user, queryset):
+        if user.is_anonymous():
+            return queryset.none()
+        roles = user.roles.filter(kind__in=self.can_be_read_by)
+
+        if not roles:
+            return queryset.none()
+
+        filter = Q()
+
+        for role in roles:
+            filter |= Q(
+                Q(memberships__collection_id=role.collection_id)
+                | Q(facility_id=role.collection_id)
+            )
+
+        return queryset.filter(filter)
+
+
 @python_2_unicode_compatible
 class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     """
@@ -679,7 +700,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     # FacilityUser can be read and written by a facility admin
     admin = IsAdminForOwnFacility()
     # FacilityUser can be read by admin or coach, and updated by admin, but not created/deleted by non-facility admin
-    role = RoleBasedPermissions(
+    role = FacilityUserRoleBasedPermissionsForCoach(
         target_field=".",
         can_be_created_by=(),  # we can't check creation permissions by role, as user doesn't exist yet
         can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),

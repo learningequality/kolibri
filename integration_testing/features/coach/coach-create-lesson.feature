@@ -103,7 +103,7 @@ Feature: Coach creates lessons
     Given that there are results from the previous search
     When I press the *X* button in the search field
       Or I delete the previous search term and press *Enter*
-    Then I see the list of all *Channels* under *Select topics or exercises* again
+    Then I still see the previous search results (no change)
 
   Scenario: Add resources from the search results page
     Given I am on the search results page
