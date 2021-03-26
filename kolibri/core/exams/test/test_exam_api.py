@@ -152,7 +152,7 @@ class ExamAPITestCase(APITestCase):
         exam["assignments"] = [self.facility.id]
         post_response = self.post_new_exam(exam)
         exam_id = post_response.data["id"]
-        group = LearnerGroup.objects.create(name="test", parent=self.facility)
+        group = LearnerGroup.objects.create(name="test", parent=self.classroom)
         exam["assignments"] = [group.id]
         put_response = self.put_updated_exam(exam_id, exam)
         self.assertEqual(put_response.status_code, 200)
@@ -166,7 +166,7 @@ class ExamAPITestCase(APITestCase):
         exam["assignments"] = [self.facility.id]
         post_response = self.post_new_exam(exam)
         exam_id = post_response.data["id"]
-        group = LearnerGroup.objects.create(name="test", parent=self.facility)
+        group = LearnerGroup.objects.create(name="test", parent=self.classroom)
         exam["assignments"].append(group.id)
         put_response = self.put_updated_exam(exam_id, exam)
         self.assertEqual(put_response.status_code, 200)

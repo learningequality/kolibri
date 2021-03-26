@@ -77,6 +77,7 @@ class ContentSessionLogAPITestCase(APITestCase):
         # create classroom, learner group, add user2
         cls.classroom = ClassroomFactory.create(parent=cls.facility)
         cls.learner_group = LearnerGroupFactory.create(parent=cls.classroom)
+        cls.classroom.add_member(cls.user2)
         cls.learner_group.add_learner(cls.user2)
 
         cls.class_coach = FacilityUserFactory.create(facility=cls.facility)
@@ -278,6 +279,7 @@ class ContentSummaryLogAPITestCase(APITestCase):
         # create classroom, learner group, add user2
         cls.classroom = ClassroomFactory.create(parent=cls.facility)
         cls.learner_group = LearnerGroupFactory.create(parent=cls.classroom)
+        cls.classroom.add_member(cls.user2)
         cls.learner_group.add_learner(cls.user2)
 
         cls.class_coach = FacilityUserFactory.create(facility=cls.facility)
@@ -466,6 +468,7 @@ class UserSessionLogAPITestCase(APITestCase):
         # create classroom, learner group, add user2
         cls.classroom = ClassroomFactory.create(parent=cls.facility)
         cls.learner_group = LearnerGroupFactory.create(parent=cls.classroom)
+        cls.classroom.add_member(cls.user2)
         cls.learner_group.add_learner(cls.user2)
 
     def setUp(self):
@@ -827,6 +830,7 @@ class ExamLogAPITestCase(APITestCase):
         # create classroom, learner group, add user1
         cls.classroom = ClassroomFactory.create(parent=cls.facility)
         cls.learner_group = LearnerGroupFactory.create(parent=cls.classroom)
+        cls.classroom.add_member(cls.user1)
         cls.learner_group.add_learner(cls.user1)
 
         cls.class_coach = FacilityUserFactory.create(facility=cls.facility)
