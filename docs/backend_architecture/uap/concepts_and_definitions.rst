@@ -14,11 +14,11 @@ all the data associated with a particular Facility are referred to as a
 Users
 -----
 
-The user model is ``FacilityUser``. A
+Kolibri's users are instances of the ``FacilityUser`` model, which derives from Django's ``AbstractBaseUser``. A user
 ``FacilityUser`` is associated with a particular ``Facility``, and the user's
 account and data may be synchronized across multiple devices.
 A ``FacilityUser`` may be made into a superuser, with permissions to modify any data
-on her own device, however, normally a ``FacilityUser`` only has permissions for some
+on her own device. However, normally a ``FacilityUser`` only has permissions for some
 subset of data from their own Facility Dataset (as determined in part by the
 roles they possess; see below).
 
@@ -43,7 +43,7 @@ Membership
 ----------
 
 A ``FacilityUser`` can be marked as a member of a ``Collection`` through a ``Membership`` object.
-Being a member of a Collection, requires first being a member of
+Being a member of a Collection requires first being a member of
 all the Collections above that Collection in the hierarchy. Thus, in the illustration below,
 Alice is directly associated with Group Q through a ``Membership`` object, which makes her
 a member of Group Q. As Group Q is contained within Class A,
@@ -62,7 +62,7 @@ Roles
 Another way in which a ``FacilityUser`` can be associated with a particular
 ``Collection`` is through a ``Role`` object, which grants the user a role with
 respect to the ``Collection`` and all the collections below it. A ``Role``
-object also stores the "kind" of the role (currently, one of "admin",
+object stores the "kind" of the role (currently, one of "admin",
 "coach", or "assignable coach"), which affects what permissions the user gains
 through the ``Role``.
 
@@ -79,9 +79,11 @@ collection). Thus, in our example, we can say that "Bob is also a coach for
 Group Q". Furthermore, as Alice is a member of Class A, we can say that "Bob
 is a coach for Alice".
 
-To simplify the role structure, a user can be assigned as an admin, coach, or assignable coach
-at the Facility level, but only as a coach at the Classroom level. Users cannot
-be assigned roles at the AdHocGroup/LearnerGroup level.
+A user can be assigned certain roles for different collection types:
+
+* ``Facility`` collections: admin, coach, or assignable coach roles
+* ``Classroom`` collections: coach roles
+* ``LearnerGroup`` and ``AdHocGroup`` collections: no roles
 
 
 Role-Based Permissions

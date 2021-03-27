@@ -59,7 +59,7 @@ In order to make decisions about whether a user has a certain permission for
 an object, we need an efficient way to retrieve the set of roles the user has
 in relation to that object. This involves traversing the Role table,
 Collection hierarchy, and possibly the Membership table. Because we require
-explicit representation of membership at any level in the hierarchy, we can rely
+explicit representation of membership at each level in the hierarchy, we can rely
 solely on the transitivity of role permissions in order to determine the role that
 a user has with respect to some data.
 
@@ -111,7 +111,7 @@ the following overridable methods:
   - ``user_can_update_object``
   - ``user_can_delete_object``
 - The queryset-filtering ``readable_by_user_filter`` method, which takes in a
-  user and returns a Django Q object that can be used to filter to just
+  user and returns a Django ``Q`` object that can be used to filter to just
   objects that should be readable by the user.
 
 Associating permissions with models
