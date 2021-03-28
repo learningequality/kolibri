@@ -7,7 +7,8 @@
     "build-base": "webpack --config ./webpack.config.js",
     "build": "yarn run build-base --mode=production",
     "dev": "yarn run build-base --mode=development --watch",
-    "compat": "eslint -c ./compat.js ./src/*.js"
+    "compat": "eslint -c ./compat.js ./src/*.js",
+    "mimetypes": "node ./generateH5PMimeTypeDB.js"
   },
   "author": "Learning Equality",
   "license": "MIT",
@@ -17,11 +18,14 @@
     "@babel/preset-env": "^7.13.15",
     "babel-loader": "^8.2.2",
     "eslint-plugin-compat": "^3.0.0",
+    "mime-db": "^1.46.0",
     "webpack": "4.6.0",
     "webpack-cli": "^3.1.2"
   },
   "dependencies": {
-    "core-js": "3.13"
+    "core-js": "3.13",
+    "jszip": "^3.5.0",
+    "toposort-class": "^1.0.1"
   },
   "browserslist": [
     "extends browserslist-config-kolibri"

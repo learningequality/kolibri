@@ -15,7 +15,7 @@ from kolibri.utils.server import get_zip_port
 VALID_STORAGE_FILENAME = re.compile(r"[0-9a-f]{32}(-data)?\.[0-9a-z]+")
 
 # set of file extensions that should be considered zip files and allow access to internal files
-POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".zip", ".h5p"])
+POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".zip"])
 
 
 def _maybe_makedirs(path):
@@ -257,6 +257,8 @@ HASHI = "hashi/"
 
 ZIPCONTENT = "zipcontent/"
 
+H5P = "h5p/"
+
 
 def get_zip_content_config():
     zip_content_origin = conf.OPTIONS["Deployment"]["ZIP_CONTENT_ORIGIN"]
@@ -313,6 +315,10 @@ def get_hashi_path():
 
 def zip_content_static_root():
     return urljoin(zip_content_path_prefix(), "static/")
+
+
+def get_h5p_path():
+    return "{}{}".format(zip_content_path_prefix(), H5P)
 
 
 def get_content_storage_file_url(filename):

@@ -6,6 +6,7 @@ import SCORM from './SCORM';
 import Kolibri from './kolibri';
 import patchIndexedDB from './patchIndexedDB';
 import { events, nameSpace } from './hashiBase';
+import H5P from './H5P';
 
 /*
  * This class is initialized inside the context of a sandboxed iframe.
@@ -30,9 +31,15 @@ export default class SandboxEnvironment {
 
     this.SCORM = new SCORM(this.mediator);
 
+    this.H5P = new H5P(this.mediator);
+
     // We initialize SCORM here, as the usual place for SCORM
     // to look for its API is window.parent.
     this.SCORM.iframeInitialize(window);
+
+    // Also initialize H5P here, as it looks for some parts
+    // of itself on the parent, and some on the window
+    this.H5P.iframeInitialize(window);
 
     this.createIframe = this.createIframe.bind(this);
 
@@ -70,6 +77,7 @@ export default class SandboxEnvironment {
         this.sessionStorage.iframeInitialize(this.iframe.contentWindow);
         this.cookie.iframeInitialize(this.iframe.contentWindow);
         this.kolibri.iframeInitialize(this.iframe.contentWindow);
+        this.H5P.iframeInitialize(this.iframe.contentWindow);
         patchIndexedDB(this.contentNamespace, this.iframe.contentWindow);
       } catch (e) {
         console.log('Shimming storage APIs failed, data will not persist'); // eslint-disable-line no-console
@@ -92,7 +100,6 @@ export default class SandboxEnvironment {
     }
     this.contentNamespace = contentNamespace;
     this.iframe = document.createElement('iframe');
-    this.iframe.src = startUrl;
     this.iframe.style.border = 0;
     this.iframe.style.padding = 0;
     this.iframe.style.margin = 0;
@@ -100,6 +107,10 @@ export default class SandboxEnvironment {
     this.iframe.style.width = '100%';
     this.iframe.height = '100%';
     document.body.appendChild(this.iframe);
-    this.initializeIframe(this.iframe.contentWindow);
+    if (startUrl.indexOf('.h5p') === startUrl.length - 4) {
+      this.H5P.init(this.iframe, startUrl, this.contentNamespace);
+    } else {
+      this.iframe.src = startUrl;
+    }
   }
 }

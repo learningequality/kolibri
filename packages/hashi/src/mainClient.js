@@ -1,6 +1,7 @@
 import Mediator from './mediator';
 import LocalStorage from './localStorage';
 import Cookie from './cookie';
+import H5P from './H5P';
 import SCORM from './SCORM';
 import { events, nameSpace, DataTypes } from './hashiBase';
 import Kolibri from './kolibri';
@@ -21,6 +22,7 @@ export default class MainClient {
     this.storage = {
       localStorage: new LocalStorage(this.mediator),
       cookie: new Cookie(this.mediator),
+      H5P: new H5P(this.mediator),
       SCORM: new SCORM(this.mediator),
     };
     this.kolibri = new Kolibri(this.mediator);

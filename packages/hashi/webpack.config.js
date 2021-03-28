@@ -42,6 +42,7 @@ module.exports = {
     filename: 'hashiframe-[hash].js',
     path: path.resolve(__dirname, '../../kolibri/core/content/static/content'),
   },
+  mode: 'none',
   module: {
     rules: [
       {
