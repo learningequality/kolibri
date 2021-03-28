@@ -60,6 +60,24 @@
     components: {
       CoreFullscreen,
     },
+    props: {
+      userId: {
+        type: String,
+        default: '',
+      },
+      userFullName: {
+        type: String,
+        default: '',
+      },
+      progress: {
+        type: Number,
+        default: 0,
+      },
+      timeSpent: {
+        type: Number,
+        default: 0,
+      },
+    },
     data() {
       return {
         isInFullscreen: false,

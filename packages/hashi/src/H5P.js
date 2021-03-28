@@ -58,11 +58,12 @@ export default class H5P extends BaseShim {
     this.iframe.src = '../h5p/';
     this.filepath = filepath;
     this.contentNamespace = contentNamespace;
+    this.rootConfig;
     loadBinary(this.filepath)
       .then(JSZip.loadAsync)
       .then(zip => {
         this.zip = zip;
-        return this.recurseDependencies('h5p.json');
+        return this.recurseDependencies('h5p.json', true);
       })
       .then(() => {
         this.setDependencies();
@@ -159,6 +160,13 @@ export default class H5P extends BaseShim {
       };
       return ct;
     };
+    H5P.XAPIEvent.prototype.setActor = function() {
+      this.data.statement.actor = {
+        name: self.userData.userFullName,
+        objectType: 'Agent',
+        mbox_sha1sum: self.userData.userId,
+      };
+    };
   }
 
   iframeInitialize(contentWindow) {
@@ -169,6 +177,7 @@ export default class H5P extends BaseShim {
           [contentIdentifier(self.contentNamespace)]: {
             library: self.library,
             jsonContent: self.contentJson,
+            fullScreen: false,
             displayOptions: {
               copyright: false,
               download: false,
@@ -178,6 +187,14 @@ export default class H5P extends BaseShim {
               icon: false,
             },
             contentUserData: self.data,
+            exportUrl: '',
+            embedCode: '',
+            resizeCode: '',
+            mainId: self.contentNamespace,
+            url: self.rootConfig.source || self.contentNamespace,
+            title: self.rootConfig.title,
+            styles: Object.keys(self.loadedCss),
+            scripts: Object.keys(self.loadedJs),
           },
         };
       },
@@ -189,6 +206,12 @@ export default class H5P extends BaseShim {
       },
       get loadedCss() {
         return Object.keys(self.loadedCss);
+      },
+      get user() {
+        return {
+          name: self.userData.userFullName,
+          mail: '',
+        };
       },
     };
     Object.defineProperty(contentWindow, 'H5PIntegration', {
@@ -241,7 +264,7 @@ export default class H5P extends BaseShim {
     this.sortedDependencies = dependencySorter.sort().reverse();
   }
 
-  recurseDependencies(jsonFile, visitedPaths = {}, packagePath = '') {
+  recurseDependencies(jsonFile, root, visitedPaths = {}, packagePath = '') {
     return this.zip
       .file(jsonFile)
       .async('string')
@@ -252,11 +275,13 @@ export default class H5P extends BaseShim {
         visitedPaths = {
           ...visitedPaths,
         };
-        const library = json.mainLibrary;
+        if (root) {
+          this.rootConfig = json;
+        }
         return Promise.all(
           dependencies.map(dep => {
             const packagePath = `${dep.machineName}-${dep.majorVersion}.${dep.minorVersion}/`;
-            if (!this.library && dep.machineName === library) {
+            if (root && !this.library && dep.machineName === json.mainLibrary) {
               this.library = `${dep.machineName} ${dep.majorVersion}.${dep.minorVersion}`;
             }
             if (visitedPaths[packagePath]) {
@@ -268,6 +293,7 @@ export default class H5P extends BaseShim {
             visitedPaths[packagePath] = true;
             return this.recurseDependencies(
               packagePath + 'library.json',
+              false,
               visitedPaths,
               packagePath
             ).then(() => packagePath);
