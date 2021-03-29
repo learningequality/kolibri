@@ -11,9 +11,11 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Akshay Mahajan | akshaymahajans |
 | Alan Chen | alanchenz |
 | Alexandros Metaxas | alexMet |
+| Apurva Modi | apurva-modi |
 | Eduard James Aban | arceduardvincent |
 | Arky | arky |
 | Aron Fyodor Asor | aronasorman |
+| Ashmeet Lamba | ashmeet13 |
 | Kapya | Aypak |
 | Benjamin Bach | benjaoming |
 | Blaine Jester | bjester |
@@ -25,9 +27,11 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Christian Memije | christianmemije |
 | Cyril Pauya | cpauya |
 | Chris Castle | crcastle |
+| David Garg | davidgarg20 |
 | David Hu | divad12 |
 | Derek Lobo | dlobo |
 | David Cañas | DXCanas |
+| Dylan McCall | dylanmccall |
 | Mingqi Zhu | EmanekaT |
 | Gerardo Soto | GCodeON |
 | Geoff Rich | geoffrey1218 |
@@ -44,16 +48,19 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Jessica Aceret | jtamiace |
 | Julián Duque | julianduque |
 | Karla Avila | k2avila |
+| Mrinal Kumar | kmrinal19 |
 | Kevin Ollivier | kollivier |
-| Leo Lin | mdctleo |
 | Paul Luna | luna215 |
-| Paul Bussé | paulbusse |
 | Lingyi Wang | lyw07 |
 | Magali Boizot-Roche | magali-br |
+| manuq | manuq |
 | Marcella Maki | marcellamaki |
 | Maureen Hernandez | MauHernandez |
 | Michael Gallaspy | MCGallaspy |
+| Leo Lin | mdctleo |
+| Metodi Milev | metodimilevqa |
 | Michael Gamlem III | mgamlem3 |
+| Micah Fitch | micahscopes |
 | Michaela Robosova | MisRob |
 | Eduard James Aban | mrpau-eduard |
 | Eugene Oliveros | mrpau-eugene |
@@ -61,6 +68,8 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Richard Amodia | mrpau-richard |
 | Nick Cannariato | nickcannariato |
 | Jacob Pierce | nucleogenesis |
+| Paul Bussé | paulbusse |
+| Petar Cenov | pcenov |
 | Radina Matic | radinamatic |
 | Rafael Aguayo | ralphiee22 |
 | Hyun Ahn | rationality6 |
@@ -68,6 +77,10 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Richard Tibbles | rtibbles |
 | Sairina Merino Tsui | sairina |
 | Shanavas M | shanavas786 |
+| shivangtripathi | shivangtripathi |
+| Udith Prabhu | udithprabhu |
+| Vivek Agrawal | vkWeb |
 | Whitney Zhu | whitzhu |
 | Carol Willing | willingc |
+| Yash Jipkate | YashJipkate |
 | Yixuan Liu | yil039 |
