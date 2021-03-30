@@ -94,8 +94,9 @@
       upgradeMessageGeneric: 'A new version of Kolibri is available.',
       upgradeMessageImportant:
         'We have released an important update with fixes to this version of Kolibri.',
-      upgradeMessage0130:
-        'Kolibri version 0.13.0 is available! It contains major improvements to resource management, coach tools, and much more.',
+      // TODO(i18n): Write a final version of this copy
+      upgradeMessage_0_15_0:
+        'Kolibri version 0.15.0 is available! It has a lot of new features!',
       upgradeDownload: 'Download it here',
       upgradeLearnAndDownload: 'Learn more and download it here',
       /* eslint-enable kolibri/vue-no-unused-translations */
