@@ -42,9 +42,16 @@ String chill and string freeze
   * Run ``make i18n-stats branch=<release-vN.N.x>`` to get figures on the translation work.
   * Send the stats to the i18n team, who will use them for communication with translators to measure the translation efforts needed.
 
-  Strings from the Perseus plugin also need to be revisited. They are maintained in the repo `learningequality/kolibri-exercise-perseus-plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`__, but the source strings are generated and uploaded through the main ``kolibri`` project. The translated files from Crowdin such as ``kolibri_exercise_perseus_plugin.exercise_perseus_render_module-messages.json`` are downloaded through the ``kolibri-exercise-perseus-plugin`` project. For instructions, see :ref:`crowdin`.
+  **Strings from the Perseus plugin also need to be revisited.** They are maintained in the repo `learningequality/kolibri-exercise-perseus-plugin <https://github.com/learningequality/kolibri-exercise-perseus-plugin>`__, but the source strings are generated and uploaded through the main ``kolibri`` project. The translated files from Crowdin such as ``kolibri_exercise_perseus_plugin.exercise_perseus_render_module-messages.json`` are downloaded through the ``kolibri-exercise-perseus-plugin`` project. For instructions, see :ref:`crowdin`.
 
   .. warning:: Strings exist in more places than just the Kolibri repo. Ensure we have translations for the Perseus plugin as well as other Crowdin projects such as Kolibri Server, and the Windows, Mac, Android, and GNOME Linux apps.
+
+  **Don't forget to include the new version notifications!** Before the string freeze, make sure that the messages in the `UpdateNotfication.vue component <https://github.com/learningequality/kolibri/blob/781cadfce5c56911914e613ae26b3aef36bb3333/kolibri/core/assets/src/views/UpdateNotification.vue#L85-L103>`__ have been updated for the upcoming release.
+
+  In the component's ``$trs`` options, add a new message with a key indicating the upcoming version. Provide 1-2 sentences describing the most important new features.::
+
+    upgradeMessage_0_13_0:
+      'Kolibri version 0.13.0 is available! It contains major improvements to resource management, coach tools, and much more.'
 
 
 Continuing the release process
