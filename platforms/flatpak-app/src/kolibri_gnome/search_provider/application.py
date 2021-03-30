@@ -7,7 +7,7 @@ from ..dbus_utils import dict_to_vardict
 from ..kolibri_daemon_proxy import KolibriDaemonProxy
 
 
-INACTIVITY_TIMEOUT_MS = 30 * 1000  # 30 seconds in milliseconds
+INACTIVITY_TIMEOUT_MS = 10 * 1000  # 10 seconds in milliseconds
 
 
 class SearchProvider(DBusServer):
