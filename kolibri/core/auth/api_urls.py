@@ -2,6 +2,7 @@ from django.conf.urls import url
 from rest_framework import routers
 
 from .api import ClassroomViewSet
+from .api import ExistingUsernameView
 from .api import FacilityDatasetViewSet
 from .api import FacilityUsernameViewSet
 from .api import FacilityUserViewSet
@@ -42,6 +43,11 @@ urlpatterns = (
             r"^setnonspecifiedpassword$",
             SetNonSpecifiedPasswordView.as_view(),
             name="setnonspecifiedpassword",
-        )
+        ),
+        url(
+            r"^usernameexists",
+            ExistingUsernameView.as_view(),
+            name="usernameexists",
+        ),
     ]
 )
