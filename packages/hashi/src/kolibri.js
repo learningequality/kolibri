@@ -3,6 +3,10 @@
  * that the HTML5 app is embedded within
  */
 import BaseShim from './baseShim';
+import Mediator from './mediator';
+import { events, nameSpace } from './hashiBase';
+// import BaseStorage from './baseStorage';
+
 // import KolibriData from './kolibriData';
 
 /**
@@ -74,21 +78,27 @@ export default class Kolibri extends BaseShim {
     super(mediator);
     this.data = {};
     this.nameSpace = 'kolibri';
-    // this.__setData = this.__setData.bind(this);
-    // this.on(this.events.STATEUPDATE, this.__setData);
+    this.mediator = new Mediator(window.parent);
+    this.__setData = this.__setData.bind(this);
+    this.on(this.events.STATEUPDATE, this.__setData);
+  }
+
+  __setData(data) {
+    if (data) {
+      this.__data = data;
+    }
   }
 
   iframeInitialize(contentWindow) {
     this.__setShimInterface();
     Object.defineProperty(contentWindow, this.nameSpace, {
       value: this.shim,
-      writable: true,
+      configurable: true,
     });
-    console.log(contentWindow.kolibri.getContentByFilter());
   }
 
   __setShimInterface() {
-    // const self = this;
+    const self = this;
 
     var lang = {
       id: 'en-gb',
@@ -97,6 +107,8 @@ export default class Kolibri extends BaseShim {
       lang_name: 'Proper English innit?',
       lang_direction: 'ltr',
     };
+
+    // const nameSpace = self.nameSpace;
 
     class Shim {
       /*
@@ -115,7 +127,7 @@ export default class Kolibri extends BaseShim {
           pageSize: 50,
           results: [
             {
-              id: '3fe4c0d834c54646889854bfc2d41c30',
+              id: '0afc7cf1be865f4c8f5bc844255a7cef',
               channel_id: 'a1a62374546e47509b6979a9322e7598',
               content_id: 'cc5c6829685d439385920f39db9bed65',
               title: 'Test Node 1',
@@ -142,7 +154,15 @@ export default class Kolibri extends BaseShim {
        * @param {string} id - id of the ContentNode
        * @return {Promise<ContentNode>} - a Promise that resolves to a ContentNode
        */
-      getContentById() {}
+      getContentById(id) {
+        return self.mediator
+          .sendMessageAwaitReply({
+            event: events.DATAREQUESTED,
+            data: { id },
+            nameSpace,
+          })
+          .then(res => console.log('response', res));
+      }
       /*
        * Method to search for contentnodes on Kolibri and return
        * an array of matching metadata
@@ -176,7 +196,7 @@ export default class Kolibri extends BaseShim {
        * @return {Promise} - a Promise that resolves when the navigation has completed
        */
       navigateTo() {
-        window.alert('Navigating to node_id');
+        console.log(this.getContentById('0afc7cf1be865f4c8f5bc844255a7cef'));
       }
 
       /*

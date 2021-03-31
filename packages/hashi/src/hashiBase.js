@@ -4,6 +4,8 @@ export const events = {
   IFRAMEREADY: 'iframeready',
   STATEUPDATE: 'stateupdate',
   USERDATAUPDATE: 'userdataupdate',
+  DATAREQUESTED: 'datarequested',
+  DATARETURNED: 'datareturned',
 };
 
 export const nameSpace = 'hashi';

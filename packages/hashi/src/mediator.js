@@ -1,3 +1,5 @@
+import uuidv4 from 'uuid/v4';
+
 /*
  * This class manages all message listening and sending from the postMessage
  * layer. All interfaces that need to message via the postMessage layer should
@@ -50,6 +52,38 @@ class Mediator {
     this.remote.postMessage(message, '*');
   }
 
+  // a function to manage messages for kolibri.js,
+  // when most messages require a response, to minimize redundancy
+  sendMessageAwaitReply({ event, data, nameSpace }) {
+    console.log('incoming data', { event, data, nameSpace });
+    return new Promise((resolve, reject) => {
+      const msgId = uuidv4();
+      function handler(message) {
+        if (message.message_id === msgId && message.type === 'response') {
+          if (message.status === 'success') {
+            console.log(message.data);
+            return resolve(message.data);
+          } else if (message.status === 'failure' && message.err) {
+            return reject(message.err);
+          }
+          // Otherwise something unspecified happened
+          return reject();
+        }
+      }
+      this.registerMessageHandler({
+        nameSpace,
+        event: 'datareturned',
+        callback: handler,
+      });
+      // window.addEventListener('datareturn', this.handler);
+      data.message_id = msgId;
+      this.sendMessage({ event, data, nameSpace });
+    });
+  }
+
+  helloworld() {
+    console.log('in the new hello world');
+  }
   registerMessageHandler({ event, nameSpace, callback } = {}) {
     if (
       typeof callback !== 'function' ||

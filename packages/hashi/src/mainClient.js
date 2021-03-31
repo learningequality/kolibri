@@ -1,3 +1,5 @@
+import { ContentNodeResource } from 'kolibri.resources';
+import router from 'kolibri.coreVue.router';
 import Mediator from './mediator';
 import LocalStorage from './localStorage';
 import Cookie from './cookie';
@@ -29,6 +31,14 @@ export default class MainClient {
     this.contentNamespace = null;
     this.startUrl = null;
     this.__setData = this.__setData.bind(this);
+
+    // this.mediator.registerMessageHandler({
+    //   nameSpace,
+    //   event: events.GETCONTENT,
+    //   callback: () => {
+    //     // this.mediator.sendMessage({ nameSpace, event: events.REQUESTINGDATA, data: true });
+    //   },
+    // });
   }
   initialize(contentState, userData, startUrl, contentNamespace) {
     /*
@@ -61,6 +71,27 @@ export default class MainClient {
       });
     });
     this.mediator.sendMessage({ nameSpace, event: events.READYCHECK, data: true });
+
+    this.on(this.events.DATAREQUESTED, message => {
+      let id = message.id;
+      let status;
+      ContentNodeResource.fetchModel({ id }).then(contentNode => {
+        if (contentNode) {
+          status = 'success';
+        } else {
+          status = 'failure';
+        }
+        message.status = status;
+        message.data = contentNode;
+        message.type = 'response';
+        this.mediator.sendMessage({
+          nameSpace,
+          event: events.DATARETURNED,
+          data: message,
+        });
+        router.push({ query: { context: 'newContext' } }).catch(() => {});
+      });
+    });
   }
 
   updateData({ contentState, userData }) {
