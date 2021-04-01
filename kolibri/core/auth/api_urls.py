@@ -45,7 +45,7 @@ urlpatterns = (
             name="setnonspecifiedpassword",
         ),
         url(
-            r"^usernameexists",
+            r"^usernameexists$",
             ExistingUsernameView.as_view(),
             name="usernameexists",
         ),
