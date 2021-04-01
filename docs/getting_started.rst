@@ -242,8 +242,6 @@ If you need to make the development server available through the LAN, you need t
 
   # first build the assets
   yarn run build
-  # collects the static files into KOLIBRI_HOME/static allowing them to be served by cherrypy
-  kolibri manage collectstatic
   # now, run the Django devserver
   yarn run python-devserver
 
@@ -265,8 +263,6 @@ In production, content is served through CherryPy. Static assets must be pre-bui
 
   # first build the assets
   yarn run build
-  # collects the static files into KOLIBRI_HOME/static allowing them to be served by cherrypy
-  kolibri manage collectstatic
   # now, run the Django production server
   kolibri start
 
