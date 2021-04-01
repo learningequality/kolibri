@@ -79,14 +79,6 @@ export default class Kolibri extends BaseShim {
     this.data = {};
     this.nameSpace = 'kolibri';
     this.mediator = new Mediator(window.parent);
-    this.__setData = this.__setData.bind(this);
-    this.on(this.events.STATEUPDATE, this.__setData);
-  }
-
-  __setData(data) {
-    if (data) {
-      this.__data = data;
-    }
   }
 
   iframeInitialize(contentWindow) {
@@ -100,13 +92,13 @@ export default class Kolibri extends BaseShim {
   __setShimInterface() {
     const self = this;
 
-    var lang = {
-      id: 'en-gb',
-      lang_code: 'en',
-      lang_subcode: 'gb',
-      lang_name: 'Proper English innit?',
-      lang_direction: 'ltr',
-    };
+    // var lang = {
+    //   id: 'en-gb',
+    //   lang_code: 'en',
+    //   lang_subcode: 'gb',
+    //   lang_name: 'Proper English innit?',
+    //   lang_direction: 'ltr',
+    // };
 
     // const nameSpace = self.nameSpace;
 
@@ -121,47 +113,25 @@ export default class Kolibri extends BaseShim {
        * @param {number} [options.pageSize=50] - the page size for pagination
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
-      getContentByFilter() {
-        return Promise.resolve({
-          page: 1,
-          pageSize: 50,
-          results: [
-            {
-              id: '0afc7cf1be865f4c8f5bc844255a7cef',
-              channel_id: 'a1a62374546e47509b6979a9322e7598',
-              content_id: 'cc5c6829685d439385920f39db9bed65',
-              title: 'Test Node 1',
-              description: 'Just a test',
-              author: 'Me',
-              thumbnail_url:
-                'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+CjwhLS0gR2VuZXJhdGVkIGJ5IFNWR28gLS0+Cjxzdmcgd2lkdGg9IjIyMCIgaGVpZ2h0PSIyMjAiCiAgICAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogICAgIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj4KPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBzdHlsZT0iZmlsbDpyZ2IoMjI2LDI1NSwyMjIpIiAvPgo8cmVjdCB4PSIzNiIgeT0iMCIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBzdHlsZT0iZmlsbDpyZ2IoOTMsMjE0LDc1KSIgLz4KPHJlY3QgeD0iNzIiIHk9IjAiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgc3R5bGU9ImZpbGw6cmdiKDkzLDIxNCw3NSkiIC8+CjxyZWN0IHg9IjEwOCIgeT0iMCIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBzdHlsZT0iZmlsbDpyZ2IoOTMsMjE0LDc1KSIgLz4KPHJlY3QgeD0iMTQ0IiB5PSIwIiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHN0eWxlPSJmaWxsOnJnYig5MywyMTQsNzUpIiAvPgo8cmVjdCB4PSIxODAiIHk9IjAiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgc3R5bGU9ImZpbGw6cmdiKDIyNiwyNTUsMjIyKSIgLz4KPHJlY3QgeD0iMCIgeT0iMzYiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgc3R5bGU9ImZpbGw6cmdiKDkzLDIxNCw3NSkiIC8+CjxyZWN0IHg9IjM2IiB5PSIzNiIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBzdHlsZT0iZmlsbDpyZ2IoOTMsMjE0LDc1KSIgLz4KPHJlY3QgeD0iNzIiIHk9IjM2IiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHN0eWxlPSJmaWxsOnJnYig5MywyMTQsNzUpIiAvPgo8cmVjdCB4PSIxMDgiIHk9IjM2IiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHN0eWxlPSJmaWxsOnJnYig5MywyMTQsNzUpIiAvPgo8cmVjdCB4PSIxNDQiIHk9IjM2IiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHN0eWxlPSJmaWxsOnJnYig5MywyMTQsNzUpIiAvPgo8cmVjdCB4PSIxODAiIHk9IjM2IiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHN0eWxlPSJmaWxsOnJnYig5MywyMTQsNzUpIiAvPgo8cmVjdCB4PSIwIiB5PSI3MiIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBzdHlsZT0iZmlsbDpyZ2IoNjcsMTkxLDEzNCkiIC8+CjxyZWN0IHg9IjM2IiB5PSI3MiIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBzdHlsZT0iZmlsbDpyZ2IoNjcsMTkxLDEzNCkiIC8+CjxyZWN0IHg9IjcyIiB5PSI3MiIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBzdHlsZT0iZmlsbDpyZ2IoMTQ4LDIzMiw1NikiIC8+CjxyZWN0IHg9IjEwOCIgeT0iNzIiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgc3R5bGU9ImZpbGw6cmdiKDE0OCwyMzIsNTYpIiAvPgo8cmVjdCB4PSIxNDQiIHk9IjcyIiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHN0eWxlPSJmaWxsOnJnYig2NywxOTEsMTM0KSIgLz4KPHJlY3QgeD0iMTgwIiB5PSI3MiIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBzdHlsZT0iZmlsbDpyZ2IoNjcsMTkxLDEzNCkiIC8+CjxyZWN0IHg9IjAiIHk9IjEwOCIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBzdHlsZT0iZmlsbDpyZ2IoOTMsMjE0LDc1KSIgLz4KPHJlY3QgeD0iMzYiIHk9IjEwOCIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBzdHlsZT0iZmlsbDpyZ2IoOTMsMjE0LDc1KSIgLz4KPHJlY3QgeD0iNzIiIHk9IjEwOCIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBzdHlsZT0iZmlsbDpyZ2IoOTMsMjE0LDc1KSIgLz4KPHJlY3QgeD0iMTA4IiB5PSIxMDgiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgc3R5bGU9ImZpbGw6cmdiKDkzLDIxNCw3NSkiIC8+CjxyZWN0IHg9IjE0NCIgeT0iMTA4IiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHN0eWxlPSJmaWxsOnJnYig5MywyMTQsNzUpIiAvPgo8cmVjdCB4PSIxODAiIHk9IjEwOCIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBzdHlsZT0iZmlsbDpyZ2IoOTMsMjE0LDc1KSIgLz4KPHJlY3QgeD0iMCIgeT0iMTQ0IiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHN0eWxlPSJmaWxsOnJnYig2NywxOTEsMTM0KSIgLz4KPHJlY3QgeD0iMzYiIHk9IjE0NCIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBzdHlsZT0iZmlsbDpyZ2IoMjI2LDI1NSwyMjIpIiAvPgo8cmVjdCB4PSI3MiIgeT0iMTQ0IiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHN0eWxlPSJmaWxsOnJnYig5MywyMTQsNzUpIiAvPgo8cmVjdCB4PSIxMDgiIHk9IjE0NCIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBzdHlsZT0iZmlsbDpyZ2IoOTMsMjE0LDc1KSIgLz4KPHJlY3QgeD0iMTQ0IiB5PSIxNDQiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgc3R5bGU9ImZpbGw6cmdiKDIyNiwyNTUsMjIyKSIgLz4KPHJlY3QgeD0iMTgwIiB5PSIxNDQiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgc3R5bGU9ImZpbGw6cmdiKDY3LDE5MSwxMzQpIiAvPgo8cmVjdCB4PSIwIiB5PSIxODAiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgc3R5bGU9ImZpbGw6cmdiKDkzLDIxNCw3NSkiIC8+CjxyZWN0IHg9IjM2IiB5PSIxODAiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgc3R5bGU9ImZpbGw6cmdiKDY3LDE5MSwxMzQpIiAvPgo8cmVjdCB4PSI3MiIgeT0iMTgwIiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHN0eWxlPSJmaWxsOnJnYigyMjYsMjU1LDIyMikiIC8+CjxyZWN0IHg9IjEwOCIgeT0iMTgwIiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHN0eWxlPSJmaWxsOnJnYigyMjYsMjU1LDIyMikiIC8+CjxyZWN0IHg9IjE0NCIgeT0iMTgwIiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHN0eWxlPSJmaWxsOnJnYig2NywxOTEsMTM0KSIgLz4KPHJlY3QgeD0iMTgwIiB5PSIxODAiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgc3R5bGU9ImZpbGw6cmdiKDkzLDIxNCw3NSkiIC8+Cjwvc3ZnPgo=',
-              available: true,
-              coach_content: false,
-              lang: lang,
-              license_description: null,
-              license_name: 'CC-BY',
-              license_owner: 'Me',
-              num_coach_contents: 0,
-              parent: '862381f7848346b1bd3fdea86042d1e0',
-              sort_order: 1,
-            },
-          ],
+      getContentByFilter(options) {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.DATAREQUESTED,
+          data: { options },
+          nameSpace,
         });
       }
       /*
-       * Method to query a single contentnodes from Kolibri and return
+       * Method to query a single contentnode from Kolibri and return
        * a metadata object
        * @param {string} id - id of the ContentNode
        * @return {Promise<ContentNode>} - a Promise that resolves to a ContentNode
        */
       getContentById(id) {
-        return self.mediator
-          .sendMessageAwaitReply({
-            event: events.DATAREQUESTED,
-            data: { id },
-            nameSpace,
-          })
-          .then(res => console.log('response', res));
+        return self.mediator.sendMessageAwaitReply({
+          event: events.DATAREQUESTED,
+          data: { id },
+          nameSpace,
+        });
       }
       /*
        * Method to search for contentnodes on Kolibri and return
@@ -195,8 +165,14 @@ export default class Kolibri extends BaseShim {
        * if node_id is missing from the context, it will be automatically filled in by this method
        * @return {Promise} - a Promise that resolves when the navigation has completed
        */
-      navigateTo() {
-        console.log(this.getContentById('0afc7cf1be865f4c8f5bc844255a7cef'));
+      navigateTo(nodeId, context) {
+        return self.mediator
+          .sendMessageAwaitReply({
+            event: events.NAVIGATETO,
+            data: { nodeId, context },
+            nameSpace,
+          })
+          .then(res => console.log(res));
       }
 
       /*
@@ -204,14 +180,25 @@ export default class Kolibri extends BaseShim {
        * @param {NavigationContext} context - context describing the state update
        * @return {Promise} - a Promise that resolves when the context has been updated
        */
-      updateContext() {}
+      updateContext(context) {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.CONTEXT,
+          data: { context },
+          nameSpace,
+        });
+      }
 
       /*
        * Method to request the current context state
        * @return {Promise<NavigationContext>} - a Promise that resolves
        * when the context has been updated
        */
-      getContext() {}
+      getContext() {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.CONTEXT,
+          nameSpace,
+        });
+      }
     }
     this.shim = new Shim();
     return this.shim;

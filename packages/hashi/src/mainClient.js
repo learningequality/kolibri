@@ -73,24 +73,15 @@ export default class MainClient {
     this.mediator.sendMessage({ nameSpace, event: events.READYCHECK, data: true });
 
     this.on(this.events.DATAREQUESTED, message => {
-      let id = message.id;
-      let status;
-      ContentNodeResource.fetchModel({ id }).then(contentNode => {
-        if (contentNode) {
-          status = 'success';
-        } else {
-          status = 'failure';
-        }
-        message.status = status;
-        message.data = contentNode;
-        message.type = 'response';
-        this.mediator.sendMessage({
-          nameSpace,
-          event: events.DATARETURNED,
-          data: message,
-        });
-        router.push({ query: { context: 'newContext' } }).catch(() => {});
-      });
+      this.__fetchContentData(message);
+    });
+
+    this.on(this.events.NAVIGATETO, message => {
+      this.__navigateTo(message);
+    });
+
+    this.on(this.events.CONTEXT, message => {
+      this.__getOrUpdateContext(message);
     });
   }
 
@@ -137,6 +128,83 @@ export default class MainClient {
       });
     });
   }
+
+  __fetchContentData(message) {
+    // based on the incoming information, get data
+    // from Kolibri to pass back to the iframe
+
+    // if filtering by optional params
+    if (message.options) {
+      let hash = window.location.hash.split('/');
+      let id = hash[hash.length - 1];
+      ContentNodeResource.fetchCollection({ id }).then(contentNodes => {
+        if (contentNodes) {
+          message.status = 'success';
+        } else {
+          message.status = 'failure';
+        }
+        let response = {};
+        response.page = message.options.page ? message.options.page : 1;
+        response.pageSize = message.options.pageSize ? message.options.pageSize : 50;
+        console.log(response);
+        let results = contentNodes.filter(node => node.id == id);
+        response.results = results;
+        message.data = response;
+        message.type = 'response';
+        this.mediator.sendMessage({
+          nameSpace,
+          event: events.DATARETURNED,
+          data: message,
+        });
+      });
+    }
+    // or, if getting by a specific id
+    else if (message.id) {
+      let id = message.id;
+      ContentNodeResource.fetchModel({ id }).then(contentNode => {
+        if (contentNode) {
+          message.status = 'success';
+        } else {
+          message.status = 'failure';
+        }
+        message.data = contentNode;
+        message.type = 'response';
+        this.mediator.sendMessage({
+          nameSpace,
+          event: events.DATARETURNED,
+          data: message,
+        });
+      });
+    }
+  }
+
+  __navigateTo(message) {
+    console.log('navigating');
+    let id = message.nodeId;
+    ContentNodeResource.fetchModel({ id }).then(contentNode => {
+      let routeBase, context;
+      if (contentNode && contentNode.kind === 'topic') {
+        routeBase = '/topics/t';
+      } else if (contentNode) {
+        routeBase = '/topics/c';
+      }
+      if (!message.context) {
+        // if there is custom context, don't re-route
+        const path = `${routeBase}/${id}`;
+        router.push({ path: path, query: { context: context } }).catch(() => {});
+      }
+      this.mediator.sendMessage({
+        nameSpace,
+        event: events.DATARETURNED,
+        data: message,
+      });
+    });
+  }
+
+  __getOrUpdateContext(message) {
+    console.log(message);
+  }
+
   get data() {
     const data = {};
     Object.keys(this.storage).forEach(key => {
@@ -147,6 +215,7 @@ export default class MainClient {
     });
     return data;
   }
+
   on(event, callback) {
     if (!Object.values(events).includes(event)) {
       throw ReferenceError(`${event} is not a valid event name for ${nameSpace}`);

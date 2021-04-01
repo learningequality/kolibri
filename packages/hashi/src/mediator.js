@@ -55,7 +55,6 @@ class Mediator {
   // a function to manage messages for kolibri.js,
   // when most messages require a response, to minimize redundancy
   sendMessageAwaitReply({ event, data, nameSpace }) {
-    console.log('incoming data', { event, data, nameSpace });
     return new Promise((resolve, reject) => {
       const msgId = uuidv4();
       function handler(message) {
