@@ -31,14 +31,6 @@ export default class MainClient {
     this.contentNamespace = null;
     this.startUrl = null;
     this.__setData = this.__setData.bind(this);
-
-    // this.mediator.registerMessageHandler({
-    //   nameSpace,
-    //   event: events.GETCONTENT,
-    //   callback: () => {
-    //     // this.mediator.sendMessage({ nameSpace, event: events.REQUESTINGDATA, data: true });
-    //   },
-    // });
   }
   initialize(contentState, userData, startUrl, contentNamespace) {
     /*
@@ -135,20 +127,25 @@ export default class MainClient {
 
     // if filtering by optional params
     if (message.options) {
-      let hash = window.location.hash.split('/');
-      let id = hash[hash.length - 1];
-      ContentNodeResource.fetchCollection({ id }).then(contentNodes => {
-        if (contentNodes) {
-          message.status = 'success';
-        } else {
-          message.status = 'failure';
-        }
+      let getParams = {};
+      let options = message.options;
+      if (options.parent && options.parent == 'self') {
+        // need to fetch this value when this
+        // function is move to a location that has access
+        // to `content`
+        // getParams.parent = rootNode;
+      } else if (options.parent) {
+        getParams.parent = options.parent;
+      }
+      options.ids ? (getParams.ids = options.ids) : null;
+      options.page ? (getParams.page = options.page) : null;
+      options.pageSize ? (getParams.ids = options.pageSize) : null;
+      ContentNodeResource.fetchCollection({ getParams }).then(contentNodes => {
+        contentNodes ? (message.status = 'success') : (message.status = 'failure');
         let response = {};
         response.page = message.options.page ? message.options.page : 1;
         response.pageSize = message.options.pageSize ? message.options.pageSize : 50;
-        console.log(response);
-        let results = contentNodes.filter(node => node.id == id);
-        response.results = results;
+        response.results = contentNodes;
         message.data = response;
         message.type = 'response';
         this.mediator.sendMessage({
@@ -179,7 +176,6 @@ export default class MainClient {
   }
 
   __navigateTo(message) {
-    console.log('navigating');
     let id = message.nodeId;
     ContentNodeResource.fetchModel({ id }).then(contentNode => {
       let routeBase, context;
@@ -202,7 +198,14 @@ export default class MainClient {
   }
 
   __getOrUpdateContext(message) {
-    console.log(message);
+    // to update context with the incoming context
+    if (message.context) {
+      router.push({ query: { context: message.context } }).catch(() => {});
+    } else {
+      // just return the existing query
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.has('context') ? urlParams.get('context') : null;
+    }
   }
 
   get data() {

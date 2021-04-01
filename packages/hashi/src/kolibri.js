@@ -102,6 +102,8 @@ export default class Kolibri extends BaseShim {
 
     // const nameSpace = self.nameSpace;
 
+    // const nameSpace = self.nameSpace;
+
     class Shim {
       /*
        * Method to query contentnodes from Kolibri and return
