@@ -801,6 +801,19 @@ class ContentNodeAPITestCase(APITestCase):
         for i in range(len(children)):
             self.assertEqual(response.data[i]["title"], children[i].title)
 
+    def test_contentnode_tags(self):
+        expected = {
+            "root": ["tag_1", "tag_2", "tag_3"],
+            "c1": ["tag_1"],
+            "c2": ["tag_2"],
+        }
+        for title, tags in expected.items():
+            node = content.ContentNode.objects.get(title=title)
+            response = self.client.get(
+                reverse("kolibri:core:contentnode-detail", kwargs={"pk": node.id})
+            )
+            self.assertEqual(set(response.data["tags"]), set(tags))
+
     def test_channelmetadata_list(self):
         response = self.client.get(reverse("kolibri:core:channel-list", kwargs={}))
         self.assertEqual(response.data[0]["name"], "testing")
