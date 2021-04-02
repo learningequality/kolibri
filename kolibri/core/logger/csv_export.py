@@ -154,7 +154,7 @@ def csv_file_generator(facility, log_type, filepath, overwrite=False):
     if sys.version_info[0] < 3:
         csv_file = io.open(filepath, "wb")
     else:
-        csv_file = io.open(filepath, "w", newline="")
+        csv_file = io.open(filepath, "w", newline="", encoding="utf-8")
 
     with csv_file as f:
         writer = csv.DictWriter(f, header_labels)
