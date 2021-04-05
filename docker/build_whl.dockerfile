@@ -34,7 +34,6 @@ WORKDIR /kolibri
 # Python dependencies
 COPY requirements/ requirements/
 RUN echo '--- Installing Python dependencies' && \
-    pip install -r requirements/dev.txt && \
     pip install -r requirements/build.txt
 
 # Set yarn cache folder for easy binding during runtime
