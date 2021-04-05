@@ -328,10 +328,10 @@ class TestQueue(object):
         assert job.state == State.FAILED
 
         # Restart the function and assert the same case as above along with
-        # the new created job should have an another unique id.
+        # the new created job should have the same id.
         new_job_id = inmem_queue.restart_job(old_job_id)
 
-        assert new_job_id != old_job_id
+        assert new_job_id == old_job_id
 
         wait_for_state_change(inmem_queue, new_job_id, State.FAILED)
 
@@ -357,10 +357,10 @@ class TestQueue(object):
         job = inmem_queue.fetch_job(old_job_id)
         assert job.state == State.CANCELED
 
-        # Restart the job, check that the new created job should have a
-        # unique id.
+        # Restart the job, check that the new created job should have the
+        # same id.
         new_job_id = inmem_queue.restart_job(old_job_id)
-        assert new_job_id != old_job_id
+        assert new_job_id == old_job_id
 
         # Test the remaing cases same as above.
         wait_for_state_change(inmem_queue, new_job_id, State.RUNNING)
