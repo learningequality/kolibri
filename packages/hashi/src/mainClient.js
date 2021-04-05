@@ -3,6 +3,7 @@ import LocalStorage from './localStorage';
 import Cookie from './cookie';
 import H5P from './H5P';
 import SCORM from './SCORM';
+import xAPI from './xAPI';
 import { events, nameSpace, DataTypes } from './hashiBase';
 import Kolibri from './kolibri';
 
@@ -24,6 +25,7 @@ export default class MainClient {
       cookie: new Cookie(this.mediator),
       H5P: new H5P(this.mediator),
       SCORM: new SCORM(this.mediator),
+      xAPI: new xAPI(this.mediator),
     };
     this.kolibri = new Kolibri(this.mediator);
     this.now = now;

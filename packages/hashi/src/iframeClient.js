@@ -7,6 +7,7 @@ import Kolibri from './kolibri';
 import patchIndexedDB from './patchIndexedDB';
 import { events, nameSpace } from './hashiBase';
 import H5P from './H5P';
+import xAPI from './xAPI';
 
 /*
  * This class is initialized inside the context of a sandboxed iframe.
@@ -32,6 +33,8 @@ export default class SandboxEnvironment {
     this.SCORM = new SCORM(this.mediator);
 
     this.H5P = new H5P(this.mediator);
+
+    this.xAPI = new xAPI(this.mediator);
 
     // We initialize SCORM here, as the usual place for SCORM
     // to look for its API is window.parent.
@@ -78,6 +81,7 @@ export default class SandboxEnvironment {
         this.cookie.iframeInitialize(this.iframe.contentWindow);
         this.kolibri.iframeInitialize(this.iframe.contentWindow);
         this.H5P.iframeInitialize(this.iframe.contentWindow);
+        this.xAPI.iframeInitialize(this.iframe.contentWindow);
         patchIndexedDB(this.contentNamespace, this.iframe.contentWindow);
       } catch (e) {
         console.log('Shimming storage APIs failed, data will not persist'); // eslint-disable-line no-console
