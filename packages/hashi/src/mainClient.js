@@ -133,7 +133,9 @@ export default class MainClient {
   __setData(contentState, userData) {
     this.updateData({ contentState, userData });
     if (this.now) {
-      this.storage.cookie.setNow(this.now());
+      Object.keys(this.storage).forEach(key => {
+        this.storage[key].setNow(this.now());
+      });
     }
   }
   __setListeners() {
