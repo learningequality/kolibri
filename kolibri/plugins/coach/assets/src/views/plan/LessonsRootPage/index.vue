@@ -49,12 +49,11 @@
               :key="lesson.id"
             >
               <td>
-                <KLabeledIcon icon="lesson">
-                  <KRouterLink
-                    :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
-                    :text="lesson.title"
-                  />
-                </KLabeledIcon>
+                <KRouterLink
+                  :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
+                  :text="lesson.title"
+                  icon="lesson"
+                />
               </td>
               <td>{{ coachString('numberOfResources', { value: lesson.resources.length }) }}</td>
               <td>
@@ -67,6 +66,7 @@
               <td>
                 <KSwitch
                   name="toggle-lesson-visibility"
+                  label=""
                   :checked="lesson.is_active"
                   :value="lesson.is_active"
                   @change="handleToggleVisibility(lesson)"
@@ -89,7 +89,7 @@
 
       <KModal
         v-if="showModal"
-        :title="$tr('newLessonModalTitle')"
+        :title="coachString('createLessonAction')"
         :submitText="coreString('continueAction')"
         :cancelText="coreString('cancelAction')"
         :submitDisabled="detailsModalIsDisabled"
@@ -100,8 +100,8 @@
         <AssignmentDetailsModal
           ref="detailsModal"
           assignmentType="new_lesson"
-          :modalTitleErrorMessage="$tr('duplicateTitle')"
-          :submitErrorMessage="$tr('saveLessonError')"
+          :modalTitleErrorMessage="coachString('duplicateLessonTitleError')"
+          :submitErrorMessage="coachString('saveLessonError')"
           :initialDescription="''"
           :initialTitle="''"
           :initialSelectedCollectionIds="[classId]"
@@ -226,13 +226,10 @@
       allLessons: 'All lessons',
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
-      newLessonModalTitle: 'Create new lesson',
       size: 'Size',
       noLessons: 'You do not have any lessons',
       noActiveLessons: 'No active lessons',
       noInactiveLessons: 'No inactive lessons',
-      saveLessonError: 'There was a problem saving this lesson',
-      duplicateTitle: 'A lesson with that name already exists',
       visibleToLearnersLabel: {
         message: 'Visible to learners',
         context:

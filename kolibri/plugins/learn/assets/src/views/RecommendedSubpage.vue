@@ -15,12 +15,10 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { ContentNodeProgressResource } from 'kolibri.resources';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import commonLearnStrings from './commonLearnStrings';
-  import learnIndexStrings from './learnIndexStrings';
 
   export default {
     name: 'RecommendedSubpage',
@@ -32,18 +30,18 @@
     components: {
       ContentCardGroupGrid,
     },
-    mixins: [commonLearnStrings, learnIndexStrings],
+    mixins: [commonLearnStrings],
     computed: {
       ...mapState(['pageName']),
       ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       documentTitle() {
         switch (this.pageName) {
           case PageNames.RECOMMENDED_POPULAR:
-            return this.$tr('documentTitleForPopular');
+            return this.learnString('popularLabel');
           case PageNames.RECOMMENDED_RESUME:
-            return this.learnIndexString('documentTitleForResume');
+            return this.learnString('resumeLabel');
           case PageNames.RECOMMENDED_NEXT_STEPS:
-            return this.$tr('documentTitleForNextSteps');
+            return this.learnString('nextStepsLabel');
           default:
             return '';
         }
@@ -51,11 +49,11 @@
       header() {
         switch (this.pageName) {
           case PageNames.RECOMMENDED_POPULAR:
-            return this.$tr('popularPageHeader');
+            return this.learnString('mostPopularLabel');
           case PageNames.RECOMMENDED_RESUME:
-            return this.learnIndexString('documentTitleForResume');
+            return this.learnString('resumeLabel');
           case PageNames.RECOMMENDED_NEXT_STEPS:
-            return this.$tr('nextStepsPageHeader');
+            return this.learnString('nextStepsLabel');
           default:
             return null;
         }
@@ -98,17 +96,10 @@
       }
     },
     methods: {
-      genContentLink(id, kind) {
-        const pageName =
-          kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT;
+      genContentLink(id, isLeaf) {
+        const pageName = isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC;
         return this.$router.getRoute(pageName, { id }, { last: this.pageName });
       },
-    },
-    $trs: {
-      popularPageHeader: 'Most popular',
-      nextStepsPageHeader: 'Next steps',
-      documentTitleForPopular: 'Popular',
-      documentTitleForNextSteps: 'Next Steps',
     },
   };
 

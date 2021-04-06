@@ -10,7 +10,7 @@
       <template #belowname>
         <div class="private-icons">
           <KTooltip reference="lockicon" :refs="$refs" placement="top">
-            {{ WithImportDetailsStrings.$tr('unlistedChannelTooltip') }}
+            {{ deviceString('unlistedChannelLabel') }}
           </KTooltip>
           <KIcon
             v-if="channel.public === false"
@@ -18,14 +18,11 @@
             class="lock-icon"
             icon="unlistedchannel"
           />
-          <span
+          <NewBadge
             v-if="showNewLabel"
+            :label="deviceString('newChannelLabel')"
             class="new-label"
-            :style="{
-              color: $themeTokens.textInverted,
-              backgroundColor: $themeTokens.success
-            }"
-          >{{ WithImportDetailsStrings.$tr('newLabel') }}</span>
+          />
         </div>
       </template>
     </ChannelDetails>
@@ -57,18 +54,17 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import NewBadge from '../NewBadge';
+  import commonDeviceStrings from '../../commonDeviceStrings';
   import ChannelDetails from './ChannelDetails';
-  import WithImportDetails from './WithImportDetails';
-
-  const WithImportDetailsStrings = crossComponentTranslator(WithImportDetails);
 
   export default {
     name: 'WithSizeAndOptions',
     components: {
       ChannelDetails,
+      NewBadge,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings, commonDeviceStrings],
     props: {
       channel: {
         type: Object,
@@ -86,9 +82,6 @@
     computed: {
       resourcesSizeText() {
         return bytesForHumans(this.channel.on_device_file_size);
-      },
-      WithImportDetailsStrings() {
-        return WithImportDetailsStrings;
       },
     },
     methods: {
@@ -165,11 +158,7 @@
   .new-label {
     position: absolute;
     top: 2px;
-    padding: 2px 8px;
     margin-left: 8px;
-    font-size: 14px;
-    font-weight: bold;
-    border-radius: 2px;
 
     .panel-sm & {
       top: -2px;

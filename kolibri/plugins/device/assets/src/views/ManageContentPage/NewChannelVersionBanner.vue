@@ -2,12 +2,7 @@
 
   <div>
     <span class="version">
-      <span
-        class="new-label"
-        :style="{ color: $themeTokens.textInverted, backgroundColor: $themeTokens.success }"
-      >
-        {{ newString }}
-      </span>
+      <NewBadge :label="deviceString('newResourceLabel')" class="new-label" />
 
       <span class="version-available">
         {{ $tr('versionAvailable', { version }) }}
@@ -26,23 +21,17 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import ChannelUpdateAnnotations from '../SelectContentPage/ChannelUpdateAnnotations';
-
-  const UpdateStrings = crossComponentTranslator(ChannelUpdateAnnotations);
+  import commonDeviceStrings from '../commonDeviceStrings';
+  import NewBadge from './NewBadge';
 
   export default {
     name: 'NewChannelVersionBanner',
+    components: { NewBadge },
+    mixins: [commonDeviceStrings],
     props: {
       version: {
         type: Number,
         required: true,
-      },
-    },
-    computed: {
-      newString() {
-        // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
-        return UpdateStrings.$tr('newResource');
       },
     },
     $trs: {
@@ -67,11 +56,7 @@
 
   .new-label {
     display: inline-block;
-    padding: 2px 8px;
     margin-right: 8px;
-    font-size: 14px;
-    font-weight: bold;
-    border-radius: 2px;
   }
 
 </style>

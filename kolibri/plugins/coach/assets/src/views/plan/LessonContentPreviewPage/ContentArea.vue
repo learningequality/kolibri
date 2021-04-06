@@ -32,7 +32,7 @@
       // Exercise-specific
       selectedQuestion: {
         type: String,
-        required: false,
+        default: null,
       },
       isExercise: {
         type: Boolean,

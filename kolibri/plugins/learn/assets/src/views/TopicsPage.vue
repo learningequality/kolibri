@@ -82,7 +82,6 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { PageNames } from '../constants';
@@ -137,9 +136,8 @@
       },
     },
     methods: {
-      genContentLink(id, kind) {
-        const routeName =
-          kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT;
+      genContentLink(id, isLeaf) {
+        const routeName = isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC;
         return {
           name: routeName,
           params: { id },

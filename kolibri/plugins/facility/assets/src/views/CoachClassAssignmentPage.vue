@@ -6,6 +6,7 @@
     <ClassEnrollForm
       :facilityUsers="facilityUsers"
       :classUsers="classUsers"
+      pageType="coaches"
       :disabled="formIsDisabled"
       @submit="assignCoaches"
     />

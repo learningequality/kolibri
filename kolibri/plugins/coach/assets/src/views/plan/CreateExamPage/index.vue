@@ -124,7 +124,7 @@
           appearance="raised-button"
           :text="$tr('exitSearchButtonLabel')"
           primary
-          :to="toolbarRoute"
+          :to="topicRoute"
         />
       </BottomAppBar>
       <BottomAppBar v-else>
@@ -203,6 +203,18 @@
         'searchResults',
         'ancestors',
       ]),
+      topicRoute() {
+        if (this.$route.query.last_id) {
+          return {
+            name: PageNames.EXAM_CREATION_TOPIC,
+            params: {
+              topicId: this.$route.query.last_id,
+            },
+          };
+        } else {
+          return this.toolbarRoute;
+        }
+      },
       pageName() {
         return this.$route.name;
       },
@@ -331,6 +343,12 @@
         if (this.availableQuestions === 0) {
           return this.$tr('noneSelected');
         }
+        if (this.availableQuestions == 0 || this.availableQuestions == null) {
+          return this.$tr('numQuestionsExceedNoExercises', {
+            inputNumQuestions: this.numQuestions,
+            maxQuestionsFromSelection: 0,
+          });
+        }
         if (this.numQuestions > this.availableQuestions) {
           return this.$tr('numQuestionsExceed', {
             inputNumQuestions: this.numQuestions,
@@ -354,7 +372,7 @@
         'fetchAdditionalSearchResults',
       ]),
       contentLink(content) {
-        if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
+        if (!content.is_leaf) {
           return {
             name: PageNames.EXAM_CREATION_TOPIC,
             params: {
@@ -514,6 +532,8 @@
       numQuestionsBetween: 'Enter a number between 1 and 50',
       numQuestionsExceed:
         'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+      numQuestionsExceedNoExercises:
+        'The max number of questions based on the exercises you selected is 0. Select more exercises to reach {inputNumQuestions} questions.',
       noneSelected: 'No exercises are selected',
       exitSearchButtonLabel: 'Exit search',
       selectionInformation:

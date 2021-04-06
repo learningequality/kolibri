@@ -29,13 +29,14 @@
       // NOTE: 'value', 'errors', and 'isValid' must be .sync'ed with parent
       value: {
         type: String,
+        default: '',
       },
       shouldValidate: {
         type: Boolean,
       },
       isUniqueValidator: {
         type: Function,
-        required: false,
+        default: null,
       },
       // Pass in errors to make the component reactive to them
       errors: {
@@ -55,11 +56,11 @@
         if (this.errors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
           return this.$tr('errorNotUnique');
         }
-        if (this.isUniqueValidator && !this.isUniqueValidator(this.value)) {
-          return this.$tr('errorNotUnique');
-        }
         if (this.value === '') {
           return this.coreString('requiredFieldError');
+        }
+        if (this.isUniqueValidator && !this.isUniqueValidator(this.value)) {
+          return this.$tr('errorNotUnique');
         }
         if (this.errors.includes(ERROR_CONSTANTS.INVALID)) {
           return this.coreString('usernameNotAlphaNumError');

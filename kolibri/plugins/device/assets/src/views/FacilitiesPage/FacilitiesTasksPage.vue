@@ -19,7 +19,7 @@
     </HeaderWithOptions>
 
     <p v-if="facilityTasks.length === 0">
-      {{ emptyTasksMessage }}
+      {{ deviceString('emptyTasksMessage') }}
     </p>
     <div>
       <FacilityTaskPanel
@@ -42,14 +42,11 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import HeaderWithOptions from '../HeaderWithOptions';
-  import ManageTasksPage from '../ManageTasksPage';
   import BackLink from '../ManageTasksPage/BackLink';
+  import commonDeviceStrings from '../commonDeviceStrings';
   import FacilityTaskPanel from './FacilityTaskPanel';
   import facilityTasksQueue from './facilityTasksQueue';
-
-  const ManageTasksPageStrings = crossComponentTranslator(ManageTasksPage);
 
   export default {
     name: 'FacilitiesTasksPage',
@@ -63,7 +60,13 @@
       HeaderWithOptions,
       BackLink,
     },
-    mixins: [commonCoreStrings, commonTaskStrings, commonSyncElements, facilityTasksQueue],
+    mixins: [
+      commonCoreStrings,
+      commonTaskStrings,
+      commonSyncElements,
+      facilityTasksQueue,
+      commonDeviceStrings,
+    ],
     data() {
       return {
         // (facilityTasksQueue) facilityTasks
@@ -72,10 +75,6 @@
     computed: {
       someClearableTasks() {
         return Boolean(this.facilityTasks.find(task => task.clearable));
-      },
-      emptyTasksMessage() {
-        // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
-        return ManageTasksPageStrings.$tr('emptyTasksMessage');
       },
     },
     methods: {

@@ -85,7 +85,7 @@ module.exports = {
       },
     ],
     'vue/attribute-hyphenation': [ERROR, 'never'],
-    'vue/require-default-prop': OFF,
+    'vue/require-default-prop': ERROR,
     'vue/html-self-closing': [
       ERROR,
       {

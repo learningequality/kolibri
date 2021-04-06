@@ -12,7 +12,7 @@
       },
       emptyMessage: {
         type: String,
-        required: false,
+        default: null,
       },
     },
     computed: {
@@ -108,6 +108,7 @@
   }
 
   /deep/ thead th {
+    text-align: left;
     vertical-align: bottom;
   }
 

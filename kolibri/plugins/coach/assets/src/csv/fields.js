@@ -1,11 +1,10 @@
 import pad from 'lodash/padStart';
 import get from 'lodash/get';
-import { crossComponentTranslator, createTranslator, formatList } from 'kolibri.utils.i18n';
-import PageStatus from 'kolibri.coreVue.components.PageStatus';
+import { createTranslator, formatList } from 'kolibri.utils.i18n';
 import coreStringsMixin from 'kolibri.coreVue.mixins.commonCoreStrings';
 import { STATUSES } from '../modules/classSummary/constants';
 import { VERBS } from '../views/common/status/constants';
-import { translations } from '../views/common/status/statusStrings';
+import { learnerProgressTranslators } from '../views/common/status/statusStrings';
 import { coachStrings } from '../views/common/commonCoachStrings';
 
 const FieldsMixinStrings = createTranslator('FieldsMixinStrings', {
@@ -35,7 +34,6 @@ const VERB_MAP = {
   [STATUSES.completed]: VERBS.completed,
 };
 const coreStrings = coreStringsMixin.methods.coreString;
-const examStrings = crossComponentTranslator(PageStatus);
 
 /*
  * Common CSV export fields and formats
@@ -103,7 +101,7 @@ export function learnerProgress(key = 'status') {
       key,
       format(row) {
         const value = get(row, key);
-        const strings = translations.learnerProgress[VERB_MAP[value]];
+        const strings = learnerProgressTranslators[VERB_MAP[value]];
         return strings.$tr('labelShort', { count: 1 });
       },
     },
@@ -189,7 +187,7 @@ export function score() {
 export function tally() {
   return [
     {
-      name: examStrings.$tr('notStartedLabel'),
+      name: coreStrings('notStartedLabel'),
       key: 'tally.notStarted',
     },
     {

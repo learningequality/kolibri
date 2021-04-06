@@ -65,7 +65,7 @@
               :invalid="usernameIsInvalid"
               :invalidText="usernameIsInvalidText"
               @blur="handleUsernameBlur"
-              @input="showDropdown = true"
+              @input="handleUsernameInput"
               @keydown="handleKeyboardNav"
             />
           </transition>
@@ -92,7 +92,7 @@
               class="login-btn"
               :text="$tr('nextLabel')"
               :primary="true"
-              :disabled="busy"
+              :disabled="!isNextButtonEnabled"
               @click="signIn"
             />
           </div>
@@ -148,56 +148,6 @@
         @userSelected="setSelectedUsername"
       />
     </div>
-
-    <!-- TODO: This can be its own separate component -->
-    <!--
-        Learner was created without a password, but now must create one.
-        This ought to be routed separately.
-      -->
-    <div v-else style="text-align: left">
-      <KButton
-        appearance="basic-link"
-        text=""
-        style="margin-bottom: 16px;"
-        @click="clearUser"
-      >
-        <template #icon>
-          <KIcon
-            icon="back"
-            :style="{
-              fill: $themeTokens.primary,
-              height: '1.125em',
-              width: '1.125em',
-              position: 'relative',
-              marginRight: '8px',
-              top: '2px',
-            }"
-          />{{ coreString('goBackAction') }}
-        </template>
-      </KButton>
-
-      <p>{{ $tr("needToMakeNewPasswordLabel", { user: username }) }}</p>
-
-      <PasswordTextbox
-        ref="createPassword"
-        :autofocus="true"
-        :disabled="busy"
-        :value.sync="createdPassword"
-        :isValid.sync="createdPasswordIsValid"
-        :shouldValidate="busy"
-        @submitNewPassword="updatePasswordAndSignIn"
-      />
-      <KButton
-        appearance="raised-button"
-        :primary="true"
-        :text="coreString('continueAction')"
-        style="width: 100%; margin: 24px auto 0; display:block;"
-        :disabled="busy"
-        @click="updatePasswordAndSignIn"
-      />
-    </div>
-    <!-- End TODO about making this its own component -->
-
   </AuthBase>
 
 </template>
@@ -210,7 +160,6 @@
   import get from 'lodash/get';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
-  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import { validateUsername } from 'kolibri.utils.validators';
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
@@ -219,6 +168,7 @@
   import getUrlParameter from '../getUrlParameter';
   import AuthBase from '../AuthBase';
   import UsersList from '../UsersList';
+  import commonUserStrings from '../commonUserStrings';
   import SignInHeading from './SignInHeading';
 
   const MAX_USERS_FOR_LISTING_VIEW = 16;
@@ -232,13 +182,12 @@
     },
     components: {
       AuthBase,
-      PasswordTextbox,
       SignInHeading,
       UiAutocompleteSuggestion,
       UiAlert,
       UsersList,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings, commonUserStrings],
     data() {
       return {
         username: '',
@@ -251,8 +200,6 @@
         usernameBlurred: false,
         passwordBlurred: false,
         formSubmitted: false,
-        createdPassword: '',
-        createdPasswordIsValid: false,
         busy: false,
         loginError: null,
         usernameSubmittedWithoutPassword: false,
@@ -264,7 +211,11 @@
       backToFacilitySelectionRoute() {
         const facilityRoute = this.$router.getRoute(ComponentMap.FACILITY_SELECT);
         const whereToNext = this.$router.getRoute(ComponentMap.SIGN_IN);
-        return { ...facilityRoute, params: { whereToNext } };
+        let query = {};
+        if (this.nextParam) {
+          query = { next: this.nextParam };
+        }
+        return { ...facilityRoute, params: { whereToNext }, query };
       },
       showPasswordForm() {
         return (
@@ -335,6 +286,9 @@
           this.hasMultipleFacilities || get(this.selectedFacility, 'dataset.preset') !== 'informal'
         );
       },
+      isNextButtonEnabled() {
+        return !this.busy && this.username !== '' && validateUsername(this.username);
+      },
     },
     watch: {
       username(newVal) {
@@ -371,13 +325,12 @@
       }
     },
     methods: {
-      ...mapActions(['kolibriLogin', 'kolibriSetUnspecifiedPassword']),
+      ...mapActions(['kolibriLogin']),
       clearUser() {
         // Going back to the beginning - undo what we may have
         // changed so far and clearing the errors, if any
         this.username = '';
         this.password = '';
-        this.createdPassword = '';
         // This ensures we don't get '<field> required' when going back
         // and forth
         this.usernameBlurred = false;
@@ -391,23 +344,6 @@
         // and to check if we even need a password
         // or need to change a password
         this.signIn();
-      },
-      updatePasswordAndSignIn() {
-        if (this.createdPasswordIsValid) {
-          this.busy = true;
-          this.kolibriSetUnspecifiedPassword({
-            username: this.username,
-            password: this.createdPassword,
-            facility: this.selectedFacility.id,
-          }).then(() => {
-            // Password successfully set
-            // Use this password now to sign in
-            this.password = this.createdPassword;
-            this.signIn();
-          });
-        } else {
-          this.$refs.createPassword.focus();
-        }
       },
       setSuggestionTerm(newVal) {
         if (newVal !== null && typeof newVal !== 'undefined') {
@@ -486,6 +422,10 @@
           this.$refs.username.focus();
         }
       },
+      handleUsernameInput() {
+        this.showDropdown = true;
+        this.usernameBlurred = true;
+      },
       handlePasswordBlur() {
         setTimeout(() => (this.passwordBlurred = true), 200);
       },
@@ -497,6 +437,10 @@
         this.showDropdown = false;
       },
       signIn() {
+        if (!this.isNextButtonEnabled) {
+          return;
+        }
+
         this.busy = true;
 
         const sessionPayload = {
@@ -514,6 +458,10 @@
             // If we don't have a password, we submitted without a username
             if (err) {
               if (err === LoginErrors.PASSWORD_NOT_SPECIFIED) {
+                this.$router.push({
+                  name: ComponentMap.NEW_PASSWORD,
+                  query: sessionPayload,
+                });
                 // This error overrides the whole layout
                 this.loginError = err;
               } else {
@@ -535,27 +483,12 @@
       },
     },
     $trs: {
-      // TODO: Remove the comments in $trs, run the linter, fix the issues
-      // Disabling this altogether for now because we use some with crossComponentTranslator
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      changeLabel: {
-        message: 'Change',
-        context:
-          '(verb) Link to change the facility to sign in when the device has more than one facility',
-      },
-      signInToFacilityLabel: "Sign into '{facility}'",
-      greetUser: 'Hi, {user}',
       signInError: 'Incorrect username or password',
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
       documentTitle: 'User Sign In',
-      needToMakeNewPasswordLabel: 'Hi, {user}. You need to set a new password for your account.',
       nextLabel: 'Next',
-      signingInToFacilityAsUserLabel: "Signing in to '{facility}' as '{user}'",
-      signingInAsUserLabel: "Signing in as '{user}'",
       changeUser: 'Change user',
       changeFacility: 'Change facility',
-      multiFacilitySignInError: 'Incorrect username, password, or facility',
-      /* eslint-enable */
     },
   };
 

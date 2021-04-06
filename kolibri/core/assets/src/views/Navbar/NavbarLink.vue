@@ -42,7 +42,7 @@
        */
       title: {
         type: String,
-        required: false,
+        default: null,
       },
       /**
        * A router link object

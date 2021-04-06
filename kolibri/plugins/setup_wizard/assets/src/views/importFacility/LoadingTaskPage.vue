@@ -9,7 +9,6 @@
       @cancel="cancelTask"
     />
     <template #buttons>
-      <!-- This span is to make sure slot contents get rendered -->
       <KButton
         v-if="loadingTask.status === 'COMPLETED'"
         primary
@@ -17,16 +16,18 @@
         @click="handleClickContinue"
       />
       <template v-else-if="loadingTask.status === 'FAILED'">
-        <KButton
-          primary
-          :text="coreString('retryAction')"
-          @click="retryImport"
-        />
-        <KButton
-          :text="coreString('startOverAction')"
-          appearance="flat-button"
-          @click="startOver"
-        />
+        <KButtonGroup>
+          <KButton
+            primary
+            :text="coreString('retryAction')"
+            @click="retryImport"
+          />
+          <KButton
+            :text="coreString('startOverAction')"
+            appearance="flat-button"
+            @click="startOver"
+          />
+        </KButtonGroup>
       </template>
       <span v-else></span>
     </template>
@@ -63,6 +64,7 @@
     data() {
       return {
         loadingTask: {},
+        isPolling: false,
       };
     },
     computed: {
@@ -74,6 +76,7 @@
       },
     },
     beforeMount() {
+      this.isPolling = true;
       this.pollTask();
     },
     methods: {
@@ -84,9 +87,11 @@
             facility_name: this.facilityName,
           };
         });
-        setTimeout(() => {
-          this.pollTask();
-        }, 2000);
+        if (this.isPolling) {
+          setTimeout(() => {
+            this.pollTask();
+          }, 2000);
+        }
       },
       retryImport() {
         this.clearTasks()
@@ -107,12 +112,19 @@
         return SetupTasksResource.canceltask(this.loadingTask.id);
       },
       startOver() {
+        this.isPolling = false;
+        this.clearTasks().then(() => {
+          this.goToRootUrl();
+        });
+      },
+      goToRootUrl() {
         this.$router.replace('/');
       },
       clearTasks() {
         return SetupTasksResource.cleartasks();
       },
       handleClickContinue() {
+        this.isPolling = false;
         this.clearTasks();
         this.$emit('click_next');
       },

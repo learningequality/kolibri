@@ -41,7 +41,9 @@ urlpatterns = urlpatterns + [
         name="schema-swagger-ui",
     ),
     url(
-        r"^redoc/$", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"
+        r"^redoc/$",
+        schema_view.with_ui("redoc", cache_timeout=0),
+        name="schema-redoc",
     ),
     url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]

@@ -1,4 +1,4 @@
-{% load static %}
+{% load staticfiles %}
 <!DOCTYPE html>
 
 <html>
@@ -14,9 +14,9 @@
             }
         </style>
 
-        <link type="text/css" rel="stylesheet" media="all" href="dist/styles/h5p.css" />
-        <link type="text/css" rel="stylesheet" media="all" href="dist/styles/h5p-confirmation-dialog.css" />
-        <link type="text/css" rel="stylesheet" media="all" href="dist/styles/h5p-core-button.css" />
+        <link type="text/css" rel="stylesheet" media="all" href="{% static 'assets/h5p/styles/h5p.css' %}" />
+        <link type="text/css" rel="stylesheet" media="all" href="{% static 'assets/h5p/styles/h5p-confirmation-dialog.css' %}" />
+        <link type="text/css" rel="stylesheet" media="all" href="{% static 'assets/h5p/styles/h5p-core-button.css' %}" />
 
         {% for path in cssfiles %}
         <link type="text/css" rel="stylesheet" media="all" href="{{ path }}" />
@@ -80,7 +80,7 @@
 
         </script>
 
-        <script type="text/javascript" src="dist/js/frame.bundle.js" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="{% static 'assets/h5p/js/frame.bundle.js' %}" crossorigin="anonymous"></script>
 
         {% for path in jsfiles %}
         <script type="text/javascript" src="{{ path }}"></script>

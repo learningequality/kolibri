@@ -13,7 +13,7 @@
     props: {
       src: {
         type: String,
-        required: false,
+        default: null,
       },
     },
   };

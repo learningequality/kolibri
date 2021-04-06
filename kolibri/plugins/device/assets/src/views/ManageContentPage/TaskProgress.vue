@@ -59,10 +59,11 @@
       },
       status: {
         type: String,
-        required: false,
+        default: null,
       },
       percentage: {
         type: Number,
+        default: null,
       },
     },
     computed: {

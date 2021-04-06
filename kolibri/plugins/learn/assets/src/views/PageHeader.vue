@@ -30,13 +30,15 @@
     props: {
       title: {
         type: String,
+        default: null,
       },
       progress: {
         type: Number,
-        required: false,
+        default: null,
       },
       contentType: {
         type: String,
+        default: null,
       },
     },
   };

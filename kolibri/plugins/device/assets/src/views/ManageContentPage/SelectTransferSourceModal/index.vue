@@ -42,6 +42,7 @@
     props: {
       pageName: {
         type: String,
+        required: true,
       },
       manageMode: {
         type: Boolean,

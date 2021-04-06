@@ -58,7 +58,10 @@
           return this.$tr('forgetToSignIn');
         },
       },
-      details: { type: String },
+      details: {
+        type: String,
+        default: null,
+      },
     },
     computed: {
       ...mapGetters(['isUserLoggedIn']),

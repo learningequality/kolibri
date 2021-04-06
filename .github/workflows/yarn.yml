@@ -39,5 +39,3 @@ jobs:
         npm rebuild node-sass
     - name: Run tests
       run: yarn run coverage
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1

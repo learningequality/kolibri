@@ -94,7 +94,7 @@ def process_docstring(app, what, name, obj, options, lines):
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode", "m2r"]
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode", "m2r", "notfound.extension"]
 
 linkcheck_ignore = [
     "https://groups.google.com/a/learningequality.org/forum/#!forum/dev"
@@ -217,6 +217,15 @@ html_show_copyright = False
 # Output file base name for HTML help builder.
 htmlhelp_basename = "kolibri-dev"
 
+# Add replacement codes
+rst_prolog = """
+.. role:: raw-html(raw)
+     :format: html
+
+.. |br| replace:: :raw-html:`<br /><br />`
+
+
+"""
 
 # -- I18N ----------------------------------------------------------------------
 

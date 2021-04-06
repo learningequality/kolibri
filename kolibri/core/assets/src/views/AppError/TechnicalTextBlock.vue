@@ -44,7 +44,7 @@
       },
       maxHeight: {
         type: Number,
-        required: false,
+        default: null,
       },
       minHeight: {
         type: Number,

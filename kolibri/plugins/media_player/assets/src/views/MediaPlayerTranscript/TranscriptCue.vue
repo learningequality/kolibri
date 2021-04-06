@@ -43,8 +43,14 @@
   export default {
     name: 'TranscriptCue',
     props: {
-      cue: Object,
-      mediaDuration: Number,
+      cue: {
+        type: Object,
+        default: () => ({}),
+      },
+      mediaDuration: {
+        type: Number,
+        default: null,
+      },
       active: {
         type: Boolean,
         default: false,
@@ -52,9 +58,12 @@
     },
     computed: {
       speaker() {
-        return this.cue.text.match(SPEAKER_REGEX)
-          ? this.cue.text.replace(SPEAKER_REGEX, '$1')
-          : null;
+        if (this.cue && this.cue.text) {
+          return this.cue.text.match(SPEAKER_REGEX)
+            ? this.cue.text.replace(SPEAKER_REGEX, '$1')
+            : null;
+        }
+        return null;
       },
       startTime() {
         return videojs.formatTime(this.cue.startTime, this.mediaDuration);

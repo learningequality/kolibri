@@ -16,7 +16,7 @@ more-itertools==5.0.0  # Last Python 2.7 friendly release # pyup: <6.0
 unicodecsv==0.14.1
 metafone==0.5
 le-utils==0.1.24
-kolibri_exercise_perseus_plugin==1.3.3
+kolibri_exercise_perseus_plugin==1.3.4a2
 jsonfield==2.0.2
 requests-toolbelt==0.8.0
 clint==0.5.1
@@ -32,3 +32,6 @@ html5lib==1.0.1
 zeroconf-py2compat==0.19.10
 ifcfg==0.21
 Click==7.0
+ua-parser==0.10.0
+whitenoise==4.1.4
+idna==2.8

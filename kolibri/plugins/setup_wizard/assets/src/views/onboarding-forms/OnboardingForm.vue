@@ -50,11 +50,11 @@
       },
       description: {
         type: String,
-        required: false,
+        default: null,
       },
       submitText: {
         type: String,
-        required: false,
+        default: null,
       },
     },
     computed: {

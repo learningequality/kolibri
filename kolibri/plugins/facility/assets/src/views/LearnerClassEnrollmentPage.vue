@@ -7,6 +7,7 @@
       :facilityUsers="facilityUsers"
       :classUsers="classUsers"
       :disabled="formIsDisabled"
+      pageType="learners"
       @submit="enrollLearners"
     />
   </KPageContainer>

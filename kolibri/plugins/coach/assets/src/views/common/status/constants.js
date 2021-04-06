@@ -1,18 +1,3 @@
-export const OBJECTS = {
-  exercise: 'exercise',
-  lesson: 'lesson',
-  question: 'question',
-  quiz: 'quiz',
-  resource: 'resource',
-};
-
-export const ADJECTIVES = {
-  difficult: 'difficult',
-  completed: 'completed',
-  inProgress: 'inProgress',
-  notStarted: 'notStarted',
-};
-
 export const VERBS = {
   completed: 'completed',
   notStarted: 'notStarted',

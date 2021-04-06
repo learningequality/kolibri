@@ -54,6 +54,7 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
 from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
 from kolibri.core.tasks.exceptions import JobNotFound
+from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import facility_queue
@@ -221,6 +222,30 @@ class BaseViewSet(viewsets.ViewSet):
 
         return Response(task)
 
+    @decorators.action(methods=["post"], detail=False)
+    def restarttask(self, request):
+        """
+        Restart a task with its task id given in the task_id parameter.
+        """
+
+        if "task_id" not in request.data:
+            raise serializers.ValidationError("The 'task_id' field is required.")
+        if not isinstance(request.data["task_id"], string_types):
+            raise serializers.ValidationError("The 'task_id' should be a string.")
+
+        resp = {}
+        for _queue in self.queues:
+            try:
+                task_id = _queue.restart_job(request.data["task_id"])
+                resp = _job_to_response(_queue.fetch_job(task_id))
+                break
+            except JobNotFound:
+                continue
+            except JobNotRestartable as e:
+                raise serializers.ValidationError(str(e))
+
+        return Response(resp)
+
     def destroy(self, request, pk=None):
         # unimplemented for now.
         pass
@@ -284,7 +309,9 @@ class BaseViewSet(viewsets.ViewSet):
 
 
 class TasksViewSet(BaseViewSet):
-    queues = [queue, priority_queue]
+    @property
+    def queues(self):
+        return [queue, priority_queue]
 
     def default_permission_classes(self):
         # exclusive permission for facility management

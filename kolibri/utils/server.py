@@ -6,17 +6,20 @@ from subprocess import check_output
 
 import cherrypy
 import requests
+from cheroot import wsgi
 from cherrypy.process.plugins import SimplePlugin
+from cherrypy.process.servers import ServerAdapter
 from django.conf import settings
 from zeroconf import get_all_addresses
 
 import kolibri
+from .django_whitenoise import DjangoWhiteNoise
 from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
+from kolibri.core.content.zip_wsgi import get_application
 from kolibri.core.deviceadmin.utils import schedule_vacuum
 from kolibri.core.tasks.main import initialize_workers
-from kolibri.core.tasks.main import queue
 from kolibri.core.tasks.main import scheduler
 from kolibri.utils import conf
 from kolibri.utils.android import on_android
@@ -95,10 +98,6 @@ class ServicesPlugin(SimplePlugin):
 
         # schedule the vacuum job
         schedule_vacuum()
-
-        # This is run every time the server is started to clear all the tasks
-        # in the queue
-        queue.empty()
 
         # Initialize the iceqube engine to handle queued tasks
         self.workers = initialize_workers()
@@ -264,19 +263,22 @@ def configure_http_server(port):
     # Mount the application
     from kolibri.deployment.default.wsgi import application
 
-    cherrypy.tree.graft(application, "/")
+    whitenoise_settings = {
+        "static_root": settings.STATIC_ROOT,
+        "static_prefix": settings.STATIC_URL,
+        # Use 1 day as the default cache time for static assets
+        "max_age": 24 * 60 * 60,
+        # Add a test for any file name that contains a semantic version number
+        # or a 32 digit number (assumed to be a file hash)
+        # these files will be cached indefinitely
+        "immutable_file_test": r"((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)|[a-f0-9]{32})",
+        "autorefresh": getattr(settings, "DEVELOPER_MODE", False),
+    }
 
     # Mount static files
-    cherrypy.tree.mount(
-        cherrypy.tools.staticdir.handler(section="/", dir=settings.STATIC_ROOT),
-        settings.STATIC_URL,
-        config={
-            "/": {
-                "tools.gzip.on": True,
-                "tools.gzip.mime_types": ["text/*", "application/javascript"],
-            }
-        },
-    )
+    application = DjangoWhiteNoise(application, **whitenoise_settings)
+
+    cherrypy.tree.graft(application, "/")
 
     # Mount media files
     cherrypy.tree.mount(
@@ -290,27 +292,53 @@ def configure_http_server(port):
     ).lstrip("/")
     content_dirs = [paths.get_content_dir_path()] + paths.get_content_fallback_paths()
     dispatcher = MultiStaticDispatcher(content_dirs)
-    cherrypy.tree.mount(
+    content_handler = cherrypy.tree.mount(
         None,
         CONTENT_ROOT,
         config={"/": {"tools.caching.on": False, "request.dispatch": dispatcher}},
     )
 
+    cherrypy_server_config = {
+        "server.socket_host": LISTEN_ADDRESS,
+        "server.socket_port": port,
+        "server.thread_pool": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
+        "server.socket_timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
+        "server.accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+        "server.accepted_queue_timeout": conf.OPTIONS["Server"][
+            "CHERRYPY_QUEUE_TIMEOUT"
+        ],
+    }
+
     # Configure the server
-    cherrypy.config.update(
-        {
-            "server.socket_host": LISTEN_ADDRESS,
-            "server.socket_port": port,
-            "server.thread_pool": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
-            "server.socket_timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
-            "server.accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
-            "server.accepted_queue_timeout": conf.OPTIONS["Server"][
-                "CHERRYPY_QUEUE_TIMEOUT"
-            ],
-        }
+    cherrypy.config.update(cherrypy_server_config)
+
+    alt_port_addr = (
+        LISTEN_ADDRESS,
+        conf.OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
     )
-    # Subscribe this server
+
+    # Mount static files
+    alt_port_app = wsgi.PathInfoDispatcher(
+        {"/": get_application(), CONTENT_ROOT: content_handler}
+    )
+    alt_port_app = DjangoWhiteNoise(alt_port_app, **whitenoise_settings)
+
+    alt_port_server = ServerAdapter(
+        cherrypy.engine,
+        wsgi.Server(
+            alt_port_addr,
+            alt_port_app,
+            numthreads=conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
+            request_queue_size=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+            timeout=conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
+            accepted_queue_size=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+            accepted_queue_timeout=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_TIMEOUT"],
+        ),
+        alt_port_addr,
+    )
+    # Subscribe these servers
     cherrypy.server.subscribe()
+    alt_port_server.subscribe()
 
 
 def run_server(port, serve_http=True):
@@ -322,7 +350,7 @@ def run_server(port, serve_http=True):
 
     cherrypy.config.update(
         {
-            "engine.autoreload.on": False,
+            "engine.autoreload.on": getattr(settings, "DEVELOPER_MODE", False),
             "checker.on": False,
             "request.show_tracebacks": False,
             "request.show_mismatched_params": False,

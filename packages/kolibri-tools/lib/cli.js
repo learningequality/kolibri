@@ -141,7 +141,7 @@ program
     const buildModule = {
       [modes.PROD]: 'production.js',
       [modes.DEV]: 'webpackdevserver.js',
-      [modes.I18N]: 'i18n.js',
+      [modes.I18N]: 'i18n/index.js',
       [modes.STATS]: 'bundleStats.js',
       [modes.CLEAN]: 'clean.js',
     }[mode];
@@ -347,6 +347,26 @@ program
     process.argv.push('--config');
     process.argv.push(config);
     require('jest-cli/build/cli').run();
+  });
+
+// Test
+program
+  .command('compress')
+  .arguments('[files...]', 'List of custom file globs or file names to compress')
+  .allowUnknownOption()
+  .action(function(files) {
+    if (!files.length) {
+      program.help();
+    } else {
+      const glob = require('glob');
+      const compressFile = require('./compress');
+      Promise.all(
+        files.map(file => {
+          const matches = glob.sync(file);
+          return Promise.all(matches.map(compressFile));
+        })
+      );
+    }
   });
 
 // Check engines, then process args

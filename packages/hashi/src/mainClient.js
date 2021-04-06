@@ -16,11 +16,6 @@ export default class MainClient {
   constructor({ iframe, now } = {}) {
     this.events = events;
     this.iframe = iframe;
-    if (this.iframe.name !== nameSpace) {
-      throw ReferenceError(
-        `Iframe passed to Hashi must have been initialized with name attribute ${nameSpace}`
-      );
-    }
     this.mediator = new Mediator(this.iframe.contentWindow);
     this.storage = {
       localStorage: new LocalStorage(this.mediator),
@@ -28,9 +23,12 @@ export default class MainClient {
       SCORM: new SCORM(this.mediator),
     };
     this.now = now;
+    this.ready = false;
+    this.contentNamespace = null;
+    this.startUrl = null;
     this.__setData = this.__setData.bind(this);
   }
-  initialize(contentState, userData) {
+  initialize(contentState, userData, startUrl, contentNamespace) {
     /*
      * userData should be an object with the following keys, all optional:
      * userId: <user ID>,
@@ -42,11 +40,23 @@ export default class MainClient {
      */
     this.__setData(contentState, userData);
     this.__setListeners();
+
+    this.contentNamespace = contentNamespace;
+    this.startUrl = startUrl;
+
     // Set this here so that any time the inner frame declares it is ready
     // it can reinitialize its SandboxEnvironment.
-    this.on(this.events.READY, () => {
+    this.on(this.events.IFRAMEREADY, () => {
       this.__setData(this.data, this.userData);
-      this.mediator.sendMessage({ nameSpace, event: events.READY, data: true });
+      this.ready = true;
+      this.mediator.sendMessage({
+        nameSpace,
+        event: events.MAINREADY,
+        data: {
+          contentNamespace,
+          startUrl,
+        },
+      });
     });
     this.mediator.sendMessage({ nameSpace, event: events.READYCHECK, data: true });
   }

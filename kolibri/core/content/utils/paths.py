@@ -1,7 +1,8 @@
+import io
 import os
 import re
 
-from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.utils.http import urlencode
 from six.moves.urllib.parse import urljoin
 
@@ -13,8 +14,7 @@ from kolibri.utils import conf
 VALID_STORAGE_FILENAME = re.compile(r"[0-9a-f]{32}(-data)?\.[0-9a-z]+")
 
 # set of file extensions that should be considered zip files and allow access to internal files
-POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".perseus", ".zip", ".h5p"])
-# TODO: add ".epub" and ".epub3" if epub-equivalent of ZipContentView implemented
+POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".zip", ".h5p"])
 
 
 def _maybe_makedirs(path):
@@ -48,10 +48,7 @@ def get_local_content_storage_file_url(obj):
     The same url will also be exposed by the file serializer.
     """
     if get_attribute(obj, "available"):
-        return get_content_storage_file_url(
-            filename=get_content_file_name(obj),
-            baseurl=conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"],
-        )
+        return get_content_storage_file_url(filename=get_content_file_name(obj))
     else:
         return None
 
@@ -251,7 +248,45 @@ def get_file_checksums_url(channel_id, baseurl, version="1"):
     )
 
 
-def get_content_storage_file_url(filename, baseurl=None):
+HASHI = "hashi/"
+
+ZIPCONTENT = "zipcontent/"
+
+
+def get_zip_content_base_path():
+    return "{}{}".format(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"], ZIPCONTENT)
+
+
+HASHI_FILENAME = None
+
+
+def get_hashi_js_filename():
+    global HASHI_FILENAME
+    if HASHI_FILENAME is None or getattr(settings, "DEVELOPER_MODE", None):
+        with io.open(
+            os.path.join(os.path.dirname(__file__), "../build/hashi_filename"),
+            mode="r",
+            encoding="utf-8",
+        ) as f:
+            HASHI_FILENAME = f.read().strip()
+    return HASHI_FILENAME
+
+
+def get_hashi_html_filename():
+    return "{}.html".format(".".join(get_hashi_js_filename().split(".")[:-1]))
+
+
+def get_hashi_base_path():
+    return "{}{}".format(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"], HASHI)
+
+
+def get_hashi_path():
+    return "{}{}{}".format(
+        conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"], HASHI, get_hashi_html_filename()
+    )
+
+
+def get_content_storage_file_url(filename):
     """
     Return the URL at which the specified file can be accessed. For regular files, this is a link to the static
     file itself, under "/content/storage/". For "zip" files, this points to a dynamically generated view that
@@ -259,13 +294,12 @@ def get_content_storage_file_url(filename, baseurl=None):
     """
     ext = os.path.splitext(filename)[1]
     if ext in POSSIBLE_ZIPPED_FILE_EXTENSIONS:
-        return reverse(
-            "kolibri:core:zipcontent",
-            kwargs={"zipped_filename": filename, "embedded_filepath": ""},
-        )
+        return "{}{}/".format(get_zip_content_base_path(), filename)
     else:
         return "/{}{}/{}/{}".format(
-            get_content_storage_url(baseurl).lstrip("/"),
+            get_content_storage_url(
+                conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
+            ).lstrip("/"),
             filename[0],
             filename[1],
             filename,

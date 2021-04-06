@@ -55,6 +55,7 @@
        */
       value: {
         type: String,
+        default: null,
       },
       /**
        * Placeholder

@@ -21,7 +21,7 @@
     props: {
       userType: {
         type: String,
-        required: false,
+        default: null,
       },
       distinguishCoachTypes: {
         type: Boolean,

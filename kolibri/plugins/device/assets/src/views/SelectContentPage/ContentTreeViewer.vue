@@ -81,7 +81,7 @@
     props: {
       node: {
         type: Object,
-        required: false,
+        default: null,
       },
       manageMode: {
         type: Boolean,

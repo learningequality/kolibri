@@ -35,12 +35,11 @@
           <transition-group tag="tbody" name="list">
             <tr v-for="tableRow in table" :key="tableRow.id">
               <td>
-                <KLabeledIcon icon="lesson">
-                  <KRouterLink
-                    :text="tableRow.title"
-                    :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"
-                  />
-                </KLabeledIcon>
+                <KRouterLink
+                  :text="tableRow.title"
+                  :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"
+                  icon="lesson"
+                />
               </td>
               <td>
                 <StatusSummary
@@ -57,6 +56,7 @@
               <td v-show="!$isPrint">
                 <KSwitch
                   name="toggle-lesson-visibility"
+                  label=""
                   :checked="tableRow.active"
                   :value="tableRow.active"
                   @change="handleToggleVisibility(tableRow)"

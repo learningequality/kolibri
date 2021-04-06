@@ -196,13 +196,12 @@
           } else if (last) {
             // 'last' should only be route names for Recommended Page and its subpages
             immersivePageRoute = this.$router.getRoute(last);
-            const trString = {
-              [PageNames.RECOMMENDED_POPULAR]: 'documentTitleForPopular',
-              [PageNames.RECOMMENDED_RESUME]: 'documentTitleForResume',
-              [PageNames.RECOMMENDED_NEXT_STEPS]: 'documentTitleForNextSteps',
-              [PageNames.RECOMMENDED]: 'recommended',
+            appBarTitle = {
+              [PageNames.RECOMMENDED_POPULAR]: this.learnString('popularLabel'),
+              [PageNames.RECOMMENDED_RESUME]: this.learnString('resumeLabel'),
+              [PageNames.RECOMMENDED_NEXT_STEPS]: this.learnString('nextStepsLabel'),
+              [PageNames.RECOMMENDED]: this.learnString('recommendedLabel'),
             }[last];
-            appBarTitle = this.$tr(trString);
           } else if (this.topicsTreeContent.parent) {
             // Need to guard for parent being non-empty to avoid console errors
             immersivePageRoute = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
@@ -330,10 +329,6 @@
     },
     $trs: {
       examReportTitle: '{examTitle} report',
-      recommended: 'Recommended',
-      documentTitleForPopular: 'Popular',
-      documentTitleForResume: 'Resume',
-      documentTitleForNextSteps: 'Next Steps',
     },
   };
 

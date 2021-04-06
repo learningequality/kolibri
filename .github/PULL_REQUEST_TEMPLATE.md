@@ -5,7 +5,7 @@
  4. Delete instruction/comment blocks
 -->
 
-### Summary
+## Summary
 <!--
  * description of the change
  * manual verification steps performed
@@ -14,15 +14,7 @@
 
 …
 
-### Reviewer guidance
-<!--
- * how can a reviewer test these changes?
- * are there any risky areas that deserve extra testing
--->
-
-…
-
-### References
+## References
 <!--
  * references to related issues and PRs
  * links to mockups or specs for new features
@@ -31,12 +23,25 @@
 
 …
 
+## Reviewer guidance
+<!--
+ * how can a reviewer test these changes?
+ * are there any risky areas that deserve extra testing
+-->
+
+…
+
 ----
 
-### Contributor Checklist
+## Testing checklist
+
+- [ ] Contributor has fully tested the PR manually
+- [ ] If there are any front-end changes, before/after screenshots are included
+- [ ] Critical user journeys are covered by Gherkin stories
+- [ ] Critical and brittle code paths are covered by unit tests
 
 
-PR process:
+## PR process
 
 - [ ] PR has the correct target branch and milestone
 - [ ] PR has 'needs review' or 'work-in-progress' label
@@ -44,14 +49,7 @@ PR process:
 - [ ] If this is an important user-facing change, PR or related issue has a 'changelog' label
 - [ ] If this includes an internal dependency change, a link to the diff is provided
 
-Testing:
-
-- [ ] Contributor has fully tested the PR manually
-- [ ] If there are any front-end changes, before/after screenshots are included
-- [ ] Critical user journeys are covered by Gherkin stories
-- [ ] Critical and brittle code paths are covered by unit tests
-
-### Reviewer Checklist
+## Reviewer checklist
 
 - Automated test coverage is satisfactory
 - PR is fully functional

@@ -73,6 +73,7 @@
     props: {
       channels: {
         type: Array,
+        default: () => [],
       },
       selectAllCheckbox: {
         type: Boolean,
@@ -80,7 +81,7 @@
       },
       selectedChannels: {
         type: Array,
-        required: false,
+        default: () => [],
       },
     },
     data() {
@@ -134,6 +135,16 @@
           return this.$tr('noMatchingItems');
         }
         return '';
+      },
+    },
+    watch: {
+      channels(newVal, oldVal) {
+        if (newVal.length !== oldVal.length) {
+          // HACK: Whenever `this.channels` is updated with an unlisted channel, update
+          // `this.channelsCopy`. In `this.filteredItems`, we still cannot directly
+          // pull from `this.channels` because of #6989
+          this.channelsCopy = [...newVal];
+        }
       },
     },
     beforeMount() {

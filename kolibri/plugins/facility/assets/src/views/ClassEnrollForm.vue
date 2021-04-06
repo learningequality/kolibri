@@ -1,6 +1,6 @@
 <template>
 
-  <form @submit.prevent="$emit('submit', selectedUsers)">
+  <form>
 
     <PaginatedListContainer
       :items="usersNotInClass"
@@ -16,15 +16,12 @@
         />
       </template>
     </PaginatedListContainer>
-
-    <div class="footer">
-      <KButton
-        :text="coreString('confirmAction')"
-        :primary="true"
-        type="submit"
-        :disabled="disabled || selectedUsers.length === 0"
-      />
-    </div>
+    <SelectionBottomBar
+      :count="selectedUsers.length"
+      :disabled="disabled || selectedUsers.length === 0"
+      :type="pageType"
+      @click-confirm="$emit('submit', selectedUsers)"
+    />
 
   </form>
 
@@ -37,11 +34,13 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
+  import SelectionBottomBar from './SelectionBottomBar';
   import UserTable from './UserTable';
 
   export default {
     name: 'ClassEnrollForm',
     components: {
+      SelectionBottomBar,
       PaginatedListContainer,
       UserTable,
     },
@@ -53,6 +52,10 @@
       },
       classUsers: {
         type: Array,
+        required: true,
+      },
+      pageType: {
+        type: String,
         required: true,
       },
       disabled: {

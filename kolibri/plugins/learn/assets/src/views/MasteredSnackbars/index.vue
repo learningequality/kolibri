@@ -105,11 +105,11 @@
     props: {
       nextContent: {
         type: Object,
-        required: false,
+        default: () => ({}),
       },
       nextContentLink: {
         type: Object,
-        required: false,
+        default: () => ({}),
       },
     },
     data: () => ({

@@ -53,7 +53,6 @@
 
   import { mapGetters } from 'vuex';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import CardThumbnail from './CardThumbnail';
@@ -72,16 +71,20 @@
       },
       subtitle: {
         type: String,
-        required: false,
+        default: null,
       },
       thumbnail: {
         type: String,
-        required: false,
+        default: null,
       },
       kind: {
         type: String,
         required: true,
         validator: validateContentNodeKind,
+      },
+      isLeaf: {
+        type: Boolean,
+        required: true,
       },
       showContentIcon: {
         type: Boolean,
@@ -113,17 +116,17 @@
       },
       contentId: {
         type: String,
-        required: false,
+        default: null,
       },
       copiesCount: {
         type: Number,
-        required: false,
+        default: null,
       },
     },
     computed: {
       ...mapGetters(['isLearner', 'isUserLoggedIn']),
       isTopic() {
-        return this.kind === ContentNodeKinds.TOPIC || this.kind === ContentNodeKinds.CHANNEL;
+        return !this.isLeaf;
       },
       maxTitleHeight() {
         if (this.hasFooter && this.subtitle) {

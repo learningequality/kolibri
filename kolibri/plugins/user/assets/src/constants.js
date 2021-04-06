@@ -5,6 +5,7 @@ export const ComponentMap = {
   PROFILE_EDIT: 'ProfileEditPage',
   AUTH_SELECT: 'AuthSelect',
   FACILITY_SELECT: 'FacilitySelect',
+  NEW_PASSWORD: 'NewPasswordPage',
 };
 
 export const pageNameToModuleMap = {

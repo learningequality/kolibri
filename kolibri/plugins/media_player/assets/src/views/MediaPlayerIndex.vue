@@ -57,7 +57,7 @@
           <source
             :key="audio.storage_url"
             :src="audio.storage_url"
-            :type="`audio/${audio.extension}`"
+            :type="audioSourceType(audio.extension)"
           >
         </template>
       </audio>
@@ -153,6 +153,18 @@
         return this.supplementaryFiles.filter(file =>
           trackFileExtensions.some(ext => ext === file.extension)
         );
+      },
+      audioSourceType() {
+        return function(extension) {
+          switch (extension) {
+            case 'mp3':
+              // the correct type for mp3
+              return 'audio/mpeg';
+            default:
+              // generally speaking, this should work for others
+              return `audio/${extension}`;
+          }
+        };
       },
       isVideo() {
         return this.videoSources.length;

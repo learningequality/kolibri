@@ -5,7 +5,7 @@
       <KRouterLink
         class="backlink"
         :to="backTo"
-        :text="AuthMessageStrings.$tr('goBackToHomeAction')"
+        :text="userString('goBackToHomeAction')"
         icon="back"
       />
       <div v-if="facilityList['enabled'].length">
@@ -59,16 +59,15 @@
 
   import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import partition from 'lodash/partition';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { ComponentMap } from '../constants';
   import AuthBase from './AuthBase';
+  import commonUserStrings from './commonUserStrings';
 
   export default {
     name: 'FacilitySelect',
     components: { AuthBase },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonUserStrings],
     props: {
       // This component is interstitial and needs to know where to go when it's done
       // The type is Object, but it needs to be one of the listed routes in the validator
@@ -104,16 +103,17 @@
           ? this.$tr('canSignUpForFacilityLabel')
           : this.$tr('selectFacilityLabel');
       },
-      AuthMessageStrings() {
-        return crossComponentTranslator(AuthMessage);
-      },
     },
     methods: {
       setFacility(facilityId) {
+        const whereToNext = { ...this.whereToNext };
+        if (this.$route.query.next) {
+          whereToNext.query.next = this.$route.query.next;
+        }
         // Save the selected facility, get its config, then move along to next route
         this.$store.dispatch('setFacilityId', { facilityId }).then(() => {
           this.$store.dispatch('getFacilityConfig', facilityId).then(() => {
-            this.$router.push(this.whereToNext);
+            this.$router.push(whereToNext);
           });
         });
       },

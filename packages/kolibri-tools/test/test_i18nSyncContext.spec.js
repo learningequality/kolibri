@@ -17,7 +17,7 @@ const recastOptions = {
 };
 
 // Rewiring the functions to test.
-const i18nSyncContext = rewire('../lib/i18nSyncContext');
+const i18nSyncContext = rewire('../lib/i18n/SyncContext');
 const isCreateTranslator = i18nSyncContext.__get__('isCreateTranslator');
 const is$trs = i18nSyncContext.__get__('is$trs');
 const processVueFiles = i18nSyncContext.__get__('processVueFiles');

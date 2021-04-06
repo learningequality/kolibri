@@ -36,7 +36,7 @@
     props: {
       deviceName: {
         type: String,
-        required: false,
+        default: '',
       },
     },
     data() {

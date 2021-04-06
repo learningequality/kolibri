@@ -111,7 +111,6 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { mapActions, mapGetters, mapState } from 'vuex';
   import camelCase from 'lodash/camelCase';
   import isEqual from 'lodash/isEqual';
@@ -119,8 +118,6 @@
   import urls from 'kolibri.urls';
   import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
-  // TODO: Notification component is empty and should be removed on 0.15 version
-  import Notifications from './ConfigPageNotifications';
 
   // See FacilityDataset in core.auth.models for details
   const settingsList = [
@@ -177,9 +174,6 @@
       enableChangePassword() {
         return this.settings['learner_can_login_with_no_password'];
       },
-      NotificationsStrings() {
-        return crossComponentTranslator(Notifications);
-      },
     },
     watch: {
       facilityNameSaved(val) {
@@ -221,13 +215,11 @@
         this.$store
           .dispatch(action)
           .then(() => {
-            // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
-            this.createSnackbar(this.NotificationsStrings.$tr('saveSuccess'));
+            this.createSnackbar(this.$tr('saveSuccess'));
             this.copySettings();
           })
           .catch(() => {
-            // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
-            this.createSnackbar(this.NotificationsStrings.$tr('saveFailure'));
+            this.createSnackbar(this.$tr('saveFailure'));
             this.$store.commit('facilityConfig/CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
           });
       },
@@ -259,6 +251,8 @@
       showDownloadButtonInLearn: "Show 'download' button with resources",
       allowGuestAccess: 'Allow users to access resources without signing in',
       /* eslint-enable kolibri/vue-no-unused-translations */
+      saveFailure: 'There was a problem saving your settings',
+      saveSuccess: 'Facility settings updated',
       pageDescription: {
         message: 'Configure facility settings here.',
         context: '\nInterpret as "[You can] configure facility settings here"',

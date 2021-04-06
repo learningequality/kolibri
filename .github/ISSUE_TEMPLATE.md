@@ -4,28 +4,14 @@ Instructions:
  * Use the 'preview' function above this text box to verify formatting before submitting
 -->
 
-### Observed behavior
+## Observed behavior
 <!--
 Description of the behavior that was observed, including screenshots or other references when applicable
 -->
 
 …
 
-### Expected behavior
-<!--
-Description of what behavior was expected but did not occur
--->
-
-…
-
-### User-facing consequences
-<!--
-Implications and real-world consequences for learners, coaches, admins, and other users of the application
--->
-
-…
-
-### Errors and logs
+## Errors and logs
 <!--
 Relevant logs from:
  * the command line
@@ -41,14 +27,28 @@ Please wrap errors in triple backticks for clean formatting like this:
 
 …
 
-### Steps to reproduce
+## Expected behavior
+<!--
+Description of what behavior was expected but did not occur
+-->
+
+…
+
+## User-facing consequences
+<!--
+Implications and real-world consequences for learners, coaches, admins, and other users of the application
+-->
+
+…
+
+## Steps to reproduce
 <!--
 Precise steps that someone else can follow in order to see this behavior
 -->
 
 …
 
-### Context
+## Context
 <!--
 Tell us about your environment, including:
  * Kolibri version

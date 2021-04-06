@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import uuid
+
 from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -217,8 +219,8 @@ class ExamAPITestCase(APITestCase):
         exam["title"] = title
         exam["question_sources"].append(
             {
-                "exercise_id": "e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1",
-                "question_id": "q1",
+                "exercise_id": uuid.uuid4().hex,
+                "question_id": uuid.uuid4().hex,
                 "title": "Title",
                 # missing 'counter_in_exercise'
             }
@@ -233,6 +235,20 @@ class ExamAPITestCase(APITestCase):
         exam["question_sources"].append(
             {
                 "exercise_id": "e1",
+                "question_id": uuid.uuid4().hex,
+                "title": "Title",
+                "counter_in_exercise": 1,
+            }
+        )
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
+
+    def test_exam_with_invalid_question_id(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        exam["question_sources"].append(
+            {
+                "exercise_id": uuid.uuid4().hex,
                 "question_id": "q1",
                 "title": "Title",
                 "counter_in_exercise": 1,
@@ -241,13 +257,26 @@ class ExamAPITestCase(APITestCase):
         response = self.post_new_exam(exam)
         self.assertEqual(response.status_code, 400)
 
+    def test_exam_with_no_question_id_succeeds(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        exam["question_sources"].append(
+            {
+                "exercise_id": uuid.uuid4().hex,
+                "title": "Title",
+                "counter_in_exercise": 1,
+            }
+        )
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 201)
+
     def test_exam_with_valid_question_sources_succeeds(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
         exam["question_sources"].append(
             {
-                "exercise_id": "e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1",
-                "question_id": "q1",
+                "exercise_id": uuid.uuid4().hex,
+                "question_id": uuid.uuid4().hex,
                 "title": "Title",
                 "counter_in_exercise": 1,
             }

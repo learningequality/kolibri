@@ -38,7 +38,7 @@
             {{ $tr('neverSynced') }}
           </span>
           <span v-else class="sync-message">
-            {{ $tr('lastSync') }} {{ formattedTime(facility.last_synced) }}
+            {{ $tr('lastSync', { relativeTime: formattedTime(facility.last_synced) }) }}
           </span>
         </template>
       </span>
@@ -98,7 +98,10 @@
         context:
           '\nThis is associated with the label "Last successful sync:", and the subject is the Facility',
       },
-      lastSync: 'Last successful sync:',
+      lastSync: {
+        message: 'Last successful sync: {relativeTime}',
+        context: 'Shown with facilities that were synced at least once.',
+      },
       justNow: {
         message: 'Just now',
         context:

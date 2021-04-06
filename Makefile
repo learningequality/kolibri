@@ -93,6 +93,7 @@ test-all:
 assets:
 	yarn install
 	yarn run build
+	yarn run compress
 
 coverage:
 	coverage run --source kolibri setup.py test
@@ -134,7 +135,7 @@ clean-staticdeps:
 	git checkout -- kolibri/dist # restore __init__.py
 
 staticdeps: clean-staticdeps
-	test "${SKIP_PY_CHECK}" = "1" || python --version 2>&1 | grep -q 2.7 || ( echo "Only intended to run on Python 2.7" && exit 1 )
+	test "${SKIP_PY_CHECK}" = "1" || python2 --version 2>&1 | grep -q 2.7 || ( echo "Only intended to run on Python 2.7" && exit 1 )
 	pip2 install -t kolibri/dist -r "requirements.txt"
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	rm -rf kolibri/dist/*.egg-info
@@ -142,7 +143,7 @@ staticdeps: clean-staticdeps
 	# Remove unnecessary python2-syntax'ed file
 	# https://github.com/learningequality/kolibri/issues/3152
 	rm -f kolibri/dist/kolibri_exercise_perseus_plugin/static/mathjax/kathjax.py
-	python build_tools/py2only.py # move `future` and `futures` packages to `kolibri/dist/py2only`
+	python2 build_tools/py2only.py # move `future` and `futures` packages to `kolibri/dist/py2only`
 	make test-namespaced-packages
 
 staticdeps-cext:
@@ -183,7 +184,7 @@ pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
 i18n-extract-backend:
-	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
+	cd kolibri && python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
 
 i18n-extract-frontend:
 	yarn run makemessages
@@ -199,30 +200,30 @@ i18n-django-compilemessages:
 	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages
 
 i18n-upload: i18n-extract
-	python build_tools/i18n/crowdin.py upload-sources ${branch}
+	python packages/kolibri-tools/lib/i18n/crowdin.py upload-sources ${branch}
 
 i18n-pretranslate:
-	python build_tools/i18n/crowdin.py pretranslate ${branch}
+	python packages/kolibri-tools/lib/i18n/crowdin.py pretranslate ${branch}
 
 i18n-pretranslate-approve-all:
-	python build_tools/i18n/crowdin.py pretranslate ${branch} --approve-all
+	python packages/kolibri-tools/lib/i18n/crowdin.py pretranslate ${branch} --approve-all
 
 i18n-convert:
-	python build_tools/i18n/crowdin.py convert-files
+	python packages/kolibri-tools/lib/i18n/crowdin.py convert-files
 
 i18n-download-translations:
-	python build_tools/i18n/crowdin.py rebuild-translations ${branch}
-	python build_tools/i18n/crowdin.py download-translations ${branch}
-	node build_tools/i18n/intl_code_gen.js
+	python packages/kolibri-tools/lib/i18n/crowdin.py rebuild-translations ${branch}
+	python packages/kolibri-tools/lib/i18n/crowdin.py download-translations ${branch}
+	node packages/kolibri-tools/lib/i18n/intl_code_gen.js
 	$(MAKE) i18n-django-compilemessages
-	python build_tools/i18n/crowdin.py convert-files
+	python packages/kolibri-tools/lib/i18n/crowdin.py convert-files
 
 i18n-download-source-fonts:
-	python build_tools/i18n/fonts.py download-source-fonts
+	python packages/kolibri-tools/lib/i18n/fonts.py download-source-fonts
 
 i18n-regenerate-fonts:
-	python build_tools/i18n/fonts.py generate-full-fonts
-	python build_tools/i18n/fonts.py generate-subset-fonts
+	python packages/kolibri-tools/lib/i18n/fonts.py generate-full-fonts
+	python packages/kolibri-tools/lib/i18n/fonts.py generate-subset-fonts
 
 i18n-download: i18n-download-translations i18n-regenerate-fonts i18n-transfer-context
 
@@ -232,16 +233,16 @@ i18n-update:
 	echo "WARNING: i18n-update has been renamed to i18n-download"
 
 i18n-stats:
-	python build_tools/i18n/crowdin.py translation-stats ${branch}
+	python packages/kolibri-tools/lib/i18n/crowdin.py translation-stats ${branch}
 
 i18n-install-font:
-	python build_tools/i18n/fonts.py add-source-font ${name}
+	python packages/kolibri-tools/lib/i18n/fonts.py add-source-font ${name}
 
 i18n-download-glossary:
-	python build_tools/i18n/crowdin.py download-glossary
+	python packages/kolibri-tools/lib/i18n/crowdin.py download-glossary
 
 i18n-upload-glossary:
-	python build_tools/i18n/crowdin.py upload-glossary
+	python packages/kolibri-tools/lib/i18n/crowdin.py upload-glossary
 
 docker-whl: writeversion docker-envlist
 	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .
@@ -249,6 +250,7 @@ docker-whl: writeversion docker-envlist
 		--env-file ./docker/env.list \
 		-v $$PWD/dist:/kolibridist \
 		-v yarn_cache:/yarn_cache \
+		-v cext_cache:/cext_cache \
 		"learningequality/kolibri-whl"
 	git checkout -- ./docker/env.list  # restore env.list file
 

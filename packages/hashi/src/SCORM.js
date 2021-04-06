@@ -630,21 +630,9 @@ export default class SCORM extends BaseShim {
     return null;
   }
 
-  iframeInitialize() {
+  iframeInitialize(contentWindow) {
     this.__setShimInterface();
-    try {
-      window.parent.API = this.shim;
-    } catch (e) {
-      if (e instanceof DOMException) {
-        // If this is a result of trying to touch a secure property
-        // this will be a DOMException error. Catch and just return nothing.
-        logger.warn(
-          'Tried to setup the SCORM API in a sandboxed environment, it will not be enabled'
-        );
-        return;
-      }
-      throw e;
-    }
+    contentWindow.API = this.shim;
   }
 
   __setShimInterface() {

@@ -131,3 +131,9 @@ SQLITE_MAX_VARIABLE_NUMBER.cache
 
 # don't ignore the TTF font for H5P
 !h5p-core-18.ttf
+
+# static c extensions cache folder
+cext_cache
+
+# ignore gzipped files
+*.gz

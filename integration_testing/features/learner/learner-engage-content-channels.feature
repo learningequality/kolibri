@@ -33,6 +33,18 @@ Feature: Learner engages content channels
     When I click on the *Channels* part of the breadcrumb above the player
     Then I can see and browse the rest of the channels on *Learn > Channels* page
 
+    Scenario: Lesson content download
+      Given a super admin has enabled the *Show 'download' button with resources* option at *Facility > Settings* page
+      When I go to *Learn > Classes > Lesson* page
+        And I open a lesson
+      Then I see the *Download resource* button
+
+    Scenario: Channel content download
+      Given a super admin has enabled the *Show 'download' button with resources* option at *Facility > Settings* page
+      When I go to *Learn > Channels* page
+        And I browse any channel's topics until I open an single resource
+      Then I see the *Download resource* button
+
 Examples:
   | channel        | topic    | subtopic | content_item                     |
   | Kolibri Demo 1 | Science  | Physics  | Intro to springs and Hooke's law |

@@ -48,7 +48,7 @@
       // Override the toolbarRoute in vuex
       backRoute: {
         type: Object,
-        required: false,
+        default: null,
       },
     },
     data() {

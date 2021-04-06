@@ -30,7 +30,7 @@
     <KLinearLoader v-if="loading" :delay="false" type="indeterminate" />
 
     <p v-if="!loading && managedTasks.length === 0" class="empty-tasks-message">
-      {{ $tr('emptyTasksMessage') }}
+      {{ deviceString('emptyTasksMessage') }}
     </p>
     <transition-group name="fade" class="task-panels">
       <TaskPanel
@@ -56,6 +56,7 @@
   import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import commonDeviceStrings from '../commonDeviceStrings';
   import { PageNames } from '../../constants';
 
   import TaskPanel from './TaskPanel';
@@ -73,7 +74,7 @@
       TaskPanel,
       BackLink,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings, commonDeviceStrings],
     data() {
       return {
         loading: true,
@@ -123,7 +124,6 @@
       backToChannelsAction: 'Back to channels',
       tasksHeader: 'Tasks',
       appBarTitle: 'Task manager',
-      emptyTasksMessage: 'There are no tasks to display',
       clearCompletedAction: {
         message: 'Clear completed',
         context:

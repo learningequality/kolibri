@@ -42,7 +42,6 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
@@ -98,9 +97,9 @@
       }
     },
     methods: {
-      genContentLink(contentId, contentKind) {
+      genContentLink(contentId, isLeaf) {
         const params = { id: contentId };
-        if (contentKind === ContentNodeKinds.TOPIC || contentKind === ContentNodeKinds.CHANNEL) {
+        if (!isLeaf) {
           return this.$router.getRoute(PageNames.TOPICS_TOPIC, params);
         }
         return this.$router.getRoute(PageNames.TOPICS_CONTENT, params, this.$route.query);

@@ -1,4 +1,27 @@
-#!/usr/bin/env python
+"""
+This module defines functions to install c extensions for all the platforms into
+Kolibri.
+
+It is required to have pip version greater than 19.3.1 to run this script.
+Usage:
+> python build_tools/install_cexts.py --file "requirements/cext.txt" --cache-path "/cext_cache"
+
+It reads the package name and version from requirements/cext.txt file and
+installs the package and its dependencies using `pip install` with cache_path as
+the cache directory. It installs from PyPi for platforms such as manylinux,
+Windows and Piwheels for platforms such as ARM Linux. Please check the
+description of the function `parse_package_page` to see the platforms we skip
+downloading.
+
+When Kolibri starts, the function `prepend_cext_path` in `env.py` will calculate
+the c extension path based on system information and add it to sys.path so
+Kolibri can import the c extension.
+
+The cache directory is mainly used to stabilize the installation of c extensions
+from Piwheels website for the builds on Buildkite. If the directory of the cache_path
+passed into the function is not writable, a folder named `cext_cache` will be
+created under the directory where the script runs to store the cache data.
+"""
 import argparse
 import os
 import shutil
@@ -25,7 +48,9 @@ def get_path_with_arch(platform, path, abi, implementation, python_version):
 
     # Split the platform into two parts.
     # For example: manylinux1_x86_64 to Linux, x86_64
-    platform_split = platform.replace("manylinux1", "Linux").split("_", 1)
+    platform_split = (
+        platform.replace("manylinux1", "Linux").replace("linux", "Linux").split("_", 1)
+    )
 
     # Windows 32-bit's machine name is x86.
     if platform_split[0] == "win32":
@@ -42,84 +67,28 @@ def get_path_with_arch(platform, path, abi, implementation, python_version):
     return os.path.join(path, platform_split[0], platform_split[1])
 
 
-def download_package(
-    path, platform, version, implementation, abi, name, pk_version, index_url, filename
+def run_pip_install(
+    path,
+    platform,
+    version,
+    implementation,
+    abi,
+    name,
+    pk_version,
+    index_url,
+    cache_path,
 ):
     """
-    Download the package according to platform, python version, implementation and abi.
-    """
-    if abi == "abi3":
-        return_code = download_package_abi3(
-            path,
-            platform,
-            version,
-            implementation,
-            abi,
-            name,
-            pk_version,
-            index_url,
-            filename,
-        )
-
-    else:
-        return_code = subprocess.call(
-            [
-                "python",
-                "kolibripip.pex",
-                "download",
-                "-q",
-                "-d",
-                path,
-                "--platform",
-                platform,
-                "--python-version",
-                version,
-                "--implementation",
-                implementation,
-                "--abi",
-                abi,
-                "-i",
-                index_url,
-                "{}=={}".format(name, pk_version),
-            ]
-        )
-
-    # When downloaded as a tar.gz, convert to a wheel file first.
-    # This is specifically for pycparser package.
-    files = os.listdir(path)
-    for file in files:
-        if file.endswith("tar.gz"):
-            subprocess.call(
-                [
-                    "python",
-                    "kolibripip.pex",
-                    "wheel",
-                    "-q",
-                    "-w",
-                    path,
-                    os.path.join(path, file),
-                    "--no-deps",
-                ]
-            )
-            os.remove(os.path.join(path, file))
-
-    return return_code
-
-
-def download_package_abi3(
-    path, platform, version, implementation, abi, name, pk_version, index_url, filename
-):
-    """
-    Download the package when the abi tag is abi3. Install the package to get the dependecies
-    information from METADATA in dist-info and download all the dependecies.
+    Install the package and its dependencies according to platform,
+    python version, implementation and abi using `pip install` with cache_path as
+    the cache directory.
     """
     return_code = subprocess.call(
         [
-            "python",
-            "kolibripip.pex",
-            "download",
+            "pip",
+            "install",
             "-q",
-            "-d",
+            "-t",
             path,
             "--platform",
             platform,
@@ -131,145 +100,77 @@ def download_package_abi3(
             abi,
             "-i",
             index_url,
+            "--cache-dir",
+            cache_path,
+            "--only-binary=:all:",
             "--no-deps",
             "{}=={}".format(name, pk_version),
         ]
     )
 
-    return_code = (
-        subprocess.call(
-            [
-                "python",
-                "kolibripip.pex",
-                "install",
-                "-q",
-                "-t",
-                path,
-                os.path.join(path, filename),
-                "--no-deps",
-            ]
-        )
-        or return_code
-    )
-
-    os.remove(os.path.join(path, filename))
-
-    # Open the METADATA file inside dist-info folder to find out dependencies.
-    with open(
-        os.path.join(path, "{}-{}.dist-info".format(name, pk_version), "METADATA"), "r"
-    ) as metadata:
-        for line in metadata:
-            if line.startswith("Requires-Dist:"):
-                requires_dist = line.rstrip("\n").split("Requires-Dist: ")
-                content = requires_dist[-1].split("; ")
-                version_constraint = content[0].split("(")[-1].split(")")[0]
-                name = content[0].split("(")[0].strip()
-                if content[-1].startswith("extra ==") or content[-1].startswith(
-                    "python_version < '3'"
-                ):
-                    continue
-
-                return_code = (
-                    subprocess.call(
-                        [
-                            "python",
-                            "kolibripip.pex",
-                            "download",
-                            "-q",
-                            "-d",
-                            path,
-                            "--platform",
-                            platform,
-                            "--python-version",
-                            version,
-                            "--implementation",
-                            implementation,
-                            "--abi",
-                            implementation + version + "m",
-                            "-i",
-                            index_url,
-                            "{}{}".format(name, version_constraint),
-                        ]
-                    )
-                    or return_code
-                )
-
     return return_code
 
 
-def install_package_by_wheel(path):
+def install_package(package_name, package_version, index_url, info, cache_path):
     """
-    Install the package using the downloaded wheel files.
+    Install packages based on the information we gather from the index_url page
     """
-    files = os.listdir(path)
-    for file in files:
-        # When the abi tag is abi3, the package has been installed, and a dist-info
-        # folder has been generated. Skip the installed package and remove the
-        # dist-info folder.
-        if os.path.isdir(os.path.join(path, file)):
-            if file.endswith(".dist-info"):
-                shutil.rmtree(os.path.join(path, file))
-            continue
+    for item in info:
+        platform = item["platform"]
+        implementation = item["implementation"]
+        python_version = item["version"]
+        abi = item["abi"]
+        filename = "-".join([package_name, package_version, abi, platform])
 
-        # If the file is py2, py3 compatible, install it into kolibri/dist/cext
-        # instead of specific platform paths to reduce the size of installer
-        if "py2.py3-none-any" in file:
-            return_code = subprocess.call(
-                [
-                    "python",
-                    "kolibripip.pex",
-                    "install",
-                    "-q",
-                    "-U",
-                    "-t",
-                    DIST_CEXT,
-                    os.path.join(path, file),
-                    "--no-deps",
-                ]
-            )
+        # Calculate the path that the package will be installed into
+        version_path = os.path.join(DIST_CEXT, implementation + python_version)
+        package_path = get_path_with_arch(
+            platform, version_path, abi, implementation, python_version
+        )
+
+        print("Installing package {}...".format(filename))
+        # Install the package using pip with cache_path as the cache directory
+        install_return = run_pip_install(
+            package_path,
+            platform,
+            python_version,
+            implementation,
+            abi,
+            package_name,
+            package_version,
+            index_url,
+            cache_path,
+        )
+
+        # Ignore Piwheels installation failure because the website is not always stable
+        if install_return == 1 and index_url == PYPI_DOWNLOAD:
+            sys.exit("\nInstallation failed for package {}.\n".format(filename))
         else:
-            return_code = subprocess.call(
-                [
-                    "python",
-                    "kolibripip.pex",
-                    "install",
-                    "-q",
-                    "-t",
-                    path,
-                    os.path.join(path, file),
-                    "--no-deps",
-                ]
-            )
-
-        if return_code == 1:
-            sys.exit("\nInstallation failed for package {}.\n".format(file))
-        else:
-            # Clean up the whl file and dist-info folder
-            os.remove(os.path.join(path, file))
-            shutil.rmtree(
-                os.path.join(path, "-".join(file.split("-", 2)[:2]) + ".dist-info"),
-                ignore_errors=True,
-            )
+            # Clean up .dist-info folders
+            dist_info_folders = os.listdir(package_path)
+            for folder in dist_info_folders:
+                if folder.endswith(".dist-info"):
+                    shutil.rmtree(os.path.join(package_path, folder))
 
 
-def parse_package_page(files, pk_version, index_url):  # noqa C901
+def parse_package_page(files, pk_version, index_url, cache_path):
     """
-    Parse the PYPI and Piwheels link for the package and install the desired wheel files.
+    Parse the PYPI and Piwheels links for the package information.
+    We are not going to install the packages if they are:
+        * not a whl file
+        * not the version specified in requirements.txt
+        * not python versions that kolibri does not support
+        * not macosx
+        * not win_x64 with python 3.6
     """
 
+    result = []
     for file in files.find_all("a"):
-        # We are not going to install the packages if they are:
-        #   * not a whl file
-        #   * not the version specified in requirements.txt
-        #   * not python versions that kolibri supports
-        #   * not macosx or win_x64 platforms,
-        #     since the process of setup wizard has been fast enough
+        # Skip if not a whl file
+        if not file.string.endswith("whl"):
+            continue
 
         file_name_chunks = file.string.split("-")
-
-        # When the length of file_name_chunks is 2, it means the file is tar.gz.
-        if len(file_name_chunks) == 2:
-            continue
 
         package_version = file_name_chunks[1]
         package_name = file_name_chunks[0]
@@ -284,43 +185,37 @@ def parse_package_page(files, pk_version, index_url):  # noqa C901
             continue
         if "macosx" in platform:
             continue
-        if "win_amd64" in platform and python_version != "34":
+        if "win_amd64" in platform and python_version != "36":
             continue
 
-        print("Installing {}...".format(file.string))
-
-        version_path = os.path.join(DIST_CEXT, file_name_chunks[2])
-        package_path = get_path_with_arch(
-            platform, version_path, abi, implementation, python_version
-        )
-
-        download_return = download_package(
-            package_path,
-            platform,
-            python_version,
-            implementation,
-            abi,
-            package_name,
-            pk_version,
-            index_url,
-            file.string,
-        )
-
-        # Successfully download package
-        if download_return == 0:
-            install_package_by_wheel(package_path)
-        # Download failed
+        # Cryptography builds for Linux target Python 3.4+ but the only existing
+        # build is labeled 3.4 (the lowest version supported).
+        # Expand the abi3 tag here. e.g. cp34 abi3 is expanded to cp34m, cp35m, cp36m, cp37m
+        # https://cryptography.io/en/latest/faq/#why-are-there-no-wheels-for-python-3-6-on-linux-or-macos
+        if abi == "abi3":
+            for actual_version in range(int(python_version), 38):
+                actual_version = str(actual_version)
+                actual_abi = "".join([implementation, actual_version, "m"])
+                info = {
+                    "platform": platform,
+                    "implementation": implementation,
+                    "version": actual_version,
+                    "abi": actual_abi,
+                }
+                result.append(info)
         else:
-            # see https://github.com/learningequality/kolibri/issues/4656
-            print("\nDownload failed for package {}.\n".format(file.string))
+            info = {
+                "platform": platform,
+                "implementation": implementation,
+                "version": python_version,
+                "abi": abi,
+            }
+            result.append(info)
 
-            # We still need to have the program exit with error
-            # if something wrong with PyPi download.
-            if index_url == PYPI_DOWNLOAD:
-                sys.exit(1)
+    install_package(package_name, pk_version, index_url, result, cache_path)
 
 
-def install(name, pk_version):
+def parse_pypi_and_piwheels(name, pk_version, cache_path):
     """
     Start installing from the pypi and piwheels pages of the package.
     """
@@ -329,14 +224,30 @@ def install(name, pk_version):
         r = requests.get(link + name)
         if r.status_code == 200:
             files = BeautifulSoup(r.content, "html.parser")
-            parse_package_page(files, pk_version, link)
+            parse_package_page(files, pk_version, link, cache_path)
         else:
             sys.exit("\nUnable to find package {} on {}.\n".format(name, link))
 
-    files = os.listdir(DIST_CEXT)
-    for file in files:
-        if file.endswith(".dist-info"):
-            shutil.rmtree(os.path.join(DIST_CEXT, file))
+
+def check_cache_path_writable(cache_path):
+    """
+    If the defined cache path is not writable, change it to a folder named
+    cext_cache under the current directory where the script runs.
+    """
+    try:
+        check_file = os.path.join(cache_path, "check.txt")
+        with open(check_file, "w") as f:
+            f.write("check")
+        os.remove(check_file)
+        return cache_path
+    except (OSError, IOError):
+        new_path = os.path.realpath("cext_cache")
+        print(
+            "The cache directory {old_path} is not writable. Changing to directory {new_path}.".format(
+                old_path=cache_path, new_path=new_path
+            )
+        )
+        return new_path
 
 
 def parse_requirements(args):
@@ -344,13 +255,28 @@ def parse_requirements(args):
     Parse the requirements.txt to get packages' names and versions,
     then install them.
     """
+    # pip version needs to be greater than 19.3.1 to run this script
+    # see https://github.com/pypa/pip/issues/6070
+    pip_version = str(subprocess.check_output(["pip", "--version"]))
+    pip_version_major = int(str(pip_version).split(".")[0].split("pip")[1].strip())
+    if pip_version_major < 20:
+        sys.exit(
+            "pip version is lower or equal to 19.3.1. Please upgrade the pip version to run this script."
+        )
+
     with open(args.file) as f:
+        cache_path = os.path.realpath(args.cache_path)
+        cache_path = check_cache_path_writable(cache_path)
         for line in f:
             char_list = line.split("==")
             if len(char_list) == 2:
-                # Install package according to its name and version
-                install(char_list[0].strip(), char_list[1].strip())
-            else:
+                # Parse PyPi and Piwheels pages to install package according to
+                # its name and version
+                parse_pypi_and_piwheels(
+                    char_list[0].strip(), char_list[1].strip(), cache_path
+                )
+            # Ignore comments
+            elif not line.startswith("#"):
                 sys.exit(
                     "\nName format in cext.txt is incorrect. Should be 'packageName==packageVersion'.\n"
                 )
@@ -363,6 +289,11 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--file", required=True, help="The name of the requirements.txt"
+    )
+    parser.add_argument(
+        "--cache-path",
+        default="/cext_cache",
+        help="The path in which pip cache data is stored",
     )
     args = parser.parse_args()
     parse_requirements(args)

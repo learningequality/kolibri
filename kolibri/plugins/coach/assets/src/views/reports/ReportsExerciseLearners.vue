@@ -14,17 +14,14 @@
       <transition-group tag="tbody" name="list">
         <tr v-for="entry in entries" :key="entry.id" data-test="entry">
           <td>
-            <KLabeledIcon icon="person">
-              <KRouterLink
-                v-if="showLink(entry)"
-                :text="entry.name"
-                :to="entry.exerciseLearnerLink"
-                data-test="exercise-learner-link"
-              />
-              <template v-else>
-                {{ entry.name }}
-              </template>
-            </KLabeledIcon>
+            <KRouterLink
+              v-if="showLink(entry)"
+              :text="entry.name"
+              :to="entry.exerciseLearnerLink"
+              data-test="exercise-learner-link"
+              icon="person"
+            />
+            <KLabeledIcon v-else :label="entry.name" icon="person" />
           </td>
           <td>
             <StatusSimple :status="entry.statusObj.status" />
@@ -74,6 +71,7 @@
     props: {
       entries: {
         type: Array,
+        default: () => [],
       },
       showGroupsColumn: {
         type: Boolean,

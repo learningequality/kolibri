@@ -73,7 +73,7 @@
       },
       questionNumberOfExercise: {
         type: Number,
-        required: false,
+        default: null,
       },
       isSelected: {
         type: Boolean,
@@ -102,7 +102,7 @@
     },
     computed: {
       text() {
-        if (this.questionNumberOfExercise === undefined) {
+        if (this.questionNumberOfExercise === undefined || this.questionNumberOfExercise === null) {
           return this.exerciseName;
         }
         return this.coachString('nthExerciseName', {

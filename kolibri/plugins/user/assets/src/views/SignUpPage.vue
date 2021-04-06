@@ -90,7 +90,7 @@
           />
         </p>
         <KRouterLink
-          :text="signUpStrings.$tr('signInPrompt')"
+          :text="userString('signInPrompt')"
           :to="$router.getRoute(ComponentMap.SIGN_IN)"
           appearance="basic-link"
         />
@@ -122,12 +122,11 @@
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { ComponentMap } from '../constants';
   import { SignUpResource } from '../apiResource';
-  import AuthSelect from './AuthSelect';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import getUrlParameter from './getUrlParameter';
+  import commonUserStrings from './commonUserStrings';
 
   const { DEFERRED } = DemographicConstants;
 
@@ -147,7 +146,7 @@
       UsernameTextbox,
       PrivacyLinkAndModal,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonUserStrings],
     data() {
       return {
         name: '',
@@ -184,9 +183,6 @@
       },
       showPasswordInput() {
         return !this.facilityConfig.learner_can_login_with_no_password;
-      },
-      signUpStrings() {
-        return crossComponentTranslator(AuthSelect);
       },
     },
     beforeMount() {

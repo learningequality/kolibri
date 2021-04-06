@@ -40,6 +40,7 @@
     props: {
       errorType: {
         type: String,
+        default: null,
       },
     },
     computed: {

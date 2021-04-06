@@ -41,7 +41,7 @@
       },
       tooltipPlacement: {
         type: String,
-        required: false,
+        default: 'bottom',
       },
     },
   };
