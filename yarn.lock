@@ -8684,6 +8684,20 @@ knuth-shuffle-seeded@^1.0.6:
   dependencies:
     seed-random "~2.2.0"
 
+"kolibri-design-system@github:learningequality/kolibri-design-system#v0.2.2-beta-1":
+  version "0.2.2-beta5"
+  resolved "https://codeload.github.com/learningequality/kolibri-design-system/tar.gz/0621d5de5b9a6605b3f0d35ee166d123ca6681c3"
+  dependencies:
+    aphrodite "https://github.com/learningequality/aphrodite/"
+    autosize "^3.0.21"
+    css-element-queries "^1.2.0"
+    fuzzysearch "^1.0.3"
+    keen-ui "^1.3.0"
+    lodash "^4.17.15"
+    popper.js "^1.14.6"
+    purecss "^0.6.2"
+    tippy.js "^4.2.1"
+
 "kolibri-design-system@github:learningequality/kolibri-design-system#v0.2.x":
   version "0.2.2-beta4"
   resolved "https://codeload.github.com/learningequality/kolibri-design-system/tar.gz/4a2ae39872817e189c35db1de975c9c49b5b03fa"
@@ -9282,11 +9296,6 @@ match-at@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/match-at/-/match-at-0.1.1.tgz#25d040d291777704d5e6556bbb79230ec2de0540"
   integrity sha512-h4Yd392z9mST+dzc+yjuybOGFNOZjmXIPKWjxBd1Bb23r4SmDOsk2NYCU2BMUBGbSpZqwVsZYNq26QS3xfaT3Q==
-
-material-design-icons@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/material-design-icons/-/material-design-icons-3.0.1.tgz#9a71c48747218ebca51e51a66da682038cdcb7bf"
-  integrity sha1-mnHEh0chjrylHlGmbaaCA4zct78=
 
 math-expression-evaluator@^1.2.14:
   version "1.2.22"
