@@ -18,7 +18,6 @@ from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
 from kolibri.core.content.zip_wsgi import get_application
-from kolibri.core.deviceadmin.utils import schedule_vacuum
 from kolibri.core.tasks.main import initialize_workers
 from kolibri.core.tasks.main import scheduler
 from kolibri.utils import conf
@@ -86,22 +85,27 @@ class ServicesPlugin(SimplePlugin):
         self.workers = None
 
     def start(self):
-        # Initialize the iceqube scheduler to handle scheduled tasks
-        scheduler.clear_scheduler()
-
+        # If pinging is not disabled by the environment
         if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
 
-            # schedule the pingback job
-            from kolibri.core.analytics.utils import schedule_ping
+            # schedule the pingback job if not already scheduled
+            from kolibri.core.analytics.utils import _ping
 
-            schedule_ping()
+            if not scheduler.is_func_scheduled(_ping):
+                from kolibri.core.analytics.utils import schedule_ping
+                schedule_ping()
 
-        # schedule the vacuum job
-        schedule_vacuum()
+        # schedule the vacuum job if not already scheduled
+        from kolibri.core.deviceadmin.utils import perform_vacuum
+
+        if not scheduler.is_func_scheduled(perform_vacuum):
+            from kolibri.core.deviceadmin.utils import schedule_vacuum
+            schedule_vacuum()
 
         # Initialize the iceqube engine to handle queued tasks
         self.workers = initialize_workers()
 
+        # Initialize the iceqube scheduler to handle scheduled tasks
         scheduler.start_scheduler()
 
         # Register the Kolibri zeroconf service so it will be discoverable on the network
