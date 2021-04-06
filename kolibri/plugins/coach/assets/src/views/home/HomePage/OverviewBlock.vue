@@ -32,7 +32,7 @@
           />
         </template>
         <template #value>
-          {{ coachString('integer', { value: learnerNames.length }) }}
+          {{ $formatNumber(learnerNames.length) }}
         </template>
       </HeaderTableRow>
     </HeaderTable>

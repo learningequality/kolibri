@@ -1,7 +1,7 @@
 <template>
 
   <span v-if="isSpecified && birthYear">
-    {{ birthYear }}
+    {{ $formatDate(birthYear, { year: 'numeric' }) }}
   </span>
   <KEmptyPlaceholder v-else />
 

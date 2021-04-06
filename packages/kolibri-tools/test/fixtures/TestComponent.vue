@@ -55,7 +55,7 @@
                 <TruncatedItemList :items="classObj.coaches.map(c => c.full_name)" />
               </td>
               <td>
-                {{ coachString('integer', { value: classObj.learner_count }) }}
+                {{ $formatNumber(classObj.learner_count) }}
               </td>
             </tr>
           </transition-group>

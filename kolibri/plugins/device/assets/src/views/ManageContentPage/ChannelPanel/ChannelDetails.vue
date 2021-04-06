@@ -79,7 +79,7 @@
       },
     },
     $trs: {
-      versionNumber: 'Version {v}',
+      versionNumber: 'Version {v, number, integer}',
       defaultDescription: '(No description)',
     },
   };

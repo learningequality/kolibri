@@ -40,7 +40,7 @@
           {{ coachString('exercisesCompletedLabel') }}
         </template>
         <template #value>
-          {{ coachString('integer', { value: exercisesCompleted }) }}
+          {{ $formatNumber(exercisesCompleted) }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>
@@ -48,7 +48,7 @@
           {{ coachString('resourcesViewedLabel') }}
         </template>
         <template #value>
-          {{ coachString('integer', { value: resourcesViewed }) }}
+          {{ $formatNumber(resourcesViewed) }}
         </template>
       </HeaderTableRow>
     </HeaderTable>
