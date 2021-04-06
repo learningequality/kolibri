@@ -93,6 +93,7 @@ class ServicesPlugin(SimplePlugin):
 
             if not scheduler.is_func_scheduled(_ping):
                 from kolibri.core.analytics.utils import schedule_ping
+
                 schedule_ping()
 
         # schedule the vacuum job if not already scheduled
@@ -100,6 +101,7 @@ class ServicesPlugin(SimplePlugin):
 
         if not scheduler.is_func_scheduled(perform_vacuum):
             from kolibri.core.deviceadmin.utils import schedule_vacuum
+
             schedule_vacuum()
 
         # Initialize the iceqube engine to handle queued tasks
