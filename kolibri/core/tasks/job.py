@@ -88,7 +88,7 @@ class Job(object):
             kwargs["extra_metadata"] = func.extra_metadata.copy()
             func = func.func
 
-        job_id = kwargs.get("job_id", uuid.uuid4().hex)
+        job_id = kwargs.pop("job_id", uuid.uuid4().hex)
         if job_id is None:
             job_id = uuid.uuid4().hex
 
