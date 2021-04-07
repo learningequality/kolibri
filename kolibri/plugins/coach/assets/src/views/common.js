@@ -17,7 +17,6 @@ import { LastPages } from '../constants/lastPagesConstants';
 import { STATUSES } from '../modules/classSummary/constants';
 import TopNavbar from './TopNavbar';
 import { coachStrings, coachStringsMixin } from './common/commonCoachStrings';
-import Answer from './common/Answer';
 import AverageScoreTooltip from './common/AverageScoreTooltip';
 import BackLink from './common/BackLink';
 import TruncatedItemList from './common/TruncatedItemList';
@@ -128,7 +127,6 @@ export default {
     CoreTable,
     ContentIcon,
     TopNavbar,
-    Answer,
     AverageScoreTooltip,
     BackLink,
     TruncatedItemList,
