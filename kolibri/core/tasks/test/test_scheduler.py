@@ -1,30 +1,20 @@
 import datetime
-import os
-import tempfile
 
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.pool import NullPool
 
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.scheduler import Scheduler
+from kolibri.core.tasks.test.base import connection
 from kolibri.utils.time_utils import local_now
 from kolibri.utils.time_utils import naive_utc_datetime
 
 
 @pytest.fixture
 def queue():
-    fd, filepath = tempfile.mkstemp()
-    connection = create_engine(
-        "sqlite:///{path}".format(path=filepath),
-        connect_args={"check_same_thread": False},
-        poolclass=NullPool,
-    )
-    q = Queue("pytest", connection)
-    yield q
-    os.close(fd)
-    os.remove(filepath)
+    with connection() as c:
+        q = Queue("pytest", c)
+        yield q
 
 
 @pytest.fixture

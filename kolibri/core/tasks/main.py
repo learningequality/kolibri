@@ -43,6 +43,7 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
                 else "",
             ),
             pool_pre_ping=True,
+            client_encoding="utf8",
         )
 
 

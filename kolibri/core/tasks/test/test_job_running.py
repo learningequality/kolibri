@@ -1,11 +1,7 @@
-import os
-import tempfile
 import time
 import uuid
 
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.pool import NullPool
 
 from kolibri.core.tasks.compat import Event
 from kolibri.core.tasks.exceptions import JobNotRestartable
@@ -13,6 +9,7 @@ from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.storage import Storage
+from kolibri.core.tasks.test.base import connection
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.utils import import_stringified_func
 from kolibri.core.tasks.utils import stringify_func
@@ -21,37 +18,20 @@ from kolibri.core.tasks.worker import Worker
 
 @pytest.fixture
 def backend():
-    fd, filepath = tempfile.mkstemp()
-    connection = create_engine(
-        "sqlite:///{path}".format(path=filepath),
-        connect_args={"check_same_thread": False},
-        poolclass=NullPool,
-    )
-    b = Storage(connection)
-    yield b
-    b.clear()
-    os.close(fd)
-    os.remove(filepath)
+    with connection() as c:
+        b = Storage(c)
+        yield b
+        b.clear()
 
 
 @pytest.fixture
 def inmem_queue():
-    fd, filepath = tempfile.mkstemp()
-    connection = create_engine(
-        "sqlite:///{path}".format(path=filepath),
-        connect_args={"check_same_thread": False},
-        poolclass=NullPool,
-    )
-    e = Worker(queues="pytest", connection=connection)
-    c = Queue(queue="pytest", connection=connection)
-    c.e = e
-    yield c
-    e.shutdown()
-    os.close(fd)
-    try:
-        os.remove(filepath)
-    except OSError:
-        pass
+    with connection() as conn:
+        e = Worker(queues="pytest", connection=conn)
+        c = Queue(queue="pytest", connection=conn)
+        c.e = e
+        yield c
+        e.shutdown()
 
 
 @pytest.fixture
