@@ -356,11 +356,25 @@ class ContentNodeViewset(ValuesViewset):
                 "id", "title", "lft", "rght", "tree_id"
             )
 
+            tags = {}
+
+            for t in models.ContentTag.objects.filter(
+                tagged_content__in=queryset
+            ).values(
+                "tag_name",
+                "tagged_content",
+            ):
+                if t["tagged_content"] not in tags:
+                    tags[t["tagged_content"]] = [t["tag_name"]]
+                else:
+                    tags[t["tagged_content"]].append(t["tag_name"])
+
             for item in items:
                 item["assessmentmetadata"] = assessmentmetadata.get(item["id"])
                 item["files"] = list(
                     map(lambda x: map_file(x, item), files.get(item["id"], []))
                 )
+                item["tags"] = tags.get(item["id"], [])
 
                 lft = item.pop("lft")
                 rght = item.pop("rght")

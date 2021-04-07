@@ -1,8 +1,8 @@
 <template>
 
   <div class="wrapper">
-    <file-svg v-if="active" src="./icons/leaf.svg" />
-    <file-svg v-else src="./icons/grey-leaf.svg" />
+    <KIcon v-if="active" icon="pointsActive" />
+    <KIcon v-else icon="pointsInactive" />
   </div>
 
 </template>

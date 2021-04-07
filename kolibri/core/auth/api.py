@@ -259,6 +259,32 @@ class FacilityUserViewSet(ValuesViewset):
         self.set_password_if_needed(instance, serializer)
 
 
+class ExistingUsernameView(views.APIView):
+    def get(self, request):
+        username = request.GET.get("username")
+        facility_id = request.GET.get("facility")
+
+        if not username or not facility_id:
+            return Response(
+                "Must specify username, and facility",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            Facility.objects.get(id=facility_id)
+        except (ValueError, ObjectDoesNotExist):
+            return Response(
+                "Facility not found",
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        try:
+            FacilityUser.objects.get(username__iexact=username, facility=facility_id)
+            return Response({"username_exists": True}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({"username_exists": False}, status=status.HTTP_200_OK)
+
+
 class FacilityUsernameViewSet(ValuesViewset):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filter_fields = ("facility",)

@@ -96,7 +96,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   viewByGroupsLabel: 'View by groups',
 
   // formatted values
-  integer: '{value, number, integer}',
   nthExerciseName: '{name} ({number, number, integer})',
   numberOfLearners: '{value, number, integer} {value, plural, one {learner} other {learners}}',
   numberOfQuestions: '{value, number, integer} {value, plural, one {question} other {questions}}',

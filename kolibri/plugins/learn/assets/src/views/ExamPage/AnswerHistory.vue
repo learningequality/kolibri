@@ -91,7 +91,7 @@
       },
     },
     $trs: {
-      question: 'Question { num }',
+      question: 'Question { num, number, integer}',
     },
   };
 

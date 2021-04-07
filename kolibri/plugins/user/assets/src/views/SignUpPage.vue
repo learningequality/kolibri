@@ -110,8 +110,6 @@
 
   import { mapGetters } from 'vuex';
   import every from 'lodash/every';
-  import find from 'lodash/find';
-  import { FacilityUsernameResource } from 'kolibri.resources';
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
@@ -122,6 +120,8 @@
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import urls from 'kolibri.urls';
+  import client from 'kolibri.client';
   import { ComponentMap } from '../constants';
   import { SignUpResource } from '../apiResource';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
@@ -196,24 +196,17 @@
         if (!username) {
           return Promise.resolve();
         }
-        // NOTE: the superuser will not be returned in this search.
-        // TODO: create an specialized endpoint that only checks to see if a username
-        // already exists in a facility
-        return FacilityUsernameResource.fetchCollection({
-          getParams: {
+        return client({
+          url: urls['kolibri:core:usernameexists'](),
+          method: 'GET',
+          params: {
             facility: this.selectedFacility.id,
-            search: username,
+            username: username,
           },
-          force: true,
-        })
-          .then(results => {
-            if (find(results, { username })) {
-              this.caughtErrors.push(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
-            }
-          })
-          .catch(() => {
-            // Silently handle search errors, idk
-          });
+        }).then(response => {
+          if (response.data.username_exists)
+            this.caughtErrors.push(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
+        });
       },
       handleSubmit() {
         if (this.atFirstStep) {

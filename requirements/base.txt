@@ -34,3 +34,4 @@ ifcfg==0.21
 Click==7.0
 ua-parser==0.10.0
 whitenoise==4.1.4
+idna==2.8

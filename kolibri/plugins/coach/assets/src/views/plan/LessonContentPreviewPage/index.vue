@@ -19,11 +19,7 @@
           >
             <template v-if="displaySelectOptions">
               <template v-if="isSelected">
-                <mat-svg
-                  class="selected-icon"
-                  category="action"
-                  name="check_circle"
-                />
+                <KIcon icon="onDevice" />
                 {{ $tr('addedIndicator') }}
               </template>
 

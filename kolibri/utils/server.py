@@ -20,7 +20,6 @@ from kolibri.core.content.utils import paths
 from kolibri.core.content.zip_wsgi import get_application
 from kolibri.core.deviceadmin.utils import schedule_vacuum
 from kolibri.core.tasks.main import initialize_workers
-from kolibri.core.tasks.main import queue
 from kolibri.core.tasks.main import scheduler
 from kolibri.utils import conf
 from kolibri.utils.android import on_android
@@ -99,10 +98,6 @@ class ServicesPlugin(SimplePlugin):
 
         # schedule the vacuum job
         schedule_vacuum()
-
-        # This is run every time the server is started to clear all the tasks
-        # in the queue
-        queue.empty()
 
         # Initialize the iceqube engine to handle queued tasks
         self.workers = initialize_workers()

@@ -9,7 +9,7 @@
       />
     </td>
     <td>
-      {{ group.users.length }}
+      {{ this.$formatNumber(group.users.length) }}
     </td>
     <td class="core-table-button-col">
       <KDropdownMenu

@@ -34,13 +34,13 @@
                 />
               </td>
               <td>
-                {{ coachString('integer', { value: tableRow.numLessons }) }}
+                {{ $formatNumber(tableRow.numLessons) }}
               </td>
               <td>
-                {{ coachString('integer', { value: tableRow.numQuizzes }) }}
+                {{ $formatNumber(tableRow.numQuizzes) }}
               </td>
               <td>
-                {{ coachString('integer', { value: tableRow.numLearners }) }}
+                {{ $formatNumber(tableRow.numLearners) }}
               </td>
               <td><Score :value="tableRow.avgScore" /></td>
               <td><ElapsedTime :date="tableRow.lastActivity" /></td>
