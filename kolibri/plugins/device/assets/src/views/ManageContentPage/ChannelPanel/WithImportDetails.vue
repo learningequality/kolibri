@@ -28,14 +28,12 @@
             ref="lockicon"
             class="lock-icon"
             icon="unlistedchannel"
-          /><span
+          />
+          <NewBadge
             v-if="channel.newUnlistedChannel"
+            :label="deviceString('newChannelLabel')"
             class="new-label"
-            :style="{
-              color: $themeTokens.textInverted,
-              backgroundColor: $themeTokens.success
-            }"
-          >{{ deviceString('newChannelLabel') }}</span>
+          />
         </div>
       </template>
 
@@ -90,6 +88,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { selectContentPageLink } from '../manageContentLinks';
+  import NewBadge from '../NewBadge';
   import { PageNames } from '../../../constants';
   import commonDeviceStrings from '../../commonDeviceStrings';
   import ChannelDetails from './ChannelDetails';
@@ -98,6 +97,7 @@
     name: 'WithImportDetails',
     components: {
       ChannelDetails,
+      NewBadge,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, commonDeviceStrings],
     props: {
@@ -248,11 +248,7 @@
     position: absolute;
     top: 2px;
     display: inline-block;
-    padding: 2px 8px;
     margin-left: 8px;
-    font-size: 14px;
-    font-weight: bold;
-    border-radius: 2px;
 
     .channel-list-item-sm & {
       top: -2px;

@@ -124,7 +124,7 @@
           appearance="raised-button"
           :text="$tr('exitSearchButtonLabel')"
           primary
-          :to="toolbarRoute"
+          :to="topicRoute"
         />
       </BottomAppBar>
       <BottomAppBar v-else>
@@ -203,6 +203,18 @@
         'searchResults',
         'ancestors',
       ]),
+      topicRoute() {
+        if (this.$route.query.last_id) {
+          return {
+            name: PageNames.EXAM_CREATION_TOPIC,
+            params: {
+              topicId: this.$route.query.last_id,
+            },
+          };
+        } else {
+          return this.toolbarRoute;
+        }
+      },
       pageName() {
         return this.$route.name;
       },
@@ -360,7 +372,7 @@
         'fetchAdditionalSearchResults',
       ]),
       contentLink(content) {
-        if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
+        if (!content.is_leaf) {
           return {
             name: PageNames.EXAM_CREATION_TOPIC,
             params: {

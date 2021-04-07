@@ -1,7 +1,6 @@
 <template>
 
   <div
-    v-show="navShown"
     ref="sideNav"
     class="side-nav-wrapper"
     tabindex="0"
@@ -110,12 +109,14 @@
       </div>
     </transition>
 
-    <div
-      v-show="navShown"
-      class="side-nav-backdrop"
-      @click="toggleNav"
-    >
-    </div>
+    <transition name="side-nav-backdrop">
+      <div
+        v-show="navShown"
+        class="side-nav-backdrop"
+        @click="toggleNav"
+      >
+      </div>
+    </transition>
 
     <PrivacyInfoModal
       v-if="privacyModalVisible"
@@ -371,7 +372,30 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
     background-attachment: fixed;
-    transition: opacity 0.3s ease;
+  }
+
+  .side-nav-backdrop-enter {
+    opacity: 0;
+  }
+
+  .side-nav-backdrop-enter-to {
+    opacity: 1;
+  }
+
+  .side-nav-backdrop-enter-active {
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  .side-nav-backdrop-leave {
+    opacity: 1;
+  }
+
+  .side-nav-backdrop-leave-to {
+    opacity: 0;
+  }
+
+  .side-nav-backdrop-leave-active {
+    transition: opacity 0.2s ease-in-out;
   }
 
   /* keen menu */

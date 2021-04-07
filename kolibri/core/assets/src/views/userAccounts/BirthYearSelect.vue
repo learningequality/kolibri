@@ -38,15 +38,6 @@
   // or the year of the server date
   const firstYear = Math.max(Number(__copyrightYear), getYear(now()));
 
-  function makeYearOptions(max, min) {
-    return range(max, min, -1).map(n => ({
-      label: String(n),
-      value: String(n),
-    }));
-  }
-
-  const yearOptions = makeYearOptions(firstYear, 1900);
-
   export default {
     name: 'BirthYearSelect',
     components: {
@@ -56,7 +47,13 @@
     props: {
       value: {
         type: String,
+        default: null,
       },
+    },
+    data() {
+      return {
+        yearOptions: this.makeYearOptions(firstYear, 1900),
+      };
     },
     computed: {
       selected() {
@@ -67,7 +64,7 @@
         // fill in the gaps just in case a user was given a later date, e.g. via CSV
         let extraYears = [];
         if (Number(this.value) > firstYear) {
-          extraYears = makeYearOptions(Number(this.value), firstYear - 1);
+          extraYears = this.makeYearOptions(Number(this.value), firstYear - 1);
         }
         return [
           {
@@ -75,7 +72,7 @@
             label: this.coreString('birthYearNotSpecified'),
           },
           ...extraYears,
-          ...yearOptions,
+          ...this.yearOptions,
         ];
       },
       tooltipPlacement() {
@@ -83,6 +80,16 @@
           return 'left';
         }
         return 'bottom';
+      },
+    },
+    methods: {
+      makeYearOptions(max, min) {
+        return range(max, min, -1).map(n => {
+          return {
+            label: this.$formatDate(String(n), { year: 'numeric' }),
+            value: String(n),
+          };
+        });
       },
     },
     $trs: {

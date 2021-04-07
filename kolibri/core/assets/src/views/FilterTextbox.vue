@@ -10,6 +10,7 @@
     </UiIcon>
 
     <input
+      ref="searchinput"
       v-model.trim="model"
       type="search"
       :class="['k-filter-input', $computedClass(kFilterPlaceHolderStyle)]"
@@ -29,7 +30,7 @@
       icon="clear"
       :class="model === '' ? '' : 'k-filter-clear-button-visible'"
       :ariaLabel="$tr('clear')"
-      @click="model = ''"
+      @click="handleClickClear"
     />
   </div>
 
@@ -54,6 +55,7 @@
        */
       value: {
         type: String,
+        default: null,
       },
       /**
        * Placeholder
@@ -108,6 +110,12 @@
             color: this.$themeTokens.annotation,
           },
         };
+      },
+    },
+    methods: {
+      handleClickClear() {
+        this.model = '';
+        this.$refs.searchinput.focus();
       },
     },
     $trs: {

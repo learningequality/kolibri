@@ -53,7 +53,7 @@
 
         // Seconds
         if (this.timeDifference < MINUTE) {
-          const strParams = { seconds: this.toSeconds(this.timeDifference) };
+          const strParams = { seconds: this.$formatNumber(this.toSeconds(this.timeDifference)) };
           switch (this.actionType) {
             case 'created':
               return this.$tr('createdSecondsAgo', strParams);
@@ -67,7 +67,7 @@
         }
         // Minutes
         if (this.timeDifference < HOUR) {
-          const strParams = { minutes: this.toMinutes(this.timeDifference) };
+          const strParams = { minutes: this.$formatNumber(this.toMinutes(this.timeDifference)) };
           switch (this.actionType) {
             case 'created':
               return this.$tr('createdMinutesAgo', strParams);
@@ -81,7 +81,7 @@
         }
         // Hours
         if (this.timeDifference < DAY) {
-          const strParams = { hours: this.toHours(this.timeDifference) };
+          const strParams = { hours: this.$formatNumber(this.toHours(this.timeDifference)) };
           switch (this.actionType) {
             case 'created':
               return this.$tr('createdHoursAgo', strParams);
@@ -94,7 +94,7 @@
           }
         }
         // else, Days
-        const strParams = { days: this.toDays(this.timeDifference) };
+        const strParams = { days: this.$formatNumber(this.toDays(this.timeDifference)) };
         switch (this.actionType) {
           case 'created':
             return this.$tr('createdDaysAgo', strParams);

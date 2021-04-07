@@ -142,6 +142,7 @@ class DeviceNotSetup(TestCase):
         csvfile, csvpath = tempfile.mkstemp(suffix="csv")
         with self.assertRaisesRegexp(CommandError, "No default facility exists"):
             call_command("importusers", csvpath)
+        os.close(csvfile)
         os.remove(csvpath)
 
 
@@ -160,6 +161,7 @@ class UserImportCommandTestCase(TestCase):
 
     def tearDown(self):
         FacilityUser.objects.exclude(username=self.superuser.username).delete()
+        os.close(self.csvfile)
         os.remove(self.csvpath)
 
     def importFromRows(self, *args):

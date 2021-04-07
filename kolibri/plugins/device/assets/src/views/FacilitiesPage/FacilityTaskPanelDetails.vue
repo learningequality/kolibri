@@ -125,11 +125,11 @@
       },
       underHeadingMsg: {
         type: String,
-        required: false,
+        default: null,
       },
       underProgressMsg: {
         type: String,
-        required: false,
+        default: null,
       },
       showCircularLoader: {
         type: Boolean,
@@ -137,14 +137,14 @@
       },
       loaderType: {
         type: String,
-        required: false,
+        default: null,
         validator(value) {
           return value === 'determinate' || value === 'indeterminate';
         },
       },
       buttonSet: {
         type: String,
-        required: false,
+        default: null,
         validator(value) {
           return value === '' || value === 'clear' || value === 'cancel' || value === 'retry';
         },

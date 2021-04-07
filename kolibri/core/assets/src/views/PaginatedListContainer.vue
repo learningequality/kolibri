@@ -52,6 +52,7 @@
 
   import clamp from 'lodash/clamp';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
+  import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
 
   export default {
     name: 'PaginatedListContainer',
@@ -63,9 +64,6 @@
       items: {
         type: Array,
         required: true,
-      },
-      filterFunction: {
-        type: Function,
       },
       filterPlaceholder: {
         type: String,
@@ -85,10 +83,7 @@
     },
     computed: {
       filteredItems() {
-        if (this.filterFunction) {
-          return this.filterFunction(this.items, this.filterInput);
-        }
-        return this.items;
+        return filterUsersByNames(this.items, this.filterInput);
       },
       numFilteredItems() {
         return this.filteredItems.length;
@@ -123,11 +118,14 @@
       },
     },
     watch: {
-      numFilteredItems: {
-        handler() {
-          this.currentPage = 1;
-          this.$emit('pageChanged', 1);
+      visibleFilteredItems: {
+        handler(newVal) {
+          this.$emit('pageChanged', {
+            page: this.currentPage,
+            items: newVal,
+          });
         },
+        immediate: true,
       },
     },
     methods: {
@@ -135,7 +133,6 @@
         // Clamp the newPage number between the bounds if browser doesn't correctly
         // disable buttons (see #6454 issue with old versions of MS Edge)
         this.currentPage = clamp(this.currentPage + change, 1, this.totalPages);
-        this.$emit('pageChanged', this.currentPage);
       },
     },
     $trs: {

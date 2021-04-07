@@ -1,4 +1,5 @@
 import os
+import sys
 import tempfile
 
 import portend
@@ -41,7 +42,9 @@ class SanityCheckTestCase(TestCase):
 
     @patch("kolibri.utils.cli.get_version", return_value="")
     @patch("kolibri.utils.sanity_checks.logging.error")
-    @override_option("Paths", "CONTENT_DIR", "/dir_dne")
+    @override_option(
+        "Paths", "CONTENT_DIR", "Z:\\NOTREAL" if sys.platform == "win32" else "/dir_dne"
+    )
     def test_content_dir_dne(self, logging_mock, get_version):
         with self.assertRaises(SystemExit):
             sanity_checks.check_content_directory_exists_and_writable()

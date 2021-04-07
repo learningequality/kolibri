@@ -14,6 +14,7 @@ from rest_framework.test import APITestCase as BaseTestCase
 
 from .. import models
 from ..constants import role_kinds
+from ..constants.facility_presets import mappings
 from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
@@ -950,6 +951,100 @@ class FacilityDatasetAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    def test_facility_admin_can_reset_settings(self):
+        facility = FacilityFactory.create()
+        admin = FacilityUserFactory.create(facility=facility)
+        facility.add_admin(admin)
+
+        self.client.login(username=admin.username, password=DUMMY_PASSWORD)
+
+        def set_all_false_and_preset(facility, preset):
+            all_false = {
+                "learner_can_edit_username": False,
+                "learner_can_edit_name": False,
+                "learner_can_edit_password": False,
+                "learner_can_sign_up": False,
+                "learner_can_delete_account": False,
+                "learner_can_login_with_no_password": False,
+                "show_download_button_in_learn": False,
+            }
+            for key, value in all_false.items():
+                setattr(facility.dataset, key, value)
+            facility.dataset.preset = preset
+            facility.dataset.save()
+
+        def post_resetsettings():
+            return self.client.post(
+                reverse(
+                    "kolibri:core:facilitydataset-resetsettings",
+                    kwargs={"pk": facility.dataset_id},
+                ),
+            )
+
+        # test all three presets
+        for setting in ["formal", "nonformal", "informal"]:
+            set_all_false_and_preset(facility, setting)
+            response = post_resetsettings()
+            self.assertDictContainsSubset(mappings[setting], response.data)
+
+    def test_for_incompatible_settings_together(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.patch(
+            reverse(
+                "kolibri:core:facilitydataset-detail",
+                kwargs={"pk": self.facility.dataset_id},
+            ),
+            {
+                "learner_can_login_with_no_password": "true",
+                "learner_can_edit_password": "true",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_for_incompatible_settings_sequentially(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.patch(
+            reverse(
+                "kolibri:core:facilitydataset-detail",
+                kwargs={"pk": self.facility.dataset_id},
+            ),
+            {
+                "learner_can_edit_password": "true",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.patch(
+            reverse(
+                "kolibri:core:facilitydataset-detail",
+                kwargs={"pk": self.facility.dataset_id},
+            ),
+            {
+                "learner_can_login_with_no_password": "true",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_for_incompatible_settings_only_one(self):
+        # Test case handles the case when only `learner_can_login_with_no_password`
+        # is set to true in the patch request while `learner_can_edit_password`
+        # already being true due to it's default value
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.patch(
+            reverse(
+                "kolibri:core:facilitydataset-detail",
+                kwargs={"pk": self.facility.dataset_id},
+            ),
+            {
+                "learner_can_login_with_no_password": "true",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
 
 class MembershipCascadeDeletion(APITestCase):
     @classmethod
@@ -1064,3 +1159,40 @@ class GroupMembership(APITestCase):
             url, {"user": self.user.id, "collection": self.classroom2.id}, format="json"
         )
         self.assertEqual(response.status_code, 201)
+
+
+class DuplicateUsernameTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
+        cls.user = FacilityUserFactory.create(facility=cls.facility, username="user")
+        cls.url = reverse("kolibri:core:usernameexists")
+        provision_device()
+
+    def test_check_duplicate_username_with_unique_username(self):
+        response = self.client.get(
+            self.url,
+            {"username": "new_user", "facility": self.facility.id},
+            format="json",
+        )
+        expected = {"username_exists": False}
+        self.assertDictEqual(response.data, expected)
+
+    def test_check_duplicate_username_with_existing_username(self):
+        response = self.client.get(
+            self.url,
+            {"username": self.user.username, "facility": self.facility.id},
+            format="json",
+        )
+        expected = {"username_exists": True}
+        self.assertDictEqual(response.data, expected)
+
+    def test_check_duplicate_username_with_existing_username_other_facility(self):
+        other_facility = FacilityFactory.create()
+        response = self.client.get(
+            self.url,
+            {"username": self.user.username, "facility": other_facility.id},
+            format="json",
+        )
+        expected = {"username_exists": False}
+        self.assertDictEqual(response.data, expected)

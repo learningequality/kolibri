@@ -42,8 +42,6 @@ jobs:
         key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
     - name: Test with tox
       run: tox -e py${{ matrix.python-version }}
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
   postgres:
     name: Python postgres unit tests
     needs: pre_job
@@ -85,5 +83,52 @@ jobs:
         key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
     - name: Test with tox
       run: tox -e postgres
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
+  macos:
+    name: Python unit tests on Mac OS
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    runs-on: macos-latest
+    strategy:
+      max-parallel: 5
+      matrix:
+        python-version: [3.6]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install tox
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox
+    - name: tox env cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ github.workspace }}/.tox/py${{ matrix.python-version }}
+        key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
+    - name: Test with tox
+      run: tox -e py${{ matrix.python-version }}
+  windows:
+    name: Python unit tests on Windows Server
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    runs-on: windows-latest
+    strategy:
+      max-parallel: 5
+      matrix:
+        python-version: [3.6]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install tox
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox
+    - name: Test with tox
+      run: tox -e py${{ matrix.python-version }}

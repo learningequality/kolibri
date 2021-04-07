@@ -63,7 +63,7 @@
                 :text="$tr('poweredByKolibri')"
                 :primary="true"
                 href="https://learningequality.org/r/powered_by_kolibri"
-                target="_blank"
+                :openInNewTab="true"
                 appearance="basic-link"
               />
             </p>
@@ -137,7 +137,7 @@
           text="https://learningequality.org/kolibri"
           :primary="true"
           href="https://learningequality.org/r/powered_by_kolibri"
-          target="_blank"
+          :openInNewTab="true"
           appearance="basic-link"
         />
       </p>

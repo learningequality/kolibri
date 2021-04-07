@@ -61,6 +61,7 @@ import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import AppBar from '../views/AppBar';
 import CoreSnackbar from '../views/CoreSnackbar';
 import CoreMenu from '../views/CoreMenu';
+import CoreMenuDivider from '../views/CoreMenu/CoreMenuDivider';
 import CoreMenuOption from '../views/CoreMenu/CoreMenuOption';
 import heartbeat from '../heartbeat';
 import CoreTable from '../views/CoreTable';
@@ -96,6 +97,7 @@ import ExamReport from '../views/ExamReport';
 import TextTruncator from '../views/TextTruncator';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
+import filterUsersByNames from '../utils/filterUsersByNames';
 import navComponents from '../utils/navComponents';
 import loginComponents from '../utils/loginComponents';
 import coreBannerContent from '../utils/coreBannerContent';
@@ -143,6 +145,7 @@ export default {
       AppBar,
       CoreSnackbar,
       CoreMenu,
+      CoreMenuDivider,
       CoreMenuOption,
       CoreTable,
       CoreInfoIcon,
@@ -191,24 +194,25 @@ export default {
   urls,
   utils: {
     appCapabilities,
-    contentNode,
-    redirectBrowser,
+    branding,
     browserInfo,
+    bytesForHumans,
+    CatchErrors,
+    contentNode,
+    coreBannerContent,
     exams,
-    validators,
-    serverClock,
+    filterUsersByNames,
     i18n,
     licenseTranslations,
     loginComponents,
     navComponents,
-    coreBannerContent,
+    redirectBrowser,
     samePageCheckGenerator,
-    CatchErrors,
-    UserType,
-    shuffled,
-    bytesForHumans,
-    branding,
     scriptLoader,
+    serverClock,
+    shuffled,
     sortLanguages,
+    UserType,
+    validators,
   },
 };

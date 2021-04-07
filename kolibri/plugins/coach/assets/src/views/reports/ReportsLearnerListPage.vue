@@ -27,17 +27,16 @@
           <transition-group tag="tbody" name="list">
             <tr v-for="tableRow in table" :key="tableRow.id">
               <td>
-                <KLabeledIcon icon="person">
-                  <KRouterLink
-                    :text="tableRow.name"
-                    :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
-                  />
-                </KLabeledIcon>
+                <KRouterLink
+                  :text="tableRow.name"
+                  :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
+                  icon="person"
+                />
               </td>
               <td><TruncatedItemList :items="tableRow.groups" /></td>
               <td><Score :value="tableRow.avgScore" /></td>
-              <td>{{ coachString('integer', { value: tableRow.exercises }) }}</td>
-              <td>{{ coachString('integer', { value: tableRow.resources }) }}</td>
+              <td>{{ $formatNumber(tableRow.exercises) }}</td>
+              <td>{{ $formatNumber(tableRow.resources) }}</td>
               <td><ElapsedTime :date="tableRow.lastActivity" /></td>
             </tr>
           </transition-group>

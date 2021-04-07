@@ -109,7 +109,7 @@
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     data() {
       return {
-        lastRoute: null,
+        searchPageExitRoute: null,
         demographicInfo: null,
       };
     },
@@ -178,8 +178,9 @@
           return {
             appBarTitle: this.coreString('searchLabel'),
             immersivePage: true,
-            // Default to the Learn root page if there is no lastRoute to return to.
-            immersivePageRoute: this.lastRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
+            // Default to the Learn root page if there is no searchPageExitRoute to return to.
+            immersivePageRoute:
+              this.searchPageExitRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
             immersivePagePrimary: true,
             immersivePageIcon: 'close',
           };
@@ -195,13 +196,12 @@
           } else if (last) {
             // 'last' should only be route names for Recommended Page and its subpages
             immersivePageRoute = this.$router.getRoute(last);
-            const trString = {
+            appBarTitle = {
               [PageNames.RECOMMENDED_POPULAR]: this.learnString('popularLabel'),
               [PageNames.RECOMMENDED_RESUME]: this.learnString('resumeLabel'),
               [PageNames.RECOMMENDED_NEXT_STEPS]: this.learnString('nextStepsLabel'),
               [PageNames.RECOMMENDED]: this.learnString('recommendedLabel'),
             }[last];
-            appBarTitle = this.$tr(trString);
           } else if (this.topicsTreeContent.parent) {
             // Need to guard for parent being non-empty to avoid console errors
             immersivePageRoute = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
@@ -275,20 +275,26 @@
     },
     watch: {
       $route: function(newRoute, oldRoute) {
-        // Return if the user is leaving or entering the Search page.
-        // This ensures we never set this.lastRoute to be any kind of
-        // SEARCH route and avoids infinite loops.
-        if (newRoute.name === 'SEARCH' || oldRoute.name === 'SEARCH') {
-          return;
+        const topicRouteNames = [
+          PageNames.TOPICS_ROOT,
+          PageNames.TOPICS_CHANNEL,
+          PageNames.TOPICS_TOPIC,
+        ];
+        // If going from topic -> search, save the topic route parameters for the
+        // exit link.
+        // But, if we go from search -> content, we do not edit `searchPageExitRoute`
+        // preserve the backwards linking from content -> search -> topic
+        if (topicRouteNames.includes(oldRoute.name) && newRoute.name === PageNames.SEARCH) {
+          this.searchPageExitRoute = {
+            name: oldRoute.name,
+            query: oldRoute.query,
+            params: oldRoute.params,
+          };
+        } else if (oldRoute.name === PageNames.SEARCH && topicRouteNames.includes(newRoute.name)) {
+          // If going from search -> topic (either by clicking "X" or clicking a topic card
+          // in the results), clear out the exit route.
+          this.searchPageExitRoute = null;
         }
-
-        // Destructure the oldRoute into an object with 3 specific properties.
-        // Setting this.lastRoute = oldRoute causes issues for some reason.
-        this.lastRoute = {
-          name: oldRoute.name,
-          query: oldRoute.query,
-          params: oldRoute.params,
-        };
       },
     },
     mounted() {
@@ -311,7 +317,7 @@
       },
       handleSubmitUpdateYourProfileModal() {
         if (this.userPluginUrl) {
-          const url = `${this.userPluginUrl()}#/profile/edit`;
+          const url = `${this.userPluginUrl()}#/profile/edit?next_page=learn`;
           const redirect = () => {
             window.location.href = url;
           };

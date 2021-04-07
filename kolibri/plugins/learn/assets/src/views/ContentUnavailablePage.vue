@@ -5,7 +5,9 @@
     <p>
       <KExternalLink v-if="deviceContentUrl" :text="$tr('adminLink')" :href="deviceContentUrl" />
     </p>
-    <p>{{ $tr('learnerText') }}</p>
+    <p v-if="showLearnerText">
+      {{ $tr('learnerText') }}
+    </p>
   </div>
 
 </template>
@@ -24,7 +26,7 @@
       };
     },
     computed: {
-      ...mapGetters(['canManageContent']),
+      ...mapGetters(['canManageContent', 'isLearner']),
       deviceContentUrl() {
         const deviceContentUrl = urls['kolibri:kolibri.plugins.device:device_management'];
         if (deviceContentUrl && this.canManageContent) {
@@ -33,10 +35,13 @@
 
         return '';
       },
+      showLearnerText() {
+        return this.isLearner && !this.canManageContent;
+      },
     },
     $trs: {
       header: 'No resources available',
-      adminLink: 'As an administrator you can import channels',
+      adminLink: 'As an administrator, you can import channels',
       learnerText: 'Please ask your coach or administrator for assistance',
       documentTitle: {
         message: 'Resource unavailable',

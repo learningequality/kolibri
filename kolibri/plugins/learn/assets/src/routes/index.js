@@ -79,7 +79,7 @@ export default [
   },
   {
     name: PageNames.CONTENT_UNAVAILABLE,
-    path: '/content-unavailable',
+    path: '/resources-unavailable',
     handler: () => {
       store.commit('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
       store.commit('CORE_SET_PAGE_LOADING', false);

@@ -31,6 +31,7 @@ export function showExamCreationRootPage(store, params) {
         id: channel.root,
         title: channel.name,
         kind: ContentNodeKinds.CHANNEL,
+        is_leaf: false,
       }));
       store.commit('SET_TOOLBAR_ROUTE', {
         name: PageNames.EXAMS,

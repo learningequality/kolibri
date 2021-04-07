@@ -145,12 +145,12 @@
       // Facility filter only needed on SyncFacilityModalGroup
       filterByFacilityId: {
         type: String,
-        required: false,
+        default: null,
       },
       // Channel filter only needed on ManageContentPage/SelectNetworkAddressModal
       filterByChannelId: {
         type: String,
-        required: false,
+        default: null,
       },
       // Hides "New address" button and other saved locations
       hideSavedAddresses: {
@@ -160,7 +160,7 @@
       // If an ID is provided, that address's radio button will be automatically selected
       selectedId: {
         type: String,
-        required: false,
+        default: null,
       },
       // Disables all the form controls
       formDisabled: {

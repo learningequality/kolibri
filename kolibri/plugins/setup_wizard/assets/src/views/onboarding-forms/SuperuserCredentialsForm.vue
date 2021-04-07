@@ -42,17 +42,17 @@
 
       <PrivacyLinkAndModal v-if="!hidePrivacyLink" />
 
-      <!-- eslint-disable-next-line -->
-      <template #footer>
-        <div class="reminder">
-          <div class="icon">
-            <mat-svg category="alert" name="warning" />
-          </div>
-          <p class="text">
-            {{ $tr('rememberThisAccountInformation') }}
-          </p>
+    </slot>
+
+    <slot name="footer">
+      <div class="reminder">
+        <div class="icon">
+          <KIcon icon="warning" />
         </div>
-      </template>
+        <p class="text">
+          {{ $tr('rememberThisAccountInformation') }}
+        </p>
+      </div>
     </slot>
   </OnboardingForm>
 
@@ -86,7 +86,7 @@
       },
       uniqueUsernameValidator: {
         type: Function,
-        required: false,
+        default: null,
       },
       hidePrivacyLink: {
         type: Boolean,
@@ -168,6 +168,7 @@
   .reminder {
     display: table;
     max-width: 480px;
+    padding-top: 1em;
 
     .icon {
       display: table-cell;

@@ -4,23 +4,19 @@
 
     <h3>{{ coreString('searchLabel') }}</h3>
 
-    <SearchBox ref="searchBox" :filters="true" />
+    <SearchBox
+      ref="searchBox"
+      :filters="true"
+    />
 
     <p v-if="!searchTerm">
       {{ $tr('noSearch') }}
     </p>
 
     <template v-else>
-      <h1 v-if="contents.length === 0" class="search-results">
-        {{ $tr('noResultsMsg', { searchTerm }) }}
+      <h1 class="search-results">
+        {{ resultsMsg }}
       </h1>
-      <h1 v-else class="search-results">
-        {{ $tr('showingResultsFor', {
-          searchTerm,
-          totalResults: total_results
-        }) }}
-      </h1>
-
 
       <ContentCardGroupGrid
         :genContentLink="genContentLink"
@@ -46,7 +42,6 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
@@ -71,6 +66,19 @@
     },
     computed: {
       ...mapState('search', ['contents', 'searchTerm', 'total_results']),
+      noResults() {
+        return this.contents.length === 0;
+      },
+      resultsMsg() {
+        if (this.noResults) {
+          return this.$tr('noResultsMsg', { searchTerm: this.searchTerm });
+        } else {
+          return this.$tr('showingResultsFor', {
+            searchTerm: this.searchTerm,
+            totalResults: this.total_results,
+          });
+        }
+      },
     },
     beforeDestroy() {
       // TODO do this clean up in a beforeRouteLeave once SearchPage is rendered in router-link
@@ -79,18 +87,19 @@
     mounted() {
       // TODO when beforeRouteEnter is available, focus on filter or text input depending on what
       // was changed (e.g. if type filter was changed, focus on it after refresh)
-      if (this.$refs.searchBox.$refs.searchInput) {
-        this.$refs.searchBox.$refs.searchInput.focus();
-        // If there are no contents, then select the whole input, so user can try something else
-        if (this.contents.length === 0) {
-          this.$refs.searchBox.$refs.searchInput.select();
+      const inputRef = this.$refs.searchBox.$refs.searchInput;
+      if (inputRef) {
+        inputRef.focus();
+        // If there are no results, then highlight the term, so user can try something else
+        if (this.noResults) {
+          inputRef.select();
         }
       }
     },
     methods: {
-      genContentLink(contentId, contentKind) {
+      genContentLink(contentId, isLeaf) {
         const params = { id: contentId };
-        if (contentKind === ContentNodeKinds.TOPIC || contentKind === ContentNodeKinds.CHANNEL) {
+        if (!isLeaf) {
           return this.$router.getRoute(PageNames.TOPICS_TOPIC, params);
         }
         return this.$router.getRoute(PageNames.TOPICS_CONTENT, params, this.$route.query);

@@ -12,7 +12,7 @@
         v-if="linkUrl"
         :href="linkUrl"
         :text="linkText || linkUrl"
-        target="_blank"
+        :openInNewTab="true"
       />
     </p>
     <p v-if="!isSuperuser">
@@ -53,11 +53,11 @@
       },
       linkText: {
         type: String,
-        required: false,
+        default: null,
       },
       linkUrl: {
         type: String,
-        required: false,
+        default: null,
       },
     },
     data() {

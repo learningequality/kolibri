@@ -72,8 +72,7 @@ function makeWrapper(options) {
 describe('ActivityList component', () => {
   it('on first render, calls the notification resource', async () => {
     const { fetchMock, wrapper } = makeWrapper({});
-    await wrapper.vm.$nextTick();
-    await wrapper.vm.$nextTick();
+    await global.flushPromises();
     expect(fetchMock).toHaveBeenCalled();
     expect(wrapper.vm.moreResults).toBe(false);
   });
@@ -84,24 +83,21 @@ describe('ActivityList component', () => {
         noActivityString: 'No activity in this classroom',
       },
     });
-    await wrapper.vm.$nextTick();
-    await wrapper.vm.$nextTick();
+    await global.flushPromises();
     const noActivity = wrapper.find('.notifications p');
     expect(noActivity.text()).toEqual('No activity in this classroom');
   });
 
   it('has a "show more" button if there are more pages of notifications', async () => {
     const { wrapper } = makeWrapper({ moreResults: true });
-    await wrapper.vm.$nextTick();
-    await wrapper.vm.$nextTick();
+    await global.flushPromises();
     const showMoreButton = wrapper.findComponent({ name: 'KButton' });
     expect(showMoreButton.exists()).toEqual(true);
   });
 
   it('does not have a "show more" button if there are no more pages of notifications', async () => {
     const { wrapper } = makeWrapper({});
-    await wrapper.vm.$nextTick();
-    await wrapper.vm.$nextTick();
+    await global.flushPromises();
     const showMoreButton = wrapper.findComponent({ name: 'KButton' });
     expect(showMoreButton.exists()).toEqual(false);
   });
@@ -109,8 +105,7 @@ describe('ActivityList component', () => {
   it('disables the "show more" button if any filters are activated', async () => {
     const { wrapper } = makeWrapper({});
     const showMoreButton = () => wrapper.findComponent({ name: 'KButton' });
-    await wrapper.vm.$nextTick();
-    await wrapper.vm.$nextTick();
+    await global.flushPromises();
     wrapper.setData({
       loading: false,
       moreResults: true,
@@ -157,8 +152,7 @@ describe('ActivityList component', () => {
       ],
     });
 
-    await wrapper.vm.$nextTick();
-    await wrapper.vm.$nextTick();
+    await global.flushPromises();
 
     const filters = wrapper.findComponent({ name: 'NotificationsFilter' });
     // Logic is very simple: just find the unique values in the notifications

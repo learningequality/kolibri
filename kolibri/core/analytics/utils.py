@@ -201,6 +201,7 @@ def extract_facility_statistics(facility):
     usersess_devinf = (
         usersessions.values("device_info")
         .exclude(device_info="")
+        .exclude(device_info__isnull=True)
         .annotate(count=Count("device_info"))
     )
     usersess_devinf = {

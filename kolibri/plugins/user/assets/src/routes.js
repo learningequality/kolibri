@@ -9,6 +9,7 @@ import ProfilePage from './views/ProfilePage';
 import ProfileEditPage from './views/ProfileEditPage';
 import SignInPage from './views/SignInPage';
 import SignUpPage from './views/SignUpPage';
+import NewPasswordPage from './views/SignInPage/NewPasswordPage';
 
 router.beforeEach((to, from, next) => {
   const profileRoutes = [ComponentMap.PROFILE, ComponentMap.PROFILE_EDIT];
@@ -51,9 +52,14 @@ export default [
         if (store.getters.facilities.length > 1 && !store.state.facilityId) {
           // Go to FacilitySelect with whereToNext => SignUpPage
           const whereToNext = router.getRoute(ComponentMap.SIGN_IN);
+          let query = {};
+          if (to.query.next) {
+            query = { next: to.query.next };
+          }
           const route = {
             ...router.getRoute(ComponentMap.FACILITY_SELECT),
             params: { whereToNext },
+            query,
           };
           next(route);
         } else {
@@ -102,6 +108,24 @@ export default [
       } else {
         next();
       }
+    },
+  },
+  {
+    path: '/set-password',
+    component: NewPasswordPage,
+    beforeEnter(to, from, next) {
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      if (!to.query.facility || !to.query.username) {
+        next({ path: '/' });
+      } else {
+        next();
+      }
+    },
+    props(route) {
+      return {
+        facilityId: route.query.facility,
+        username: route.query.username,
+      };
     },
   },
   {

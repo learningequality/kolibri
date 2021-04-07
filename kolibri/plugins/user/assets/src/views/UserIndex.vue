@@ -33,6 +33,7 @@
           ComponentMap.FACILITY_SELECT,
           ComponentMap.AUTH_SELECT,
           ComponentMap.SIGN_UP,
+          ComponentMap.NEW_PASSWORD,
         ].includes(this.$route.name);
       },
       demoBannerRoute() {
@@ -40,6 +41,7 @@
           ComponentMap.SIGN_IN,
           ComponentMap.FACILITY_SELECT,
           ComponentMap.AUTH_SELECT,
+          ComponentMap.NEW_PASSWORD,
         ].includes(this.$route.name);
       },
       redirect: {

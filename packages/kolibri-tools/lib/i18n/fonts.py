@@ -44,6 +44,11 @@ OUTPUT_PATH = os.path.abspath(
 )
 
 
+# Sets the source date epoch to 1/1/21 to prevent temporary files from
+# getting different headers on each run, leading to non-glyph-related changes to
+# their base64 encoding
+# ref: https://github.com/fonttools/fonttools/issues/1135
+os.environ["SOURCE_DATE_EPOCH"] = "1609459200000"
 FONT_TOOLS_OPTIONS = subset.Options()
 FONT_TOOLS_OPTIONS.flavor = "woff"  # most widely supported format
 FONT_TOOLS_OPTIONS.ignore_missing_unicodes = True  # important for subsetting

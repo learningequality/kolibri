@@ -76,7 +76,7 @@ Python virtual environment
 
 You should use a Python virtual environment to isolate the dependencies of your Python projects from each other and to avoid corrupting your system's Python installation.
 
-There are many ways to set up Python virtual environments: You can use `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__ as shown in the instructions below; you can also use `Virtualenv <https://virtualenv.pypa.io/en/stable/userguide/>`__, `Python 3 venv <https://docs.python.org/3/library/venv.html>`__, `Poetry <https://poetry.eustace.io>`__ etc.
+There are many ways to set up Python virtual environments: You can use `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__ as shown in the instructions below; you can also use `Virtualenv <https://virtualenv.pypa.io/en/latest/>`__, `Python 3 venv <https://docs.python.org/3/library/venv.html>`__, `Poetry <https://poetry.eustace.io>`__ etc.
 
 .. note::
   Most virtual environments will require special setup for non-Bash shells such as Fish and ZSH.
@@ -116,8 +116,20 @@ Environment variables can be set in many ways, including:
 
 There are two environment variables you should plan to set:
 
-* ``KOLIBRI_RUN_MODE`` (required): This variable is sent to our `pingback server <https://github.com/learningequality/nutritionfacts>`_, and you must set it to something besides an empty string. This allows us to filter development work out of our usage statistics. (There are also some `special testing behaviors <https://github.com/learningequality/nutritionfacts/blob/b150ec9fd80cd0f02c087956fd5f16b2592f94d4/nutritionfacts/views.py#L125-L179>`_ that can be triggered for special strings, as described elsewhere in the developer docs and integration testing gherkin stories.)
-* ``KOLIBRI_HOME`` (optional): This variable determines where Kolibri will store its content and databases. It is useful to set if you want to have multiple versions of Kolibri running simultaneously.
+* ``KOLIBRI_RUN_MODE`` is **required**.
+
+  This variable is sent to our `pingback server <https://github.com/learningequality/nutritionfacts>`_ (private repo), and you must set it to something besides an empty string. This allows us to filter development work out of our usage statistics. There are also some `special testing behaviors <https://github.com/learningequality/nutritionfacts/blob/b150ec9fd80cd0f02c087956fd5f16b2592f94d4/nutritionfacts/views.py#L125-L179>`_ that can be triggered for special strings, as described elsewhere in the developer docs and integration testing Gherkin scenarios.
+  |br|
+  For example, you could add this line at the end of your ``~/.bash_profile`` file:
+
+  .. code-block:: bash
+
+    export KOLIBRI_RUN_MODE="dev"
+
+
+* ``KOLIBRI_HOME`` is optional.
+
+  This variable determines where Kolibri will store its content and databases. It is useful to set if you want to have multiple versions of Kolibri running simultaneously.
 
 
 Install Python dependencies
@@ -163,6 +175,16 @@ Running the Kolibri server
 
 .. _devserver:
 
+Database setup
+~~~~~~~~~~~~~~
+
+To initialize the database run the following command:
+
+.. code-block:: bash
+
+  kolibri manage migrate
+
+
 Development server
 ~~~~~~~~~~~~~~~~~~
 
@@ -206,7 +228,7 @@ In the first terminal you can start the django development server with this comm
 
 .. code-block:: bash
 
-  kolibri manage --debug runserver --settings=kolibri.deployment.default.settings.dev "0.0.0.0:8000"
+  yarn run python-devserver
 
 In the second terminal, you can start the webpack build process for frontend assets in 'watch' mode – meaning they will be automatically rebuilt if you modify them – with this command:
 
@@ -221,7 +243,7 @@ If you need to make the development server available through the LAN, you need t
   # first build the assets
   yarn run build
   # now, run the Django devserver
-  kolibri manage --debug runserver -- 0.0.0.0:8000
+  yarn run python-devserver
 
 Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
 
@@ -356,14 +378,11 @@ Frontend dev tools
 To ensure a more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylelint.
 
 
-Database setup
-~~~~~~~~~~~~~~
+Import channels and resources
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can initialize the server using:
+Once you have the server running, proceed to import some channels and resources. To quickly import all available and supported Kolibri resource types, use the token ``nakav-mafak`` for the `Kolibri QA channel <https://kolibri-beta.learningequality.org/en/learn/#/topics/95a52b386f2c485cb97dd60901674a98>`__ (~350MB).
 
-.. code-block:: bash
-
-  kolibri manage migrate
 
 
 .. _workflow_intro:

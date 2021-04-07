@@ -46,12 +46,6 @@ HTTP_PORT
 RUN_MODE
 URL_PATH_PREFIX
 LANGUAGES
-STATIC_USE_SYMLINKS
-    We currently create symbolic links when collecting static files. The option
-    can be set to False to disable the feature to instead copy files to STATIC_ROOT.
-    This is useful for the cloud infrastructure where Nginx and Kolibri are set
-    up in separate network mounted volumes such that Nginx cannot access symlinked
-    static files in the other volume.
 ZIP_CONTENT_HOST
 ZIP_CONTENT_PORT
 
@@ -362,11 +356,6 @@ base_option_spec = {
             "type": "language_list",
             "default": SUPPORTED_LANGUAGES,
             "envvars": ("KOLIBRI_LANGUAGES",),
-        },
-        "STATIC_USE_SYMLINKS": {
-            "type": "boolean",
-            "default": True,
-            "envvars": ("KOLIBRI_STATIC_USE_SYMLINKS",),
         },
         "ZIP_CONTENT_HOST": {
             "type": "string",

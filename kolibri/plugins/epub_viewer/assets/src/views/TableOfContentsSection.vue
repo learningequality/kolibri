@@ -47,7 +47,7 @@
       },
       currentSection: {
         type: Object,
-        required: false,
+        default: null,
       },
     },
     computed: {

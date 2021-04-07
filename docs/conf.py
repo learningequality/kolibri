@@ -217,6 +217,15 @@ html_show_copyright = False
 # Output file base name for HTML help builder.
 htmlhelp_basename = "kolibri-dev"
 
+# Add replacement codes
+rst_prolog = """
+.. role:: raw-html(raw)
+     :format: html
+
+.. |br| replace:: :raw-html:`<br /><br />`
+
+
+"""
 
 # -- I18N ----------------------------------------------------------------------
 

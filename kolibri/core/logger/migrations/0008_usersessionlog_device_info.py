@@ -16,6 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="usersessionlog",
             name="device_info",
-            field=models.CharField(blank=True, max_length=100),
+            field=models.CharField(null=True, blank=True, max_length=100),
         ),
     ]

@@ -70,15 +70,16 @@
     props: {
       channel: {
         type: Object,
+        default: () => ({}),
       },
       // Used to override the version number in some cases
       channelVersion: {
         type: [String, Number],
-        required: false,
+        default: null,
       },
     },
     $trs: {
-      versionNumber: 'Version {v}',
+      versionNumber: 'Version {v, number, integer}',
       defaultDescription: '(No description)',
     },
   };

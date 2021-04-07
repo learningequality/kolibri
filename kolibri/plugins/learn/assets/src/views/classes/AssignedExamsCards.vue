@@ -18,6 +18,7 @@
       :title="exam.title"
       :subtitle="genExamSubtitle(exam) "
       :kind="EXAM"
+      :isLeaf="true"
       :isMobile="isMobile"
       :progress="getExamProgress(exam)"
     />

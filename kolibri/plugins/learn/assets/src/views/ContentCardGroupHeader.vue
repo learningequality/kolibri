@@ -27,8 +27,14 @@
     name: 'ContentCardGroupHeader',
     mixins: [commonCoreStrings],
     props: {
-      header: { type: String },
-      viewMorePageLink: { type: Object },
+      header: {
+        type: String,
+        default: null,
+      },
+      viewMorePageLink: {
+        type: Object,
+        required: true,
+      },
       showViewMore: { type: Boolean },
     },
   };

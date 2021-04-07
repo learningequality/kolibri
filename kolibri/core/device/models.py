@@ -3,7 +3,6 @@ import time
 from uuid import uuid4
 
 from django.conf import settings
-from django.core.cache import cache
 from django.db import models
 from morango.models import UUIDField
 
@@ -11,6 +10,7 @@ from .utils import LANDING_PAGE_LEARN
 from .utils import LANDING_PAGE_SIGN_IN
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.utils.cache import process_cache as cache
 from kolibri.plugins.app.utils import interface
 
 device_permissions_fields = ["is_superuser", "can_manage_content"]

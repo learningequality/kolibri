@@ -1,3 +1,4 @@
+import os
 import tempfile
 import time
 
@@ -16,15 +17,19 @@ QUEUE = "pytest"
 
 @pytest.fixture
 def worker():
-    with tempfile.NamedTemporaryFile() as f:
-        connection = create_engine(
-            "sqlite:///{path}".format(path=f.name),
-            connect_args={"check_same_thread": False},
-            poolclass=NullPool,
-        )
-        b = Worker(QUEUE, connection)
-        yield b
-        b.shutdown()
+    _, filepath = tempfile.mkstemp()
+    connection = create_engine(
+        "sqlite:///{path}".format(path=filepath),
+        connect_args={"check_same_thread": False},
+        poolclass=NullPool,
+    )
+    b = Worker(QUEUE, connection)
+    yield b
+    b.shutdown()
+    try:
+        os.remove(filepath)
+    except OSError:
+        pass
 
 
 class TestWorker:

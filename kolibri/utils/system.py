@@ -235,24 +235,3 @@ else:
     pid_exists = _windows_pid_exists
     kill_pid = _windows_kill_pid
     _become_daemon_function = _windows_become_daemon
-
-
-def symlink_capability_check(source_file, destination_folder):
-    """
-    Function to try to establish a symlink
-    between two locations
-    return True if it succeeds, return False otherwise.
-    """
-
-    temp_pathname = os.path.join(destination_folder, os.path.basename(source_file))
-    try:
-        os.makedirs(os.path.dirname(temp_pathname))
-    except OSError:
-        pass
-    can_do = True
-    try:
-        os.symlink(source_file, temp_pathname)
-        os.remove(temp_pathname)
-    except OSError:
-        can_do = False
-    return can_do

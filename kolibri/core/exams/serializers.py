@@ -28,7 +28,8 @@ class NestedCollectionSerializer(ModelSerializer):
 
 class QuestionSourceSerializer(Serializer):
     exercise_id = HexUUIDField(format="hex")
-    question_id = CharField()
+    # V0 need not have question_id that is why required=False
+    question_id = HexUUIDField(format="hex", required=False)
     title = CharField()
     counter_in_exercise = IntegerField()
 

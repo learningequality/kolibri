@@ -23,11 +23,11 @@
     props: {
       keyText: {
         type: String,
-        required: false,
+        default: '',
       },
       valueText: {
         type: String,
-        required: false,
+        default: '',
       },
     },
   };

@@ -43,12 +43,12 @@
       // Channel filter only needed on ManageContentPage/SelectNetworkAddressModal
       filterByChannelId: {
         type: String,
-        required: false,
+        default: null,
       },
       // Facility filter only needed on SyncFacilityModalGroup
       filterByFacilityId: {
         type: String,
-        required: false,
+        default: null,
       },
     },
     data() {

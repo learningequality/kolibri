@@ -2,6 +2,7 @@
 
   <KModal
     :title="modalTitle"
+    size="large"
     v-bind="modalTexts"
     @submit="handleSubmit"
     @cancel="$emit('cancel')"

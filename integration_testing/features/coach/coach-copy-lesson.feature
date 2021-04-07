@@ -25,26 +25,26 @@ Feature: Coach copies lesson
 
   Scenario: Copy lesson to a different class and assign it to just one group
     Given there is a class <class2> that has a group <group>
-      When I click the <lesson> lesson
-      Then I see the <lesson> page
-      When I click *Options* button
-        And I select *Copy lesson* option
-      Then I see the *Copy lesson to* modal
-        And I see *'<class>' (current class)* is selected
-      When I select class <class2>
-        And I click *Continue* button
-      Then the modal content changes and asks to select recipients
-        And I see *Entire class* selected
-      When I select group <group>
-        And I click *Copy* button
-      Then the modal closes
-        And the snackbar confirmation appears
-      When I open the sidebar
-        And I click on *Coach*
-        And I click class <class2>
-        And I click on *Plan > Lessons* tab
-      Then I see the *Copy of '<lesson>'* in the list of lessons
-        And I see *1 group* value for it under the *Recipients* heading
+    When I click the <lesson> lesson
+    Then I see the <lesson> page
+    When I click *Options* button
+      And I select *Copy lesson* option
+    Then I see the *Copy lesson to* modal
+      And I see *'<class>' (current class)* is selected
+    When I select class <class2>
+      And I click *Continue* button
+    Then the modal content changes and asks to select recipients
+      And I see *Entire class* selected
+    When I select group <group>
+      And I click *Copy* button
+    Then the modal closes
+      And the snackbar confirmation appears
+    When I open the sidebar
+      And I click on *Coach*
+      And I click class <class2>
+      And I click on *Plan > Lessons* tab
+    Then I see the *Copy of '<lesson>'* in the list of lessons
+      And I see *1 group* value for it under the *Recipients* heading
 
 Examples:
 | lesson       | class    | class2    | group     |

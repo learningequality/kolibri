@@ -116,14 +116,6 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
     mode,
     module: {
       rules: [
-        // Preprocessing rules
-        {
-          test: /\.(html|vue)$/,
-          enforce: 'pre',
-          // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
-          loader: 'svg-icon-inline-loader',
-          exclude: /node_modules/,
-        },
         // Transpilation and code loading rules
         {
           test: /\.vue$/,
@@ -154,7 +146,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
           test: /\.(png|jpe?g|gif|svg)$/,
           use: {
             loader: 'url-loader',
-            options: { limit: 10000, name: '[name].[ext]?[hash]' },
+            options: { limit: 10000, name: '[name]-[contenthash].[ext]' },
           },
         },
         // Use url loader to load font files.
@@ -162,7 +154,7 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
           test: /\.(eot|woff|ttf|woff2)$/,
           use: {
             loader: 'url-loader',
-            options: { name: '[name].[ext]?[hash]' },
+            options: { name: '[name]-[contenthash].[ext]' },
           },
         },
       ],

@@ -11,6 +11,7 @@
             <ContentCard
               :isMobile="true"
               :kind="nextLessonResource.kind"
+              :isLeaf="nextLessonResource.is_leaf"
               :link="nextResourceLink"
               :progress="nextLessonResource.progress_fraction"
               :thumbnail="getContentNodeThumbnail(nextLessonResource)"

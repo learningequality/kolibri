@@ -233,6 +233,7 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
     currentmasterylog = serializers.SerializerMethodField()
     extra_fields = serializers.JSONField(default="{}")
     update_fields = ()
+    is_leaf = serializers.SerializerMethodField()
 
     class Meta:
         model = ContentSummaryLog
@@ -249,6 +250,7 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
             "progress",
             "kind",
             "extra_fields",
+            "is_leaf",
         )
 
     def get_currentmasterylog(self, obj):
@@ -257,6 +259,9 @@ class ContentSummaryLogSerializer(KolibriModelSerializer):
             return MasteryLogSerializer(current_log).data
         except MasteryLog.DoesNotExist:
             return None
+
+    def get_is_leaf(self, obj):
+        return obj.kind != content_kinds.TOPIC
 
     def create(self, validated_data):
         instance = super(ContentSummaryLogSerializer, self).create(validated_data)

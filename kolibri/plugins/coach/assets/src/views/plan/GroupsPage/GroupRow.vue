@@ -2,15 +2,14 @@
 
   <tr>
     <td>
-      <KLabeledIcon icon="group">
-        <KRouterLink
-          :text="group.name"
-          :to="$router.getRoute('GroupMembersPage', { groupId: group.id })"
-        />
-      </KLabeledIcon>
+      <KRouterLink
+        :text="group.name"
+        :to="$router.getRoute('GroupMembersPage', { groupId: group.id })"
+        icon="group"
+      />
     </td>
     <td>
-      {{ group.users.length }}
+      {{ this.$formatNumber(group.users.length) }}
     </td>
     <td class="core-table-button-col">
       <KDropdownMenu

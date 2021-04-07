@@ -15,7 +15,6 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { ContentNodeProgressResource } from 'kolibri.resources';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
@@ -97,9 +96,8 @@
       }
     },
     methods: {
-      genContentLink(id, kind) {
-        const pageName =
-          kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT;
+      genContentLink(id, isLeaf) {
+        const pageName = isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC;
         return this.$router.getRoute(pageName, { id }, { last: this.pageName });
       },
     },

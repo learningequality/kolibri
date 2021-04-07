@@ -28,12 +28,11 @@
           <transition-group tag="tbody" name="list">
             <tr v-for="tableRow in table" :key="tableRow.question_id">
               <td>
-                <KLabeledIcon icon="person">
-                  <KRouterLink
-                    :text="tableRow.title"
-                    :to="questionLink(tableRow.question_id)"
-                  />
-                </KLabeledIcon>
+                <KRouterLink
+                  :text="tableRow.title"
+                  :to="questionLink(tableRow.question_id)"
+                  icon="person"
+                />
               </td>
               <td>
                 <LearnerProgressRatio

@@ -277,6 +277,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "id": c1_id,
                 "title": "root",
                 "kind": "topic",
+                "is_leaf": False,
                 "available": False,
                 "total_resources": 2,
                 "on_device_resources": 0,
@@ -292,6 +293,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "id": c2_id,
                         "title": "c1",
                         "kind": "video",
+                        "is_leaf": True,
                         "available": False,
                         "total_resources": 1,
                         "on_device_resources": 0,
@@ -306,6 +308,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "id": c3_id,
                         "title": "c2",
                         "kind": "topic",
+                        "is_leaf": False,
                         "available": False,
                         "total_resources": 1,
                         "on_device_resources": 0,
@@ -354,6 +357,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "id": c1_id,
                 "title": "root",
                 "kind": "topic",
+                "is_leaf": False,
                 "available": False,
                 "total_resources": 1,
                 "on_device_resources": 0,
@@ -369,6 +373,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "id": c2_id,
                         "title": "c1",
                         "kind": "video",
+                        "is_leaf": True,
                         "available": False,
                         "total_resources": 0,
                         "on_device_resources": 0,
@@ -383,6 +388,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "id": c3_id,
                         "title": "c2",
                         "kind": "topic",
+                        "is_leaf": False,
                         "available": False,
                         "total_resources": 1,
                         "on_device_resources": 0,
@@ -430,6 +436,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "id": c1_id,
                 "title": "root",
                 "kind": "topic",
+                "is_leaf": False,
                 "available": False,
                 "total_resources": 1,
                 "on_device_resources": 0,
@@ -445,6 +452,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "id": c2_id,
                         "title": "c1",
                         "kind": "video",
+                        "is_leaf": True,
                         "available": False,
                         "total_resources": 0,
                         "on_device_resources": 0,
@@ -459,6 +467,7 @@ class ContentNodeAPITestCase(APITestCase):
                         "id": c3_id,
                         "title": "c2",
                         "kind": "topic",
+                        "is_leaf": False,
                         "available": False,
                         "total_resources": 1,
                         "on_device_resources": 0,
@@ -487,6 +496,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "id": c1_id,
                 "title": "c1",
                 "kind": "video",
+                "is_leaf": True,
                 "available": True,
                 "total_resources": 1,
                 "on_device_resources": 1,
@@ -515,6 +525,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "id": c1_id,
                 "title": "c1",
                 "kind": "video",
+                "is_leaf": True,
                 "available": False,
                 "total_resources": 0,
                 "on_device_resources": 0,
@@ -789,6 +800,19 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(len(response.data), children.count())
         for i in range(len(children)):
             self.assertEqual(response.data[i]["title"], children[i].title)
+
+    def test_contentnode_tags(self):
+        expected = {
+            "root": ["tag_1", "tag_2", "tag_3"],
+            "c1": ["tag_1"],
+            "c2": ["tag_2"],
+        }
+        for title, tags in expected.items():
+            node = content.ContentNode.objects.get(title=title)
+            response = self.client.get(
+                reverse("kolibri:core:contentnode-detail", kwargs={"pk": node.id})
+            )
+            self.assertEqual(set(response.data["tags"]), set(tags))
 
     def test_channelmetadata_list(self):
         response = self.client.get(reverse("kolibri:core:channel-list", kwargs={}))

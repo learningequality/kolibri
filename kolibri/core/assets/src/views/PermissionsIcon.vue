@@ -5,14 +5,14 @@
       <KIcon
         v-if="hasSuperAdminPermission"
         class="icon super-admin"
-        :style="{ fill: $themeTokens.superAdmin }"
+        :style="iconStyle"
         icon="permission"
       />
 
       <KIcon
         v-else-if="hasLimitedPermissions"
         class="icon some-permissions"
-        :style="{ fill: $themeTokens.text }"
+        :style="iconStyle"
         icon="permission"
       />
     </span>
@@ -51,6 +51,10 @@
           return [PermissionTypes.SUPERUSER, PermissionTypes.LIMITED_PERMISSIONS].includes(value);
         },
       },
+      lightIcon: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       UserKinds() {
@@ -61,6 +65,17 @@
       },
       hasLimitedPermissions() {
         return this.permissionType === PermissionTypes.LIMITED_PERMISSIONS;
+      },
+      iconStyle() {
+        if (this.hasSuperAdminPermission) {
+          return {
+            fill: this.lightIcon ? this.$themePalette.amber.v_100 : this.$themeTokens.superAdmin,
+          };
+        } else {
+          return {
+            fill: this.lightIcon ? this.$themeTokens.disabled : this.$themeTokens.text,
+          };
+        }
       },
     },
     $trs: {

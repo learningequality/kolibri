@@ -103,6 +103,7 @@ def run_pip_install(
             "--cache-dir",
             cache_path,
             "--only-binary=:all:",
+            "--no-deps",
             "{}=={}".format(name, pk_version),
         ]
     )
@@ -274,7 +275,8 @@ def parse_requirements(args):
                 parse_pypi_and_piwheels(
                     char_list[0].strip(), char_list[1].strip(), cache_path
                 )
-            else:
+            # Ignore comments
+            elif not line.startswith("#"):
                 sys.exit(
                     "\nName format in cext.txt is incorrect. Should be 'packageName==packageVersion'.\n"
                 )

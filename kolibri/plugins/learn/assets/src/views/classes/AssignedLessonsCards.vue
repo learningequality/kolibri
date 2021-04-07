@@ -17,6 +17,7 @@
       :showContentIcon="false"
       :title="lesson.title"
       :kind="LESSON"
+      :isLeaf="true"
       :isMobile="isMobile"
       :progress="getLessonProgress(lesson)"
     />

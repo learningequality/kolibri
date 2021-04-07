@@ -72,12 +72,15 @@
     props: {
       filterText: {
         type: String,
+        default: null,
       },
       facilityUsers: {
         type: Array,
+        default: () => [],
       },
       userPermissions: {
         type: Function,
+        default: () => null,
       },
     },
     computed: {

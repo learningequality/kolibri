@@ -283,6 +283,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
     new_resource = serializers.SerializerMethodField()
     num_new_resources = serializers.SerializerMethodField()
     updated_resource = serializers.SerializerMethodField()
+    is_leaf = serializers.SerializerMethodField()
 
     class Meta:
         model = ContentNode
@@ -291,6 +292,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             "available",
             "coach_content",
             "importable",
+            "is_leaf",
             "kind",
             "num_coach_contents",
             "on_device_resources",
@@ -354,6 +356,9 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         if self.channel_stats is None:
             return None
         return self.channel_stats.get(instance.id, {}).get("updated_resource", False)
+
+    def get_is_leaf(self, instance):
+        return instance.kind != content_kinds.TOPIC
 
 
 class ContentNodeProgressListSerializer(serializers.ListSerializer):

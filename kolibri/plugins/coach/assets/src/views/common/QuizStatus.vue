@@ -80,6 +80,7 @@
         >
           <KSwitch
             name="toggle-quiz-visibility"
+            label=""
             style="display:inline;"
             :checked="exam.active"
             :value="exam.active"
@@ -231,7 +232,7 @@
       },
       avgScore: {
         type: Number,
-        required: false,
+        default: null,
       },
     },
     data() {

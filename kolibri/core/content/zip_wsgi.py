@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import codecs
 import json
 import logging
 import mimetypes
@@ -15,8 +14,6 @@ from collections import OrderedDict
 import html5lib
 from cheroot import wsgi
 from django.conf import settings
-from django.contrib.staticfiles.finders import find
-from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import cache
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
@@ -31,12 +28,12 @@ from django.template.engine import Engine
 from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
 from django.utils.http import http_date
-from django.utils.safestring import mark_safe
 
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.utils.paths import get_hashi_base_path
-from kolibri.core.content.utils.paths import get_hashi_filename
+from kolibri.core.content.utils.paths import get_hashi_html_filename
+from kolibri.core.content.utils.paths import get_hashi_js_filename
 from kolibri.core.content.utils.paths import get_hashi_path
 from kolibri.core.content.utils.paths import get_zip_content_base_path
 
@@ -72,20 +69,12 @@ def django_response_to_wsgi(response, environ, start_response):
     return response
 
 
-hashi_template = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="google" content="notranslate">
-    </head>
-    <body style="margin: 0; padding: 0;">
-        <script type="text/javascript">{}</script>
-    </body>
-</html>
-"""
+template_engine = Engine(
+    dirs=[os.path.join(os.path.dirname(__file__), "./templates/content")],
+    libraries={"staticfiles": "django.contrib.staticfiles.templatetags.staticfiles"},
+)
+h5p_template = template_engine.get_template("h5p.html")
+hashi_template = template_engine.get_template("hashi.html")
 
 allowed_methods = set(["GET", "OPTIONS"])
 
@@ -94,39 +83,39 @@ def _hashi_response_from_request(request):
     if request.method not in allowed_methods:
         return HttpResponseNotAllowed(allowed_methods)
 
-    if request.path_info.lstrip("/") != get_hashi_filename():
+    filename = request.path_info.lstrip("/")
+
+    if filename.split(".")[-1] != "html":
+        return HttpResponseNotFound()
+
+    if filename != get_hashi_html_filename():
         return HttpResponsePermanentRedirect(get_hashi_path())
 
     if request.method == "OPTIONS":
         return HttpResponse()
 
+    developer_mode = getattr(settings, "DEVELOPER_MODE", False)
+
     # if client has a cached version, use that we can safely assume nothing has changed
     # as we provide a unique path per compiled hashi JS file.
-    if request.META.get("HTTP_IF_MODIFIED_SINCE"):
+    if request.META.get("HTTP_IF_MODIFIED_SINCE") and not developer_mode:
         return HttpResponseNotModified()
-    CACHE_KEY = "HASHI_VIEW_RESPONSE_{}".format(get_hashi_filename())
+    CACHE_KEY = "HASHI_VIEW_RESPONSE_{}".format(get_hashi_html_filename())
     cached_response = cache.get(CACHE_KEY)
-    if cached_response is not None:
+    if cached_response is not None and not developer_mode:
         return cached_response
-    # Removes Byte Order Mark
-    charset = "utf-8-sig"
-    basename = "content/{filename}".format(filename=get_hashi_filename())
 
-    filename = None
-    # First try finding the file using the storage class.
-    # This is skipped in DEVELOPER_MODE mode as files might be outdated
-    # Or may not even be on disk.
-    if not getattr(settings, "DEVELOPER_MODE", False):
-        filename = staticfiles_storage.path(basename)
-    else:
-        filename = find(basename)
-
-    with codecs.open(filename, "r", charset) as fd:
-        content = fd.read()
-    content_type = "text/html"
-    response = HttpResponse(
-        mark_safe(hashi_template.format(content)), content_type=content_type
+    content = hashi_template.render(
+        Context(
+            {
+                "hashi_file_path": "content/{filename}".format(
+                    filename=get_hashi_js_filename()
+                )
+            }
+        )
     )
+
+    response = HttpResponse(content, content_type="text/html")
     response["Content-Length"] = len(response.content)
     response["Last-Modified"] = http_date(time.time())
     patch_response_headers(response, cache_timeout=YEAR_IN_SECONDS)
@@ -240,73 +229,45 @@ def parse_html(content):
         return content
 
 
-h5p_engine = Engine(
-    dirs=[os.path.join(os.path.dirname(__file__), "./templates/content")]
-)
-h5p_template = h5p_engine.get_template("h5p.html")
-
-
-def get_h5p(zf, embedded_filepath):
+def get_h5p(zf):
     file_size = 0
-    if not embedded_filepath:
-        # Get the h5p bootloader, and then run it through our hashi templating code.
-        # return the H5P bootloader code
-        try:
-            h5pdata = load_json_from_zipfile(zf, "h5p.json")
-            contentdata = load_json_from_zipfile(zf, "content/content.json")
-        except KeyError:
-            return HttpResponseNotFound("No valid h5p file was found at this location")
-        jsfiles, cssfiles = recursive_h5p_dependencies(zf, h5pdata)
-        jsfiles = jsfiles.keys()
-        cssfiles = cssfiles.keys()
-        path_includes_version = (
-            "true"
-            if "-" in [name for name in zf.namelist() if "/" in name][0]
-            else "false"
-        )
-        main_library_data = [
-            lib
-            for lib in h5pdata["preloadedDependencies"]
-            if lib["machineName"] == h5pdata["mainLibrary"]
-        ][0]
-        bootstrap_content = h5p_template.render(
-            Context(
-                {
-                    "jsfiles": jsfiles,
-                    "cssfiles": cssfiles,
-                    "content": json.dumps(
-                        json.dumps(
-                            contentdata, separators=(",", ":"), ensure_ascii=False
-                        )
-                    ),
-                    "library": "{machineName} {majorVersion}.{minorVersion}".format(
-                        **main_library_data
-                    ),
-                    "path_includes_version": path_includes_version,
-                }
-            ),
-        )
-        content = parse_html(bootstrap_content)
-        content_type = "text/html"
-        response = HttpResponse(content, content_type=content_type)
-        file_size = len(response.content)
-    elif embedded_filepath.startswith("dist/"):
-        # return static H5P dist resources
-        # First try finding the file using the storage class.
-        # This is skipped in DEVELOPER_MODE mode as files might be outdated
-        basename = "assets/h5p-standalone-" + embedded_filepath
-        if not getattr(settings, "DEVELOPER_MODE", False):
-            path = staticfiles_storage.path(basename)
-        else:
-            path = find(basename)
-        if path is None:
-            return HttpResponseNotFound("{} not found".format(embedded_filepath))
-        # try to guess the MIME type of the embedded file being referenced
-        content_type = (
-            mimetypes.guess_type(embedded_filepath)[0] or "application/octet-stream"
-        )
-        response = FileResponse(open(path, "rb"), content_type=content_type)
-        file_size = os.stat(path).st_size
+    # Get the h5p bootloader, and then run it through our hashi templating code.
+    # return the H5P bootloader code
+    try:
+        h5pdata = load_json_from_zipfile(zf, "h5p.json")
+        contentdata = load_json_from_zipfile(zf, "content/content.json")
+    except KeyError:
+        return HttpResponseNotFound("No valid h5p file was found at this location")
+    jsfiles, cssfiles = recursive_h5p_dependencies(zf, h5pdata)
+    jsfiles = jsfiles.keys()
+    cssfiles = cssfiles.keys()
+    path_includes_version = (
+        "true" if "-" in [name for name in zf.namelist() if "/" in name][0] else "false"
+    )
+    main_library_data = [
+        lib
+        for lib in h5pdata["preloadedDependencies"]
+        if lib["machineName"] == h5pdata["mainLibrary"]
+    ][0]
+    bootstrap_content = h5p_template.render(
+        Context(
+            {
+                "jsfiles": jsfiles,
+                "cssfiles": cssfiles,
+                "content": json.dumps(
+                    json.dumps(contentdata, separators=(",", ":"), ensure_ascii=False)
+                ),
+                "library": "{machineName} {majorVersion}.{minorVersion}".format(
+                    **main_library_data
+                ),
+                "path_includes_version": path_includes_version,
+            }
+        ),
+    )
+    content = parse_html(bootstrap_content)
+    content_type = "text/html"
+    response = HttpResponse(content, content_type=content_type)
+    file_size = len(response.content)
     if file_size:
         response["Content-Length"] = file_size
     return response
@@ -316,10 +277,8 @@ def get_embedded_file(zipped_path, zipped_filename, embedded_filepath):
     with zipfile.ZipFile(zipped_path) as zf:
 
         # handle H5P files
-        if zipped_path.endswith("h5p") and (
-            not embedded_filepath or embedded_filepath.startswith("dist/")
-        ):
-            return get_h5p(zf, embedded_filepath)
+        if zipped_path.endswith("h5p") and not embedded_filepath:
+            return get_h5p(zf)
         # if no path, or a directory, is being referenced, look for an index.html file
         if not embedded_filepath or embedded_filepath.endswith("/"):
             embedded_filepath += "index.html"

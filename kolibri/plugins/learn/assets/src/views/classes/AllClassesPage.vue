@@ -15,6 +15,7 @@
           :showContentIcon="false"
           :title="c.name"
           :kind="CLASSROOM"
+          :isLeaf="true"
           :isMobile="windowIsSmall"
         />
       </div>
