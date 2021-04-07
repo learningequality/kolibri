@@ -87,7 +87,12 @@ class Job(object):
             kwargs["cancellable"] = func.cancellable
             kwargs["extra_metadata"] = func.extra_metadata.copy()
             func = func.func
-        self.job_id = uuid.uuid4().hex
+
+        job_id = kwargs.get("job_id", uuid.uuid4().hex)
+        if job_id is None:
+            job_id = uuid.uuid4().hex
+
+        self.job_id = job_id
         self.state = kwargs.pop("state", State.QUEUED)
         self.traceback = ""
         self.exception = None

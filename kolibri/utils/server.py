@@ -66,6 +66,9 @@ DAEMON_LOG = os.path.join(conf.LOG_ROOT, "daemon.txt")
 # Currently non-configurable until we know how to properly handle this
 LISTEN_ADDRESS = "0.0.0.0"
 
+# Constant job_id for scheduled jobs
+CONST_SCHDULED_JOBS_ID = {"ping": 0, "vacuum": 1}
+
 
 class NotRunning(Exception):
     """
@@ -85,24 +88,17 @@ class ServicesPlugin(SimplePlugin):
         self.workers = None
 
     def start(self):
-        # If pinging is not disabled by the environment
-        if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
+        # schedule the pingback job if not already scheduled
+        if not CONST_SCHDULED_JOBS_ID["ping"] in scheduler:
+            from kolibri.core.analytics.utils import schedule_ping
 
-            # schedule the pingback job if not already scheduled
-            from kolibri.core.analytics.utils import _ping
-
-            if not scheduler.is_func_scheduled(_ping):
-                from kolibri.core.analytics.utils import schedule_ping
-
-                schedule_ping()
+            schedule_ping(job_id=CONST_SCHDULED_JOBS_ID["ping"])
 
         # schedule the vacuum job if not already scheduled
-        from kolibri.core.deviceadmin.utils import perform_vacuum
-
-        if not scheduler.is_func_scheduled(perform_vacuum):
+        if not CONST_SCHDULED_JOBS_ID["vacuum"] in scheduler:
             from kolibri.core.deviceadmin.utils import schedule_vacuum
 
-            schedule_vacuum()
+            schedule_vacuum(job_id=CONST_SCHDULED_JOBS_ID["vacuum"])
 
         # Initialize the iceqube engine to handle queued tasks
         self.workers = initialize_workers()

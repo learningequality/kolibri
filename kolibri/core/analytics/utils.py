@@ -503,14 +503,18 @@ def schedule_ping(
     server=DEFAULT_SERVER_URL,
     checkrate=DEFAULT_PING_CHECKRATE,
     interval=DEFAULT_PING_INTERVAL,
+    job_id=None
 ):
-    started = local_now()
-    scheduler.schedule(
-        started,
-        _ping,
-        interval=interval * 60,
-        repeat=None,
-        started=started,
-        server=server,
-        checkrate=checkrate,
-    )
+    # If pinging is not disabled by the environment
+    if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
+        started = local_now()
+        scheduler.schedule(
+            started,
+            _ping,
+            interval=interval * 60,
+            repeat=None,
+            started=started,
+            server=server,
+            checkrate=checkrate,
+            job_id=job_id
+        )

@@ -250,23 +250,3 @@ class Scheduler(StorageMixin):
 
     def _now(self):
         return local_now()
-
-    def is_func_scheduled(self, func):
-        """
-        Returns True if the given func is scheduled for execution else False.
-
-        :type func: a callable or str.
-        :param func: the func to be checked whether scheduled or not.
-        """
-        if callable(func):
-            func = stringify_func(func)
-
-        if not isinstance(func, str):
-            raise TypeError("func must be a callable or str type.")
-
-        all_scheduled_jobs = self.get_jobs()
-        for scheduled_job in all_scheduled_jobs:
-            if scheduled_job.func == func:
-                return True
-
-        return False
