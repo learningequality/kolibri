@@ -4,12 +4,12 @@ import glob
 import os
 import shutil
 import socket
+import subprocess
 import tempfile
 import time
 import uuid
 
 import requests
-import sh
 from django.db import connection
 from django.db import connections
 from django.utils.functional import wraps
@@ -49,8 +49,9 @@ class KolibriServer(object):
     def start(self, pre_migrate=True):
         if pre_migrate:
             KolibriServer.get_pre_migrated_database(self.env["KOLIBRI_HOME"])
-        self._instance = sh.kolibri.start(
-            port=self.port, foreground=True, _bg=True, _env=self.env
+        self._instance = subprocess.Popen(
+            ["kolibri start", "--port {}".format(self.port), "--foreground"],
+            env=self.env,
         )
         self._wait_for_server_start()
 
@@ -68,20 +69,17 @@ class KolibriServer(object):
 
     def kill(self):
         try:
-            self._instance.process.kill()
+            self._instance.kill()
             shutil.rmtree(self.env["KOLIBRI_HOME"])
         except OSError:
             pass
-
-    def manage(self, *args, **kwargs):
-        sh.kolibri.manage(*args, _env=self.env, **kwargs)
 
     @classmethod
     def get_pre_migrated_database(cls, home_path):
         if not cls._pre_migrated_db_dir:
             # if no pre-migrated db files, then create them
             server = cls(autostart=False)
-            server.manage("migrate")
+            subprocess.run(["kolibri manage migrate"], env=server.env)
             # put pre-migrated files in temp directory
             cls._pre_migrated_db_dir = tempfile.mkdtemp()
             for f in glob.glob(os.path.join(server.env["KOLIBRI_HOME"], "db.sqlite3*")):

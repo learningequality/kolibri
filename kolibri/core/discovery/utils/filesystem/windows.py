@@ -84,18 +84,21 @@ def _wmic_output():
         tempfile.gettempdir(), "kolibri_disks-{}.txt".format(uuid.uuid4())
     )
 
-    # pipe output from the WMIC command to the temp file
-    csv_path = os.path.join(
-        os.environ["WINDIR"], "System32", "wbem", "en-us", "csv.xsl"
-    )
-    # Use different WMIC commands, depending on whether the csv_path exists.
-    if os.path.exists(csv_path):
-        cmd = 'wmic logicaldisk list full /format:"{}" > "{}"'.format(
-            csv_path, OUTPUT_PATH
+    # fallback when en-us directory does not exist
+    cmd = 'wmic logicaldisk list full /format:csv > "{}"'.format(OUTPUT_PATH)
+    try:
+        # pipe output from the WMIC command to the temp file
+        csv_path = os.path.join(
+            os.environ["WINDIR"], "System32", "wbem", "en-us", "csv.xsl"
         )
-    else:
-        # fallback when en-us directory does not exist
-        cmd = 'wmic logicaldisk list full /format:csv > "{}"'.format(OUTPUT_PATH)
+        # If csv_path exists, use a different WMIC command.
+        if os.path.exists(csv_path):
+            cmd = 'wmic logicaldisk list full /format:"{}" > "{}"'.format(
+                csv_path, OUTPUT_PATH
+            )
+    except KeyError:
+        # If WINDIR is undefined on env
+        pass
     returnCode = os.system(cmd)
     if returnCode:
         raise Exception("Could not run command '{}'".format(cmd))

@@ -1,3 +1,4 @@
+import os
 import tempfile
 
 import pytest
@@ -15,15 +16,17 @@ QUEUE = "pytest"
 
 @pytest.fixture
 def defaultbackend():
-    with tempfile.NamedTemporaryFile() as f:
-        connection = create_engine(
-            "sqlite:///{path}".format(path=f.name),
-            connect_args={"check_same_thread": False},
-            poolclass=NullPool,
-        )
-        b = Storage(connection)
-        yield b
-        b.clear()
+    fd, filepath = tempfile.mkstemp()
+    connection = create_engine(
+        "sqlite:///{path}".format(path=filepath),
+        connect_args={"check_same_thread": False},
+        poolclass=NullPool,
+    )
+    b = Storage(connection)
+    yield b
+    b.clear()
+    os.close(fd)
+    os.remove(filepath)
 
 
 @pytest.fixture

@@ -1,8 +1,21 @@
+import os
+import sys
+
 from django.core.management import call_command
 from django.test import TestCase
 from mock import patch
 
 from kolibri.utils.conf import OPTIONS
+
+path_prefix = "C:\\" if sys.platform == "win32" else "/"
+
+success_path = os.path.join(path_prefix, "test", "success")
+
+no_content_path = os.path.join(path_prefix, "test", "content_exists_no")
+
+yes_content_path = os.path.join(path_prefix, "test", "content_exists_yes")
+
+random_content_path = os.path.join(path_prefix, "test", "content_exists_random")
 
 
 @patch("kolibri.core.content.management.commands.content.update_options_file")
@@ -15,16 +28,16 @@ class ContentMoveDirectoryTestCase(TestCase):
     def _path_exists_side_effect(*args):
         if args[0] == OPTIONS["Paths"]["CONTENT_DIR"]:
             return True
-        elif args[0].startswith("/test/success"):
+        elif args[0].startswith(success_path):
             return False
         return True
 
     def _listdir_side_effect(*args):
-        if args[0] == OPTIONS["Paths"]["CONTENT_DIR"] + "/databases":
+        if args[0] == os.path.join(OPTIONS["Paths"]["CONTENT_DIR"], "databases"):
             return ["test.sqlite3"]
-        elif args[0] == OPTIONS["Paths"]["CONTENT_DIR"] + "/storage":
+        elif args[0] == os.path.join(OPTIONS["Paths"]["CONTENT_DIR"], "storage"):
             return ["test.mp3"]
-        elif args[0] == "/test/content_exists_no/databases":
+        elif args[0] == os.path.join(no_content_path, "databases"):
             return ["exists.sqlite3"]
         return []
 
@@ -73,7 +86,7 @@ class ContentMoveDirectoryTestCase(TestCase):
         remove_mock,
         update_mock,
     ):
-        destination = "/test/content_exists_no"
+        destination = no_content_path
         call_command("content", "movedirectory", destination)
         self.assertEqual(copyfile_mock.call_count, 2)
         self.assertEqual(remove_mock.call_count, 2)
@@ -98,7 +111,7 @@ class ContentMoveDirectoryTestCase(TestCase):
         copy_mock,
         update_mock,
     ):
-        destination = "/test/content_exists_yes"
+        destination = yes_content_path
         call_command("content", "movedirectory", destination)
         copy_mock.assert_called()
         self.assertEqual(remove_mock.call_count, 4)
@@ -149,7 +162,7 @@ class ContentMoveDirectoryTestCase(TestCase):
         remove_mock,
         update_mock,
     ):
-        destination = "/test/success"
+        destination = success_path
         call_command("content", "movedirectory", destination)
         remove_mock.assert_called()
         mkdir_mock.assert_called()

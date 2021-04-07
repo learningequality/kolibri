@@ -34,7 +34,8 @@ class HookMixin(object):
 
     @property
     def _stats_file(self):
-        self.TEST_STATS_FILE = tempfile.NamedTemporaryFile(mode="w+", delete=False)
+        _, filename = tempfile.mkstemp()
+        self.TEST_STATS_FILE = open(filename, mode="w+")
         self.TEST_STATS_FILE_DATA = copy.deepcopy(TEST_STATS_FILE_DATA)
         self.TEST_STATS_FILE_DATA["chunks"][self.unique_id] = self.TEST_STATS_FILE_DATA[
             "chunks"

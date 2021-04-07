@@ -3,7 +3,7 @@ import ntpath
 import os
 import shutil
 from functools import partial
-from tempfile import NamedTemporaryFile
+from tempfile import mkstemp
 
 import requests
 from django.apps.registry import AppRegistryNotReady
@@ -643,9 +643,8 @@ class TasksViewSet(BaseViewSet):
             # Django uses InMemoryUploadedFile for files less than 2.5Mb
             # and TemporaryUploadedFile for bigger files:
             if type(upload.file) == InMemoryUploadedFile:
-                with NamedTemporaryFile(
-                    dir=temp_dir, suffix=".upload", delete=False
-                ) as dest:
+                _, filepath = mkstemp(dir=temp_dir, suffix=".upload")
+                with open(filepath, "w+b") as dest:
                     filepath = dest.name
                     for chunk in upload.file.chunks():
                         dest.write(chunk)
