@@ -66,7 +66,7 @@
               :invalidText="usernameIsInvalidText"
               @blur="handleUsernameBlur"
               @input="handleUsernameInput"
-              @keydown="handleKeyboardNav"
+              @keydown="handleUsernameKeydown"
             />
           </transition>
           <transition name="list">
@@ -380,7 +380,7 @@
             this.usernameSuggestions = [];
           });
       },
-      handleKeyboardNav(e) {
+      handleUsernameKeydown(e) {
         switch (e.code) {
           case 'ArrowDown':
             if (this.showDropdown && this.suggestions.length) {
@@ -400,12 +400,13 @@
             break;
           case 'NumpadEnter':
           case 'Enter':
+            // Prevent form from emitting submit event
+            e.preventDefault();
             if (this.highlightedIndex < 0) {
               this.showDropdown = false;
               this.signIn();
             } else {
               this.fillUsername(this.suggestions[this.highlightedIndex]);
-              e.preventDefault();
             }
             break;
           default:
