@@ -196,19 +196,22 @@
       camelCase,
       ...mapActions('facilityConfig', ['saveFacilityName']),
       ...mapActions(['createSnackbar']),
-      toggleSetting(settingName) {
+      updateSettingValue(settingName, newValue) {
         this.$store.commit('facilityConfig/CONFIG_PAGE_MODIFY_SETTING', {
           name: settingName,
-          value: !this.settings[settingName],
+          value: newValue,
         });
+        return newValue;
+      },
+      toggleSetting(settingName) {
+        return this.updateSettingValue(settingName, !this.settings[settingName]);
       },
       toggleLearnerLoginPassword() {
-        this.toggleSetting('learner_can_login_with_no_password');
-        if (
-          this.settings['learner_can_edit_password'] &&
-          !this.settings['learner_can_login_with_no_password']
-        ) {
-          this.toggleSetting('learner_can_edit_password');
+        const newValue = this.toggleSetting('learner_can_login_with_no_password');
+        if (newValue === true) {
+          // If learners do not need passwords to log in, learners (and admins)
+          // should not be able to edit passwords for their accounts
+          this.updateSettingValue('learner_can_edit_password', false);
         }
       },
       updateSettings(action) {
