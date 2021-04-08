@@ -37,30 +37,12 @@ class KolibriServiceMainProcess(multiprocessing.Process):
 
         setproctitle(self.PROCESS_NAME)
 
-        with self.__set_is_stopped_on_exit():
-            self.__run_kolibri_start()
+        self.__run_kolibri_start()
 
-    @contextmanager
-    def __set_is_stopped_on_exit(self):
-        self.__context.is_stopped = False
-        try:
-            yield
-        except Exception as error:
-            self._set_is_error()
-            raise error
-        else:
-            self._set_is_stopped()
-
-    def _set_is_error(self):
+    def _set_is_stopped(self, start_result=None):
         self.__context.is_starting = False
-        self.__context.start_result = self.__context.StartResult.ERROR
-        self.__context.is_stopped = True
-        self.__context.base_url = ""
-        self.__context.app_key = ""
-
-    def _set_is_stopped(self):
-        self.__context.is_starting = False
-        self.__context.start_result = None
+        if self.__context.start_result != self.__context.StartResult.ERROR:
+            self.__context.start_result = start_result
         self.__context.is_stopped = True
         self.__context.base_url = ""
         self.__context.app_key = ""
@@ -88,7 +70,7 @@ class KolibriServiceMainProcess(multiprocessing.Process):
 
         self.__active_extensions.update_kolibri_environ(os.environ)
 
-        from kolibri.utils.cli import start_with_ready_cb
+        from kolibri.utils.cli import start_with_ready_cb, stop
         from kolibri.utils.conf import OPTIONS
 
         init_kolibri()
@@ -104,9 +86,24 @@ class KolibriServiceMainProcess(multiprocessing.Process):
             )
         except SystemExit:
             # Kolibri sometimes calls sys.exit, but we don't want to stop this process
-            raise Exception("Caught SystemExit")
+            self.__context.start_result = self.__context.StartResult.ERROR
+            needs_cleanup = True
         except Exception as error:
-            raise error
+            self.__context.start_result = self.__context.StartResult.ERROR
+            needs_cleanup = True
+        else:
+            needs_cleanup = False
+        finally:
+            if needs_cleanup:
+                self.__run_kolibri_cleanup()
+
+    def __run_kolibri_cleanup(self):
+        from kolibri.utils.cli import stop
+
+        try:
+            stop.callback()
+        except SystemExit:
+            pass
 
     def __kolibri_ready_cb(self, urls, bind_addr=None, bind_port=None):
         self.__context.base_url = urls[0]

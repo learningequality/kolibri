@@ -42,7 +42,12 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         setproctitle(self.PROCESS_NAME)
         init_logging("{}.txt".format(self.PROCESS_NAME))
 
-        self.__automatic_provisiondevice()
+        try:
+            self.__automatic_provisiondevice()
+        except Exception as error:
+            logger.warning("Error initializing Kolibri: %s", error)
+            self.__context.setup_result = self.__context.SetupResult.ERROR
+            return
 
         self.__active_extensions.update_kolibri_environ(os.environ)
 
@@ -62,10 +67,6 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
             self.__context.setup_result = self.__context.SetupResult.ERROR
 
     def __automatic_provisiondevice(self):
-        import logging
-
-        logger = logging.getLogger(__name__)
-
         from kolibri.core.device.utils import device_provisioned
         from kolibri.dist.django.core.management import call_command
 

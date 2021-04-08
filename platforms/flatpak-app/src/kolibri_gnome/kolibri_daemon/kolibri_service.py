@@ -40,6 +40,9 @@ class KolibriServiceContext(object):
         self.__is_starting_value = multiprocessing.Value(c_bool)
         self.__is_starting_set_event = multiprocessing.Event()
 
+        self.__is_started_value = multiprocessing.Value(c_bool)
+        self.__is_started_set_event = multiprocessing.Event()
+
         self.__start_result_value = multiprocessing.Value(c_int)
         self.__start_result_set_event = multiprocessing.Event()
 
@@ -90,6 +93,27 @@ class KolibriServiceContext(object):
     def await_is_starting(self):
         self.__is_starting_set_event.wait()
         return self.is_starting
+
+    @property
+    def is_started(self):
+        if self.__is_started_set_event.is_set():
+            return self.__is_started_value.value
+        else:
+            return None
+
+    @is_started.setter
+    def is_started(self, is_started):
+        if is_started is None:
+            self.__is_started_set_event.clear()
+            self.__is_started_value.value = False
+        else:
+            self.__is_started_value.value = bool(is_started)
+            self.__is_started_set_event.set()
+        self.changed()
+
+    def await_is_started(self):
+        self.__is_started_set_event.wait()
+        return self.is_started
 
     @property
     def start_result(self):
@@ -246,6 +270,8 @@ class KolibriServiceManager(KolibriServiceContext):
         elif self.start_result == self.StartResult.SUCCESS:
             return self.Status.STARTED
         elif self.start_result == self.StartResult.ERROR:
+            return self.Status.ERROR
+        elif self.setup_result == self.SetupResult.ERROR:
             return self.Status.ERROR
         elif self.is_stopped:
             return self.Status.STOPPED
