@@ -1,6 +1,5 @@
 import multiprocessing
 import os
-import threading
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -27,25 +26,23 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         self.__active_extensions = ContentExtensionsList.from_flatpak_info()
         super().__init__()
 
-    def start(self):
-        super().start()
-        watch_thread = KolibriServiceMainProcessWatchThread(self)
-        watch_thread.start()
-
     def run(self):
         from setproctitle import setproctitle
 
         setproctitle(self.PROCESS_NAME)
 
-        self.__run_kolibri_start()
-
-    def _set_is_stopped(self, start_result=None):
-        self.__context.is_starting = False
-        if self.__context.start_result != self.__context.StartResult.ERROR:
-            self.__context.start_result = start_result
-        self.__context.is_stopped = True
-        self.__context.base_url = ""
-        self.__context.app_key = ""
+        try:
+            self.__run_kolibri_start()
+        except Exception as error:
+            self.__context.start_result = self.__context.StartResult.ERROR
+            self.__run_kolibri_cleanup()
+        finally:
+            self.__context.is_starting = False
+            if self.__context.start_result != self.__context.StartResult.ERROR:
+                self.__context.start_result = None
+            self.__context.is_stopped = True
+            self.__context.base_url = ""
+            self.__context.app_key = ""
 
     def __run_kolibri_start(self):
         self.__context.await_is_stopped()
@@ -86,16 +83,7 @@ class KolibriServiceMainProcess(multiprocessing.Process):
             )
         except SystemExit:
             # Kolibri sometimes calls sys.exit, but we don't want to stop this process
-            self.__context.start_result = self.__context.StartResult.ERROR
-            needs_cleanup = True
-        except Exception as error:
-            self.__context.start_result = self.__context.StartResult.ERROR
-            needs_cleanup = True
-        else:
-            needs_cleanup = False
-        finally:
-            if needs_cleanup:
-                self.__run_kolibri_cleanup()
+            raise Exception("Caught SystemExit")
 
     def __run_kolibri_cleanup(self):
         from kolibri.utils.cli import stop
@@ -117,19 +105,3 @@ class KolibriServiceMainProcess(multiprocessing.Process):
 
     def __update_kolibri_home(self):
         self.__context.kolibri_home = KOLIBRI_HOME_PATH.as_posix()
-
-
-class KolibriServiceMainProcessWatchThread(threading.Thread):
-    """
-    Because the Kolibri service process may be terminated more agressively than
-    we like, we will watch for it to exit with a separate thread in the parent
-    process as well.
-    """
-
-    def __init__(self, main_process):
-        self.__main_process = main_process
-        super().__init__()
-
-    def run(self):
-        self.__main_process.join()
-        self.__main_process._set_is_stopped()

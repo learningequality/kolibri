@@ -248,9 +248,9 @@ class DBusServer(object):
             old_job.cancel()
         self.__method_calls[method_name] = cancellable
 
-        Gio.io_scheduler_push_job(
-            job.run_async, None, GLib.PRIORITY_DEFAULT, cancellable
-        )
+        # TODO: Instead, call job.run_async in a thread
+
+        job.run(cancellable)
 
     def __on_get_property(
         self, connection, sender, object_path, interface_name, property_name

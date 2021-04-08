@@ -58,30 +58,20 @@ class KolibriDaemon(DBusServer):
         self.__search_handler = search_handler
         self.__hold_clients = dict()
         self.__cached_properties = None
+        self.__watch_changes_timeout_source = None
 
     def register_on_connection(self, *args):
         super().register_on_connection(*args)
         self.__update_cached_properties()
-        self.__service_manager.watch_changes(self.__update_cached_properties)
+        self.__begin_watch_changes_timeout()
+
+    def unregister(self):
+        self.__cancel_watch_changes_timeout()
+        super().unregister()
 
     @property
     def clients_count(self):
         return len(self.__hold_clients)
-
-    def __update_cached_properties(self):
-        new_properties = KolibriDaemon.Properties(
-            AppKey=self.__service_manager.app_key or "",
-            BaseURL=self.__service_manager.base_url or "",
-            KolibriHome=self.__service_manager.kolibri_home or "",
-            Status=self.__service_manager.status.name or "",
-            Version=self.VERSION,
-        )
-
-        if new_properties != self.__cached_properties:
-            self.__cached_properties = new_properties
-            self.notify_properties_changed(
-                "org.learningequality.Kolibri.Daemon", new_properties._asdict()
-            )
 
     def Hold(self, context, cancellable=None):
         self.__hold_for_client(context.connection, context.sender)
@@ -143,6 +133,38 @@ class KolibriDaemon(DBusServer):
 
     def __on_hold_client_vanished(self, connection, name):
         self.__release_for_client(name)
+
+    def __begin_watch_changes_timeout(self):
+        if self.__watch_changes_timeout_source:
+            return
+        self.__watch_changes_timeout_source = GLib.timeout_add_seconds(
+            1, self.__watch_changes_timeout_cb
+        )
+
+    def __cancel_watch_changes_timeout(self):
+        if self.__watch_changes_timeout_source:
+            GLib.source_remove(self.__watch_changes_timeout_source)
+            self.__watch_changes_timeout_source = None
+
+    def __watch_changes_timeout_cb(self):
+        if self.__service_manager.pop_has_changes():
+            self.__update_cached_properties()
+        return GLib.SOURCE_CONTINUE
+
+    def __update_cached_properties(self):
+        new_properties = KolibriDaemon.Properties(
+            AppKey=self.__service_manager.app_key or "",
+            BaseURL=self.__service_manager.base_url or "",
+            KolibriHome=self.__service_manager.kolibri_home or "",
+            Status=self.__service_manager.status.name or "",
+            Version=self.VERSION,
+        )
+
+        if new_properties != self.__cached_properties:
+            self.__cached_properties = new_properties
+            self.notify_properties_changed(
+                "org.learningequality.Kolibri.Daemon", new_properties._asdict()
+            )
 
 
 class Application(Gio.Application):
@@ -246,6 +268,7 @@ class Application(Gio.Application):
         if use_session_bus is not None:
             self.__use_session_bus = use_session_bus.get_boolean()
         elif self.__use_system_bus:
+            # The --session and --system options are mutually exclusive
             self.__use_session_bus = False
         else:
             self.__use_session_bus = True

@@ -3,7 +3,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import multiprocessing
-import threading
 
 from ctypes import c_bool, c_char, c_int
 from enum import Enum
@@ -35,7 +34,7 @@ class KolibriServiceContext(object):
         ERROR = 3
 
     def __init__(self):
-        self.__changed_condition = multiprocessing.Condition()
+        self.__changed_event = multiprocessing.Event()
 
         self.__is_starting_value = multiprocessing.Value(c_bool)
         self.__is_starting_set_event = multiprocessing.Event()
@@ -63,15 +62,17 @@ class KolibriServiceContext(object):
         )
         self.__kolibri_home_set_event = multiprocessing.Event()
 
-    def changed(self):
-        with self.__changed_condition:
-            self.__changed_condition.notify_all()
+    def push_has_changes(self):
+        self.__changed_event.set()
 
-    def wait_for_changes(self, timeout=None):
-        with self.__changed_condition:
-            while True:
-                self.__changed_condition.wait(timeout=timeout)
-                yield
+    def pop_has_changes(self):
+        # TODO: It would be better to use a multiprocessing.Condition and wait()
+        #       on it, but this does not play nicely with GLib's main loop.
+        if self.__changed_event.is_set():
+            self.__changed_event.clear()
+            return True
+        else:
+            return False
 
     @property
     def is_starting(self):
@@ -88,7 +89,7 @@ class KolibriServiceContext(object):
         else:
             self.__is_starting_value.value = bool(is_starting)
             self.__is_starting_set_event.set()
-        self.changed()
+        self.push_has_changes()
 
     def await_is_starting(self):
         self.__is_starting_set_event.wait()
@@ -109,7 +110,7 @@ class KolibriServiceContext(object):
         else:
             self.__is_started_value.value = bool(is_started)
             self.__is_started_set_event.set()
-        self.changed()
+        self.push_has_changes()
 
     def await_is_started(self):
         self.__is_started_set_event.wait()
@@ -130,7 +131,7 @@ class KolibriServiceContext(object):
         else:
             self.__start_result_value.value = start_result.value
             self.__start_result_set_event.set()
-        self.changed()
+        self.push_has_changes()
 
     def await_start_result(self):
         self.__start_result_set_event.wait()
@@ -150,7 +151,7 @@ class KolibriServiceContext(object):
             self.__is_stopped_set_event.clear()
         else:
             self.__is_stopped_set_event.set()
-        self.changed()
+        self.push_has_changes()
 
     def await_is_stopped(self):
         self.__is_stopped_set_event.wait()
@@ -171,7 +172,7 @@ class KolibriServiceContext(object):
         else:
             self.__setup_result_value.value = setup_result.value
             self.__setup_result_set_event.set()
-        self.changed()
+        self.push_has_changes()
 
     def await_setup_result(self):
         self.__setup_result_set_event.wait()
@@ -191,7 +192,7 @@ class KolibriServiceContext(object):
             self.__app_key_set_event.clear()
         else:
             self.__app_key_set_event.set()
-        self.changed()
+        self.push_has_changes()
 
     def await_app_key(self):
         self.__app_key_set_event.wait()
@@ -211,7 +212,7 @@ class KolibriServiceContext(object):
             self.__base_url_set_event.clear()
         else:
             self.__base_url_set_event.set()
-        self.changed()
+        self.push_has_changes()
 
     def await_base_url(self):
         self.__base_url_set_event.wait()
@@ -231,7 +232,7 @@ class KolibriServiceContext(object):
             self.__kolibri_home_set_event.clear()
         else:
             self.__kolibri_home_set_event.set()
-        self.changed()
+        self.push_has_changes()
 
     def await_kolibri_home(self):
         self.__kolibri_home_set_event.wait()
@@ -335,13 +336,18 @@ class KolibriServiceManager(KolibriServiceContext):
             self.__stop_process = KolibriServiceStopProcess(self)
             self.__stop_process.start()
 
-
-class WatchChangesThread(threading.Thread):
-    def __init__(self, service_manager, callback):
-        self.__service_manager = service_manager
-        self.__callback = callback
-        super().__init__(daemon=True)
-
-    def run(self):
-        for _ in self.__service_manager.wait_for_changes():
-            self.__callback()
+    def pop_has_changes(self):
+        # The main process might exit prematurely. If that happens, we should
+        # set is_stopped accordingly.
+        if (
+            self.__main_process
+            and not self.__main_process.is_alive()
+            and not self.is_stopped
+        ):
+            self.is_starting = False
+            if self.start_result != self.StartResult.ERROR:
+                self.start_result = None
+            self.is_stopped = True
+            self.base_url = ""
+            self.app_key = ""
+        return super().pop_has_changes()
