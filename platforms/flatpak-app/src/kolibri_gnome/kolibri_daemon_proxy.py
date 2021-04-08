@@ -97,9 +97,9 @@ class KolibriDaemonProxy(Gio.DBusProxy):
         return self.GetMetadataForItemIds("(as)", item_ids, **kwargs)
 
     def is_stopped(self):
-        return self.status is None or self.status in ["NONE", "STOPPED"]
+        return self.status is None or self.status in ["NONE", "STOPPED", "ERROR"]
 
-    def is_loading(self):
+    def is_starting(self):
         if not self.app_key or not self.base_url:
             return True
         else:

@@ -120,20 +120,14 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
                 self.present_window()
 
     def __load_url_loading(self):
-        if not self.__is_showing_loading_screen():
-            super().load_url(self.delegate.loader_url)
+        loading_url = self.delegate.loader_url + "#loading"
+        if self.current_url != loading_url:
+            super().load_url(loading_url)
 
     def __load_url_error(self):
-        if self.__is_showing_loading_screen():
-            pew.ui.run_on_main_thread(self.evaluate_javascript, "show_error()")
-        else:
-            super().load_url(self.delegate.loader_url)
-            pew.ui.run_on_main_thread(
-                self.evaluate_javascript, "window.onload = function() { show_error() }"
-            )
-
-    def __is_showing_loading_screen(self):
-        return self.current_url == self.delegate.loader_url
+        error_url = self.delegate.loader_url + "#error"
+        if self.current_url != error_url:
+            super().load_url(error_url)
 
     def get_current_or_target_url(self):
         if self.__target_url is None:
@@ -311,6 +305,9 @@ class Application(pew.ui.PEWApp):
             self.__kolibri_daemon_on_notify(self.__kolibri_daemon, None)
 
     def __kolibri_daemon_on_notify(self, kolibri_daemon, param_spec):
+        if self.__kolibri_daemon_has_error:
+            return
+
         kolibri_daemon_owner = kolibri_daemon.get_name_owner()
         kolibri_daemon_owner_changed = bool(
             self.__kolibri_daemon_owner != kolibri_daemon_owner
@@ -318,13 +315,16 @@ class Application(pew.ui.PEWApp):
         self.__kolibri_daemon_owner = kolibri_daemon_owner
 
         if kolibri_daemon_owner_changed:
+            self.__starting_kolibri = False
             self.__kolibri_daemon.hold(
                 result_handler=self.__kolibri_daemon_null_result_handler
             )
 
-        if not kolibri_daemon.is_stopped():
+        if self.__starting_kolibri and kolibri_daemon.is_started():
             self.__starting_kolibri = False
-        elif not self.__starting_kolibri or kolibri_daemon_owner_changed:
+        elif self.__starting_kolibri:
+            pass
+        elif not kolibri_daemon.is_error() or kolibri_daemon_owner_changed:
             self.__starting_kolibri = True
             self.__kolibri_daemon.start(
                 result_handler=self.__kolibri_daemon_null_result_handler
@@ -373,7 +373,7 @@ class Application(pew.ui.PEWApp):
             return True
         elif self.__kolibri_daemon.is_kolibri_app_url(url):
             return True
-        elif url == self.loader_url:
+        elif url.startswith(self.loader_url):
             return not self.is_started()
         else:
             return False
@@ -381,7 +381,7 @@ class Application(pew.ui.PEWApp):
     def should_load_url(self, url):
         if self.is_internal_url(url):
             return True
-        elif not url.startswith("about:") and url != self.loader_url:
+        elif not url.startswith("about:") and not url.startswith(self.loader_url):
             return False
         return True
 

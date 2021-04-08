@@ -333,6 +333,14 @@
         show_element('kolibri_image', false);
         show_element('start_failed', true);
       }
+
+      function on_hash_change() {
+        if (location.hash == "#error") {
+          show_error();
+        }
+      }
+      window.onhashchange = on_hash_change;
+      on_hash_change();
     </script>
 
     <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,700&display=swap&subset=cyrillic,cyrillic-ext,devanagari,greek,greek-ext,latin-ext,vietnamese" rel="stylesheet">
