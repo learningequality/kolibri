@@ -1,5 +1,4 @@
-import { ContentNodeResource } from 'kolibri.resources';
-import router from 'kolibri.coreVue.router';
+// import router from 'kolibri.coreVue.router';
 import Mediator from './mediator';
 import LocalStorage from './localStorage';
 import Cookie from './cookie';
@@ -65,14 +64,24 @@ export default class MainClient {
     this.mediator.sendMessage({ nameSpace, event: events.READYCHECK, data: true });
 
     this.on(this.events.DATAREQUESTED, message => {
-      this.__fetchContentData(message);
+      // console.log('data requested');
+      if (message.dataType === 'Collection') {
+        this.__fetchContentCollection = this.kolibri.__fetchContentCollection;
+        // console.log(this);
+        this.__fetchContentCollection(message);
+      } else if (message.dataType === 'Model') {
+        this.__fetchContentModel = this.kolibri.__fetchContentModel;
+        this.kolibri.__fetchContentModel(message);
+      }
     });
 
     this.on(this.events.NAVIGATETO, message => {
+      this.__navigateTo = this.kolibri.__navigateTo;
       this.__navigateTo(message);
     });
 
     this.on(this.events.CONTEXT, message => {
+      this.__getOrUpdateContext = this.kolibri.__na__getOrUpdateContextvigateTo;
       this.__getOrUpdateContext(message);
     });
   }
@@ -121,91 +130,8 @@ export default class MainClient {
     });
   }
 
-  __fetchContentData(message) {
-    // based on the incoming information, get data
-    // from Kolibri to pass back to the iframe
-
-    // if filtering by optional params
-    if (message.options) {
-      let getParams = {};
-      let options = message.options;
-      if (options.parent && options.parent == 'self') {
-        // need to fetch this value when this
-        // function is move to a location that has access
-        // to `content`
-        // getParams.parent = rootNode;
-      } else if (options.parent) {
-        getParams.parent = options.parent;
-      }
-      options.ids ? (getParams.ids = options.ids) : null;
-      options.page ? (getParams.page = options.page) : null;
-      options.pageSize ? (getParams.ids = options.pageSize) : null;
-      ContentNodeResource.fetchCollection({ getParams }).then(contentNodes => {
-        contentNodes ? (message.status = 'success') : (message.status = 'failure');
-        let response = {};
-        response.page = message.options.page ? message.options.page : 1;
-        response.pageSize = message.options.pageSize ? message.options.pageSize : 50;
-        response.results = contentNodes;
-        message.data = response;
-        message.type = 'response';
-        this.mediator.sendMessage({
-          nameSpace,
-          event: events.DATARETURNED,
-          data: message,
-        });
-      });
-    }
-    // or, if getting by a specific id
-    else if (message.id) {
-      let id = message.id;
-      ContentNodeResource.fetchModel({ id }).then(contentNode => {
-        if (contentNode) {
-          message.status = 'success';
-        } else {
-          message.status = 'failure';
-        }
-        message.data = contentNode;
-        message.type = 'response';
-        this.mediator.sendMessage({
-          nameSpace,
-          event: events.DATARETURNED,
-          data: message,
-        });
-      });
-    }
-  }
-
-  __navigateTo(message) {
-    let id = message.nodeId;
-    ContentNodeResource.fetchModel({ id }).then(contentNode => {
-      let routeBase, context;
-      if (contentNode && contentNode.kind === 'topic') {
-        routeBase = '/topics/t';
-      } else if (contentNode) {
-        routeBase = '/topics/c';
-      }
-      if (!message.context) {
-        // if there is custom context, don't re-route
-        const path = `${routeBase}/${id}`;
-        router.push({ path: path, query: { context: context } }).catch(() => {});
-      }
-      this.mediator.sendMessage({
-        nameSpace,
-        event: events.DATARETURNED,
-        data: message,
-      });
-    });
-  }
-
-  __getOrUpdateContext(message) {
-    // to update context with the incoming context
-    if (message.context) {
-      router.push({ query: { context: message.context } }).catch(() => {});
-    } else {
-      // just return the existing query
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.has('context') ? urlParams.get('context') : null;
-    }
+  __setDependencies() {
+    console.log(this.hashi);
   }
 
   get data() {

@@ -2,12 +2,12 @@
  * This class offers an API interface for interacting directly with the Kolibri app
  * that the HTML5 app is embedded within
  */
+import pick from 'lodash/pick';
+import { ContentNodeResource } from 'kolibri.resources';
+import router from 'kolibri.coreVue.router';
 import BaseShim from './baseShim';
 import Mediator from './mediator';
 import { events, nameSpace } from './hashiBase';
-// import BaseStorage from './baseStorage';
-
-// import KolibriData from './kolibriData';
 
 /**
  * Type definition for Language metadata
@@ -57,10 +57,6 @@ import { events, nameSpace } from './hashiBase';
  * @typedef {Object} Theme
  */
 
-// function encodeContext(context) {
-//   return encodeURI(Object.entries(context).map(([k, v]) => `${k}:${v}`));
-// }
-
 /**
  * Type definition for NavigationContext
  * This can have arbitrary properties as defined
@@ -78,7 +74,12 @@ export default class Kolibri extends BaseShim {
     super(mediator);
     this.data = {};
     this.nameSpace = 'kolibri';
+    // const hashi = new Hashi();
     this.mediator = new Mediator(window.parent);
+  }
+
+  encodeContext(context) {
+    return encodeURI(Object.entries(context).map(([k, v]) => `${k}:${v}`));
   }
 
   iframeInitialize(contentWindow) {
@@ -89,20 +90,92 @@ export default class Kolibri extends BaseShim {
     });
   }
 
+  // helper functions for fetching data from kolibri
+  // called in mainClient.js
+
+  __fetchContentCollection(message) {
+    const options = message.options;
+    const getParams = pick(options, ['ids', 'page', 'pageSize', 'parent']);
+    if (options.parent && options.parent == 'self') {
+      // there must be a better way to do this...
+      getParams.parent = window.location.hash.split('/').pop();
+    }
+    ContentNodeResource.fetchCollection({ getParams }).then(contentNodes => {
+      contentNodes ? (message.status = 'success') : (message.status = 'failure');
+      console.log('nodes', contentNodes);
+      let response = {};
+      response.page = message.options.page ? message.options.page : 1;
+      response.pageSize = message.options.pageSize ? message.options.pageSize : 50;
+      response.results = contentNodes;
+      message.data = response;
+      message.type = 'response';
+      this.mediator.sendMessage({
+        nameSpace,
+        event: events.DATARETURNED,
+        data: message,
+      });
+    });
+  }
+  __fetchContentModel(message) {
+    let id = message.id;
+    ContentNodeResource.fetchModel({ id }).then(contentNode => {
+      if (contentNode) {
+        message.status = 'success';
+      } else {
+        message.status = 'failure';
+      }
+      message.data = contentNode;
+      message.type = 'response';
+      this.mediator.sendMessage({
+        nameSpace,
+        event: events.DATARETURNED,
+        data: message,
+      });
+    });
+  }
+
+  __navigateTo(message) {
+    let id = message.nodeId;
+    ContentNodeResource.fetchModel({ id }).then(contentNode => {
+      let routeBase, context;
+      const path = `${routeBase}/${id}`;
+      if (contentNode && contentNode.kind === 'topic') {
+        routeBase = '/topics/t';
+        router.push({ path: path }).catch(() => {});
+      } else if (contentNode && !message.context) {
+        routeBase = '/topics/c';
+        router.push({ path: path }).catch(() => {});
+      } else if (!message.context) {
+        // if there is custom context, launch overlay
+        message.context.node_id = id;
+        routeBase = '/topics/c';
+        router
+          .push({ path: path, query: { customContext: true, context: context } })
+          .catch(() => {});
+      }
+      this.mediator.sendMessage({
+        nameSpace,
+        event: events.DATARETURNED,
+        data: message,
+      });
+    });
+  }
+
+  __getOrUpdateContext(message) {
+    // to update context with the incoming context
+    if (message.context) {
+      const encodedContext = this.encodeContext(message.context);
+      router.push({ query: { context: encodedContext } }).catch(() => {});
+    } else {
+      // just return the existing query
+      const urlParams = new URLSearchParams(window.location.search);
+      const fetchedEncodedContext = urlParams.has('context') ? urlParams.get('context') : null;
+      return decodeURI(fetchedEncodedContext);
+    }
+  }
+
   __setShimInterface() {
     const self = this;
-
-    // var lang = {
-    //   id: 'en-gb',
-    //   lang_code: 'en',
-    //   lang_subcode: 'gb',
-    //   lang_name: 'Proper English innit?',
-    //   lang_direction: 'ltr',
-    // };
-
-    // const nameSpace = self.nameSpace;
-
-    // const nameSpace = self.nameSpace;
 
     class Shim {
       /*
@@ -118,7 +191,7 @@ export default class Kolibri extends BaseShim {
       getContentByFilter(options) {
         return self.mediator.sendMessageAwaitReply({
           event: events.DATAREQUESTED,
-          data: { options },
+          data: { options, dataType: 'Collection' },
           nameSpace,
         });
       }
@@ -131,7 +204,7 @@ export default class Kolibri extends BaseShim {
       getContentById(id) {
         return self.mediator.sendMessageAwaitReply({
           event: events.DATAREQUESTED,
-          data: { id },
+          data: { id, dataType: 'Model' },
           nameSpace,
         });
       }
@@ -168,13 +241,11 @@ export default class Kolibri extends BaseShim {
        * @return {Promise} - a Promise that resolves when the navigation has completed
        */
       navigateTo(nodeId, context) {
-        return self.mediator
-          .sendMessageAwaitReply({
-            event: events.NAVIGATETO,
-            data: { nodeId, context },
-            nameSpace,
-          })
-          .then(res => console.log(res));
+        return self.mediator.sendMessageAwaitReply({
+          event: events.NAVIGATETO,
+          data: { nodeId, context },
+          nameSpace,
+        });
       }
 
       /*

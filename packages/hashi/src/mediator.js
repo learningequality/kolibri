@@ -68,6 +68,11 @@ class Mediator {
           // Otherwise something unspecified happened
           return reject();
         }
+        this.removeMessageHandler({
+          nameSpace,
+          event: 'datareturned',
+          callback: handler,
+        });
       }
       this.registerMessageHandler({
         nameSpace,
