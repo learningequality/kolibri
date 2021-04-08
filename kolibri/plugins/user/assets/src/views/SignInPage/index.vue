@@ -461,7 +461,6 @@
           } else {
             // If username is not found, focus and select the field so user can try again
             this.loginError = LoginErrors.USER_NOT_FOUND;
-            this.$refs.username.focus();
             this.$refs.username.$refs.textbox.$refs.input.select();
           }
         });
@@ -494,6 +493,10 @@
                 this.usernameSubmittedWithoutPassword = !this.password;
                 this.loginError = this.usernameSubmittedWithoutPassword ? null : err;
               }
+            }
+
+            if (this.invalidCredentials || this.usernameSubmittedWithoutPassword) {
+              this.$refs.password.$refs.textbox.$refs.input.select();
             }
             this.busy = false;
           })
