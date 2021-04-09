@@ -2,11 +2,33 @@ import JSZip from 'jszip';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import set from 'lodash/set';
+import debounce from 'lodash/debounce';
 import unset from 'lodash/unset';
 import Toposort from 'toposort-class';
 import BaseShim from './baseShim';
 import loadBinary from './loadBinary';
 import mimetypes from './mimetypes.json';
+import { XAPIVerbMap } from './xAPIVocabulary';
+
+// Verbs that we simply will not report on.
+const doNotLogVerbs = [
+  'downloaded',
+  'copied',
+  'accessed-reuse',
+  'accessed-embed',
+  'accessed-copyright',
+];
+const doNotLogVerbMap = {};
+for (let i = 0; i < doNotLogVerbs.length; i++) {
+  doNotLogVerbMap[XAPIVerbMap[doNotLogVerbs[i]]] = true;
+}
+// These verbs are reported too much by H5P leading to spammy responses,
+// so we debounce logging of these responses.
+const debounceVerbs = ['answered', 'interacted'];
+// Time in seconds to debounce by.
+const debounceDelay = 5;
+// Max time that debounce should delay by.
+const maxDelay = 30;
 
 /*
  * Helper function to escape a filePath to get an exact match in regex,
@@ -267,18 +289,36 @@ export default class H5P extends BaseShim {
     };
     // Monkey patch setActor to allow us to inject our own
     // XAPI actor definition
-    // TODO: connect this with our xAPI implementation
     H5P.XAPIEvent.prototype.setActor = function() {
-      this.data.statement.actor = {
-        name: self.userData.userFullName,
-        objectType: 'Agent',
-        mbox_sha1sum: self.userData.userId,
-      };
+      if (contentWindow.xAPI) {
+        contentWindow.xAPI.prepareStatement(this.data.statement);
+      }
     };
+    const debouncedHandlers = {};
+    for (let i = 0; i < debounceVerbs.length; i++) {
+      const verb = XAPIVerbMap[debounceVerbs[i]];
+      debouncedHandlers[verb] = debounce(
+        function(statement) {
+          contentWindow.xAPI.sendStatement(statement).catch(console.error);
+        },
+        debounceDelay * 1000,
+        // Invoke on the leading as well as the trailing edge
+        // so that we alert immediately on an event.
+        { leading: true, maxWait: maxDelay * 1000 }
+      );
+    }
     // Add event listener to allow us to capture xAPI events
-    // TODO: connect this with our xAPI implementation
     H5P.externalDispatcher.on('xAPI', function(event) {
-      console.log(event.data.statement);
+      if (contentWindow.xAPI) {
+        const statement = event.data.statement;
+        if (doNotLogVerbMap[statement.verb.id]) {
+          return;
+        } else if (debouncedHandlers[statement.verb.id]) {
+          debouncedHandlers[statement.verb.id](statement);
+        } else {
+          contentWindow.xAPI.sendStatement(event.data.statement).catch(console.error);
+        }
+      }
     });
   }
 
@@ -309,7 +349,8 @@ export default class H5P extends BaseShim {
             embedCode: '',
             resizeCode: '',
             mainId: self.contentNamespace,
-            url: self.rootConfig.source || self.contentNamespace,
+            // TODO (rtibbles): Finalize the URL scheme for kolibri content
+            url: self.rootConfig.source || `http://kolibri.content/${self.contentNamespace}`,
             title: self.rootConfig.title,
             styles: Object.keys(self.loadedCss),
             scripts: Object.keys(self.loadedJs),
