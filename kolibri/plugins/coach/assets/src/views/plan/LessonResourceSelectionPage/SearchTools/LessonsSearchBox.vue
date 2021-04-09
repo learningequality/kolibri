@@ -12,7 +12,7 @@
     >
       <label
         class="visuallyhidden"
-        for="searchfield"
+        for="searchfield"   
       >
         {{ coreString('searchLabel') }}
       </label>
@@ -25,7 +25,7 @@
         :class="$computedClass(inputPlaceHolderStyle)"
         :style="{ color: $themeTokens.text }"
         dir="auto"
-        :placeholder="coreString('searchLabel')"
+        :placeholder="coreString('searchLabel')"       
       >
 
       <div class="buttons-wrapper">
@@ -137,6 +137,7 @@
     margin: 0;
     vertical-align: middle;
     border: 0;
+    outline: none;
 
     // removes the IE clear button
     &::-ms-clear {
