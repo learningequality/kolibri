@@ -128,11 +128,8 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
         },
         {
           test: /\.js$/,
-          loader: 'buble-loader',
-          options: {
-            objectAssign: 'Object.assign',
-          },
-          exclude: /node_modules\/vue/,
+          loader: 'babel-loader',
+          exclude: /(node_modules\/vue|dist)/,
         },
         {
           test: /\.css$/,

@@ -2,9 +2,6 @@
  * Provides the public API for the Kolibri FrontEnd core app.
  * @module Facade
  */
-// polyfill for older browsers
-// TODO: rtibbles whittle down these polyfills to only what is needed for the application
-import 'core-js';
 import '../styles/main.scss';
 import urls from 'kolibri.urls';
 import * as theme from 'kolibri-design-system/lib/styles/theme';

@@ -46,11 +46,7 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        loader: 'buble-loader',
-        include: path.join(__dirname, 'src'),
-        options: {
-          objectAssign: 'Object.assign',
-        },
+        loader: 'babel-loader',
       },
     ],
   },
