@@ -162,6 +162,8 @@ const numIFI = o =>
  *
  * test accepts up to three parameters - value, key, and whole object
  * msg accepts up to two parameters - key, and whole object
+ * warn - an optional boolean property, if true, this will only log a warning
+ *        and not fail validation - useful for properties that MAY be enforced in the spec
  */
 
 /*
@@ -313,6 +315,7 @@ const noOptionsValidator = {
  * responses to the interaction.
  */
 const correctResponsesValidator = {
+  warn: true,
   test: (v, k, o) => {
     const interactionType = o.interactionType;
     const correctResponsesPattern = o.correctResponsesPattern;
@@ -375,7 +378,10 @@ const correctResponsesValidator = {
     ) {
       return `${interactionType} must only use choice ids from the item`;
     }
-    if (interactionType === INTERACTION_TYPES.FILL_IN || INTERACTION_TYPES.LONG_FILL_IN) {
+    if (
+      interactionType === INTERACTION_TYPES.FILL_IN ||
+      interactionType === INTERACTION_TYPES.LONG_FILL_IN
+    ) {
       return `${interactionType} must have no non blank answers`;
     }
     if (interactionType === INTERACTION_TYPES.MATCHING) {
@@ -571,7 +577,12 @@ class Schema {
         for (let i = 0; i < validators.length; i++) {
           const v = validators[i];
           if (!v.test(obj[key], key, obj)) {
-            throw new xAPIValidationError(v.msg(key, obj));
+            const msg = v.msg(key, obj);
+            if (v.warn) {
+              console.warn(msg);
+            } else {
+              throw new xAPIValidationError(msg);
+            }
           }
         }
         let schema = keySpec.schema;
