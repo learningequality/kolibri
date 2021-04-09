@@ -512,7 +512,7 @@
     },
     $trs: {
       incorrectPasswordError: {
-        message: 'Incorect password',
+        message: 'Incorrect password',
         context: 'Error that is shown if the user provides the wrong password',
       },
       incorrectUsernameError: {
