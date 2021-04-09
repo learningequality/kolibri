@@ -22,7 +22,7 @@ export const XAPIVerbMap = {
   mastered: 'http://adlnet.gov/expapi/verbs/mastered',
   // These are not specified in the above link, but are claimed by H5P to be derived
   // from the ADL XAPI Vocabulary
-  // They seem to be derived from the CMI5 specification that defines specific verbs
+  // At least some seem to be derived from the CMI5 specification that defines specific verbs
   // https://github.com/AICC/CMI-5_Spec_Current/blob/quartz/cmi5_spec.md#93-verbs
   completed: 'http://adlnet.gov/expapi/verbs/completed',
   failed: 'http://adlnet.gov/expapi/verbs/failed',

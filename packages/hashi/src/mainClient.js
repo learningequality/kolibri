@@ -127,8 +127,12 @@ export default class MainClient {
 
   getProgress() {
     // Return any calculated progress from the storage APIs
-    // So far, only the SCORM shim supports this
+    // So far, only the SCORM and xAPI shim supports this
     // If no progress has been reported, this will be null.
+    const xAPIprogress = this.storage.xAPI.__calculateProgress();
+    if (xAPIprogress !== null) {
+      return xAPIprogress;
+    }
     return this.storage.SCORM.__calculateProgress();
   }
 

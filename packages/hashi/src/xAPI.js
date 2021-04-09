@@ -5,6 +5,7 @@
  * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md
  */
 import filter from 'lodash/filter';
+import find from 'lodash/find';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import unset from 'lodash/unset';
@@ -23,6 +24,7 @@ import { IRI } from 'iri';
 import dayjs from 'dayjs';
 import { isLangCode } from 'is-language-code';
 import BaseShim from './baseShim';
+import { XAPIVerbMap } from './xAPIVocabulary';
 
 /*
  * xAPI Constants
@@ -1117,7 +1119,37 @@ export default class xAPI extends BaseShim {
     this.userData = userData;
   }
 
-  __calculateProgress() {}
+  __calculateProgress() {
+    if (
+      find(
+        this.data[STATEMENT],
+        s =>
+          s.verb.id === XAPIVerbMap.mastered ||
+          s.verb.id === XAPIVerbMap.passed ||
+          s.verb.id === XAPIVerbMap.completed ||
+          (s.result && s.result.success)
+      )
+    ) {
+      return 1;
+    }
+    const scoreStatement = find(
+      this.data[STATEMENT],
+      s =>
+        s.result &&
+        s.result.score &&
+        (s.result.score.scaled || (s.result.score.min && s.result.score.max && s.result.score.raw))
+    );
+    if (scoreStatement) {
+      if (scoreStatement.result.score.scaled) {
+        return scoreStatement.result.score.scaled;
+      }
+      return (
+        (scoreStatement.result.score.raw - scoreStatement.result.score.min) /
+        (scoreStatement.result.score.max - scoreStatement.result.score.min)
+      );
+    }
+    return null;
+  }
 
   createAgent() {
     // TODO (rtibbles): Finalize how we represent Kolibri agents
