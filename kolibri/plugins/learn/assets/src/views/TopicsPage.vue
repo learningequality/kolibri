@@ -1,14 +1,6 @@
 <template>
 
   <div>
-    <KContentRenderer
-      class="content-renderer"
-      :kind="content.kind"
-      :lang="content.lang"
-      :files="content.files"
-      :options="content.options"
-      :available="content.available"
-    />
     <div class="header">
 
       <KGrid>
@@ -127,9 +119,6 @@
       },
       getTagline() {
         return this.topicOrChannel['tagline'] || this.topicOrChannel['description'] || null;
-      },
-      content() {
-        return this.topicOrChannel;
       },
       calculateProgress() {
         // calculate progress across all topics

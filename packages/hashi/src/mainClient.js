@@ -1,4 +1,3 @@
-// import router from 'kolibri.coreVue.router';
 import Mediator from './mediator';
 import LocalStorage from './localStorage';
 import Cookie from './cookie';
@@ -63,11 +62,12 @@ export default class MainClient {
     });
     this.mediator.sendMessage({ nameSpace, event: events.READYCHECK, data: true });
 
+    // This group of functions and events is for the custom channels work
+    // They each fetch data from the kolibri database and return it to
+    // the iframe
     this.on(this.events.DATAREQUESTED, message => {
-      // console.log('data requested');
       if (message.dataType === 'Collection') {
         this.__fetchContentCollection = this.kolibri.__fetchContentCollection;
-        // console.log(this);
         this.__fetchContentCollection(message);
       } else if (message.dataType === 'Model') {
         this.__fetchContentModel = this.kolibri.__fetchContentModel;
@@ -128,10 +128,6 @@ export default class MainClient {
         this.mediator.sendLocalMessage({ nameSpace, event: events.STATEUPDATE, data: this.data });
       });
     });
-  }
-
-  __setDependencies() {
-    console.log(this.hashi);
   }
 
   get data() {

@@ -74,7 +74,6 @@ export default class Kolibri extends BaseShim {
     super(mediator);
     this.data = {};
     this.nameSpace = 'kolibri';
-    // const hashi = new Hashi();
     this.mediator = new Mediator(window.parent);
   }
 
@@ -97,8 +96,7 @@ export default class Kolibri extends BaseShim {
     const options = message.options;
     const getParams = pick(options, ['ids', 'page', 'pageSize', 'parent']);
     if (options.parent && options.parent == 'self') {
-      // there must be a better way to do this...
-      getParams.parent = window.location.hash.split('/').pop();
+      // to be refactored and handled in dependency injection
     }
     ContentNodeResource.fetchCollection({ getParams }).then(contentNodes => {
       contentNodes ? (message.status = 'success') : (message.status = 'failure');
@@ -145,7 +143,7 @@ export default class Kolibri extends BaseShim {
       } else if (contentNode && !message.context) {
         routeBase = '/topics/c';
         router.push({ path: path }).catch(() => {});
-      } else if (!message.context) {
+      } else if (contentNode && message.context) {
         // if there is custom context, launch overlay
         message.context.node_id = id;
         routeBase = '/topics/c';

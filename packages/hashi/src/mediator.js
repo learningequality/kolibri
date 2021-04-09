@@ -79,15 +79,11 @@ class Mediator {
         event: 'datareturned',
         callback: handler,
       });
-      // window.addEventListener('datareturn', this.handler);
       data.message_id = msgId;
       this.sendMessage({ event, data, nameSpace });
     });
   }
 
-  helloworld() {
-    console.log('in the new hello world');
-  }
   registerMessageHandler({ event, nameSpace, callback } = {}) {
     if (
       typeof callback !== 'function' ||
