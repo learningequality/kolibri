@@ -66,7 +66,9 @@ export function replacePaths(dep, packageFiles) {
       // Construct a URL with a dummy base so that we can concatenate the
       // dependency URL with the URL relative to the dependency
       // and then read the pathname to get the new path.
-      const path = new URL(p2, new URL(dep, 'http://b.b/')).pathname;
+      // Take substring to remove the leading slash to match the reference file paths
+      // in packageFiles.
+      const path = new URL(p2, new URL(dep, 'http://b.b/')).pathname.substring(1);
       // Look to see if there is a URL in our packageFiles mapping that
       // that has this as the source path.
       const newUrl = packageFiles[path];
@@ -299,7 +301,9 @@ export default class H5P extends BaseShim {
       const verb = XAPIVerbMap[debounceVerbs[i]];
       debouncedHandlers[verb] = debounce(
         function(statement) {
-          contentWindow.xAPI.sendStatement(statement).catch(console.error);
+          contentWindow.xAPI.sendStatement(statement).catch(err => {
+            console.error('Statement: ', statement, 'gave the following error: ', err);
+          });
         },
         debounceDelay * 1000,
         // Invoke on the leading as well as the trailing edge
@@ -316,7 +320,9 @@ export default class H5P extends BaseShim {
         } else if (debouncedHandlers[statement.verb.id]) {
           debouncedHandlers[statement.verb.id](statement);
         } else {
-          contentWindow.xAPI.sendStatement(event.data.statement).catch(console.error);
+          contentWindow.xAPI.sendStatement(event.data.statement).catch(err => {
+            console.error('Statement: ', statement, 'gave the following error: ', err);
+          });
         }
       }
     });
