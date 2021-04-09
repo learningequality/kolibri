@@ -285,7 +285,7 @@ export default class H5P extends BaseShim {
     H5P.ContentType = function(isRoot) {
       const ct = originalContentType(isRoot);
       ct.prototype.getLibraryFilePath = function(filePath) {
-        return filePath;
+        return self.packageFiles[this.libraryInfo.versionedNameNoSpaces + '/'][filePath];
       };
       return ct;
     };
@@ -527,6 +527,9 @@ export default class H5P extends BaseShim {
       this.cssDependencies[dependency].map(cssDep => {
         const css = replacePaths(cssDep, this.packageFiles[dependency]);
         fileMap[cssDep] = URL.createObjectURL(new Blob([css], { type: 'text/css' }));
+        // We have completed the path substition, so replace the string content with
+        // the new Blob URL.
+        this.packageFiles[dependency][cssDep] = css;
       });
       return cssMap;
     });
