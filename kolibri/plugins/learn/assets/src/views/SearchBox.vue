@@ -36,7 +36,7 @@
         />
         <div
           class="search-submit-button-wrapper"
-          :style="{ backgroundColor: $themeTokens.primaryDark }"         
+          :style="{ backgroundColor: $themeTokens.primaryDark }"
         >
           <KIconButton
             :icon="icon"
