@@ -1,0 +1,1 @@
+export KOLIBRI_RUN_MODE="dev"

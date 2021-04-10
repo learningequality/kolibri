@@ -237,6 +237,7 @@
   font-family: VideoJS;
   font-style: normal;
   font-weight: 400;
+  outline: none;
 }
 
 .vjs-play-control:hover {
