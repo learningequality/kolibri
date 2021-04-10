@@ -20,7 +20,7 @@
       <slot v-bind="{ items: visibleFilteredItems, filterInput }"></slot>
     </div>
 
-    <nav class="pagination-nav">
+    <nav class="pagination-nav" dir="auto">
       <span dir="auto" class="pagination-label">
         {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems }) }}
       </span>
@@ -150,7 +150,7 @@
 
   .pagination-nav {
     margin-bottom: 8px;
-    text-align: right;
+
   }
 
   .text-filter {

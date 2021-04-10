@@ -98,6 +98,7 @@
                   ref="privacyLink"
                   :text="coreString('usageAndPrivacyLabel')"
                   class="privacy-link"
+                  dir="auto"
                   appearance="basic-link"
                   @click="handleClickPrivacyLink"
                 />
@@ -403,10 +404,6 @@
     max-height: none;
     padding: 0;
     border: 0;
-  }
-
-  .privacy-link {
-    text-align: left;
   }
 
   .logo {

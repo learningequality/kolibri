@@ -13,6 +13,7 @@
         v-for="content in contentList"
         :key="content.id"
         class="content-list-item"
+        dir="auto"
       >
         <KCheckbox
           v-if="contentHasCheckbox(content)"
@@ -159,7 +160,6 @@
   .content-list-item {
     position: relative;
     display: block;
-    text-align: right;
   }
 
   .content-checkbox {

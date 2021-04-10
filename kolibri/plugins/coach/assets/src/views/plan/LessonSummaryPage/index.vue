@@ -39,7 +39,7 @@
             <div>
               <div class="resource-list">
                 <div class="resource-list-header">
-                  <div class="resource-list-header-title-block">
+                  <div class="resource-list-header-title-block" dir="auto">
                     <h2 class="resource-list-header-title">
                       {{ coreString('resourcesLabel') }}
                     </h2>
@@ -149,7 +149,6 @@
 
   .resource-list-header-title-block {
     display: table-cell;
-    text-align: left;
   }
 
   .resource-list-header-add-resource-button {

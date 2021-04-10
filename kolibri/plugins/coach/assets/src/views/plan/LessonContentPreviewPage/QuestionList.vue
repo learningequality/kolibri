@@ -17,6 +17,7 @@
           :class="{ selected: index === selectedIndex }"
           :style="buttonStyle(index)"
           class="button"
+          dir="auto"
           :text="questionLabel(index)"
           appearance="flat-button"
           @click="$emit('select',index)"
@@ -91,7 +92,6 @@
 
   .button {
     font-weight: normal;
-    text-align: left;
     text-transform: none;
     border-radius: 0;
     &.selected {

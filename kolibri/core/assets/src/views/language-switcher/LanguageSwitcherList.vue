@@ -33,6 +33,7 @@
     <LanguageSwitcherModal
       v-if="showLanguageModal"
       class="ta-l"
+      dir="auto"
       @cancel="showLanguageModal = false"
     />
   </div>
@@ -119,10 +120,6 @@
 
   .lang {
     @include font-family-language-names;
-  }
-
-  .ta-l {
-    text-align: left;
   }
 
 </style>

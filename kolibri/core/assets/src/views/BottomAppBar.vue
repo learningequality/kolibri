@@ -2,6 +2,7 @@
 
   <div
     class="bottom"
+    dir="auto"
     :style="{ backgroundColor: $themeTokens.surface }"
     :class="{ 'bottom-sm': windowIsSmall }"
   >
@@ -56,7 +57,6 @@
     margin: 0;
     overflow-x: hidden;
     font-size: 14px;
-    text-align: right;
   }
 
   .bottom-sm {

@@ -2,6 +2,7 @@
 
   <li
     class="item-wrapper"
+    dir="auto"
     :class="{ draggable }"
     :style="bgStyle"
   >
@@ -141,7 +142,6 @@
     width: 100%;
     padding: 8px;
     overflow: visible;
-    text-align: left;
     white-space: nowrap;
     user-select: none;
     border-radius: 4px;

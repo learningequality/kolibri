@@ -1,7 +1,7 @@
 <template>
 
   <tr>
-    <th>
+    <th dir="auto">
       <slot name="key">
         {{ keyText }}
       </slot>
@@ -36,11 +36,6 @@
 
 
 <style lang="scss" scoped>
-
-  th {
-    text-align: left;
-  }
-
   th,
   td {
     height: 2em;

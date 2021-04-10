@@ -10,6 +10,7 @@
     <div
       v-if="showViewMore && (textIsTruncated || viewAllText)"
       class="show-more"
+      dir="auto"
     >
       <KButton
         appearance="basic-link"
@@ -117,7 +118,6 @@
 
   .show-more {
     margin-top: 8px;
-    text-align: right;
   }
 
   // If the text is a long single word (and not shortened by shave.js),

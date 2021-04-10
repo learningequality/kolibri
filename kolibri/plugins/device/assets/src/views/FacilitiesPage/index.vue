@@ -39,7 +39,7 @@
                 :syncHasFailed="facility.syncHasFailed"
               />
             </td>
-            <td class="button-col">
+            <td class="button-col" dir="auto">
               <KButtonGroup>
                 <KButton
                   :text="coreString('syncAction')"
@@ -292,7 +292,6 @@
   .button-col {
     padding: 4px;
     padding-top: 8px;
-    text-align: right;
     vertical-align: middle;
 
     .sync {

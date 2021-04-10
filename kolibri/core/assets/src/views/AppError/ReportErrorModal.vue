@@ -4,6 +4,7 @@
     :title="$tr('reportErrorHeader')"
     :cancelText="coreString('closeAction')"
     class="error-detail-modal"
+    dir="auto"
     size="large"
     @cancel="$emit('cancel')"
   >
@@ -95,11 +96,3 @@
 
 </script>
 
-
-<style lang="scss" scoped>
-
-  .error-detail-modal {
-    text-align: left;
-  }
-
-</style>

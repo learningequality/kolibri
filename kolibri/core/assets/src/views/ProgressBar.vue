@@ -22,7 +22,7 @@
       >
       </div>
     </div>
-    <div v-if="showPercentage" class="progress-bar-text">
+    <div v-if="showPercentage" class="progress-bar-text" dir="auto">
       {{ $tr('pct', [progress]) }}
     </div>
   </div>
@@ -98,7 +98,6 @@
     right: 0;
     display: inline-block;
     width: 30px;
-    text-align: left;
   }
 
 </style>

@@ -24,7 +24,7 @@
     </ChannelDetails>
 
     <div class="col-3">
-      <p v-if="selectedMessage" class="selected">
+      <p v-if="selectedMessage" class="selected" dir="auto">
         {{ selectedMessage }}
       </p>
     </div>
@@ -94,7 +94,6 @@
 
     .selected {
       margin: 0;
-      text-align: right;
     }
 
     .channel-card-sm & {

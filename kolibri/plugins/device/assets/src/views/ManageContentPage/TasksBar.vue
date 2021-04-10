@@ -1,6 +1,6 @@
 <template>
 
-  <div class="progress-bar">
+  <div class="progress-bar" dir="auto">
     <p v-if="totalTasks > 0">
       {{ tasksString }}
     </p>
@@ -96,7 +96,6 @@
 
   .progress-bar {
     max-width: 400px;
-    text-align: left;
   }
 
   // CSS overrides for linear loader

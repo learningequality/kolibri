@@ -12,7 +12,7 @@
 
     <KPageContainer>
       <PlanHeader />
-      <div class="ta-r">
+      <div class="ta-r" dir="auto">
         <KButton
           :text="$tr('newGroupAction')"
           :primary="true"
@@ -162,8 +162,5 @@
 
 <style lang="scss" scoped>
 
-  .ta-r {
-    text-align: right;
-  }
 
 </style>

@@ -59,7 +59,7 @@
 
       <template #append>
         <div class="col-3">
-          <p v-if="multipleMode && $attrs.checked" class="selected-msg">
+          <p v-if="multipleMode && $attrs.checked" class="selected-msg" dir="auto">
             {{ channelSelectedMessage }}
           </p>
           <KRouterLink
@@ -259,7 +259,6 @@
     align-self: flex-start;
     min-width: 150px;
     margin: 0;
-    text-align: right;
 
     .channel-list-item-sm & {
       align-self: flex-end;

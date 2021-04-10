@@ -28,7 +28,7 @@
         :placeholder="coreString('searchLabel')"
       >
 
-      <div class="buttons-wrapper">
+      <div class="buttons-wrapper" dir="auto">
         <KIconButton
           icon="clear"
           :color="$themePalette.black"
@@ -147,7 +147,6 @@
   .buttons-wrapper {
     display: table-cell;
     height: 36px;
-    text-align: right;
     vertical-align: middle;
   }
 
