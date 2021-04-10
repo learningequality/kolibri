@@ -263,7 +263,7 @@
     position: fixed;
     right: 8px;
     z-index: 8;
-
+    outline: none;
     // Holdover from previous CoreMenuOption format. Will keep the profile
     // dropdown formatted correctly.
     /deep/ .core-menu-option-content {

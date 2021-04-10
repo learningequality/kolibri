@@ -238,6 +238,11 @@
   font-style: normal;
   font-weight: 400;
 }
+
+.vjs-play-control:hover {
+  outline: none;
+}
+
 .video-js .vjs-control.vjs-close-button .vjs-icon-placeholder::before,
 .vjs-icon-cancel::before {
   content: '\f115';
