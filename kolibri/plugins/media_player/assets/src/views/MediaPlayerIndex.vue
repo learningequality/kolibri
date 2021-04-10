@@ -699,6 +699,12 @@
         &::before {
           font-size: $button-font-size-normal;
           line-height: $button-height-normal;
+           &:hover {
+            outline: none;
+        }
+        }
+        &:hover {
+          outline: none;
         }
       }
     }

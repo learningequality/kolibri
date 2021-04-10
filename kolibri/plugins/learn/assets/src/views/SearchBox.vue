@@ -293,6 +293,7 @@
     margin: 0;
     vertical-align: middle;
     border: 0;
+    outline: none;
 
     // removes the IE clear button
     &::-ms-clear {
