@@ -240,73 +240,73 @@ describe('xAPI data validation', () => {
       expect(ActivityDefinition.clean(value)).toEqual(value);
     });
     describe('Interaction Activities validation', () => {
+      let warnMock;
+      beforeEach(() => {
+        warnMock = jest.fn();
+        console.warn = warnMock;
+      });
       const interactionOptions = ['choices', 'scale', 'source', 'target', 'steps'];
       describe('true-false interaction', () => {
-        test.each(interactionOptions)('should throw an error if %i is specified', option => {
+        test.each(interactionOptions)('should throw an error if %s is specified', option => {
           expect(() => {
             ActivityDefinition.clean({ interactionType: 'true-false', [option]: [{ id: 'test' }] });
           }).toThrowError(xAPIValidationError);
         });
         test.each(['true', 'false'])(
-          'should not throw an error if %i is a correct response',
+          'should not throw an error if %s is a correct response',
           resp => {
-            expect(() => {
-              ActivityDefinition.clean({
-                interactionType: 'true-false',
-                correctResponsesPattern: [resp],
-              });
-            }).not.toThrowError(xAPIValidationError);
-          }
-        );
-        test('should throw an error if middle is a correct response', () => {
-          expect(() => {
             ActivityDefinition.clean({
               interactionType: 'true-false',
-              correctResponsesPattern: ['middle'],
+              correctResponsesPattern: [resp],
             });
-          }).toThrowError(xAPIValidationError);
+            expect(warnMock).not.toHaveBeenCalled();
+          }
+        );
+        test('should give a warning if middle is a correct response', () => {
+          ActivityDefinition.clean({
+            interactionType: 'true-false',
+            correctResponsesPattern: ['middle'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
       });
       describe('choice interaction', () => {
         test.each(interactionOptions.filter(o => o !== 'choices'))(
-          'should throw an error if %i is specified',
+          'should throw an error if %s is specified',
           option => {
             expect(() => {
               ActivityDefinition.clean({ interactionType: 'choice', [option]: [{ id: 'test' }] });
             }).toThrowError(xAPIValidationError);
           }
         );
-        test('should throw an error if correct response is not in choices', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'choice',
-              choices: [{ id: 'test' }],
-              correctResponsesPattern: ['middle'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if correct response is not in choices', () => {
+          ActivityDefinition.clean({
+            interactionType: 'choice',
+            choices: [{ id: 'test' }],
+            correctResponsesPattern: ['middle'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should throw an error if one of the correct responses is not in choices', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'choice',
-              choices: [{ id: 'test' }],
-              correctResponsesPattern: ['test', 'middle'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if one of the correct responses is not in choices', () => {
+          ActivityDefinition.clean({
+            interactionType: 'choice',
+            choices: [{ id: 'test' }],
+            correctResponsesPattern: ['test', 'middle'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should throw an error if one of the correct responses in a list is not in choices', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'choice',
-              choices: [{ id: 'test' }],
-              correctResponsesPattern: ['test[,]middle', 'test'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if one of the correct responses in a list is not in choices', () => {
+          ActivityDefinition.clean({
+            interactionType: 'choice',
+            choices: [{ id: 'test' }],
+            correctResponsesPattern: ['test[,]middle', 'test'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
       });
       describe('sequencing interaction', () => {
         test.each(interactionOptions.filter(o => o !== 'choices'))(
-          'should throw an error if %i is specified',
+          'should throw an error if %s is specified',
           option => {
             expect(() => {
               ActivityDefinition.clean({
@@ -316,107 +316,98 @@ describe('xAPI data validation', () => {
             }).toThrowError(xAPIValidationError);
           }
         );
-        test('should throw an error if correct response is not in choices', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'sequencing',
-              choices: [{ id: 'test' }],
-              correctResponsesPattern: ['middle'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if correct response is not in choices', () => {
+          ActivityDefinition.clean({
+            interactionType: 'sequencing',
+            choices: [{ id: 'test' }],
+            correctResponsesPattern: ['middle'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should throw an error if one of the correct responses is not in choices', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'sequencing',
-              choices: [{ id: 'test' }],
-              correctResponsesPattern: ['test', 'middle'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if one of the correct responses is not in choices', () => {
+          ActivityDefinition.clean({
+            interactionType: 'sequencing',
+            choices: [{ id: 'test' }],
+            correctResponsesPattern: ['test', 'middle'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should throw an error if one of the correct responses in a list is not in choices', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'sequencing',
-              choices: [{ id: 'test' }],
-              correctResponsesPattern: ['test[,]middle', 'test'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if one of the correct responses in a list is not in choices', () => {
+          ActivityDefinition.clean({
+            interactionType: 'sequencing',
+            choices: [{ id: 'test' }],
+            correctResponsesPattern: ['test[,]middle', 'test'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
       });
       describe('matching interaction', () => {
         test.each(interactionOptions.filter(o => o !== 'source' || o !== 'target'))(
-          'should throw an error if %i is specified',
+          'should throw an error if %s is specified',
           option => {
             expect(() => {
               ActivityDefinition.clean({ interactionType: 'matching', [option]: [{ id: 'test' }] });
             }).toThrowError(xAPIValidationError);
           }
         );
-        test('should throw an error if correct response is not in source', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'matching',
-              source: [{ id: 'source' }],
-              target: [{ id: 'target' }],
-              correctResponsesPattern: ['middle[.]target'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if correct response is not in source', () => {
+          ActivityDefinition.clean({
+            interactionType: 'matching',
+            source: [{ id: 'source' }],
+            target: [{ id: 'target' }],
+            correctResponsesPattern: ['middle[.]target'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should throw an error if one of the correct responses is not in source', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'matching',
-              source: [{ id: 'source' }],
-              target: [{ id: 'target' }],
-              correctResponsesPattern: ['source[.]target', 'middle[.]target'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if one of the correct responses is not in source', () => {
+          ActivityDefinition.clean({
+            interactionType: 'matching',
+            source: [{ id: 'source' }],
+            target: [{ id: 'target' }],
+            correctResponsesPattern: ['source[.]target', 'middle[.]target'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should throw an error if one of the correct responses in a list is not in source', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'matching',
-              source: [{ id: 'source' }],
-              target: [{ id: 'target' }],
-              correctResponsesPattern: ['source[.]target[,]middle[.]target', 'source[.]target'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if one of the correct responses in a list is not in source', () => {
+          ActivityDefinition.clean({
+            interactionType: 'matching',
+            source: [{ id: 'source' }],
+            target: [{ id: 'target' }],
+            correctResponsesPattern: ['source[.]target[,]middle[.]target', 'source[.]target'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should throw an error if correct response is not in target', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'matching',
-              source: [{ id: 'source' }],
-              target: [{ id: 'target' }],
-              correctResponsesPattern: ['source[.]middle'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if correct response is not in target', () => {
+          ActivityDefinition.clean({
+            interactionType: 'matching',
+            source: [{ id: 'source' }],
+            target: [{ id: 'target' }],
+            correctResponsesPattern: ['source[.]middle'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should throw an error if one of the correct responses is not in target', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'matching',
-              source: [{ id: 'source' }],
-              target: [{ id: 'target' }],
-              correctResponsesPattern: ['source[.]target', 'source[.]middle'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if one of the correct responses is not in target', () => {
+          ActivityDefinition.clean({
+            interactionType: 'matching',
+            source: [{ id: 'source' }],
+            target: [{ id: 'target' }],
+            correctResponsesPattern: ['source[.]target', 'source[.]middle'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should throw an error if one of the correct responses in a list is not in target', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'matching',
-              source: [{ id: 'source' }],
-              target: [{ id: 'target' }],
-              correctResponsesPattern: ['source[.]target[,]source[.]middle', 'source[.]target'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if one of the correct responses in a list is not in target', () => {
+          ActivityDefinition.clean({
+            interactionType: 'matching',
+            source: [{ id: 'source' }],
+            target: [{ id: 'target' }],
+            correctResponsesPattern: ['source[.]target[,]source[.]middle', 'source[.]target'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
       });
       describe('performance interaction', () => {
         test.each(interactionOptions.filter(o => o !== 'steps'))(
-          'should throw an error if %i is specified',
+          'should throw an error if %s is specified',
           option => {
             expect(() => {
               ActivityDefinition.clean({
@@ -426,82 +417,76 @@ describe('xAPI data validation', () => {
             }).toThrowError(xAPIValidationError);
           }
         );
-        test('should throw an error if correct response is not in steps', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'performance',
-              steps: [{ id: 'test' }],
-              correctResponsesPattern: ['middle[.]response'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if correct response is not in steps', () => {
+          ActivityDefinition.clean({
+            interactionType: 'performance',
+            steps: [{ id: 'test' }],
+            correctResponsesPattern: ['middle[.]response'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should not throw an error if correct response is in steps', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'performance',
-              steps: [{ id: 'test' }],
-              correctResponsesPattern: ['test[.]response'],
-            });
-          }).not.toThrowError(xAPIValidationError);
+        test('should not give a warning if correct response is in steps', () => {
+          ActivityDefinition.clean({
+            interactionType: 'performance',
+            steps: [{ id: 'test' }],
+            correctResponsesPattern: ['test[.]response'],
+          });
+          expect(warnMock).not.toHaveBeenCalled();
         });
         // The spec says that the response can also be a numeric type, but as this is always
         // encoded as a string we cannot apply additional validation in this case
-        test('should throw an error if one of the correct responses is not in steps', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'performance',
-              steps: [{ id: 'test' }],
-              correctResponsesPattern: ['test[.]response', 'invalid[.]response'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if one of the correct responses is not in steps', () => {
+          ActivityDefinition.clean({
+            interactionType: 'performance',
+            steps: [{ id: 'test' }],
+            correctResponsesPattern: ['test[.]response', 'invalid[.]response'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should throw an error if one of the correct responses in a list is not in steps', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'performance',
-              steps: [{ id: 'test' }],
-              correctResponsesPattern: ['test[.]response[,]invalid[.]response', 'test[.]response'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if one of the correct responses in a list is not in steps', () => {
+          ActivityDefinition.clean({
+            interactionType: 'performance',
+            steps: [{ id: 'test' }],
+            correctResponsesPattern: ['test[.]response[,]invalid[.]response', 'test[.]response'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
       });
       describe('likert interaction', () => {
         test.each(interactionOptions.filter(o => o !== 'scale'))(
-          'should throw an error if %i is specified',
+          'should throw an error if %s is specified',
           option => {
             expect(() => {
               ActivityDefinition.clean({ interactionType: 'likert', [option]: [{ id: 'test' }] });
             }).toThrowError(xAPIValidationError);
           }
         );
-        test('should throw an error if one of the correct responses is not in scale', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'likert',
-              scale: [{ id: 'scale' }],
-              correctResponsesPattern: ['test', 'scale'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if one of the correct responses is not in scale', () => {
+          ActivityDefinition.clean({
+            interactionType: 'likert',
+            scale: [{ id: 'scale' }],
+            correctResponsesPattern: ['test', 'scale'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should not throw an error the correct responses are in scale', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'likert',
-              scale: [{ id: 'scale' }, { id: 'test' }],
-              correctResponsesPattern: ['scale', 'test'],
-            });
-          }).not.toThrowError(xAPIValidationError);
+        test('should not give a warning the correct responses are in scale', () => {
+          ActivityDefinition.clean({
+            interactionType: 'likert',
+            scale: [{ id: 'scale' }, { id: 'test' }],
+            correctResponsesPattern: ['scale', 'test'],
+          });
+          expect(warnMock).not.toHaveBeenCalled();
         });
       });
       describe('fill-in interaction', () => {
-        test.each(interactionOptions)('should throw an error if %i is specified', option => {
+        test.each(interactionOptions)('should throw an error if %s is specified', option => {
           expect(() => {
             ActivityDefinition.clean({ interactionType: 'fill-in', [option]: [{ id: 'test' }] });
           }).toThrowError(xAPIValidationError);
         });
       });
       describe('long-fill-in interaction', () => {
-        test.each(interactionOptions)('should throw an error if %i is specified', option => {
+        test.each(interactionOptions)('should throw an error if %s is specified', option => {
           expect(() => {
             ActivityDefinition.clean({
               interactionType: 'long-fill-in',
@@ -511,102 +496,91 @@ describe('xAPI data validation', () => {
         });
       });
       describe('numeric interaction', () => {
-        test.each(interactionOptions)('should throw an error if %i is specified', option => {
+        test.each(interactionOptions)('should throw an error if %s is specified', option => {
           expect(() => {
             ActivityDefinition.clean({ interactionType: 'numeric', [option]: [{ id: 'test' }] });
           }).toThrowError(xAPIValidationError);
         });
-        test('should throw an error if correct response is not a valid number', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'numeric',
-              correctResponsesPattern: ['invalid'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if correct response is not a valid number', () => {
+          ActivityDefinition.clean({
+            interactionType: 'numeric',
+            correctResponsesPattern: ['invalid'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should not throw an error if correct response is a valid number', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'numeric',
-              correctResponsesPattern: ['7'],
-            });
-          }).not.toThrowError(xAPIValidationError);
+        test('should not give a warning if correct response is a valid number', () => {
+          ActivityDefinition.clean({
+            interactionType: 'numeric',
+            correctResponsesPattern: ['7'],
+          });
+          expect(warnMock).not.toHaveBeenCalled();
         });
-        test('should throw an error if correct response is not a valid lower bounded range', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'numeric',
-              correctResponsesPattern: ['invalid[:]'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if correct response is not a valid lower bounded range', () => {
+          ActivityDefinition.clean({
+            interactionType: 'numeric',
+            correctResponsesPattern: ['invalid[:]'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should not throw an error if correct response is a valid lower bounded range', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'numeric',
-              correctResponsesPattern: ['7[:]'],
-            });
-          }).not.toThrowError(xAPIValidationError);
+        test('should not give a warning if correct response is a valid lower bounded range', () => {
+          ActivityDefinition.clean({
+            interactionType: 'numeric',
+            correctResponsesPattern: ['7[:]'],
+          });
+          expect(warnMock).not.toHaveBeenCalled();
         });
-        test('should throw an error if correct response is not a valid upper bounded range', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'numeric',
-              correctResponsesPattern: ['[:]invalid'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if correct response is not a valid upper bounded range', () => {
+          ActivityDefinition.clean({
+            interactionType: 'numeric',
+            correctResponsesPattern: ['[:]invalid'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should not throw an error if correct response is a valid upper bounded range', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'numeric',
-              correctResponsesPattern: ['[:]7'],
-            });
-          }).not.toThrowError(xAPIValidationError);
+        test('should not give a warning if correct response is a valid upper bounded range', () => {
+          ActivityDefinition.clean({
+            interactionType: 'numeric',
+            correctResponsesPattern: ['[:]7'],
+          });
+          expect(warnMock).not.toHaveBeenCalled();
         });
-        test('should throw an error if correct response is a bounded range with invalid lower bound', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'numeric',
-              correctResponsesPattern: ['invalid[:]7'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if correct response is a bounded range with invalid lower bound', () => {
+          ActivityDefinition.clean({
+            interactionType: 'numeric',
+            correctResponsesPattern: ['invalid[:]7'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should throw an error if correct response is a bounded range with invalid upper bound', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'numeric',
-              correctResponsesPattern: ['7[:]invalid'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if correct response is a bounded range with invalid upper bound', () => {
+          ActivityDefinition.clean({
+            interactionType: 'numeric',
+            correctResponsesPattern: ['7[:]invalid'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should throw an error if correct response is a bounded range with invalid bounds', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'numeric',
-              correctResponsesPattern: ['invalid[:]invalid'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if correct response is a bounded range with invalid bounds', () => {
+          ActivityDefinition.clean({
+            interactionType: 'numeric',
+            correctResponsesPattern: ['invalid[:]invalid'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should throw an error if correct response is a bounded range with out of order bounds', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'numeric',
-              correctResponsesPattern: ['7[:]4'],
-            });
-          }).toThrowError(xAPIValidationError);
+        test('should give a warning if correct response is a bounded range with out of order bounds', () => {
+          ActivityDefinition.clean({
+            interactionType: 'numeric',
+            correctResponsesPattern: ['7[:]4'],
+          });
+          expect(warnMock).toHaveBeenCalled();
         });
-        test('should not throw an error if correct response is a bounded range with valid bounds', () => {
-          expect(() => {
-            ActivityDefinition.clean({
-              interactionType: 'numeric',
-              correctResponsesPattern: ['4[:]7'],
-            });
-          }).not.toThrowError(xAPIValidationError);
+        test('should not give a warning if correct response is a bounded range with valid bounds', () => {
+          ActivityDefinition.clean({
+            interactionType: 'numeric',
+            correctResponsesPattern: ['4[:]7'],
+          });
+          expect(warnMock).not.toHaveBeenCalled();
         });
       });
       describe('other interaction', () => {
-        test.each(interactionOptions)('should throw an error if %i is specified', option => {
+        test.each(interactionOptions)('should throw an error if %s is specified', option => {
           expect(() => {
             ActivityDefinition.clean({ interactionType: 'other', [option]: [{ id: 'test' }] });
           }).toThrowError(xAPIValidationError);
