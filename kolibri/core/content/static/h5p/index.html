@@ -1,4 +1,3 @@
-{% load zipcontent %}
 <!DOCTYPE html>
 
 <html>
@@ -14,9 +13,9 @@
             }
         </style>
 
-        <link type="text/css" rel="stylesheet" media="all" href="{% zc_static 'assets/h5p/styles/h5p.css' %}" />
-        <link type="text/css" rel="stylesheet" media="all" href="{% zc_static 'assets/h5p/styles/h5p-confirmation-dialog.css' %}" />
-        <link type="text/css" rel="stylesheet" media="all" href="{% zc_static 'assets/h5p/styles/h5p-core-button.css' %}" />
+        <link type="text/css" rel="stylesheet" media="all" href="./styles/h5p.css" />
+        <link type="text/css" rel="stylesheet" media="all" href="./styles/h5p-confirmation-dialog.css" />
+        <link type="text/css" rel="stylesheet" media="all" href="./styles/h5p-core-button.css" />
 
         <script>
 
@@ -24,11 +23,11 @@
             H5P.externalEmbed = true;
             H5P.preventInit = true;
 
-            {{ hashi_initialize|safe }}
+            if (window.parent && window.parent.hashi) {try {window.parent.hashi.initializeIframe(window);} catch (e) {}}
 
         </script>
 
-        <script type="text/javascript" src="{% zc_static 'assets/h5p/js/frame.bundle.js' %}" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="./js/frame.bundle.js" crossorigin="anonymous"></script>
 
     </head>
     <body></body>

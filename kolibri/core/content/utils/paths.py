@@ -257,8 +257,6 @@ HASHI = "hashi/"
 
 ZIPCONTENT = "zipcontent/"
 
-H5P = "h5p/"
-
 
 def get_zip_content_config():
     zip_content_origin = conf.OPTIONS["Deployment"]["ZIP_CONTENT_ORIGIN"]
@@ -289,7 +287,7 @@ def get_zip_content_base_path():
 HASHI_FILENAME = None
 
 
-def get_hashi_js_filename():
+def get_hashi_html_filename():
     global HASHI_FILENAME
     if HASHI_FILENAME is None or getattr(settings, "DEVELOPER_MODE", None):
         with io.open(
@@ -301,24 +299,12 @@ def get_hashi_js_filename():
     return HASHI_FILENAME
 
 
-def get_hashi_html_filename():
-    return "{}.html".format(".".join(get_hashi_js_filename().split(".")[:-1]))
-
-
-def get_hashi_base_path():
-    return "{}{}".format(zip_content_path_prefix(), HASHI)
-
-
-def get_hashi_path():
-    return "{}{}{}".format(zip_content_path_prefix(), HASHI, get_hashi_html_filename())
-
-
 def zip_content_static_root():
     return urljoin(zip_content_path_prefix(), "static/")
 
 
-def get_h5p_path():
-    return "{}{}".format(zip_content_path_prefix(), H5P)
+def get_hashi_path():
+    return "{}{}{}".format(zip_content_static_root(), HASHI, get_hashi_html_filename())
 
 
 def get_content_storage_file_url(filename):

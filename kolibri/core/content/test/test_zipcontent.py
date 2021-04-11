@@ -7,19 +7,13 @@ from wsgiref.util import setup_testing_defaults
 from django.test import override_settings
 from django.test import TestCase
 from django.utils.http import http_date
-from mock import patch
 
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.zip_wsgi import generate_zip_content_response
-from kolibri.core.content.zip_wsgi import get_hashi_view_response
 from kolibri.core.content.zip_wsgi import INITIALIZE_HASHI_FROM_IFRAME
 from kolibri.utils.tests.helpers import override_option
 
-
-DUMMY_HTML_FILENAME = "hashi123.html"
-
-DUMMY_JS_FILENAME = "hashi123.js"
 
 hashi_injection = '<script type="text/javascript">{}</script>'.format(
     INITIALIZE_HASHI_FROM_IFRAME
@@ -310,69 +304,4 @@ class ZipContentTestCase(TestCase):
 
 @override_option("Deployment", "ZIP_CONTENT_URL_PATH_PREFIX", "prefix_test/")
 class UrlPrefixZipContentTestCase(ZipContentTestCase):
-    pass
-
-
-class HashiViewTestCase(TestCase):
-    def setUp(self):
-        self.environ = {}
-        setup_testing_defaults(self.environ)
-
-    def _get_hashi(self, **kwargs):
-        self.environ["PATH_INFO"] = "/" + DUMMY_HTML_FILENAME
-        self.environ.update(kwargs)
-        with patch(
-            "kolibri.core.content.zip_wsgi.get_hashi_html_filename",
-            return_value=DUMMY_HTML_FILENAME,
-        ), patch(
-            "kolibri.core.content.utils.paths.get_hashi_html_filename",
-            return_value=DUMMY_HTML_FILENAME,
-        ), patch(
-            "kolibri.core.content.zip_wsgi.get_hashi_js_filename",
-            return_value=DUMMY_JS_FILENAME,
-        ), patch(
-            "kolibri.core.content.utils.paths.get_hashi_js_filename",
-            return_value=DUMMY_JS_FILENAME,
-        ):
-            return get_hashi_view_response(self.environ)
-
-    def test_not_modified_response_when_if_modified_since_header_set(self):
-        response = self._get_hashi(HTTP_IF_MODIFIED_SINCE=caching_http_date)
-        self.assertEqual(response.status_code, 304)
-
-    def test_last_modified_set_on_response(self):
-        response = self._get_hashi()
-        self.assertIsNotNone(response.get("Last-Modified"))
-
-    def test_expires_set_on_response(self):
-        response = self._get_hashi()
-        self.assertIsNotNone(response.get("Expires"))
-
-    def test_redirect_if_wrong_filename(self):
-        response = self._get_hashi(PATH_INFO="test.html")
-        self.assertEqual(response.status_code, 301)
-
-    def test_options_returns_empty(self):
-        response = self._get_hashi(REQUEST_METHOD="OPTIONS")
-        self.assertEqual(response.content.decode(), "")
-
-    def test_post_not_allowed(self):
-        response = self._get_hashi(REQUEST_METHOD="POST")
-        self.assertEqual(response.status_code, 405)
-
-    def test_put_not_allowed(self):
-        response = self._get_hashi(REQUEST_METHOD="PUT")
-        self.assertEqual(response.status_code, 405)
-
-    def test_patch_not_allowed(self):
-        response = self._get_hashi(REQUEST_METHOD="PATCH")
-        self.assertEqual(response.status_code, 405)
-
-    def test_delete_not_allowed(self):
-        response = self._get_hashi(REQUEST_METHOD="DELETE")
-        self.assertEqual(response.status_code, 405)
-
-
-@override_option("Deployment", "ZIP_CONTENT_URL_PATH_PREFIX", "prefix_test/")
-class UrlPrefixHashiViewTestCase(HashiViewTestCase):
     pass

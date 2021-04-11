@@ -11,28 +11,19 @@ import zipfile
 
 import html5lib
 from cheroot import wsgi
-from django.conf import settings
 from django.core.cache import cache
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
 from django.http import HttpResponseNotAllowed
 from django.http import HttpResponseNotFound
 from django.http import HttpResponseNotModified
-from django.http import HttpResponsePermanentRedirect
 from django.http.response import FileResponse
 from django.http.response import StreamingHttpResponse
-from django.template import Context
-from django.template.engine import Engine
 from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
 from django.utils.http import http_date
 
 from kolibri.core.content.utils.paths import get_content_storage_file_path
-from kolibri.core.content.utils.paths import get_h5p_path
-from kolibri.core.content.utils.paths import get_hashi_base_path
-from kolibri.core.content.utils.paths import get_hashi_html_filename
-from kolibri.core.content.utils.paths import get_hashi_js_filename
-from kolibri.core.content.utils.paths import get_hashi_path
 from kolibri.core.content.utils.paths import get_zip_content_base_path
 
 
@@ -67,72 +58,11 @@ def django_response_to_wsgi(response, environ, start_response):
     return response
 
 
-template_engine = Engine(
-    dirs=[os.path.join(os.path.dirname(__file__), "./templates/content")],
-    libraries={"zipcontent": "kolibri.core.content.templatetags.zip_content_tags"},
-)
-h5p_template = template_engine.get_template("h5p.html")
-hashi_template = template_engine.get_template("hashi.html")
-
 allowed_methods = set(["GET", "OPTIONS"])
 
-
-def _hashi_response_from_request(request):
-    if request.method not in allowed_methods:
-        return HttpResponseNotAllowed(allowed_methods)
-
-    filename = request.path_info.lstrip("/")
-
-    if filename.split(".")[-1] != "html":
-        return HttpResponseNotFound()
-
-    if filename != get_hashi_html_filename():
-        return HttpResponsePermanentRedirect(get_hashi_path())
-
-    if request.method == "OPTIONS":
-        return HttpResponse()
-
-    developer_mode = getattr(settings, "DEVELOPER_MODE", False)
-
-    # if client has a cached version, use that we can safely assume nothing has changed
-    # as we provide a unique path per compiled hashi JS file.
-    if request.META.get("HTTP_IF_MODIFIED_SINCE") and not developer_mode:
-        return HttpResponseNotModified()
-    CACHE_KEY = "HASHI_VIEW_RESPONSE_{}".format(get_hashi_html_filename())
-    cached_response = cache.get(CACHE_KEY)
-    if cached_response is not None and not developer_mode:
-        return cached_response
-
-    content = hashi_template.render(
-        Context(
-            {
-                "hashi_file_path": "content/{filename}".format(
-                    filename=get_hashi_js_filename()
-                )
-            }
-        )
-    )
-
-    response = HttpResponse(content, content_type="text/html")
-    response["Content-Length"] = len(response.content)
-    response["Last-Modified"] = http_date(time.time())
-    patch_response_headers(response, cache_timeout=YEAR_IN_SECONDS)
-    cache.set(CACHE_KEY, response, YEAR_IN_SECONDS)
-    return response
-
-
-def get_hashi_view_response(environ):
-    request = WSGIRequest(environ)
-    response = _hashi_response_from_request(request)
-    add_security_headers(request, response)
-    return response
-
-
-def hashi_view(environ, start_response):
-    response = get_hashi_view_response(environ)
-    return django_response_to_wsgi(response, environ, start_response)
-
-
+# This is also included in static/h5p/index.html
+# ideally, we should never ever update this code
+# but if we do we should update it there.
 INITIALIZE_HASHI_FROM_IFRAME = "if (window.parent && window.parent.hashi) {try {window.parent.hashi.initializeIframe(window);} catch (e) {}}"
 
 
@@ -320,32 +250,8 @@ def zip_content_view(environ, start_response):
     return django_response_to_wsgi(response, environ, start_response)
 
 
-def h5p_view(environ, start_response):
-    """
-    Handles GET requests and serves the hashi template
-    """
-    request = WSGIRequest(environ)
-    path = request.path.replace(get_h5p_path(), "")
-    if path == "":
-        content = h5p_template.render(
-            Context(
-                {
-                    "hashi_initialize": INITIALIZE_HASHI_FROM_IFRAME,
-                }
-            )
-        )
-        content_type = "text/html"
-        response = HttpResponse(content, content_type=content_type)
-        response["Content-Length"] = len(response.content)
-    else:
-        response = HttpResponseNotFound()
-    return django_response_to_wsgi(response, environ, start_response)
-
-
 def get_application():
     path_map = {
-        get_h5p_path(): h5p_view,
-        get_hashi_base_path(): hashi_view,
         get_zip_content_base_path(): zip_content_view,
     }
 

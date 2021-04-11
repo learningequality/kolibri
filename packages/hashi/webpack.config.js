@@ -1,36 +1,30 @@
 const path = require('path');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 function Plugin() {}
 
 Plugin.prototype.apply = function(compiler) {
-  var self = this;
-
-  const done = function(stats) {
-    if (stats.compilation.errors.length > 0) {
-      return;
-    }
-
-    let hashiFilename;
-    stats.compilation.chunks.map(function(chunk) {
-      hashiFilename = chunk.files[0];
-    });
-
-    self.writeOutput(hashiFilename);
-  };
-
   if (compiler.hooks) {
-    const plugin = { name: 'HashiHashWriterPlugin' };
-    compiler.hooks.done.tap(plugin, done);
+    compiler.hooks.compilation.tap('HashiHashWriterPlugin', function(compilation) {
+      if (compilation.errors.length > 0) {
+        return;
+      }
+
+      HtmlWebpackPlugin.getHooks(compilation).afterEmit.tapAsync('HashiWritePlugin', (data, cb) => {
+        var outputFilename = path.resolve(
+          __dirname,
+          '../../kolibri/core/content/build/hashi_filename'
+        );
+        mkdirp.sync(path.dirname(outputFilename));
+
+        fs.writeFileSync(outputFilename, data.outputName);
+        // Tell webpack to move on
+        cb(null, data);
+      });
+    });
   }
-};
-
-Plugin.prototype.writeOutput = function(filename) {
-  var outputFilename = path.resolve(__dirname, '../../kolibri/core/content/build/hashi_filename');
-  mkdirp.sync(path.dirname(outputFilename));
-
-  fs.writeFileSync(outputFilename, filename);
 };
 
 // Note that the hashi iframe client doesn't currently support code splitting
@@ -39,8 +33,8 @@ Plugin.prototype.writeOutput = function(filename) {
 module.exports = {
   entry: path.resolve(__dirname, './src/iframe.js'),
   output: {
-    filename: 'hashiframe-[hash].js',
-    path: path.resolve(__dirname, '../../kolibri/core/content/static/content'),
+    filename: 'hashiframe-[contenthash].js',
+    path: path.resolve(__dirname, '../../kolibri/core/content/static/hashi'),
   },
   mode: 'none',
   module: {
@@ -55,5 +49,11 @@ module.exports = {
       },
     ],
   },
-  plugins: [new Plugin()],
+  plugins: [
+    new Plugin(),
+    new HtmlWebpackPlugin({
+      filename: 'hashi-[contenthash].html',
+      template: 'src/iframe.html',
+    }),
+  ],
 };
