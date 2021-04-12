@@ -2,9 +2,6 @@
  * This class offers an API interface for interacting directly with the Kolibri app
  * that the HTML5 app is embedded within
  */
-import pick from 'lodash/pick';
-import { ContentNodeResource } from 'kolibri.resources';
-import router from 'kolibri.coreVue.router';
 import BaseShim from './baseShim';
 import Mediator from './mediator';
 import { events, nameSpace } from './hashiBase';
@@ -87,89 +84,6 @@ export default class Kolibri extends BaseShim {
       value: this.shim,
       configurable: true,
     });
-  }
-
-  // helper functions for fetching data from kolibri
-  // called in mainClient.js
-
-  __fetchContentCollection(message) {
-    const options = message.options;
-    const getParams = pick(options, ['ids', 'page', 'pageSize', 'parent']);
-    if (options.parent && options.parent == 'self') {
-      // to be refactored and handled in dependency injection
-    }
-    ContentNodeResource.fetchCollection({ getParams }).then(contentNodes => {
-      contentNodes ? (message.status = 'success') : (message.status = 'failure');
-      console.log('nodes', contentNodes);
-      let response = {};
-      response.page = message.options.page ? message.options.page : 1;
-      response.pageSize = message.options.pageSize ? message.options.pageSize : 50;
-      response.results = contentNodes;
-      message.data = response;
-      message.type = 'response';
-      this.mediator.sendMessage({
-        nameSpace,
-        event: events.DATARETURNED,
-        data: message,
-      });
-    });
-  }
-  __fetchContentModel(message) {
-    let id = message.id;
-    ContentNodeResource.fetchModel({ id }).then(contentNode => {
-      if (contentNode) {
-        message.status = 'success';
-      } else {
-        message.status = 'failure';
-      }
-      message.data = contentNode;
-      message.type = 'response';
-      this.mediator.sendMessage({
-        nameSpace,
-        event: events.DATARETURNED,
-        data: message,
-      });
-    });
-  }
-
-  __navigateTo(message) {
-    let id = message.nodeId;
-    ContentNodeResource.fetchModel({ id }).then(contentNode => {
-      let routeBase, context;
-      const path = `${routeBase}/${id}`;
-      if (contentNode && contentNode.kind === 'topic') {
-        routeBase = '/topics/t';
-        router.push({ path: path }).catch(() => {});
-      } else if (contentNode && !message.context) {
-        routeBase = '/topics/c';
-        router.push({ path: path }).catch(() => {});
-      } else if (contentNode && message.context) {
-        // if there is custom context, launch overlay
-        message.context.node_id = id;
-        routeBase = '/topics/c';
-        router
-          .push({ path: path, query: { customContext: true, context: context } })
-          .catch(() => {});
-      }
-      this.mediator.sendMessage({
-        nameSpace,
-        event: events.DATARETURNED,
-        data: message,
-      });
-    });
-  }
-
-  __getOrUpdateContext(message) {
-    // to update context with the incoming context
-    if (message.context) {
-      const encodedContext = this.encodeContext(message.context);
-      router.push({ query: { context: encodedContext } }).catch(() => {});
-    } else {
-      // just return the existing query
-      const urlParams = new URLSearchParams(window.location.search);
-      const fetchedEncodedContext = urlParams.has('context') ? urlParams.get('context') : null;
-      return decodeURI(fetchedEncodedContext);
-    }
   }
 
   __setShimInterface() {
