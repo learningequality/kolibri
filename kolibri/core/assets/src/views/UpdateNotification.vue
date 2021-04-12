@@ -95,8 +95,7 @@
       upgradeMessageImportant:
         'We have released an important update with fixes to this version of Kolibri.',
       // TODO(i18n): Write a final version of this copy
-      upgradeMessage_0_15_0:
-        'Kolibri version 0.15.0 is available! It has a lot of new features!',
+      upgradeMessage_0_15_0: 'Kolibri version 0.15.0 is available! It has a lot of new features!',
       upgradeDownload: 'Download it here',
       upgradeLearnAndDownload: 'Learn more and download it here',
       /* eslint-enable kolibri/vue-no-unused-translations */
