@@ -1,6 +1,7 @@
 <template>
 
   <div>
+
     <div class="header">
 
       <KGrid>
@@ -72,6 +73,7 @@
       :contents="contents"
       :genContentLink="genContentLink"
     />
+
   </div>
 
 </template>

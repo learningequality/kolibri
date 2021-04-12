@@ -56,7 +56,7 @@ describe('the kolibri hashi shim', () => {
         expect(client).toHaveBeenCalledTimes(1);
       });
     });
-    it('should return a promise that resolves to aan array of metadata objects', () => {
+    it('should return a promise that resolves to an array of metadata objects', () => {
       expect(kolibri.shim.getContentByFilter()).toBeInstanceOf(Promise);
       kolibri.shim.getContentByFilter().then(() => {
         expect(client).toBeInstanceOf(Array);
@@ -67,6 +67,32 @@ describe('the kolibri hashi shim', () => {
   describe('navigateTo method', () => {
     it('should return a promise', () => {
       expect(kolibri.shim.navigateTo()).toBeInstanceOf(Promise);
+    });
+  });
+
+  describe('updateContext method', () => {
+    it('should return a promise', () => {
+      expect(kolibri.shim.updateContext()).toBeInstanceOf(Promise);
+    });
+  });
+
+  describe('getContext method', () => {
+    let response, client;
+    beforeEach(function() {
+      response = { node_id: 'abc', context: { test: 'test' } };
+      client = jest.fn().mockResolvedValue(response);
+      kolibri.shim.client = client;
+    });
+    it('should be called once', () => {
+      kolibri.shim.getContext().then(() => {
+        expect(client).toHaveBeenCalledTimes(1);
+      });
+    });
+    it('should return a promise that resolves to a context Object', () => {
+      expect(kolibri.shim.getContext()).toBeInstanceOf(Promise);
+      kolibri.shim.getContext().then(() => {
+        expect(client).toBeInstanceOf(Object);
+      });
     });
   });
 });

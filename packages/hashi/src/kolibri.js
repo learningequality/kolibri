@@ -181,6 +181,7 @@ export default class Kolibri extends BaseShim {
       getContext() {
         return self.mediator.sendMessageAwaitReply({
           event: events.CONTEXT,
+          data: {},
           nameSpace,
         });
       }

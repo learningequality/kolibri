@@ -45,6 +45,7 @@ export default class SandboxEnvironment {
       // initalized the local environment.
       callback: this.createIframe,
     });
+
     // Set up a listener for a ready check event.
     this.mediator.registerMessageHandler({
       nameSpace,
