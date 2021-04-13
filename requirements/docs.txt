@@ -2,8 +2,8 @@
 
 # These are for building the docs
 sphinx==2.4.4
-sphinx-intl==1.0.0
-sphinx-rtd-theme==0.4.3
+sphinx-intl==2.0.1
+sphinx-rtd-theme==0.5.2
 sphinx-autobuild==0.7.1
 m2r==0.2.1
-sphinx-notfound-page==0.5
+sphinx-notfound-page==0.6
