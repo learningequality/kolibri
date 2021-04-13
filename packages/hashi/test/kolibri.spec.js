@@ -5,7 +5,7 @@ import Kolibri from '../src/kolibri';
 describe('the kolibri hashi shim', () => {
   let kolibri;
   let mediator;
-
+  let response;
   beforeEach(() => {
     mediator = new Mediator(window);
     kolibri = new Kolibri(mediator);
@@ -25,41 +25,35 @@ describe('the kolibri hashi shim', () => {
   });
 
   describe('getContentById method', () => {
-    let response, client;
     beforeEach(function() {
-      response = { data: [{ testing: 'testing' }] };
-      client = jest.fn().mockResolvedValue(response);
-      kolibri.shim.client = client;
+      response = { node: { id: 'abc123' } };
+      kolibri.shim.getContentById = jest.fn().mockResolvedValue(response);
     });
     it('should be called once', () => {
       kolibri.shim.getContentById().then(() => {
-        expect(client).toHaveBeenCalledTimes(1);
+        expect(kolibri.shim.getContentById).toHaveBeenCalledTimes(1);
       });
     });
     it('should return a promise that resolves to a ContentNode object', () => {
-      expect(kolibri.shim.getContentById()).toBeInstanceOf(Promise);
-      kolibri.shim.getContentById().then(() => {
-        expect(client).toBeInstanceOf(Object);
+      return kolibri.shim.getContentById().then(data => {
+        expect(data).toEqual(response);
       });
     });
   });
 
   describe('getContentByFilter method', () => {
-    let response, client;
     beforeEach(function() {
       response = [{ 1: [{ node: 'abc' }] }, { 2: [{ node: '123' }] }];
-      client = jest.fn().mockResolvedValue(response);
-      kolibri.shim.client = client;
+      kolibri.shim.getContentByFilter = jest.fn().mockResolvedValue(response);
     });
     it('should be called once', () => {
       kolibri.shim.getContentByFilter().then(() => {
-        expect(client).toHaveBeenCalledTimes(1);
+        expect(kolibri.shim.getContentByFilter).toHaveBeenCalledTimes(1);
       });
     });
     it('should return a promise that resolves to an array of metadata objects', () => {
-      expect(kolibri.shim.getContentByFilter()).toBeInstanceOf(Promise);
-      kolibri.shim.getContentByFilter().then(() => {
-        expect(client).toBeInstanceOf(Array);
+      return kolibri.shim.getContentByFilter().then(data => {
+        expect(data).toEqual(response);
       });
     });
   });
@@ -77,21 +71,18 @@ describe('the kolibri hashi shim', () => {
   });
 
   describe('getContext method', () => {
-    let response, client;
     beforeEach(function() {
       response = { node_id: 'abc', context: { test: 'test' } };
-      client = jest.fn().mockResolvedValue(response);
-      kolibri.shim.client = client;
+      kolibri.shim.getContext = jest.fn().mockResolvedValue(response);
     });
     it('should be called once', () => {
       kolibri.shim.getContext().then(() => {
-        expect(client).toHaveBeenCalledTimes(1);
+        expect(kolibri.shim.getContext).toHaveBeenCalledTimes(1);
       });
     });
     it('should return a promise that resolves to a context Object', () => {
-      expect(kolibri.shim.getContext()).toBeInstanceOf(Promise);
-      kolibri.shim.getContext().then(() => {
-        expect(client).toBeInstanceOf(Object);
+      kolibri.shim.getContext().then(data => {
+        expect(data).toEqual(response);
       });
     });
   });

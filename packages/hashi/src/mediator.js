@@ -59,6 +59,11 @@ class Mediator {
       const msgId = uuidv4();
       function handler(message) {
         if (message.message_id === msgId && message.type === 'response') {
+          this.removeMessageHandler({
+            nameSpace,
+            event: 'datareturned',
+            callback: handler,
+          });
           if (message.status === 'success') {
             console.log(message.data);
             return resolve(message.data);
@@ -68,11 +73,6 @@ class Mediator {
           // Otherwise something unspecified happened
           return reject();
         }
-        this.removeMessageHandler({
-          nameSpace,
-          event: 'datareturned',
-          callback: handler,
-        });
       }
       this.registerMessageHandler({
         nameSpace,
