@@ -55,25 +55,25 @@ class KolibriServer(object):
             env=self.env,
         )
 
-    def create_model(self, model_name, **kwargs):
+    def create_model(self, model, **kwargs):
         kwarg_text = ",".join(
             '{key}=\\"{value}\\"'.format(key=key, value=value)
             for key, value in kwargs.items()
         )
         self.pipe_shell(
-            "from kolibri.core.auth.models import {model_name}; {model_name}.objects.create({})".format(
-                kwarg_text, model_name=model_name
+            "from {module_path} import {model_name}; {model_name}.objects.create({})".format(
+                kwarg_text, module_path=model.__module__, model_name=model.__name__
             )
         )
 
-    def delete_model(self, model_name, **kwargs):
+    def delete_model(self, model, **kwargs):
         kwarg_text = ",".join(
             '{key}=\\"{value}\\"'.format(key=key, value=value)
             for key, value in kwargs.items()
         )
         self.pipe_shell(
-            "from kolibri.core.auth.models import {model_name}; obj = {model_name}.objects.get({}); obj.delete()".format(
-                kwarg_text, model_name=model_name
+            "from {module_path} import {model_name}; obj = {model_name}.objects.get({}); obj.delete()".format(
+                kwarg_text, module_path=model.__module__, model_name=model.__name__
             )
         )
 
@@ -96,6 +96,7 @@ class KolibriServer(object):
 
     def kill(self):
         try:
+            subprocess.call("kolibri stop", env=self.env, shell=True)
             self._instance.kill()
             shutil.rmtree(self.env["KOLIBRI_HOME"])
         except OSError:

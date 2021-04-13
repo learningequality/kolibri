@@ -6,6 +6,7 @@ import unittest
 import uuid
 
 from django.test import TestCase
+from django.utils import timezone
 from morango.models import InstanceIDModel
 from morango.models import Store
 from morango.models import syncable_models
@@ -17,9 +18,12 @@ from ..models import Facility
 from ..models import FacilityDataset
 from ..models import FacilityUser
 from ..models import LearnerGroup
+from ..models import Membership
 from ..models import Role
 from .helpers import DUMMY_PASSWORD
 from .sync_utils import multiple_kolibri_servers
+from kolibri.core.logger.models import ContentSessionLog
+from kolibri.core.logger.models import ContentSummaryLog
 
 
 class FacilityDatasetCertificateTestCase(TestCase):
@@ -82,16 +86,14 @@ class EcosystemTestCase(TestCase):
         learner.save(using=server.db_alias)
 
         name = uuid.uuid4().hex
-        server.create_model("Classroom", parent_id=fac.id, name=name)
+        server.create_model(Classroom, parent_id=fac.id, name=name)
         class_id = Classroom.objects.using(server.db_alias).get(name=name).id
         name = uuid.uuid4().hex
-        server.create_model("LearnerGroup", parent_id=class_id, name=name)
+        server.create_model(LearnerGroup, parent_id=class_id, name=name)
         lg_id = LearnerGroup.objects.using(server.db_alias).get(name=name).id
-        server.create_model("Membership", user_id=learner.id, collection_id=class_id)
-        server.create_model("Membership", user_id=learner.id, collection_id=lg_id)
-        server.create_model(
-            "Role", collection_id=fac.id, user_id=admin.id, kind="admin"
-        )
+        server.create_model(Membership, user_id=learner.id, collection_id=class_id)
+        server.create_model(Membership, user_id=learner.id, collection_id=lg_id)
+        server.create_model(Role, collection_id=fac.id, user_id=admin.id, kind="admin")
 
     def assertServerQuerysetEqual(self, s1, s2, dataset_id):
         models = syncable_models.get_models(PROFILE_FACILITY_DATA)
@@ -185,9 +187,9 @@ class EcosystemTestCase(TestCase):
         user = FacilityUser.objects.using(s1_alias).get(username="user")
         fac = Facility.objects.using(s1_alias).get()
         servers[1].create_model(
-            "Role", collection_id=fac.id, user_id=user.id, kind="admin"
+            Role, collection_id=fac.id, user_id=user.id, kind="admin"
         )
-        servers[0].delete_model("FacilityUser", id=user.id)
+        servers[0].delete_model(FacilityUser, id=user.id)
         # role object that is synced will try to do FK lookup on deleted user
         servers[0].manage(
             "sync",
@@ -228,7 +230,7 @@ class EcosystemTestCase(TestCase):
 
         # Add a classroom
         servers[0].create_model(
-            "Classroom",
+            Classroom,
             name="classroom",
             parent_id=Facility.objects.using(s0_alias).first().id,
         )
@@ -247,7 +249,7 @@ class EcosystemTestCase(TestCase):
 
         # Add a learnergroup
         servers[0].create_model(
-            "LearnerGroup",
+            LearnerGroup,
             name="learnergroup",
             parent_id=Classroom.objects.using(s0_alias).first().id,
         )
@@ -268,10 +270,10 @@ class EcosystemTestCase(TestCase):
         fac = Facility.objects.using(s1_alias).get()
         alk_user = FacilityUser.objects.using(s0_alias).get(username="Antemblowind")
         servers[1].create_model(
-            "Role", collection_id=fac.id, user_id=alk_user.id, kind="admin"
+            Role, collection_id=fac.id, user_id=alk_user.id, kind="admin"
         )
         servers[0].create_model(
-            "Role", collection_id=fac.id, user_id=alk_user.id, kind="admin"
+            Role, collection_id=fac.id, user_id=alk_user.id, kind="admin"
         )
         servers[1].manage(
             "sync",
@@ -287,7 +289,7 @@ class EcosystemTestCase(TestCase):
         self.assertTrue(admin_role.conflicting_serialized_data)
 
         # assert deleted object is propagated
-        servers[0].delete_model("FacilityUser", id=alk_user.id)
+        servers[0].delete_model(FacilityUser, id=alk_user.id)
         servers[1].manage(
             "sync",
             "--baseurl",
@@ -308,7 +310,7 @@ class EcosystemTestCase(TestCase):
         # Change roles for users
         alto_user = FacilityUser.objects.using(s1_alias).get(username="Altobjews1977")
         servers[1].create_model(
-            "Role", collection_id=fac.id, user_id=alto_user.id, kind="admin"
+            Role, collection_id=fac.id, user_id=alto_user.id, kind="admin"
         )
         role_id = (
             Role.objects.using(s1_alias)
@@ -334,7 +336,7 @@ class EcosystemTestCase(TestCase):
             "admin",
         )
         # delete admin role and sync
-        servers[2].delete_model("Role", id=role_id)
+        servers[2].delete_model(Role, id=role_id)
         servers[1].manage(
             "sync",
             "--baseurl",
@@ -346,7 +348,7 @@ class EcosystemTestCase(TestCase):
         )
         # create admin role and sync
         servers[1].create_model(
-            "Role", collection_id=fac.id, user_id=alto_user.id, kind="admin"
+            Role, collection_id=fac.id, user_id=alto_user.id, kind="admin"
         )
         role_id = (
             Role.objects.using(s1_alias).get(collection=fac.id, user=alto_user.id).id
@@ -454,3 +456,141 @@ class EcosystemTestCase(TestCase):
                 servers[(i + 1) % servers_len],
                 FacilityDataset.objects.using(servers[0].db_alias).first().id,
             )
+
+    @multiple_kolibri_servers(3)
+    def test_single_user_sync(self, servers):
+        self.maxDiff = None
+        s0_alias = servers[0].db_alias
+        s0_url = servers[0].baseurl
+        s1_alias = servers[1].db_alias
+        s2_alias = servers[2].db_alias
+        servers[0].manage("loaddata", "content_test")
+        servers[0].manage(
+            "generateuserdata", "--no-onboarding", "--num-content-items", "1"
+        )
+
+        facility_id = Facility.objects.using(s0_alias).get().id
+
+        learner1 = FacilityUser.objects.using(s0_alias).filter(roles__isnull=True)[0]
+
+        learner2 = FacilityUser.objects.using(s0_alias).filter(roles__isnull=True)[1]
+
+        learner2.set_password("syncing")
+        learner2.save(using=s0_alias)
+
+        # Test that we can single user sync with admin creds
+        servers[1].manage(
+            "sync",
+            "--baseurl",
+            s0_url,
+            "--username",
+            "superuser",
+            "--password",
+            "password",
+            "--facility",
+            facility_id,
+            "--user-id",
+            learner1.id,
+        )
+        # Test that we can single user sync with learner creds
+        servers[2].manage(
+            "sync",
+            "--baseurl",
+            s0_url,
+            "--username",
+            learner2.username,
+            "--password",
+            "syncing",
+            "--facility",
+            facility_id,
+            "--user-id",
+            learner2.id,
+        )
+
+        # Check that learner 1 is on server 1
+        self.assertTrue(
+            FacilityUser.objects.using(s1_alias).filter(id=learner1.id).exists()
+        )
+        # Check that learner 2 is not on server 1
+        self.assertFalse(
+            FacilityUser.objects.using(s1_alias).filter(id=learner2.id).exists()
+        )
+
+        # Check that learner 2 is on server 2
+        self.assertTrue(
+            FacilityUser.objects.using(s2_alias).filter(id=learner2.id).exists()
+        )
+        # Check that learner 1 is not on server 2
+        self.assertFalse(
+            FacilityUser.objects.using(s2_alias).filter(id=learner1.id).exists()
+        )
+
+        channel_id = "725257a0570044acbd59f8cf6a68b2be"
+        content_id = "9f9438fe6b0d42dd8e913d7d04cfb2b2"
+
+        servers[1].create_model(
+            ContentSessionLog,
+            channel_id=channel_id,
+            content_id=content_id,
+            user_id=learner1.id,
+            start_timestamp=timezone.now(),
+            kind="audio",
+        )
+        servers[1].create_model(
+            ContentSummaryLog,
+            channel_id=channel_id,
+            content_id=content_id,
+            user_id=learner1.id,
+            start_timestamp=timezone.now(),
+            kind="audio",
+        )
+
+        servers[2].create_model(
+            ContentSessionLog,
+            channel_id=channel_id,
+            content_id=content_id,
+            user_id=learner2.id,
+            start_timestamp=timezone.now(),
+            kind="audio",
+        )
+        servers[2].create_model(
+            ContentSummaryLog,
+            channel_id=channel_id,
+            content_id=content_id,
+            user_id=learner2.id,
+            start_timestamp=timezone.now(),
+            kind="audio",
+        )
+
+        servers[1].manage(
+            "sync",
+            "--baseurl",
+            s0_url,
+            "--facility",
+            facility_id,
+            "--user-id",
+            learner1.id,
+        )
+        # Test that we can single user sync with learner creds
+        servers[2].manage(
+            "sync",
+            "--baseurl",
+            s0_url,
+            "--facility",
+            facility_id,
+            "--user-id",
+            learner2.id,
+        )
+
+        self.assertEqual(
+            ContentSessionLog.objects.using(s0_alias)
+            .filter(channel_id=channel_id, content_id=content_id)
+            .count(),
+            2,
+        )
+        self.assertEqual(
+            ContentSummaryLog.objects.using(s0_alias)
+            .filter(channel_id=channel_id, content_id=content_id)
+            .count(),
+            2,
+        )
