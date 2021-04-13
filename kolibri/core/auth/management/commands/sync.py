@@ -23,7 +23,7 @@ from kolibri.core.auth.models import dataset_cache
 from kolibri.core.logger.utils.data import bytes_for_humans
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
-from kolibri.core.tasks.utils import db_task_write_lock
+from kolibri.core.utils.lock import db_lock
 from kolibri.utils import conf
 
 DATA_PORTAL_SYNCING_BASE_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
@@ -214,7 +214,7 @@ class Command(AsyncCommand):
             cancellable = self.job.cancellable
             self.job.save_as_cancellable(cancellable=False)
 
-        with db_task_write_lock:
+        with db_lock():
             yield
 
         if self.job:

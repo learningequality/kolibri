@@ -12,8 +12,8 @@ from kolibri.core.content.utils.import_export_content import get_import_export_d
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.tasks.management.commands.base import AsyncCommand
-from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.core.tasks.utils import get_current_job
+from kolibri.core.utils.lock import db_lock
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
 
     if node_ids or exclude_node_ids:
         # If we have been passed node ids do not do a full deletion pass
-        with db_task_write_lock:
+        with db_lock():
             set_content_invisible(channel.id, node_ids, exclude_node_ids)
         # If everything has been made invisible, delete all the metadata
         delete_all_metadata = not channel.root.available
@@ -45,12 +45,12 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
             topic_thumbnails=False,
         )
 
-        with db_task_write_lock:
+        with db_lock():
             propagate_forced_localfile_removal(unused_files)
 
     if delete_all_metadata:
         logger.info("Deleting all channel metadata")
-        with db_task_write_lock:
+        with db_lock():
             channel.delete_content_tree_and_files()
 
     # Clear any previously set channel availability stats for this channel
@@ -147,7 +147,7 @@ class Command(AsyncCommand):
             for file in LocalFile.objects.delete_unused_files():
                 progress_update(1, progress_extra_data)
 
-            with db_task_write_lock:
+            with db_lock():
                 LocalFile.objects.delete_orphan_file_objects()
 
             progress_update(1, progress_extra_data)

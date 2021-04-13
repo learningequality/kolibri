@@ -17,8 +17,8 @@ from kolibri.core.content.utils.import_export_content import get_import_export_d
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.upgrade import get_import_data_for_update
 from kolibri.core.tasks.management.commands.base import AsyncCommand
-from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.core.tasks.utils import get_current_job
+from kolibri.core.utils.lock import db_lock
 from kolibri.utils import conf
 
 # constants to specify the transfer method to be used
@@ -375,7 +375,7 @@ class Command(AsyncCommand):
                                 self.exception = e
                                 break
 
-            with db_task_write_lock:
+            with db_lock():
                 annotation.set_content_visibility(
                     channel_id,
                     file_checksums_to_annotate,
