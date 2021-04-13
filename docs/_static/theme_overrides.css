@@ -1,35 +1,51 @@
 
- .wy-table-responsive table td {
-    /* !important prevents the common CSS stylesheets from overriding
-       this as on RTD they are loaded after this stylesheet */
-    white-space: normal !important;
-    vertical-align: top !important;
- }
+.wy-table-responsive table td {
+  /* !important prevents the common CSS stylesheets from overriding
+     this as on RTD they are loaded after this stylesheet */
+  white-space: normal !important;
+  vertical-align: top !important;
+}
 
- .rst-content .section ol p, .rst-content .section ul p {
-  margin-bottom: 0px;
- }
+.wy-plain-list-disc li p:last-child,
+.rst-content .section ul li p:last-child,
+.rst-content .toctree-wrapper ul li p:last-child,
+article ul li p:last-child {
+  margin-bottom: 8px;
+}
+.wy-plain-list-disc li ul,
+.rst-content .section ul li ul,
+.rst-content .toctree-wrapper ul li ul,
+article ul li ul {
+  margin-bottom: 8px;
+}
 
- .rst-content #contents.hidden-first-item > ul:nth-of-type(1) {
-   margin-left: 0;
-   padding-left: 0;
- }
- .rst-content #contents.hidden-first-item > ul:nth-of-type(1) > li {
-   list-style: none;
-   margin-left: 0;
-   padding-left: 0;
- }
- .rst-content #contents.hidden-first-item > ul:nth-of-type(1) > li > p {
-   display: none;
- }
- .rst-content #contents.hidden-first-item ul li li {
-   list-style: disc;
- }
- .rst-content #contents.hidden-first-item ul li li li {
-   list-style: circle;
- }
+/*.rst-content .section ul li p:last-child, {
+    margin-bottom: 0;
+}
+
+.rst-content .section ol p, .rst-content .section ul p {
+margin-bottom: 0px;
+}
+.rst-content #contents.hidden-first-item > ul:nth-of-type(1) > li {
+ list-style: none;
+ margin-left: 0;
+ padding-left: 0;
+}
+.rst-content #contents.hidden-first-item > ul:nth-of-type(1) > li > p {
+ display: none;
+}
+.rst-content #contents.hidden-first-item > ul:nth-of-type(1) {
+ margin-left: 0;
+ padding-left: 0;
+}
+.rst-content #contents.hidden-first-item ul li li {
+ list-style: disc;
+}
+.rst-content #contents.hidden-first-item ul li li li {
+ list-style: circle;
+}*/
 
 /* push down the RTD banner so it's not confused with menu */
 .keep-us-sustainable {
   margin-top: 20em !important;
-} 
+}
