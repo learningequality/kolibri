@@ -15,6 +15,8 @@ else
   WHL_DIR="/tmp/whl"
   DOCKER_ID=$(docker create python:3 pip download -d $WHL_DIR kolibri)
   docker start -a $DOCKER_ID
+
+  # Copies entire parent directory. No need for "whl/" creation
   docker cp $DOCKER_ID:$WHL_DIR .
   docker rm $DOCKER_ID
 fi
@@ -31,4 +33,4 @@ mv ./dist/android/*.apk ./dist
 # fi
 
 echo "--- Uploading artifact"
-buildkite-agent artifact upload dist/*.apk
+# buildkite-agent artifact upload dist/*.apk
