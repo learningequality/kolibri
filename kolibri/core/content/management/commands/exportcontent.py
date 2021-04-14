@@ -1,6 +1,8 @@
 import logging
 import os
 
+from django.core.management.base import CommandError
+
 from ...utils import paths
 from ...utils import transfer
 from kolibri.core.content.errors import InvalidStorageFilenameError
@@ -60,6 +62,8 @@ class Command(AsyncCommand):
             job.save_meta()
 
     def handle_async(self, *args, **options):
+        if paths.using_remote_storage():
+            raise CommandError("Cannot export files when using remote file storage")
         channel_id = options["channel_id"]
         data_dir = os.path.realpath(options["destination"])
         node_ids = options["node_ids"]

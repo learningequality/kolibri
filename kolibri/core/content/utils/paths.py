@@ -187,6 +187,10 @@ def get_content_storage_file_path(filename, datafolder=None, contentfolder=None)
     return backup_path or primary_path
 
 
+def using_remote_storage():
+    return conf.OPTIONS["Deployment"]["REMOTE_CONTENT"]
+
+
 # URL PATHS
 
 

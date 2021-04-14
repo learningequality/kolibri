@@ -294,8 +294,10 @@ class Command(AsyncCommand):
                     overall_progress_update(f.file_size)
                     continue
 
-                # if the file already exists, add its size to our overall progress, and skip
-                if os.path.isfile(dest) and os.path.getsize(dest) == f.file_size:
+                # if the file already exists, or we are using remote storage, add its size to our overall progress, and skip
+                if paths.using_remote_storage() or (
+                    os.path.isfile(dest) and os.path.getsize(dest) == f.file_size
+                ):
                     overall_progress_update(f.file_size)
                     file_checksums_to_annotate.append(f.id)
                     transferred_file_size += f.file_size

@@ -133,7 +133,6 @@ class LanguageSerializer(serializers.ModelSerializer):
 class FileSerializer(serializers.ModelSerializer):
     checksum = serializers.CharField(source="local_file_id")
     storage_url = serializers.SerializerMethodField()
-    download_url = serializers.SerializerMethodField()
     extension = serializers.SerializerMethodField()
     file_size = serializers.SerializerMethodField()
     lang = LanguageSerializer()
@@ -141,9 +140,6 @@ class FileSerializer(serializers.ModelSerializer):
 
     def get_storage_url(self, target_node):
         return target_node.get_storage_url()
-
-    def get_download_url(self, target_node):
-        return target_node.get_download_url()
 
     def get_extension(self, target_node):
         return target_node.get_extension()
@@ -165,7 +161,6 @@ class FileSerializer(serializers.ModelSerializer):
             "lang",
             "supplementary",
             "thumbnail",
-            "download_url",
         )
 
 

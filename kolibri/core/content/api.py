@@ -5,7 +5,6 @@ from random import sample
 
 import requests
 from django.core.cache import cache
-from django.core.urlresolvers import reverse
 from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
@@ -52,7 +51,6 @@ from kolibri.core.content.utils.importability_annotation import (
     get_channel_stats_from_studio,
 )
 from kolibri.core.content.utils.paths import get_channel_lookup_url
-from kolibri.core.content.utils.paths import get_content_file_name
 from kolibri.core.content.utils.paths import get_info_url
 from kolibri.core.content.utils.paths import get_local_content_storage_file_url
 from kolibri.core.content.utils.stopwords import stopwords_set
@@ -231,25 +229,18 @@ def map_lang(obj):
     return output
 
 
-def map_file(file, obj):
-    url_lookup = {
-        "available": file["available"],
-        "id": file["checksum"],
-        "extension": file["extension"],
-    }
-    download_filename = models.get_download_filename(
-        obj["title"],
-        models.PRESET_LOOKUP.get(file["preset"], _("Unknown format")),
-        file["extension"],
+def map_file(file):
+    file["checksum"] = file.pop("local_file__id")
+    file["available"] = file.pop("local_file__available")
+    file["file_size"] = file.pop("local_file__file_size")
+    file["extension"] = file.pop("local_file__extension")
+    file["storage_url"] = get_local_content_storage_file_url(
+        {
+            "available": file["available"],
+            "id": file["checksum"],
+            "extension": file["extension"],
+        }
     )
-    file["download_url"] = reverse(
-        "kolibri:core:downloadcontent",
-        kwargs={
-            "filename": get_content_file_name(url_lookup),
-            "new_filename": download_filename,
-        },
-    )
-    file["storage_url"] = get_local_content_storage_file_url(url_lookup)
     file["lang"] = map_lang(file)
     return file
 
@@ -331,11 +322,7 @@ class ContentNodeViewset(ValuesViewset):
             ):
                 if f["contentnode"] not in files:
                     files[f["contentnode"]] = []
-                f["checksum"] = f.pop("local_file__id")
-                f["available"] = f.pop("local_file__available")
-                f["file_size"] = f.pop("local_file__file_size")
-                f["extension"] = f.pop("local_file__extension")
-                files[f["contentnode"]].append(f)
+                files[f["contentnode"]].append(map_file(f))
 
             ancestors = queryset.get_ancestors().values(
                 "id", "title", "lft", "rght", "tree_id"
@@ -356,10 +343,8 @@ class ContentNodeViewset(ValuesViewset):
 
             for item in items:
                 item["assessmentmetadata"] = assessmentmetadata.get(item["id"])
-                item["files"] = list(
-                    map(lambda x: map_file(x, item), files.get(item["id"], []))
-                )
                 item["tags"] = tags.get(item["id"], [])
+                item["files"] = files.get(item["id"], [])
 
                 lft = item.pop("lft")
                 rght = item.pop("rght")

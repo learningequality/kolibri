@@ -18,6 +18,7 @@ from sqlalchemy import select
 
 from .paths import get_content_file_name
 from .paths import get_content_storage_file_path
+from .paths import using_remote_storage
 from .sqlalchemybridge import Bridge
 from .sqlalchemybridge import filter_by_uuids
 from kolibri.core.content.apps import KolibriContentConfig
@@ -434,7 +435,7 @@ def _check_file_availability(files):
     for file in files:
         try:
             # Update if the file exists, *and* the localfile is set as unavailable.
-            if os.path.exists(
+            if using_remote_storage() or os.path.exists(
                 get_content_storage_file_path(
                     get_content_file_name({"id": file[0], "extension": file[2]})
                 )
