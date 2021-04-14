@@ -23,6 +23,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
+from kolibri.core.utils.csv import open_csv_for_reading
 
 try:
     FileNotFoundError
@@ -465,8 +466,8 @@ class Command(AsyncCommand):
         )
 
     def csv_headers_validation(self, filepath):
-        # open using default OS encoding
-        with open(filepath) as f:
+        csv_file = open_csv_for_reading(filepath)
+        with csv_file as f:
             header = next(csv.reader(f, strict=True))
             has_header = False
             self.header_translation = {
@@ -852,7 +853,8 @@ class Command(AsyncCommand):
             self.exit_if_error()
             self.progress_update(1)  # state=csv_headers
             try:
-                with open(filepath) as f:
+                csv_file = open_csv_for_reading(filepath)
+                with csv_file as f:
                     reader = csv.DictReader(f, strict=True)
                     per_line_errors, classes, users, roles = self.csv_values_validation(
                         reader, self.header_translation

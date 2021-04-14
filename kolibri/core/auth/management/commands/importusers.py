@@ -15,6 +15,7 @@ from kolibri.core.auth.csv_utils import transform_inputs
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.utils.csv import open_csv_for_reading
 
 logger = logging.getLogger(__name__)
 
@@ -196,8 +197,8 @@ class Command(BaseCommand):
 
         fieldnames = input_fields + tuple(val for val in labels.values())
 
-        # open using default OS encoding
-        with open(options["filepath"]) as f:
+        csv_file = open_csv_for_reading(options["filepath"])
+        with csv_file as f:
             header = next(csv.reader(f, strict=True))
             has_header = False
             if all(col in fieldnames for col in header):
@@ -212,8 +213,8 @@ class Command(BaseCommand):
                     "Mix of valid and invalid header labels found in first row"
                 )
 
-        # open using default OS encoding
-        with open(options["filepath"]) as f:
+        csv_file = open_csv_for_reading(options["filepath"])
+        with csv_file as f:
             if has_header:
                 reader = csv.DictReader(f, strict=True)
             else:
