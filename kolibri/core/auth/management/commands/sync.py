@@ -108,6 +108,7 @@ class Command(AsyncCommand):
             call_command("loaddata", "scopedefinitions")
 
         dataset_cache.clear()
+        dataset_cache.activate()
 
         # try to connect to server
         controller = MorangoProfileController(PROFILE_FACILITY_DATA)
@@ -204,6 +205,7 @@ class Command(AsyncCommand):
             self.job.extra_metadata.update(sync_state=State.COMPLETED)
             self.job.save_meta()
 
+        dataset_cache.deactivate()
         logger.info("Syncing has been completed.")
 
     @contextmanager
