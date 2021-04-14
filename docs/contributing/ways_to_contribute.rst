@@ -36,7 +36,7 @@ Please make sure to use the template. Replace the HTML comments (the ``<!-- ... 
 Write code
 ----------
 
-Look through the GitHub issues for issues you'd like to address. We have a number of issues tagged as `beginner issues <https://github.com/learningequality/kolibri/issues?q=is%3Aopen+is%3Aissue+label%3A%22TAG%3A+beginner+issue%22>`__, and these are an excellent starting point. You can check our `upcoming milestones <https://github.com/learningequality/kolibri/milestones>`__ to look for high-priority items.
+Look through the GitHub issues for issues you'd like to address. We have a number of issues tagged as `beginner issues <https://github.com/learningequality/kolibri/labels/TAG%3A%20beginner%20friendly>`__, and these are an excellent starting point. You can check our `upcoming milestones <https://github.com/learningequality/kolibri/milestones>`__ to look for high-priority items.
 
 Then, visit :ref:`getting_started` to begin contributing.
 
