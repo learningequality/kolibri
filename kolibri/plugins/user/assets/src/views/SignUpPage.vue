@@ -120,10 +120,8 @@
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import urls from 'kolibri.urls';
-  import client from 'kolibri.client';
   import { ComponentMap } from '../constants';
-  import { SignUpResource } from '../apiResource';
+  import { SignUpResource, getUsernameExists } from '../apiResource';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import getUrlParameter from './getUrlParameter';
   import commonUserStrings from './commonUserStrings';
@@ -196,16 +194,11 @@
         if (!username) {
           return Promise.resolve();
         }
-        return client({
-          url: urls['kolibri:core:usernameexists'](),
-          method: 'GET',
-          params: {
-            facility: this.selectedFacility.id,
-            username: username,
-          },
-        }).then(response => {
-          if (response.data.username_exists)
-            this.caughtErrors.push(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
+        return getUsernameExists({
+          facilityId: this.selectedFacility.id,
+          username,
+        }).then(usernameExists => {
+          if (usernameExists) this.caughtErrors.push(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
         });
       },
       handleSubmit() {

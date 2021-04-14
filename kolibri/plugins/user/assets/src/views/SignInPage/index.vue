@@ -66,7 +66,7 @@
               :invalidText="usernameIsInvalidText"
               @blur="handleUsernameBlur"
               @input="handleUsernameInput"
-              @keydown="handleKeyboardNav"
+              @keydown="handleUsernameKeydown"
             />
           </transition>
           <transition name="list">
@@ -103,7 +103,7 @@
             type="error"
             :dismissible="false"
           >
-            {{ $tr('signInError') }}
+            {{ $tr('incorrectPasswordError') }}
           </UiAlert>
           <transition name="textbox">
             <KTextbox
@@ -169,6 +169,7 @@
   import AuthBase from '../AuthBase';
   import UsersList from '../UsersList';
   import commonUserStrings from '../commonUserStrings';
+  import { getUsernameExists } from '../../apiResource';
   import SignInHeading from './SignInHeading';
 
   const MAX_USERS_FOR_LISTING_VIEW = 16;
@@ -235,6 +236,9 @@
       needsToCreatePassword() {
         return this.loginError === LoginErrors.PASSWORD_NOT_SPECIFIED;
       },
+      userDoesNotExist() {
+        return this.loginError === LoginErrors.USER_NOT_FOUND;
+      },
       simpleSignIn() {
         return this.selectedFacility.dataset.learner_can_login_with_no_password;
       },
@@ -253,6 +257,8 @@
             return this.coreString('requiredFieldError');
           } else if (!validateUsername(this.username)) {
             return this.coreString('usernameNotAlphaNumError');
+          } else if (this.userDoesNotExist) {
+            return this.$tr('incorrectUsernameError');
           }
         }
         return '';
@@ -380,7 +386,7 @@
             this.usernameSuggestions = [];
           });
       },
-      handleKeyboardNav(e) {
+      handleUsernameKeydown(e) {
         switch (e.code) {
           case 'ArrowDown':
             if (this.showDropdown && this.suggestions.length) {
@@ -400,12 +406,13 @@
             break;
           case 'NumpadEnter':
           case 'Enter':
+            // Prevent form from emitting submit event
+            e.preventDefault();
             if (this.highlightedIndex < 0) {
               this.showDropdown = false;
               this.signIn();
             } else {
               this.fillUsername(this.suggestions[this.highlightedIndex]);
-              e.preventDefault();
             }
             break;
           default:
@@ -423,6 +430,9 @@
         }
       },
       handleUsernameInput() {
+        if (this.loginError) {
+          this.loginError = '';
+        }
         this.showDropdown = true;
         this.usernameBlurred = true;
       },
@@ -441,8 +451,22 @@
           return;
         }
 
+        // Check if user is in the facility
+        return getUsernameExists({
+          username: this.username,
+          facilityId: this.selectedFacility.id,
+        }).then(usernameExists => {
+          if (usernameExists) {
+            this.createSession();
+          } else {
+            // If username is not found, focus and select the field so user can try again
+            this.loginError = LoginErrors.USER_NOT_FOUND;
+            this.$refs.username.$refs.textbox.$refs.input.select();
+          }
+        });
+      },
+      createSession() {
         this.busy = true;
-
         const sessionPayload = {
           username: this.username,
           password: this.password,
@@ -470,6 +494,10 @@
                 this.loginError = this.usernameSubmittedWithoutPassword ? null : err;
               }
             }
+
+            if (this.invalidCredentials || this.usernameSubmittedWithoutPassword) {
+              this.$refs.password.$refs.textbox.$refs.input.select();
+            }
             this.busy = false;
           })
           .catch(() => {
@@ -483,7 +511,14 @@
       },
     },
     $trs: {
-      signInError: 'Incorrect username or password',
+      incorrectPasswordError: {
+        message: 'Incorrect password',
+        context: 'Error that is shown if the user provides the wrong password',
+      },
+      incorrectUsernameError: {
+        message: 'Incorrect username',
+        context: 'Error that is shown when a user provides a username that is not in the facility',
+      },
       requiredForCoachesAdmins: 'Password is required for coaches and admins',
       documentTitle: 'User Sign In',
       nextLabel: 'Next',
