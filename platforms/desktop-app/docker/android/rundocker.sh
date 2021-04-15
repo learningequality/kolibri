@@ -12,6 +12,7 @@ CID_FILE=kolibri-android-app-container-id.cid.txt
 
 # create the container to be used throughout the script
 # creates a volume for reuse between builds, holding p4a's android distro
+echo "--- Creating Image"
 docker create -it \
   --mount type=volume,src=${P4A_CACHE},dst=${CONTAINER_HOME}/.local \
   --mount type=volume,src=${PEW_CACHE},dst=${CONTAINER_HOME}/.pyeverywhere \

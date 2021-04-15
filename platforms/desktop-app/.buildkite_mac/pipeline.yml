@@ -2,6 +2,6 @@ steps:
   - block: "Build Mac App?"
     if: build.env("LE_KOLIBRI_RELEASE") == "false"
   - label: "Build Dev Package"
-    command: ".buildkite/build.sh"
+    command: ".buildkite_mac/build.sh"
     agents:
       queue: "macos"
