@@ -664,6 +664,9 @@ def calculate_dummy_progress_for_annotation(node_ids, exclude_node_ids, total_pr
 def propagate_forced_localfile_removal(localfiles_list):
     files = File.objects.filter(supplementary=False, local_file__in=localfiles_list)
     ContentNode.objects.filter(files__in=files).update(available=False)
+
+
+def reannotate_all_channels():
     for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
         recurse_annotation_up_tree(channel_id)
 

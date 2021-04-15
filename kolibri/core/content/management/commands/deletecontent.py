@@ -7,6 +7,7 @@ from django.db.models import Sum
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import propagate_forced_localfile_removal
+from kolibri.core.content.utils.annotation import reannotate_all_channels
 from kolibri.core.content.utils.annotation import set_content_invisible
 from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
@@ -47,6 +48,12 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
 
         with db_lock():
             propagate_forced_localfile_removal(unused_files)
+        # Separate these operations as running the SQLAlchemy code in the latter
+        # seems to cause the Django ORM interactions in the former to roll back
+        # Not quite sure what is causing it, but presumably due to transaction
+        # scopes.
+        with db_lock():
+            reannotate_all_channels()
 
     if delete_all_metadata:
         logger.info("Deleting all channel metadata")
