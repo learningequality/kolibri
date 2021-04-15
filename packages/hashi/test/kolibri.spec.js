@@ -3,9 +3,7 @@ import Mediator from '../src/mediator';
 import Kolibri from '../src/kolibri';
 
 describe('the kolibri hashi shim', () => {
-  let kolibri;
-  let mediator;
-  let response;
+  let kolibri, mediator;
   beforeEach(() => {
     mediator = new Mediator(window);
     kolibri = new Kolibri(mediator);
@@ -24,35 +22,80 @@ describe('the kolibri hashi shim', () => {
     });
   });
 
+  // methods
+  let response, id, mockMessage, mockMediatorPromise;
+
   describe('getContentById method', () => {
+    id = 'abc123';
+    mockMessage = {
+      data: { dataType: 'Model', id: 'abc123' },
+      event: 'datarequested',
+      nameSpace: 'hashi',
+    };
+    response = { node: { id: 'abc123' } };
     beforeEach(function() {
-      response = { node: { id: 'abc123' } };
-      kolibri.shim.getContentById = jest.fn().mockResolvedValue(response);
+      mockMediatorPromise = jest
+        .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
+        .mockResolvedValue(response);
     });
     it('should be called once', () => {
-      kolibri.shim.getContentById().then(() => {
-        expect(kolibri.shim.getContentById).toHaveBeenCalledTimes(1);
-      });
+      kolibri.shim.getContentById(id);
+      expect(mockMediatorPromise).toHaveBeenCalled();
+    });
+    it('should be called with the correct event, data, and namespace', () => {
+      kolibri.shim.getContentById(id);
+      expect(mockMediatorPromise).toHaveBeenCalledWith(mockMessage);
     });
     it('should return a promise that resolves to a ContentNode object', () => {
-      return kolibri.shim.getContentById().then(data => {
+      return kolibri.shim.getContentById(id).then(data => {
         expect(data).toEqual(response);
       });
     });
   });
 
   describe('getContentByFilter method', () => {
+    let options = { page: 1, pageSize: 50, parent: 'self' };
+    response = { page: 1, pageSize: 50, results: [{ id: 'abc123' }, { id: 'def456' }] };
     beforeEach(function() {
-      response = [{ 1: [{ node: 'abc' }] }, { 2: [{ node: '123' }] }];
-      kolibri.shim.getContentByFilter = jest.fn().mockResolvedValue(response);
+      mockMessage = {
+        data: { dataType: 'Collection', options: options },
+        event: 'datarequested',
+        nameSpace: 'hashi',
+      };
+      mockMediatorPromise = jest
+        .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
+        .mockResolvedValue(response);
     });
     it('should be called once', () => {
-      kolibri.shim.getContentByFilter().then(() => {
-        expect(kolibri.shim.getContentByFilter).toHaveBeenCalledTimes(1);
+      kolibri.shim.getContentByFilter(options);
+      expect(mockMediatorPromise).toHaveBeenCalled();
+    });
+    it('should be called with the correct event, data, and namespace', () => {
+      kolibri.shim.getContentByFilter(options);
+      expect(mockMediatorPromise).toHaveBeenCalledWith(mockMessage);
+    });
+    it('should return a promise that resolves to pagination object that contains an array of metadata objects', () => {
+      return kolibri.shim.getContentByFilter().then(data => {
+        expect(data).toEqual(response);
       });
     });
-    it('should return a promise that resolves to an array of metadata objects', () => {
-      return kolibri.shim.getContentByFilter().then(data => {
+  });
+
+  describe('getContentById method', () => {
+    response = { node: { id: 'abc123' } };
+    id = 'abc123';
+    beforeEach(function() {
+      mockMessage = {
+        data: { dataType: 'Model', id: 'abc123' },
+        event: 'datarequested',
+        nameSpace: 'hashi',
+      };
+      mockMediatorPromise = jest
+        .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
+        .mockResolvedValue(response);
+    });
+    it('should return a promise that resolves to a ContentNode object', () => {
+      return kolibri.shim.getContentById(id).then(data => {
         expect(data).toEqual(response);
       });
     });
@@ -71,17 +114,27 @@ describe('the kolibri hashi shim', () => {
   });
 
   describe('getContext method', () => {
+    response = { node_id: 'abc', context: { test: 'test' } };
     beforeEach(function() {
-      response = { node_id: 'abc', context: { test: 'test' } };
-      kolibri.shim.getContext = jest.fn().mockResolvedValue(response);
+      mockMessage = {
+        data: {},
+        event: 'context',
+        nameSpace: 'hashi',
+      };
+      mockMediatorPromise = jest
+        .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
+        .mockResolvedValue(response);
     });
     it('should be called once', () => {
-      kolibri.shim.getContext().then(() => {
-        expect(kolibri.shim.getContext).toHaveBeenCalledTimes(1);
-      });
+      kolibri.shim.getContext();
+      expect(mockMediatorPromise).toHaveBeenCalled();
     });
-    it('should return a promise that resolves to a context Object', () => {
-      kolibri.shim.getContext().then(data => {
+    it('should be called with the correct event, data, and namespace', () => {
+      kolibri.shim.getContext();
+      expect(mockMediatorPromise).toHaveBeenCalledWith(mockMessage);
+    });
+    it('should return a promise that resolves to pagination object that contains an array of metadata objects', () => {
+      return kolibri.shim.getContext().then(data => {
         expect(data).toEqual(response);
       });
     });
