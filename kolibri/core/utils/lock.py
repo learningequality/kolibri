@@ -24,12 +24,7 @@ class PostgresLock(object):
         self.key = key
 
     def execute(self):
-        query = "SELECT pg_advisory_lock({key}) AS lock;".format(key=self.key)
-        with connection.cursor() as c:
-            c.execute(query)
-
-    def revert(self):
-        query = "SELECT pg_advisory_unlock({key}) AS lock;".format(key=self.key)
+        query = "SELECT pg_advisory_xact_lock({key}) AS lock;".format(key=self.key)
         with connection.cursor() as c:
             c.execute(query)
 
