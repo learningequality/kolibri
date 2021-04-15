@@ -28,9 +28,9 @@ List of the most important changes for each release.
 
 ### Fixed
 
-* #7725 On Firefox, text in Khmer, Hindi, Marathi, and other languages did not render properly.
-* #7722, #7488 After viewing a restricted page, then signing in, users were not redirected back to the restricted page.
-* #7597, #7612 Quiz creation workflow did not properly validate the number of questions
+- #7725 On Firefox, text in Khmer, Hindi, Marathi, and other languages did not render properly.
+- #7722, #7488 After viewing a restricted page, then signing in, users were not redirected back to the restricted page.
+- #7597, #7612 Quiz creation workflow did not properly validate the number of questions
 
 ([0.14.6 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.14.6))
 
@@ -40,21 +40,21 @@ List of the most important changes for each release.
 
 ### Changed
 
-* File downloads now run concurrently, taking better advantage of a device's bandwidth and reducing the time needed to import resources from Kolibri Studio or other content sources
-* When setting up a new device using the [Setup Wizard's "Quick Start" option](https://kolibri.readthedocs.io/en/latest/install/initial_setup.html#quick-start), the ["Allow learners to create accounts" setting](https://kolibri.readthedocs.io/en/latest/install/initial_setup.html#quick-start) is enabled by default.
-* The `provisiondevice` management command no longer converts the user-provided facility name to all lower-case
-* Markdown descriptions for resources now preserve line breaks from the original source
+- File downloads now run concurrently, taking better advantage of a device's bandwidth and reducing the time needed to import resources from Kolibri Studio or other content sources
+- When setting up a new device using the [Setup Wizard's "Quick Start" option](https://kolibri.readthedocs.io/en/latest/install/initial_setup.html#quick-start), the ["Allow learners to create accounts" setting](https://kolibri.readthedocs.io/en/latest/install/initial_setup.html#quick-start) is enabled by default.
+- The `provisiondevice` management command no longer converts the user-provided facility name to all lower-case
+- Markdown descriptions for resources now preserve line breaks from the original source
 
 ### Fixed
 
-* Multiple bugs when creating, editing, and copying quizzes/lessons
-* Multiple bugs when navigating throughout the Coach page
-* Multiple bugs specific to Kolibri servers using PostgreSQL
-* On Safari, sections of the Facility > Data page would disappear unexpectedly after syncing a facility
-* On IE11, it was not possible to setup a new device by importing a facility
-* Missing thumbnails on resource cards when searching/browsing in channels
-* Numerous visual and accessibility issues
-* Facilities could not be renamed if the only changes were to the casing of the name (e.g. changing "Facility" to "FACILITY")
+- Multiple bugs when creating, editing, and copying quizzes/lessons
+- Multiple bugs when navigating throughout the Coach page
+- Multiple bugs specific to Kolibri servers using PostgreSQL
+- On Safari, sections of the Facility > Data page would disappear unexpectedly after syncing a facility
+- On IE11, it was not possible to setup a new device by importing a facility
+- Missing thumbnails on resource cards when searching/browsing in channels
+- Numerous visual and accessibility issues
+- Facilities could not be renamed if the only changes were to the casing of the name (e.g. changing "Facility" to "FACILITY")
 
 ([0.14.5 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.14.5))
 
