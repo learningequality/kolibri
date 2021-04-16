@@ -99,7 +99,7 @@ def get_engine(connection_string):
     if connection_string.startswith("sqlite"):
         # Set timeout to 60s, as with most of our content import write operations
         # it is more important to complete, than to do so quickly.
-        engine_kwargs["connect_args"] = {"check_same_thread": False, "timeout": 60}
+        engine_kwargs["connect_args"] = {"check_same_thread": False, "timeout": 5 * 60}
         engine_kwargs["poolclass"] = NullPool
     else:
         engine_kwargs["pool_pre_ping"] = True
