@@ -52,8 +52,7 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
         # seems to cause the Django ORM interactions in the former to roll back
         # Not quite sure what is causing it, but presumably due to transaction
         # scopes.
-        with db_lock():
-            reannotate_all_channels()
+        reannotate_all_channels()
 
     if delete_all_metadata:
         logger.info("Deleting all channel metadata")

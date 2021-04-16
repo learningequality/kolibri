@@ -12,7 +12,6 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
-from kolibri.core.utils.lock import db_lock
 from kolibri.utils import conf
 
 logger = logging.getLogger(__name__)
@@ -169,12 +168,10 @@ class Command(AsyncCommand):
                         .exclude(kind=content_kinds.TOPIC)
                         .values_list("id", flat=True)
                     )
-                    with db_lock():
-                        import_ran = import_channel_by_id(channel_id, self.is_cancelled)
+                    import_ran = import_channel_by_id(channel_id, self.is_cancelled)
                     if node_ids and import_ran:
                         # annotate default channel db based on previously annotated leaf nodes
-                        with db_lock():
-                            update_content_metadata(channel_id, node_ids=node_ids)
+                        update_content_metadata(channel_id, node_ids=node_ids)
                     if import_ran:
                         # Clear any previously set channel availability stats for this channel
                         clear_channel_stats(channel_id)
