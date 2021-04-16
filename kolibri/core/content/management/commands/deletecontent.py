@@ -25,8 +25,7 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
 
     if node_ids or exclude_node_ids:
         # If we have been passed node ids do not do a full deletion pass
-        with db_lock():
-            set_content_invisible(channel.id, node_ids, exclude_node_ids)
+        set_content_invisible(channel.id, node_ids, exclude_node_ids)
         # If everything has been made invisible, delete all the metadata
         delete_all_metadata = not channel.root.available
 
