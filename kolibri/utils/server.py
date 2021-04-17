@@ -90,13 +90,13 @@ class ServicesPlugin(SimplePlugin):
 
     def start(self):
         # schedule the pingback job if not already scheduled
-        if not SCH_PING_JOB_ID in scheduler:
+        if SCH_PING_JOB_ID not in scheduler:
             from kolibri.core.analytics.utils import schedule_ping
 
             schedule_ping(job_id=SCH_PING_JOB_ID)
 
         # schedule the vacuum job if not already scheduled
-        if not SCH_VACUUM_JOB_ID in scheduler:
+        if SCH_VACUUM_JOB_ID not in scheduler:
             from kolibri.core.deviceadmin.utils import schedule_vacuum
 
             schedule_vacuum(job_id=SCH_VACUUM_JOB_ID)
