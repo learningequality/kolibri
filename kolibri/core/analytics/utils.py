@@ -503,7 +503,7 @@ def schedule_ping(
     server=DEFAULT_SERVER_URL,
     checkrate=DEFAULT_PING_CHECKRATE,
     interval=DEFAULT_PING_INTERVAL,
-    job_id=None
+    job_id=None,
 ):
     # If pinging is not disabled by the environment
     if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
@@ -516,5 +516,5 @@ def schedule_ping(
             started=started,
             server=server,
             checkrate=checkrate,
-            job_id=job_id
+            job_id=job_id,
         )
