@@ -662,8 +662,23 @@ def calculate_dummy_progress_for_annotation(node_ids, exclude_node_ids, total_pr
 
 
 def propagate_forced_localfile_removal(localfiles_list):
-    files = File.objects.filter(supplementary=False, local_file__in=localfiles_list)
-    ContentNode.objects.filter(files__in=files).update(available=False)
+    total = len(localfiles_list)
+    i = 0
+    # Even thought we are using the filter_by_uuids method below
+    # which prevents too many SQL parameters from being passed in to the query
+    # if we have too many UUIDs it is possible we might still generate too much SQL
+    # and cause issues - so we batch the ids here.
+    batch_size = 10000
+    while i < total:
+        file_slice = localfiles_list[i : i + batch_size]
+        files = File.objects.filter(
+            supplementary=False,
+            local_file__in=LocalFile.objects.filter_by_uuids(
+                [f.id for f in file_slice]
+            ),
+        )
+        ContentNode.objects.filter(files__in=files).update(available=False)
+        i += batch_size
     for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
         recurse_annotation_up_tree(channel_id)
 
