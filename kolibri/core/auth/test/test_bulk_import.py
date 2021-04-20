@@ -1,5 +1,4 @@
 import csv
-import io
 import sys
 import tempfile
 from uuid import uuid4
@@ -15,6 +14,7 @@ from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.utils.csv import open_csv_for_writing
 
 if sys.version_info[0] < 3:
     from cStringIO import StringIO
@@ -118,10 +118,7 @@ class ImportTestCase(TestCase):
     def create_csv(self, filepath, rows, remove_uuid=False):
         header_labels = list(labels.values())
 
-        if sys.version_info[0] < 3:
-            csv_file = io.open(filepath, "wb")
-        else:
-            csv_file = io.open(filepath, "w", newline="")
+        csv_file = open_csv_for_writing(filepath)
 
         with csv_file as f:
             writer = csv.writer(f)

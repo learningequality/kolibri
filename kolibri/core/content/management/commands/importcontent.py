@@ -17,7 +17,6 @@ from kolibri.core.content.utils.import_export_content import get_import_export_d
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.upgrade import get_import_data_for_update
 from kolibri.core.tasks.management.commands.base import AsyncCommand
-from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
 
@@ -375,14 +374,13 @@ class Command(AsyncCommand):
                                 self.exception = e
                                 break
 
-            with db_task_write_lock:
-                annotation.set_content_visibility(
-                    channel_id,
-                    file_checksums_to_annotate,
-                    node_ids=node_ids,
-                    exclude_node_ids=exclude_node_ids,
-                    public=public,
-                )
+            annotation.set_content_visibility(
+                channel_id,
+                file_checksums_to_annotate,
+                node_ids=node_ids,
+                exclude_node_ids=exclude_node_ids,
+                public=public,
+            )
 
             resources_after_transfer = (
                 ContentNode.objects.filter(channel_id=channel_id, available=True)
