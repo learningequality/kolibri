@@ -267,7 +267,6 @@ def configure_http_server(port):
     from kolibri.deployment.default.wsgi import application
 
     whitenoise_settings = {
-        "static_root": settings.STATIC_ROOT,
         # Use 1 day as the default cache time for static assets
         "max_age": 24 * 60 * 60,
         # Add a test for any file name that contains a semantic version number
