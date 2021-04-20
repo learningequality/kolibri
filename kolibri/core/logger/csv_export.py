@@ -6,7 +6,6 @@ import json
 import logging
 import math
 import os
-import sys
 from collections import OrderedDict
 
 from django.core.cache import cache
@@ -23,6 +22,7 @@ from .models import ContentSummaryLog
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.utils.csv import open_csv_for_writing
 from kolibri.utils import conf
 
 
@@ -151,10 +151,7 @@ def csv_file_generator(facility, log_type, filepath, overwrite=False):
         if log_type == "summary" or label != "completion_timestamp"
     )
 
-    if sys.version_info[0] < 3:
-        csv_file = io.open(filepath, "wb")
-    else:
-        csv_file = io.open(filepath, "w", newline="", encoding="utf-8")
+    csv_file = open_csv_for_writing(filepath)
 
     with csv_file as f:
         writer = csv.DictWriter(f, header_labels)

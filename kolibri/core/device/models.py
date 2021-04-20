@@ -165,3 +165,11 @@ class DeviceAppKey(models.Model):
             key = app_key.key
             cache.set(APP_KEY_CACHE_KEY, key, 5000)
         return key
+
+
+class SQLiteLock(models.Model):
+    id = models.AutoField(primary_key=True)
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super(SQLiteLock, self).save(*args, **kwargs)

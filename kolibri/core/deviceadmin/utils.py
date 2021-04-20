@@ -11,7 +11,7 @@ from django.conf import settings
 
 import kolibri
 from kolibri.core.tasks.main import scheduler
-from kolibri.core.tasks.utils import db_task_write_lock
+from kolibri.core.utils.lock import db_lock
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.time_utils import local_now
 
@@ -189,7 +189,7 @@ def perform_vacuum(database=db.DEFAULT_DB_ALIAS):
     connection = db.connections[database]
     if connection.vendor == "sqlite":
         try:
-            with db_task_write_lock:
+            with db_lock():
                 db.close_old_connections()
                 db.connections.close_all()
                 cursor = connection.cursor()

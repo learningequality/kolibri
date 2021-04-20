@@ -1,10 +1,8 @@
 from __future__ import unicode_literals
 
 import csv
-import io
 import logging
 import os
-import sys
 from collections import OrderedDict
 from functools import partial
 
@@ -18,6 +16,7 @@ from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.query import SQCount
+from kolibri.core.utils.csv import open_csv_for_writing
 
 
 logger = logging.getLogger(__name__)
@@ -186,10 +185,7 @@ def csv_file_generator(facility, filepath, overwrite=True, demographic=False):
         column for column in db_columns if demographic or column not in DEMO_FIELDS
     )
 
-    if sys.version_info[0] < 3:
-        csv_file = io.open(filepath, "wb")
-    else:
-        csv_file = io.open(filepath, "w", newline="")
+    csv_file = open_csv_for_writing(filepath)
 
     with csv_file as f:
         writer = csv.DictWriter(f, header_labels)

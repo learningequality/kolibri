@@ -23,13 +23,13 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
+from threading import local
 
 import six
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import UserManager
 from django.core import validators
-from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -76,11 +76,37 @@ from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import set_device_settings
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
-from kolibri.core.utils.cache import NamespacedCacheProxy
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
-dataset_cache = NamespacedCacheProxy(cache, "dataset")
+
+
+class DatasetCache(local):
+    def __init__(self):
+        self.deactivate()
+
+    def activate(self):
+        self._active = True
+
+    def deactivate(self):
+        self._active = False
+        self.clear()
+
+    def clear(self):
+        self._cache = {}
+
+    def get(self, key):
+        if self._active:
+            return self._cache.get(key)
+        return None
+
+    def set(self, key, dataset_id):
+        if self._active:
+            self._cache[key] = dataset_id
+        return None
+
+
+dataset_cache = DatasetCache()
 
 
 def _has_permissions_class(obj):
@@ -218,7 +244,7 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
                 dataset_id = getattr(self, related_obj_name).dataset_id
             except ObjectDoesNotExist as e:
                 raise ValidationError(e)
-            dataset_cache.set(key, dataset_id, 60 * 10)
+            dataset_cache.set(key, dataset_id)
         return dataset_id
 
     def calculate_source_id(self):

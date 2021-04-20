@@ -22,6 +22,8 @@ from kolibri.core.auth.constants.demographics import FEMALE
 from kolibri.core.auth.constants.demographics import MALE
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.csv_utils import labels
+from kolibri.core.utils.csv import open_csv_for_reading
+from kolibri.core.utils.csv import open_csv_for_writing
 
 
 class UserImportTestCase(TestCase):
@@ -165,7 +167,8 @@ class UserImportCommandTestCase(TestCase):
         os.remove(self.csvpath)
 
     def importFromRows(self, *args):
-        with open(self.csvpath, "w") as f:
+        csv_file = open_csv_for_writing(self.csvpath)
+        with csv_file as f:
             writer = csv.writer(f)
             writer.writerows([a for a in args])
 
@@ -287,10 +290,12 @@ class UserImportCommandTestCase(TestCase):
             "exportusers", output_file=self.csvpath, overwrite=True, demographic=True
         )
         cols_to_remove = ["Facility id", "Gender"]
-        with open(self.csvpath, "r") as source:
+        csv_file = open_csv_for_reading(self.csvpath)
+        with csv_file as source:
             reader = csv.DictReader(source)
             rows = list(row for row in reader)
-        with open(self.csvpath, "w") as result:
+        csv_file = open_csv_for_writing(self.csvpath)
+        with csv_file as result:
             writer = csv.DictWriter(
                 result,
                 tuple(
@@ -316,10 +321,12 @@ class UserImportCommandTestCase(TestCase):
             "exportusers", output_file=self.csvpath, overwrite=True, demographic=True
         )
         cols_to_replace = {"Facility id": "facility", "Gender": "gender"}
-        with open(self.csvpath, "r") as source:
+        csv_file = open_csv_for_reading(self.csvpath)
+        with csv_file as source:
             reader = csv.DictReader(source)
             rows = list(row for row in reader)
-        with open(self.csvpath, "w") as result:
+        csv_file = open_csv_for_writing(self.csvpath)
+        with csv_file as result:
             writer = csv.DictWriter(
                 result,
                 tuple(
