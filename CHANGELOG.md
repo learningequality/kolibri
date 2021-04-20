@@ -2,6 +2,28 @@
 
 List of the most important changes for each release.
 
+## 0.14.7
+
+### Internationalization and localization
+
+- Updated localizations
+
+### Fixed
+- #7766 Content imported by administrators was not immediately available for learners to use
+- #7869 Unlisted channels would not appear in list in channel import-workflow after providing token
+- #7810 Learners' new passwords were not being validated on the Sign-In page
+- #7764 Users' progress on resources was not being properly logged, making it difficult to complete them
+- #8003, #8004, #8010 Sign-ins could cause the server to crash if database was locked
+- #8003, #7947 Issues downloading CSV files on Windows
+
+### Changed
+
+- #7735 Filtering on lists of users returns ranked and approximate matches
+- #7733 Resetting a facility's settings respects the preset (e.g. formal, informal, nonformal) chosen for it during setup
+- #7823 Improved performance on coach pages for facilities with large numbers of classrooms and groups
+
+([0.14.7 Github milestone](https://github.com/learningequality/kolibri/issues?q=label%3Achangelog+milestone%3A0.14.7))
+
 ## 0.14.6
 
 ### Fixed
