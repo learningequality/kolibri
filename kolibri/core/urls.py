@@ -34,19 +34,15 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from django.conf import settings
 from django.conf.urls import include
 from django.conf.urls import url
-from django.conf.urls.static import static
 
 from .views import GuestRedirectView
 from .views import logout_view
 from .views import RootURLRedirectView
 from .views import set_language
-from .views import static_serve_with_fallbacks
 from .views import StatusCheckView
 from .views import UnsupportedBrowserView
-from kolibri.core.content.utils import paths
 from kolibri.core.device.translation import i18n_patterns
 from kolibri.plugins.utils.urls import get_urls as plugin_urls
 
@@ -73,10 +69,3 @@ core_urlpatterns = [
 urlpatterns = [url(r"", include(core_urlpatterns, namespace="core"))]
 
 urlpatterns += plugin_urls()
-
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-content_dirs = [paths.get_content_dir_path()] + paths.get_content_fallback_paths()
-urlpatterns += static(
-    paths.get_content_url("/"), view=static_serve_with_fallbacks(content_dirs)
-)
