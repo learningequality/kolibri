@@ -1,7 +1,7 @@
 Source: kolibri-source
 Priority: optional
 Section: education
-Maintainer: Benjamin Bach <benjamin@learningequality.org>
+Maintainer: José L. Redrejo Rodríguez <jredrejo@debian.org>
 Build-Depends: debhelper (>=9),
                dh-python,
                python3-all,
