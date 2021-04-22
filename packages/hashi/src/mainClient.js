@@ -67,8 +67,11 @@ export default class MainClient {
     // the iframe
     this.on(this.events.DATAREQUESTED, message => {
       if (message.dataType === 'Collection') {
-        this.__fetchContentCollection = this.kolibri.__fetchContentCollection;
-        this.__fetchContentCollection(message);
+        this.mediator.sendLocalMessage({
+          nameSpace,
+          event: events.KOLIBRIDATAREQUESTED,
+          data: message,
+        });
       } else if (message.dataType === 'Model') {
         this.__fetchContentModel = this.kolibri.__fetchContentModel;
         this.kolibri.__fetchContentModel(message);

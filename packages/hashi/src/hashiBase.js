@@ -5,6 +5,7 @@ export const events = {
   STATEUPDATE: 'stateupdate',
   USERDATAUPDATE: 'userdataupdate',
   DATAREQUESTED: 'datarequested',
+  KOLIBRIDATAREQUESTED: 'kolibridatarequested',
   DATARETURNED: 'datareturned',
   NAVIGATETO: 'navigateto',
   CONTEXT: 'context',

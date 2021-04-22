@@ -1,6 +1,17 @@
 <template>
 
-  <div>
+  <div v-if="customChannel">
+    <CustomContentRenderPage
+      :content="topic"
+      :files="topic.files"
+      :options="topic.options"
+      :kind="topic.kind"
+      :node="topic.id"
+    />
+  </div>
+
+
+  <div v-else>
 
     <div class="header">
 
@@ -86,6 +97,7 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
+  import CustomContentRenderPage from './CustomContentRenderPage';
   import CardThumbnail from './ContentCard/CardThumbnail';
 
   export default {
@@ -107,6 +119,7 @@
     components: {
       CardThumbnail,
       ContentCardGroupGrid,
+      CustomContentRenderPage,
       ProgressIcon,
     },
     mixins: [responsiveWindowMixin],
@@ -118,6 +131,13 @@
       topicOrChannel() {
         // Get the channel if we're root, topic if not
         return this.isRoot ? this.channel : this.topic;
+      },
+      customChannel() {
+        if (this.topic) {
+          console.log(this.topic);
+          return this.topic.options.modality == 'CUSTOM_NAVIGATION';
+        }
+        return false;
       },
       getTagline() {
         return this.topicOrChannel['tagline'] || this.topicOrChannel['description'] || null;
