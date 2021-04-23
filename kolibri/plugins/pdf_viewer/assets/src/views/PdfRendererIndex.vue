@@ -21,25 +21,42 @@
           class="fullscreen-header"
           :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
         >
-          <KIconButton
+          <UiIconButton
             class="button-zoom-in controls"
             aria-controls="pdf-container"
-            icon="add"
             @click="zoomIn"
-          />
-          <KIconButton
+          >
+            <mat-svg
+              name="add"
+              category="content"
+            />
+          </UiIconButton>
+          <UiIconButton
             class="button-zoom-out controls"
             aria-controls="pdf-container"
-            icon="remove"
             @click="zoomOut"
-          />
+          >
+            <mat-svg
+              name="remove"
+              category="content"
+            />
+          </UiIconButton>
           <KButton
             class="fullscreen-button"
             :primary="false"
             appearance="flat-button"
-            :icon="isInFullscreen ? 'fullscreen_exit' : 'fullscreen'"
             @click="$refs.pdfRenderer.toggleFullscreen()"
           >
+            <mat-svg
+              v-if="isInFullscreen"
+              name="fullscreen_exit"
+              category="navigation"
+            />
+            <mat-svg
+              v-else
+              name="fullscreen"
+              category="navigation"
+            />
             {{ fullscreenText }}
           </KButton>
         </div>
@@ -74,7 +91,6 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import PDFJSLib from 'pdfjs-dist';
   import Hammer from 'hammerjs';
   import throttle from 'lodash/throttle';
@@ -87,21 +103,20 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import urls from 'kolibri.urls';
-
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import PdfPage from './PdfPage';
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
   // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF
   // renderer's own webpack config
   PDFJSLib.PDFJS.workerSrc = urls.static(`${__kolibriModuleName}/pdfJSWorker-${__version}.js`);
-
   // How often should we respond to changes in scrolling to render new pages?
   const renderDebounceTime = 300;
   const scaleIncrement = 0.25;
   const MARGIN = 16;
-
   export default {
     name: 'PdfRendererIndex',
     components: {
+      UiIconButton,
       PdfPage,
       RecycleList,
       CoreFullscreen,
@@ -122,7 +137,6 @@
       showControls: true,
     }),
     computed: {
-      ...mapGetters(['summaryTimeSpent']),
       // Returns whether or not the current device is iOS.
       // Probably not perfect, but worked in testing.
       iOS() {
@@ -154,6 +168,14 @@
       fullscreenText() {
         return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
       },
+      /* eslint-disable kolibri/vue-no-unused-properties */
+      /**
+       * @public
+       */
+      defaultDuration() {
+        return this.duration || this.targetTime;
+      },
+      /* eslint-enable kolibri/vue-no-unused-properties */
     },
     watch: {
       recycleListIsMounted(newVal) {
@@ -197,17 +219,14 @@
       this.currentLocation = this.savedLocation;
       this.showControls = true; // Ensures it shows on load even if we're scrolled
       const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
-
       // pass callback to update loading bar
       loadPdfPromise.onProgress = loadingProgress => {
         this.progress = loadingProgress.loaded / loadingProgress.total;
       };
-
       this.prepComponentData = loadPdfPromise.then(pdfDocument => {
         // Get initial info from the loaded pdf document
         this.pdfDocument = pdfDocument;
         this.totalPages = this.pdfDocument.numPages;
-
         // init pdfPages array
         for (let i = 0; i < this.totalPages; i++) {
           this.pdfPages.push({
@@ -249,16 +268,13 @@
     beforeDestroy() {
       this.updateProgress();
       this.updateContentState();
-
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
-
       if (this.pdfDocument) {
         this.pdfDocument.cleanup();
         this.pdfDocument.destroy();
       }
-
       this.$emit('stopTracking');
       clearInterval(this.updateContentStateInterval);
     },
@@ -295,7 +311,6 @@
           this.scrollTo(this.getSavedPosition());
           return;
         }
-
         // check if height has changed indicating a change in scale
         // in that case we need to scroll to correct place that is saved
         const currentRecycleListHeight = this.calculateRecycleListHeight();
@@ -313,7 +328,6 @@
           this.showPage(i);
         }
       }, renderDebounceTime),
-
       zoomIn() {
         this.setScale(Math.min(scaleIncrement * 20, this.scale + scaleIncrement));
       },
@@ -346,7 +360,8 @@
         this.$refs.recycleList.updateVisibleItems(false);
       },
       updateProgress() {
-        this.$emit('updateProgress', this.summaryTimeSpent / this.targetTime);
+        console.log('duration based progress in PDF renderer', this.durationBasedProgress);
+        this.$emit('updateProgress', this.durationBasedProgress);
       },
       updateContentState() {
         let contentState;
@@ -374,7 +389,6 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
   $controls-height: 40px;
-
   .pdf-renderer {
     @extend %momentum-scroll;
     @extend %dropshadow-2dp;
@@ -386,35 +400,32 @@
     margin-bottom: $controls-height;
     overflow-y: hidden;
   }
-
   .controls {
     position: relative;
+    top: 8px;
     z-index: 0; // Hide icons with transition
+    width: 24px;
+    height: 24px;
     margin: 0 4px;
   }
-
   .progress-bar {
     top: 50%;
     max-width: 200px;
     margin: 0 auto;
   }
-
   // enable horizontal scrolling
   /deep/ .recycle-list {
     .item-wrapper {
       overflow-x: auto;
     }
   }
-
   .fullscreen-button {
     margin: 0;
-
     svg {
       position: relative;
       top: 8px;
     }
   }
-
   .fullscreen-header {
     position: absolute;
     top: 0;
@@ -425,19 +436,16 @@
     justify-content: flex-end;
     height: $controls-height;
   }
-
   .slide-enter-active {
     @extend %md-accelerate-func;
 
     transition: all 0.3s;
   }
-
   .slide-leave-active {
     @extend %md-decelerate-func;
 
     transition: all 0.3s;
   }
-
   .slide-enter,
   .slide-leave-to {
     transform: translateY(-40px);

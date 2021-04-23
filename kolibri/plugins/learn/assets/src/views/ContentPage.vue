@@ -28,6 +28,8 @@
         :userId="currentUserId"
         :userFullName="fullName"
         :timeSpent="summaryTimeSpent"
+        :duration="duration"
+        @defaultDuration="defaultDuration"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
@@ -335,9 +337,9 @@
       markAsComplete() {
         this.wasIncomplete = false;
       },
-      genContentLink(id, isLeaf) {
+      genContentLink(id, kind) {
         return {
-          name: isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
+          name: kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT,
           params: { id },
         };
       },
@@ -373,26 +375,21 @@
     // Needs to be one less than the ScrollingHeader's z-index of 4
     z-index: 3;
   }
-
   .coach-content-label {
     margin: 8px 0;
   }
-
   .metadata {
     font-size: smaller;
   }
-
   .download-button,
   .share-button {
     display: inline-block;
     margin: 16px 16px 0 0;
   }
-
   .license-details {
     margin-bottom: 24px;
     margin-left: 16px;
   }
-
   .license-details-name {
     font-weight: bold;
   }

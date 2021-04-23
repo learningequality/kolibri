@@ -33,9 +33,10 @@
       <iframe
         ref="iframe"
         class="iframe"
-        sandbox="allow-scripts allow-same-origin"
         :style="{ backgroundColor: $themePalette.grey.v_100 }"
+        :sandbox="sandbox"
         frameBorder="0"
+        :name="name"
         :src="rooturl"
       >
       </iframe>
@@ -47,16 +48,17 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
-  import { mapGetters } from 'vuex';
   import { now } from 'kolibri.utils.serverClock';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
-
+  import { nameSpace } from 'hashi/src/hashiBase';
+  import plugin_data from 'plugin_data';
+  // Regex vendored from https://github.com/faisalman/ua-parser-js/blob/master/src/ua-parser.js
+  const iOSTest = /ip[honead]{2,4}(?:.*os\s([\w]+)\slike\smac|;\sopera)/i;
+  const IE11Test = /(trident).+rv[:\s]([\w.]+).+like\sgecko/i;
   const defaultContentHeight = '500px';
   const frameTopbarHeight = '37px';
   const pxStringAdd = (x, y) => parseInt(x, 10) + parseInt(y, 10) + 'px';
-
   export default {
     name: 'Html5AppRendererIndex',
     components: {
@@ -68,9 +70,14 @@
       };
     },
     computed: {
-      ...mapGetters(['summaryTimeSpent']),
+      name() {
+        return nameSpace;
+      },
       rooturl() {
-        return urls.hashi();
+        const iOS = iOSTest.test(navigator.userAgent);
+        const iOSorIE11 = iOS || IE11Test.test(navigator.userAgent);
+        // Skip hashi on requests for these browsers
+        return this.defaultFile.storage_url + (iOSorIE11 ? '?SKIP_HASHI=true' : '');
       },
       iframeHeight() {
         return (this.options && this.options.height) || defaultContentHeight;
@@ -80,6 +87,9 @@
       },
       contentRendererHeight() {
         return pxStringAdd(this.iframeHeight, frameTopbarHeight);
+      },
+      sandbox() {
+        return plugin_data.html5_sandbox_tokens;
       },
       fullscreenText() {
         return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
@@ -104,6 +114,15 @@
         }
         return { height: this.iframeHeight };
       },
+      /* eslint-disable kolibri/vue-no-unused-properties */
+      /**
+       * @public
+       */
+      defaultDuration() {
+        const totalTime = this.timeSpent * 1000;
+        return !this.duration ? totalTime : this.duration;
+      },
+      /* eslint-enable kolibri/vue-no-unused-properties */
     },
     watch: {
       userData(newValue) {
@@ -119,9 +138,7 @@
       });
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},
-        this.userData,
-        this.defaultFile.storage_url,
-        this.defaultFile.checksum
+        this.userData
       );
       this.$emit('startTracking');
       this.pollProgress();
@@ -134,7 +151,7 @@
     },
     methods: {
       recordProgress() {
-        const totalTime = this.summaryTimeSpent * 1000;
+        const totalTime = this.timeSpent * 1000;
         const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
         this.$emit(
           'updateProgress',
@@ -160,28 +177,23 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-
   .fullscreen-header {
     text-align: right;
   }
-
   .fs-icon {
     position: relative;
     top: 8px;
     width: 24px;
     height: 24px;
   }
-
   .html5-renderer {
     position: relative;
     text-align: center;
   }
-
   .iframe {
     width: 100%;
     height: 100%;
   }
-
   .iframe-container {
     @extend %momentum-scroll;
 

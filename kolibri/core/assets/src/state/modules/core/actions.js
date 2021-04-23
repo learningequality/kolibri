@@ -636,6 +636,7 @@ export function updateExerciseProgress(store, { progressPercent }) {
  * @param {boolean} forceSave
  */
 export function updateTimeSpent(store, forceSave = false) {
+  console.log('updating time spent');
   /* Create aliases for logs */
   const summaryLog = store.getters.logging.summary;
   const sessionLog = store.getters.logging.session;

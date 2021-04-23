@@ -333,6 +333,14 @@
         const seconds = (numberOfWords * 60) / WORDS_PER_MINUTE;
         return seconds;
       },
+      /* eslint-disable kolibri/vue-no-unused-properties */
+      /**
+       * @public
+       */
+      defaultDuration() {
+        return this.duration || this.expectedTimeToRead;
+      },
+      /* eslint-enable kolibri/vue-no-unused-properties */
     },
     watch: {
       sideBarOpen(newSideBar, oldSideBar) {
@@ -462,7 +470,15 @@
     },
     methods: {
       updateProgress() {
+        console.log('locations', this.locations.length, this);
         if (this.locations.length > 0) {
+          console.log(
+            'updating progress',
+            this.timeSpent,
+            this.summaryTimeSpent,
+            this.expectedTimeToRead,
+            this.summaryTimeSpent / this.expectedTimeToRead
+          );
           this.$emit('updateProgress', this.summaryTimeSpent / this.expectedTimeToRead);
         }
       },
