@@ -819,55 +819,6 @@ export const StatementRef = new Schema({
   },
 });
 
-/* SubStatement Schema - used to create a statement that is nested inside another
- * another statement as an object.
- * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#substatements
- */
-export const SubStatement = new Schema({
-  id: {
-    validators: [notAllowed],
-  },
-  objectType: {
-    required: true,
-    validators: [new EnforceValue(OBJECT_TYPES.SUBSTATEMENT)],
-  },
-  actor: {
-    required: true,
-    schema: Actor,
-  },
-  verb: {
-    required: true,
-    schema: Verb,
-  },
-  object: {
-    required: true,
-    validators: [objectTypeValidator, noSubStatement],
-    schema: ObjectSchema,
-  },
-  result: {
-    schema: Result,
-  },
-  context: {
-    schema: Context,
-  },
-  timestamp: {
-    validators: [timestampValidator],
-  },
-  attachments: {
-    schema: Attachment,
-    validators: [arrayValidator],
-  },
-  stored: {
-    validators: [notAllowed],
-  },
-  version: {
-    validators: [notAllowed],
-  },
-  authority: {
-    validators: [notAllowed],
-  },
-});
-
 /*
  * Helper function to return the correct Schema object depending
  * on the specified objectType value.
@@ -1024,6 +975,55 @@ export const Attachment = new Schema({
   },
   fileUrl: {
     validators: [stringValidator, IRLValidator],
+  },
+});
+
+/* SubStatement Schema - used to create a statement that is nested inside another
+ * another statement as an object.
+ * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#substatements
+ */
+export const SubStatement = new Schema({
+  id: {
+    validators: [notAllowed],
+  },
+  objectType: {
+    required: true,
+    validators: [new EnforceValue(OBJECT_TYPES.SUBSTATEMENT)],
+  },
+  actor: {
+    required: true,
+    schema: Actor,
+  },
+  verb: {
+    required: true,
+    schema: Verb,
+  },
+  object: {
+    required: true,
+    validators: [objectTypeValidator, noSubStatement],
+    schema: ObjectSchema,
+  },
+  result: {
+    schema: Result,
+  },
+  context: {
+    schema: Context,
+  },
+  timestamp: {
+    validators: [timestampValidator],
+  },
+  attachments: {
+    schema: Attachment,
+    validators: [arrayValidator],
+  },
+  stored: {
+    validators: [notAllowed],
+  },
+  version: {
+    validators: [notAllowed],
+  },
+  authority: {
+    validators: [notAllowed],
   },
 });
 
