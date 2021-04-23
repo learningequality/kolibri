@@ -69,12 +69,15 @@ export default class MainClient {
       if (message.dataType === 'Collection') {
         this.mediator.sendLocalMessage({
           nameSpace,
-          event: events.KOLIBRIDATAREQUESTED,
+          event: events.COLLECTIONREQUESTED,
           data: message,
         });
       } else if (message.dataType === 'Model') {
-        this.__fetchContentModel = this.kolibri.__fetchContentModel;
-        this.kolibri.__fetchContentModel(message);
+        this.mediator.sendLocalMessage({
+          nameSpace,
+          event: events.MODELREQUESTED,
+          data: message,
+        });
       }
     });
 
@@ -83,13 +86,11 @@ export default class MainClient {
     });
 
     this.on(this.events.NAVIGATETO, message => {
-      this.__navigateTo = this.kolibri.__navigateTo;
-      this.__navigateTo(message);
+      this.mediator.sendMessage({ nameSpace, event: events.NAVIGATETO, data: message });
     });
 
     this.on(this.events.CONTEXT, message => {
-      this.__getOrUpdateContext = this.kolibri.__na__getOrUpdateContextvigateTo;
-      this.__getOrUpdateContext(message);
+      this.mediator.sendMessage({ nameSpace, event: events.CONTEXT, data: message });
     });
   }
 

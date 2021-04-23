@@ -1,15 +1,13 @@
 <template>
 
-  <div>
-    <KContentRenderer
-      ref="customiframe"
-      class="content-renderer"
-      :kind="currentContent.kind"
-      :lang="currentContent.lang"
-      :files="currentContent.files"
-      :options="currentContent.options"
-    />
-  </div>
+  <KContentRenderer
+    ref="customiframe"
+    class="content-renderer"
+    :kind="currentContent.kind"
+    :lang="currentContent.lang"
+    :files="currentContent.files"
+    :options="currentContent.options"
+  />
 
 </template>
 
@@ -19,6 +17,7 @@
   import pick from 'lodash/pick';
   import { ContentNodeResource } from 'kolibri.resources';
   import Hashi from 'hashi';
+  import router from 'kolibri.coreVue.router';
 
   export default {
     name: 'CustomContentRenderPage',
@@ -39,13 +38,18 @@
     },
     mounted() {
       this.hashi = new Hashi({ iframe: this.$refs.customiframe });
-      this.hashi.on('kolibridatarequested', message => {
+      this.hashi.on('collectionrequested', message => {
         this.fetchContentCollection(message);
       });
-      // this.hashi.fetchContentCollection = this.fetchContentCollection.bind(this);
-      // this.hashi.fetchContentModel = this.fetchContentModel;
-      // this.hashi.navigateTo = this.navigateTo;
-      // this.hashi.getOrUpdateContext = this.getOrUpdateContext;
+      this.hashi.on('modelrequested', message => {
+        this.fetchContentModel(message);
+      });
+      this.hashi.on('navigateto', message => {
+        this.navigateTo(message);
+      });
+      this.hashi.on('context', message => {
+        this.getOrUpdateContext(message);
+      });
     },
     methods: {
       // helper functions for fetching data from kolibri
@@ -74,62 +78,60 @@
         });
       },
 
-      // fetchContentModel(message) {
-      //   let id = message.id;
-      //   ContentNodeResource.fetchModel({ id }).then(contentNode => {
-      //     if (contentNode) {
-      //       message.status = 'success';
-      //     } else {
-      //       message.status = 'failure';
-      //     }
-      //     message.data = contentNode;
-      //     message.type = 'response';
-      //     this.hashi.mediator.sendMessage({
-      //       nameSpace: 'kolibri',
-      //       event: 'datareturned',
-      //       data: message,
-      //     });
-      //   });
-      // },
-      // navigateTo(message) {
-      //   let id = message.nodeId;
-      //   ContentNodeResource.fetchModel({ id }).then(contentNode => {
-      //     let routeBase, context;
-      //     const path = `${routeBase}/${id}`;
-      //     if (contentNode && contentNode.kind === 'topic') {
-      //       routeBase = '/topics/t';
-      //       router.push({ path: path }).catch(() => {});
-      //     } else if (contentNode && !message.context) {
-      //       routeBase = '/topics/c';
-      //       router.push({ path: path }).catch(() => {});
-      //     } else if (contentNode && message.context) {
-      //       // if there is custom context, launch overlay
-      //       message.context.node_id = id;
-      //       routeBase = '/topics/c';
-      //       router
-      //         .push({ path: path, query: { customContext: true, context: context } })
-      //         .catch(() => {});
-      //     }
-      //     this.hashi.mediator.sendMessage({
-      //       nameSpace,
-      //       event: events.DATARETURNED,
-      //       data: message,
-      //     });
-      //   });
-      // },
-      // getOrUpdateContext(message) {
-      //   // to update context with the incoming context
-      //   if (message.context) {
-      //     const encodedContext = this.encodeContext(message.context);
-      //     router.push({ query: { context: encodedContext } }).catch(() => {});
-      //   } else {
-      //     // just return the existing query
-      //     const urlParams = new URLSearchParams(window.location.search);
-      //     const fetchedEncodedContext =
-      //        urlParams.has('context') ? urlParams.get('context') : null;
-      //     return decodeURI(fetchedEncodedContext);
-      //   }
-      // },
+      fetchContentModel(message) {
+        let id = message.id;
+        let self = this;
+        ContentNodeResource.fetchModel({ id }).then(contentNode => {
+          if (contentNode) {
+            message.status = 'success';
+          } else {
+            message.status = 'failure';
+          }
+          message.data = contentNode;
+          message.type = 'response';
+          self.hashi.mediator.sendMessage({
+            nameSpace: 'hashi',
+            event: 'kolibridatareturned',
+            data: message,
+          });
+        });
+      },
+
+      navigateTo(message) {
+        let id = message.nodeId;
+        let self = this;
+        ContentNodeResource.fetchModel({ id }).then(contentNode => {
+          let routeBase, context, path;
+          if (contentNode && contentNode.kind === 'topic') {
+            routeBase = '/topics/t';
+            path = `${routeBase}/${id}`;
+            router.push({ path: path }).catch(() => {});
+          } else if (contentNode) {
+            // in a custom context, launch or maintain overlay
+            self.currentContent = contentNode;
+            context = { test: 'test test test' };
+            context.node_id = id;
+            router.push({ query: { customContext: true, context: context } }).catch(() => {});
+          }
+          self.hashi.mediator.sendLocalMessage({
+            nameSpace: 'hashi',
+            event: 'kolibridatareturned',
+            data: message,
+          });
+        });
+      },
+      getOrUpdateContext(message) {
+        // to update context with the incoming context
+        if (message.context) {
+          const encodedContext = this.encodeContext(message.context);
+          router.push({ query: { context: encodedContext } }).catch(() => {});
+        } else {
+          // just return the existing query
+          const urlParams = new URLSearchParams(window.location.search);
+          const fetchedEncodedContext = urlParams.has('context') ? urlParams.get('context') : null;
+          return decodeURI(fetchedEncodedContext);
+        }
+      },
     },
   };
 
