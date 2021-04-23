@@ -235,6 +235,12 @@ export default class H5P extends BaseShim {
     const originalGetPath = H5P.getPath;
     const self = this;
     H5P.getPath = function(path, contentId) {
+      // Handle files that have a #tmp suffix
+      // these are meant to only be used during editing,
+      // but it seems possible for these to be exported by H5P editors
+      if (path.substr(-4, 4) === '#tmp') {
+        path = path.substr(0, path.length - 4);
+      }
       if (self.contentPaths[path]) {
         return self.contentPaths[path];
       }
