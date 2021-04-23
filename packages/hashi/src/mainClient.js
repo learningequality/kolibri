@@ -78,6 +78,10 @@ export default class MainClient {
       }
     });
 
+    this.on(this.events.KOLIBRIDATARETURNED, message => {
+      this.mediator.sendMessage({ nameSpace, event: events.DATARETURNED, data: message });
+    });
+
     this.on(this.events.NAVIGATETO, message => {
       this.__navigateTo = this.kolibri.__navigateTo;
       this.__navigateTo(message);

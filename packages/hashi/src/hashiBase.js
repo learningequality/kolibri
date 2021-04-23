@@ -7,6 +7,7 @@ export const events = {
   DATAREQUESTED: 'datarequested',
   KOLIBRIDATAREQUESTED: 'kolibridatarequested',
   DATARETURNED: 'datareturned',
+  KOLIBRIDATARETURNED: 'kolibridatareturned',
   NAVIGATETO: 'navigateto',
   CONTEXT: 'context',
 };

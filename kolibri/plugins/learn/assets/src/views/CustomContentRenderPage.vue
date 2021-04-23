@@ -55,22 +55,20 @@
         const options = message.options;
         const getParams = pick(options, ['ids', 'page', 'pageSize', 'parent']);
         if (options.parent && options.parent == 'self') {
-          options.parent = this.node;
+          getParams.parent = this.node;
         }
         let self = this;
         ContentNodeResource.fetchCollection({ getParams }).then(contentNodes => {
           contentNodes ? (message.status = 'success') : (message.status = 'failure');
           let response = {};
-          console.log('mediator', self.hashi.mediator);
           response.page = message.options.page ? message.options.page : 1;
           response.pageSize = message.options.pageSize ? message.options.pageSize : 50;
           response.results = contentNodes;
           message.data = response;
           message.type = 'response';
-          console.log('message', message);
           self.hashi.mediator.sendLocalMessage({
-            nameSpace: 'kolibri',
-            event: 'datareturned',
+            nameSpace: 'hashi',
+            event: 'kolibridatareturned',
             data: message,
           });
         });
