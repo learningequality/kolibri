@@ -61,20 +61,79 @@
       </KGridItem>
     </KGrid>
 
-    <UserTable
-      :users="classCoaches"
-      :emptyMessage="$tr('noCoachesInClassMessge')"
-      isCoach
-    >
-      <!-- Don't need template in Vue 2.5+ -->
-      <template #action="userRow">
-        <KButton
-          :text="coreString('removeAction')"
-          appearance="flat-button"
-          @click="confirmRemoval(userRow.user, removeClassCoach)"
-        />
-      </template>
-    </UserTable>
+    <div>
+      <CoreTable>
+        <template #headers>
+          <th>
+            <!-- "Full name" header visually hidden if checkbox is on -->
+            <span>
+              {{ coreString('fullNameLabel') }}
+            </span>
+          </th>
+          <th>
+            <span class="visuallyhidden">
+              {{ $tr('role') }}
+            </span>
+          </th>
+          <th>{{ coreString('usernameLabel') }}</th>
+          <th class="user-action-button">
+            <span class="visuallyhidden">
+              {{ $tr('userActionsColumnHeader') }}
+            </span>
+          </th>
+        </template>
+
+        <template #tbody>
+          <tbody>
+            <tr
+              v-for="user in classCoaches"
+              :key="user.id"
+            >
+              <td>
+                <KLabeledIcon
+                  icon="coach"
+                  :label="user.full_name"
+                />
+                <UserTypeDisplay
+                  aria-hidden="true"
+                  :userType="user.kind"
+                  :omitLearner="true"
+                  class="role-badge"
+                  :style="{
+                    color: $themeTokens.textInverted,
+                    backgroundColor: $themeTokens.annotation,
+                  }"
+                />
+              </td>
+              <td class="visuallyhidden">
+                {{ user.kind }}
+              </td>
+              <td>
+                <span dir="auto">
+                  {{ user.username }}
+                </span>
+              </td>
+              <td class="core-table-button-col">
+                <template>
+                  <KButton
+                    :text="coreString('removeAction')"
+                    appearance="flat-button"
+                    @click="confirmRemoval(user, removeClassCoach)"
+                  />
+                </template>
+              </td>
+            </tr>
+          </tbody>
+        </template>
+      </CoreTable>
+      <p
+        v-if="!classCoaches.length"
+        class="empty-message"
+      >
+        {{ $tr('noCoachesInClassMessge') }}
+      </p>
+
+    </div>
 
     <KGrid class="top-margin">
       <KGridItem
@@ -118,6 +177,8 @@
 
   import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import ClassRenameModal from './ClassRenameModal';
@@ -131,9 +192,11 @@
       };
     },
     components: {
-      UserTable,
       ClassRenameModal,
       UserRemoveConfirmationModal,
+      CoreTable,
+      UserTypeDisplay,
+      UserTable,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -184,6 +247,8 @@
       edit: 'Edit class name',
       documentTitle: 'Edit Class',
       renameButtonLabel: 'Edit',
+      role: 'Role',
+      userActionsColumnHeader: 'Actions',
     },
   };
 
@@ -199,6 +264,29 @@
 
   .top-margin {
     margin-top: 24px;
+  }
+
+  .empty-message {
+    margin-bottom: 16px;
+  }
+
+  .role-badge {
+    display: inline-block;
+    padding: 0;
+    padding-right: 8px;
+    padding-left: 8px;
+    margin-left: 16px;
+    font-size: small;
+    white-space: nowrap;
+    border-radius: 4px;
+  }
+
+  .tooltip {
+    margin-left: 2px;
+  }
+
+  td.id-col {
+    max-width: 120px;
   }
 
 </style>
