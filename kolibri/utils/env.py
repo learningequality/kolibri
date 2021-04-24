@@ -34,8 +34,8 @@ def prepend_cext_path(dist_path):
         # If the directory of platform-specific cextensions (cryptography) exists,
         # add it + the matching noarch (OpenSSL) modules to sys.path
         sys.path = [str(dirname), str(noarch_dir)] + sys.path
-    else:
-        logging.info("No C extensions are available for this platform")
+     #else:
+        #logging.info("No C extensions are available for this platform")
 
 
 def set_env():

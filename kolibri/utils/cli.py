@@ -13,6 +13,7 @@ from __future__ import unicode_literals
 import importlib
 import logging
 import os
+import platform
 import signal
 import sys
 from sqlite3 import DatabaseError as SQLite3DatabaseError
@@ -68,6 +69,33 @@ def version_file():
     regenerated
     """
     return os.path.join(KOLIBRI_HOME, ".data_version")
+
+def prepend_cext_path():
+    """
+    Calculate the directory of C extensions
+    Prints logging statement if no C extensions are available for this platform.
+    """
+    from kolibri import dist as kolibri_dist  # noqa
+
+    dist_path = os.path.realpath(os.path.dirname(kolibri_dist.__file__))
+
+    python_version = "cp" + str(sys.version_info.major) + str(sys.version_info.minor)
+    system_name = platform.system()
+    machine_name = platform.machine()
+    dirname = os.path.join(dist_path, "cext", python_version, system_name)
+
+    # For Linux system with cpython<3.3, there could be abi tags 'm' and 'mu'
+    if system_name == "Linux" and sys.version_info < (3, 3):
+        # encode with ucs2
+        if sys.maxunicode == 65535:
+            dirname = os.path.join(dirname, python_version + "m")
+        # encode with ucs4
+        else:
+            dirname = os.path.join(dirname, python_version + "mu")
+
+    dirname = os.path.join(dirname, machine_name)
+    if not os.path.exists(dirname):
+        logging.info("No C extensions are available for this platform")
 
 
 def version_updated(kolibri_version, version_file_contents):
@@ -471,6 +499,7 @@ def start(port, background):
     """
 
     # Check if there is an options.ini file exist inside the KOLIBRI_HOME folder
+    prepend_cext_path()
     sanity_checks.check_default_options_exist()
 
     serve_http = OPTIONS["Server"]["CHERRYPY_START"]
@@ -774,6 +803,7 @@ def apply(ctx, plugin_names):
 
 @plugin.command(help="List all available Kolibri plugins")
 def list():
+    #prepend_cext_path()
     plugins = [plugin for plugin in iterate_plugins()]
     max_len = max((len(plugin) for plugin in plugins))
     available_plugins = "Available plugins"
