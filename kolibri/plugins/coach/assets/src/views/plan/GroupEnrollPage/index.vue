@@ -25,17 +25,89 @@
 
         <h2>{{ $tr('userTableLabel') }}</h2>
 
-        <UserTable
-          v-model="selectedUsers"
-          :users="visibleFilteredUsers"
-          :selectable="true"
-          :emptyMessage="emptyMessage"
-          :infoDescriptor="$tr('learnerGroups')"
-        >
-          <template #info="userRow">
-            <TruncatedItemList :items="getGroupsForLearner(userRow.user.id)" />
-          </template>
-        </UserTable>
+        <div>
+          <CoreTable>
+            <template #headers>
+              <th class="core-table-checkbox-col select-all">
+                <KCheckbox
+                  :label="$tr('selectAllLabel')"
+                  :showLabel="true"
+                  :checked="allAreSelected"
+                  class="overflow-label"
+                  :disabled="visibleFilteredUsers.length === 0"
+                  @change="selectAll($event)"
+                />
+              </th>
+              <th>
+                <span class="visuallyhidden">
+                  {{ coreString('fullNameLabel') }}
+                </span>
+              </th>
+              <th>
+                <span class="visuallyhidden">
+                  {{ $tr('role') }}
+                </span>
+              </th>
+              <th>{{ coreString('usernameLabel') }}</th>
+              <th>
+                {{ $tr('learnerGroups') }}
+              </th>
+            </template>
+
+            <template #tbody>
+              <tbody>
+                <tr
+                  v-for="user in visibleFilteredUsers"
+                  :key="user.id"
+                >
+                  <td class="core-table-checkbox-col">
+                    <KCheckbox
+                      :label="$tr('userCheckboxLabel')"
+                      :showLabel="false"
+                      :disabled="false"
+                      :checked="userIsSelected(user.id)"
+                      @change="selectUser(user.id, $event)"
+                    />
+                  </td>
+                  <td>
+                    <KLabeledIcon
+                      icon="person"
+                      :label="user.full_name"
+                    />
+                    <UserTypeDisplay
+                      aria-hidden="true"
+                      :userType="user.kind"
+                      :omitLearner="true"
+                      class="role-badge"
+                      :style="{
+                        color: $themeTokens.textInverted,
+                        backgroundColor: $themeTokens.annotation,
+                      }"
+                    />
+                  </td>
+                  <td class="visuallyhidden">
+                    {{ user.kind }}
+                  </td>
+                  <td>
+                    <span dir="auto">
+                      {{ user.username }}
+                    </span>
+                  </td>
+                  <td>
+                    <TruncatedItemList :items="getGroupsForLearner(user.id)" />
+                  </td>
+                </tr>
+              </tbody>
+            </template>
+          </CoreTable>
+          <p
+            v-if="!visibleFilteredUsers.length"
+            class="empty-message"
+          >
+            {{ emptyMessage }}
+          </p>
+
+        </div>
 
         <nav class="pagination-nav">
           <span class="pagination-label">
@@ -86,18 +158,21 @@
 
   import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
+  import difference from 'lodash/difference';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
+  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoach from '../../common';
-  import UserTable from '../../../../../../facility/assets/src/views/UserTable';
 
   export default {
     name: 'GroupEnrollPage',
     components: {
+      CoreTable,
       FilterTextbox,
-      UserTable,
+      UserTypeDisplay,
     },
     mixins: [responsiveWindowMixin, commonCoach, commonCoreStrings],
     data() {
@@ -113,6 +188,12 @@
       ...mapGetters('classSummary', ['getGroupNamesForLearner']),
       pageTitle() {
         return this.$tr('pageHeader', { className: this.currentGroup.name });
+      },
+      allAreSelected() {
+        return (
+          Boolean(this.visibleFilteredUsers.length) &&
+          this.visibleFilteredUsers.every(user => this.selectedUsers.includes(user.id))
+        );
       },
       currentGroupUsers() {
         if (this.currentGroup) {
@@ -188,6 +269,22 @@
       getGroupsForLearner(learnerId) {
         return this.getGroupNamesForLearner(learnerId);
       },
+      userIsSelected(id) {
+        return this.selectedUsers.includes(id);
+      },
+      selectAll(checked) {
+        const currentUsers = this.visibleFilteredUsers.map(user => user.id);
+        if (checked) {
+          this.selectedUsers = [...this.selectedUsers, ...currentUsers];
+        } else this.selectedUsers = difference(this.selectedUsers, currentUsers);
+      },
+      selectUser(id, checked) {
+        const selected = Array.from(this.selectedUsers);
+        if (checked) {
+          selected.push(id);
+          this.selectedUsers = selected;
+        } else this.selectedUsers = selected.filter(selectedId => selectedId !== id);
+      },
     },
     $trs: {
       pageHeader: "Enroll learners into '{className}'",
@@ -200,6 +297,9 @@
       pagination:
         '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
       learnerGroups: 'Current groups',
+      role: 'Role',
+      selectAllLabel: 'Select all',
+      userCheckboxLabel: 'Select user',
     },
   };
 
@@ -225,6 +325,42 @@
     position: relative;
     top: -2px;
     display: inline;
+  }
+
+  .select-all {
+    position: relative;
+    // Overrides overflow-x: hidden rule for CoreTable th's
+    overflow-x: visible;
+
+    .k-checkbox-container {
+      margin-right: -70px;
+    }
+
+    .k-checkbox-label {
+      // Add extra padding to align label with table headers
+      padding-top: 4px;
+    }
+  }
+
+  .empty-message {
+    margin-bottom: 16px;
+  }
+
+  .role-badge {
+    display: inline-block;
+    padding: 0;
+    padding-right: 8px;
+    padding-left: 8px;
+    margin-left: 16px;
+    font-size: small;
+    white-space: nowrap;
+    border-radius: 4px;
+  }
+
+  .overflow-label {
+    position: absolute;
+    top: 8px;
+    white-space: nowrap;
   }
 
 </style>
