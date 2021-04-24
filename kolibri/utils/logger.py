@@ -224,21 +224,6 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
-            "cherrypy.access": {
-                "handlers": ["file", "console", "file_debug"],
-                "level": DEFAULT_LEVEL,
-                "propagate": False,
-            },
-            "cherrypy.error": {
-                "handlers": ["file", "console", "file_debug"],
-                "level": DEFAULT_LEVEL,
-                "propagate": False,
-            },
-            "cherrypy": {
-                "handlers": ["file", "console", "file_debug"],
-                "level": DEFAULT_LEVEL,
-                "propagate": False,
-            },
         },
     }
 

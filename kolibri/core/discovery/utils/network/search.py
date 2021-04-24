@@ -201,7 +201,11 @@ def register_zeroconf_service(port):
     if ZEROCONF_STATE["service"] is not None:
         unregister_zeroconf_service()
 
-    logger.info("Registering ourselves to zeroconf network with id '%s'..." % id)
+    logger.info(
+        "Registering ourselves to zeroconf network with id '{}' and port '{}'".format(
+            id, port
+        )
+    )
     data = device_info
     ZEROCONF_STATE["service"] = KolibriZeroconfService(id=id, port=port, data=data)
     ZEROCONF_STATE["service"].register()

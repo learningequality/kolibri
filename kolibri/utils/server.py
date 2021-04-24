@@ -1,15 +1,18 @@
 import logging
 import os
 import sys
+import traceback as _traceback
 from subprocess import CalledProcessError
 from subprocess import check_output
 
-import cherrypy
 import requests
-from cheroot import wsgi
-from cherrypy.process.plugins import SimplePlugin
-from cherrypy.process.servers import ServerAdapter
+from cheroot.wsgi import Server
 from django.conf import settings
+from magicbus import ProcessBus
+from magicbus.plugins import SimplePlugin
+from magicbus.plugins.servers import ServerPlugin
+from magicbus.plugins.signalhandler import SignalHandler
+from magicbus.plugins.tasks import Autoreloader
 from zeroconf import get_all_addresses
 
 import kolibri
@@ -79,13 +82,34 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
+class LoggingServer(Server):
+    def error_log(self, msg="", level=20, traceback=False):
+        if traceback:
+            if traceback is True:
+                exc_info = sys.exc_info()
+            else:
+                exc_info = traceback
+            msg += "\n" + "".join(_traceback.format_exception(*exc_info))
+        return logger.log(level, msg)
+
+
+class KolibriServerPlugin(ServerPlugin):
+    def START(self):
+        super(KolibriServerPlugin, self).START()
+        _, bind_port = self.httpserver.bind_addr
+        self.bus.publish("SERVING", bind_port)
+
+    START.priority = 75
+
+
 class ServicesPlugin(SimplePlugin):
     def __init__(self, bus, port):
         self.bus = bus
         self.port = port
         self.workers = None
+        self.bus.subscribe("SERVING", self.SERVING)
 
-    def start(self):
+    def START(self):
         # schedule the pingback job if not already scheduled
         if SCH_PING_JOB_ID not in scheduler:
             from kolibri.core.analytics.utils import schedule_ping
@@ -104,14 +128,15 @@ class ServicesPlugin(SimplePlugin):
         # Initialize the iceqube scheduler to handle scheduled tasks
         scheduler.start_scheduler()
 
+    def SERVING(self, port):
         # Register the Kolibri zeroconf service so it will be discoverable on the network
         from kolibri.core.discovery.utils.network.search import (
             register_zeroconf_service,
         )
 
-        register_zeroconf_service(port=self.port)
+        register_zeroconf_service(port=port or self.port)
 
-    def stop(self):
+    def STOP(self):
         scheduler.shutdown_scheduler()
         if self.workers is not None:
             for worker in self.workers:
@@ -135,11 +160,16 @@ def _rm_pid_file(pid_file):
 
 
 class CleanUpPIDPlugin(SimplePlugin):
-    def start(self):
+    def START(self):
         _rm_pid_file(STARTUP_LOCK)
 
-    def exit(self):
+    def EXIT(self):
         _rm_pid_file(PID_FILE)
+
+
+class LogPlugin(SimplePlugin):
+    def log(self, msg, level):
+        logger.log(level, msg)
 
 
 def start(port=8080, serve_http=True):
@@ -208,109 +238,89 @@ def calculate_cache_size():
     return MIN_CACHE
 
 
-def configure_http_server(port):
-    # Mount the application
+def configure_http_server(port, bus):
     from kolibri.deployment.default.wsgi import application
     from kolibri.deployment.default.alt_wsgi import alt_application
 
-    cherrypy.tree.graft(application, "/")
-
-    cherrypy_server_config = {
-        "server.socket_host": LISTEN_ADDRESS,
-        "server.socket_port": port,
-        "server.thread_pool": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
-        "server.socket_timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
-        "server.accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
-        "server.accepted_queue_timeout": conf.OPTIONS["Server"][
-            "CHERRYPY_QUEUE_TIMEOUT"
-        ],
+    server_config = {
+        "numthreads": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
+        "request_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+        "timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
+        "accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+        "accepted_queue_timeout": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_TIMEOUT"],
     }
 
-    # Configure the server
-    cherrypy.config.update(cherrypy_server_config)
+    kolibri_address = (LISTEN_ADDRESS, port)
+
+    kolibri_server = KolibriServerPlugin(
+        bus,
+        httpserver=LoggingServer(kolibri_address, application, **server_config),
+        bind_addr=kolibri_address,
+    )
 
     alt_port_addr = (
         LISTEN_ADDRESS,
         conf.OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
     )
 
-    alt_port_server = ServerAdapter(
-        cherrypy.engine,
-        wsgi.Server(
-            alt_port_addr,
-            alt_application,
-            numthreads=conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
-            request_queue_size=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
-            timeout=conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
-            accepted_queue_size=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
-            accepted_queue_timeout=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_TIMEOUT"],
-        ),
-        alt_port_addr,
+    alt_port_server = ServerPlugin(
+        bus,
+        httpserver=LoggingServer(alt_port_addr, alt_application, **server_config),
+        bind_addr=alt_port_addr,
     )
     # Subscribe these servers
-    cherrypy.server.subscribe()
+    kolibri_server.subscribe()
     alt_port_server.subscribe()
 
 
 def run_server(port, serve_http=True):
-    # Unsubscribe the default server
-    cherrypy.server.unsubscribe()
+    bus = ProcessBus()
 
-    # Turn off the auto reloader
-    cherrypy.engine.unsubscribe("graceful", cherrypy.log.reopen_files)
-
-    cherrypy.config.update(
-        {
-            "engine.autoreload.on": getattr(settings, "DEVELOPER_MODE", False),
-            "checker.on": False,
-            "request.show_tracebacks": False,
-            "request.show_mismatched_params": False,
-            "tools.expires.on": True,
-            "tools.expires.secs": 31536000,
-            "tools.caching.on": True,
-            "tools.caching.maxobj_size": 2000000,
-            "tools.caching.maxsize": calculate_cache_size(),
-            "tools.log_headers.on": False,
-            "log.screen": False,
-            "log.access_file": "",
-            "log.error_file": "",
-        }
-    )
+    log_plugin = LogPlugin(bus)
+    log_plugin.subscribe()
 
     if serve_http:
-        configure_http_server(port)
+        configure_http_server(port, bus)
 
     # Setup plugin for services
-    service_plugin = ServicesPlugin(cherrypy.engine, port)
+    service_plugin = ServicesPlugin(bus, port)
     service_plugin.subscribe()
 
     # Setup plugin for handling PID file cleanup
-    pid_plugin = CleanUpPIDPlugin(cherrypy.engine)
+    pid_plugin = CleanUpPIDPlugin(bus)
     pid_plugin.subscribe()
 
     process_pid = os.getpid()
 
-    original_handler = cherrypy.engine.signal_handler._handle_signal
+    signal_handler = SignalHandler(bus)
+
+    original_handler = signal_handler._handle_signal
 
     def handler(signum, frame):
         if os.getpid() == process_pid:
             original_handler(signum, frame)
 
-    cherrypy.engine.signal_handler._handle_signal = handler
+    signal_handler._handle_signal = handler
 
-    cherrypy.engine.signal_handler.handlers.update(
+    signal_handler.handlers.update(
         {
-            "SIGINT": cherrypy.engine.exit,
-            "CTRL_C_EVENT": cherrypy.engine.exit,
-            "CTRL_BREAK_EVENT": cherrypy.engine.exit,
+            "SIGINT": signal_handler.handle_SIGTERM,
+            "CTRL_C_EVENT": signal_handler.handle_SIGTERM,
+            "CTRL_BREAK_EVENT": signal_handler.handle_SIGTERM,
         }
     )
 
-    cherrypy.engine.signals.subscribe()
+    signal_handler.subscribe()
 
-    # Start the server engine (Option 1 *and* 2)
-    cherrypy.engine.start()
-    cherrypy.engine.block()
+    if getattr(settings, "DEVELOPER_MODE", False):
+        autoreloader = Autoreloader(bus)
+        autoreloader.subscribe()
+
+    bus.graceful()
+    if not serve_http:
+        bus.publish("SERVING", None)
+
+    bus.block()
 
 
 def _read_pid_file(filename):
