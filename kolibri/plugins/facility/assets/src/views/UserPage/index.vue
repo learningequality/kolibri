@@ -38,22 +38,113 @@
       </template>
 
       <template #default="{ items, filterInput }">
-        <UserTable
-          class="move-down user-roster"
-          :users="items"
-          :emptyMessage="emptyMessageForItems(items, filterInput)"
-          :showDemographicInfo="true"
-        >
-          <template #action="userRow">
-            <KDropdownMenu
-              :text="$tr('optionsButtonLabel')"
-              :options="manageUserOptions(userRow.user.id)"
-              :disabled="!userCanBeEdited(userRow.user)"
-              appearance="flat-button"
-              @select="handleManageUserSelection($event, userRow.user)"
-            />
-          </template>
-        </UserTable>
+        <div>
+          <CoreTable>
+            <template #headers>
+              <th>
+                <!-- "Full name" header visually hidden if checkbox is on -->
+                <span>
+                  {{ coreString('fullNameLabel') }}
+                </span>
+              </th>
+              <th>
+                <span class="visuallyhidden">
+                  {{ $tr('role') }}
+                </span>
+              </th>
+              <th>{{ coreString('usernameLabel') }}</th>
+              <template>
+                <th>
+                  <span>{{ coreString('identifierLabel') }}</span>
+                  <CoreInfoIcon
+                    class="tooltip"
+                    :iconAriaLabel="coreString('identifierAriaLabel')"
+                    :tooltipText="coreString('identifierTooltip')"
+                  />
+                </th>
+                <th>
+                  {{ coreString('genderLabel') }}
+                </th>
+                <th>
+                  {{ coreString('birthYearLabel') }}
+                </th>
+              </template>
+              <th class="user-action-button">
+                <span class="visuallyhidden">
+                  {{ $tr('userActionsColumnHeader') }}
+                </span>
+              </th>
+
+            </template>
+            <template #tbody>
+              <tbody>
+                <tr
+                  v-for="user in items"
+                  :key="user.id"
+                >
+                  <td>
+                    <KLabeledIcon
+                      icon="person"
+                      :label="user.full_name"
+                    />
+                    <UserTypeDisplay
+                      aria-hidden="true"
+                      :userType="user.kind"
+                      :omitLearner="true"
+                      class="role-badge"
+                      :style="{
+                        color: $themeTokens.textInverted,
+                        backgroundColor: $themeTokens.annotation,
+                      }"
+                    />
+                  </td>
+                  <td class="visuallyhidden">
+                    {{ user.kind }}
+                  </td>
+                  <td>
+                    <span dir="auto">
+                      {{ user.username }}
+                    </span>
+                  </td>
+                  <template>
+                    <td class="id-col">
+                      <span v-if="user.id_number">
+                        {{ user.id_number }}
+                      </span>
+                      <KEmptyPlaceholder v-else />
+                    </td>
+                    <td>
+                      <GenderDisplayText :gender="user.gender" />
+                    </td>
+                    <td>
+                      <BirthYearDisplayText :birthYear="user.birth_year" />
+                    </td>
+                  </template>
+                  <td class="core-table-button-col">
+                    <slot name="action" :user="user"></slot>
+                    <template>
+                      <KDropdownMenu
+                        :text="$tr('optionsButtonLabel')"
+                        :options="manageUserOptions(user.id)"
+                        :disabled="!userCanBeEdited(user)"
+                        appearance="flat-button"
+                        @select="handleManageUserSelection($event, user)"
+                      />
+                    </template>
+                  </td>
+                </tr>
+              </tbody>
+            </template>
+          </CoreTable>
+          <p
+            v-if="!items.length"
+            class="empty-message"
+          >
+            {{ emptyMessageForItems(items, filterInput) }}
+          </p>
+
+        </div>
+
       </template>
     </PaginatedListContainer>
 
@@ -84,7 +175,11 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import cloneDeep from 'lodash/cloneDeep';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
-  import UserTable from '../UserTable';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
+  import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
+  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import { Modals } from '../../constants';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
   import DeleteUserModal from './DeleteUserModal';
@@ -101,8 +196,12 @@
     components: {
       ResetUserPasswordModal,
       DeleteUserModal,
-      UserTable,
       PaginatedListContainer,
+      CoreInfoIcon,
+      GenderDisplayText,
+      BirthYearDisplayText,
+      CoreTable,
+      UserTypeDisplay,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -213,6 +312,8 @@
       noCoachesExist: 'No coaches exist',
       noSuperAdminsExist: 'No super admins exist',
       noAdminsExist: 'No admins exist',
+      role: 'Role',
+      userActionsColumnHeader: 'Actions',
     },
   };
 
@@ -220,6 +321,29 @@
 
 
 <style lang="scss" scoped>
+
+  .empty-message {
+    margin-bottom: 16px;
+  }
+
+  .role-badge {
+    display: inline-block;
+    padding: 0;
+    padding-right: 8px;
+    padding-left: 8px;
+    margin-left: 16px;
+    font-size: small;
+    white-space: nowrap;
+    border-radius: 4px;
+  }
+
+  .tooltip {
+    margin-left: 2px;
+  }
+
+  td.id-col {
+    max-width: 120px;
+  }
 
   .move-down {
     position: relative;
