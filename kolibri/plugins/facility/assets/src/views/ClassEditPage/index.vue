@@ -156,18 +156,80 @@
       </KGridItem>
     </KGrid>
 
-    <UserTable
-      :users="classLearners"
-      :emptyMessage="$tr('noLearnersInClassMessage')"
-    >
-      <template #action="userRow">
-        <KButton
-          :text="coreString('removeAction')"
-          appearance="flat-button"
-          @click="confirmRemoval(userRow.user, removeClassLearner)"
-        />
-      </template>
-    </UserTable>
+    <div>
+      <CoreTable>
+        <template #headers>
+          <th>
+            <!-- "Full name" header visually hidden if checkbox is on -->
+            <span>
+              {{ coreString('fullNameLabel') }}
+            </span>
+          </th>
+          <th>
+            <span class="visuallyhidden">
+              {{ $tr('role') }}
+            </span>
+          </th>
+          <th>{{ coreString('usernameLabel') }}</th>
+          <th class="user-action-button">
+            <span class="visuallyhidden">
+              {{ $tr('userActionsColumnHeader') }}
+            </span>
+          </th>
+        </template>
+
+        <template #tbody>
+          <tbody>
+            <tr
+              v-for="user in classLearners"
+              :key="user.id"
+            >
+              <td>
+                <KLabeledIcon
+                  icon="person"
+                  :label="user.full_name"
+                />
+                <UserTypeDisplay
+                  aria-hidden="true"
+                  :userType="user.kind"
+                  :omitLearner="true"
+                  class="role-badge"
+                  :style="{
+                    color: $themeTokens.textInverted,
+                    backgroundColor: $themeTokens.annotation,
+                  }"
+                />
+              </td>
+              <td class="visuallyhidden">
+                {{ user.kind }}
+              </td>
+              <td>
+                <span dir="auto">
+                  {{ user.username }}
+                </span>
+              </td>
+              <td class="core-table-button-col">
+                <template>
+                  <KButton
+                    :text="coreString('removeAction')"
+                    appearance="flat-button"
+                    @click="confirmRemoval(user, removeClassLearner)"
+                  />
+                </template>
+              </td>
+            </tr>
+          </tbody>
+        </template>
+      </CoreTable>
+      <p
+        v-if="!classLearners.length"
+        class="empty-message"
+      >
+        {{ $tr('noLearnersInClassMessage') }}
+      </p>
+
+    </div>
+
   </KPageContainer>
 
 </template>
@@ -179,7 +241,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
-  import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import ClassRenameModal from './ClassRenameModal';
   import UserRemoveConfirmationModal from './UserRemoveConfirmationModal';
@@ -196,7 +257,6 @@
       UserRemoveConfirmationModal,
       CoreTable,
       UserTypeDisplay,
-      UserTable,
     },
     mixins: [commonCoreStrings],
     data() {
