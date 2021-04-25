@@ -15,8 +15,8 @@ from sqlalchemy.pool import NullPool
 
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.queue import Queue
-from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.scheduler import Scheduler
+from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.worker import Worker
 from kolibri.utils import server
 
