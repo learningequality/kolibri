@@ -20,7 +20,6 @@ import logging
 import os
 import signal
 import sys
-import time
 
 import six
 from django.db import connections
@@ -59,21 +58,6 @@ def _kill_pid(pid, softkill_signal_number):
             "Soft kill signal could not be sent (OSError); process may not exist?"
         )
         return
-    if pid_exists(pid):
-        logger.info("Waiting for Kolibri to finish shutting down")
-    # give some time for the process to clean itself up gracefully before we force anything
-    i = 0
-    while pid_exists(pid) and i < 60:
-        time.sleep(0.5)
-        i += 1
-    # if process didn't exit cleanly, make one last effort to kill it
-    if pid_exists(pid):
-        logger.debug(
-            "Process wth pid %s still exists after soft kill signal; attempting a SIGKILL."
-            % pid
-        )
-        os.kill(pid, signal.SIGKILL)
-        logger.debug("SIGKILL signal sent without error.")
 
 
 def _posix_kill_pid(pid):

@@ -28,11 +28,9 @@ import kolibri
 from . import sanity_checks
 from . import server
 from .debian_check import check_debian_user
-from .system import become_daemon
 from kolibri.core.deviceadmin.utils import IncompatibleDatabase
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
-from kolibri.deployment.default.cache import recreate_diskcache
 from kolibri.plugins import config
 from kolibri.plugins import DEFAULT_PLUGINS
 from kolibri.plugins.utils import autoremove_unavailable_plugins
@@ -326,6 +324,9 @@ def initialize(skip_update=False):  # noqa: max-complexity=12
     # we attempt to set up django.
     autoremove_unavailable_plugins()
 
+    # Check if there is an options.ini file exist inside the KOLIBRI_HOME folder
+    sanity_checks.check_default_options_exist()
+
     version = get_version()
 
     updated = version_updated(kolibri.__version__, version)
@@ -446,13 +447,6 @@ def main(ctx):
         pass
 
 
-def create_startup_lock(port):
-    try:
-        server._write_pid_file(server.STARTUP_LOCK, port)
-    except (IOError, OSError):
-        logger.warn("Impossible to create file lock to communicate starting process")
-
-
 @main.command(cls=KolibriDjangoCommand, help="Start the Kolibri process")
 @click.option(
     "--port",
@@ -469,70 +463,9 @@ def start(port, background):
     """
     Start the server on given port.
     """
-
-    # Check if there is an options.ini file exist inside the KOLIBRI_HOME folder
-    sanity_checks.check_default_options_exist()
-
-    serve_http = OPTIONS["Server"]["CHERRYPY_START"]
-
-    if serve_http:
-        # Check if the port is occupied
-        sanity_checks.check_other_kolibri_running(port)
-
-    create_startup_lock(port)
-
-    # Clear old sessions up
-    call_command("clearsessions")
-    recreate_diskcache()
-
-    # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
-    # a better fix. See https://github.com/learningequality/kolibri/issues/4821
-    if sys.platform == "darwin":
-        background = False
-
-    if not background:
-        logger.info("Running Kolibri")
-
-    else:
-        logger.info("Running Kolibri as background process")
-
-    if serve_http:
-
-        __, urls = server.get_urls(listen_port=port)
-        if not urls:
-            logger.error(
-                "Could not detect an IP address that Kolibri binds to, but try "
-                "opening up the following addresses:\n"
-            )
-            urls = [
-                "http://{}:{}".format(ip, port) for ip in ("localhost", "127.0.0.1")
-            ]
-        else:
-            logger.info("Kolibri running on:\n")
-        for addr in urls:
-            sys.stderr.write("\t{}\n".format(addr))
-        sys.stderr.write("\n")
-    else:
-        logger.info("Starting Kolibri background workers")
-
-    # Daemonize at this point, no more user output is needed
-    if background:
-
-        from django.conf import settings
-
-        kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
-        logger.info("Going to background mode, logging to {0}".format(kolibri_log))
-
-        kwargs = {}
-        # Truncate the file
-        if os.path.isfile(server.DAEMON_LOG):
-            open(server.DAEMON_LOG, "w").truncate()
-        kwargs["out_log"] = server.DAEMON_LOG
-        kwargs["err_log"] = server.DAEMON_LOG
-
-        become_daemon(**kwargs)
-
-    server.start(port=port, serve_http=serve_http)
+    server.start(
+        port=port, serve_http=OPTIONS["Server"]["CHERRYPY_START"], background=background
+    )
 
 
 @main.command(cls=KolibriCommand, help="Stop the Kolibri process")
@@ -541,33 +474,23 @@ def stop():
     Stops the server unless it isn't running
     """
     try:
-        pid, __, __ = server.get_status()
-        server.stop(pid=pid)
-        stopped = True
+        server.get_status()
+    except server.NotRunning as e:
+        if e.status_code == server.STATUS_STOPPED:
+            logging.info(
+                "Already stopped: {}".format(
+                    server.status_messages[server.STATUS_STOPPED]
+                )
+            )
+            sys.exit(0)
+    status = server.stop()
+    if status == server.STATUS_STOPPED:
         if OPTIONS["Server"]["CHERRYPY_START"]:
             logger.info("Kolibri server has successfully been stopped.")
         else:
             logger.info("Kolibri background services have successfully been stopped.")
-    except server.NotRunning as e:
-        verbose_status = "{msg:s} ({code:d})".format(
-            code=e.status_code, msg=status.codes[e.status_code]
-        )
-        if e.status_code == server.STATUS_STOPPED:
-            logger.info("Already stopped: {}".format(verbose_status))
-            stopped = True
-        elif e.status_code == server.STATUS_STARTING_UP:
-            logger.error("Not stopped: {}".format(verbose_status))
-            sys.exit(e.status_code)
-        else:
-            logger.error(
-                "During graceful shutdown, server says: {}".format(verbose_status)
-            )
-            logger.error("Not responding, killing with force")
-            server.stop(force=True)
-            stopped = True
-
-    if stopped:
         sys.exit(0)
+    sys.exit(status)
 
 
 @main.command(cls=KolibriCommand, help="Show the status of the Kolibri process")
@@ -575,7 +498,7 @@ def status():
     """
     How is Kolibri doing?
     Check the server's status. For possible statuses, see the status dictionary
-    status.codes
+    server.status_messages
 
     Status *always* outputs the current status in the first line of stderr.
     The following lines contain optional information such as the addresses where
@@ -584,39 +507,22 @@ def status():
     TODO: We can't guarantee the above behavior because of the django stack
     being loaded regardless
 
-    Exits with status_code, key has description in status.codes
+    Exits with status_code, key has description in server.status_messages
     """
     status_code, urls = server.get_urls()
 
     if status_code == server.STATUS_RUNNING:
-        sys.stderr.write("{msg:s} (0)\n".format(msg=status.codes[0]))
+        sys.stderr.write("{msg:s} (0)\n".format(msg=server.status_messages[0]))
         if urls:
             sys.stderr.write("Kolibri running on:\n\n")
             for addr in urls:
                 sys.stderr.write("\t{}\n".format(addr))
     else:
-        verbose_status = status.codes[status_code]
+        verbose_status = server.status_messages[status_code]
         sys.stderr.write(
             "{msg:s} ({code:d})\n".format(code=status_code, msg=verbose_status)
         )
     sys.exit(status_code)
-
-
-status.codes = {
-    server.STATUS_RUNNING: "OK, running",
-    server.STATUS_STOPPED: "Stopped",
-    server.STATUS_STARTING_UP: "Starting up",
-    server.STATUS_NOT_RESPONDING: "Not responding",
-    server.STATUS_FAILED_TO_START: "Failed to start (check log file: {0})".format(
-        server.DAEMON_LOG
-    ),
-    server.STATUS_UNCLEAN_SHUTDOWN: "Unclean shutdown",
-    server.STATUS_UNKNOWN_INSTANCE: "Unknown Kolibri running on port",
-    server.STATUS_SERVER_CONFIGURATION_ERROR: "Kolibri server configuration error",
-    server.STATUS_PID_FILE_READ_ERROR: "Could not read PID file",
-    server.STATUS_PID_FILE_INVALID: "Invalid PID file",
-    server.STATUS_UNKNOWN: "Could not determine status",
-}
 
 
 @main.command(cls=KolibriDjangoCommand, help="Start worker processes")
@@ -636,29 +542,9 @@ def services(port, background):
     Start the kolibri background services.
     """
 
-    create_startup_lock(None)
-    recreate_diskcache()
-
     logger.info("Starting Kolibri background services")
 
-    # Daemonize at this point, no more user output is needed
-    if background:
-
-        from django.conf import settings
-
-        kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
-        logger.info("Going to background mode, logging to {0}".format(kolibri_log))
-
-        kwargs = {}
-        # Truncate the file
-        if os.path.isfile(server.DAEMON_LOG):
-            open(server.DAEMON_LOG, "w").truncate()
-        kwargs["out_log"] = server.DAEMON_LOG
-        kwargs["err_log"] = server.DAEMON_LOG
-
-        become_daemon(**kwargs)
-
-    server.start(port=port, serve_http=False)
+    server.start(port=port, serve_http=False, background=background)
 
 
 def setup_logging(debug=False, debug_database=False):

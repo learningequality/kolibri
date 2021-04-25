@@ -7,6 +7,8 @@ from __future__ import unicode_literals
 
 import mock
 import pytest
+import os
+from unittest import TestCase
 
 from kolibri.core.tasks.scheduler import Scheduler
 from kolibri.core.tasks.test.base import connection
@@ -181,3 +183,22 @@ class TestServerServices(object):
 
         # Do we unregister ourselves from zeroconf network?
         unregister_zeroconf_service.assert_called_once()
+
+
+class ServerInitializationTestCase(TestCase):
+    @mock.patch("kolibri.utils.server.logging.error")
+    @mock.patch("kolibri.utils.server.wait_for_free_port")
+    def test_port_occupied(self, wait_for_port_mock, logging_mock):
+        wait_for_port_mock.side_effect = OSError
+        with self.assertRaises(SystemExit):
+            server.check_port_availability("0.0.0.0", "8080")
+            logging_mock.assert_called()
+
+    @mock.patch("kolibri.utils.server.logging.error")
+    @mock.patch("kolibri.utils.server.wait_for_free_port")
+    def test_port_occupied_socket_activation(self, wait_for_port_mock, logging_mock):
+        wait_for_port_mock.side_effect = OSError
+        # LISTEN_PID environment variable would be set if using socket activation
+        with mock.patch.dict(os.environ, {"LISTEN_PID": "1234"}):
+            server.check_port_availability("0.0.0.0", "8080")
+            logging_mock.assert_not_called()
