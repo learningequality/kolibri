@@ -22,7 +22,7 @@ const coachUser = { id: '1', kind: 'coach', username: 'coach', full_name: 'coach
 describe('UserPage component', () => {
   describe('message in empty states', () => {
     function getUserTableEmptyMessage(wrapper) {
-      return wrapper.findComponent({ name: 'UserTable' }).props().emptyMessage;
+      return wrapper.find('.empty-message').text();
     }
 
     it('when there are no users', () => {
