@@ -16,6 +16,7 @@ from magicbus import ProcessBus
 from magicbus.plugins import SimplePlugin
 from magicbus.plugins.servers import ServerPlugin as BaseServerPlugin
 from magicbus.plugins.servers import wait_for_free_port
+from magicbus.plugins.servers import wait_for_occupied_port
 from magicbus.plugins.signalhandler import SignalHandler as BaseSignalHandler
 from magicbus.plugins.tasks import Autoreloader
 from zeroconf import get_all_addresses
@@ -201,12 +202,16 @@ status_map = {
     "EXIT_ERROR": STATUS_UNCLEAN_SHUTDOWN,
 }
 
+IS_RUNNING = set([STATUS_RUNNING, STATUS_STARTING_UP, STATUS_SHUTTING_DOWN])
+
 
 class PIDPlugin(SimplePlugin):
     def __init__(self, bus, port, pid_file=PID_FILE):
         self.bus = bus
         self.port = port
         self.pid_file = pid_file
+        # Do this during initialization to set a startup lock
+        self.set_pid_file(STATUS_STARTING_UP)
         self.bus.subscribe("SERVING", self.SERVING)
         for bus_status, status in status_map.items():
             handler = partial(self.set_pid_file, status)
@@ -234,13 +239,14 @@ class PIDPlugin(SimplePlugin):
 
 class DaemonizePlugin(SimplePlugin):
     def ENTER(self):
-        logger.info("Running Kolibri as background process")
-        logger.info("For information about accessing the server, run kolibri status")
+        self.bus.publish("log", "Running Kolibri as background process", 20)
         # Daemonize at this point, no more user output is needed
         from django.conf import settings
 
         kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
-        logger.info("Going to background mode, logging to {0}".format(kolibri_log))
+        self.bus.publish(
+            "log", "Going to background mode, logging to {0}".format(kolibri_log), 20
+        )
 
         kwargs = {}
         # Truncate the file
@@ -251,6 +257,7 @@ class DaemonizePlugin(SimplePlugin):
 
         become_daemon(**kwargs)
 
+    # Set this to priority 0 so that it gets executed before any other ENTER handlers.
     ENTER.priority = 0
 
 
@@ -282,6 +289,16 @@ class SignalHandler(BaseSignalHandler):
         self.process_pid = os.getpid()
 
 
+def wait_for_status(target, timeout=10):
+    starttime = time.time()
+    while time.time() - starttime <= 10:
+        _, _, _, status = _read_pid_file(PID_FILE)
+        if status != target:
+            time.sleep(0.1)
+        else:
+            break
+
+
 def stop():
     """
     Stops the kolibri server
@@ -293,18 +310,14 @@ def stop():
         return status
 
     kill_pid(pid)
-    starttime = time.time()
-    while time.time() - starttime <= 10:
-        if os.path.exists(PID_FILE):
-            time.sleep(0.1)
-        else:
-            break
+    wait_for_status(STATUS_STOPPED)
     if pid_exists(pid):
         logger.debug(
             "Process wth pid %s still exists after soft kill signal; attempting a SIGKILL."
             % pid
         )
         os.kill(pid, signal.SIGKILL)
+    starttime = time.time()
     while time.time() - starttime <= 10:
         if pid_exists(pid):
             time.sleep(0.1)
@@ -388,30 +401,40 @@ def start(port=8080, serve_http=True, background=False):
     if sys.platform == "darwin":
         background = False
 
-    try:
-        # Check if there are other kolibri instances running
-        # If there are, then we need to stop users from starting kolibri again.
-        get_status()
+    # Check if there are other kolibri instances running
+    # If there are, then we need to stop users from starting kolibri again.
+    pid, port, status = _read_pid_file(PID_FILE)
+
+    if status in IS_RUNNING:
         logger.error(
             "There is another Kolibri server running. "
             "Please use `kolibri stop` and try again."
         )
         sys.exit(1)
 
-    except NotRunning:
-        if background and serve_http:
-            # Do this before daemonization, otherwise just let the server processes handle this
-            # In case that something other than Kolibri occupies the port,
-            # check the port's availability.
-            check_port_availability(LISTEN_ADDRESS, port)
-
-    logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
-
     bus = ProcessBus()
 
     # Setup plugin for handling PID file cleanup
+    # Do this first to obtain a PID file lock as soon as
+    # possible and reduce the risk of competing servers
     pid_plugin = PIDPlugin(bus, port)
     pid_plugin.subscribe()
+
+    if background and serve_http:
+        # Do this before daemonization, otherwise just let the server processes handle this
+        # In case that something other than Kolibri occupies the port,
+        # check the port's availability.
+        check_port_availability(LISTEN_ADDRESS, port)
+        if port:
+            __, urls = get_urls(listen_port=port)
+            for url in urls:
+                logger.info("Kolibri running on: {}".format(url))
+        else:
+            logger.info(
+                "No port specified, for information about accessing the server, run kolibri status"
+            )
+
+    logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
 
     if background:
         daemonize_plugin = DaemonizePlugin(bus)
@@ -485,8 +508,21 @@ def get_status():  # noqa: max-complexity=16
     # PID file exists and startup has finished, check if it is running
     pid, port, status = _read_pid_file(PID_FILE)
 
-    if status:
+    if status not in IS_RUNNING:
         raise NotRunning(status)
+
+    if status == STATUS_STARTING_UP:
+        try:
+            wait_for_occupied_port(LISTEN_ADDRESS, port)
+        except OSError:
+            raise NotRunning(STATUS_FAILED_TO_START)
+
+    if status == STATUS_SHUTTING_DOWN:
+        try:
+            wait_for_free_port(LISTEN_ADDRESS, port)
+        except OSError:
+            raise NotRunning(STATUS_UNCLEAN_SHUTDOWN)
+        raise NotRunning(STATUS_STOPPED)
 
     # PID file exists, but process is dead
     if pid is None or not pid_exists(pid):
