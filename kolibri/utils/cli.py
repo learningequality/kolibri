@@ -455,16 +455,25 @@ def main(ctx):
     help="Port on which Kolibri is being served",
 )
 @click.option(
+    "--zip-port",
+    default=OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
+    type=int,
+    help="Port on which zip content server is being served",
+)
+@click.option(
     "--background/--foreground",
     default=True,
     help="Run Kolibri as a background process",
 )
-def start(port, background):
+def start(port, zip_port, background):
     """
     Start the server on given port.
     """
     server.start(
-        port=port, serve_http=OPTIONS["Server"]["CHERRYPY_START"], background=background
+        port=port,
+        zip_port=zip_port,
+        serve_http=OPTIONS["Server"]["CHERRYPY_START"],
+        background=background,
     )
 
 
@@ -530,7 +539,7 @@ def status():
     "--port",
     default=OPTIONS["Deployment"]["HTTP_PORT"],
     type=int,
-    help="Port on which to run Kolibri services",
+    help="Port on which Kolibri is running to inform services",
 )
 @click.option(
     "--background/--foreground",
@@ -544,7 +553,7 @@ def services(port, background):
 
     logger.info("Starting Kolibri background services")
 
-    server.start(port=port, serve_http=False, background=background)
+    server.start(port=port, zip_port=None, serve_http=False, background=background)
 
 
 def setup_logging(debug=False, debug_database=False):

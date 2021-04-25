@@ -206,13 +206,15 @@ IS_RUNNING = set([STATUS_RUNNING, STATUS_STARTING_UP, STATUS_SHUTTING_DOWN])
 
 
 class PIDPlugin(SimplePlugin):
-    def __init__(self, bus, port, pid_file=PID_FILE):
+    def __init__(self, bus, port, zip_port, pid_file=PID_FILE):
         self.bus = bus
         self.port = port
+        self.zip_port = zip_port
         self.pid_file = pid_file
         # Do this during initialization to set a startup lock
         self.set_pid_file(STATUS_STARTING_UP)
         self.bus.subscribe("SERVING", self.SERVING)
+        self.bus.subscribe("ZIP_SERVING", self.ZIP_SERVING)
         for bus_status, status in status_map.items():
             handler = partial(self.set_pid_file, status)
             handler.priority = 10
@@ -225,10 +227,17 @@ class PIDPlugin(SimplePlugin):
         :param: status: status of the process
         """
         with open(self.pid_file, "w") as f:
-            f.write("{}\n{}\n{}\n".format(os.getpid(), self.port, status))
+            f.write(
+                "{}\n{}\n{}\n{}\n".format(os.getpid(), self.port, self.zip_port, status)
+            )
 
     def SERVING(self, port):
         self.port = port or self.port
+        self.set_pid_file(STATUS_RUNNING)
+
+    def ZIP_SERVING(self, zip_port):
+        self.zip_port = zip_port or self.zip_port
+        self.set_pid_file(STATUS_RUNNING)
 
     def EXIT(self):
         try:
@@ -304,7 +313,7 @@ def stop():
     Stops the kolibri server
     :raises: NotRunning
     """
-    pid, __, status = _read_pid_file(PID_FILE)
+    pid, __, __, status = _read_pid_file(PID_FILE)
 
     if not pid:
         return status
@@ -335,7 +344,7 @@ def stop():
     return STATUS_STOPPED
 
 
-def configure_http_server(port, bus):
+def configure_http_server(port, zip_port, bus):
     from kolibri.deployment.default.wsgi import application
     from kolibri.deployment.default.alt_wsgi import alt_application
 
@@ -357,7 +366,7 @@ def configure_http_server(port, bus):
 
     alt_port_addr = (
         LISTEN_ADDRESS,
-        conf.OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
+        zip_port,
     )
 
     alt_port_server = ServerPlugin(
@@ -390,11 +399,11 @@ def check_port_availability(host, port):
             sys.exit(1)
 
 
-def start(port=8080, serve_http=True, background=False):
+def start(port=0, zip_port=0, serve_http=True, background=False):
     """
     Starts the server.
 
-    :param: port: Port number (default: 8080)
+    :param: port: Port number (default: 0) - assigned by free port
     """
     # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
     # a better fix. See https://github.com/learningequality/kolibri/issues/4821
@@ -403,7 +412,7 @@ def start(port=8080, serve_http=True, background=False):
 
     # Check if there are other kolibri instances running
     # If there are, then we need to stop users from starting kolibri again.
-    pid, port, status = _read_pid_file(PID_FILE)
+    _, _, _, status = _read_pid_file(PID_FILE)
 
     if status in IS_RUNNING:
         logger.error(
@@ -417,7 +426,7 @@ def start(port=8080, serve_http=True, background=False):
     # Setup plugin for handling PID file cleanup
     # Do this first to obtain a PID file lock as soon as
     # possible and reduce the risk of competing servers
-    pid_plugin = PIDPlugin(bus, port)
+    pid_plugin = PIDPlugin(bus, port, zip_port)
     pid_plugin.subscribe()
 
     if background and serve_http:
@@ -444,7 +453,7 @@ def start(port=8080, serve_http=True, background=False):
     log_plugin.subscribe()
 
     if serve_http:
-        configure_http_server(port, bus)
+        configure_http_server(port, zip_port, bus)
 
     # Setup plugin for services
     service_plugin = ServicesPlugin(bus, port)
@@ -478,18 +487,24 @@ def _read_pid_file(filename):
                           port is None.
     """
     if not os.path.isfile(PID_FILE):
-        return None, None, STATUS_STOPPED
+        return None, None, None, STATUS_STOPPED
 
     try:
         pid_file_lines = open(filename, "r").readlines()
-        pid, port, status = pid_file_lines
+        pid, port, zip_port, status = pid_file_lines
         pid = int(pid.strip())
         port = int(port.strip()) if port.strip() else None
+        zip_port = int(zip_port.strip()) if zip_port.strip() else None
         status = int(status.strip())
-        return pid, port, status
+        return pid, port, zip_port, status
     except (TypeError, ValueError, IOError, OSError):
         pass
-    return None, None, STATUS_PID_FILE_INVALID
+    return None, None, None, STATUS_PID_FILE_INVALID
+
+
+def get_zip_port():
+    _, _, zip_port, _ = _read_pid_file(PID_FILE)
+    return zip_port
 
 
 def get_status():  # noqa: max-complexity=16
@@ -506,7 +521,7 @@ def get_status():  # noqa: max-complexity=16
     :raises: NotRunning
     """
     # PID file exists and startup has finished, check if it is running
-    pid, port, status = _read_pid_file(PID_FILE)
+    pid, port, _, status = _read_pid_file(PID_FILE)
 
     if status not in IS_RUNNING:
         raise NotRunning(status)
