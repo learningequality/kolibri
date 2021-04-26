@@ -332,7 +332,7 @@ export class Collection {
                   this.new = false;
                 } else {
                   // It's all gone a bit Pete Tong.
-                  logging.error('Data appears to be malformed', response.data);
+                  this.resource.logError(response);
                   reject(response);
                 }
                 resolve(this.data);
