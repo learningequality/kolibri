@@ -6,11 +6,8 @@
 import setWebpackPublicPath from '../utils/setWebpackPublicPath';
 import plugin_data from 'plugin_data';
 
-function generateUrl(baseUrl, { url, host, port } = {}) {
-  let urlObject = new URL(baseUrl, window.location.origin);
-  if (host) {
-    urlObject.host = host;
-  }
+function generateUrl(baseUrl, { url, origin, port } = {}) {
+  let urlObject = new URL(baseUrl, origin || window.location.origin);
   if (port) {
     urlObject.port = port;
   }
@@ -35,7 +32,7 @@ const urls = {
       throw new ReferenceError('Hashi Url is not defined');
     }
     return generateUrl(this.__hashiUrl, {
-      host: this.__zipContentHost,
+      origin: this.__zipContentOrigin,
       port: this.__zipContentPort,
     });
   },
@@ -59,7 +56,7 @@ const urls = {
       }
       return generateUrl(this.__zipContentUrl, {
         url: `${filename}/${embeddedFilePath}`,
-        host: this.__zipContentHost,
+        origin: this.__zipContentOrigin,
         port: this.__zipContentPort,
       });
     }
