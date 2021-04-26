@@ -1,3 +1,4 @@
+import store from 'kolibri.coreVue.vuex.store';
 import logger from 'kolibri.lib.logging';
 import find from 'lodash/find';
 import matches from 'lodash/matches';
@@ -86,7 +87,7 @@ export class Model {
                 this.promises.splice(this.promises.indexOf(promise), 1);
               },
               response => {
-                logging.error('An error occurred', response);
+                this.resource.logError(response);
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
@@ -164,7 +165,7 @@ export class Model {
                 this.promises.splice(this.promises.indexOf(promise), 1);
               },
               response => {
-                logging.error('An error occurred', response);
+                this.resource.logError(response);
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
@@ -214,7 +215,7 @@ export class Model {
                 this.promises.splice(this.promises.indexOf(promise), 1);
               },
               response => {
-                logging.error('An error occurred', response);
+                this.resource.logError(response);
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
@@ -340,7 +341,7 @@ export class Collection {
                 this.promises.splice(this.promises.indexOf(promise), 1);
               },
               response => {
-                logging.error('An error occurred', response);
+                this.resource.logError(response);
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
@@ -399,7 +400,7 @@ export class Collection {
               this.promises.splice(this.promises.indexOf(promise), 1);
             },
             response => {
-              logging.error('An error occurred', response);
+              this.resource.logError(response);
               reject(response);
               // Clean up the reference to this promise
               this.promises.splice(this.promises.indexOf(promise), 1);
@@ -450,7 +451,7 @@ export class Collection {
                 this.promises.splice(this.promises.indexOf(promise), 1);
               },
               response => {
-                logging.error('An error occurred', response);
+                this.resource.logError(response);
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
@@ -987,5 +988,39 @@ export class Resource {
       options.cacheBust = false;
     }
     return client(options);
+  }
+
+  logError(err) {
+    /* eslint-disable no-console */
+    console.group(
+      `%cRequest error: ${err.response.statusText}, ${
+        err.response.status
+      } for ${err.config.method.toUpperCase()} to ${err.config.url}`,
+      'color: red'
+    );
+    console.log(`Error occured for ${this.name} resource on page ${window.location.href}`);
+    if (store.state.route) {
+      console.log(
+        `Vue router fullPath is ${store.state.route.fullPath} with route name ${store.state.route.name}`
+      );
+      if (Object.keys(store.state.route.params).length) {
+        console.log('Vue router params', store.state.route.params);
+      }
+    }
+    if (Object.keys(err.config.params).length) {
+      console.log('Params:', err.config.params);
+    }
+    if (err.config.data) {
+      try {
+        const data = JSON.parse(err.config.data);
+        console.log('Data:', data);
+      } catch (e) {} // eslint-disable-line no-empty
+    }
+    if (err.config.headers) {
+      console.log('Headers:', err.config.headers);
+    }
+    console.trace('Traceback for request');
+    console.groupEnd();
+    /* eslint-enable */
   }
 }
