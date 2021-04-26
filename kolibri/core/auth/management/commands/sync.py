@@ -70,7 +70,7 @@ class Command(AsyncCommand):
             help="password of superuser or facility admin on server we are syncing with",
         )
         parser.add_argument(
-            "--user-id",
+            "--user",
             type=str,
             help="for single-user syncing, the user ID of the account to be synced",
         )
@@ -100,7 +100,7 @@ class Command(AsyncCommand):
             options["chunk_size"],
             options["username"],
             options["password"],
-            options["user_id"],
+            options["user"],
             options["no_push"],
             options["no_pull"],
             options["noninteractive"],

@@ -489,7 +489,7 @@ class EcosystemTestCase(TestCase):
             "password",
             "--facility",
             facility_id,
-            "--user-id",
+            "--user",
             learner1.id,
         )
         # Test that we can single user sync with learner creds
@@ -503,7 +503,7 @@ class EcosystemTestCase(TestCase):
             "syncing",
             "--facility",
             facility_id,
-            "--user-id",
+            "--user",
             learner2.id,
         )
 
@@ -568,7 +568,7 @@ class EcosystemTestCase(TestCase):
             s0_url,
             "--facility",
             facility_id,
-            "--user-id",
+            "--user",
             learner1.id,
         )
         # Test that we can single user sync with learner creds
@@ -578,7 +578,7 @@ class EcosystemTestCase(TestCase):
             s0_url,
             "--facility",
             facility_id,
-            "--user-id",
+            "--user",
             learner2.id,
         )
 
