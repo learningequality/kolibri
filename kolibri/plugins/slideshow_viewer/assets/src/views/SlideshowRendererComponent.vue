@@ -121,6 +121,14 @@
       contentHeight: function() {
         return window.innerHeight * 0.7 + 'px';
       },
+      /* eslint-disable kolibri/vue-no-unused-properties */
+      /**
+       * @public
+       */
+      defaultDuration() {
+        return this.duration || 300000;
+      },
+      /* eslint-enable kolibri/vue-no-unused-properties */
     },
     watch: {
       defaultFile(newFile) {
@@ -134,7 +142,8 @@
         }
       },
       currentSlideIndex() {
-        if (this.currentSlideIndex + 1 === this.slides.length) {
+        console.log('in currentslideindex', this.currentSlideIndex + 1, this.slides.length);
+        if (this.currentSlideIndex + 1 <= this.slides.length) {
           this.updateProgress();
         }
       },
@@ -244,15 +253,28 @@
         this.$emit('updateContentState', this.extraFields.contentState);
       },
       updateProgress() {
-        // updateProgress adds the percent to the existing value, so only pass
+        // if the forceTimeBasedProgress is set to true, updateProgress uses time-based tracking,
+        // else updateProgress adds the percent to the existing value, so only pass
         // the percentage of progress in this session, not the full percentage.
-        const progressPercent =
-          this.highestViewedSlideIndex + 1 === this.slides.length
-            ? 1.0
-            : (this.highestViewedSlideIndex -
-                this.extraFields.contentState.highestViewedSlideIndex) /
-              this.slides.length;
-        this.$emit('updateProgress', progressPercent);
+        if (this.forceTimeBasedProgress) {
+          console.log('forcetime,', this.durationBasedProgress);
+          this.$emit('updateProgress', this.durationBasedProgress);
+        } else {
+          console.log('this.highestViewedSlideIndex', this.highestViewedSlideIndex);
+          console.log(
+            'this.extraFields.contentState.highestViewedSlideIndex',
+            this.extraFields.contentState.highestViewedSlideIndex
+          );
+          console.log('this.slides.length', this.slides.length);
+          const progressPercent =
+            this.highestViewedSlideIndex + 1 === this.slides.length
+              ? 1.0
+              : (this.highestViewedSlideIndex -
+                  this.extraFields.contentState.highestViewedSlideIndex) /
+                this.slides.length;
+          console.log('prog%', progressPercent);
+          this.$emit('updateProgress', progressPercent);
+        }
       },
     },
     $trs: {

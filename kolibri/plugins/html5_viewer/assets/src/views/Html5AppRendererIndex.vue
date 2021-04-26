@@ -33,10 +33,9 @@
       <iframe
         ref="iframe"
         class="iframe"
+        sandbox="allow-scripts allow-same-origin"
         :style="{ backgroundColor: $themePalette.grey.v_100 }"
-        :sandbox="sandbox"
         frameBorder="0"
-        :name="name"
         :src="rooturl"
       >
       </iframe>
@@ -48,14 +47,11 @@
 
 <script>
 
+  import urls from 'kolibri.urls';
   import { now } from 'kolibri.utils.serverClock';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
-  import { nameSpace } from 'hashi/src/hashiBase';
-  import plugin_data from 'plugin_data';
-  // Regex vendored from https://github.com/faisalman/ua-parser-js/blob/master/src/ua-parser.js
-  const iOSTest = /ip[honead]{2,4}(?:.*os\s([\w]+)\slike\smac|;\sopera)/i;
-  const IE11Test = /(trident).+rv[:\s]([\w.]+).+like\sgecko/i;
+
   const defaultContentHeight = '500px';
   const frameTopbarHeight = '37px';
   const pxStringAdd = (x, y) => parseInt(x, 10) + parseInt(y, 10) + 'px';
@@ -70,14 +66,8 @@
       };
     },
     computed: {
-      name() {
-        return nameSpace;
-      },
       rooturl() {
-        const iOS = iOSTest.test(navigator.userAgent);
-        const iOSorIE11 = iOS || IE11Test.test(navigator.userAgent);
-        // Skip hashi on requests for these browsers
-        return this.defaultFile.storage_url + (iOSorIE11 ? '?SKIP_HASHI=true' : '');
+        return urls.hashi();
       },
       iframeHeight() {
         return (this.options && this.options.height) || defaultContentHeight;
@@ -87,9 +77,6 @@
       },
       contentRendererHeight() {
         return pxStringAdd(this.iframeHeight, frameTopbarHeight);
-      },
-      sandbox() {
-        return plugin_data.html5_sandbox_tokens;
       },
       fullscreenText() {
         return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
@@ -117,10 +104,10 @@
       /* eslint-disable kolibri/vue-no-unused-properties */
       /**
        * @public
+       * Note: the default duration historically for HTML5 Apps has been 5 min
        */
       defaultDuration() {
-        const totalTime = this.timeSpent * 1000;
-        return !this.duration ? totalTime : this.duration;
+        return this.duration || 300000;
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
     },
@@ -138,7 +125,9 @@
       });
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},
-        this.userData
+        this.userData,
+        this.defaultFile.storage_url,
+        this.defaultFile.checksum
       );
       this.$emit('startTracking');
       this.pollProgress();
@@ -151,11 +140,10 @@
     },
     methods: {
       recordProgress() {
-        const totalTime = this.timeSpent * 1000;
         const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
         this.$emit(
           'updateProgress',
-          hashiProgress === null ? Math.max(0, totalTime / 300000) : hashiProgress
+          hashiProgress === null ? this.durationBasedProgress : hashiProgress
         );
         this.pollProgress();
       },
