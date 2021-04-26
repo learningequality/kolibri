@@ -1,4 +1,3 @@
-import store from 'kolibri.coreVue.vuex.store';
 import logger from 'kolibri.lib.logging';
 import find from 'lodash/find';
 import matches from 'lodash/matches';
@@ -991,33 +990,53 @@ export class Resource {
   }
 
   logError(err) {
+    const store = require('kolibri.coreVue.vuex.store').default;
     /* eslint-disable no-console */
-    console.group(
+    console.groupCollapsed(
       `%cRequest error: ${err.response.statusText}, ${
         err.response.status
-      } for ${err.config.method.toUpperCase()} to ${err.config.url}`,
+      } for ${err.config.method.toUpperCase()} to ${err.config.url} - open for more info`,
       'color: red'
     );
     console.log(`Error occured for ${this.name} resource on page ${window.location.href}`);
     if (store.state.route) {
-      console.log(
-        `Vue router fullPath is ${store.state.route.fullPath} with route name ${store.state.route.name}`
-      );
+      console.group('Vue Router');
+      console.log(`fullPath: ${store.state.route.fullPath}`);
+      console.log(`Route name: ${store.state.route.name}`);
       if (Object.keys(store.state.route.params).length) {
-        console.log('Vue router params', store.state.route.params);
+        console.group('Vue router params');
+        for (let [k, v] of Object.entries(store.state.route.params)) {
+          console.log(`${k}: ${v}`);
+        }
+        console.groupEnd();
       }
+      console.groupEnd();
     }
     if (Object.keys(err.config.params).length) {
-      console.log('Params:', err.config.params);
+      console.group('Query parameters');
+      for (let [k, v] of Object.entries(err.config.params)) {
+        console.log(`${k}: ${v}`);
+      }
+      console.groupEnd();
     }
     if (err.config.data) {
       try {
         const data = JSON.parse(err.config.data);
-        console.log('Data:', data);
+        if (Object.keys(data).length) {
+          console.group('Data');
+          for (let [k, v] of Object.entries(data)) {
+            console.log(`${k}: ${v}`);
+          }
+          console.groupEnd();
+        }
       } catch (e) {} // eslint-disable-line no-empty
     }
-    if (err.config.headers) {
-      console.log('Headers:', err.config.headers);
+    if (Object.keys(err.config.headers).length) {
+      console.group('Headers');
+      for (let [k, v] of Object.entries(err.config.headers)) {
+        console.log(`${k}: ${v}`);
+      }
+      console.groupEnd();
     }
     console.trace('Traceback for request');
     console.groupEnd();
