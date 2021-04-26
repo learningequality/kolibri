@@ -1,6 +1,7 @@
 import json
 import logging
 import math
+import re
 from contextlib import contextmanager
 
 from django.core.management import call_command
@@ -14,6 +15,8 @@ from ..utils import create_superuser_and_provision_device
 from ..utils import get_baseurl
 from ..utils import get_client_and_server_certs
 from ..utils import get_dataset_id
+from ..utils import get_single_user_sync_filter
+from ..utils import provision_single_user_device
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.constants.morango_sync import State
@@ -59,12 +62,17 @@ class Command(AsyncCommand):
         parser.add_argument(
             "--username",
             type=str,
-            help="username of superuser on server we are syncing with",
+            help="username of superuser or facility admin on server we are syncing with",
         )
         parser.add_argument(
             "--password",
             type=str,
-            help="password of superuser on server we are syncing with",
+            help="password of superuser or facility admin on server we are syncing with",
+        )
+        parser.add_argument(
+            "--user",
+            type=str,
+            help="for single-user syncing, the user ID of the account to be synced",
         )
         parser.add_argument(
             "--no-provision",
@@ -81,6 +89,7 @@ class Command(AsyncCommand):
             chunk_size,
             username,
             password,
+            user_id,
             no_push,
             no_pull,
             noninteractive,
@@ -91,6 +100,7 @@ class Command(AsyncCommand):
             options["chunk_size"],
             options["username"],
             options["password"],
+            options["user"],
             options["no_push"],
             options["no_pull"],
             options["noninteractive"],
@@ -123,7 +133,36 @@ class Command(AsyncCommand):
                 "Device can not sync with itself. Please recheck base URL and try again."
             )
 
-        if PORTAL_SYNC:  # do portal sync setup
+        if user_id:  # it's a single-user sync
+
+            if not facility_id:
+                raise CommandError(
+                    "Facility ID must be specified in order to do single-user syncing"
+                )
+            if not re.match("[a-f0-9]{32}", user_id):
+                raise CommandError("User ID must be a 32-character UUID (no dashes)")
+
+            dataset_id = get_dataset_id(
+                baseurl, identifier=facility_id, noninteractive=True
+            )
+
+            client_cert, server_cert, username = get_client_and_server_certs(
+                username,
+                password,
+                dataset_id,
+                network_connection,
+                user_id=user_id,
+                noninteractive=noninteractive,
+            )
+
+            scopes = [client_cert.scope_definition_id, server_cert.scope_definition_id]
+
+            if len(set(scopes)) != 2:
+                raise CommandError(
+                    "To do a single-user sync, one device must have a single-user certificate, and the other a full-facility certificate."
+                )
+
+        elif PORTAL_SYNC:  # do portal sync setup
             facility = get_facility(
                 facility_id=facility_id, noninteractive=noninteractive
             )
@@ -182,16 +221,34 @@ class Command(AsyncCommand):
         try:
             # pull from server
             if not no_pull:
-                self._handle_pull(sync_session_client, noninteractive, dataset_id)
+                self._handle_pull(
+                    sync_session_client,
+                    noninteractive,
+                    dataset_id,
+                    client_cert,
+                    server_cert,
+                    user_id=user_id,
+                )
             # and push our own data to server
             if not no_push:
-                self._handle_push(sync_session_client, noninteractive, dataset_id)
+                self._handle_push(
+                    sync_session_client,
+                    noninteractive,
+                    dataset_id,
+                    client_cert,
+                    server_cert,
+                    user_id=user_id,
+                )
 
             if not no_provision:
                 with self._lock():
-                    create_superuser_and_provision_device(
-                        username, dataset_id, noninteractive=noninteractive
-                    )
+                    if user_id:
+                        provision_single_user_device(user_id)
+                    else:
+                        create_superuser_and_provision_device(
+                            username, dataset_id, noninteractive=noninteractive
+                        )
+
         except UserCancelledError:
             if self.job:
                 self.job.extra_metadata.update(sync_state=State.CANCELLED)
@@ -226,7 +283,15 @@ class Command(AsyncCommand):
         if self.is_cancelled() and (not self.job or self.job.cancellable):
             raise UserCancelledError()
 
-    def _handle_pull(self, sync_session_client, noninteractive, dataset_id):
+    def _handle_pull(
+        self,
+        sync_session_client,
+        noninteractive,
+        dataset_id,
+        client_cert,
+        server_cert,
+        user_id,
+    ):
         """
         :type sync_session_client: morango.sync.syncsession.SyncSessionClient
         :type noninteractive: bool
@@ -261,12 +326,32 @@ class Command(AsyncCommand):
             "Completed pull transfer session",
         )
 
-        sync_client.initialize(Filter(dataset_id))
+        if not user_id:
+            # full-facility sync
+            sync_client.initialize(Filter(dataset_id))
+        else:
+            # single-user sync
+            client_is_single_user = (
+                client_cert.scope_definition_id == ScopeDefinitions.SINGLE_USER
+            )
+            filt = get_single_user_sync_filter(
+                dataset_id, user_id, is_read=client_is_single_user
+            )
+            sync_client.initialize(Filter(filt))
+
         sync_client.run()
         with self._lock():
             sync_client.finalize()
 
-    def _handle_push(self, sync_session_client, noninteractive, dataset_id):
+    def _handle_push(
+        self,
+        sync_session_client,
+        noninteractive,
+        dataset_id,
+        client_cert,
+        server_cert,
+        user_id,
+    ):
         """
         :type sync_session_client: morango.sync.syncsession.SyncSessionClient
         :type noninteractive: bool
@@ -301,7 +386,18 @@ class Command(AsyncCommand):
         )
 
         with self._lock():
-            sync_client.initialize(Filter(dataset_id))
+            if not user_id:
+                # full-facility sync
+                sync_client.initialize(Filter(dataset_id))
+            else:
+                # single-user sync
+                client_is_single_user = (
+                    client_cert.scope_definition_id == ScopeDefinitions.SINGLE_USER
+                )
+                filt = get_single_user_sync_filter(
+                    dataset_id, user_id, is_read=not client_is_single_user
+                )
+                sync_client.initialize(Filter(filt))
 
         sync_client.run()
 
