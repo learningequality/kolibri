@@ -28,8 +28,6 @@
         :userId="currentUserId"
         :userFullName="fullName"
         :timeSpent="summaryTimeSpent"
-        :duration="duration"
-        @defaultDuration="defaultDuration"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"

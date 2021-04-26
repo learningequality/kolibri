@@ -21,42 +21,25 @@
           class="fullscreen-header"
           :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
         >
-          <UiIconButton
+          <KIconButton
             class="button-zoom-in controls"
             aria-controls="pdf-container"
+            icon="add"
             @click="zoomIn"
-          >
-            <mat-svg
-              name="add"
-              category="content"
-            />
-          </UiIconButton>
-          <UiIconButton
+          />
+          <KIconButton
             class="button-zoom-out controls"
             aria-controls="pdf-container"
+            icon="remove"
             @click="zoomOut"
-          >
-            <mat-svg
-              name="remove"
-              category="content"
-            />
-          </UiIconButton>
+          />
           <KButton
             class="fullscreen-button"
             :primary="false"
             appearance="flat-button"
+            :icon="isInFullscreen ? 'fullscreen_exit' : 'fullscreen'"
             @click="$refs.pdfRenderer.toggleFullscreen()"
           >
-            <mat-svg
-              v-if="isInFullscreen"
-              name="fullscreen_exit"
-              category="navigation"
-            />
-            <mat-svg
-              v-else
-              name="fullscreen"
-              category="navigation"
-            />
             {{ fullscreenText }}
           </KButton>
         </div>
@@ -103,7 +86,6 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import urls from 'kolibri.urls';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import PdfPage from './PdfPage';
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
   // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF
@@ -116,7 +98,6 @@
   export default {
     name: 'PdfRendererIndex',
     components: {
-      UiIconButton,
       PdfPage,
       RecycleList,
       CoreFullscreen,
@@ -360,7 +341,6 @@
         this.$refs.recycleList.updateVisibleItems(false);
       },
       updateProgress() {
-        console.log('duration based progress in PDF renderer', this.durationBasedProgress);
         this.$emit('updateProgress', this.durationBasedProgress);
       },
       updateContentState() {
@@ -402,10 +382,7 @@
   }
   .controls {
     position: relative;
-    top: 8px;
     z-index: 0; // Hide icons with transition
-    width: 24px;
-    height: 24px;
     margin: 0 4px;
   }
   .progress-bar {
