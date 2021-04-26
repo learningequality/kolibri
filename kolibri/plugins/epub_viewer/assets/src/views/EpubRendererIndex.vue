@@ -151,7 +151,6 @@
   import clamp from 'lodash/clamp';
   import Lockr from 'lockr';
   import FocusLock from 'vue-focus-lock';
-  import { mapGetters } from 'vuex';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -226,7 +225,6 @@
       };
     },
     computed: {
-      ...mapGetters(['summaryTimeSpent']),
       isAtStart() {
         return get(this.rendition, 'location.atStart', false);
       },
@@ -470,16 +468,8 @@
     },
     methods: {
       updateProgress() {
-        console.log('locations', this.locations.length, this);
         if (this.locations.length > 0) {
-          console.log(
-            'updating progress',
-            this.timeSpent,
-            this.summaryTimeSpent,
-            this.expectedTimeToRead,
-            this.summaryTimeSpent / this.expectedTimeToRead
-          );
-          this.$emit('updateProgress', this.summaryTimeSpent / this.expectedTimeToRead);
+          this.$emit('updateProgress', this.durationBasedProgress);
         }
       },
       handleReadyRendition() {
