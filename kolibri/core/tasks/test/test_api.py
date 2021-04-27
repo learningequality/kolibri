@@ -6,7 +6,6 @@ from mock import ANY
 from mock import call
 from mock import Mock
 from mock import patch
-from mock import PropertyMock
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import ParseError
 from rest_framework.exceptions import PermissionDenied
@@ -65,24 +64,26 @@ class BaseAPITestCase(APITestCase):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
 
 
+@patch("kolibri.core.tasks.api.priority_queue")
 @patch("kolibri.core.tasks.api.queue")
 class TaskAPITestCase(BaseAPITestCase):
-    def test_task_cancel(self, queue_mock):
+    def test_task_cancel(self, queue_mock, priority_queue_mock):
         queue_mock.fetch_job.return_value = fake_job(state=State.CANCELED)
         response = self.client.post(
             reverse("kolibri:core:task-canceltask"), {"task_id": "1"}, format="json"
         )
         self.assertEqual(response.data, {})
 
-    def test_task_cancel_no_task(self, queue_mock):
+    def test_task_cancel_no_task(self, queue_mock, priority_queue_mock):
         queue_mock.cancel.side_effect = JobNotFound()
         response = self.client.post(
             reverse("kolibri:core:task-canceltask"), {"task_id": "1"}, format="json"
         )
         self.assertEqual(response.status_code, 200)
 
-    def test_task_get_no_task(self, queue_mock):
+    def test_task_get_no_task(self, queue_mock, priority_queue_mock):
         queue_mock.fetch_job.side_effect = JobNotFound()
+        priority_queue_mock.fetch_job.side_effect = JobNotFound()
         response = self.client.get(
             reverse("kolibri:core:task-detail", kwargs={"pk": "1"}),
             {"task_id": "1"},
@@ -90,35 +91,33 @@ class TaskAPITestCase(BaseAPITestCase):
         )
         self.assertEqual(response.status_code, 404)
 
-    def test_tasks_clearable_flag(self, queue_mock):
-        with patch(
-            "kolibri.core.tasks.queue.Queue.jobs", new_callable=PropertyMock
-        ) as jobs_mock:
-            jobs_mock.return_value = [
-                fake_job(state=state)
-                for state in [
-                    # not clearable
-                    State.SCHEDULED,
-                    State.QUEUED,
-                    State.RUNNING,
-                    State.CANCELING,
-                    # clearable
-                    State.FAILED,
-                    State.CANCELED,
-                    State.COMPLETED,
-                ]
+    def test_tasks_clearable_flag(self, queue_mock, priority_queue_mock):
+        queue_mock.jobs = [
+            fake_job(state=state)
+            for state in [
+                # not clearable
+                State.SCHEDULED,
+                State.QUEUED,
+                State.RUNNING,
+                State.CANCELING,
+                # clearable
+                State.FAILED,
+                State.CANCELED,
+                State.COMPLETED,
             ]
-            response = self.client.get(reverse("kolibri:core:task-list"))
+        ]
+        priority_queue_mock.jobs = []
+        response = self.client.get(reverse("kolibri:core:task-list"))
 
-            def assert_clearable(index, expected):
-                self.assertEqual(response.data[index]["clearable"], expected)
+        def assert_clearable(index, expected):
+            self.assertEqual(response.data[index]["clearable"], expected)
 
-            for i in [0, 1, 2, 3]:
-                assert_clearable(i, False)
-            for i in [4, 5, 6]:
-                assert_clearable(i, True)
+        for i in [0, 1, 2, 3]:
+            assert_clearable(i, False)
+        for i in [4, 5, 6]:
+            assert_clearable(i, True)
 
-    def test_restart_task(self, queue_mock):
+    def test_restart_task(self, queue_mock, priority_queue_mock):
         queue_mock.restart_job.return_value = 1
         queue_mock.fetch_job.return_value = fake_job(state=State.QUEUED, job_id=1)
 
@@ -139,6 +138,8 @@ class TaskAPITestCase(BaseAPITestCase):
         self.assertDictEqual(response.data, expected_response)
 
 
+@patch("kolibri.core.tasks.api.priority_queue")
+@patch("kolibri.core.tasks.api.queue")
 class TaskAPIPermissionsTestCase(APITestCase):
     def setUp(self):
         DeviceSettings.objects.create(is_provisioned=True)
@@ -147,7 +148,7 @@ class TaskAPIPermissionsTestCase(APITestCase):
         self.facility.add_admin(admin)
         self.client.login(username=admin.username, password=DUMMY_PASSWORD)
 
-    def test_exportlogs_permissions(self):
+    def test_exportlogs_permissions(self, queue_mock, priority_queue_mock):
         with patch("kolibri.core.tasks.api._job_to_response", return_value={}):
             response = self.client.post(
                 reverse("kolibri:core:task-startexportlogcsv"),
@@ -156,13 +157,13 @@ class TaskAPIPermissionsTestCase(APITestCase):
             )
         self.assertEqual(response.status_code, 200)
 
-    def test_list_permissions(self):
+    def test_list_permissions(self, queue_mock, priority_queue_mock):
         with patch("kolibri.core.tasks.api._job_to_response", return_value={}):
             response = self.client.get(reverse("kolibri:core:task-list"), format="json")
         self.assertEqual(response.status_code, 200)
 
 
-@patch("kolibri.core.tasks.api.facility_queue", spec=True)
+@patch("kolibri.core.tasks.api.facility_queue")
 class FacilityTaskAPITestCase(BaseAPITestCase):
     def assertJobResponse(self, job_data, response):
         id = job_data.get("job_id", fake_job_defaults.get("job_id"))
