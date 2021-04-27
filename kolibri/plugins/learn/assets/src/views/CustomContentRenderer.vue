@@ -4,31 +4,7 @@
     ref="html5Renderer"
     class="html5-renderer"
     :style="{ height: contentRendererHeight, width: iframeWidth }"
-    @changeFullscreen="isInFullscreen = $event"
   >
-
-    <div
-      class="fullscreen-header"
-      :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
-    >
-      <KButton
-        :primary="false"
-        appearance="flat-button"
-        @click="$refs.html5Renderer.toggleFullscreen()"
-      >
-        <KIcon
-          v-if="isInFullscreen"
-          icon="fullscreen_exit"
-          class="fs-icon"
-        />
-        <KIcon
-          v-else
-          icon="fullscreen"
-          class="fs-icon"
-        />
-        {{ fullscreenText }}
-      </KButton>
-    </div>
     <div class="iframe-container" :style="containerStyle">
       <iframe
         ref="iframe"
@@ -85,29 +61,18 @@
         return decodeURI(fetchedEncodedContext);
       },
       rooturl() {
-        console.log(urls.hashi());
         return urls.hashi();
       },
       iframeHeight() {
-        return (this.options && this.options.height) || defaultContentHeight;
+        return defaultContentHeight;
       },
       iframeWidth() {
-        return (this.options && this.options.width) || 'auto';
+        return 'auto';
       },
       contentRendererHeight() {
         return pxStringAdd(this.iframeHeight, frameTopbarHeight);
       },
-      fullscreenText() {
-        return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
-      },
       containerStyle() {
-        if (this.isInFullscreen) {
-          return {
-            position: 'absolute',
-            top: frameTopbarHeight,
-            bottom: 0,
-          };
-        }
         return { height: this.iframeHeight };
       },
     },
@@ -127,14 +92,12 @@
       this.hashi.on('context', message => {
         this.getOrUpdateContext(message);
       });
-      console.log(this.hashi);
     },
     methods: {
       // helper functions for fetching data from kolibri
       // called in mainClient.js
 
       fetchContentCollection(message) {
-        console.log('fetching content collection');
         const options = message.options;
         const getParams = pick(options, ['ids', 'parent']);
         if (options.parent && options.parent == 'self') {
@@ -148,7 +111,6 @@
           response.pageSize = message.options.pageSize ? message.options.pageSize : 50;
           response.results = contentNodes;
           message.data = response;
-          console.log('response', response);
           message.type = 'response';
           self.hashi.mediator.sendLocalMessage({
             nameSpace: 'hashi',
@@ -223,10 +185,6 @@
           });
         }
       },
-    },
-    $trs: {
-      exitFullscreen: 'Exit Fullscreen',
-      enterFullscreen: 'View Fullscreen',
     },
   };
 
