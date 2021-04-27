@@ -53,6 +53,10 @@ class ContentSessionLogAPITestCase(APITestCase):
         cls.admin = FacilityUserFactory.create(facility=cls.facility)
         cls.facility.add_admin(cls.admin)
 
+        # add coach to 1st facility
+        cls.coach = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_coach(cls.coach)
+
         # create logs for each user
         cls.interaction_logs = [
             ContentSessionLogFactory.create(
@@ -74,7 +78,11 @@ class ContentSessionLogAPITestCase(APITestCase):
         # create classroom, learner group, add user2
         cls.classroom = ClassroomFactory.create(parent=cls.facility)
         cls.learner_group = LearnerGroupFactory.create(parent=cls.classroom)
+        cls.classroom.add_member(cls.user2)
         cls.learner_group.add_learner(cls.user2)
+
+        cls.class_coach = FacilityUserFactory.create(facility=cls.facility)
+        cls.classroom.add_coach(cls.class_coach)
 
     def setUp(self):
         self.payload = {
@@ -184,6 +192,34 @@ class ContentSessionLogAPITestCase(APITestCase):
         ).count()
         self.assertEqual(len(response.data), expected_count)
 
+    def test_coach_facility_log_filtering(self):
+        # login as coach
+        self.client.login(
+            username=self.coach.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:contentsessionlog-list"),
+        )
+        expected_count = ContentSessionLog.objects.filter(
+            user__facility_id=self.facility.id
+        ).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_class_coach_facility_log_filtering(self):
+        # login as coach
+        self.client.login(
+            username=self.class_coach.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:contentsessionlog-list"),
+        )
+        expected_count = ContentSessionLog.objects.filter(user=self.user2).count()
+        self.assertEqual(len(response.data), expected_count)
+
     def test_classroom_log_filtering(self):
         response = self.client.get(
             reverse("kolibri:core:contentsessionlog-list"),
@@ -219,6 +255,10 @@ class ContentSummaryLogAPITestCase(APITestCase):
         cls.admin = FacilityUserFactory.create(facility=cls.facility)
         cls.facility.add_admin(cls.admin)
 
+        # add coach to 1st facility
+        cls.coach = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_coach(cls.coach)
+
         # create logs for each user
         cls.summary_logs = [
             ContentSummaryLogFactory.create(
@@ -240,7 +280,11 @@ class ContentSummaryLogAPITestCase(APITestCase):
         # create classroom, learner group, add user2
         cls.classroom = ClassroomFactory.create(parent=cls.facility)
         cls.learner_group = LearnerGroupFactory.create(parent=cls.classroom)
+        cls.classroom.add_member(cls.user2)
         cls.learner_group.add_learner(cls.user2)
+
+        cls.class_coach = FacilityUserFactory.create(facility=cls.facility)
+        cls.classroom.add_coach(cls.class_coach)
 
     def setUp(self):
         self.payload = {
@@ -350,6 +394,34 @@ class ContentSummaryLogAPITestCase(APITestCase):
         ).count()
         self.assertEqual(len(response.data), expected_count)
 
+    def test_coach_facility_log_filtering(self):
+        # login as coach
+        self.client.login(
+            username=self.coach.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:contentsummarylog-list"),
+        )
+        expected_count = ContentSummaryLog.objects.filter(
+            user__facility_id=self.facility.id
+        ).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_class_coach_facility_log_filtering(self):
+        # login as coach
+        self.client.login(
+            username=self.class_coach.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:contentsummarylog-list"),
+        )
+        expected_count = ContentSummaryLog.objects.filter(user=self.user2).count()
+        self.assertEqual(len(response.data), expected_count)
+
     def test_classroom_log_filtering(self):
         response = self.client.get(
             reverse("kolibri:core:contentsummarylog-list"),
@@ -397,6 +469,7 @@ class UserSessionLogAPITestCase(APITestCase):
         # create classroom, learner group, add user2
         cls.classroom = ClassroomFactory.create(parent=cls.facility)
         cls.learner_group = LearnerGroupFactory.create(parent=cls.classroom)
+        cls.classroom.add_member(cls.user2)
         cls.learner_group.add_learner(cls.user2)
 
     def setUp(self):
@@ -789,3 +862,52 @@ class ExamAttemptLogAPITestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 403)
+
+
+class ExamLogAPITestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.user2 = FacilityUserFactory.create(facility=cls.facility)
+        cls.exam = Exam.objects.create(
+            title="",
+            question_count=1,
+            collection=cls.facility,
+            creator=cls.user2,
+            active=True,
+        )
+        cls.examlog = ExamLog.objects.create(exam=cls.exam, user=cls.user1)
+        # create classroom, learner group, add user1
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+        cls.learner_group = LearnerGroupFactory.create(parent=cls.classroom)
+        cls.classroom.add_member(cls.user1)
+        cls.learner_group.add_learner(cls.user1)
+
+        cls.class_coach = FacilityUserFactory.create(facility=cls.facility)
+        cls.classroom.add_coach(cls.class_coach)
+
+    def setUp(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def tearDown(self):
+        self.client.logout()
+
+    def test_class_coach_facility_log_filtering(self):
+        # login as coach
+        self.client.login(
+            username=self.class_coach.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:examlog-list"), data={"collection": self.classroom.id}
+        )
+        expected_count = ExamLog.objects.filter(user=self.user1).count()
+        self.assertEqual(len(response.data), expected_count)

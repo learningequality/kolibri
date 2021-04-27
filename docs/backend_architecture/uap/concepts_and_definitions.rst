@@ -14,13 +14,11 @@ all the data associated with a particular Facility are referred to as a
 Users
 -----
 
-There are two kinds of users: ``FacilityUser`` and ``DeviceOwner``. A
+Kolibri's users are instances of the ``FacilityUser`` model, which derives from Django's ``AbstractBaseUser``. A user
 ``FacilityUser`` is associated with a particular ``Facility``, and the user's
-account and data may be synchronized across multiple devices. A
-``DeviceOwner`` account is not associated with a particular ``Facility``, but
-is specific to one device, and is never synchronized across multiple devices.
-A ``DeviceOwner`` is like a superuser, and has permissions to modify any data
-on her own device, whereas a ``FacilityUser`` only has permissions for some
+account and data may be synchronized across multiple devices.
+A ``FacilityUser`` may be made into a superuser, with permissions to modify any data
+on her own device. However, normally a ``FacilityUser`` only has permissions for some
 subset of data from their own Facility Dataset (as determined in part by the
 roles they possess; see below).
 
@@ -44,13 +42,12 @@ Class A contains two LearnerGroups, Group Q and Group R.
 Membership
 ----------
 
-A ``FacilityUser`` (but not a ``DeviceOwner``) can be marked as a member of a
-``Collection`` through a ``Membership`` object. Being a member of a Collection
-also means being a member of all the Collections above that Collection in the
-hierarchy. Thus, in the illustration below, Alice is directly associated with
-Group Q through a ``Membership`` object, which makes her a member of Group Q.
-As Group Q is contained within Class A, which is contained within Facility X,
-she is also implicitly a member of both those collections.
+A ``FacilityUser`` can be marked as a member of a ``Collection`` through a ``Membership`` object.
+Being a member of a Collection requires first being a member of
+all the Collections above that Collection in the hierarchy. Thus, in the illustration below,
+Alice is directly associated with Group Q through a ``Membership`` object, which makes her
+a member of Group Q. As Group Q is contained within Class A,
+which is contained within Facility X, must also be a member of both those collections.
 
 .. image:: ./img/uap_membership_diagram.svg
 .. Source: https://docs.google.com/drawings/d/1oAgG8unJj_6sxrVlvcAF-kmghStQLqQHdU9xIW-hhys/edit
@@ -65,8 +62,9 @@ Roles
 Another way in which a ``FacilityUser`` can be associated with a particular
 ``Collection`` is through a ``Role`` object, which grants the user a role with
 respect to the ``Collection`` and all the collections below it. A ``Role``
-object also stores the "kind" of the role (currently, one of "admin" or
-"coach"), which affects what permissions the user gains through the ``Role``.
+object stores the "kind" of the role (currently, one of "admin",
+"coach", or "assignable coach"), which affects what permissions the user gains
+through the ``Role``.
 
 To illustrate, consider the example in the following figure:
 
@@ -78,8 +76,14 @@ marked with kind "coach", which we can informally read as "Bob is a coach for
 Class A". We consider user roles to be "downward-transitive" (meaning if you
 have a role for a collection, you also have that role for descendents of that
 collection). Thus, in our example, we can say that "Bob is also a coach for
-Group Q". Furthermore, as Alice is a member of Group Q, we can say that "Bob
+Group Q". Furthermore, as Alice is a member of Class A, we can say that "Bob
 is a coach for Alice".
+
+A user can be assigned certain roles for different collection types:
+
+* ``Facility`` collections: admin, coach, or assignable coach roles
+* ``Classroom`` collections: coach roles
+* ``LearnerGroup`` and ``AdHocGroup`` collections: no roles
 
 
 Role-Based Permissions

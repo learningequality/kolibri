@@ -2,7 +2,6 @@ import datetime
 
 from django.db import connections
 from django.db.models import Count
-from django.db.models import F
 from django.db.models import Q
 from django.db.models import Sum
 from django.db.utils import DatabaseError
@@ -15,7 +14,6 @@ from .serializers import LessonReportSerializer
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.constants import role_kinds
-from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.decorators import query_params_required
@@ -327,25 +325,23 @@ class ExerciseDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewset):
             else:
                 # Only filter by all the collections in the lesson if we are not also
                 # filtering by a specific group. Otherwise the group should be sufficient.
-                base_queryset = queryset
-                # Set starting queryset to null, then OR.
-                queryset = AttemptLog.objects.none()
-                for collection_id in collection_ids:
-                    queryset |= HierarchyRelationsFilter(
-                        base_queryset
-                    ).filter_by_hierarchy(
-                        ancestor_collection=collection_id, target_user=F("user")
-                    )
-                queryset = queryset.distinct()
+                queryset = queryset.filter(
+                    user__memberships__collection_id__in=collection_ids
+                )
         if group_id is not None:
             collection_id = group_id or classroom_id
-            queryset = HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-                ancestor_collection=collection_id, target_user=F("user")
-            )
+            queryset = queryset.filter(user__memberships__collection_id=collection_id)
 
         data = (
-            queryset.values("item")
-            .annotate(total=Count("correct"))
+            # Use a subquery to prevent duplication of attempt logs due to the double JOIN
+            # if we have multiple collections that a user is a member of
+            AttemptLog.objects.filter(id__in=queryset.values_list("id", flat=True))
+            .values("item")
+            .annotate(
+                total=Count(
+                    "correct",
+                )
+            )
             .annotate(correct=Sum("correct"))
         )
         return Response(data)
@@ -384,9 +380,9 @@ class QuizDifficultQuestionsViewset(viewsets.ViewSet):
             Q(examlog__closed=True) | Q(examlog__exam__active=False), examlog__exam=pk
         )
         if group_id is not None:
-            queryset = HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-                ancestor_collection=group_id, target_user=F("user")
-            )
+            queryset = queryset.filter(
+                user__memberships__collection_id=group_id
+            ).distinct()
             collection_id = group_id
         else:
             collection_id = Exam.objects.get(pk=pk).collection_id
@@ -397,14 +393,9 @@ class QuizDifficultQuestionsViewset(viewsets.ViewSet):
         # (if quiz is inactive) as our guide, as people who started the exam
         # but did not attempt the question are still important.
         total = (
-            HierarchyRelationsFilter(
-                ExamLog.objects.filter(
-                    Q(closed=True) | Q(exam__active=False), exam_id=pk
-                )
-            )
-            .filter_by_hierarchy(
-                ancestor_collection=collection_id, target_user=F("user")
-            )
+            ExamLog.objects.filter(Q(closed=True) | Q(exam__active=False), exam_id=pk)
+            .filter(user__memberships__collection_id=collection_id)
+            .distinct()
             .count()
         )
         for datum in data:

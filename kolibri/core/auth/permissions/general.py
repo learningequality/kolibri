@@ -2,9 +2,12 @@
 The permissions classes in this module are broadly useful. Other apps can import the classes from this module
 in their own "permissions.py" module, extend or remix them, and then apply them to their own models.
 """
+from django.db.models import Q
+
 from ..constants import role_kinds
 from .base import BasePermissions
 from .base import lookup_field_with_fks
+from .base import q_none
 
 
 class DenyAll(BasePermissions):
@@ -24,8 +27,8 @@ class DenyAll(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return False
 
-    def readable_by_user_filter(self, user, queryset):
-        return queryset.none()
+    def readable_by_user_filter(self, user):
+        return q_none
 
 
 class AllowAll(BasePermissions):
@@ -45,8 +48,8 @@ class AllowAll(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return True
 
-    def readable_by_user_filter(self, user, queryset):
-        return queryset
+    def readable_by_user_filter(self, user):
+        return ~q_none
 
 
 class IsSelf(BasePermissions):
@@ -71,10 +74,10 @@ class IsSelf(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return (not self.read_only) and (user == obj)
 
-    def readable_by_user_filter(self, user, queryset):
+    def readable_by_user_filter(self, user):
         if user.id is None:
-            return queryset.none()
-        return queryset.filter(id=user.id)
+            return q_none
+        return Q(id=user.id)
 
 
 class IsOwn(BasePermissions):
@@ -105,10 +108,10 @@ class IsOwn(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return self._user_can_write_object(user, obj)
 
-    def readable_by_user_filter(self, user, queryset):
+    def readable_by_user_filter(self, user):
         if user.is_anonymous():
-            return queryset.none()
-        return queryset.filter(**{self.field_name: user.id})
+            return q_none
+        return Q(**{self.field_name: user.id})
 
 
 class IsFromSameFacility(BasePermissions):
@@ -134,11 +137,11 @@ class IsFromSameFacility(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return (not self.read_only) and self._facility_dataset_is_same(user, obj)
 
-    def readable_by_user_filter(self, user, queryset):
+    def readable_by_user_filter(self, user):
         if hasattr(user, "dataset"):
-            return queryset.filter(dataset=user.dataset)
+            return Q(dataset=user.dataset)
         else:
-            return queryset.none()
+            return q_none
 
 
 def _user_is_admin_for_own_facility(user, obj=None):
@@ -146,15 +149,15 @@ def _user_is_admin_for_own_facility(user, obj=None):
     # import here to avoid circular imports
     from ..models import Facility
 
-    if not hasattr(user, "dataset"):
+    if not hasattr(user, "dataset_id"):
         return False
 
     # if we've been given an object, make sure it too is from the same dataset (facility)
     if obj:
-        if not hasattr(obj, "dataset") or not user.dataset == obj.dataset:
+        if not hasattr(obj, "dataset_id") or not user.dataset_id == obj.dataset_id:
             return False
 
-    facility = Facility.objects.get(dataset=user.dataset)
+    facility = Facility.objects.get(dataset_id=user.dataset_id)
     return user.has_role_for_collection(role_kinds.ADMIN, facility)
 
 
@@ -178,8 +181,8 @@ class IsAdminForOwnFacility(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return (not self.read_only) and _user_is_admin_for_own_facility(user, obj)
 
-    def readable_by_user_filter(self, user, queryset):
+    def readable_by_user_filter(self, user):
         if _user_is_admin_for_own_facility(user):
-            return queryset.filter(dataset=user.dataset)
+            return Q(dataset=user.dataset)
         else:
-            return queryset.none()
+            return q_none
