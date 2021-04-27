@@ -28,10 +28,13 @@ def error_func():
 def worker():
     with connection() as c:
         b = Worker(QUEUE, c)
+        b.storage.clear(force=True)
         yield b
+        b.storage.clear(force=True)
         b.shutdown()
 
 
+@pytest.mark.django_db
 class TestWorker:
     def test_enqueue_job_runs_job(self, worker):
         job = Job(id, 9)

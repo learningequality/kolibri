@@ -20,9 +20,12 @@ def queue():
 @pytest.fixture
 def scheduler(queue):
     s = Scheduler(queue=queue)
+    s.clear_scheduler()
     yield s
+    s.clear_scheduler()
 
 
+@pytest.mark.django_db
 class TestScheduler(object):
     def test_enqueue_at_a_function(self, scheduler):
         job_id = scheduler.enqueue_at(local_now(), id)

@@ -20,8 +20,9 @@ from kolibri.core.tasks.worker import Worker
 def backend():
     with connection() as c:
         b = Storage(c)
+        b.clear(force=True)
         yield b
-        b.clear()
+        b.clear(force=True)
 
 
 @pytest.fixture
@@ -30,6 +31,7 @@ def inmem_queue():
         e = Worker(queues="pytest", connection=conn)
         c = Queue(queue="pytest", connection=conn)
         c.e = e
+        c.storage.clear(force=True)
         yield c
         e.shutdown()
 
@@ -181,6 +183,7 @@ def wait_for_state_change(inmem_queue, job_id, state):
         assert time_spent < 5
 
 
+@pytest.mark.django_db
 class TestQueue(object):
     def test_enqueues_a_function(self, inmem_queue):
         job_id = inmem_queue.enqueue(id, 1)

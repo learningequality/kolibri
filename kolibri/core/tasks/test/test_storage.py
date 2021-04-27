@@ -15,8 +15,9 @@ QUEUE = "pytest"
 def defaultbackend():
     with connection() as c:
         b = Storage(c)
+        b.clear(force=True)
         yield b
-        b.clear()
+        b.clear(force=True)
 
 
 @pytest.fixture
@@ -24,6 +25,7 @@ def simplejob():
     return Job(id)
 
 
+@pytest.mark.django_db
 class TestBackend:
     def test_can_enqueue_single_job(self, defaultbackend, simplejob):
         job_id = defaultbackend.enqueue_job(simplejob, QUEUE)

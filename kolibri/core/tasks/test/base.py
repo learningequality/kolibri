@@ -14,11 +14,13 @@ def connection():
 
     if database_engine_option == "sqlite":
         fd, filepath = tempfile.mkstemp()
-        yield create_engine(
+        engine = create_engine(
             "sqlite:///{path}".format(path=filepath),
             connect_args={"check_same_thread": False},
             poolclass=NullPool,
         )
+        yield engine
+        engine.dispose()
         os.close(fd)
         try:
             os.remove(filepath)
@@ -26,7 +28,7 @@ def connection():
             # Don't fail test because of difficulty cleaning up.
             pass
     elif database_engine_option == "postgres":
-        yield create_engine(
+        engine = create_engine(
             "postgresql://{user}:{password}@{host}{port}/{name}".format(
                 name=conf.OPTIONS["Database"]["DATABASE_NAME"],
                 password=conf.OPTIONS["Database"]["DATABASE_PASSWORD"],
@@ -38,7 +40,10 @@ def connection():
             ),
             pool_pre_ping=True,
             client_encoding="utf8",
+            poolclass=NullPool,
         )
+        yield engine
+        engine.dispose()
     else:
         raise Exception(
             "Unknown database engine option: {}".format(database_engine_option)
