@@ -1197,6 +1197,7 @@ class GroupMembership(APITestCase):
         )
         self.assertEqual(response.status_code, 400)
 
+
 class DuplicateUsernameTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
