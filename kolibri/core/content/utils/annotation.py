@@ -559,7 +559,10 @@ def recurse_annotation_up_tree(channel_id):
                 ContentNodeTable.c.kind == content_kinds.TOPIC,
             )
         )
-        .values(available=False)
+        .values(
+            available=False,
+            on_device_resources=0,
+        )
     )
 
     # Expression to capture all available child nodes of a contentnode
