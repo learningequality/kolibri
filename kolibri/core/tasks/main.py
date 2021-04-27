@@ -11,7 +11,7 @@ from kolibri.core.sqlite.utils import repair_sqlite_db
 from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.scheduler import Scheduler
 from kolibri.core.tasks.worker import Worker
-from kolibri.core.utils.sqlalchemy import SharingPool
+from kolibri.core.utils.sqlalchemy_utils import SharingPool
 from kolibri.utils import conf
 
 
