@@ -101,6 +101,15 @@ class KolibriZeroconfService(object):
             self.unregister()
 
 
+def parse_device_info(info):
+    obj = {}
+    for key, val in info.properties.items():
+        if isinstance(val, bytes):
+            val = val.decode("utf-8")
+        obj[bytes.decode(key)] = json.loads(val)
+    return obj
+
+
 class KolibriZeroconfListener(object):
 
     instances = {}
@@ -133,9 +142,7 @@ class KolibriZeroconfListener(object):
             "self": is_self,
         }
 
-        device_info = {
-            bytes.decode(key): json.loads(val) for (key, val) in info.properties.items()
-        }
+        device_info = parse_device_info(info)
 
         instance.update(device_info)
         self.instances[id] = instance

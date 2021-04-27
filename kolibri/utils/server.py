@@ -18,9 +18,7 @@ from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.content.utils import paths
 from kolibri.core.content.zip_wsgi import get_application
-from kolibri.core.deviceadmin.utils import schedule_vacuum
 from kolibri.core.tasks.main import initialize_workers
-from kolibri.core.tasks.main import queue
 from kolibri.core.tasks.main import scheduler
 from kolibri.utils import conf
 from kolibri.utils.android import on_android
@@ -68,6 +66,10 @@ DAEMON_LOG = os.path.join(conf.LOG_ROOT, "daemon.txt")
 # Currently non-configurable until we know how to properly handle this
 LISTEN_ADDRESS = "0.0.0.0"
 
+# Constant job_id for scheduled jobs that we want to keep track of across server restarts
+SCH_PING_JOB_ID = 0
+SCH_VACUUM_JOB_ID = 1
+
 
 class NotRunning(Exception):
     """
@@ -87,26 +89,22 @@ class ServicesPlugin(SimplePlugin):
         self.workers = None
 
     def start(self):
-        # Initialize the iceqube scheduler to handle scheduled tasks
-        scheduler.clear_scheduler()
-
-        if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
-
-            # schedule the pingback job
+        # schedule the pingback job if not already scheduled
+        if SCH_PING_JOB_ID not in scheduler:
             from kolibri.core.analytics.utils import schedule_ping
 
-            schedule_ping()
+            schedule_ping(job_id=SCH_PING_JOB_ID)
 
-        # schedule the vacuum job
-        schedule_vacuum()
+        # schedule the vacuum job if not already scheduled
+        if SCH_VACUUM_JOB_ID not in scheduler:
+            from kolibri.core.deviceadmin.utils import schedule_vacuum
 
-        # This is run every time the server is started to clear all the tasks
-        # in the queue
-        queue.empty()
+            schedule_vacuum(job_id=SCH_VACUUM_JOB_ID)
 
         # Initialize the iceqube engine to handle queued tasks
         self.workers = initialize_workers()
 
+        # Initialize the iceqube scheduler to handle scheduled tasks
         scheduler.start_scheduler()
 
         # Register the Kolibri zeroconf service so it will be discoverable on the network
@@ -269,8 +267,6 @@ def configure_http_server(port):
     from kolibri.deployment.default.wsgi import application
 
     whitenoise_settings = {
-        "static_root": settings.STATIC_ROOT,
-        "static_prefix": settings.STATIC_URL,
         # Use 1 day as the default cache time for static assets
         "max_age": 24 * 60 * 60,
         # Add a test for any file name that contains a semantic version number
@@ -281,7 +277,9 @@ def configure_http_server(port):
     }
 
     # Mount static files
-    application = DjangoWhiteNoise(application, **whitenoise_settings)
+    application = DjangoWhiteNoise(
+        application, static_prefix=settings.STATIC_URL, **whitenoise_settings
+    )
 
     cherrypy.tree.graft(application, "/")
 
@@ -292,14 +290,14 @@ def configure_http_server(port):
     )
 
     # Mount content files
-    CONTENT_ROOT = "/" + paths.get_content_url(
-        conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
-    ).lstrip("/")
     content_dirs = [paths.get_content_dir_path()] + paths.get_content_fallback_paths()
     dispatcher = MultiStaticDispatcher(content_dirs)
     content_handler = cherrypy.tree.mount(
         None,
-        CONTENT_ROOT,
+        "/"
+        + paths.get_content_url(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]).lstrip(
+            "/"
+        ),
         config={"/": {"tools.caching.on": False, "request.dispatch": dispatcher}},
     )
 
@@ -324,9 +322,19 @@ def configure_http_server(port):
 
     # Mount static files
     alt_port_app = wsgi.PathInfoDispatcher(
-        {"/": get_application(), CONTENT_ROOT: content_handler}
+        {
+            "/": get_application(),
+            "/"
+            + paths.get_content_url(paths.zip_content_path_prefix()).lstrip(
+                "/"
+            ): content_handler,
+        }
     )
-    alt_port_app = DjangoWhiteNoise(alt_port_app, **whitenoise_settings)
+    alt_port_app = DjangoWhiteNoise(
+        alt_port_app,
+        static_prefix=paths.zip_content_static_root(),
+        **whitenoise_settings
+    )
 
     alt_port_server = ServerAdapter(
         cherrypy.engine,

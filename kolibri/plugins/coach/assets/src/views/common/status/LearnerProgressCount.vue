@@ -53,7 +53,7 @@
       },
       text() {
         if (!this.verbosityNumber) {
-          return this.coachString('integer', { value: this.count });
+          return this.$formatNumber(this.count);
         }
         return this.strings.$tr(this.shorten('count', this.verbosityNumber), { count: this.count });
       },

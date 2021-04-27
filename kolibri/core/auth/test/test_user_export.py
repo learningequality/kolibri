@@ -3,7 +3,6 @@ Tests that ensure the correct items are returned from api calls.
 Also tests whether the users with permissions can create logs.
 """
 import csv
-import sys
 import tempfile
 
 from django.core.management import call_command
@@ -21,6 +20,7 @@ from kolibri.core.auth.csv_utils import transform_choices
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.utils.csv import open_csv_for_reading
 
 
 users = [
@@ -56,10 +56,7 @@ class UserCSVExportTestCase(TestCase):
         call_command(
             "exportusers", output_file=filepath, overwrite=True, demographic=True
         )
-        if sys.version_info[0] < 3:
-            csv_file = open(filepath, "rb")
-        else:
-            csv_file = open(filepath, "r", newline="")
+        csv_file = open_csv_for_reading(filepath)
         with csv_file as f:
             results = list(row for row in csv.DictReader(f))
 
@@ -91,10 +88,7 @@ class UserCSVExportTestCase(TestCase):
         call_command(
             "exportusers", output_file=filepath, overwrite=True, demographic=False
         )
-        if sys.version_info[0] < 3:
-            csv_file = open(filepath, "rb")
-        else:
-            csv_file = open(filepath, "r", newline="")
+        csv_file = open_csv_for_reading(filepath)
         with csv_file as f:
             results = list(row for row in csv.DictReader(f))
 
@@ -115,10 +109,7 @@ class UserCSVExportTestCase(TestCase):
         call_command(
             "exportusers", output_file=filepath, overwrite=True, demographic=True
         )
-        if sys.version_info[0] < 3:
-            csv_file = open(filepath, "rb")
-        else:
-            csv_file = open(filepath, "r", newline="")
+        csv_file = open_csv_for_reading(filepath)
         with csv_file as f:
             results = list(row for row in csv.DictReader(f))
 
@@ -136,10 +127,7 @@ class UserCSVExportTestCase(TestCase):
         call_command(
             "exportusers", output_file=filepath, overwrite=True, demographic=True
         )
-        if sys.version_info[0] < 3:
-            csv_file = open(filepath, "rb")
-        else:
-            csv_file = open(filepath, "r", newline="")
+        csv_file = open_csv_for_reading(filepath)
         with csv_file as f:
             results = list(row for row in csv.DictReader(f))
 

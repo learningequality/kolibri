@@ -15,4 +15,8 @@ def global_fixture():
         os.mkdir(os.path.join(TEMP_KOLIBRI_HOME, "content"))
     yield  # wait until the test ended
     if os.path.exists(TEMP_KOLIBRI_HOME):
-        shutil.rmtree(TEMP_KOLIBRI_HOME)
+        try:
+            shutil.rmtree(TEMP_KOLIBRI_HOME)
+        except OSError:
+            # Don't fail a test just because we failed to cleanup
+            pass

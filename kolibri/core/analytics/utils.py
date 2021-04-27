@@ -45,8 +45,8 @@ from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.tasks.main import scheduler
-from kolibri.core.tasks.utils import db_task_write_lock
 from kolibri.core.tasks.utils import get_current_job
+from kolibri.core.utils.lock import db_lock
 from kolibri.utils import conf
 from kolibri.utils.server import installation_type
 from kolibri.utils.time_utils import local_now
@@ -392,7 +392,7 @@ def extract_channel_statistics(channel):
 def create_and_update_notifications(data, source):
     messages = [obj for obj in data.get("messages", []) if obj.get("msg_id")]
     excluded_ids = [obj.get("msg_id") for obj in messages]
-    with db_task_write_lock:
+    with db_lock():
         PingbackNotification.objects.filter(source=source).exclude(
             id__in=excluded_ids
         ).update(active=False)
@@ -407,7 +407,7 @@ def create_and_update_notifications(data, source):
             "source": source,
             "active": True,
         }
-        with db_task_write_lock:
+        with db_lock():
             PingbackNotification.objects.update_or_create(
                 id=new_msg["id"], defaults=new_msg
             )
@@ -503,14 +503,18 @@ def schedule_ping(
     server=DEFAULT_SERVER_URL,
     checkrate=DEFAULT_PING_CHECKRATE,
     interval=DEFAULT_PING_INTERVAL,
+    job_id=None,
 ):
-    started = local_now()
-    scheduler.schedule(
-        started,
-        _ping,
-        interval=interval * 60,
-        repeat=None,
-        started=started,
-        server=server,
-        checkrate=checkrate,
-    )
+    # If pinging is not disabled by the environment
+    if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
+        started = local_now()
+        scheduler.schedule(
+            started,
+            _ping,
+            interval=interval * 60,
+            repeat=None,
+            started=started,
+            server=server,
+            checkrate=checkrate,
+            job_id=job_id,
+        )

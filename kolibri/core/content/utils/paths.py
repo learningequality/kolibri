@@ -253,8 +253,16 @@ HASHI = "hashi/"
 ZIPCONTENT = "zipcontent/"
 
 
+def zip_content_path_prefix():
+    path_prefix = conf.OPTIONS["Deployment"]["ZIP_CONTENT_URL_PATH_PREFIX"]
+
+    if path_prefix != "/":
+        path_prefix = "/" + path_prefix
+    return path_prefix
+
+
 def get_zip_content_base_path():
-    return "{}{}".format(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"], ZIPCONTENT)
+    return "{}{}".format(zip_content_path_prefix(), ZIPCONTENT)
 
 
 HASHI_FILENAME = None
@@ -277,13 +285,15 @@ def get_hashi_html_filename():
 
 
 def get_hashi_base_path():
-    return "{}{}".format(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"], HASHI)
+    return "{}{}".format(zip_content_path_prefix(), HASHI)
 
 
 def get_hashi_path():
-    return "{}{}{}".format(
-        conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"], HASHI, get_hashi_html_filename()
-    )
+    return "{}{}{}".format(zip_content_path_prefix(), HASHI, get_hashi_html_filename())
+
+
+def zip_content_static_root():
+    return urljoin(zip_content_path_prefix(), "static/")
 
 
 def get_content_storage_file_url(filename):

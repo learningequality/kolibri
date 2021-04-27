@@ -1,4 +1,5 @@
 import datetime
+import os
 import tempfile
 
 import pytest
@@ -14,14 +15,16 @@ from kolibri.utils.time_utils import naive_utc_datetime
 
 @pytest.fixture
 def queue():
-    with tempfile.NamedTemporaryFile() as f:
-        connection = create_engine(
-            "sqlite:///{path}".format(path=f.name),
-            connect_args={"check_same_thread": False},
-            poolclass=NullPool,
-        )
-        q = Queue("pytest", connection)
-        yield q
+    fd, filepath = tempfile.mkstemp()
+    connection = create_engine(
+        "sqlite:///{path}".format(path=filepath),
+        connect_args={"check_same_thread": False},
+        poolclass=NullPool,
+    )
+    q = Queue("pytest", connection)
+    yield q
+    os.close(fd)
+    os.remove(filepath)
 
 
 @pytest.fixture

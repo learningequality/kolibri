@@ -116,14 +116,6 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
     mode,
     module: {
       rules: [
-        // Preprocessing rules
-        {
-          test: /\.(html|vue)$/,
-          enforce: 'pre',
-          // handles <mat-svg/>, <ion-svg/>, <iconic-svg/>, and <file-svg/> svg inlining
-          loader: 'svg-icon-inline-loader',
-          exclude: /node_modules/,
-        },
         // Transpilation and code loading rules
         {
           test: /\.vue$/,
@@ -136,11 +128,8 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
         },
         {
           test: /\.js$/,
-          loader: 'buble-loader',
-          options: {
-            objectAssign: 'Object.assign',
-          },
-          exclude: /node_modules\/vue/,
+          loader: 'babel-loader',
+          exclude: /(node_modules\/vue|dist)/,
         },
         {
           test: /\.css$/,

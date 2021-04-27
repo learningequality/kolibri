@@ -76,7 +76,7 @@
             </td>
 
             <td>
-              {{ classroom.learner_count }}
+              {{ $formatNumber(classroom.learner_count) }}
             </td>
             <td class="core-table-button-col">
               <KButton

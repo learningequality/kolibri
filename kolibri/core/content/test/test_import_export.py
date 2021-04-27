@@ -79,7 +79,8 @@ class ImportChannelTestCase(TestCase):
         start_progress_mock,
         import_channel_mock,
     ):
-        local_path = tempfile.mkstemp()[1]
+        fd, local_path = tempfile.mkstemp()
+        os.close(fd)
         local_path_mock.return_value = local_path
         remote_path_mock.return_value = "notest"
         FileDownloadMock.return_value.__iter__.side_effect = TransferCanceled()
@@ -116,8 +117,10 @@ class ImportChannelTestCase(TestCase):
         start_progress_mock,
         import_channel_mock,
     ):
-        local_dest_path = tempfile.mkstemp()[1]
-        local_src_path = tempfile.mkstemp()[1]
+        fd1, local_dest_path = tempfile.mkstemp()
+        fd2, local_src_path = tempfile.mkstemp()
+        os.close(fd1)
+        os.close(fd2)
         local_path_mock.side_effect = [local_dest_path, local_src_path]
         FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
         call_command("importchannel", "disk", self.the_channel_id, tempfile.mkdtemp())
@@ -214,7 +217,8 @@ class ImportChannelTestCase(TestCase):
         start_progress_mock,
         import_channel_mock,
     ):
-        local_path = tempfile.mkstemp()[1]
+        fd, local_path = tempfile.mkstemp()
+        os.close(fd)
         local_path_mock.return_value = local_path
         remote_path_mock.return_value = "notest"
         FileDownloadMock.return_value.__iter__.return_value = ["one", "two", "three"]
@@ -295,7 +299,8 @@ class ImportContentTestCase(TestCase):
         channel_list_status_mock,
     ):
         # If transfer is cancelled during transfer of first file
-        local_path = tempfile.mkstemp()[1]
+        fd, local_path = tempfile.mkstemp()
+        os.close(fd)
         local_path_mock.return_value = local_path
         remote_path_mock.return_value = "notest"
         # Mock this __iter__ so that the filetransfer can be looped over
@@ -345,8 +350,10 @@ class ImportContentTestCase(TestCase):
         channel_list_status_mock,
     ):
         # If transfer is cancelled after transfer of first file
-        local_path_1 = tempfile.mkstemp()[1]
-        local_path_2 = tempfile.mkstemp()[1]
+        fd1, local_path_1 = tempfile.mkstemp()
+        fd2, local_path_2 = tempfile.mkstemp()
+        os.close(fd1)
+        os.close(fd2)
         with open(local_path_1, "w") as f:
             f.write("a")
         local_path_mock.side_effect = [local_path_1, local_path_2]
@@ -410,8 +417,10 @@ class ImportContentTestCase(TestCase):
         channel_list_status_mock,
     ):
         # Local version of test above
-        local_dest_path = tempfile.mkstemp()[1]
-        local_src_path = tempfile.mkstemp()[1]
+        fd1, local_dest_path = tempfile.mkstemp()
+        fd2, local_src_path = tempfile.mkstemp()
+        os.close(fd1)
+        os.close(fd2)
         local_path_mock.side_effect = [local_dest_path, local_src_path]
         FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
         get_import_export_mock.return_value = (1, list(LocalFile.objects.all()), 10)
@@ -480,9 +489,12 @@ class ImportContentTestCase(TestCase):
         get_import_export_mock,
         channel_list_status_mock,
     ):
-        local_dest_path_1 = tempfile.mkstemp()[1]
-        local_dest_path_2 = tempfile.mkstemp()[1]
-        local_dest_path_3 = tempfile.mkstemp()[1]
+        fd1, local_dest_path_1 = tempfile.mkstemp()
+        fd2, local_dest_path_2 = tempfile.mkstemp()
+        fd3, local_dest_path_3 = tempfile.mkstemp()
+        os.close(fd1)
+        os.close(fd2)
+        os.close(fd3)
         path_mock.side_effect = [
             local_dest_path_1,
             local_dest_path_2,
@@ -654,7 +666,8 @@ class ImportContentTestCase(TestCase):
         get_import_export_mock,
         channel_list_status_mock,
     ):
-        dest_path = tempfile.mkstemp()[1]
+        fd, dest_path = tempfile.mkstemp()
+        os.close(fd)
         path_mock.side_effect = [dest_path, "/test/dne"]
         LocalFile.objects.filter(
             files__contentnode__channel_id=self.the_channel_id
@@ -678,7 +691,8 @@ class ImportContentTestCase(TestCase):
         get_import_export_mock,
         channel_list_status_mock,
     ):
-        dest_path = tempfile.mkstemp()[1]
+        fd, dest_path = tempfile.mkstemp()
+        os.close(fd)
         path_mock.side_effect = [dest_path, "/test/dne"]
         getsize_mock.side_effect = ["1", OSError("Permission denied")]
         get_import_export_mock.return_value = (1, [LocalFile.objects.first()], 10)
@@ -711,8 +725,10 @@ class ImportContentTestCase(TestCase):
         get_import_export_mock,
         channel_list_status_mock,
     ):
-        local_src_path = tempfile.mkstemp()[1]
-        local_dest_path = tempfile.mkstemp()[1]
+        fd1, local_dest_path = tempfile.mkstemp()
+        fd2, local_src_path = tempfile.mkstemp()
+        os.close(fd1)
+        os.close(fd2)
         LocalFile.objects.filter(
             files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c"
         ).update(file_size=1)
@@ -770,7 +786,8 @@ class ImportContentTestCase(TestCase):
         with open(local_src_path, "w") as f:
             f.write("This is just a test")
         expected_file_size = 10000
-        local_dest_path = tempfile.mkstemp()[1]
+        fd, local_dest_path = tempfile.mkstemp()
+        os.close(fd)
         os.remove(local_dest_path)
         # Delete all but one file associated with ContentNode to reduce need for mocking
         files = ContentNode.objects.get(
@@ -829,8 +846,10 @@ class ImportContentTestCase(TestCase):
         get_import_export_mock,
         channel_list_status_mock,
     ):
-        dest_path_1 = tempfile.mkstemp()[1]
-        dest_path_2 = tempfile.mkstemp()[1]
+        fd1, dest_path_1 = tempfile.mkstemp()
+        fd2, dest_path_2 = tempfile.mkstemp()
+        os.close(fd1)
+        os.close(fd2)
         path_mock.side_effect = [dest_path_1, dest_path_2]
         LocalFile.objects.filter(pk="6bdfea4a01830fdd4a585181c0b8068c").update(
             file_size=2201062
@@ -883,8 +902,10 @@ class ImportContentTestCase(TestCase):
         get_import_export_mock,
         channel_list_status_mock,
     ):
-        dest_path_1 = tempfile.mkstemp()[1]
-        dest_path_2 = tempfile.mkstemp()[1]
+        fd1, dest_path_1 = tempfile.mkstemp()
+        fd2, dest_path_2 = tempfile.mkstemp()
+        os.close(fd1)
+        os.close(fd2)
         path_mock.side_effect = [dest_path_1, dest_path_2]
         LocalFile.objects.filter(pk="6bdfea4a01830fdd4a585181c0b8068c").update(
             file_size=2201062
@@ -989,8 +1010,10 @@ class ExportChannelTestCase(TestCase):
         start_progress_mock,
     ):
         # Make sure we clean up a database file that is canceled during export
-        local_dest_path = tempfile.mkstemp()[1]
-        local_src_path = tempfile.mkstemp()[1]
+        fd1, local_dest_path = tempfile.mkstemp()
+        fd2, local_src_path = tempfile.mkstemp()
+        os.close(fd1)
+        os.close(fd2)
         local_path_mock.side_effect = [local_src_path, local_dest_path]
         FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
         call_command("exportchannel", self.the_channel_id, local_dest_path)
@@ -1055,8 +1078,10 @@ class ExportContentTestCase(TestCase):
         get_import_export_mock,
     ):
         # Make sure we cancel during transfer
-        local_dest_path = tempfile.mkstemp()[1]
-        local_src_path = tempfile.mkstemp()[1]
+        fd1, local_dest_path = tempfile.mkstemp()
+        fd2, local_src_path = tempfile.mkstemp()
+        os.close(fd1)
+        os.close(fd2)
         local_path_mock.side_effect = [local_src_path, local_dest_path]
         FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
         get_import_export_mock.return_value = (1, [LocalFile.objects.first()], 10)

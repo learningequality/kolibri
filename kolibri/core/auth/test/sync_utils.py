@@ -1,15 +1,14 @@
 from __future__ import with_statement
 
-import glob
 import os
 import shutil
 import socket
+import subprocess
 import tempfile
 import time
 import uuid
 
 import requests
-import sh
 from django.db import connection
 from django.db import connections
 from django.utils.functional import wraps
@@ -25,13 +24,9 @@ def get_free_tcp_port():
 
 
 class KolibriServer(object):
-
-    _pre_migrated_db_dir = None
-
     def __init__(
         self,
         autostart=True,
-        pre_migrate=True,
         settings="kolibri.deployment.default.settings.base",
         db_name="default",
     ):
@@ -39,20 +34,53 @@ class KolibriServer(object):
         self.env["KOLIBRI_HOME"] = tempfile.mkdtemp()
         self.env["DJANGO_SETTINGS_MODULE"] = settings
         self.env["POSTGRES_DB"] = db_name
+        self.env["KOLIBRI_ZIP_CONTENT_PORT"] = str(get_free_tcp_port())
         self.db_path = os.path.join(self.env["KOLIBRI_HOME"], "db.sqlite3")
         self.db_alias = uuid.uuid4().hex
         self.port = get_free_tcp_port()
         self.baseurl = "http://127.0.0.1:{}/".format(self.port)
         if autostart:
-            self.start(pre_migrate=pre_migrate)
+            self.start()
 
-    def start(self, pre_migrate=True):
-        if pre_migrate:
-            KolibriServer.get_pre_migrated_database(self.env["KOLIBRI_HOME"])
-        self._instance = sh.kolibri.start(
-            port=self.port, foreground=True, _bg=True, _env=self.env
+    def start(self):
+        self._instance = subprocess.Popen(
+            ["kolibri", "start", "--port", str(self.port), "--foreground"],
+            env=self.env,
         )
         self._wait_for_server_start()
+
+    def manage(self, *args):
+        subprocess.call(
+            ["kolibri", "manage"] + list(args),
+            env=self.env,
+        )
+
+    def create_model(self, model, **kwargs):
+        kwarg_text = ",".join(
+            '{key}=\\"{value}\\"'.format(key=key, value=value)
+            for key, value in kwargs.items()
+        )
+        self.pipe_shell(
+            "from {module_path} import {model_name}; {model_name}.objects.create({})".format(
+                kwarg_text, module_path=model.__module__, model_name=model.__name__
+            )
+        )
+
+    def delete_model(self, model, **kwargs):
+        kwarg_text = ",".join(
+            '{key}=\\"{value}\\"'.format(key=key, value=value)
+            for key, value in kwargs.items()
+        )
+        self.pipe_shell(
+            "from {module_path} import {model_name}; obj = {model_name}.objects.get({}); obj.delete()".format(
+                kwarg_text, module_path=model.__module__, model_name=model.__name__
+            )
+        )
+
+    def pipe_shell(self, text):
+        subprocess.call(
+            'echo "{}" | kolibri shell'.format(text), env=self.env, shell=True
+        )
 
     def _wait_for_server_start(self, timeout=20):
         for i in range(timeout * 2):
@@ -68,27 +96,11 @@ class KolibriServer(object):
 
     def kill(self):
         try:
-            self._instance.process.kill()
+            subprocess.call("kolibri stop", env=self.env, shell=True)
+            self._instance.kill()
             shutil.rmtree(self.env["KOLIBRI_HOME"])
         except OSError:
             pass
-
-    def manage(self, *args, **kwargs):
-        sh.kolibri.manage(*args, _env=self.env, **kwargs)
-
-    @classmethod
-    def get_pre_migrated_database(cls, home_path):
-        if not cls._pre_migrated_db_dir:
-            # if no pre-migrated db files, then create them
-            server = cls(autostart=False)
-            server.manage("migrate")
-            # put pre-migrated files in temp directory
-            cls._pre_migrated_db_dir = tempfile.mkdtemp()
-            for f in glob.glob(os.path.join(server.env["KOLIBRI_HOME"], "db.sqlite3*")):
-                shutil.copy(f, cls._pre_migrated_db_dir)
-        # if pre-migrated db files, then copy those files to this servers directory
-        for f in glob.glob(os.path.join(cls._pre_migrated_db_dir, "db.sqlite3*")):
-            shutil.copy(f, home_path)
 
 
 class multiple_kolibri_servers(object):
@@ -117,7 +129,6 @@ class multiple_kolibri_servers(object):
             if self.server_count == 3:
                 self.servers = [
                     KolibriServer(
-                        pre_migrate=False,
                         settings="kolibri.deployment.default.settings.postgres_test",
                         db_name="eco_test" + str(i + 1),
                     )
@@ -127,7 +138,6 @@ class multiple_kolibri_servers(object):
             if self.server_count == 5:
                 self.servers = [
                     KolibriServer(
-                        pre_migrate=False,
                         settings="kolibri.deployment.default.settings.postgres_test",
                         db_name="eco2_test" + str(i + 1),
                     )

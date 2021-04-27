@@ -343,7 +343,7 @@
       unanswered:
         'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
       noItemId: 'This question has an error, please move on to the next question',
-      question: 'Question { num } of { total }',
+      question: 'Question {num, number, integer} of {total, number, integer}',
     },
   };
 

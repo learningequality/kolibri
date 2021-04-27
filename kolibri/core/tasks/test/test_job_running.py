@@ -1,3 +1,4 @@
+import os
 import tempfile
 import time
 import uuid
@@ -20,30 +21,37 @@ from kolibri.core.tasks.worker import Worker
 
 @pytest.fixture
 def backend():
-    with tempfile.NamedTemporaryFile() as f:
-        connection = create_engine(
-            "sqlite:///{path}".format(path=f.name),
-            connect_args={"check_same_thread": False},
-            poolclass=NullPool,
-        )
-        b = Storage(connection)
-        yield b
-        b.clear()
+    fd, filepath = tempfile.mkstemp()
+    connection = create_engine(
+        "sqlite:///{path}".format(path=filepath),
+        connect_args={"check_same_thread": False},
+        poolclass=NullPool,
+    )
+    b = Storage(connection)
+    yield b
+    b.clear()
+    os.close(fd)
+    os.remove(filepath)
 
 
 @pytest.fixture
 def inmem_queue():
-    with tempfile.NamedTemporaryFile() as f:
-        connection = create_engine(
-            "sqlite:///{path}".format(path=f.name),
-            connect_args={"check_same_thread": False},
-            poolclass=NullPool,
-        )
-        e = Worker(queues="pytest", connection=connection)
-        c = Queue(queue="pytest", connection=connection)
-        c.e = e
-        yield c
-        e.shutdown()
+    fd, filepath = tempfile.mkstemp()
+    connection = create_engine(
+        "sqlite:///{path}".format(path=filepath),
+        connect_args={"check_same_thread": False},
+        poolclass=NullPool,
+    )
+    e = Worker(queues="pytest", connection=connection)
+    c = Queue(queue="pytest", connection=connection)
+    c.e = e
+    yield c
+    e.shutdown()
+    os.close(fd)
+    try:
+        os.remove(filepath)
+    except OSError:
+        pass
 
 
 @pytest.fixture
@@ -328,10 +336,10 @@ class TestQueue(object):
         assert job.state == State.FAILED
 
         # Restart the function and assert the same case as above along with
-        # the new created job should have an another unique id.
+        # the new created job should have the same id.
         new_job_id = inmem_queue.restart_job(old_job_id)
 
-        assert new_job_id != old_job_id
+        assert new_job_id == old_job_id
 
         wait_for_state_change(inmem_queue, new_job_id, State.FAILED)
 
@@ -357,10 +365,10 @@ class TestQueue(object):
         job = inmem_queue.fetch_job(old_job_id)
         assert job.state == State.CANCELED
 
-        # Restart the job, check that the new created job should have a
-        # unique id.
+        # Restart the job, check that the new created job should have the
+        # same id.
         new_job_id = inmem_queue.restart_job(old_job_id)
-        assert new_job_id != old_job_id
+        assert new_job_id == old_job_id
 
         # Test the remaing cases same as above.
         wait_for_state_change(inmem_queue, new_job_id, State.RUNNING)

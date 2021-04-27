@@ -130,5 +130,14 @@ Feature: Multiple facility sign in
     Then I see the coach landing page
       And I see my username in the app bar
 
+  Scenario: User attempts to sign in with an invalid username
+    Given Facility A does not have a user with the username "fake_user"
+      And I am on the username form
+    When I enter the username "fake_user"
+      And I click *Next*
+    Then I see an error under the text input saying "Incorrect username"
+      And I remain on the username form
+      And the username field is focused and selected
+
 Examples:
 | username | facility |

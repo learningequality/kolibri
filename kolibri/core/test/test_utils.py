@@ -1,12 +1,66 @@
+import unittest
+
 import mock
 from diskcache.recipes import RLock
+from django.conf import settings
 from django.core.cache.backends.base import BaseCache
+from django.db import connection
+from django.test import SimpleTestCase
 from django.test import TestCase
 from redis import Redis
 
+from kolibri.core.device.models import SQLiteLock
 from kolibri.core.utils.cache import NamespacedCacheProxy
 from kolibri.core.utils.cache import ProcessLock
 from kolibri.core.utils.cache import RedisSettingsHelper
+from kolibri.core.utils.lock import db_lock
+
+
+class DBBasedProcessLockTestCase(SimpleTestCase):
+
+    allow_database_queries = True
+
+    @unittest.skipIf(
+        True,
+        """
+        This test passes by itself, and in combination with a great many other tests. However, when it runs in combination with all of
+        the tests in kolibri/core it fails, and any atomic transaction created in that context also fails to create an atomic block.
+        """,
+    )
+    def test_atomic_transaction(self):
+        with db_lock():
+            self.assertTrue(connection.in_atomic_block)
+
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        != "django.db.backends.postgresql",
+        "Postgresql only test",
+    )
+    def test_postgres_locking(self):
+        try:
+            with db_lock():
+                raise Exception("An error")
+        except Exception:
+            pass
+        query = "SELECT pg_try_advisory_lock({key}) AS lock;".format(key=1)
+        with connection.cursor() as c:
+            c.execute(query)
+            results = c.fetchone()
+            self.assertTrue(results[0])
+
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        != "django.db.backends.sqlite3",
+        "SQLite only test",
+    )
+    def test_sqlite_locking(self):
+        try:
+            with db_lock():
+                self.assertTrue(SQLiteLock.objects.all().exists())
+                raise Exception("An error")
+        except Exception:
+            pass
+        self.assertFalse(SQLiteLock.objects.all().exists())
 
 
 @mock.patch("kolibri.core.utils.cache.process_cache")

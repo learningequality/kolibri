@@ -110,8 +110,6 @@
 
   import { mapGetters } from 'vuex';
   import every from 'lodash/every';
-  import find from 'lodash/find';
-  import { FacilityUsernameResource } from 'kolibri.resources';
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
@@ -123,7 +121,7 @@
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ComponentMap } from '../constants';
-  import { SignUpResource } from '../apiResource';
+  import { SignUpResource, getUsernameExists } from '../apiResource';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import getUrlParameter from './getUrlParameter';
   import commonUserStrings from './commonUserStrings';
@@ -196,24 +194,12 @@
         if (!username) {
           return Promise.resolve();
         }
-        // NOTE: the superuser will not be returned in this search.
-        // TODO: create an specialized endpoint that only checks to see if a username
-        // already exists in a facility
-        return FacilityUsernameResource.fetchCollection({
-          getParams: {
-            facility: this.selectedFacility.id,
-            search: username,
-          },
-          force: true,
-        })
-          .then(results => {
-            if (find(results, { username })) {
-              this.caughtErrors.push(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
-            }
-          })
-          .catch(() => {
-            // Silently handle search errors, idk
-          });
+        return getUsernameExists({
+          facilityId: this.selectedFacility.id,
+          username,
+        }).then(usernameExists => {
+          if (usernameExists) this.caughtErrors.push(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
+        });
       },
       handleSubmit() {
         if (this.atFirstStep) {

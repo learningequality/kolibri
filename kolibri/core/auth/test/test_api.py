@@ -1196,3 +1196,39 @@ class GroupMembership(APITestCase):
             url, {"user": self.user.id, "collection": self.lg11.id}, format="json"
         )
         self.assertEqual(response.status_code, 400)
+
+class DuplicateUsernameTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
+        cls.user = FacilityUserFactory.create(facility=cls.facility, username="user")
+        cls.url = reverse("kolibri:core:usernameexists")
+        provision_device()
+
+    def test_check_duplicate_username_with_unique_username(self):
+        response = self.client.get(
+            self.url,
+            {"username": "new_user", "facility": self.facility.id},
+            format="json",
+        )
+        expected = {"username_exists": False}
+        self.assertDictEqual(response.data, expected)
+
+    def test_check_duplicate_username_with_existing_username(self):
+        response = self.client.get(
+            self.url,
+            {"username": self.user.username, "facility": self.facility.id},
+            format="json",
+        )
+        expected = {"username_exists": True}
+        self.assertDictEqual(response.data, expected)
+
+    def test_check_duplicate_username_with_existing_username_other_facility(self):
+        other_facility = FacilityFactory.create()
+        response = self.client.get(
+            self.url,
+            {"username": self.user.username, "facility": other_facility.id},
+            format="json",
+        )
+        expected = {"username_exists": False}
+        self.assertDictEqual(response.data, expected)

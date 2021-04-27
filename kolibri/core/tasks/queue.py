@@ -72,12 +72,14 @@ class Queue(object):
         Given a job_id, restart the job for that id. A job will only be restarted if
         in CANCELED or FAILED state.
 
-        This will create a new job with a new job_id.
+        This first clears the job then creates a new job with the same job_id as
+        the cleared one.
         """
         old_job = self.fetch_job(job_id)
         if old_job.state in [State.CANCELED, State.FAILED]:
             self.clear_job(job_id)
             job = Job(old_job)
+            job.job_id = job_id
             return self.enqueue(job)
         else:
             raise JobNotRestartable(

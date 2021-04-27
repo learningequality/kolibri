@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import socket
 import threading
 
@@ -14,6 +15,7 @@ from ..utils.network.search import initialize_zeroconf_listener
 from ..utils.network.search import KolibriZeroconfService
 from ..utils.network.search import LOCAL_DOMAIN
 from ..utils.network.search import NonUniqueNameException
+from ..utils.network.search import parse_device_info
 from ..utils.network.search import register_zeroconf_service
 from ..utils.network.search import SERVICE_TYPE
 from ..utils.network.search import unregister_zeroconf_service
@@ -118,6 +120,16 @@ class TestNetworkSearch(TransactionTestCase):
         assert ZEROCONF_STATE["listener"] is None
         initialize_zeroconf_listener()
         assert ZEROCONF_STATE["listener"] is not None
+
+    def test_call_parse_device_info_value_bytes(self, *mocks):
+        info_mock = mock.MagicMock()
+        info_mock.properties = MOCK_PROPERTIES.copy()
+        info_mock.properties[b"operating_system"] = '"كوليبري"'.encode("utf-8")
+        try:
+            device_info = parse_device_info(info_mock)
+        except TypeError:
+            self.fail("Failed to parse info with bytes values")
+        self.assertEqual(device_info["operating_system"], "كوليبري")
 
     def test_register_zeroconf_service(self, mock_db, get_device_mock):
         assert len(get_peer_instances()) == 0

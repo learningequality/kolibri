@@ -11,7 +11,7 @@ from django.conf import settings
 
 import kolibri
 from kolibri.core.tasks.main import scheduler
-from kolibri.core.tasks.utils import db_task_write_lock
+from kolibri.core.utils.lock import db_lock
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.time_utils import local_now
 
@@ -189,7 +189,7 @@ def perform_vacuum(database=db.DEFAULT_DB_ALIAS):
     connection = db.connections[database]
     if connection.vendor == "sqlite":
         try:
-            with db_task_write_lock:
+            with db_lock():
                 db.close_old_connections()
                 db.connections.close_all()
                 cursor = connection.cursor()
@@ -210,11 +210,13 @@ def perform_vacuum(database=db.DEFAULT_DB_ALIAS):
             logger.info("Sqlite database Vacuum finished.")
 
 
-def schedule_vacuum():
+def schedule_vacuum(job_id=None):
     current_dt = local_now()
     vacuum_time = current_dt.replace(hour=3, minute=0, second=0, microsecond=0)
     if vacuum_time < current_dt:
         # If it is past 3AM, change the day to tomorrow.
         vacuum_time = vacuum_time + timedelta(days=1)
     # Repeat indefinitely
-    scheduler.schedule(vacuum_time, perform_vacuum, repeat=None, interval=24 * 60 * 60)
+    scheduler.schedule(
+        vacuum_time, perform_vacuum, repeat=None, interval=24 * 60 * 60, job_id=job_id
+    )

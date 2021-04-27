@@ -86,7 +86,7 @@ export class Model {
                 this.promises.splice(this.promises.indexOf(promise), 1);
               },
               response => {
-                logging.error('An error occurred', response);
+                this.resource.logError(response);
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
@@ -164,7 +164,7 @@ export class Model {
                 this.promises.splice(this.promises.indexOf(promise), 1);
               },
               response => {
-                logging.error('An error occurred', response);
+                this.resource.logError(response);
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
@@ -214,7 +214,7 @@ export class Model {
                 this.promises.splice(this.promises.indexOf(promise), 1);
               },
               response => {
-                logging.error('An error occurred', response);
+                this.resource.logError(response);
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
@@ -332,7 +332,7 @@ export class Collection {
                   this.new = false;
                 } else {
                   // It's all gone a bit Pete Tong.
-                  logging.error('Data appears to be malformed', response.data);
+                  this.resource.logError(response);
                   reject(response);
                 }
                 resolve(this.data);
@@ -340,7 +340,7 @@ export class Collection {
                 this.promises.splice(this.promises.indexOf(promise), 1);
               },
               response => {
-                logging.error('An error occurred', response);
+                this.resource.logError(response);
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
@@ -399,7 +399,7 @@ export class Collection {
               this.promises.splice(this.promises.indexOf(promise), 1);
             },
             response => {
-              logging.error('An error occurred', response);
+              this.resource.logError(response);
               reject(response);
               // Clean up the reference to this promise
               this.promises.splice(this.promises.indexOf(promise), 1);
@@ -450,7 +450,7 @@ export class Collection {
                 this.promises.splice(this.promises.indexOf(promise), 1);
               },
               response => {
-                logging.error('An error occurred', response);
+                this.resource.logError(response);
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
@@ -987,5 +987,59 @@ export class Resource {
       options.cacheBust = false;
     }
     return client(options);
+  }
+
+  logError(err) {
+    const store = require('kolibri.coreVue.vuex.store').default;
+    /* eslint-disable no-console */
+    console.groupCollapsed(
+      `%cRequest error: ${err.response.statusText}, ${
+        err.response.status
+      } for ${err.config.method.toUpperCase()} to ${err.config.url} - open for more info`,
+      'color: red'
+    );
+    console.log(`Error occured for ${this.name} resource on page ${window.location.href}`);
+    if (store.state.route) {
+      console.group('Vue Router');
+      console.log(`fullPath: ${store.state.route.fullPath}`);
+      console.log(`Route name: ${store.state.route.name}`);
+      if (Object.keys(store.state.route.params).length) {
+        console.group('Vue router params');
+        for (let [k, v] of Object.entries(store.state.route.params)) {
+          console.log(`${k}: ${v}`);
+        }
+        console.groupEnd();
+      }
+      console.groupEnd();
+    }
+    if (Object.keys(err.config.params).length) {
+      console.group('Query parameters');
+      for (let [k, v] of Object.entries(err.config.params)) {
+        console.log(`${k}: ${v}`);
+      }
+      console.groupEnd();
+    }
+    if (err.config.data) {
+      try {
+        const data = JSON.parse(err.config.data);
+        if (Object.keys(data).length) {
+          console.group('Data');
+          for (let [k, v] of Object.entries(data)) {
+            console.log(`${k}: ${v}`);
+          }
+          console.groupEnd();
+        }
+      } catch (e) {} // eslint-disable-line no-empty
+    }
+    if (Object.keys(err.config.headers).length) {
+      console.group('Headers');
+      for (let [k, v] of Object.entries(err.config.headers)) {
+        console.log(`${k}: ${v}`);
+      }
+      console.groupEnd();
+    }
+    console.trace('Traceback for request');
+    console.groupEnd();
+    /* eslint-enable */
   }
 }

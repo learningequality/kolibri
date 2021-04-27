@@ -99,9 +99,16 @@ class ZipContentTestCase(TestCase):
         return generate_zip_content_response(self.environ)
 
     def test_zip_file_url_reversal(self):
+        from kolibri.utils.conf import OPTIONS
+
+        path_prefix = OPTIONS["Deployment"]["ZIP_CONTENT_URL_PATH_PREFIX"]
+
+        if path_prefix != "/":
+            path_prefix = "/" + path_prefix
         file = LocalFile(id=self.hash, extension=self.extension, available=True)
         self.assertEqual(
-            file.get_storage_url(), "/zipcontent/{}/".format(self.filename)
+            file.get_storage_url(),
+            "{}zipcontent/{}/".format(path_prefix, self.filename),
         )
 
     def test_non_zip_file_url_reversal(self):
@@ -301,6 +308,11 @@ class ZipContentTestCase(TestCase):
         self.assertEqual(response.status_code, 405)
 
 
+@override_option("Deployment", "ZIP_CONTENT_URL_PATH_PREFIX", "prefix_test/")
+class UrlPrefixZipContentTestCase(ZipContentTestCase):
+    pass
+
+
 class HashiViewTestCase(TestCase):
     def setUp(self):
         self.environ = {}
@@ -359,3 +371,8 @@ class HashiViewTestCase(TestCase):
     def test_delete_not_allowed(self):
         response = self._get_hashi(REQUEST_METHOD="DELETE")
         self.assertEqual(response.status_code, 405)
+
+
+@override_option("Deployment", "ZIP_CONTENT_URL_PATH_PREFIX", "prefix_test/")
+class UrlPrefixHashiViewTestCase(HashiViewTestCase):
+    pass

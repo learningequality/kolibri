@@ -22,6 +22,7 @@
           :layout12="{ span: 3 }"
         >
           <KButton
+            ref="open_button"
             class="open-button"
             :text="$tr('openButton')"
             appearance="flat-button"
@@ -31,6 +32,7 @@
         </KGridItem>
         <KGridItem v-else class="button-grid-item">
           <KButton
+            ref="close_button"
             class="close-button"
             :text="coreString('closeAction')"
             appearance="flat-button"
@@ -57,9 +59,27 @@
         bannerClosed: false,
       };
     },
+    created() {
+      document.addEventListener('focusin', this.focusChange);
+    },
+    beforeDestroy() {
+      document.removeEventListener('focusin', this.focusChange);
+    },
     methods: {
       toggleBanner() {
         this.bannerClosed = !this.bannerClosed;
+        if (this.previouslyFocusedElement) {
+          this.previouslyFocusedElement.focus();
+        }
+      },
+      focusChange(e) {
+        // We need the element prior to the close button and more info
+        if (
+          (this.$refs.close_button && e.target != this.$refs.close_button.$el) ||
+          (this.$refs.open_button && e.target != this.$refs.open_button.$el)
+        ) {
+          this.previouslyFocusedElement = e.target;
+        }
       },
     },
     $trs: {

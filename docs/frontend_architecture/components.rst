@@ -19,20 +19,13 @@ Our `design system <http://kolibribeta.learningequality.org/design>`__ contains 
 SVG Icons
 ---------
 
-Most icons in Kolibri should be accessed through the ``<KIcon>`` component.
+Icons in Kolibri should be accessed through the ``<KIcon>`` component. The icons available can be found and searched at `Kolibri Design System <https://kolibri-design-system.netlify.app/icons/>`__.
 
-However if the desired icon is not available, we provide a mechanism to embed SVGs in components. Specifically, `Material Design Icon <https://material.io/tools/icons/>`__ SVGs or local SVGs can be inlined using the `svg-icon-inline-loader <https://github.com/learningequality/svg-icon-inline-loader>`__
+Each icon is associated with a token, which is passed to ``<KIcon>`` and other Kolibri Design System components which accept an ``icon`` or ``iconAfter`` prop such as ``KIconButton``.
 
 .. code-block:: html
 
   <!--
-    embed https://material.io/tools/icons/?search=fullscreen&icon=fullscreen&style=baseline
+    embed https://material.io/resources/icons/?search=add_circl&icon=add_circle_outline&style=baseline
   -->
-  <mat-svg category="navigation" name="fullscreen_exit"/>
-
-  <!-- embed a file in the same folder as the vue component -->
-  <file-svg src="./icon.svg"/>
-
-Inlining an SVG allows it to be inserted directly into the outputted HTML. This allows aspects of the icon (e.g. fill) to be styled using CSS.
-
-Attributes (such as vue directives like ``v-if`` and SVG attributes like ``viewbox``) can also be added to the svg tag.
+  <KIcon :icon="add" />

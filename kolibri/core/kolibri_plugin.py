@@ -53,6 +53,14 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             # For some reason the js_name gets escaped going into the template
             # so this was the easiest way to inject it.
         ).replace("__placeholder__", js_name)
+        zip_content_origin = OPTIONS["Deployment"]["ZIP_CONTENT_ORIGIN"]
+        if not zip_content_origin:
+            zip_content_port = str(OPTIONS["Deployment"]["ZIP_CONTENT_PORT"])
+        elif type(zip_content_origin) is int:
+            zip_content_port = str(zip_content_origin)
+            zip_content_origin = ""
+        else:
+            zip_content_port = ""
         return [
             mark_safe(
                 """<script type="text/javascript">"""
@@ -67,7 +75,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             {js_name}.__contentUrl = '{content_url}';
             {js_name}.__zipContentUrl = '{zip_content_url}';
             {js_name}.__hashiUrl = '{hashi_url}';
-            {js_name}.__zipContentHost = '{zip_content_host}';
+            {js_name}.__zipContentOrigin = '{zip_content_origin}';
             {js_name}.__zipContentPort = {zip_content_port};
             </script>
             """.format(
@@ -79,8 +87,8 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
                     ),
                     zip_content_url=get_zip_content_base_path(),
                     hashi_url=get_hashi_path(),
-                    zip_content_host=OPTIONS["Deployment"]["ZIP_CONTENT_HOST"],
-                    zip_content_port=str(OPTIONS["Deployment"]["ZIP_CONTENT_PORT"]),
+                    zip_content_origin=zip_content_origin,
+                    zip_content_port=zip_content_port,
                 )
             )
         ]

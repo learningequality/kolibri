@@ -1,9 +1,7 @@
 import csv
-import io
 import logging
 import ntpath
 import os
-import sys
 from collections import OrderedDict
 from functools import partial
 from tempfile import mkstemp
@@ -28,6 +26,7 @@ from kolibri.core.auth.models import Role
 from kolibri.core.query import GroupConcatSubquery
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
+from kolibri.core.utils.csv import open_csv_for_writing
 from kolibri.utils import conf
 
 try:
@@ -161,10 +160,7 @@ def csv_file_generator(facility, filepath, overwrite=True):
 
     header_labels = labels.values()
 
-    if sys.version_info[0] < 3:
-        csv_file = io.open(filepath, "wb")
-    else:
-        csv_file = io.open(filepath, "w", newline="")
+    csv_file = open_csv_for_writing(filepath)
 
     with csv_file as f:
         writer = csv.DictWriter(f, header_labels)

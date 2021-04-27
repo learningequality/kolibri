@@ -28,6 +28,7 @@ from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.sqlalchemybridge import filter_by_checksums
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.utils.lock import db_lock
 
 logger = logging.getLogger(__name__)
 
@@ -662,8 +663,26 @@ def calculate_dummy_progress_for_annotation(node_ids, exclude_node_ids, total_pr
 
 
 def propagate_forced_localfile_removal(localfiles_list):
-    files = File.objects.filter(supplementary=False, local_file__in=localfiles_list)
-    ContentNode.objects.filter(files__in=files).update(available=False)
+    total = len(localfiles_list)
+    i = 0
+    # Even thought we are using the filter_by_uuids method below
+    # which prevents too many SQL parameters from being passed in to the query
+    # if we have too many UUIDs it is possible we might still generate too much SQL
+    # and cause issues - so we batch the ids here.
+    batch_size = 10000
+    while i < total:
+        file_slice = localfiles_list[i : i + batch_size]
+        files = File.objects.filter(
+            supplementary=False,
+            local_file__in=LocalFile.objects.filter_by_uuids(
+                [f.id for f in file_slice]
+            ),
+        )
+        ContentNode.objects.filter(files__in=files).update(available=False)
+        i += batch_size
+
+
+def reannotate_all_channels():
     for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
         recurse_annotation_up_tree(channel_id)
 
@@ -701,15 +720,16 @@ def set_content_invisible(channel_id, node_ids, exclude_node_ids):
 
 
 def set_channel_metadata_fields(channel_id, public=None):
-    channel = ChannelMetadata.objects.get(id=channel_id)
-    calculate_published_size(channel)
-    calculate_total_resource_count(channel)
-    calculate_included_languages(channel)
-    calculate_next_order(channel)
+    with db_lock():
+        channel = ChannelMetadata.objects.get(id=channel_id)
+        calculate_published_size(channel)
+        calculate_total_resource_count(channel)
+        calculate_included_languages(channel)
+        calculate_next_order(channel)
 
-    if public is not None:
-        channel.public = public
-        channel.save()
+        if public is not None:
+            channel.public = public
+            channel.save()
 
 
 def files_for_nodes(nodes):

@@ -12,6 +12,7 @@ from django.db.models.signals import post_delete
 from django.urls import reverse
 from django.utils.six.moves import input
 from morango.models import Certificate
+from morango.models import ScopeDefinition
 from six.moves.urllib.parse import urljoin
 
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
@@ -159,27 +160,60 @@ def get_baseurl(baseurl):
 
 
 def get_client_and_server_certs(
-    username, password, dataset_id, nc, noninteractive=False
+    username, password, dataset_id, nc, user_id=None, noninteractive=False
 ):
-    # get servers certificates which server has a private key for
-    server_certs = nc.get_remote_certificates(
-        dataset_id, scope_def_id=ScopeDefinitions.FULL_FACILITY
-    )
-    if not server_certs:
-        raise CommandError(
-            "Server does not have any certificates for dataset_id: {}".format(
-                dataset_id
-            )
-        )
-    server_cert = server_certs[0]
 
-    # check for the certs we own for the specific facility
+    # get any full-facility certificates we have for the facility
     owned_certs = (
         Certificate.objects.filter(id=dataset_id)
         .get_descendants(include_self=True)
         .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
         .exclude(_private_key=None)
     )
+
+    if not user_id:  # it's a full-facility sync
+
+        csr_scope_params = {"dataset_id": dataset_id}
+
+        client_scope = ScopeDefinitions.FULL_FACILITY
+        server_scope = ScopeDefinitions.FULL_FACILITY
+
+    else:  # it's a single-user sync
+
+        csr_scope_params = {"dataset_id": dataset_id, "user_id": user_id}
+
+        if owned_certs:
+            # client is the one with a full-facility cert
+            client_scope = ScopeDefinitions.FULL_FACILITY
+            server_scope = ScopeDefinitions.SINGLE_USER
+        else:
+            # server must be the one with the full-facility cert
+            client_scope = ScopeDefinitions.SINGLE_USER
+            server_scope = ScopeDefinitions.FULL_FACILITY
+
+            # check for certs we own for the specific user_id for single-user syncing
+            owned_certs = (
+                Certificate.objects.filter(id=dataset_id)
+                .get_descendants(include_self=True)
+                .filter(scope_definition_id=ScopeDefinitions.SINGLE_USER)
+                .filter(scope_params__contains=user_id)
+                .exclude(_private_key=None)
+            )
+
+    # get server certificates that server has a private key for
+    server_certs = nc.get_remote_certificates(dataset_id, scope_def_id=server_scope)
+
+    # filter down to the single-user certificates for this specific user, if needed
+    if server_scope == ScopeDefinitions.SINGLE_USER:
+        server_certs = [cert for cert in server_certs if user_id in cert.scope_params]
+
+    if not server_certs:
+        raise CommandError(
+            "Server does not have needed certificate with scope '{}'".format(
+                server_scope
+            )
+        )
+    server_cert = server_certs[0]
 
     # if we don't own any certs, do a csr request
     if not owned_certs:
@@ -194,8 +228,8 @@ def get_client_and_server_certs(
 
         client_cert = nc.certificate_signing_request(
             server_cert,
-            ScopeDefinitions.FULL_FACILITY,
-            {"dataset_id": dataset_id},
+            client_scope,
+            csr_scope_params,
             userargs=username,
             password=password,
         )
@@ -247,6 +281,28 @@ def create_superuser_and_provision_device(username, dataset_id, noninteractive=F
         DevicePermissions.objects.update_or_create(
             user=user, defaults={"is_superuser": True, "can_manage_content": True}
         )
+
+
+def provision_single_user_device(user_id):
+
+    user = FacilityUser.objects.get(id=user_id)
+
+    # if device has not been provisioned, set it up
+    if not device_provisioned():
+        provision_device(default_facility=user.facility)
+
+    DevicePermissions.objects.get_or_create(
+        user=user, defaults={"is_superuser": False, "can_manage_content": True}
+    )
+
+
+def get_single_user_sync_filter(dataset_id, user_id, is_read):
+    scopedef = ScopeDefinition.objects.get(id=ScopeDefinitions.SINGLE_USER)
+    scope = scopedef.get_scope({"dataset_id": dataset_id, "user_id": user_id})
+    if is_read:
+        return str(scope.read_filter)
+    else:
+        return str(scope.write_filter)
 
 
 def run_once(f):

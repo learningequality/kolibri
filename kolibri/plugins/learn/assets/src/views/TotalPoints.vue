@@ -63,11 +63,7 @@
   }
 
   .icon {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    // Aligns the icon with its parent (white round bg)
-    vertical-align: middle;
+    margin-top: 4px;
   }
 
   .description {

@@ -45,9 +45,29 @@ DATA_PORTAL_SYNCING_BASE_URL
 HTTP_PORT
 RUN_MODE
 URL_PATH_PREFIX
+    Serve Kolibri from a subpath under the main domain. Used when serving multiple applications from
+    the same origin. This option is not heavily tested, but is provided for user convenience.
 LANGUAGES
-ZIP_CONTENT_HOST
+ZIP_CONTENT_URL_PATH_PREFIX
+    The zip content equivalent of URL_PATH_PREFIX - allows all zip content URLs to be prefixed with
+    a fixed path. This both changes the URL from which the endpoints are served by the alternate
+    origin server, and the URL prefix where the Kolibri frontend looks for it.
+    In the case that ZIP_CONTENT_ORIGIN is pointing to an entirely separate origin, this setting
+    can still be used to set a URL prefix that the frontend of Kolibri will look to when
+    retrieving alternate origin URLs.
+ZIP_CONTENT_ORIGIN
+    When running in default operation, this will default to blank, and the Kolibri
+    frontend will look for the zipcontent endpoints on the same domain as Kolibri proper
+    but using ZIP_CONTENT_PORT instead of HTTP_PORT.
+    When running behind a proxy, this value should be set to the port that the zipcontent
+    endpoint is being served on, this will be substituted for the port that Kolibri proper
+    is being served on.
+    If zipcontent is being served from a completely separate domain this can be the absolute
+    origin (full protocol plus domain, e.g. 'https://myzipcontent.com/') which will then
+    be used for all zipcontent origin requests.
 ZIP_CONTENT_PORT
+    Sets the port that Kolibri will serve the alternate origin server on. This is the alternate
+    origin server equivalent of HTTP_PORT.
 
 [Python]
 PICKLE_PROTOCOL
@@ -61,7 +81,10 @@ from configobj import flatten_errors
 from configobj import get_extra_values
 from django.utils.functional import SimpleLazyObject
 from django.utils.six import string_types
+from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urlunparse
 from validate import Validator
+from validate import VdtTypeError
 from validate import VdtValueError
 
 try:
@@ -181,6 +204,37 @@ def path_list(value):
         if errors:
             raise VdtValueError(errors)
 
+    return value
+
+
+def validate_port_number(value):
+    if 1 <= value <= 65535:
+        return value
+    raise VdtValueError(value)
+
+
+def port(value):
+    try:
+        return validate_port_number(int(value))
+    except ValueError:
+        raise VdtTypeError(value)
+
+
+def origin_or_port(value):
+    """
+    Check that the passed value can either be coerced to an integer to supply
+    a port, or is a valid origin string.
+
+    :param Union[integer, str] value: Either an integer or a string
+    """
+    if value != "":
+        try:
+            value = validate_port_number(int(value))
+        except ValueError:
+            url = urlparse(value)
+            if not url.scheme or not url.netloc:
+                raise VdtValueError(value)
+            value = urlunparse((url.scheme, url.netloc, "", "", "", ""))
     return value
 
 
@@ -336,7 +390,7 @@ base_option_spec = {
     },
     "Deployment": {
         "HTTP_PORT": {
-            "type": "integer",
+            "type": "port",
             "default": 8080,
             "envvars": ("KOLIBRI_HTTP_PORT", "KOLIBRI_LISTEN_PORT"),
         },
@@ -357,15 +411,21 @@ base_option_spec = {
             "default": SUPPORTED_LANGUAGES,
             "envvars": ("KOLIBRI_LANGUAGES",),
         },
-        "ZIP_CONTENT_HOST": {
-            "type": "string",
+        "ZIP_CONTENT_ORIGIN": {
+            "type": "origin_or_port",
             "default": "",
-            "envvars": ("KOLIBRI_ZIP_CONTENT_HOST",),
+            "envvars": ("KOLIBRI_ZIP_CONTENT_ORIGIN",),
         },
         "ZIP_CONTENT_PORT": {
-            "type": "integer",
-            "default": 8888,
+            "type": "port",
+            "default": 8765,
             "envvars": ("KOLIBRI_ZIP_CONTENT_PORT",),
+        },
+        "ZIP_CONTENT_URL_PATH_PREFIX": {
+            "type": "string",
+            "default": "/",
+            "envvars": ("KOLIBRI_ZIP_CONTENT_URL_PATH_PREFIX",),
+            "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
         },
     },
     "Python": {
@@ -379,7 +439,14 @@ base_option_spec = {
 
 
 def _get_validator():
-    return Validator({"language_list": language_list, "path_list": path_list})
+    return Validator(
+        {
+            "language_list": language_list,
+            "path_list": path_list,
+            "origin_or_port": origin_or_port,
+            "port": port,
+        }
+    )
 
 
 def _get_logger(KOLIBRI_HOME):
