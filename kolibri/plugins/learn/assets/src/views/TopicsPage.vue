@@ -1,13 +1,7 @@
 <template>
 
-  <div v-if="customChannel">
-    <CustomContentRenderPage
-      :content="topic"
-      :files="topic.files"
-      :options="topic.options"
-      :kind="topic.kind"
-      :node="topic.id"
-    />
+  <div v-if="currentChannelIsCustom">
+    <CustomContentRenderer :topic="topic" />
   </div>
 
 
@@ -97,7 +91,7 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
-  import CustomContentRenderPage from './CustomContentRenderPage';
+  import CustomContentRenderer from './CustomContentRenderer';
   import CardThumbnail from './ContentCard/CardThumbnail';
 
   export default {
@@ -119,7 +113,7 @@
     components: {
       CardThumbnail,
       ContentCardGroupGrid,
-      CustomContentRenderPage,
+      CustomContentRenderer,
       ProgressIcon,
     },
     mixins: [responsiveWindowMixin],
@@ -132,10 +126,10 @@
         // Get the channel if we're root, topic if not
         return this.isRoot ? this.channel : this.topic;
       },
-      customChannel() {
-        if (this.topic) {
-          console.log(this.topic);
-          return this.topic.options.modality == 'CUSTOM_NAVIGATION';
+      currentChannelIsCustom() {
+        if (this.topic && this.topic.options.modality === 'CUSTOM_NAVIGATION') {
+          this.topic.options.modality === 'CUSTOM_NAVIGATION';
+          return true;
         }
         return false;
       },
