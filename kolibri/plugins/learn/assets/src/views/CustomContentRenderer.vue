@@ -54,11 +54,8 @@
     // },
     computed: {
       context() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const fetchedEncodedContext = urlParams.has('context')
-          ? urlParams.get('context')
-          : { context: { customChannel: true } };
-        return decodeURI(fetchedEncodedContext);
+        const fetchedEncodedContext = this.$route.query;
+        return JSON.stringify(decodeURI(fetchedEncodedContext));
       },
       rooturl() {
         return urls.hashi();
@@ -164,7 +161,7 @@
         // to update context with the incoming context
         if (message.context) {
           message.context.customChannel = message.context.customChannel || true;
-          const encodedContext = this.encodeContext(message.context);
+          const encodedContext = JSON.stringify(this.encodeContext(message.context));
           router.push({ query: { context: encodedContext } }).catch(() => {});
           self.hashi.mediator.sendLocalMessage({
             nameSpace: 'hashi',
@@ -177,7 +174,7 @@
           const fetchedEncodedContext = urlParams.has('context')
             ? urlParams.get('context')
             : this.context;
-          message.context = decodeURI(fetchedEncodedContext);
+          message.context = JSON.stringify(decodeURI(fetchedEncodedContext));
           self.hashi.mediator.sendLocalMessage({
             nameSpace: 'hashi',
             event: events.KOLIBRIDATARETURNED,
