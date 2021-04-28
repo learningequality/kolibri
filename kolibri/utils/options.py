@@ -48,7 +48,6 @@ URL_PATH_PREFIX
 LANGUAGES
 ZIP_CONTENT_HOST
 ZIP_CONTENT_PORT
-DISABLE_CUSTOM_CHANNEL_NAV
 
 [Python]
 PICKLE_PROTOCOL
@@ -367,11 +366,6 @@ base_option_spec = {
             "type": "integer",
             "default": 8888,
             "envvars": ("KOLIBRI_ZIP_CONTENT_PORT",),
-        },
-        "DISABLE_CUSTOM_CHANNEL_NAV": {
-            "type": "boolean",
-            "default": False,
-            "envvars": ("DISABLE_CUSTOM_CHANNEL_NAV",),
         },
     },
     "Python": {
