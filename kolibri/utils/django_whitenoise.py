@@ -1,5 +1,6 @@
 import os
 import re
+import stat
 from collections import OrderedDict
 
 from django.conf import settings
@@ -83,9 +84,12 @@ class DjangoWhiteNoise(WhiteNoise):
     def find_and_cache_dynamic_file(self, url):
         path = self.get_dynamic_path(url)
         if path:
-            stat_cache = {path: os.stat(path)}
-            self.add_file_to_dictionary(url, path, stat_cache=stat_cache)
-            return self.files.get(path)
+            file_stat = os.stat(path)
+            # Only try to do matches for regular files.
+            if stat.S_ISREG(file_stat.st_mode):
+                stat_cache = {path: os.stat(path)}
+                self.add_file_to_dictionary(url, path, stat_cache=stat_cache)
+                return self.files.get(path)
 
     def get_dynamic_path(self, url):
         if self.dynamic_check is not None and self.dynamic_check.match(url):
