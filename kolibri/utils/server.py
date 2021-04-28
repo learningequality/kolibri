@@ -67,8 +67,8 @@ DAEMON_LOG = os.path.join(conf.LOG_ROOT, "daemon.txt")
 LISTEN_ADDRESS = "0.0.0.0"
 
 # Constant job_id for scheduled jobs that we want to keep track of across server restarts
-SCH_PING_JOB_ID = 0
-SCH_VACUUM_JOB_ID = 1
+SCH_PING_JOB_ID = "0"
+SCH_VACUUM_JOB_ID = "1"
 
 
 class NotRunning(Exception):
