@@ -979,7 +979,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         # map the channel list into the format the Kolibri client-side expects
         channels = list(map(self._studio_response_to_kolibri_response, resp.json()))
 
-        return Response(channels)
+        return channels
 
     @staticmethod
     def _get_lang_native_name(code):
@@ -1038,9 +1038,10 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         baseurl = request.GET.get("baseurl", None)
         keyword = request.GET.get("keyword", None)
         language = request.GET.get("language", None)
-        return self._make_channel_endpoint_request(
+        channels = self._make_channel_endpoint_request(
             baseurl=baseurl, keyword=keyword, language=language
         )
+        return Response(channels)
 
     def retrieve(self, request, pk=None):
         """
@@ -1049,9 +1050,12 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         baseurl = request.GET.get("baseurl", None)
         keyword = request.GET.get("keyword", None)
         language = request.GET.get("language", None)
-        return self._make_channel_endpoint_request(
+        channels = self._make_channel_endpoint_request(
             identifier=pk, baseurl=baseurl, keyword=keyword, language=language
         )
+        if not channels:
+            raise Http404
+        return Response(channels[0])
 
     @list_route(methods=["get"])
     def kolibri_studio_status(self, request, **kwargs):

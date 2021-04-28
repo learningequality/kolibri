@@ -604,12 +604,11 @@ def get_import_data_for_update(
         i += batch_size
         updated_ids_slice = updated_resource_ids[i : i + batch_size]
 
-    # Get all nodes that are marked as available but have missing supplementary files.
+    # Get all nodes that are marked as available but have missing files.
     # This will ensure that we update thumbnails, and other files.
     queried_file_objects.extend(
         LocalFile.objects.filter(
             available=False,
-            files__supplementary=True,
             files__contentnode__in=ContentNode.objects.filter(
                 available=True, channel_id=channel_id
             ),

@@ -9,7 +9,7 @@ import { getDeviceInfo } from '../../../modules/deviceInfo/handlers';
 export function fetchPageData(channelId) {
   const studioChannelPromise = RemoteChannelResource.fetchModel({ id: channelId, force: true })
     .then(channel => {
-      this.studioChannel = { ...channel[0] };
+      this.studioChannel = channel;
     })
     .catch(() => {
       // Fail silently in case server is offline
