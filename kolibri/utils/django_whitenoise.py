@@ -56,7 +56,7 @@ class DjangoWhiteNoise(WhiteNoise):
         kwargs.update(whitenoise_settings)
         super(DjangoWhiteNoise, self).__init__(application, **kwargs)
         self.static_prefix = static_prefix
-        if not self.autorefresh:
+        if not self.autorefresh and self.static_prefix:
             self.add_files_from_finders()
         self.dynamic_finder = FileFinder(dynamic_locations or [])
         # Generate a regex to check if a path matches one of our dynamic
