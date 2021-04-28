@@ -58,8 +58,8 @@ export function getTransferredChannelOnPeerServer(store, { addressId, channelId 
             },
             force: true,
           })
-            .then(channels => {
-              resolve({ ...channels[0] });
+            .then(channel => {
+              resolve(channel);
             })
             .catch(() => {
               // Only appears if channel with channelId is not on the device. Will still load

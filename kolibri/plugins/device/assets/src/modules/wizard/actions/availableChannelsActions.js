@@ -1,6 +1,6 @@
 import differenceBy from 'lodash/differenceBy';
 import find from 'lodash/find';
-import { getRemoteChannelByToken } from '../utils';
+import { getRemoteChannelByToken, getRemoteChannelBundleByToken } from '../utils';
 
 /**
  * HACK: Makes a request to Kolibri Studio to get info on unlisted channels, then appends
@@ -18,7 +18,7 @@ export function getAllRemoteChannels(store, publicChannels) {
   );
   const promises = installedUnlistedChannels.map(installedChannel =>
     getRemoteChannelByToken(installedChannel.id)
-      .then(([channel]) =>
+      .then(channel =>
         Promise.resolve({
           ...channel,
           ...installedChannel,
@@ -47,7 +47,6 @@ export function getAllDriveChannels(store, drive) {
     };
   });
 }
-
 export function fetchUnlistedChannelInfo(store, channelId) {
-  return getRemoteChannelByToken(channelId).then(channels => Array(channels));
+  return getRemoteChannelBundleByToken(channelId).then(channels => Array(channels));
 }

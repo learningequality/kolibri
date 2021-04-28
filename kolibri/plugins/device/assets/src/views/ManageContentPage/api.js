@@ -33,7 +33,7 @@ function getChannelOnPeer(addressId, channelId) {
           baseurl: location.base_url,
         },
         force: true,
-      }).then(([channel]) => {
+      }).then(channel => {
         return {
           ...channel,
           baseurl: location.base_url,
@@ -49,7 +49,7 @@ function getChannelOnStudio(channelId) {
   return RemoteChannelResource.fetchModel({
     id: channelId,
   })
-    .then(([channel]) => {
+    .then(channel => {
       return {
         ...channel,
         baseurl: kolibriStudioUrl,

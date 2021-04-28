@@ -196,8 +196,8 @@ export function showSelectContentPage(store, params) {
         // Force fetching because using cached version switches
         // between returning an array and returning an object
         .then(
-          channels => {
-            resolve({ ...channels[0] });
+          channel => {
+            resolve(channel);
           },
           error => {
             if (error.response.status === 404) {
