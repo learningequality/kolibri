@@ -5,8 +5,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import pytest
 import mock
+import pytest
 
 from kolibri.core.tasks.scheduler import Scheduler
 from kolibri.core.tasks.test.base import connection
@@ -113,6 +113,9 @@ class TestServerServices(object):
         deviceadmin_utils.scheduler = mock.MagicMock(wraps=scheduler)
         analytics_utils.scheduler = mock.MagicMock(wraps=scheduler)
         server.scheduler = mock.MagicMock(wraps=scheduler)
+
+        # Don't start scheduler in real, otherwise we may end up in infinite thread loop
+        scheduler.start_scheduler = mock.MagicMock(name="start_scheduler")
 
         # Schedule two userdefined jobs
         from kolibri.utils.time_utils import local_now
