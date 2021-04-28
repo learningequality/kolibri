@@ -336,7 +336,7 @@
        * @public
        */
       defaultDuration() {
-        return this.duration || this.expectedTimeToRead;
+        return this.expectedTimeToRead;
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
     },

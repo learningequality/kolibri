@@ -154,7 +154,7 @@
        * @public
        */
       defaultDuration() {
-        return this.duration || this.targetTime;
+        return this.targetTime;
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
     },

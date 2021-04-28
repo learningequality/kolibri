@@ -107,7 +107,7 @@
        * Note: the default duration historically for HTML5 Apps has been 5 min
        */
       defaultDuration() {
-        return this.duration || 300;
+        return 300;
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
     },

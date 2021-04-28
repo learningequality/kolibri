@@ -193,7 +193,7 @@
        * @public
        */
       defaultDuration() {
-        return this.duration || this.player.duration();
+        return this.player.duration();
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
     },
@@ -438,6 +438,11 @@
       // An alternative to recordProgress, this updates tracking based on clock-time spent on media
       updateProgress() {
         this.$emit('updateProgress', Math.min(1, this.durationBasedProgress));
+        console.log(
+          'here is the time spent and durationbasedprog',
+          this.timeSpent,
+          this.durationBasedProgress
+        );
       },
       updatePlayerSizeClass() {
         this.player.removeClass('player-medium');
