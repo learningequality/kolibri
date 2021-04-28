@@ -74,10 +74,6 @@ export default class Kolibri extends BaseShim {
     this.mediator = new Mediator(window.parent);
   }
 
-  encodeContext(context) {
-    return encodeURI(Object.entries(context).map(([k, v]) => `${k}:${v}`));
-  }
-
   iframeInitialize(contentWindow) {
     this.__setShimInterface();
     Object.defineProperty(contentWindow, this.nameSpace, {

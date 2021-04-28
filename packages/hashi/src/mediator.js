@@ -57,21 +57,26 @@ class Mediator {
   sendMessageAwaitReply({ event, data, nameSpace }) {
     return new Promise((resolve, reject) => {
       const msgId = uuidv4();
+      let self = this;
       function handler(message) {
         if (message.message_id === msgId && message.type === 'response') {
-          this.removeMessageHandler({
-            nameSpace,
-            event: 'datareturned',
-            callback: handler,
-          });
-          if (message.status === 'success') {
-            console.log(message.data);
-            return resolve(message.data);
+          if (message.status == 'success') {
+            resolve(message.data);
           } else if (message.status === 'failure' && message.err) {
-            return reject(message.err);
+            reject(message.err);
+          } else {
+            // Otherwise something unspecified happened
+            reject();
           }
-          // Otherwise something unspecified happened
-          return reject();
+          try {
+            self.removeMessageHandler({
+              nameSpace,
+              event: 'datareturned',
+              callback: handler,
+            });
+          } catch (e) {
+            console.log(e);
+          }
         }
       }
       this.registerMessageHandler({

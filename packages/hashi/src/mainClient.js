@@ -67,22 +67,30 @@ export default class MainClient {
     // the iframe
     this.on(this.events.DATAREQUESTED, message => {
       if (message.dataType === 'Collection') {
-        this.__fetchContentCollection = this.kolibri.__fetchContentCollection;
-        this.__fetchContentCollection(message);
+        this.mediator.sendLocalMessage({
+          nameSpace,
+          event: events.COLLECTIONREQUESTED,
+          data: message,
+        });
       } else if (message.dataType === 'Model') {
-        this.__fetchContentModel = this.kolibri.__fetchContentModel;
-        this.kolibri.__fetchContentModel(message);
+        this.mediator.sendLocalMessage({
+          nameSpace,
+          event: events.MODELREQUESTED,
+          data: message,
+        });
       }
     });
 
+    this.on(this.events.KOLIBRIDATARETURNED, message => {
+      this.mediator.sendMessage({ nameSpace, event: events.DATARETURNED, data: message });
+    });
+
     this.on(this.events.NAVIGATETO, message => {
-      this.__navigateTo = this.kolibri.__navigateTo;
-      this.__navigateTo(message);
+      this.mediator.sendMessage({ nameSpace, event: events.NAVIGATETO, data: message });
     });
 
     this.on(this.events.CONTEXT, message => {
-      this.__getOrUpdateContext = this.kolibri.__na__getOrUpdateContextvigateTo;
-      this.__getOrUpdateContext(message);
+      this.mediator.sendMessage({ nameSpace, event: events.CONTEXT, data: message });
     });
   }
 

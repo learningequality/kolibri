@@ -1,78 +1,86 @@
 <template>
 
   <div>
-
-    <div class="header">
-
-      <KGrid>
-        <KGridItem
-          class="breadcrumbs"
-          :layout4="{ span: 4 }"
-          :layout8="{ span: 8 }"
-          :layout12="{ span: 12 }"
-        >
-          <slot name="breadcrumbs"></slot>
-        </KGridItem>
-
-        <KGridItem
-          :layout4="{ span: 4 }"
-          :layout8="{ span: 8 }"
-          :layout12="{ span: 12 }"
-        >
-          <h3 class="title">
-            {{ topicOrChannel.title }}
-          </h3>
-        </KGridItem>
-
-        <KGridItem
-          v-if="topicOrChannel['thumbnail']"
-          class="thumbnail"
-          :layout4="{ span: 1 }"
-          :layout8="{ span: 2 }"
-          :layout12="{ span: 2 }"
-        >
-          <CardThumbnail
-            class="thumbnail"
-            :thumbnail="topicOrChannel['thumbnail']"
-            :isMobile="windowIsSmall"
-            :showTooltip="false"
-            kind="channel"
-            :showContentIcon="false"
-          />
-        </KGridItem>
-
-        <!-- tagline or description -->
-        <KGridItem
-          v-if="getTagline"
-          class="text"
-          :layout4="{ span: topicOrChannel['thumbnail'] ? 3 : 4 }"
-          :layout8="{ span: topicOrChannel['thumbnail'] ? 6 : 8 }"
-          :layout12="{ span: topicOrChannel['thumbnail'] ? 10 : 12 }"
-        >
-          {{ getTagline }}
-        </KGridItem>
-
-        <KGridItem
-          class="footer"
-          :layout4="{ span: 4 }"
-          :layout8="{ span: 8 }"
-          :layout12="{ span: 12 }"
-        >
-          <ProgressIcon
-            v-if="calculateProgress !== undefined"
-            class="progress-icon"
-            :progress="calculateProgress"
-          />
-        </KGridItem>
-      </KGrid>
-
+    <div v-if="currentChannelIsCustom">
+      <CustomContentRenderer :topic="topic" />
     </div>
 
-    <ContentCardGroupGrid
-      v-if="contents.length"
-      :contents="contents"
-      :genContentLink="genContentLink"
-    />
+
+    <div v-else>
+
+      <div class="header">
+
+        <KGrid>
+          <KGridItem
+            class="breadcrumbs"
+            :layout4="{ span: 4 }"
+            :layout8="{ span: 8 }"
+            :layout12="{ span: 12 }"
+          >
+            <slot name="breadcrumbs"></slot>
+          </KGridItem>
+
+          <KGridItem
+            :layout4="{ span: 4 }"
+            :layout8="{ span: 8 }"
+            :layout12="{ span: 12 }"
+          >
+            <h3 class="title">
+              {{ topicOrChannel.title }}
+            </h3>
+          </KGridItem>
+
+          <KGridItem
+            v-if="topicOrChannel['thumbnail']"
+            class="thumbnail"
+            :layout4="{ span: 1 }"
+            :layout8="{ span: 2 }"
+            :layout12="{ span: 2 }"
+          >
+            <CardThumbnail
+              class="thumbnail"
+              :thumbnail="topicOrChannel['thumbnail']"
+              :isMobile="windowIsSmall"
+              :showTooltip="false"
+              kind="channel"
+              :showContentIcon="false"
+            />
+          </KGridItem>
+
+          <!-- tagline or description -->
+          <KGridItem
+            v-if="getTagline"
+            class="text"
+            :layout4="{ span: topicOrChannel['thumbnail'] ? 3 : 4 }"
+            :layout8="{ span: topicOrChannel['thumbnail'] ? 6 : 8 }"
+            :layout12="{ span: topicOrChannel['thumbnail'] ? 10 : 12 }"
+          >
+            {{ getTagline }}
+          </KGridItem>
+
+          <KGridItem
+            class="footer"
+            :layout4="{ span: 4 }"
+            :layout8="{ span: 8 }"
+            :layout12="{ span: 12 }"
+          >
+            <ProgressIcon
+              v-if="calculateProgress !== undefined"
+              class="progress-icon"
+              :progress="calculateProgress"
+            />
+          </KGridItem>
+        </KGrid>
+
+      </div>
+
+      <ContentCardGroupGrid
+        v-if="contents.length"
+        :contents="contents"
+        :genContentLink="genContentLink"
+      />
+
+    </div>
 
   </div>
 
@@ -86,6 +94,7 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
+  import CustomContentRenderer from './CustomContentRenderer';
   import CardThumbnail from './ContentCard/CardThumbnail';
 
   export default {
@@ -107,6 +116,7 @@
     components: {
       CardThumbnail,
       ContentCardGroupGrid,
+      CustomContentRenderer,
       ProgressIcon,
     },
     mixins: [responsiveWindowMixin],
@@ -118,6 +128,13 @@
       topicOrChannel() {
         // Get the channel if we're root, topic if not
         return this.isRoot ? this.channel : this.topic;
+      },
+      currentChannelIsCustom() {
+        if (this.topic && this.topic.options.modality === 'CUSTOM_NAVIGATION') {
+          this.topic.options.modality === 'CUSTOM_NAVIGATION';
+          return true;
+        }
+        return false;
       },
       getTagline() {
         return this.topicOrChannel['tagline'] || this.topicOrChannel['description'] || null;
