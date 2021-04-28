@@ -16,6 +16,7 @@ from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
+from kolibri.utils import conf
 
 
 class Learn(KolibriPluginBase):
@@ -52,6 +53,7 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
         return {
             "allowGuestAccess": get_device_setting("allow_guest_access"),
             "allowLearnerUnassignedResourceAccess": allow_learner_unassigned_resource_access(),
+            "disableCustomChannelNav": conf.OPTIONS['LEARN']['DISABLE_CUSTOM_CHANNEL_NAV'],
         }
 
 
