@@ -15,6 +15,13 @@
         :src="rooturl"
       >
       </iframe>
+      <KModal
+        v-if="overlayIsOpen"
+        cancelText="Close"
+        @cancel="overlayIsOpen = false"
+      >
+        <p>PLACEHOLDER FOR OVERLAY </p>
+      </KModal>
     </div>
   </CoreFullscreen>
 
@@ -47,11 +54,11 @@
         required: true,
       },
     },
-    // data() {
-    //   return {
-    //     open: false,
-    //   };
-    // },
+    data() {
+      return {
+        overlayIsOpen: false,
+      };
+    },
     computed: {
       context() {
         const fetchedEncodedContext = this.$route.query;
@@ -81,13 +88,13 @@
         this.fetchContentCollection(message);
       });
       this.hashi.on('modelrequested', message => {
-        this.fetchContentModel(message);
+        this.fetchContentModel(message).bind(this);
       });
       this.hashi.on('navigateto', message => {
-        this.navigateTo(message);
+        this.navigateTo(message).bind(this);
       });
       this.hashi.on('context', message => {
-        this.getOrUpdateContext(message);
+        this.getOrUpdateContext(message).bind(this);
       });
     },
     methods: {
@@ -100,7 +107,6 @@
         if (options.parent && options.parent == 'self') {
           getParams.parent = this.topic.id;
         }
-        let self = this;
         ContentNodeResource.fetchCollection({ getParams }).then(contentNodes => {
           message.status = contentNodes ? 'success' : 'failure';
           let response = {};
@@ -109,7 +115,7 @@
           response.results = contentNodes;
           message.data = response;
           message.type = 'response';
-          self.hashi.mediator.sendLocalMessage({
+          this.hashi.mediator.sendLocalMessage({
             nameSpace: 'hashi',
             event: events.KOLIBRIDATARETURNED,
             data: message,
@@ -119,12 +125,11 @@
 
       fetchContentModel(message) {
         let id = message.id;
-        let self = this;
         ContentNodeResource.fetchModel({ id }).then(contentNode => {
           message.status = contentNode ? 'success' : 'failure';
           message.data = contentNode;
           message.type = 'response';
-          self.hashi.mediator.sendMessage({
+          this.hashi.mediator.sendMessage({
             nameSpace: 'hashi',
             event: events.KOLIBRIDATARETURNED,
             data: message,
@@ -134,7 +139,7 @@
 
       navigateTo(message) {
         let id = message.nodeId;
-        let self = this;
+        let context = {};
         ContentNodeResource.fetchModel({ id }).then(contentNode => {
           let routeBase, path;
           if (contentNode && contentNode.kind === 'topic') {
@@ -143,10 +148,14 @@
             router.push({ path: path }).catch(() => {});
           } else if (contentNode) {
             // in a custom context, launch or maintain overlay
-            self.currentContent = contentNode;
-            // self.open = true;
+            this.currentContent = contentNode;
+            this.overlayIsOpen = true;
+            context.node_id = contentNode.id;
+            context.customChannel = true;
+            const encodedContext = encodeURI(JSON.stringify(context));
+            router.replace({ query: { context: encodedContext } }).catch(() => {});
           }
-          self.hashi.mediator.sendLocalMessage({
+          this.hashi.mediator.sendLocalMessage({
             nameSpace: 'hashi',
             event: events.KOLIBRIDATARETURNED,
             data: message,
@@ -159,7 +168,7 @@
           message.context.customChannel = message.context.customChannel || true;
           const encodedContext = encodeURI(JSON.stringify(message.context));
           router.push({ query: { context: encodedContext } }).catch(() => {});
-          self.hashi.mediator.sendLocalMessage({
+          this.hashi.mediator.sendLocalMessage({
             nameSpace: 'hashi',
             event: events.KOLIBRIDATARETURNED,
             data: message,
@@ -171,7 +180,7 @@
             ? urlParams.get('context')
             : this.context;
           message.context = decodeURI(JSON.stringify(fetchedEncodedContext));
-          self.hashi.mediator.sendLocalMessage({
+          this.hashi.mediator.sendLocalMessage({
             nameSpace: 'hashi',
             event: events.KOLIBRIDATARETURNED,
             data: message,
