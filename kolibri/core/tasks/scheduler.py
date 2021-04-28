@@ -60,7 +60,7 @@ class Scheduler(StorageMixin):
             if connection is None:
                 connection = self.queue.storage.engine
         elif connection:
-            self.queue = queue(connection=connection)
+            self.queue = Queue(connection=connection)
 
         self._schedule_checker = None
 

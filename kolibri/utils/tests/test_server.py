@@ -5,24 +5,16 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import os
-import tempfile
-
 import pytest
-from mock import patch
-from sqlalchemy import create_engine
-from sqlalchemy.pool import NullPool
+import mock
 
-from kolibri.core.tasks.job import Job
-from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.scheduler import Scheduler
-from kolibri.core.tasks.storage import Storage
-from kolibri.core.tasks.worker import Worker
+from kolibri.core.tasks.test.base import connection
 from kolibri.utils import server
 
 
 class TestServerInstallation(object):
-    @patch("sys.argv", ["kolibri-0.9.3.pex", "start"])
+    @mock.patch("sys.argv", ["kolibri-0.9.3.pex", "start"])
     def test_pex(self):
         install_type = server.installation_type()
         assert install_type == "pex"
@@ -36,147 +28,152 @@ class TestServerInstallation(object):
             "--settings=kolibri.deployment.default.settings.dev",
             '"0.0.0.0:8000"',
         ]
-        with patch("sys.argv", sys_args):
+        with mock.patch("sys.argv", sys_args):
             install_type = server.installation_type()
             assert install_type == "devserver"
 
-    @patch("sys.argv", ["/usr/bin/kolibri", "start"])
+    @mock.patch("sys.argv", ["/usr/bin/kolibri", "start"])
     def test_dpkg(self):
-        with patch("kolibri.utils.server.check_output", return_value=""):
+        with mock.patch("kolibri.utils.server.check_output", return_value=""):
             install_type = server.installation_type()
             assert install_type == "dpkg"
 
-    @patch("sys.argv", ["/usr/bin/kolibri", "start"])
+    @mock.patch("sys.argv", ["/usr/bin/kolibri", "start"])
     def test_apt(apt):
-        with patch("kolibri.utils.server.check_output", return_value="any repo"):
+        with mock.patch("kolibri.utils.server.check_output", return_value="any repo"):
             install_type = server.installation_type()
             assert install_type == "apt"
 
-    @patch("sys.argv", ["C:\\Python34\\Scripts\\kolibri", "start"])
-    @patch("sys.path", ["", "C:\\Program Files\\Kolibri\\kolibri.exe"])
+    @mock.patch("sys.argv", ["C:\\Python34\\Scripts\\kolibri", "start"])
+    @mock.patch("sys.path", ["", "C:\\Program Files\\Kolibri\\kolibri.exe"])
     def test_windows(self):
         install_type = server.installation_type()
         assert install_type == "Windows"
 
-    @patch("sys.argv", ["/usr/local/bin/kolibri", "start"])
+    @mock.patch("sys.argv", ["/usr/local/bin/kolibri", "start"])
     def test_whl(self):
         install_type = server.installation_type()
         assert install_type == "whl"
 
 
 @pytest.fixture
-def dbconnection():
-    fd, filepath = tempfile.mkstemp()
-    connection = create_engine(
-        "sqlite:///{path}".format(path=filepath),
-        connect_args={"check_same_thread": False},
-        poolclass=NullPool,
-    )
-    yield connection
-    os.close(fd)
-    os.remove(filepath)
-
-
-@pytest.fixture
-def storage(dbconnection):
-    s = Storage(dbconnection)
-    yield s
-    s.clear()
+def scheduler():
+    with connection() as c:
+        s = Scheduler(connection=c)
+        s.clear_scheduler()
+        yield s
+        s.clear_scheduler()
 
 
 QUEUE = "pytest"
 
 
-class MockServices(object):
-    """
-    Mocks the kolibri services plugin.
-    """
+class TestServerServices(object):
+    @mock.patch("kolibri.core.deviceadmin.utils.schedule_vacuum")
+    @mock.patch("kolibri.core.analytics.utils.schedule_ping")
+    @mock.patch("kolibri.utils.server.initialize_workers")
+    @mock.patch("kolibri.core.discovery.utils.network.search.register_zeroconf_service")
+    def test_required_services_initiate_on_start(
+        self,
+        register_zeroconf_service,
+        initialize_workers,
+        schedule_ping,
+        schedule_vacuum,
+        scheduler,
+    ):
+        server.scheduler = mock.MagicMock(name="server.scheduler", spec_set=scheduler)
 
-    def __init__(self, connection):
-        self.workers = None
-        self.scheduler = None
-        self.connection = connection
+        # Start server services
+        services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"), 1234)
+        services_plugin.start()
 
-    def start(self):
-        # Initialize workers
-        self.workers = [Worker(QUEUE, connection=self.connection)]
+        # Do we initialize workers when services start?
+        initialize_workers.assert_called_once()
 
-        # Start the scheduler
-        q = Queue(queue=QUEUE, connection=self.connection)
-        self.scheduler = Scheduler(queue=q)
-        self.scheduler.start_scheduler()
+        # Do we start scheduler when services start?
+        server.scheduler.start_scheduler.assert_called_once()
 
-    def stop(self):
-        # Shutdowns scheduler
-        if self.scheduler is not None:
-            self.scheduler.shutdown_scheduler()
+        # Do we register ourselves on zeroconf?
+        register_zeroconf_service.assert_called_once_with(port=1234)
 
-        # Shutdowns the workers
-        if self.workers is not None:
-            for worker in self.workers:
-                worker.shutdown()
+    @mock.patch("kolibri.utils.server.initialize_workers")
+    @mock.patch(
+        "kolibri.core.discovery.utils.network.search.unregister_zeroconf_service"
+    )
+    @mock.patch("kolibri.core.discovery.utils.network.search.register_zeroconf_service")
+    def test_scheduled_jobs_persist_on_restart(
+        self,
+        register_zeroconf_service,
+        unregister_zeroconf_service,
+        initialize_workers,
+        scheduler,
+    ):
+        # Replace real scheduler with our test scheduler
+        # in deviceadmin_utils, analytics_utils and server namespaces
+        from kolibri.core.deviceadmin import utils as deviceadmin_utils
+        from kolibri.core.analytics import utils as analytics_utils
 
+        deviceadmin_utils.scheduler = mock.MagicMock(wraps=scheduler)
+        analytics_utils.scheduler = mock.MagicMock(wraps=scheduler)
+        server.scheduler = mock.MagicMock(wraps=scheduler)
 
-def test_nonscheduled_jobs_persist_on_server_restart(dbconnection, storage):
-    # Start server services
-    mock_services = MockServices(dbconnection)
-    mock_services.start()
+        # Schedule two userdefined jobs
+        from kolibri.utils.time_utils import local_now
+        from datetime import timedelta
 
-    # Enqueue three jobs
-    job = Job(id)
-    storage.enqueue_job(job, QUEUE)
-    job = Job(id)
-    storage.enqueue_job(job, QUEUE)
-    job = Job(id)
-    storage.enqueue_job(job, QUEUE)
+        schedule_time = local_now() + timedelta(hours=1)
+        scheduler.schedule(schedule_time, id, job_id="test01")
+        scheduler.schedule(schedule_time, id, job_id="test02")
 
-    # Did we enqueue all three jobs correctly?
-    assert storage.count_all_jobs(QUEUE) == 3
+        # Now, start services plugin
+        service_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"), 1234)
+        service_plugin.start()
 
-    # Ok, let us stop the services
-    mock_services.stop()
+        # Currently, we must have exactly four scheduled jobs
+        # two userdefined and two server defined (pingback and vacuum)
+        assert scheduler.count() == 4
+        assert scheduler.get_job("test01") is not None
+        assert scheduler.get_job("test02") is not None
+        assert scheduler.get_job(server.SCH_PING_JOB_ID) is not None
+        assert scheduler.get_job(server.SCH_VACUUM_JOB_ID) is not None
 
-    # Do jobs persist on db?
-    assert storage.count_all_jobs(QUEUE) == 3
+        # Restart services
+        service_plugin.stop()
+        service_plugin.start()
 
-    # Start services again
-    mock_services.start()
+        # Make sure all scheduled jobs persist
+        assert scheduler.count() == 4
+        assert scheduler.get_job("test01") is not None
+        assert scheduler.get_job("test02") is not None
+        assert scheduler.get_job(server.SCH_PING_JOB_ID) is not None
+        assert scheduler.get_job(server.SCH_VACUUM_JOB_ID) is not None
 
-    # Do jobs still persist?
-    assert storage.count_all_jobs(QUEUE) == 3
+    @mock.patch(
+        "kolibri.core.discovery.utils.network.search.unregister_zeroconf_service"
+    )
+    def test_services_shutdown_on_stop(self, unregister_zeroconf_service, scheduler):
+        server.scheduler = mock.MagicMock(name="server.scheduler", spec_set=scheduler)
 
-    # Finally, stop the services
-    mock_services.stop()
+        # Initialize and ready services plugin for testing
+        services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"), 1234)
+        from kolibri.core.tasks.worker import Worker
 
+        services_plugin.workers = [
+            mock.MagicMock(name="worker", spec_set=Worker),
+            mock.MagicMock(name="worker", spec_set=Worker),
+            mock.MagicMock(name="worker", spec_set=Worker),
+        ]
 
-def test_scheduled_jobs_persist_on_server_restart(dbconnection):
-    # Start server services
-    mock_services = MockServices(dbconnection)
-    mock_services.start()
+        # Now, let us stop services plugin
+        services_plugin.stop()
 
-    # Enqueue three scheduled jobs
-    from kolibri.utils.time_utils import local_now
-    from datetime import timedelta
+        # Do we shutdown scheduler?
+        server.scheduler.shutdown_scheduler.assert_called_once()
 
-    schedule_time = local_now() + timedelta(hours=1)
-    mock_services.scheduler.schedule(schedule_time, id)
-    mock_services.scheduler.schedule(schedule_time, id)
-    mock_services.scheduler.schedule(schedule_time, id)
-
-    # Did we enqueue all three scheduled jobs?
-    assert mock_services.scheduler.count() == 3
-
-    # Ok, let us stop the services
-    mock_services.stop()
-
-    # Do scheduled jobs persist on db?
-    assert mock_services.scheduler.count() == 3
-
-    # Start services again
-    mock_services.start()
-
-    # Do scheduled jobs still persist?
-    assert mock_services.scheduler.count() == 3
-
-    # Finally, stop the services
-    mock_services.stop()
+        # Do we shutdown workers correctly?
+        for mock_worker in services_plugin.workers:
+            assert mock_worker.shutdown.call_count == 2
+            assert mock_worker.mock_calls == [
+                mock.call.shutdown(),
+                mock.call.shutdown(wait=True),
+            ]
