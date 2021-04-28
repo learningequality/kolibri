@@ -865,7 +865,9 @@ class TasksViewSet(BaseViewSet):
 
 
 class FacilityTasksViewSet(BaseViewSet):
-    queues = [facility_queue]
+    @property
+    def queues(self):
+        return [facility_queue]
 
     def default_permission_classes(self):
         permission_classes = super(FacilityTasksViewSet, self).permission_classes

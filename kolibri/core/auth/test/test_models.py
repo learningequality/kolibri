@@ -11,11 +11,12 @@ from django.test import TestCase
 
 from ..constants import collection_kinds
 from ..constants import role_kinds
+from ..errors import InvalidCollectionHierarchy
+from ..errors import InvalidMembershipError
 from ..errors import InvalidRoleKind
 from ..errors import UserDoesNotHaveRoleError
-from ..errors import UserHasRoleOnlyIndirectlyThroughHierarchyError
-from ..errors import UserIsMemberOnlyIndirectlyThroughHierarchyError
 from ..errors import UserIsNotMemberError
+from ..models import AdHocGroup
 from ..models import Classroom
 from ..models import Collection
 from ..models import Facility
@@ -51,6 +52,7 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
 
         self.cr = Classroom.objects.create(parent=self.facility)
         self.cr.add_coach(classroom_coach)
+        self.cr.add_member(learner)
 
         self.lg = LearnerGroup.objects.create(parent=self.cr)
         self.lg.add_learner(learner)
@@ -64,6 +66,29 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
         )
 
         self.lg.remove_learner(self.learner)
+        self.cr.remove_member(self.learner)
+
+        self.assertFalse(self.learner.is_member_of(self.lg))
+        self.assertFalse(self.learner.is_member_of(self.cr))
+        self.assertTrue(
+            self.learner.is_member_of(self.facility)
+        )  # always a member of one's own facility
+        self.assertEqual(
+            Membership.objects.filter(user=self.learner, collection=self.lg).count(), 0
+        )
+
+        with self.assertRaises(UserIsNotMemberError):
+            self.lg.remove_learner(self.learner)
+
+    def test_remove_learner_from_parent_removes_from_child(self):
+        self.assertTrue(self.learner.is_member_of(self.lg))
+        self.assertTrue(self.learner.is_member_of(self.cr))
+        self.assertTrue(self.learner.is_member_of(self.facility))
+        self.assertEqual(
+            Membership.objects.filter(user=self.learner, collection=self.lg).count(), 1
+        )
+
+        self.cr.remove_member(self.learner)
 
         self.assertFalse(self.learner.is_member_of(self.lg))
         self.assertFalse(self.learner.is_member_of(self.cr))
@@ -205,13 +230,8 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
 
     def test_remove_indirect_admin_role(self):
         """ Trying to remove the admin role for a a Facility admin from a descendant classroom doesn't actually remove anything. """
-        with self.assertRaises(UserHasRoleOnlyIndirectlyThroughHierarchyError):
+        with self.assertRaises(UserDoesNotHaveRoleError):
             self.cr.remove_admin(self.facility_admin)
-
-    def test_remove_indirect_membership(self):
-        """ Trying to remove a learner's membership from a classroom doesn't actually remove anything. """
-        with self.assertRaises(UserIsMemberOnlyIndirectlyThroughHierarchyError):
-            self.cr.remove_member(self.learner)
 
     def test_delete_learner_group(self):
         """ Deleting a LearnerGroup should delete its associated Memberships as well """
@@ -233,7 +253,7 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
 
     def test_delete_facility_pt1(self):
         """ Deleting a Facility should delete associated Roles as well """
-        self.assertEqual(Role.objects.filter(collection=self.facility.id).count(), 1)
+        self.assertEqual(Role.objects.filter(collection=self.facility.id).count(), 2)
         self.facility.delete()
         self.assertEqual(Role.objects.filter(collection=self.facility.id).count(), 0)
 
@@ -251,9 +271,8 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
 
     def test_delete_facility_user(self):
         """ Deleting a FacilityUser should delete associated Memberships """
-        membership = Membership.objects.get(user=self.learner)
         self.learner.delete()
-        self.assertEqual(Membership.objects.filter(id=membership.id).count(), 0)
+        self.assertEqual(Membership.objects.filter(user=self.learner).count(), 0)
 
 
 class CollectionRelatedObjectTestCase(TestCase):
@@ -270,6 +289,8 @@ class CollectionRelatedObjectTestCase(TestCase):
 
         cls.cr = Classroom.objects.create(parent=cls.facility)
         cls.cr.add_coaches(users[5:8])
+        for u in users[0:5]:
+            cls.cr.add_member(u)
 
         cls.lg = LearnerGroup.objects.create(parent=cls.cr)
         cls.lg.add_learners(users[0:5])
@@ -296,28 +317,14 @@ class CollectionsTestCase(TestCase):
 
     def test_add_and_remove_admin(self):
         user = FacilityUser.objects.create(username="foo", facility=self.facility)
-        self.classroom.add_admin(user)
         self.facility.add_admin(user)
-        self.assertEqual(
-            Role.objects.filter(
-                user=user, kind=role_kinds.ADMIN, collection=self.classroom
-            ).count(),
-            1,
-        )
         self.assertEqual(
             Role.objects.filter(
                 user=user, kind=role_kinds.ADMIN, collection=self.facility
             ).count(),
             1,
         )
-        self.classroom.remove_admin(user)
         self.facility.remove_admin(user)
-        self.assertEqual(
-            Role.objects.filter(
-                user=user, kind=role_kinds.ADMIN, collection=self.classroom
-            ).count(),
-            0,
-        )
         self.assertEqual(
             Role.objects.filter(
                 user=user, kind=role_kinds.ADMIN, collection=self.facility
@@ -341,6 +348,12 @@ class CollectionsTestCase(TestCase):
             ).count(),
             1,
         )
+        self.assertEqual(
+            Role.objects.filter(
+                user=user, kind=role_kinds.ASSIGNABLE_COACH, collection=self.facility
+            ).count(),
+            1,
+        )
         self.classroom.remove_coach(user)
         self.facility.remove_coach(user)
         self.assertEqual(
@@ -352,6 +365,35 @@ class CollectionsTestCase(TestCase):
         self.assertEqual(
             Role.objects.filter(
                 user=user, kind=role_kinds.COACH, collection=self.facility
+            ).count(),
+            0,
+        )
+
+    def test_add_and_remove_classroom_coach(self):
+        user = FacilityUser.objects.create(username="foo", facility=self.facility)
+        self.classroom.add_coach(user)
+        self.assertEqual(
+            Role.objects.filter(
+                user=user, kind=role_kinds.COACH, collection=self.classroom
+            ).count(),
+            1,
+        )
+        self.assertEqual(
+            Role.objects.filter(
+                user=user, kind=role_kinds.ASSIGNABLE_COACH, collection=self.facility
+            ).count(),
+            1,
+        )
+        self.facility.remove_role(user, role_kinds.ASSIGNABLE_COACH)
+        self.assertEqual(
+            Role.objects.filter(
+                user=user, kind=role_kinds.COACH, collection=self.classroom
+            ).count(),
+            0,
+        )
+        self.assertEqual(
+            Role.objects.filter(
+                user=user, kind=role_kinds.ASSIGNABLE_COACH, collection=self.facility
             ).count(),
             0,
         )
@@ -377,14 +419,9 @@ class CollectionsTestCase(TestCase):
     def test_add_admins(self):
         user1 = FacilityUser.objects.create(username="foo1", facility=self.facility)
         user2 = FacilityUser.objects.create(username="foo2", facility=self.facility)
-        self.classroom.add_admins([user1, user2])
+        with self.assertRaises(InvalidRoleKind):
+            self.classroom.add_admins([user1, user2])
         self.facility.add_admins([user1, user2])
-        self.assertEqual(
-            Role.objects.filter(
-                kind=role_kinds.ADMIN, collection=self.classroom
-            ).count(),
-            2,
-        )
         self.assertEqual(
             Role.objects.filter(
                 kind=role_kinds.ADMIN, collection=self.facility
@@ -403,14 +440,42 @@ class CollectionsTestCase(TestCase):
         LearnerGroup.objects.create(parent=classroom)
         self.assertEqual(LearnerGroup.objects.count(), 1)
 
-    def test_learner(self):
+    def test_learner_cannot_be_added_to_learnergroup_if_not_classroom_member(self):
         user = FacilityUser.objects.create(username="foo", facility=self.facility)
         classroom = Classroom.objects.create(parent=self.facility)
+        learner_group = LearnerGroup.objects.create(name="blah", parent=classroom)
+        learner_group.full_clean()
+        with self.assertRaises(InvalidMembershipError):
+            learner_group.add_learner(user)
+
+    def test_learner_can_be_added_to_learnergroup_if_classroom_member(self):
+        user = FacilityUser.objects.create(username="foo", facility=self.facility)
+        classroom = Classroom.objects.create(parent=self.facility)
+        classroom.add_member(user)
         learner_group = LearnerGroup.objects.create(name="blah", parent=classroom)
         learner_group.full_clean()
         learner_group.add_learner(user)
         self.assertEqual(
             Membership.objects.filter(user=user, collection=learner_group).count(), 1
+        )
+
+    def test_learner_cannot_be_added_to_adhocgroup_if_not_classroom_member(self):
+        user = FacilityUser.objects.create(username="foo", facility=self.facility)
+        classroom = Classroom.objects.create(parent=self.facility)
+        adhoc_group = AdHocGroup.objects.create(name="blah", parent=classroom)
+        adhoc_group.full_clean()
+        with self.assertRaises(InvalidMembershipError):
+            adhoc_group.add_learner(user)
+
+    def test_learner_can_be_added_to_adhocgroup_if_classroom_member(self):
+        user = FacilityUser.objects.create(username="foo", facility=self.facility)
+        classroom = Classroom.objects.create(parent=self.facility)
+        classroom.add_member(user)
+        adhoc_group = AdHocGroup.objects.create(name="blah", parent=classroom)
+        adhoc_group.full_clean()
+        adhoc_group.add_learner(user)
+        self.assertEqual(
+            Membership.objects.filter(user=user, collection=adhoc_group).count(), 1
         )
 
     def test_parentless_classroom(self):
@@ -443,6 +508,7 @@ class RoleErrorTestCase(TestCase):
         self.facility = Facility.objects.create()
         self.classroom = Classroom.objects.create(parent=self.facility)
         self.learner_group = LearnerGroup.objects.create(parent=self.classroom)
+        self.adhoc_group = AdHocGroup.objects.create(parent=self.classroom)
         self.facility_user = FacilityUser.objects.create(
             username="blah", password="#", facility=self.facility
         )
@@ -456,6 +522,22 @@ class RoleErrorTestCase(TestCase):
             self.learner_group.remove_role(
                 self.facility_user, "blahblahnonexistentroletype"
             )
+
+    def test_invalid_learner_group_roles(self):
+        with self.assertRaises(InvalidRoleKind):
+            self.learner_group.add_role(self.facility_user, role_kinds.ADMIN)
+        with self.assertRaises(InvalidRoleKind):
+            self.learner_group.add_role(self.facility_user, role_kinds.COACH)
+
+    def test_invalid_adhoc_group_roles(self):
+        with self.assertRaises(InvalidRoleKind):
+            self.learner_group.add_role(self.facility_user, role_kinds.ADMIN)
+        with self.assertRaises(InvalidRoleKind):
+            self.learner_group.add_role(self.facility_user, role_kinds.COACH)
+
+    def test_invalid_classroom_roles(self):
+        with self.assertRaises(InvalidRoleKind):
+            self.learner_group.add_role(self.facility_user, role_kinds.ADMIN)
 
 
 class SuperuserRoleMembershipTestCase(TestCase):
@@ -476,24 +558,6 @@ class SuperuserRoleMembershipTestCase(TestCase):
         self.assertFalse(self.superuser.is_member_of(self.learner_group))
 
     def test_superuser_is_admin_for_everything(self):
-        self.assertSetEqual(
-            self.superuser.get_roles_for_collection(self.classroom),
-            set([role_kinds.ADMIN]),
-        )
-        self.assertSetEqual(
-            self.superuser.get_roles_for_collection(self.facility),
-            set([role_kinds.ADMIN]),
-        )
-        self.assertSetEqual(
-            self.superuser.get_roles_for_user(self.facility_user),
-            set([role_kinds.ADMIN]),
-        )
-        self.assertSetEqual(
-            self.superuser.get_roles_for_user(self.superuser), set([role_kinds.ADMIN])
-        )
-        self.assertSetEqual(
-            self.superuser.get_roles_for_user(self.superuser2), set([role_kinds.ADMIN])
-        )
         self.assertTrue(
             self.superuser.has_role_for_user([role_kinds.ADMIN], self.facility_user)
         )
@@ -541,6 +605,7 @@ class StringMethodTestCase(TestCase):
 
         cls.cr = Classroom.objects.create(name="Classroom X", parent=cls.facility)
         cls.cr.add_coach(classroom_coach)
+        cls.cr.add_member(learner)
 
         cls.lg = LearnerGroup.objects.create(name="Oodles of Fun", parent=cls.cr)
         cls.lg.add_learner(learner)
@@ -561,13 +626,13 @@ class StringMethodTestCase(TestCase):
 
     def test_membership_str_method(self):
         self.assertEqual(
-            str(self.learner.memberships.all()[0]),
+            str(self.learner.memberships.filter(collection=self.lg)[0]),
             '"foo"@"Arkham"\'s membership in "Oodles of Fun" (learnergroup)',
         )
 
     def test_role_str_method(self):
         self.assertEqual(
-            str(self.classroom_coach.roles.all()[0]),
+            str(self.classroom_coach.roles.filter(kind=role_kinds.COACH)[0]),
             '"bar"@"Arkham"\'s coach role for "Classroom X" (classroom)',
         )
 
@@ -613,3 +678,42 @@ class FacilityUserTestCase(TestCase):
         user = FacilityUser.deserialize(dict(username="bob", password=""))
         self.assertEqual("bob", user.username)
         self.assertEqual("NOT_SPECIFIED", user.password)
+
+
+class CollectionHierarchyTestCase(TestCase):
+    def test_facility_with_parent(self):
+        facility = Facility.objects.create()
+        with self.assertRaises(IntegrityError):
+            Facility.objects.create(parent=facility)
+
+    def test_classroom_no_parent(self):
+        with self.assertRaises(IntegrityError):
+            Classroom.objects.create()
+
+    def test_classroom_no_facility_parent(self):
+        facility = Facility.objects.create()
+        clsroom = Classroom.objects.create(parent=facility)
+        with self.assertRaises(InvalidCollectionHierarchy):
+            Classroom.objects.create(parent=clsroom)
+
+    def test_learnergroup_no_parent(self):
+        with self.assertRaises(IntegrityError):
+            LearnerGroup.objects.create()
+
+    def test_learnergroup_no_facility_parent(self):
+        facility = Facility.objects.create()
+        clsroom = Classroom.objects.create(parent=facility)
+        lgroup = LearnerGroup.objects.create(parent=clsroom)
+        with self.assertRaises(InvalidCollectionHierarchy):
+            LearnerGroup.objects.create(parent=lgroup)
+
+    def test_adhocgroup_no_parent(self):
+        with self.assertRaises(IntegrityError):
+            AdHocGroup.objects.create()
+
+    def test_adhocgroup_no_facility_parent(self):
+        facility = Facility.objects.create()
+        clsroom = Classroom.objects.create(parent=facility)
+        adhocgroup = AdHocGroup.objects.create(parent=clsroom)
+        with self.assertRaises(InvalidCollectionHierarchy):
+            AdHocGroup.objects.create(parent=adhocgroup)

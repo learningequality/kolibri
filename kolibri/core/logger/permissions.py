@@ -3,6 +3,7 @@ from rest_framework import permissions
 
 from kolibri.core.auth.permissions.base import BasePermissions
 from kolibri.core.auth.permissions.base import lookup_field_with_fks
+from kolibri.core.auth.permissions.base import q_none
 
 
 class AnyoneCanWriteAnonymousLogs(BasePermissions):
@@ -28,8 +29,8 @@ class AnyoneCanWriteAnonymousLogs(BasePermissions):
     def user_can_delete_object(self, user, obj):
         return False
 
-    def readable_by_user_filter(self, user, queryset):
-        return queryset.none()
+    def readable_by_user_filter(self, user):
+        return q_none
 
 
 def _ensure_raw_dict(d):

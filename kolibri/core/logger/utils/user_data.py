@@ -9,13 +9,11 @@ import random
 from django.db.models import Max
 from django.db.models import Min
 from django.db.models import Sum
-from django.db.models.query import F
 from django.db.models.query import Q
 from django.utils import timezone
 from le_utils.constants import content_kinds
 
 from kolibri.core.auth.constants import demographics
-from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -127,8 +125,8 @@ def get_or_create_classroom_users(**options):
     user_data_name_fields = ["GivenName", "MiddleInitial", "Surname"]
 
     n_in_classroom = (
-        HierarchyRelationsFilter(FacilityUser.objects.all())
-        .filter_by_hierarchy(ancestor_collection=classroom, target_user=F("id"))
+        FacilityUser.objects.filter(memberships__collection=classroom)
+        .distinct()
         .count()
     )
 
@@ -176,9 +174,9 @@ def get_or_create_classroom_users(**options):
             # Add the user to the current classroom
             classroom.add_member(user)
 
-    return HierarchyRelationsFilter(FacilityUser.objects.all()).filter_by_hierarchy(
-        target_user=F("id"), ancestor_collection=classroom
-    )[0:n_users]
+    return FacilityUser.objects.filter(memberships__collection=classroom).distinct()[
+        0:n_users
+    ]
 
 
 def add_channel_activity_for_user(**options):  # noqa: max-complexity=16

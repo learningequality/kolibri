@@ -1,37 +1,40 @@
-import os
-import tempfile
+# -*- coding: utf-8 -*-
 import time
 
 import pytest
 from mock import patch
-from sqlalchemy import create_engine
-from sqlalchemy.pool import NullPool
 
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.test.base import connection
 from kolibri.core.tasks.worker import Worker
-
 
 QUEUE = "pytest"
 
 
+class RaisedError(Exception):
+    pass
+
+
+def error_func():
+    """
+    Function that raises an error that contains unicode.
+    Made this a module function due to the need to have a module path to pass to the Job constructor.
+    """
+    raise RaisedError("كوليبري is not a function")
+
+
 @pytest.fixture
 def worker():
-    _, filepath = tempfile.mkstemp()
-    connection = create_engine(
-        "sqlite:///{path}".format(path=filepath),
-        connect_args={"check_same_thread": False},
-        poolclass=NullPool,
-    )
-    b = Worker(QUEUE, connection)
-    yield b
-    b.shutdown()
-    try:
-        os.remove(filepath)
-    except OSError:
-        pass
+    with connection() as c:
+        b = Worker(QUEUE, c)
+        b.storage.clear(force=True)
+        yield b
+        b.storage.clear(force=True)
+        b.shutdown()
 
 
+@pytest.mark.django_db
 class TestWorker:
     def test_enqueue_job_runs_job(self, worker):
         job = Job(id, 9)
@@ -49,6 +52,23 @@ class TestWorker:
             pass
 
         assert job.state == State.COMPLETED
+
+    def test_can_handle_unicode_exceptions(self, worker):
+        # Make sure task exception info is not an object, but is either a string or None.
+        # See Storage.mark_job_as_failed in kolibri.core.tasks.storage for more details on why we do this.
+
+        # create a job that triggers an exception
+        job = Job("kolibri.core.tasks.test.test_worker.error_func")
+
+        job_id = worker.storage.enqueue_job(job, QUEUE)
+
+        while job.state == State.QUEUED:
+            job = worker.storage.get_job(job.job_id)
+            time.sleep(0.5)
+
+        returned_job = worker.storage.get_job(job_id)
+        assert returned_job.state == "FAILED"
+        assert isinstance(returned_job.exception, RaisedError)
 
     def test_enqueue_job_writes_to_storage_on_success(self, worker):
         with patch.object(

@@ -24,8 +24,8 @@ from kolibri.core.content.utils.sqlalchemybridge import (
 )
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 from kolibri.core.content.utils.sqlalchemybridge import prepare_base
-from kolibri.core.content.utils.sqlalchemybridge import SharingPool
 from kolibri.core.content.utils.sqlalchemybridge import SQLALCHEMY_CLASSES_PATH_TEMPLATE
+from kolibri.core.utils.sqlalchemy_utils import SharingPool
 
 DATA_PATH_TEMPLATE = os.path.join(
     os.path.dirname(__file__), "../../fixtures/{name}_content_data.json"

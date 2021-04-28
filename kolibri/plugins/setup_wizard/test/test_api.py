@@ -31,8 +31,7 @@ class GetFacilityAdminsTest(APITestCase):
     def test_only_returns_admins(self):
         response = self._make_request()
         sorted_admins = sorted(response.data, key=lambda x: x["username"])
-        self.assertEqual(sorted_admins[0]["username"], "classadmin0")
-        self.assertEqual(sorted_admins[1]["username"], "facadmin")
+        self.assertEqual(sorted_admins[0]["username"], "facadmin")
 
 
 class GrantSuperuserPermissionsTest(APITestCase):

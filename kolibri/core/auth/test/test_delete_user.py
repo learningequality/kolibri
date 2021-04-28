@@ -6,6 +6,7 @@ from django.core.management.base import CommandError
 from django.test import TestCase
 
 from .. import utils
+from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
@@ -23,7 +24,8 @@ class UserDeleteTestCase(TestCase):
         cls.facility = Facility.objects.create()
         cls.facility_2 = Facility.objects.create()
         cls.user = FacilityUser.objects.create(username="user", facility=cls.facility)
-        Membership.objects.create(collection=cls.facility, user=cls.user)
+        cls.classroom = Classroom.objects.create(parent=cls.facility)
+        Membership.objects.create(collection=cls.classroom, user=cls.user)
         ContentSessionLogFactory.create(
             user=cls.user, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
         )

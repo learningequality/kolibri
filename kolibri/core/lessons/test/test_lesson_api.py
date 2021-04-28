@@ -8,6 +8,8 @@ from rest_framework.test import APITestCase
 
 from .. import models
 from kolibri.core import error_constants
+from kolibri.core.auth.models import AdHocGroup
+from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
@@ -26,10 +28,11 @@ class LessonAPITestCase(APITestCase):
         cls.admin.set_password(DUMMY_PASSWORD)
         cls.admin.save()
         cls.facility.add_admin(cls.admin)
+        cls.classroom = Classroom.objects.create(name="Classroom", parent=cls.facility)
         cls.lesson = models.Lesson.objects.create(
             title="title",
             is_active=True,
-            collection=cls.facility,
+            collection=cls.classroom,
             created_by=cls.admin,
         )
 
@@ -64,7 +67,7 @@ class LessonAPITestCase(APITestCase):
             {
                 "title": "title next",
                 "is_active": True,
-                "collection": self.facility.id,
+                "collection": self.classroom.id,
                 "lesson_assignments": [],
             },
             format="json",
@@ -80,14 +83,14 @@ class LessonAPITestCase(APITestCase):
             {
                 "title": "title next",
                 "is_active": True,
-                "collection": self.facility.id,
-                "lesson_assignments": [self.facility.id],
+                "collection": self.classroom.id,
+                "lesson_assignments": [self.classroom.id],
             },
             format="json",
         )
         self.assertEqual(response.status_code, 201)
         self.assertEqual(
-            models.LessonAssignment.objects.get(collection=self.facility).lesson,
+            models.LessonAssignment.objects.get(collection=self.classroom).lesson,
             models.Lesson.objects.get(title="title next"),
         )
 
@@ -100,8 +103,8 @@ class LessonAPITestCase(APITestCase):
             {
                 "title": "title next",
                 "is_active": True,
-                "collection": self.facility.id,
-                "lesson_assignments": [self.facility.id],
+                "collection": self.classroom.id,
+                "lesson_assignments": [self.classroom.id],
             },
             format="json",
         )
@@ -111,7 +114,7 @@ class LessonAPITestCase(APITestCase):
             {
                 "title": "title next",
                 "is_active": True,
-                "collection": self.facility.id,
+                "collection": self.classroom.id,
                 "lesson_assignments": [],
                 "created_by": self.admin.id,
             },
@@ -131,19 +134,19 @@ class LessonAPITestCase(APITestCase):
             {
                 "title": "title next",
                 "is_active": True,
-                "collection": self.facility.id,
-                "lesson_assignments": [self.facility.id],
+                "collection": self.classroom.id,
+                "lesson_assignments": [self.classroom.id],
             },
             format="json",
         )
         lesson_id = models.Lesson.objects.get(title="title next").id
-        group = LearnerGroup.objects.create(name="test", parent=self.facility)
+        group = LearnerGroup.objects.create(name="test", parent=self.classroom)
         response = self.client.put(
             reverse("kolibri:core:lesson-detail", kwargs={"pk": lesson_id}),
             {
                 "title": "title next",
                 "is_active": True,
-                "collection": self.facility.id,
+                "collection": self.classroom.id,
                 "lesson_assignments": [group.id],
                 "created_by": self.admin.id,
             },
@@ -169,20 +172,20 @@ class LessonAPITestCase(APITestCase):
             {
                 "title": "title next",
                 "is_active": True,
-                "collection": self.facility.id,
-                "lesson_assignments": [self.facility.id],
+                "collection": self.classroom.id,
+                "lesson_assignments": [self.classroom.id],
             },
             format="json",
         )
         lesson_id = models.Lesson.objects.get(title="title next").id
-        group = LearnerGroup.objects.create(name="test", parent=self.facility)
+        group = LearnerGroup.objects.create(name="test", parent=self.classroom)
         response = self.client.put(
             reverse("kolibri:core:lesson-detail", kwargs={"pk": lesson_id}),
             {
                 "title": "title next",
                 "is_active": True,
-                "collection": self.facility.id,
-                "lesson_assignments": [group.id, self.facility.id],
+                "collection": self.classroom.id,
+                "lesson_assignments": [group.id, self.classroom.id],
                 "created_by": self.admin.id,
             },
             format="json",
@@ -195,14 +198,91 @@ class LessonAPITestCase(APITestCase):
             models.Lesson.objects.get(title="title next")
             .lesson_assignments.first()
             .collection,
-            [group, self.facility],
+            [group, self.classroom],
         )
         self.assertIn(
             models.Lesson.objects.get(title="title next")
             .lesson_assignments.last()
             .collection,
-            [group, self.facility],
+            [group, self.classroom],
         )
+
+    def test_logged_in_admin_lesson_update_learner_assignments(self):
+
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(
+            reverse("kolibri:core:lesson-list"),
+            {
+                "title": "title next",
+                "is_active": True,
+                "collection": self.classroom.id,
+                "lesson_assignments": [self.classroom.id],
+            },
+            format="json",
+        )
+
+        user = FacilityUser.objects.create(username="u", facility=self.facility)
+
+        self.classroom.add_member(user)
+        lesson_id = models.Lesson.objects.get(title="title next").id
+        response = self.client.put(
+            reverse("kolibri:core:lesson-detail", kwargs={"pk": lesson_id}),
+            {
+                "title": "title next",
+                "is_active": True,
+                "collection": self.classroom.id,
+                "lesson_assignments": [],
+                "created_by": self.admin.id,
+                "learner_ids": [user.id],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            models.Lesson.objects.get(title="title next").lesson_assignments.count(), 1
+        )
+        adhoc_group = AdHocGroup.objects.get(parent=self.classroom)
+        self.assertEqual(len(adhoc_group.get_members()), 1)
+        self.assertEqual(adhoc_group.get_members()[0], user)
+        self.assertEqual(
+            models.LessonAssignment.objects.get(collection=adhoc_group),
+            models.Lesson.objects.get(title="title next").lesson_assignments.first(),
+        )
+
+    def test_logged_in_admin_lesson_update_learner_assignments_wrong_collection(self):
+
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(
+            reverse("kolibri:core:lesson-list"),
+            {
+                "title": "title next",
+                "is_active": True,
+                "collection": self.classroom.id,
+                "lesson_assignments": [self.classroom.id],
+            },
+            format="json",
+        )
+
+        user = FacilityUser.objects.create(username="u", facility=self.facility)
+
+        lesson_id = models.Lesson.objects.get(title="title next").id
+        response = self.client.put(
+            reverse("kolibri:core:lesson-detail", kwargs={"pk": lesson_id}),
+            {
+                "title": "title next",
+                "is_active": True,
+                "collection": self.classroom.id,
+                "lesson_assignments": [],
+                "created_by": self.admin.id,
+                "learner_ids": [user.id],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        with self.assertRaises(AdHocGroup.DoesNotExist):
+            AdHocGroup.objects.get(parent=self.classroom)
 
     def test_logged_in_user_lesson_no_create(self):
 
@@ -217,7 +297,7 @@ class LessonAPITestCase(APITestCase):
             {
                 "title": "title next",
                 "is_active": True,
-                "collection": self.facility.id,
+                "collection": self.classroom.id,
                 "lesson_assignments": [],
             },
             format="json",
@@ -233,7 +313,7 @@ class LessonAPITestCase(APITestCase):
             {
                 "title": "title",
                 "is_active": True,
-                "collection": self.facility.id,
+                "collection": self.classroom.id,
                 "lesson_assignments": [],
             },
             format="json",
@@ -254,7 +334,7 @@ class LessonAPITestCase(APITestCase):
                 "id": self.lesson.id,
                 "title": "title",
                 "is_active": True,
-                "collection": self.facility.id,
+                "collection": self.classroom.id,
             },
             format="json",
         )
@@ -268,8 +348,8 @@ class LessonAPITestCase(APITestCase):
             {
                 "title": "TiTlE",
                 "is_active": True,
-                "collection": self.facility.id,
-                "lesson_assignments": [self.facility.id],
+                "collection": self.classroom.id,
+                "lesson_assignments": [self.classroom.id],
             },
             format="json",
         )
@@ -285,7 +365,7 @@ class LessonAPITestCase(APITestCase):
                 "id": self.lesson.id,
                 "title": "title",
                 "is_active": False,
-                "collection": self.facility.id,
+                "collection": self.classroom.id,
             },
             format="json",
         )
@@ -297,7 +377,7 @@ class LessonAPITestCase(APITestCase):
         models.Lesson.objects.create(
             title="title",
             is_active=True,
-            collection=self.facility,
+            collection=self.classroom,
             created_by=self.admin,
         )
 
@@ -307,7 +387,7 @@ class LessonAPITestCase(APITestCase):
                 "id": self.lesson.id,
                 "title": "title",
                 "is_active": False,
-                "collection": self.facility.id,
+                "collection": self.classroom.id,
             },
             format="json",
         )
@@ -319,7 +399,7 @@ class LessonAPITestCase(APITestCase):
         models.Lesson.objects.create(
             title="titular",
             is_active=True,
-            collection=self.facility,
+            collection=self.classroom,
             created_by=self.admin,
         )
 
@@ -329,7 +409,7 @@ class LessonAPITestCase(APITestCase):
                 "id": self.lesson.id,
                 "title": "titular",
                 "is_active": True,
-                "collection": self.facility.id,
+                "collection": self.classroom.id,
             },
             format="json",
         )
@@ -341,7 +421,7 @@ class LessonAPITestCase(APITestCase):
         models.Lesson.objects.create(
             title="title",
             is_active=True,
-            collection=self.facility,
+            collection=self.classroom,
             created_by=self.admin,
         )
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
@@ -351,8 +431,8 @@ class LessonAPITestCase(APITestCase):
             {
                 "title": self.lesson.title,
                 "is_active": True,
-                "collection": self.facility.id,
-                "lesson_assignments": [self.facility.id],
+                "collection": self.classroom.id,
+                "lesson_assignments": [self.classroom.id],
             },
             format="json",
         )

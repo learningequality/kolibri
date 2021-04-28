@@ -1,7 +1,7 @@
 import logging
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.query import F
+from django.db.models.query import Q
 from django.db.utils import IntegrityError
 from django.http import Http404
 from django_filters import ModelChoiceFilter
@@ -32,7 +32,6 @@ from .serializers import TotalContentProgressSerializer
 from .serializers import UserSessionLogSerializer
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
-from kolibri.core.auth.filters import HierarchyRelationsFilter
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import Facility
@@ -60,14 +59,13 @@ class BaseLogFilter(FilterSet):
         return queryset.filter(user__facility=value)
 
     def filter_classroom(self, queryset, name, value):
-        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            ancestor_collection=value, target_user=F("user")
+        return queryset.filter(
+            Q(user__memberships__collection_id=value)
+            | Q(user__memberships__collection__parent_id=value)
         )
 
     def filter_learner_group(self, queryset, name, value):
-        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            ancestor_collection=value, target_user=F("user")
-        )
+        return queryset.filter(user__memberships__collection_id=value)
 
 
 class LoggerViewSet(viewsets.ModelViewSet):
@@ -250,8 +248,9 @@ class ExamLogFilter(BaseLogFilter):
     )
 
     def filter_collection(self, queryset, name, collection):
-        return HierarchyRelationsFilter(queryset).filter_by_hierarchy(
-            target_user=F("user"), ancestor_collection=collection
+        return queryset.filter(
+            Q(user__memberships__collection_id=collection)
+            | Q(user__memberships__collection__parent_id=collection)
         )
 
     class Meta:

@@ -71,7 +71,7 @@ def django_response_to_wsgi(response, environ, start_response):
 
 template_engine = Engine(
     dirs=[os.path.join(os.path.dirname(__file__), "./templates/content")],
-    libraries={"staticfiles": "django.contrib.staticfiles.templatetags.staticfiles"},
+    libraries={"zipcontent": "kolibri.core.content.templatetags.zip_content_tags"},
 )
 h5p_template = template_engine.get_template("h5p.html")
 hashi_template = template_engine.get_template("hashi.html")

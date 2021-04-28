@@ -152,6 +152,7 @@ describe('Collection', function() {
         resource._client = fn;
       },
     });
+    resource.logError = jest.fn();
     params = {};
     data = [{ test: 'test', id: 'testing' }];
     collection = new Resources.Collection(params, data, resource);
@@ -231,7 +232,7 @@ describe('Collection', function() {
     });
   });
   describe('fetch method', function() {
-    let setSpy, clearCacheSpy, client, logstub;
+    let setSpy, clearCacheSpy, client;
     describe('if called when Collection.synced = true and force is false', function() {
       it('should return current data immediately', function(done) {
         collection.synced = true;
@@ -397,10 +398,6 @@ describe('Collection', function() {
             response = {};
             client = jest.fn().mockResolvedValue(response);
             resource.client = client;
-            logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {});
-          });
-          afterEach(function() {
-            logstub.mockRestore();
           });
           it('should call the client once', function(done) {
             collection.synced = false;
@@ -409,10 +406,10 @@ describe('Collection', function() {
               done();
             });
           });
-          it('should call logging.error once', function(done) {
+          it('should call resource.logError once', function(done) {
             collection.synced = false;
             collection.fetch().catch(() => {
-              expect(logstub).toHaveBeenCalledTimes(1);
+              expect(resource.logError).toHaveBeenCalledTimes(1);
               done();
             });
           });
@@ -423,15 +420,11 @@ describe('Collection', function() {
           response = 'Error';
           client = jest.fn().mockRejectedValue(response);
           resource.client = client;
-          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {});
         });
-        afterEach(function() {
-          logstub.mockRestore();
-        });
-        it('should call logging.error once', function(done) {
+        it('should call resource.logError once', function(done) {
           collection.synced = false;
           collection.fetch().catch(() => {
-            expect(logstub).toHaveBeenCalledTimes(1);
+            expect(resource.logError).toHaveBeenCalledTimes(1);
             done();
           });
         });
@@ -487,7 +480,7 @@ describe('Collection', function() {
     });
   });
   describe('save method', function() {
-    let setSpy, client, logstub;
+    let setSpy, client;
     describe('if called when Collection.new = false', function() {
       it('should reject the promise', async function() {
         collection.new = false;
@@ -547,10 +540,6 @@ describe('Collection', function() {
             response = {};
             client = jest.fn().mockResolvedValue(response);
             resource.client = client;
-            logstub = jest.spyOn(Resources.logging, 'debug').mockImplementation(() => {});
-          });
-          afterEach(function() {
-            logstub.mockRestore();
           });
           it('should call the client once', async function() {
             collection.synced = false;
@@ -560,7 +549,7 @@ describe('Collection', function() {
           it('should call logging.debug once', async function() {
             collection.synced = false;
             await collection.save();
-            expect(logstub).toHaveBeenCalledTimes(1);
+            expect(resource.logError).toHaveBeenCalledTimes(1);
           });
         });
       });
@@ -569,15 +558,11 @@ describe('Collection', function() {
           response = 'Error';
           client = jest.fn().mockRejectedValue(response);
           resource.client = client;
-          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {});
         });
-        afterEach(function() {
-          logstub.mockRestore();
-        });
-        it('should call logging.error once', function(done) {
+        it('should call resource.logError once', function(done) {
           collection.synced = false;
           collection.save().catch(() => {
-            expect(logstub).toHaveBeenCalledTimes(1);
+            expect(resource.logError).toHaveBeenCalledTimes(1);
             done();
           });
         });
@@ -621,7 +606,7 @@ describe('Collection', function() {
     });
   });
   describe('delete method', function() {
-    let client, logstub;
+    let client;
     describe('if called when Collection has no getParams', function() {
       it('should reject the promise', function(done) {
         collection.getParams = {};
@@ -695,15 +680,11 @@ describe('Collection', function() {
           client = jest.fn();
           client.mockRejectedValue(response);
           resource.client = client;
-          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {});
         });
-        afterEach(function() {
-          logstub.mockRestore();
-        });
-        it('should call logging.error once', function(done) {
+        it('should call resource.logError once', function(done) {
           collection.synced = false;
           collection.delete().catch(() => {
-            expect(logstub).toHaveBeenCalledTimes(1);
+            expect(resource.logError).toHaveBeenCalledTimes(1);
             done();
           });
         });
@@ -806,7 +787,7 @@ describe('Collection', function() {
 });
 
 describe('Model', function() {
-  let resource, model, data, payload, client, logstub, setSpy;
+  let resource, model, data, payload, client, setSpy;
   beforeEach(function() {
     resource = {
       modelUrl: () => 'modelUrl',
@@ -814,6 +795,7 @@ describe('Model', function() {
       idKey: 'id',
       client: () => Promise.resolve({ data: {} }),
       removeModel: () => {},
+      logError: jest.fn(),
     };
     data = { test: 'test', id: 'testing' };
     model = new Resources.Model(data, {}, resource);
@@ -881,7 +863,7 @@ describe('Model', function() {
     });
   });
   describe('fetch method', function() {
-    let response, client, setSpy, logstub;
+    let response, client, setSpy;
     describe('if called when Model.synced = true and force is false', function() {
       it('should return current data immediately', async function() {
         model.synced = true;
@@ -947,15 +929,11 @@ describe('Model', function() {
           client = jest.fn();
           client.mockRejectedValue(response);
           resource.client = client;
-          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {});
         });
-        afterEach(function() {
-          logstub.mockRestore();
-        });
-        it('should call logging.error once', function(done) {
+        it('should call resource.logError once', function(done) {
           model.synced = false;
           model.fetch().catch(() => {
-            expect(logstub).toHaveBeenCalledTimes(1);
+            expect(resource.logError).toHaveBeenCalledTimes(1);
             done();
           });
         });
@@ -1146,15 +1124,11 @@ describe('Model', function() {
           client = jest.fn();
           client.mockRejectedValue(response);
           resource.client = client;
-          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {});
         });
-        afterEach(function() {
-          logstub.mockRestore();
-        });
-        it('should call logging.error once', function(done) {
+        it('should call resource.logError once', function(done) {
           model.synced = false;
           model.save().catch(() => {
-            expect(logstub).toHaveBeenCalledTimes(1);
+            expect(resource.logError).toHaveBeenCalledTimes(1);
             done();
           });
         });
@@ -1298,14 +1272,10 @@ describe('Model', function() {
           client = jest.fn();
           client.mockRejectedValue(response);
           resource.client = client;
-          logstub = jest.spyOn(Resources.logging, 'error').mockImplementation(() => {});
         });
-        afterEach(function() {
-          logstub.mockRestore();
-        });
-        it('should call logging.error once', function(done) {
+        it('should call resource.logError once', function(done) {
           model.delete().catch(() => {
-            expect(logstub).toHaveBeenCalledTimes(1);
+            expect(resource.logError).toHaveBeenCalledTimes(1);
             done();
           });
         });

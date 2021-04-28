@@ -267,8 +267,6 @@ def configure_http_server(port):
     from kolibri.deployment.default.wsgi import application
 
     whitenoise_settings = {
-        "static_root": settings.STATIC_ROOT,
-        "static_prefix": settings.STATIC_URL,
         # Use 1 day as the default cache time for static assets
         "max_age": 24 * 60 * 60,
         # Add a test for any file name that contains a semantic version number
@@ -279,7 +277,9 @@ def configure_http_server(port):
     }
 
     # Mount static files
-    application = DjangoWhiteNoise(application, **whitenoise_settings)
+    application = DjangoWhiteNoise(
+        application, static_prefix=settings.STATIC_URL, **whitenoise_settings
+    )
 
     cherrypy.tree.graft(application, "/")
 
@@ -290,14 +290,14 @@ def configure_http_server(port):
     )
 
     # Mount content files
-    CONTENT_ROOT = "/" + paths.get_content_url(
-        conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
-    ).lstrip("/")
     content_dirs = [paths.get_content_dir_path()] + paths.get_content_fallback_paths()
     dispatcher = MultiStaticDispatcher(content_dirs)
     content_handler = cherrypy.tree.mount(
         None,
-        CONTENT_ROOT,
+        "/"
+        + paths.get_content_url(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]).lstrip(
+            "/"
+        ),
         config={"/": {"tools.caching.on": False, "request.dispatch": dispatcher}},
     )
 
@@ -322,9 +322,19 @@ def configure_http_server(port):
 
     # Mount static files
     alt_port_app = wsgi.PathInfoDispatcher(
-        {"/": get_application(), CONTENT_ROOT: content_handler}
+        {
+            "/": get_application(),
+            "/"
+            + paths.get_content_url(paths.zip_content_path_prefix()).lstrip(
+                "/"
+            ): content_handler,
+        }
     )
-    alt_port_app = DjangoWhiteNoise(alt_port_app, **whitenoise_settings)
+    alt_port_app = DjangoWhiteNoise(
+        alt_port_app,
+        static_prefix=paths.zip_content_static_root(),
+        **whitenoise_settings
+    )
 
     alt_port_server = ServerAdapter(
         cherrypy.engine,

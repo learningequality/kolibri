@@ -74,11 +74,10 @@ class UserExportTestCase(TestCase):
         # facility admin = 1
         # facility coach = 1
         # orphan_users = 3
-        # classroom_admins = CLASSROOMS
         # classroom_coaches = CLASSROOMS
         # learners =  CLASSROOMS
         # 1 learner in all classrooms
-        assert len(self.csv_rows) == 6 + CLASSROOMS * 3
+        assert len(self.csv_rows) == 6 + CLASSROOMS * 2
 
     def test_roles(self):
         admin = self.data["facility_admin"].username

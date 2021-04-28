@@ -163,7 +163,7 @@ class ImportTestCase(TestCase):
                 reader, header_translation
             )
 
-        assert len(users) == 12  # admins have not been exported
+        assert len(users) == 10  # admins have not been exported
         # assert roles[role_kinds.ADMIN] == ["facadmin"]
         assert per_line_errors == []
         assert roles[role_kinds.COACH] == ["faccoach"]
