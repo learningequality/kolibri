@@ -65,9 +65,6 @@ def scheduler():
         s.clear_scheduler()
 
 
-QUEUE = "pytest"
-
-
 class TestServerServices(object):
     @mock.patch("kolibri.core.deviceadmin.utils.schedule_vacuum")
     @mock.patch("kolibri.core.analytics.utils.schedule_ping")
@@ -108,7 +105,7 @@ class TestServerServices(object):
         initialize_workers,
         scheduler,
     ):
-        # Replace real scheduler with our test scheduler
+        # Replace calls to real scheduler with our test scheduler
         # in deviceadmin_utils, analytics_utils and server namespaces
         from kolibri.core.deviceadmin import utils as deviceadmin_utils
         from kolibri.core.analytics import utils as analytics_utils
@@ -141,7 +138,7 @@ class TestServerServices(object):
         service_plugin.stop()
         service_plugin.start()
 
-        # Make sure all scheduled jobs persist
+        # Make sure all scheduled jobs persist after restart
         assert scheduler.count() == 4
         assert scheduler.get_job("test01") is not None
         assert scheduler.get_job("test02") is not None
@@ -156,6 +153,7 @@ class TestServerServices(object):
 
         # Initialize and ready services plugin for testing
         services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"), 1234)
+
         from kolibri.core.tasks.worker import Worker
 
         services_plugin.workers = [
@@ -177,3 +175,6 @@ class TestServerServices(object):
                 mock.call.shutdown(),
                 mock.call.shutdown(wait=True),
             ]
+
+        # Do we unregister ourselves from zeroconf network?
+        unregister_zeroconf_service.assert_called_once()
