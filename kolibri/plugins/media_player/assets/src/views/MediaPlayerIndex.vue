@@ -188,6 +188,14 @@
       transcriptVisible() {
         return this.transcript && !this.loading && this.captionTracks.length > 0;
       },
+      /* eslint-disable kolibri/vue-no-unused-properties */
+      /**
+       * @public
+       */
+      defaultDuration() {
+        return this.duration || this.player.duration();
+      },
+      /* eslint-enable kolibri/vue-no-unused-properties */
     },
     watch: {
       isFullscreen() {
@@ -207,6 +215,7 @@
     },
     beforeDestroy() {
       clearInterval(this.updateContentStateInterval);
+      this.updateProgress();
       this.updateContentState();
 
       this.$emit('stopTracking');
@@ -324,6 +333,7 @@
           this.focusOnPlayControl();
           this.setPlayState(false);
           this.updateContentState();
+          this.updateProgress();
         });
         this.player.on('timeupdate', this.updateTime);
         this.player.on('seeking', this.handleSeek);
@@ -379,7 +389,9 @@
       handleSeek() {
         // record progress before updating the times,
         // to capture any progress that happened pre-seeking
-        this.recordProgress();
+        if (!this.forceTimeBasedProgress) {
+          this.recordProgress();
+        }
 
         // now, update all the timestamps to set the new time location
         // as the baseline starting point
@@ -395,14 +407,16 @@
         }
         this.dummyTime = this.player.currentTime();
         if (this.dummyTime - this.lastUpdateTime >= 5) {
-          this.recordProgress();
+          if (!this.forceTimeBasedProgress) {
+            this.recordProgress();
+          }
           this.lastUpdateTime = this.dummyTime;
         }
       },
       setPlayState(state) {
         // avoid recording progress if we're currently seeking,
         // as timers are in an intermediate state
-        if (!this.player.seeking()) {
+        if (!this.player.seeking() && !this.forceTimeBasedProgress) {
           this.recordProgress();
         }
         if (state === true) {
@@ -420,6 +434,10 @@
           )
         );
         this.progressStartingPoint = this.dummyTime;
+      },
+      // An alternative to recordProgress, this updates tracking based on clock-time spent on media
+      updateProgress() {
+        this.$emit('updateProgress', Math.min(1, this.durationBasedProgress));
       },
       updatePlayerSizeClass() {
         this.player.removeClass('player-medium');
