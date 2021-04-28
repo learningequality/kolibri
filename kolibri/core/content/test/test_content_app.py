@@ -1556,7 +1556,7 @@ class KolibriStudioAPITestCase(APITestCase):
             reverse("kolibri:core:remotechannel-detail", kwargs={"pk": "abc"}),
             format="json",
         )
-        self.assertEqual(response.data[0]["name"], "studio")
+        self.assertEqual(response.data["name"], "studio")
 
     @mock_patch_decorator
     def test_channel_info_cache(self):
