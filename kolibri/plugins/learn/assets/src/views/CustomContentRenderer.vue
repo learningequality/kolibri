@@ -102,7 +102,7 @@
         }
         let self = this;
         ContentNodeResource.fetchCollection({ getParams }).then(contentNodes => {
-          contentNodes ? (message.status = 'success') : (message.status = 'failure');
+          message.status = contentNodes ? 'success' : 'failure';
           let response = {};
           response.page = message.options.page ? message.options.page : 1;
           response.pageSize = message.options.pageSize ? message.options.pageSize : 50;
@@ -121,11 +121,7 @@
         let id = message.id;
         let self = this;
         ContentNodeResource.fetchModel({ id }).then(contentNode => {
-          if (contentNode) {
-            message.status = 'success';
-          } else {
-            message.status = 'failure';
-          }
+          message.status = contentNode ? 'success' : 'failure';
           message.data = contentNode;
           message.type = 'response';
           self.hashi.mediator.sendMessage({
@@ -161,7 +157,7 @@
         // to update context with the incoming context
         if (message.context) {
           message.context.customChannel = message.context.customChannel || true;
-          const encodedContext = JSON.stringify(this.encodeContext(message.context));
+          const encodedContext = encodeURI(JSON.stringify(message.context));
           router.push({ query: { context: encodedContext } }).catch(() => {});
           self.hashi.mediator.sendLocalMessage({
             nameSpace: 'hashi',
@@ -170,11 +166,11 @@
           });
         } else {
           // just return the existing query
-          const urlParams = new URLSearchParams(window.location.search);
+          const urlParams = this.$route.query;
           const fetchedEncodedContext = urlParams.has('context')
             ? urlParams.get('context')
             : this.context;
-          message.context = JSON.stringify(decodeURI(fetchedEncodedContext));
+          message.context = decodeURI(JSON.stringify(fetchedEncodedContext));
           self.hashi.mediator.sendLocalMessage({
             nameSpace: 'hashi',
             event: events.KOLIBRIDATARETURNED,
