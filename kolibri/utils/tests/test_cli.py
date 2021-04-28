@@ -166,6 +166,8 @@ def test_kolibri_listen_port_env(monkeypatch):
 
         test_port = 1234
 
+        test_zip_port = 5432
+
         os.environ["KOLIBRI_HTTP_PORT"] = str(test_port)
 
         # force a reload of plugins.OPTIONS so the environment variable will be read in
@@ -173,7 +175,7 @@ def test_kolibri_listen_port_env(monkeypatch):
 
         conf.OPTIONS.update(options.read_options_file(conf.KOLIBRI_HOME))
 
-        cli.start.callback(test_port, False)
+        cli.start.callback(test_port, test_zip_port, False)
         with pytest.raises(SystemExit) as excinfo:
             cli.stop.callback()
             assert excinfo.code == 0

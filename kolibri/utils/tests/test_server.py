@@ -5,10 +5,11 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import mock
-import pytest
 import os
 from unittest import TestCase
+
+import mock
+import pytest
 
 from kolibri.core.tasks.scheduler import Scheduler
 from kolibri.core.tasks.test.base import connection
@@ -84,13 +85,17 @@ class TestServerServices(object):
 
         # Start server services
         services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"), 1234)
-        services_plugin.start()
+        services_plugin.START()
 
         # Do we initialize workers when services start?
         initialize_workers.assert_called_once()
 
         # Do we start scheduler when services start?
         server.scheduler.start_scheduler.assert_called_once()
+
+        register_zeroconf_service.assert_not_called()
+
+        services_plugin.SERVING(1234)
 
         # Do we register ourselves on zeroconf?
         register_zeroconf_service.assert_called_once_with(port=1234)
@@ -129,7 +134,7 @@ class TestServerServices(object):
 
         # Now, start services plugin
         service_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"), 1234)
-        service_plugin.start()
+        service_plugin.START()
 
         # Currently, we must have exactly four scheduled jobs
         # two userdefined and two server defined (pingback and vacuum)
@@ -140,8 +145,8 @@ class TestServerServices(object):
         assert scheduler.get_job(server.SCH_VACUUM_JOB_ID) is not None
 
         # Restart services
-        service_plugin.stop()
-        service_plugin.start()
+        service_plugin.STOP()
+        service_plugin.START()
 
         # Make sure all scheduled jobs persist after restart
         assert scheduler.count() == 4
@@ -168,7 +173,7 @@ class TestServerServices(object):
         ]
 
         # Now, let us stop services plugin
-        services_plugin.stop()
+        services_plugin.STOP()
 
         # Do we shutdown scheduler?
         server.scheduler.shutdown_scheduler.assert_called_once()
@@ -191,7 +196,7 @@ class ServerInitializationTestCase(TestCase):
     def test_port_occupied(self, wait_for_port_mock, logging_mock):
         wait_for_port_mock.side_effect = OSError
         with self.assertRaises(SystemExit):
-            server.check_port_availability("0.0.0.0", "8080")
+            server.background_port_check("8080", "8081")
             logging_mock.assert_called()
 
     @mock.patch("kolibri.utils.server.logging.error")
@@ -200,5 +205,12 @@ class ServerInitializationTestCase(TestCase):
         wait_for_port_mock.side_effect = OSError
         # LISTEN_PID environment variable would be set if using socket activation
         with mock.patch.dict(os.environ, {"LISTEN_PID": "1234"}):
-            server.check_port_availability("0.0.0.0", "8080")
+            server.background_port_check("8080", "8081")
             logging_mock.assert_not_called()
+
+    @mock.patch("kolibri.utils.server.logging.error")
+    @mock.patch("kolibri.utils.server.wait_for_free_port")
+    def test_port_zero_zip_port_zero(self, wait_for_port_mock, logging_mock):
+        wait_for_port_mock.side_effect = OSError
+        server.background_port_check("0", "0")
+        logging_mock.assert_not_called()

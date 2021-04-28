@@ -61,6 +61,9 @@ PID_FILE = os.path.join(conf.KOLIBRI_HOME, "server.pid")
 # File used to activate profiling middleware and get profiler PID
 PROFILE_LOCK = os.path.join(conf.KOLIBRI_HOME, "server_profile.lock")
 
+# File used to store previously available ports
+PORT_CACHE = os.path.join(conf.KOLIBRI_HOME, "port_cache")
+
 # This is a special file with daemon activity. It logs ALL stderr output, some
 # might not have made it to the log file!
 DAEMON_LOG = os.path.join(conf.LOG_ROOT, "daemon.txt")
@@ -109,7 +112,78 @@ class Server(BaseServer):
         return logger.log(level, msg)
 
 
+def check_port_availability(host, port):
+    """
+    Make sure the port is available for the server to start.
+    """
+    # Also bypass when the port is 0, as that will choose a port
+    if port:
+        try:
+            wait_for_free_port(host, port, timeout=PORT_AVAILABILITY_CHECK_TIMEOUT)
+        except OSError:
+            return False
+    return True
+
+
+class PortCache:
+    def __init__(self):
+        self.values = {}
+        self.load()
+
+    def register_port(self, port):
+        self.values[port] = True
+        self.save()
+
+    def get_port(self, host):
+        if self.values:
+            try:
+                port = next(p for p in self.values if not self.values[p])
+                if port:
+                    if check_port_availability(host, port):
+                        self.values[port] = True
+                        return port
+            except StopIteration:
+                pass
+        return None
+
+    def save(self):
+        with open(PORT_CACHE, "w") as f:
+            f.write("\n".join(str(p) for p in self.values.keys()))
+
+    def load(self):
+        try:
+            with open(PORT_CACHE, "r") as f:
+                for port in f.readlines():
+                    self.values[int(port)] = False
+        except IOError:
+            pass
+
+
+port_cache = PortCache()
+
+
 class ServerPlugin(BaseServerPlugin):
+    def subscribe(self):
+        super(ServerPlugin, self).subscribe()
+        self.bus.subscribe("ENTER", self.ENTER)
+
+    def unsubscribe(self):
+        super(ServerPlugin, self).unsubscribe()
+        self.bus.unsubscribe("ENTER", self.ENTER)
+
+    def ENTER(self):
+        host, bind_port = self.bind_addr
+        if bind_port == 0:
+            port = port_cache.get_port(host)
+            if port:
+                self.bind_addr = (host, port)
+                self.httpserver.bind_addr = (host, port)
+
+    def START(self):
+        super(ServerPlugin, self).START()
+        _, port = self.httpserver.bind_addr
+        port_cache.register_port(port)
+
     @property
     def interface(self):
         if self.httpserver.bind_addr is None:
@@ -123,6 +197,7 @@ class ServerPlugin(BaseServerPlugin):
 
 class KolibriServerPlugin(ServerPlugin):
     def ENTER(self):
+        super(KolibriServerPlugin, self).ENTER()
         # Clear old sessions up
         call_command("clearsessions")
 
@@ -379,24 +454,47 @@ def configure_http_server(port, zip_port, bus):
     alt_port_server.subscribe()
 
 
-def check_port_availability(host, port):
-    """
-    Make sure the port is available for the server to start.
-    """
+def background_port_check(port, zip_port):
+    # Do this before daemonization, otherwise just let the server processes handle this
+    # In case that something other than Kolibri occupies the port,
+    # check the port's availability.
     # Bypass check when socket activation is used
     # https://manpages.debian.org/testing/libsystemd-dev/sd_listen_fds.3.en.html#ENVIRONMENT
     # Also bypass when the port is 0, as that will choose a port
-    if not os.environ.get("LISTEN_PID", None) and port:
-        try:
-            wait_for_free_port(host, port, timeout=PORT_AVAILABILITY_CHECK_TIMEOUT)
-        except OSError:
-            # Port is occupied
-            logger.error(
-                "Port {} is occupied.\n"
-                "Please check that you do not have other processes "
-                "running on this port and try again.\n".format(port)
-            )
-            sys.exit(1)
+    port = int(port)
+    zip_port = int(zip_port)
+    if (
+        not os.environ.get("LISTEN_PID", None)
+        and port
+        and not check_port_availability(LISTEN_ADDRESS, port)
+    ):
+        # Port is occupied
+        logger.error(
+            "Port {} is occupied.\n"
+            "Please check that you do not have other processes "
+            "running on this port and try again.\n".format(port)
+        )
+        sys.exit(1)
+    if (
+        not os.environ.get("LISTEN_PID", None)
+        and zip_port
+        and not check_port_availability(LISTEN_ADDRESS, zip_port)
+    ):
+        # Port is occupied
+        logger.error(
+            "Port {} is occupied.\n"
+            "Please check that you do not have other processes "
+            "running on this port and try again.\n".format(zip_port)
+        )
+        sys.exit(1)
+    if port:
+        __, urls = get_urls(listen_port=port)
+        for url in urls:
+            logger.info("Kolibri running on: {}".format(url))
+    else:
+        logger.info(
+            "No port specified, for information about accessing the server, run kolibri status"
+        )
 
 
 def start(port=0, zip_port=0, serve_http=True, background=False):
@@ -405,6 +503,8 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
 
     :param: port: Port number (default: 0) - assigned by free port
     """
+    port = int(port)
+    zip_port = int(zip_port)
     # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
     # a better fix. See https://github.com/learningequality/kolibri/issues/4821
     if sys.platform == "darwin":
@@ -430,18 +530,7 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
     pid_plugin.subscribe()
 
     if background and serve_http:
-        # Do this before daemonization, otherwise just let the server processes handle this
-        # In case that something other than Kolibri occupies the port,
-        # check the port's availability.
-        check_port_availability(LISTEN_ADDRESS, port)
-        if port:
-            __, urls = get_urls(listen_port=port)
-            for url in urls:
-                logger.info("Kolibri running on: {}".format(url))
-        else:
-            logger.info(
-                "No port specified, for information about accessing the server, run kolibri status"
-            )
+        background_port_check(port, zip_port)
 
     logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
 
