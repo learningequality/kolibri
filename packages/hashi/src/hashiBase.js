@@ -11,6 +11,7 @@ export const events = {
   KOLIBRIDATARETURNED: 'kolibridatareturned',
   NAVIGATETO: 'navigateto',
   CONTEXT: 'context',
+  THEMECHANGED: 'themechanged',
 };
 
 export const nameSpace = 'hashi';
