@@ -84,7 +84,7 @@ class DynamicWhiteNoise(WhiteNoise):
             if stat.S_ISREG(file_stat.st_mode):
                 stat_cache = {path: os.stat(path)}
                 self.add_file_to_dictionary(url, path, stat_cache=stat_cache)
-                return self.files.get(path)
+                return self.files.get(url)
 
     def get_dynamic_path(self, url):
         if self.dynamic_check is not None and self.dynamic_check.match(url):
