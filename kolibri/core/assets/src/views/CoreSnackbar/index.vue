@@ -2,7 +2,7 @@
 
   <div>
     <template v-if="backdrop">
-      <div class="snackbar-backdrop"></div>
+      <Backdrop class="snackbar-backdrop" />
       <!-- Prevent focus from leaving the this container -->
       <div tabindex="0" @focus="trapFocus"></div>
     </template>
@@ -32,11 +32,13 @@
 
   import { mapActions } from 'vuex';
   import UiSnackbar from 'kolibri-design-system/lib/keen/UiSnackbar.vue';
+  import Backdrop from 'kolibri.coreVue.components.Backdrop';
 
   /* Snackbars are used to display notification. */
   export default {
     name: 'CoreSnackbar',
     components: {
+      Backdrop,
       UiSnackbar,
     },
     props: {
@@ -150,13 +152,7 @@
   }
 
   .snackbar-backdrop {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
     z-index: 24; // material dialog - ensures we cover KModal
-    background-color: rgba(0, 0, 0, 0.7);
   }
 
   .snackbar-enter-active {
