@@ -23,6 +23,7 @@
         :files="content.files"
         :options="content.options"
         :available="content.available"
+        :duration="content.duration"
         :extraFields="extraFields"
         :progress="summaryProgress"
         :userId="currentUserId"
@@ -335,9 +336,9 @@
       markAsComplete() {
         this.wasIncomplete = false;
       },
-      genContentLink(id, kind) {
+      genContentLink(id, isLeaf) {
         return {
-          name: kind === ContentNodeKinds.TOPIC ? PageNames.TOPICS_TOPIC : PageNames.TOPICS_CONTENT,
+          name: isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
           params: { id },
         };
       },
@@ -373,21 +374,26 @@
     // Needs to be one less than the ScrollingHeader's z-index of 4
     z-index: 3;
   }
+
   .coach-content-label {
     margin: 8px 0;
   }
+
   .metadata {
     font-size: smaller;
   }
+
   .download-button,
   .share-button {
     display: inline-block;
     margin: 16px 16px 0 0;
   }
+
   .license-details {
     margin-bottom: 24px;
     margin-left: 16px;
   }
+
   .license-details-name {
     font-weight: bold;
   }
