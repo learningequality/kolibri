@@ -11,13 +11,9 @@
 
       <AssessmentWrapper
         v-else
-        :id="content.id"
         class="content-renderer"
         v-bind="exerciseProps"
-        @startTracking="startTracking"
-        @stopTracking="stopTracking"
-        @updateProgress="updateExerciseProgress"
-        @updateContentState="updateContentState"
+        v-on="exerciseHandlers"
       />
     </template>
     <KCircularLoader v-else />
@@ -62,8 +58,11 @@
         extraFields: state => state.core.logging.summary.extra_fields,
         fullName: state => state.core.session.full_name,
       }),
+      contentIsExercise() {
+        return this.contentNode.kind === ContentNodeKinds.EXERCISE;
+      },
       contentHandlers() {
-        if (this.contentNode.kind === ContentNodeKinds.EXERCISE) {
+        if (this.contentIsExercise) {
           return {};
         }
         return {
@@ -75,7 +74,7 @@
         };
       },
       contentProps() {
-        if (this.contentNode.kind === ContentNodeKinds.EXERCISE) {
+        if (this.contentIsExercise) {
           return {};
         }
         return {
@@ -92,11 +91,12 @@
         };
       },
       exerciseProps() {
-        if (this.contentNode.kind !== ContentNodeKinds.EXERCISE) {
+        if (!this.contentIsExercise) {
           return {};
         }
         const assessment = assessmentMetaDataState(this.contentNode);
         return {
+          id: this.contentNode.id,
           kind: this.contentNode.kind,
           files: this.contentNode.files,
           lang: this.contentNode.lang,
@@ -110,6 +110,17 @@
           userId: this.currentUserId,
           userFullName: this.fullName,
           timeSpent: this.summaryTimeSpent,
+        };
+      },
+      exerciseHandlers() {
+        if (!this.contentIsExercise) {
+          return {};
+        }
+        return {
+          startTracking: this.startTracking,
+          stopTracking: this.stopTracking,
+          updateProgress: this.updateExerciseProgress,
+          updateContentState: this.updateContentState,
         };
       },
       contentId() {
