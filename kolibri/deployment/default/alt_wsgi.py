@@ -7,7 +7,7 @@ import os
 import kolibri.core.content
 from kolibri.core.content.utils import paths
 from kolibri.core.content.zip_wsgi import get_application
-from kolibri.utils.django_whitenoise import DjangoWhiteNoise
+from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise
 
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
@@ -26,7 +26,7 @@ def generate_alt_wsgi_application():
     )
 
     # Mount static files
-    return DjangoWhiteNoise(
+    return DynamicWhiteNoise(
         get_application(),
         dynamic_locations=[
             (alt_content_path, content_dir) for content_dir in content_dirs

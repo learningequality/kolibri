@@ -41,10 +41,8 @@ class FileFinder(finders.FileSystemFinder):
             self.storages[root] = filesystem_storage
 
 
-class DjangoWhiteNoise(WhiteNoise):
-    def __init__(
-        self, application, static_prefix=None, dynamic_locations=None, **kwargs
-    ):
+class DynamicWhiteNoise(WhiteNoise):
+    def __init__(self, application, dynamic_locations=None, **kwargs):
         whitenoise_settings = {
             # Use 1 day as the default cache time for static assets
             "max_age": 24 * 60 * 60,
@@ -55,10 +53,7 @@ class DjangoWhiteNoise(WhiteNoise):
             "autorefresh": getattr(settings, "DEVELOPER_MODE", False),
         }
         kwargs.update(whitenoise_settings)
-        super(DjangoWhiteNoise, self).__init__(application, **kwargs)
-        self.static_prefix = static_prefix
-        if not self.autorefresh and self.static_prefix:
-            self.add_files_from_finders()
+        super(DynamicWhiteNoise, self).__init__(application, **kwargs)
         self.dynamic_finder = FileFinder(dynamic_locations or [])
         # Generate a regex to check if a path matches one of our dynamic
         # location prefixes
@@ -95,6 +90,22 @@ class DjangoWhiteNoise(WhiteNoise):
         if self.dynamic_check is not None and self.dynamic_check.match(url):
             return self.dynamic_finder.find(url)
 
+    def candidate_paths_for_url(self, url):
+        paths = super(DynamicWhiteNoise, self).candidate_paths_for_url(url)
+        for path in paths:
+            yield path
+        path = self.get_dynamic_path(url)
+        if path:
+            yield path
+
+
+class DjangoWhiteNoise(DynamicWhiteNoise):
+    def __init__(self, application, static_prefix=None, **kwargs):
+        super(DjangoWhiteNoise, self).__init__(application, **kwargs)
+        self.static_prefix = static_prefix
+        if not self.autorefresh and self.static_prefix:
+            self.add_files_from_finders()
+
     def add_files_from_finders(self):
         files = {}
         for finder in finders.get_finders():
@@ -118,10 +129,7 @@ class DjangoWhiteNoise(WhiteNoise):
         paths = super(DjangoWhiteNoise, self).candidate_paths_for_url(url)
         for path in paths:
             yield path
-        if url.startswith(self.static_prefix):
+        if self.autorefresh and url.startswith(self.static_prefix):
             path = finders.find(url[len(self.static_prefix) :])
             if path:
                 yield path
-        path = self.get_dynamic_path(url)
-        if path:
-            yield path

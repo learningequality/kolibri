@@ -15,7 +15,7 @@ from django.db.utils import OperationalError
 
 from kolibri.core.content.utils import paths
 from kolibri.utils import conf
-from kolibri.utils.django_whitenoise import DjangoWhiteNoise
+from kolibri.utils.kolibri_whitenoise import DjangoWhiteNoise
 
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
