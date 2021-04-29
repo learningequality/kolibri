@@ -1,6 +1,5 @@
 import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
 import chunk from 'lodash/chunk';
-import merge from 'lodash/merge';
 import find from 'lodash/find';
 import { PageNames } from '../../constants';
 import { _collectionState } from '../coreLearn/utils';
