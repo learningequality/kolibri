@@ -36,7 +36,7 @@
   import AssessmentWrapper from '../AssessmentWrapper';
 
   export default {
-    name: 'ContentPage',
+    name: 'ContentItem',
     components: {
       AssessmentWrapper,
     },

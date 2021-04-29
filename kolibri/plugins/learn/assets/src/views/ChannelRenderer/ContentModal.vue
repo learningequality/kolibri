@@ -27,7 +27,7 @@
       </nav>
 
       <main>
-        <ContentPage :contentNode="contentNode" />
+        <ContentItem :contentNode="contentNode" />
       </main>
     </div>
   </Backdrop>
@@ -39,13 +39,13 @@
 
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
-  import ContentPage from './ContentPage.vue';
+  import ContentItem from './ContentItem';
 
   export default {
     name: 'ContentModal',
     components: {
       Backdrop,
-      ContentPage,
+      ContentItem,
       UiToolbar,
     },
     props: {
