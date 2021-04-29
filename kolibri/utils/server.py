@@ -13,11 +13,8 @@ from django.conf import settings
 from zeroconf import get_all_addresses
 
 import kolibri
-from .django_whitenoise import DjangoWhiteNoise
 from .system import kill_pid
 from .system import pid_exists
-from kolibri.core.content.utils import paths
-from kolibri.core.content.zip_wsgi import get_application
 from kolibri.core.tasks.main import initialize_workers
 from kolibri.core.tasks.main import scheduler
 from kolibri.utils import conf
@@ -211,95 +208,12 @@ def calculate_cache_size():
     return MIN_CACHE
 
 
-class MultiStaticDispatcher(cherrypy._cpdispatch.Dispatcher):
-    """
-    A special cherrypy Dispatcher extension to dispatch static content from a series
-    of directories on a search path. The first directory in which a file is found for
-    the path is used, and if it's not found in any of them, then the handler for the
-    first one is used, which will then likely return a NotFound error.
-    """
-
-    def __init__(self, search_paths, *args, **kwargs):
-
-        assert len(search_paths) >= 1, "Must provide at least one path in search_paths"
-
-        self.static_handlers = []
-
-        # build a cherrypy static file handler for each of the directories in search path
-        for search_path in search_paths:
-
-            search_path = os.path.normpath(os.path.expanduser(search_path))
-
-            content_files_handler = cherrypy.tools.staticdir.handler(
-                section="/", dir=search_path
-            )
-
-            content_files_handler.search_path = search_path
-
-            self.static_handlers.append(content_files_handler)
-
-        super(MultiStaticDispatcher, self).__init__(*args, **kwargs)
-
-    def find_handler(self, path):
-
-        super(MultiStaticDispatcher, self).find_handler(path)
-
-        if len(self.static_handlers) == 1:
-            return (self.static_handlers[0], [])
-
-        # loop over all the static handlers to see if they have the file we want
-        for handler in self.static_handlers:
-
-            filepath = os.path.join(handler.search_path, path.strip("/"))
-
-            # ensure the user-provided path doesn't try to jump up levels
-            if not os.path.normpath(filepath).startswith(handler.search_path):
-                continue
-
-            if os.path.exists(filepath):
-                return (handler, [])
-
-        return (self.static_handlers[0], [])
-
-
 def configure_http_server(port):
     # Mount the application
     from kolibri.deployment.default.wsgi import application
-
-    whitenoise_settings = {
-        # Use 1 day as the default cache time for static assets
-        "max_age": 24 * 60 * 60,
-        # Add a test for any file name that contains a semantic version number
-        # or a 32 digit number (assumed to be a file hash)
-        # these files will be cached indefinitely
-        "immutable_file_test": r"((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)|[a-f0-9]{32})",
-        "autorefresh": getattr(settings, "DEVELOPER_MODE", False),
-    }
-
-    # Mount static files
-    application = DjangoWhiteNoise(
-        application, static_prefix=settings.STATIC_URL, **whitenoise_settings
-    )
+    from kolibri.deployment.default.alt_wsgi import alt_application
 
     cherrypy.tree.graft(application, "/")
-
-    # Mount media files
-    cherrypy.tree.mount(
-        cherrypy.tools.staticdir.handler(section="/", dir=settings.MEDIA_ROOT),
-        settings.MEDIA_URL,
-    )
-
-    # Mount content files
-    content_dirs = [paths.get_content_dir_path()] + paths.get_content_fallback_paths()
-    dispatcher = MultiStaticDispatcher(content_dirs)
-    content_handler = cherrypy.tree.mount(
-        None,
-        "/"
-        + paths.get_content_url(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]).lstrip(
-            "/"
-        ),
-        config={"/": {"tools.caching.on": False, "request.dispatch": dispatcher}},
-    )
 
     cherrypy_server_config = {
         "server.socket_host": LISTEN_ADDRESS,
@@ -320,27 +234,11 @@ def configure_http_server(port):
         conf.OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
     )
 
-    # Mount static files
-    alt_port_app = wsgi.PathInfoDispatcher(
-        {
-            "/": get_application(),
-            "/"
-            + paths.get_content_url(paths.zip_content_path_prefix()).lstrip(
-                "/"
-            ): content_handler,
-        }
-    )
-    alt_port_app = DjangoWhiteNoise(
-        alt_port_app,
-        static_prefix=paths.zip_content_static_root(),
-        **whitenoise_settings
-    )
-
     alt_port_server = ServerAdapter(
         cherrypy.engine,
         wsgi.Server(
             alt_port_addr,
-            alt_port_app,
+            alt_application,
             numthreads=conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
             request_queue_size=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
             timeout=conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
