@@ -25,6 +25,9 @@ class FileFinder(finders.FileSystemFinder):
             raise TypeError("locations argument is not a tuple or list")
         for root in locations:
             prefix, root = root
+            # Django requires paths, even on Windows, to use forward slashes
+            # do this substitution that will be idempotent on Unix
+            root = root.replace(os.sep, "/")
             if not prefix:
                 raise ValueError(
                     "Cannot use unprefixed locations for dynamic locations"
@@ -38,6 +41,10 @@ class FileFinder(finders.FileSystemFinder):
             filesystem_storage = FileSystemStorage(location=root)
             filesystem_storage.prefix = prefix
             self.storages[root] = filesystem_storage
+
+    def find(self, path, all=False):
+        path = path.replace("/", os.sep)
+        return super(FileFinder, self).find(path, all=all)
 
 
 class DynamicWhiteNoise(WhiteNoise):
