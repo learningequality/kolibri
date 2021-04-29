@@ -3,7 +3,6 @@ import re
 import stat
 from collections import OrderedDict
 
-from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.core.files.storage import FileSystemStorage
 from whitenoise import WhiteNoise
@@ -50,7 +49,7 @@ class DynamicWhiteNoise(WhiteNoise):
             # or a 32 digit number (assumed to be a file hash)
             # these files will be cached indefinitely
             "immutable_file_test": r"((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)|[a-f0-9]{32})",
-            "autorefresh": getattr(settings, "DEVELOPER_MODE", False),
+            "autorefresh": os.environ.get("KOLIBRI_DEVELOPER_MODE", False),
         }
         kwargs.update(whitenoise_settings)
         super(DynamicWhiteNoise, self).__init__(application, **kwargs)
