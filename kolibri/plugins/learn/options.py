@@ -1,9 +1,9 @@
 option_spec = {
-    "LEARN": {
-        "DISABLE_CUSTOM_CHANNEL_NAV": {
+    "Learn": {
+        "KOLIBRI_ENABLE_CUSTOM_CHANNEL_NAV": {
             "type": "boolean",
             "default": False,
-            "envvars": ("DISABLE_CUSTOM_CHANNEL_NAV",),
+            "envvars": ("KOLIBRI_ENABLE_CUSTOM_CHANNEL_NAV",),
         },
     },
 }
