@@ -1,4 +1,6 @@
-import { ContentNodeResource } from 'kolibri.resources';
+import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
+import chunk from 'lodash/chunk';
+import find from 'lodash/find';
 import { PageNames } from '../../constants';
 import { _collectionState } from '../coreLearn/utils';
 
@@ -30,9 +32,34 @@ export function showChannels(store) {
             }
           })
           .filter(Boolean);
-        store.commit('topicsRoot/SET_STATE', { rootNodes });
-        store.commit('CORE_SET_PAGE_LOADING', false);
-        store.commit('CORE_SET_ERROR', null);
+
+        // We will create an array that will either be empty when there is no user logged in,
+        // or it will contain Promises returned by `fetchCollection`.
+        // In either case we will pass the `progressPromises` array to Promise.all() and chain
+        // a finally() to handle updating the store in any case
+        const userIsLoggedIn = store.getters.isUserLoggedIn;
+        const progressPromises = !userIsLoggedIn
+          ? [] // The user is not logged in - so we don't need to fetch anything
+          : chunk(rootNodes, 30).map(chunkOfNodes => {
+              // Chunking these to avoid too complex a query.
+              const ids = chunkOfNodes.map(n => n.id);
+              return ContentNodeProgressResource.fetchCollection({
+                getParams: { ids },
+              }).then(progressResponse => {
+                progressResponse.forEach(o => {
+                  // Set the value of progress in the matching node in rootNodes with the
+                  // response object's progress_fraction value
+                  find(rootNodes, n => n.id == o.id).progress = o.progress_fraction;
+                });
+              });
+            });
+
+        // Whether we've updated the rootNodes with progress or not, we need to updat the store
+        Promise.all(progressPromises).finally(() => {
+          store.commit('topicsRoot/SET_STATE', { rootNodes });
+          store.commit('CORE_SET_PAGE_LOADING', false);
+          store.commit('CORE_SET_ERROR', null);
+        });
       });
     },
     error => {
