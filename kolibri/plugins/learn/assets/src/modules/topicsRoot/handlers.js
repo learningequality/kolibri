@@ -1,6 +1,7 @@
 import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
 import chunk from 'lodash/chunk';
 import merge from 'lodash/merge';
+import find from 'lodash/find';
 import { PageNames } from '../../constants';
 import { _collectionState } from '../coreLearn/utils';
 
@@ -46,14 +47,11 @@ export function showChannels(store) {
               return ContentNodeProgressResource.fetchCollection({
                 getParams: { ids },
               }).then(progressResponse => {
-                // We're going to merge this into rootNodes and we want the key to be progress from
-                // here on
                 progressResponse.forEach(o => {
-                  o.progress = o.progress_fraction;
-                  delete o.progress_fraction;
+                  // Set the value of progress in the matching node in rootNodes with the
+                  // response object's progress_fraction value
+                  find(rootNodes, n => n.id == o.id).progress = o.progress_fraction;
                 });
-                // Merges the progressResponse object into rootNodes (mutating rootNodes)
-                merge(rootNodes, progressResponse);
               });
             });
 
