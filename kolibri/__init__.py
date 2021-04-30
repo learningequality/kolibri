@@ -7,8 +7,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from .utils import env
-from .utils.version import get_version
+from kolibri.utils import env
+from kolibri.utils.version import get_version
 
 # Setup the environment before loading anything else from the application
 env.set_env()
