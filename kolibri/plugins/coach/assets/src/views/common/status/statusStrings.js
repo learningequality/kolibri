@@ -13,10 +13,16 @@ Strings variations below are defined based on the following construction:
 export const learnerProgressTranslators = {
   completed: createTranslator('LearnersCompleted', {
     label: '{count, plural, one {Completed by learner} other {Completed by learners}}',
-    labelShort: '{count, plural, other {Completed}}',
+    labelShort: {
+      message: '{count, plural, other {Completed}}',
+      context: 'Refers to learners:\n1 (learner) completed\n4 (learners) completed',
+    },
     count:
       '{count, plural, other {Completed by}} {count, number, integer} {count, plural, one {learner} other {learners}}',
-    countShort: '{count, number, integer} {count, plural, other {completed}}',
+    countShort: {
+      message: '{count, number, integer} {count, plural, other {completed}}',
+      context: 'Refers to number of learners that completed a activity\n',
+    },
     allOfMoreThanTwo:
       'Completed by all {total, number, integer} {total, plural, one {learner} other {learners}}',
     allOfMoreThanTwoShort: 'Completed by all {total, number, integer}',

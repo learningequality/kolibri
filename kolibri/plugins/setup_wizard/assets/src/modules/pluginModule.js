@@ -6,7 +6,7 @@ import { FacilityImportResource } from '../api';
 
 const SetupStrings = createTranslator('SetupStrings', {
   personalFacilityName: {
-    message: 'Home Facility for {name}',
+    message: 'Home Facility {name}',
     context: 'Template for a facility name for personal setups',
   },
 });

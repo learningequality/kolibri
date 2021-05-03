@@ -191,7 +191,11 @@
           'Refers to values in a column of the CSV (comma separated values) file used to import and export users.',
       },
       listClassesAssignedL2: 'List of class names, separated by commas',
-      listClassesAssignedL3: 'If an existing class does not match by name, it will be created',
+      listClassesAssignedL3: {
+        message: 'If an existing class does not match by name, it will be created',
+        context:
+          'Explanation that when a CSV file is used to import users and classes they are assigned to, and the CSV file contains a class name that is not already present in a facility, a new class with the name listed in the CSV file will be created.  ',
+      },
       columnNameHeader: 'Column',
       columnIDHeader: 'Identifier',
       columnInfoHeader: 'Information',

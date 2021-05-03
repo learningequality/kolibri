@@ -66,7 +66,11 @@
       },
     },
     $trs: {
-      documentTitle: 'Class assignments',
+      documentTitle: {
+        message: 'Class assignments',
+        context:
+          'Page/tab title displayed for the Learn page when the learner is enrolled in a class. This is where the learners can see the list of lessons and quizzes coaches have opened and made available for them.',
+      },
     },
   };
 

@@ -44,8 +44,8 @@
       adminLink: 'As an administrator, you can import channels',
       learnerText: 'Please ask your coach or administrator for assistance',
       documentTitle: {
-        message: 'Resource unavailable',
-        context: '\nSimilar to a 404 not-found error for resources',
+        message: 'Content Unavailable',
+        context: '\nThis string should actually say "Resource unavailable"',
       },
     },
   };

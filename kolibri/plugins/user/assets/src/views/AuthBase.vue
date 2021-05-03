@@ -254,7 +254,8 @@
       whatsThis: "What's this?",
       restrictedAccess: {
         message: 'Access to Kolibri has been restricted for external devices',
-        context: 'Error message description',
+        context:
+          'This warning is displayed when somebody in the same network tries to connect to Kolibri running as a standalone app on a tablet or a smartphone. It indicates that Kolibri is accessible only to the person(s) physically using that tablet or a phone, and no other devices in the network can access and use Kolibri.',
       },
       restrictedAccessDescription: {
         message:
