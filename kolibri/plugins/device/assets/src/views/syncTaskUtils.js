@@ -51,14 +51,23 @@ function formatNameWithId(name, id) {
   return coreString('nameWithIdInParens', { name, id: id.slice(0, 4) });
 }
 
+const PUSHPULLSTEPS = 7;
+const PULLSTEPS = 4;
+
 // Consolidates logic on how Sync-Facility Tasks should be displayed
 export function syncFacilityTaskDisplayInfo(task) {
   let statusMsg;
   let bytesTransferredMsg = '';
   let deviceNameMsg = '';
+  let headingMsg = '';
 
   const facilityName = formatNameWithId(task.facility_name, task.facility);
 
+  if (task.type === TaskTypes.SYNCPEERPULL) {
+    headingMsg = getTaskString('importFacilityTaskLabel', { facilityName });
+  } else {
+    headingMsg = getTaskString('syncFacilityTaskLabel', { facilityName });
+  }
   // Device info isn't shown on the Setup Wizard version of panel
   if (task.type === TaskTypes.SYNCDATAPORTAL) {
     deviceNameMsg = 'Kolibri Data Portal';
@@ -78,7 +87,7 @@ export function syncFacilityTaskDisplayInfo(task) {
   } else if (syncStep) {
     statusMsg = getTaskString('syncStepAndDescription', {
       step: syncStep,
-      total: task.type === TaskTypes.SYNCPEERPULL ? 4 : 7,
+      total: task.type === TaskTypes.SYNCPEERPULL ? PULLSTEPS : PUSHPULLSTEPS,
       description: statusDescription,
     });
   } else {
@@ -95,7 +104,7 @@ export function syncFacilityTaskDisplayInfo(task) {
   const canClear = task.clearable;
 
   return {
-    headingMsg: getTaskString('syncFacilityTaskLabel', { facilityName }),
+    headingMsg,
     statusMsg,
     startedByMsg: getTaskString('taskStartedByLabel', { username: task.started_by_username }),
     bytesTransferredMsg,
@@ -122,9 +131,9 @@ export function removeFacilityTaskDisplayInfo(task) {
     headingMsg: getTaskString('removeFacilityTaskLabel', { facilityName }),
     statusMsg: statusDescription,
     startedByMsg: getTaskString('taskStartedByLabel', { username: task.started_by_username }),
-    isRunning: task.status === 'RUNNING',
+    isRunning: task.status === TaskStatuses.RUNNING,
     canClear: task.clearable,
-    canCancel: !task.clearable && task.status !== 'RUNNING',
+    canCancel: !task.clearable && task.status !== TaskStatuses.RUNNING,
     canRetry: task.status === TaskStatuses.FAILED,
   };
 }
