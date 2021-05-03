@@ -939,13 +939,84 @@ class ContentNodeProgressFilter(IdFilter):
         fields = ["ids", "parent", "lesson"]
 
 
-class ContentNodeProgressViewset(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.ContentNodeProgressSerializer
+def mean(data):
+    n = 0
+    mean = 0.0
+
+    for x in data:
+        n += 1
+        mean += (x - mean) / n
+
+    return mean
+
+
+class ContentNodeProgressViewset(ValuesViewset):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ContentNodeProgressFilter
 
+    values = (
+        "id",
+        "kind",
+        "lft",
+        "rght",
+        "tree_id",
+        "content_id",
+    )
+
     def get_queryset(self):
         return models.ContentNode.objects.all()
+
+    def consolidate(self, items, queryset):
+        from kolibri.core.logger.models import ContentSummaryLog
+
+        leaves = (
+            queryset.get_descendants(include_self=True)
+            .order_by()
+            .exclude(available=False)
+            .exclude(kind=content_kinds.TOPIC)
+            .values("content_id", "lft", "rght", "tree_id")
+        )
+
+        leaf_content_ids = [c["content_id"] for c in leaves]
+
+        progress_lookup = {}
+
+        if not self.request.user.is_anonymous():
+
+            logs = ContentSummaryLog.objects.filter(
+                user=self.request.user, content_id__in=leaf_content_ids
+            )
+
+            for log in logs.values("content_id", "progress"):
+                progress_lookup[log["content_id"]] = round(log["progress"], 4)
+
+        output = []
+
+        for item in items:
+            out_item = {
+                "id": item["id"],
+            }
+            if item["kind"] == content_kinds.TOPIC:
+                topic_leaves = filter(
+                    lambda x: x["lft"] > item["lft"]
+                    and x["rght"] < item["rght"]
+                    and x["tree_id"] == item["tree_id"],
+                    leaves,
+                )
+
+                out_item["progress_fraction"] = round(
+                    mean(
+                        progress_lookup.get(leaf["content_id"], 0)
+                        for leaf in topic_leaves
+                    ),
+                    4,
+                )
+            else:
+                out_item["progress_fraction"] = progress_lookup.get(
+                    item["content_id"], 0.0
+                )
+            output.append(out_item)
+        return output
 
 
 class FileViewset(viewsets.ReadOnlyModelViewSet):
