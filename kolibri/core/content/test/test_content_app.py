@@ -1559,19 +1559,6 @@ class KolibriStudioAPITestCase(APITestCase):
         self.assertEqual(response.data["name"], "studio")
 
     @mock_patch_decorator
-    def test_channel_info_cache(self):
-        self.client.get(
-            reverse("kolibri:core:remotechannel-detail", kwargs={"pk": "abc"}),
-            format="json",
-        )
-        with mock.patch.object(cache, "set") as mock_cache_set:
-            self.client.get(
-                reverse("kolibri:core:remotechannel-detail", kwargs={"pk": "abc"}),
-                format="json",
-            )
-            self.assertFalse(mock_cache_set.called)
-
-    @mock_patch_decorator
     def test_channel_info_404(self):
         mock_object = mock.Mock()
         mock_object.status_code = 404
