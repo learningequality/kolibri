@@ -212,6 +212,15 @@ class KolibriServerPlugin(ServerPlugin):
     START.priority = 75
 
 
+class ZipContentServerPlugin(ServerPlugin):
+    def START(self):
+        super(ZipContentServerPlugin, self).START()
+        _, bind_port = self.httpserver.bind_addr
+        self.bus.publish("ZIP_SERVING", bind_port)
+
+    START.priority = 75
+
+
 class ServicesPlugin(SimplePlugin):
     def __init__(self, bus, port):
         self.bus = bus
@@ -444,7 +453,7 @@ def configure_http_server(port, zip_port, bus):
         zip_port,
     )
 
-    alt_port_server = ServerPlugin(
+    alt_port_server = ZipContentServerPlugin(
         bus,
         httpserver=Server(alt_port_addr, alt_application, **server_config),
         bind_addr=alt_port_addr,
