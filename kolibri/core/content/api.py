@@ -1073,6 +1073,8 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         baseurl = request.GET.get("baseurl", None)
         keyword = request.GET.get("keyword", None)
         language = request.GET.get("language", None)
-        return self._make_channel_endpoint_request(
-            identifier=pk, baseurl=baseurl, keyword=keyword, language=language
+        return Response(
+            self._make_channel_endpoint_request(
+                identifier=pk, baseurl=baseurl, keyword=keyword, language=language
+            )
         )
