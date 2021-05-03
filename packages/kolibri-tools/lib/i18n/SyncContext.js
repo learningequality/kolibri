@@ -1,5 +1,6 @@
 // Import packages
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const glob = require('glob');
 const recast = require('recast');
@@ -17,15 +18,23 @@ const CONTEXT_LINE = require('./ExtractStrings').CONTEXT_LINE;
 const reScriptOpen = /^[ ]*<script[^>]*>/;
 const reScriptClose = /^[ ]*<\/script>/;
 
+let CROWDIN_PROJECT = get(os.env, 'CROWDIN_PROJECT', null);
+
+if (!CROWDIN_PROJECT) {
+  logging.info(
+    'No env var set for CROWDIN_PROJECT. Will default to `kolibri`. If you are working with Kolibri Studio, please set this environemnt variable to `contentcuration` - the name of the root folder for the Django app.'
+  );
+  CROWDIN_PROJECT = 'kolibri';
+}
+
 // Glob path patterns
 // All JS files not in node_modules
-const JS_GLOB = path.resolve('./kolibri') + '/**/*.js';
+const JS_GLOB = path.resolve(CROWDIN_PROJECT) + '/**/*.js';
 // All Vue files not in node_modules
-const VUE_GLOB = path.resolve('./kolibri') + '/**/*.vue';
-// We only need one set of languages - since we have the ACH
-// which is a Crowdin placeholder language, we'll go there to
-// get the Context.
-const CSV_PATH = path.resolve('./kolibri/locale/CSV_FILES/ach/');
+const VUE_GLOB = path.resolve(CROWDIN_PROJECT) + '/**/*.vue';
+// We must select a language which will be fully translated - so we use fr-fr.
+// Fully translated langauges are the only ones with full context in the CSV
+const CSV_PATH = path.resolve(`./${CROWDIN_PROJECT}/locale/CSV_FILES/fr/`);
 
 // -------------------- //
 // Processing Functions //
