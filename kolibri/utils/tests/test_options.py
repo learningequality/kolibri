@@ -13,7 +13,6 @@ import tempfile
 import mock
 import pytest
 
-from kolibri.utils import conf
 from kolibri.utils import options
 
 logger = logging.getLogger(__name__)
@@ -70,9 +69,7 @@ def test_option_reading_and_precedence_rules():
         os.environ,
         {"KOLIBRI_CONTENT_DIR": "", "KOLIBRI_HTTP_PORT": "", "KOLIBRI_LISTEN_PORT": ""},
     ):
-        OPTIONS = options.read_options_file(
-            conf.KOLIBRI_HOME, ini_filename=tmp_ini_path
-        )
+        OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
         assert OPTIONS["Paths"]["CONTENT_DIR"] == _CONTENT_DIR
         assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_INI
 
@@ -81,9 +78,7 @@ def test_option_reading_and_precedence_rules():
         os.environ,
         {"KOLIBRI_HTTP_PORT": "", "KOLIBRI_LISTEN_PORT": str(_HTTP_PORT_ENV)},
     ):
-        OPTIONS = options.read_options_file(
-            conf.KOLIBRI_HOME, ini_filename=tmp_ini_path
-        )
+        OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
         assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_ENV
 
     # when a higher precedence env var is set, it overrides the lower precedence env var
@@ -91,9 +86,7 @@ def test_option_reading_and_precedence_rules():
         os.environ,
         {"KOLIBRI_HTTP_PORT": str(_HTTP_PORT_ENV), "KOLIBRI_LISTEN_PORT": "88888"},
     ):
-        OPTIONS = options.read_options_file(
-            conf.KOLIBRI_HOME, ini_filename=tmp_ini_path
-        )
+        OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
         assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_ENV
 
 
@@ -113,9 +106,7 @@ def test_default_envvar_generation():
         os.environ,
         {"KOLIBRI_CONTENT_DIR": _CONTENT_DIR},
     ):
-        OPTIONS = options.read_options_file(
-            conf.KOLIBRI_HOME, ini_filename=tmp_ini_path
-        )
+        OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
         assert OPTIONS["Paths"]["CONTENT_DIR"] == _CONTENT_DIR
 
 
@@ -135,7 +126,7 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
         os.environ, {"KOLIBRI_HTTP_PORT": "", "KOLIBRI_LISTEN_PORT": ""}
     ):
         with pytest.raises(SystemExit):
-            options.read_options_file(conf.KOLIBRI_HOME, ini_filename=tmp_ini_path)
+            options.read_options_file(ini_filename=tmp_ini_path)
         assert 'value "abba" is of the wrong type' in LOG_LOGGER[-2][1]
 
     # non-numeric arguments for an integer option in the env var cause it to bail, even when ini file is ok
@@ -145,7 +136,7 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
         os.environ, {"KOLIBRI_HTTP_PORT": "baba", "KOLIBRI_LISTEN_PORT": ""}
     ):
         with pytest.raises(SystemExit):
-            options.read_options_file(conf.KOLIBRI_HOME, ini_filename=tmp_ini_path)
+            options.read_options_file(ini_filename=tmp_ini_path)
         assert 'value "baba" is of the wrong type' in LOG_LOGGER[-2][1]
 
     # invalid choice for "option" type causes it to bail
@@ -153,7 +144,7 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
         f.write("\n".join(["[Database]", "DATABASE_ENGINE = penguin"]))
     with mock.patch.dict(os.environ, {"KOLIBRI_DATABASE_ENGINE": ""}):
         with pytest.raises(SystemExit):
-            options.read_options_file(conf.KOLIBRI_HOME, ini_filename=tmp_ini_path)
+            options.read_options_file(ini_filename=tmp_ini_path)
         assert 'value "penguin" is unacceptable' in LOG_LOGGER[-2][1]
 
 
@@ -188,9 +179,7 @@ def test_option_writing():
     ):
 
         # check that values are set correctly to begin with
-        OPTIONS = options.read_options_file(
-            conf.KOLIBRI_HOME, ini_filename=tmp_ini_path
-        )
+        OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
         assert OPTIONS["Paths"]["CONTENT_DIR"] == _OLD_CONTENT_DIR
         assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_GOOD
 
@@ -199,7 +188,6 @@ def test_option_writing():
             "Paths",
             "CONTENT_DIR",
             _NEW_CONTENT_DIR,
-            conf.KOLIBRI_HOME,
             ini_filename=tmp_ini_path,
         )
 
@@ -209,14 +197,11 @@ def test_option_writing():
                 "Deployment",
                 "HTTP_PORT",
                 _HTTP_PORT_BAD,
-                conf.KOLIBRI_HOME,
                 ini_filename=tmp_ini_path,
             )
 
         # check that the properly validated option was set correctly, and the invalid one wasn't
-        OPTIONS = options.read_options_file(
-            conf.KOLIBRI_HOME, ini_filename=tmp_ini_path
-        )
+        OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
         assert OPTIONS["Paths"]["CONTENT_DIR"] == _NEW_CONTENT_DIR
         assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_GOOD
 
@@ -234,24 +219,20 @@ def test_path_expansion():
 
     absolute_path = "C:\\absolute" if sys.platform == "win32" else "/absolute"
 
-    with mock.patch.dict(os.environ, {"KOLIBRI_CONTENT_DIR": absolute_path}):
-        OPTIONS = options.read_options_file(
-            KOLIBRI_HOME_TEMP, ini_filename=tmp_ini_path
-        )
-        assert OPTIONS["Paths"]["CONTENT_DIR"] == absolute_path
+    with mock.patch("kolibri.utils.conf.KOLIBRI_HOME", KOLIBRI_HOME_TEMP):
 
-    with mock.patch.dict(os.environ, {"KOLIBRI_CONTENT_DIR": "relative"}):
-        OPTIONS = options.read_options_file(
-            KOLIBRI_HOME_TEMP, ini_filename=tmp_ini_path
-        )
-        assert OPTIONS["Paths"]["CONTENT_DIR"] == os.path.join(
-            KOLIBRI_HOME_TEMP, "relative"
-        )
+        with mock.patch.dict(os.environ, {"KOLIBRI_CONTENT_DIR": absolute_path}):
+            OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
+            assert OPTIONS["Paths"]["CONTENT_DIR"] == absolute_path
 
-    user_path = os.path.join("~", "homeiswherethecatis")
+        with mock.patch.dict(os.environ, {"KOLIBRI_CONTENT_DIR": "relative"}):
+            OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
+            assert OPTIONS["Paths"]["CONTENT_DIR"] == os.path.join(
+                KOLIBRI_HOME_TEMP, "relative"
+            )
 
-    with mock.patch.dict(os.environ, {"KOLIBRI_CONTENT_DIR": user_path}):
-        OPTIONS = options.read_options_file(
-            KOLIBRI_HOME_TEMP, ini_filename=tmp_ini_path
-        )
-        assert OPTIONS["Paths"]["CONTENT_DIR"] == os.path.expanduser(user_path)
+        user_path = os.path.join("~", "homeiswherethecatis")
+
+        with mock.patch.dict(os.environ, {"KOLIBRI_CONTENT_DIR": user_path}):
+            OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
+            assert OPTIONS["Paths"]["CONTENT_DIR"] == os.path.expanduser(user_path)

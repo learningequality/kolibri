@@ -173,7 +173,7 @@ def test_kolibri_listen_port_env(monkeypatch):
         # force a reload of plugins.OPTIONS so the environment variable will be read in
         from kolibri.utils import conf
 
-        conf.OPTIONS.update(options.read_options_file(conf.KOLIBRI_HOME))
+        conf.OPTIONS.update(options.read_options_file())
 
         cli.start.callback(test_port, test_zip_port, False)
         with pytest.raises(SystemExit) as excinfo:

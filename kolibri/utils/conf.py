@@ -51,7 +51,7 @@ def __initialize_options():
     # read the config file options in here so they can be accessed from a standard location
     from .options import read_options_file
 
-    return read_options_file(KOLIBRI_HOME)
+    return read_options_file()
 
 
 OPTIONS = SimpleLazyObject(__initialize_options)

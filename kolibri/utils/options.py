@@ -188,6 +188,15 @@ def language_list(value):
     return sorted(list(out))
 
 
+def path(value):
+    from kolibri.utils.conf import KOLIBRI_HOME
+
+    if not isinstance(value, string_types):
+        raise VdtValueError(repr(value))
+    # ensure all path arguments, e.g. under section "Paths", are fully resolved and expanded, relative to KOLIBRI_HOME
+    return os.path.join(KOLIBRI_HOME, os.path.expanduser(value))
+
+
 def path_list(value):
     """
     Check that the supplied value is a semicolon-delimited list of paths.
@@ -196,15 +205,19 @@ def path_list(value):
     if isinstance(value, string_types):
         value = value.split(";")
 
+    out = []
+
     if isinstance(value, list):
         errors = []
         for item in value:
-            if not isinstance(item, string_types):
+            try:
+                out.append(path(item))
+            except VdtValueError:
                 errors.append(repr(item))
         if errors:
             raise VdtValueError(errors)
 
-    return value
+    return out
 
 
 def validate_port_number(value):
@@ -236,6 +249,12 @@ def origin_or_port(value):
                 raise VdtValueError(value)
             value = urlunparse((url.scheme, url.netloc, "", "", "", ""))
     return value
+
+
+def url_prefix(value):
+    if not isinstance(value, string_types):
+        raise VdtValueError(value)
+    return value.lstrip("/").rstrip("/") + "/"
 
 
 base_option_spec = {
@@ -344,7 +363,7 @@ base_option_spec = {
     },
     "Paths": {
         "CONTENT_DIR": {
-            "type": "string",
+            "type": "path",
             "default": "content",
         },
         "CONTENT_FALLBACK_DIRS": {
@@ -378,9 +397,8 @@ base_option_spec = {
             "default": False,
         },
         "URL_PATH_PREFIX": {
-            "type": "string",
+            "type": "url_prefix",
             "default": "/",
-            "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
         },
         "LANGUAGES": {
             "type": "language_list",
@@ -395,9 +413,8 @@ base_option_spec = {
             "default": 0,
         },
         "ZIP_CONTENT_URL_PATH_PREFIX": {
-            "type": "string",
+            "type": "url_prefix",
             "default": "/",
-            "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
         },
     },
     "Python": {
@@ -413,14 +430,16 @@ def _get_validator():
     return Validator(
         {
             "language_list": language_list,
+            "path": path,
             "path_list": path_list,
             "origin_or_port": origin_or_port,
             "port": port,
+            "url_prefix": url_prefix,
         }
     )
 
 
-def _get_logger(KOLIBRI_HOME):
+def _get_logger():
     """
     We define a minimal default logger config here, since we can't yet
     load up Django settings.
@@ -492,19 +511,11 @@ def get_configspec():
     return ConfigObj(lines, _inspec=True)
 
 
-def clean_conf(conf):
-    # override any values from their environment variables (if set)
-    for section, opts in option_spec.items():
-        for optname, attrs in opts.items():
-            # if any options have clean functions defined, then apply them now
-            if "clean" in attrs:
-                conf[section][optname] = attrs["clean"](conf[section][optname])
-    return conf
+def read_options_file(ini_filename="options.ini"):
 
+    from kolibri.utils.conf import KOLIBRI_HOME
 
-def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
-
-    logger = _get_logger(KOLIBRI_HOME)
+    logger = _get_logger()
 
     ini_path = os.path.join(KOLIBRI_HOME, ini_filename)
 
@@ -529,8 +540,6 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
                     conf[section][optname] = os.environ[envvar]
                     using_env_vars[optname] = envvar
                     break
-
-    conf = clean_conf(conf)
 
     validation = conf.validate(_get_validator(), preserve_errors=True)
 
@@ -581,34 +590,10 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
     # run validation once again to fill in any default values for options we deleted due to issues
     conf.validate(_get_validator())
 
-    # ensure all arguments under section "Paths" are fully resolved and expanded, relative to KOLIBRI_HOME
-    _expand_paths(KOLIBRI_HOME, conf.get("Paths", {}))
-
     return conf
 
 
-def _expand_path(basepath, path):
-    return os.path.join(basepath, os.path.expanduser(path))
-
-
-def _expand_paths(basepath, pathdict):
-    """
-    Resolve all paths in a dict, relative to a base path, and after expanding "~" into the user's home directory.
-    """
-    for key, path in pathdict.items():
-        if isinstance(path, string_types):
-            pathdict[key] = _expand_path(basepath, path)
-        elif isinstance(path, list):
-            pathdict[key] = [_expand_path(basepath, p) for p in path]
-        else:
-            raise Exception(
-                "Paths must be a single string or a semicolon-delimited list, not {}".format(
-                    type(path)
-                )
-            )
-
-
-def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options.ini"):
+def update_options_file(section, key, value, ini_filename="options.ini"):
     """
     Updates the configuration file on top of what is currently in the
     file.
@@ -618,10 +603,10 @@ def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options
     that are not intended to be stored.
     """
 
-    logger = _get_logger(KOLIBRI_HOME)
+    logger = _get_logger()
 
     # load the current conf from disk into memory
-    conf = read_options_file(KOLIBRI_HOME, ini_filename=ini_filename)
+    conf = read_options_file(ini_filename=ini_filename)
 
     # update the requested option value
     conf[section][key] = value
