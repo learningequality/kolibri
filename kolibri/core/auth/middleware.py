@@ -43,12 +43,15 @@ def get_anonymous_user_model():
 
 def _get_user(request):
     if not hasattr(request, "_cached_user"):
-        user_id = _get_user_session_key(request)
-        USER_CACHE_KEY = "USER_BY_SESSION_CACHE_{}".format(user_id)
-        user = cache.get(USER_CACHE_KEY)
-        if not user:
+        try:
+            user_id = _get_user_session_key(request)
+            USER_CACHE_KEY = "USER_BY_SESSION_CACHE_{}".format(user_id)
+            user = cache.get(USER_CACHE_KEY)
+            if not user:
+                user = get_user(request)
+                cache.set(USER_CACHE_KEY, user)
+        except KeyError:
             user = get_user(request)
-            cache.set(USER_CACHE_KEY, user)
         if user.is_anonymous():
             AnonymousUser = get_anonymous_user_model()
             user = AnonymousUser()
