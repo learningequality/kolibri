@@ -244,53 +244,43 @@ base_option_spec = {
             "type": "option",
             "options": ("memory", "redis"),
             "default": "memory",
-            "envvars": ("KOLIBRI_CACHE_BACKEND",),
         },
         "CACHE_TIMEOUT": {
             "type": "integer",
             "default": 300,
-            "envvars": ("KOLIBRI_CACHE_TIMEOUT",),
         },
         "CACHE_MAX_ENTRIES": {
             "type": "integer",
             "default": 1000,
-            "envvars": ("KOLIBRI_CACHE_MAX_ENTRIES",),
         },
         "CACHE_PASSWORD": {
             "type": "string",
             "default": "",
-            "envvars": ("KOLIBRI_CACHE_PASSWORD",),
         },
         "CACHE_LOCATION": {
             "type": "string",
             "default": "localhost:6379",
-            "envvars": ("KOLIBRI_CACHE_LOCATION",),
         },
         "CACHE_LOCK_TTL": {
             "type": "integer",
             "default": 30,
-            "envvars": ("KOLIBRI_CACHE_LOCK_TTL",),
         },
         "CACHE_REDIS_MIN_DB": {
             "type": "integer",
             "default": 0,
-            "envvars": ("KOLIBRI_CACHE_REDIS_MIN_DB",),
         },
         "CACHE_REDIS_MAX_POOL_SIZE": {
             "type": "integer",
             "default": 50,  # use redis-benchmark to determine better value
-            "envvars": ("KOLIBRI_CACHE_REDIS_MAX_POOL_SIZE",),
         },
         "CACHE_REDIS_POOL_TIMEOUT": {
             "type": "integer",
             "default": 30,  # seconds
-            "envvars": ("KOLIBRI_CACHE_REDIS_POOL_TIMEOUT",),
         },
         # Optional redis settings to overwrite redis.conf
         "CACHE_REDIS_MAXMEMORY": {
             "type": "integer",
             "default": 0,
-            "envvars": ("KOLIBRI_CACHE_REDIS_MAXMEMORY",),
         },
         "CACHE_REDIS_MAXMEMORY_POLICY": {
             "type": "option",
@@ -304,7 +294,6 @@ base_option_spec = {
                 "noeviction",
             ),
             "default": "",
-            "envvars": ("KOLIBRI_CACHE_REDIS_MAXMEMORY_POLICY",),
         },
     },
     "Database": {
@@ -312,119 +301,102 @@ base_option_spec = {
             "type": "option",
             "options": ("sqlite", "postgres"),
             "default": "sqlite",
-            "envvars": ("KOLIBRI_DATABASE_ENGINE",),
         },
-        "DATABASE_NAME": {"type": "string", "envvars": ("KOLIBRI_DATABASE_NAME",)},
+        "DATABASE_NAME": {"type": "string"},
         "DATABASE_PASSWORD": {
             "type": "string",
-            "envvars": ("KOLIBRI_DATABASE_PASSWORD",),
         },
-        "DATABASE_USER": {"type": "string", "envvars": ("KOLIBRI_DATABASE_USER",)},
-        "DATABASE_HOST": {"type": "string", "envvars": ("KOLIBRI_DATABASE_HOST",)},
-        "DATABASE_PORT": {"type": "string", "envvars": ("KOLIBRI_DATABASE_PORT",)},
+        "DATABASE_USER": {"type": "string"},
+        "DATABASE_HOST": {"type": "string"},
+        "DATABASE_PORT": {"type": "string"},
     },
     "Server": {
         "CHERRYPY_START": {
             "type": "boolean",
             "default": True,
-            "envvars": ("KOLIBRI_CHERRYPY_START",),
         },
         "CHERRYPY_THREAD_POOL": {
             "type": "integer",
             "default": calculate_thread_pool(),
-            "envvars": ("KOLIBRI_CHERRYPY_THREAD_POOL",),
         },
         "CHERRYPY_SOCKET_TIMEOUT": {
             "type": "integer",
             "default": 10,
-            "envvars": ("KOLIBRI_CHERRYPY_SOCKET_TIMEOUT",),
         },
         "CHERRYPY_QUEUE_SIZE": {
             "type": "integer",
             "default": 30,
-            "envvars": ("KOLIBRI_CHERRYPY_QUEUE_SIZE",),
         },
         "CHERRYPY_QUEUE_TIMEOUT": {
             "type": "float",
             "default": 0.1,
-            "envvars": ("KOLIBRI_CHERRYPY_QUEUE_TIMEOUT",),
         },
         "PROFILE": {
             "type": "boolean",
             "default": False,
             "envvars": ("KOLIBRI_SERVER_PROFILE",),
         },
-        "DEBUG": {"type": "boolean", "default": False, "envvars": ("KOLIBRI_DEBUG",)},
+        "DEBUG": {"type": "boolean", "default": False},
         "DEBUG_LOG_DATABASE": {
             "type": "boolean",
             "default": False,
-            "envvars": ("KOLIBRI_DEBUG_LOG_DATABASE",),
         },
     },
     "Paths": {
         "CONTENT_DIR": {
             "type": "string",
             "default": "content",
-            "envvars": ("KOLIBRI_CONTENT_DIR",),
         },
         "CONTENT_FALLBACK_DIRS": {
             "type": "path_list",
             "default": "",
-            "envvars": ("KOLIBRI_CONTENT_FALLBACK_DIRS",),
         },
     },
     "Urls": {
         "CENTRAL_CONTENT_BASE_URL": {
             "type": "string",
             "default": "https://studio.learningequality.org",
-            "envvars": (
-                "KOLIBRI_CENTRAL_CONTENT_BASE_URL",
-                "CENTRAL_CONTENT_DOWNLOAD_BASE_URL",
-            ),
+            "envvars": ("CENTRAL_CONTENT_DOWNLOAD_BASE_URL",),
         },
         "DATA_PORTAL_SYNCING_BASE_URL": {
             "type": "string",
             "default": "https://kolibridataportal.learningequality.org",
-            "envvars": ("KOLIBRI_DATA_PORTAL_SYNCING_BASE_URL",),
         },
     },
     "Deployment": {
         "HTTP_PORT": {
             "type": "port",
             "default": 8080,
-            "envvars": ("KOLIBRI_HTTP_PORT", "KOLIBRI_LISTEN_PORT"),
+            "envvars": (
+                "KOLIBRI_HTTP_PORT",
+                "KOLIBRI_LISTEN_PORT",
+            ),
         },
-        "RUN_MODE": {"type": "string", "envvars": ("KOLIBRI_RUN_MODE",)},
+        "RUN_MODE": {"type": "string"},
         "DISABLE_PING": {
             "type": "boolean",
             "default": False,
-            "envvars": ("KOLIBRI_DISABLE_PING",),
         },
         "URL_PATH_PREFIX": {
             "type": "string",
             "default": "/",
-            "envvars": ("KOLIBRI_URL_PATH_PREFIX",),
             "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
         },
         "LANGUAGES": {
             "type": "language_list",
             "default": SUPPORTED_LANGUAGES,
-            "envvars": ("KOLIBRI_LANGUAGES",),
         },
         "ZIP_CONTENT_ORIGIN": {
             "type": "origin_or_port",
             "default": "",
-            "envvars": ("KOLIBRI_ZIP_CONTENT_ORIGIN",),
         },
         "ZIP_CONTENT_PORT": {
             "type": "port",
             "default": 0,
-            "envvars": ("KOLIBRI_ZIP_CONTENT_PORT",),
         },
         "ZIP_CONTENT_URL_PATH_PREFIX": {
             "type": "string",
             "default": "/",
-            "envvars": ("KOLIBRI_ZIP_CONTENT_URL_PATH_PREFIX",),
             "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
         },
     },
@@ -432,7 +404,6 @@ base_option_spec = {
         "PICKLE_PROTOCOL": {
             "type": "integer",
             "default": 2,
-            "envvars": ("KOLIBRI_PICKLE_PROTOCOL",),
         }
     },
 }
@@ -468,7 +439,26 @@ def _get_option_spec():
     """
     Combine the default option spec with any options that are defined in plugins
     """
-    return extend_config_spec(base_option_spec)
+    option_spec = extend_config_spec(base_option_spec)
+    envvars = set()
+    for section, opts in option_spec.items():
+        for optname, attrs in opts.items():
+            opt_envvars = attrs.get("envvars", tuple())
+            default_envvar = "KOLIBRI_{}".format(optname.upper())
+            if default_envvar not in envvars:
+                envvars.add(default_envvar)
+            else:
+                logging.warn(
+                    "Duplicate environment variable for options {}".format(
+                        default_envvar
+                    )
+                )
+                default_envvar = "KOLIBRI_{}_{}".format(
+                    section.upper(), optname.upper()
+                )
+            if default_envvar not in opt_envvars:
+                attrs["envvars"] = opt_envvars + (default_envvar,)
+    return option_spec
 
 
 option_spec = SimpleLazyObject(_get_option_spec)

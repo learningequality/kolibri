@@ -97,6 +97,28 @@ def test_option_reading_and_precedence_rules():
         assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_ENV
 
 
+def test_default_envvar_generation():
+    """
+    Checks that options can be read from a dummy options.ini file, and overridden by env vars.
+    """
+    if sys.platform == "win32":
+        _CONTENT_DIR = "C:\\mycontentdir"
+    else:
+        _CONTENT_DIR = "/mycontentdir"
+
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+
+    # when an env var is set, use those instead of ini file values
+    with mock.patch.dict(
+        os.environ,
+        {"KOLIBRI_CONTENT_DIR": _CONTENT_DIR},
+    ):
+        OPTIONS = options.read_options_file(
+            conf.KOLIBRI_HOME, ini_filename=tmp_ini_path
+        )
+        assert OPTIONS["Paths"]["CONTENT_DIR"] == _CONTENT_DIR
+
+
 def test_improper_settings_display_errors_and_exit(monkeypatch):
     """
     Checks that options can be read from a dummy options.ini file, and overridden by env vars.

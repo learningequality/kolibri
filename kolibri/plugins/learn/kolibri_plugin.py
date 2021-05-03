@@ -54,7 +54,7 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             "allowGuestAccess": get_device_setting("allow_guest_access"),
             "allowLearnerUnassignedResourceAccess": allow_learner_unassigned_resource_access(),
             "enableCustomChannelNav": conf.OPTIONS["Learn"][
-                "KOLIBRI_ENABLE_CUSTOM_CHANNEL_NAV"
+                "ENABLE_CUSTOM_CHANNEL_NAV"
             ],
         }
 
