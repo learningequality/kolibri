@@ -8,25 +8,22 @@ import { contentState } from '../coreLearn/utils';
 // User-agnostic recommendations
 function _getPopular(store) {
   return ContentNodeResource.fetchPopular({
-    user_kind: store.getters.getUserKind,
+    include_coach_content:
+      store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
   });
 }
 
 // User-specific recommendations
 function _getNextSteps(store) {
   if (store.getters.isUserLoggedIn) {
-    return ContentNodeResource.fetchNextSteps({
-      user_kind: store.getters.getUserKind,
-    });
+    return ContentNodeResource.fetchNextSteps();
   }
   return Promise.resolve([]);
 }
 
 function _getResume(store) {
   if (store.getters.isUserLoggedIn) {
-    return ContentNodeResource.fetchResume({
-      user_kind: store.getters.getUserKind,
-    });
+    return ContentNodeResource.fetchResume();
   }
   return Promise.resolve([]);
 }

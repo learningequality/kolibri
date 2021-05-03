@@ -34,7 +34,6 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from kolibri.core.api import ValuesViewset
-from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.middleware import session_exempt
 from kolibri.core.content import models
 from kolibri.core.content import serializers
@@ -149,10 +148,10 @@ class ContentNodeFilter(IdFilter):
         method="filter_kind",
         choices=(content_kinds.choices + (("content", _("Resource")),)),
     )
-    user_kind = ChoiceFilter(method="filter_user_kind", choices=user_kinds.choices)
     exclude_content_ids = CharFilter(method="filter_exclude_content_ids")
     kind_in = CharFilter(method="filter_kind_in")
     parent = UUIDFilter("parent")
+    include_coach_content = BooleanFilter(method="filter_include_coach_content")
 
     class Meta:
         model = models.ContentNode
@@ -166,7 +165,7 @@ class ContentNodeFilter(IdFilter):
             "content_id",
             "channel_id",
             "kind",
-            "user_kind",
+            "include_coach_content",
             "kind_in",
         ]
 
@@ -193,27 +192,13 @@ class ContentNodeFilter(IdFilter):
         kinds = value.split(",")
         return queryset.filter(kind__in=kinds).order_by("lft")
 
-    def filter_user_kind(self, queryset, name, value):
-        """
-        Show coach_content if they have coach role or higher.
-        This could be extended if we add other 'content role' types
-
-        :param queryset: content nodes
-        :param value: user_kind
-        :return: content nodes filtered by coach_content if appropiate
-        """
-        if value not in [
-            user_kinds.ADMIN,
-            user_kinds.SUPERUSER,
-            user_kinds.COACH,
-            user_kinds.ASSIGNABLE_COACH,
-        ]:
-            # Exclude nodes that are coach content
-            queryset = queryset.exclude(coach_content=True)
-        return queryset
-
     def filter_exclude_content_ids(self, queryset, name, value):
         return queryset.exclude_by_content_ids(value.split(","))
+
+    def filter_include_coach_content(self, queryset, name, value):
+        if value:
+            return queryset
+        return queryset.filter(coach_content=False)
 
 
 class OptionalPageNumberPagination(pagination.PageNumberPagination):
@@ -628,20 +613,11 @@ class ContentNodeViewset(ValuesViewset):
         :return: 10 most popular content nodes
         """
         cache_key = "popular_content"
-        coach_content = False
-
-        user = request.user
-        if user.is_facility_user:  # exclude anon users
-            if (
-                user.roles.exists() or user.is_superuser
-            ):  # must have coach role or higher
-                cache_key = "popular_content_coach"
-                coach_content = True
 
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
 
-        queryset = self.prefetch_queryset(self.get_queryset())
+        queryset = self.filter_queryset(self.prefetch_queryset(self.get_queryset()))
 
         if ContentSessionLog.objects.count() < 50:
             # return 25 random content nodes if not enough session logs
@@ -654,14 +630,10 @@ class ContentNodeViewset(ValuesViewset):
             queryset = queryset.filter_by_uuids(
                 sample(list(pks), count), validate=False
             )
-            if not coach_content:
-                queryset = queryset.exclude(coach_content=True)
         else:
             # get the most accessed content nodes
             # search for content nodes that currently exist in the database
             content_nodes = models.ContentNode.objects.filter(available=True)
-            if not coach_content:
-                content_nodes = content_nodes.exclude(coach_content=True)
             content_counts_sorted = (
                 ContentSessionLog.objects.filter(
                     content_id__in=content_nodes.values_list(

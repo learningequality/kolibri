@@ -37,6 +37,8 @@ export function triggerSearch(
     search: searchTerm,
     kind: kindFilter,
     channel_id: channelFilter,
+    include_coach_content:
+      store.rootGetters.isAdmin || store.rootGetters.isCoach || store.rootGetters.isSuperuser,
   };
 
   return ContentNodeSearchResource.getCollection(getParams)

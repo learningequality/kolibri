@@ -14,7 +14,6 @@ from le_utils.constants import content_kinds
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import provision_device
@@ -795,7 +794,7 @@ class ContentNodeAPITestCase(APITestCase):
         children = parent.get_children()
         response = self.client.get(
             reverse("kolibri:core:contentnode-list"),
-            data={"parent": parent.id, "user_kind": user_kinds.LEARNER},
+            data={"parent": parent.id, "include_coach_content": False},
         )
         self.assertEqual(len(response.data), children.count())
         for i in range(len(children)):
@@ -989,7 +988,7 @@ class ContentNodeAPITestCase(APITestCase):
     def test_filtering_coach_content_anon(self):
         response = self.client.get(
             reverse("kolibri:core:contentnode-list"),
-            data={"user_kind": user_kinds.ANONYMOUS},
+            data={"include_coach_content": False},
         )
         # TODO make content_test.json fixture more organized. Here just, hardcoding the correct count
         self.assertEqual(len(response.data), 7)
@@ -998,7 +997,7 @@ class ContentNodeAPITestCase(APITestCase):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         response = self.client.get(
             reverse("kolibri:core:contentnode-list"),
-            data={"user_kind": user_kinds.ADMIN},
+            data={"include_coach_content": True},
         )
         expected_output = content.ContentNode.objects.exclude(
             available=False
@@ -1155,7 +1154,10 @@ class ContentNodeAPITestCase(APITestCase):
         node.coach_content = True
         node.save()
         expected_content_ids = expected_content_ids[1:]
-        response = self.client.get(reverse("kolibri:core:contentnode-popular"))
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-popular"),
+            data={"include_coach_content": False},
+        )
         response_content_ids = set(node["content_id"] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -1169,7 +1171,10 @@ class ContentNodeAPITestCase(APITestCase):
         node.coach_content = True
         node.save()
         self.client.login(username="coach", password=DUMMY_PASSWORD)
-        response = self.client.get(reverse("kolibri:core:contentnode-popular"))
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-popular"),
+            data={"include_coach_content": True},
+        )
         response_content_ids = set(node["content_id"] for node in response.json())
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
