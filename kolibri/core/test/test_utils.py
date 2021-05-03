@@ -1,17 +1,13 @@
 import unittest
 
 import mock
-from diskcache.recipes import RLock
 from django.conf import settings
-from django.core.cache.backends.base import BaseCache
 from django.db import connection
 from django.test import SimpleTestCase
 from django.test import TestCase
 from redis import Redis
 
 from kolibri.core.device.models import SQLiteLock
-from kolibri.core.utils.cache import NamespacedCacheProxy
-from kolibri.core.utils.cache import ProcessLock
 from kolibri.core.utils.cache import RedisSettingsHelper
 from kolibri.core.utils.lock import db_lock
 
@@ -61,103 +57,6 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
         except Exception:
             pass
         self.assertFalse(SQLiteLock.objects.all().exists())
-
-
-@mock.patch("kolibri.core.utils.cache.process_cache")
-@mock.patch("kolibri.core.utils.cache.OPTIONS")
-class GetProcessLockTestCase(TestCase):
-    def setup_opts(self, options, redis=False):
-        backend = "redis" if redis else "other"
-        opts = dict(Cache=dict(CACHE_BACKEND=backend))
-        options.__getitem__.side_effect = opts.__getitem__
-
-    def test_redis(self, options, process_cache):
-        self.setup_opts(options, redis=True)
-        lock = mock.Mock()
-        process_cache.lock.return_value = lock
-        self.assertEqual(lock, ProcessLock("test_key", expire=2)._lock)
-        process_cache.lock.assert_called_once_with(
-            "test_key",
-            timeout=2000,
-            sleep=0.01,
-            blocking_timeout=100,
-            thread_local=True,
-        )
-
-    def test_not_redis(self, options, process_cache):
-        self.setup_opts(options, redis=False)
-        sub_cache = mock.Mock()
-        process_cache.cache.return_value = sub_cache
-        lock = ProcessLock("test_key", expire=2)
-        self.assertIsInstance(lock._lock, RLock)
-        process_cache.cache.assert_called_once_with("locks")
-        self.assertEqual(sub_cache, lock._lock._cache)
-        self.assertEqual("test_key", lock._lock._key)
-        self.assertEqual(2, lock._lock._expire)
-
-
-@mock.patch("kolibri.core.utils.cache.ProcessLock")
-class NamespacedCacheProxyTestCase(TestCase):
-    def setUp(self):
-        self.lock = mock.MagicMock(spec=RLock)
-        self.cache = mock.Mock(spec=BaseCache)
-        self.proxy = NamespacedCacheProxy(self.cache, "test")
-        self.proxy._lock = self.lock
-
-    def test_get_keys(self, mock_lock):
-        self.cache.get.return_value = ["abc"]
-        self.assertEqual(["abc"], self.proxy._get_keys())
-        self.cache.get.assert_called_with("test:1:__KEYS__", default=[])
-
-    def test_set_keys(self, mock_lock):
-        self.proxy._set_keys(["abc"])
-        self.cache.set.assert_called_with("test:1:__KEYS__", ["abc"])
-
-    def test_add(self, mock_lock):
-        self.cache.add.return_value = True
-        self.cache.get.return_value = []
-
-        result = self.proxy.add("abc", 123, "normal arg", timeout=456)
-        self.assertTrue(result)
-
-        self.cache.add.assert_called_with("test:1:abc", 123, "normal arg", timeout=456)
-        self.cache.set.assert_called_with("test:1:__KEYS__", ["abc"])
-
-    def test_add__failed(self, mock_lock):
-        self.cache.add.return_value = False
-        self.cache.get.return_value = []
-
-        result = self.proxy.add("abc", 123)
-        self.assertFalse(result)
-
-        self.cache.add.assert_called_with("test:1:abc", 123)
-        self.cache.set.assert_not_called()
-
-    def test_set(self, mock_lock):
-        self.cache.get.return_value = []
-
-        self.proxy.set("abc", 123, "normal arg", timeout=456)
-
-        self.cache.set.assert_any_call("test:1:__KEYS__", ["abc"])
-        self.cache.set.assert_any_call("test:1:abc", 123, "normal arg", timeout=456)
-
-    def test_delete(self, mock_lock):
-        self.cache.get.return_value = ["abc"]
-
-        self.proxy.delete("abc", 123, "normal arg", extra=456)
-
-        self.cache.set.assert_called_with("test:1:__KEYS__", [])
-        self.cache.delete.assert_called_with("test:1:abc", 123, "normal arg", extra=456)
-
-    def test_clear(self, mock_lock):
-        self.cache.get.return_value = ["abc", "def", "ghi"]
-
-        self.proxy.clear()
-
-        self.cache.set.assert_called_with("test:1:__KEYS__", [])
-        self.cache.delete.assert_any_call("test:1:abc")
-        self.cache.delete.assert_any_call("test:1:def")
-        self.cache.delete.assert_any_call("test:1:ghi")
 
 
 class RedisSettingsHelperTestCase(TestCase):

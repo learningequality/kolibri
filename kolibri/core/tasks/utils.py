@@ -4,7 +4,6 @@ import time
 import uuid
 
 from kolibri.core.tasks import compat
-from kolibri.core.utils.cache import ProcessLock
 
 
 # An object on which to store data about the current job
@@ -118,6 +117,3 @@ class InfiniteLoopThread(compat.Thread):
 
     def shutdown(self):
         self.stop()
-
-
-db_task_write_lock = ProcessLock("db_task_write_lock")

@@ -280,10 +280,6 @@ base_option_spec = {
             "type": "string",
             "default": "localhost:6379",
         },
-        "CACHE_LOCK_TTL": {
-            "type": "integer",
-            "default": 30,
-        },
         "CACHE_REDIS_MIN_DB": {
             "type": "integer",
             "default": 0,
