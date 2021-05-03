@@ -22,7 +22,7 @@ let CROWDIN_PROJECT = get(os.env, 'CROWDIN_PROJECT', null);
 
 if (!CROWDIN_PROJECT) {
   logging.info(
-    'No env var set for CROWDIN_PROJECT. Will default to `kolibri`. If you are working with Kolibri Studio, please set this environemnt variable to `contentcuration` - the name of the root folder for the Django app.'
+    'No env var set for CROWDIN_PROJECT. Will default to `kolibri`. If you are working with Kolibri Studio, please set this environment variable to `contentcuration` - the name of the root folder for the Django app.'
   );
   CROWDIN_PROJECT = 'kolibri';
 }
