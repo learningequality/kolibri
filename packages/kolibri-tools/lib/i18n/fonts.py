@@ -35,6 +35,8 @@ OUTPUT_PATH = os.path.abspath(
         os.path.dirname(__file__),
         os.pardir,
         os.pardir,
+        os.pardir,
+        os.pardir,
         "kolibri",
         "core",
         "static",
