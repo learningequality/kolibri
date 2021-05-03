@@ -3,74 +3,6 @@ This module is intended to allow customization of Kolibri settings with the
 options.ini file.
 The settings can be changed through environment variables or sections and keys
 in the options.ini file.
-The following options are supported:
-
-[Cache]
-CACHE_BACKEND
-CACHE_TIMEOUT
-CACHE_MAX_ENTRIES
-CACHE_PASSWORD
-CACHE_LOCATION
-CACHE_LOCK_TTL
-CACHE_REDIS_MIN_DB
-CACHE_REDIS_MAX_POOL_SIZE
-CACHE_REDIS_POOL_TIMEOUT
-CACHE_REDIS_MAXMEMORY
-CACHE_REDIS_MAXMEMORY_POLICY
-
-[Database]
-DATABASE_ENGINE
-DATABASE_NAME
-DATABASE_PASSWORD
-DATABASE_USER
-DATABASE_HOST
-DATABASE_PORT
-
-[Server]
-CHERRYPY_START
-CHERRYPY_THREAD_POOL
-CHERRYPY_SOCKET_TIMEOUT
-CHERRYPY_QUEUE_SIZE
-CHERRYPY_QUEUE_TIMEOUT
-PROFILE
-
-[Paths]
-CONTENT_DIR
-
-[Urls]
-CENTRAL_CONTENT_BASE_URL
-DATA_PORTAL_SYNCING_BASE_URL
-
-[Deployment]
-HTTP_PORT
-RUN_MODE
-URL_PATH_PREFIX
-    Serve Kolibri from a subpath under the main domain. Used when serving multiple applications from
-    the same origin. This option is not heavily tested, but is provided for user convenience.
-LANGUAGES
-ZIP_CONTENT_URL_PATH_PREFIX
-    The zip content equivalent of URL_PATH_PREFIX - allows all zip content URLs to be prefixed with
-    a fixed path. This both changes the URL from which the endpoints are served by the alternate
-    origin server, and the URL prefix where the Kolibri frontend looks for it.
-    In the case that ZIP_CONTENT_ORIGIN is pointing to an entirely separate origin, this setting
-    can still be used to set a URL prefix that the frontend of Kolibri will look to when
-    retrieving alternate origin URLs.
-ZIP_CONTENT_ORIGIN
-    When running in default operation, this will default to blank, and the Kolibri
-    frontend will look for the zipcontent endpoints on the same domain as Kolibri proper
-    but using ZIP_CONTENT_PORT instead of HTTP_PORT.
-    When running behind a proxy, this value should be set to the port that the zipcontent
-    endpoint is being served on, this will be substituted for the port that Kolibri proper
-    is being served on.
-    If zipcontent is being served from a completely separate domain this can be the absolute
-    origin (full protocol plus domain, e.g. 'https://myzipcontent.com/') which will then
-    be used for all zipcontent origin requests.
-ZIP_CONTENT_PORT
-    Sets the port that Kolibri will serve the alternate origin server on. This is the alternate
-    origin server equivalent of HTTP_PORT.
-
-[Python]
-PICKLE_PROTOCOL
 """
 import logging.config
 import os
@@ -263,39 +195,55 @@ base_option_spec = {
             "type": "option",
             "options": ("memory", "redis"),
             "default": "memory",
+            "description": """
+                Which backend to use for the main cache - if memory is selected, then for most cache operations,
+                an in memory, process local cache will be used, but a disk based cache will be used for some data
+                that needs to be persistent across processes. If Redis is used, it is used for all caches.
+            """,
         },
         "CACHE_TIMEOUT": {
             "type": "integer",
             "default": 300,
+            "description": "Default timeout for entries put into the cache.",
         },
         "CACHE_MAX_ENTRIES": {
             "type": "integer",
             "default": 1000,
+            "description": "Maximum number of entries to maintain in the cache at once.",
         },
         "CACHE_PASSWORD": {
             "type": "string",
             "default": "",
+            "description": "Password to authenticate to Redis, Redis only.",
         },
         "CACHE_LOCATION": {
             "type": "string",
             "default": "localhost:6379",
+            "description": "Host and port at which to connect to Redis, Redis only.",
         },
         "CACHE_REDIS_MIN_DB": {
             "type": "integer",
             "default": 0,
+            "description": """
+                The starting database number for Redis.
+                This and subsequent database numbers will be used for multiple cache scenarios.
+            """,
         },
         "CACHE_REDIS_MAX_POOL_SIZE": {
             "type": "integer",
             "default": 50,  # use redis-benchmark to determine better value
+            "description": "Maximum number of simultaneous connections to allow to Redis, Redis only.",
         },
         "CACHE_REDIS_POOL_TIMEOUT": {
             "type": "integer",
             "default": 30,  # seconds
+            "description": "How long to wait when trying to connect to Redis before timing out, Redis only.",
         },
         # Optional redis settings to overwrite redis.conf
         "CACHE_REDIS_MAXMEMORY": {
             "type": "integer",
             "default": 0,
+            "description": "Maximum memory that Redis should use, Redis only.",
         },
         "CACHE_REDIS_MAXMEMORY_POLICY": {
             "type": "option",
@@ -309,6 +257,7 @@ base_option_spec = {
                 "noeviction",
             ),
             "default": "",
+            "description": "Eviction policy to use when using Redis for caching, Redis only.",
         },
     },
     "Database": {
@@ -316,55 +265,101 @@ base_option_spec = {
             "type": "option",
             "options": ("sqlite", "postgres"),
             "default": "sqlite",
+            "description": "Which database backend to use, choices are sqlite or postgresql",
         },
-        "DATABASE_NAME": {"type": "string"},
+        "DATABASE_NAME": {
+            "type": "string",
+            "description": """
+                For SQLite - the name of a database file to use for the main Kolibri database.
+                For Postgresql, the name of the database to use for all Kolibri data.
+            """,
+        },
         "DATABASE_PASSWORD": {
             "type": "string",
+            "description": "The password to authenticate with when connecting to the database, Postgresql only.",
         },
-        "DATABASE_USER": {"type": "string"},
-        "DATABASE_HOST": {"type": "string"},
-        "DATABASE_PORT": {"type": "string"},
+        "DATABASE_USER": {
+            "type": "string",
+            "description": "The user to authenticate with when connecting to the database, Postgresql only.",
+        },
+        "DATABASE_HOST": {
+            "type": "string",
+            "description": "The host on which to connect to the database, Postgresql only.",
+        },
+        "DATABASE_PORT": {
+            "type": "string",
+            "description": "The port on which to connect to the database, Postgresql only.",
+        },
     },
     "Server": {
         "CHERRYPY_START": {
             "type": "boolean",
             "default": True,
+            "description": "DEPRECATED - do not use this option, use the 'kolibri services' command instead.",
         },
         "CHERRYPY_THREAD_POOL": {
             "type": "integer",
             "default": calculate_thread_pool(),
+            "description": "How many threads the Kolibri server should use to serve requests",
         },
         "CHERRYPY_SOCKET_TIMEOUT": {
             "type": "integer",
             "default": 10,
+            "description": """
+                How long a socket should wait for data flow to resume before
+                it considers that the connection has been interrupted.
+                Increasing this may help in situations where there is high latency on a network,
+                or the bandwidth is bursty, and it is expected that data flow may be interrupted
+                but not indicative of the connection failing.
+            """,
         },
         "CHERRYPY_QUEUE_SIZE": {
             "type": "integer",
             "default": 30,
+            "description": """
+                How many requests to allow in the queue.
+                Increasing this may help situations where requests are instantly refused by the server.
+            """,
         },
         "CHERRYPY_QUEUE_TIMEOUT": {
             "type": "float",
             "default": 0.1,
+            "description": """
+                How many seconds to wait for a request to be put into the queue.
+                Increasing this may help situations where requests are instantly refused by the server.
+            """,
         },
         "PROFILE": {
             "type": "boolean",
             "default": False,
             "envvars": ("KOLIBRI_SERVER_PROFILE",),
+            "description": "Activate the server profiling middleware.",
         },
-        "DEBUG": {"type": "boolean", "default": False},
+        "DEBUG": {
+            "type": "boolean",
+            "default": False,
+            "description": "Run Kolibri with Django setting DEBUG = True",
+        },
         "DEBUG_LOG_DATABASE": {
             "type": "boolean",
             "default": False,
+            "description": "Activate debug logging for Django ORM operations.",
         },
     },
     "Paths": {
         "CONTENT_DIR": {
             "type": "path",
             "default": "content",
+            "description": """
+                The directory that will store content files and content database files.
+                To change this in a currently active server it is recommended to use the
+                content movedirectory management command.
+            """,
         },
         "CONTENT_FALLBACK_DIRS": {
             "type": "path_list",
             "default": "",
+            "description": "Additional directories in which Kolibri will look for content files and content database files.",
         },
     },
     "Urls": {
@@ -372,10 +367,15 @@ base_option_spec = {
             "type": "string",
             "default": "https://studio.learningequality.org",
             "envvars": ("CENTRAL_CONTENT_DOWNLOAD_BASE_URL",),
+            "description": """
+                URL to use as the default source for content import.
+                Slightly counterintuitively this will still be displayed in the UI as 'import from Kolibri Studio'.
+            """,
         },
         "DATA_PORTAL_SYNCING_BASE_URL": {
             "type": "string",
             "default": "https://kolibridataportal.learningequality.org",
+            "description": "URL to use as the target for data portal syncing.",
         },
     },
     "Deployment": {
@@ -386,37 +386,78 @@ base_option_spec = {
                 "KOLIBRI_HTTP_PORT",
                 "KOLIBRI_LISTEN_PORT",
             ),
+            "description": "Sets the port that Kolibri will serve on. This can be further overridden by command line arguments.",
         },
-        "RUN_MODE": {"type": "string"},
+        "RUN_MODE": {
+            "type": "string",
+            "description": "Used to flag non-user Kolibri instances",
+            "skip_blank": True,
+        },
         "DISABLE_PING": {
             "type": "boolean",
             "default": False,
+            "description": "Turn off the statistics pingback. This will also disable update notifications",
         },
         "URL_PATH_PREFIX": {
             "type": "url_prefix",
             "default": "/",
+            "description": """
+                Serve Kolibri from a subpath under the main domain. Used when serving multiple applications from
+                the same origin. This option is not heavily tested, but is provided for user convenience.
+            """,
         },
         "LANGUAGES": {
             "type": "language_list",
             "default": SUPPORTED_LANGUAGES,
+            "description": """
+                The languages that this Kolibri should enable. The default is all the languages that Kolibri supports.
+                Can either be a single language code, or a comma separated list of language codes.
+            """,
         },
         "ZIP_CONTENT_ORIGIN": {
             "type": "origin_or_port",
             "default": "",
+            "description": """
+                When running in default operation, this will default to blank, and the Kolibri
+                frontend will look for the zipcontent endpoints on the same domain as Kolibri proper
+                but using ZIP_CONTENT_PORT instead of HTTP_PORT.
+                When running behind a proxy, this value should be set to the port that the zipcontent
+                endpoint is being served on, this will be substituted for the port that Kolibri proper
+                is being served on.
+                If zipcontent is being served from a completely separate domain this can be the absolute
+                origin (full protocol plus domain, e.g. 'https://myzipcontent.com/') which will then
+                be used for all zipcontent origin requests.
+            """,
         },
         "ZIP_CONTENT_PORT": {
             "type": "port",
             "default": 0,
+            "description": """
+                Sets the port that Kolibri will serve the alternate origin server on. This is the alternate
+                origin server equivalent of HTTP_PORT.
+            """,
         },
         "ZIP_CONTENT_URL_PATH_PREFIX": {
             "type": "url_prefix",
             "default": "/",
+            "description": """
+                The zip content equivalent of URL_PATH_PREFIX - allows all zip content URLs to be prefixed with
+                a fixed path. This both changes the URL from which the endpoints are served by the alternate
+                origin server, and the URL prefix where the Kolibri frontend looks for it.
+                In the case that ZIP_CONTENT_ORIGIN is pointing to an entirely separate origin, this setting
+                can still be used to set a URL prefix that the frontend of Kolibri will look to when
+                retrieving alternate origin URLs.
+            """,
         },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
             "type": "integer",
             "default": 2,
+            "description": """
+                Which Python pickle protocol to use. Pinned to 2 for now to provide maximal cross-Python version compatibility.
+                Can safely be set to a higher value for deployments that will never change Python versions.
+            """,
         }
     },
 }
@@ -627,22 +668,23 @@ def update_options_file(section, key, value, ini_filename="options.ini"):
     )
 
 
-empty_options_excluded_key = ["Python"]
-
-
-def generate_empty_options_file(options_path, options_data):
-
+def generate_empty_options_file(ini_filename="options.ini"):
     # Generate an options.ini file inside the KOLIBRI_HOME as default placeholder config
-    with open(options_path, "w") as file:
-        keys = [k for k in options_data if k not in empty_options_excluded_key]
-        for key in keys:
-            file.write("# [{}] \n".format(key))
-            child_keys = [
-                k for k in options_data[key] if k not in empty_options_excluded_key
-            ]
-            for child_key in child_keys:
-                file.write(
-                    "# {} = {} \n".format(child_key, options_data[key][child_key])
-                )
 
-            file.write("\n")
+    conf = read_options_file(ini_filename=ini_filename)
+
+    comments = None
+
+    for section, opts in option_spec.items():
+        if comments is not None:
+            conf.comments[section] = comments
+        comments = []
+        logging.info(section)
+        for optname, attrs in opts.items():
+            if not attrs.get("skip_blank", False):
+                if "description" in attrs:
+                    comments.extend(attrs["description"].strip().split("\n"))
+                comments.append("{} = {}".format(optname, attrs.get("default", "")))
+    conf.final_comment = comments
+
+    conf.write()
