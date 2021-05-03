@@ -51,7 +51,8 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
       ContentNodeResource.fetchCollection({
         getParams: {
           parent: id,
-          user_kind: store.getters.getUserKind,
+          include_coach_content:
+            store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
         },
       }), // the topic's children
       store.dispatch('setChannelInfo'),

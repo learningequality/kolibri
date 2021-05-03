@@ -15,7 +15,11 @@ export function showChannels(store) {
       }
       const channelRootIds = channels.map(channel => channel.root);
       ContentNodeResource.fetchCollection({
-        getParams: { ids: channelRootIds, user_kind: store.getters.getUserKind },
+        getParams: {
+          ids: channelRootIds,
+          include_coach_content:
+            store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
+        },
       }).then(channelCollection => {
         // we want them to be in the same order as the channels list
         const rootNodes = channels
