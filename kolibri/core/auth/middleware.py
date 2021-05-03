@@ -1,8 +1,10 @@
 from django.apps import apps
 from django.conf import settings
+from django.contrib.auth import _get_user_session_key
 from django.contrib.auth import get_user
 from django.contrib.auth.middleware import AuthenticationMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import SimpleLazyObject
 
@@ -40,9 +42,13 @@ def get_anonymous_user_model():
 
 
 def _get_user(request):
-
     if not hasattr(request, "_cached_user"):
-        user = get_user(request)
+        user_id = _get_user_session_key(request)
+        USER_CACHE_KEY = "USER_BY_SESSION_CACHE_{}".format(user_id)
+        user = cache.get(USER_CACHE_KEY)
+        if not user:
+            user = get_user(request)
+            cache.set(USER_CACHE_KEY, user)
         if user.is_anonymous():
             AnonymousUser = get_anonymous_user_model()
             user = AnonymousUser()
