@@ -1,6 +1,11 @@
 <template>
 
-  <router-link class="link" :style="{ color: $themeTokens.text }" :to="to">
+  <router-link
+    class="link"
+    :style="{ color: $themeTokens.text }"
+    :class="themeClass"
+    :to="to"
+  >
     <KFixedGrid numCols="4" class="wrapper">
       <KFixedGridItem span="3">
         <h3 class="title">
@@ -60,6 +65,22 @@
         type: Object,
         required: true,
         validators: validateLinkObject,
+      },
+    },
+    computed: {
+      themeClass() {
+        return this.$computedClass({
+          ':hover': {
+            // Background is light enough so that contents colored at grey.v_300
+            // are still visible.
+            backgroundColor: this.$themePalette.grey.v_100,
+            // Add equal and opposite margin and padding to give the highlighted
+            // region more space without increasing the size of the parent div.
+            margin: '-8px',
+            padding: '8px',
+            borderRadius: '4px',
+          },
+        });
       },
     },
   };
