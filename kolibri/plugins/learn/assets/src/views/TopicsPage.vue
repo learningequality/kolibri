@@ -94,8 +94,9 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
-  import CustomContentRenderer from './CustomContentRenderer';
+  import CustomContentRenderer from './ChannelRenderer/CustomContentRenderer';
   import CardThumbnail from './ContentCard/CardThumbnail';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'TopicsPage',
@@ -130,7 +131,11 @@
         return this.isRoot ? this.channel : this.topic;
       },
       currentChannelIsCustom() {
-        if (this.topic && this.topic.options.modality === 'CUSTOM_NAVIGATION') {
+        if (
+          plugin_data.enableCustomChannelNav &&
+          this.topic &&
+          this.topic.options.modality === 'CUSTOM_NAVIGATION'
+        ) {
           this.topic.options.modality === 'CUSTOM_NAVIGATION';
           return true;
         }

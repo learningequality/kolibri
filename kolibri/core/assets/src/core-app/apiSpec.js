@@ -59,6 +59,7 @@ import bytesForHumans from '../utils/bytesForHumans';
 import UserType from '../utils/UserType';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import AppBar from '../views/AppBar';
+import Backdrop from '../views/Backdrop';
 import CoreSnackbar from '../views/CoreSnackbar';
 import CoreMenu from '../views/CoreMenu';
 import CoreMenuDivider from '../views/CoreMenu/CoreMenuDivider';
@@ -127,6 +128,7 @@ export default {
       mappers,
     },
     components: {
+      Backdrop,
       CoachContentLabel,
       DownloadButton,
       ProgressBar,

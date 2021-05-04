@@ -109,14 +109,12 @@
       </div>
     </transition>
 
-    <transition name="side-nav-backdrop">
-      <div
-        v-show="navShown"
-        class="side-nav-backdrop"
-        @click="toggleNav"
-      >
-      </div>
-    </transition>
+    <Backdrop
+      v-show="navShown"
+      :transitions="true"
+      class="side-nav-backdrop"
+      @click="toggleNav"
+    />
 
     <PrivacyInfoModal
       v-if="privacyModalVisible"
@@ -140,6 +138,7 @@
   import navComponents from 'kolibri.utils.navComponents';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import branding from 'kolibri.utils.branding';
+  import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import navComponentsMixin from '../mixins/nav-components';
   import logout from './LogoutSideNavEntry';
   import SideNavDivider from './SideNavDivider';
@@ -157,6 +156,7 @@
   export default {
     name: 'SideNav',
     components: {
+      Backdrop,
       CoreMenu,
       CoreLogo,
       SideNavDivider,
@@ -364,38 +364,7 @@
   }
 
   .side-nav-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
     z-index: 15;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    background-attachment: fixed;
-  }
-
-  .side-nav-backdrop-enter {
-    opacity: 0;
-  }
-
-  .side-nav-backdrop-enter-to {
-    opacity: 1;
-  }
-
-  .side-nav-backdrop-enter-active {
-    transition: opacity 0.2s ease-in-out;
-  }
-
-  .side-nav-backdrop-leave {
-    opacity: 1;
-  }
-
-  .side-nav-backdrop-leave-to {
-    opacity: 0;
-  }
-
-  .side-nav-backdrop-leave-active {
-    transition: opacity 0.2s ease-in-out;
   }
 
   /* keen menu */

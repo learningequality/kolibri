@@ -1,4 +1,3 @@
-// import flatMap from 'lodash/flatMap';
 import Mediator from '../src/mediator';
 import Kolibri from '../src/kolibri';
 
@@ -136,6 +135,33 @@ describe('the kolibri hashi shim', () => {
     it('should return a promise that resolves to pagination object that contains an array of metadata objects', () => {
       return kolibri.shim.getContext().then(data => {
         expect(data).toEqual(response);
+      });
+    });
+  });
+
+  xdescribe('version getter', () => {
+    it('returns the correct version number', () => {
+      // "testversion" is set in jest.conf. In production, this is injected by webpack.
+      expect(kolibri.shim.version).toEqual('testversion');
+    });
+  });
+
+  describe('themeRenderer method', () => {
+    it('sets the shim.theme object within the Shim class', async () => {
+      const sendMessageAwaitReplySpy = jest
+        .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
+        .mockResolvedValue();
+      await kolibri.shim.themeRenderer({
+        appBarColor: 'pink',
+        textColor: 'blue',
+      });
+      expect(sendMessageAwaitReplySpy).toHaveBeenCalledWith({
+        event: 'themechanged',
+        nameSpace: 'hashi',
+        data: {
+          appBarColor: 'pink',
+          textColor: 'blue',
+        },
       });
     });
   });
