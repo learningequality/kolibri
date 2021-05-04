@@ -384,6 +384,15 @@ export default class H5P extends BaseShim {
           mail: '',
         };
       },
+      // Set this library path so that we can return the zipcontent
+      // endpoint URL for this H5P file, so that it just looks up
+      // libraries inside the current H5P.
+      get urlLibraries() {
+        return new URL(
+          `../../zipcontent/${self.filepath.substring(self.filepath.lastIndexOf('/') + 1)}`,
+          window.location
+        ).href;
+      },
     };
     Object.defineProperty(contentWindow, 'H5PIntegration', {
       value: this.integrationShim,
