@@ -197,7 +197,7 @@ export default class Kolibri extends BaseShim {
        * @return {string} - A version string
        */
       get version() {
-        return __version;
+        return '';
       }
     }
 

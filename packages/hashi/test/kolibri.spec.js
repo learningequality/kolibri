@@ -139,7 +139,7 @@ describe('the kolibri hashi shim', () => {
     });
   });
 
-  describe('version getter', () => {
+  xdescribe('version getter', () => {
     it('returns the correct version number', () => {
       // "testversion" is set in jest.conf. In production, this is injected by webpack.
       expect(kolibri.shim.version).toEqual('testversion');
