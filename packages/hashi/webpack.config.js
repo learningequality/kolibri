@@ -1,6 +1,8 @@
 const path = require('path');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
+const version = require('kolibri-tools/lib/version');
+const webpack = require('webpack');
 
 function Plugin() {}
 
@@ -36,6 +38,8 @@ Plugin.prototype.writeOutput = function(filename) {
 // Note that the hashi iframe client doesn't currently support code splitting
 // in the way that it is loaded, so don't do any code splitting just yet.
 
+const kolibriVersion = version.getVersion();
+
 module.exports = {
   entry: path.resolve(__dirname, './src/iframe.js'),
   output: {
@@ -50,5 +54,10 @@ module.exports = {
       },
     ],
   },
-  plugins: [new Plugin()],
+  plugins: [
+    new Plugin(),
+    new webpack.DefinePlugin({
+      __version: `"${kolibriVersion}"`,
+    }),
+  ],
 };
