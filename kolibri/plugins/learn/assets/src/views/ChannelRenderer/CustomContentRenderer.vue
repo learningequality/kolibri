@@ -103,6 +103,9 @@
         delete theme.message_id;
         this.channelTheme = validateTheme(theme);
       });
+      this.hashi.on('searchresultrequested', message => {
+        this.fetchSearchResult.call(this, message);
+      });
     },
     methods: {
       // helper functions for fetching data from kolibri
@@ -141,6 +144,14 @@
             event: events.KOLIBRIDATARETURNED,
             data: message,
           });
+        });
+      },
+
+      fetchSearchResult(message) {
+        this.hashi.mediator.sendMessage({
+          nameSpace: 'hashi',
+          event: events.KOLIBRIDATARETURNED,
+          data: { ...message, status: 'success', type: 'response' },
         });
       },
 

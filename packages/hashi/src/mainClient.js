@@ -2,7 +2,7 @@ import Mediator from './mediator';
 import LocalStorage from './localStorage';
 import Cookie from './cookie';
 import SCORM from './SCORM';
-import { events, nameSpace } from './hashiBase';
+import { events, nameSpace, DataTypes } from './hashiBase';
 import Kolibri from './kolibri';
 
 /*
@@ -66,16 +66,19 @@ export default class MainClient {
     // They each fetch data from the kolibri database and return it to
     // the iframe
     this.on(this.events.DATAREQUESTED, message => {
-      if (message.dataType === 'Collection') {
+      let event;
+      if (message.dataType === DataTypes.COLLECTION) {
+        event = events.COLLECTIONREQUESTED;
+      } else if (message.dataType === DataTypes.MODEL) {
+        event = events.MODELREQUESTED;
+      } else if (message.dataType === DataTypes.SEARCHRESULT) {
+        event = events.SEARCHRESULTREQUESTED;
+      }
+
+      if (event) {
         this.mediator.sendLocalMessage({
           nameSpace,
-          event: events.COLLECTIONREQUESTED,
-          data: message,
-        });
-      } else if (message.dataType === 'Model') {
-        this.mediator.sendLocalMessage({
-          nameSpace,
-          event: events.MODELREQUESTED,
+          event,
           data: message,
         });
       }

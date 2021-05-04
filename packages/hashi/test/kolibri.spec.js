@@ -165,4 +165,39 @@ describe('the kolibri hashi shim', () => {
       });
     });
   });
+
+  describe('searchContent method', () => {
+    beforeEach(function() {
+      mockMessage = {
+        data: {},
+        event: 'context',
+        nameSpace: 'hashi',
+      };
+      mockMediatorPromise = jest
+        .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
+        .mockResolvedValue(response);
+    });
+
+    afterEach(() => {
+      mockMediatorPromise.mockReset();
+    });
+
+    it('should be called with the correct event, data, and namespace', async () => {
+      const options = {
+        keyword: 'sewing',
+        under: 'self',
+        page: 1,
+        pageSize: 25,
+      };
+      await kolibri.shim.searchContent(options);
+      expect(mockMediatorPromise).toHaveBeenCalledWith({
+        event: 'datarequested',
+        data: {
+          options,
+          dataType: 'SearchResult',
+        },
+        nameSpace: 'hashi',
+      });
+    });
+  });
 });
