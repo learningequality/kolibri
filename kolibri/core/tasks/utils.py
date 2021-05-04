@@ -49,7 +49,7 @@ def import_stringified_func(funcstring):
 class InfiniteLoopThread(compat.Thread):
     """A class that runs a given function an infinite number of times, until told to shut down."""
 
-    DEFAULT_TIMEOUT_SECONDS = 0.2
+    DEFAULT_TIMEOUT_SECONDS = 0.001
 
     def __init__(self, func, thread_name, wait_between_runs=1, *args, **kwargs):
         """

@@ -40,7 +40,7 @@ class TestWorker:
         job = Job(id, 9)
         worker.storage.enqueue_job(job, QUEUE)
 
-        while job.state == State.QUEUED:
+        while job.state != State.COMPLETED:
             job = worker.storage.get_job(job.job_id)
             time.sleep(0.5)
         try:

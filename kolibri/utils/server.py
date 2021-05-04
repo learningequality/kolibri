@@ -1,30 +1,35 @@
 import logging
 import os
+import signal
 import sys
+import time
+import traceback as _traceback
+from functools import partial
 from subprocess import CalledProcessError
 from subprocess import check_output
 
-import cherrypy
 import requests
-from cheroot import wsgi
-from cherrypy.process.plugins import SimplePlugin
-from cherrypy.process.servers import ServerAdapter
+from cheroot.wsgi import Server as BaseServer
 from django.conf import settings
+from django.core.management import call_command
+from magicbus import ProcessBus
+from magicbus.plugins import SimplePlugin
+from magicbus.plugins.servers import ServerPlugin as BaseServerPlugin
+from magicbus.plugins.servers import wait_for_free_port
+from magicbus.plugins.servers import wait_for_occupied_port
+from magicbus.plugins.signalhandler import SignalHandler as BaseSignalHandler
+from magicbus.plugins.tasks import Autoreloader
 from zeroconf import get_all_addresses
 
 import kolibri
+from .system import become_daemon
 from .system import kill_pid
 from .system import pid_exists
 from kolibri.core.tasks.main import initialize_workers
 from kolibri.core.tasks.main import scheduler
+from kolibri.deployment.default.cache import recreate_diskcache
 from kolibri.utils import conf
 from kolibri.utils.android import on_android
-
-try:
-    import kolibri.utils.pskolibri as psutil
-except NotImplementedError:
-    # This module can't work on this OS
-    psutil = None
 
 try:
     FileNotFoundError
@@ -42,19 +47,22 @@ STATUS_FAILED_TO_START = 6
 STATUS_UNCLEAN_SHUTDOWN = 7
 STATUS_UNKNOWN_INSTANCE = 8
 STATUS_SERVER_CONFIGURATION_ERROR = 9
+STATUS_SHUTTING_DOWN = 10
 STATUS_PID_FILE_READ_ERROR = 99
 STATUS_PID_FILE_INVALID = 100
 STATUS_UNKNOWN = 101
 
+
+PORT_AVAILABILITY_CHECK_TIMEOUT = 0.1
+
 # Used to store PID and port number (both in foreground and daemon mode)
 PID_FILE = os.path.join(conf.KOLIBRI_HOME, "server.pid")
 
-# Used to PID, port during certain exclusive startup process, before we fork
-# to daemon mode
-STARTUP_LOCK = os.path.join(conf.KOLIBRI_HOME, "server.lock")
-
 # File used to activate profiling middleware and get profiler PID
 PROFILE_LOCK = os.path.join(conf.KOLIBRI_HOME, "server_profile.lock")
+
+# File used to store previously available ports
+PORT_CACHE = os.path.join(conf.KOLIBRI_HOME, "port_cache")
 
 # This is a special file with daemon activity. It logs ALL stderr output, some
 # might not have made it to the log file!
@@ -62,6 +70,20 @@ DAEMON_LOG = os.path.join(conf.LOG_ROOT, "daemon.txt")
 
 # Currently non-configurable until we know how to properly handle this
 LISTEN_ADDRESS = "0.0.0.0"
+
+status_messages = {
+    STATUS_RUNNING: "OK, running",
+    STATUS_STOPPED: "Stopped",
+    STATUS_STARTING_UP: "Starting up",
+    STATUS_NOT_RESPONDING: "Not responding",
+    STATUS_FAILED_TO_START: "Failed to start (check log file: {0})".format(DAEMON_LOG),
+    STATUS_UNCLEAN_SHUTDOWN: "Unclean shutdown",
+    STATUS_UNKNOWN_INSTANCE: "Unknown Kolibri running on port",
+    STATUS_SERVER_CONFIGURATION_ERROR: "Kolibri server configuration error",
+    STATUS_PID_FILE_READ_ERROR: "Could not read PID file",
+    STATUS_PID_FILE_INVALID: "Invalid PID file",
+    STATUS_UNKNOWN: "Could not determine status",
+}
 
 # Constant job_id for scheduled jobs that we want to keep track of across server restarts
 SCH_PING_JOB_ID = "0"
@@ -79,13 +101,137 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
+class Server(BaseServer):
+    def error_log(self, msg="", level=20, traceback=False):
+        if traceback:
+            if traceback is True:
+                exc_info = sys.exc_info()
+            else:
+                exc_info = traceback
+            msg += "\n" + "".join(_traceback.format_exception(*exc_info))
+        return logger.log(level, msg)
+
+
+def check_port_availability(host, port):
+    """
+    Make sure the port is available for the server to start.
+    """
+    # Also bypass when the port is 0, as that will choose a port
+    if port:
+        try:
+            wait_for_free_port(host, port, timeout=PORT_AVAILABILITY_CHECK_TIMEOUT)
+        except OSError:
+            return False
+    return True
+
+
+class PortCache:
+    def __init__(self):
+        self.values = {}
+        self.load()
+
+    def register_port(self, port):
+        self.values[port] = True
+        self.save()
+
+    def get_port(self, host):
+        if self.values:
+            try:
+                port = next(p for p in self.values if not self.values[p])
+                if port:
+                    if check_port_availability(host, port):
+                        self.values[port] = True
+                        return port
+            except StopIteration:
+                pass
+        return None
+
+    def save(self):
+        with open(PORT_CACHE, "w") as f:
+            f.write("\n".join(str(p) for p in self.values.keys()))
+
+    def load(self):
+        try:
+            with open(PORT_CACHE, "r") as f:
+                for port in f.readlines():
+                    self.values[int(port)] = False
+        except IOError:
+            pass
+
+
+port_cache = PortCache()
+
+
+class ServerPlugin(BaseServerPlugin):
+    def subscribe(self):
+        super(ServerPlugin, self).subscribe()
+        self.bus.subscribe("ENTER", self.ENTER)
+
+    def unsubscribe(self):
+        super(ServerPlugin, self).unsubscribe()
+        self.bus.unsubscribe("ENTER", self.ENTER)
+
+    def ENTER(self):
+        host, bind_port = self.bind_addr
+        if bind_port == 0:
+            port = port_cache.get_port(host)
+            if port:
+                self.bind_addr = (host, port)
+                self.httpserver.bind_addr = (host, port)
+
+    def START(self):
+        super(ServerPlugin, self).START()
+        _, port = self.httpserver.bind_addr
+        port_cache.register_port(port)
+
+    @property
+    def interface(self):
+        if self.httpserver.bind_addr is None:
+            return "unknown interface (dynamic?)"
+        elif isinstance(self.httpserver.bind_addr, tuple):
+            host, port = self.httpserver.bind_addr
+            return "%s:%s" % (host, port)
+        else:
+            return "socket file: %s" % self.httpserver.bind_addr
+
+
+class KolibriServerPlugin(ServerPlugin):
+    def ENTER(self):
+        super(KolibriServerPlugin, self).ENTER()
+        # Clear old sessions up
+        call_command("clearsessions")
+
+    def START(self):
+        super(KolibriServerPlugin, self).START()
+        _, bind_port = self.httpserver.bind_addr
+        self.bus.publish("SERVING", bind_port)
+        __, urls = get_urls(listen_port=bind_port)
+        for url in urls:
+            self.bus.publish("log", "Kolibri running on: {}".format(url), 20)
+
+    START.priority = 75
+
+
+class ZipContentServerPlugin(ServerPlugin):
+    def START(self):
+        super(ZipContentServerPlugin, self).START()
+        _, bind_port = self.httpserver.bind_addr
+        self.bus.publish("ZIP_SERVING", bind_port)
+
+    START.priority = 75
+
+
 class ServicesPlugin(SimplePlugin):
     def __init__(self, bus, port):
         self.bus = bus
         self.port = port
         self.workers = None
+        self.bus.subscribe("SERVING", self.SERVING)
 
-    def start(self):
+    def ENTER(self):
+        recreate_diskcache()
+
+    def START(self):
         # schedule the pingback job if not already scheduled
         if SCH_PING_JOB_ID not in scheduler:
             from kolibri.core.analytics.utils import schedule_ping
@@ -104,14 +250,15 @@ class ServicesPlugin(SimplePlugin):
         # Initialize the iceqube scheduler to handle scheduled tasks
         scheduler.start_scheduler()
 
+    def SERVING(self, port):
         # Register the Kolibri zeroconf service so it will be discoverable on the network
         from kolibri.core.discovery.utils.network.search import (
             register_zeroconf_service,
         )
 
-        register_zeroconf_service(port=self.port)
+        register_zeroconf_service(port=port or self.port)
 
-    def stop(self):
+    def STOP(self):
         scheduler.shutdown_scheduler()
         if self.workers is not None:
             for worker in self.workers:
@@ -127,229 +274,335 @@ class ServicesPlugin(SimplePlugin):
                 worker.shutdown(wait=True)
 
 
-def _rm_pid_file(pid_file):
-    try:
-        os.unlink(pid_file)
-    except OSError:
-        pass
+status_map = {
+    "ENTER": STATUS_STARTING_UP,
+    "START": STATUS_STARTING_UP,
+    "START_ERROR": STATUS_FAILED_TO_START,
+    "RUN": STATUS_RUNNING,
+    "STOP": STATUS_SHUTTING_DOWN,
+    "STOP_ERROR": STATUS_UNCLEAN_SHUTDOWN,
+    "IDLE": STATUS_STARTING_UP,
+    "EXIT": STATUS_STOPPED,
+    "EXIT_ERROR": STATUS_UNCLEAN_SHUTDOWN,
+}
+
+IS_RUNNING = set([STATUS_RUNNING, STATUS_STARTING_UP, STATUS_SHUTTING_DOWN])
 
 
-class CleanUpPIDPlugin(SimplePlugin):
-    def start(self):
-        _rm_pid_file(STARTUP_LOCK)
+class PIDPlugin(SimplePlugin):
+    def __init__(self, bus, port, zip_port, pid_file=PID_FILE):
+        self.bus = bus
+        self.port = port
+        self.zip_port = zip_port
+        self.pid_file = pid_file
+        # Do this during initialization to set a startup lock
+        self.set_pid_file(STATUS_STARTING_UP)
+        self.bus.subscribe("SERVING", self.SERVING)
+        self.bus.subscribe("ZIP_SERVING", self.ZIP_SERVING)
+        for bus_status, status in status_map.items():
+            handler = partial(self.set_pid_file, status)
+            handler.priority = 10
+            self.bus.subscribe(bus_status, handler)
 
-    def exit(self):
-        _rm_pid_file(PID_FILE)
+    def set_pid_file(self, status):
+        """
+        Writes a PID file in the format Kolibri parses
+
+        :param: status: status of the process
+        """
+        with open(self.pid_file, "w") as f:
+            f.write(
+                "{}\n{}\n{}\n{}\n".format(os.getpid(), self.port, self.zip_port, status)
+            )
+
+    def SERVING(self, port):
+        self.port = port or self.port
+        self.set_pid_file(STATUS_RUNNING)
+
+    def ZIP_SERVING(self, zip_port):
+        self.zip_port = zip_port or self.zip_port
+        self.set_pid_file(STATUS_RUNNING)
+
+    def EXIT(self):
+        try:
+            os.unlink(self.pid_file)
+        except OSError:
+            pass
 
 
-def start(port=8080, serve_http=True):
+class DaemonizePlugin(SimplePlugin):
+    def ENTER(self):
+        self.bus.publish("log", "Running Kolibri as background process", 20)
+        # Daemonize at this point, no more user output is needed
+        from django.conf import settings
+
+        kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
+        self.bus.publish(
+            "log", "Going to background mode, logging to {0}".format(kolibri_log), 20
+        )
+
+        kwargs = {}
+        # Truncate the file
+        if os.path.isfile(DAEMON_LOG):
+            open(DAEMON_LOG, "w").truncate()
+        kwargs["out_log"] = DAEMON_LOG
+        kwargs["err_log"] = DAEMON_LOG
+
+        become_daemon(**kwargs)
+
+    # Set this to priority 0 so that it gets executed before any other ENTER handlers.
+    ENTER.priority = 0
+
+
+class LogPlugin(SimplePlugin):
+    def log(self, msg, level):
+        logger.log(level, msg)
+
+
+class SignalHandler(BaseSignalHandler):
+    def __init__(self, bus):
+        super(SignalHandler, self).__init__(bus)
+        self.process_pid = None
+
+        self.handlers.update(
+            {
+                "SIGINT": self.handle_SIGTERM,
+                "CTRL_C_EVENT": self.handle_SIGTERM,
+                "CTRL_BREAK_EVENT": self.handle_SIGTERM,
+            }
+        )
+
+    def _handle_signal(self, signum=None, frame=None):
+        if self.process_pid is None:
+            return super(SignalHandler, self)._handle_signal(signum, frame)
+        if os.getpid() == self.process_pid:
+            return super(SignalHandler, self)._handle_signal(signum, frame)
+
+    def ENTER(self):
+        self.process_pid = os.getpid()
+
+
+def wait_for_status(target, timeout=10):
+    starttime = time.time()
+    while time.time() - starttime <= 10:
+        _, _, _, status = _read_pid_file(PID_FILE)
+        if status != target:
+            time.sleep(0.1)
+        else:
+            break
+
+
+def stop():
     """
-    Starts the server.
-
-    :param: port: Port number (default: 8080)
-    """
-    # Write the new PID
-    # Note: to prevent a race condition on some setups, this needs to happen first
-    _write_pid_file(PID_FILE, port=port)
-
-    logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
-
-    run_server(port=port, serve_http=serve_http)
-
-
-def stop(pid=None, force=False):
-    """
-    Stops the kolibri server, either from PID or through a management command
-
-    :param args: List of options to parse to the django management command
+    Stops the kolibri server
     :raises: NotRunning
     """
+    pid, __, __, status = _read_pid_file(PID_FILE)
 
-    if not force:
-        # Kill the Kolibri server
-        kill_pid(pid)
-    else:
-        try:
-            pid, __ = _read_pid_file(PID_FILE)
-            kill_pid(pid)
-        except ValueError:
-            logger.error("Could not find PID in .pid file\n")
-        except OSError:
-            logger.error("Could not read .pid file\n")
+    if not pid:
+        return status
 
-    # TODO: Check that server has in fact been killed, otherwise we should
-    # raise an error...
-
-
-def calculate_cache_size():
-    """
-    Returns the default value for CherryPY memory cache:
-    - value between 50MB and 250MB
-    """
-    MIN_CACHE = 50000000
-    MAX_CACHE = 250000000
-    if psutil:
-        MIN_MEM = 1
-        MAX_MEM = 4
-        total_memory = psutil.virtual_memory().total / pow(2, 30)  # in Gb
-        # if it's in the range, scale thread count linearly with available memory
-        if MIN_MEM < total_memory < MAX_MEM:
-            return MIN_CACHE + int(
-                (MAX_CACHE - MIN_CACHE)
-                * float(total_memory - MIN_MEM)
-                / (MAX_MEM - MIN_MEM)
-            )
-        # otherwise return either the min or max amount
-        return MAX_CACHE if total_memory >= MAX_MEM else MIN_CACHE
-    elif sys.platform.startswith(
-        "darwin"
-    ):  # Considering MacOS has at least 4 Gb of RAM
-        return MAX_CACHE
-    return MIN_CACHE
+    kill_pid(pid)
+    wait_for_status(STATUS_STOPPED)
+    if pid_exists(pid):
+        logger.debug(
+            "Process wth pid %s still exists after soft kill signal; attempting a SIGKILL."
+            % pid
+        )
+        os.kill(pid, signal.SIGKILL)
+    starttime = time.time()
+    while time.time() - starttime <= 10:
+        if pid_exists(pid):
+            time.sleep(0.1)
+        else:
+            break
+    if pid_exists(pid):
+        logger.debug(
+            "Process wth pid %s still exists after soft kill signal; attempting a SIGKILL."
+            % pid
+        )
+        os.kill(pid, signal.SIGKILL)
+    if pid_exists(pid):
+        logging.error("Kolibri process has failed to shutdown")
+        return STATUS_UNCLEAN_SHUTDOWN
+    return STATUS_STOPPED
 
 
-def configure_http_server(port):
-    # Mount the application
+def configure_http_server(port, zip_port, bus):
     from kolibri.deployment.default.wsgi import application
     from kolibri.deployment.default.alt_wsgi import alt_application
 
-    cherrypy.tree.graft(application, "/")
-
-    cherrypy_server_config = {
-        "server.socket_host": LISTEN_ADDRESS,
-        "server.socket_port": port,
-        "server.thread_pool": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
-        "server.socket_timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
-        "server.accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
-        "server.accepted_queue_timeout": conf.OPTIONS["Server"][
-            "CHERRYPY_QUEUE_TIMEOUT"
-        ],
+    server_config = {
+        "numthreads": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
+        "request_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+        "timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
+        "accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+        "accepted_queue_timeout": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_TIMEOUT"],
     }
 
-    # Configure the server
-    cherrypy.config.update(cherrypy_server_config)
+    kolibri_address = (LISTEN_ADDRESS, port)
+
+    kolibri_server = KolibriServerPlugin(
+        bus,
+        httpserver=Server(kolibri_address, application, **server_config),
+        bind_addr=kolibri_address,
+    )
 
     alt_port_addr = (
         LISTEN_ADDRESS,
-        conf.OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
+        zip_port,
     )
 
-    alt_port_server = ServerAdapter(
-        cherrypy.engine,
-        wsgi.Server(
-            alt_port_addr,
-            alt_application,
-            numthreads=conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
-            request_queue_size=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
-            timeout=conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
-            accepted_queue_size=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
-            accepted_queue_timeout=conf.OPTIONS["Server"]["CHERRYPY_QUEUE_TIMEOUT"],
-        ),
-        alt_port_addr,
+    alt_port_server = ZipContentServerPlugin(
+        bus,
+        httpserver=Server(alt_port_addr, alt_application, **server_config),
+        bind_addr=alt_port_addr,
     )
     # Subscribe these servers
-    cherrypy.server.subscribe()
+    kolibri_server.subscribe()
     alt_port_server.subscribe()
 
 
-def run_server(port, serve_http=True):
-    # Unsubscribe the default server
-    cherrypy.server.unsubscribe()
+def background_port_check(port, zip_port):
+    # Do this before daemonization, otherwise just let the server processes handle this
+    # In case that something other than Kolibri occupies the port,
+    # check the port's availability.
+    # Bypass check when socket activation is used
+    # https://manpages.debian.org/testing/libsystemd-dev/sd_listen_fds.3.en.html#ENVIRONMENT
+    # Also bypass when the port is 0, as that will choose a port
+    port = int(port)
+    zip_port = int(zip_port)
+    if (
+        not os.environ.get("LISTEN_PID", None)
+        and port
+        and not check_port_availability(LISTEN_ADDRESS, port)
+    ):
+        # Port is occupied
+        logger.error(
+            "Port {} is occupied.\n"
+            "Please check that you do not have other processes "
+            "running on this port and try again.\n".format(port)
+        )
+        sys.exit(1)
+    if (
+        not os.environ.get("LISTEN_PID", None)
+        and zip_port
+        and not check_port_availability(LISTEN_ADDRESS, zip_port)
+    ):
+        # Port is occupied
+        logger.error(
+            "Port {} is occupied.\n"
+            "Please check that you do not have other processes "
+            "running on this port and try again.\n".format(zip_port)
+        )
+        sys.exit(1)
+    if port:
+        __, urls = get_urls(listen_port=port)
+        for url in urls:
+            logger.info("Kolibri running on: {}".format(url))
+    else:
+        logger.info(
+            "No port specified, for information about accessing the server, run kolibri status"
+        )
 
-    # Turn off the auto reloader
-    cherrypy.engine.unsubscribe("graceful", cherrypy.log.reopen_files)
 
-    cherrypy.config.update(
-        {
-            "engine.autoreload.on": getattr(settings, "DEVELOPER_MODE", False),
-            "checker.on": False,
-            "request.show_tracebacks": False,
-            "request.show_mismatched_params": False,
-            "tools.expires.on": True,
-            "tools.expires.secs": 31536000,
-            "tools.caching.on": True,
-            "tools.caching.maxobj_size": 2000000,
-            "tools.caching.maxsize": calculate_cache_size(),
-            "tools.log_headers.on": False,
-            "log.screen": False,
-            "log.access_file": "",
-            "log.error_file": "",
-        }
-    )
+def start(port=0, zip_port=0, serve_http=True, background=False):
+    """
+    Starts the server.
 
-    if serve_http:
-        configure_http_server(port)
+    :param: port: Port number (default: 0) - assigned by free port
+    """
+    port = int(port)
+    zip_port = int(zip_port)
+    # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
+    # a better fix. See https://github.com/learningequality/kolibri/issues/4821
+    if sys.platform == "darwin":
+        background = False
 
-    # Setup plugin for services
-    service_plugin = ServicesPlugin(cherrypy.engine, port)
-    service_plugin.subscribe()
+    # Check if there are other kolibri instances running
+    # If there are, then we need to stop users from starting kolibri again.
+    _, _, _, status = _read_pid_file(PID_FILE)
+
+    if status in IS_RUNNING:
+        logger.error(
+            "There is another Kolibri server running. "
+            "Please use `kolibri stop` and try again."
+        )
+        sys.exit(1)
+
+    bus = ProcessBus()
 
     # Setup plugin for handling PID file cleanup
-    pid_plugin = CleanUpPIDPlugin(cherrypy.engine)
+    # Do this first to obtain a PID file lock as soon as
+    # possible and reduce the risk of competing servers
+    pid_plugin = PIDPlugin(bus, port, zip_port)
     pid_plugin.subscribe()
 
-    process_pid = os.getpid()
+    if background and serve_http:
+        background_port_check(port, zip_port)
 
-    original_handler = cherrypy.engine.signal_handler._handle_signal
+    logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
 
-    def handler(signum, frame):
-        if os.getpid() == process_pid:
-            original_handler(signum, frame)
+    if background:
+        daemonize_plugin = DaemonizePlugin(bus)
+        daemonize_plugin.subscribe()
 
-    cherrypy.engine.signal_handler._handle_signal = handler
+    log_plugin = LogPlugin(bus)
+    log_plugin.subscribe()
 
-    cherrypy.engine.signal_handler.handlers.update(
-        {
-            "SIGINT": cherrypy.engine.exit,
-            "CTRL_C_EVENT": cherrypy.engine.exit,
-            "CTRL_BREAK_EVENT": cherrypy.engine.exit,
-        }
-    )
+    if serve_http:
+        configure_http_server(port, zip_port, bus)
 
-    cherrypy.engine.signals.subscribe()
+    # Setup plugin for services
+    service_plugin = ServicesPlugin(bus, port)
+    service_plugin.subscribe()
 
-    # Start the server engine (Option 1 *and* 2)
-    cherrypy.engine.start()
-    cherrypy.engine.block()
+    signal_handler = SignalHandler(bus)
+
+    signal_handler.subscribe()
+
+    if getattr(settings, "DEVELOPER_MODE", False):
+        autoreloader = Autoreloader(bus)
+        autoreloader.subscribe()
+
+    bus.graceful()
+    if not serve_http:
+        bus.publish("SERVING", None)
+
+    bus.block()
 
 
 def _read_pid_file(filename):
     """
     Reads a pid file and returns the contents. PID files have 1 or 2 lines;
      - first line is always the pid
-     - optional second line is the port the server is listening on.
+     - second line is the port the server is listening on.
+     - third line is the status of the server process
 
     :param filename: Path of PID to read
-    :return: (pid, port): with the PID in the file and the port number
+    :return: (pid, port, status): with the PID in the file and the port number
                           if it exists. If the port number doesn't exist, then
                           port is None.
     """
-    pid_file_lines = open(filename, "r").readlines()
+    if not os.path.isfile(PID_FILE):
+        return None, None, None, STATUS_STOPPED
 
-    if len(pid_file_lines) == 2:
-        pid, port = pid_file_lines
-        pid, port = int(pid), int(port)
-    elif len(pid_file_lines) == 1:
-        # The file only had one line
-        pid, port = int(pid_file_lines[0]), None
-    else:
-        raise ValueError("PID file must have 1 or two lines")
+    try:
+        pid_file_lines = open(filename, "r").readlines()
+        pid, port, zip_port, status = pid_file_lines
+        pid = int(pid.strip())
+        port = int(port.strip()) if port.strip() else None
+        zip_port = int(zip_port.strip()) if zip_port.strip() else None
+        status = int(status.strip())
+        return pid, port, zip_port, status
+    except (TypeError, ValueError, IOError, OSError):
+        pass
+    return None, None, None, STATUS_PID_FILE_INVALID
 
-    return pid, port
 
-
-def _write_pid_file(filename, port=None):
-    """
-    Writes a PID file in the format Kolibri parses
-
-    :param: filename: Path of file to write
-    :param: port: Listening port number which the server is assigned
-    """
-
-    with open(filename, "w") as f:
-        f.write("%d\n" % os.getpid())
-        if port is not None:
-            f.write("%d" % port)
+def get_zip_port():
+    _, _, zip_port, _ = _read_pid_file(PID_FILE)
+    return zip_port
 
 
 def get_status():  # noqa: max-complexity=16
@@ -365,35 +618,27 @@ def get_status():  # noqa: max-complexity=16
         listening on several IPs.
     :raises: NotRunning
     """
-
-    # Check if the system is still starting (clear sessions and vacuum not finished yet):
-    if os.path.isfile(STARTUP_LOCK):
-        try:
-            pid, port = _read_pid_file(STARTUP_LOCK)
-            # Does the PID in there still exist?
-            if pid_exists(pid):
-                raise NotRunning(STATUS_STARTING_UP)
-            # It's dead so assuming the startup went badly
-            else:
-                raise NotRunning(STATUS_FAILED_TO_START)
-        # Couldn't parse to int or empty PID file
-        except (TypeError, ValueError):
-            raise NotRunning(STATUS_STOPPED)
-
-    if not os.path.isfile(PID_FILE):
-        # There is no PID file (created by server daemon)
-        raise NotRunning(STATUS_STOPPED)  # Stopped
-
     # PID file exists and startup has finished, check if it is running
-    try:
-        pid, port = _read_pid_file(PID_FILE)
-    except (ValueError, OSError):
-        raise NotRunning(STATUS_PID_FILE_INVALID)  # Invalid PID file
+    pid, port, _, status = _read_pid_file(PID_FILE)
+
+    if status not in IS_RUNNING:
+        raise NotRunning(status)
+
+    if status == STATUS_STARTING_UP:
+        try:
+            wait_for_occupied_port(LISTEN_ADDRESS, port)
+        except OSError:
+            raise NotRunning(STATUS_FAILED_TO_START)
+
+    if status == STATUS_SHUTTING_DOWN:
+        try:
+            wait_for_free_port(LISTEN_ADDRESS, port)
+        except OSError:
+            raise NotRunning(STATUS_UNCLEAN_SHUTDOWN)
+        raise NotRunning(STATUS_STOPPED)
 
     # PID file exists, but process is dead
     if pid is None or not pid_exists(pid):
-        if os.path.isfile(STARTUP_LOCK):
-            raise NotRunning(STATUS_FAILED_TO_START)  # Failed to start
         raise NotRunning(STATUS_UNCLEAN_SHUTDOWN)  # Unclean shutdown
 
     listen_port = port
@@ -417,8 +662,6 @@ def get_status():  # noqa: max-complexity=16
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
             raise NotRunning(STATUS_NOT_RESPONDING)
         except (requests.exceptions.RequestException):
-            if os.path.isfile(STARTUP_LOCK):
-                raise NotRunning(STATUS_STARTING_UP)  # Starting up
             raise NotRunning(STATUS_UNCLEAN_SHUTDOWN)
 
         if response.status_code == 404:

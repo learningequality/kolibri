@@ -208,7 +208,7 @@ def path_list(value):
 
 
 def validate_port_number(value):
-    if 1 <= value <= 65535:
+    if 0 <= value <= 65535:
         return value
     raise VdtValueError(value)
 
@@ -418,7 +418,7 @@ base_option_spec = {
         },
         "ZIP_CONTENT_PORT": {
             "type": "port",
-            "default": 8765,
+            "default": 0,
             "envvars": ("KOLIBRI_ZIP_CONTENT_PORT",),
         },
         "ZIP_CONTENT_URL_PATH_PREFIX": {

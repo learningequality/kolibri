@@ -3,7 +3,7 @@
 MAX=0
 for i in $(seq 1 $2)
 do
-  kolibri start --port=$3 > /dev/null 2>&1
+  kolibri start --port=$3 --zip-port=$4 > /dev/null 2>&1
   START_TIME=$SECONDS
   kolibri stop > /dev/null 2>&1
   ELAPSED_TIME=$(($SECONDS - $START_TIME))
