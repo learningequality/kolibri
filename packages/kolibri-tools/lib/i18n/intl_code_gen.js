@@ -41,7 +41,7 @@ const vueIntlFooter = `
 const vueIntlModule =
   commonHeader + vueIntlHeader + languageInfo.map(generateVueIntlItems).join('') + vueIntlFooter;
 
-const vueIntlModulePath = path.resolve('./vue-intl-locale-data.js');
+const vueIntlModulePath = path.resolve(__dirname, 'vue-intl-locale-data.js');
 const intlHeader = `module.exports = function(locale) {
   switch (locale) {`;
 
