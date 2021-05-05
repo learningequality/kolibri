@@ -91,13 +91,13 @@
         this.fetchContentCollection(message);
       });
       this.hashi.on('modelrequested', message => {
-        this.fetchContentModel(message).bind(this);
+        this.fetchContentModel.call(this, message);
       });
       this.hashi.on('navigateto', message => {
-        this.navigateTo(message).bind(this);
+        this.navigateTo.call(this, message);
       });
       this.hashi.on('context', message => {
-        this.getOrUpdateContext(message).bind(this);
+        this.getOrUpdateContext.call(this, message);
       });
       this.hashi.on('themechanged', theme => {
         delete theme.message_id;
