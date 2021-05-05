@@ -679,12 +679,12 @@ def generate_empty_options_file(ini_filename="options.ini"):
         if comments is not None:
             conf.comments[section] = comments
         comments = []
-        logging.info(section)
         for optname, attrs in opts.items():
             if not attrs.get("skip_blank", False):
                 if "description" in attrs:
                     comments.extend(attrs["description"].strip().split("\n"))
                 comments.append("{} = {}".format(optname, attrs.get("default", "")))
+                comments.append("")
     conf.final_comment = comments
 
     conf.write()
