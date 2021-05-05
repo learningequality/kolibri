@@ -38,8 +38,6 @@ from django.db.models.query import Q
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
 from morango.models import Certificate
-from morango.models import MorangoMPTTModel
-from morango.models import MorangoMPTTTreeManager
 from morango.models import SyncableModel
 from morango.models import SyncableModelManager
 from mptt.models import TreeForeignKey
@@ -907,7 +905,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
 
 @python_2_unicode_compatible
-class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
+class Collection(AbstractFacilityDataModel):
     """
     ``Collections`` are hierarchical groups of ``FacilityUsers``, used for grouping users and making decisions about permissions.
     ``FacilityUsers`` can have roles for one or more ``Collections``, by way of obtaining ``Roles`` associated with those ``Collections``.
@@ -931,7 +929,7 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
     _KIND = None  # Should be overridden in subclasses to specify what "kind" they are
 
     name = models.CharField(max_length=100)
-    parent = TreeForeignKey(
+    parent = models.ForeignKey(
         "self", null=True, blank=True, related_name="children", db_index=True
     )
     kind = models.CharField(max_length=20, choices=collection_kinds.choices)
@@ -1083,10 +1081,12 @@ class Collection(MorangoMPTTModel, AbstractFacilityDataModel):
         Membership.objects.filter(user=user, collection=self).delete()
 
     def infer_dataset(self, *args, **kwargs):
+        if self.dataset_id:
+            return self.dataset_id
         if self.parent:
             # subcollections inherit dataset from root of their tree
             # (we can't call `get_root` directly on self, as it won't work if self hasn't yet been saved)
-            return self.parent.get_root().dataset_id
+            return self.parent.dataset_id
         else:
             # the root node (i.e. Facility) must be explicitly tied to a dataset
             return None
@@ -1292,7 +1292,7 @@ class Role(AbstractFacilityDataModel):
             return super(Role, self).delete(**kwargs)
 
 
-class CollectionProxyManager(MorangoMPTTTreeManager):
+class CollectionProxyManager(SyncableModelManager):
     def get_queryset(self):
         return (
             super(CollectionProxyManager, self)
