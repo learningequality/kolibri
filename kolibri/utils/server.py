@@ -19,6 +19,7 @@ from magicbus.plugins.servers import wait_for_free_port
 from magicbus.plugins.servers import wait_for_occupied_port
 from magicbus.plugins.signalhandler import SignalHandler as BaseSignalHandler
 from magicbus.plugins.tasks import Autoreloader
+from magicbus.plugins.tasks import Monitor
 from zeroconf import get_all_addresses
 
 import kolibri
@@ -63,6 +64,9 @@ PROFILE_LOCK = os.path.join(conf.KOLIBRI_HOME, "server_profile.lock")
 
 # File used to store previously available ports
 PORT_CACHE = os.path.join(conf.KOLIBRI_HOME, "port_cache")
+
+# File used to flag a restart is required
+RESET_FLAG = os.path.join(conf.KOLIBRI_HOME, "reset.flag")
 
 # This is a special file with daemon activity. It logs ALL stderr output, some
 # might not have made it to the log file!
@@ -395,6 +399,26 @@ class SignalHandler(BaseSignalHandler):
         self.process_pid = os.getpid()
 
 
+class RestartPlugin(Monitor):
+    def __init__(self, bus):
+        self.mtime = self.get_mtime()
+        Monitor.__init__(self, bus, self.run, 1)
+
+    def get_mtime(self):
+        try:
+            return os.stat(RESET_FLAG).st_mtime
+        except OSError:
+            return 0
+
+    def run(self):
+        mtime = self.get_mtime()
+        if mtime > self.mtime:
+            # The file has been deleted or modified.
+            self.bus.log("Restarting server.")
+            self.thread.cancel()
+            self.bus.restart()
+
+
 def wait_for_status(target, timeout=10):
     starttime = time.time()
     while time.time() - starttime <= 10:
@@ -402,7 +426,8 @@ def wait_for_status(target, timeout=10):
         if status != target:
             time.sleep(0.1)
         else:
-            break
+            return True
+    return False
 
 
 def stop():
@@ -580,11 +605,24 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
         autoreloader = Autoreloader(bus)
         autoreloader.subscribe()
 
+    reload_plugin = RestartPlugin(bus)
+    reload_plugin.subscribe()
+
     bus.graceful()
     if not serve_http:
         bus.publish("SERVING", None)
 
     bus.block()
+
+
+def restart():
+    try:
+        os.utime(RESET_FLAG, None)
+    except (OSError, IOError):
+        open(RESET_FLAG, "a").close()
+    if not wait_for_status(STATUS_STOPPED):
+        return False
+    return wait_for_status(STATUS_RUNNING)
 
 
 def _read_pid_file(filename):

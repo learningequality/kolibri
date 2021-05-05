@@ -331,6 +331,18 @@ def services(port, background):
     server.start(port=port, zip_port=None, serve_http=False, background=background)
 
 
+@main.command(cls=KolibriCommand, help="Restart the Kolibri process")
+def restart():
+    """
+    Restarts the server if it is running
+    """
+    if server.restart():
+        logger.info("Kolibri has successfully restarted")
+        sys.exit(0)
+    logger.info("Kolibri has failed to restart - confirm that the server is running")
+    sys.exit(1)
+
+
 @main.command(
     cls=KolibriDjangoCommand,
     context_settings=dict(ignore_unknown_options=True, allow_extra_args=True),
