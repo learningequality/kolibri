@@ -71,7 +71,11 @@
       streak: 'Get {count, number, integer} questions in a row correct',
       mOfN: 'Get {M, number, integer} of the last {N, number, integer} questions correct',
       doAll: 'Get every question correct',
-      unknown: 'Unknown mastery model',
+      unknown: {
+        message: 'Unknown mastery model',
+        context:
+          "Mastery model refers to the 'number of correct answers that need to be given by learners' for an exercise to be considered \"mastered\". This particular one (unknown) tries to cover for cases when the mastery is not clearly defined as 'answered X of Y questions'.",
+      },
     },
   };
 
