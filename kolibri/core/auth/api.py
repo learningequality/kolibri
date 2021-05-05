@@ -436,7 +436,10 @@ class ClassroomFilter(FilterSet):
         if value == role_kinds.COACH:
             roles = roles.filter(kind=value)
 
-        return queryset.filter(id__in=roles.values("collection_id"))
+        return queryset.filter(
+            Q(id__in=roles.values("collection_id"))
+            | Q(parent_id__in=roles.values("collection_id"))
+        )
 
     class Meta:
         model = Classroom
