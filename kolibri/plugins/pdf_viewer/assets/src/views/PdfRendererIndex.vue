@@ -116,7 +116,6 @@
       currentLocation: 0,
       updateContentStateInterval: null,
       showControls: true,
-      visitedPages: [],
     }),
     computed: {
       // Returns whether or not the current device is iOS.
@@ -146,6 +145,12 @@
           return this.extraFields.contentState.savedLocation;
         }
         return 0;
+      },
+      visitedPages() {
+        if (this.extraFields && this.extraFields.contentState) {
+          return this.extraFields.contentState.visitedPages;
+        }
+        return [];
       },
       fullscreenText() {
         return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
@@ -369,12 +374,12 @@
           contentState = {
             ...this.extraFields.contentState,
             savedLocation: this.currentLocation || this.savedLocation,
-            visitedPages: this.visitedPages.length,
+            visitedPages: this.visitedPages,
           };
         } else {
           contentState = {
             savedLocation: this.currentLocation || this.savedLocation,
-            visitedPages: this.visitedPages.length,
+            visitedPages: this.visitedPages,
           };
         }
         this.$emit('updateContentState', contentState);
