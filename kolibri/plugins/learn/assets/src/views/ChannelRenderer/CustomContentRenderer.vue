@@ -34,7 +34,7 @@
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
   import { now } from 'kolibri.utils.serverClock';
-  import { ContentNodeResource } from 'kolibri.resources';
+  import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
   import { events } from 'hashi/src/hashiBase';
   import { validateTheme } from '../../utils/themes';
@@ -148,11 +148,42 @@
       },
 
       fetchSearchResult(message) {
-        this.hashi.mediator.sendMessage({
+        const newMessage = {
           nameSpace: 'hashi',
           event: events.KOLIBRIDATARETURNED,
-          data: { ...message, status: 'success', type: 'response' },
-        });
+          data: { ...message, type: 'response' },
+        };
+        let searchPromise;
+        const { keyword } = message.options;
+        if (!keyword) {
+          searchPromise = Promise.resolve({
+            page: 0,
+            pageSize: 0,
+            results: [],
+          });
+        } else {
+          searchPromise = ContentNodeSearchResource.fetchCollection({
+            getParams: { search: keyword },
+          }).then(searchResults => {
+            return {
+              page: 0,
+              pageSize: searchResults.total_results,
+              results: searchResults.results,
+            };
+          });
+        }
+
+        searchPromise
+          .then(response => {
+            newMessage.data.data = response;
+            newMessage.data.status = 'success';
+            this.hashi.mediator.sendMessage(newMessage);
+          })
+          .catch(err => {
+            newMessage.data.data = err;
+            newMessage.data.status = 'failure';
+            this.hashi.mediator.sendMessage(newMessage);
+          });
       },
 
       navigateTo(message) {
