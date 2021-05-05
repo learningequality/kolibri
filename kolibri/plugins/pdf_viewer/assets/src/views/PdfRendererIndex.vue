@@ -116,6 +116,7 @@
       currentLocation: 0,
       updateContentStateInterval: null,
       showControls: true,
+      visitedPages: [],
     }),
     computed: {
       // Returns whether or not the current device is iOS.
@@ -242,8 +243,10 @@
         }
         this.$emit('startTracking');
         this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
-        // Automatically master after the targetTime, convert seconds -> milliseconds
-        this.timeout = setTimeout(this.updateProgress, this.targetTime * 1000);
+        if (this.forceTimeBasedProgress) {
+          // Automatically master after the targetTime, convert seconds -> milliseconds
+          this.timeout = setTimeout(this.updateProgress, this.targetTime * 1000);
+        }
       });
     },
     beforeDestroy() {
@@ -277,6 +280,13 @@
           });
         }
       },
+      listVisitedPages(pageNum) {
+        let visited = this.visitedPages;
+        if (!visited.includes(pageNum)) {
+          visited.push(pageNum);
+        }
+        return visited;
+      },
       // handle the recycle list update event
       handleUpdate: debounce(function(start, end) {
         // check that it is mounted
@@ -301,6 +311,10 @@
         } else {
           // TODO: there is a miscalculation that causes a wrong position change on scale
           this.savePosition(this.calculatePosition());
+
+          // determine how many pages user has viewed/visited
+          let currentPage = parseInt(this.currentLocation * this.totalPages) + 1;
+          this.listVisitedPages(currentPage);
           this.updateContentState();
         }
         const startIndex = Math.floor(start) + 1;
@@ -341,7 +355,13 @@
         this.$refs.recycleList.updateVisibleItems(false);
       },
       updateProgress() {
-        this.$emit('updateProgress', this.durationBasedProgress);
+        if (this.forceTimeBasedProgress) {
+          // update progress using total time user has spent on the pdf
+          this.$emit('updateProgress', this.durationBasedProgress);
+        } else {
+          // update progress using number of pages seen out of available pages
+          this.$emit('updateProgress', this.visitedPages.length / this.totalPages);
+        }
       },
       updateContentState() {
         let contentState;
@@ -349,9 +369,13 @@
           contentState = {
             ...this.extraFields.contentState,
             savedLocation: this.currentLocation || this.savedLocation,
+            visitedPages: this.visitedPages.length,
           };
         } else {
-          contentState = { savedLocation: this.currentLocation || this.savedLocation };
+          contentState = {
+            savedLocation: this.currentLocation || this.savedLocation,
+            visitedPages: this.visitedPages.length,
+          };
         }
         this.$emit('updateContentState', contentState);
       },
