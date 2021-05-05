@@ -1,5 +1,5 @@
 import uuidv4 from 'uuid/v4';
-import { events } from './hashiBase';
+import { events, MessageStatuses } from './hashiBase';
 
 function isUndefined(x) {
   return typeof x === 'undefined';
@@ -55,9 +55,9 @@ class Mediator {
       let self = this;
       function handler(message) {
         if (message.message_id === msgId && message.type === 'response') {
-          if (message.status == 'success') {
+          if (message.status == MessageStatuses.SUCCESS) {
             resolve(message.data);
-          } else if (message.status === 'failure' && message.err) {
+          } else if (message.status === MessageStatuses.FAILURE && message.err) {
             reject(message.err);
           } else {
             // Otherwise something unspecified happened

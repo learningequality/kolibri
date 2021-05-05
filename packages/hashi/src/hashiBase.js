@@ -21,4 +21,9 @@ export const DataTypes = {
   COLLECTION: 'Collection',
 };
 
+export const MessageStatuses = {
+  FAILURE: 'failure',
+  SUCCESS: 'success',
+};
+
 export const nameSpace = 'hashi';

@@ -36,7 +36,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
-  import { events } from 'hashi/src/hashiBase';
+  import { events, MessageStatuses } from 'hashi/src/hashiBase';
   import { validateTheme } from '../../utils/themes';
   import ContentModal from './ContentModal';
 
@@ -118,7 +118,7 @@
           getParams.parent = this.topic.id;
         }
         ContentNodeResource.fetchCollection({ getParams }).then(contentNodes => {
-          message.status = contentNodes ? 'success' : 'failure';
+          message.status = contentNodes ? MessageStatuses.SUCCESS : MessageStatuses.FAILURE;
           let response = {};
           response.page = message.options.page ? message.options.page : 1;
           response.pageSize = message.options.pageSize ? message.options.pageSize : 50;
@@ -136,7 +136,7 @@
       fetchContentModel(message) {
         let id = message.id;
         ContentNodeResource.fetchModel({ id }).then(contentNode => {
-          message.status = contentNode ? 'success' : 'failure';
+          message.status = contentNode ? MessageStatuses.SUCCESS : MessageStatuses.FAILURE;
           message.data = contentNode;
           message.type = 'response';
           this.hashi.mediator.sendMessage({
@@ -176,12 +176,12 @@
         searchPromise
           .then(response => {
             newMessage.data.data = response;
-            newMessage.data.status = 'success';
+            newMessage.data.status = MessageStatuses.SUCCESS;
             this.hashi.mediator.sendMessage(newMessage);
           })
           .catch(err => {
             newMessage.data.data = err;
-            newMessage.data.status = 'failure';
+            newMessage.data.status = MessageStatuses.FAILURE;
             this.hashi.mediator.sendMessage(newMessage);
           });
       },
