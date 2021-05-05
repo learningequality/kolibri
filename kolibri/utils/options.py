@@ -196,9 +196,9 @@ base_option_spec = {
             "options": ("memory", "redis"),
             "default": "memory",
             "description": """
-                Which backend to use for the main cache - if memory is selected, then for most cache operations,
-                an in memory, process local cache will be used, but a disk based cache will be used for some data
-                that needs to be persistent across processes. If Redis is used, it is used for all caches.
+                Which backend to use for the main cache - if 'memory' is selected, then for most cache operations,
+                an in-memory, process-local cache will be used, but a disk based cache will be used for some data
+                that needs to be persistent across processes. If 'redis' is used, it is used for all caches.
             """,
         },
         "CACHE_TIMEOUT": {
@@ -265,7 +265,7 @@ base_option_spec = {
             "type": "option",
             "options": ("sqlite", "postgres"),
             "default": "sqlite",
-            "description": "Which database backend to use, choices are sqlite or postgresql",
+            "description": "Which database backend to use, choices are 'sqlite' or 'postgresql'",
         },
         "DATABASE_NAME": {
             "type": "string",
@@ -308,9 +308,9 @@ base_option_spec = {
             "description": """
                 How long a socket should wait for data flow to resume before
                 it considers that the connection has been interrupted.
-                Increasing this may help in situations where there is high latency on a network,
-                or the bandwidth is bursty, and it is expected that data flow may be interrupted
-                but not indicative of the connection failing.
+                Increasing this may help in situations where there is high
+                latency on a network or the bandwidth is bursty, with some
+                expected data flow interruptions which may not be indicative of the connection failing.
             """,
         },
         "CHERRYPY_QUEUE_SIZE": {
@@ -353,7 +353,7 @@ base_option_spec = {
             "description": """
                 The directory that will store content files and content database files.
                 To change this in a currently active server it is recommended to use the
-                content movedirectory management command.
+                'content movedirectory' management command.
             """,
         },
         "CONTENT_FALLBACK_DIRS": {
@@ -410,31 +410,31 @@ base_option_spec = {
             "type": "language_list",
             "default": SUPPORTED_LANGUAGES,
             "description": """
-                The languages that this Kolibri should enable. The default is all the languages that Kolibri supports.
-                Can either be a single language code, or a comma separated list of language codes.
+                The user interface languages to enable on this instance of Kolibri (has no effect on languages of imported content channels).
+                The default will include all the languages Kolibri supports.
             """,
         },
         "ZIP_CONTENT_ORIGIN": {
             "type": "origin_or_port",
             "default": "",
             "description": """
-                When running in default operation, this will default to blank, and the Kolibri
-                frontend will look for the zipcontent endpoints on the same domain as Kolibri proper
-                but using ZIP_CONTENT_PORT instead of HTTP_PORT.
-                When running behind a proxy, this value should be set to the port that the zipcontent
-                endpoint is being served on, this will be substituted for the port that Kolibri proper
-                is being served on.
-                If zipcontent is being served from a completely separate domain this can be the absolute
-                origin (full protocol plus domain, e.g. 'https://myzipcontent.com/') which will then
-                be used for all zipcontent origin requests.
+                When running by default (value blank), Kolibri frontend looks for the zipcontent endpoints
+                on the same domain as Kolibri proper, but uses ZIP_CONTENT_PORT instead of HTTP_PORT.
+                When running behind a proxy, set the value to the port where zipcontent endpoint is served on,
+                and it will be substituted for the port that Kolibri proper is being served on.
+                When zipcontent is being served from a completely separate domain, you can set an
+                absolute origin (full protocol plus domain, e.g. 'https://myzipcontent.com/')
+                to be used for all zipcontent origin requests.
             """,
         },
         "ZIP_CONTENT_PORT": {
             "type": "port",
             "default": 0,
             "description": """
-                Sets the port that Kolibri will serve the alternate origin server on. This is the alternate
-                origin server equivalent of HTTP_PORT.
+                Sets the port that Kolibri will serve the alternate origin server on. This is the server that
+                is used to serve all content for the zipcontent endpoint, so as to provide safe IFrame sandboxing
+                but avoiding issues with null origins.
+                This is the alternate origin server equivalent of HTTP_PORT.
             """,
         },
         "ZIP_CONTENT_URL_PATH_PREFIX": {
