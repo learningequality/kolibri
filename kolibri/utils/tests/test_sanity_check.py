@@ -11,12 +11,11 @@ from kolibri.utils.tests.helpers import override_option
 
 
 class SanityCheckTestCase(TestCase):
-    @patch("kolibri.utils.cli.get_version", return_value="")
     @patch("kolibri.utils.sanity_checks.logging.error")
     @override_option(
         "Paths", "CONTENT_DIR", "Z:\\NOTREAL" if sys.platform == "win32" else "/dir_dne"
     )
-    def test_content_dir_dne(self, logging_mock, get_version):
+    def test_content_dir_dne(self, logging_mock):
         with self.assertRaises(SystemExit):
             sanity_checks.check_content_directory_exists_and_writable()
             logging_mock.assert_called()
@@ -29,7 +28,6 @@ class SanityCheckTestCase(TestCase):
             sanity_checks.check_content_directory_exists_and_writable()
             logging_mock.assert_called()
 
-    @patch("kolibri.utils.cli.get_version", return_value="")
     @patch("kolibri.utils.sanity_checks.shutil.move")
     @patch(
         "kolibri.utils.sanity_checks.os.path.exists",
@@ -39,7 +37,7 @@ class SanityCheckTestCase(TestCase):
         # that make the difference to the assert count below.
         side_effect=[True, False, True, False],
     )
-    def test_old_log_file_exists(self, path_exists_mock, move_mock, get_version):
+    def test_old_log_file_exists(self, path_exists_mock, move_mock):
         sanity_checks.check_log_file_location()
         # Check if the number of calls to shutil.move equals to the number of times
         # os.path.exists returns True
