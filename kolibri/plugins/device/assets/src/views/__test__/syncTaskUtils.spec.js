@@ -36,6 +36,20 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
 
   const ALL_STATUSES = Object.keys(syncStatusToDescriptionMap);
 
+  it('displays the correct header for facility-sync tasks', () => {
+    const task = makeTask('RUNNING');
+    task.type = 'SYNCPEER/FULL';
+    const displayInfo = syncFacilityTaskDisplayInfo(task);
+    expect(displayInfo.headingMsg).toEqual("Sync 'generic facility (fac1)'");
+  });
+
+  it('displays the correct header for facility-import tasks', () => {
+    const task = makeTask('RUNNING');
+    task.type = 'SYNCPEER/PULL';
+    const displayInfo = syncFacilityTaskDisplayInfo(task);
+    expect(displayInfo.headingMsg).toEqual("Import 'generic facility (fac1)'");
+  });
+
   it('display title, started by username, and device name are invariant wrt status', () => {
     const task = {
       status: null,

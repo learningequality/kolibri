@@ -96,13 +96,17 @@ const taskStrings = createTranslator('TaskStrings', {
   },
 
   // Import Facility Task strings
+  importFacilityTaskLabel: {
+    message: "Import '{facilityName}'",
+    context: 'Description of import-facility task',
+  },
   importSuccessStatus: {
     message: `'{facilityName}' successfully loaded to this device`,
-    context: '',
+    context: 'Message that shows after Facility is successfully imported',
   },
   importFailedStatus: {
     message: `Could not import '{facilityName}'`,
-    context: '',
+    context: 'Message that shows after Facility fails to import',
   },
 });
 
