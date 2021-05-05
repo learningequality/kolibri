@@ -84,7 +84,7 @@ export default class MainClient {
       }
     });
 
-    this.on(this.events.KOLIBRIDATARETURNED, message => {
+    this.on(this.events.DATARETURNED, message => {
       this.mediator.sendMessage({ nameSpace, event: events.DATARETURNED, data: message });
     });
 

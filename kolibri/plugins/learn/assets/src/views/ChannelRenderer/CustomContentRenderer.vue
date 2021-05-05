@@ -29,7 +29,6 @@
 
 <script>
 
-  import pick from 'lodash/pick';
   import urls from 'kolibri.urls';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
@@ -43,6 +42,22 @@
   const defaultContentHeight = '500px';
   const frameTopbarHeight = '37px';
   const pxStringAdd = (x, y) => parseInt(x, 10) + parseInt(y, 10) + 'px';
+
+  function createReturnMsg({ message, data, err }) {
+    // Infer status from data or err
+    const status = data ? MessageStatuses.SUCCESS : MessageStatuses.FAILURE;
+    return {
+      nameSpace: 'hashi',
+      event: events.DATARETURNED,
+      data: {
+        message_id: message.message_id,
+        type: 'response',
+        data: data || null,
+        err: err || null,
+        status,
+      },
+    };
+  }
 
   export default {
     name: 'CustomContentRenderer',
@@ -112,47 +127,45 @@
       // called in mainClient.js
 
       fetchContentCollection(message) {
-        const options = message.options;
-        const getParams = pick(options, ['ids', 'parent']);
-        if (options.parent && options.parent == 'self') {
-          getParams.parent = this.topic.id;
-        }
-        ContentNodeResource.fetchCollection({ getParams }).then(contentNodes => {
-          message.status = contentNodes ? MessageStatuses.SUCCESS : MessageStatuses.FAILURE;
-          let response = {};
-          response.page = message.options.page ? message.options.page : 1;
-          response.pageSize = message.options.pageSize ? message.options.pageSize : 50;
-          response.results = contentNodes;
-          message.data = response;
-          message.type = 'response';
-          this.hashi.mediator.sendLocalMessage({
-            nameSpace: 'hashi',
-            event: events.KOLIBRIDATARETURNED,
-            data: message,
+        const { options } = message;
+        return ContentNodeResource.fetchCollection({
+          getParams: {
+            ids: options.ids,
+            parent: options.parent === 'self' ? this.topic.id : options.parent,
+          },
+        })
+          .then(contentNodes => {
+            return createReturnMsg({
+              message,
+              data: {
+                page: options.page ? options.page : 1,
+                pageSize: options.pageSize ? options.pageSize : 50,
+                results: contentNodes,
+              },
+            });
+          })
+          .catch(err => {
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendMessage(newMsg);
           });
-        });
       },
 
       fetchContentModel(message) {
-        let id = message.id;
-        ContentNodeResource.fetchModel({ id }).then(contentNode => {
-          message.status = contentNode ? MessageStatuses.SUCCESS : MessageStatuses.FAILURE;
-          message.data = contentNode;
-          message.type = 'response';
-          this.hashi.mediator.sendMessage({
-            nameSpace: 'hashi',
-            event: events.KOLIBRIDATARETURNED,
-            data: message,
+        return ContentNodeResource.fetchModel({ id: message.id })
+          .then(contentNode => {
+            return createReturnMsg({ message, data: contentNode });
+          })
+          .catch(err => {
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendMessage(newMsg);
           });
-        });
       },
 
       fetchSearchResult(message) {
-        const newMessage = {
-          nameSpace: 'hashi',
-          event: events.KOLIBRIDATARETURNED,
-          data: { ...message, type: 'response' },
-        };
         let searchPromise;
         const { keyword } = message.options;
         if (!keyword) {
@@ -173,43 +186,45 @@
           });
         }
 
-        searchPromise
-          .then(response => {
-            newMessage.data.data = response;
-            newMessage.data.status = MessageStatuses.SUCCESS;
-            this.hashi.mediator.sendMessage(newMessage);
+        return searchPromise
+          .then(pageResult => {
+            return createReturnMsg({ message, data: pageResult });
           })
           .catch(err => {
-            newMessage.data.data = err;
-            newMessage.data.status = MessageStatuses.FAILURE;
-            this.hashi.mediator.sendMessage(newMessage);
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendMessage(newMsg);
           });
       },
 
       navigateTo(message) {
         let id = message.nodeId;
         let context = {};
-        ContentNodeResource.fetchModel({ id }).then(contentNode => {
-          let routeBase, path;
-          if (contentNode && contentNode.kind === 'topic') {
-            routeBase = '/topics/t';
-            path = `${routeBase}/${id}`;
-            router.push({ path: path }).catch(() => {});
-          } else if (contentNode) {
-            // in a custom context, launch or maintain overlay
-            this.currentContent = contentNode;
-            this.overlayIsOpen = true;
-            context.node_id = contentNode.id;
-            context.customChannel = true;
-            const encodedContext = encodeURI(JSON.stringify(context));
-            router.replace({ query: { context: encodedContext } }).catch(() => {});
-          }
-          this.hashi.mediator.sendLocalMessage({
-            nameSpace: 'hashi',
-            event: events.KOLIBRIDATARETURNED,
-            data: message,
+        return ContentNodeResource.fetchModel({ id })
+          .then(contentNode => {
+            let routeBase, path;
+            if (contentNode && contentNode.kind === 'topic') {
+              routeBase = '/topics/t';
+              path = `${routeBase}/${id}`;
+              router.push({ path: path }).catch(() => {});
+            } else if (contentNode) {
+              // in a custom context, launch or maintain overlay
+              this.currentContent = contentNode;
+              this.overlayIsOpen = true;
+              context.node_id = contentNode.id;
+              context.customChannel = true;
+              const encodedContext = encodeURI(JSON.stringify(context));
+              router.replace({ query: { context: encodedContext } }).catch(() => {});
+            }
+            return createReturnMsg({ message, data: {} });
+          })
+          .catch(err => {
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendLocalMessage(newMsg);
           });
-        });
       },
       getOrUpdateContext(message) {
         // to update context with the incoming context
@@ -217,11 +232,6 @@
           message.context.customChannel = message.context.customChannel || true;
           const encodedContext = encodeURI(JSON.stringify(message.context));
           router.push({ query: { context: encodedContext } }).catch(() => {});
-          this.hashi.mediator.sendLocalMessage({
-            nameSpace: 'hashi',
-            event: events.KOLIBRIDATARETURNED,
-            data: message,
-          });
         } else {
           // just return the existing query
           const urlParams = this.$route.query;
@@ -229,12 +239,10 @@
             ? urlParams.get('context')
             : this.context;
           message.context = decodeURI(JSON.stringify(fetchedEncodedContext));
-          this.hashi.mediator.sendLocalMessage({
-            nameSpace: 'hashi',
-            event: events.KOLIBRIDATARETURNED,
-            data: message,
-          });
         }
+
+        const newMsg = createReturnMsg({ message, data: {} });
+        this.hashi.mediator.sendLocalMessage(newMsg);
       },
     },
   };
