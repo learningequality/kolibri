@@ -119,7 +119,7 @@ const intlFooter = `
 const intlModule =
   commonHeader + intlHeader + languageInfo.map(generateIntlItems).join('') + intlFooter;
 
-const intlModulePath = path.resolve('./intl-locale-data.js');
+const intlModulePath = path.resolve(__dirname, 'intl-locale-data.js');
 fs.writeFileSync(vueIntlModulePath, vueIntlModule, { encoding: 'utf-8' });
 
 fs.writeFileSync(intlModulePath, intlModule, { encoding: 'utf-8' });
