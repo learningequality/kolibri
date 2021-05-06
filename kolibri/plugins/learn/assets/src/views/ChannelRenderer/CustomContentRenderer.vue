@@ -114,9 +114,8 @@
       this.hashi.on('context', message => {
         this.getOrUpdateContext.call(this, message);
       });
-      this.hashi.on('themechanged', theme => {
-        delete theme.message_id;
-        this.channelTheme = validateTheme(theme);
+      this.hashi.on('themechanged', message => {
+        this.updateTheme.call(this, message);
       });
       this.hashi.on('searchresultrequested', message => {
         this.fetchSearchResult.call(this, message);
@@ -243,6 +242,13 @@
 
         const newMsg = createReturnMsg({ message, data: {} });
         this.hashi.mediator.sendLocalMessage(newMsg);
+      },
+      updateTheme(message) {
+        const themeCopy = { ...message };
+        delete themeCopy.message_id;
+        this.channelTheme = validateTheme(themeCopy);
+        const newMsg = createReturnMsg({ message, data: {} });
+        return this.hashi.mediator.sendMessage(newMsg);
       },
     },
   };
