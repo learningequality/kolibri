@@ -237,6 +237,12 @@
         }
         return null;
       },
+      visitedPages() {
+        if (this.extraFields && this.extraFields.contentState) {
+          return this.extraFields.contentState.visitedPages || [];
+        }
+        return [];
+      },
       epubURL() {
         return this.defaultFile.storage_url;
       },
@@ -469,8 +475,21 @@
     methods: {
       updateProgress() {
         if (this.locations.length > 0) {
-          this.$emit('updateProgress', this.durationBasedProgress);
+          if (this.forceTimeBasedProgress) {
+            // update progress using total time user has spent on the pdf
+            this.$emit('updateProgress', this.durationBasedProgress);
+          } else {
+            // update progress using number of pages seen out of available pages
+            this.$emit('updateProgress', this.visitedPages.length / this.locations.length);
+          }
         }
+      },
+      listVisitedPages(currentLocation) {
+        let visited = this.visitedPages;
+        if (!visited.includes(currentLocation)) {
+          visited.push(currentLocation);
+        }
+        return visited;
       },
       handleReadyRendition() {
         this.updateRenditionTheme(this.themeStyle);
@@ -684,6 +703,7 @@
         this.sliderValue = location.start.percentage * 100;
         this.updateCurrentSection(location.start);
         this.currentLocation = location.start.cfi;
+        this.listVisitedPages(this.currentLocation);
         this.updateContentState();
       },
       handleSliderChanged(newSliderValue) {
@@ -699,9 +719,13 @@
           contentState = {
             ...this.extraFields.contentState,
             savedLocation: this.currentLocation || this.savedLocation,
+            visitedPages: this.visitedPages,
           };
         } else {
-          contentState = { savedLocation: this.currentLocation || this.savedLocation };
+          contentState = {
+            savedLocation: this.currentLocation || this.savedLocation,
+            visitedPages: this.visitedPages,
+          };
         }
         this.$emit('updateContentState', contentState);
       },
