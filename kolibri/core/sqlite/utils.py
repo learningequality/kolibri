@@ -8,6 +8,7 @@ from shutil import copyfile
 from django.conf import settings
 from django.core.management import call_command
 from django.db.utils import DatabaseError
+from sqlalchemy import exc
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,33 @@ def regenerate_database(connection):
             database="notifications_db",
         )
         call_command("migrate", interactive=False, verbosity=False)
+
+
+def check_sqlite_integrity(connection):
+    """
+    Runs integrity check on sqlite db.
+    Raises ORM specific DatabaseError when db api communication is halted.
+    Raises sqlite3.DatabaseError when integrity check fails.
+    """
+    if settings.DATABASES["default"]["ENGINE"] != "django.db.backends.sqlite3":
+        return
+
+    if hasattr(connection, "name"):
+        # SQLAlchemy ORM db api connection
+        conn = connection.connect()
+    else:
+        # Django ORM db api connection cursor
+        conn = connection.cursor()
+
+    try:
+        result = conn.execute("PRAGMA integrity_check;").fetchall()
+    except (DatabaseError, exc.DatabaseError):
+        raise
+    finally:
+        conn.close()
+
+    if not (len(result) == 1 and result[0] == ("ok",)):
+        raise sqlite3.DatabaseError
 
 
 def repair_sqlite_db(connection):
