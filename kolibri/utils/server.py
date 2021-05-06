@@ -588,12 +588,13 @@ def _read_pid_file(filename):
     Reads a pid file and returns the contents. PID files have 1 or 2 lines;
      - first line is always the pid
      - second line is the port the server is listening on.
-     - third line is the status of the server process
+     - third line is the port the alternate origin server is listening on
+     - fourth line is the status of the server process
 
     :param filename: Path of PID to read
-    :return: (pid, port, status): with the PID in the file and the port number
-                          if it exists. If the port number doesn't exist, then
-                          port is None.
+    :return: (pid, port, zip_port, status): with the PID in the file, the port numbers
+                          if they exist. If the port number doesn't exist, then
+                          port is None. Lastly, the status code is returned.
     """
     if not os.path.isfile(PID_FILE):
         return None, None, None, STATUS_STOPPED
