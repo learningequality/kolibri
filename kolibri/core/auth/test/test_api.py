@@ -296,6 +296,17 @@ class ClassroomAPITestCase(APITestCase):
         }
         self.assertDictEqual(response.data, expected)
 
+    def test_classroom_facility_coach_role_for_filter(self):
+        coach = FacilityUserFactory.create(facility=self.facility)
+        self.facility.add_coach(coach)
+        response = self.client.get(
+            reverse("kolibri:core:classroom-list"),
+            data={"role": "coach"},
+            format="json",
+        )
+        # Should return all classrooms
+        self.assertEqual(len(response.data), len(self.classrooms))
+
     def test_cannot_create_classroom_same_name(self):
         classroom_name = self.classrooms[0].name
         response = self.client.post(

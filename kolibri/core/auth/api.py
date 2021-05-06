@@ -425,6 +425,9 @@ class ClassroomFilter(FilterSet):
         if requesting_user.is_superuser:
             return queryset
 
+        if requesting_user.is_anonymous():
+            return queryset.none()
+
         # filter queryset by admin role and coach role
         roles = requesting_user.roles.exclude(kind=role_kinds.ASSIGNABLE_COACH)
 
@@ -436,7 +439,10 @@ class ClassroomFilter(FilterSet):
         if value == role_kinds.COACH:
             roles = roles.filter(kind=value)
 
-        return queryset.filter(id__in=roles.values("collection_id"))
+        return queryset.filter(
+            Q(id__in=roles.values("collection_id"))
+            | Q(parent_id__in=roles.values("collection_id"))
+        )
 
     class Meta:
         model = Classroom
