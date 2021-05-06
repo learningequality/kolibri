@@ -189,7 +189,7 @@
        * @public
        */
       defaultDuration() {
-        return this.duration || this.player.duration();
+        return this.player.duration();
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
     },
