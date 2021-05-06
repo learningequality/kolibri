@@ -120,7 +120,7 @@ def check_default_options_exist():
     options_path = os.path.join(KOLIBRI_HOME, "options.ini")
     if not os.path.exists(options_path):
         try:
-            generate_empty_options_file(options_path, OPTIONS)
+            generate_empty_options_file()
         except IOError:
             logger.warning(
                 "Failed to create an options.ini file at this path: {}".format(

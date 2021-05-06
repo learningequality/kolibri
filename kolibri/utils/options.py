@@ -3,74 +3,6 @@ This module is intended to allow customization of Kolibri settings with the
 options.ini file.
 The settings can be changed through environment variables or sections and keys
 in the options.ini file.
-The following options are supported:
-
-[Cache]
-CACHE_BACKEND
-CACHE_TIMEOUT
-CACHE_MAX_ENTRIES
-CACHE_PASSWORD
-CACHE_LOCATION
-CACHE_LOCK_TTL
-CACHE_REDIS_MIN_DB
-CACHE_REDIS_MAX_POOL_SIZE
-CACHE_REDIS_POOL_TIMEOUT
-CACHE_REDIS_MAXMEMORY
-CACHE_REDIS_MAXMEMORY_POLICY
-
-[Database]
-DATABASE_ENGINE
-DATABASE_NAME
-DATABASE_PASSWORD
-DATABASE_USER
-DATABASE_HOST
-DATABASE_PORT
-
-[Server]
-CHERRYPY_START
-CHERRYPY_THREAD_POOL
-CHERRYPY_SOCKET_TIMEOUT
-CHERRYPY_QUEUE_SIZE
-CHERRYPY_QUEUE_TIMEOUT
-PROFILE
-
-[Paths]
-CONTENT_DIR
-
-[Urls]
-CENTRAL_CONTENT_BASE_URL
-DATA_PORTAL_SYNCING_BASE_URL
-
-[Deployment]
-HTTP_PORT
-RUN_MODE
-URL_PATH_PREFIX
-    Serve Kolibri from a subpath under the main domain. Used when serving multiple applications from
-    the same origin. This option is not heavily tested, but is provided for user convenience.
-LANGUAGES
-ZIP_CONTENT_URL_PATH_PREFIX
-    The zip content equivalent of URL_PATH_PREFIX - allows all zip content URLs to be prefixed with
-    a fixed path. This both changes the URL from which the endpoints are served by the alternate
-    origin server, and the URL prefix where the Kolibri frontend looks for it.
-    In the case that ZIP_CONTENT_ORIGIN is pointing to an entirely separate origin, this setting
-    can still be used to set a URL prefix that the frontend of Kolibri will look to when
-    retrieving alternate origin URLs.
-ZIP_CONTENT_ORIGIN
-    When running in default operation, this will default to blank, and the Kolibri
-    frontend will look for the zipcontent endpoints on the same domain as Kolibri proper
-    but using ZIP_CONTENT_PORT instead of HTTP_PORT.
-    When running behind a proxy, this value should be set to the port that the zipcontent
-    endpoint is being served on, this will be substituted for the port that Kolibri proper
-    is being served on.
-    If zipcontent is being served from a completely separate domain this can be the absolute
-    origin (full protocol plus domain, e.g. 'https://myzipcontent.com/') which will then
-    be used for all zipcontent origin requests.
-ZIP_CONTENT_PORT
-    Sets the port that Kolibri will serve the alternate origin server on. This is the alternate
-    origin server equivalent of HTTP_PORT.
-
-[Python]
-PICKLE_PROTOCOL
 """
 import logging.config
 import os
@@ -188,6 +120,15 @@ def language_list(value):
     return sorted(list(out))
 
 
+def path(value):
+    from kolibri.utils.conf import KOLIBRI_HOME
+
+    if not isinstance(value, string_types):
+        raise VdtValueError(repr(value))
+    # ensure all path arguments, e.g. under section "Paths", are fully resolved and expanded, relative to KOLIBRI_HOME
+    return os.path.join(KOLIBRI_HOME, os.path.expanduser(value))
+
+
 def path_list(value):
     """
     Check that the supplied value is a semicolon-delimited list of paths.
@@ -196,15 +137,19 @@ def path_list(value):
     if isinstance(value, string_types):
         value = value.split(";")
 
+    out = []
+
     if isinstance(value, list):
         errors = []
         for item in value:
-            if not isinstance(item, string_types):
+            try:
+                out.append(path(item))
+            except VdtValueError:
                 errors.append(repr(item))
         if errors:
             raise VdtValueError(errors)
 
-    return value
+    return out
 
 
 def validate_port_number(value):
@@ -238,59 +183,67 @@ def origin_or_port(value):
     return value
 
 
+def url_prefix(value):
+    if not isinstance(value, string_types):
+        raise VdtValueError(value)
+    return value.lstrip("/").rstrip("/") + "/"
+
+
 base_option_spec = {
     "Cache": {
         "CACHE_BACKEND": {
             "type": "option",
             "options": ("memory", "redis"),
             "default": "memory",
-            "envvars": ("KOLIBRI_CACHE_BACKEND",),
+            "description": """
+                Which backend to use for the main cache - if 'memory' is selected, then for most cache operations,
+                an in-memory, process-local cache will be used, but a disk based cache will be used for some data
+                that needs to be persistent across processes. If 'redis' is used, it is used for all caches.
+            """,
         },
         "CACHE_TIMEOUT": {
             "type": "integer",
             "default": 300,
-            "envvars": ("KOLIBRI_CACHE_TIMEOUT",),
+            "description": "Default timeout for entries put into the cache.",
         },
         "CACHE_MAX_ENTRIES": {
             "type": "integer",
             "default": 1000,
-            "envvars": ("KOLIBRI_CACHE_MAX_ENTRIES",),
+            "description": "Maximum number of entries to maintain in the cache at once.",
         },
         "CACHE_PASSWORD": {
             "type": "string",
             "default": "",
-            "envvars": ("KOLIBRI_CACHE_PASSWORD",),
+            "description": "Password to authenticate to Redis, Redis only.",
         },
         "CACHE_LOCATION": {
             "type": "string",
             "default": "localhost:6379",
-            "envvars": ("KOLIBRI_CACHE_LOCATION",),
-        },
-        "CACHE_LOCK_TTL": {
-            "type": "integer",
-            "default": 30,
-            "envvars": ("KOLIBRI_CACHE_LOCK_TTL",),
+            "description": "Host and port at which to connect to Redis, Redis only.",
         },
         "CACHE_REDIS_MIN_DB": {
             "type": "integer",
             "default": 0,
-            "envvars": ("KOLIBRI_CACHE_REDIS_MIN_DB",),
+            "description": """
+                The starting database number for Redis.
+                This and subsequent database numbers will be used for multiple cache scenarios.
+            """,
         },
         "CACHE_REDIS_MAX_POOL_SIZE": {
             "type": "integer",
             "default": 50,  # use redis-benchmark to determine better value
-            "envvars": ("KOLIBRI_CACHE_REDIS_MAX_POOL_SIZE",),
+            "description": "Maximum number of simultaneous connections to allow to Redis, Redis only.",
         },
         "CACHE_REDIS_POOL_TIMEOUT": {
             "type": "integer",
             "default": 30,  # seconds
-            "envvars": ("KOLIBRI_CACHE_REDIS_POOL_TIMEOUT",),
+            "description": "How long to wait when trying to connect to Redis before timing out, Redis only.",
         },
         # Optional redis settings to overwrite redis.conf
         "CACHE_REDIS_MAXMEMORY": {
             "type": "integer",
             "default": 0,
-            "envvars": ("KOLIBRI_CACHE_REDIS_MAXMEMORY",),
+            "description": "Maximum memory that Redis should use, Redis only.",
         },
         "CACHE_REDIS_MAXMEMORY_POLICY": {
             "type": "option",
@@ -304,7 +257,7 @@ base_option_spec = {
                 "noeviction",
             ),
             "default": "",
-            "envvars": ("KOLIBRI_CACHE_REDIS_MAXMEMORY_POLICY",),
+            "description": "Eviction policy to use when using Redis for caching, Redis only.",
         },
     },
     "Database": {
@@ -312,127 +265,199 @@ base_option_spec = {
             "type": "option",
             "options": ("sqlite", "postgres"),
             "default": "sqlite",
-            "envvars": ("KOLIBRI_DATABASE_ENGINE",),
+            "description": "Which database backend to use, choices are 'sqlite' or 'postgresql'",
         },
-        "DATABASE_NAME": {"type": "string", "envvars": ("KOLIBRI_DATABASE_NAME",)},
+        "DATABASE_NAME": {
+            "type": "string",
+            "description": """
+                For SQLite - the name of a database file to use for the main Kolibri database.
+                For Postgresql, the name of the database to use for all Kolibri data.
+            """,
+        },
         "DATABASE_PASSWORD": {
             "type": "string",
-            "envvars": ("KOLIBRI_DATABASE_PASSWORD",),
+            "description": "The password to authenticate with when connecting to the database, Postgresql only.",
         },
-        "DATABASE_USER": {"type": "string", "envvars": ("KOLIBRI_DATABASE_USER",)},
-        "DATABASE_HOST": {"type": "string", "envvars": ("KOLIBRI_DATABASE_HOST",)},
-        "DATABASE_PORT": {"type": "string", "envvars": ("KOLIBRI_DATABASE_PORT",)},
+        "DATABASE_USER": {
+            "type": "string",
+            "description": "The user to authenticate with when connecting to the database, Postgresql only.",
+        },
+        "DATABASE_HOST": {
+            "type": "string",
+            "description": "The host on which to connect to the database, Postgresql only.",
+        },
+        "DATABASE_PORT": {
+            "type": "string",
+            "description": "The port on which to connect to the database, Postgresql only.",
+        },
     },
     "Server": {
         "CHERRYPY_START": {
             "type": "boolean",
             "default": True,
-            "envvars": ("KOLIBRI_CHERRYPY_START",),
+            "description": "DEPRECATED - do not use this option, use the 'kolibri services' command instead.",
         },
         "CHERRYPY_THREAD_POOL": {
             "type": "integer",
             "default": calculate_thread_pool(),
-            "envvars": ("KOLIBRI_CHERRYPY_THREAD_POOL",),
+            "description": "How many threads the Kolibri server should use to serve requests",
         },
         "CHERRYPY_SOCKET_TIMEOUT": {
             "type": "integer",
             "default": 10,
-            "envvars": ("KOLIBRI_CHERRYPY_SOCKET_TIMEOUT",),
+            "description": """
+                How long a socket should wait for data flow to resume before
+                it considers that the connection has been interrupted.
+                Increasing this may help in situations where there is high
+                latency on a network or the bandwidth is bursty, with some
+                expected data flow interruptions which may not be indicative of the connection failing.
+            """,
         },
         "CHERRYPY_QUEUE_SIZE": {
             "type": "integer",
             "default": 30,
-            "envvars": ("KOLIBRI_CHERRYPY_QUEUE_SIZE",),
+            "description": """
+                How many requests to allow in the queue.
+                Increasing this may help situations where requests are instantly refused by the server.
+            """,
         },
         "CHERRYPY_QUEUE_TIMEOUT": {
             "type": "float",
             "default": 0.1,
-            "envvars": ("KOLIBRI_CHERRYPY_QUEUE_TIMEOUT",),
+            "description": """
+                How many seconds to wait for a request to be put into the queue.
+                Increasing this may help situations where requests are instantly refused by the server.
+            """,
         },
         "PROFILE": {
             "type": "boolean",
             "default": False,
             "envvars": ("KOLIBRI_SERVER_PROFILE",),
+            "description": "Activate the server profiling middleware.",
         },
-        "DEBUG": {"type": "boolean", "default": False, "envvars": ("KOLIBRI_DEBUG",)},
+        "DEBUG": {
+            "type": "boolean",
+            "default": False,
+            "description": "Run Kolibri with Django setting DEBUG = True",
+        },
         "DEBUG_LOG_DATABASE": {
             "type": "boolean",
             "default": False,
-            "envvars": ("KOLIBRI_DEBUG_LOG_DATABASE",),
+            "description": "Activate debug logging for Django ORM operations.",
         },
     },
     "Paths": {
         "CONTENT_DIR": {
-            "type": "string",
+            "type": "path",
             "default": "content",
-            "envvars": ("KOLIBRI_CONTENT_DIR",),
+            "description": """
+                The directory that will store content files and content database files.
+                To change this in a currently active server it is recommended to use the
+                'content movedirectory' management command.
+            """,
         },
         "CONTENT_FALLBACK_DIRS": {
             "type": "path_list",
             "default": "",
-            "envvars": ("KOLIBRI_CONTENT_FALLBACK_DIRS",),
+            "description": "Additional directories in which Kolibri will look for content files and content database files.",
         },
     },
     "Urls": {
         "CENTRAL_CONTENT_BASE_URL": {
             "type": "string",
             "default": "https://studio.learningequality.org",
-            "envvars": (
-                "KOLIBRI_CENTRAL_CONTENT_BASE_URL",
-                "CENTRAL_CONTENT_DOWNLOAD_BASE_URL",
-            ),
+            "envvars": ("CENTRAL_CONTENT_DOWNLOAD_BASE_URL",),
+            "description": """
+                URL to use as the default source for content import.
+                Slightly counterintuitively this will still be displayed in the UI as 'import from Kolibri Studio'.
+            """,
         },
         "DATA_PORTAL_SYNCING_BASE_URL": {
             "type": "string",
             "default": "https://kolibridataportal.learningequality.org",
-            "envvars": ("KOLIBRI_DATA_PORTAL_SYNCING_BASE_URL",),
+            "description": "URL to use as the target for data portal syncing.",
         },
     },
     "Deployment": {
         "HTTP_PORT": {
             "type": "port",
             "default": 8080,
-            "envvars": ("KOLIBRI_HTTP_PORT", "KOLIBRI_LISTEN_PORT"),
+            "envvars": (
+                "KOLIBRI_HTTP_PORT",
+                "KOLIBRI_LISTEN_PORT",
+            ),
+            "description": "Sets the port that Kolibri will serve on. This can be further overridden by command line arguments.",
         },
-        "RUN_MODE": {"type": "string", "envvars": ("KOLIBRI_RUN_MODE",)},
+        "RUN_MODE": {
+            "type": "string",
+            "description": "Used to flag non-user Kolibri instances",
+            "skip_blank": True,
+        },
         "DISABLE_PING": {
             "type": "boolean",
             "default": False,
-            "envvars": ("KOLIBRI_DISABLE_PING",),
+            "description": "Turn off the statistics pingback. This will also disable update notifications",
         },
         "URL_PATH_PREFIX": {
-            "type": "string",
+            "type": "url_prefix",
             "default": "/",
-            "envvars": ("KOLIBRI_URL_PATH_PREFIX",),
-            "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
+            "description": """
+                Serve Kolibri from a subpath under the main domain. Used when serving multiple applications from
+                the same origin. This option is not heavily tested, but is provided for user convenience.
+            """,
         },
         "LANGUAGES": {
             "type": "language_list",
             "default": SUPPORTED_LANGUAGES,
-            "envvars": ("KOLIBRI_LANGUAGES",),
+            "description": """
+                The user interface languages to enable on this instance of Kolibri (has no effect on languages of imported content channels).
+                The default will include all the languages Kolibri supports.
+            """,
         },
         "ZIP_CONTENT_ORIGIN": {
             "type": "origin_or_port",
             "default": "",
-            "envvars": ("KOLIBRI_ZIP_CONTENT_ORIGIN",),
+            "description": """
+                When running by default (value blank), Kolibri frontend looks for the zipcontent endpoints
+                on the same domain as Kolibri proper, but uses ZIP_CONTENT_PORT instead of HTTP_PORT.
+                When running behind a proxy, set the value to the port where zipcontent endpoint is served on,
+                and it will be substituted for the port that Kolibri proper is being served on.
+                When zipcontent is being served from a completely separate domain, you can set an
+                absolute origin (full protocol plus domain, e.g. 'https://myzipcontent.com/')
+                to be used for all zipcontent origin requests.
+            """,
         },
         "ZIP_CONTENT_PORT": {
             "type": "port",
             "default": 0,
-            "envvars": ("KOLIBRI_ZIP_CONTENT_PORT",),
+            "description": """
+                Sets the port that Kolibri will serve the alternate origin server on. This is the server that
+                is used to serve all content for the zipcontent endpoint, so as to provide safe IFrame sandboxing
+                but avoiding issues with null origins.
+                This is the alternate origin server equivalent of HTTP_PORT.
+            """,
         },
         "ZIP_CONTENT_URL_PATH_PREFIX": {
-            "type": "string",
+            "type": "url_prefix",
             "default": "/",
-            "envvars": ("KOLIBRI_ZIP_CONTENT_URL_PATH_PREFIX",),
-            "clean": lambda x: x.lstrip("/").rstrip("/") + "/",
+            "description": """
+                The zip content equivalent of URL_PATH_PREFIX - allows all zip content URLs to be prefixed with
+                a fixed path. This both changes the URL from which the endpoints are served by the alternate
+                origin server, and the URL prefix where the Kolibri frontend looks for it.
+                In the case that ZIP_CONTENT_ORIGIN is pointing to an entirely separate origin, this setting
+                can still be used to set a URL prefix that the frontend of Kolibri will look to when
+                retrieving alternate origin URLs.
+            """,
         },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
             "type": "integer",
             "default": 2,
-            "envvars": ("KOLIBRI_PICKLE_PROTOCOL",),
+            "description": """
+                Which Python pickle protocol to use. Pinned to 2 for now to provide maximal cross-Python version compatibility.
+                Can safely be set to a higher value for deployments that will never change Python versions.
+            """,
         }
     },
 }
@@ -442,14 +467,16 @@ def _get_validator():
     return Validator(
         {
             "language_list": language_list,
+            "path": path,
             "path_list": path_list,
             "origin_or_port": origin_or_port,
             "port": port,
+            "url_prefix": url_prefix,
         }
     )
 
 
-def _get_logger(KOLIBRI_HOME):
+def _get_logger():
     """
     We define a minimal default logger config here, since we can't yet
     load up Django settings.
@@ -468,7 +495,26 @@ def _get_option_spec():
     """
     Combine the default option spec with any options that are defined in plugins
     """
-    return extend_config_spec(base_option_spec)
+    option_spec = extend_config_spec(base_option_spec)
+    envvars = set()
+    for section, opts in option_spec.items():
+        for optname, attrs in opts.items():
+            opt_envvars = attrs.get("envvars", tuple())
+            default_envvar = "KOLIBRI_{}".format(optname.upper())
+            if default_envvar not in envvars:
+                envvars.add(default_envvar)
+            else:
+                logging.warn(
+                    "Duplicate environment variable for options {}".format(
+                        default_envvar
+                    )
+                )
+                default_envvar = "KOLIBRI_{}_{}".format(
+                    section.upper(), optname.upper()
+                )
+            if default_envvar not in opt_envvars:
+                attrs["envvars"] = opt_envvars + (default_envvar,)
+    return option_spec
 
 
 option_spec = SimpleLazyObject(_get_option_spec)
@@ -502,19 +548,11 @@ def get_configspec():
     return ConfigObj(lines, _inspec=True)
 
 
-def clean_conf(conf):
-    # override any values from their environment variables (if set)
-    for section, opts in option_spec.items():
-        for optname, attrs in opts.items():
-            # if any options have clean functions defined, then apply them now
-            if "clean" in attrs:
-                conf[section][optname] = attrs["clean"](conf[section][optname])
-    return conf
+def read_options_file(ini_filename="options.ini"):
 
+    from kolibri.utils.conf import KOLIBRI_HOME
 
-def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
-
-    logger = _get_logger(KOLIBRI_HOME)
+    logger = _get_logger()
 
     ini_path = os.path.join(KOLIBRI_HOME, ini_filename)
 
@@ -539,8 +577,6 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
                     conf[section][optname] = os.environ[envvar]
                     using_env_vars[optname] = envvar
                     break
-
-    conf = clean_conf(conf)
 
     validation = conf.validate(_get_validator(), preserve_errors=True)
 
@@ -591,34 +627,10 @@ def read_options_file(KOLIBRI_HOME, ini_filename="options.ini"):
     # run validation once again to fill in any default values for options we deleted due to issues
     conf.validate(_get_validator())
 
-    # ensure all arguments under section "Paths" are fully resolved and expanded, relative to KOLIBRI_HOME
-    _expand_paths(KOLIBRI_HOME, conf.get("Paths", {}))
-
     return conf
 
 
-def _expand_path(basepath, path):
-    return os.path.join(basepath, os.path.expanduser(path))
-
-
-def _expand_paths(basepath, pathdict):
-    """
-    Resolve all paths in a dict, relative to a base path, and after expanding "~" into the user's home directory.
-    """
-    for key, path in pathdict.items():
-        if isinstance(path, string_types):
-            pathdict[key] = _expand_path(basepath, path)
-        elif isinstance(path, list):
-            pathdict[key] = [_expand_path(basepath, p) for p in path]
-        else:
-            raise Exception(
-                "Paths must be a single string or a semicolon-delimited list, not {}".format(
-                    type(path)
-                )
-            )
-
-
-def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options.ini"):
+def update_options_file(section, key, value, ini_filename="options.ini"):
     """
     Updates the configuration file on top of what is currently in the
     file.
@@ -628,10 +640,10 @@ def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options
     that are not intended to be stored.
     """
 
-    logger = _get_logger(KOLIBRI_HOME)
+    logger = _get_logger()
 
     # load the current conf from disk into memory
-    conf = read_options_file(KOLIBRI_HOME, ini_filename=ini_filename)
+    conf = read_options_file(ini_filename=ini_filename)
 
     # update the requested option value
     conf[section][key] = value
@@ -656,22 +668,23 @@ def update_options_file(section, key, value, KOLIBRI_HOME, ini_filename="options
     )
 
 
-empty_options_excluded_key = ["Python"]
-
-
-def generate_empty_options_file(options_path, options_data):
-
+def generate_empty_options_file(ini_filename="options.ini"):
     # Generate an options.ini file inside the KOLIBRI_HOME as default placeholder config
-    with open(options_path, "w") as file:
-        keys = [k for k in options_data if k not in empty_options_excluded_key]
-        for key in keys:
-            file.write("# [{}] \n".format(key))
-            child_keys = [
-                k for k in options_data[key] if k not in empty_options_excluded_key
-            ]
-            for child_key in child_keys:
-                file.write(
-                    "# {} = {} \n".format(child_key, options_data[key][child_key])
-                )
 
-            file.write("\n")
+    conf = read_options_file(ini_filename=ini_filename)
+
+    comments = None
+
+    for section, opts in option_spec.items():
+        if comments is not None:
+            conf.comments[section] = comments
+        comments = []
+        for optname, attrs in opts.items():
+            if not attrs.get("skip_blank", False):
+                if "description" in attrs:
+                    comments.extend(attrs["description"].strip().split("\n"))
+                comments.append("{} = {}".format(optname, attrs.get("default", "")))
+                comments.append("")
+    conf.final_comment = comments
+
+    conf.write()
