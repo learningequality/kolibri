@@ -102,22 +102,22 @@
       this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
       const zipFile = this.topic.files.find(f => f.extension === 'zip');
       this.hashi.initialize({}, {}, zipFile.storage_url, zipFile.checksum);
-      this.hashi.on('collectionrequested', message => {
+      this.hashi.on(events.COLLECTIONREQUESTED, message => {
         this.fetchContentCollection(message);
       });
-      this.hashi.on('modelrequested', message => {
+      this.hashi.on(events.MODELREQUESTED, message => {
         this.fetchContentModel.call(this, message);
       });
-      this.hashi.on('navigateto', message => {
+      this.hashi.on(events.NAVIGATETO, message => {
         this.navigateTo.call(this, message);
       });
-      this.hashi.on('context', message => {
+      this.hashi.on(events.CONTEXT, message => {
         this.getOrUpdateContext.call(this, message);
       });
-      this.hashi.on('themechanged', message => {
+      this.hashi.on(events.THEMECHANGED, message => {
         this.updateTheme.call(this, message);
       });
-      this.hashi.on('searchresultrequested', message => {
+      this.hashi.on(events.SEARCHRESULTREQUESTED, message => {
         this.fetchSearchResult.call(this, message);
       });
     },
