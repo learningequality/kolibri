@@ -476,7 +476,7 @@
       updateProgress() {
         if (this.locations.length > 0) {
           if (this.forceTimeBasedProgress) {
-            // update progress using total time user has spent on the pdf
+            // update progress using total time user has spent on the epub
             this.$emit('updateProgress', this.durationBasedProgress);
           } else {
             // update progress using number of pages seen out of available pages
