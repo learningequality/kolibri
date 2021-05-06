@@ -199,11 +199,15 @@ export default class Kolibri extends BaseShim {
       }
 
       /*
-       * Getter to return the current version of Kolibri and hence the API available.
-       * @return {string} - A version string
+       * Method to return the current version of Kolibri and hence the API available.
+       * @return {Promise<string>} - A version string
        */
-      get version() {
-        return '';
+      getVersion() {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.DATAREQUESTED,
+          data: { dataType: DataTypes.KOLIBRIVERSION },
+          nameSpace,
+        });
       }
     }
 

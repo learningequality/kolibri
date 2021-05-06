@@ -120,6 +120,9 @@
       this.hashi.on(events.SEARCHRESULTREQUESTED, message => {
         this.fetchSearchResult.call(this, message);
       });
+      this.hashi.on(events.KOLIBRIVERSIONREQUESTED, message => {
+        this.sendKolibriVersion.call(this, message);
+      });
     },
     methods: {
       // helper functions for fetching data from kolibri
@@ -248,6 +251,10 @@
         delete themeCopy.message_id;
         this.channelTheme = validateTheme(themeCopy);
         const newMsg = createReturnMsg({ message, data: {} });
+        return this.hashi.mediator.sendMessage(newMsg);
+      },
+      sendKolibriVersion(message) {
+        const newMsg = createReturnMsg({ message, data: __version });
         return this.hashi.mediator.sendMessage(newMsg);
       },
     },

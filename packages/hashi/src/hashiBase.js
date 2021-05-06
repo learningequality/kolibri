@@ -13,12 +13,14 @@ export const events = {
   NAVIGATETO: 'navigateto',
   CONTEXT: 'context',
   THEMECHANGED: 'themechanged',
+  KOLIBRIVERSIONREQUESTED: 'kolibriversionrequested',
 };
 
 export const DataTypes = {
   MODEL: 'Model',
   SEARCHRESULT: 'SearchResult',
   COLLECTION: 'Collection',
+  KOLIBRIVERSION: 'KolibriVersion',
 };
 
 export const MessageStatuses = {

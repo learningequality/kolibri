@@ -73,6 +73,8 @@ export default class MainClient {
         event = events.MODELREQUESTED;
       } else if (message.dataType === DataTypes.SEARCHRESULT) {
         event = events.SEARCHRESULTREQUESTED;
+      } else if (message.dataType === DataTypes.KOLIBRIVERSION) {
+        event = events.KOLIBRIVERSIONREQUESTED;
       }
 
       if (event) {
