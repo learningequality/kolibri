@@ -148,7 +148,7 @@
       },
       visitedPages() {
         if (this.extraFields && this.extraFields.contentState) {
-          return this.extraFields.contentState.visitedPages;
+          return this.extraFields.contentState.visitedPages || [];
         }
         return [];
       },
@@ -285,10 +285,10 @@
           });
         }
       },
-      listVisitedPages(pageNum) {
+      listVisitedPages(currentPageNum) {
         let visited = this.visitedPages;
-        if (!visited.includes(pageNum)) {
-          visited.push(pageNum);
+        if (!visited.includes(currentPageNum)) {
+          visited.push(currentPageNum);
         }
         return visited;
       },
