@@ -128,7 +128,12 @@ def check_port_availability(host, port):
 class PortCache:
     def __init__(self):
         self.values = {}
+        self.occupied_ports = set()
         self.load()
+
+    def lock_port(self, port):
+        if port:
+            self.occupied_ports.add(port)
 
     def register_port(self, port):
         self.values[port] = True
@@ -137,7 +142,11 @@ class PortCache:
     def get_port(self, host):
         if self.values:
             try:
-                port = next(p for p in self.values if not self.values[p])
+                port = next(
+                    p
+                    for p in self.values
+                    if not self.values[p] and p not in self.occupied_ports
+                )
                 if port:
                     if check_port_availability(host, port):
                         self.values[port] = True
@@ -513,7 +522,9 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
     :param: port: Port number (default: 0) - assigned by free port
     """
     port = int(port)
+    port_cache.lock_port(port)
     zip_port = int(zip_port)
+    port_cache.lock_port(zip_port)
     # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
     # a better fix. See https://github.com/learningequality/kolibri/issues/4821
     if sys.platform == "darwin":
@@ -577,12 +588,13 @@ def _read_pid_file(filename):
     Reads a pid file and returns the contents. PID files have 1 or 2 lines;
      - first line is always the pid
      - second line is the port the server is listening on.
-     - third line is the status of the server process
+     - third line is the port the alternate origin server is listening on
+     - fourth line is the status of the server process
 
     :param filename: Path of PID to read
-    :return: (pid, port, status): with the PID in the file and the port number
-                          if it exists. If the port number doesn't exist, then
-                          port is None.
+    :return: (pid, port, zip_port, status): with the PID in the file, the port numbers
+                          if they exist. If the port number doesn't exist, then
+                          port is None. Lastly, the status code is returned.
     """
     if not os.path.isfile(PID_FILE):
         return None, None, None, STATUS_STOPPED
