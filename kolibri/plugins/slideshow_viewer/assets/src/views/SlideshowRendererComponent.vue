@@ -106,6 +106,12 @@
       currentSlide() {
         return this.slides[this.currentSlideIndex];
       },
+      visitedSlides() {
+        if (this.extraFields && this.extraFields.contentState) {
+          return this.extraFields.contentState.visitedSlides || [];
+        }
+        return [];
+      },
       slideshowImages: function() {
         const files = this.files;
         return files.filter(file => file.preset != 'slideshow_manifest');
@@ -210,9 +216,18 @@
         if (this.currentSlideIndex > this.highestViewedSlideIndex) {
           this.highestViewedSlideIndex = this.currentSlideIndex;
         }
+        this.listVisitedSlides(this.currentSlideIndex);
+        this.updateContentState();
       },
       slideTextId(id) {
         return 'descriptive-text-' + id;
+      },
+      listVisitedSlides(currentSlideNum) {
+        let visited = this.visitedSlides;
+        if (!visited.includes(currentSlideNum)) {
+          visited.push(currentSlideNum);
+        }
+        return visited;
       },
       setHooperListWidth() {
         /*
@@ -248,24 +263,30 @@
         );
       },
       updateContentState() {
-        this.extraFields.contentState.highestViewedSlideIndex = this.highestViewedSlideIndex;
-        this.extraFields.contentState.lastViewedSlideIndex = this.currentSlideIndex;
-        this.$emit('updateContentState', this.extraFields.contentState);
+        let contentState;
+        if (this.extraFields) {
+          contentState = {
+            ...this.extraFields.contentState,
+            highestViewedSlideIndex: this.highestViewedSlideIndex,
+            lastViewedSlideIndex: this.currentSlideIndex,
+            visitedSlides: this.visitedSlides,
+          };
+        } else {
+          contentState = {
+            highestViewedSlideIndex: this.highestViewedSlideIndex,
+            lastViewedSlideIndex: this.currentSlideIndex,
+            visitedSlides: this.visitedSlides,
+          };
+        }
+        this.$emit('updateContentState', contentState);
       },
       updateProgress() {
-        // if the forceTimeBasedProgress is set to true, updateProgress uses time-based tracking,
-        // else updateProgress adds the percent to the existing value, so only pass
-        // the percentage of progress in this session, not the full percentage.
         if (this.forceTimeBasedProgress) {
-          this.$emit('updateProgress', Math.min(this.durationBasedProgress, 1));
+          // update progress using total time user has spent on the slideshow
+          this.$emit('updateProgress', this.durationBasedProgress);
         } else {
-          const progressPercent =
-            this.highestViewedSlideIndex + 1 === this.slides.length
-              ? 1.0
-              : (this.highestViewedSlideIndex -
-                  this.extraFields.contentState.highestViewedSlideIndex) /
-                this.slides.length;
-          this.$emit('updateProgress', progressPercent);
+          // update progress using number of slides seen out of available slides
+          this.$emit('updateProgress', this.visitedSlides.length / this.slides.length);
         }
       },
     },
