@@ -128,7 +128,12 @@ def check_port_availability(host, port):
 class PortCache:
     def __init__(self):
         self.values = {}
+        self.occupied_ports = set()
         self.load()
+
+    def lock_port(self, port):
+        if port:
+            self.occupied_ports.add(port)
 
     def register_port(self, port):
         self.values[port] = True
@@ -137,7 +142,11 @@ class PortCache:
     def get_port(self, host):
         if self.values:
             try:
-                port = next(p for p in self.values if not self.values[p])
+                port = next(
+                    p
+                    for p in self.values
+                    if not self.values[p] and p not in self.occupied_ports
+                )
                 if port:
                     if check_port_availability(host, port):
                         self.values[port] = True
@@ -513,7 +522,9 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
     :param: port: Port number (default: 0) - assigned by free port
     """
     port = int(port)
+    port_cache.lock_port(port)
     zip_port = int(zip_port)
+    port_cache.lock_port(zip_port)
     # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
     # a better fix. See https://github.com/learningequality/kolibri/issues/4821
     if sys.platform == "darwin":
