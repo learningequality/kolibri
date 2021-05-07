@@ -8,6 +8,7 @@
     @cancel="$emit('cancel')"
   >
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
+    <p>{{ $tr('noUndo') }}</p>
   </KModal>
 
 </template>
@@ -42,6 +43,7 @@
     $trs: {
       deleteLearnerGroup: 'Delete group',
       areYouSure: "Are you sure you want to delete '{ groupName }'?",
+      noUndo: 'This action cannot be undone',
     },
   };
 

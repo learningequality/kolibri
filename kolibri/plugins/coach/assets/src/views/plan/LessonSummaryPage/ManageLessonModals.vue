@@ -127,7 +127,8 @@
       copyLessonTitle: 'Copy lesson to',
       assignmentQuestion: 'Assign lesson to',
       deleteLessonTitle: 'Delete lesson',
-      deleteLessonConfirmation: "Are you sure you want to delete '{ title }'?",
+      deleteLessonConfirmation:
+        "Are you sure you want to delete '{ title }'? This action cannot be undone",
       copyOfLesson: 'Copy of { lessonTitle }',
       uniqueTitleError: `A lesson titled '{title}' already exists in '{className}'`,
     },

@@ -65,7 +65,8 @@
       copyExamTitle: 'Copy quiz to',
       assignmentQuestion: 'Assign quiz to',
       deleteExamTitle: 'Delete quiz',
-      deleteExamDescription: "Are you sure you want to delete '{ title }'?",
+      deleteExamDescription:
+        "Are you sure you want to delete '{ title }'? This action cannot be undone",
       deleteExamConfirmation: 'All learner progress on this quiz will be lost.',
       copyOfExam: 'Copy of { examTitle }',
     },

@@ -41,7 +41,7 @@
     },
     $trs: {
       modalTitle: 'Delete class',
-      confirmation: "Are you sure you want to delete '{ classname }'?",
+      confirmation: "Are you sure you want to delete '{ classname }'? This action cannot be undone",
       description:
         "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",
     },

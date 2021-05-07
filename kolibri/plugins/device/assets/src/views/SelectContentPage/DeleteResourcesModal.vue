@@ -10,10 +10,12 @@
     <div>
       <template v-if="numberOfResources === 1">
         <p>{{ $tr('confirmationQuestionOneResource') }}</p>
+        <p>{{ $tr('noCancellation') }}</p>
         <p>{{ $tr('deleteEverywhereExplanationOneResource') }}</p>
       </template>
       <template v-else>
         <p>{{ $tr('confirmationQuestionMultipleResources') }}</p>
+        <p>{{ $tr('noCancellation') }}</p>
         <p>{{ $tr('deleteEverywhereExplanationMultipleResources') }}</p>
       </template>
       <KCheckbox
@@ -59,6 +61,7 @@
         'Are you sure you want to delete this resource from your device?',
       confirmationQuestionMultipleResources:
         'Are you sure you want to delete these resources from your device?',
+      noCancellation: 'This action cannot be cancelled',
       deleteEverywhereLabel: {
         message: 'Also delete any copies found in other locations and channels',
         context:

@@ -16,6 +16,7 @@
     <p v-else>
       {{ $tr('confirmationQuestionMultipleChannels') }}
     </p>
+    <p>{{ $tr('noCancellation') }}</p>
   </KModal>
 
 </template>
@@ -56,6 +57,7 @@
         message: 'Are you sure you want to delete these channels from your device?',
         context: '\nA confirmation that appears when a user tries to delete multiple channels',
       },
+      noCancellation: 'This action cannot be cancelled',
       titleSingleChannel: 'Delete channel',
       titleMultipleChannels: 'Delete channels',
     },

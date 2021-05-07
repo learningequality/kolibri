@@ -9,6 +9,7 @@
     @cancel="$emit('cancel')"
   >
     <p>{{ $tr('confirmation', { username: username }) }}</p>
+    <p>{{ $tr('noUndo') }}</p>
     <p>{{ $tr('warning', { username: username }) }}</p>
   </KModal>
 
@@ -55,6 +56,7 @@
     $trs: {
       deleteUser: 'Delete user',
       confirmation: "Are you sure you want to delete the user '{ username }'?",
+      noUndo: 'This action cannot be undone',
       warning: 'All data and logs for this user will be lost.',
     },
   };
