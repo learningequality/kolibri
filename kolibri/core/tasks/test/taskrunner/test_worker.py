@@ -12,8 +12,7 @@ from kolibri.core.tasks.worker import Worker
 QUEUE = "pytest"
 
 
-class RaisedError(Exception):
-    pass
+error_text = "كوليبري is not a function"
 
 
 def error_func():
@@ -21,7 +20,7 @@ def error_func():
     Function that raises an error that contains unicode.
     Made this a module function due to the need to have a module path to pass to the Job constructor.
     """
-    raise RaisedError("كوليبري is not a function")
+    raise TypeError(error_text)
 
 
 @pytest.fixture
@@ -58,7 +57,7 @@ class TestWorker:
         # See Storage.mark_job_as_failed in kolibri.core.tasks.storage for more details on why we do this.
 
         # create a job that triggers an exception
-        job = Job("kolibri.core.tasks.test.test_worker.error_func")
+        job = Job("kolibri.core.tasks.test.taskrunner.test_worker.error_func")
 
         job_id = worker.storage.enqueue_job(job, QUEUE)
 
@@ -68,7 +67,8 @@ class TestWorker:
 
         returned_job = worker.storage.get_job(job_id)
         assert returned_job.state == "FAILED"
-        assert isinstance(returned_job.exception, RaisedError)
+        assert isinstance(returned_job.exception, TypeError)
+        assert returned_job.exception.args[0] == error_text
 
     def test_enqueue_job_writes_to_storage_on_success(self, worker):
         with patch.object(

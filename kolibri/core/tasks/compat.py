@@ -1,9 +1,7 @@
-# When we are able to properly support multiprocessing, we can update this
-# to a setting instead of an always off flag.
-MULTIPROCESSING = False
+from kolibri.utils.conf import OPTIONS
 
 try:
-    if not MULTIPROCESSING:
+    if not OPTIONS["Tasks"]["WORKER_MULTIPROCESSING"]:
         raise ImportError()
     # Import in order to check if multiprocessing is supported on this platform
     from multiprocessing import synchronize  # noqa
