@@ -6,7 +6,6 @@ from django.utils.functional import SimpleLazyObject
 from sqlalchemy import create_engine
 from sqlalchemy import event
 from sqlalchemy import exc
-from sqlalchemy.pool import NullPool
 
 from kolibri.core.sqlite.utils import check_sqlite_integrity
 from kolibri.core.sqlite.utils import repair_sqlite_db
@@ -36,36 +35,19 @@ def create_db_url(
 
 def make_connection(db_type, url):
     if db_type == "sqlite":
-        return create_engine(
-            url,
+        kwargs = dict(
             connect_args={"check_same_thread": False},
-            poolclass=NullPool,
         )
 
     elif db_type == "postgres":
-        return create_engine(
-            url,
+        kwargs = dict(
             pool_pre_ping=True,
             client_encoding="utf8",
         )
     else:
         raise Exception("Unknown database engine option: {}".format(db_type))
 
-
-def __initialize_connection():
-    db_url = create_db_url(
-        conf.OPTIONS["Database"]["DATABASE_ENGINE"],
-        path=os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3"),
-        name=conf.OPTIONS["Database"]["DATABASE_NAME"],
-        password=conf.OPTIONS["Database"]["DATABASE_PASSWORD"],
-        user=conf.OPTIONS["Database"]["DATABASE_USER"],
-        host=conf.OPTIONS["Database"]["DATABASE_HOST"],
-        port=conf.OPTIONS["Database"]["DATABASE_PORT"],
-    )
-    connection = make_connection(
-        conf.OPTIONS["Database"]["DATABASE_ENGINE"],
-        db_url,
-    )
+    connection = create_engine(url, **kwargs)
 
     # Add multiprocessing safeguards as recommended by:
     # https://docs.sqlalchemy.org/en/13/core/pooling.html#pooling-multiprocessing
@@ -84,6 +66,24 @@ def __initialize_connection():
                 "Connection record belongs to pid %s, attempting to check out in pid %s"
                 % (connection_record.info["pid"], pid)
             )
+
+    return connection
+
+
+def __initialize_connection():
+    db_url = create_db_url(
+        conf.OPTIONS["Database"]["DATABASE_ENGINE"],
+        path=os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3"),
+        name=conf.OPTIONS["Database"]["DATABASE_NAME"],
+        password=conf.OPTIONS["Database"]["DATABASE_PASSWORD"],
+        user=conf.OPTIONS["Database"]["DATABASE_USER"],
+        host=conf.OPTIONS["Database"]["DATABASE_HOST"],
+        port=conf.OPTIONS["Database"]["DATABASE_PORT"],
+    )
+    connection = make_connection(
+        conf.OPTIONS["Database"]["DATABASE_ENGINE"],
+        db_url,
+    )
 
     # Check if the database is corrupted
     try:

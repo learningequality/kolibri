@@ -41,7 +41,8 @@ class Worker(object):
 
     def shutdown_workers(self, wait=True):
         # First cancel all running jobs
-        for job_id in self.future_job_mapping:
+        job_ids = self.future_job_mapping.keys()
+        for job_id in job_ids:
             logger.info("Canceling job id {}.".format(job_id))
             self.cancel(job_id)
         # Now shutdown the workers
@@ -138,10 +139,17 @@ class Worker(object):
 
         self.storage.mark_job_as_running(job.job_id)
 
+        db_type_lookup = {
+            "sqlite": "sqlite",
+            "postgresql": "postgres",
+        }
+
+        db_type = db_type_lookup[self.storage.engine.dialect.name]
+
         future = self.workers.submit(
             execute_job,
             job_id=job.job_id,
-            db_type=self.storage.engine.dialect.name,
+            db_type=db_type,
             db_url=self.storage.engine.url,
         )
 

@@ -75,11 +75,14 @@ def execute_job(job_id, db_type, db_url):
         setattr(current_state_tracker, "job", None)
         traceback_str = traceback.format_exc()
         e.traceback = traceback_str
+        connection.dispose()
         # Close any django connections opened here
         django_connection.close()
         raise
 
     setattr(current_state_tracker, "job", None)
+
+    connection.dispose()
 
     # Close any django connections opened here
     django_connection.close()
