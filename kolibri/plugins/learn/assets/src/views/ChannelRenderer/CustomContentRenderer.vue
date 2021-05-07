@@ -29,20 +29,35 @@
 
 <script>
 
-  import pick from 'lodash/pick';
   import urls from 'kolibri.urls';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
   import { now } from 'kolibri.utils.serverClock';
-  import { ContentNodeResource } from 'kolibri.resources';
+  import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
-  import { events } from 'hashi/src/hashiBase';
+  import { events, MessageStatuses } from 'hashi/src/hashiBase';
   import { validateTheme } from '../../utils/themes';
   import ContentModal from './ContentModal';
 
   const defaultContentHeight = '500px';
   const frameTopbarHeight = '37px';
   const pxStringAdd = (x, y) => parseInt(x, 10) + parseInt(y, 10) + 'px';
+
+  function createReturnMsg({ message, data, err }) {
+    // Infer status from data or err
+    const status = data ? MessageStatuses.SUCCESS : MessageStatuses.FAILURE;
+    return {
+      nameSpace: 'hashi',
+      event: events.DATARETURNED,
+      data: {
+        message_id: message.message_id,
+        type: 'response',
+        data: data || null,
+        err: err || null,
+        status,
+      },
+    };
+  }
 
   export default {
     name: 'CustomContentRenderer',
@@ -87,21 +102,26 @@
       this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
       const zipFile = this.topic.files.find(f => f.extension === 'zip');
       this.hashi.initialize({}, {}, zipFile.storage_url, zipFile.checksum);
-      this.hashi.on('collectionrequested', message => {
+      this.hashi.on(events.COLLECTIONREQUESTED, message => {
         this.fetchContentCollection(message);
       });
-      this.hashi.on('modelrequested', message => {
-        this.fetchContentModel(message).bind(this);
+      this.hashi.on(events.MODELREQUESTED, message => {
+        this.fetchContentModel.call(this, message);
       });
-      this.hashi.on('navigateto', message => {
-        this.navigateTo(message).bind(this);
+      this.hashi.on(events.NAVIGATETO, message => {
+        this.navigateTo.call(this, message);
       });
-      this.hashi.on('context', message => {
-        this.getOrUpdateContext(message).bind(this);
+      this.hashi.on(events.CONTEXT, message => {
+        this.getOrUpdateContext.call(this, message);
       });
-      this.hashi.on('themechanged', theme => {
-        delete theme.message_id;
-        this.channelTheme = validateTheme(theme);
+      this.hashi.on(events.THEMECHANGED, message => {
+        this.updateTheme.call(this, message);
+      });
+      this.hashi.on(events.SEARCHRESULTREQUESTED, message => {
+        this.fetchSearchResult.call(this, message);
+      });
+      this.hashi.on(events.KOLIBRIVERSIONREQUESTED, message => {
+        this.sendKolibriVersion.call(this, message);
       });
     },
     methods: {
@@ -109,65 +129,104 @@
       // called in mainClient.js
 
       fetchContentCollection(message) {
-        const options = message.options;
-        const getParams = pick(options, ['ids', 'parent']);
-        if (options.parent && options.parent == 'self') {
-          getParams.parent = this.topic.id;
-        }
-        ContentNodeResource.fetchCollection({ getParams }).then(contentNodes => {
-          message.status = contentNodes ? 'success' : 'failure';
-          let response = {};
-          response.page = message.options.page ? message.options.page : 1;
-          response.pageSize = message.options.pageSize ? message.options.pageSize : 50;
-          response.results = contentNodes;
-          message.data = response;
-          message.type = 'response';
-          this.hashi.mediator.sendLocalMessage({
-            nameSpace: 'hashi',
-            event: events.KOLIBRIDATARETURNED,
-            data: message,
+        const { options } = message;
+        return ContentNodeResource.fetchCollection({
+          getParams: {
+            ids: options.ids,
+            parent: options.parent === 'self' ? this.topic.id : options.parent,
+          },
+        })
+          .then(contentNodes => {
+            return createReturnMsg({
+              message,
+              data: {
+                page: options.page ? options.page : 1,
+                pageSize: options.pageSize ? options.pageSize : 50,
+                results: contentNodes,
+              },
+            });
+          })
+          .catch(err => {
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendMessage(newMsg);
           });
-        });
       },
 
       fetchContentModel(message) {
-        let id = message.id;
-        ContentNodeResource.fetchModel({ id }).then(contentNode => {
-          message.status = contentNode ? 'success' : 'failure';
-          message.data = contentNode;
-          message.type = 'response';
-          this.hashi.mediator.sendMessage({
-            nameSpace: 'hashi',
-            event: events.KOLIBRIDATARETURNED,
-            data: message,
+        return ContentNodeResource.fetchModel({ id: message.id })
+          .then(contentNode => {
+            return createReturnMsg({ message, data: contentNode });
+          })
+          .catch(err => {
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendMessage(newMsg);
           });
-        });
+      },
+
+      fetchSearchResult(message) {
+        let searchPromise;
+        const { keyword } = message.options;
+        if (!keyword) {
+          searchPromise = Promise.resolve({
+            page: 0,
+            pageSize: 0,
+            results: [],
+          });
+        } else {
+          searchPromise = ContentNodeSearchResource.fetchCollection({
+            getParams: { search: keyword },
+          }).then(searchResults => {
+            return {
+              page: 0,
+              pageSize: searchResults.total_results,
+              results: searchResults.results,
+            };
+          });
+        }
+
+        return searchPromise
+          .then(pageResult => {
+            return createReturnMsg({ message, data: pageResult });
+          })
+          .catch(err => {
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendMessage(newMsg);
+          });
       },
 
       navigateTo(message) {
         let id = message.nodeId;
         let context = {};
-        ContentNodeResource.fetchModel({ id }).then(contentNode => {
-          let routeBase, path;
-          if (contentNode && contentNode.kind === 'topic') {
-            routeBase = '/topics/t';
-            path = `${routeBase}/${id}`;
-            router.push({ path: path }).catch(() => {});
-          } else if (contentNode) {
-            // in a custom context, launch or maintain overlay
-            this.currentContent = contentNode;
-            this.overlayIsOpen = true;
-            context.node_id = contentNode.id;
-            context.customChannel = true;
-            const encodedContext = encodeURI(JSON.stringify(context));
-            router.replace({ query: { context: encodedContext } }).catch(() => {});
-          }
-          this.hashi.mediator.sendLocalMessage({
-            nameSpace: 'hashi',
-            event: events.KOLIBRIDATARETURNED,
-            data: message,
+        return ContentNodeResource.fetchModel({ id })
+          .then(contentNode => {
+            let routeBase, path;
+            if (contentNode && contentNode.kind === 'topic') {
+              routeBase = '/topics/t';
+              path = `${routeBase}/${id}`;
+              router.push({ path: path }).catch(() => {});
+            } else if (contentNode) {
+              // in a custom context, launch or maintain overlay
+              this.currentContent = contentNode;
+              this.overlayIsOpen = true;
+              context.node_id = contentNode.id;
+              context.customChannel = true;
+              const encodedContext = encodeURI(JSON.stringify(context));
+              router.replace({ query: { context: encodedContext } }).catch(() => {});
+            }
+            return createReturnMsg({ message, data: {} });
+          })
+          .catch(err => {
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendLocalMessage(newMsg);
           });
-        });
       },
       getOrUpdateContext(message) {
         // to update context with the incoming context
@@ -175,11 +234,6 @@
           message.context.customChannel = message.context.customChannel || true;
           const encodedContext = encodeURI(JSON.stringify(message.context));
           router.push({ query: { context: encodedContext } }).catch(() => {});
-          this.hashi.mediator.sendLocalMessage({
-            nameSpace: 'hashi',
-            event: events.KOLIBRIDATARETURNED,
-            data: message,
-          });
         } else {
           // just return the existing query
           const urlParams = this.$route.query;
@@ -187,12 +241,21 @@
             ? urlParams.get('context')
             : this.context;
           message.context = decodeURI(JSON.stringify(fetchedEncodedContext));
-          this.hashi.mediator.sendLocalMessage({
-            nameSpace: 'hashi',
-            event: events.KOLIBRIDATARETURNED,
-            data: message,
-          });
         }
+
+        const newMsg = createReturnMsg({ message, data: {} });
+        this.hashi.mediator.sendLocalMessage(newMsg);
+      },
+      updateTheme(message) {
+        const themeCopy = { ...message };
+        delete themeCopy.message_id;
+        this.channelTheme = validateTheme(themeCopy);
+        const newMsg = createReturnMsg({ message, data: {} });
+        return this.hashi.mediator.sendMessage(newMsg);
+      },
+      sendKolibriVersion(message) {
+        const newMsg = createReturnMsg({ message, data: __version });
+        return this.hashi.mediator.sendMessage(newMsg);
       },
     },
   };

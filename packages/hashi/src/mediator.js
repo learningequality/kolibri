@@ -1,4 +1,9 @@
 import uuidv4 from 'uuid/v4';
+import { events, MessageStatuses } from './hashiBase';
+
+function isUndefined(x) {
+  return typeof x === 'undefined';
+}
 
 /*
  * This class manages all message listening and sending from the postMessage
@@ -14,10 +19,10 @@ class Mediator {
     this.__messageHandlers = {};
   }
 
-  handleMessage(ev) {
-    const { nameSpace, event, data } = ev.data;
+  handleMessage(message) {
+    const { nameSpace, event, data } = message.data;
     // nameSpace and event should be defined, otherwise, it's not our message!
-    if (typeof nameSpace === 'undefined' || typeof event === 'undefined') {
+    if (isUndefined(nameSpace) || isUndefined(event)) {
       return;
     }
     if (this.__messageHandlers[nameSpace] && this.__messageHandlers[nameSpace][event]) {
@@ -35,21 +40,11 @@ class Mediator {
   }
 
   sendLocalMessage({ event, data, nameSpace } = {}) {
-    const message = {
-      event,
-      data,
-      nameSpace,
-    };
-    this.local.postMessage(message, '*');
+    this.local.postMessage({ event, data, nameSpace }, '*');
   }
 
   sendMessage({ event, data, nameSpace }) {
-    const message = {
-      event,
-      data,
-      nameSpace,
-    };
-    this.remote.postMessage(message, '*');
+    this.remote.postMessage({ event, data, nameSpace }, '*');
   }
 
   // a function to manage messages for kolibri.js,
@@ -60,9 +55,9 @@ class Mediator {
       let self = this;
       function handler(message) {
         if (message.message_id === msgId && message.type === 'response') {
-          if (message.status == 'success') {
+          if (message.status == MessageStatuses.SUCCESS) {
             resolve(message.data);
-          } else if (message.status === 'failure' && message.err) {
+          } else if (message.status === MessageStatuses.FAILURE && message.err) {
             reject(message.err);
           } else {
             // Otherwise something unspecified happened
@@ -71,17 +66,18 @@ class Mediator {
           try {
             self.removeMessageHandler({
               nameSpace,
-              event: 'datareturned',
+              event: events.DATARETURNED,
               callback: handler,
             });
           } catch (e) {
+            // eslint-disable-next-line no-console
             console.log(e);
           }
         }
       }
       this.registerMessageHandler({
         nameSpace,
-        event: 'datareturned',
+        event: events.DATARETURNED,
         callback: handler,
       });
       data.message_id = msgId;
@@ -90,11 +86,7 @@ class Mediator {
   }
 
   registerMessageHandler({ event, nameSpace, callback } = {}) {
-    if (
-      typeof callback !== 'function' ||
-      typeof event === 'undefined' ||
-      typeof nameSpace === 'undefined'
-    ) {
+    if (typeof callback !== 'function' || isUndefined(event) || isUndefined(nameSpace)) {
       return;
     }
     if (!this.__messageHandlers[nameSpace]) {

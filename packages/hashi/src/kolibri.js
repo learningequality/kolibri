@@ -4,7 +4,7 @@
  */
 import BaseShim from './baseShim';
 import Mediator from './mediator';
-import { events, nameSpace } from './hashiBase';
+import { events, nameSpace, DataTypes } from './hashiBase';
 
 /**
  * Type definition for Language metadata
@@ -99,7 +99,7 @@ export default class Kolibri extends BaseShim {
       getContentByFilter(options) {
         return self.mediator.sendMessageAwaitReply({
           event: events.DATAREQUESTED,
-          data: { options, dataType: 'Collection' },
+          data: { options, dataType: DataTypes.COLLECTION },
           nameSpace,
         });
       }
@@ -112,7 +112,7 @@ export default class Kolibri extends BaseShim {
       getContentById(id) {
         return self.mediator.sendMessageAwaitReply({
           event: events.DATAREQUESTED,
-          data: { id, dataType: 'Model' },
+          data: { id, dataType: DataTypes.MODEL },
           nameSpace,
         });
       }
@@ -126,7 +126,13 @@ export default class Kolibri extends BaseShim {
        * @param {number} [options.pageSize=50] - the page size for pagination
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
-      searchContent() {}
+      searchContent(options) {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.DATAREQUESTED,
+          data: { options, dataType: DataTypes.SEARCHRESULT },
+          nameSpace,
+        });
+      }
 
       /*
        * Method to set a default theme for any content rendering initiated by this app
@@ -193,11 +199,15 @@ export default class Kolibri extends BaseShim {
       }
 
       /*
-       * Getter to return the current version of Kolibri and hence the API available.
-       * @return {string} - A version string
+       * Method to return the current version of Kolibri and hence the API available.
+       * @return {Promise<string>} - A version string
        */
-      get version() {
-        return '';
+      getVersion() {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.DATAREQUESTED,
+          data: { dataType: DataTypes.KOLIBRIVERSION },
+          nameSpace,
+        });
       }
     }
 
