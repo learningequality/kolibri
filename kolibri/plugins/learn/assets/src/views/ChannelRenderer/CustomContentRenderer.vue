@@ -15,13 +15,12 @@
         :src="rooturl"
       >
       </iframe>
-      <KModal
+      <ContentModal
         v-if="overlayIsOpen"
-        cancelText="Close"
-        @cancel="overlayIsOpen = false"
-      >
-        <p>PLACEHOLDER FOR OVERLAY </p>
-      </KModal>
+        :contentNode="currentContent"
+        :channelTheme="channelTheme"
+        @close="overlayIsOpen = false"
+      />
     </div>
   </CoreFullscreen>
 
@@ -38,6 +37,8 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
   import { events } from 'hashi/src/hashiBase';
+  import { validateTheme } from '../../utils/themes';
+  import ContentModal from './ContentModal';
 
   const defaultContentHeight = '500px';
   const frameTopbarHeight = '37px';
@@ -47,6 +48,7 @@
     name: 'CustomContentRenderer',
     components: {
       CoreFullscreen,
+      ContentModal,
     },
     props: {
       topic: {
@@ -57,6 +59,7 @@
     data() {
       return {
         overlayIsOpen: false,
+        channelTheme: null,
       };
     },
     computed: {
@@ -95,6 +98,10 @@
       });
       this.hashi.on('context', message => {
         this.getOrUpdateContext(message).bind(this);
+      });
+      this.hashi.on('themechanged', theme => {
+        delete theme.message_id;
+        this.channelTheme = validateTheme(theme);
       });
     },
     methods: {

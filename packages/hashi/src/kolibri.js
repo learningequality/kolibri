@@ -131,9 +131,19 @@ export default class Kolibri extends BaseShim {
       /*
        * Method to set a default theme for any content rendering initiated by this app
        * @param {Theme} options - The different options for custom themeing
+       * @param {string} options.appBarColor - Color for app bar atop the renderer
+       * @param {string} options.textColor - Color for the text or icon
+       * @param {string} [options.backdropColor] - Color for modal backdrop
+       * @param {string} [options.backgroundColor] - Color for modal background
        * @return {Promise} - a Promise that resolves when the theme has been applied
        */
-      themeRenderer() {}
+      themeRenderer(options) {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.THEMECHANGED,
+          data: options,
+          nameSpace,
+        });
+      }
 
       /*
        * Method to allow navigation to or rendering of a specific node
@@ -181,7 +191,16 @@ export default class Kolibri extends BaseShim {
           nameSpace,
         });
       }
+
+      /*
+       * Getter to return the current version of Kolibri and hence the API available.
+       * @return {string} - A version string
+       */
+      get version() {
+        return '';
+      }
     }
+
     this.shim = new Shim();
     return this.shim;
   }

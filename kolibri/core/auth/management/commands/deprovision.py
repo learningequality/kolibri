@@ -51,12 +51,14 @@ class Command(AsyncCommand):
     def handle_async(self, *args, **options):
 
         # safest not to run this command while the server is running
-        status_code, _ = server.get_urls()
-        if status_code == server.STATUS_RUNNING:
+        try:
+            server.get_status()
             logger.error(
                 "The Kolibri server is currently running. Please stop it and then re-run this command."
             )
             sys.exit(1)
+        except server.NotRunning:
+            pass
 
         # ensure the user REALLY wants to do this!
         confirm_or_exit(

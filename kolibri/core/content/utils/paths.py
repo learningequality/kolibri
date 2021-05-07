@@ -8,6 +8,7 @@ from six.moves.urllib.parse import urljoin
 
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.utils import conf
+from kolibri.utils.server import get_zip_port
 
 
 # valid storage filenames consist of 32-char hex plus a file extension
@@ -251,6 +252,20 @@ def get_file_checksums_url(channel_id, baseurl, version="1"):
 HASHI = "hashi/"
 
 ZIPCONTENT = "zipcontent/"
+
+
+def get_zip_content_config():
+    zip_content_origin = conf.OPTIONS["Deployment"]["ZIP_CONTENT_ORIGIN"]
+    if not zip_content_origin:
+        zip_content_port = str(
+            get_zip_port() or conf.OPTIONS["Deployment"]["ZIP_CONTENT_PORT"]
+        )
+    elif type(zip_content_origin) is int:
+        zip_content_port = str(zip_content_origin)
+        zip_content_origin = ""
+    else:
+        zip_content_port = ""
+    return zip_content_origin, zip_content_port
 
 
 def zip_content_path_prefix():

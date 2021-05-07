@@ -3,7 +3,6 @@ import os
 import shutil
 import sys
 
-import portend
 from django.apps import apps
 from django.db.utils import OperationalError
 from django.db.utils import ProgrammingError
@@ -11,13 +10,8 @@ from django.db.utils import ProgrammingError
 from .conf import KOLIBRI_HOME
 from .conf import OPTIONS
 from .options import generate_empty_options_file
-from .server import get_status
-from .server import LISTEN_ADDRESS
-from .server import NotRunning
 
 logger = logging.getLogger(__name__)
-
-PORT_AVAILABILITY_CHECK_TIMEOUT = 2
 
 
 class SanityException(RuntimeError):
@@ -41,45 +35,6 @@ class DatabaseInaccessible(SanityException):
             "Not able to access the database while checking it.\n\n"
             "Exception: {}".format(str(self.db_exception))
         )
-
-
-def check_other_kolibri_running(port):
-    """
-    Make sure there are no other Kolibri instances running before starting the server.
-    """
-    try:
-        # Check if there are other kolibri instances running
-        # If there are, then we need to stop users from starting kolibri again.
-        get_status()
-        logger.error(
-            "There is another Kolibri server running. "
-            "Please use `kolibri stop` and try again."
-        )
-        sys.exit(1)
-
-    except NotRunning:
-        # In case that something other than Kolibri occupies the port,
-        # check the port's availability.
-        check_port_availability(LISTEN_ADDRESS, port)
-
-
-def check_port_availability(host, port):
-    """
-    Make sure the port is available for the server to start.
-    """
-    try:
-        portend.free(host, port, timeout=PORT_AVAILABILITY_CHECK_TIMEOUT)
-    except portend.Timeout:
-        # Bypass check when socket activation is used
-        # https://manpages.debian.org/testing/libsystemd-dev/sd_listen_fds.3.en.html#ENVIRONMENT
-        if not os.environ.get("LISTEN_PID", None):
-            # Port is occupied
-            logger.error(
-                "Port {} is occupied.\n"
-                "Please check that you do not have other processes "
-                "running on this port and try again.\n".format(port)
-            )
-            sys.exit(1)
 
 
 def check_content_directory_exists_and_writable():

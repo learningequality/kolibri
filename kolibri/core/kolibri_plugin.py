@@ -19,6 +19,7 @@ import kolibri
 from kolibri.core.content.utils.paths import get_content_storage_url
 from kolibri.core.content.utils.paths import get_hashi_path
 from kolibri.core.content.utils.paths import get_zip_content_base_path
+from kolibri.core.content.utils.paths import get_zip_content_config
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.hooks import NavigationHook
@@ -53,14 +54,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             # For some reason the js_name gets escaped going into the template
             # so this was the easiest way to inject it.
         ).replace("__placeholder__", js_name)
-        zip_content_origin = OPTIONS["Deployment"]["ZIP_CONTENT_ORIGIN"]
-        if not zip_content_origin:
-            zip_content_port = str(OPTIONS["Deployment"]["ZIP_CONTENT_PORT"])
-        elif type(zip_content_origin) is int:
-            zip_content_port = str(zip_content_origin)
-            zip_content_origin = ""
-        else:
-            zip_content_port = ""
+        zip_content_origin, zip_content_port = get_zip_content_config()
         return [
             mark_safe(
                 """<script type="text/javascript">"""

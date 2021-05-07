@@ -157,7 +157,7 @@ def test_kolibri_listen_port_env(monkeypatch):
         def start_mock(port, *args, **kwargs):
             assert port == test_port
             try:
-                os.remove(server.STARTUP_LOCK)
+                os.remove(server.PID_FILE)
             except OSError:
                 pass
 
@@ -166,6 +166,8 @@ def test_kolibri_listen_port_env(monkeypatch):
 
         test_port = 1234
 
+        test_zip_port = 5432
+
         os.environ["KOLIBRI_HTTP_PORT"] = str(test_port)
 
         # force a reload of plugins.OPTIONS so the environment variable will be read in
@@ -173,7 +175,7 @@ def test_kolibri_listen_port_env(monkeypatch):
 
         conf.OPTIONS.update(options.read_options_file(conf.KOLIBRI_HOME))
 
-        cli.start.callback(test_port, False)
+        cli.start.callback(test_port, test_zip_port, False)
         with pytest.raises(SystemExit) as excinfo:
             cli.stop.callback()
             assert excinfo.code == 0
@@ -189,13 +191,13 @@ def test_kolibri_listen_port_env(monkeypatch):
         def status_starting_up():
             raise server.NotRunning(server.STATUS_STARTING_UP)
 
-        # Ensure that if a server is reported to be 'starting up', it doesn't
-        # get killed while doing that.
+        # Ensure that if a server is reported to be 'starting up', it still
+        # successfully shuts down.
         monkeypatch.setattr(server, "get_status", status_starting_up)
         with pytest.raises(SystemExit) as excinfo:
             cli.stop.callback()
             assert excinfo.code == server.STATUS_STARTING_UP
-        assert "Not stopped" in LOG_LOGGER[-1][1]
+        assert "successfully been stopped" in LOG_LOGGER[-1][1]
 
 
 @pytest.mark.django_db

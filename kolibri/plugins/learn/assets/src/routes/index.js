@@ -89,9 +89,14 @@ export default [
   {
     name: PageNames.TOPICS_CHANNEL,
     path: '/topics/:channel_id',
-    handler: toRoute => {
+    handler: (toRoute, fromRoute) => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
+      }
+      // If navigation is triggered by a custom channel updating the
+      // context query param, do not run the handler
+      if (toRoute.params.channel_id === fromRoute.params.channel_id) {
+        return;
       }
       showTopicsChannel(store, toRoute.params.channel_id);
     },

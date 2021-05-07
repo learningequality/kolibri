@@ -61,4 +61,8 @@
     margin-top: 24px;
   }
 
+  .channel-renderer {
+    z-index: 5; // needs to be higher than AppBar
+  }
+
 </style>
