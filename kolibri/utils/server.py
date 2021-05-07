@@ -532,9 +532,9 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
 
     # Check if there are other kolibri instances running
     # If there are, then we need to stop users from starting kolibri again.
-    _, _, _, status = _read_pid_file(PID_FILE)
+    pid, _, _, status = _read_pid_file(PID_FILE)
 
-    if status in IS_RUNNING:
+    if status in IS_RUNNING and pid_exists(pid):
         logger.error(
             "There is another Kolibri server running. "
             "Please use `kolibri stop` and try again."

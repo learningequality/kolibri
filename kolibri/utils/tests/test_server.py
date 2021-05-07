@@ -214,3 +214,21 @@ class ServerInitializationTestCase(TestCase):
         wait_for_port_mock.side_effect = OSError
         server.background_port_check("0", "0")
         logging_mock.assert_not_called()
+
+    @mock.patch("kolibri.utils.server.pid_exists")
+    @mock.patch("kolibri.utils.server.ProcessBus")
+    def test_unclean_shutdown(self, process_bus_mock, pid_exists_mock):
+        pid_exists_mock.return_value = False
+        with open(server.PID_FILE, "w") as f:
+            f.write("{}\n{}\n{}\n{}\n".format(1000, 8000, 8001, server.STATUS_RUNNING))
+        server.start()
+        process_bus_mock.assert_called()
+
+    @mock.patch("kolibri.utils.server.pid_exists")
+    @mock.patch("kolibri.utils.server.ProcessBus")
+    def test_server_running(self, process_bus_mock, pid_exists_mock):
+        pid_exists_mock.return_value = True
+        with open(server.PID_FILE, "w") as f:
+            f.write("{}\n{}\n{}\n{}\n".format(1000, 8000, 8001, server.STATUS_RUNNING))
+        with self.assertRaises(SystemExit):
+            server.start()
