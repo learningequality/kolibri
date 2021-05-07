@@ -387,6 +387,10 @@ class SignalHandler(BaseSignalHandler):
         if os.getpid() == self.process_pid:
             return super(SignalHandler, self)._handle_signal(signum, frame)
 
+    def subscribe(self):
+        super(SignalHandler, self).subscribe()
+        self.bus.subscribe("ENTER", self.ENTER)
+
     def ENTER(self):
         self.process_pid = os.getpid()
 

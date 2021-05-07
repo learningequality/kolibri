@@ -232,3 +232,30 @@ class ServerInitializationTestCase(TestCase):
             f.write("{}\n{}\n{}\n{}\n".format(1000, 8000, 8001, server.STATUS_RUNNING))
         with self.assertRaises(SystemExit):
             server.start()
+
+
+class ServerSignalHandlerTestCase(TestCase):
+    @mock.patch("kolibri.utils.server.os.getpid")
+    @mock.patch("kolibri.utils.server.BaseSignalHandler._handle_signal")
+    def test_signal_different_pid(self, handle_signal_mock, getpid_mock):
+        getpid_mock.return_value = 1235
+        signal_handler = server.SignalHandler(mock.MagicMock())
+        signal_handler.process_pid = 1234
+        signal_handler._handle_signal()
+        handle_signal_mock.assert_not_called()
+
+    @mock.patch("kolibri.utils.server.os.getpid")
+    @mock.patch("kolibri.utils.server.BaseSignalHandler._handle_signal")
+    def test_signal_same_pid(self, handle_signal_mock, getpid_mock):
+        pid = 1234
+        getpid_mock.return_value = pid
+        signal_handler = server.SignalHandler(mock.MagicMock())
+        signal_handler.process_pid = pid
+        signal_handler._handle_signal()
+        handle_signal_mock.assert_called()
+
+    def test_signal_subscribe(self):
+        bus_mock = mock.MagicMock()
+        signal_handler = server.SignalHandler(bus_mock)
+        signal_handler.subscribe()
+        bus_mock.subscribe.assert_called_with("ENTER", signal_handler.ENTER)
