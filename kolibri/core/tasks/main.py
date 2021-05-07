@@ -1,5 +1,6 @@
 import logging
 import os
+import sqlite3
 
 from django.utils.functional import SimpleLazyObject
 from sqlalchemy import create_engine
@@ -7,6 +8,7 @@ from sqlalchemy import event
 from sqlalchemy import exc
 from sqlalchemy.pool import NullPool
 
+from kolibri.core.sqlite.utils import check_sqlite_integrity
 from kolibri.core.sqlite.utils import repair_sqlite_db
 from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.scheduler import Scheduler
@@ -57,9 +59,10 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
 def __initialize_connection():
     connection = __create_engine()
 
-    # Add multiprocessing safeguards as recommended by
-    # https://docs.sqlalchemy.org/en/13/core/pooling.html#using-connection-pools-with-multiprocessing
-
+    # Add multiprocessing safeguards as recommended by:
+    # https://docs.sqlalchemy.org/en/13/core/pooling.html#pooling-multiprocessing
+    # Don't make a connection before we've added the multiprocessing guards
+    # as otherwise we will have a connection that doesn't have the 'pid' attribute set.
     @event.listens_for(connection, "connect")
     def connect(dbapi_connection, connection_record):
         connection_record.info["pid"] = os.getpid()
@@ -74,12 +77,10 @@ def __initialize_connection():
                 % (connection_record.info["pid"], pid)
             )
 
-    # Don't make a connection before we've added the multiprocessing guards
-    # as otherwise we will have a connection that doesn't have the 'pid' attribute set.
-    # check if the database is corrupted:
+    # Check if the database is corrupted
     try:
-        connection.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    except (exc.DatabaseError, TypeError):
+        check_sqlite_integrity(connection)
+    except (exc.DatabaseError, sqlite3.DatabaseError):
         repair_sqlite_db(connection)
 
     return connection
