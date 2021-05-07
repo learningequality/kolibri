@@ -3,6 +3,7 @@ import forEach from 'lodash/forEach';
 import router from 'kolibri.coreVue.router';
 import logger from 'kolibri.lib.logging';
 import Vue from 'kolibri.lib.vue';
+import VueCompositionApi from '@vue/composition-api';
 import store from 'kolibri.coreVue.vuex.store';
 import heartbeat from 'kolibri.heartbeat';
 import KolibriModule from 'kolibri_module';
@@ -54,6 +55,7 @@ export default class KolibriApp extends KolibriModule {
   }
 
   ready() {
+    Vue.use(VueCompositionApi);
     // VueRouter instance needs to be defined to use vuex-router-sync
     if (!router._vueRouter) {
       router.initRouter();
