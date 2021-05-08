@@ -14,7 +14,7 @@ from django.core.management.base import handle_default_options
 from django.db.utils import DatabaseError
 
 import kolibri
-from kolibri.core.deviceadmin.utils import IncompatibleDatabase
+from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
 from kolibri.plugins.utils import autoremove_unavailable_plugins

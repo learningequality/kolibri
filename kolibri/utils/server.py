@@ -26,9 +26,6 @@ import kolibri
 from .system import become_daemon
 from .system import kill_pid
 from .system import pid_exists
-from kolibri.core.tasks.main import initialize_workers
-from kolibri.core.tasks.main import scheduler
-from kolibri.deployment.default.cache import recreate_diskcache
 from kolibri.utils import conf
 from kolibri.utils.android import on_android
 
@@ -242,9 +239,14 @@ class ServicesPlugin(SimplePlugin):
         self.bus.subscribe("SERVING", self.SERVING)
 
     def ENTER(self):
+        from kolibri.deployment.default.cache import recreate_diskcache
+
         recreate_diskcache()
 
     def START(self):
+        from kolibri.core.tasks.main import initialize_workers
+        from kolibri.core.tasks.main import scheduler
+
         # schedule the pingback job if not already scheduled
         if SCH_PING_JOB_ID not in scheduler:
             from kolibri.core.analytics.utils import schedule_ping
@@ -272,6 +274,8 @@ class ServicesPlugin(SimplePlugin):
         register_zeroconf_service(port=port or self.port)
 
     def STOP(self):
+        from kolibri.core.tasks.main import scheduler
+
         scheduler.shutdown_scheduler()
         if self.workers is not None:
             for worker in self.workers:

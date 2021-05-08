@@ -225,13 +225,13 @@ def main(ctx):
 @main.command(cls=KolibriDjangoCommand, help="Start the Kolibri process")
 @click.option(
     "--port",
-    default=OPTIONS["Deployment"]["HTTP_PORT"],
+    default=None,
     type=int,
     help="Port on which Kolibri is being served",
 )
 @click.option(
     "--zip-port",
-    default=OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
+    default=None,
     type=int,
     help="Port on which zip content server is being served",
 )
@@ -244,6 +244,10 @@ def start(port, zip_port, background):
     """
     Start the server on given port.
     """
+    port = OPTIONS["Deployment"]["HTTP_PORT"] if port is None else port
+    zip_port = (
+        OPTIONS["Deployment"]["ZIP_CONTENT_PORT"] if zip_port is None else zip_port
+    )
     server.start(
         port=port,
         zip_port=zip_port,
@@ -312,7 +316,7 @@ def status():
 @main.command(cls=KolibriDjangoCommand, help="Start worker processes")
 @click.option(
     "--port",
-    default=OPTIONS["Deployment"]["HTTP_PORT"],
+    default=None,
     type=int,
     help="Port on which Kolibri is running to inform services",
 )
@@ -325,6 +329,8 @@ def services(port, background):
     """
     Start the kolibri background services.
     """
+
+    port = OPTIONS["Deployment"]["HTTP_PORT"] if port is None else port
 
     logger.info("Starting Kolibri background services")
 
