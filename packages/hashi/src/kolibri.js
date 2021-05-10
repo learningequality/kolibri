@@ -144,6 +144,12 @@ export default class Kolibri extends BaseShim {
        * @return {Promise} - a Promise that resolves when the theme has been applied
        */
       themeRenderer(options) {
+        // options = {
+        //   appBarColor: 'red',
+        //   textColor: 'green',
+        //   backdropColor: 'purple',
+        //   backgroundColor: null,
+        // };
         return self.mediator.sendMessageAwaitReply({
           event: events.THEMECHANGED,
           data: options,

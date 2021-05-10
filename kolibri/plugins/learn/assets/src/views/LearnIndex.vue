@@ -125,6 +125,7 @@
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
         topicsTreeChannel: 'channel',
+        topicsTreeTopic: 'topic',
       }),
       ...mapState('examReportViewer', ['exam']),
       ...mapState(['pageName']),
@@ -141,6 +142,13 @@
           pageNameToComponentMap[PageNames.TOPICS_TOPIC],
           pageNameToComponentMap[PageNames.TOPICS_CHANNEL],
         ].includes(this.currentPage);
+      },
+      currentChannelIsCustom() {
+        return (
+          this.topicsTreeTopic &&
+          this.topicsTreeTopic.options &&
+          this.topicsTreeTopic.options.modality === 'CUSTOM_NAVIGATION'
+        );
       },
       immersivePageProps() {
         if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
@@ -185,7 +193,14 @@
             immersivePageIcon: 'close',
           };
         }
-
+        if (this.pageName === PageNames.TOPICS_CHANNEL && this.currentChannelIsCustom) {
+          return {
+            immersivePage: true,
+            immersivePageRoute: this.$router.getRoute(PageNames.TOPICS_ROOT),
+            immersivePagePrimary: false,
+            immersivePageIcon: 'close',
+          };
+        }
         if (this.pageName === PageNames.TOPICS_CONTENT) {
           let immersivePageRoute = {};
           let appBarTitle;
@@ -220,7 +235,7 @@
             appBarTitle,
             immersivePage: true,
             immersivePageRoute,
-            immersivePagePrimary: true,
+            immersivePagePrimary: false,
             immersivePageIcon: 'close',
           };
         }
