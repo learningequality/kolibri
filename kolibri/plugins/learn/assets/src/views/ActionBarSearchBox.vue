@@ -76,9 +76,11 @@
       openDropdownSearchBox() {
         this.searchBoxIsOpen = true;
         this.focusOnSearchBox();
+        window.document.documentElement.style['overflow'] = 'hidden';
       },
       closeDropdownSearchBox() {
         this.searchBoxIsOpen = false;
+        window.document.documentElement.style['overflow'] = 'visible';
       },
       toggleDropdownSearchBox() {
         if (this.searchBoxIsOpen) {
@@ -124,11 +126,12 @@
 
   .search-box-dropdown-backdrop {
     position: fixed;
-    top: 111px;
+    top: 116px;
     right: 0;
     bottom: 0;
     left: 0;
     z-index: 4;
+    height: 90vh;
     background-color: rgba(0, 0, 0, 0.7);
   }
 
