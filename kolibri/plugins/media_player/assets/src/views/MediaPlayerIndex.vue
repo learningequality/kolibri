@@ -421,7 +421,7 @@
       },
       // An alternative to recordProgress, this updates tracking based on clock-time spent on media
       updateProgress() {
-        this.$emit('updateProgress', Math.min(1, this.durationBasedProgress));
+        this.$emit('updateProgress', this.durationBasedProgress);
       },
       updatePlayerSizeClass() {
         this.player.removeClass('player-medium');
