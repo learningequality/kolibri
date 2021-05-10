@@ -2,8 +2,6 @@ import EpubRendererIndex from '../src/views/EpubRendererIndex';
 
 const { methods } = EpubRendererIndex;
 
-jest.mock('kolibri.urls');
-
 describe('updateProgress', () => {
   let context = {};
 
