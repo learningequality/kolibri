@@ -1,3 +1,5 @@
+.. _Frontend build pipeline:
+
 Frontend build pipeline
 =======================
 

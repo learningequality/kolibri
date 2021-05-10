@@ -22,6 +22,66 @@ All apps should extend the ``KolibriModule`` class found in `kolibri/core/assets
 
 The ``ready`` method will be automatically executed once the Module is loaded and registered with the Kolibri Core App. By convention, JavaScript is injected into the served HTML *after* the ``<rootvue>`` tag, meaning that this tag should be available when the ``ready`` method is called, and the root component (conventionally in *vue/index.vue*) can be mounted here.
 
+Creating a side nav entry
+-------------------------
+
+If you want to expose your new single page app as a top level navigation item in the sidebar nav, then it is necessary to create a nav item in your plugin. This is implemented as a hook, which is a combination of the WebpackBundleHook and a navigation hook. So it allows the creation of a navigation item frontend bundle, and signalling that this should be included as a navigation item. Here is an example of it in use.
+
+.. code-block:: python
+
+  from kolibri.core.hooks import NavigationHook
+  from kolibri.plugins.hooks import register_hook
+
+  @register_hook
+  class ExampleNavItem(NavigationHook):
+      bundle_id = "side_nav"
+
+For more information on using `bundle_id` and connecting it to the relevant Javascript entry point read the documentation on the :ref:`Frontend build pipeline`. The entry point for the nav item should minimally do the following:
+
+.. code-block:: html
+
+  <template>
+
+    <CoreMenuOption
+      :label="$tr('label')"
+      :link="url"
+      icon="learn"
+    />
+
+  </template>
+
+
+  <script>
+
+    import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
+    import navComponents from 'kolibri.utils.navComponents';
+    import urls from 'kolibri.urls';
+
+    const component = {
+      name: 'ExampleSideNavEntry',
+      components: {
+        CoreMenuOption,
+      },
+      computed: {
+        url() {
+          return urls['kolibri:kolibri.plugins.example:example']();
+        },
+      },
+      priority: 5,
+      $tr: {
+        label: 'Example',
+      },
+    };
+
+    navComponents.register(component);
+
+    export default component;
+
+  </script>
+
+This will create a navigation component which will be registered to appear in the navigation side bar.
+
+
 Content renderers
 -----------------
 
