@@ -38,8 +38,8 @@ def test_stop_no_db_access(create_engine_mock):
     create_engine_mock.assert_not_called()
 
 
-@patch("kolibri.utils.options.read_options_file")
-def test_import_no_options_evaluation(read_options_mock):
+@patch("kolibri.utils.conf.OPTIONS")
+def test_import_no_options_evaluation(options_mock):
     from kolibri.utils import cli  # noqa F401
 
-    read_options_mock.assert_not_called()
+    options_mock.__getitem__.assert_not_called()

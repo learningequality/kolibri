@@ -10,6 +10,7 @@ from django import db
 from django.conf import settings
 
 import kolibri
+from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
 from kolibri.core.tasks.main import scheduler
 from kolibri.core.utils.lock import db_lock
 from kolibri.utils.conf import KOLIBRI_HOME
@@ -30,10 +31,6 @@ KWARGS_IO_WRITE = {"mode": "w", "encoding": "utf-8"}
 if sys.version_info < (3,):
     KWARGS_IO_READ = {"mode": "rb"}
     KWARGS_IO_WRITE = {"mode": "wb"}
-
-
-class IncompatibleDatabase(Exception):
-    pass
 
 
 def default_backup_folder():
