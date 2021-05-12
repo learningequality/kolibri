@@ -62,7 +62,7 @@ PROFILE_LOCK = os.path.join(conf.KOLIBRI_HOME, "server_profile.lock")
 PORT_CACHE = os.path.join(conf.KOLIBRI_HOME, "port_cache")
 
 # File used to send a state transition command to the server process
-COMMAND_FLAG = os.path.join(conf.KOLIBRI_HOME, "command.flag")
+PROCESS_CONTROL_FLAG = os.path.join(conf.KOLIBRI_HOME, "prcess_control.flag")
 
 # This is a special file with daemon activity. It logs ALL stderr output, some
 # might not have made it to the log file!
@@ -406,14 +406,14 @@ class SignalHandler(BaseSignalHandler):
         self.process_pid = os.getpid()
 
 
-class CommandPlugin(Monitor):
+class ProcessControlPlugin(Monitor):
     def __init__(self, bus):
         self.mtime = self.get_mtime()
         Monitor.__init__(self, bus, self.run, 1)
 
     def get_mtime(self):
         try:
-            return os.stat(COMMAND_FLAG).st_mtime
+            return os.stat(PROCESS_CONTROL_FLAG).st_mtime
         except OSError:
             return 0
 
@@ -421,10 +421,12 @@ class CommandPlugin(Monitor):
         mtime = self.get_mtime()
         if mtime > self.mtime:
             # The file has been deleted or modified.
-            with open(COMMAND_FLAG, "r") as f:
+            with open(PROCESS_CONTROL_FLAG, "r") as f:
                 try:
                     command = f.read().strip()
                 except (IOError, OSError):
+                    # If the file does not exist, or there is
+                    # an error when reading the file, we just carry on.
                     command = ""
             if command == RESTART:
                 self.bus.log("Restarting server.")
@@ -459,7 +461,7 @@ def stop():
     if not pid:
         return status
 
-    with open(COMMAND_FLAG, "w") as f:
+    with open(PROCESS_CONTROL_FLAG, "w") as f:
         f.write(STOP)
     if not wait_for_status(STATUS_STOPPED, timeout=30):
         if pid_exists(pid):
@@ -621,7 +623,7 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
         autoreloader = Autoreloader(bus)
         autoreloader.subscribe()
 
-    reload_plugin = CommandPlugin(bus)
+    reload_plugin = ProcessControlPlugin(bus)
     reload_plugin.subscribe()
 
     bus.graceful()
@@ -632,7 +634,7 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
 
 
 def restart():
-    with open(COMMAND_FLAG, "w") as f:
+    with open(PROCESS_CONTROL_FLAG, "w") as f:
         f.write(RESTART)
     if not wait_for_status(STATUS_STOPPED):
         return False
