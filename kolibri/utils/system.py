@@ -18,7 +18,6 @@ from __future__ import unicode_literals
 
 import logging
 import os
-import signal
 import sys
 
 import six
@@ -45,26 +44,6 @@ def _posix_pid_exists(pid):
         return True
 
 
-def _kill_pid(pid, softkill_signal_number):
-    """Kill a PID by sending a signal, starting with a softer one and then escalating as needed"""
-    logger.info("Initiating shutdown of Kolibri")
-    try:
-        logger.debug("Attempting to soft kill process with pid %d..." % pid)
-        os.kill(pid, softkill_signal_number)
-        logger.debug("Soft kill signal sent without error.")
-    # process does not exist
-    except OSError:
-        logger.debug(
-            "Soft kill signal could not be sent (OSError); process may not exist?"
-        )
-        return
-
-
-def _posix_kill_pid(pid):
-    """Kill a PID by sending a posix-specific soft-kill signal"""
-    _kill_pid(pid, signal.SIGTERM)
-
-
 def _windows_pid_exists(pid):
     import ctypes
 
@@ -77,11 +56,6 @@ def _windows_pid_exists(pid):
         return True
     else:
         return False
-
-
-def _windows_kill_pid(pid):
-    """Kill a PID by sending a windows-specific soft-kill signal"""
-    _kill_pid(pid, signal.CTRL_C_EVENT)
 
 
 buffering = int(six.PY3)  # No unbuffered text I/O on Python 3 (#20815).
@@ -213,9 +187,7 @@ def become_daemon(**kwargs):
 # Utility functions for pinging or killing PIDs
 if os.name == "posix":
     pid_exists = _posix_pid_exists
-    kill_pid = _posix_kill_pid
     _become_daemon_function = _posix_become_daemon
 else:
     pid_exists = _windows_pid_exists
-    kill_pid = _windows_kill_pid
     _become_daemon_function = _windows_become_daemon
