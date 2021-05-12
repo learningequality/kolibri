@@ -24,7 +24,6 @@ from zeroconf import get_all_addresses
 
 import kolibri
 from .system import become_daemon
-from .system import kill_pid
 from .system import pid_exists
 from kolibri.utils import conf
 from kolibri.utils.android import on_android
@@ -62,8 +61,8 @@ PROFILE_LOCK = os.path.join(conf.KOLIBRI_HOME, "server_profile.lock")
 # File used to store previously available ports
 PORT_CACHE = os.path.join(conf.KOLIBRI_HOME, "port_cache")
 
-# File used to flag a restart is required
-RESET_FLAG = os.path.join(conf.KOLIBRI_HOME, "reset.flag")
+# File used to send a state transition command to the server process
+COMMAND_FLAG = os.path.join(conf.KOLIBRI_HOME, "command.flag")
 
 # This is a special file with daemon activity. It logs ALL stderr output, some
 # might not have made it to the log file!
@@ -89,6 +88,10 @@ status_messages = {
 # Constant job_id for scheduled jobs that we want to keep track of across server restarts
 SCH_PING_JOB_ID = "0"
 SCH_VACUUM_JOB_ID = "1"
+
+
+RESTART = "restart"
+STOP = "stop"
 
 
 class NotRunning(Exception):
@@ -403,14 +406,14 @@ class SignalHandler(BaseSignalHandler):
         self.process_pid = os.getpid()
 
 
-class RestartPlugin(Monitor):
+class CommandPlugin(Monitor):
     def __init__(self, bus):
         self.mtime = self.get_mtime()
         Monitor.__init__(self, bus, self.run, 1)
 
     def get_mtime(self):
         try:
-            return os.stat(RESET_FLAG).st_mtime
+            return os.stat(COMMAND_FLAG).st_mtime
         except OSError:
             return 0
 
@@ -418,14 +421,26 @@ class RestartPlugin(Monitor):
         mtime = self.get_mtime()
         if mtime > self.mtime:
             # The file has been deleted or modified.
-            self.bus.log("Restarting server.")
-            self.thread.cancel()
-            self.bus.restart()
+            with open(COMMAND_FLAG, "r") as f:
+                try:
+                    command = f.read().strip()
+                except (IOError, OSError):
+                    command = ""
+            if command == RESTART:
+                self.bus.log("Restarting server.")
+                self.thread.cancel()
+                self.bus.restart()
+            elif command == STOP:
+                self.bus.log("Stopping server.")
+                self.thread.cancel()
+                self.bus.transition("EXITED")
+            else:
+                self.mtime = mtime
 
 
 def wait_for_status(target, timeout=10):
     starttime = time.time()
-    while time.time() - starttime <= 10:
+    while time.time() - starttime <= timeout:
         _, _, _, status = _read_pid_file(PID_FILE)
         if status != target:
             time.sleep(0.1)
@@ -444,29 +459,26 @@ def stop():
     if not pid:
         return status
 
-    kill_pid(pid)
-    wait_for_status(STATUS_STOPPED)
-    if pid_exists(pid):
-        logger.debug(
-            "Process wth pid %s still exists after soft kill signal; attempting a SIGKILL."
-            % pid
-        )
-        os.kill(pid, signal.SIGKILL)
-    starttime = time.time()
-    while time.time() - starttime <= 10:
+    with open(COMMAND_FLAG, "w") as f:
+        f.write(STOP)
+    if not wait_for_status(STATUS_STOPPED, timeout=30):
         if pid_exists(pid):
-            time.sleep(0.1)
-        else:
-            break
-    if pid_exists(pid):
-        logger.debug(
-            "Process wth pid %s still exists after soft kill signal; attempting a SIGKILL."
-            % pid
-        )
-        os.kill(pid, signal.SIGKILL)
-    if pid_exists(pid):
-        logging.error("Kolibri process has failed to shutdown")
-        return STATUS_UNCLEAN_SHUTDOWN
+            logger.debug("Process wth pid %s still exists; attempting a SIGKILL." % pid)
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except SystemError as e:
+                logger.debug(
+                    "Received an error while trying to kill the Kolibri process: %s" % e
+                )
+        starttime = time.time()
+        while time.time() - starttime <= 10:
+            if pid_exists(pid):
+                time.sleep(0.1)
+            else:
+                break
+        if pid_exists(pid):
+            logging.error("Kolibri process has failed to shutdown")
+            return STATUS_UNCLEAN_SHUTDOWN
     return STATUS_STOPPED
 
 
@@ -609,7 +621,7 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
         autoreloader = Autoreloader(bus)
         autoreloader.subscribe()
 
-    reload_plugin = RestartPlugin(bus)
+    reload_plugin = CommandPlugin(bus)
     reload_plugin.subscribe()
 
     bus.graceful()
@@ -620,10 +632,8 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
 
 
 def restart():
-    try:
-        os.utime(RESET_FLAG, None)
-    except (OSError, IOError):
-        open(RESET_FLAG, "a").close()
+    with open(COMMAND_FLAG, "w") as f:
+        f.write(RESTART)
     if not wait_for_status(STATUS_STOPPED):
         return False
     return wait_for_status(STATUS_RUNNING)
