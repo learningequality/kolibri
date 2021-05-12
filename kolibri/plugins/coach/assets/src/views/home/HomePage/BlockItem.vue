@@ -28,7 +28,6 @@
   .block-item {
     padding-top: 8px;
     padding-right: 24px;
-    padding-bottom: 8px;
     padding-left: 24px;
     margin-right: -24px;
     margin-left: -24px;
@@ -36,8 +35,13 @@
     border-bottom-width: 0;
 
     &:not(:last-child) {
+      padding-bottom: 16px;
       border-bottom-style: solid;
       border-bottom-width: 1px;
+    }
+
+    &:last-child {
+      padding-top: 16px;
     }
   }
 
