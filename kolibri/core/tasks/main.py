@@ -13,7 +13,6 @@ from kolibri.core.sqlite.utils import repair_sqlite_db
 from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.scheduler import Scheduler
 from kolibri.core.tasks.worker import Worker
-from kolibri.core.utils.sqlalchemy_utils import SharingPool
 from kolibri.utils import conf
 
 
@@ -28,8 +27,6 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
                 path=os.path.join(conf.KOLIBRI_HOME, "job_storage.sqlite3")
             ),
             connect_args={"check_same_thread": False},
-            # Use NullPool for SQLite as we use a completely separate database
-            # file, so no need to share anything with Django.
             poolclass=NullPool,
         )
 
@@ -49,10 +46,6 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
             ),
             pool_pre_ping=True,
             client_encoding="utf8",
-            # Use our SharingPool for Postgres, so as to ensure that
-            # we share underlying database connections with Django
-            # this results in cleaner shutdown and clean up of connections
-            poolclass=SharingPool,
         )
 
 
