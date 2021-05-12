@@ -55,6 +55,10 @@ class NetworkClient(object):
                     return response.url.rstrip("/").replace("api/public/info", "")
             except (requests.RequestException) as e:
                 logger.info("Unable to connect: {}".format(e))
+            except ValueError:
+                logger.info(
+                    "Invalid JSON returned when attempting to connect to a remote server"
+                )
 
         # we weren't able to connect to any of the URL variations, so all we can do is throw
         raise errors.NetworkLocationNotFound()
