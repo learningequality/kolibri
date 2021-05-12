@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
-from kolibri.core.utils.sqlalchemy_utils import SharingPool
+from kolibri.core.content.utils.sqlalchemybridge import SharingPool
 
 
 def django_connection_engine():
