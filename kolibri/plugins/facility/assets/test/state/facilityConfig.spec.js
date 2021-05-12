@@ -3,10 +3,8 @@ import client from 'kolibri.client';
 import { showFacilityConfigPage } from '../../src/modules/facilityConfig/handlers';
 import makeStore from '../makeStore';
 
-jest.mock('kolibri.client', () => jest.fn());
-jest.mock('kolibri.urls', () => ({
-  'kolibri:core:facilitydataset-resetsettings': () => {},
-}));
+jest.mock('kolibri.client');
+jest.mock('kolibri.urls');
 jest.mock('kolibri.resources');
 
 const fakeFacility = {
