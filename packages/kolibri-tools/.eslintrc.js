@@ -19,6 +19,12 @@ module.exports = {
       },
     },
     {
+      files: ['**/__mocks__/*.*'],
+      env: {
+        jest: true,
+      }
+    },
+    {
       files: ['*.int.js'],
       env: {
         jest: true,
