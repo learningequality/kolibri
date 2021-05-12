@@ -62,7 +62,7 @@ PROFILE_LOCK = os.path.join(conf.KOLIBRI_HOME, "server_profile.lock")
 PORT_CACHE = os.path.join(conf.KOLIBRI_HOME, "port_cache")
 
 # File used to send a state transition command to the server process
-PROCESS_CONTROL_FLAG = os.path.join(conf.KOLIBRI_HOME, "prcess_control.flag")
+PROCESS_CONTROL_FLAG = os.path.join(conf.KOLIBRI_HOME, "process_control.flag")
 
 # This is a special file with daemon activity. It logs ALL stderr output, some
 # might not have made it to the log file!
