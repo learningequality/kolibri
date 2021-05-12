@@ -195,10 +195,11 @@
         }
         if (this.pageName === PageNames.TOPICS_CHANNEL && this.currentChannelIsCustom) {
           return {
+            appBarTitle: this.topicsTreeChannel.title || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(PageNames.TOPICS_ROOT),
             immersivePagePrimary: false,
-            immersivePageIcon: 'close',
+            immersivePageIcon: 'back',
           };
         }
         if (this.pageName === PageNames.TOPICS_CONTENT) {

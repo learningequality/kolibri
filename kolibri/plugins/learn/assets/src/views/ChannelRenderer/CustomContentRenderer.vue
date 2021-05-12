@@ -3,9 +3,8 @@
   <CoreFullscreen
     ref="html5Renderer"
     class="html5-renderer"
-    :style="{ height: contentRendererHeight, width: iframeWidth }"
   >
-    <div class="iframe-container" :style="containerStyle">
+    <div class="iframe-container">
       <iframe
         ref="iframe"
         class="iframe"
@@ -38,10 +37,6 @@
   import { events, MessageStatuses } from 'hashi/src/hashiBase';
   import { validateTheme } from '../../utils/themes';
   import ContentModal from './ContentModal';
-
-  const defaultContentHeight = '500px';
-  const frameTopbarHeight = '37px';
-  const pxStringAdd = (x, y) => parseInt(x, 10) + parseInt(y, 10) + 'px';
 
   function createReturnMsg({ message, data, err }) {
     // Infer status from data or err
@@ -84,18 +79,6 @@
       },
       rooturl() {
         return urls.hashi();
-      },
-      iframeHeight() {
-        return defaultContentHeight;
-      },
-      iframeWidth() {
-        return 'auto';
-      },
-      contentRendererHeight() {
-        return pxStringAdd(this.iframeHeight, frameTopbarHeight);
-      },
-      containerStyle() {
-        return { height: this.iframeHeight };
       },
     },
     mounted() {
@@ -267,23 +250,15 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .fullscreen-header {
-    text-align: right;
-  }
-
-  .fs-icon {
-    position: relative;
-    top: 8px;
-    width: 24px;
-    height: 24px;
-  }
-
   .html5-renderer {
     position: relative;
     text-align: center;
   }
 
   .iframe {
+    position: fixed;
+    top: 64px;
+    left: 0;
     width: 100%;
     height: 100%;
   }
