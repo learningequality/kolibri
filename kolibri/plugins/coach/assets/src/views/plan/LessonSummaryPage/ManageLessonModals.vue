@@ -15,6 +15,7 @@
       v-if="currentAction === AssignmentActions.DELETE"
       :modalTitle="$tr('deleteLessonTitle')"
       :modalDescription="$tr('deleteLessonConfirmation', { title: currentLesson.title })"
+      :noUndo="$tr('noUndo')"
       @submit="handleSubmitDelete"
       @cancel="closeModal"
     />
@@ -127,8 +128,8 @@
       copyLessonTitle: 'Copy lesson to',
       assignmentQuestion: 'Assign lesson to',
       deleteLessonTitle: 'Delete lesson',
-      deleteLessonConfirmation:
-        "Are you sure you want to delete '{ title }'? This action cannot be undone",
+      deleteLessonConfirmation: "Are you sure you want to delete '{ title }'?",
+      noUndo: 'This action cannot be undone',
       copyOfLesson: 'Copy of { lessonTitle }',
       uniqueTitleError: `A lesson titled '{title}' already exists in '{className}'`,
     },

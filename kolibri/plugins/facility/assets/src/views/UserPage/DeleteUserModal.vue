@@ -9,8 +9,8 @@
     @cancel="$emit('cancel')"
   >
     <p>{{ $tr('confirmation', { username: username }) }}</p>
-    <p>{{ $tr('noUndo') }}</p>
     <p>{{ $tr('warning', { username: username }) }}</p>
+    <p>{{ $tr('noUndo') }}</p>
   </KModal>
 
 </template>

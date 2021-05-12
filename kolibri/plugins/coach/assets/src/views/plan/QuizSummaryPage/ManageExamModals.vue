@@ -16,6 +16,7 @@
       :modalTitle="$tr('deleteExamTitle')"
       :modalDescription="$tr('deleteExamDescription', { title: quiz.title })"
       :modalConfirmation="$tr('deleteExamConfirmation')"
+      :noUndo="$tr('noUndo')"
       @submit="$emit('submit_delete')"
       @cancel="$emit('cancel')"
     />
@@ -65,8 +66,8 @@
       copyExamTitle: 'Copy quiz to',
       assignmentQuestion: 'Assign quiz to',
       deleteExamTitle: 'Delete quiz',
-      deleteExamDescription:
-        "Are you sure you want to delete '{ title }'? This action cannot be undone",
+      deleteExamDescription: "Are you sure you want to delete '{ title }'?",
+      noUndo: ' This action cannot be undone',
       deleteExamConfirmation: 'All learner progress on this quiz will be lost.',
       copyOfExam: 'Copy of { examTitle }',
     },

@@ -11,6 +11,9 @@
     <p v-if="modalConfirmation">
       {{ modalConfirmation }}
     </p>
+    <p v-if="noUndo">
+      {{ noUndo }}
+    </p>
   </KModal>
 
 </template>
@@ -34,6 +37,10 @@
         required: true,
       },
       modalConfirmation: {
+        type: String,
+        default: null,
+      },
+      noUndo: {
         type: String,
         default: null,
       },
