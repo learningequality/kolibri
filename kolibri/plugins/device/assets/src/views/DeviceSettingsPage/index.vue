@@ -16,7 +16,7 @@
     </section>
 
     <section>
-      <fieldset>
+      <div class="fieldset">
         <KSelect
           v-model="language"
           :label="$tr('selectedLanguageLabel')"
@@ -25,9 +25,9 @@
           :floatingLabel="false"
           style="max-width: 300px"
         />
-      </fieldset>
+      </div>
 
-      <fieldset>
+      <div class="fieldset">
         <label class="fieldset-label">{{ $tr('externalDeviceSettings') }}</label>
         <KCheckbox
           :label="$tr('unlistedChannels')"
@@ -49,9 +49,9 @@
             </p>
           </span>
         </KCheckbox>
-      </fieldset>
+      </div>
 
-      <fieldset>
+      <div class="fieldset">
         <label class="fieldset-label">{{ $tr('landingPageLabel') }}</label>
         <KRadioButton
           :label="$tr('learnerAppPageChoice')"
@@ -65,7 +65,7 @@
           :currentValue="landingPage"
           @change="landingPage = landingPageChoices.SIGN_IN"
         />
-        <fieldset style="margin-left: 32px">
+        <div style="margin-left: 32px">
           <KRadioButton
             :label="$tr('allowGuestAccess')"
             value="allowGuestAccess"
@@ -87,8 +87,8 @@
             :disabled="disableAllowLearnerUnassignedResourceAccess"
             @input="signInPageOption = $event"
           />
-        </fieldset>
-      </fieldset>
+        </div>
+      </div>
     </section>
 
     <section>
@@ -317,12 +317,8 @@
     }
   }
 
-  // Resets styling from pure css
-  fieldset {
-    min-width: 0;
-    padding: 0;
-    margin: 8px 0;
-    border: 0;
+  .fieldset {
+    margin: 16px 0;
   }
 
   .fieldset-label {
