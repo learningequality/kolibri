@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_filters",
     "kolibri.core.auth.apps.KolibriAuthConfig",
+    "kolibri.core.bookmarks",
     "kolibri.core.content",
     "kolibri.core.logger",
     "kolibri.core.notifications.apps.KolibriNotificationsConfig",
