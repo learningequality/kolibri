@@ -104,7 +104,7 @@
               {{ versionMsg }}
             </span>
             <CoreLogo
-              v-if="this.$kolibriBranding.signIn.showKolibriFooterLogo"
+              v-if="$kolibriBranding.signIn.showKolibriFooterLogo"
               class="footer-logo"
             />
             <span v-else> • </span>
@@ -113,6 +113,12 @@
               appearance="basic-link"
               @click="privacyModalVisible = true"
             />
+            <template v-if="$kolibriBranding.signIn.backgroundImgCredit">
+              <span> • </span>
+              {{ $tr('photoCreditLabel', {
+                photoCredit: $kolibriBranding.signIn.backgroundImgCredit
+              }) }}
+            </template>
           </div>
         </div>
       </div>
@@ -261,6 +267,10 @@
         message:
           'To change this, sign in as a super admin and update the Device network access settings',
         context: 'Error message description',
+      },
+      photoCreditLabel: {
+        message: 'Photo credit: {photoCredit}',
+        context: 'Gives credit to the photographer of the background image',
       },
     },
   };
