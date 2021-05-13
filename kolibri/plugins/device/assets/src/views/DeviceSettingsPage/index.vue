@@ -65,26 +65,26 @@
           :currentValue="landingPage"
           @input="handleLandingPageChange"
         />
-        <div style="margin-left: 32px">
+        <div class="fieldset" style="margin-left: 32px">
           <KRadioButton
             :label="$tr('allowGuestAccess')"
-            value="allowGuestAccess"
+            :value="SignInPageOptions.ALLOW_GUEST_ACCESS"
             :currentValue="signInPageOption"
-            :disabled="disableAllowGuestAccess"
+            :disabled="disableSignInPageOptions"
             @input="handleSignInPageChange"
           />
           <KRadioButton
             :label="$tr('disallowGuestAccess')"
-            value="disallowGuestAccess"
+            :value="SignInPageOptions.DISALLOW_GUEST_ACCESS"
             :currentValue="signInPageOption"
-            :disabled="disableAllowGuestAccess"
+            :disabled="disableSignInPageOptions"
             @input="handleSignInPageChange"
           />
           <KRadioButton
             :label="$tr('lockedContent')"
-            value="lockedContent"
+            :value="SignInPageOptions.LOCKED_CONTENT"
             :currentValue="signInPageOption"
-            :disabled="disableAllowLearnerUnassignedResourceAccess"
+            :disabled="disableSignInPageOptions"
             @input="handleSignInPageChange"
           />
         </div>
@@ -131,6 +131,12 @@
   import { LandingPageChoices } from '../../constants';
   import { getDeviceSettings, saveDeviceSettings } from './api';
 
+  const SignInPageOptions = Object.freeze({
+   LOCKED_CONTENT: 'LOCKED_CONTENT',
+   DISALLOW_GUEST_ACCESS: 'DISALLOW_GUEST_ACCESS',
+   ALLOW_GUEST_ACCESS: 'ALLOW_GUEST_ACCESS',
+  });
+
   export default {
     name: 'DeviceSettingsPage',
     metaInfo() {
@@ -143,12 +149,11 @@
       return {
         language: {},
         landingPage: '',
-        allowGuestAccess: null,
-        allowLearnerUnassignedResourceAccess: null,
         allowPeerUnlistedChannelImport: null,
         allowOtherBrowsersToConnect: null,
         landingPageChoices: LandingPageChoices,
         signInPageOption: '',
+        SignInPageOptions,
         browserDefaultOption: {
           value: null,
           label: this.$tr('browserDefaultLanguage'),
@@ -176,14 +181,10 @@
 
         return languages;
       },
-      disableAllowGuestAccess() {
+      disableSignInPageOptions() {
         return (
-          this.landingPage !== LandingPageChoices.SIGN_IN ||
-          !this.allowLearnerUnassignedResourceAccess
+          this.landingPage !== LandingPageChoices.SIGN_IN
         );
-      },
-      disableAllowLearnerUnassignedResourceAccess() {
-        return this.landingPage !== LandingPageChoices.SIGN_IN || this.allowGuestAccess;
       },
     },
     beforeMount() {
@@ -204,6 +205,10 @@
           this.language = this.browserDefaultOption;
         }
 
+        if (settings.landingPage === LandingPageChoices.SIGN_IN) {
+          this.hydrateSignInOption(settings);
+        }
+
         Object.assign(this, {
           landingPage,
           allowGuestAccess,
@@ -214,6 +219,15 @@
       });
     },
     methods: {
+      hydrateSignInOption(settings) {
+        if (settings.allowLearnerUnassignedResourceAccess === false) {
+          this.signInPageOption = SignInPageOptions.LOCKED_CONTENT;
+        } else if (settings.allowGuestAccess === true) {
+          this.signInPageOption = SignInPageOptions.ALLOW_GUEST_ACCESS;
+        } else if (settings.allowGuestAccess === false) {
+          this.signInPageOption = SignInPageOptions.DISALLOW_GUEST_ACCESS;
+        }
+      },
       handleLandingPageChange(option) {
         this.landingPage = option;
         if (option === LandingPageChoices.LEARN) {
@@ -234,7 +248,7 @@
         return '';
       },
       handleClickSave() {
-        const {
+        let {
           language,
           landingPage,
           allowGuestAccess,
@@ -242,6 +256,23 @@
           allowPeerUnlistedChannelImport,
           allowOtherBrowsersToConnect,
         } = this;
+
+        // If landing page is Learn, then these settings need to be false
+        if (landingPage === LandingPageChoices.LEARN) {
+          allowGuestAccess = false;
+          allowLearnerUnassignedResourceAccess = true;
+        }
+
+        if (this.signInPageOption === SignInPageOptions.ALLOW_GUEST_ACCESS) {
+          allowGuestAccess = true
+          allowLearnerUnassignedResourceAccess = true;
+        } else if (this.signInPageOption === SignInPageOptions.DISALLOW_GUEST_ACCESS) {
+          allowGuestAccess = false
+          allowLearnerUnassignedResourceAccess = true;
+        } else if (this.signInPageOption === SignInPageOptions.LOCKED_CONTENT) {
+          allowGuestAccess = false
+          allowLearnerUnassignedResourceAccess = false;
+        }
 
         this.saveDeviceSettings({
           languageId: language.value,
