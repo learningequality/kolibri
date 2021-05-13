@@ -1,14 +1,11 @@
-//
-import { ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
+import { TaskResource } from 'kolibri.resources';
 import { loadChannelMetadata } from '../../src/modules/wizard/actions/selectContentActions';
-import { jestMockResource } from 'testUtils'; // eslint-disable-line
 import ChannelResource from '../../src/apiResources/deviceChannel';
 import { defaultChannel } from '../utils/data';
 import { makeSelectContentPageStore } from '../utils/makeStore';
 
-jestMockResource(ChannelResource);
-jestMockResource(ContentNodeGranularResource);
-jestMockResource(TaskResource);
+jest.mock('kolibri.resources');
+jest.genMockFromModule('../../src/apiResources/deviceChannel');
 
 // Have store suddenly add a Task to the store so the task waiting step
 // resolves successfully
@@ -21,10 +18,8 @@ function hackStoreWatcher(store) {
 describe('loadChannelMetadata action', () => {
   let store;
 
-  beforeEach(() => {
-    // Add mock methods not in generic mock Resource
-    TaskResource.startRemoteChannelImport = jest.fn();
-    TaskResource.startDiskChannelImport = jest.fn();
+  beforeAll(() => {
+    ChannelResource.fetchModel = jest.fn();
   });
 
   beforeEach(() => {
@@ -35,26 +30,18 @@ describe('loadChannelMetadata action', () => {
     ]);
     hackStoreWatcher(store);
     const taskEntity = { data: { id: 'task_1' } };
-    TaskResource.cancelTask = jest.fn().mockResolvedValue();
     TaskResource.startDiskChannelImport.mockResolvedValue(taskEntity);
     TaskResource.startRemoteChannelImport.mockResolvedValue(taskEntity);
-    ChannelResource.getModel.mockReturnValue({
-      fetch: () => ({
-        _promise: Promise.resolve({
-          name: 'Channel One',
-          root: 'channel_1_root',
-        }),
-      }),
+    ChannelResource.fetchModel.mockResolvedValue({
+      name: 'Channel One',
+      root: 'channel_1_root',
     });
   });
 
   afterEach(() => {
-    ChannelResource.__resetMocks();
-    ContentNodeGranularResource.__resetMocks();
-    TaskResource.__resetMocks();
-    TaskResource.startRemoteChannelImport.mockReset();
+    ChannelResource.fetchModel.mockReset();
     TaskResource.startDiskChannelImport.mockReset();
-    TaskResource.cancelTask.mockReset();
+    TaskResource.startRemoteChannelImport.mockReset();
   });
 
   function setUpStateForTransferType(transferType) {

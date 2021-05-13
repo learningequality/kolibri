@@ -1,11 +1,8 @@
-import { jestMockResource } from 'testUtils'; // eslint-disable-line
-import { ClassroomResource, ContentNodeResource, ExamResource } from 'kolibri.resources';
+import { ClassroomResource, ExamResource } from 'kolibri.resources';
 import { showExamsPage } from '../src/modules/examsRoot/handlers';
 import makeStore from './makeStore';
 
-jestMockResource(ClassroomResource);
-jestMockResource(ContentNodeResource);
-jestMockResource(ExamResource);
+jest.mock('kolibri.resources');
 
 // fakes for data, since they have similar shape
 const fakeItems = [
@@ -328,23 +325,25 @@ fakeExamState.forEach(fakeExam => {
 
 describe('showPage actions for coach exams section', () => {
   let store;
+
   beforeEach(() => {
     store = makeStore();
-    ClassroomResource.__resetMocks();
-    ContentNodeResource.__resetMocks();
-    ExamResource.__resetMocks();
+    ClassroomResource.fetchCollection.mockReset();
+    ExamResource.fetchCollection.mockReset();
   });
 
   describe('showExamsPage', () => {
     it('store is properly set up when there are no problems', async () => {
-      ClassroomResource.__getCollectionFetchReturns(fakeItems);
-      ExamResource.__getCollectionFetchReturns(fakeExams);
-      ExamResource.__getCollectionFetchReturns(fakeExams);
+      ClassroomResource.fetchCollection.mockResolvedValue(fakeItems);
+      ExamResource.fetchCollection.mockResolvedValue(fakeExams);
 
       // Using the weird naming from fakeItems
       const classId = 'item_1';
       await showExamsPage(store, classId)._promise;
-      expect(ExamResource.getCollection).toHaveBeenCalledWith({ collection: classId });
+      expect(ExamResource.fetchCollection).toHaveBeenCalledWith({
+        getParams: { collection: classId },
+        force: true,
+      });
       expect(store.state.examsRoot).toMatchObject({
         exams: fakeExamState,
         examsModalSet: false,
@@ -353,8 +352,8 @@ describe('showPage actions for coach exams section', () => {
     });
 
     it('store is properly set up when there are errors', async () => {
-      ClassroomResource.__getCollectionFetchReturns(fakeItems);
-      ExamResource.__getCollectionFetchReturns('channel error', true);
+      ClassroomResource.fetchCollection.mockResolvedValue(fakeItems);
+      ExamResource.fetchCollection.mockRejectedValue('channel error');
       try {
         await showExamsPage(store, 'class_1')._promise;
       } catch (error) {

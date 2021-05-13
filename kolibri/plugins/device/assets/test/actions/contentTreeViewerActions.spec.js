@@ -1,21 +1,15 @@
-//
 import omit from 'lodash/fp/omit';
-import { jestMockResource } from 'testUtils'; // eslint-disable-line
-import { ContentNodeGranularResource, TaskResource } from 'kolibri.resources';
+import { ContentNodeGranularResource } from 'kolibri.resources';
 import client from 'kolibri.client';
 import { makeNode, contentNodeGranularPayload } from '../utils/data';
 import { updateTreeViewTopic } from '../../src/modules/wizard/handlers';
-import ChannelResource from '../../src/apiResources/deviceChannel';
 import { makeSelectContentPageStore } from '../utils/makeStore';
 
 const simplePath = (...ids) => ids.map(id => ({ id, title: `node_${id}` }));
 
 jest.mock('kolibri.urls');
 jest.mock('kolibri.client');
-
-jestMockResource(ChannelResource);
-jestMockResource(ContentNodeGranularResource);
-jestMockResource(TaskResource);
+jest.mock('kolibri.resources');
 
 const ADD_NODE_ACTION = 'manageContent/wizard/addNodeForTransfer';
 const REMOVE_NODE_ACTION = 'manageContent/wizard/removeNodeForTransfer';
@@ -325,9 +319,12 @@ describe('updateTreeViewTopic action', () => {
   topic_3.path = [...topic_2.path, topic_2];
   topic_4.path = [...topic_3.path, topic_3];
 
+  beforeAll(() => {
+    ContentNodeGranularResource.fetchModel.mockResolvedValue(cngPayload);
+  });
+
   beforeEach(() => {
     store = makeSelectContentPageStore();
-    ContentNodeGranularResource.__getModelFetchReturns(cngPayload);
   });
 
   function assertPathEquals(expected) {

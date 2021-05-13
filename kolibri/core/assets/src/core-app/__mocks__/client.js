@@ -1,6 +1,6 @@
 let returnedPayload = {};
 
-const client = () => Promise.resolve({ data: returnedPayload });
+const client = jest.fn().mockResolvedValue({ data: returnedPayload });
 
 client.__setPayload = payload => {
   returnedPayload = payload;
