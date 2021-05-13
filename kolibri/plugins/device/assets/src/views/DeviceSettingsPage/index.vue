@@ -44,33 +44,35 @@
           </p>
         </span>
       </KCheckbox>
-      <p>
+      <fieldset>
         <label>{{ $tr('landingPageLabel') }}</label>
-        <KRadioButton
-          :label="$tr('signInPageChoice')"
-          :value="landingPageChoices.SIGN_IN"
-          :currentValue="landingPage"
-          @change="landingPage = landingPageChoices.SIGN_IN"
-        />
         <KRadioButton
           :label="$tr('learnerAppPageChoice')"
           :value="landingPageChoices.LEARN"
           :currentValue="landingPage"
           @change="landingPage = landingPageChoices.LEARN"
         />
-      </p>
-      <KCheckbox
-        :label="$tr('allowGuestAccess')"
-        :disabled="disableAllowGuestAccess"
-        :checked="allowGuestAccess || landingPage === landingPageChoices.LEARN"
-        @change="allowGuestAccess = $event"
-      />
-      <KCheckbox
-        :label="$tr('lockedContent')"
-        :disabled="disableAllowLearnerUnassignedResourceAccess"
-        :checked="!allowLearnerUnassignedResourceAccess && landingPage !== landingPageChoices.LEARN"
-        @change="allowLearnerUnassignedResourceAccess = !$event"
-      />
+        <KRadioButton
+          :label="$tr('signInPageChoice')"
+          :value="landingPageChoices.SIGN_IN"
+          :currentValue="landingPage"
+          @change="landingPage = landingPageChoices.SIGN_IN"
+        />
+        <fieldset>
+          <KCheckbox
+            :label="$tr('allowGuestAccess')"
+            :disabled="disableAllowGuestAccess"
+            :checked="allowGuestAccess || landingPage === landingPageChoices.LEARN"
+            @change="allowGuestAccess = $event"
+          />
+          <KCheckbox
+            :label="$tr('lockedContent')"
+            :disabled="disableAllowLearnerUnassignedResourceAccess"
+            :checked="!allowLearnerUnassignedResourceAccess && landingPage !== landingPageChoices.LEARN"
+            @change="allowLearnerUnassignedResourceAccess = !$event"
+          />
+        </fieldset>
+      </fieldset>
     </section>
     <section>
       <KButton
@@ -241,7 +243,10 @@
       selectedLanguageLabel: 'Default language',
       facilitySettings: 'You can also configure facility settings',
       allowGuestAccess: 'Allow users to access resources without signing in',
-      landingPageLabel: 'Landing page',
+      landingPageLabel: {
+        message: 'Default landing page',
+        context: 'The page that users see immediately after they log in',
+      },
       signInPageChoice: 'Sign-in page',
       learnerAppPageChoice: {
         message: 'Learn page',
@@ -287,6 +292,14 @@
     li {
       margin-bottom: 8px;
     }
+  }
+
+  // Resets styling from pure css
+  fieldset {
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
   }
 
 </style>
