@@ -11,16 +11,14 @@ from kolibri.core.content.utils.sqlalchemybridge import ClassNotFoundError
 from kolibri.core.content.utils.sqlalchemybridge import get_class
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 from kolibri.core.content.utils.sqlalchemybridge import get_engine
-from kolibri.core.content.utils.sqlalchemybridge import make_session
 from kolibri.core.content.utils.sqlalchemybridge import set_all_class_defaults
 from kolibri.core.content.utils.sqlalchemybridge import sqlite_connection_string
 
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.db_matches_schema")
-@patch("kolibri.core.content.utils.sqlalchemybridge.make_session", return_value=(0, 0))
 @patch(
     "kolibri.core.content.utils.sqlalchemybridge.sqlite_connection_string",
-    return_value="test",
+    return_value="sqlite://",
 )
 class SQLAlchemyBridgeClassTestCase(TestCase):
     """
@@ -28,37 +26,29 @@ class SQLAlchemyBridgeClassTestCase(TestCase):
     """
 
     def test_constructor_sqlite_file_path(
-        self, connection_string_mock, make_session_mock, db_matches_schema_mock
+        self, connection_string_mock, db_matches_schema_mock
     ):
-        Bridge(sqlite_file_path="test")
-        connection_string_mock.assert_called_once_with("test")
+        Bridge(sqlite_file_path="test.sqlite3")
+        connection_string_mock.assert_called()
 
     @patch(
         "kolibri.core.content.utils.sqlalchemybridge.get_default_db_string",
-        return_value="test",
+        return_value="sqlite://",
     )
     def test_constructor_default_db_path(
         self,
         default_db_string_mock,
         connection_string_mock,
-        make_session_mock,
         db_matches_schema_mock,
     ):
         Bridge()
-        default_db_string_mock.assert_called_once_with()
-
-    def test_constructor_make_session(
-        self, connection_string_mock, make_session_mock, db_matches_schema_mock
-    ):
-        Bridge(sqlite_file_path="test")
-        make_session_mock.assert_has_calls([call("test"), call("test")])
+        default_db_string_mock.assert_called()
 
     @patch("kolibri.core.content.utils.sqlalchemybridge.get_class")
     def test_instance_get_class(
         self,
         get_class_mock,
         connection_string_mock,
-        make_session_mock,
         db_matches_schema_mock,
     ):
         bridge = Bridge(sqlite_file_path="test")
@@ -71,7 +61,6 @@ class SQLAlchemyBridgeClassTestCase(TestCase):
         self,
         get_class_mock,
         connection_string_mock,
-        make_session_mock,
         db_matches_schema_mock,
     ):
         bridge = Bridge(sqlite_file_path="test")
@@ -83,29 +72,22 @@ class SQLAlchemyBridgeClassTestCase(TestCase):
         self.assertEqual(bridge.get_table(model), table)
 
     def test_instance_get_connection(
-        self, connection_string_mock, make_session_mock, db_matches_schema_mock
+        self, connection_string_mock, db_matches_schema_mock
     ):
-        engine_mock = MagicMock()
-        make_session_mock.return_value = (0, engine_mock)
         connection = "connection"
-        engine_mock.connect.return_value = connection
         bridge = Bridge(sqlite_file_path="test")
-        bridge.get_connection()
-        engine_mock.connect.assert_called_once_with()
+        bridge._connection = connection
         self.assertEqual(connection, bridge.connection)
 
-    def test_instance_end(
-        self, connection_string_mock, make_session_mock, db_matches_schema_mock
-    ):
-        session_mock = MagicMock()
+    def test_instance_end(self, connection_string_mock, db_matches_schema_mock):
         engine_mock = MagicMock()
-        make_session_mock.return_value = (session_mock, engine_mock)
         connection = MagicMock()
         bridge = Bridge(sqlite_file_path="test")
-        bridge.connection = connection
+        bridge.engine = engine_mock
+        bridge._connection = connection
         bridge.end()
-        session_mock.close.assert_called_once_with()
         connection.close.assert_called_once_with()
+        engine_mock.dispose.assert_called_once_with()
 
 
 class SQLAlchemyBridgeSQLAlchemyFunctionsTestCase(TestCase):
@@ -114,54 +96,6 @@ class SQLAlchemyBridgeSQLAlchemyFunctionsTestCase(TestCase):
 
     def test_get_engine(self):
         self.assertEquals(type(get_engine("sqlite:///")), Engine)
-
-    @patch(
-        "kolibri.core.content.utils.sqlalchemybridge.sessionmaker",
-        return_value=lambda: "test_session",
-    )
-    @patch(
-        "kolibri.core.content.utils.sqlalchemybridge.get_engine",
-        return_value="test_engine",
-    )
-    def test_make_session_get_engine(self, get_engine_mock, sessionmaker_mock):
-        make_session("test")
-        get_engine_mock.assert_called_once_with("test")
-
-    @patch(
-        "kolibri.core.content.utils.sqlalchemybridge.sessionmaker",
-        return_value=lambda: "test_session",
-    )
-    @patch(
-        "kolibri.core.content.utils.sqlalchemybridge.get_engine",
-        return_value="test_engine",
-    )
-    def test_make_session_sessionmaker(self, get_engine_mock, sessionmaker_mock):
-        make_session("test")
-        sessionmaker_mock.assert_called_once_with(bind="test_engine", autoflush=False)
-
-    @patch(
-        "kolibri.core.content.utils.sqlalchemybridge.sessionmaker",
-        return_value=lambda: "test_session",
-    )
-    @patch(
-        "kolibri.core.content.utils.sqlalchemybridge.get_engine",
-        return_value="test_engine",
-    )
-    def test_make_session_session_return(self, get_engine_mock, sessionmaker_mock):
-        test_session, test_engine = make_session("test")
-        self.assertEqual(test_session, "test_session")
-
-    @patch(
-        "kolibri.core.content.utils.sqlalchemybridge.sessionmaker",
-        return_value=lambda: "test_session",
-    )
-    @patch(
-        "kolibri.core.content.utils.sqlalchemybridge.get_engine",
-        return_value="test_engine",
-    )
-    def test_make_session_engine_return(self, get_engine_mock, sessionmaker_mock):
-        test_session, test_engine = make_session("test")
-        self.assertEqual(test_engine, "test_engine")
 
     def test_get_class_exists(self):
         DjangoModel = MagicMock()

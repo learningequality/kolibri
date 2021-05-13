@@ -9,7 +9,7 @@ class DBSchemaError(Exception):
     pass
 
 
-def db_matches_schema(Base, session):
+def db_matches_schema(Base, engine):
     """
     Check whether the current database matches the models declared in model base.
     Currently we check that all tables exist with all columns.
@@ -18,7 +18,6 @@ def db_matches_schema(Base, session):
     :return: True if all declared models have corresponding tables and columns.
     """
 
-    engine = session.get_bind()
     iengine = inspect(engine)
 
     tables = iengine.get_table_names()

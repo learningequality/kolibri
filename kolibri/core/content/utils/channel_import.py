@@ -6,6 +6,7 @@ import time
 from django.apps import apps
 from django.db.models.fields.related import ForeignKey
 from sqlalchemy import or_
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import select
@@ -120,6 +121,9 @@ class StringIteratorIO(io.TextIOBase):
         return "".join(buff)
 
 
+BATCH_SIZE = 1000
+
+
 class ChannelImport(object):
     """
     The ChannelImport class has two functions:
@@ -210,13 +214,13 @@ class ChannelImport(object):
         return None
 
     def get_all_destination_tree_ids(self):
-        ContentNodeRecord = self.destination.get_class(ContentNode)
+        ContentNodeTable = self.destination.get_table(ContentNode)
         return sorted(
             map(
                 lambda x: x[0],
-                self.destination.session.query(ContentNodeRecord.tree_id)
-                .distinct()
-                .all(),
+                self.destination.execute(
+                    select([ContentNodeTable.c.tree_id]).distinct()
+                ).fetchall(),
             )
         )
 
@@ -294,10 +298,10 @@ class ChannelImport(object):
         # Return the mapper function for repeated use
         return mapper
 
-    def base_table_mapper(self, SourceRecord):
-        # If SourceRecord is none, then the source table does not exist in the DB
-        if SourceRecord:
-            return self.source.session.query(SourceRecord).all()
+    def base_table_mapper(self, SourceTable):
+        # If SourceTable is none, then the source table does not exist in the DB
+        if SourceTable is not None:
+            return self.source.execute(select([SourceTable])).fetchall()
         return []
 
     def base_row_mapper(self, record, column):
@@ -315,12 +319,24 @@ class ChannelImport(object):
         # If we got here, there is an invalid table mapping
         raise AttributeError("Table mapping specified but no valid method found")
 
-    def raw_attached_sqlite_table_import(self, model, table_mapper, unflushed_rows):
+    def get_dest_columns(self, DestinationTable):
+        # Filter out columns that are auto-incrementing integer primary keys, as these can cause collisions in the
+        # database. As all of our content database models use UUID primary keys, the only tables using these
+        # primary keys are intermediary tables for ManyToMany fields, and so nothing should be Foreign Keying
+        # to these ids.
+        # By filtering them here, the database should autoset an incremented id.
+        return [
+            (column_name, column_obj)
+            for column_name, column_obj in DestinationTable.columns.items()
+            if column_not_auto_integer_pk(column_obj)
+        ]
+
+    def raw_attached_sqlite_table_import(self, model, table_mapper):
 
         self.check_cancelled()
 
         source_table = self.source.get_table(model)
-        dest_table = self.destination.get_table(model)
+        DestinationTable = self.destination.get_table(model)
 
         # check the schema map and set up any fields to map to constant values
         field_constants = {}
@@ -342,18 +358,9 @@ class ChannelImport(object):
                         )
                     )
 
-        # make sure to ignore any auto-incrementing fields so they're regenerated in the destination table
-        fields_to_ignore = set(
-            [
-                colname
-                for colname, colobj in dest_table.columns.items()
-                if not column_not_auto_integer_pk(colobj)
-            ]
-        )
-
         # enumerate the columns we're going to be writing into, excluding any we're meant to ignore
         dest_columns = [
-            col.name for col in dest_table.c if col.name not in fields_to_ignore
+            col.name for col_name, col in self.get_dest_columns(DestinationTable)
         ]
 
         # build a list of values (constants or source table column references) to be inserted
@@ -380,16 +387,13 @@ class ChannelImport(object):
         # build and execute a raw SQL query to transfer the data in one fell swoop
         query = """{method} INTO {table} ({destcols}) SELECT {sourcevals} FROM sourcedb.{table} AS source""".format(
             method=method,
-            table=dest_table.name,
+            table=DestinationTable.name,
             destcols=", ".join(dest_columns),
             sourcevals=", ".join(source_vals),
         )
-        self.destination.session.execute(text(query))
+        self.destination.execute(text(query))
 
-        # no need to flush/commit as a result of the transfer in this method
-        return 1
-
-    def get_and_set_postgres_column_default(self, column_obj):
+    def get_and_set_column_default(self, column_obj):
         if hasattr(column_obj, "k_memoized_default"):
             default = getattr(column_obj, "k_memoized_default")
         else:
@@ -402,25 +406,16 @@ class ChannelImport(object):
             setattr(column_obj, "k_memoized_default", default)
         return default
 
-    def postgres_table_import(self, model, row_mapper, table_mapper, unflushed_rows):
-        dest_table = self.destination.get_table(model)
+    def postgres_table_import(self, model, row_mapper, table_mapper):
+        DestinationTable = self.destination.get_table(model)
 
         # If the source table does not exist (i.e. this table is undefined in the source database)
         # this will raise an error - as we do not allow custom table mappings for this optimized
         # postgres import, this should never happen.
         source_table = self.source.get_table(model)
 
-        # Filter out columns that are auto-incrementing integer primary keys, as these can cause collisions in the
-        # database. As all of our content database models use UUID primary keys, the only tables using these
-        # primary keys are intermediary tables for ManyToMany fields, and so nothing should be Foreign Keying
-        # to these ids.
-        # By filtering them here, the database should autoset an incremented id.
-        columns = [
-            column_obj
-            for column_name, column_obj in dest_table.columns.items()
-            if column_not_auto_integer_pk(column_obj)
-        ]
-        column_names = [column.name for column in columns]
+        columns = self.get_dest_columns(DestinationTable)
+        column_names = [column.name for col_name, column in columns]
         merge = model in merge_models
         do_not_overwrite = model in models_not_to_overwrite
         self.check_cancelled()
@@ -428,13 +423,11 @@ class ChannelImport(object):
         raw_connection = self.destination.get_raw_connection()
         cursor = raw_connection.cursor()
 
-        results = (
-            self.source.get_connection().execute(select([source_table])).fetchall()
-        )
+        results = self.source.execute(select([source_table])).fetchall()
 
         def generate_data_with_default(record):
             for column_obj in columns:
-                default = self.get_and_set_postgres_column_default(column_obj)
+                default = self.get_and_set_column_default(column_obj)
                 value = row_mapper(record, column_obj.name)
                 yield value if value is not None else default
 
@@ -453,9 +446,10 @@ class ChannelImport(object):
                     for record in results
                 )
             )
+
             cursor.copy_from(
                 data_string_iterator,
-                dest_table.name,
+                DestinationTable.name,
                 sep=separator,
                 columns=column_names,
             )
@@ -463,115 +457,111 @@ class ChannelImport(object):
             # Import here so that we don't need to depend on psycopg2 for Kolibri in general.
             from psycopg2.extras import execute_values
 
-            pk_name = dest_table.primary_key.columns.values()[0].name
-            if do_not_overwrite:
+            pk_name = DestinationTable.primary_key.columns.values()[0].name
 
-                execute_values(
-                    cursor,
-                    "INSERT INTO {table} ({column_names}) VALUES %s ON CONFLICT ({pk_name}) DO NOTHING;".format(
-                        table=dest_table.name,
-                        column_names=", ".join(column_names),
-                        pk_name=pk_name,
-                    ),
-                    (
-                        tuple(datum for datum in generate_data_with_default(record))
-                        for record in results
-                    ),
-                    template="(" + "%s, " * (len(columns) - 1) + "%s)",
-                )
-            else:
-
-                def generate_data(record):
-                    for column_obj in columns:
-                        value = row_mapper(record, column_obj.name)
-                        yield value
-
-                execute_values(
-                    cursor,
-                    # We want to overwrite new values that we are inserting here, so we use an ON CONFLICT DO UPDATE here
-                    # for the resulting SET statement, we generate a statement for each column we are trying to update
-                    "INSERT INTO {table} AS SOURCE ({column_names}) VALUES %s ON CONFLICT ({pk_name}) DO UPDATE SET {set_statement};".format(
-                        table=dest_table.name,
-                        column_names=", ".join(column_names),
-                        pk_name=pk_name,
-                        set_statement=", ".join(
+            for i in range(0, len(results), BATCH_SIZE):
+                results_slice = results[i : i + BATCH_SIZE]
+                insert_statement = insert(DestinationTable)
+                if do_not_overwrite:
+                    self.destination.execute(
+                        insert_statement.values(
                             [
-                                # Here we generate a value assignment for the set statement for
-                                # each column, except for the primary key column, which we leave alone.
-                                # We set the column value to COALESCE (take the first non-null value)
-                                # from either the value we tried to set (EXCLUDED) or the original value
-                                # (SOURCE) - this should have the effect of replacing columns for which
-                                # we have a value to insert, but ignoring columns that we do not.
-                                "{column} = COALESCE(EXCLUDED.{column}, SOURCE.{column})".format(
-                                    column=column_name
+                                tuple(
+                                    datum
+                                    for datum in generate_data_with_default(record)
                                 )
-                                for column_name in column_names
-                                if column_name != pk_name
+                                for record in results_slice
                             ]
-                        ),
-                    ),
-                    (
-                        tuple(datum for datum in generate_data(record))
-                        for record in results
-                    ),
-                    template="(" + "%s, " * (len(columns) - 1) + "%s)",
-                )
-        cursor.close()
-        return unflushed_rows
+                        ).on_conflict_do_nothing(
+                            constraint=DestinationTable.primary_key
+                        )
+                    )
+                else:
 
-    def orm_table_import(self, model, row_mapper, table_mapper, unflushed_rows):
-        DestinationRecord = self.destination.get_class(model)
-        dest_table = self.destination.get_table(model)
+                    def generate_data(record):
+                        for column_obj in columns:
+                            value = row_mapper(record, column_obj.name)
+                            yield value
+
+                    execute_values(
+                        cursor,
+                        # We want to overwrite new values that we are inserting here, so we use an ON CONFLICT DO UPDATE here
+                        # for the resulting SET statement, we generate a statement for each column we are trying to update
+                        "INSERT INTO {table} AS SOURCE ({column_names}) VALUES %s ON CONFLICT ({pk_name}) DO UPDATE SET {set_statement};".format(
+                            table=DestinationTable.name,
+                            column_names=", ".join(column_names),
+                            pk_name=pk_name,
+                            set_statement=", ".join(
+                                [
+                                    # Here we generate a value assignment for the set statement for
+                                    # each column, except for the primary key column, which we leave alone.
+                                    # We set the column value to COALESCE (take the first non-null value)
+                                    # from either the value we tried to set (EXCLUDED) or the original value
+                                    # (SOURCE) - this should have the effect of replacing columns for which
+                                    # we have a value to insert, but ignoring columns that we do not.
+                                    "{column} = COALESCE(EXCLUDED.{column}, SOURCE.{column})".format(
+                                        column=column_name
+                                    )
+                                    for column_name in column_names
+                                    if column_name != pk_name
+                                ]
+                            ),
+                        ),
+                        (
+                            tuple(datum for datum in generate_data(record))
+                            for record in results_slice
+                        ),
+                        template="(" + "%s, " * (len(columns) - 1) + "%s)",
+                    )
+        cursor.close()
+
+    def core_insert_data(
+        self, data_to_insert, DestinationTable, merge, do_not_overwrite
+    ):
+        if merge:
+            data_to_insert = self.merge_records(
+                data_to_insert, DestinationTable, do_not_overwrite
+            )
+        if data_to_insert:
+            self.destination.execute(insert(DestinationTable), data_to_insert)
+
+    def core_table_import(self, model, row_mapper, table_mapper):
+        DestinationTable = self.destination.get_table(model)
 
         # If the source class does not exist (i.e. this table is undefined in the source database)
         # this will raise an error so we set it to None. In this case, a custom table mapper must
         # have been set up to handle the fact that this is None.
         try:
-            SourceRecord = self.source.get_class(model)
+            SourceTable = self.source.get_table(model)
         except ClassNotFoundError:
-            SourceRecord = None
+            SourceTable = None
 
-        # Filter out columns that are auto-incrementing integer primary keys, as these can cause collisions in the
-        # database. As all of our content database models use UUID primary keys, the only tables using these
-        # primary keys are intermediary tables for ManyToMany fields, and so nothing should be Foreign Keying
-        # to these ids.
-        # By filtering them here, the database should autoset an incremented id.
-        columns = [
-            column_name
-            for column_name, column_obj in dest_table.columns.items()
-            if column_not_auto_integer_pk(column_obj)
-        ]
+        columns = self.get_dest_columns(DestinationTable)
         merge = model in merge_models
         do_not_overwrite = model in models_not_to_overwrite
         data_to_insert = []
-        for record in table_mapper(SourceRecord):
+        unflushed_rows = 0
+        for record in table_mapper(SourceTable):
             self.check_cancelled()
-            data = {
-                str(column): row_mapper(record, column)
-                for column in columns
-                if row_mapper(record, column) is not None
-            }
-            if merge:
-                self.merge_record(
-                    data, model, DestinationRecord, do_not_overwrite=do_not_overwrite
-                )
-            else:
-                data_to_insert.append(data)
+            data = {}
+            for column_name, column in columns:
+                value = row_mapper(record, column_name)
+                if value is None and not merge:
+                    value = self.get_and_set_column_default(column)
+                data[column_name] = value
+            data_to_insert.append(data)
             unflushed_rows += 1
-            if unflushed_rows == 10000:
-                if not merge:
-                    self.destination.session.bulk_insert_mappings(
-                        DestinationRecord, data_to_insert
-                    )
-                    data_to_insert = []
-                self.destination.session.flush()
+            if unflushed_rows == BATCH_SIZE:
+                self.core_insert_data(
+                    data_to_insert, DestinationTable, merge, do_not_overwrite
+                )
+                data_to_insert = []
                 unflushed_rows = 0
 
-        if not merge and data_to_insert:
-            self.destination.session.bulk_insert_mappings(
-                DestinationRecord, data_to_insert
+        if data_to_insert:
+            self.core_insert_data(
+                data_to_insert, DestinationTable, merge, do_not_overwrite
             )
-        return unflushed_rows
 
     def is_simple_import(self):
         # Is a simple import in the case that we are
@@ -602,79 +592,100 @@ class ChannelImport(object):
         can_use_attach = can_use_attach and self._sqlite_db_attached
         # Check that the table is in the source database (otherwise we can't use the ATTACH method)
         try:
-            self.source.get_class(model)
+            self.source.get_table(model)
         except ClassNotFoundError:
             return False
 
         return can_use_attach
 
-    def table_import(self, model, row_mapper, table_mapper, unflushed_rows):
+    def table_import(self, model, row_mapper, table_mapper):
 
         # keep track of which model is currently being imported
         self.current_model_being_imported = model
 
         if self.can_use_sqlite_attach_method(model, table_mapper):
-            result = self.raw_attached_sqlite_table_import(
-                model, table_mapper, unflushed_rows
-            )
+            result = self.raw_attached_sqlite_table_import(model, table_mapper)
         elif self.destination.engine.name == "postgresql" and self.is_simple_import():
-            result = self.postgres_table_import(
-                model, row_mapper, table_mapper, unflushed_rows
-            )
+            result = self.postgres_table_import(model, row_mapper, table_mapper)
         else:
-            result = self.orm_table_import(
-                model, row_mapper, table_mapper, unflushed_rows
-            )
+            result = self.core_table_import(model, row_mapper, table_mapper)
 
         self.current_model_being_imported = None
 
         return result
 
-    def merge_record(self, data, model, DestinationRecord, do_not_overwrite=False):
+    def merge_records(self, data, DestinationTable, do_not_overwrite=False):
         # Models that should be merged (see list above) need to be individually merged into the session
         # as SQL Alchemy ORM does not support INSERT ... ON DUPLICATE KEY UPDATE style queries,
         # as not available in SQLite, only MySQL as far as I can tell:
         # http://hackthology.com/how-to-compile-mysqls-on-duplicate-key-update-in-sql-alchemy.html
-        RowEntry = self.destination.session.query(DestinationRecord).get(
-            data[model._meta.pk.name]
-        )
-        if RowEntry:
-            # record already exists, so if we don't want to overwrite, abort here
-            if do_not_overwrite:
-                return
-            for key, value in data.items():
-                setattr(RowEntry, key, value)
+        pk_column = DestinationTable.primary_key.columns.values()[0]
+        columns = self.get_dest_columns(DestinationTable)
+        existing_values = {
+            v[pk_column.name]: v
+            for v in self.destination.execute(
+                select([DestinationTable]).where(
+                    pk_column.in_(d[pk_column.name] for d in data)
+                )
+            ).fetchall()
+        }
+        data_to_return = []
+        if do_not_overwrite:
+            for d in data:
+                if d[pk_column.name] not in existing_values:
+                    for column_name, column in columns:
+                        value = d.get(column_name)
+                        if value is None:
+                            value = self.get_and_set_column_default(column)
+                        d[column_name] = value
+                    data_to_return.append(d)
         else:
-            RowEntry = DestinationRecord(**data)
-        self.destination.session.merge(RowEntry)
+            for d in data:
+                pk = d[pk_column.name]
+                if pk in existing_values:
+                    value = dict(existing_values[pk])
+                    value.update(d)
+                else:
+                    value = d
+                for column_name, column in columns:
+                    if column_name not in value or value[column_name] is None:
+                        value[column_name] = self.get_and_set_column_default(column)
+                data_to_return.append(value)
+        return data_to_return
 
     def check_and_delete_existing_channel(self):
-        ChannelMetadataClass = self.destination.get_class(ChannelMetadata)
-        existing_channel = self.destination.session.query(ChannelMetadataClass).get(
-            self.channel_id
-        )
+        ChannelMetadataTable = self.destination.get_table(ChannelMetadata)
+        existing_channel = self.destination.execute(
+            select([ChannelMetadataTable]).where(
+                ChannelMetadataTable.c.id == self.channel_id
+            )
+        ).fetchone()
 
         if existing_channel:
 
-            if existing_channel.version < self.channel_version:
+            if existing_channel["version"] < self.channel_version:
                 # We have an older version of this channel, so let's clean out the old stuff first
                 logger.info(
                     (
                         "Older version {channel_version} of channel {channel_id} already exists in database; removing old entries "
                         + "so we can upgrade to version {new_channel_version}"
                     ).format(
-                        channel_version=existing_channel.version,
+                        channel_version=existing_channel["version"],
                         channel_id=self.channel_id,
                         new_channel_version=self.channel_version,
                     )
                 )
 
-                root_node = self.destination.session.query(
-                    self.destination.get_class(ContentNode)
-                ).get(existing_channel.root_id)
+                ContentNodeTable = self.destination.get_table(ContentNode)
+
+                root_node = self.destination.execute(
+                    select([ContentNodeTable]).where(
+                        ContentNodeTable.c.id == existing_channel["root_id"]
+                    )
+                ).fetchone()
 
                 if root_node:
-                    self.delete_old_channel_data(root_node.tree_id)
+                    self.delete_old_channel_data(root_node["tree_id"])
             else:
                 # We have previously loaded this channel, with the same or newer version, so our work here is done
                 logger.warn(
@@ -682,7 +693,7 @@ class ChannelImport(object):
                         "Version {channel_version} of channel {channel_id} already exists in database; cancelling import of "
                         + "version {new_channel_version}"
                     ).format(
-                        channel_version=existing_channel.version,
+                        channel_version=existing_channel["version"],
                         channel_id=self.channel_id,
                         new_channel_version=self.channel_version,
                     )
@@ -751,7 +762,7 @@ class ChannelImport(object):
             self.check_cancelled()
 
             # execute the actual query
-            self.destination.session.execute(query)
+            self.destination.execute(query)
 
     def check_cancelled(self):
         if callable(self.cancel_check):
@@ -765,7 +776,7 @@ class ChannelImport(object):
         # attach the external content database to our primary database so we can directly transfer records en masse
         if self.destination.engine.name == "sqlite":
             try:
-                self.destination.session.execute(
+                self.destination.execute(
                     text(
                         "ATTACH '{path}' AS 'sourcedb'".format(path=self.source_db_path)
                     )
@@ -779,7 +790,7 @@ class ChannelImport(object):
         # detach the content database from the primary database so we don't get errors trying to attach it again later
         if self.destination.engine.name == "sqlite":
             try:
-                self.destination.session.execute(text("DETACH 'sourcedb'"))
+                self.destination.execute(text("DETACH 'sourcedb'"))
             except OperationalError:
                 # silently ignore if the database was already detached, as then we're good to go
                 pass
@@ -790,30 +801,25 @@ class ChannelImport(object):
         logger.debug("Beginning channel metadata import")
         start = time.time()
 
-        unflushed_rows = 0
         import_ran = False
 
         try:
             self.try_attaching_sqlite_database()
+            transaction = self.destination.connection.begin()
             if self.check_and_delete_existing_channel():
                 for model in self.content_models:
                     mapping = self.schema_mapping.get(model, {})
                     row_mapper = self.generate_row_mapper(mapping.get("per_row"))
                     table_mapper = self.generate_table_mapper(mapping.get("per_table"))
                     logger.info("Importing {model} data".format(model=model.__name__))
-                    unflushed_rows = self.table_import(
-                        model, row_mapper, table_mapper, unflushed_rows
-                    )
+                    self.table_import(model, row_mapper, table_mapper)
                 import_ran = True
-            self.destination.session.commit()
-            if self.destination.engine.name == "postgresql":
-                self.destination.get_raw_connection().commit()
+
+            transaction.commit()
             self.try_detaching_sqlite_database()
         except (SQLAlchemyError, ImportCancelError) as e:
             # Rollback the transaction if any error occurs during the transaction
-            self.destination.session.rollback()
-            if self.destination.engine.name == "postgresql":
-                self.destination.get_raw_connection().rollback()
+            transaction.rollback()
             self.try_detaching_sqlite_database()
             logger.debug(
                 "Channel metadata import did not complete after {} seconds".format(
@@ -895,11 +901,11 @@ class NoVersionChannelImport(ChannelImport):
     def infer_channel_id_from_source(self, source_object):
         return self.channel_id
 
-    def generate_local_file_from_file(self, SourceRecord):
-        SourceRecord = self.source.get_class(File)
+    def generate_local_file_from_file(self, SourceTable):
+        SourceTable = self.source.get_table(File)
         checksum_record = set()
         # LocalFile objects are unique per checksum
-        for record in self.source.session.query(SourceRecord).all():
+        for record in self.source.execute(select([SourceTable])).fetchall():
             if record.checksum not in checksum_record:
                 checksum_record.add(record.checksum)
                 yield record
@@ -909,24 +915,26 @@ class NoVersionChannelImport(ChannelImport):
     def set_version_to_no_version(self, source_object):
         return NO_VERSION
 
-    def get_license(self, SourceRecord):
-        license_id = SourceRecord.license_id
+    def get_license(self, SourceTable):
+        license_id = SourceTable.license_id
         if not license_id:
             return None
         if license_id not in self.licenses:
-            LicenseRecord = self.source.get_class(License)
-            license = self.source.session.query(LicenseRecord).get(license_id)
+            LicenseTable = self.source.get_table(License)
+            license = self.source.execute(
+                select([LicenseTable]).where(LicenseTable.c.id == license_id)
+            ).fetchone()
             self.licenses[license_id] = license
         return self.licenses[license_id]
 
-    def get_license_name(self, SourceRecord):
-        license = self.get_license(SourceRecord)
+    def get_license_name(self, SourceTable):
+        license = self.get_license(SourceTable)
         if not license:
             return None
         return license.license_name
 
-    def get_license_description(self, SourceRecord):
-        license = self.get_license(SourceRecord)
+    def get_license_description(self, SourceTable):
+        license = self.get_license(SourceTable)
         if not license:
             return None
         return license.license_description
@@ -962,10 +970,9 @@ def initialize_import_manager(
         source or get_content_database_file_path(channel_id)
     )
     # For old versions of content databases, we can only infer the schema version
-    min_version = getattr(
-        channel_metadata,
+    min_version = channel_metadata.get(
         "min_schema_version",
-        getattr(channel_metadata, "inferred_schema_version"),
+        channel_metadata.get("inferred_schema_version"),
     )
 
     try:
@@ -995,7 +1002,7 @@ def initialize_import_manager(
 
     return ImportClass(
         channel_id,
-        channel_version=channel_metadata.version,
+        channel_version=channel_metadata["version"],
         cancel_check=cancel_check,
         source=source,
         destination=destination,

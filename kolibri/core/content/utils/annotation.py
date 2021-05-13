@@ -28,6 +28,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.sqlalchemybridge import filter_by_checksums
+from kolibri.core.content.utils.tree import get_channel_node_depth
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.utils.lock import db_lock
 
@@ -506,17 +507,11 @@ def set_local_file_availability_from_disk(checksums=None, destination=None):
 def recurse_annotation_up_tree(channel_id):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
-    ContentNodeClass = bridge.get_class(ContentNode)
-
     ContentNodeTable = bridge.get_table(ContentNode)
 
     connection = bridge.get_connection()
 
-    node_depth = (
-        bridge.session.query(func.max(ContentNodeClass.level))
-        .filter_by(channel_id=channel_id)
-        .scalar()
-    )
+    node_depth = get_channel_node_depth(bridge, channel_id)
 
     logger.info(
         "Annotating ContentNode objects with children for {levels} levels".format(

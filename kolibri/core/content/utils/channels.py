@@ -4,6 +4,7 @@ import os
 
 from django.core.cache import cache
 from sqlalchemy.exc import DatabaseError
+from sqlalchemy.sql import select
 
 from .paths import get_content_database_dir_path
 from .sqlalchemybridge import Bridge
@@ -83,25 +84,23 @@ def read_channel_metadata_from_db_file(channeldbpath):
 
     source = Bridge(sqlite_file_path=channeldbpath)
 
-    ChannelMetadataClass = source.get_class(ChannelMetadata)
+    ChannelMetadataTable = source.get_table(ChannelMetadata)
 
-    source_channel_metadata = source.session.query(ChannelMetadataClass).all()[0]
+    source_channel_metadata = dict(
+        source.execute(select([ChannelMetadataTable])).fetchone()
+    )
 
     # Use the inferred version from the SQLAlchemy Bridge object, and set it as additional
     # metadata on the channel data
 
-    source_channel_metadata.inferred_schema_version = source.schema_version
+    source_channel_metadata["inferred_schema_version"] = source.schema_version
 
     source.end()
 
     # Adds an attribute `root_id` when `root_id` does not exist to match with
     # the latest schema.
-    if not hasattr(source_channel_metadata, "root_id"):
-        setattr(
-            source_channel_metadata,
-            "root_id",
-            getattr(source_channel_metadata, "root_pk"),
-        )
+    if "root_id" not in source_channel_metadata:
+        source_channel_metadata["root_id"] = source_channel_metadata["root_pk"]
 
     return source_channel_metadata
 
