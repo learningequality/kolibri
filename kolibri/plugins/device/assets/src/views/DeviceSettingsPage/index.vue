@@ -16,36 +16,43 @@
     </section>
 
     <section>
-      <KSelect
-        v-model="language"
-        :label="$tr('selectedLanguageLabel')"
-        :options="languageOptions"
-        :disabled="language.value === undefined"
-        :floatingLabel="false"
-        style="max-width: 300px"
-      />
-      <KCheckbox
-        :label="$tr('unlistedChannels')"
-        :checked="allowPeerUnlistedChannelImport"
-        @change="allowPeerUnlistedChannelImport = $event"
-      />
-      <KCheckbox
-        v-if="isAppContext"
-        :checked="allowOtherBrowsersToConnect"
-        @change="allowOtherBrowsersToConnect = $event"
-      >
-        <span> {{ $tr('allowExternalConnectionsApp') }}
-          <p
-            v-if="allowOtherBrowsersToConnect"
-            class="description"
-            :style="{ color: $themeTokens.annotation }"
-          >
-            {{ $tr('allowExternalConnectionsAppDescription') }}
-          </p>
-        </span>
-      </KCheckbox>
       <fieldset>
-        <label>{{ $tr('landingPageLabel') }}</label>
+        <KSelect
+          v-model="language"
+          :label="$tr('selectedLanguageLabel')"
+          :options="languageOptions"
+          :disabled="language.value === undefined"
+          :floatingLabel="false"
+          style="max-width: 300px"
+        />
+      </fieldset>
+
+      <fieldset>
+        <label class="fieldset-label">{{ $tr('externalDeviceSettings') }}</label>
+        <KCheckbox
+          :label="$tr('unlistedChannels')"
+          :checked="allowPeerUnlistedChannelImport"
+          @change="allowPeerUnlistedChannelImport = $event"
+        />
+        <KCheckbox
+          v-if="isAppContext"
+          :checked="allowOtherBrowsersToConnect"
+          @change="allowOtherBrowsersToConnect = $event"
+        >
+          <span> {{ $tr('allowExternalConnectionsApp') }}
+            <p
+              v-if="allowOtherBrowsersToConnect"
+              class="description"
+              :style="{ color: $themeTokens.annotation }"
+            >
+              {{ $tr('allowExternalConnectionsAppDescription') }}
+            </p>
+          </span>
+        </KCheckbox>
+      </fieldset>
+
+      <fieldset>
+        <label class="fieldset-label">{{ $tr('landingPageLabel') }}</label>
         <KRadioButton
           :label="$tr('learnerAppPageChoice')"
           :value="landingPageChoices.LEARN"
@@ -58,22 +65,32 @@
           :currentValue="landingPage"
           @change="landingPage = landingPageChoices.SIGN_IN"
         />
-        <fieldset>
-          <KCheckbox
+        <fieldset style="margin-left: 32px">
+          <KRadioButton
             :label="$tr('allowGuestAccess')"
+            value="allowGuestAccess"
+            :currentValue="signInPageOption"
             :disabled="disableAllowGuestAccess"
-            :checked="allowGuestAccess || landingPage === landingPageChoices.LEARN"
-            @change="allowGuestAccess = $event"
+            @input="signInPageOption = $event"
           />
-          <KCheckbox
+          <KRadioButton
+            :label="$tr('disallowGuestAccess')"
+            value="disallowGuestAccess"
+            :currentValue="signInPageOption"
+            :disabled="disableAllowGuestAccess"
+            @input="signInPageOption = $event"
+          />
+          <KRadioButton
             :label="$tr('lockedContent')"
+            value="lockedContent"
+            :currentValue="signInPageOption"
             :disabled="disableAllowLearnerUnassignedResourceAccess"
-            :checked="!allowLearnerUnassignedResourceAccess && landingPage !== landingPageChoices.LEARN"
-            @change="allowLearnerUnassignedResourceAccess = !$event"
+            @input="signInPageOption = $event"
           />
         </fieldset>
       </fieldset>
     </section>
+
     <section>
       <KButton
         :text="coreString('saveAction')"
@@ -131,6 +148,7 @@
         allowPeerUnlistedChannelImport: null,
         allowOtherBrowsersToConnect: null,
         landingPageChoices: LandingPageChoices,
+        signInPageOption: '',
         browserDefaultOption: {
           value: null,
           label: this.$tr('browserDefaultLanguage'),
@@ -242,7 +260,9 @@
       saveSuccessNotification: 'Settings have been updated',
       selectedLanguageLabel: 'Default language',
       facilitySettings: 'You can also configure facility settings',
-      allowGuestAccess: 'Allow users to access resources without signing in',
+      allowGuestAccess: 'Allow users to explore resources without signing in',
+      disallowGuestAccess: 'Learners must sign in to explore resources',
+      lockedContent: 'Signed in learners should only see resources assigned to them in classes',
       landingPageLabel: {
         message: 'Default landing page',
         context: 'The page that users see immediately after they log in',
@@ -253,7 +273,6 @@
         context: '\nThis refers to the page you reach when you click "Learn" in the main side nav',
       },
       unlistedChannels: 'Allow other computers on this network to import my unlisted channels',
-      lockedContent: 'Learners should only see resources assigned to them in classes',
       configureFacilitySettingsHeader: 'Configure facility settings',
       allowExternalConnectionsApp: {
         message: 'Allow others in the network to access Kolibri on this device using a browser',
@@ -265,6 +284,10 @@
           'If learners are allowed to sign in with no password on this device, enabling this may allow external devices to view the user data, which could be a potential security concern.',
         context:
           'Warns the user of the potential security risk if this setting is enabled together with users accesing without password',
+      },
+      externalDeviceSettings: {
+        message: 'External devices',
+        context: 'Label for settings controlling how Kolibri interacts with other devices',
       },
     },
   };
@@ -298,8 +321,14 @@
   fieldset {
     min-width: 0;
     padding: 0;
-    margin: 0;
+    margin: 8px 0;
     border: 0;
+  }
+
+  .fieldset-label {
+    font-size: 15px;
+    // to match label in KSelect
+    color: rgba(0, 0, 0, 0.54);
   }
 
 </style>
