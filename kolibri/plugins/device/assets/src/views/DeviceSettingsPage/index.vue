@@ -57,13 +57,13 @@
           :label="$tr('learnerAppPageChoice')"
           :value="landingPageChoices.LEARN"
           :currentValue="landingPage"
-          @change="landingPage = landingPageChoices.LEARN"
+          @input="handleLandingPageChange"
         />
         <KRadioButton
           :label="$tr('signInPageChoice')"
           :value="landingPageChoices.SIGN_IN"
           :currentValue="landingPage"
-          @change="landingPage = landingPageChoices.SIGN_IN"
+          @input="handleLandingPageChange"
         />
         <div style="margin-left: 32px">
           <KRadioButton
@@ -71,21 +71,21 @@
             value="allowGuestAccess"
             :currentValue="signInPageOption"
             :disabled="disableAllowGuestAccess"
-            @input="signInPageOption = $event"
+            @input="handleSignInPageChange"
           />
           <KRadioButton
             :label="$tr('disallowGuestAccess')"
             value="disallowGuestAccess"
             :currentValue="signInPageOption"
             :disabled="disableAllowGuestAccess"
-            @input="signInPageOption = $event"
+            @input="handleSignInPageChange"
           />
           <KRadioButton
             :label="$tr('lockedContent')"
             value="lockedContent"
             :currentValue="signInPageOption"
             :disabled="disableAllowLearnerUnassignedResourceAccess"
-            @input="signInPageOption = $event"
+            @input="handleSignInPageChange"
           />
         </div>
       </div>
@@ -214,6 +214,15 @@
       });
     },
     methods: {
+      handleLandingPageChange(option) {
+        this.landingPage = option;
+        if (option === LandingPageChoices.LEARN) {
+          this.signInPageOption = '';
+        }
+      },
+      handleSignInPageChange(option) {
+        this.signInPageOption = option;
+      },
       getFacilitySettingsPath(facilityId = '') {
         const getUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
         if (getUrl) {
