@@ -20,7 +20,8 @@ class Bookmark(models.Model):
     morango_model_name = "bookmark"
 
     class Meta:
-        # Ensures that we do not save duplicates
+        # Ensures that we do not save duplicates, otherwise raises a
+        # django.db.utils.IntegrityError
         unique_together = (
             "facility_user",
             "content_id",
