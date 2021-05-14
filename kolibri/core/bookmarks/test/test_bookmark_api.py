@@ -85,10 +85,11 @@ class BookmarkAPITestCase(APITestCase):
             # We're going to filter the users_bookmarks QuerySet over and over
             # to be sure that everything we get from the API exists there which
             # means that we're only getting the bookmarks from the logged in user
-            marks = users_bookmarks
+            users_bookmarks_clone = users_bookmarks
             self.assertEqual(
-                # Try to filter down self.user's bookmarks to
-                len(marks.filter(pk=bookmark_entry["id"])),
+                # Try to filter down self.user's bookmarks to those which include
+                # user's id - which means bookmark_entry is owned by user
+                len(users_bookmarks_clone.filter(pk=bookmark_entry["id"])),
                 1,
             )
 

@@ -22,7 +22,9 @@ class BookmarksViewSet(ValuesViewset):
             return Response(
                 "User must be logged in to fetch Bookmarks.", status=HTTP_403_FORBIDDEN
             )
-        bookmarks = Bookmark.objects.filter(facility_user=request.user)
+        bookmarks = Bookmark.objects.filter(facility_user=request.user).values(
+            "channel_id", "content_id", "contentnode_id", "id"
+        )
         serializer = BookmarksSerializer(bookmarks, many=True)
 
         return Response(serializer.data, status=HTTP_200_OK)
