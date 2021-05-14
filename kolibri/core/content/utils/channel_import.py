@@ -2,6 +2,7 @@ import io
 import json
 import logging
 import time
+from itertools import islice
 
 from django.apps import apps
 from django.db.models.fields.related import ForeignKey
@@ -409,10 +410,13 @@ class ChannelImport(object):
     def postgres_table_import(self, model, row_mapper, table_mapper):
         DestinationTable = self.destination.get_table(model)
 
-        # If the source table does not exist (i.e. this table is undefined in the source database)
-        # this will raise an error - as we do not allow custom table mappings for this optimized
-        # postgres import, this should never happen.
-        source_table = self.source.get_table(model)
+        # If the source class does not exist (i.e. this table is undefined in the source database)
+        # this will raise an error so we set it to None. In this case, a custom table mapper must
+        # have been set up to handle the fact that this is None.
+        try:
+            SourceTable = self.source.get_table(model)
+        except ClassNotFoundError:
+            SourceTable = None
 
         columns = self.get_dest_columns(DestinationTable)
         column_names = [column.name for col_name, column in columns]
@@ -423,10 +427,10 @@ class ChannelImport(object):
         raw_connection = self.destination.get_raw_connection()
         cursor = raw_connection.cursor()
 
-        results = self.source.execute(select([source_table])).fetchall()
+        results = table_mapper(SourceTable)
 
         def generate_data_with_default(record):
-            for column_obj in columns:
+            for col_name, column_obj in columns:
                 default = self.get_and_set_column_default(column_obj)
                 value = row_mapper(record, column_obj.name)
                 yield value if value is not None else default
@@ -459,8 +463,10 @@ class ChannelImport(object):
 
             pk_name = DestinationTable.primary_key.columns.values()[0].name
 
-            for i in range(0, len(results), BATCH_SIZE):
-                results_slice = results[i : i + BATCH_SIZE]
+            i = 0
+            results_slice = list(islice(results, i, i + BATCH_SIZE))
+
+            while results_slice:
                 insert_statement = insert(DestinationTable)
                 if do_not_overwrite:
                     self.destination.execute(
@@ -477,12 +483,6 @@ class ChannelImport(object):
                         )
                     )
                 else:
-
-                    def generate_data(record):
-                        for column_obj in columns:
-                            value = row_mapper(record, column_obj.name)
-                            yield value
-
                     execute_values(
                         cursor,
                         # We want to overwrite new values that we are inserting here, so we use an ON CONFLICT DO UPDATE here
@@ -508,24 +508,26 @@ class ChannelImport(object):
                             ),
                         ),
                         (
-                            tuple(datum for datum in generate_data(record))
+                            tuple(datum for datum in generate_data_with_default(record))
                             for record in results_slice
                         ),
                         template="(" + "%s, " * (len(columns) - 1) + "%s)",
                     )
+                i += 1
+                results_slice = list(islice(results, i, i + BATCH_SIZE))
         cursor.close()
 
-    def core_insert_data(
+    def sqlite_insert_data(
         self, data_to_insert, DestinationTable, merge, do_not_overwrite
     ):
         if merge:
-            data_to_insert = self.merge_records(
+            data_to_insert = self.merge_sqlite_records(
                 data_to_insert, DestinationTable, do_not_overwrite
             )
         if data_to_insert:
             self.destination.execute(insert(DestinationTable), data_to_insert)
 
-    def core_table_import(self, model, row_mapper, table_mapper):
+    def sqlite_table_import(self, model, row_mapper, table_mapper):
         DestinationTable = self.destination.get_table(model)
 
         # If the source class does not exist (i.e. this table is undefined in the source database)
@@ -552,22 +554,16 @@ class ChannelImport(object):
             data_to_insert.append(data)
             unflushed_rows += 1
             if unflushed_rows == BATCH_SIZE:
-                self.core_insert_data(
+                self.sqlite_insert_data(
                     data_to_insert, DestinationTable, merge, do_not_overwrite
                 )
                 data_to_insert = []
                 unflushed_rows = 0
 
         if data_to_insert:
-            self.core_insert_data(
+            self.sqlite_insert_data(
                 data_to_insert, DestinationTable, merge, do_not_overwrite
             )
-
-    def is_simple_import(self):
-        # Is a simple import in the case that we are
-        # using the base class of ChannelImport
-        # otherwise, not simple!
-        return type(self) == ChannelImport
 
     def can_use_sqlite_attach_method(self, model, table_mapper):
 
@@ -599,28 +595,30 @@ class ChannelImport(object):
         return can_use_attach
 
     def table_import(self, model, row_mapper, table_mapper):
-
         # keep track of which model is currently being imported
         self.current_model_being_imported = model
 
-        if self.can_use_sqlite_attach_method(model, table_mapper):
-            result = self.raw_attached_sqlite_table_import(model, table_mapper)
-        elif self.destination.engine.name == "postgresql" and self.is_simple_import():
+        if self.destination.engine.name == "postgresql":
             result = self.postgres_table_import(model, row_mapper, table_mapper)
+        elif self.can_use_sqlite_attach_method(model, table_mapper):
+            result = self.raw_attached_sqlite_table_import(model, table_mapper)
         else:
-            result = self.core_table_import(model, row_mapper, table_mapper)
+            result = self.sqlite_table_import(model, row_mapper, table_mapper)
 
         self.current_model_being_imported = None
 
         return result
 
-    def merge_records(self, data, DestinationTable, do_not_overwrite=False):
-        # Models that should be merged (see list above) need to be individually merged into the session
+    def merge_sqlite_records(self, data, DestinationTable, do_not_overwrite=False):
+        # Models that should be merged (see list above) need to be individually merged
         # as SQL Alchemy ORM does not support INSERT ... ON DUPLICATE KEY UPDATE style queries,
         # as not available in SQLite, only MySQL as far as I can tell:
         # http://hackthology.com/how-to-compile-mysqls-on-duplicate-key-update-in-sql-alchemy.html
+        # and ON CONFLICT is only available in SQLite 3.24 and higher, which we cannot be sure of existing.
         pk_column = DestinationTable.primary_key.columns.values()[0]
         columns = self.get_dest_columns(DestinationTable)
+        # We don't do any batching inside this method, as we assume it is being called by a method
+        # that is already limiting the number of elements that will be passed into this.
         existing_values = {
             v[pk_column.name]: v
             for v in self.destination.execute(
