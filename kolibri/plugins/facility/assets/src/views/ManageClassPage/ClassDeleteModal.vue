@@ -9,7 +9,7 @@
   >
     <p>{{ $tr('confirmation', { classname: classname }) }}</p>
     <p>{{ $tr('description') }}</p>
-    <p>{{ $tr('noUndo') }}</p>
+    <p>{{ coreString('cannotUndoActionWarning') }}</p>
   </KModal>
 
 </template>
@@ -43,7 +43,6 @@
     $trs: {
       modalTitle: 'Delete class',
       confirmation: "Are you sure you want to delete '{ classname }'?",
-      noUndo: ' This action cannot be undone',
       description:
         "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",
     },

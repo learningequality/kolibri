@@ -21,7 +21,7 @@
         :label="$tr('deleteEverywhereLabel')"
         @change="deleteEverywhere = $event"
       />
-      <p>{{ $tr('noUndo') }}</p>
+      <p>{{ coreString('cannotUndoActionWarning') }}</p>
     </div>
   </KModal>
 
@@ -60,7 +60,6 @@
         'Are you sure you want to delete this resource from your device?',
       confirmationQuestionMultipleResources:
         'Are you sure you want to delete these resources from your device?',
-      noUndo: 'This action cannot be undone',
       deleteEverywhereLabel: {
         message: 'Also delete any copies found in other locations and channels',
         context:

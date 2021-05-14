@@ -16,7 +16,7 @@
     <p v-else>
       {{ $tr('confirmationQuestionMultipleChannels') }}
     </p>
-    <p>{{ $tr('noUndo') }}</p>
+    <p>{{ coreString('cannotUndoActionWarning') }}</p>
   </KModal>
 
 </template>
@@ -57,7 +57,6 @@
         message: 'Are you sure you want to delete these channels from your device?',
         context: '\nA confirmation that appears when a user tries to delete multiple channels',
       },
-      noUndo: 'This action cannot be undone',
       titleSingleChannel: 'Delete channel',
       titleMultipleChannels: 'Delete channels',
     },
