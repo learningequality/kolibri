@@ -132,9 +132,9 @@
   import { getDeviceSettings, saveDeviceSettings } from './api';
 
   const SignInPageOptions = Object.freeze({
-   LOCKED_CONTENT: 'LOCKED_CONTENT',
-   DISALLOW_GUEST_ACCESS: 'DISALLOW_GUEST_ACCESS',
-   ALLOW_GUEST_ACCESS: 'ALLOW_GUEST_ACCESS',
+    LOCKED_CONTENT: 'LOCKED_CONTENT',
+    DISALLOW_GUEST_ACCESS: 'DISALLOW_GUEST_ACCESS',
+    ALLOW_GUEST_ACCESS: 'ALLOW_GUEST_ACCESS',
   });
 
   export default {
@@ -182,9 +182,7 @@
         return languages;
       },
       disableSignInPageOptions() {
-        return (
-          this.landingPage !== LandingPageChoices.SIGN_IN
-        );
+        return this.landingPage !== LandingPageChoices.SIGN_IN;
       },
     },
     beforeMount() {
@@ -206,7 +204,7 @@
         }
 
         if (settings.landingPage === LandingPageChoices.SIGN_IN) {
-          this.hydrateSignInOption(settings);
+          this.setSignInPageOption(settings);
         }
 
         Object.assign(this, {
@@ -219,13 +217,40 @@
       });
     },
     methods: {
-      hydrateSignInOption(settings) {
+      setSignInPageOption(settings) {
         if (settings.allowLearnerUnassignedResourceAccess === false) {
           this.signInPageOption = SignInPageOptions.LOCKED_CONTENT;
         } else if (settings.allowGuestAccess === true) {
           this.signInPageOption = SignInPageOptions.ALLOW_GUEST_ACCESS;
         } else if (settings.allowGuestAccess === false) {
           this.signInPageOption = SignInPageOptions.DISALLOW_GUEST_ACCESS;
+        }
+      },
+      getContentSettings() {
+        // This is the inverse of 'setSignInPageOption'
+        // NOTE: See screenshot in #7247 for how radio button selection should map to settings
+        if (this.landingPage === LandingPageChoices.LEARN) {
+          return {
+            allowGuestAccess: false,
+            allowLearnerUnassignedResourceAccess: true,
+          };
+        }
+
+        if (this.signInPageOption === SignInPageOptions.ALLOW_GUEST_ACCESS) {
+          return {
+            allowGuestAccess: true,
+            allowLearnerUnassignedResourceAccess: true,
+          };
+        } else if (this.signInPageOption === SignInPageOptions.DISALLOW_GUEST_ACCESS) {
+          return {
+            allowGuestAccess: false,
+            allowLearnerUnassignedResourceAccess: true,
+          };
+        } else if (this.signInPageOption === SignInPageOptions.LOCKED_CONTENT) {
+          return {
+            allowGuestAccess: false,
+            allowLearnerUnassignedResourceAccess: false,
+          };
         }
       },
       handleLandingPageChange(option) {
@@ -248,39 +273,18 @@
         return '';
       },
       handleClickSave() {
-        let {
-          language,
-          landingPage,
+        const {
           allowGuestAccess,
           allowLearnerUnassignedResourceAccess,
-          allowPeerUnlistedChannelImport,
-          allowOtherBrowsersToConnect,
-        } = this;
-
-        // If landing page is Learn, then these settings need to be false
-        if (landingPage === LandingPageChoices.LEARN) {
-          allowGuestAccess = false;
-          allowLearnerUnassignedResourceAccess = true;
-        }
-
-        if (this.signInPageOption === SignInPageOptions.ALLOW_GUEST_ACCESS) {
-          allowGuestAccess = true
-          allowLearnerUnassignedResourceAccess = true;
-        } else if (this.signInPageOption === SignInPageOptions.DISALLOW_GUEST_ACCESS) {
-          allowGuestAccess = false
-          allowLearnerUnassignedResourceAccess = true;
-        } else if (this.signInPageOption === SignInPageOptions.LOCKED_CONTENT) {
-          allowGuestAccess = false
-          allowLearnerUnassignedResourceAccess = false;
-        }
+        } = this.getContentSettings();
 
         this.saveDeviceSettings({
-          languageId: language.value,
-          landingPage,
+          languageId: this.language.value,
+          landingPage: this.landingPage,
           allowGuestAccess,
           allowLearnerUnassignedResourceAccess,
-          allowPeerUnlistedChannelImport,
-          allowOtherBrowsersToConnect,
+          allowPeerUnlistedChannelImport: this.allowPeerUnlistedChannelImport,
+          allowOtherBrowsersToConnect: this.allowOtherBrowsersToConnect,
         })
           .then(() => {
             this.$store.dispatch('createSnackbar', this.$tr('saveSuccessNotification'));

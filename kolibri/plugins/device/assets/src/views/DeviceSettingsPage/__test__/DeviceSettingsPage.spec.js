@@ -87,6 +87,7 @@ describe('DeviceSettingsPage', () => {
       });
     }
 
+    // These should be the inverse of the "submitting settings" tests below
     it('hydrates with the correct state when guest access is allowed', async () => {
       setMockedData(true, true);
       const { wrapper } = await makeWrapper();
