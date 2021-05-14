@@ -257,6 +257,8 @@
         this.landingPage = option;
         if (option === LandingPageChoices.LEARN) {
           this.signInPageOption = '';
+        } else {
+          this.signInPageOption = SignInPageOptions.ALLOW_GUEST_ACCESS;
         }
       },
       handleSignInPageChange(option) {

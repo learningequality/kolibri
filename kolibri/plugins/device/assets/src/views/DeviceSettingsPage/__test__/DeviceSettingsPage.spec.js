@@ -66,27 +66,32 @@ describe('DeviceSettingsPage', () => {
       allowOtherBrowsersToConnect: false,
     });
   });
+  async function clickRadioButton(rb) {
+    // HACK(kds-test) You need to call `vm.update(true)` method on KCheckbox to simulate a click
+    rb.vm.update(true);
+    await global.flushPromises();
+  }
+
+  function assertIsDisabled(button, expected) {
+    return expect(button.props().disabled).toBe(expected);
+  }
+
+  function assertIsSelected(button, expected) {
+    // The only way to tell it's checked in the DOM is to look for "svg.checked";
+    expect(button.find('svg.checked').exists()).toBe(expected);
+  }
+
+  function setMockedData(allowGuestAccess, allowAllAccess) {
+    client.mockResolvedValue({
+      data: {
+        landing_page: 'sign-in',
+        allow_guest_access: allowGuestAccess,
+        allow_learner_unassigned_resource_access: allowAllAccess,
+      },
+    });
+  }
 
   describe('landing page section', () => {
-    function assertIsDisabled(button, expected) {
-      return expect(button.props().disabled).toBe(expected);
-    }
-
-    function assertIsSelected(button, expected) {
-      // The only way to tell it's checked in the DOM is to look for "svg.checked";
-      expect(button.find('svg.checked').exists()).toBe(expected);
-    }
-
-    function setMockedData(allowGuestAccess, allowAllAccess) {
-      client.mockResolvedValue({
-        data: {
-          landing_page: 'sign-in',
-          allow_guest_access: allowGuestAccess,
-          allow_learner_unassigned_resource_access: allowAllAccess,
-        },
-      });
-    }
-
     // These should be the inverse of the "submitting settings" tests below
     it('hydrates with the correct state when guest access is allowed', async () => {
       setMockedData(true, true);
@@ -104,7 +109,7 @@ describe('DeviceSettingsPage', () => {
       assertIsSelected(disallowGuestAccess, true);
     });
 
-    it('hydrates with the correct state when most restricted', async () => {
+    it('hydrates with the correct state when content is locked', async () => {
       setMockedData(false, false);
       const { wrapper } = await makeWrapper();
       // The "Signed in learners only see resources assigned to them" button should be checked
@@ -136,6 +141,15 @@ describe('DeviceSettingsPage', () => {
         assertIsSelected(button, false);
       });
     });
+
+    it('if switching  from Learn to Sign-In, "Allow users to explore..." is selected', async () => {
+      client.mockResolvedValue({ data: { landing_page: 'learn' } });
+      const { wrapper } = await makeWrapper();
+      const { signInPage, allowGuestAccess } = getButtons(wrapper);
+      await clickRadioButton(signInPage);
+      assertIsSelected(allowGuestAccess, true);
+      assertIsDisabled(allowGuestAccess, false);
+    });
   });
 
   describe('submitting changes', () => {
@@ -151,12 +165,6 @@ describe('DeviceSettingsPage', () => {
         },
       });
     });
-
-    async function clickRadioButton(rb) {
-      // HACK(kds-test) You need to call `vm.update(true)` method on KCheckbox to simulate a click
-      rb.vm.update(true);
-      await global.flushPromises();
-    }
 
     it('if landing page is Learn page, all settings assuming a Sign-in page are false', async () => {
       const { wrapper } = await makeWrapper();
