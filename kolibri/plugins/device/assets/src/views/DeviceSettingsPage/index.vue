@@ -229,14 +229,10 @@
       getContentSettings() {
         // This is the inverse of 'setSignInPageOption'
         // NOTE: See screenshot in #7247 for how radio button selection should map to settings
-        if (this.landingPage === LandingPageChoices.LEARN) {
-          return {
-            allowGuestAccess: false,
-            allowLearnerUnassignedResourceAccess: true,
-          };
-        }
-
-        if (this.signInPageOption === SignInPageOptions.ALLOW_GUEST_ACCESS) {
+        if (
+          this.landingPage === LandingPageChoices.LEARN ||
+          this.signInPageOption === SignInPageOptions.ALLOW_GUEST_ACCESS
+        ) {
           return {
             allowGuestAccess: true,
             allowLearnerUnassignedResourceAccess: true,
@@ -363,6 +359,7 @@
     }
   }
 
+  // TODO replace div.fieldset with a real fieldset after styling issue is resolved
   .fieldset {
     margin: 16px 0;
   }

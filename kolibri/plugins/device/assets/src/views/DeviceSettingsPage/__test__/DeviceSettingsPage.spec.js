@@ -77,7 +77,7 @@ describe('DeviceSettingsPage', () => {
   }
 
   function assertIsSelected(button, expected) {
-    // The only way to tell it's checked in the DOM is to look for "svg.checked";
+    // HACK(kds-test) The only way to tell it's checked in the DOM is to look for "svg.checked";
     expect(button.find('svg.checked').exists()).toBe(expected);
   }
 
@@ -123,7 +123,7 @@ describe('DeviceSettingsPage', () => {
       client.mockResolvedValue({
         data: {
           landing_page: 'learn',
-          // Unrealistic data, but the guest acces button should not be checked
+          // The guest access button should not be checked
           allow_guest_access: true,
         },
       });
@@ -166,7 +166,7 @@ describe('DeviceSettingsPage', () => {
       });
     });
 
-    it('if landing page is Learn page, all settings assuming a Sign-in page are false', async () => {
+    it('landing page is Learn page', async () => {
       const { wrapper } = await makeWrapper();
       const saveSpy = jest.spyOn(wrapper.vm, 'saveDeviceSettings').mockResolvedValue();
       const { learnPage, saveButton } = getButtons(wrapper);
@@ -176,7 +176,7 @@ describe('DeviceSettingsPage', () => {
       expect(saveSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           landingPage: 'learn',
-          allowGuestAccess: false,
+          allowGuestAccess: true,
           allowLearnerUnassignedResourceAccess: true,
         })
       );
