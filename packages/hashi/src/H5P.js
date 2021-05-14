@@ -361,8 +361,7 @@ export default class H5P extends BaseShim {
             embedCode: '',
             resizeCode: '',
             mainId: self.contentNamespace,
-            // TODO (rtibbles): Finalize the URL scheme for kolibri content
-            url: self.rootConfig.source || `http://kolibri.content/${self.contentNamespace}`,
+            url: self.rootConfig.source || `http://kolibri.to/content/${self.contentNamespace}`,
             title: self.rootConfig.title,
             styles: Object.keys(self.loadedCss),
             scripts: Object.keys(self.loadedJs),

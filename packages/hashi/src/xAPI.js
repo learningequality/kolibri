@@ -1152,12 +1152,8 @@ export default class xAPI extends BaseShim {
   }
 
   createAgent() {
-    // TODO (rtibbles): Finalize how we represent Kolibri agents
     return {
-      account: {
-        homePage: 'https://kolibri.time',
-        name: this.userData.userId,
-      },
+      mbox: `mailto:${this.userData.userId}@kolibri.to`,
     };
   }
 
