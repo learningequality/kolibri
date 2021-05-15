@@ -101,16 +101,22 @@
       slides: [],
       currentSlideIndex: 0,
       highestViewedSlideIndex: 0,
+      visitedSlides: [],
     }),
     computed: {
       currentSlide() {
         return this.slides[this.currentSlideIndex];
       },
-      visitedSlides() {
-        if (this.extraFields && this.extraFields.contentState) {
-          return this.extraFields.contentState.visitedSlides || [];
-        }
-        return [];
+      savedVisitedSlides: {
+        get() {
+          if (this.extraFields && this.extraFields.contentState) {
+            return this.extraFields.contentState.savedVisitedSlides || [];
+          }
+          return [];
+        },
+        set(value) {
+          this.visitedSlides = value;
+        },
       },
       slideshowImages: function() {
         const files = this.files;
@@ -216,18 +222,18 @@
         if (this.currentSlideIndex > this.highestViewedSlideIndex) {
           this.highestViewedSlideIndex = this.currentSlideIndex;
         }
-        this.listVisitedSlides(this.currentSlideIndex);
+        this.storeVisitedSlide(this.currentSlideIndex);
         this.updateContentState();
       },
       slideTextId(id) {
         return 'descriptive-text-' + id;
       },
-      listVisitedSlides(currentSlideNum) {
-        let visited = this.visitedSlides;
+      storeVisitedSlide(currentSlideNum) {
+        let visited = this.savedVisitedSlides;
         if (!visited.includes(currentSlideNum)) {
           visited.push(currentSlideNum);
         }
-        return visited;
+        this.savedVisitedSlides = visited;
       },
       setHooperListWidth() {
         /*
@@ -269,24 +275,24 @@
             ...this.extraFields.contentState,
             highestViewedSlideIndex: this.highestViewedSlideIndex,
             lastViewedSlideIndex: this.currentSlideIndex,
-            visitedSlides: this.visitedSlides,
+            savedVisitedSlides: this.visitedSlides || this.savedVisitedSlides,
           };
         } else {
           contentState = {
             highestViewedSlideIndex: this.highestViewedSlideIndex,
             lastViewedSlideIndex: this.currentSlideIndex,
-            visitedSlides: this.visitedSlides,
+            savedVisitedSlides: this.visitedSlides || this.savedVisitedSlides,
           };
         }
         this.$emit('updateContentState', contentState);
       },
       updateProgress() {
-        if (this.forceTimeBasedProgress) {
+        if (this.forceDurationBasedProgress) {
           // update progress using total time user has spent on the slideshow
           this.$emit('updateProgress', this.durationBasedProgress);
         } else {
           // update progress using number of slides seen out of available slides
-          this.$emit('updateProgress', this.visitedSlides.length / this.slides.length);
+          this.$emit('updateProgress', this.savedVisitedSlides.length / this.slides.length);
         }
       },
     },
