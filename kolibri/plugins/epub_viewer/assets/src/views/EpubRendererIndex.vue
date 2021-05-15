@@ -221,6 +221,7 @@
         sliderValue: 0,
         scrolled: false,
         currentLocation: null,
+        visitedPages: [],
         updateContentStateInterval: null,
       };
     },
@@ -237,11 +238,16 @@
         }
         return null;
       },
-      visitedPages() {
-        if (this.extraFields && this.extraFields.contentState) {
-          return this.extraFields.contentState.visitedPages || [];
-        }
-        return [];
+      savedVisitedPages: {
+        get() {
+          if (this.extraFields && this.extraFields.contentState) {
+            return this.extraFields.contentState.savedVisitedPages;
+          }
+          return [];
+        },
+        set(value) {
+          this.visitedPages = value;
+        },
       },
       epubURL() {
         return this.defaultFile.storage_url;
@@ -330,19 +336,16 @@
       increaseFontSizeDisabled() {
         return this.fontSize === `${FONT_SIZE_MAX}px`;
       },
-      expectedTimeToRead() {
-        const WORDS_PER_MINUTE = 300;
-        const CHARS_PER_WORD = 10;
-        const numberOfWords = (this.locations.length * LOCATIONS_INTERVAL) / CHARS_PER_WORD;
-        const seconds = (numberOfWords * 60) / WORDS_PER_MINUTE;
-        return seconds;
-      },
       /* eslint-disable kolibri/vue-no-unused-properties */
       /**
        * @public
        */
       defaultDuration() {
-        return this.expectedTimeToRead;
+        const WORDS_PER_MINUTE = 300;
+        const CHARS_PER_WORD = 10;
+        const numberOfWords = (this.locations.length * LOCATIONS_INTERVAL) / CHARS_PER_WORD;
+        const seconds = (numberOfWords * 60) / WORDS_PER_MINUTE;
+        return seconds;
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
     },
@@ -475,21 +478,21 @@
     methods: {
       updateProgress() {
         if (this.locations.length > 0) {
-          if (this.forceTimeBasedProgress) {
+          if (this.forceDurationBasedProgress) {
             // update progress using total time user has spent on the epub
             this.$emit('updateProgress', this.durationBasedProgress);
           } else {
             // update progress using number of pages seen out of available pages
-            this.$emit('updateProgress', this.visitedPages.length / this.locations.length);
+            this.$emit('updateProgress', this.savedVisitedPages.length / this.locations.length);
           }
         }
       },
-      listVisitedPages(currentLocation) {
-        let visited = this.visitedPages;
+      storeVisitedPage(currentLocation) {
+        let visited = this.savedVisitedPages;
         if (!visited.includes(currentLocation)) {
           visited.push(currentLocation);
         }
-        return visited;
+        this.savedVisitedPages = visited;
       },
       handleReadyRendition() {
         this.updateRenditionTheme(this.themeStyle);
@@ -703,7 +706,7 @@
         this.sliderValue = location.start.percentage * 100;
         this.updateCurrentSection(location.start);
         this.currentLocation = location.start.cfi;
-        this.listVisitedPages(this.currentLocation);
+        this.storeVisitedPage(this.currentLocation);
         this.updateContentState();
       },
       handleSliderChanged(newSliderValue) {
@@ -719,12 +722,12 @@
           contentState = {
             ...this.extraFields.contentState,
             savedLocation: this.currentLocation || this.savedLocation,
-            visitedPages: this.visitedPages,
+            savedVisitedPages: this.visitedPages || this.savedVisitedPages,
           };
         } else {
           contentState = {
             savedLocation: this.currentLocation || this.savedLocation,
-            visitedPages: this.visitedPages,
+            savedVisitedPages: this.visitedPages || this.savedVisitedPages,
           };
         }
         this.$emit('updateContentState', contentState);
