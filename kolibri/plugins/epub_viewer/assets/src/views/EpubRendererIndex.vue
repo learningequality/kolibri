@@ -241,7 +241,7 @@
       savedVisitedPages: {
         get() {
           if (this.extraFields && this.extraFields.contentState) {
-            return this.extraFields.contentState.savedVisitedPages;
+            return this.extraFields.contentState.savedVisitedPages || [];
           }
           return [];
         },

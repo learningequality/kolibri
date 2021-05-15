@@ -9,10 +9,10 @@ describe('updateProgress', () => {
 
   beforeEach(() => {
     context = {
-      forceTimeBasedProgress: null,
+      forceDurationBasedProgress: null,
       $emit: jest.fn(),
       durationBasedProgress: 0.1,
-      visitedPages: [1, 2, 3],
+      savedVisitedPages: [1, 2, 3],
       totalPages: 9,
     };
   });
@@ -22,19 +22,19 @@ describe('updateProgress', () => {
 
     expect(context.$emit.mock.calls[0][0]).toBe('updateProgress');
     expect(context.$emit.mock.calls[0][1]).toEqual(
-      context.visitedPages.length / context.totalPages
+      context.savedVisitedPages.length / context.totalPages
     );
     expect(context.$emit.mock.calls[0][1]).not.toBe(context.durationBasedProgress);
   });
 
-  it('should have option of using time-based tracking for progress calculation when forceTimeBasedProgress is true', () => {
-    context.forceTimeBasedProgress = true;
+  it('should have option of using time-based tracking for progress calculation when forceDurationBasedProgress is true', () => {
+    context.forceDurationBasedProgress = true;
     methods.updateProgress.call(context);
 
     expect(context.$emit.mock.calls[0][0]).toBe('updateProgress');
     expect(context.$emit.mock.calls[0][1]).toBe(0.1);
     expect(context.$emit.mock.calls[0][1]).not.toEqual(
-      context.visitedPages.length / context.totalPages
+      context.savedVisitedPages.length / context.totalPages
     );
   });
 });

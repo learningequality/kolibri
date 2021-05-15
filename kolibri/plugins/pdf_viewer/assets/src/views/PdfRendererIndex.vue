@@ -116,6 +116,7 @@
       currentLocation: 0,
       updateContentStateInterval: null,
       showControls: true,
+      visitedPages: [],
     }),
     computed: {
       // Returns whether or not the current device is iOS.
@@ -146,11 +147,16 @@
         }
         return 0;
       },
-      visitedPages() {
-        if (this.extraFields && this.extraFields.contentState) {
-          return this.extraFields.contentState.visitedPages || [];
-        }
-        return [];
+      savedVisitedPages: {
+        get() {
+          if (this.extraFields && this.extraFields.contentState) {
+            return this.extraFields.contentState.savedVisitedPages || [];
+          }
+          return [];
+        },
+        set(value) {
+          this.visitedPages = value;
+        },
       },
       fullscreenText() {
         return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
@@ -248,7 +254,7 @@
         }
         this.$emit('startTracking');
         this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
-        if (this.forceTimeBasedProgress) {
+        if (this.forceDurationBasedProgress) {
           // Automatically master after the targetTime, convert seconds -> milliseconds
           this.timeout = setTimeout(this.updateProgress, this.targetTime * 1000);
         }
@@ -285,12 +291,12 @@
           });
         }
       },
-      listVisitedPages(currentPageNum) {
-        let visited = this.visitedPages;
+      storeVisitedPage(currentPageNum) {
+        let visited = this.savedVisitedPages;
         if (!visited.includes(currentPageNum)) {
           visited.push(currentPageNum);
         }
-        return visited;
+        this.savedVisitedPages = visited;
       },
       // handle the recycle list update event
       handleUpdate: debounce(function(start, end) {
@@ -319,7 +325,7 @@
 
           // determine how many pages user has viewed/visited
           let currentPage = parseInt(this.currentLocation * this.totalPages) + 1;
-          this.listVisitedPages(currentPage);
+          this.storeVisitedPage(currentPage);
           this.updateContentState();
         }
         const startIndex = Math.floor(start) + 1;
@@ -360,12 +366,12 @@
         this.$refs.recycleList.updateVisibleItems(false);
       },
       updateProgress() {
-        if (this.forceTimeBasedProgress) {
+        if (this.forceDurationBasedProgress) {
           // update progress using total time user has spent on the pdf
           this.$emit('updateProgress', this.durationBasedProgress);
         } else {
           // update progress using number of pages seen out of available pages
-          this.$emit('updateProgress', this.visitedPages.length / this.totalPages);
+          this.$emit('updateProgress', this.savedVisitedPages.length / this.totalPages);
         }
       },
       updateContentState() {
@@ -374,12 +380,12 @@
           contentState = {
             ...this.extraFields.contentState,
             savedLocation: this.currentLocation || this.savedLocation,
-            visitedPages: this.visitedPages,
+            savedVisitedPages: this.visitedPages || this.savedVisitedPages,
           };
         } else {
           contentState = {
             savedLocation: this.currentLocation || this.savedLocation,
-            visitedPages: this.visitedPages,
+            savedVisitedPages: this.visitedPages || this.savedVisitedPages,
           };
         }
         this.$emit('updateContentState', contentState);
