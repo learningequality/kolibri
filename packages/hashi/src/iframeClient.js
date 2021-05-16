@@ -40,10 +40,6 @@ export default class SandboxEnvironment {
     // to look for its API is window.parent.
     this.SCORM.iframeInitialize(window);
 
-    // Also initialize H5P here, as it looks for some parts
-    // of itself on the parent, and some on the window
-    this.H5P.iframeInitialize(window);
-
     this.createIframe = this.createIframe.bind(this);
 
     this.mediator.registerMessageHandler({

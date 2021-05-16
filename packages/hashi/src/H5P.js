@@ -5,6 +5,7 @@ import set from 'lodash/set';
 import debounce from 'lodash/debounce';
 import unset from 'lodash/unset';
 import Toposort from 'toposort-class';
+import { filename as H5PFilename } from '../h5p_build.json';
 import BaseShim from './baseShim';
 import loadBinary from './loadBinary';
 import mimetypes from './mimetypes.json';
@@ -137,7 +138,7 @@ export default class H5P extends BaseShim {
     // Relative URL to H5P - ideal to keep this simple by convention
     // this will avoid having to pass in extra initialization info into
     // hashi.
-    this.iframe.src = '../h5p/';
+    this.iframe.src = `../h5p/${H5PFilename}`;
     // This is the path to the H5P file which we load in its entirety.
     this.filepath = filepath;
     // Currently the node id - we use this for generating the H5P ids,

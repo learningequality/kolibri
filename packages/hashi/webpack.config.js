@@ -27,9 +27,6 @@ Plugin.prototype.apply = function(compiler) {
   }
 };
 
-// Note that the hashi iframe client doesn't currently support code splitting
-// in the way that it is loaded, so don't do any code splitting just yet.
-
 module.exports = {
   entry: path.resolve(__dirname, './src/iframe.js'),
   output: {

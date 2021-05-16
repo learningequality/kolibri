@@ -6,6 +6,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="google" content="notranslate">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:">
 
         <style>
             body {
@@ -13,9 +14,9 @@
             }
         </style>
 
-        <link type="text/css" rel="stylesheet" media="all" href="./styles/h5p.css" />
-        <link type="text/css" rel="stylesheet" media="all" href="./styles/h5p-confirmation-dialog.css" />
-        <link type="text/css" rel="stylesheet" media="all" href="./styles/h5p-core-button.css" />
+        <% for (var css in htmlWebpackPlugin.files.css) { %>
+            <link href="<%= htmlWebpackPlugin.files.css[css] %>" rel="stylesheet">
+        <% } %>
 
         <script>
 
@@ -27,7 +28,9 @@
 
         </script>
 
-        <script type="text/javascript" src="./js/frame.bundle.js" crossorigin="anonymous"></script>
+        <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
+            <script src="<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
+        <% } %>
 
     </head>
     <body></body>
