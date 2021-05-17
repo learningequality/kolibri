@@ -22,6 +22,7 @@
     "html-webpack-plugin": "4",
     "jquery": "3.5.1",
     "mime-db": "^1.46.0",
+    "mutationobserver-shim": "^0.3.7",
     "purgecss": "^4.0.3",
     "rimraf": "^3.0.2",
     "webpack": "4.6.0",
