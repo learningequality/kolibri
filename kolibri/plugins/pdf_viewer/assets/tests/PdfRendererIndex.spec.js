@@ -12,7 +12,7 @@ describe('updateProgress', () => {
       forceDurationBasedProgress: null,
       $emit: jest.fn(),
       durationBasedProgress: 0.1,
-      savedVisitedPages: [1, 2, 3],
+      savedVisitedPages: { 1: 'true', 2: 'true', 3: 'true' },
       totalPages: 9,
     };
   });
@@ -22,7 +22,7 @@ describe('updateProgress', () => {
 
     expect(context.$emit.mock.calls[0][0]).toBe('updateProgress');
     expect(context.$emit.mock.calls[0][1]).toEqual(
-      context.savedVisitedPages.length / context.totalPages
+      Object.keys(context.savedVisitedPages).length / context.totalPages
     );
     expect(context.$emit.mock.calls[0][1]).not.toBe(context.durationBasedProgress);
   });
@@ -34,7 +34,7 @@ describe('updateProgress', () => {
     expect(context.$emit.mock.calls[0][0]).toBe('updateProgress');
     expect(context.$emit.mock.calls[0][1]).toBe(0.1);
     expect(context.$emit.mock.calls[0][1]).not.toEqual(
-      context.savedVisitedPages.length / context.totalPages
+      Object.keys(context.savedVisitedPages).length / context.totalPages
     );
   });
 });

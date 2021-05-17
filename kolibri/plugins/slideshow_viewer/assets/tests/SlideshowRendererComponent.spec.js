@@ -10,7 +10,7 @@ describe('updateProgress', () => {
       forceDurationBasedProgress: null,
       $emit: jest.fn(),
       durationBasedProgress: 0.1,
-      savedVisitedSlides: [1, 2, 3],
+      savedVisitedSlides: { 1: 'true', 2: 'true', 3: 'true' },
       slides: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     };
   });
@@ -20,7 +20,7 @@ describe('updateProgress', () => {
 
     expect(context.$emit.mock.calls[0][0]).toBe('updateProgress');
     expect(context.$emit.mock.calls[0][1]).toEqual(
-      context.savedVisitedSlides.length / context.slides.length
+      Object.keys(context.savedVisitedSlides).length / context.slides.length
     );
     expect(context.$emit.mock.calls[0][1]).not.toBe(context.durationBasedProgress);
   });
@@ -32,7 +32,7 @@ describe('updateProgress', () => {
     expect(context.$emit.mock.calls[0][0]).toBe('updateProgress');
     expect(context.$emit.mock.calls[0][1]).toBe(0.1);
     expect(context.$emit.mock.calls[0][1]).not.toEqual(
-      context.savedVisitedSlides.length / context.slides.length
+      Object.keys(context.savedVisitedSlides).length / context.slides.length
     );
   });
 });

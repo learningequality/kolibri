@@ -101,7 +101,7 @@
       slides: [],
       currentSlideIndex: 0,
       highestViewedSlideIndex: 0,
-      visitedSlides: [],
+      visitedSlides: {},
     }),
     computed: {
       currentSlide() {
@@ -110,9 +110,9 @@
       savedVisitedSlides: {
         get() {
           if (this.extraFields && this.extraFields.contentState) {
-            return this.extraFields.contentState.savedVisitedSlides || [];
+            return this.extraFields.contentState.savedVisitedSlides || {};
           }
-          return [];
+          return {};
         },
         set(value) {
           this.visitedSlides = value;
@@ -230,9 +230,7 @@
       },
       storeVisitedSlide(currentSlideNum) {
         let visited = this.savedVisitedSlides;
-        if (!visited.includes(currentSlideNum)) {
-          visited.push(currentSlideNum);
-        }
+        visited[currentSlideNum] = true;
         this.savedVisitedSlides = visited;
       },
       setHooperListWidth() {
@@ -292,7 +290,10 @@
           this.$emit('updateProgress', this.durationBasedProgress);
         } else {
           // update progress using number of slides seen out of available slides
-          this.$emit('updateProgress', this.savedVisitedSlides.length / this.slides.length);
+          this.$emit(
+            'updateProgress',
+            Object.keys(this.savedVisitedSlides).length / this.slides.length
+          );
         }
       },
     },

@@ -374,9 +374,8 @@
       handleSeek() {
         // record progress before updating the times,
         // to capture any progress that happened pre-seeking
-        if (!this.forceTimeBasedProgress) {
-          this.recordProgress();
-        }
+        this.recordProgress();
+
         // now, update all the timestamps to set the new time location
         // as the baseline starting point
         this.dummyTime = this.player.currentTime();
@@ -391,16 +390,14 @@
         }
         this.dummyTime = this.player.currentTime();
         if (this.dummyTime - this.lastUpdateTime >= 5) {
-          if (!this.forceTimeBasedProgress) {
-            this.recordProgress();
-          }
+          this.recordProgress();
           this.lastUpdateTime = this.dummyTime;
         }
       },
       setPlayState(state) {
         // avoid recording progress if we're currently seeking,
         // as timers are in an intermediate state
-        if (!this.player.seeking() && !this.forceTimeBasedProgress) {
+        if (!this.player.seeking()) {
           this.recordProgress();
         }
         if (state === true) {

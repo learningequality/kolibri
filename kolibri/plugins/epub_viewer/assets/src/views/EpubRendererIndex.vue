@@ -221,7 +221,7 @@
         sliderValue: 0,
         scrolled: false,
         currentLocation: null,
-        visitedPages: [],
+        visitedPages: {},
         updateContentStateInterval: null,
       };
     },
@@ -241,9 +241,9 @@
       savedVisitedPages: {
         get() {
           if (this.extraFields && this.extraFields.contentState) {
-            return this.extraFields.contentState.savedVisitedPages || [];
+            return this.extraFields.contentState.savedVisitedPages || {};
           }
-          return [];
+          return {};
         },
         set(value) {
           this.visitedPages = value;
@@ -483,15 +483,16 @@
             this.$emit('updateProgress', this.durationBasedProgress);
           } else {
             // update progress using number of pages seen out of available pages
-            this.$emit('updateProgress', this.savedVisitedPages.length / this.locations.length);
+            this.$emit(
+              'updateProgress',
+              Object.keys(this.savedVisitedPages).length / this.locations.length
+            );
           }
         }
       },
       storeVisitedPage(currentLocation) {
         let visited = this.savedVisitedPages;
-        if (!visited.includes(currentLocation)) {
-          visited.push(currentLocation);
-        }
+        visited[currentLocation] = true;
         this.savedVisitedPages = visited;
       },
       handleReadyRendition() {

@@ -116,7 +116,7 @@
       currentLocation: 0,
       updateContentStateInterval: null,
       showControls: true,
-      visitedPages: [],
+      visitedPages: {},
     }),
     computed: {
       // Returns whether or not the current device is iOS.
@@ -150,9 +150,9 @@
       savedVisitedPages: {
         get() {
           if (this.extraFields && this.extraFields.contentState) {
-            return this.extraFields.contentState.savedVisitedPages || [];
+            return this.extraFields.contentState.savedVisitedPages || {};
           }
-          return [];
+          return {};
         },
         set(value) {
           this.visitedPages = value;
@@ -293,9 +293,7 @@
       },
       storeVisitedPage(currentPageNum) {
         let visited = this.savedVisitedPages;
-        if (!visited.includes(currentPageNum)) {
-          visited.push(currentPageNum);
-        }
+        visited[currentPageNum] = true;
         this.savedVisitedPages = visited;
       },
       // handle the recycle list update event
@@ -371,7 +369,10 @@
           this.$emit('updateProgress', this.durationBasedProgress);
         } else {
           // update progress using number of pages seen out of available pages
-          this.$emit('updateProgress', this.savedVisitedPages.length / this.totalPages);
+          this.$emit(
+            'updateProgress',
+            Object.keys(this.savedVisitedPages).length / this.totalPages
+          );
         }
       },
       updateContentState() {
