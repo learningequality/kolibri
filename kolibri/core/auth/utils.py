@@ -3,7 +3,8 @@ import sys
 from django.utils.six.moves import input
 
 from kolibri.core.auth.models import AdHocGroup
-from kolibri.core.auth.models import dataset_cache
+from kolibri.core.auth.models import FacilityDataset
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
@@ -28,85 +29,16 @@ def create_adhoc_group_for_learners(classroom, learners):
     return adhoc_group
 
 
-models_to_copy = [
-    ContentSessionLog,
-    ContentSummaryLog,
-    MasteryLog,
-    AttemptLog,
-    UserSessionLog,
-]
-
-user_fields = [
-    "gender",
-    "birth_year",
-    "id_number",
-]
-
-log_fields = {
-    ContentSessionLog: [
-        "content_id",
-        "visitor_id",
-        "channel_id",
-        "start_timestamp",
-        "end_timestamp",
-        "time_spent",
-        "progress",
-        "kind",
-        "extra_fields",
-    ],
-    ContentSummaryLog: [
-        "content_id",
-        "channel_id",
-        "start_timestamp",
-        "end_timestamp",
-        "completion_timestamp",
-        "time_spent",
-        "progress",
-        "kind",
-        "extra_fields",
-    ],
-    UserSessionLog: [
-        "channels",
-        "start_timestamp",
-        "last_interaction_timestamp",
-        "pages",
-        "device_info",
-    ],
-    MasteryLog: [
-        "mastery_criterion",
-        "start_timestamp",
-        "end_timestamp",
-        "completion_timestamp",
-        "mastery_level",
-        "complete",
-        ("summarylog_id", ContentSummaryLog),
-    ],
-    AttemptLog: [
-        "item",
-        "start_timestamp",
-        "end_timestamp",
-        "completion_timestamp",
-        "time_spent",
-        "complete",
-        "correct",
-        "hinted",
-        "answer",
-        "simple_answer",
-        "interaction_history",
-        "error",
-        ("masterylog_id", MasteryLog),
-        ("sessionlog_id", ContentSessionLog),
-    ],
-}
-
-
 def _merge_user_models(source_user, target_user):
-    for f in user_fields:
+    for f in ["gender", "birth_year", "id_number"]:
         source_value = getattr(source_user, f, None)
         target_value = getattr(target_user, f, None)
         if not target_value and source_value:
             setattr(target_user, f, source_value)
     target_user.save()
+
+
+blocklist = set(["id", "_morango_partition"])
 
 
 def merge_users(source_user, target_user):
@@ -118,42 +50,67 @@ def merge_users(source_user, target_user):
     if source_user.id == target_user.id:
         raise ValueError("Cannot merge a user with themselves")
 
-    dataset_cache.clear()
-    dataset_cache.activate()
-
     _merge_user_models(source_user, target_user)
 
-    id_map = {}
+    id_map = {
+        FacilityUser: {source_user.id: target_user.id},
+        FacilityDataset: {
+            source_user.dataset_id: target_user.dataset_id,
+        },
+    }
 
-    def _merge_log_data(source_user, target_user, LogModel):
+    def _merge_log_data(LogModel):
         log_map = {}
         id_map[LogModel] = log_map
         new_logs = []
-        for log in LogModel.objects.filter(user=source_user):
-            data = {}
-            for f in log_fields[LogModel]:
-                if isinstance(f, tuple):
-                    field_name, model = f
-                    data[field_name] = id_map[model][getattr(log, field_name)]
-                else:
-                    data[f] = getattr(log, f)
-            new_log = LogModel(user=target_user, **data)
-            new_log.id = new_log.calculate_uuid()
-            new_log.ensure_dataset()
+        related_fields = [f for f in LogModel._meta.concrete_fields if f.is_relation]
+        source_logs = LogModel.objects.filter(user=source_user)
+        target_log_ids = set(
+            LogModel.objects.filter(user=target_user).values_list("id", flat=True)
+        )
+        for log in source_logs:
+            # Get all serialializable fields
+            data = log.serialize()
+            # Remove fields that we explicitly know we don't want to copy
+            for f in blocklist:
+                if f in data:
+                    del data[f]
+            # Iterate through each relation and map the old id to the new id for the foreign key
+            for relation in related_fields:
+                data[relation.attname] = id_map[relation.related_model][
+                    data[relation.attname]
+                ]
+            # If this is a randomly created source id, preserve it, so we can stop the same logs
+            # being copied in repeatedly. If it is not random, remove it, so we can recreate
+            # it on the target.
+            if log.calculate_source_id() is not None:
+                del data["_morango_source_id"]
+            new_log = LogModel.deserialize(data)
+            if not new_log._morango_source_id:
+                new_log.id = new_log.calculate_uuid()
+            else:
+                # Have to do this, otherwise morango will overwrite the current source id on the model
+                new_log.id = new_log.compute_namespaced_id(
+                    new_log.calculate_partition(),
+                    new_log._morango_source_id,
+                    new_log.morango_model_name,
+                )
+                new_log._morango_partition = new_log.calculate_partition().replace(
+                    new_log.ID_PLACEHOLDER, new_log.id
+                )
             log_map[log.id] = new_log.id
-            new_logs.append(new_log)
+            if new_log.id not in target_log_ids:
+                new_logs.append(new_log)
         LogModel.objects.bulk_create(new_logs, batch_size=750)
 
-    _merge_log_data(source_user, target_user, ContentSessionLog)
+    _merge_log_data(ContentSessionLog)
 
-    _merge_log_data(source_user, target_user, ContentSummaryLog)
+    _merge_log_data(ContentSummaryLog)
 
-    _merge_log_data(source_user, target_user, UserSessionLog)
+    _merge_log_data(UserSessionLog)
 
-    _merge_log_data(source_user, target_user, MasteryLog)
+    _merge_log_data(MasteryLog)
 
-    _merge_log_data(source_user, target_user, AttemptLog)
+    _merge_log_data(AttemptLog)
 
     source_user.delete()
-
-    dataset_cache.deactivate()
