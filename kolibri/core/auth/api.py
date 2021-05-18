@@ -26,6 +26,7 @@ from django.db.models.functions import Cast
 from django.http import Http404
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -561,13 +562,36 @@ class SignUpViewSet(viewsets.ViewSet):
             serialized_user.save()
             if data["password"] != "NOT_SPECIFIED":
                 serialized_user.instance.set_password(data["password"])
-            serialized_user.instance.save()
+                serialized_user.instance.save()
             authenticated_user = authenticate(
                 username=data["username"],
                 password=data["password"],
                 facility=data["facility"],
             )
             login(request, authenticated_user)
+            return Response(serialized_user.data, status=status.HTTP_201_CREATED)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class PublicSignUpViewSet(SignUpViewSet):
+    """
+    Identical to the SignUpViewset except that it also allows a hashed password
+    and does not login the user.
+    This endpoint is intended to allow a FacilityUser in a different facility
+    on another device to be cloned into a facility on this device, to facilitate
+    moving a user from one facility to another.
+    """
+
+    def create(self, request):
+
+        data = self.extract_request_data(request)
+        password_hashed = request.data.get("password_hashed", False)
+        serialized_user = self.serializer_class(data=data)
+        if serialized_user.is_valid(raise_exception=True):
+            serialized_user.save()
+            if data["password"] != "NOT_SPECIFIED" and not password_hashed:
+                serialized_user.instance.set_password(data["password"])
+                serialized_user.instance.save()
             return Response(serialized_user.data, status=status.HTTP_201_CREATED)
 
 
