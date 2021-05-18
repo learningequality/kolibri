@@ -211,7 +211,6 @@
     },
     beforeDestroy() {
       clearInterval(this.updateContentStateInterval);
-      this.updateProgress();
       this.updateContentState();
       this.$emit('stopTracking');
       window.removeEventListener('resize', this.throttledResizePlayer);
@@ -323,7 +322,6 @@
           this.focusOnPlayControl();
           this.setPlayState(false);
           this.updateContentState();
-          this.updateProgress();
         });
         this.player.on('timeupdate', this.updateTime);
         this.player.on('seeking', this.handleSeek);
@@ -407,18 +405,18 @@
         }
       },
       recordProgress() {
-        this.$emit(
-          'addProgress',
-          Math.max(
-            0,
-            (this.dummyTime - this.progressStartingPoint) / Math.floor(this.player.duration())
-          )
-        );
+        if (this.forceDurationBasedProgress) {
+          this.$emit('updateProgress', this.durationBasedProgress);
+        } else {
+          this.$emit(
+            'addProgress',
+            Math.max(
+              0,
+              (this.dummyTime - this.progressStartingPoint) / Math.floor(this.player.duration())
+            )
+          );
+        }
         this.progressStartingPoint = this.dummyTime;
-      },
-      // An alternative to recordProgress, this updates tracking based on clock-time spent on media
-      updateProgress() {
-        this.$emit('updateProgress', this.durationBasedProgress);
       },
       updatePlayerSizeClass() {
         this.player.removeClass('player-medium');
