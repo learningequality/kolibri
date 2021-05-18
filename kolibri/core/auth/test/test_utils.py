@@ -12,7 +12,6 @@ from django.core.management.base import CommandError
 from django.test import TestCase
 
 from ..models import Facility
-from ..models import FacilityUser
 from kolibri.core.auth.management import utils
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
@@ -163,8 +162,123 @@ class TeleportUserTestCase(TestCase):
 
         merge_users(cls.user_1, cls.user_2)
 
-    def test_no_user_after_merge(self):
-        self.assertFalse(FacilityUser.objects.filter(id=self.user_1_id).exists())
+    def test_masterylogs(self):
+        self.assertEqual(
+            log_models.MasteryLog.objects.filter(user=self.user_2).count(), 1
+        )
+        log = self.user_1_masterylog
+        self.assertTrue(
+            log_models.MasteryLog.objects.filter(
+                summarylog__progress=log.summarylog.progress,
+                user=self.user_2,
+                mastery_level=log.mastery_level,
+                summarylog__channel_id=log.summarylog.channel_id,
+                summarylog__content_id=log.summarylog.content_id,
+            ).exists()
+        )
+
+    def test_usersessionlogs(self):
+        self.assertEqual(
+            log_models.UserSessionLog.objects.filter(user=self.user_2).count(), 1
+        )
+
+    def test_attemptlogs(self):
+        self.assertEqual(
+            log_models.AttemptLog.objects.filter(user=self.user_2).count(), 1
+        )
+        log = self.user_1_attemptlog
+        self.assertTrue(
+            log_models.AttemptLog.objects.filter(
+                masterylog__summarylog__progress=log.masterylog.summarylog.progress,
+                user=self.user_2,
+                time_spent=log.time_spent,
+                masterylog__summarylog__channel_id=log.masterylog.summarylog.channel_id,
+                masterylog__summarylog__content_id=log.masterylog.summarylog.content_id,
+            ).exists()
+        )
+
+    def test_contentsessionlogs(self):
+        self.assertEqual(
+            log_models.ContentSessionLog.objects.filter(user=self.user_2).count(),
+            len(self.user_1_sess_logs),
+        )
+        for log in self.user_1_sess_logs:
+            self.assertTrue(
+                log_models.ContentSessionLog.objects.filter(
+                    progress=log.progress,
+                    user=self.user_2,
+                    content_id=log.content_id,
+                    channel_id=log.channel_id,
+                ).exists()
+            )
+
+    def test_contentsummarylogs(self):
+        self.assertEqual(
+            log_models.ContentSummaryLog.objects.filter(user=self.user_2).count(),
+            len(self.user_1_summ_logs),
+        )
+        for log in self.user_1_summ_logs:
+            self.assertTrue(
+                log_models.ContentSummaryLog.objects.filter(
+                    progress=log.progress,
+                    user=self.user_2,
+                    content_id=log.content_id,
+                    channel_id=log.channel_id,
+                ).exists()
+            )
+
+
+class TeleportUserTwiceTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
+        i = 1
+        user = FacilityUserFactory.create(facility=cls.facility)
+
+        sess_logs = []
+        summ_logs = []
+
+        for _ in range(3):
+            sess_logs.append(
+                ContentSessionLogFactory.create(
+                    user=user,
+                )
+            )
+
+            summ_logs.append(
+                ContentSummaryLogFactory.create(
+                    user=user,
+                )
+            )
+        ex_csessl = ContentSessionLogFactory.create(
+            user=user,
+        )
+
+        ex_csmlog = ContentSummaryLogFactory.create(
+            user=user,
+        )
+        masterylog = MasteryLogFactory.create(user=user, summarylog=ex_csmlog)
+        attemptlog = AttemptLogFactory.create(
+            user=user, masterylog=masterylog, sessionlog=ex_csessl
+        )
+        usersessionlog = UserSessionLogFactory.create(user=user)
+
+        sess_logs.append(ex_csessl)
+        summ_logs.append(ex_csmlog)
+
+        setattr(cls, "user_{}".format(str(i)), user)
+        setattr(cls, "user_{}_sess_logs".format(str(i)), sess_logs)
+        setattr(cls, "user_{}_summ_logs".format(str(i)), summ_logs)
+        setattr(cls, "user_{}_masterylog".format(str(i)), masterylog)
+        setattr(cls, "user_{}_attemptlog".format(str(i)), attemptlog)
+        setattr(cls, "user_{}_usersessionlog".format(str(i)), usersessionlog)
+
+        cls.user_1_id = cls.user_1.id
+
+        cls.user_2 = FacilityUserFactory.create(facility=cls.facility)
+
+        merge_users(cls.user_1, cls.user_2)
+        merge_users(cls.user_1, cls.user_2)
 
     def test_masterylogs(self):
         self.assertEqual(
@@ -298,9 +412,6 @@ class MergeUsersTestCase(TestCase):
         cls.user_2.id_number = "13"
         cls.user_2.save()
         merge_users(cls.user_1, cls.user_2)
-
-    def test_no_user_after_merge(self):
-        self.assertFalse(FacilityUser.objects.filter(id=self.user_1_id).exists())
 
     def test_user_data_after_merge(self):
         self.user_2.refresh_from_db()

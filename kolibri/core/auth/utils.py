@@ -112,5 +112,3 @@ def merge_users(source_user, target_user):
     _merge_log_data(MasteryLog)
 
     _merge_log_data(AttemptLog)
-
-    source_user.delete()
