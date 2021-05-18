@@ -933,6 +933,8 @@ class AnonSignUpTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertFalse(models.FacilityUser.objects.all())
+        self.facility.dataset.learner_can_sign_up = True
+        self.facility.dataset.save()
 
     def test_password_not_specified_password_required(self):
         self.facility.dataset.learner_can_login_with_no_password = False
