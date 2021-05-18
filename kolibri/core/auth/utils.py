@@ -3,6 +3,7 @@ import sys
 from django.utils.six.moves import input
 
 from kolibri.core.auth.models import AdHocGroup
+from kolibri.core.auth.models import dataset_cache
 from kolibri.core.auth.models import Membership
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
@@ -117,6 +118,9 @@ def merge_users(source_user, target_user):
     if source_user.id == target_user.id:
         raise ValueError("Cannot merge a user with themselves")
 
+    dataset_cache.clear()
+    dataset_cache.activate()
+
     _merge_user_models(source_user, target_user)
 
     id_map = {}
@@ -124,6 +128,7 @@ def merge_users(source_user, target_user):
     def _merge_log_data(source_user, target_user, LogModel):
         log_map = {}
         id_map[LogModel] = log_map
+        new_logs = []
         for log in LogModel.objects.filter(user=source_user):
             data = {}
             for f in log_fields[LogModel]:
@@ -132,8 +137,12 @@ def merge_users(source_user, target_user):
                     data[field_name] = id_map[model][getattr(log, field_name)]
                 else:
                     data[f] = getattr(log, f)
-            new_log = LogModel.objects.create(user=target_user, **data)
+            new_log = LogModel(user=target_user, **data)
+            new_log.id = new_log.calculate_uuid()
+            new_log.ensure_dataset()
             log_map[log.id] = new_log.id
+            new_logs.append(new_log)
+        LogModel.objects.bulk_create(new_logs, batch_size=750)
 
     _merge_log_data(source_user, target_user, ContentSessionLog)
 
@@ -146,3 +155,5 @@ def merge_users(source_user, target_user):
     _merge_log_data(source_user, target_user, AttemptLog)
 
     source_user.delete()
+
+    dataset_cache.deactivate()
