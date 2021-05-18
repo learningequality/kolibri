@@ -20,7 +20,6 @@ from django.conf.urls import url
 from rest_framework import routers
 
 from ..auth.api import PublicFacilityViewSet
-from ..auth.api import PublicSignUpViewSet
 from .api import get_public_channel_list
 from .api import get_public_channel_lookup
 from .api import get_public_file_checksums
@@ -29,7 +28,6 @@ from .api import InfoViewSet
 router = routers.SimpleRouter()
 
 router.register(r"v1/facility", PublicFacilityViewSet, base_name="publicfacility")
-router.register(r"v1/signup", PublicSignUpViewSet, base_name="publicsignup")
 router.register(r"info", InfoViewSet, base_name="info")
 
 # Add public api endpoints

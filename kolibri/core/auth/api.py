@@ -24,9 +24,9 @@ from django.db.models import TextField
 from django.db.models import Value
 from django.db.models.functions import Cast
 from django.http import Http404
+from django.http import HttpResponseForbidden
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -40,6 +40,7 @@ from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 
 from .constants import collection_kinds
 from .constants import role_kinds
@@ -546,9 +547,7 @@ class SignUpViewSet(viewsets.ViewSet):
             "username": request.data.get("username", ""),
             "full_name": request.data.get("full_name", ""),
             "password": request.data.get("password", ""),
-            "facility": request.data.get(
-                "facility", Facility.get_default_facility().id
-            ),
+            "facility": request.data.get("facility"),
             "gender": request.data.get("gender", ""),
             "birth_year": request.data.get("birth_year", ""),
         }
@@ -556,9 +555,36 @@ class SignUpViewSet(viewsets.ViewSet):
     def create(self, request):
 
         data = self.extract_request_data(request)
+        facility_id = data["facility"]
+
+        if facility_id is None:
+            facility = Facility.get_default_facility()
+            data["facility"] = facility.id
+        else:
+            try:
+                facility = Facility.objects.select_related("dataset").get(
+                    id=facility_id
+                )
+            except Facility.DoesNotExist:
+                raise ValidationError(
+                    "Facility does not exist.",
+                    code=error_constants.FACILITY_DOES_NOT_EXIST,
+                )
+
+        if not facility.dataset.learner_can_sign_up:
+            return HttpResponseForbidden("Cannot sign up to this facility")
+
         # we validate the user's input, and if valid, login as user
         serialized_user = self.serializer_class(data=data)
         if serialized_user.is_valid(raise_exception=True):
+            if (
+                data["password"] == "NOT_SPECIFIED"
+                and not facility.dataset.learner_can_login_with_no_password
+            ):
+                raise ValidationError(
+                    "No password specified and it is required",
+                    code=error_constants.PASSWORD_NOT_SPECIFIED,
+                )
             serialized_user.save()
             if data["password"] != "NOT_SPECIFIED":
                 serialized_user.instance.set_password(data["password"])
@@ -569,29 +595,6 @@ class SignUpViewSet(viewsets.ViewSet):
                 facility=data["facility"],
             )
             login(request, authenticated_user)
-            return Response(serialized_user.data, status=status.HTTP_201_CREATED)
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class PublicSignUpViewSet(SignUpViewSet):
-    """
-    Identical to the SignUpViewset except that it also allows a hashed password
-    and does not login the user.
-    This endpoint is intended to allow a FacilityUser in a different facility
-    on another device to be cloned into a facility on this device, to facilitate
-    moving a user from one facility to another.
-    """
-
-    def create(self, request):
-
-        data = self.extract_request_data(request)
-        password_hashed = request.data.get("password_hashed", False)
-        serialized_user = self.serializer_class(data=data)
-        if serialized_user.is_valid(raise_exception=True):
-            serialized_user.save()
-            if data["password"] != "NOT_SPECIFIED" and not password_hashed:
-                serialized_user.instance.set_password(data["password"])
-                serialized_user.instance.save()
             return Response(serialized_user.data, status=status.HTTP_201_CREATED)
 
 
