@@ -17,9 +17,6 @@ class BookmarksViewSet(ValuesViewset):
     serializer_class = BookmarksSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self, request):
-        return Bookmark.objects.filter(facility_user=request.user)
-
     def list(self, request):
         bookmarks = Bookmark.objects.filter(facility_user=request.user).values(
             "channel_id", "content_id", "contentnode_id", "id"
