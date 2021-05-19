@@ -5,13 +5,15 @@
       <h2 class="name">
         <KLabeledIcon icon="facility">
           {{ facility.name }}
+          <template #iconAfter>
+            <KIcon
+              v-if="facility.dataset.registered"
+              ref="icon"
+              icon="registered"
+              :style="{ fill: $themePalette.green.v_500 }"
+            />
+          </template>
         </KLabeledIcon>
-        <UiIcon v-if="facility.dataset.registered" ref="icon">
-          <KIcon
-            icon="registered"
-            :style="{ top: '-4px', fill: $themePalette.green.v_500 }"
-          />
-        </UiIcon>
         <KTooltip
           reference="icon"
           :refs="$refs"
@@ -50,15 +52,11 @@
 
 <script>
 
-  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
   import { now } from 'kolibri.utils.serverClock';
   import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
 
   export default {
     name: 'FacilityNameAndSyncStatus',
-    components: {
-      UiIcon,
-    },
     mixins: [taskStrings],
     props: {
       facility: {
@@ -119,7 +117,7 @@
 
   .name {
     display: inline-block;
-    margin: 8px;
+    margin: 8px 0;
     margin-left: 0;
   }
 
