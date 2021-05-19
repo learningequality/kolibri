@@ -40,14 +40,14 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
     const task = makeTask('RUNNING');
     task.type = 'SYNCPEER/FULL';
     const displayInfo = syncFacilityTaskDisplayInfo(task);
-    expect(displayInfo.headingMsg).toEqual("Sync 'generic facility (fac1)'");
+    expect(displayInfo.headingMsg).toEqual("Sync 'generic facility' (fac1)");
   });
 
   it('displays the correct header for facility-import tasks', () => {
     const task = makeTask('RUNNING');
     task.type = 'SYNCPEER/PULL';
     const displayInfo = syncFacilityTaskDisplayInfo(task);
-    expect(displayInfo.headingMsg).toEqual("Import 'generic facility (fac1)'");
+    expect(displayInfo.headingMsg).toEqual("Import 'generic facility' (fac1)");
   });
 
   it('display title, started by username, and device name are invariant wrt status', () => {
@@ -63,9 +63,9 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
     ALL_STATUSES.forEach(status => {
       task.status = status;
       expect(syncFacilityTaskDisplayInfo(task)).toMatchObject({
-        headingMsg: "Sync 'invariant facility (fac1)'",
+        headingMsg: "Sync 'invariant facility' (fac1)",
         startedByMsg: "Started by 'invariant user'",
-        deviceNameMsg: "'invariant device (dev1)'",
+        deviceNameMsg: "'invariant device' (dev1)",
       });
     });
   });
@@ -164,7 +164,7 @@ describe('syncTaskUtils.removeFacilityTaskDisplayInfo', () => {
     ALL_STATUSES.forEach(status => {
       const task = makeTask(status);
       expect(removeFacilityTaskDisplayInfo(task)).toMatchObject({
-        headingMsg: "Remove 'removed facility (fac1)'",
+        headingMsg: "Remove 'removed facility' (fac1)",
         startedByMsg: "Started by 'removing user'",
       });
     });

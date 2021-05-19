@@ -93,7 +93,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   invalidCredentialsError: 'Incorrect username or password',
 
   // Formatting
-  nameWithIdInParens: '{name} ({id})',
+  nameWithIdInParens: `'{name}' ({id})`,
   quotedPhrase: `'{phrase}'`,
   dashSeparatedPair: '{item1} - {item2}',
   dashSeparatedTriple: '{item1} - {item2} - {item3}',
