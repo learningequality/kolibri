@@ -1,3 +1,4 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.status import HTTP_201_CREATED
@@ -12,16 +13,14 @@ from kolibri.core.api import ValuesViewset
 
 
 class BookmarksViewSet(ValuesViewset):
-    queryset = Bookmark.objects.all()
-    values = ("channel_id", "contentnode_id", "id", "content_id", "facility_user")
+    values = ("channel_id", "contentnode_id", "id", "content_id")
     serializer_class = BookmarksSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(facility_user=request.user)
 
     def list(self, request):
-        # Be sure the user is logged in
-        if not request.user:
-            return Response(
-                "User must be logged in to fetch Bookmarks.", status=HTTP_403_FORBIDDEN
-            )
         bookmarks = Bookmark.objects.filter(facility_user=request.user).values(
             "channel_id", "content_id", "contentnode_id", "id"
         )
@@ -35,13 +34,6 @@ class BookmarksViewSet(ValuesViewset):
         1) Inject user into the data before creating it to avoid NOT NULL on facility_user
         2) Provide meaningful HTTP responses accordingly, including 200 for duplicates
         """
-
-        # Be sure the user is logged in
-        if not request.user:
-            return Response(
-                "User must be logged in to create Bookmarks.", status=HTTP_403_FORBIDDEN
-            )
-
         # POST requires these three to come from the client
         required_keys = ["channel_id", "contentnode_id", "content_id"]
         # Gather keys that are missing from request.data (which is unacceptable)
