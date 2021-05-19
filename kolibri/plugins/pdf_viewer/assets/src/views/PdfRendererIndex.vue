@@ -74,7 +74,6 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import PDFJSLib from 'pdfjs-dist';
   import Hammer from 'hammerjs';
   import throttle from 'lodash/throttle';
@@ -87,18 +86,15 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import urls from 'kolibri.urls';
-
   import PdfPage from './PdfPage';
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
   // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF
   // renderer's own webpack config
   PDFJSLib.PDFJS.workerSrc = urls.static(`${__kolibriModuleName}/pdfJSWorker-${__version}.js`);
-
   // How often should we respond to changes in scrolling to render new pages?
   const renderDebounceTime = 300;
   const scaleIncrement = 0.25;
   const MARGIN = 16;
-
   export default {
     name: 'PdfRendererIndex',
     components: {
@@ -120,9 +116,9 @@
       currentLocation: 0,
       updateContentStateInterval: null,
       showControls: true,
+      visitedPages: {},
     }),
     computed: {
-      ...mapGetters(['summaryTimeSpent']),
       // Returns whether or not the current device is iOS.
       // Probably not perfect, but worked in testing.
       iOS() {
@@ -136,9 +132,6 @@
         ];
         return iDevices.includes(navigator.platform);
       },
-      targetTime() {
-        return this.totalPages * 30;
-      },
       documentLoading() {
         return this.progress < 1;
       },
@@ -151,9 +144,28 @@
         }
         return 0;
       },
+      savedVisitedPages: {
+        get() {
+          if (this.extraFields && this.extraFields.contentState) {
+            return this.extraFields.contentState.savedVisitedPages || {};
+          }
+          return {};
+        },
+        set(value) {
+          this.visitedPages = value;
+        },
+      },
       fullscreenText() {
         return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
       },
+      /* eslint-disable kolibri/vue-no-unused-properties */
+      /**
+       * @public
+       */
+      defaultDuration() {
+        return this.totalPages * 30;
+      },
+      /* eslint-enable kolibri/vue-no-unused-properties */
     },
     watch: {
       recycleListIsMounted(newVal) {
@@ -197,17 +209,14 @@
       this.currentLocation = this.savedLocation;
       this.showControls = true; // Ensures it shows on load even if we're scrolled
       const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
-
       // pass callback to update loading bar
       loadPdfPromise.onProgress = loadingProgress => {
         this.progress = loadingProgress.loaded / loadingProgress.total;
       };
-
       this.prepComponentData = loadPdfPromise.then(pdfDocument => {
         // Get initial info from the loaded pdf document
         this.pdfDocument = pdfDocument;
         this.totalPages = this.pdfDocument.numPages;
-
         // init pdfPages array
         for (let i = 0; i < this.totalPages; i++) {
           this.pdfPages.push({
@@ -242,23 +251,18 @@
         }
         this.$emit('startTracking');
         this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
-        // Automatically master after the targetTime, convert seconds -> milliseconds
-        this.timeout = setTimeout(this.updateProgress, this.targetTime * 1000);
       });
     },
     beforeDestroy() {
       this.updateProgress();
       this.updateContentState();
-
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
-
       if (this.pdfDocument) {
         this.pdfDocument.cleanup();
         this.pdfDocument.destroy();
       }
-
       this.$emit('stopTracking');
       clearInterval(this.updateContentStateInterval);
     },
@@ -280,6 +284,11 @@
           });
         }
       },
+      storeVisitedPage(currentPageNum) {
+        let visited = this.savedVisitedPages;
+        visited[currentPageNum] = true;
+        this.savedVisitedPages = visited;
+      },
       // handle the recycle list update event
       handleUpdate: debounce(function(start, end) {
         // check that it is mounted
@@ -295,7 +304,6 @@
           this.scrollTo(this.getSavedPosition());
           return;
         }
-
         // check if height has changed indicating a change in scale
         // in that case we need to scroll to correct place that is saved
         const currentRecycleListHeight = this.calculateRecycleListHeight();
@@ -305,6 +313,11 @@
         } else {
           // TODO: there is a miscalculation that causes a wrong position change on scale
           this.savePosition(this.calculatePosition());
+
+          // determine how many pages user has viewed/visited
+          let currentPage = parseInt(this.currentLocation * this.totalPages) + 1;
+          this.storeVisitedPage(currentPage);
+          this.updateProgress();
           this.updateContentState();
         }
         const startIndex = Math.floor(start) + 1;
@@ -313,7 +326,6 @@
           this.showPage(i);
         }
       }, renderDebounceTime),
-
       zoomIn() {
         this.setScale(Math.min(scaleIncrement * 20, this.scale + scaleIncrement));
       },
@@ -346,7 +358,16 @@
         this.$refs.recycleList.updateVisibleItems(false);
       },
       updateProgress() {
-        this.$emit('updateProgress', this.summaryTimeSpent / this.targetTime);
+        if (this.forceDurationBasedProgress) {
+          // update progress using total time user has spent on the pdf
+          this.$emit('updateProgress', this.durationBasedProgress);
+        } else {
+          // update progress using number of pages seen out of available pages
+          this.$emit(
+            'updateProgress',
+            Object.keys(this.savedVisitedPages).length / this.totalPages
+          );
+        }
       },
       updateContentState() {
         let contentState;
@@ -354,9 +375,13 @@
           contentState = {
             ...this.extraFields.contentState,
             savedLocation: this.currentLocation || this.savedLocation,
+            savedVisitedPages: this.visitedPages || this.savedVisitedPages,
           };
         } else {
-          contentState = { savedLocation: this.currentLocation || this.savedLocation };
+          contentState = {
+            savedLocation: this.currentLocation || this.savedLocation,
+            savedVisitedPages: this.visitedPages || this.savedVisitedPages,
+          };
         }
         this.$emit('updateContentState', contentState);
       },
@@ -374,7 +399,6 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
   $controls-height: 40px;
-
   .pdf-renderer {
     @extend %momentum-scroll;
     @extend %dropshadow-2dp;
@@ -386,35 +410,29 @@
     margin-bottom: $controls-height;
     overflow-y: hidden;
   }
-
   .controls {
     position: relative;
     z-index: 0; // Hide icons with transition
     margin: 0 4px;
   }
-
   .progress-bar {
     top: 50%;
     max-width: 200px;
     margin: 0 auto;
   }
-
   // enable horizontal scrolling
   /deep/ .recycle-list {
     .item-wrapper {
       overflow-x: auto;
     }
   }
-
   .fullscreen-button {
     margin: 0;
-
     svg {
       position: relative;
       top: 8px;
     }
   }
-
   .fullscreen-header {
     position: absolute;
     top: 0;
@@ -425,19 +443,16 @@
     justify-content: flex-end;
     height: $controls-height;
   }
-
   .slide-enter-active {
     @extend %md-accelerate-func;
 
     transition: all 0.3s;
   }
-
   .slide-leave-active {
     @extend %md-decelerate-func;
 
     transition: all 0.3s;
   }
-
   .slide-enter,
   .slide-leave-to {
     transform: translateY(-40px);

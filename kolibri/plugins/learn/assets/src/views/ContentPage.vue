@@ -23,6 +23,7 @@
         :files="content.files"
         :options="content.options"
         :available="content.available"
+        :duration="content.duration"
         :extraFields="extraFields"
         :progress="summaryProgress"
         :userId="currentUserId"

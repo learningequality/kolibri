@@ -48,7 +48,6 @@
 <script>
 
   import urls from 'kolibri.urls';
-  import { mapGetters } from 'vuex';
   import { now } from 'kolibri.utils.serverClock';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
@@ -56,7 +55,6 @@
   const defaultContentHeight = '500px';
   const frameTopbarHeight = '37px';
   const pxStringAdd = (x, y) => parseInt(x, 10) + parseInt(y, 10) + 'px';
-
   export default {
     name: 'Html5AppRendererIndex',
     components: {
@@ -68,7 +66,6 @@
       };
     },
     computed: {
-      ...mapGetters(['summaryTimeSpent']),
       rooturl() {
         return urls.hashi();
       },
@@ -104,6 +101,15 @@
         }
         return { height: this.iframeHeight };
       },
+      /* eslint-disable kolibri/vue-no-unused-properties */
+      /**
+       * @public
+       * Note: the default duration historically for HTML5 Apps has been 5 min
+       */
+      defaultDuration() {
+        return 300;
+      },
+      /* eslint-enable kolibri/vue-no-unused-properties */
     },
     watch: {
       userData(newValue) {
@@ -134,11 +140,10 @@
     },
     methods: {
       recordProgress() {
-        const totalTime = this.summaryTimeSpent * 1000;
         const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
         this.$emit(
           'updateProgress',
-          hashiProgress === null ? Math.max(0, totalTime / 300000) : hashiProgress
+          hashiProgress === null ? this.durationBasedProgress : hashiProgress
         );
         this.pollProgress();
       },
@@ -160,28 +165,23 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-
   .fullscreen-header {
     text-align: right;
   }
-
   .fs-icon {
     position: relative;
     top: 8px;
     width: 24px;
     height: 24px;
   }
-
   .html5-renderer {
     position: relative;
     text-align: center;
   }
-
   .iframe {
     width: 100%;
     height: 100%;
   }
-
   .iframe-container {
     @extend %momentum-scroll;
 

@@ -151,7 +151,6 @@
   import clamp from 'lodash/clamp';
   import Lockr from 'lockr';
   import FocusLock from 'vue-focus-lock';
-  import { mapGetters } from 'vuex';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -222,11 +221,11 @@
         sliderValue: 0,
         scrolled: false,
         currentLocation: null,
+        visitedPages: {},
         updateContentStateInterval: null,
       };
     },
     computed: {
-      ...mapGetters(['summaryTimeSpent']),
       isAtStart() {
         return get(this.rendition, 'location.atStart', false);
       },
@@ -238,6 +237,17 @@
           return this.extraFields.contentState.savedLocation;
         }
         return null;
+      },
+      savedVisitedPages: {
+        get() {
+          if (this.extraFields && this.extraFields.contentState) {
+            return this.extraFields.contentState.savedVisitedPages || {};
+          }
+          return {};
+        },
+        set(value) {
+          this.visitedPages = value;
+        },
       },
       epubURL() {
         return this.defaultFile.storage_url;
@@ -326,13 +336,18 @@
       increaseFontSizeDisabled() {
         return this.fontSize === `${FONT_SIZE_MAX}px`;
       },
-      expectedTimeToRead() {
+      /* eslint-disable kolibri/vue-no-unused-properties */
+      /**
+       * @public
+       */
+      defaultDuration() {
         const WORDS_PER_MINUTE = 300;
         const CHARS_PER_WORD = 10;
         const numberOfWords = (this.locations.length * LOCATIONS_INTERVAL) / CHARS_PER_WORD;
         const seconds = (numberOfWords * 60) / WORDS_PER_MINUTE;
         return seconds;
       },
+      /* eslint-enable kolibri/vue-no-unused-properties */
     },
     watch: {
       sideBarOpen(newSideBar, oldSideBar) {
@@ -463,8 +478,22 @@
     methods: {
       updateProgress() {
         if (this.locations.length > 0) {
-          this.$emit('updateProgress', this.summaryTimeSpent / this.expectedTimeToRead);
+          if (this.forceDurationBasedProgress) {
+            // update progress using total time user has spent on the epub
+            this.$emit('updateProgress', this.durationBasedProgress);
+          } else {
+            // update progress using number of pages seen out of available pages
+            this.$emit(
+              'updateProgress',
+              Object.keys(this.savedVisitedPages).length / this.locations.length
+            );
+          }
         }
+      },
+      storeVisitedPage(currentLocation) {
+        let visited = this.savedVisitedPages;
+        visited[currentLocation] = true;
+        this.savedVisitedPages = visited;
       },
       handleReadyRendition() {
         this.updateRenditionTheme(this.themeStyle);
@@ -678,6 +707,8 @@
         this.sliderValue = location.start.percentage * 100;
         this.updateCurrentSection(location.start);
         this.currentLocation = location.start.cfi;
+        this.storeVisitedPage(this.currentLocation);
+        this.updateProgress();
         this.updateContentState();
       },
       handleSliderChanged(newSliderValue) {
@@ -693,9 +724,13 @@
           contentState = {
             ...this.extraFields.contentState,
             savedLocation: this.currentLocation || this.savedLocation,
+            savedVisitedPages: this.visitedPages || this.savedVisitedPages,
           };
         } else {
-          contentState = { savedLocation: this.currentLocation || this.savedLocation };
+          contentState = {
+            savedLocation: this.currentLocation || this.savedLocation,
+            savedVisitedPages: this.visitedPages || this.savedVisitedPages,
+          };
         }
         this.$emit('updateContentState', contentState);
       },

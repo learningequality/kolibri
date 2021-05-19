@@ -101,10 +101,22 @@
       slides: [],
       currentSlideIndex: 0,
       highestViewedSlideIndex: 0,
+      visitedSlides: {},
     }),
     computed: {
       currentSlide() {
         return this.slides[this.currentSlideIndex];
+      },
+      savedVisitedSlides: {
+        get() {
+          if (this.extraFields && this.extraFields.contentState) {
+            return this.extraFields.contentState.savedVisitedSlides || {};
+          }
+          return {};
+        },
+        set(value) {
+          this.visitedSlides = value;
+        },
       },
       slideshowImages: function() {
         const files = this.files;
@@ -121,6 +133,15 @@
       contentHeight: function() {
         return window.innerHeight * 0.7 + 'px';
       },
+      /* eslint-disable kolibri/vue-no-unused-properties */
+      /**
+       * @public
+       * Note: the default duration historically for slidshows has been 5 min
+       */
+      defaultDuration() {
+        return 300;
+      },
+      /* eslint-enable kolibri/vue-no-unused-properties */
     },
     watch: {
       defaultFile(newFile) {
@@ -134,7 +155,7 @@
         }
       },
       currentSlideIndex() {
-        if (this.currentSlideIndex + 1 === this.slides.length) {
+        if (this.currentSlideIndex + 1 <= this.slides.length) {
           this.updateProgress();
         }
       },
@@ -201,9 +222,17 @@
         if (this.currentSlideIndex > this.highestViewedSlideIndex) {
           this.highestViewedSlideIndex = this.currentSlideIndex;
         }
+        this.storeVisitedSlide(this.currentSlideIndex);
+        this.updateProgress();
+        this.updateContentState();
       },
       slideTextId(id) {
         return 'descriptive-text-' + id;
+      },
+      storeVisitedSlide(currentSlideNum) {
+        let visited = this.savedVisitedSlides;
+        visited[currentSlideNum] = true;
+        this.savedVisitedSlides = visited;
       },
       setHooperListWidth() {
         /*
@@ -239,20 +268,34 @@
         );
       },
       updateContentState() {
-        this.extraFields.contentState.highestViewedSlideIndex = this.highestViewedSlideIndex;
-        this.extraFields.contentState.lastViewedSlideIndex = this.currentSlideIndex;
-        this.$emit('updateContentState', this.extraFields.contentState);
+        let contentState;
+        if (this.extraFields) {
+          contentState = {
+            ...this.extraFields.contentState,
+            highestViewedSlideIndex: this.highestViewedSlideIndex,
+            lastViewedSlideIndex: this.currentSlideIndex,
+            savedVisitedSlides: this.visitedSlides || this.savedVisitedSlides,
+          };
+        } else {
+          contentState = {
+            highestViewedSlideIndex: this.highestViewedSlideIndex,
+            lastViewedSlideIndex: this.currentSlideIndex,
+            savedVisitedSlides: this.visitedSlides || this.savedVisitedSlides,
+          };
+        }
+        this.$emit('updateContentState', contentState);
       },
       updateProgress() {
-        // updateProgress adds the percent to the existing value, so only pass
-        // the percentage of progress in this session, not the full percentage.
-        const progressPercent =
-          this.highestViewedSlideIndex + 1 === this.slides.length
-            ? 1.0
-            : (this.highestViewedSlideIndex -
-                this.extraFields.contentState.highestViewedSlideIndex) /
-              this.slides.length;
-        this.$emit('updateProgress', progressPercent);
+        if (this.forceDurationBasedProgress) {
+          // update progress using total time user has spent on the slideshow
+          this.$emit('updateProgress', this.durationBasedProgress);
+        } else {
+          // update progress using number of slides seen out of available slides
+          this.$emit(
+            'updateProgress',
+            Object.keys(this.savedVisitedSlides).length / this.slides.length
+          );
+        }
       },
     },
     $trs: {
