@@ -227,6 +227,13 @@
 
 <style lang="scss" scoped>
 
+  // TODO: Determine if this should be the default in KDS
+  // as this overrides the value in KLabledIcon's styles
+  // of width: 100%
+  .labeled-icon-wrapper {
+    width: auto;
+  }
+
   .select-all {
     position: relative;
     // Overrides overflow-x: hidden rule for CoreTable th's
