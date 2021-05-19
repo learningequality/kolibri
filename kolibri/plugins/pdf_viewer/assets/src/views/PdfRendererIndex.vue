@@ -132,9 +132,6 @@
         ];
         return iDevices.includes(navigator.platform);
       },
-      targetTime() {
-        return this.totalPages * 30;
-      },
       documentLoading() {
         return this.progress < 1;
       },
@@ -166,7 +163,7 @@
        * @public
        */
       defaultDuration() {
-        return this.targetTime;
+        return this.totalPages * 30;
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
     },
@@ -254,10 +251,6 @@
         }
         this.$emit('startTracking');
         this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
-        if (this.forceDurationBasedProgress) {
-          // Automatically master after the targetTime, convert seconds -> milliseconds
-          this.timeout = setTimeout(this.updateProgress, this.targetTime * 1000);
-        }
       });
     },
     beforeDestroy() {
@@ -324,6 +317,7 @@
           // determine how many pages user has viewed/visited
           let currentPage = parseInt(this.currentLocation * this.totalPages) + 1;
           this.storeVisitedPage(currentPage);
+          this.updateProgress();
           this.updateContentState();
         }
         const startIndex = Math.floor(start) + 1;

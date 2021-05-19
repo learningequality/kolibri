@@ -223,6 +223,7 @@
           this.highestViewedSlideIndex = this.currentSlideIndex;
         }
         this.storeVisitedSlide(this.currentSlideIndex);
+        this.updateProgress();
         this.updateContentState();
       },
       slideTextId(id) {

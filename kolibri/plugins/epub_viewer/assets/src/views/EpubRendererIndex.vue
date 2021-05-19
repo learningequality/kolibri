@@ -708,6 +708,7 @@
         this.updateCurrentSection(location.start);
         this.currentLocation = location.start.cfi;
         this.storeVisitedPage(this.currentLocation);
+        this.updateProgress();
         this.updateContentState();
       },
       handleSliderChanged(newSliderValue) {
