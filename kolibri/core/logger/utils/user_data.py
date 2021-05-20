@@ -10,6 +10,7 @@ from django.db.models import Max
 from django.db.models import Min
 from django.db.models import Sum
 from django.db.models.query import Q
+from django.db.utils import IntegrityError
 from django.utils import timezone
 from le_utils.constants import content_kinds
 
@@ -160,16 +161,21 @@ def get_or_create_classroom_users(**options):
             birth_year = str(current_year - int(base_data["Age"]))
             # randomly assign gender
             gender = random.choice(demographics.choices)[0]
-            user = FacilityUser.objects.create(
-                facility=facility,
-                full_name=name,
-                username=base_data["Username"],
-                gender=gender,
-                birth_year=birth_year,
-            )
-            # Set a dummy password so that if we want to login as this learner later, we can.
-            user.set_password("password")
-            user.save()
+            try:
+                user = FacilityUser.objects.create(
+                    facility=facility,
+                    full_name=name,
+                    username=base_data["Username"],
+                    gender=gender,
+                    birth_year=birth_year,
+                )
+                # Set a dummy password so that if we want to login as this learner later, we can.
+                user.set_password("password")
+                user.save()
+            except IntegrityError:
+                user = FacilityUser.objects.get(
+                    facility=facility, username=base_data["Username"]
+                )
 
             # Add the user to the current classroom
             classroom.add_member(user)
