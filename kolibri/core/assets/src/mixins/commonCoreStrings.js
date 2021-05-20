@@ -4,6 +4,7 @@ import notificationStrings from './notificationStrings';
 export const coreStrings = createTranslator('CommonCoreStrings', {
   // actions
   cancelAction: 'Cancel',
+  cannotUndoActionWarning: 'This action cannot be undone',
   clearAction: {
     message: 'Clear',
     context:

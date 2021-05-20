@@ -15,6 +15,7 @@
       v-if="currentAction === AssignmentActions.DELETE"
       :modalTitle="$tr('deleteLessonTitle')"
       :modalDescription="$tr('deleteLessonConfirmation', { title: currentLesson.title })"
+      :cannotUndoActionWarning="coreString('cannotUndoActionWarning')"
       @submit="handleSubmitDelete"
       @cancel="closeModal"
     />

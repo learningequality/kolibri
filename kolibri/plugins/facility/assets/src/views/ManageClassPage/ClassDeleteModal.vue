@@ -9,6 +9,7 @@
   >
     <p>{{ $tr('confirmation', { classname: classname }) }}</p>
     <p>{{ $tr('description') }}</p>
+    <p>{{ coreString('cannotUndoActionWarning') }}</p>
   </KModal>
 
 </template>

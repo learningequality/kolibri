@@ -8,6 +8,7 @@
     @cancel="$emit('cancel')"
   >
     <p>{{ $tr('areYouSure', { groupName: groupName }) }}</p>
+    <p>{{ coreString('cannotUndoActionWarning') }}</p>
   </KModal>
 
 </template>

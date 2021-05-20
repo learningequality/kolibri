@@ -16,6 +16,7 @@
       :modalTitle="$tr('deleteExamTitle')"
       :modalDescription="$tr('deleteExamDescription', { title: quiz.title })"
       :modalConfirmation="$tr('deleteExamConfirmation')"
+      :cannotUndoActionWarning="coreString('cannotUndoActionWarning')"
       @submit="$emit('submit_delete')"
       @cancel="$emit('cancel')"
     />
@@ -27,6 +28,7 @@
 <script>
 
   import { mapState } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AssignmentCopyModal from '../assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../assignments/AssignmentDeleteModal';
 
@@ -36,6 +38,7 @@
       AssignmentCopyModal,
       AssignmentDeleteModal,
     },
+    mixins: [commonCoreStrings],
     props: {
       // Passed-through quiz object from parent
       quiz: {

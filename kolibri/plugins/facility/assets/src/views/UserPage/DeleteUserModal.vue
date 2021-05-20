@@ -10,6 +10,7 @@
   >
     <p>{{ $tr('confirmation', { username: username }) }}</p>
     <p>{{ $tr('warning', { username: username }) }}</p>
+    <p>{{ coreString('cannotUndoActionWarning') }}</p>
   </KModal>
 
 </template>

@@ -16,6 +16,7 @@
     <p v-else>
       {{ $tr('confirmationQuestionMultipleChannels') }}
     </p>
+    <p>{{ coreString('cannotUndoActionWarning') }}</p>
   </KModal>
 
 </template>

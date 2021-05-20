@@ -21,6 +21,7 @@
         :label="$tr('deleteEverywhereLabel')"
         @change="deleteEverywhere = $event"
       />
+      <p>{{ coreString('cannotUndoActionWarning') }}</p>
     </div>
   </KModal>
 
