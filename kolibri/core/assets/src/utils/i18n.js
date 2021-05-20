@@ -1,5 +1,5 @@
 import has from 'lodash/has';
-import vue from 'kolibri.lib.vue';
+import Vue from 'kolibri.lib.vue';
 import logger from 'kolibri.lib.logging';
 import { languageDirections, defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
 import importIntlLocale from './intl-locale-data';
@@ -128,26 +128,26 @@ class Translator {
     return $trWrapper(
       this.nameSpace,
       this.defaultMessages,
-      vue.prototype.$formatMessage,
+      Vue.prototype.$formatMessage,
       messageId,
       args
     );
   }
   // For convenience, also proxy all vue intl translation methods on this object
   $formatDate(date, options = {}) {
-    return vue.prototype.$formatDate(date, options);
+    return Vue.prototype.$formatDate(date, options);
   }
   $formatTime(time, options = {}) {
-    return vue.prototype.$formatTime(time, options);
+    return Vue.prototype.$formatTime(time, options);
   }
   $formatRelative(date, options = {}) {
-    return vue.prototype.$formatRelative(date, options);
+    return Vue.prototype.$formatRelative(date, options);
   }
   $formatNumber(number, options = {}) {
-    return vue.prototype.$formatNumber(number, options);
+    return Vue.prototype.$formatNumber(number, options);
   }
   $formatPlural(plural, options = {}) {
-    return vue.prototype.$formatPlural(plural, options);
+    return Vue.prototype.$formatPlural(plural, options);
   }
 }
 
@@ -180,17 +180,17 @@ function _setUpVueIntl() {
    * the currentLanguage module variable which is referenced inside of here.
    **/
   const VueIntl = require('vue-intl');
-  vue.use(VueIntl, { defaultLocale });
-  vue.prototype.isRtl = languageDirection === 'rtl';
+  Vue.use(VueIntl, { defaultLocale });
+  Vue.prototype.isRtl = languageDirection === 'rtl';
 
-  vue.prototype.$tr = function $tr(messageId, args) {
+  Vue.prototype.$tr = function $tr(messageId, args) {
     const nameSpace = this.$options.name || this.$options.$trNameSpace;
     return $trWrapper(nameSpace, this.$options.$trs, this.$formatMessage, messageId, args);
   };
 
-  vue.setLocale(currentLanguage);
+  Vue.setLocale(currentLanguage);
   if (languageGlobals.coreLanguageMessages) {
-    vue.registerMessages(currentLanguage, languageGlobals.coreLanguageMessages);
+    Vue.registerMessages(currentLanguage, languageGlobals.coreLanguageMessages);
   }
   importVueIntlLocaleData().forEach(localeData => VueIntl.addLocaleData(localeData));
 
