@@ -69,7 +69,7 @@ const taskStrings = createTranslator('TaskStrings', {
     context: 'Sync task status',
   },
   syncFacilityTaskLabel: {
-    message: "Sync '{facilityName}'",
+    message: 'Sync {facilityName}',
     context: 'Description of sync-facility task',
   },
   syncStepAndDescription: {
@@ -87,7 +87,7 @@ const taskStrings = createTranslator('TaskStrings', {
     context: 'Remove facility task status',
   },
   removeFacilityTaskLabel: {
-    message: "Remove '{facilityName}'",
+    message: 'Remove {facilityName}',
     context: 'Description of a remove-facility task',
   },
   removeFacilitySuccessStatus: {
@@ -97,7 +97,7 @@ const taskStrings = createTranslator('TaskStrings', {
 
   // Import Facility Task strings
   importFacilityTaskLabel: {
-    message: "Import '{facilityName}'",
+    message: 'Import {facilityName}',
     context: 'Description of import-facility task',
   },
   importSuccessStatus: {

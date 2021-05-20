@@ -72,9 +72,7 @@ export function syncFacilityTaskDisplayInfo(task) {
   if (task.type === TaskTypes.SYNCDATAPORTAL) {
     deviceNameMsg = 'Kolibri Data Portal';
   } else if (task.device_name) {
-    deviceNameMsg = coreString('quotedPhrase', {
-      phrase: formatNameWithId(task.device_name, task.device_id),
-    });
+    deviceNameMsg = formatNameWithId(task.device_name, task.device_id);
   }
   const syncStep = syncTaskStatusToStepMap[task.sync_state];
   const statusDescription =
