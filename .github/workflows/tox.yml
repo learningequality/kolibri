@@ -18,7 +18,6 @@ jobs:
   unit_test:
     name: Python unit tests
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-18.04
     strategy:
       max-parallel: 5
@@ -28,24 +27,27 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install tox
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       run: |
         python -m pip install --upgrade pip
         pip install tox
     - name: tox env cache
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/cache@v2
       with:
         path: ${{ github.workspace }}/.tox/py${{ matrix.python-version }}
         key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
     - name: Test with tox
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       run: tox -e py${{ matrix.python-version }}
   postgres:
     name: Python postgres unit tests
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-18.04
     services:
       # Label used to access the service container
@@ -69,24 +71,27 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.5 for Postgres
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/setup-python@v2
       with:
         python-version: 3.5
     - name: Install tox
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       run: |
         python -m pip install --upgrade pip
         pip install tox
     - name: tox env cache
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/cache@v2
       with:
         path: ${{ github.workspace }}/.tox/py${{ matrix.python-version }}
         key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
     - name: Test with tox
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       run: tox -e postgres
   macos:
     name: Python unit tests on Mac OS
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: macos-latest
     strategy:
       max-parallel: 5
@@ -96,24 +101,27 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install tox
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       run: |
         python -m pip install --upgrade pip
         pip install tox
     - name: tox env cache
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/cache@v2
       with:
         path: ${{ github.workspace }}/.tox/py${{ matrix.python-version }}
         key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
     - name: Test with tox
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       run: tox -e py${{ matrix.python-version }}
   windows:
     name: Python unit tests on Windows Server
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: windows-latest
     strategy:
       max-parallel: 5
@@ -123,12 +131,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install tox
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       run: |
         python -m pip install --upgrade pip
         pip install tox
     - name: Test with tox
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       run: tox -e py${{ matrix.python-version }}
