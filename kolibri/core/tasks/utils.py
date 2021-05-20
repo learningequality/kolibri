@@ -2,6 +2,7 @@ import importlib
 import logging
 import time
 import uuid
+from threading import Thread
 
 from kolibri.core.tasks import compat
 
@@ -45,7 +46,7 @@ def import_stringified_func(funcstring):
     return func
 
 
-class InfiniteLoopThread(compat.Thread):
+class InfiniteLoopThread(Thread):
     """A class that runs a given function an infinite number of times, until told to shut down."""
 
     DEFAULT_TIMEOUT_SECONDS = 0.001

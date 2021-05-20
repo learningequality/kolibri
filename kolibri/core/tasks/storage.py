@@ -91,13 +91,13 @@ class StorageMixin(object):
 
 
 class Storage(StorageMixin):
-    def _add_save_meta_method(self, job):
+    def _add_storage(self, job):
         """
         Adds a save_meta method to a job object so that a job
         can update itself.
         """
 
-        job.save_meta_method = self.save_job_meta
+        job.storage = self
         return job
 
     def enqueue_job(self, j, queue):
@@ -151,7 +151,7 @@ class Storage(StorageMixin):
                 .first()
             )
             if orm_job:
-                job = self._add_save_meta_method(orm_job.obj)
+                job = self._add_storage(orm_job.obj)
             else:
                 job = None
             return job
@@ -164,12 +164,12 @@ class Storage(StorageMixin):
                 .filter_by(state=State.CANCELING)
                 .order_by(ORMJob.queue_order)
             )
-            return [self._add_save_meta_method(job.obj) for job in jobs]
+            return [self._add_storage(job.obj) for job in jobs]
 
     def get_all_jobs(self, queue):
         with self.session_scope() as s:
             orm_jobs = s.query(ORMJob).filter(ORMJob.queue == queue).all()
-            return [self._add_save_meta_method(o.obj) for o in orm_jobs]
+            return [self._add_storage(o.obj) for o in orm_jobs]
 
     def count_all_jobs(self, queue):
         with self.session_scope() as s:
@@ -179,6 +179,10 @@ class Storage(StorageMixin):
         with self.session_scope() as session:
             job, _ = self._get_job_and_orm_job(job_id, session)
             return job
+
+    def check_job_canceled(self, job_id):
+        job = self.get_job(job_id)
+        return job.state == State.CANCELED or job.state == State.CANCELING
 
     def clear(self, queue=None, job_id=None, force=False):
         """
@@ -239,8 +243,8 @@ class Storage(StorageMixin):
     def mark_job_as_running(self, job_id):
         self._update_job(job_id, State.RUNNING)
 
-    def complete_job(self, job_id):
-        self._update_job(job_id, State.COMPLETED)
+    def complete_job(self, job_id, result=None):
+        self._update_job(job_id, State.COMPLETED, result=result)
 
     def save_job_meta(self, job):
         self._update_job(job.job_id, extra_metadata=job.extra_metadata)
@@ -286,5 +290,5 @@ class Storage(StorageMixin):
         orm_job = session.query(ORMJob).filter_by(id=job_id).one_or_none()
         if orm_job is None:
             raise JobNotFound()
-        job = self._add_save_meta_method(orm_job.obj)
+        job = self._add_storage(orm_job.obj)
         return job, orm_job

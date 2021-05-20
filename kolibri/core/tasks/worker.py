@@ -3,8 +3,8 @@ import traceback
 
 from concurrent.futures import CancelledError
 
-from kolibri.core.tasks.compat import MULTIPROCESS
-from kolibri.core.tasks.exceptions import UserCancelledError
+from kolibri.core.tasks.compat import PoolExecutor
+from kolibri.core.tasks.job import execute_job
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.utils import InfiniteLoopThread
 
@@ -41,23 +41,15 @@ class Worker(object):
 
     def shutdown_workers(self, wait=True):
         # First cancel all running jobs
-        for job_id in self.future_job_mapping:
+        job_ids = self.future_job_mapping.keys()
+        for job_id in job_ids:
             logger.info("Canceling job id {}.".format(job_id))
             self.cancel(job_id)
         # Now shutdown the workers
         self.workers.shutdown(wait=wait)
 
     def start_workers(self, num_workers):
-        if MULTIPROCESS:
-            from concurrent.futures import ProcessPoolExecutor
-
-            worker_executor = ProcessPoolExecutor
-        else:
-            from concurrent.futures import ThreadPoolExecutor
-
-            worker_executor = ThreadPoolExecutor
-
-        pool = worker_executor(max_workers=num_workers)
+        pool = PoolExecutor(max_workers=num_workers)
         return pool
 
     def handle_finished_future(self, future):
@@ -74,12 +66,16 @@ class Worker(object):
             self.report_cancelled(job.job_id)
             return
         except Exception as e:
-            self.report_error(job.job_id, e, e.traceback)
+            if hasattr(e, "traceback"):
+                traceback = e.traceback
+            else:
+                traceback = ""
+            self.report_error(job.job_id, e, traceback)
             return
 
         self.report_success(job.job_id, result)
 
-    def shutdown(self, wait=False):
+    def shutdown(self, wait=True):
         logger.info("Asking job schedulers to shut down.")
         self.job_checker.stop()
         self.shutdown_workers(wait=wait)
@@ -120,7 +116,7 @@ class Worker(object):
         self.storage.mark_job_as_canceled(job_id)
 
     def report_success(self, job_id, result):
-        self.storage.complete_job(job_id)
+        self.storage.complete_job(job_id, result=result)
 
     def report_error(self, job_id, exc, trace):
         trace = traceback.format_exc()
@@ -143,14 +139,18 @@ class Worker(object):
 
         self.storage.mark_job_as_running(job.job_id)
 
-        lambda_to_execute = _reraise_with_traceback(job.get_lambda_to_execute())
+        db_type_lookup = {
+            "sqlite": "sqlite",
+            "postgresql": "postgres",
+        }
+
+        db_type = db_type_lookup[self.storage.engine.dialect.name]
 
         future = self.workers.submit(
-            lambda_to_execute,
-            update_progress_func=self.update_progress,
-            cancel_job_func=self._check_for_cancel,
-            save_job_meta_func=self.storage.save_job_meta,
-            save_as_cancellable_func=self.storage.save_job_as_cancellable,
+            execute_job,
+            job_id=job.job_id,
+            db_type=db_type,
+            db_url=self.storage.engine.url,
         )
 
         # assign the futures to a dict, mapping them to a job
@@ -184,40 +184,3 @@ class Worker(object):
                 return False
             else:  # probably finished already, too late to cancel!
                 return False
-
-    def _check_for_cancel(self, job_id):
-        """
-        Check if a job has been requested to be cancelled. When called, the calling function can
-        optionally give the stage it is currently in, so the user has information on where the job
-        was before it was cancelled.
-
-        :param job_id: The job_id to check
-        :return: raises a UserCancelledError if we find out that we were cancelled.
-        """
-
-        future = self.future_job_mapping[job_id]
-
-        if getattr(future, "_is_cancelled", False):
-            raise UserCancelledError()
-
-
-def _reraise_with_traceback(f):
-    """
-    Call the function normally. But if the function raises an error, attach the str(traceback)
-    into the function.traceback attribute, then reraise the error.
-    Args:
-        f: The function to run.
-
-    Returns: A function that wraps f, attaching the traceback if an error occurred.
-
-    """
-
-    def wrap(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        except Exception as e:
-            traceback_str = traceback.format_exc()
-            e.traceback = traceback_str
-            raise
-
-    return wrap

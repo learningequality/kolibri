@@ -37,6 +37,14 @@ def inmem_queue():
 
 
 @pytest.fixture
+def queue_no_worker():
+    with connection() as conn:
+        c = Queue(queue="pytest", connection=conn)
+        c.storage.clear(force=True)
+        yield c
+
+
+@pytest.fixture
 def simplejob():
     return Job("builtins.id")
 
@@ -364,17 +372,17 @@ class TestQueue(object):
         job = inmem_queue.fetch_job(new_job_id)
         assert job.state == State.CANCELED
 
-    def test_queued_job_cannot_restart(self, inmem_queue):
-        # Start a failing function task, ut do not wait for it to change it's
+    def test_queued_job_cannot_restart(self, queue_no_worker):
+        # Start a failing function task, but do not wait for it to change it's
         # state from QUEUED. Initating an immediate restart raises the
         # JobNotRestartable Exception
-        old_job_id = inmem_queue.enqueue(failing_func)
+        old_job_id = queue_no_worker.enqueue(failing_func)
 
-        job = inmem_queue.fetch_job(old_job_id)
+        job = queue_no_worker.fetch_job(old_job_id)
         assert job.state == State.QUEUED
 
         with pytest.raises(JobNotRestartable) as excinfo:
-            inmem_queue.restart_job(old_job_id)
+            queue_no_worker.restart_job(old_job_id)
 
         assert str(excinfo.value) == "Cannot restart job with state=QUEUED"
 
