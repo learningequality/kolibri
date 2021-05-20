@@ -1,7 +1,7 @@
 from kolibri.utils.conf import OPTIONS
 
 try:
-    if not OPTIONS["Tasks"]["WORKER_MULTIPROCESSING"]:
+    if not OPTIONS["Tasks"]["USE_WORKER_MULTIPROCESSING"]:
         raise ImportError()
     # Import in order to check if multiprocessing is supported on this platform
     from multiprocessing import synchronize  # noqa

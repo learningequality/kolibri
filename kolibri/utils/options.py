@@ -461,7 +461,7 @@ base_option_spec = {
         }
     },
     "Tasks": {
-        "WORKER_MULTIPROCESSING": {
+        "USE_WORKER_MULTIPROCESSING": {
             "type": "boolean",
             "default": False,
             "description": """
