@@ -1,7 +1,6 @@
 import uuid
 
 import requests
-from django.db.models import Q
 from django.http import Http404
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -144,80 +143,11 @@ class ReadOnlyValuesViewset(viewsets.ReadOnlyModelViewSet):
         self._field_map = self.field_map.copy()
         return viewset
 
-    @classmethod
-    def id_attr(cls):
-        if cls.serializer_class is not None and hasattr(
-            cls.serializer_class, "id_attr"
-        ):
-            return cls.serializer_class.id_attr()
-        return None
-
-    @classmethod
-    def values_from_key(cls, key):
-        """
-        Method to return an iterable that can be used as arguments for dict
-        to return the values from key.
-        Key is either a string, in which case the key is a singular value
-        or a list, in which case the key is a combined value.
-        """
-        id_attr = cls.id_attr()
-
-        if id_attr:
-            if isinstance(id_attr, str):
-                # Singular value
-                # Just return the single id_attr and the original key
-                return [(id_attr, key)]
-            else:
-                # Multiple values in the key, zip together the id_attr and the key
-                # to create key, value pairs for a dict
-                # Order in the key matters, and must match the "update_lookup_field"
-                # property of the serializer.
-                return [(attr, value) for attr, value in zip(id_attr, key)]
-        return []
-
-    @classmethod
-    def filter_queryset_from_keys(cls, queryset, keys):
-        """
-        Method to filter a queryset based on keys.
-        """
-        id_attr = cls.id_attr()
-
-        if id_attr:
-            if isinstance(id_attr, str):
-                # In the case of single valued keys, this is just an __in lookup
-                return queryset.filter(**{"{}__in".format(id_attr): keys})
-            else:
-                # If id_attr is multivalued we need to do an ORed lookup for each
-                # set of values represented by a key.
-                # This is probably not as performant as the simple __in query
-                # improvements welcome!
-                query = Q()
-                for key in keys:
-                    query |= Q(**{attr: value for attr, value in zip(id_attr, key)})
-                return queryset.filter(query)
-        return queryset.none()
-
     def get_serializer_class(self):
         if self.serializer_class is not None:
             return self.serializer_class
         # Hack to prevent the renderer logic from breaking completely.
         return Serializer
-
-    def get_queryset(self):
-        queryset = super(ReadOnlyValuesViewset, self).get_queryset()
-        if hasattr(queryset.model, "filter_view_queryset"):
-            return queryset.model.filter_view_queryset(queryset, self.request.user)
-        return queryset
-
-    def get_edit_queryset(self):
-        """
-        Return a filtered copy of the queryset to only the objects
-        that a user is able to edit, rather than view.
-        """
-        queryset = super(ReadOnlyValuesViewset, self).get_queryset()
-        if hasattr(queryset.model, "filter_edit_queryset"):
-            return queryset.model.filter_edit_queryset(queryset, self.request.user)
-        return self.get_queryset()
 
     def _get_lookup_filter(self):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
@@ -314,7 +244,7 @@ class CreateModelMixin(BaseCreateModelMixin):
 class UpdateModelMixin(BaseUpdateModelMixin):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
-        instance = self.get_edit_object()
+        instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
