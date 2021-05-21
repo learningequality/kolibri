@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div :style="{ maxHeight: `${maxHeight - 16}px` }" :class="{ truncated: !shaveDone }">
     <div v-if="viewAllText">
       {{ text }}
     </div>
@@ -53,14 +53,13 @@
     data() {
       return {
         textIsTruncated: false,
+        shaveDone: false,
         viewAllText: false,
       };
     },
     computed: {
       currentDimensions() {
         return {
-          text: this.text,
-          maxHeight: this.maxHeight,
           elementWidth: this.elementWidth,
           elementHeight: this.elementHeight,
         };
@@ -88,20 +87,24 @@
           return $shaveEl.clientWidth < $shaveEl.scrollWidth;
         }
       },
+      updateTitle() {
+        // Set title attribute as full text if the visible text is truncated
+        if (this.textIsTruncated && !this.$refs.shaveEl.title) {
+          this.$refs.shaveEl.setAttribute('title', this.text);
+        } else if (!this.textIsTruncated && this.$refs.shaveEl.title) {
+          // Remove if text is fully visible after a resize
+          this.$refs.shaveEl.removeAttribute('title');
+        }
+      },
       handleUpdate() {
         // TODO make "View Less" disappear when user expands window
-        // and text isn't truncated any more.
+        // and text isn't truncated anymore.
         shave(this.$refs.shaveEl, this.maxHeight, { spaces: false });
-        this.$nextTick(() => {
+        this.$nextTick().then(() => {
           this.textIsTruncated = this.titleIsShaved() || this.titleIsOverflowing();
-          // set title attribute for shaved text but
-          // skip if a title already exists
-          if (this.textIsTruncated && !this.$refs.shaveEl.title)
-            this.$refs.shaveEl.setAttribute('title', this.text);
-          // if the text is not shaved and a title has been previously set,
-          // remove it
-          else if (!this.textIsTruncated && this.$refs.shaveEl.title)
-            this.$refs.shaveEl.removeAttribute('title');
+          this.updateTitle();
+          // Removes temporary truncated styling from main div
+          this.shaveDone = true;
         });
       },
     },
