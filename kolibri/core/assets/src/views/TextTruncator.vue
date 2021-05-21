@@ -73,6 +73,9 @@
         this.debouncedHandleUpdate();
       },
     },
+    beforeDestroy() {
+      this.debouncedHandleUpdate.cancel();
+    },
     methods: {
       titleIsShaved() {
         return Boolean(this.$el.querySelector('.js-shave'));
