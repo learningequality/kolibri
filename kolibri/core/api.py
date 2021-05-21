@@ -268,12 +268,12 @@ class ReadOnlyValuesViewset(viewsets.ReadOnlyModelViewSet):
     def consolidate(self, items, queryset):
         return items
 
-    def _cast_queryset_to_values(self, queryset):
-        queryset = self.annotate_queryset(queryset)
-        return queryset.values(*self._values)
-
     def serialize(self, queryset):
-        return self.consolidate(list(map(self._map_fields, queryset or [])), queryset)
+        queryset = self.annotate_queryset(queryset)
+        values_queryset = queryset.values(*self._values)
+        return self.consolidate(
+            list(map(self._map_fields, values_queryset or [])), queryset
+        )
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -282,8 +282,6 @@ class ReadOnlyValuesViewset(viewsets.ReadOnlyModelViewSet):
 
         if page_queryset is not None:
             queryset = page_queryset
-
-        queryset = self._cast_queryset_to_values(queryset)
 
         if page_queryset is not None:
             return self.get_paginated_response(self.serialize(queryset))
@@ -294,9 +292,7 @@ class ReadOnlyValuesViewset(viewsets.ReadOnlyModelViewSet):
         queryset = self.get_queryset()
         try:
             filter_kwargs = filter_kwargs or self._get_lookup_filter()
-            return self.serialize(
-                self._cast_queryset_to_values(queryset.filter(**filter_kwargs))
-            )[0]
+            return self.serialize(queryset.filter(**filter_kwargs))[0]
         except IndexError:
             raise Http404(
                 "No %s matches the given query." % queryset.model._meta.object_name
