@@ -17,13 +17,70 @@ Access the API from within an HTML5 app by using ``window.kolibri.[function]``
 Functions:
 
 .. code-block:: javascript
+    /**
+    * Type definition for Language metadata
+    * @typedef {Object} Language
+    * @property {string} id - an IETF language tag
+    * @property {string} lang_code - the ISO 639‑1 language code
+    * @property {string} lang_subcode - the regional identifier
+    * @property {string} lang_name - the name of the language in that language
+    * @property {('ltr'|'rtl'|)} lang_direction - Direction of the language's script,
+    * top to bottom is not supported currently
+    */
+
+    /**
+    * Type definition for ContentNode metadata
+    * @typedef {Object} ContentNode
+    * @property {string} id - unique id of the ContentNode
+    * @property {string} channel_id - unique channel_id of the channel that the ContentNode is in
+    * @property {string} content_id - identifier that is common across all instances of this resource
+    * @property {string} title - A title that summarizes this ContentNode for the user
+    * @property {string} description - detailed description of the ContentNode
+    * @property {string} author - author of the ContentNode
+    * @property {string} thumbnail_url - URL for the thumbnail for this ContentNode,
+    * this may be any valid URL format including base64 encoded or blob URL
+    * @property {boolean} available - Whether the ContentNode has all necessary files for rendering
+    * @property {boolean} coach_content - Whether the ContentNode is intended only for coach users
+    * @property {Language} lang - The primary language of the ContentNode
+    * @property {string} license_description - The description of the license, which may be localized
+    * @property {string} license_name - The human readable name of the license, localized
+    * @property {string} license_owner - The name of the person or organization that holds copyright
+    * @property {number} num_coach_contents - Number of coach contents that are descendants of this
+    * @property {string} parent - The unique id of the parent of this ContentNode
+    * @property {number} sort_order - The order of display for this node in its channel
+    * if depth recursion was not deep enough
+    */
+
+    /**
+    * Type definition for PageResults array
+    * @property {ContentNode[]} results - the array of ContentNodes for this page
+    * This will be updated to a Pagination Object once pagination is implemented
+    */
+
+    /**
+    * Type definition for Theme options
+    * properties TBD
+    * @typedef {Object} Theme
+    */
+
+    /**
+    * Type definition for NavigationContext
+    * This can have arbitrary properties as defined
+    * by the navigating app that it uses to resume its state
+    * Should be able to be encoded down to <1600 characters using
+    * an encoding function something like 'encode context' above
+    * @typedef {Object} NavigationContext
+    * @property {string} node_id - The current node_id that is being displayed,
+    * custom apps should handle this as it may be used to
+    * generate links externally to jump to this state
+    */
 
     /*
     * Method to query contentnodes from Kolibri and return
     * an array of matching metadata
     * @param {Object} options - The different options to filter by
-    * @param {string=} options.parent - id of the parent node to filter by, or 'self'
-    * @param {string[]} options.ids - an array of ids to filter by
+    * @param {string} [options.parent] - id of the parent node to filter by, or 'self'
+    * @param {string} [options.ids] - an array of ids to filter by
     * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
     */
     getContentByFilter(options)
@@ -49,8 +106,8 @@ Functions:
     /*
     * Method to set a default theme for any content rendering initiated by this app
     * @param {Theme} options - The different options for custom themeing
-    * @param {string} options.appBarColor - Color for app bar atop the renderer
-    * @param {string} options.textColor - Color for the text or icon
+    * @param {string} [options.appBarColor] - Color for app bar atop the renderer
+    * @param {string} [options.textColor] - Color for the text or icon
     * @param {string} [options.backdropColor] - Color for modal backdrop
     * @param {string} [options.backgroundColor] - Color for modal background
     * @return {Promise} - a Promise that resolves when the theme has been applied
