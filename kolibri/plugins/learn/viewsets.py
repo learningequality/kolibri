@@ -5,7 +5,7 @@ from django.db.models import Subquery
 from django.db.models import Sum
 from rest_framework.permissions import IsAuthenticated
 
-from kolibri.core.api import ValuesViewset
+from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Classroom
 from kolibri.core.exams.models import Exam
@@ -15,7 +15,7 @@ from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 
 
-class LearnerClassroomViewset(ValuesViewset):
+class LearnerClassroomViewset(ReadOnlyValuesViewset):
     """
     Returns all Classrooms for which the requesting User is a member,
     along with all associated assignments.
@@ -23,8 +23,6 @@ class LearnerClassroomViewset(ValuesViewset):
 
     filter_backends = (KolibriAuthPermissionsFilter,)
     permission_classes = (IsAuthenticated,)
-
-    read_only = True
 
     values = ("id", "name")
 
@@ -158,15 +156,13 @@ def _map_lesson_classroom(item):
     }
 
 
-class LearnerLessonViewset(ValuesViewset):
+class LearnerLessonViewset(ReadOnlyValuesViewset):
     """
     Special Viewset for Learners to view Lessons to which they are assigned.
     The core Lesson Viewset is locked down to Admin users only.
     """
 
     permission_classes = (IsAuthenticated,)
-
-    read_only = True
 
     values = (
         "id",
