@@ -17,6 +17,7 @@ Access the API from within an HTML5 app by using ``window.kolibri.[function]``
 Functions:
 
 .. code-block:: javascript
+
     /**
     * Type definition for Language metadata
     * @typedef {Object} Language
@@ -97,8 +98,8 @@ Functions:
     * Method to search for contentnodes on Kolibri and return
     * an array of matching metadata
     * @param {Object} options - The different options to search by
-    * @param {string=} options.keyword - search term for key word search
-    * @param {string=} options.under - id of topic to search under, or 'self'
+    * @param {string} [options.keyword] - search term for key word search
+    * @param {string} [options.under] - id of topic to search under, or 'self'
     * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
     */
     searchContent(options)
