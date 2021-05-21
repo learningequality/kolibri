@@ -1,3 +1,5 @@
+import uuid
+
 from rest_framework.status import HTTP_200_OK
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.status import HTTP_204_NO_CONTENT
@@ -10,6 +12,7 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.bookmarks.models import Bookmark
+from kolibri.core.content.models import ContentNode
 
 
 class BookmarkAPITestCase(APITestCase):
@@ -19,35 +22,53 @@ class BookmarkAPITestCase(APITestCase):
         cls.facility = FacilityFactory.create()
         cls.user = FacilityUserFactory(facility=cls.facility)
         cls.user2 = FacilityUserFactory(facility=cls.facility)
+        cls.contentnode = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            title="root",
+            channel_id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+        )
 
     def setUp(self):
         self.client.login(
             username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility
         )
-        self.the_same_bookmark_data = {
-            "content_id": "1",
-            "contentnode_id": "1",
-            "channel_id": "1",
+        self.base_data = lambda user, model_data=False: {
+            "contentnode_id": self.contentnode.id,
+            "user": user if model_data else user.id,
         }
+        self.user1_data = self.base_data(self.user)
+        self.user2_data = self.base_data(self.user2)
 
     def test_create_bookmark_correctly(self):
         """
         Ensures that a user may create bookmarks successfully when logged in.
         """
         response = self.client.post(
-            "/api/bookmarks/bookmarks/", self.the_same_bookmark_data, format="json"
+            "/api/bookmarks/bookmarks/", self.user1_data, format="json"
         )
         self.assertEqual(response.status_code, HTTP_201_CREATED)
 
-    def test_create_bookmark_missing_keys(self):
+    def test_create_only_your_own_bookmarks(self):
+        """
+        Ensures that a user can only create a bookmark for themselves.
+        """
+        response = self.client.post(
+            "/api/bookmarks/bookmarks/", self.user2_data, format="json"
+        )
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_create_bookmark_missing_contentnode_id(self):
         """
         Ensures that the proper HTTP_400_BAD_REQUEST status comes back when
         the required fields are missing
         """
-        data = {"content_id": "2", "channel_id": "2"}
-        response = self.client.post("/api/bookmarks/bookmarks/", data, format="json")
+        busted_data = {"user": self.user.id}
+        response = self.client.post(
+            "/api/bookmarks/bookmarks/", busted_data, format="json"
+        )
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
-        self.assertTrue("contentnode_id" in response.data)
+        self.assertEqual("contentnode_id", response.data[0]["metadata"]["field"])
 
     def test_create_duplicate_bookmark(self):
         """
@@ -55,14 +76,11 @@ class BookmarkAPITestCase(APITestCase):
         receives the data they would have if it were. We expect it to return 200
         because the request is ultimately OK - but we didn't create anything.
         """
-        acceptable_response = self.client.post(
-            "/api/bookmarks/bookmarks/", self.the_same_bookmark_data, format="json"
-        )
+        self.client.post("/api/bookmarks/bookmarks/", self.user1_data, format="json")
         duplicate_response = self.client.post(
-            "/api/bookmarks/bookmarks/", self.the_same_bookmark_data, format="json"
+            "/api/bookmarks/bookmarks/", self.user1_data, format="json"
         )
-        self.assertEqual(duplicate_response.status_code, HTTP_200_OK)
-        self.assertDictEqual(duplicate_response.data, acceptable_response.data)
+        self.assertEqual(duplicate_response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_get_bookmarks(self):
         """
@@ -70,16 +88,18 @@ class BookmarkAPITestCase(APITestCase):
         and that they only get *theirs*.
         """
         bookmark, _ = Bookmark.objects.get_or_create(
-            facility_user=self.user, **self.the_same_bookmark_data
+            **self.base_data(self.user, model_data=True)
         )
         other_users_bookmark, _ = Bookmark.objects.get_or_create(
-            facility_user=self.user2, **self.the_same_bookmark_data
+            **self.base_data(self.user2, model_data=True)
         )
+
         response = self.client.get("/api/bookmarks/bookmarks/")
         self.assertEqual(response.status_code, HTTP_200_OK)
+
         # Make sure there actually are more than just what we're getting back
         # so we're sure the permissions are applied as expected
-        users_bookmarks = Bookmark.objects.filter(facility_user=self.user)
+        users_bookmarks = Bookmark.objects.filter(user=self.user)
         self.assertTrue(len(Bookmark.objects.all()) > len(users_bookmarks))
         for bookmark_entry in response.data:
             # We're going to filter the users_bookmarks QuerySet over and over
@@ -99,24 +119,38 @@ class BookmarkAPITestCase(APITestCase):
         """
 
         def delete_one(id):
-            return self.client.delete("/api/bookmarks/bookmarks/{}/".format(id))
+            try:
+                # Try getting the id before deleting it because it should exist within the
+                # context of this test.
+                Bookmark.objects.get(pk=id)
+                return self.client.delete("/api/bookmarks/bookmarks/{}/".format(id))
+            except Bookmark.DoesNotExist:
+                self.fail(
+                    "Bookmark with id {} should exist at this point because you've not deleted it yet.".format(
+                        id
+                    )
+                )
 
-        users_bookmarks = Bookmark.objects.filter(facility_user=self.user)
-        if not len(users_bookmarks):
-            my_bookmark, _ = Bookmark.objects.get_or_create(
-                facility_user=self.user, **self.the_same_bookmark_data
+        user1s_bookmarks = Bookmark.objects.filter(user=self.user)
+
+        if not len(user1s_bookmarks):
+            user1_bookmark, _ = Bookmark.objects.get_or_create(
+                **self.base_data(self.user, model_data=True)
             )
         else:
-            my_bookmark = users_bookmarks[0]
+            user1_bookmark = user1s_bookmarks[0]
 
-        response_delete_mine = delete_one(my_bookmark.id)
+        response_delete_mine = delete_one(user1_bookmark.id)
         self.assertEqual(response_delete_mine.status_code, HTTP_204_NO_CONTENT)
+        self.assertRaises(
+            Bookmark.DoesNotExist, lambda: Bookmark.objects.get(pk=user1_bookmark.id)
+        )
 
         # Now to try deleting someone else's!
-        user2s_bookmarks = Bookmark.objects.filter(facility_user=self.user2)
+        user2s_bookmarks = Bookmark.objects.filter(user=self.user2)
         if not len(user2s_bookmarks):
             their_bookmark, _ = Bookmark.objects.get_or_create(
-                facility_user=self.user2, **self.the_same_bookmark_data
+                **self.base_data(self.user2, model_data=True)
             )
         else:
             their_bookmark = user2s_bookmarks[0]
