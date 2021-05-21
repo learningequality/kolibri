@@ -3,22 +3,10 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
 
 from .models import Bookmark
-from .serializers import BookmarksSerializer
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.content.models import ContentNode
-
-
-class BookmarksViewSet(ValuesViewset):
-    values = ("channel_id", "contentnode_id", "id", "content_id")
-    serializer_class = BookmarksSerializer
-    queryset = Bookmark.objects.all()
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (
-        KolibriAuthPermissionsFilter,
-        DjangoFilterBackend,
-    )
 
 
 class BookmarksSerializer(ModelSerializer):
@@ -45,3 +33,14 @@ class BookmarksSerializer(ModelSerializer):
             data["content_id"] = contentnode.content_id
 
         return data
+
+
+class BookmarksViewSet(ValuesViewset):
+    values = ("channel_id", "contentnode_id", "id", "content_id")
+    serializer_class = BookmarksSerializer
+    queryset = Bookmark.objects.all()
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (
+        KolibriAuthPermissionsFilter,
+        DjangoFilterBackend,
+    )
