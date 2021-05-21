@@ -101,6 +101,7 @@
       <DownloadButton
         v-if="canDownload"
         :files="downloadableFiles"
+        :nodeTitle="content.title"
         class="download-button"
       />
 

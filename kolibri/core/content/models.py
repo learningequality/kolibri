@@ -25,14 +25,12 @@ from __future__ import print_function
 import os
 from gettext import gettext as _
 
-from django.core.urlresolvers import reverse
 from django.db import connection
 from django.db import models
 from django.db.models import Min
 from django.db.models import Q
 from django.db.models import QuerySet
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.text import get_valid_filename
 from le_utils.constants import content_kinds
 from le_utils.constants import format_presets
 from mptt.managers import TreeManager
@@ -194,15 +192,6 @@ class Language(base_models.Language):
         return self.lang_name or ""
 
 
-def get_download_filename(title, preset, extension):
-    """
-    Return a valid filename to be downloaded as.
-    """
-    filename = "{} ({}).{}".format(title, preset, extension)
-    valid_filename = get_valid_filename(filename)
-    return valid_filename
-
-
 class File(base_models.File):
     """
     The second to bottom layer of the contentDB schema, defines the basic building brick for content.
@@ -229,27 +218,6 @@ class File(base_models.File):
         Return the preset.
         """
         return PRESET_LOOKUP.get(self.preset, _("Unknown format"))
-
-    def get_download_filename(self):
-        """
-        Return a valid filename to be downloaded as.
-        """
-        return get_download_filename(
-            self.contentnode.title, self.get_preset(), self.get_extension()
-        )
-
-    def get_download_url(self):
-        """
-        Return the download url.
-        """
-        new_filename = self.get_download_filename()
-        return reverse(
-            "kolibri:core:downloadcontent",
-            kwargs={
-                "filename": self.local_file.get_filename(),
-                "new_filename": new_filename,
-            },
-        )
 
 
 class LocalFileQueryset(models.QuerySet, FilterByUUIDQuerysetMixin):

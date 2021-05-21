@@ -449,6 +449,15 @@ base_option_spec = {
                 retrieving alternate origin URLs.
             """,
         },
+        "REMOTE_CONTENT": {
+            "type": "boolean",
+            "default": False,
+            "description": """
+                Boolean flag that causes content import processes to skip trying to import any
+                content, as it is assumed that the remote source has everything available.
+                Server configuration should handle ensuring that the files are properly served.
+            """,
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {

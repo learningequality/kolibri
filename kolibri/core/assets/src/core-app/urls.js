@@ -65,6 +65,13 @@ const urls = {
     }
     return generateUrl(this.__contentUrl, { url: `${filename[0]}/${filename[1]}/${filename}` });
   },
+  downloadUrl(fileId, extension) {
+    const filename = `${fileId}.${extension}`;
+    if (!this.__contentUrl) {
+      throw new ReferenceError('Content Url is not defined');
+    }
+    return generateUrl(this.__contentUrl, { url: `${filename[0]}/${filename[1]}/${filename}` });
+  },
 };
 
 export default urls;
