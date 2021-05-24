@@ -224,7 +224,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
         are requesting notifications in the last five minutes
         """
         try:
-            queryset = self.filter_queryset(self.prefetch_queryset(self.get_queryset()))
+            queryset = self.filter_queryset(self.get_queryset())
         except (OperationalError, DatabaseError):
             repair_sqlite_db(connections["notifications_db"])
 

@@ -521,9 +521,8 @@ class ContentNodeViewset(ReadOnlyValuesViewset):
         pk = kwargs.get("pk", None)
         node = get_object_or_404(queryset, pk=pk)
         queryset = self.filter_queryset(self.get_queryset())
-        queryset = self.prefetch_queryset(
-            queryset
-            & node.get_siblings(include_self=False).exclude(kind=content_kinds.TOPIC)
+        queryset = queryset & node.get_siblings(include_self=False).exclude(
+            kind=content_kinds.TOPIC
         )
         return Response(self.serialize(queryset))
 
@@ -541,7 +540,7 @@ class ContentNodeViewset(ReadOnlyValuesViewset):
         """
         user = request.user
         user_id = kwargs.get("pk", None)
-        queryset = self.prefetch_queryset(self.get_queryset())
+        queryset = self.get_queryset()
         # if user is anonymous, don't return any nodes
         # if person requesting is not the data they are requesting for, also return no nodes
         if not user.is_facility_user or user.id != user_id:
@@ -600,7 +599,7 @@ class ContentNodeViewset(ReadOnlyValuesViewset):
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
 
-        queryset = self.filter_queryset(self.prefetch_queryset(self.get_queryset()))
+        queryset = self.filter_queryset(self.get_queryset())
 
         if ContentSessionLog.objects.count() < 50:
             # return 25 random content nodes if not enough session logs
@@ -654,7 +653,7 @@ class ContentNodeViewset(ReadOnlyValuesViewset):
         """
         user = request.user
         user_id = kwargs.get("pk", None)
-        queryset = self.prefetch_queryset(self.get_queryset())
+        queryset = self.get_queryset()
         # if user is anonymous, don't return any nodes
         # if person requesting is not the data they are requesting for, also return no nodes
         if not user.is_facility_user or user.id != user_id:
