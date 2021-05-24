@@ -5,7 +5,7 @@ The purpose of the ``kolibri.js`` extension of our HTML5 API is to allow a sandb
 
 External/partner product teams can create HTML5 applications that are fully embeddable within Kolibri and can read Kolibri content data, which they otherwise wouldn't be able to access. This opens up possibilities for creative ways in which learners can engage with content, because partners can create any type of app they want. The app could be something completely new, developed for a content source that we are adding to the platform, or it could be a branded, offline recreation of a partner's existing learning app that previously would not have been able to exist on Kolibri.
 
-When a user has permissions to access a custom channel, and they click on it in the main learn tab, rather than viewing "normal Kolibri," they will experience a full-screen HTML5 app. One "out-of-the-box" user interaction is the "navigateTo()" function, which opens  a modal that displays a content node. For other data fetching requests, the app, not Kolibri, has the responsibilty of determining what to do with that data.
+When a user has permissions to access a custom channel, and they click on it in the main learn tab, rather than viewing `normal Kolibri`, they will experience a full-screen HTML5 app. One `out-of-the-box` user interaction is the ``navigateTo()`` function, which opens  a modal that displays a content node. For other data fetching requests, the app, not Kolibri, has the responsibilty of determining what to do with that data.
 
 
 Basic API
