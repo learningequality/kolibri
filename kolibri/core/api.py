@@ -4,10 +4,15 @@ import requests
 from django.http import Http404
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import MethodNotAllowed
+from rest_framework.filters import OrderingFilter
+from rest_framework.generics import get_object_or_404
+from rest_framework.mixins import CreateModelMixin as BaseCreateModelMixin
+from rest_framework.mixins import DestroyModelMixin
+from rest_framework.mixins import UpdateModelMixin as BaseUpdateModelMixin
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework.serializers import UUIDField
+from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_201_CREATED
 from six.moves.urllib.parse import urljoin
 
@@ -42,7 +47,77 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
         return Response(data, status=response.status_code)
 
 
-class ValuesViewset(viewsets.ModelViewSet):
+class ValuesViewsetOrderingFilter(OrderingFilter):
+    def get_default_valid_fields(self, queryset, view, context={}):
+        """
+        The original implementation of this makes the assumption that the DRF serializer for the class
+        encodes all the serialization behaviour for the viewset:
+        https://github.com/encode/django-rest-framework/blob/version-3.12.2/rest_framework/filters.py#L208
+
+        With the ValuesViewset, this is no longer the case so here we do an equivalent mapping from the values
+        defined by the values viewset, with consideration for the mapped fields.
+
+        Importantly, we filter out values that have not yet been annotated on the queryset, so if an annotated
+        value is requried for ordering, it should be defined in the get_queryset method of the viewset, and not
+        the annotate_queryset method, which is executed after filtering.
+        """
+        default_fields = set()
+        # All the fields that we have field maps defined for - this only allows for simple mapped fields
+        # where the field is essentially a rename, as we have no good way of doing ordering on a field that
+        # that is doing more complex function based mapping.
+        mapped_fields = {v: k for k, v in view.field_map.items() if isinstance(v, str)}
+        # All the fields of the model
+        model_fields = {f.name for f in queryset.model._meta.get_fields()}
+        # Loop through every value in the view's values tuple
+        for field in view.values:
+            # If the value is for a foreign key lookup, we split it here to make sure that the first relation key
+            # exists on the model - it's unlikely this would ever not be the case, as otherwise the viewset would
+            # be returning 500s.
+            fk_ref = field.split("__")[0]
+            # Check either if the field is a model field, a currently annotated annotation, or
+            # is a foreign key lookup on an FK on this model.
+            if (
+                field in model_fields
+                or field in queryset.query.annotations
+                or fk_ref in model_fields
+            ):
+                # If the field is a mapped field, we store the field name as returned to the client
+                # not the actual internal field - this will later be mapped when we come to do the ordering.
+                if field in mapped_fields:
+                    default_fields.add((mapped_fields[field], mapped_fields[field]))
+                else:
+                    default_fields.add((field, field))
+
+        return default_fields
+
+    def remove_invalid_fields(self, queryset, fields, view, request):
+        """
+        Modified from https://github.com/encode/django-rest-framework/blob/version-3.12.2/rest_framework/filters.py#L259
+        to do filtering based on valuesviewset setup
+        """
+        # We filter the mapped fields to ones that do simple string mappings here, any functional maps are excluded.
+        mapped_fields = {k: v for k, v in view.field_map.items() if isinstance(v, str)}
+        valid_fields = [
+            item[0]
+            for item in self.get_valid_fields(queryset, view, {"request": request})
+        ]
+        ordering = []
+        for term in fields:
+            if term.lstrip("-") in valid_fields:
+                if term.lstrip("-") in mapped_fields:
+                    # In the case that the ordering field is a mapped field on the values viewset
+                    # we substitute the serialized name of the field for the database name.
+                    prefix = "-" if term[0] == "-" else ""
+                    new_term = prefix + mapped_fields[term.lstrip("-")]
+                    ordering.append(new_term)
+                else:
+                    ordering.append(term)
+        if len(ordering) > 1:
+            raise ValidationError("Can only define a single ordering field")
+        return ordering
+
+
+class ReadOnlyValuesViewset(viewsets.ReadOnlyModelViewSet):
     """
     A viewset that uses a values call to get all model/queryset data in
     a single database query, rather than delegating serialization to a
@@ -53,13 +128,13 @@ class ValuesViewset(viewsets.ModelViewSet):
     values = None
     # A map of target_key, source_key where target_key is the final target_key that will be set
     # and source_key is the key on the object retrieved from the values call.
+    # Alternatively, the source_key can be a callable that will be passed the object and return
+    # the value for the target_key. This callable can also pop unwanted values from the obj
+    # to remove unneeded keys from the object as a side effect.
     field_map = {}
 
-    # Create a read only property rather than creating separate viewsets
-    read_only = False
-
     def __init__(self, *args, **kwargs):
-        viewset = super(ValuesViewset, self).__init__(*args, **kwargs)
+        viewset = super(ReadOnlyValuesViewset, self).__init__(*args, **kwargs)
         if not isinstance(self.values, tuple):
             raise TypeError("values must be defined as a tuple")
         self._values = tuple(self.values)
@@ -74,10 +149,40 @@ class ValuesViewset(viewsets.ModelViewSet):
         # Hack to prevent the renderer logic from breaking completely.
         return Serializer
 
-    def annotate_queryset(self, queryset):
-        return queryset
+    def _get_lookup_filter(self):
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
-    def prefetch_queryset(self, queryset):
+        assert lookup_url_kwarg in self.kwargs, (
+            "Expected view %s to be called with a URL keyword argument "
+            'named "%s". Fix your URL conf, or set the `.lookup_field` '
+            "attribute on the view correctly."
+            % (self.__class__.__name__, lookup_url_kwarg)
+        )
+
+        return {self.lookup_field: self.kwargs[lookup_url_kwarg]}
+
+    def _get_object_from_queryset(self, queryset):
+        """
+        Returns the object the view is displaying.
+        We override this to remove the DRF default behaviour
+        of filtering the queryset.
+        (rtibbles) There doesn't seem to be a use case for
+        querying a detail endpoint and also filtering by query
+        parameters that might result in a 404.
+        """
+        # Perform the lookup filtering.
+        filter_kwargs = self._get_lookup_filter()
+        obj = get_object_or_404(queryset, **filter_kwargs)
+
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+
+        return obj
+
+    def get_object(self):
+        return self._get_object_from_queryset(self.get_queryset())
+
+    def annotate_queryset(self, queryset):
         return queryset
 
     def _map_fields(self, item):
@@ -93,56 +198,64 @@ class ValuesViewset(viewsets.ModelViewSet):
     def consolidate(self, items, queryset):
         return items
 
-    def _serialize_queryset(self, queryset):
-        queryset = self.annotate_queryset(queryset)
-        return queryset.values(*self._values)
-
     def serialize(self, queryset):
+        queryset = self.annotate_queryset(queryset)
+        values_queryset = queryset.values(*self._values)
         return self.consolidate(
-            list(map(self._map_fields, self._serialize_queryset(queryset) or [])),
-            queryset,
+            list(map(self._map_fields, values_queryset or [])), queryset
         )
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.prefetch_queryset(self.get_queryset()))
+        queryset = self.filter_queryset(self.get_queryset())
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            return self.get_paginated_response(self.serialize(page))
+        page_queryset = self.paginate_queryset(queryset)
+
+        if page_queryset is not None:
+            queryset = page_queryset
+
+        if page_queryset is not None:
+            return self.get_paginated_response(self.serialize(queryset))
 
         return Response(self.serialize(queryset))
 
-    def serialize_object(self, pk):
-        queryset = self.filter_queryset(self.prefetch_queryset(self.get_queryset()))
+    def serialize_object(self, **filter_kwargs):
+        queryset = self.get_queryset()
         try:
-            return self.serialize(queryset.filter(pk=pk))[0]
+            filter_kwargs = filter_kwargs or self._get_lookup_filter()
+            return self.serialize(queryset.filter(**filter_kwargs))[0]
         except IndexError:
             raise Http404(
                 "No %s matches the given query." % queryset.model._meta.object_name
             )
 
-    def retrieve(self, request, pk, *args, **kwargs):
-        return Response(self.serialize_object(pk))
+    def retrieve(self, request, *args, **kwargs):
+        return Response(self.serialize_object())
 
+
+class CreateModelMixin(BaseCreateModelMixin):
     def create(self, request, *args, **kwargs):
-        if self.read_only:
-            raise MethodNotAllowed
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         instance = serializer.instance
-        return Response(self.serialize_object(instance.id), status=HTTP_201_CREATED)
+        return Response(self.serialize_object(pk=instance.pk), status=HTTP_201_CREATED)
 
+
+class UpdateModelMixin(BaseUpdateModelMixin):
     def update(self, request, *args, **kwargs):
-        if self.read_only:
-            raise MethodNotAllowed
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        return Response(self.serialize_object(instance.id))
+        return Response(self.serialize_object())
+
+
+class ValuesViewset(
+    ReadOnlyValuesViewset, CreateModelMixin, UpdateModelMixin, DestroyModelMixin
+):
+    pass
 
 
 class HexUUIDField(UUIDField):

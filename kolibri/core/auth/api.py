@@ -59,6 +59,7 @@ from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
+from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesViewset
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
@@ -283,12 +284,10 @@ class ExistingUsernameView(views.APIView):
             return Response({"username_exists": False}, status=status.HTTP_200_OK)
 
 
-class FacilityUsernameViewSet(ValuesViewset):
+class FacilityUsernameViewSet(ReadOnlyValuesViewset):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filter_fields = ("facility",)
     search_fields = ("^username",)
-
-    read_only = True
 
     values = ("username",)
 

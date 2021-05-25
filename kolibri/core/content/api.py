@@ -25,14 +25,13 @@ from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
 from rest_framework import mixins
-from rest_framework import pagination
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.decorators import list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from kolibri.core.api import ValuesViewset
+from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.middleware import session_exempt
 from kolibri.core.content import models
 from kolibri.core.content import serializers
@@ -60,6 +59,7 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.query import SQSum
+from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 
 
 logger = logging.getLogger(__name__)
@@ -199,7 +199,7 @@ class ContentNodeFilter(IdFilter):
         return queryset.filter(coach_content=False)
 
 
-class OptionalPageNumberPagination(pagination.PageNumberPagination):
+class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
     """
     Pagination class that allows for page number-style pagination, when requested.
     To activate, the `page_size` argument must be set. For example, to request the first 20 records:
@@ -246,7 +246,7 @@ def map_file(file):
 
 
 @method_decorator(cache_forever, name="dispatch")
-class ContentNodeViewset(ValuesViewset):
+class ContentNodeViewset(ReadOnlyValuesViewset):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ContentNodeFilter
     pagination_class = OptionalPageNumberPagination
@@ -280,8 +280,6 @@ class ContentNodeViewset(ValuesViewset):
     )
 
     field_map = {"lang": map_lang}
-
-    read_only = True
 
     def consolidate(self, items, queryset):
         output = []
@@ -523,9 +521,8 @@ class ContentNodeViewset(ValuesViewset):
         pk = kwargs.get("pk", None)
         node = get_object_or_404(queryset, pk=pk)
         queryset = self.filter_queryset(self.get_queryset())
-        queryset = self.prefetch_queryset(
-            queryset
-            & node.get_siblings(include_self=False).exclude(kind=content_kinds.TOPIC)
+        queryset = queryset & node.get_siblings(include_self=False).exclude(
+            kind=content_kinds.TOPIC
         )
         return Response(self.serialize(queryset))
 
@@ -543,7 +540,7 @@ class ContentNodeViewset(ValuesViewset):
         """
         user = request.user
         user_id = kwargs.get("pk", None)
-        queryset = self.prefetch_queryset(self.get_queryset())
+        queryset = self.get_queryset()
         # if user is anonymous, don't return any nodes
         # if person requesting is not the data they are requesting for, also return no nodes
         if not user.is_facility_user or user.id != user_id:
@@ -602,7 +599,7 @@ class ContentNodeViewset(ValuesViewset):
         if cache.get(cache_key) is not None:
             return Response(cache.get(cache_key))
 
-        queryset = self.filter_queryset(self.prefetch_queryset(self.get_queryset()))
+        queryset = self.filter_queryset(self.get_queryset())
 
         if ContentSessionLog.objects.count() < 50:
             # return 25 random content nodes if not enough session logs
@@ -656,7 +653,7 @@ class ContentNodeViewset(ValuesViewset):
         """
         user = request.user
         user_id = kwargs.get("pk", None)
-        queryset = self.prefetch_queryset(self.get_queryset())
+        queryset = self.get_queryset()
         # if user is anonymous, don't return any nodes
         # if person requesting is not the data they are requesting for, also return no nodes
         if not user.is_facility_user or user.id != user_id:
@@ -907,7 +904,7 @@ def mean(data):
     return mean
 
 
-class ContentNodeProgressViewset(ValuesViewset):
+class ContentNodeProgressViewset(ReadOnlyValuesViewset):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ContentNodeProgressFilter
 
