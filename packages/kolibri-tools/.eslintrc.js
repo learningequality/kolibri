@@ -22,7 +22,7 @@ module.exports = {
       files: ['**/__mocks__/*.*'],
       env: {
         jest: true,
-      }
+      },
     },
     {
       files: ['*.int.js'],
@@ -159,6 +159,7 @@ module.exports = {
           'extends',
           'mixins',
           'inheritAttrs',
+          'setup',
           'model',
           ['props', 'propsData'],
           'data',
