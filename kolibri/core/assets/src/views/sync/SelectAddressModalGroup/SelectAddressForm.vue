@@ -117,6 +117,7 @@
 <script>
 
   import { computed } from '@vue/composition-api';
+  import { useLocalStorage } from '@vueuse/core';
   import find from 'lodash/find';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -172,6 +173,7 @@
         requestsFailed,
         deletingAddress,
         fetchingAddresses,
+        storageAddressId,
       };
     },
     props: {
@@ -245,10 +247,16 @@
       },
     },
     watch: {
+      selectedAddressId(newVal) {
+        this.storageAddressId = newVal;
+      },
       combinedAddresses(addrs) {
         this.availableAddressIds = addrs
           .filter(address => address.available)
           .map(address => address.id);
+        if (!this.availableAddressIds.includes(this.selectedAddressId)) {
+          this.selectedAddressId = '';
+        }
         if (!this.selectedAddressId) {
           this.resetSelectedAddress();
         }
@@ -264,9 +272,9 @@
     methods: {
       resetSelectedAddress() {
         if (this.availableAddressIds.length !== 0) {
-          const selectedId = this.selectedId ? this.selectedId : this.selectedAddressId;
+          const selectedId = this.selectedId || this.storageAddressId || this.selectedAddressId;
           this.selectedAddressId =
-            this.availableAddressIds.find(id => selectedId === id) || this.availableAddressIds[0];
+            this.availableAddressIds.find(id => id === selectedId) || this.availableAddressIds[0];
         } else {
           this.selectedAddressId = '';
         }

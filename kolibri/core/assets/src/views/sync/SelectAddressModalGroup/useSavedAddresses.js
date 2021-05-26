@@ -43,7 +43,7 @@ export default function useSavedAddresses(props, context) {
     addresses.value = [];
     return fetchStaticAddresses(fetchAddressArgs.value)
       .then(addrs => {
-        addresses.value = addrs;
+        addresses.value = [...addrs];
         stage.value = Stages.FETCHING_SUCCESSFUL;
         savedAddressesInitiallyFetched.value = true;
       })
