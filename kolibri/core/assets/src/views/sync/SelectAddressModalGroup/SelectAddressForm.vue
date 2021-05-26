@@ -243,8 +243,8 @@
       },
     },
     watch: {
-      addresses(addresses) {
-        this.availableAddressIds = addresses
+      addresses(addrs) {
+        this.availableAddressIds = addrs
           .filter(address => address.available)
           .map(address => address.id);
         this.resetSelectedAddress();
