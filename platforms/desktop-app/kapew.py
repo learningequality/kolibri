@@ -18,7 +18,7 @@ def prep_kolibri_dist(args, remainder):
 
 def codesign_build(args, remainder):
     if sys.platform.startswith('win'):
-        build_tools.build.do_build()
+        build_tools.build.do_build(remainder)
         build_tools.codesigning.codesign_windows_build()
     else:
         if not os.getenv('MAC_CODESIGN_IDENTITY'):
