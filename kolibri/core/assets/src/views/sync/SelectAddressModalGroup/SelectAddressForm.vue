@@ -247,7 +247,9 @@
         this.availableAddressIds = addrs
           .filter(address => address.available)
           .map(address => address.id);
-        this.resetSelectedAddress();
+        if (!this.selectedAddressId) {
+          this.resetSelectedAddress();
+        }
       },
     },
     mounted() {
