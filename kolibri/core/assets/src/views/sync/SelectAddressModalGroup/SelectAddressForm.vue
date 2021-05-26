@@ -116,24 +116,13 @@
 
 <script>
 
+  import { computed } from '@vue/composition-api';
   import find from 'lodash/find';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { deleteAddress, fetchStaticAddresses } from './api';
   import useDynamicAddresses from './useDynamicAddresses.js';
-
-  const Stages = Object.freeze({
-    FETCHING_ADDRESSES: 'FETCHING_ADDRESSES',
-    FETCHING_SUCCESSFUL: 'FETCHING_SUCCESSFUL',
-    FETCHING_FAILED: 'FETCHING_FAILED',
-    DELETING_ADDRESS: 'DELETING_ADDRESS',
-    DELETING_SUCCESSFUL: 'DELETING_SUCCESSFUL',
-    DELETING_FAILED: 'DELETING_FAILED',
-    PEER_DISCOVERY_STARTED: 'PEER_DISCOVERY_STARTED',
-    PEER_DISCOVERY_SUCCESSFUL: 'PEER_DISCOVERY_SUCCESSFUL',
-    PEER_DISCOVERY_FAILED: 'PEER_DISCOVERY_FAILED',
-  });
+  import useSavedAddresses from './useSavedAddresses.js';
 
   export default {
     name: 'SelectAddressForm',
@@ -141,28 +130,59 @@
       UiAlert,
     },
     mixins: [commonCoreStrings, commonSyncElements],
-    setup(props) {
+    setup(props, context) {
       const {
         addresses: discoveredAddresses,
         discoveringPeers,
         discoveryFailed,
+        discoveredAddressesInitiallyFetched,
       } = useDynamicAddresses(props);
 
+      const {
+        addresses: savedAddresses,
+        removeSavedAddress,
+        refreshSavedAddressList,
+        savedAddressesInitiallyFetched,
+        requestsFailed,
+        deletingAddress,
+        fetchingAddresses,
+      } = useSavedAddresses(props, context);
+
+      const addresses = computed(() => {
+        return [...savedAddresses.value, ...discoveredAddresses.value];
+      });
+
+      const initialFetchingComplete = computed(() => {
+        return savedAddressesInitiallyFetched.value && discoveredAddressesInitiallyFetched.value;
+      });
+
       return {
+        addresses,
+        initialFetchingComplete,
         discoveredAddresses,
         discoveringPeers,
         discoveryFailed,
+        discoveredAddressesInitiallyFetched,
+        savedAddresses,
+        savedAddressesInitiallyFetched,
+        removeSavedAddress,
+        refreshSavedAddressList,
+        requestsFailed,
+        deletingAddress,
+        fetchingAddresses,
       };
     },
     props: {
-      // eslint-disable-next-line
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
       discoverySpinnerTime: { type: Number, default: 2500 },
       // Facility filter only needed on SyncFacilityModalGroup
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
       filterByFacilityId: {
         type: String,
         default: null,
       },
       // Channel filter only needed on ManageContentPage/SelectNetworkAddressModal
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
       filterByChannelId: {
         type: String,
         default: null,
@@ -186,72 +206,40 @@
     data() {
       return {
         availableAddressIds: [],
-        savedAddresses: [],
-        savedAddressesInitiallyFetched: false,
-        discoveredAddressesInitiallyFetched: true,
         selectedAddressId: '',
         showUiAlerts: false,
-        Stages,
       };
     },
     computed: {
-      fetchAddressArgs() {
-        if (this.filterByChannelId) {
-          return { channelId: this.filterByChannelId };
-        } else if (this.filterByFacilityId) {
-          return { facilityId: this.filterByFacilityId };
-        } else {
-          return {};
-        }
-      },
-      addresses() {
-        return this.savedAddresses.concat(this.discoveredAddresses);
-      },
       isAddressAvailable() {
         return function(addressId) {
           return Boolean(this.availableAddressIds.find(id => id === addressId));
         };
       },
-      initialFetchingComplete() {
-        return this.savedAddressesInitiallyFetched && this.discoveredAddressesInitiallyFetched;
-      },
       submitDisabled() {
         return (
           this.selectedAddressId === '' ||
-          this.stage === this.Stages.FETCHING_ADDRESSES ||
-          this.stage === this.Stages.DELETING_ADDRESS ||
+          this.fetchingAddresses ||
+          this.deletingAddress ||
           this.discoveryFailed ||
           this.availableAddressIds.length === 0
         );
       },
       newAddressButtonDisabled() {
-        return this.hideSavedAddresses || this.stage === this.Stages.FETCHING_ADDRESSES;
-      },
-      requestsFailed() {
-        return (
-          this.stage === this.Stages.FETCHING_FAILED || this.stage === this.Stages.DELETING_FAILED
-        );
+        return this.hideSavedAddresses || this.fetchingAddresses;
       },
       uiAlertProps() {
-        if (this.stage === this.Stages.FETCHING_FAILED) {
-          return {
-            text: this.$tr('fetchingFailedText'),
-            type: 'error',
-          };
+        let text;
+        if (this.fetchingFailed) {
+          text = this.$tr('fetchingFailedText');
         }
         if (this.discoveryFailed) {
-          return {
-            text: this.$tr('fetchingFailedText'),
-            type: 'error',
-          };
+          text = this.$tr('fetchingFailedText');
         }
-        if (this.stage === this.Stages.DELETING_FAILED) {
-          return {
-            text: this.$tr('deletingFailedText'),
-            type: 'error',
-          };
+        if (this.deletingFailed) {
+          text = this.$tr('deletingFailedText');
         }
-        return null;
+        return text ? { text, type: 'error' } : null;
       },
     },
     watch: {
@@ -262,9 +250,6 @@
         this.resetSelectedAddress();
       },
     },
-    beforeMount() {
-      return this.refreshSavedAddressList();
-    },
     mounted() {
       // Wait a little bit of time before showing UI alerts so there is no flash
       // if data comes back quickly
@@ -273,19 +258,6 @@
       }, 100);
     },
     methods: {
-      refreshSavedAddressList() {
-        this.stage = this.Stages.FETCHING_ADDRESSES;
-        this.savedAddresses = [];
-        return fetchStaticAddresses(this.fetchAddressArgs)
-          .then(addresses => {
-            this.savedAddresses = addresses;
-            this.stage = this.Stages.FETCHING_SUCCESSFUL;
-            this.savedAddressesInitiallyFetched = true;
-          })
-          .catch(() => {
-            this.stage = this.Stages.FETCHING_FAILED;
-          });
-      },
       resetSelectedAddress() {
         if (this.availableAddressIds.length !== 0) {
           const selectedId = this.selectedId ? this.selectedId : this.selectedAddressId;
@@ -295,19 +267,6 @@
           this.selectedAddressId = '';
         }
       },
-      removeSavedAddress(id) {
-        this.stage = this.Stages.DELETING_ADDRESS;
-        return deleteAddress(id)
-          .then(() => {
-            this.savedAddresses = this.savedAddresses.filter(a => a.id !== id);
-            this.stage = this.Stages.DELETING_SUCCESSFUL;
-            this.$emit('removed_address');
-          })
-          .catch(() => {
-            this.stage = this.Stages.DELETING_FAILED;
-          });
-      },
-
       handleSubmit() {
         if (this.selectedAddressId) {
           const match = find(this.addresses, { id: this.selectedAddressId });

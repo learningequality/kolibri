@@ -70,5 +70,6 @@ export default function useDynamicAddresses(props) {
     addresses,
     discoveringPeers,
     discoveryFailed,
+    discoveredAddressesInitiallyFetched,
   };
 }
