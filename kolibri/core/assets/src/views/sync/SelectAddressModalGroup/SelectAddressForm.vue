@@ -9,7 +9,7 @@
     @cancel="$emit('cancel')"
   >
     <template>
-      <p v-if="initialFetchingComplete && !addresses.length">
+      <p v-if="initialFetchingComplete && !combinedAddresses.length">
         {{ $tr('noAddressText') }}
       </p>
       <UiAlert
@@ -148,7 +148,7 @@
         fetchingAddresses,
       } = useSavedAddresses(props, context);
 
-      const addresses = computed(() => {
+      const combinedAddresses = computed(() => {
         return [...savedAddresses.value, ...discoveredAddresses.value];
       });
 
@@ -156,8 +156,10 @@
         return savedAddressesInitiallyFetched.value && discoveredAddressesInitiallyFetched.value;
       });
 
+      const storageAddressId = useLocalStorage('kolibri-lastSelectedNetworkLocationId', '');
+
       return {
-        addresses,
+        combinedAddresses,
         initialFetchingComplete,
         discoveredAddresses,
         discoveringPeers,
@@ -243,7 +245,7 @@
       },
     },
     watch: {
-      addresses(addrs) {
+      combinedAddresses(addrs) {
         this.availableAddressIds = addrs
           .filter(address => address.available)
           .map(address => address.id);
@@ -271,7 +273,7 @@
       },
       handleSubmit() {
         if (this.selectedAddressId) {
-          const match = find(this.addresses, { id: this.selectedAddressId });
+          const match = find(this.combinedAddresses, { id: this.selectedAddressId });
           match.isDynamic = Boolean(find(this.discoveredAddresses, { id: this.selectedAddressId }));
           this.$emit('submit', match);
         }
