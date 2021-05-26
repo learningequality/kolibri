@@ -117,8 +117,8 @@
 <style lang="scss" scoped>
 
   .labeled-icon-wrapper {
-    white-space: nowrap;
     width: auto;
+    white-space: nowrap;
   }
 
   .channel-header {
