@@ -120,7 +120,8 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { deleteAddress, fetchStaticAddresses, fetchDynamicAddresses } from './api';
+  import { deleteAddress, fetchStaticAddresses } from './api';
+  import useDynamicAddresses from './useDynamicAddresses.js';
 
   const Stages = Object.freeze({
     FETCHING_ADDRESSES: 'FETCHING_ADDRESSES',
@@ -140,7 +141,21 @@
       UiAlert,
     },
     mixins: [commonCoreStrings, commonSyncElements],
+    setup(props) {
+      const {
+        addresses: discoveredAddresses,
+        discoveringPeers,
+        discoveryFailed,
+      } = useDynamicAddresses(props);
+
+      return {
+        discoveredAddresses,
+        discoveringPeers,
+        discoveryFailed,
+      };
+    },
     props: {
+      // eslint-disable-next-line
       discoverySpinnerTime: { type: Number, default: 2500 },
       // Facility filter only needed on SyncFacilityModalGroup
       filterByFacilityId: {
@@ -173,12 +188,9 @@
         availableAddressIds: [],
         savedAddresses: [],
         savedAddressesInitiallyFetched: false,
-        discoveredAddresses: [],
         discoveredAddressesInitiallyFetched: true,
         selectedAddressId: '',
         showUiAlerts: false,
-        stage: '',
-        discoveryStage: '',
         Stages,
       };
     },
@@ -208,7 +220,7 @@
           this.selectedAddressId === '' ||
           this.stage === this.Stages.FETCHING_ADDRESSES ||
           this.stage === this.Stages.DELETING_ADDRESS ||
-          this.discoveryStage === this.Stages.PEER_DISCOVERY_FAILED ||
+          this.discoveryFailed ||
           this.availableAddressIds.length === 0
         );
       },
@@ -220,12 +232,6 @@
           this.stage === this.Stages.FETCHING_FAILED || this.stage === this.Stages.DELETING_FAILED
         );
       },
-      discoveringPeers() {
-        return this.discoveryStage === this.Stages.PEER_DISCOVERY_STARTED;
-      },
-      discoveryFailed() {
-        return this.discoveryStage === this.Stages.PEER_DISCOVERY_FAILED;
-      },
       uiAlertProps() {
         if (this.stage === this.Stages.FETCHING_FAILED) {
           return {
@@ -233,7 +239,7 @@
             type: 'error',
           };
         }
-        if (this.discoveryStage === this.Stages.PEER_DISCOVERY_FAILED) {
+        if (this.discoveryFailed) {
           return {
             text: this.$tr('fetchingFailedText'),
             type: 'error',
@@ -257,7 +263,6 @@
       },
     },
     beforeMount() {
-      this.startDiscoveryPolling();
       return this.refreshSavedAddressList();
     },
     mounted() {
@@ -266,9 +271,6 @@
       setTimeout(() => {
         this.showUiAlerts = true;
       }, 100);
-    },
-    destroyed() {
-      this.stopDiscoveryPolling();
     },
     methods: {
       refreshSavedAddressList() {
@@ -304,37 +306,6 @@
           .catch(() => {
             this.stage = this.Stages.DELETING_FAILED;
           });
-      },
-
-      discoverPeers() {
-        this.$parent.$emit('started_peer_discovery');
-        this.discoveryStage = this.Stages.PEER_DISCOVERY_STARTED;
-        return fetchDynamicAddresses(this.fetchAddressArgs)
-          .then(devices => {
-            this.discoveredAddresses = devices;
-            this.$parent.$emit('finished_peer_discovery');
-            setTimeout(() => {
-              this.discoveryStage = this.Stages.PEER_DISCOVERY_SUCCESSFUL;
-            }, this.discoverySpinnerTime);
-            this.discoveredAddressesInitiallyFetched = true;
-          })
-          .catch(() => {
-            this.$parent.$emit('peer_discovery_failed');
-            this.discoveryStage = this.Stages.PEER_DISCOVERY_FAILED;
-          });
-      },
-
-      startDiscoveryPolling() {
-        this.discoverPeers();
-        if (!this.intervalId) {
-          this.intervalId = setInterval(this.discoverPeers, 5000);
-        }
-      },
-
-      stopDiscoveryPolling() {
-        if (this.intervalId) {
-          this.intervalId = clearInterval(this.intervalId);
-        }
       },
 
       handleSubmit() {
