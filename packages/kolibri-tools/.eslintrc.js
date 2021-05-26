@@ -66,7 +66,6 @@ module.exports = {
     },
   },
   rules: {
-    'no-shadow': ERROR,
     'comma-style': ERROR,
     'max-len': [
       ERROR,
