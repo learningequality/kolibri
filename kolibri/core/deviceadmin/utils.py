@@ -7,6 +7,7 @@ from datetime import datetime
 from datetime import timedelta
 
 from django import db
+from django.apps import apps
 from django.conf import settings
 
 import kolibri
@@ -205,6 +206,16 @@ def perform_vacuum(database=db.DEFAULT_DB_ALIAS):
             logger.error(new_msg)
         else:
             logger.info("Sqlite database Vacuum finished.")
+    elif connection.vendor == "postgresql":
+        morango_models = [
+            m
+            for m in apps.get_models(include_auto_created=True)
+            if "morango.models" in str(m)
+        ]
+        cursor = connection.cursor()
+        for m in morango_models:
+            cursor.execute("vacuum analyze {};".format(m._meta.db_table))
+        connection.close()
 
 
 def schedule_vacuum(job_id=None):
