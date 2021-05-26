@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = "Vacuum Kolibri's database. For Postgresql databases it vacuums only Morango tables, for SQLite databases, it optimizes it and reduces the .wal file size"
+    help = "Vacuum Kolibri's database. For Postgresql databases it vacuums only Morango tables, for SQLite databases, it optimizes it and reduces the .wal file size"  # noqa
 
     def add_arguments(self, parser):
         parser.add_argument(
