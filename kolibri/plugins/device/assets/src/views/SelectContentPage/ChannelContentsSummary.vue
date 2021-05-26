@@ -12,13 +12,15 @@
           {{ $tr('unlistedChannelTooltip') }}
         </KTooltip>
         <h1>
-          <KLabeledIcon icon="channel" :label="channel.name" />
-          <KIcon
-            v-if="channel.public === false"
-            ref="lockicon"
-            class="lock-icon"
-            icon="unlistedchannel"
-          />
+          <KLabeledIcon icon="channel" :label="channel.name">
+            <template #iconAfter>
+              <KIcon
+                v-if="channel.public === false"
+                ref="lockicon"
+                icon="unlistedchannel"
+              />
+            </template>
+          </KLabeledIcon>
         </h1>
       </div>
 
@@ -114,16 +116,17 @@
 
 <style lang="scss" scoped>
 
+  .labeled-icon-wrapper {
+    width: auto;
+    white-space: nowrap;
+  }
+
   .channel-header {
     margin-top: 16px;
   }
 
   .thumbnail {
     max-width: 200px;
-  }
-
-  .lock-icon {
-    margin-left: 16px;
   }
 
   .version {

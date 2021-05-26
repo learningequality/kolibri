@@ -108,13 +108,13 @@
 <style lang="scss" scoped>
 
   .coach-content-label {
-    display: inline-block;
+    position: absolute;
     margin-left: 16px;
-    vertical-align: bottom;
   }
 
   .title {
     width: 60%;
+    overflow-x: hidden;
   }
 
   .message {
