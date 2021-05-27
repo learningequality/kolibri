@@ -1,4 +1,5 @@
 import { ref, computed, onBeforeMount } from '@vue/composition-api';
+import { get, set, and } from '@vueuse/core';
 import { deleteAddress, fetchStaticAddresses } from './api';
 
 const Stages = Object.freeze({
@@ -15,16 +16,23 @@ export default function useSavedAddresses(props, context) {
   const stage = ref('');
   const savedAddressesInitiallyFetched = ref(false);
 
+  function updateStage(newStage) {
+    set(stage, newStage);
+  }
+
   function removeSavedAddress(id) {
-    stage.value = Stages.DELETING_ADDRESS;
+    updateStage(Stages.DELETING_ADDRESS);
     return deleteAddress(id)
       .then(() => {
-        addresses.value = addresses.value.filter(a => a.id !== id);
-        stage.value = Stages.DELETING_SUCCESSFUL;
+        set(
+          addresses,
+          get(addresses).filter(a => a.id !== id)
+        );
+        updateStage(Stages.DELETING_SUCCESSFUL);
         context.emit('removed_address');
       })
       .catch(() => {
-        stage.value = Stages.DELETING_FAILED;
+        set(stage, Stages.DELETING_FAILED);
       });
   }
 
@@ -39,33 +47,33 @@ export default function useSavedAddresses(props, context) {
   });
 
   function refreshSavedAddressList() {
-    stage.value = Stages.FETCHING_ADDRESSES;
-    addresses.value = [];
-    return fetchStaticAddresses(fetchAddressArgs.value)
+    updateStage(Stages.FETCHING_ADDRESSES);
+    set(addresses, []);
+    return fetchStaticAddresses(get(fetchAddressArgs))
       .then(addrs => {
-        addresses.value = [...addrs];
-        stage.value = Stages.FETCHING_SUCCESSFUL;
-        savedAddressesInitiallyFetched.value = true;
+        set(addresses, [...addrs]);
+        updateStage(Stages.FETCHING_SUCCESSFUL);
+        set(savedAddressesInitiallyFetched, true);
       })
       .catch(() => {
-        stage.value = Stages.FETCHING_FAILED;
+        updateStage(Stages.FETCHING_FAILED);
       });
   }
 
   const fetchingAddresses = computed(() => {
-    return stage.value === Stages.FETCHING_ADDRESSES;
+    return get(stage) === Stages.FETCHING_ADDRESSES;
   });
 
   const fetchingFailed = computed(() => {
-    return stage.value === Stages.FETCHING_FAILED;
+    return get(stage) === Stages.FETCHING_FAILED;
   });
 
   const deletingAddress = computed(() => {
-    return stage.value === Stages.DELETING_ADDRESS;
+    return get(stage) === Stages.DELETING_ADDRESS;
   });
 
   const deletingFailed = computed(() => {
-    return stage.value === Stages.DELETING_FAILED;
+    return get(stage) === Stages.DELETING_FAILED;
   });
 
   onBeforeMount(() => {
@@ -73,7 +81,7 @@ export default function useSavedAddresses(props, context) {
   });
 
   const requestsFailed = computed(() => {
-    return fetchingFailed.value && deletingFailed.value;
+    return and(fetchingFailed, deletingFailed);
   });
 
   return {
