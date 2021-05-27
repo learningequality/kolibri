@@ -8,21 +8,22 @@ from kolibri.core.bookmarks.models import Bookmark
 
 def create_the_same_bookmark(user):
     return Bookmark.objects.create(
-        facility_user=user, content_id="a", contentnode_id="a", channel_id="a"
+        user=user,
+        content_id="4d2dea0cdd424c6ab5f76e8244507d6e",
+        contentnode_id="4d2dea0cdd424c6ab5f76e8244507d6e",
+        channel_id="a4d2dea0cdd424cab5f76e8244507d6e",
     )
 
 
 class BookmarkTestCase(TestCase):
     def setUp(self):
-        self.facility_user = FacilityUser.objects.create(
+        self.user = FacilityUser.objects.create(
             username="a", facility=Facility.objects.create(name="a")
         )
-        self.first_created_object = create_the_same_bookmark(self.facility_user)
+        self.first_created_object = create_the_same_bookmark(self.user)
 
     def test_disallowing_duplicates(self):
         """
         Ensures that the Model does not permit creation of duplicates.
         """
-        self.assertRaises(
-            IntegrityError, lambda: create_the_same_bookmark(self.facility_user)
-        )
+        self.assertRaises(IntegrityError, lambda: create_the_same_bookmark(self.user))
