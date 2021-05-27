@@ -324,7 +324,7 @@ class PIDPlugin(SimplePlugin):
             handler.priority = 10
             self.bus.subscribe(bus_status, handler)
 
-    def set_pid_file(self, status):
+    def set_pid_file(self, status, *args):
         """
         Writes a PID file in the format Kolibri parses
 
