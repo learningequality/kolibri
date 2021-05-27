@@ -383,9 +383,9 @@ class SignalHandler(BaseSignalHandler):
 
         self.handlers.update(
             {
-                "SIGINT": self.handle_SIGTERM,
-                "CTRL_C_EVENT": self.handle_SIGTERM,
-                "CTRL_BREAK_EVENT": self.handle_SIGTERM,
+                "SIGINT": self.handle_SIGINT,
+                "CTRL_C_EVENT": self.handle_SIGINT,
+                "CTRL_BREAK_EVENT": self.handle_SIGINT,
             }
         )
 
@@ -401,6 +401,11 @@ class SignalHandler(BaseSignalHandler):
 
     def ENTER(self):
         self.process_pid = os.getpid()
+
+    def handle_SIGINT(self):
+        """Transition to the EXITED state."""
+        self.bus.log("Keyboard interrupt caught. Exiting.")
+        self.bus.transition("EXITED")
 
 
 class ProcessControlPlugin(Monitor):
