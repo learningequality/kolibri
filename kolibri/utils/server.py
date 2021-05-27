@@ -277,17 +277,14 @@ class ServicesPlugin(SimplePlugin):
         register_zeroconf_service(port=port or self.port)
 
     def STOP(self):
-        from kolibri.core.tasks.main import scheduler
-
-        scheduler.shutdown_scheduler()
-        if self.workers is not None:
-            for worker in self.workers:
-                worker.shutdown()
         from kolibri.core.discovery.utils.network.search import (
             unregister_zeroconf_service,
         )
 
         unregister_zeroconf_service()
+        from kolibri.core.tasks.main import scheduler
+
+        scheduler.shutdown_scheduler()
 
         if self.workers is not None:
             for worker in self.workers:
