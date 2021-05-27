@@ -106,9 +106,6 @@ class MockZeroconf(Zeroconf):
     "kolibri.core.discovery.utils.network.search.get_device_info",
     return_value={"instance_id": MOCK_ID},
 )
-@mock.patch(
-    "kolibri.core.discovery.utils.network.search._is_port_open", lambda *a, **kw: True
-)
 @mock.patch("kolibri.core.discovery.utils.network.search.Zeroconf", MockZeroconf)
 @mock.patch(
     "kolibri.core.discovery.utils.network.search.get_all_addresses",
@@ -130,6 +127,13 @@ class TestNetworkSearch(TransactionTestCase):
         except TypeError:
             self.fail("Failed to parse info with bytes values")
         self.assertEqual(device_info["operating_system"], "كوليبري")
+
+    def test_call_parse_device_info_value_boolean(self, *mocks):
+        info_mock = mock.MagicMock()
+        info_mock.properties = MOCK_PROPERTIES.copy()
+        info_mock.properties[b"operating_system"] = '"FALSE"'
+        device_info = parse_device_info(info_mock)
+        self.assertEqual(device_info["operating_system"], False)
 
     def test_register_zeroconf_service(self, mock_db, get_device_mock):
         assert len(get_peer_instances()) == 0
@@ -159,6 +163,46 @@ class TestNetworkSearch(TransactionTestCase):
         assert len(get_peer_instances()) == 0
 
         mock_db.assert_called()
+
+    def test_data_validation_keys_int(self, *mocks):
+        with self.assertRaises(TypeError):
+            KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT, data={1: True})
+
+    def test_data_validation_keys_bool(self, *mocks):
+        with self.assertRaises(TypeError):
+            KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT, data={True: True})
+
+    def test_data_validation_keys_string(self, *mocks):
+        try:
+            KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT, data={"True": True})
+        except Exception:
+            self.fail("Using a string key for data raised an exception")
+
+    def test_data_validation_val_int(self, *mocks):
+        try:
+            KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT, data={"True": 1})
+        except Exception:
+            self.fail("Using an integer value for data raised an exception")
+
+    def test_data_validation_val_bool(self, *mocks):
+        try:
+            KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT, data={"True": True})
+        except Exception:
+            self.fail("Using a boolean value for data raised an exception")
+
+    def test_data_validation_val_string(self, *mocks):
+        try:
+            KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT, data={"True": "true"})
+        except Exception:
+            self.fail("Using a string value for data raised an exception")
+
+    def test_data_validation_val_dict(self, *mocks):
+        with self.assertRaises(TypeError):
+            KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT, data={"good": {}})
+
+    def test_data_validation_val_list(self, *mocks):
+        with self.assertRaises(TypeError):
+            KolibriZeroconfService(id=MOCK_ID, port=MOCK_PORT, data={"good": []})
 
     def test_naming_conflict(self, *mocks):
         assert not ZEROCONF_STATE["listener"]
