@@ -178,9 +178,8 @@ class TestServerServices(object):
 
             # Do we shutdown workers correctly?
             for mock_worker in services_plugin.workers:
-                assert mock_worker.shutdown.call_count == 2
+                assert mock_worker.shutdown.call_count == 1
                 assert mock_worker.mock_calls == [
-                    mock.call.shutdown(),
                     mock.call.shutdown(wait=True),
                 ]
 

@@ -277,17 +277,14 @@ class ServicesPlugin(SimplePlugin):
         register_zeroconf_service(port=port or self.port)
 
     def STOP(self):
-        from kolibri.core.tasks.main import scheduler
-
-        scheduler.shutdown_scheduler()
-        if self.workers is not None:
-            for worker in self.workers:
-                worker.shutdown()
         from kolibri.core.discovery.utils.network.search import (
             unregister_zeroconf_service,
         )
 
         unregister_zeroconf_service()
+        from kolibri.core.tasks.main import scheduler
+
+        scheduler.shutdown_scheduler()
 
         if self.workers is not None:
             for worker in self.workers:
@@ -324,7 +321,7 @@ class PIDPlugin(SimplePlugin):
             handler.priority = 10
             self.bus.subscribe(bus_status, handler)
 
-    def set_pid_file(self, status):
+    def set_pid_file(self, status, *args):
         """
         Writes a PID file in the format Kolibri parses
 
@@ -386,9 +383,9 @@ class SignalHandler(BaseSignalHandler):
 
         self.handlers.update(
             {
-                "SIGINT": self.handle_SIGTERM,
-                "CTRL_C_EVENT": self.handle_SIGTERM,
-                "CTRL_BREAK_EVENT": self.handle_SIGTERM,
+                "SIGINT": self.handle_SIGINT,
+                "CTRL_C_EVENT": self.handle_SIGINT,
+                "CTRL_BREAK_EVENT": self.handle_SIGINT,
             }
         )
 
@@ -404,6 +401,11 @@ class SignalHandler(BaseSignalHandler):
 
     def ENTER(self):
         self.process_pid = os.getpid()
+
+    def handle_SIGINT(self):
+        """Transition to the EXITED state."""
+        self.bus.log("Keyboard interrupt caught. Exiting.")
+        self.bus.transition("EXITED")
 
 
 class ProcessControlPlugin(Monitor):
