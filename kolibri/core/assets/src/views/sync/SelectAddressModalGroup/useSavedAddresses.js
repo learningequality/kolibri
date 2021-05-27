@@ -16,19 +16,17 @@ export default function useSavedAddresses(props, context) {
   const stage = ref('');
   const savedAddressesInitiallyFetched = ref(false);
 
-  function updateStage(newStage) {
-    set(stage, newStage);
-  }
+  const setStage = newStage => set(stage, newStage);
 
   function removeSavedAddress(id) {
-    updateStage(Stages.DELETING_ADDRESS);
+    setStage(Stages.DELETING_ADDRESS);
     return deleteAddress(id)
       .then(() => {
         set(
           addresses,
           get(addresses).filter(a => a.id !== id)
         );
-        updateStage(Stages.DELETING_SUCCESSFUL);
+        setStage(Stages.DELETING_SUCCESSFUL);
         context.emit('removed_address');
       })
       .catch(() => {
@@ -47,16 +45,16 @@ export default function useSavedAddresses(props, context) {
   });
 
   function refreshSavedAddressList() {
-    updateStage(Stages.FETCHING_ADDRESSES);
+    setStage(Stages.FETCHING_ADDRESSES);
     set(addresses, []);
     return fetchStaticAddresses(get(fetchAddressArgs))
       .then(addrs => {
         set(addresses, [...addrs]);
-        updateStage(Stages.FETCHING_SUCCESSFUL);
+        setStage(Stages.FETCHING_SUCCESSFUL);
         set(savedAddressesInitiallyFetched, true);
       })
       .catch(() => {
-        updateStage(Stages.FETCHING_FAILED);
+        setStage(Stages.FETCHING_FAILED);
       });
   }
 

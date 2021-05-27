@@ -5,6 +5,7 @@ import {
   onBeforeUnmount,
   getCurrentInstance,
 } from '@vue/composition-api';
+import { get, set, useIntervalFn } from '@vueuse/core';
 import { fetchDynamicAddresses } from './api';
 
 const Stages = Object.freeze({
@@ -17,7 +18,6 @@ export default function useDynamicAddresses(props) {
   const { fetchAddressArgs, discoverySpinnerTime } = props;
   const addresses = ref([]);
   const stage = ref('');
-  const intervalId = ref('');
   const discoveredAddressesInitiallyFetched = ref(false);
   const $parent = getCurrentInstance().proxy.$parent;
 
@@ -25,45 +25,51 @@ export default function useDynamicAddresses(props) {
     $parent.$emit(event, ...args);
   }
 
+  const setStage = newStage => set(stage, newStage);
+
   function discoverPeers() {
     parentEmit('started_peer_discovery');
-    stage.value = Stages.PEER_DISCOVERY_STARTED;
+    setStage(Stages.PEER_DISCOVERY_STARTED);
     return fetchDynamicAddresses(fetchAddressArgs)
       .then(devices => {
-        addresses.value = devices;
+        set(addresses, devices);
         parentEmit('finished_peer_discovery');
         setTimeout(() => {
-          stage.value = Stages.PEER_DISCOVERY_SUCCESSFUL;
+          setStage(Stages.PEER_DISCOVERY_SUCCESSFUL);
         }, discoverySpinnerTime);
-        discoveredAddressesInitiallyFetched.value = true;
+        set(discoveredAddressesInitiallyFetched, true);
       })
       .catch(() => {
         parentEmit('peer_discovery_failed');
-        stage.value = Stages.PEER_DISCOVERY_FAILED;
+        setStage(Stages.PEER_DISCOVERY_FAILED);
       });
   }
 
   // Start polling
+  const pollForPeers = useIntervalFn(
+    () => {
+      discoverPeers();
+    },
+    5000,
+    false
+  );
+
   onBeforeMount(() => {
     discoverPeers();
-    if (!intervalId.value) {
-      intervalId.value = setInterval(discoverPeers, 5000);
-    }
+    pollForPeers.resume();
   });
 
   // Stop polling
   onBeforeUnmount(() => {
-    if (intervalId.value) {
-      intervalId.value = clearInterval(intervalId.value);
-    }
+    pollForPeers.pause();
   });
 
   const discoveringPeers = computed(() => {
-    return stage.value === Stages.PEER_DISCOVERY_STARTED;
+    return get(stage) === Stages.PEER_DISCOVERY_STARTED;
   });
 
   const discoveryFailed = computed(() => {
-    return stage.value === Stages.PEER_DISCOVERY_FAILED;
+    return get(stage) === Stages.PEER_DISCOVERY_FAILED;
   });
 
   return {
