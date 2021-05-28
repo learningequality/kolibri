@@ -71,21 +71,32 @@ class DeviceSettings(models.Model):
 
     objects = DeviceSettingsManager()
 
+    # Has this device gone through initial setup yet?
     is_provisioned = models.BooleanField(default=False)
+    # What is the default language that Kolibri is displayed in for this device?
     language_id = models.CharField(
         max_length=15, default=settings.LANGUAGE_CODE, blank=True, null=True
     )
+    # What is the default facility for this device?
     default_facility = models.ForeignKey(
         Facility, on_delete=models.SET_NULL, blank=True, null=True
     )
+    # Where should we redirect to on first page load?
     landing_page = models.CharField(
         max_length=7, choices=LANDING_PAGE_CHOICES, default=LANDING_PAGE_SIGN_IN
     )
+    # Should users be able to browse content on this device without logging in?
     allow_guest_access = models.BooleanField(default=True)
+    # Should peer devices be able to import non-public channels from this device?
     allow_peer_unlisted_channel_import = models.BooleanField(default=False)
+    # Should learners be able to access resources that are not assigned to them on this device?
     allow_learner_unassigned_resource_access = models.BooleanField(default=True)
+    # What's the name of this device?
     name = models.CharField(max_length=50, default=get_device_hostname)
+    # Should this device allow browser sessions from non-localhost devices?
     allow_other_browsers_to_connect = models.BooleanField(default=app_is_enabled)
+    # Is this a device that only synchronizes data about a subset of users?
+    subset_of_users_device = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         self.pk = 1

@@ -1,10 +1,11 @@
 import json
 import logging
 import socket
-from contextlib import closing
 
 from django.core.exceptions import ValidationError
 from django.db import connection
+from six import integer_types
+from six import string_types
 from zeroconf import get_all_addresses
 from zeroconf import NonUniqueNameException
 from zeroconf import ServiceInfo
@@ -18,6 +19,8 @@ logger = logging.getLogger(__name__)
 
 SERVICE_TYPE = "Kolibri._sub._http._tcp.local."
 LOCAL_DOMAIN = "kolibri.local"
+TRUE = "TRUE"
+FALSE = "FALSE"
 
 ZEROCONF_STATE = {"zeroconf": None, "listener": None, "service": None}
 
@@ -29,12 +32,6 @@ def _id_from_name(name):
     return name.replace(SERVICE_TYPE, "").strip(".")
 
 
-def _is_port_open(host, port, timeout=1):
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
-        sock.settimeout(timeout)
-        return sock.connect_ex((host, port)) == 0
-
-
 class KolibriZeroconfService(object):
 
     info = None
@@ -42,7 +39,22 @@ class KolibriZeroconfService(object):
     def __init__(self, id, port=8080, data={}):
         self.id = id
         self.port = port
-        self.data = {key: json.dumps(val) for (key, val) in data.items()}
+        self.data = {}
+        for key, val in data.items():
+            if not isinstance(key, string_types):
+                raise TypeError("Keys for the service info properties must be strings")
+            if not isinstance(val, string_types + integer_types + (bool,)):
+                raise TypeError(
+                    "Values for the service info properties must be a string, an integer or a boolean"
+                )
+            if isinstance(val, bool):
+                # For some reason zeroconf coerces a JSON dumped boolean to a bool
+                # So we set this to a special value so as not to break old versions of Kolibri which
+                # will error when they try to json.loads a boolean value
+                # TODO: No longer json.dumps at all here - but this will require making the zeroconf
+                # info backwards incompatible with older versions of Kolibri
+                val = TRUE if val else FALSE
+            self.data[key] = json.dumps(val)
 
     def register(self):
 
@@ -107,6 +119,10 @@ def parse_device_info(info):
         if isinstance(val, bytes):
             val = val.decode("utf-8")
         obj[bytes.decode(key)] = json.loads(val)
+        if obj[bytes.decode(key)] == TRUE:
+            obj[bytes.decode(key)] = True
+        if obj[bytes.decode(key)] == FALSE:
+            obj[bytes.decode(key)] = False
     return obj
 
 

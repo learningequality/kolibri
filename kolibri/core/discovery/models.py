@@ -39,6 +39,7 @@ class NetworkLocation(models.Model):
     instance_id = models.CharField(max_length=32, blank=True)
     device_name = models.CharField(max_length=100, blank=True)
     operating_system = models.CharField(max_length=32, blank=True)
+    subset_of_users_device = models.BooleanField(default=False)
 
     # dates and times
     added = models.DateTimeField(auto_now_add=True, db_index=True)
