@@ -72,11 +72,6 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
   import ContentCard from './ContentCard';
 
-  if (!ContentCard.mixins) {
-    ContentCard.mixins = [];
-  }
-  ContentCard.mixins.push(responsiveElementMixin); //including because carousel breaks without it
-
   const contentCardWidth = 210;
   const gutterWidth = 20;
   const horizontalShadowOffset = 12;
