@@ -462,6 +462,16 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
         with self.assertRaises(ContentNode.DoesNotExist):
             assert ContentNode.objects.get(pk=obj_id)
 
+    def test_prerequisites_not_duplicated(self):
+        prereqs = ContentNode.has_prerequisite.through.objects.all().count()
+        channel = ChannelMetadata.objects.first()
+        # Decrement current channel version to ensure reimport
+        channel.version -= 1
+        channel.save()
+        self.set_content_fixture()
+        new_prereqs = ContentNode.has_prerequisite.through.objects.all().count()
+        self.assertEqual(prereqs, new_prereqs)
+
     def test_existing_localfiles_are_not_overwritten(self):
 
         with patch(
