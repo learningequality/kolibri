@@ -117,7 +117,7 @@ class ValuesViewsetOrderingFilter(OrderingFilter):
         return ordering
 
 
-class ReadOnlyValuesViewset(viewsets.ReadOnlyModelViewSet):
+class BaseValuesViewset(viewsets.GenericViewSet):
     """
     A viewset that uses a values call to get all model/queryset data in
     a single database query, rather than delegating serialization to a
@@ -125,7 +125,7 @@ class ReadOnlyValuesViewset(viewsets.ReadOnlyModelViewSet):
     """
 
     # A tuple of values to get from the queryset
-    values = None
+    # values = None
     # A map of target_key, source_key where target_key is the final target_key that will be set
     # and source_key is the key on the object retrieved from the values call.
     # Alternatively, the source_key can be a callable that will be passed the object and return
@@ -134,8 +134,8 @@ class ReadOnlyValuesViewset(viewsets.ReadOnlyModelViewSet):
     field_map = {}
 
     def __init__(self, *args, **kwargs):
-        viewset = super(ReadOnlyValuesViewset, self).__init__(*args, **kwargs)
-        if not isinstance(self.values, tuple):
+        viewset = super(BaseValuesViewset, self).__init__(*args, **kwargs)
+        if not hasattr(self, "values") or not isinstance(self.values, tuple):
             raise TypeError("values must be defined as a tuple")
         self._values = tuple(self.values)
         if not isinstance(self.field_map, dict):
@@ -205,6 +205,18 @@ class ReadOnlyValuesViewset(viewsets.ReadOnlyModelViewSet):
             list(map(self._map_fields, values_queryset or [])), queryset
         )
 
+    def serialize_object(self, **filter_kwargs):
+        queryset = self.get_queryset()
+        try:
+            filter_kwargs = filter_kwargs or self._get_lookup_filter()
+            return self.serialize(queryset.filter(**filter_kwargs))[0]
+        except IndexError:
+            raise Http404(
+                "No %s matches the given query." % queryset.model._meta.object_name
+            )
+
+
+class ListModelMixin(object):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -218,18 +230,14 @@ class ReadOnlyValuesViewset(viewsets.ReadOnlyModelViewSet):
 
         return Response(self.serialize(queryset))
 
-    def serialize_object(self, **filter_kwargs):
-        queryset = self.get_queryset()
-        try:
-            filter_kwargs = filter_kwargs or self._get_lookup_filter()
-            return self.serialize(queryset.filter(**filter_kwargs))[0]
-        except IndexError:
-            raise Http404(
-                "No %s matches the given query." % queryset.model._meta.object_name
-            )
 
+class RetrieveModelMixin(object):
     def retrieve(self, request, *args, **kwargs):
         return Response(self.serialize_object())
+
+
+class ReadOnlyValuesViewset(BaseValuesViewset, RetrieveModelMixin, ListModelMixin):
+    pass
 
 
 class CreateModelMixin(BaseCreateModelMixin):
