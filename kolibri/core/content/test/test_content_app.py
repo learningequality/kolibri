@@ -234,95 +234,92 @@ class ContentNodeAPITestCase(APITestCase):
         )
         self.assertEqual(response.data[0]["title"], "c2")
 
-    def _assert_nodes(self, data, nodes):
-        def map_language(lang):
-            if lang:
-                return {
-                    f: getattr(lang, f)
-                    for f in [
-                        "id",
-                        "lang_code",
-                        "lang_subcode",
-                        "lang_name",
-                        "lang_direction",
-                    ]
-                }
-
-        for actual, expected in zip(data, nodes):
-            assessmentmetadata = (
-                expected.assessmentmetadata.all()
-                .values(
-                    "assessment_item_ids",
-                    "number_of_assessments",
-                    "mastery_model",
-                    "randomize",
-                    "is_manipulable",
-                    "contentnode",
-                )
-                .first()
-            )
-            files = []
-            for f in expected.files.all():
-                "local_file__id",
-                "local_file__available",
-                "local_file__file_size",
-                "local_file__extension",
-                "lang_id",
-                file = {}
-                for field in [
+    def map_language(self, lang):
+        if lang:
+            return {
+                f: getattr(lang, f)
+                for f in [
                     "id",
-                    "priority",
-                    "preset",
-                    "supplementary",
-                    "thumbnail",
-                ]:
-                    file[field] = getattr(f, field)
-                file["checksum"] = f.local_file_id
-                for field in [
-                    "available",
-                    "file_size",
-                    "extension",
-                ]:
-                    file[field] = getattr(f.local_file, field)
-                file["lang"] = map_language(f.lang)
-                file["storage_url"] = f.get_storage_url()
-                files.append(file)
-            self.assertEqual(
-                actual,
-                {
-                    "id": expected.id,
-                    "available": expected.available,
-                    "author": expected.author,
-                    "channel_id": expected.channel_id,
-                    "coach_content": expected.coach_content,
-                    "content_id": expected.content_id,
-                    "description": expected.description,
-                    "kind": expected.kind,
-                    "lang": map_language(expected.lang),
-                    "license_description": expected.license_description,
-                    "license_name": expected.license_name,
-                    "license_owner": expected.license_owner,
-                    "num_coach_contents": expected.num_coach_contents,
-                    "options": expected.options,
-                    "parent": expected.parent_id,
-                    "sort_order": expected.sort_order,
-                    "title": expected.title,
-                    "lft": expected.lft,
-                    "rght": expected.rght,
-                    "tree_id": expected.tree_id,
-                    "ancestors": list(
-                        expected.get_ancestors().values(
-                            "id", "title", "lft", "rght", "tree_id"
-                        )
-                    ),
-                    "tags": list(
-                        expected.tags.all().values_list("tag_name", flat=True)
-                    ),
-                    "assessmentmetadata": assessmentmetadata,
-                    "is_leaf": expected.kind != "topic",
-                    "files": files,
-                },
+                    "lang_code",
+                    "lang_subcode",
+                    "lang_name",
+                    "lang_direction",
+                ]
+            }
+
+    def _assert_node(self, actual, expected):
+        assessmentmetadata = (
+            expected.assessmentmetadata.all()
+            .values(
+                "assessment_item_ids",
+                "number_of_assessments",
+                "mastery_model",
+                "randomize",
+                "is_manipulable",
+                "contentnode",
             )
+            .first()
+        )
+        files = []
+        for f in expected.files.all():
+            "local_file__id",
+            "local_file__available",
+            "local_file__file_size",
+            "local_file__extension",
+            "lang_id",
+            file = {}
+            for field in [
+                "id",
+                "priority",
+                "preset",
+                "supplementary",
+                "thumbnail",
+            ]:
+                file[field] = getattr(f, field)
+            file["checksum"] = f.local_file_id
+            for field in [
+                "available",
+                "file_size",
+                "extension",
+            ]:
+                file[field] = getattr(f.local_file, field)
+            file["lang"] = self.map_language(f.lang)
+            file["storage_url"] = f.get_storage_url()
+            files.append(file)
+        self.assertEqual(
+            actual,
+            {
+                "id": expected.id,
+                "available": expected.available,
+                "author": expected.author,
+                "channel_id": expected.channel_id,
+                "coach_content": expected.coach_content,
+                "content_id": expected.content_id,
+                "description": expected.description,
+                "kind": expected.kind,
+                "lang": self.map_language(expected.lang),
+                "license_description": expected.license_description,
+                "license_name": expected.license_name,
+                "license_owner": expected.license_owner,
+                "num_coach_contents": expected.num_coach_contents,
+                "options": expected.options,
+                "parent": expected.parent_id,
+                "sort_order": expected.sort_order,
+                "title": expected.title,
+                "lft": expected.lft,
+                "rght": expected.rght,
+                "tree_id": expected.tree_id,
+                "ancestors": list(expected.get_ancestors().values("id", "title")),
+                "tags": list(expected.tags.all().values_list("tag_name", flat=True)),
+                "assessmentmetadata": assessmentmetadata,
+                "is_leaf": expected.kind != "topic",
+                "files": files,
+            },
+        )
+
+    def _assert_nodes(self, data, nodes):
+        for actual, expected in zip(data, nodes):
+            self._assert_node(actual, expected)
 
     def test_contentnode_list(self):
         root = content.ContentNode.objects.get(title="root")
@@ -334,7 +331,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_contentnode_list_long(self):
         # This will make > 1000 nodes which should test our ancestor batching behaviour
-        builder = ChannelBuilder(levels=4)
+        builder = ChannelBuilder(num_children=10)
         builder.insert_into_default_db()
         content.ContentNode.objects.update(available=True)
         nodes = content.ContentNode.objects.filter(available=True)
@@ -343,6 +340,48 @@ class ContentNodeAPITestCase(APITestCase):
         response = self.client.get(reverse("kolibri:core:contentnode-list"))
         self.assertEqual(len(response.data), expected_output)
         self._assert_nodes(response.data, nodes)
+
+    def _recurse_and_assert(self, data, nodes, recursion_depth=0):
+        for actual, expected in zip(data, nodes):
+            children = actual.pop("children", None)
+            self._assert_node(actual, expected)
+            if children:
+                child_nodes = content.ContentNode.objects.filter(
+                    available=True, parent=expected
+                )
+                if children["more"] is None:
+                    self.assertEqual(len(child_nodes), len(children["results"]))
+                else:
+                    self.assertGreater(len(child_nodes), len(children["results"]))
+                    self.assertEqual(children["more"]["id"], expected.id)
+                    self.assertEqual(
+                        children["more"]["params"]["lft__gt"], child_nodes[24].rght
+                    )
+                    self.assertEqual(
+                        children["more"]["params"]["depth"], 2 - recursion_depth
+                    )
+                self._recurse_and_assert(
+                    children["results"],
+                    child_nodes,
+                    recursion_depth=recursion_depth + 1,
+                )
+
+    def test_contentnode_tree(self):
+        root = content.ContentNode.objects.get(title="root")
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
+        )
+        self._recurse_and_assert([response.data], [root])
+
+    def test_contentnode_tree_long(self):
+        builder = ChannelBuilder(levels=2, num_children=30)
+        builder.insert_into_default_db()
+        content.ContentNode.objects.all().update(available=True)
+        root = content.ContentNode.objects.get(id=builder.root_node["id"])
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
+        )
+        self._recurse_and_assert([response.data], [root])
 
     @mock.patch("kolibri.core.content.api.get_channel_stats_from_studio")
     def test_contentnode_granular_network_import(self, stats_mock):

@@ -5,6 +5,7 @@ from random import sample
 
 import requests
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
@@ -31,6 +32,7 @@ from rest_framework.decorators import list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.middleware import session_exempt
 from kolibri.core.content import models
@@ -383,11 +385,14 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
                 rght = item.get("rght")
                 tree_id = item.get("tree_id")
                 return list(
-                    filter(
-                        lambda x: x["lft"] < lft
-                        and x["rght"] > rght
-                        and x["tree_id"] == tree_id,
-                        ancestors,
+                    map(
+                        lambda x: {"id": x["id"], "title": x["title"]},
+                        filter(
+                            lambda x: x["lft"] < lft
+                            and x["rght"] > rght
+                            and x["tree_id"] == tree_id,
+                            ancestors,
+                        ),
                     )
                 )
 
@@ -717,6 +722,167 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
                 queryset = resume.dedupe_by_content_id(use_distinct=False)
 
         return Response(self.serialize(queryset))
+
+
+@method_decorator(cache_forever, name="dispatch")
+class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
+    # We fix the page size at 25 for a couple of reasons:
+    # 1. At this size the query appears to be relatively performant, and will deliver most of the tree
+    #    data to the frontend in a single query.
+    # 2. In the case where the tree topology means that this will not produce the full query, the limit of
+    #    25 immediate children and 25 grand children means that we are at most using 1 + 25 + 25 * 25 = 651
+    #    SQL parameters in the query to get the nodes for serialization - this means that we should not ever
+    #    run into an issue where we hit a SQL parameters limit in the queries in here.
+    # If we find that this page size is too high, we should lower it, but for the reasons noted above, we
+    # should not raise it.
+    page_size = 25
+
+    def consolidate(self, items, queryset):
+        if items:
+            return self.process_items(items, queryset)
+        return []
+
+    def validate_and_return_params(self, request):
+        depth = request.query_params.get("depth", 2)
+        lft__gt = request.query_params.get("lft__gt")
+
+        try:
+            depth = int(depth)
+            if 1 > depth or depth > 2:
+                raise ValueError
+        except ValueError:
+            raise ValidationError("Depth query parameter must have the value 1 or 2")
+
+        if lft__gt is not None:
+            try:
+                lft__gt = int(lft__gt)
+                if 1 > lft__gt:
+                    raise ValueError
+            except ValueError:
+                raise ValidationError(
+                    "lft__gt query parameter must be a positive integer if specified"
+                )
+        return depth, lft__gt
+
+    def get_grandchild_ids(self, child_ids, depth):
+        if depth == 2:
+            # Use this to keep track of how many grand children we have accumulated per child of the parent node
+            gc_by_parent = {}
+            # Iterate through the grand children of the parent node in lft order so we follow the tree traversal order
+            for gc in (
+                self.filter_queryset(self.get_queryset())
+                .filter(parent_id__in=child_ids)
+                .values("id", "parent_id")
+                .order_by("lft")
+            ):
+                # If we have not already added a list of nodes to the gc_by_parent map, initialize it here
+                if gc["parent_id"] not in gc_by_parent:
+                    gc_by_parent[gc["parent_id"]] = []
+                # If the number of grand children for a specific child node is less than the page size
+                # then we keep on adding them to both lists
+                # If not, we just skip this node, as we have already hit the page limit for the node that is
+                # its parent.
+                if len(gc_by_parent[gc["parent_id"]]) < self.page_size:
+                    gc_by_parent[gc["parent_id"]].append(gc["id"])
+                    yield gc["id"]
+
+    def retrieve(self, request, **kwargs):
+        """
+        A nested, paginated representation of the children and grandchildren of a specific node
+
+        :param request: request object
+        :param pk: id parent node
+        :return: an object representing the parent with a pagination object as "children"
+        """
+
+        # Get the model for the parent node here - we do this so that we trigger a 404 immediately if the node
+        # does not exist (or exists but is not available), and so that we have the Django model object later to
+        # use for the `get_ancestors` MPTT method.
+        parent_model = self.get_object()
+
+        depth, lft__gt = self.validate_and_return_params(request)
+
+        # Get a list of child_ids of the parent node up to the pagination limit
+        child_qs = self.get_queryset().filter(parent=parent_model)
+        if lft__gt is not None:
+            child_qs = child_qs.filter(lft__gt=lft__gt)
+        child_ids = child_qs.values_list("id", flat=True).order_by("lft")[
+            0 : self.page_size
+        ]
+
+        # Get a flat list of ids for grandchildren we will be returning
+        gc_ids = self.get_grandchild_ids(child_ids, depth)
+
+        # We explicitly order by lft here, so that the nodes are in tree traversal order, so we can iterate over them and build
+        # out our nested representation, being sure that any ancestors have already been processed.
+        nodes = self.serialize(
+            self.filter_queryset(self.get_queryset())
+            .filter(Q(id=parent_model.id) | Q(id__in=child_ids) | Q(id__in=gc_ids))
+            .order_by("lft")
+        )
+
+        # The serialized parent representation is the first node in the lft order
+        parent = nodes[0]
+
+        # Do a query to get the parent's ancestors - for all other nodes, we can manually build
+        # the ancestors from the tree topology that we already know!
+        parent["ancestors"] = list(parent_model.get_ancestors().values("id", "title"))
+
+        # Use this to keep track of direct children of the parent node
+        # this will allow us to do lookups for the grandchildren, in order
+        # to insert them into the "children" property
+        children_by_id = {}
+
+        # Iterate through all the descendants that we have serialized
+        for desc in nodes[1:]:
+            # First check to see whether it is a direct child of the
+            # parent node that we initially queried
+            if desc["parent"] == parent_model.id:
+                # If so add them to the children_by_id map so that
+                # grandchildren descendants can reference them later
+                children_by_id[desc["id"]] = desc
+                # The parent of this descendant is the parent node
+                # for this query
+                desc_parent = parent
+                more_depth = 2
+            elif desc["parent"] in children_by_id:
+                # Otherwise, check to see if our descendant's parent is in the
+                # children_by_id map - if it failed the first condition,
+                # it really should not fail this
+                desc_parent = children_by_id[desc["parent"]]
+                more_depth = 1
+            else:
+                # If we get to here, we have a node that is not in the tree subsection we are
+                # trying to return, so we just ignore it. This shouldn't happen.
+                continue
+            if "children" not in desc_parent:
+                # If the parent of the descendant does not already have its `children` property
+                # initialized, do so here.
+                desc_parent["children"] = {"results": [], "more": None}
+            # The ancestors field for the descendant will be its parents ancestors, plus its parent!
+            desc["ancestors"] = desc_parent["ancestors"] + [
+                {"id": desc_parent["id"], "title": desc_parent["title"]}
+            ]
+            # Add this descendant to the results for the children pagination object
+            desc_parent["children"]["results"].append(desc)
+            # Only bother updating the URL for more if we have hit the page size limit
+            # otherwise it will just continue to be None
+            if len(desc_parent["children"]["results"]) == self.page_size:
+                # Any subsequent queries to get siblings of this node can restrict themselves
+                # to looking for nodes with lft greater than the rght value of this descendant
+                lft__gt = desc["rght"]
+                # If the rght value of this descendant is exactly 1 less than the rght value of
+                # its parent, then there are no more children that can be queried.
+                # So only in this instance do we update the more URL
+                if desc["rght"] + 1 < desc_parent["rght"]:
+                    params = request.query_params.copy()
+                    params["lft__gt"] = lft__gt
+                    params["depth"] = more_depth
+                    desc_parent["children"]["more"] = {
+                        "id": desc_parent["id"],
+                        "params": params,
+                    }
+        return Response(parent)
 
 
 # return the result of and-ing a list of queries

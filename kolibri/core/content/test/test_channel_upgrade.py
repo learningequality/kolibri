@@ -52,8 +52,9 @@ class ChannelBuilder(object):
         "root_node",
     )
 
-    def __init__(self, levels=3):
+    def __init__(self, levels=3, num_children=5):
         self.levels = levels
+        self.num_children = num_children
 
         self.modified = set()
 
@@ -297,7 +298,7 @@ class ChannelBuilder(object):
 
     def recurse_and_generate(self, parent_id, levels):
         children = []
-        for i in range(0, 5):
+        for i in range(0, self.num_children):
             if levels == 0:
                 node = self.generate_leaf(parent_id)
             else:
