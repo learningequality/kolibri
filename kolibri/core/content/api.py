@@ -210,25 +210,6 @@ class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
     page_size_query_param = "page_size"
 
 
-def map_lang(obj):
-    keys = ["id", "lang_code", "lang_subcode", "lang_name", "lang_direction"]
-
-    lower_case = set(["id", "lang_code", "lang_subcode"])
-
-    output = {}
-
-    for key in keys:
-        output[key] = obj.pop("lang__" + key)
-        if key in lower_case and output[key]:
-            output[key] = output[key].lower()
-
-    if not any(output.values()):
-        # All keys are null so return None
-        return None
-
-    return output
-
-
 def map_file(file):
     file["checksum"] = file.pop("local_file__id")
     file["available"] = file.pop("local_file__available")
@@ -241,15 +222,17 @@ def map_file(file):
             "extension": file["extension"],
         }
     )
-    file["lang"] = map_lang(file)
     return file
 
 
-@method_decorator(cache_forever, name="dispatch")
-class ContentNodeViewset(ReadOnlyValuesViewset):
+class BaseContentNodeMixin(object):
+    """
+    A base mixin for viewsets that need to return the same format of data
+    serialization for ContentNodes.
+    """
+
     filter_backends = (DjangoFilterBackend,)
     filter_class = ContentNodeFilter
-    pagination_class = OptionalPageNumberPagination
 
     values = (
         "id",
@@ -260,12 +243,7 @@ class ContentNodeViewset(ReadOnlyValuesViewset):
         "content_id",
         "description",
         "kind",
-        # Language keys
-        "lang__id",
-        "lang__lang_code",
-        "lang__lang_subcode",
-        "lang__lang_name",
-        "lang__lang_direction",
+        "lang_id",
         "license_description",
         "license_name",
         "license_owner",
@@ -279,29 +257,28 @@ class ContentNodeViewset(ReadOnlyValuesViewset):
         "tree_id",
     )
 
-    field_map = {"lang": map_lang}
+    def get_queryset(self):
+        return models.ContentNode.objects.filter(available=True)
 
-    def consolidate(self, items, queryset):
-        output = []
+    def get_related_data_maps(self, items, queryset):
+        assessmentmetadata_map = {
+            a["contentnode"]: a
+            for a in models.AssessmentMetaData.objects.filter(
+                contentnode__in=queryset
+            ).values(
+                "assessment_item_ids",
+                "number_of_assessments",
+                "mastery_model",
+                "randomize",
+                "is_manipulable",
+                "contentnode",
+            )
+        }
 
-        if items:
-            assessmentmetadata = {
-                a["contentnode"]: a
-                for a in models.AssessmentMetaData.objects.filter(
-                    contentnode__in=queryset
-                ).values(
-                    "assessment_item_ids",
-                    "number_of_assessments",
-                    "mastery_model",
-                    "randomize",
-                    "is_manipulable",
-                    "contentnode",
-                )
-            }
+        files_map = {}
 
-            files = {}
-
-            for f in models.File.objects.filter(contentnode__in=queryset).values(
+        files = list(
+            models.File.objects.filter(contentnode__in=queryset).values(
                 "id",
                 "contentnode",
                 "local_file__id",
@@ -310,44 +287,102 @@ class ContentNodeViewset(ReadOnlyValuesViewset):
                 "local_file__file_size",
                 "local_file__extension",
                 "preset",
-                "lang__id",
-                "lang__lang_code",
-                "lang__lang_subcode",
-                "lang__lang_name",
-                "lang__lang_direction",
+                "lang_id",
                 "supplementary",
                 "thumbnail",
-            ):
-                if f["contentnode"] not in files:
-                    files[f["contentnode"]] = []
-                files[f["contentnode"]].append(map_file(f))
-
-            ancestors = queryset.get_ancestors().values(
-                "id", "title", "lft", "rght", "tree_id"
             )
+        )
 
-            tags = {}
+        lang_ids = set([obj["lang_id"] for obj in items + files])
 
-            for t in models.ContentTag.objects.filter(
-                tagged_content__in=queryset
-            ).values(
-                "tag_name",
-                "tagged_content",
-            ):
-                if t["tagged_content"] not in tags:
-                    tags[t["tagged_content"]] = [t["tag_name"]]
-                else:
-                    tags[t["tagged_content"]].append(t["tag_name"])
+        languages_map = {
+            lang["id"]: lang
+            for lang in models.Language.objects.filter(id__in=lang_ids).values(
+                "id", "lang_code", "lang_subcode", "lang_name", "lang_direction"
+            )
+        }
 
-            for item in items:
-                item["assessmentmetadata"] = assessmentmetadata.get(item["id"])
-                item["tags"] = tags.get(item["id"], [])
-                item["files"] = files.get(item["id"], [])
+        for f in files:
+            contentnode_id = f.pop("contentnode")
+            if contentnode_id not in files_map:
+                files_map[contentnode_id] = []
+            lang_id = f.pop("lang_id")
+            f["lang"] = languages_map.get(lang_id)
+            files_map[contentnode_id].append(map_file(f))
 
-                lft = item.pop("lft")
-                rght = item.pop("rght")
-                tree_id = item.pop("tree_id")
-                item["ancestors"] = list(
+        tags_map = {}
+
+        for t in models.ContentTag.objects.filter(tagged_content__in=queryset).values(
+            "tag_name",
+            "tagged_content",
+        ):
+            if t["tagged_content"] not in tags_map:
+                tags_map[t["tagged_content"]] = [t["tag_name"]]
+            else:
+                tags_map[t["tagged_content"]].append(t["tag_name"])
+
+        return assessmentmetadata_map, files_map, languages_map, tags_map
+
+    def process_items(self, items, queryset, ancestor_lookup_method=None):
+        output = []
+        assessmentmetadata, files_map, languages_map, tags = self.get_related_data_maps(
+            items, queryset
+        )
+        for item in items:
+            item["assessmentmetadata"] = assessmentmetadata.get(item["id"])
+            item["tags"] = tags.get(item["id"], [])
+            item["files"] = files_map.get(item["id"], [])
+            lang_id = item.pop("lang_id")
+            item["lang"] = languages_map.get(lang_id)
+            if ancestor_lookup_method:
+                item["ancestors"] = ancestor_lookup_method(item)
+            item["is_leaf"] = item.get("kind") != content_kinds.TOPIC
+            output.append(item)
+        return output
+
+
+@method_decorator(cache_forever, name="dispatch")
+class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
+    pagination_class = OptionalPageNumberPagination
+
+    def consolidate(self, items, queryset):
+        if items:
+
+            # We need to batch our queries for ancestors as the size of the expression tree
+            # depends on the number of nodes that we are querying for.
+            ANCESTOR_BATCH_SIZE = 1000
+
+            if len(items) > ANCESTOR_BATCH_SIZE:
+
+                ancestors_map = {}
+
+                for i in range(0, len(items), ANCESTOR_BATCH_SIZE):
+
+                    for anc in (
+                        models.ContentNode.objects.filter(
+                            id__in=[
+                                item["id"]
+                                for item in items[i : i + ANCESTOR_BATCH_SIZE]
+                            ]
+                        )
+                        .get_ancestors()
+                        .values("id", "title", "lft", "rght", "tree_id")
+                    ):
+                        ancestors_map[anc["id"]] = anc
+
+                ancestors = sorted(ancestors_map.values(), key=lambda x: x["lft"])
+            else:
+                ancestors = list(
+                    queryset.get_ancestors()
+                    .values("id", "title", "lft", "rght", "tree_id")
+                    .order_by("lft")
+                )
+
+            def ancestor_lookup(item):
+                lft = item.get("lft")
+                rght = item.get("rght")
+                tree_id = item.get("tree_id")
+                return list(
                     filter(
                         lambda x: x["lft"] < lft
                         and x["rght"] > rght
@@ -355,12 +390,10 @@ class ContentNodeViewset(ReadOnlyValuesViewset):
                         ancestors,
                     )
                 )
-                item["is_leaf"] = item.get("kind") != content_kinds.TOPIC
-                output.append(item)
-        return output
 
-    def get_queryset(self):
-        return models.ContentNode.objects.filter(available=True)
+            return self.process_items(items, queryset, ancestor_lookup)
+
+        return []
 
     @list_route(methods=["get"])
     def descendants(self, request):
