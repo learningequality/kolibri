@@ -6,8 +6,8 @@ import SCORM from './SCORM';
 import Kolibri from './kolibri';
 import patchIndexedDB from './patchIndexedDB';
 import { events, nameSpace } from './hashiBase';
-import H5P from './H5P';
-import xAPI from './xAPI';
+import H5P from './H5P/H5PInterface';
+import xAPI from './xAPI/xAPIInterface';
 
 /*
  * This class is initialized inside the context of a sandboxed iframe.
@@ -136,7 +136,7 @@ export default class SandboxEnvironment {
     this.iframe.height = '100%';
     document.body.appendChild(this.iframe);
     if (startUrl.indexOf('.h5p') === startUrl.length - 4) {
-      this.H5P.init(this.iframe, startUrl, this.contentNamespace);
+      this.H5P.init(this.iframe, startUrl);
     } else {
       this.iframe.src = startUrl;
     }

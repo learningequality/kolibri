@@ -1,9 +1,9 @@
 import Mediator from './mediator';
 import LocalStorage from './localStorage';
 import Cookie from './cookie';
-import H5P from './H5P';
+import H5P from './H5P/H5PInterface';
 import SCORM from './SCORM';
-import xAPI from './xAPI';
+import xAPI from './xAPI/xAPIInterface';
 import { events, nameSpace, DataTypes } from './hashiBase';
 import Kolibri from './kolibri';
 

@@ -5,11 +5,10 @@ import set from 'lodash/set';
 import debounce from 'lodash/debounce';
 import unset from 'lodash/unset';
 import Toposort from 'toposort-class';
-import { filename as H5PFilename } from '../h5p_build.json';
-import BaseShim from './baseShim';
+import { filename as H5PFilename } from '../../h5p_build.json';
+import mimetypes from '../mimetypes.json';
+import { XAPIVerbMap } from '../xAPI/xAPIVocabulary';
 import loadBinary from './loadBinary';
-import mimetypes from './mimetypes.json';
-import { XAPIVerbMap } from './xAPIVocabulary';
 
 const CONTENT_ID = '1234567890';
 
@@ -87,18 +86,11 @@ export function replacePaths(dep, packageFiles) {
   });
 }
 
-export default class H5P extends BaseShim {
-  constructor(mediator) {
-    super(mediator);
-    this.data = {};
-    this.userData = {};
-    this.nameSpace = 'H5P';
-    // Bind this to ensure that we don't end up with unpredictable this.
-    this.__setData = this.__setData.bind(this);
-    this.__setUserData = this.__setUserData.bind(this);
+export default class H5PRunner {
+  constructor(shim) {
+    this.shim = shim;
+    this.data = shim.data;
     this.scriptLoader = this.scriptLoader.bind(this);
-    this.on(this.events.STATEUPDATE, this.__setData);
-    this.on(this.events.USERDATAUPDATE, this.__setUserData);
   }
 
   init(iframe, filepath) {
@@ -181,12 +173,8 @@ export default class H5P extends BaseShim {
       });
   }
 
-  __setData(data = {}) {
-    this.data = data;
-  }
-
-  __setUserData(userData = {}) {
-    this.userData = userData;
+  stateUpdated() {
+    this.shim.stateUpdated();
   }
 
   /*
@@ -338,11 +326,10 @@ export default class H5P extends BaseShim {
   }
 
   /*
-   * Called by Hashi when the iframe is ready
    * This will setup the H5PIntegration property that H5P then uses
    * to configure itself.
    */
-  iframeInitialize(contentWindow) {
+  shimH5PIntegration(contentWindow) {
     const self = this;
     this.integrationShim = {
       get contents() {

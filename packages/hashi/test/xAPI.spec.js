@@ -14,7 +14,7 @@ import {
   SubStatement,
   xAPIValidationError,
   Verb,
-} from '../src/xAPI';
+} from '../src/xAPI/xAPISchema';
 import { SampleStatements, SampleObjects, SampleActivityDefinitions } from './xapidata';
 
 const mbox = 'mailto:test@test.com';

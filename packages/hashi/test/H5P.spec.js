@@ -1,4 +1,4 @@
-import { replacePaths } from '../src/H5P';
+import { replacePaths } from '../src/H5P/H5PRunner';
 
 describe('H5P Path replacement', () => {
   describe('CSS path replacement', () => {
