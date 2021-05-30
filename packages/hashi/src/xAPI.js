@@ -1262,6 +1262,9 @@ export default class xAPI extends BaseShim {
       if (!statements[i].timestamp) {
         statements[i].timestamp = this.__now().toISOString();
       }
+      // We do not currently support attachments, so remove them before
+      // saving.
+      delete statements[i].attachments;
     }
     this.data[STATEMENT] = this.data[STATEMENT] || [];
     this.data[STATEMENT].unshift(...statements.reverse());
@@ -1331,7 +1334,7 @@ export default class xAPI extends BaseShim {
           statement.timestamp = self.__now().toISOString();
         }
       }
-      sendStatement(statement) {
+      sendStatement(statement, compress = false) {
         return new Promise((resolve, reject) => {
           this.prepareStatement(statement);
           try {
@@ -1339,6 +1342,18 @@ export default class xAPI extends BaseShim {
           } catch (e) {
             reject(e);
             return;
+          }
+          if (compress) {
+            // If we are compressing, then remove things that we
+            // can probably reconstruct
+            delete statement.actor;
+            delete statement.authority;
+            if (
+              !statement.object.objectType ||
+              statement.object.objectType === OBJECT_TYPES.ACTIVITY
+            ) {
+              delete statement.object;
+            }
           }
           self.storeStatements(statement);
           self.stateUpdated();

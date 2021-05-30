@@ -11,6 +11,8 @@ import loadBinary from './loadBinary';
 import mimetypes from './mimetypes.json';
 import { XAPIVerbMap } from './xAPIVocabulary';
 
+const CONTENT_ID = '1234567890';
+
 // Verbs that we simply will not report on.
 const doNotLogVerbs = [
   'downloaded',
@@ -91,13 +93,15 @@ export default class H5P extends BaseShim {
     this.data = {};
     this.userData = {};
     this.nameSpace = 'H5P';
+    // Bind this to ensure that we don't end up with unpredictable this.
     this.__setData = this.__setData.bind(this);
     this.__setUserData = this.__setUserData.bind(this);
+    this.scriptLoader = this.scriptLoader.bind(this);
     this.on(this.events.STATEUPDATE, this.__setData);
     this.on(this.events.USERDATAUPDATE, this.__setUserData);
   }
 
-  init(iframe, filepath, contentNamespace) {
+  init(iframe, filepath) {
     // An array of the H5P package dependencies for this library
     // This is not a sorted list, but the result of recursing through
     this.dependencies = [];
@@ -124,8 +128,6 @@ export default class H5P extends BaseShim {
     this.contentJson = '';
     // The entry point package for this H5P file - the 'top level' library.
     this.library = null;
-    // Bind this to ensure that we don't end up with unpredictable this.
-    this.scriptLoader = this.scriptLoader.bind(this);
     // Maps of JS paths and CSS paths to quickly check if a JS or CSS file is loaded
     // we could store this as an array, but this lets us potentially monkey
     // patch H5P in the future for more efficient look ups.
@@ -141,9 +143,9 @@ export default class H5P extends BaseShim {
     this.iframe.src = `../h5p/${H5PFilename}`;
     // This is the path to the H5P file which we load in its entirety.
     this.filepath = filepath;
-    // Currently the node id - we use this for generating the H5P ids,
+    // Set this to a dummy value - we use this for generating the H5P ids,
     // and for logging xAPI statements about the content.
-    this.contentNamespace = contentNamespace;
+    this.contentNamespace = CONTENT_ID;
     // First load the full H5P file as binary so we can read it using JSZip
     loadBinary(this.filepath)
       .then(JSZip.loadAsync)
@@ -308,7 +310,7 @@ export default class H5P extends BaseShim {
       const verb = XAPIVerbMap[debounceVerbs[i]];
       debouncedHandlers[verb] = debounce(
         function(statement) {
-          contentWindow.xAPI.sendStatement(statement).catch(err => {
+          contentWindow.xAPI.sendStatement(statement, true).catch(err => {
             console.error('Statement: ', statement, 'gave the following error: ', err);
           });
         },
@@ -327,7 +329,7 @@ export default class H5P extends BaseShim {
         } else if (debouncedHandlers[statement.verb.id]) {
           debouncedHandlers[statement.verb.id](statement);
         } else {
-          contentWindow.xAPI.sendStatement(event.data.statement).catch(err => {
+          contentWindow.xAPI.sendStatement(event.data.statement, true).catch(err => {
             console.error('Statement: ', statement, 'gave the following error: ', err);
           });
         }
