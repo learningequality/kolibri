@@ -193,6 +193,7 @@ class SyncQueue(models.Model):
     """
 
     key = UUIDField(default=uuid4)
+    instance_id = UUIDField(null=False, unique=True)
     facility = models.ForeignKey(Facility, on_delete=models.CASCADE, null=False)
     datetime = models.DateTimeField(auto_now_add=True)
     updated = models.FloatField(default=time.time)

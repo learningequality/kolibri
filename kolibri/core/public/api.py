@@ -8,17 +8,20 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotFound
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .. import error_constants
 from .utils import get_device_info
+from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.serializers import PublicChannelSerializer
 from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
+from kolibri.core.device.models import SyncQueue
 from kolibri.core.device.utils import allow_peer_unlisted_channel_import
 
 
@@ -146,3 +149,34 @@ def get_public_file_checksums(request, version):
         json.dumps({"id": error_constants.NOT_FOUND, "metadata": {"view": ""}}),
         content_type="application/json",
     )
+
+
+class SyncQueueViewSet(viewsets.ViewSet):
+    def list(self, request):
+        """Returns length of the queue for each of the available facilities"""
+        SyncQueue.clean_stale()  # first, ensure not expired devices are in the queue
+        facilities = Facility.objects.all()
+        queue = {}
+        for facility in facilities:
+            queue[facility.id] = SyncQueue.objects.filter(facility=facility).count()
+        return Response(queue)
+
+    def create(self, request):
+        device_info = get_device_info()
+        if device_info["subset_of_users_device"]:
+            content = {"I'm a Subset of users device": "Nothing to do here"}
+            # would love to use HTTP 418, but it's not fully usable in browsers
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+        facility = request.data.get("facility")
+        instance_id = request.data.get("instance_id")
+        if facility is None or instance_id is None:
+            content = {
+                "Missing parameter(s)": "Both facility and instance_id are required"
+            }
+            return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+        print("create")
+
+    def update(self, request, pk=None):
+        print("update")
