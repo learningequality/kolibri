@@ -184,3 +184,26 @@ class SQLiteLock(models.Model):
     def save(self, *args, **kwargs):
         self.pk = 1
         super(SQLiteLock, self).save(*args, **kwargs)
+
+
+class SyncQueue(models.Model):
+    """
+    This class maintains the queue of the devices that try to sync
+    with this server
+    """
+
+    key = UUIDField(default=uuid4)
+    facility = models.ForeignKey(Facility, on_delete=models.CASCADE, null=False)
+    datetime = models.DateTimeField(auto_now_add=True)
+    updated = models.FloatField(default=time.time)
+    # polling interval is 5 seconds by default
+    keep_alive = models.FloatField(default=5.0)
+
+    @classmethod
+    def clean_stale(cls, expire=180.0):
+        """
+        This method will delete all the devices from the queue
+        with the expire time (in seconds) exhausted
+        """
+        staled_time = time.time() - expire
+        cls.objects.filter(updated__lte=staled_time).delete()
