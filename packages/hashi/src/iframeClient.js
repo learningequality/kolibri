@@ -40,6 +40,8 @@ export default class SandboxEnvironment {
 
     this.mutationObserver = new MutationObserver(this.resize);
 
+    this.lastSentHeight = null;
+
     // We initialize SCORM here, as the usual place for SCORM
     // to look for its API is window.parent.
     this.SCORM.iframeInitialize(window);
@@ -105,14 +107,16 @@ export default class SandboxEnvironment {
 
   resize() {
     if (this.iframe && this.iframe.contentDocument.body) {
+      const documentHeight = this.iframe.contentDocument.documentElement.scrollHeight;
       if (
-        this.iframe.contentDocument.documentElement.scrollHeight >
-        this.iframe.getBoundingClientRect().height
+        documentHeight > this.iframe.getBoundingClientRect().height &&
+        documentHeight !== this.lastSentHeight
       ) {
+        this.lastSentHeight = documentHeight;
         this.mediator.sendMessage({
           nameSpace,
           event: events.RESIZE,
-          data: this.iframe.contentDocument.documentElement.scrollHeight,
+          data: documentHeight,
         });
       }
     }
