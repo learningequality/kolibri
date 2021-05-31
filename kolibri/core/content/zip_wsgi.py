@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import json
+import libzim.reader
 import logging
 import mimetypes
 import os
@@ -35,6 +36,7 @@ from kolibri.core.content.utils.paths import get_hashi_base_path
 from kolibri.core.content.utils.paths import get_hashi_html_filename
 from kolibri.core.content.utils.paths import get_hashi_js_filename
 from kolibri.core.content.utils.paths import get_hashi_path
+from kolibri.core.content.utils.paths import get_zim_content_base_path
 from kolibri.core.content.utils.paths import get_zip_content_base_path
 
 
@@ -318,7 +320,7 @@ def get_embedded_file(zipped_path, zipped_filename, embedded_filepath):
         return response
 
 
-path_regex = re.compile("/(?P<zipped_filename>[^/]+)/(?P<embedded_filepath>.*)")
+zip_content_path_regex = re.compile("/(?P<zipped_filename>[^/]+)/(?P<embedded_filepath>.*)")
 
 
 def get_zipped_file_path(zipped_filename):
@@ -337,7 +339,7 @@ def _zip_content_from_request(request):
     if request.method not in allowed_methods:
         return HttpResponseNotAllowed(allowed_methods)
 
-    match = path_regex.match(request.path_info)
+    match = zip_content_path_regex.match(request.path_info)
     if match is None:
         return HttpResponseNotFound("Path not found")
 
@@ -413,10 +415,70 @@ def zip_content_view(environ, start_response):
     return django_response_to_wsgi(response, environ, start_response)
 
 
+zim_content_path_regex = re.compile("/(?P<zim_filename>[^/]+)/(?P<zim_path>.*)")
+
+
+def get_zim_content_response(zim_filename, zim_path):
+    zim_file = libzim.reader.File(zim_filename)
+    zim_article = zim_file.get_article(zim_path)
+    # TODO: It would be better to use StreamingHttpResponse or FileResponse
+    #       here. We are copying the entire file for now for simplicity since
+    #       we may use a different Zim implementation in the near future.
+    response = HttpResponse()
+    response.write(zim_article.content.tobytes())
+    response["Content-Length"] = zim_article.content.nbytes
+    return response
+
+
+def _zim_content_from_request(request):
+    if request.method not in allowed_methods:
+        return HttpResponseNotAllowed(allowed_methods)
+
+    match = zim_content_path_regex.match(request.path_info)
+    if match is None:
+        return HttpResponseNotFound("Path not found")
+
+    if request.method == "OPTIONS":
+        return HttpResponse()
+
+    zim_filename, zim_path = match.groups()
+
+    if request.META.get("HTTP_IF_MODIFIED_SINCE"):
+        return HttpResponseNotModified()
+
+    response = get_zim_content_response(zim_filename, zim_path)
+
+    # ensure the browser knows not to try byte-range requests, as we don't support them here
+    response["Accept-Ranges"] = "none"
+
+    response["Last-Modified"] = http_date(time.time())
+
+    patch_response_headers(response, cache_timeout=YEAR_IN_SECONDS)
+
+    return response
+
+
+def generate_zim_content_response(environ):
+    request = WSGIRequest(environ)
+    response = _zim_content_from_request(request)
+    add_security_headers(request, response)
+    return response
+
+
+def zim_content_view(environ, start_response):
+    """
+    Handles GET requests and serves content from within the zim file.
+    """
+    response = generate_zim_content_response(environ)
+
+    return django_response_to_wsgi(response, environ, start_response)
+
+
 def get_application():
     path_map = {
         get_hashi_base_path(): hashi_view,
         get_zip_content_base_path(): zip_content_view,
+        get_zim_content_base_path(): zim_content_view,
     }
 
     return wsgi.PathInfoDispatcher(path_map)

@@ -257,6 +257,8 @@ HASHI = "hashi/"
 
 ZIPCONTENT = "zipcontent/"
 
+ZIMCONTENT = "zimcontent/"
+
 
 def get_zip_content_config():
     zip_content_origin = conf.OPTIONS["Deployment"]["ZIP_CONTENT_ORIGIN"]
@@ -309,6 +311,10 @@ def get_hashi_base_path():
 
 def get_hashi_path():
     return "{}{}{}".format(zip_content_path_prefix(), HASHI, get_hashi_html_filename())
+
+
+def get_zim_content_base_path():
+    return "{}{}".format(zip_content_path_prefix(), ZIMCONTENT)
 
 
 def zip_content_static_root():
