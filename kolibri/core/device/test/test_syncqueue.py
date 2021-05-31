@@ -113,3 +113,4 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert response.data["action"] == QUEUED
         assert "key" in response.data
+        assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 1
