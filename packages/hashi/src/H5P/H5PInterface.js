@@ -14,8 +14,7 @@ export default class H5P extends BaseShim {
   }
 
   init(iframe, filepath) {
-    require.ensure('./H5PRunner', require => {
-      const H5PRunner = require('./H5PRunner').default;
+    import(/* webpackChunkName: "H5PRunner" */ './H5PRunner').then(({ default: H5PRunner }) => {
       this.H5PRunner = new H5PRunner(this);
       this.H5PRunner.init(iframe, filepath);
     });

@@ -31,6 +31,7 @@ module.exports = {
   entry: path.resolve(__dirname, './src/iframe.js'),
   output: {
     filename: 'hashiframe-[contenthash].js',
+    chunkFilename: '[name]-[contenthash].bundle.js',
     path: path.resolve(__dirname, '../../kolibri/core/content/static/hashi'),
   },
   mode: 'none',
@@ -45,6 +46,11 @@ module.exports = {
         },
       },
     ],
+  },
+  optimization: {
+    splitChunks: {
+      minChunks: 2,
+    },
   },
   plugins: [
     new Plugin(),

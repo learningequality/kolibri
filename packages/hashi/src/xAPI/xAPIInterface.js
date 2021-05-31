@@ -276,8 +276,9 @@ export default class xAPI extends BaseShim {
       }
       sendStatement(statement, compress = false) {
         return new Promise((resolve, reject) => {
-          return require.ensure('./xAPISchema', require => {
-            const { Statement } = require('./xAPISchema');
+          return import(
+            /* webpackChunkName: "xAPISchema", webpackPrefetch: true */ './xAPISchema'
+          ).then(({ Statement }) => {
             this.prepareStatement(statement);
             try {
               statement = Statement.clean(statement);
