@@ -8,6 +8,7 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotFound
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
+from morango.models.core import TransferSession
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
@@ -23,6 +24,10 @@ from kolibri.core.content.serializers import PublicChannelSerializer
 from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.device.utils import allow_peer_unlisted_channel_import
+
+MAX_CONCURRENT_SYNCS = 10
+SYNC = "sync"  # can begin a sync right now
+QUEUED = "queued"  # request added to the queue
 
 
 class InfoViewSet(viewsets.ViewSet):
@@ -162,6 +167,8 @@ class SyncQueueViewSet(viewsets.ViewSet):
         return Response(queue)
 
     def create(self, request):
+        SyncQueue.clean_stale()  # first, ensure not expired devices are in the queue
+
         device_info = get_device_info()
         if device_info["subset_of_users_device"]:
             content = {"I'm a Subset of users device": "Nothing to do here"}
@@ -176,7 +183,25 @@ class SyncQueueViewSet(viewsets.ViewSet):
             }
             return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-        print("create")
+        if not Facility.objects.filter(id=facility).exists():
+            content = {"This device is not registered in any of this server facilities"}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+        current_transfers = TransferSession.objects.filter(active=True).count()
+
+        if current_transfers <= MAX_CONCURRENT_SYNCS:
+            data = {"action": SYNC}
+        else:
+            element, _ = SyncQueue.objects.get_or_create(
+                facility_id=facility, instance_id=instance_id
+            )
+            data = {
+                "action": QUEUED,
+                "keep_alive": element.keep_alive,
+                "key": element.key,
+            }
+
+        return Response(data)
 
     def update(self, request, pk=None):
-        print("update")
+        SyncQueue.clean_stale()  # first, ensure not expired devices are in the queue

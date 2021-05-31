@@ -9,6 +9,9 @@ from rest_framework.test import APITestCase
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.device.models import SyncQueue
+from kolibri.core.public.api import MAX_CONCURRENT_SYNCS
+from kolibri.core.public.api import QUEUED
+from kolibri.core.public.api import SYNC
 
 
 class SyncQueueTestBase(TestCase):
@@ -17,7 +20,7 @@ class SyncQueueTestBase(TestCase):
 
     def test_create_queue_element(self):
         previous_time = time.time()
-        element, created = SyncQueue.objects.get_or_create(
+        element, _ = SyncQueue.objects.get_or_create(
             facility=self.facility, instance_id=uuid4()
         )
         assert element.keep_alive == 5.0
@@ -67,7 +70,7 @@ class SyncQueueViewSetAPITestCase(APITestCase):
     )
     def test_soud(self, mock_device_info):
         response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"), {"facility": "1"}, format="json"
+            reverse("kolibri:core:syncqueue-list"), {"facility": uuid4()}, format="json"
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert "I'm a Subset of users device" in response.data
@@ -77,3 +80,36 @@ class SyncQueueViewSetAPITestCase(APITestCase):
             reverse("kolibri:core:syncqueue-list"), {"facility": "1"}, format="json"
         )
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue-list"), {"instance_id": "1"}, format="json"
+        )
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def test_existing_facility(self):
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue-list"),
+            {"instance_id": "1", "facility": uuid4()},
+            format="json",
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_allow_sync(self):
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue-list"),
+            {"instance_id": "1", "facility": self.default_facility.id},
+            format="json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["action"] == SYNC
+
+    @mock.patch("kolibri.core.public.api.TransferSession.objects.filter")
+    def test_enqueued(self, _filter):
+        _filter().count.return_value = MAX_CONCURRENT_SYNCS + 1
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue-list"),
+            {"instance_id": uuid4(), "facility": self.default_facility.id},
+            format="json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["action"] == QUEUED
+        assert "key" in response.data
