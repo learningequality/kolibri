@@ -9,7 +9,9 @@ var rimraf = require('rimraf');
 
 const purger = new PurgeCSS();
 
-const zipUrl = 'https://codeload.github.com/h5p/h5p-php-library/zip/refs/heads/master';
+const h5pVersion = '1.24.2';
+
+const zipUrl = `https://codeload.github.com/h5p/h5p-php-library/zip/refs/tags/${h5pVersion}`;
 
 const targetFolder = path.resolve(__dirname, './vendor/h5p');
 
@@ -55,7 +57,7 @@ function downloadFiles() {
                 zip.file(fileRegex).map(file => {
                   const outputPath = path.resolve(
                     targetFolder,
-                    file.name.replace('h5p-php-library-master/', '')
+                    file.name.replace(/h5p-php-library-[^/]+\//, '')
                   );
                   mkdirp.sync(path.dirname(outputPath));
                   return new Promise(resolve => {
