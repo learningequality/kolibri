@@ -129,7 +129,10 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
         {
           test: /\.js$/,
           loader: 'babel-loader',
-          exclude: /(node_modules\/vue|dist)/,
+          exclude: {
+            test: /(node_modules\/vue|dist|core-js)/,
+            not: [/\.(esm\.js|mjs)$/],
+          },
         },
         {
           test: /\.css$/,

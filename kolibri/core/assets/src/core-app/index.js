@@ -2,6 +2,7 @@
  * Provides the public API for the Kolibri FrontEnd core app.
  * @module Facade
  */
+import 'core-js';
 import '../styles/main.scss';
 import urls from 'kolibri.urls';
 import * as theme from 'kolibri-design-system/lib/styles/theme';
