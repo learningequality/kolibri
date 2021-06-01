@@ -137,9 +137,12 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         element = SyncQueue.objects.create(
             facility=self.default_facility, instance_id=uuid4()
         )
+        previous_time = element.updated
         response = self.client.put(
             reverse("kolibri:core:syncqueue-detail", kwargs={"pk": element.key})
         )
+        element = SyncQueue.objects.get(key=element.key)
+        assert element.updated > previous_time
         assert response.status_code == status.HTTP_200_OK
         assert response.data["action"] == QUEUED
         assert response.data["key"] == element.key

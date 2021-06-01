@@ -1,6 +1,7 @@
 import gzip
 import io
 import json
+import time
 
 from django.db.models import Q
 from django.http import HttpResponse
@@ -230,6 +231,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
                 }
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
             element.keep_alive = data["keep_alive"]
+            element.updated = time.time()
             element.save()
             data["key"] = element.key
         else:
