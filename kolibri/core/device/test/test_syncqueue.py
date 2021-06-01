@@ -114,3 +114,33 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         assert response.data["action"] == QUEUED
         assert "key" in response.data
         assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 1
+
+    def test_update(self):
+        response = self.client.put(
+            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": uuid4()})
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["action"] == SYNC
+
+    @mock.patch("kolibri.core.public.api.TransferSession.objects.filter")
+    def test_not_in_queue(self, _filter):
+        _filter().count.return_value = MAX_CONCURRENT_SYNCS + 1
+        response = self.client.put(
+            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": uuid4()})
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert "Missing element" in response.data
+
+    @mock.patch("kolibri.core.public.api.TransferSession.objects.filter")
+    def test_updated_enqueued(self, _filter):
+        _filter().count.return_value = MAX_CONCURRENT_SYNCS + 1
+        element = SyncQueue.objects.create(
+            facility=self.default_facility, instance_id=uuid4()
+        )
+        response = self.client.put(
+            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": element.key})
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["action"] == QUEUED
+        assert response.data["key"] == element.key
+        assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 2

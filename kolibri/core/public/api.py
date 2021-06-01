@@ -208,7 +208,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
                 instance_id=instance_id,
                 keep_alive=data["keep_alive"],
             )
-            data["key"] = (element.key,)
+            data["key"] = element.key
 
         return Response(data)
 
@@ -229,7 +229,9 @@ class SyncQueueViewSet(viewsets.ViewSet):
                     "Missing element": "This device is not registered in any of this server facilities"
                 }
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
-            element["keep_alive"] = data["keep_alive"]
+            element.keep_alive = data["keep_alive"]
             element.save()
-            data["key"] = (element.key,)
+            data["key"] = element.key
+        else:
+            SyncQueue.objects.filter(key=key).delete()
         return Response(data)
