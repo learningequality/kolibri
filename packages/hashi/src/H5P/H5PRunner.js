@@ -86,6 +86,23 @@ export function replacePaths(dep, packageFiles) {
   });
 }
 
+/*
+ * Class that manages loading, parsing, and running an H5P file.
+ * Loads the entire H5P file to the frontend, and then unzips, parses,
+ * and turns each file into a Blob and generates a URL for that blob.
+ * (this is the same mechanism that EpubJS uses to render Epubs in the frontend).
+ * We mirror the path substitution done in the PHP implementation for
+ * CSS concatenation, to ensure that all relatively referenced assets
+ * in CSS files are instead referenced by their new Blob URLs.
+ * For the user defined contents referenced in the H5P content/content.json
+ * we shim the H5P.getPath method to do a lookup into our own
+ * internal file lookup so we can return the Blob URLs.
+ * We also shim the H5P ContentType class to override the getLibraryFilePath
+ * which allows us to return our blob URLs for files inside the content widget library folders.
+ * Lastly, the getLibraryPath method of the H5P object is overridden to return
+ * a reference to the zipcontent endpoint, to allow files to be dynamically loaded
+ * as a fallback.
+ */
 export default class H5PRunner {
   constructor(shim) {
     this.shim = shim;

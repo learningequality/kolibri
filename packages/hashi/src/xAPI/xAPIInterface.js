@@ -59,6 +59,13 @@ export default class xAPI extends BaseShim {
     this.userData = userData;
   }
 
+  /*
+   * Applies heuristics based on the CMI5 vocabulary:
+   * https://github.com/AICC/CMI-5_Spec_Current/blob/quartz/cmi5_spec.md#xapi_data_model
+   * and the verbs that are defined for use in H5P, in order to calculate progress
+   * @return {Number|null} returns a value between 0 or 1 or null if no progress could
+   * be calculated.
+   */
   __calculateProgress() {
     if (
       find(
@@ -266,6 +273,10 @@ export default class xAPI extends BaseShim {
     const self = this;
 
     class Shim {
+      /*
+       * Modify an xAPI statement in place to add non-learning activity specific properties.
+       * @param {Object} statement - an object representing an xAPI statement's JSON
+       */
       prepareStatement(statement) {
         if (!statement.actor) {
           statement.actor = self.createAgent();
@@ -274,6 +285,12 @@ export default class xAPI extends BaseShim {
           statement.timestamp = self.__now().toISOString();
         }
       }
+      /*
+       * Store a statement.
+       * @param {Object} statement - an object representing an xAPI statement's JSON
+       * @param {Boolean} [compress=false] - whether we should discard some data before storage
+       * @return {Promise} a Promise that resolves when the statement has been successfully stored
+       */
       sendStatement(statement, compress = false) {
         return new Promise((resolve, reject) => {
           return import(
@@ -304,50 +321,151 @@ export default class xAPI extends BaseShim {
           });
         });
       }
+      /*
+       * Get statements that have previously been recorded
+       * Based on LRS behaviour defined here:
+       * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#213-get-statements
+       * @param {Object} params - an object with search params for statements
+       * @param {string} [params.statementId] - Id of Statement
+       * @param {string} [params.voidedStatementId] - Id of voided Statement
+       * @param {Object} [params.agent] - Agent object that is the agent of the statement
+       * @param {string} [params.verb] - Verb IRI
+       * @param {string} [params.activity] - Activity IRI that matches Object of statement
+       * @param {string} [params.registration] - Registration UUID
+       * @param {Boolean} [params.related_activities=false] - Check activity IRI against any
+       * activity in the statement
+       * @param {Boolean} [params.related_agents=false] - Check agent object against any
+       * agent in the statement
+       * @param {string} [params.since] - Time to check statements since
+       * @param {string} [params.until] - Time to check statements until
+       * @param {Number} [params.limit] - Maximum number of statements to return
+       * @param {Boolean} [params.ascending=false] - Whether to return statements in ascending order
+       * @return {Promise} Promise that will resolve with the statements
+       */
       getStatements(params) {
         return Promise.resolve(self.getStatements(params));
       }
+      /*
+       * Gets an Activity object if stored.
+       * @param {string} id   the id of the Activity to get
+       * @return {Promise} Promise that will resolve to the activity
+       */
       getActivities(id) {
         return Promise.resolve({ id });
       }
+      /*
+       * Store state
+       * @param {string} stateId - key for the state to store
+       * @param {string} stateValue - the value for the state to store
+       * @return {Promise} Promise that will resolve when the state is stored
+       */
       sendState(stateId, stateValue) {
         return self.sendValue(STATE, stateId, stateValue);
       }
+      /*
+       * Retrieve state
+       * @param {string} stateId - key for the state
+       * @return {Promise} Promise that will resolve with the value or null
+       */
       getState(stateId) {
         return Promise.resolve(self.getValue(STATE, stateId) || null);
       }
+      /*
+       * Retrieve multiple pieces of state, stored since a certain time
+       * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#multiple-document-get
+       * @param {string} since - timestamp to retrieve state stored since
+       * @return {Promise} Promise that will resolve with the matching state ids
+       */
       getStateIds(since) {
         return Promise.resolve(self.getIds(STATE, since));
       }
+      /*
+       * Delete state
+       * @param {string} stateId - key for the state
+       * @return {Promise} Promise that will resolve when deleted
+       */
       deleteState(stateId) {
         self.deleteValue(STATE, stateId);
         return Promise.resolve();
       }
+      /*
+       * Store activity profile id and value
+       * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#single-document-put--post--get--delete-1
+       * @param {string} id - key for the activity profile to store
+       * @param {string} value - the value for the activity profile to store
+       * @return {Promise} Promise that will resolve when the activity profile is stored
+       */
       sendActivityProfile(id, value) {
         return self.sendValue(ACTIVITY_PROFILE, id, value);
       }
+      /*
+       * Get activity profile by id
+       * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#single-document-put--post--get--delete-1
+       * @param {string} id - key for the activity profile to store
+       * @return {Promise} Promise that will resolve with the activity profile or null
+       */
       getActivityProfile(id) {
         return Promise.resolve(self.getValue(ACTIVITY_PROFILE, id) || null);
       }
+      /*
+       * Retrieve multiple activity profile ids, stored since a certain time
+       * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#multiple-document-get-2
+       * @param {string} since - timestamp to retrieve activity profiles stored since
+       * @return {Promise} Promise that will resolve with the matching activity profile ids
+       */
       getActivityProfileIds(since) {
         return Promise.resolve(self.getIds(ACTIVITY_PROFILE, since));
       }
+      /*
+       * Delete activity profile
+       * @param {string} id - key for the activity profile
+       * @return {Promise} Promise that will resolve when deleted
+       */
       deleteActivityProfile(id) {
         self.deleteValue(ACTIVITY_PROFILE, id);
         return Promise.resolve();
       }
+      /*
+       * Return the agent to use in statements
+       * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#combined-information-get
+       * return {Promise} Promise that resolves to the agent
+       */
       getAgent() {
         return Promise.resolve(self.createAgent());
       }
+      /*
+       * Store agent profile id and value
+       * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#single-agent-or-profile-document-put--post--get--delete
+       * @param {string} id - key for the agent profile to store
+       * @param {string} value - the value for the agent profile to store
+       * @return {Promise} Promise that will resolve when the agent profile is stored
+       */
       sendAgentProfile(id, value) {
         return self.sendValue(AGENT_PROFILE, id, value);
       }
+      /*
+       * Get agent profile by id
+       * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#single-agent-or-profile-document-put--post--get--delete
+       * @param {string} id - key for the agent profile to store
+       * @return {Promise} Promise that will resolve with the agent profile or null
+       */
       getAgentProfile(id) {
         return Promise.resolve(self.getValue(AGENT_PROFILE, id) || null);
       }
+      /*
+       * Retrieve multiple agent profile ids, stored since a certain time
+       * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#multiple-document-get-1
+       * @param {string} since - timestamp to retrieve agent profiles stored since
+       * @return {Promise} Promise that will resolve with the matching agent profile ids
+       */
       getAgentProfileIds(since) {
         return Promise.resolve(self.getIds(AGENT_PROFILE, since));
       }
+      /*
+       * Delete agent profile
+       * @param {string} id - key for the agent profile
+       * @return {Promise} Promise that will resolve when deleted
+       */
       deleteAgentProfile(id) {
         self.deleteValue(AGENT_PROFILE, id);
         return Promise.resolve();
