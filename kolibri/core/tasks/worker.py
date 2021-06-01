@@ -172,8 +172,12 @@ class Worker(object):
         :param job_id:
         :return:
         """
-        future = self.future_job_mapping[job_id]
-        is_future_cancelled = future.cancel()
+        try:
+            future = self.future_job_mapping[job_id]
+            is_future_cancelled = future.cancel()
+        except KeyError:
+            # In the case that the future does not even exist, say it has been cancelled.
+            is_future_cancelled = True
 
         if is_future_cancelled:  # success!
             return True
