@@ -91,6 +91,17 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: 'h5p-[contenthash].html',
       template: 'src/h5p.html',
+      minify: {
+        collapseWhitespace: true,
+        keepClosingSlash: true,
+        removeComments: true,
+        removeRedundantAttributes: true,
+        removeScriptTypeAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        useShortDoctype: true,
+        minifyJS: true,
+        minifyCSS: true,
+      },
     }),
     new MiniCssExtractPlugin({
       filename: 'h5p-[contenthash].css',
