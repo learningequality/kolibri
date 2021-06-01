@@ -3,6 +3,7 @@ from django.conf.urls import url
 
 urlpatterns = [
     url(r"^auth/", include("kolibri.core.auth.api_urls")),
+    url(r"^bookmarks/", include("kolibri.core.bookmarks.api_urls")),
     url(r"^content/", include("kolibri.core.content.api_urls")),
     url(r"^logger/", include("kolibri.core.logger.api_urls")),
     url(r"^tasks/", include("kolibri.core.tasks.api_urls")),
