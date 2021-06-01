@@ -925,6 +925,36 @@ class AnonSignUpTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(models.FacilityUser.objects.all())
 
+    def test_no_sign_up_no_signups(self):
+        self.facility.dataset.learner_can_sign_up = False
+        self.facility.dataset.save()
+        response = self.post_to_sign_up(
+            {"username": "user", "password": DUMMY_PASSWORD}
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(models.FacilityUser.objects.all())
+        self.facility.dataset.learner_can_sign_up = True
+        self.facility.dataset.save()
+
+    def test_password_not_specified_password_required(self):
+        self.facility.dataset.learner_can_login_with_no_password = False
+        self.facility.dataset.save()
+        response = self.post_to_sign_up(
+            {"username": "user", "password": "NOT_SPECIFIED"}
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(models.FacilityUser.objects.all())
+
+    def test_password_not_specified_password_not_required(self):
+        self.facility.dataset.learner_can_login_with_no_password = True
+        self.facility.dataset.learner_can_edit_password = False
+        self.facility.dataset.save()
+        response = self.post_to_sign_up(
+            {"username": "user", "password": "NOT_SPECIFIED"}
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(models.FacilityUser.objects.all())
+
 
 class FacilityDatasetAPITestCase(APITestCase):
     @classmethod
