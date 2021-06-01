@@ -209,21 +209,16 @@ class SyncQueueViewSet(viewsets.ViewSet):
                 instance_id=instance,
                 keep_alive=data["keep_alive"],
             )
-            data["key"] = element.key
+            data["id"] = element.id
 
         return Response(data)
 
     def update(self, request, pk=None):
         SyncQueue.clean_stale()  # first, ensure not expired devices are in the queue
-        key = request.data.get("key") or pk
-        if key is None:
-            content = {"Missing parameter": "Key to update the queue is needed"}
-            return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
         allow_sync, data = self.check_queue()
 
         if not allow_sync:
-            element = SyncQueue.objects.filter(key=key).first()
+            element = SyncQueue.objects.filter(id=pk).first()
             if not element:
                 # this device has been deleted from the queue, likely due to keep alive expiration
                 content = {
@@ -233,7 +228,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
             element.keep_alive = data["keep_alive"]
             element.updated = time.time()
             element.save()
-            data["key"] = element.key
+            data["id"] = element.id
         else:
-            SyncQueue.objects.filter(key=key).delete()
+            SyncQueue.objects.filter(id=pk).delete()
         return Response(data)

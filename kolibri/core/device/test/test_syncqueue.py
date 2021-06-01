@@ -112,7 +112,7 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         )
         assert response.status_code == status.HTTP_200_OK
         assert response.data["action"] == QUEUED
-        assert "key" in response.data
+        assert "id" in response.data
         assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 1
 
     def test_update(self):
@@ -139,11 +139,11 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         )
         previous_time = element.updated
         response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": element.key})
+            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": element.id})
         )
-        element = SyncQueue.objects.get(key=element.key)
+        element = SyncQueue.objects.get(id=element.id)
         assert element.updated > previous_time
         assert response.status_code == status.HTTP_200_OK
         assert response.data["action"] == QUEUED
-        assert response.data["key"] == element.key
+        assert response.data["id"] == element.id
         assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 2

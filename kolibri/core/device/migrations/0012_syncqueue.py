@@ -24,14 +24,10 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
+                    morango.models.fields.uuids.UUIDField(
+                        primary_key=True, serialize=False, default=uuid.uuid4
                     ),
                 ),
-                ("key", morango.models.fields.uuids.UUIDField(default=uuid.uuid4)),
                 ("instance_id", morango.models.fields.uuids.UUIDField(unique=True)),
                 ("datetime", models.DateTimeField(auto_now_add=True)),
                 ("updated", models.FloatField(default=time.time)),
