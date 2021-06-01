@@ -102,7 +102,7 @@ class ZipContentTestCase(TestCase):
         file = LocalFile(id=self.hash, extension=self.extension, available=True)
         self.assertEqual(
             file.get_storage_url(),
-            "{}zipcontent/{}/".format(path_prefix, self.filename),
+            "{}content/zipcontent/{}/".format(path_prefix, self.filename),
         )
 
     def test_non_zip_file_url_reversal(self):

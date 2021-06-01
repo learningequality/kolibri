@@ -281,7 +281,7 @@ def zip_content_path_prefix():
 
 
 def get_zip_content_base_path():
-    return "{}{}".format(zip_content_path_prefix(), ZIPCONTENT)
+    return "{}{}".format(get_content_url(zip_content_path_prefix()), ZIPCONTENT)
 
 
 HASHI_FILENAME = None
@@ -300,7 +300,7 @@ def get_hashi_html_filename():
 
 
 def zip_content_static_root():
-    return urljoin(zip_content_path_prefix(), "static/")
+    return urljoin(get_content_url(zip_content_path_prefix()), "static/")
 
 
 def get_hashi_path():
