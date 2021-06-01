@@ -81,14 +81,14 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         )
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"), {"instance_id": "1"}, format="json"
+            reverse("kolibri:core:syncqueue-list"), {"instance": "1"}, format="json"
         )
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
     def test_existing_facility(self):
         response = self.client.post(
             reverse("kolibri:core:syncqueue-list"),
-            {"instance_id": "1", "facility": uuid4()},
+            {"instance": "1", "facility": uuid4()},
             format="json",
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -96,7 +96,7 @@ class SyncQueueViewSetAPITestCase(APITestCase):
     def test_allow_sync(self):
         response = self.client.post(
             reverse("kolibri:core:syncqueue-list"),
-            {"instance_id": "1", "facility": self.default_facility.id},
+            {"instance": "1", "facility": self.default_facility.id},
             format="json",
         )
         assert response.status_code == status.HTTP_200_OK
@@ -107,7 +107,7 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         _filter().count.return_value = MAX_CONCURRENT_SYNCS + 1
         response = self.client.post(
             reverse("kolibri:core:syncqueue-list"),
-            {"instance_id": uuid4(), "facility": self.default_facility.id},
+            {"instance": uuid4(), "facility": self.default_facility.id},
             format="json",
         )
         assert response.status_code == status.HTTP_200_OK

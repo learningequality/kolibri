@@ -191,10 +191,10 @@ class SyncQueueViewSet(viewsets.ViewSet):
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
         facility = request.data.get("facility")
-        instance_id = request.data.get("instance_id")
-        if facility is None or instance_id is None:
+        instance = request.data.get("instance")
+        if facility is None or instance is None:
             content = {
-                "Missing parameter(s)": "Both facility and instance_id are required"
+                "Missing parameter(s)": "Both facility and instance are required"
             }
             return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
@@ -206,7 +206,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
         if not allow_sync:
             element, _ = SyncQueue.objects.get_or_create(
                 facility_id=facility,
-                instance_id=instance_id,
+                instance_id=instance,
                 keep_alive=data["keep_alive"],
             )
             data["key"] = element.key
