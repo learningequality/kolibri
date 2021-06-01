@@ -60,7 +60,7 @@ def django_response_to_wsgi(response, environ, start_response):
 
 allowed_methods = set(["GET", "OPTIONS"])
 
-# This is also included in static/h5p/index.html
+# This is also included in packages/hashi/src/h5p.html
 # ideally, we should never ever update this code
 # but if we do we should update it there.
 INITIALIZE_HASHI_FROM_IFRAME = "if (window.parent && window.parent.hashi) {try {window.parent.hashi.initializeIframe(window);} catch (e) {}}"
