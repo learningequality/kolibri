@@ -51,7 +51,7 @@
   $margins: $grid-margin * 2;
 
   @mixin per-row($n) {
-    & > * {
+    > * {
       width: calc((100% / #{$n}) - #{$margins});
     }
   }
