@@ -205,7 +205,6 @@
               // in a custom context, within an overlay, switch the overlay
               // content to the new content
               this.overlayIsOpen = false;
-              console.log('new node', contentNode.title);
               this.currentContent = contentNode;
               this.overlayIsOpen = true;
               context.node_id = contentNode.id;
