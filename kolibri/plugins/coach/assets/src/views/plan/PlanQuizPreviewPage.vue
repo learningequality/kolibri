@@ -16,6 +16,7 @@
         :questions="preview.questions"
         :displaySelectOptions="true"
         :completionData="preview.completionData"
+        :style="{ 'padding-bottom': '32px' }"
         @addResource="handleAddResource"
         @removeResource="handleRemoveResource"
       />
