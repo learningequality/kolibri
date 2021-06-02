@@ -193,8 +193,19 @@
               routeBase = '/topics/t';
               path = `${routeBase}/${id}`;
               router.push({ path: path }).catch(() => {});
-            } else if (contentNode) {
-              // in a custom context, launch or maintain overlay
+            } else if (contentNode && this.overlayIsOpen == false) {
+              // in a custom context, launch overlay
+              this.currentContent = contentNode;
+              this.overlayIsOpen = true;
+              context.node_id = contentNode.id;
+              context.customChannel = true;
+              const encodedContext = encodeURI(JSON.stringify(context));
+              router.replace({ query: { context: encodedContext } }).catch(() => {});
+            } else if (contentNode && this.overlayIsOpen == true) {
+              // in a custom context, within an overlay, switch the overlay
+              // content to the new content
+              this.overlayIsOpen = false;
+              console.log('new node', contentNode.title);
               this.currentContent = contentNode;
               this.overlayIsOpen = true;
               context.node_id = contentNode.id;

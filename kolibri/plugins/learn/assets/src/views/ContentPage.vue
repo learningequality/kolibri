@@ -34,6 +34,7 @@
         @updateProgress="updateProgress"
         @addProgress="addProgress"
         @updateContentState="updateContentState"
+        @navigateToRegularContext="navigateToRegularContext"
       />
 
       <AssessmentWrapper
@@ -148,6 +149,8 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeResource } from 'kolibri.resources';
+  import router from 'kolibri.coreVue.router';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
@@ -333,6 +336,25 @@
       },
       updateContentState(contentState, forceSave = true) {
         this.updateContentNodeState({ contentState, forceSave });
+      },
+      navigateToRegularContext(message) {
+        let id = message.nodeId;
+        return ContentNodeResource.fetchModel({ id })
+          .then(contentNode => {
+            let routeBase, path;
+            if (contentNode && contentNode.kind !== 'topic') {
+              routeBase = '/topics/c';
+              path = `${routeBase}/${id}`;
+              router.push({ path: path }).catch(() => {});
+            } else if (contentNode && contentNode.kind === 'topic') {
+              routeBase = '/topics/t';
+              path = `${routeBase}/${id}`;
+              router.push({ path: path }).catch(() => {});
+            }
+          })
+          .catch(err => {
+            console.log(err);
+          });
       },
       markAsComplete() {
         this.wasIncomplete = false;
