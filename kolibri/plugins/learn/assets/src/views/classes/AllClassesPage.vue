@@ -2,24 +2,23 @@
 
   <div>
     <div v-if="isUserLoggedIn ">
-      <h1>{{ coreString('classesLabel') }}</h1>
-      <p v-if="!classrooms.length">
-        {{ $tr('noClasses') }}
-      </p>
-      <div class="classrooms">
-        <ContentCard
+      <h1>
+        <KLabeledIcon icon="classes" :label="$tr('yourClassesHeader')" />
+      </h1>
+      <CardGrid v-if="classrooms.length > 0" :gridType="2">
+        <CardLink
           v-for="c in classrooms"
           :key="c.id"
-          class="content-card"
-          :link="classAssignmentsLink(c.id)"
-          :showContentIcon="false"
-          :title="c.name"
-          :kind="CLASSROOM"
-          :isLeaf="true"
-          :isMobile="windowIsSmall"
-        />
-      </div>
+          :to="classAssignmentsLink(c.id)"
+        >
+          {{ c.name }}
+        </CardLink>
+      </CardGrid>
+      <p v-else>
+        {{ $tr('noClasses') }}
+      </p>
     </div>
+
     <AuthMessage v-else authorizedRole="learner" />
   </div>
 
@@ -30,11 +29,9 @@
 
   import { mapState, mapGetters } from 'vuex';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import ContentCard from '../ContentCard';
-  import commonLearnStrings from '../commonLearnStrings';
+  import CardGrid from '../cards/CardGrid.vue';
+  import CardLink from '../cards/CardLink.vue';
   import { classAssignmentsLink } from './classPageLinks';
 
   export default {
@@ -46,20 +43,19 @@
     },
     components: {
       AuthMessage,
-      ContentCard,
+      CardLink,
+      CardGrid,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin, commonLearnStrings],
+    mixins: [commonCoreStrings],
     computed: {
       ...mapGetters(['isUserLoggedIn']),
       ...mapState('classes', ['classrooms']),
-      CLASSROOM() {
-        return ContentNodeKinds.CLASSROOM;
-      },
     },
     methods: {
       classAssignmentsLink,
     },
     $trs: {
+      yourClassesHeader: 'Your classes',
       noClasses: 'You are not enrolled in any classes',
     },
   };
@@ -67,11 +63,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  .content-card {
-    margin-right: 16px;
-    margin-bottom: 16px;
-  }
-
-</style>
+<style lang="scss" scoped></style>

@@ -59,6 +59,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   fullNameLabel: 'Full name',
   genderLabel: 'Gender',
   identifierLabel: 'Identifier',
+  inProgressLabel: 'In progress',
   kolibriLabel: 'Kolibri',
   learnerLabel: 'Learner',
   learnersLabel: 'Learners',

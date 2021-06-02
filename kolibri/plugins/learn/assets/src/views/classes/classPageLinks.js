@@ -18,27 +18,6 @@ export function lessonResourceViewerLink(resourceNumber) {
   };
 }
 
-export function examViewerLink(examId) {
-  return {
-    name: ClassesPageNames.EXAM_VIEWER,
-    params: {
-      examId,
-      questionNumber: 0,
-    },
-  };
-}
-
-export function examReportViewerLink(examId) {
-  return {
-    name: ClassesPageNames.EXAM_REPORT_VIEWER,
-    params: {
-      examId,
-      questionNumber: 0,
-      questionInteraction: 0,
-    },
-  };
-}
-
 export function lessonPlaylistLink(lessonId) {
   return {
     name: ClassesPageNames.LESSON_PLAYLIST,
