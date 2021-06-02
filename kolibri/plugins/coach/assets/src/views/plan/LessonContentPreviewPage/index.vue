@@ -5,8 +5,8 @@
       <div>
         <KGrid>
           <KGridItem
-            :layout8="{ span: 4 }"
-            :layout12="{ span: 6 }"
+            :layout8="{ span: 6 }"
+            :layout12="{ span: 9 }"
           >
             <h1>
               <KLabeledIcon :icon="content.kind" :label="content.title" />
@@ -14,8 +14,8 @@
           </KGridItem>
           <KGridItem
             :layout="{ alignment: 'right' }"
-            :layout8="{ span: 4 }"
-            :layout12="{ span: 6 }"
+            :layout8="{ span: 2 }"
+            :layout12="{ span: 3 }"
           >
             <template v-if="displaySelectOptions">
               <template v-if="isSelected">
