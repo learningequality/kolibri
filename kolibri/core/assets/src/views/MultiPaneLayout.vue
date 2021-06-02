@@ -103,11 +103,6 @@
     border-bottom-width: 1px;
   }
 
-  .aside,
-  .main {
-    overflow-y: auto;
-  }
-
   .aside {
     display: inline-block;
     width: 33%;
