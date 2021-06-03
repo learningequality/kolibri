@@ -26,7 +26,9 @@ class SyncQueueTestBase(TestCase):
         )
         assert element.keep_alive == 5.0
         current_time = time.time()
-        assert current_time > element.updated
+        assert (
+            current_time >= element.updated
+        )  # = added because sometimes this is too quick
         assert previous_time < element.updated
 
     def test_queue_cleaning(self):

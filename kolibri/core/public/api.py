@@ -186,14 +186,13 @@ class SyncQueueViewSet(viewsets.ViewSet):
 
     def create(self, request):
         SyncQueue.clean_stale()  # first, ensure not expired devices are in the queue
-
         device_info = get_device_info()
         if device_info["subset_of_users_device"]:
             content = {"I'm a Subset of users device": "Nothing to do here"}
             # would love to use HTTP 418, but it's not fully usable in browsers
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-        user = request.data.get("user")
+        user = request.data.get("user") or request.query_params["user"]
         if user is None:
             content = {"Missing parameter": "User is required"}
             return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)

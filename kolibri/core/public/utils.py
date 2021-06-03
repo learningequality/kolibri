@@ -1,10 +1,23 @@
+import datetime
+import json
+import logging
 import platform
 
+import requests
+from django.core.urlresolvers import reverse
 from morango.models import InstanceIDModel
+from rest_framework import status
 
 import kolibri
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
+from kolibri.core.public.constants.user_sync_statuses import QUEUED
+from kolibri.core.public.constants.user_sync_statuses import SYNC
+from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.main import queue
+from kolibri.core.tasks.main import scheduler
+
+logger = logging.getLogger(__name__)
 
 
 def get_device_info():
@@ -28,3 +41,59 @@ def get_device_info():
         "subset_of_users_device": subset_of_users_device,
     }
     return info
+
+
+def begin_request_soud_sync(server, user, facility):
+    """
+    Enqueue a task to request this SoUD to be
+    synced with a server
+    """
+    info = get_device_info()
+    if not info["subset_of_users_device"]:
+        # this does not make sense unless this is a SoUD
+        logger.warn("Only Subsets of Users Devices can do this")
+        return
+    queue.enqueue(request_soud_sync, server, user, facility)
+
+
+def request_soud_sync(server, user=None, queue_id=None):
+    """
+    Make a request to the serverurl endpoint to sync this SoUD (Subset of Users Device)
+        - If the server says "sync now" immediately queue a sync task for the server
+        - If the server responds with an identifier and interval, schedule itself to run
+        again in the future with that identifier as an argument, at the interval specified
+    """
+    logger.error("{},{},{}".format(server, user, queue_id))
+    if queue_id is None:
+        endpoint = reverse("kolibri:core:syncqueue-list")
+    else:
+        endpoint = reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue_id})
+    server_url = "{server}{endpoint}".format(server=server, endpoint=endpoint)
+
+    if queue_id is None:
+        data = {"user": user}
+        response = requests.post(server_url, json=data)
+    else:
+        data = {"pk": queue_id}
+        response = requests.put(server_url, json=data)
+
+    server_response = json.loads(response.content.decode() or "{}")
+    if response.status_code == status.HTTP_404_NOT_FOUND:
+        return  # Request done to a server not owning this user's data
+
+    if response.status_code == status.HTTP_200_OK:
+        if server_response["action"] == SYNC:
+            # TODO: queue a sync task in the server, when this is developed
+            logger.info("Enqueuing a sync task for user {}".format(user))
+
+        elif server_response["action"] == QUEUED:
+            pk = server_response["id"]
+            time_alive = server_response["keep_alive"]
+            dt = datetime.timedelta(seconds=int(time_alive))
+            job = Job(request_soud_sync, server, user, pk)
+            scheduler.enqueue_in(dt, job)
+            logger.info(
+                "Server busy, will try again in {} seconds with pk={}".format(
+                    time_alive, pk
+                )
+            )
