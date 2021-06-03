@@ -2,6 +2,7 @@ import datetime
 import json
 import logging
 import platform
+import random
 
 import requests
 from django.core.urlresolvers import reverse
@@ -56,26 +57,48 @@ def begin_request_soud_sync(server, user, facility):
     queue.enqueue(request_soud_sync, server, user, facility)
 
 
-def request_soud_sync(server, user=None, queue_id=None):
+def request_soud_sync(server, user=None, queue_id=None, ttl=10):
     """
     Make a request to the serverurl endpoint to sync this SoUD (Subset of Users Device)
         - If the server says "sync now" immediately queue a sync task for the server
         - If the server responds with an identifier and interval, schedule itself to run
         again in the future with that identifier as an argument, at the interval specified
     """
-    logger.error("{},{},{}".format(server, user, queue_id))
+
     if queue_id is None:
         endpoint = reverse("kolibri:core:syncqueue-list")
     else:
         endpoint = reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue_id})
     server_url = "{server}{endpoint}".format(server=server, endpoint=endpoint)
 
-    if queue_id is None:
-        data = {"user": user}
-        response = requests.post(server_url, json=data)
-    else:
-        data = {"pk": queue_id}
-        response = requests.put(server_url, json=data)
+    try:
+        if queue_id is None:
+            data = {"user": user}
+            response = requests.post(server_url, json=data)
+        else:
+            data = {"pk": queue_id}
+            response = requests.put(server_url, json=data)
+
+    except requests.exceptions.ConnectionError:
+        # Algorithm to try several times if the server is not responding
+        # Randomly it can be trying it up to 1560 seconds (26 minutes)
+        # before desisting
+        ttl -= 1
+        if ttl == 0:
+            logger.error("Give up trying to connect to the server")
+            return
+        interval = random.randint(1, 30 * (10 - ttl))
+        job = Job(request_soud_sync, server, user, queue_id, ttl)
+        dt = datetime.timedelta(seconds=interval)
+        scheduler.enqueue_in(dt, job)
+        logger.warn(
+            "The server has some trouble. Trying to connect in {} seconds".format(
+                interval
+            )
+        )
+        return
+
+        # it seems the server is on trouble, let's try it later again
 
     server_response = json.loads(response.content.decode() or "{}")
     if response.status_code == status.HTTP_404_NOT_FOUND:
