@@ -16,8 +16,11 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .. import error_constants
+from .constants.user_sync_statuses import QUEUED
+from .constants.user_sync_statuses import SYNC
 from .utils import get_device_info
 from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
@@ -27,8 +30,6 @@ from kolibri.core.device.models import SyncQueue
 from kolibri.core.device.utils import allow_peer_unlisted_channel_import
 
 MAX_CONCURRENT_SYNCS = 5
-SYNC = "sync"  # can begin a sync right now
-QUEUED = "queued"  # request added to the queue
 
 
 class InfoViewSet(viewsets.ViewSet):
@@ -191,22 +192,24 @@ class SyncQueueViewSet(viewsets.ViewSet):
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
         facility = request.data.get("facility")
-        instance = request.data.get("instance")
-        if facility is None or instance is None:
-            content = {
-                "Missing parameter(s)": "Both facility and instance are required"
-            }
+        user = request.data.get("user")
+        if facility is None or user is None:
+            content = {"Missing parameter(s)": "Both facility and user are required"}
             return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
         if not Facility.objects.filter(id=facility).exists():
             content = {"This device is not registered in any of this server facilities"}
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+        if not FacilityUser.objects.filter(id=user).exists():
+            content = {"This user is not registered in any of this server facilities"}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
         allow_sync, data = self.check_queue()
         if not allow_sync:
             element, _ = SyncQueue.objects.get_or_create(
                 facility_id=facility,
-                instance_id=instance,
+                user_id=user,
                 keep_alive=data["keep_alive"],
             )
             data["id"] = element.id

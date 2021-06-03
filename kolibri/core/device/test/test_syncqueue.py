@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.public.api import MAX_CONCURRENT_SYNCS
 from kolibri.core.public.api import QUEUED
@@ -21,18 +22,18 @@ class SyncQueueTestBase(TestCase):
     def test_create_queue_element(self):
         previous_time = time.time()
         element, _ = SyncQueue.objects.get_or_create(
-            facility=self.facility, instance_id=uuid4()
+            facility=self.facility, user_id=uuid4()
         )
         assert element.keep_alive == 5.0
         current_time = time.time()
         assert current_time > element.updated
         assert previous_time < element.updated
 
-    def sstest_queue_cleaning(self):
+    def test_queue_cleaning(self):
         for i in range(3):
-            SyncQueue.objects.create(facility=self.facility, instance_id=uuid4())
+            SyncQueue.objects.create(facility=self.facility, user_id=uuid4())
         for i in range(2):
-            item = SyncQueue.objects.create(facility=self.facility, instance_id=uuid4())
+            item = SyncQueue.objects.create(facility=self.facility, user_id=uuid4())
             item.updated = item.updated - 200
             item.save()
 
@@ -45,6 +46,9 @@ class SyncQueueViewSetAPITestCase(APITestCase):
     def setUp(self):
         self.default_facility = Facility.objects.create(name="Test")
         Facility.objects.create(name="Test2")
+        self.test_user = FacilityUser.objects.create(
+            username="test", facility=self.default_facility
+        )
 
     def test_list(self):
         response = self.client.get(
@@ -56,9 +60,7 @@ class SyncQueueViewSetAPITestCase(APITestCase):
     def test_list_queue_length(self):
         queue_length = 3
         for i in range(queue_length):
-            SyncQueue.objects.create(
-                facility=self.default_facility, instance_id=uuid4()
-            )
+            SyncQueue.objects.create(facility=self.default_facility, user_id=uuid4())
         response = self.client.get(
             reverse("kolibri:core:syncqueue-list"), format="json"
         )
@@ -81,14 +83,14 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         )
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"), {"instance": "1"}, format="json"
+            reverse("kolibri:core:syncqueue-list"), {"user": "1"}, format="json"
         )
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
     def test_existing_facility(self):
         response = self.client.post(
             reverse("kolibri:core:syncqueue-list"),
-            {"instance": "1", "facility": uuid4()},
+            {"user": uuid4(), "facility": uuid4()},
             format="json",
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -96,7 +98,7 @@ class SyncQueueViewSetAPITestCase(APITestCase):
     def test_allow_sync(self):
         response = self.client.post(
             reverse("kolibri:core:syncqueue-list"),
-            {"instance": "1", "facility": self.default_facility.id},
+            {"user": self.test_user.id, "facility": self.default_facility.id},
             format="json",
         )
         assert response.status_code == status.HTTP_200_OK
@@ -107,7 +109,7 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         _filter().count.return_value = MAX_CONCURRENT_SYNCS + 1
         response = self.client.post(
             reverse("kolibri:core:syncqueue-list"),
-            {"instance": uuid4(), "facility": self.default_facility.id},
+            {"user": self.test_user.id, "facility": self.default_facility.id},
             format="json",
         )
         assert response.status_code == status.HTTP_200_OK
@@ -135,7 +137,7 @@ class SyncQueueViewSetAPITestCase(APITestCase):
     def test_updated_enqueued(self, _filter):
         _filter().count.return_value = MAX_CONCURRENT_SYNCS + 1
         element = SyncQueue.objects.create(
-            facility=self.default_facility, instance_id=uuid4()
+            facility=self.default_facility, user_id=uuid4()
         )
         previous_time = element.updated
         response = self.client.put(
