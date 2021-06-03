@@ -165,7 +165,9 @@ class SyncQueueViewSet(viewsets.ViewSet):
         facilities = Facility.objects.all()
         queue = {}
         for facility in facilities:
-            queue[facility.id] = SyncQueue.objects.filter(facility=facility).count()
+            queue[facility.id] = SyncQueue.objects.filter(
+                user__facility=facility
+            ).count()
         return Response(queue)
 
     def check_queue(self):
@@ -191,15 +193,10 @@ class SyncQueueViewSet(viewsets.ViewSet):
             # would love to use HTTP 418, but it's not fully usable in browsers
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-        facility = request.data.get("facility")
         user = request.data.get("user")
-        if facility is None or user is None:
-            content = {"Missing parameter(s)": "Both facility and user are required"}
+        if user is None:
+            content = {"Missing parameter": "User is required"}
             return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-        if not Facility.objects.filter(id=facility).exists():
-            content = {"This device is not registered in any of this server facilities"}
-            return Response(content, status=status.HTTP_404_NOT_FOUND)
 
         if not FacilityUser.objects.filter(id=user).exists():
             content = {"This user is not registered in any of this server facilities"}
@@ -208,7 +205,6 @@ class SyncQueueViewSet(viewsets.ViewSet):
         allow_sync, data = self.check_queue()
         if not allow_sync:
             element, _ = SyncQueue.objects.get_or_create(
-                facility_id=facility,
                 user_id=user,
                 keep_alive=data["keep_alive"],
             )

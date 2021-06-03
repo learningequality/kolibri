@@ -22,7 +22,7 @@ class SyncQueueTestBase(TestCase):
     def test_create_queue_element(self):
         previous_time = time.time()
         element, _ = SyncQueue.objects.get_or_create(
-            facility=self.facility, user_id=uuid4()
+            user=FacilityUser.objects.create(username="test", facility=self.facility)
         )
         assert element.keep_alive == 5.0
         current_time = time.time()
@@ -31,9 +31,17 @@ class SyncQueueTestBase(TestCase):
 
     def test_queue_cleaning(self):
         for i in range(3):
-            SyncQueue.objects.create(facility=self.facility, user_id=uuid4())
-        for i in range(2):
-            item = SyncQueue.objects.create(facility=self.facility, user_id=uuid4())
+            SyncQueue.objects.create(
+                user=FacilityUser.objects.create(
+                    username="test{}".format(i), facility=self.facility
+                )
+            )
+        for i in range(3, 5):
+            item = SyncQueue.objects.create(
+                user=FacilityUser.objects.create(
+                    username="test{}".format(i), facility=self.facility
+                )
+            )
             item.updated = item.updated - 200
             item.save()
 
@@ -60,7 +68,11 @@ class SyncQueueViewSetAPITestCase(APITestCase):
     def test_list_queue_length(self):
         queue_length = 3
         for i in range(queue_length):
-            SyncQueue.objects.create(facility=self.default_facility, user_id=uuid4())
+            SyncQueue.objects.create(
+                user=FacilityUser.objects.create(
+                    username="test{}".format(i), facility=self.default_facility
+                )
+            )
         response = self.client.get(
             reverse("kolibri:core:syncqueue-list"), format="json"
         )
@@ -72,25 +84,19 @@ class SyncQueueViewSetAPITestCase(APITestCase):
     )
     def test_soud(self, mock_device_info):
         response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"), {"facility": uuid4()}, format="json"
+            reverse("kolibri:core:syncqueue-list"), {"user": uuid4()}, format="json"
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert "I'm a Subset of users device" in response.data
 
-    def test_needed_parameters(self):
-        response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"), {"facility": "1"}, format="json"
-        )
-        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-        response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"), {"user": "1"}, format="json"
-        )
+    def test_user_needed(self):
+        response = self.client.post(reverse("kolibri:core:syncqueue-list"))
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    def test_existing_facility(self):
+    def test_existing_user(self):
         response = self.client.post(
             reverse("kolibri:core:syncqueue-list"),
-            {"user": uuid4(), "facility": uuid4()},
+            {"user": uuid4()},
             format="json",
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -98,7 +104,9 @@ class SyncQueueViewSetAPITestCase(APITestCase):
     def test_allow_sync(self):
         response = self.client.post(
             reverse("kolibri:core:syncqueue-list"),
-            {"user": self.test_user.id, "facility": self.default_facility.id},
+            {
+                "user": self.test_user.id,
+            },
             format="json",
         )
         assert response.status_code == status.HTTP_200_OK
@@ -109,7 +117,7 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         _filter().count.return_value = MAX_CONCURRENT_SYNCS + 1
         response = self.client.post(
             reverse("kolibri:core:syncqueue-list"),
-            {"user": self.test_user.id, "facility": self.default_facility.id},
+            {"user": self.test_user.id},
             format="json",
         )
         assert response.status_code == status.HTTP_200_OK
@@ -136,9 +144,7 @@ class SyncQueueViewSetAPITestCase(APITestCase):
     @mock.patch("kolibri.core.public.api.TransferSession.objects.filter")
     def test_updated_enqueued(self, _filter):
         _filter().count.return_value = MAX_CONCURRENT_SYNCS + 1
-        element = SyncQueue.objects.create(
-            facility=self.default_facility, user_id=uuid4()
-        )
+        element = SyncQueue.objects.create(user=self.test_user)
         previous_time = element.updated
         response = self.client.put(
             reverse("kolibri:core:syncqueue-detail", kwargs={"pk": element.id})

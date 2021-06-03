@@ -194,7 +194,6 @@ class SyncQueue(models.Model):
 
     id = UUIDField(primary_key=True, default=uuid4)
     user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE, null=False)
-    facility = models.ForeignKey(Facility, on_delete=models.CASCADE, null=False)
     datetime = models.DateTimeField(auto_now_add=True)
     updated = models.FloatField(default=time.time)
     # polling interval is 5 seconds by default
