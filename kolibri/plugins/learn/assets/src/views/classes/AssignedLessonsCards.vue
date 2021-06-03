@@ -1,26 +1,22 @@
 <template>
 
   <div>
-    <div class="header">
-      <h2>
-        {{ coreString('lessonsLabel') }}
-      </h2>
-      <p v-if="lessons.length === 0">
-        {{ $tr('noLessonsMessage') }}
-      </p>
-    </div>
-    <ContentCard
-      v-for="lesson in lessons"
-      :key="lesson.id"
-      class="content-card"
-      :link="lessonPlaylistLink(lesson.id)"
-      :showContentIcon="false"
-      :title="lesson.title"
-      :kind="LESSON"
-      :isLeaf="true"
-      :isMobile="isMobile"
-      :progress="getLessonProgress(lesson)"
-    />
+    <h2>
+      <KLabeledIcon icon="lesson" :label="$tr('yourLessonsHeader')" />
+    </h2>
+
+    <CardGrid v-if="items.length > 0" :gridType="1">
+      <LessonCard
+        v-for="lesson in items"
+        :key="lesson.id"
+        :lesson="lesson"
+        :classroom="currentClassroom"
+      />
+    </CardGrid>
+
+    <p v-else>
+      {{ $tr('noLessonsMessage') }}
+    </p>
   </div>
 
 </template>
@@ -28,39 +24,28 @@
 
 <script>
 
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import ContentCard from '../ContentCard';
-  import { lessonPlaylistLink } from './classPageLinks';
+  import LessonCard from '../cards/LessonCard.vue';
+  import CardGrid from '../cards/CardGrid.vue';
 
   export default {
     name: 'AssignedLessonsCards',
     components: {
-      ContentCard,
+      CardGrid,
+      LessonCard,
     },
-    mixins: [commonCoreStrings],
     props: {
-      lessons: {
+      items: {
         type: Array,
-        required: true,
-      },
-      isMobile: {
-        type: Boolean,
         required: true,
       },
     },
     computed: {
-      LESSON: () => ContentNodeKinds.LESSON,
-    },
-    methods: {
-      getLessonProgress(lesson) {
-        const { resource_progress, total_resources } = lesson.progress;
-        if (total_resources === 0) return undefined;
-        return resource_progress / total_resources;
+      currentClassroom() {
+        return this.$store.state.classAssignments.currentClassroom;
       },
-      lessonPlaylistLink,
     },
     $trs: {
+      yourLessonsHeader: 'Your lessons',
       noLessonsMessage: 'You have no lessons assigned',
     },
   };
@@ -68,11 +53,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  .content-card {
-    margin-right: 16px;
-    margin-bottom: 16px;
-  }
-
-</style>
+<style lang="scss" scoped></style>

@@ -55,7 +55,7 @@
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
-  import CardThumbnail from './CardThumbnail';
+  import CardThumbnail from './CardThumbnail.vue';
 
   export default {
     name: 'ContentCard',

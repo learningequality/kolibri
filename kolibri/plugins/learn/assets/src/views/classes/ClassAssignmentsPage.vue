@@ -5,14 +5,9 @@
       <KLabeledIcon icon="classes" :label="classroomName" />
     </h1>
 
-    <AssignedExamsCards
-      :exams="exams"
-      :isMobile="windowIsSmall"
-    />
-    <AssignedLessonsCards
-      :lessons="lessons"
-      :isMobile="windowIsSmall"
-    />
+    <AssignedLessonsCards :items="lessons" />
+    <AssignedQuizzesCards :items="exams" />
+
   </div>
 
 </template>
@@ -21,9 +16,8 @@
 <script>
 
   import { mapState } from 'vuex';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import AssignedExamsCards from './AssignedExamsCards';
-  import AssignedLessonsCards from './AssignedLessonsCards';
+  import AssignedQuizzesCards from './AssignedQuizzesCards.vue';
+  import AssignedLessonsCards from './AssignedLessonsCards.vue';
 
   export default {
     name: 'ClassAssignmentsPage',
@@ -33,10 +27,9 @@
       };
     },
     components: {
-      AssignedExamsCards,
+      AssignedQuizzesCards,
       AssignedLessonsCards,
     },
-    mixins: [responsiveWindowMixin],
     data() {
       return {
         pollTimeoutId: null,
