@@ -95,7 +95,7 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         response = self.client.post(
             reverse("kolibri:core:syncqueue-list"), {"user": uuid4()}, format="json"
         )
-        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "I'm a Subset of users device" in response.data
 
     def test_user_needed(self):
