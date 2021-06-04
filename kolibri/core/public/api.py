@@ -190,7 +190,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
         if device_info["subset_of_users_device"]:
             content = {"I'm a Subset of users device": "Nothing to do here"}
             # would love to use HTTP 418, but it's not fully usable in browsers
-            return Response(content, status=status.HTTP_404_NOT_FOUND)
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
         user = request.data.get("user") or request.query_params.get("user")
         if user is None:
