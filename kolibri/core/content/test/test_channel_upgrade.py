@@ -67,6 +67,10 @@ class ChannelBuilder(object):
 
         self.generate_nodes_from_root_node()
 
+    @property
+    def cache_key(self):
+        return "{}_{}".format(self.levels, self.num_children)
+
     def generate_new_tree(self):
         self.channel = self.channel_data()
         self.files = {}
@@ -83,7 +87,7 @@ class ChannelBuilder(object):
             )
 
     def load_data(self):
-        data = copy.deepcopy(self.__TREE_CACHE[self.levels])
+        data = copy.deepcopy(self.__TREE_CACHE[self.cache_key])
 
         for key in self.tree_keys:
             setattr(self, key, data[key])
@@ -94,7 +98,7 @@ class ChannelBuilder(object):
         for key in self.tree_keys:
             data[key] = getattr(self, key)
 
-        self.__TREE_CACHE[self.levels] = copy.deepcopy(data)
+        self.__TREE_CACHE[self.cache_key] = copy.deepcopy(data)
 
     def generate_nodes_from_root_node(self):
         self._django_nodes = ContentNode.objects.build_tree_nodes(self.root_node)
