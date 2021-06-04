@@ -44,7 +44,7 @@ def get_device_info():
     return info
 
 
-def begin_request_soud_sync(server, user, facility):
+def begin_request_soud_sync(server, user):
     """
     Enqueue a task to request this SoUD to be
     synced with a server
@@ -54,7 +54,7 @@ def begin_request_soud_sync(server, user, facility):
         # this does not make sense unless this is a SoUD
         logger.warn("Only Subsets of Users Devices can do this")
         return
-    queue.enqueue(request_soud_sync, server, user, facility)
+    queue.enqueue(request_soud_sync, server, user)
 
 
 def request_soud_sync(server, user=None, queue_id=None, ttl=10):
@@ -98,9 +98,12 @@ def request_soud_sync(server, user=None, queue_id=None, ttl=10):
         )
         return
 
-        # it seems the server is on trouble, let's try it later again
-
-    server_response = json.loads(response.content.decode() or "{}")
+    response_content = (
+        response.content.decode()
+        if isinstance(response.content, bytes)
+        else response.content
+    )
+    server_response = json.loads(response_content or "{}")
     if response.status_code == status.HTTP_404_NOT_FOUND:
         return  # Request done to a server not owning this user's data
 

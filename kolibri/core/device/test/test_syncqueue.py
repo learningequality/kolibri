@@ -1,3 +1,4 @@
+import json
 import time
 from uuid import uuid4
 
@@ -11,8 +12,12 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.public.api import MAX_CONCURRENT_SYNCS
-from kolibri.core.public.api import QUEUED
-from kolibri.core.public.api import SYNC
+from kolibri.core.public.constants.user_sync_statuses import QUEUED
+from kolibri.core.public.constants.user_sync_statuses import SYNC
+from kolibri.core.public.utils import begin_request_soud_sync
+from kolibri.core.public.utils import request_soud_sync
+from kolibri.core.tasks.main import queue
+from kolibri.core.tasks.main import scheduler
 
 
 class SyncQueueTestBase(TestCase):
@@ -157,3 +162,34 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         assert response.data["action"] == QUEUED
         assert response.data["id"] == element.id
         assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 2
+
+
+class RequestSoUDSync(TestCase):
+    def setUp(self):
+        self.facility = Facility.objects.create(name="Test")
+        self.test_user = FacilityUser.objects.create(
+            username="test", facility=self.facility
+        )
+
+    @mock.patch(
+        "kolibri.core.public.utils.get_device_info",
+        return_value={"subset_of_users_device": True},
+    )
+    def test_begin_request_soud_sync(self, mock_device_info):
+        jobs = len(queue.jobs)
+        begin_request_soud_sync("whatever_server", self.test_user.id)
+        assert len(queue.jobs) == jobs + 1
+
+    @mock.patch("kolibri.core.public.utils.requests")
+    def test_request_soud_sync(self, requests_mock):
+        requests_mock.post.return_value.status_code = 200
+        requests_mock.post.return_value.content = json.dumps({"action": SYNC})
+        request_soud_sync("whatever_server", self.test_user.id)
+        assert len(scheduler.get_jobs()) == 0
+
+        requests_mock.post.return_value.status_code = 200
+        requests_mock.post.return_value.content = json.dumps(
+            {"action": QUEUED, "keep_alive": "5", "id": str(uuid4())}
+        )
+        request_soud_sync("whatever_server", self.test_user.id)
+        assert len(scheduler.get_jobs()) == 1
