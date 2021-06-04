@@ -242,7 +242,7 @@ i18n-download-glossary:
 i18n-upload-glossary:
 	python packages/kolibri-tools/lib/i18n/crowdin.py upload-glossary
 
-docker-whl: writeversion docker-envlist
+docker-whl: docker-envlist
 	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .
 	docker run \
 		--env-file ./docker/env.list \
