@@ -242,14 +242,20 @@ i18n-download-glossary:
 i18n-upload-glossary:
 	python packages/kolibri-tools/lib/i18n/crowdin.py upload-glossary
 
-docker-whl: writeversion docker-envlist
-	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .
+docker-clean:
+	rm -f *.iid *.cid
+
+docker-whl: docker-envlist docker-clean
+	docker build \
+		--iidfile docker-whl.iid \
+		-f docker/build_whl.dockerfile .
 	docker run \
 		--env-file ./docker/env.list \
-		-v $$PWD/dist:/kolibridist \
+		--cidfile docker-whl.cid \
 		-v yarn_cache:/yarn_cache \
 		-v cext_cache:/cext_cache \
-		"learningequality/kolibri-whl"
+		`cat docker-whl.iid`
+	docker cp `cat docker-whl.cid`:/kolibri/dist/. dist/
 	git checkout -- ./docker/env.list  # restore env.list file
 
 docker-build-base: writeversion
