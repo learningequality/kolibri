@@ -17,9 +17,6 @@ from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import SYNC
 from kolibri.core.public.utils import begin_request_soud_sync
 from kolibri.core.public.utils import request_soud_sync
-from kolibri.core.tasks.queue import Queue
-from kolibri.core.tasks.scheduler import Scheduler
-from kolibri.core.tasks.test.base import connection
 
 
 class SyncQueueTestBase(TestCase):
@@ -166,21 +163,6 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 2
 
 
-@pytest.fixture
-def queue():
-    with connection() as c:
-        q = Queue("kolibri", c)
-        yield q
-
-
-@pytest.fixture
-def scheduler(queue):
-    s = Scheduler(queue=queue)
-    s.clear_scheduler()
-    yield s
-    s.clear_scheduler()
-
-
 @pytest.mark.django_db
 class TestRequestSoUDSync(object):
     @pytest.fixture()
@@ -190,24 +172,28 @@ class TestRequestSoUDSync(object):
             username="test", facility=self.facility
         )
 
+    @mock.patch("kolibri.core.public.utils.queue")
     @mock.patch(
         "kolibri.core.public.utils.get_device_info",
         return_value={"subset_of_users_device": True},
     )
-    def test_begin_request_soud_sync(self, mock_device_info, scheduler, setUp):
-        jobs = len(scheduler.queue.jobs)
+    def test_begin_request_soud_sync(self, mock_device_info, queue, setUp):
         begin_request_soud_sync("whatever_server", self.test_user.id)
-        assert len(scheduler.queue.jobs) == jobs + 1
+        queue.enqueue.assert_called_with(
+            request_soud_sync, "whatever_server", self.test_user.id
+        )
 
+    @mock.patch("kolibri.core.public.utils.scheduler")
     @mock.patch("kolibri.core.public.utils.requests")
     def test_request_soud_sync(self, requests_mock, scheduler, setUp):
         requests_mock.post.return_value.status_code = 200
         requests_mock.post.return_value.content = json.dumps({"action": SYNC})
         request_soud_sync("whatever_server", self.test_user.id)
-        assert len(scheduler.get_jobs()) == 0
+        scheduler.enqueue_in.call_count == 0
+
         requests_mock.post.return_value.status_code = 200
         requests_mock.post.return_value.content = json.dumps(
             {"action": QUEUED, "keep_alive": "5", "id": str(uuid4())}
         )
         request_soud_sync("whatever_server", self.test_user.id)
-        assert len(scheduler.get_jobs()) == 1
+        scheduler.enqueue_in.call_count == 1
