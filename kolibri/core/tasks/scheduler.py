@@ -125,20 +125,24 @@ class Scheduler(StorageMixin):
         if self._schedule_checker:
             self._schedule_checker.stop()
 
-    def enqueue_at(self, dt, func, *args, **kwargs):
+    def enqueue_at(self, dt, func, interval=0, repeat=0, *args, **kwargs):
         """
         Add the job to the scheduler for the specified time
         """
-        return self.schedule(dt, func, interval=0, repeat=0, *args, **kwargs)
+        return self.schedule(
+            dt, func, interval=interval, repeat=repeat, *args, **kwargs
+        )
 
-    def enqueue_in(self, delta_t, func, *args, **kwargs):
+    def enqueue_in(self, delta_t, func, interval=0, repeat=0, *args, **kwargs):
         """
         Add the job to the scheduler in the specified time delta
         """
         if not isinstance(delta_t, timedelta):
             raise ValueError("Time argument must be a timedelta object.")
         dt = self._now() + delta_t
-        return self.schedule(dt, func, interval=0, repeat=0, *args, **kwargs)
+        return self.schedule(
+            dt, func, interval=interval, repeat=repeat, *args, **kwargs
+        )
 
     def schedule(self, dt, func, interval=0, repeat=0, *args, **kwargs):
         """

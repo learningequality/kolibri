@@ -13,9 +13,28 @@ from kolibri.core.tasks.utils import stringify_func
 logger = logging.getLogger(__name__)
 
 
+class Registry(object):
+    """
+    All jobs that get registered via `task.register` decorator are placed
+    in below REGISTERED_JOBS dictionary.
+
+    REGISTERED_JOBS dictionary's key is the stringified form of decorated function and value
+    is an instance of `RegisteredJob`. For example,
+
+        {
+            ...
+            "kolibri.core.content.tasks.importchannel": <RegisteredJob>,
+            "kolibri.core.content.tasks.exportchannel": <RegisteredJob>,
+            ...
+        }
+    """
+
+    REGISTERED_JOBS = {}
+
+
 class State(object):
     """
-    the State object enumerates a Job's possible valid states.
+    The State object enumerates a Job's possible valid states.
 
     SCHEDULED means the Job has been accepted by the client, but has not been
     sent to the workers for running.
@@ -46,6 +65,37 @@ class State(object):
     CANCELING = "CANCELING"
     CANCELED = "CANCELED"
     COMPLETED = "COMPLETED"
+
+
+class Priority(object):
+    """
+    This class defines the priority levels and their corresponding string values.
+
+    REGULAR priority is for tasks that can wait for some time before it actually
+    starts executing. Tasks that are tracked on task manager should use this priority.
+
+    HIGH priority is for tasks that want execution as soon as possible. Tasks that
+    might affect user experience (e.g. on screen loading animation) like facility syncing,
+    csv export/import should use this priority.
+    """
+
+    REGULAR = "REGULAR"
+    HIGH = "HIGH"
+
+
+class Default(object):
+    """
+    Default values for Job and RegisteredJob attributes.
+    """
+
+    STATE = State.QUEUED
+    GROUP = None
+    CANCELLABLE = False
+    TRACK_PROGRESS = False
+
+    PRIORITY = Priority.REGULAR
+    VALIDATOR = None
+    PERMISSION = None
 
 
 def execute_job(job_id, db_type, db_url):
@@ -138,31 +188,19 @@ class Job(object):
             job_id = uuid.uuid4().hex
 
         self.job_id = job_id
-        self.state = kwargs.pop("state", State.QUEUED)
+        self.state = kwargs.pop("state", Default.STATE)
         self.traceback = ""
         self.exception = None
-        self.track_progress = kwargs.pop("track_progress", False)
-        self.cancellable = kwargs.pop("cancellable", False)
+        self.track_progress = kwargs.pop("track_progress", Default.TRACK_PROGRESS)
+        self.cancellable = kwargs.pop("cancellable", Default.CANCELLABLE)
         self.extra_metadata = kwargs.pop("extra_metadata", {})
         self.progress = 0
         self.total_progress = 0
         self.args = args
         self.kwargs = kwargs
         self.result = None
-
         self.storage = None
-
-        if callable(func):
-            funcstring = stringify_func(func)
-        elif isinstance(func, str):
-            funcstring = func
-        else:
-            raise Exception(
-                "Error in creating job. We do not know how to "
-                "handle a function of type {}".format(type(func))
-            )
-
-        self.func = funcstring
+        self.func = stringify_func(func)
 
     def save_meta(self):
         if self.storage is None:
@@ -222,3 +260,68 @@ class Job(object):
                 total=self.total_progress,
             )
         )
+
+
+class RegisteredJob(object):
+    """
+    This class's instance represents the API available to functions registered via decorator.
+
+    Suppose, `add` is registered as:
+
+        @task.config(group="math")
+        @task.register(priority=task.priority.HIGH)
+        def add(x, y):
+            return x + y
+
+    Then, we can schedule `add` as `add.enqueue_in(delta_time_arg).initiatetask(args)` or
+    `add.enqueue_at(datetime_arg).initiatetask(args)`.
+
+    Also, we can directly queue the task by calling `add.initiatetask(args)`.
+    `add` will get enqueued in "math" group and on HIGH priority.
+
+    This design should allow very easy expansion of capabilities.
+    """
+
+    def __init__(self, func, *args, **kwargs):
+        # These three attributes are specific to a job that is registered.
+        # When func.initiatetask(...) is called, first self.validator is run, upon success,
+        # we enqueue func based on self.priority.
+        # self.permission will ONLY be used when the task gets submitted via the API endpoint.
+        self.validator = kwargs.pop("validator", Default.VALIDATOR)
+        self.permission = kwargs.pop("permission", Default.PERMISSION)
+        self.priority = kwargs.pop("priority", Default.PRIORITY)
+
+        # Expose methods to func.
+        setattr(func, "enqueue_in", self.set_enqueue_in)
+        setattr(func, "enqueue_at", self.set_enqueue_at)
+        setattr(func, "initiatetask", self.initiatetask)
+
+        self.job = Job(func, *args, **kwargs)
+
+        self.enqueue_in_params = None
+        self.enqueue_at_params = None
+
+    def set_enqueue_in(self, delta_time, interval=0, repeat=0):
+        """
+        Set required attributes for enqueuing in given timedelta.
+        :return: the instance itself (self).
+        """
+        setattr(self.enqueue_in_params, "delta_time", delta_time)
+        setattr(self.enqueue_in_params, "interval", interval)
+        setattr(self.enqueue_in_params, "repeat", repeat)
+        self.enqueue_at_params = None
+        return self
+
+    def set_enqueue_at(self, specific_time, interval=0, repeat=0):
+        """
+        Set required attributes for enqueuing at a given datetime.
+        :return: the instance itself (self).
+        """
+        setattr(self.enqueue_at_params, "specific_time", specific_time)
+        setattr(self.enqueue_at_params, "interval", interval)
+        setattr(self.enqueue_at_params, "repeat", repeat)
+        self.enqueue_in_params = None
+        return self
+
+    def initiatetask(self, *args, **kwargs):
+        print("Task initiated")
