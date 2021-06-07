@@ -269,21 +269,21 @@ class RegisteredJob(object):
         def add(x, y):
             return x + y
 
-    Then, we can schedule `add` as `add.enqueue_in(delta_time_arg).initiatetask(args)` or
-    `add.enqueue_at(datetime_arg).initiatetask(args)`.
+    Then, we can schedule `add` as `add.task.enqueue_in(delta_time_arg).initiate(args)` or
+    `add.task.enqueue_at(datetime_arg).initiate(args)`.
 
-    Also, we can directly queue the task by calling `add.initiatetask(args)`.
+    Also, we can directly queue the task by calling `add.task.initiate(args)`.
     `add` will get enqueued in "math" group and on HIGH priority.
 
-    This design should allow very easy expansion of capabilities.
+    This design should allow very easy expansion of task's public api capabilities.
     """
 
     def __init__(self, func, *args, **kwargs):
-        # These three attributes are specific to a job that is registered.
+        # The three attributes: validator, permission & priority are specific to a job that
+        # is registered.
         # When func.initiatetask(...) is called, first self.validator is run, upon success,
         # we enqueue func based on self.priority.
         # self.permission will ONLY be used when the task gets submitted via the API endpoint.
-
         validator = kwargs.pop("validator", None)
         if validator is not None and not callable(validator):
             raise TypeError("Can't assign validator of type {}".format(type(validator)))
@@ -293,17 +293,19 @@ class RegisteredJob(object):
         # will be done during POST /api/task development
         self.permission = kwargs.pop("permission", None)
         self.priority = kwargs.pop("priority", Priority.REGULAR)
-        self.job_id = kwargs.pop("job_id", None)
 
-        self.job = Job(func, job_id=self.job_id, *args, **kwargs)
+        self.func = func
+        self.job_id = kwargs.pop("job_id", None)
+        self.group = kwargs.pop("group", None)
+        self.cancellable = kwargs.pop("cancellable", False)
+        self.track_progress = kwargs.pop("track_progress", False)
 
         self.enqueue_in_params = {}
         self.enqueue_at_params = {}
 
-    def set_enqueue_in(self, delta_time, interval=0, repeat=0):
+    def enqueue_in(self, delta_time, interval=0, repeat=0):
         """
         Set required attributes for enqueuing in given timedelta.
-        :return: the instance itself (self).
         """
         self.enqueue_in_params = {
             "delta_t": delta_time,
@@ -311,12 +313,10 @@ class RegisteredJob(object):
             "repeat": repeat,
         }
         self.enqueue_at_params.clear()
-        return self
 
-    def set_enqueue_at(self, specific_time, interval=0, repeat=0):
+    def enqueue_at(self, specific_time, interval=0, repeat=0):
         """
         Set required attributes for enqueuing at a given datetime.
-        :return: the instance itself (self).
         """
         self.enqueue_at_params = {
             "dt": specific_time,
@@ -324,9 +324,8 @@ class RegisteredJob(object):
             "repeat": repeat,
         }
         self.enqueue_in_params.clear()
-        return self
 
-    def initiatetask(self, *args, **kwargs):
+    def initiate(self, *args, **kwargs):
         """
         First runs the validator by passing args and kwargs received here.
 
@@ -351,14 +350,20 @@ class RegisteredJob(object):
         if validator_result is not None:
             kwargs["validator_result"] = validator_result
 
-        self.job = Job(self.job, job_id=self.job_id, *args, **kwargs)
+        job_obj = Job(
+            self.func,
+            job_id=self.job_id,
+            group=self.group,
+            cancellable=self.cancellable,
+            track_progress=self.track_progress,
+            *args,
+            **kwargs
+        )
 
         if self.enqueue_at_params:
-            scheduler.enqueue_at(func=self.job, **self.enqueue_at_params)
+            scheduler.enqueue_at(func=job_obj, **self.enqueue_at_params)
         elif self.enqueue_in_params:
-            scheduler.enqueue_in(func=self.job, **self.enqueue_in_params)
+            scheduler.enqueue_in(func=job_obj, **self.enqueue_in_params)
         else:
             queue = PRIORITY_TO_QUEUE_MAP[self.priority]
-            queue.enqueue(func=self.job)
-
-        return self
+            queue.enqueue(func=job_obj)

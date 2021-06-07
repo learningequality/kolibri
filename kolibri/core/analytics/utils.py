@@ -471,7 +471,8 @@ def ping_once(started, server=DEFAULT_SERVER_URL):
         create_and_update_notifications(stat_data, nutrition_endpoints.STATISTICS)
 
 
-@task.register(job_id="0")
+# Added to test if decorator is working or not
+@task.register
 def _ping(started, server, checkrate):
     try:
         ping_once(started, server=server)
@@ -510,16 +511,7 @@ def schedule_ping(
     # If pinging is not disabled by the environment
     if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
         started = local_now()
-        _ping.enqueue_at(started, interval=interval * 60, repeat=None).initiatetask(
+        _ping.task.job_id = job_id
+        _ping.task.enqueue_at(started, interval=interval * 60, repeat=None).initiate(
             started=started, server=server, checkrate=checkrate
         )
-        # scheduler.schedule(
-        #    started,
-        #    _ping,
-        #    interval=interval * 60,
-        #    repeat=None,
-        #    started=started,
-        #    server=server,
-        #    checkrate=checkrate,
-        #    job_id=job_id,
-        # )

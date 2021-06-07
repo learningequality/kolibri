@@ -47,10 +47,8 @@ class _TaskDecorators(object):
             priority=priority,
         )
 
-        # Expose methods to func.
-        setattr(func, "enqueue_in", registered_job.set_enqueue_in)
-        setattr(func, "enqueue_at", registered_job.set_enqueue_at)
-        setattr(func, "initiatetask", registered_job.initiatetask)
+        # Expose registered_job's api to func.
+        setattr(func, "task", registered_job)
 
         funcstring = stringify_func(func)
         JobRegistry.REGISTERED_JOBS[funcstring] = registered_job
@@ -86,9 +84,9 @@ class _TaskDecorators(object):
                 )
             )
 
-        setattr(registered_job.job, "group", group)
-        setattr(registered_job.job, "cancellable", cancellable)
-        setattr(registered_job.job, "track_progress", track_progress)
+        registered_job.group = group
+        registered_job.cancellable = cancellable
+        registered_job.track_progress = track_progress
 
         return func
 
@@ -101,7 +99,7 @@ def import_task_modules_frm_django_apps(app_configs=None):
     if app_configs is None:
         app_configs = django_apps.get_app_configs()
 
-    logger.info("Importing 'tasks' modules from django apps...")
+    logger.info("Importing 'tasks' modules from django apps")
 
     for app_config in app_configs:
         try:
