@@ -30,11 +30,6 @@ class TaskDecorators(object):
                 priority=priority,
             )
 
-        if not callable(func):
-            raise TypeError(
-                "Cannot register object of type {} as task".format(type(func))
-            )
-
         registered_job = RegisteredJob(
             func, validator=validator, permission=permission, priority=priority
         )
@@ -64,20 +59,14 @@ class TaskDecorators(object):
                 track_progress=track_progress,
             )
 
-        if not callable(func):
-            raise TypeError(
-                "Cannot apply task configuration to object of type {}".format(
-                    type(func)
-                )
-            )
-
         funcstring = stringify_func(func)
 
         try:
             registered_job = JobRegistry.REGISTERED_JOBS[funcstring]
         except KeyError:
             raise FunctionNotRegisteredAsJob(
-                "{func} is not registered as task. First apply task registration decorator.".format(
+                "Can't apply config decorator. {func} is not registered. First,\
+                you must apply register decorator.".format(
                     func=func
                 )
             )
@@ -87,3 +76,6 @@ class TaskDecorators(object):
         setattr(registered_job.job, "track_progress", track_progress)
 
         return func
+
+
+task = TaskDecorators()

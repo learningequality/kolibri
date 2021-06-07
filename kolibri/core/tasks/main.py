@@ -9,6 +9,7 @@ from sqlalchemy import exc
 
 from kolibri.core.sqlite.utils import check_sqlite_integrity
 from kolibri.core.sqlite.utils import repair_sqlite_db
+from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.scheduler import Scheduler
 from kolibri.core.tasks.worker import Worker
@@ -123,6 +124,12 @@ def __queue():
 
 
 queue = SimpleLazyObject(__queue)
+
+
+PRIORITY_TO_QUEUE_MAP = {
+    Priority.REGULAR: queue,
+    Priority.HIGH: priority_queue,
+}
 
 
 def __scheduler():

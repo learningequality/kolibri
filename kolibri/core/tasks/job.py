@@ -283,24 +283,33 @@ class RegisteredJob(object):
         # When func.initiatetask(...) is called, first self.validator is run, upon success,
         # we enqueue func based on self.priority.
         # self.permission will ONLY be used when the task gets submitted via the API endpoint.
-        self.validator = kwargs.pop("validator", None)
+
+        validator = kwargs.pop("validator", None)
+        if validator is not None and not callable(validator):
+            raise TypeError("Can't assign validator of type {}".format(type(validator)))
+
+        self.validator = validator
+        # To do: type checking of permission,
+        # will be done during POST /api/task development
         self.permission = kwargs.pop("permission", None)
         self.priority = kwargs.pop("priority", Priority.REGULAR)
 
         self.job = Job(func, *args, **kwargs)
 
-        self.enqueue_in_params = None
-        self.enqueue_at_params = None
+        self.enqueue_in_params = {}
+        self.enqueue_at_params = {}
 
     def set_enqueue_in(self, delta_time, interval=0, repeat=0):
         """
         Set required attributes for enqueuing in given timedelta.
         :return: the instance itself (self).
         """
-        setattr(self.enqueue_in_params, "delta_time", delta_time)
-        setattr(self.enqueue_in_params, "interval", interval)
-        setattr(self.enqueue_in_params, "repeat", repeat)
-        self.enqueue_at_params = None
+        self.enqueue_in_params = {
+            "delta_t": delta_time,
+            "interval": interval,
+            "repeat": repeat,
+        }
+        self.enqueue_at_params.clear()
         return self
 
     def set_enqueue_at(self, specific_time, interval=0, repeat=0):
@@ -308,11 +317,46 @@ class RegisteredJob(object):
         Set required attributes for enqueuing at a given datetime.
         :return: the instance itself (self).
         """
-        setattr(self.enqueue_at_params, "specific_time", specific_time)
-        setattr(self.enqueue_at_params, "interval", interval)
-        setattr(self.enqueue_at_params, "repeat", repeat)
-        self.enqueue_in_params = None
+        self.enqueue_at_params = {
+            "dt": specific_time,
+            "interval": interval,
+            "repeat": repeat,
+        }
+        self.enqueue_in_params.clear()
         return self
 
     def initiatetask(self, *args, **kwargs):
-        print("Task initiated")
+        """
+        First runs the validator by passing args and kwargs received here.
+
+        Then if enqueue_in_params or enqueue_at_params are present, schedules job
+        accordingly.
+
+        Otherwise, directly enqueues to the queue based on priority.
+        """
+        from kolibri.core.tasks.main import scheduler
+        from kolibri.core.tasks.main import PRIORITY_TO_QUEUE_MAP
+
+        if self.validator is not None:
+            try:
+                validator_result = self.validator(*args, **kwargs)
+            # To do: tigthen exception catch
+            # Will be done during POST /api/task developement
+            except Exception as e:
+                raise e
+
+        if validator_result is not None:
+            kwargs["validator_result"] = validator_result
+
+        self.job = Job(self.job, *args, **kwargs)
+
+        if self.enqueue_at_params:
+            scheduler.enqueue_at(self.job, **self.enqueue_at_params)
+        elif self.enqueue_in_params:
+            scheduler.enqueue_in(self.job, **self.enqueue_in_params)
+
+        queue = PRIORITY_TO_QUEUE_MAP[self.priority]
+
+        queue.enqueue(self.job, *args, **kwargs)
+
+        return self
