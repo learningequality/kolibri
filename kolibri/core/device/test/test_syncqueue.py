@@ -157,7 +157,7 @@ class SyncQueueViewSetAPITestCase(APITestCase):
             reverse("kolibri:core:syncqueue-detail", kwargs={"pk": element.id})
         )
         element = SyncQueue.objects.get(id=element.id)
-        assert element.updated > previous_time
+        assert element.updated >= previous_time
         assert response.status_code == status.HTTP_200_OK
         assert response.data["action"] == QUEUED
         assert response.data["id"] == element.id
