@@ -160,6 +160,7 @@ def get_public_file_checksums(request, version):
 
 def position_in_queue(id):
     qs = SyncQueue.objects.all().order_by("datetime").values("id")
+    pos = 0  # in case the queue is empty
     for pos, value in enumerate(qs):
         if value["id"] == id:
             break

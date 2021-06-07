@@ -1008,12 +1008,20 @@ class ResourceGoneError(APIException):
     default_detail = "Unable to connect"
 
 
-def prepare_sync_task(request, **kwargs):
-    facility_id = request.data.get("facility")
+def initial_sync_task(
+    facility_id,
+    user_id,
+    username,
+    facility_name,
+    device_name,
+    device_id,
+    baseurl,
+    **kwargs
+):
     task_data = dict(
         facility=facility_id,
-        started_by=request.user.pk,
-        started_by_username=request.user.username,
+        started_by=user_id,
+        started_by_username=username,
         sync_state=FacilitySyncState.PENDING,
         bytes_sent=0,
         bytes_received=0,
@@ -1023,22 +1031,42 @@ def prepare_sync_task(request, **kwargs):
     if task_type in ["SYNCPEER/PULL", "SYNCPEER/FULL"]:
         # Extra metadata that can be passed from the client
         extra_task_data = dict(
-            facility_name=request.data.get("facility_name", ""),
-            device_name=request.data.get("device_name", ""),
-            device_id=request.data.get("device_id", ""),
-            baseurl=request.data.get("baseurl", ""),
+            facility_name=facility_name,
+            device_name=device_name,
+            device_id=device_id,
+            baseurl=baseurl,
         )
         task_data.update(extra_task_data)
     elif task_type == "SYNCDATAPORTAL":
         # Extra metadata that can be passed from the client
-        extra_task_data = dict(facility_name=request.data.get("facility_name", ""))
+        extra_task_data = dict(facility_name=facility_name)
         task_data.update(extra_task_data)
 
     task_data.update(kwargs)
     return task_data
 
 
-def validate_prepare_sync_job(request, **kwargs):
+def prepare_sync_task(request, **kwargs):
+    facility_id = request.data.get("facility")
+    user_id = request.user.pk
+    username = request.user.username
+    facility_name = request.data.get("facility_name", "")
+    device_name = request.data.get("device_name", "")
+    device_id = request.data.get("device_id", "")
+    baseurl = request.data.get("baseurl", "")
+    return initial_sync_task(
+        facility_id,
+        user_id,
+        username,
+        facility_name,
+        device_name,
+        device_id,
+        baseurl,
+        **kwargs
+    )
+
+
+def validate_facility(request):
     # ensure we have the facility
     try:
         facility_id = request.data.get("facility")
@@ -1046,6 +1074,16 @@ def validate_prepare_sync_job(request, **kwargs):
             raise KeyError()
     except KeyError:
         raise ParseError("Missing `facility` parameter")
+
+    return facility_id
+
+
+def validate_prepare_sync_job(request, **kwargs):
+    facility_id = validate_facility(request)
+    return prepare_sync_job(facility_id, **kwargs)
+
+
+def prepare_sync_job(facility_id, **kwargs):
 
     job_data = dict(
         facility=facility_id,
@@ -1075,11 +1113,16 @@ def validate_and_prepare_peer_sync_job(request, **kwargs):
     except NetworkLocationNotFound:
         raise ResourceGoneError()
 
-    job_data = validate_prepare_sync_job(request, baseurl=baseurl, **kwargs)
+    facility_id = validate_facility(request)
 
-    facility_id = job_data.get("facility")
     username = request.data.get("username", None)
     password = request.data.get("password", None)
+
+    return prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs)
+
+
+def prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs):
+    job_data = prepare_sync_job(facility_id, baseurl=baseurl, **kwargs)  # ToDo
 
     # call this in case user directly syncs without migrating database
     if not ScopeDefinition.objects.filter():

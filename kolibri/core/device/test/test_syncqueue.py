@@ -161,7 +161,9 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert response.data["action"] == QUEUED
         assert response.data["id"] == element.id
-        assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 2
+        assert (
+            response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 1
+        )  # first in queue, position does not change
 
     @mock.patch("kolibri.core.public.api.TransferSession.objects.filter")
     def test_position_in_queue(self, _filter):
@@ -209,10 +211,23 @@ class TestRequestSoUDSync(object):
 
     @mock.patch("kolibri.core.public.utils.scheduler")
     @mock.patch("kolibri.core.public.utils.requests")
-    def test_request_soud_sync(self, requests_mock, scheduler, setUp):
+    @mock.patch("kolibri.core.tasks.api.get_client_and_server_certs")
+    @mock.patch("kolibri.core.tasks.api.get_dataset_id")
+    def test_request_soud_sync(
+        self,
+        get_dataset_id,
+        get_client_and_server_certs,
+        requests_mock,
+        scheduler,
+        setUp,
+    ):
+
+        get_client_and_server_certs.return_value = None
+        get_dataset_id.return_value = self.facility.dataset_id
+
         requests_mock.post.return_value.status_code = 200
         requests_mock.post.return_value.content = json.dumps({"action": SYNC})
-        request_soud_sync("whatever_server", self.test_user.id)
+        request_soud_sync("http://localhost:8000", self.test_user.id)
         scheduler.enqueue_in.call_count == 0
 
         requests_mock.post.return_value.status_code = 200

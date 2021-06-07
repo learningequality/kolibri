@@ -5,18 +5,23 @@ import platform
 import random
 
 import requests
+from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from morango.models import InstanceIDModel
 from rest_framework import status
 
 import kolibri
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import SYNC
+from kolibri.core.tasks.api import initial_sync_task
+from kolibri.core.tasks.api import prepare_peer_sync_job
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.main import queue
 from kolibri.core.tasks.main import scheduler
+
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +47,36 @@ def get_device_info():
         "subset_of_users_device": subset_of_users_device,
     }
     return info
+
+
+def startpeerfacilitysync(server, user_id):
+    """
+    Initiate a SYNC (PULL + PUSH) of a specific facility from another device.
+    """
+
+    user = FacilityUser.objects.get(pk=user_id)
+    facility_id = user.facility.id
+
+    device_info = get_device_info()
+
+    extra_metadata = initial_sync_task(
+        facility_id,
+        user_id,
+        user.username,
+        user.facility.name,
+        device_info["device_name"],
+        device_info["instance_id"],
+        server,
+        type="SYNCPEER/FULL",
+    )
+
+    job_data = prepare_peer_sync_job(
+        server, facility_id, user.username, user.password, extra_metadata=extra_metadata
+    )
+
+    job_id = queue.enqueue(call_command, "sync", **job_data)
+
+    return job_id
 
 
 def begin_request_soud_sync(server, user):
@@ -109,8 +144,10 @@ def request_soud_sync(server, user=None, queue_id=None, ttl=10):
 
     if response.status_code == status.HTTP_200_OK:
         if server_response["action"] == SYNC:
-            # TODO: queue a sync task in the server, when this is developed
-            logger.info("Enqueuing a sync task for user {}".format(user))
+            job_id = startpeerfacilitysync(server, user)
+            logger.info(
+                "Enqueuing a sync task for user {} in job {}".format(user, job_id)
+            )
 
         elif server_response["action"] == QUEUED:
             pk = server_response["id"]
