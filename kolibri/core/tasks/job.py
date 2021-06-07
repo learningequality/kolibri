@@ -313,6 +313,7 @@ class RegisteredJob(object):
             "repeat": repeat,
         }
         self.enqueue_at_params.clear()
+        return self
 
     def enqueue_at(self, specific_time, interval=0, repeat=0):
         """
@@ -324,6 +325,7 @@ class RegisteredJob(object):
             "repeat": repeat,
         }
         self.enqueue_in_params.clear()
+        return self
 
     def initiate(self, *args, **kwargs):
         """
@@ -367,3 +369,5 @@ class RegisteredJob(object):
         else:
             queue = PRIORITY_TO_QUEUE_MAP[self.priority]
             queue.enqueue(func=job_obj)
+
+        return job_obj.job_id
