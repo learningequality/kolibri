@@ -1,9 +1,9 @@
 from functools import partial
 
-from kolibri.core.tasks.job import Default
+from kolibri.core.tasks.exceptions import FunctionNotRegisteredAsJob
+from kolibri.core.tasks.job import JobRegistry
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import RegisteredJob
-from kolibri.core.tasks.job import Registry
 from kolibri.core.tasks.utils import stringify_func
 
 
@@ -18,9 +18,9 @@ class TaskDecorators(object):
     def register(
         self,
         func=None,
-        validator=Default.VALIDATOR,
-        permission=Default.PERMISSION,
-        priority=Default.PRIORITY,
+        validator=None,
+        permission=None,
+        priority=Priority.REGULAR,
     ):
         if func is None:
             return partial(
@@ -30,20 +30,60 @@ class TaskDecorators(object):
                 priority=priority,
             )
 
+        if not callable(func):
+            raise TypeError(
+                "Cannot register object of type {} as task".format(type(func))
+            )
+
         registered_job = RegisteredJob(
             func, validator=validator, permission=permission, priority=priority
         )
 
+        # Expose methods to func.
+        setattr(func, "enqueue_in", registered_job.set_enqueue_in)
+        setattr(func, "enqueue_at", registered_job.set_enqueue_at)
+        setattr(func, "initiatetask", registered_job.initiatetask)
+
         funcstring = stringify_func(func)
-        Registry.REGISTERED_JOBS[funcstring] = registered_job
+        JobRegistry.REGISTERED_JOBS[funcstring] = registered_job
 
         return func
 
     def config(
         self,
         func=None,
-        group=Default.GROUP,
-        cancellable=Default.CANCELLABLE,
-        track_progress=Default.TRACK_PROGRESS,
+        group=None,
+        cancellable=False,
+        track_progress=False,
     ):
-        pass
+        if func is None:
+            return partial(
+                self.config,
+                group=group,
+                cancellable=cancellable,
+                track_progress=track_progress,
+            )
+
+        if not callable(func):
+            raise TypeError(
+                "Cannot apply task configuration to object of type {}".format(
+                    type(func)
+                )
+            )
+
+        funcstring = stringify_func(func)
+
+        try:
+            registered_job = JobRegistry.REGISTERED_JOBS[funcstring]
+        except KeyError:
+            raise FunctionNotRegisteredAsJob(
+                "{func} is not registered as task. First apply task registration decorator.".format(
+                    func=func
+                )
+            )
+
+        setattr(registered_job.job, "group", group)
+        setattr(registered_job.job, "cancellable", cancellable)
+        setattr(registered_job.job, "track_progress", track_progress)
+
+        return func

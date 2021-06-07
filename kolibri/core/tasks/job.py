@@ -13,7 +13,7 @@ from kolibri.core.tasks.utils import stringify_func
 logger = logging.getLogger(__name__)
 
 
-class Registry(object):
+class JobRegistry(object):
     """
     All jobs that get registered via `task.register` decorator are placed
     in below REGISTERED_JOBS dictionary.
@@ -35,6 +35,9 @@ class Registry(object):
 class State(object):
     """
     The State object enumerates a Job's possible valid states.
+
+    PENDING means the Job object has been created, but it has not been queued
+    for running.
 
     SCHEDULED means the Job has been accepted by the client, but has not been
     sent to the workers for running.
@@ -58,6 +61,7 @@ class State(object):
     should be set with the function's return value.
     """
 
+    PENDING = "PENDING"
     SCHEDULED = "SCHEDULED"
     QUEUED = "QUEUED"
     RUNNING = "RUNNING"
@@ -81,21 +85,6 @@ class Priority(object):
 
     REGULAR = "REGULAR"
     HIGH = "HIGH"
-
-
-class Default(object):
-    """
-    Default values for Job and RegisteredJob attributes.
-    """
-
-    STATE = State.QUEUED
-    GROUP = None
-    CANCELLABLE = False
-    TRACK_PROGRESS = False
-
-    PRIORITY = Priority.REGULAR
-    VALIDATOR = None
-    PERMISSION = None
 
 
 def execute_job(job_id, db_type, db_url):
@@ -152,6 +141,7 @@ class Job(object):
         keys = [
             "job_id",
             "state",
+            "group",
             "traceback",
             "exception",
             "track_progress",
@@ -181,18 +171,24 @@ class Job(object):
             kwargs["track_progress"] = func.track_progress
             kwargs["cancellable"] = func.cancellable
             kwargs["extra_metadata"] = func.extra_metadata.copy()
+            kwargs["group"] = func.group
             func = func.func
+        elif not callable(func) and not isinstance(func, str):
+            raise TypeError(
+                "Cannot create Job for object of type {}".format(type(func))
+            )
 
         job_id = kwargs.pop("job_id", None)
         if job_id is None:
             job_id = uuid.uuid4().hex
 
         self.job_id = job_id
-        self.state = kwargs.pop("state", Default.STATE)
+        self.state = kwargs.pop("state", State.PENDING)
+        self.group = kwargs.pop("group", None)
         self.traceback = ""
         self.exception = None
-        self.track_progress = kwargs.pop("track_progress", Default.TRACK_PROGRESS)
-        self.cancellable = kwargs.pop("cancellable", Default.CANCELLABLE)
+        self.track_progress = kwargs.pop("track_progress", False)
+        self.cancellable = kwargs.pop("cancellable", False)
         self.extra_metadata = kwargs.pop("extra_metadata", {})
         self.progress = 0
         self.total_progress = 0
@@ -287,14 +283,9 @@ class RegisteredJob(object):
         # When func.initiatetask(...) is called, first self.validator is run, upon success,
         # we enqueue func based on self.priority.
         # self.permission will ONLY be used when the task gets submitted via the API endpoint.
-        self.validator = kwargs.pop("validator", Default.VALIDATOR)
-        self.permission = kwargs.pop("permission", Default.PERMISSION)
-        self.priority = kwargs.pop("priority", Default.PRIORITY)
-
-        # Expose methods to func.
-        setattr(func, "enqueue_in", self.set_enqueue_in)
-        setattr(func, "enqueue_at", self.set_enqueue_at)
-        setattr(func, "initiatetask", self.initiatetask)
+        self.validator = kwargs.pop("validator", None)
+        self.permission = kwargs.pop("permission", None)
+        self.priority = kwargs.pop("priority", Priority.REGULAR)
 
         self.job = Job(func, *args, **kwargs)
 

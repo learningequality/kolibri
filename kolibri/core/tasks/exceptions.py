@@ -15,3 +15,12 @@ class JobNotFound(Exception):
 
 class JobNotRestartable(Exception):
     pass
+
+
+class FunctionNotRegisteredAsJob(Exception):
+    """
+    Raised when task.config decorator is applied without first applying
+    the task.register decorator.
+    """
+
+    pass
