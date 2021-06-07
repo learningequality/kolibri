@@ -52,29 +52,16 @@
     name: 'MultiPaneLayout',
     mixins: [responsiveWindowMixin, responsiveElementMixin],
     computed: {
-      maxHeight() {
-        const APP_BAR_HEIGHT = this.windowIsSmall ? 56 : 64;
-        const PADDING = this.windowIsSmall ? 16 : 32;
-        const MARGIN = 16;
-        let maxHeight = this.windowHeight - APP_BAR_HEIGHT - PADDING * 2 - MARGIN;
-        if (this.$refs.header) {
-          maxHeight = maxHeight - this.$refs.header.clientHeight;
-        }
-        if (this.$refs.footer) {
-          maxHeight = maxHeight - this.$refs.footer.clientHeight;
-        }
-        return maxHeight;
-      },
       styles() {
         return {
           header: {
             borderBottomColor: this.$themeTokens.textDisabled,
           },
           aside: {
-            maxHeight: `${this.maxHeight}px`,
+            maxHeight: `${this.windowHeight}px`,
           },
           main: {
-            maxHeight: this.$slots.aside ? `${this.maxHeight}px` : '',
+            maxHeight: this.$slots.aside ? `${this.windowHeight}px` : '',
           },
           footer: {
             borderTopColor: this.$themeTokens.textDisabled,
@@ -101,6 +88,12 @@
     padding: 16px;
     border-bottom-style: solid;
     border-bottom-width: 1px;
+  }
+
+  .main,
+  .aside {
+    height: 100%;
+    overflow-y: auto;
   }
 
   .aside {
