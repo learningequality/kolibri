@@ -211,12 +211,14 @@ class TestRequestSoUDSync(object):
 
     @mock.patch("kolibri.core.public.utils.scheduler")
     @mock.patch("kolibri.core.public.utils.requests")
+    @mock.patch("kolibri.core.tasks.api.MorangoProfileController")
     @mock.patch("kolibri.core.tasks.api.get_client_and_server_certs")
     @mock.patch("kolibri.core.tasks.api.get_dataset_id")
     def test_request_soud_sync(
         self,
         get_dataset_id,
         get_client_and_server_certs,
+        MorangoProfileController,
         requests_mock,
         scheduler,
         setUp,
@@ -227,7 +229,12 @@ class TestRequestSoUDSync(object):
 
         requests_mock.post.return_value.status_code = 200
         requests_mock.post.return_value.content = json.dumps({"action": SYNC})
-        request_soud_sync("http://localhost:8000", self.test_user.id)
+
+        network_connection = mock.Mock()
+        controller = MorangoProfileController.return_value
+        controller.create_network_connection.return_value = network_connection
+
+        request_soud_sync("http://whatever:8000", self.test_user.id)
         scheduler.enqueue_in.call_count == 0
 
         requests_mock.post.return_value.status_code = 200
