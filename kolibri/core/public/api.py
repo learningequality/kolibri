@@ -158,6 +158,14 @@ def get_public_file_checksums(request, version):
     )
 
 
+def position_in_queue(id):
+    qs = SyncQueue.objects.all().order_by("datetime").values("id")
+    for pos, value in enumerate(qs):
+        if value["id"] == id:
+            break
+    return pos
+
+
 class SyncQueueViewSet(viewsets.ViewSet):
     def list(self, request):
         """Returns length of the queue for each of the available facilities"""
@@ -170,13 +178,17 @@ class SyncQueueViewSet(viewsets.ViewSet):
             ).count()
         return Response(queue)
 
-    def check_queue(self):
+    def check_queue(self, pk=None):
         current_transfers = TransferSession.objects.filter(active=True).count()
         if current_transfers <= MAX_CONCURRENT_SYNCS:
             allow_sync = True
             data = {"action": SYNC}
         else:
             polling = current_transfers + SyncQueue.objects.all().count()
+            if pk is not None:
+                # if updating the element let's assign
+                # its time depending on its position in the queue
+                polling = current_transfers + position_in_queue(pk)
             data = {
                 "action": QUEUED,
                 "keep_alive": polling,
@@ -213,7 +225,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
 
     def update(self, request, pk=None):
         SyncQueue.clean_stale()  # first, ensure not expired devices are in the queue
-        allow_sync, data = self.check_queue()
+        allow_sync, data = self.check_queue(pk)
 
         if not allow_sync:
             element = SyncQueue.objects.filter(id=pk).first()

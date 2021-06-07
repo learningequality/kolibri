@@ -13,6 +13,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.public.api import MAX_CONCURRENT_SYNCS
+from kolibri.core.public.api import position_in_queue
 from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import SYNC
 from kolibri.core.public.utils import begin_request_soud_sync
@@ -161,6 +162,29 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         assert response.data["action"] == QUEUED
         assert response.data["id"] == element.id
         assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 2
+
+    @mock.patch("kolibri.core.public.api.TransferSession.objects.filter")
+    def test_position_in_queue(self, _filter):
+        _filter().count.return_value = MAX_CONCURRENT_SYNCS + 1
+        for n in range(10):
+            user = FacilityUser.objects.create(
+                username="test{}".format(n), facility=self.default_facility
+            )
+            element = SyncQueue.objects.create(user=user)
+            if n == 5:
+                pk = element.id
+        response = self.client.put(
+            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": pk})
+        )
+        assert position_in_queue(pk) == 5
+        assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 6
+        SyncQueue.objects.all().order_by("datetime").first().delete()
+        SyncQueue.objects.all().order_by("datetime").first().delete()
+        assert position_in_queue(pk) == 3
+        response = self.client.put(
+            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": pk})
+        )
+        assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 4
 
 
 @pytest.mark.django_db
