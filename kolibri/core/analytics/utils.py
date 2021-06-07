@@ -44,6 +44,7 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import UserSessionLog
+from kolibri.core.tasks.decorators import task
 from kolibri.core.tasks.main import scheduler
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.lock import db_lock
@@ -470,6 +471,7 @@ def ping_once(started, server=DEFAULT_SERVER_URL):
         create_and_update_notifications(stat_data, nutrition_endpoints.STATISTICS)
 
 
+@task.register(job_id="0")
 def _ping(started, server, checkrate):
     try:
         ping_once(started, server=server)
@@ -508,13 +510,16 @@ def schedule_ping(
     # If pinging is not disabled by the environment
     if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
         started = local_now()
-        scheduler.schedule(
-            started,
-            _ping,
-            interval=interval * 60,
-            repeat=None,
-            started=started,
-            server=server,
-            checkrate=checkrate,
-            job_id=job_id,
+        _ping.enqueue_at(started, interval=interval * 60, repeat=None).initiatetask(
+            started=started, server=server, checkrate=checkrate
         )
+        # scheduler.schedule(
+        #    started,
+        #    _ping,
+        #    interval=interval * 60,
+        #    repeat=None,
+        #    started=started,
+        #    server=server,
+        #    checkrate=checkrate,
+        #    job_id=job_id,
+        # )

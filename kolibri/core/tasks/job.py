@@ -293,8 +293,9 @@ class RegisteredJob(object):
         # will be done during POST /api/task development
         self.permission = kwargs.pop("permission", None)
         self.priority = kwargs.pop("priority", Priority.REGULAR)
+        self.job_id = kwargs.pop("job_id", None)
 
-        self.job = Job(func, *args, **kwargs)
+        self.job = Job(func, job_id=self.job_id, *args, **kwargs)
 
         self.enqueue_in_params = {}
         self.enqueue_at_params = {}
@@ -337,10 +338,12 @@ class RegisteredJob(object):
         from kolibri.core.tasks.main import scheduler
         from kolibri.core.tasks.main import PRIORITY_TO_QUEUE_MAP
 
+        validator_result = None
+
         if self.validator is not None:
             try:
                 validator_result = self.validator(*args, **kwargs)
-            # To do: tigthen exception catch
+            # To do: manual testing with other type of tasks to battle proof
             # Will be done during POST /api/task developement
             except Exception as e:
                 raise e
@@ -348,15 +351,14 @@ class RegisteredJob(object):
         if validator_result is not None:
             kwargs["validator_result"] = validator_result
 
-        self.job = Job(self.job, *args, **kwargs)
+        self.job = Job(self.job, job_id=self.job_id, *args, **kwargs)
 
         if self.enqueue_at_params:
-            scheduler.enqueue_at(self.job, **self.enqueue_at_params)
+            scheduler.enqueue_at(func=self.job, **self.enqueue_at_params)
         elif self.enqueue_in_params:
-            scheduler.enqueue_in(self.job, **self.enqueue_in_params)
-
-        queue = PRIORITY_TO_QUEUE_MAP[self.priority]
-
-        queue.enqueue(self.job, *args, **kwargs)
+            scheduler.enqueue_in(func=self.job, **self.enqueue_in_params)
+        else:
+            queue = PRIORITY_TO_QUEUE_MAP[self.priority]
+            queue.enqueue(func=self.job)
 
         return self

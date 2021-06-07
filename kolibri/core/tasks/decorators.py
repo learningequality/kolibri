@@ -1,4 +1,8 @@
+import logging
 from functools import partial
+from importlib import import_module
+
+from django.apps import apps as django_apps
 
 from kolibri.core.tasks.exceptions import FunctionNotRegisteredAsJob
 from kolibri.core.tasks.job import JobRegistry
@@ -7,7 +11,10 @@ from kolibri.core.tasks.job import RegisteredJob
 from kolibri.core.tasks.utils import stringify_func
 
 
-class TaskDecorators(object):
+logger = logging.getLogger(__name__)
+
+
+class _TaskDecorators(object):
     """
     Task related decorators.
     """
@@ -18,6 +25,7 @@ class TaskDecorators(object):
     def register(
         self,
         func=None,
+        job_id=None,
         validator=None,
         permission=None,
         priority=Priority.REGULAR,
@@ -25,13 +33,18 @@ class TaskDecorators(object):
         if func is None:
             return partial(
                 self.register,
+                job_id=job_id,
                 validator=validator,
                 permission=permission,
                 priority=priority,
             )
 
         registered_job = RegisteredJob(
-            func, validator=validator, permission=permission, priority=priority
+            func,
+            job_id=job_id,
+            validator=validator,
+            permission=permission,
+            priority=priority,
         )
 
         # Expose methods to func.
@@ -41,6 +54,8 @@ class TaskDecorators(object):
 
         funcstring = stringify_func(func)
         JobRegistry.REGISTERED_JOBS[funcstring] = registered_job
+
+        logger.debug("Successfully registered %s as job", funcstring)
 
         return func
 
@@ -78,4 +93,18 @@ class TaskDecorators(object):
         return func
 
 
-task = TaskDecorators()
+# The below instance is to be used when decorating task functions.
+task = _TaskDecorators()
+
+
+def import_task_modules_frm_django_apps(app_configs=None):
+    if app_configs is None:
+        app_configs = django_apps.get_app_configs()
+
+    logger.info("Importing 'tasks' modules from django apps...")
+
+    for app_config in app_configs:
+        try:
+            import_module(".tasks", app_config.module.__name__)
+        except ImportError:
+            pass
