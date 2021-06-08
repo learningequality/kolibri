@@ -123,8 +123,8 @@
       this.hashi.onStateUpdate(data => {
         this.$emit('updateContentState', data);
       });
-      this.hashi.on('navigateto', message => {
-        this.$emit('navigateToRegularContext', message);
+      this.hashi.on('navigateTo', message => {
+        this.$emit('navigateTo', message);
       });
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},

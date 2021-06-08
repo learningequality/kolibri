@@ -34,7 +34,7 @@
         @updateProgress="updateProgress"
         @addProgress="addProgress"
         @updateContentState="updateContentState"
-        @navigateToRegularContext="navigateToRegularContext"
+        @navigateTo="navigateTo"
       />
 
       <AssessmentWrapper
@@ -337,23 +337,14 @@
       updateContentState(contentState, forceSave = true) {
         this.updateContentNodeState({ contentState, forceSave });
       },
-      navigateToRegularContext(message) {
+      navigateTo(message) {
         let id = message.nodeId;
         return ContentNodeResource.fetchModel({ id })
           .then(contentNode => {
-            let routeBase, path;
-            if (contentNode && contentNode.kind !== 'topic') {
-              routeBase = '/topics/c';
-              path = `${routeBase}/${id}`;
-              router.push({ path: path }).catch(() => {});
-            } else if (contentNode && contentNode.kind === 'topic') {
-              routeBase = '/topics/t';
-              path = `${routeBase}/${id}`;
-              router.push({ path: path }).catch(() => {});
-            }
+            router.push(this.genContentLink(contentNode.id, contentNode.is_leaf));
           })
-          .catch(err => {
-            console.log(err);
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
           });
       },
       markAsComplete() {
