@@ -16,8 +16,8 @@ from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import SYNC
-from kolibri.core.tasks.api import initial_sync_task
 from kolibri.core.tasks.api import prepare_peer_sync_job
+from kolibri.core.tasks.api import prepare_sync_task
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.main import queue
 from kolibri.core.tasks.main import scheduler
@@ -59,7 +59,7 @@ def startpeerfacilitysync(server, user_id):
 
     device_info = get_device_info()
 
-    extra_metadata = initial_sync_task(
+    extra_metadata = prepare_sync_task(
         facility_id,
         user_id,
         user.username,

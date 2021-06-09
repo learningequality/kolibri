@@ -885,8 +885,11 @@ class FacilityTasksViewSet(BaseViewSet):
         """
         Initiate a PUSH sync with Kolibri Data Portal.
         """
-        job_data = validate_prepare_sync_job(
-            request, extra_metadata=prepare_sync_task(request, type="SYNCDATAPORTAL")
+        facility_id = validate_facility(request)
+        sync_args = validate_sync_task(request)
+        job_data = prepare_sync_job(
+            facility_id,
+            extra_metadata=prepare_sync_task(*sync_args, type="SYNCDATAPORTAL"),
         )
         job_id = facility_queue.enqueue(call_command, "sync", **job_data)
 
@@ -919,11 +922,16 @@ class FacilityTasksViewSet(BaseViewSet):
         """
         Initiate a PULL of a specific facility from another device.
         """
-        job_data = validate_and_prepare_peer_sync_job(
-            request,
+        baseurl, facility_id, username, password = validate_peer_sync_job(request)
+        sync_args = validate_sync_task(request)
+        job_data = prepare_peer_sync_job(
+            baseurl,
+            facility_id,
+            username,
+            password,
             no_push=True,
             no_provision=True,
-            extra_metadata=prepare_sync_task(request, type="SYNCPEER/PULL"),
+            extra_metadata=prepare_sync_task(*sync_args, type="SYNCPEER/PULL"),
         )
 
         job_id = facility_queue.enqueue(call_command, "sync", **job_data)
@@ -938,8 +946,14 @@ class FacilityTasksViewSet(BaseViewSet):
         """
         Initiate a SYNC (PULL + PUSH) of a specific facility from another device.
         """
-        job_data = validate_and_prepare_peer_sync_job(
-            request, extra_metadata=prepare_sync_task(request, type="SYNCPEER/FULL")
+        baseurl, facility_id, username, password = validate_peer_sync_job(request)
+        sync_args = validate_sync_task(request)
+        job_data = prepare_peer_sync_job(
+            baseurl,
+            facility_id,
+            username,
+            password,
+            extra_metadata=prepare_sync_task(*sync_args, type="SYNCPEER/FULL"),
         )
         job_id = facility_queue.enqueue(call_command, "sync", **job_data)
 
@@ -1008,7 +1022,7 @@ class ResourceGoneError(APIException):
     default_detail = "Unable to connect"
 
 
-def initial_sync_task(
+def prepare_sync_task(
     facility_id,
     user_id,
     username,
@@ -1046,26 +1060,6 @@ def initial_sync_task(
     return task_data
 
 
-def prepare_sync_task(request, **kwargs):
-    facility_id = request.data.get("facility")
-    user_id = request.user.pk
-    username = request.user.username
-    facility_name = request.data.get("facility_name", "")
-    device_name = request.data.get("device_name", "")
-    device_id = request.data.get("device_id", "")
-    baseurl = request.data.get("baseurl", "")
-    return initial_sync_task(
-        facility_id,
-        user_id,
-        username,
-        facility_name,
-        device_name,
-        device_id,
-        baseurl,
-        **kwargs
-    )
-
-
 def validate_facility(request):
     # ensure we have the facility
     try:
@@ -1078,9 +1072,23 @@ def validate_facility(request):
     return facility_id
 
 
-def validate_prepare_sync_job(request, **kwargs):
+def validate_sync_task(request):
     facility_id = validate_facility(request)
-    return prepare_sync_job(facility_id, **kwargs)
+    user_id = request.user.pk
+    username = request.user.username
+    facility_name = request.data.get("facility_name", "")
+    device_name = request.data.get("device_name", "")
+    device_id = request.data.get("device_id", "")
+    baseurl = request.data.get("baseurl", "")
+    return (
+        facility_id,
+        user_id,
+        username,
+        facility_name,
+        device_name,
+        device_id,
+        baseurl,
+    )
 
 
 def prepare_sync_job(facility_id, **kwargs):
@@ -1098,7 +1106,7 @@ def prepare_sync_job(facility_id, **kwargs):
     return job_data
 
 
-def validate_and_prepare_peer_sync_job(request, **kwargs):
+def validate_peer_sync_job(request):
     # validate the baseurl
     try:
         address = request.data.get("baseurl")
@@ -1118,7 +1126,7 @@ def validate_and_prepare_peer_sync_job(request, **kwargs):
     username = request.data.get("username", None)
     password = request.data.get("password", None)
 
-    return prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs)
+    return (baseurl, facility_id, username, password)
 
 
 def prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs):
