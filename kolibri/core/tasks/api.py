@@ -922,6 +922,7 @@ class FacilityTasksViewSet(BaseViewSet):
         """
         Initiate a PULL of a specific facility from another device.
         """
+
         baseurl, facility_id, username, password = validate_peer_sync_job(request)
         sync_args = validate_sync_task(request)
         job_data = prepare_peer_sync_job(

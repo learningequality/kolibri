@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.core.urlresolvers import reverse
@@ -347,12 +349,10 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             device_id="",
             baseurl="https://some.server.test/extra/stuff",
         )
-        request_data = dict(
-            baseurl="https://some.server.test/",
-            facility=self.facility.id,
-            username="",
-            password="",
-        )
+        request_data = OrderedDict(baseurl="https://some.server.test/")
+        request_data["facility"] = self.facility.id
+        request_data["username"] = ""
+        request_data["password"] = ""
         prepared_data = dict(
             baseurl="https://some.server.test/",
             facility=self.facility.id,
@@ -420,13 +420,11 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
             device_id="",
             baseurl="https://some.server.test/extra/stuff",
         )
-        request_data = dict(
-            baseurl="https://some.server.test/",
-            facility=self.facility.id,
-            username="",
-            password="",
-        )
-        prepared_data = dict(
+        request_data = OrderedDict(baseurl="https://some.server.test/")
+        request_data["facility"] = self.facility.id
+        request_data["username"] = ""
+        request_data["password"] = ""
+        prepared_data = OrderedDict(
             baseurl="https://some.server.test/",
             facility=self.facility.id,
             chunk_size=200,
