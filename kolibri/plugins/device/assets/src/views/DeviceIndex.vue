@@ -30,6 +30,7 @@
 
 <script>
 
+  import { ref } from '@vue/composition-api';
   import omit from 'lodash/omit';
   import { mapState, mapGetters, mapActions } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
@@ -45,6 +46,12 @@
       CoreBase,
       PostSetupModalGroup,
       DeviceTopNav,
+    },
+    setup() {
+      const foo = ref(0);
+      return {
+        foo,
+      };
     },
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
