@@ -10,9 +10,6 @@
     <div v-if="content.forBeginners">
       For Beginners Chip Here
     </div>
-    <h2 v-if="content.title">
-      {{ content.title }}
-    </h2>
     <p v-if="content.description">
       {{ content.description }}
     </p>
@@ -65,11 +62,9 @@
 
 <script>
 
-  // import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import { mapState, mapGetters } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
-  // import markdownIt from 'markdown-it';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import {
     licenseShortName,
@@ -80,7 +75,6 @@
   export default {
     name: 'SidePanelResourceMetadata',
     components: {
-      // Backdrop,
       DownloadButton,
     },
     data() {
@@ -88,21 +82,6 @@
         licenceDescriptionIsVisible: false,
       };
     },
-    // watch: {
-    // panelShown() {
-    //   this.$nextTick(() => {
-    //     if (isShown) {
-    //       window.addEventListener('focus', this.containFocus, true);
-    //       this.previouslyFocusedElement = document.activeElement;
-    //       this.$refs.sideNav.focus();
-    //     } else {
-    //       window.removeEventListener('focus', this.containFocus, true);
-    //       this.previouslyFocusedElement.focus();
-    //     }
-    //   });
-    //   return true;
-    // },
-    // },
     computed: {
       ...mapGetters(['facilityConfig']),
       ...mapState('topicsTree', ['content']),
@@ -131,28 +110,7 @@
         }
         return false;
       },
-      // description() {
-      //   if (this.content && this.content.description) {
-      //     const md = new markdownIt({ breaks: true });
-      //     return md.render(this.content.description);
-      //   }
-      //   return '';
-      // },
     },
-    // methods: {
-    //   // togglePanel() {
-    //   //   this.$emit('togglePanel');
-    //   // },
-    //   containFocus(event) {
-    //     if (event.target === window) {
-    //       return event;
-    //     }
-    //     if (!this.$refs.sidePanel.contains(event.target)) {
-    //       this.$refs.coreMenu.$el.focus();
-    //     }
-    //     return event;
-    //   },
-    // },
 
     $trs: {
       author: 'Author',
@@ -172,18 +130,6 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .side-panel-wrapper {
-    overflow-x: hidden;
-  }
-
-  .side-panel {
-    position: fixed;
-    top: 0;
-    right: 0;
-    z-index: 16;
-    font-size: 14px;
-  }
-
   .side-panel-resource-description {
     left: 0;
     width: 372px;
@@ -200,10 +146,6 @@
 
   .download-button {
     margin-top: 16px;
-  }
-
-  .metadata {
-    margin: 32px;
   }
 
 </style>

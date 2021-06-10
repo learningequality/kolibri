@@ -1,6 +1,7 @@
 <template>
 
   <div
+    v-if="panelOpen"
     ref="sidePanel"
     class="side-panel-wrapper"
     tabindex="0"
@@ -16,17 +17,30 @@
           backgroundColor: $themeTokens.surface,
         }"
       >
+        <h2>
+          {{ title }}
+          <span>
+            <KIconButton
+              icon="close"
+              class="close-button"
+              @click="togglePanel"
+            /></span>
+        </h2>
         <SidePanelResourceMetadata
           v-if="panelType === 'resourceMetadata'"
+          :togglePanel="togglePanel"
         />
         <SidePanelResourcesList
           v-if="panelType === 'resourcesList'"
           :contents="siblingNodes"
+          :togglePanel="togglePanel"
         />
       </div>
     </transition>
     <Backdrop
-      class="side-panel-backdrop"
+      :transitions="true"
+      class="backdrop"
+      @click="togglePanel"
     />
   </div>
 
@@ -36,8 +50,8 @@
 <script>
 
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
-  import { mapState } from 'vuex';
-  import { showTopicsContent } from '../modules/topicsTree/handlers';
+  // import { mapState } from 'vuex';
+  // import { showTopicsContent } from '../modules/topicsTree/handlers';
   import SidePanelResourceMetadata from './SidePanelResourceMetadata';
   import SidePanelResourcesList from './SidePanelResourcesList';
 
@@ -48,47 +62,42 @@
       SidePanelResourceMetadata,
       SidePanelResourcesList,
     },
-    // watch: {
-    //   panelShown() {
-    //     this.$nextTick(() => {
-    //       if (isShown) {
-    //         window.addEventListener('focus', this.containFocus, true);
-    //         this.previouslyFocusedElement = document.activeElement;
-    //         this.$refs.sideNav.focus();
-    //       } else {
-    //         window.removeEventListener('focus', this.containFocus, true);
-    //         this.previouslyFocusedElement.focus();
-    //       }
-    //     });
-    //     return true;
-    //   },
-    // },
+    data: function() {
+      return {
+        panelOpen: true,
+      };
+    },
     computed: {
-      ...mapState('topicsTree', ['content']),
+      // ...mapState('topicsTree', ['content']),
       panelType() {
         return 'resourcesList';
       },
-      siblingNodes() {
-        console.log(this.content);
-        let topicsTree = showTopicsContent(this.state, this.content.parent);
-        console.log(topicsTree);
-        return topicsTree;
-      },
+      // siblingNodes() {
+      //   console.log('content', this.content);
+      // },
+      // title() {
+      //   if (this.panelType === 'resourceMetadata') {
+      //     return this.content.title;
+      //   } else if (this.panelType === 'resourcesList') {
+      //     return this.$tr('topicHeader');
+      //   }
+      // },
     },
-    // methods: {
-    //   // togglePanel() {
-    //   //   this.$emit('togglePanel');
-    //   // },
-    //   containFocus(event) {
-    //     if (event.target === window) {
-    //       return event;
-    //     }
-    //     if (!this.$refs.sidePanel.contains(event.target)) {
-    //       this.$refs.coreMenu.$el.focus();
-    //     }
-    //     return event;
-    //   },
-    // },
+    methods: {
+      togglePanel() {
+        // this.$emit('togglePanel');
+        this.panelOpen = !this.panelOpen;
+      },
+      //   containFocus(event) {
+      //     if (event.target === window) {
+      //       return event;
+      //     }
+      //     if (!this.$refs.sidePanel.contains(event.target)) {
+      //       this.$refs.coreMenu.$el.focus();
+      //     }
+      //     return event;
+      //   },
+    },
   };
 
 </script>
@@ -107,11 +116,20 @@
     top: 0;
     right: 0;
     z-index: 16;
+    padding: 32px;
+    padding-top: 18px;
     font-size: 14px;
   }
 
-  .metadata {
-    margin: 32px;
+  .close-button {
+    position: fixed;
+    top: 22px;
+    right: 36px;
+  }
+
+  .backdrop {
+    z-index: 4;
+    color: rgba(0, 0, 0, 0.7);
   }
 
 </style>
