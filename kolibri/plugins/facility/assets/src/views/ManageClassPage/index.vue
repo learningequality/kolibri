@@ -82,7 +82,7 @@
               <KButton
                 appearance="flat-button"
                 :text="$tr('deleteClass')"
-                @click="openDeleteClassModal(classroom)"
+                @click="selectClassToDelete(classroom)"
               />
             </td>
           </tr>
@@ -95,10 +95,9 @@
     </p>
 
     <ClassDeleteModal
-      v-if="modalShown === Modals.DELETE_CLASS"
-      :classid="classForDeletion.id"
-      :classname="classForDeletion.name"
-      @cancel="closeModal"
+      v-if="Boolean(classToDelete)"
+      :classToDelete="classToDelete"
+      @cancel="clearClassToDelete"
       @success="handleDeleteSuccess()"
     />
     <ClassCreateModal
@@ -123,6 +122,7 @@
   import { Modals } from '../../constants';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
+  import useDeleteClass from './useDeleteClass';
 
   export default {
     name: 'ManageClassPage',
@@ -137,8 +137,13 @@
       ClassDeleteModal,
     },
     mixins: [commonCoreStrings],
-    data() {
-      return { classForDeletion: null };
+    setup() {
+      const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
+      return {
+        classToDelete,
+        selectClassToDelete,
+        clearClassToDelete,
+      };
     },
     computed: {
       ...mapState('classManagement', ['modalShown', 'classes']),
@@ -161,8 +166,7 @@
         this.refreshCoreFacilities();
       },
       handleDeleteSuccess() {
-        this.closeModal();
-        this.classForDeletion = null;
+        this.clearClassToDelete();
         this.refreshCoreFacilities();
       },
       refreshCoreFacilities() {
@@ -204,10 +208,6 @@
         const link = cloneDeep(this.facilityPageLinks.ClassEditPage);
         link.params.id = classId;
         return link;
-      },
-      openDeleteClassModal(classModel) {
-        this.classForDeletion = classModel;
-        this.displayModal(Modals.DELETE_CLASS);
       },
     },
     $trs: {
