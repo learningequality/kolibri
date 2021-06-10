@@ -30,7 +30,8 @@
 
 <script>
 
-  import { ref, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+  import { getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+  import { useIntervalFn } from '@vueuse/core';
   import omit from 'lodash/omit';
   import { mapState, mapGetters } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
@@ -48,24 +49,20 @@
       DeviceTopNav,
     },
     setup() {
-      const intervalId = ref(null);
-      const $store = getCurrentInstance().proxy.$store;
-      function refreshTaskList() {
+      const polling = useIntervalFn(() => {
         $store.dispatch('manageContent/refreshTaskList');
-      }
+      }, 1000);
+      const $store = getCurrentInstance().proxy.$store;
       function startTaskPolling() {
-        if (!intervalId.value && $store.getters.canManageContent) {
-          intervalId.value = setInterval(refreshTaskList, 1000);
+        if ($store.getters.canManageContent) {
+          polling.start();
         }
       }
       function stopTaskPolling() {
-        if (intervalId.value) {
-          intervalId.value = clearInterval(intervalId.value);
-        }
+        polling.stop();
       }
 
       return {
-        intervalId,
         stopTaskPolling,
         startTaskPolling,
       };
