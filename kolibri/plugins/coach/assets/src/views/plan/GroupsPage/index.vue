@@ -74,6 +74,7 @@
 
 <script>
 
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import { mapState, mapActions } from 'vuex';
   import orderBy from 'lodash/orderBy';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
@@ -97,11 +98,16 @@
       DeleteGroupModal,
     },
     mixins: [commonCoach, commonCoreStrings],
-    data() {
+    setup() {
+      const selectedGroup = ref({
+        name: '',
+        id: '',
+      });
+
       return {
-        selectedGroup: {
-          name: '',
-          id: '',
+        selectedGroup,
+        setSelectedGroup(name, id) {
+          selectedGroup.value = { name, id };
         },
       };
     },
@@ -129,17 +135,11 @@
         this.displayModal(GroupModals.CREATE_GROUP);
       },
       openRenameGroupModal(groupName, groupId) {
-        this.selectedGroup = {
-          name: groupName,
-          id: groupId,
-        };
+        this.setSelectedGroup(groupName, groupId);
         this.displayModal(GroupModals.RENAME_GROUP);
       },
       openDeleteGroupModal(groupName, groupId) {
-        this.selectedGroup = {
-          name: groupName,
-          id: groupId,
-        };
+        this.setSelectedGroup(groupName, groupId);
         this.displayModal(GroupModals.DELETE_GROUP);
       },
       handleSuccessCreateGroup() {
