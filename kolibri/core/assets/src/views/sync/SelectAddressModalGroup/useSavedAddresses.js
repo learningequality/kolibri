@@ -1,4 +1,4 @@
-import { ref, computed, onBeforeMount } from '@vue/composition-api';
+import { ref, computed, onBeforeMount } from 'kolibri.lib.vueCompositionApi';
 import { get, set, and } from '@vueuse/core';
 import { deleteAddress, fetchStaticAddresses } from './api';
 
