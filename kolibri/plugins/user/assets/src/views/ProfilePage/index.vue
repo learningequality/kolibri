@@ -89,14 +89,14 @@
         <tr>
           <th>{{ coreString('genderLabel') }}</th>
           <td>
-            <GenderDisplayText :gender="facilityUser.gender" />
+            <GenderDisplayText :gender="currentUser.gender" />
           </td>
         </tr>
 
         <tr>
           <th>{{ coreString('birthYearLabel') }}</th>
           <td>
-            <BirthYearDisplayText :birthYear="facilityUser.birth_year" />
+            <BirthYearDisplayText :birthYear="currentUser.birth_year" />
           </td>
         </tr>
 
@@ -161,9 +161,9 @@
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
       const showPasswordModal = ref(false);
-      const { facilityUser } = useCurrentUser();
+      const { currentUser } = useCurrentUser();
       return {
-        facilityUser,
+        currentUser,
         showPasswordModal,
       };
     },
