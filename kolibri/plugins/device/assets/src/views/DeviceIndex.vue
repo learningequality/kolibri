@@ -30,7 +30,7 @@
 
 <script>
 
-  import { ref } from '@vue/composition-api';
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import omit from 'lodash/omit';
   import { mapState, mapGetters, mapActions } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
