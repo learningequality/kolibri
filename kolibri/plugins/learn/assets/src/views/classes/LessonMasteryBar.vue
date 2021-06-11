@@ -1,68 +1,50 @@
 <template>
 
-  <div
-    class="header-container"
-    :class="{ 'header-container--sticky': isHeaderSticky, 'header-sm': windowIsSmall }"
+  <UiToolbar
+    :title="appBarTitle"
+    textColor="black"
+    type="clear"
     :style="{ backgroundColor: $themeTokens.surface }"
+    class="header-container"
+    removeNavIcon="true"
   >
-    <div class="inner-header" :style="innerStyle">
-      <OverallStatus />
-      <slot></slot>
+    <div class="inner-header">
+      <KFixedGrid numCols="2">
+        <KFixedGridItem span="1" :style="{ backgroundColor: 'purple', margin: 'auto' }">
+          <OverallStatus />
+        </KFixedGridItem>
+        <KFixedGridItem
+          span="1"
+          alignment="right"
+          :style="{ backgroundColor: 'yellow', margin: 'auto' }"
+        >
+          <p>HELLO</p>
+        </KFixedGridItem>
+      </KFixedGrid>
     </div>
-  </div>
+  </UiToolbar>
 
 </template>
 
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import OverallStatus from './OverallStatus';
 
   export default {
     name: 'LessonMasteryBar',
     components: {
       OverallStatus,
+      UiToolbar,
     },
-    mixins: [responsiveWindowMixin],
     props: {
-      maxWidth: {
-        type: Number,
-        default: 960,
+      appBarTitle: {
+        type: String,
+        required: true,
       },
     },
-    data() {
-      return {
-        scrollY: null,
-        headerTop: 0,
-        isHeaderSticky: false,
-      };
-    },
-    computed: {
-      innerStyle() {
-        if (this.maxWidth) {
-          return { maxWidth: `${this.maxWidth}px` };
-        }
-        return null;
-      },
-    },
-    watch: {
-      scrollY(newValue) {
-        if (newValue > this.headerTop) {
-          this.isHeaderSticky = true;
-        } else {
-          this.isHeaderSticky = false;
-        }
-      },
-    },
-    mounted() {
-      window.addEventListener('load', () => {
-        window.addEventListener('scroll', () => {
-          this.scrollY = Math.round(window.scrollY);
-        });
-        this.headerTop = this.$refs.header.getBoundingClientRect().top;
-      });
-    },
+    computed: {},
     methods: {},
   };
 
@@ -86,15 +68,12 @@
     border: 1px red solid;
   }
 
-  .header-sm {
-    height: auto;
-    min-height: 72px;
-  }
-
   .inner-header {
+    width: 100%;
     height: 100%;
-    padding: 10px 0;
+    padding: 0 20px;
     margin: auto;
+    border: 1px blue solid;
   }
 
 </style>
