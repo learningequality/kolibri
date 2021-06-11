@@ -4,7 +4,7 @@ import {
   onBeforeMount,
   onBeforeUnmount,
   getCurrentInstance,
-} from '@vue/composition-api';
+} from 'kolibri.lib.vueCompositionApi';
 import { get, set, useIntervalFn } from '@vueuse/core';
 import { fetchDynamicAddresses } from './api';
 

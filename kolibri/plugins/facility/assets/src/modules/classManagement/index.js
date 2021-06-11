@@ -1,5 +1,5 @@
 import { displayModal, SET_BUSY, SET_ERROR, SET_MODAL } from '../shared';
-import { createClass, deleteClass } from './actions';
+import { createClass } from './actions';
 
 function defaultState() {
   return {
@@ -32,7 +32,6 @@ export default {
   },
   actions: {
     createClass,
-    deleteClass,
     displayModal,
   },
 };

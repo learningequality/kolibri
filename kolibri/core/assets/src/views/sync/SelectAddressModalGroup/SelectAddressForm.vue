@@ -116,7 +116,7 @@
 
 <script>
 
-  import { computed } from '@vue/composition-api';
+  import { computed } from 'kolibri.lib.vueCompositionApi';
   import { useLocalStorage } from '@vueuse/core';
   import find from 'lodash/find';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';

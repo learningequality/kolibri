@@ -1,13 +1,15 @@
+import { FacilityUserResource } from 'kolibri.resources';
 import { mount, RouterLinkStub, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import ProfilePage from '../../src/views/ProfilePage';
 import makeStore from '../makeStore';
 
+jest.mock('kolibri.resources');
+
+FacilityUserResource.fetchModel = jest.fn().mockResolvedValue({});
+
 const localVue = createLocalVue();
 localVue.use(VueRouter);
-
-ProfilePage.methods.fetchPoints = () => {};
-ProfilePage.methods.fetchFacilityUser = () => {};
 
 const router = new VueRouter();
 router.getRoute = () => {};

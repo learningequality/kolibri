@@ -19,6 +19,7 @@ import responsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMi
 import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
 import scriptLoader from 'kolibri-design-system/lib/utils/scriptLoader';
 import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton'; // temp hack
+import * as vueCompositionApi from '@vue/composition-api';
 import logging from '../logging';
 import conditionalPromise from '../conditionalPromise';
 import * as apiResource from '../api-resource';
@@ -116,6 +117,7 @@ export default {
     logging,
     vue,
     vuex,
+    vueCompositionApi,
     conditionalPromise,
     apiResource,
   },
