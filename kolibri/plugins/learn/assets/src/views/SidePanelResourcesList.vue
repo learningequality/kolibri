@@ -24,6 +24,27 @@
         {{ $tr('noOtherTopicResources') }}
       </p>
     </div>
+    <div
+      v-if="nextTopic"
+      class="footer"
+      :style="{
+        backgroundColor: $themePalette.grey.v_200
+      }"
+    >
+      <!-- TODO replace placeholders with new LearningActivityIcon component -->
+      <KIcon
+        icon="topic"
+        class="icon"
+      />
+      <span class="text">
+        <p class="header">{{ $tr('nextTopic') }}</p>
+        <p class="title">{{ nextTopic.title }}</p>
+      </span>
+      <KIcon
+        icon="forward"
+        class="continue icon"
+      />
+    </div>
 
   </section>
 
@@ -49,6 +70,10 @@
         type: Object,
         required: true,
       },
+      nextTopic: {
+        type: Object,
+        required: true,
+      },
     },
     computed: {
       itemIsOnlyContent() {
@@ -58,6 +83,7 @@
     $trs: {
       noOtherLessonResources: 'No other resources in this lesson',
       noOtherTopicResources: 'No other resources in this topic',
+      nextTopic: 'Next Topic:',
     },
   };
 
@@ -70,5 +96,39 @@
     text-align: center;
     margin-top: 100px;
   }
+
+  .footer {
+    height: 100px;
+    padding-top: 32px;
+    position: static;
+    bottom: 0;
+    padding-left: 32px;
+  }
+
+  .icon {
+    vertical-align: top;
+    width: 33px;
+    height: 33px;
+  }
+
+  .text {
+    display: inline-block;
+    padding-left: 17px;
+    width: 225px;
+  }
+
+  .header {
+    margin: 0;
+  }
+
+  .title {
+    margin: 0;
+    font-weight: bold;
+  }
+
+  .continue {
+    margin-left: 60px;
+  }
+
 
 </style>

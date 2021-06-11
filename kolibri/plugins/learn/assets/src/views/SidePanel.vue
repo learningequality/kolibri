@@ -35,10 +35,8 @@
           :contents="siblingNodes"
           :currentContent="content"
           :togglePanel="togglePanel"
+          :nextTopic="nextTopic"
         />
-        <!-- <div v-if="panelType === 'resourcesList'" class="next-resource-footer">
-          <h2>{{ content.next_content }}</h2>
-        </div> -->
       </div>
     </transition>
     <Backdrop
@@ -80,8 +78,19 @@
         let siblings = this.contents.filter(
           currentContent => currentContent.parent === this.content.parent
         );
-        console.log(siblings);
         return siblings;
+      },
+      nextTopic() {
+        let currentContentGrandparent = this.content.ancestors[0].id;
+        let topicsWithSameAncestor = this.contents.filter(
+          item =>
+            !item.is_leaf && item.ancestors[0] && item.ancestors[0].id === currentContentGrandparent
+        );
+        let currentIndex = topicsWithSameAncestor
+          .map(topic => topic.id)
+          .indexOf(this.content.parent);
+        let nextTopic = topicsWithSameAncestor[currentIndex + 1] || null;
+        return nextTopic;
       },
       title() {
         if (this.panelType === 'resourceMetadata') {
@@ -129,6 +138,7 @@
     z-index: 16;
     // padding: 32px;
     padding-top: 18px;
+    overflow: scroll;
     font-size: 14px;
   }
 
