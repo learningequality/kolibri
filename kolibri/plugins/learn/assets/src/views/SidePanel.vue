@@ -17,7 +17,7 @@
           backgroundColor: $themeTokens.surface,
         }"
       >
-        <h2>
+        <h2 class="title">
           {{ title }}
           <span>
             <KIconButton
@@ -33,8 +33,12 @@
         <SidePanelResourcesList
           v-if="panelType === 'resourcesList'"
           :contents="siblingNodes"
+          :currentContent="content"
           :togglePanel="togglePanel"
         />
+        <!-- <div v-if="panelType === 'resourcesList'" class="next-resource-footer">
+          <h2>{{ content.next_content }}</h2>
+        </div> -->
       </div>
     </transition>
     <Backdrop
@@ -50,7 +54,7 @@
 <script>
 
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
-  // import { mapState } from 'vuex';
+  import { mapState } from 'vuex';
   // import { showTopicsContent } from '../modules/topicsTree/handlers';
   import SidePanelResourceMetadata from './SidePanelResourceMetadata';
   import SidePanelResourcesList from './SidePanelResourcesList';
@@ -68,20 +72,24 @@
       };
     },
     computed: {
-      // ...mapState('topicsTree', ['content']),
+      ...mapState('topicsTree', ['content', 'contents']),
       panelType() {
         return 'resourcesList';
       },
-      // siblingNodes() {
-      //   console.log('content', this.content);
-      // },
-      // title() {
-      //   if (this.panelType === 'resourceMetadata') {
-      //     return this.content.title;
-      //   } else if (this.panelType === 'resourcesList') {
-      //     return this.$tr('topicHeader');
-      //   }
-      // },
+      siblingNodes() {
+        let siblings = this.contents.filter(
+          currentContent => currentContent.parent === this.content.parent
+        );
+        console.log(siblings);
+        return siblings;
+      },
+      title() {
+        if (this.panelType === 'resourceMetadata') {
+          return this.content.title;
+        } else {
+          return this.$tr('topicHeader');
+        }
+      },
     },
     methods: {
       togglePanel() {
@@ -97,6 +105,9 @@
       //     }
       //     return event;
       //   },
+    },
+    $trs: {
+      topicHeader: 'Also in this topic',
     },
   };
 
@@ -116,15 +127,25 @@
     top: 0;
     right: 0;
     z-index: 16;
-    padding: 32px;
+    // padding: 32px;
     padding-top: 18px;
     font-size: 14px;
+  }
+
+  .title {
+    margin-left: 32px;
   }
 
   .close-button {
     position: fixed;
     top: 22px;
     right: 36px;
+  }
+
+  .next-resource-footer {
+    position: fixed;
+    bottom: 0;
+    height: 100px;
   }
 
   .backdrop {

@@ -4,14 +4,26 @@
     <!-- placeholder for learning activity kind chips TODO update with chip component -->
 
     <!-- for sibling in tree  -->
-    <Item
-      v-for="content in contents"
-      :key="content.id"
-      :title="content.title"
-      :progress="content.progress"
-      :kind="content.kind"
-      :duration="content.duration"
-    />
+    <div v-if="!itemIsOnlyContent">
+      <Item
+        v-for="content in contents"
+        :id="content.id"
+        :key="content.id"
+        :title="content.title"
+        :currentContent="currentContent"
+        :progress="content.progress"
+        :kind="content.kind"
+        :duration="content.duration"
+      />
+    </div>
+    <div v-else class="no-content">
+      <p v-if="content.isLeaf">
+        {{ $tr('noOtherLessonResources') }}
+      </p>
+      <p v-else>
+        {{ $tr('noOtherTopicResources') }}
+      </p>
+    </div>
 
   </section>
 
@@ -28,16 +40,35 @@
     components: {
       Item,
     },
-    computed: {
-      contents() {
-        return [
-          { id: 1, title: 'One', progress: 1, kind: 'video', duration: '10 minutes' },
-          { id: 2, title: 'Two', progress: 0.347, kind: 'video', duration: '8 minutes' },
-          { id: 3, title: 'Three', progress: 0.2222, kind: 'video' },
-          { id: 4, title: 'Four', progress: 0, kind: 'video', duration: '30 minutes' },
-        ];
+    props: {
+      contents: {
+        type: Array,
+        required: true,
       },
+      currentContent: {
+        type: Object,
+        required: true,
+      },
+    },
+    computed: {
+      itemIsOnlyContent() {
+        return this.contents.length === 1;
+      },
+    },
+    $trs: {
+      noOtherLessonResources: 'No other resources in this lesson',
+      noOtherTopicResources: 'No other resources in this topic',
     },
   };
 
 </script>
+
+
+<style scoped>
+
+  .no-content {
+    text-align: center;
+    margin-top: 100px;
+  }
+
+</style>
