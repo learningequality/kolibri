@@ -51,7 +51,7 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .overall-status {
-    margin-bottom: 8px;
+    margin-bottom: auto;
   }
 
   .overall-status-text {
