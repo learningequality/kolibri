@@ -18,7 +18,7 @@
           alignment="right"
           :style="{ backgroundColor: 'yellow', margin: 'auto' }"
         >
-          <p>HELLO</p>
+          <Hint />
         </KFixedGridItem>
       </KFixedGrid>
     </div>
@@ -31,11 +31,13 @@
 
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import OverallStatus from './OverallStatus';
+  import Hint from './Hint';
 
   export default {
     name: 'LessonMasteryBar',
     components: {
       OverallStatus,
+      Hint,
       UiToolbar,
     },
     props: {
