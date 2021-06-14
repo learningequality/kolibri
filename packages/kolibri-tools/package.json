@@ -27,6 +27,7 @@
     "chokidar": "^2.0.4",
     "colors": "^1.1.2",
     "commander": "^2.9.0",
+    "core-js": "3",
     "css-loader": "^0.28.7",
     "csv-parse": "^4.14.1",
     "csv-parser": "^2.3.3",
