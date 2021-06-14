@@ -11,8 +11,6 @@
       <div
         class="side-panel"
         :style="{
-          width: '436px',
-          height: '100vh',
           color: $themeTokens.text,
           backgroundColor: $themeTokens.surface,
         }"
@@ -72,7 +70,7 @@
     computed: {
       ...mapState('topicsTree', ['content', 'contents']),
       panelType() {
-        return 'resourcesList';
+        return 'resourceMetadata';
       },
       siblingNodes() {
         let siblings = this.contents.filter(
@@ -136,13 +134,19 @@
     top: 0;
     right: 0;
     z-index: 16;
-    // padding: 32px;
+    width: 100vw;
+    height: 100vh;
     padding-top: 18px;
     overflow: scroll;
     font-size: 14px;
+
+    @media (min-width: 436px) {
+      width: 436px;
+    }
   }
 
   .title {
+    max-width: 70vw;
     margin-left: 32px;
   }
 

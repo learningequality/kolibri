@@ -10,26 +10,34 @@
     <div v-if="content.forBeginners">
       For Beginners Chip Here
     </div>
-    <p v-if="content.description">
+    <div v-if="content.description" ref="description" :class="truncate">
       {{ content.description }}
-    </p>
+    </div>
+    <KButton
+      v-if="descriptionOverflow"
+      :text="showMoreOrLess"
+      appearance="flat-button"
+      class="show-more-button"
+      :primary="true"
+      @click="toggleShowMoreOrLess"
+    />
     <p v-if="content.level">
-      <b>{{ $tr('level') }}:</b> {{ content.level }}
+      {{ $tr('level', { level: content.level }) }}
     </p>
     <p v-if="content.estimatedTime">
-      <b>{{ $tr('estimatedTime') }}:</b> {{ content.estimatedTime }}
+      {{ $tr('estimatedTime', { estimatedTime: content.estimatedTime }) }}
     </p>
     <p v-if="content.lang">
-      <b>{{ $tr('language') }}:</b> {{ content.lang.lang_name }}
+      {{ $tr('language', { language: content.lang.lang_name }) }}
     </p>
     <p v-if="content.author">
-      <b>{{ $tr('author') }}:</b> {{ content.author }}
+      {{ $tr('author', { author: content.author }) }}
     </p>
     <p v-if="content.license_owner">
-      <b>{{ $tr('copyrightHolder') }}:</b> {{ content.license_owner }}
+      {{ $tr('copyrightHolder', { copyrightHolder: content.license_owner }) }}
     </p>
     <p v-if="licenseShortName">
-      <b>{{ $tr('license') }}:</b> {{ licenseShortName }}
+      {{ $tr('license', { license: licenseShortName }) }}
 
       <template v-if="licenseDescription">
         <KIconButton
@@ -54,7 +62,6 @@
       :nodeTitle="content.title"
       class="download-button"
     />
-
   </section>
 
 </template>
@@ -80,6 +87,9 @@
     data() {
       return {
         licenceDescriptionIsVisible: false,
+        showMoreOrLess: 'Show More',
+        truncate: 'truncate-description',
+        descriptionOverflow: false,
       };
     },
     computed: {
@@ -111,15 +121,34 @@
         return false;
       },
     },
-
+    mounted() {
+      this.calculateDescriptionOverflow();
+    },
+    methods: {
+      toggleShowMoreOrLess() {
+        if (this.showMoreOrLess === 'Show More') {
+          this.showMoreOrLess = 'Show Less';
+          this.truncate = 'show-description';
+        } else {
+          this.showMoreOrLess = 'Show More';
+          this.truncate = 'truncate-description';
+        }
+      },
+      calculateDescriptionOverflow() {
+        if (this.$refs.description.scrollHeight > 175) {
+          console.log(this.$refs.description.scrollHeight);
+          this.descriptionOverflow = true;
+        }
+      },
+    },
     $trs: {
-      author: 'Author',
-      language: 'Language',
-      license: 'License',
-      level: 'Level',
-      estimatedTime: 'Estimated time',
+      author: 'Author: {author}',
+      language: 'Language: {language}',
+      license: 'License: {license}',
+      level: 'Level: {level}',
+      estimatedTime: 'Estimated time: {estimatedTime}',
       toggleLicenseDescription: 'Toggle license description',
-      copyrightHolder: 'Copyright holder',
+      copyrightHolder: 'Copyright holder: {copyrightHolder}',
     },
   };
 
@@ -130,10 +159,37 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .side-panel-resource-description {
-    left: 0;
+  .metadata {
+    margin: 32px;
+  }
+
+  .truncate-description {
     width: 372px;
-    height: 171px;
+    height: 170px;
+    margin-right: 32px;
+    overflow-y: hidden;
+    @media (max-width: 426px) {
+      width: 300px;
+    }
+    @media (max-width: 320px) {
+      width: 270px;
+    }
+  }
+
+  .show-description {
+    width: 372px;
+    margin-right: 32px;
+    @media (max-width: 426px) {
+      width: 300px;
+    }
+    @media (max-width: 320px) {
+      width: 270px;
+    }
+  }
+
+  .show-more-button {
+    padding: 0;
+    text-decoration: underline;
   }
 
   .license-details-name {

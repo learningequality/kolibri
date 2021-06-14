@@ -17,7 +17,7 @@
       />
     </div>
     <div v-else class="no-content">
-      <p v-if="content.isLeaf">
+      <p v-if="content && content.isLeaf">
         {{ $tr('noOtherLessonResources') }}
       </p>
       <p v-else>
@@ -77,6 +77,7 @@
     },
     computed: {
       itemIsOnlyContent() {
+        console.log(this.contents.length);
         return this.contents.length === 1;
       },
     },
