@@ -34,6 +34,7 @@
         @updateProgress="updateProgress"
         @addProgress="addProgress"
         @updateContentState="updateContentState"
+        @navigateTo="navigateTo"
       />
 
       <AssessmentWrapper
@@ -148,6 +149,8 @@
 
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeResource } from 'kolibri.resources';
+  import router from 'kolibri.coreVue.router';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
@@ -333,6 +336,16 @@
       },
       updateContentState(contentState, forceSave = true) {
         this.updateContentNodeState({ contentState, forceSave });
+      },
+      navigateTo(message) {
+        let id = message.nodeId;
+        return ContentNodeResource.fetchModel({ id })
+          .then(contentNode => {
+            router.push(this.genContentLink(contentNode.id, contentNode.is_leaf));
+          })
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+          });
       },
       markAsComplete() {
         this.wasIncomplete = false;
