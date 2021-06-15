@@ -29,6 +29,17 @@ export const ContentNodeKinds = {
   SLIDESHOW: 'slideshow',
 };
 
+export const LearningActivityKinds = {
+  CREATE: 'CREATE',
+  LISTEN: 'LISTEN',
+  REFLECT: 'REFLECT',
+  PRACTICE: 'PRACTICE',
+  READ: 'READ',
+  WATCH: 'WATCH',
+  EXPLORE: 'EXPLORE',
+  TOPIC: 'TOPIC',
+};
+
 // used internally on the client as a hack to allow content-icons to display users
 export const USER = 'user';
 
