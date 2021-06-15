@@ -314,9 +314,13 @@ class BaseContentNodeMixin(object):
 
         tags_map = {}
 
-        for t in models.ContentTag.objects.filter(tagged_content__in=queryset).values(
-            "tag_name",
-            "tagged_content",
+        for t in (
+            models.ContentTag.objects.filter(tagged_content__in=queryset)
+            .values(
+                "tag_name",
+                "tagged_content",
+            )
+            .order_by("tag_name")
         ):
             if t["tagged_content"] not in tags_map:
                 tags_map[t["tagged_content"]] = [t["tag_name"]]

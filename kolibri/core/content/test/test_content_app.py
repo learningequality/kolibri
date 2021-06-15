@@ -310,7 +310,11 @@ class ContentNodeAPITestCase(APITestCase):
                 "rght": expected.rght,
                 "tree_id": expected.tree_id,
                 "ancestors": list(expected.get_ancestors().values("id", "title")),
-                "tags": list(expected.tags.all().values_list("tag_name", flat=True)),
+                "tags": list(
+                    expected.tags.all()
+                    .order_by("tag_name")
+                    .values_list("tag_name", flat=True)
+                ),
                 "assessmentmetadata": assessmentmetadata,
                 "is_leaf": expected.kind != "topic",
                 "files": files,
