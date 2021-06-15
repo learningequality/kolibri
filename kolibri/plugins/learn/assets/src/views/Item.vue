@@ -8,7 +8,7 @@
   >
     <!-- TODO replace placeholder with new LearningActivityIcon component -->
     <KIcon
-      icon="video"
+      :icon="icon"
       class="icon"
     />
     <span class="text">
@@ -29,7 +29,7 @@
       </div>
       <!-- TODO ensure new star is what is rendered here, in the correct color-->
       <KIcon
-        v-if="progress === 1"
+        v-if="progress >= 1"
         icon="star"
         class="icon"
       />
@@ -40,6 +40,8 @@
 
 
 <script>
+
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'Item',
@@ -80,16 +82,29 @@
       //   },
     },
     computed: {
-      // displayProgress() {
-      //   if (this.progress === 0) {
-      //     return 'not started';
-      //   } else if (this.progress > 0 && this.progress < 1) {
-      //     return 'mini progress bar';
-      //   } else if (this.progress >= 1) {
-      //     return 'completed';
-      //   }
-      //   return null;
-      // },
+      icon() {
+        // TODO update to ensure this is the correct reference if content has new metadata
+        if (this.currentContent.learningActivityType) {
+          // TO DO update to insert Learn Activity to Content map once that code is merged
+          return this.currentContent.learningActivityType;
+        } else if (this.currentContent.kind) {
+          switch (this.currentContent.kind) {
+            case ContentNodeKinds.AUDIO:
+              return 'listenSolid';
+            case ContentNodeKinds.DOCUMENT:
+              return 'readSolid';
+            case ContentNodeKinds.VIDEO:
+              return 'watchSolid';
+            case ContentNodeKinds.EXERCISE:
+              return 'practiceSolid';
+            case ContentNodeKinds.HTML5:
+              return 'interactSolid';
+            default:
+              return null;
+          }
+        }
+        return null;
+      },
       itemIsCurrentContent() {
         return this.id === this.currentContent.id;
       },
