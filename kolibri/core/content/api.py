@@ -352,7 +352,9 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
 
             # We need to batch our queries for ancestors as the size of the expression tree
             # depends on the number of nodes that we are querying for.
-            ANCESTOR_BATCH_SIZE = 1000
+            # On Windows, the SQL parameter limit is 999, and an ancestors call can produce
+            # 3 parameters per node in the queryset, so this should max out the parameters at 750.
+            ANCESTOR_BATCH_SIZE = 250
 
             if len(items) > ANCESTOR_BATCH_SIZE:
 
