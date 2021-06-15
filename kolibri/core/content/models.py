@@ -270,7 +270,7 @@ class LocalFileQueryset(models.QuerySet, FilterByUUIDQuerysetMixin):
 
     def get_unused_files(self):
         return self.filter(
-            ~Q(files__contentnode__available=True) | Q(files__isnull=True)
+            Q(files__contentnode__available=False) | Q(files__isnull=True)
         ).filter(available=True)
 
 
