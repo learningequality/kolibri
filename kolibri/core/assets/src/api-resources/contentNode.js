@@ -115,7 +115,7 @@ export default new Resource({
   cache: {},
   fetchModel({ id }) {
     if (this.cache[id]) {
-      return Promise.resolve(this.cache[id]);
+      return Promise.resolve(cloneDeep(this.cache[id]));
     }
     return this.client({ url: this.modelUrl(id) }).then(response => {
       this.cacheData(response.data);
