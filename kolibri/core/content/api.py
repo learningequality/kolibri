@@ -790,6 +790,26 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
         """
         A nested, paginated representation of the children and grandchildren of a specific node
 
+        GET parameters on request can be:
+        depth - a value of either 1 or 2 indicating the depth to recurse the tree, either 1 or 2 levels
+        if this parameter is missing it will default to 2.
+        lft__gt - a value to return child nodes with a lft value greater than this, if missing defaults to None
+
+        The pagination object returned for "children" will have this form:
+        {
+            "results": [...<serialized children>],
+            "more": {
+                "id": <parent_id>,
+                "params": {
+                    lft__gt: <int>,
+                    depth: {1,2},
+                },
+            }
+        }
+
+        The "more" property describes the "id" required to do URL reversal on this endpoint, and the params that should
+        be passed as query parameters to get the next set of results for pagination.
+
         :param request: request object
         :param pk: id parent node
         :return: an object representing the parent with a pagination object as "children"
@@ -844,12 +864,16 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
                 # The parent of this descendant is the parent node
                 # for this query
                 desc_parent = parent
+                # When we request more results for pagination, we want to return
+                # both nodes at this level, and the nodes at the lower level
                 more_depth = 2
             elif desc["parent"] in children_by_id:
                 # Otherwise, check to see if our descendant's parent is in the
                 # children_by_id map - if it failed the first condition,
                 # it really should not fail this
                 desc_parent = children_by_id[desc["parent"]]
+                # When we request more results for pagination, we only want to return
+                # nodes at this level, and not any of its children
                 more_depth = 1
             else:
                 # If we get to here, we have a node that is not in the tree subsection we are
