@@ -383,6 +383,51 @@ class ContentNodeAPITestCase(APITestCase):
         )
         self._recurse_and_assert([response.data], [root])
 
+    def test_contentnode_tree_depth_1(self):
+        root = content.ContentNode.objects.get(title="root")
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id}),
+            data={"depth": 1},
+        )
+        self._recurse_and_assert([response.data], [root])
+
+    def test_contentnode_tree_lft__gt(self):
+        builder = ChannelBuilder(levels=2, num_children=30)
+        builder.insert_into_default_db()
+        content.ContentNode.objects.all().update(available=True)
+        root = content.ContentNode.objects.get(id=builder.root_node["id"])
+        lft__gt = content.ContentNode.objects.filter(parent=root)[24].rght
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id}),
+            data={"lft__gt": lft__gt},
+        )
+        self.assertEqual(len(response.data["children"]["results"]), 5)
+        self.assertIsNone(response.data["children"]["more"])
+        first_node = content.ContentNode.objects.filter(parent=root)[25]
+        self._recurse_and_assert(
+            [response.data["children"]["results"][0]], [first_node], recursion_depth=1
+        )
+
+    def test_contentnode_tree_more(self):
+        builder = ChannelBuilder(levels=2, num_children=30)
+        builder.insert_into_default_db()
+        content.ContentNode.objects.all().update(available=True)
+        root = content.ContentNode.objects.get(id=builder.root_node["id"])
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
+        )
+        first_child = response.data["children"]["results"][0]
+        self.assertEqual(first_child["children"]["more"]["params"]["depth"], 1)
+        nested_page_response = self.client.get(
+            reverse(
+                "kolibri:core:contentnode_tree-detail",
+                kwargs={"pk": first_child["children"]["more"]["id"]},
+            ),
+            data=first_child["children"]["more"]["params"],
+        )
+        self.assertEqual(len(nested_page_response.data["children"]["results"]), 5)
+        self.assertIsNone(nested_page_response.data["children"]["more"])
+
     @mock.patch("kolibri.core.content.api.get_channel_stats_from_studio")
     def test_contentnode_granular_network_import(self, stats_mock):
         c1 = content.ContentNode.objects.get(title="root")

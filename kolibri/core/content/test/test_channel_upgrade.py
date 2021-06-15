@@ -61,7 +61,6 @@ class ChannelBuilder(object):
         try:
             self.load_data()
         except KeyError:
-            print("key error {}".format(self.levels))
             self.generate_new_tree()
             self.save_data()
 
@@ -87,10 +86,18 @@ class ChannelBuilder(object):
             )
 
     def load_data(self):
-        data = copy.deepcopy(self.__TREE_CACHE[self.cache_key])
+        try:
+            data = copy.deepcopy(self.__TREE_CACHE[self.cache_key])
 
-        for key in self.tree_keys:
-            setattr(self, key, data[key])
+            for key in self.tree_keys:
+                setattr(self, key, data[key])
+        except KeyError:
+            print(
+                "No tree cache found for {} levels and {} children per level".format(
+                    self.levels, self.num_children
+                )
+            )
+            raise
 
     def save_data(self):
         data = {}
