@@ -72,6 +72,27 @@ class TestTaskDecorators(TestCase):
         self.assertTrue(add.task.cancellable)
         self.assertTrue(add.task.track_progress)
 
+    def test_task_register_config_both_with_args(self):
+        @task.config(group="math", cancellable=True, track_progress=True)
+        @task.register(
+            job_id="test", validator=id, permission=id, priority=task.priority.HIGH
+        )
+        def add(x, y):
+            return x + y
+
+        add_funcstr = stringify_func(add)
+
+        self.assertIsInstance(self.registered_jobs[add_funcstr], RegisteredJob)
+
+        self.assertEqual(add.task.job_id, "test")
+        self.assertEqual(add.task.validator, id)
+        self.assertEqual(add.task.permission, id)
+        self.assertEqual(add.task.priority, task.priority.HIGH)
+
+        self.assertEqual(add.task.group, "math")
+        self.assertTrue(add.task.cancellable)
+        self.assertTrue(add.task.track_progress)
+
     def test_task_config_without_register(self):
         with self.assertRaises(FunctionNotRegisteredAsJob):
 
