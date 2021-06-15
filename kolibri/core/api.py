@@ -10,6 +10,7 @@ from rest_framework.mixins import CreateModelMixin as BaseCreateModelMixin
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.mixins import UpdateModelMixin as BaseUpdateModelMixin
 from rest_framework.response import Response
+from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import Serializer
 from rest_framework.serializers import UUIDField
 from rest_framework.serializers import ValidationError
@@ -143,11 +144,53 @@ class BaseValuesViewset(viewsets.GenericViewSet):
         self._field_map = self.field_map.copy()
         return viewset
 
+    def generate_serializer(self):
+        queryset = getattr(self, "queryset", None)
+        if queryset is None:
+            try:
+                queryset = self.get_queryset()
+            except Exception:
+                pass
+        model = getattr(queryset, "model", None)
+        if model is None:
+            return Serializer
+        mapped_fields = {v: k for k, v in self.field_map.items() if isinstance(v, str)}
+        fields = []
+        extra_kwargs = {}
+        for value in self.values:
+            try:
+                model._meta.get_field(value)
+                if value in mapped_fields:
+                    extra_kwargs[mapped_fields[value]] = {"source": value}
+                    value = mapped_fields[value]
+                fields.append(value)
+            except Exception:
+                pass
+
+        meta = type(
+            "Meta",
+            (object,),
+            {
+                "fields": fields,
+                "read_only_fields": fields,
+                "model": model,
+                "extra_kwargs": extra_kwargs,
+            },
+        )
+        CustomSerializer = type(
+            "{}Serializer".format(self.__class__.__name__),
+            (ModelSerializer,),
+            {"Meta": meta},
+        )
+
+        return CustomSerializer
+
     def get_serializer_class(self):
         if self.serializer_class is not None:
             return self.serializer_class
         # Hack to prevent the renderer logic from breaking completely.
-        return Serializer
+        self.__class__.serializer_class = self.generate_serializer()
+        return self.__class__.serializer_class
 
     def _get_lookup_filter(self):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
