@@ -24,11 +24,13 @@ from .api import get_public_channel_list
 from .api import get_public_channel_lookup
 from .api import get_public_file_checksums
 from .api import InfoViewSet
+from .api import SyncQueueViewSet
 
 router = routers.SimpleRouter()
 
 router.register(r"v1/facility", PublicFacilityViewSet, base_name="publicfacility")
 router.register(r"info", InfoViewSet, base_name="info")
+router.register(r"syncqueue", SyncQueueViewSet, base_name="syncqueue")
 
 # Add public api endpoints
 urlpatterns = [
