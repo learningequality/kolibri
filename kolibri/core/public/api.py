@@ -209,8 +209,8 @@ class SyncQueueViewSet(viewsets.ViewSet):
 
     def create(self, request):
         SyncQueue.clean_stale()  # first, ensure not expired devices are in the queue
-        is_SoUE = get_device_setting("subset_of_users_device", False)
-        if is_SoUE:
+        is_SoUD = get_device_setting("subset_of_users_device", False)
+        if is_SoUD:
             content = {"I'm a Subset of users device": "Nothing to do here"}
             # would love to use HTTP 418, but it's not fully usable in browsers
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
