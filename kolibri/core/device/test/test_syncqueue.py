@@ -12,6 +12,7 @@ from rest_framework.test import APITestCase
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import SyncQueue
+from kolibri.core.public.api import HANDSHAKING_TIME
 from kolibri.core.public.api import MAX_CONCURRENT_SYNCS
 from kolibri.core.public.api import position_in_queue
 from kolibri.core.public.constants.user_sync_statuses import QUEUED
@@ -86,10 +87,10 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         assert response.data[self.default_facility.id] == queue_length
 
     @mock.patch(
-        "kolibri.core.public.api.get_device_info",
-        return_value={"subset_of_users_device": True},
+        "kolibri.core.public.api.get_device_setting",
+        return_value=True,
     )
-    def test_soud(self, mock_device_info):
+    def test_soud(self, mock_device_setting):
         response = self.client.post(
             reverse("kolibri:core:syncqueue-list"), {"user": uuid4()}, format="json"
         )
@@ -130,7 +131,7 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert response.data["action"] == QUEUED
         assert "id" in response.data
-        assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 1
+        assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS * HANDSHAKING_TIME
 
     def test_update(self):
         response = self.client.put(
@@ -162,7 +163,7 @@ class SyncQueueViewSetAPITestCase(APITestCase):
         assert response.data["action"] == QUEUED
         assert response.data["id"] == element.id
         assert (
-            response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 1
+            response.data["keep_alive"] == MAX_CONCURRENT_SYNCS * HANDSHAKING_TIME
         )  # first in queue, position does not change
 
     @mock.patch("kolibri.core.public.api.TransferSession.objects.filter")
@@ -179,14 +180,14 @@ class SyncQueueViewSetAPITestCase(APITestCase):
             reverse("kolibri:core:syncqueue-detail", kwargs={"pk": pk})
         )
         assert position_in_queue(pk) == 5
-        assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 6
+        assert response.data["keep_alive"] == HANDSHAKING_TIME * 6
         SyncQueue.objects.all().order_by("datetime").first().delete()
         SyncQueue.objects.all().order_by("datetime").first().delete()
         assert position_in_queue(pk) == 3
         response = self.client.put(
             reverse("kolibri:core:syncqueue-detail", kwargs={"pk": pk})
         )
-        assert response.data["keep_alive"] == MAX_CONCURRENT_SYNCS + 4
+        assert response.data["keep_alive"] == HANDSHAKING_TIME * 4
 
 
 @pytest.mark.django_db
@@ -200,8 +201,8 @@ class TestRequestSoUDSync(object):
 
     @mock.patch("kolibri.core.public.utils.queue")
     @mock.patch(
-        "kolibri.core.public.utils.get_device_info",
-        return_value={"subset_of_users_device": True},
+        "kolibri.core.public.utils.get_device_setting",
+        return_value=True,
     )
     def test_begin_request_soud_sync(self, mock_device_info, queue, setUp):
         begin_request_soud_sync("whatever_server", self.test_user.id)

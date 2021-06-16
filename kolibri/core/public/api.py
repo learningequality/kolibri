@@ -19,6 +19,7 @@ from .. import error_constants
 from .constants.user_sync_statuses import QUEUED
 from .constants.user_sync_statuses import SYNC
 from .utils import get_device_info
+from .utils import get_device_setting
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ChannelMetadata
@@ -29,7 +30,8 @@ from kolibri.core.content.utils.file_availability import generate_checksum_integ
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.device.utils import allow_peer_unlisted_channel_import
 
-MAX_CONCURRENT_SYNCS = 5
+MAX_CONCURRENT_SYNCS = 1
+HANDSHAKING_TIME = 5
 
 
 class InfoViewSet(viewsets.ViewSet):
@@ -159,11 +161,12 @@ def get_public_file_checksums(request, version):
 
 
 def position_in_queue(id):
-    qs = SyncQueue.objects.all().order_by("datetime").values("id")
-    pos = 0  # in case the queue is empty
-    for pos, value in enumerate(qs):
-        if value["id"] == id:
-            break
+    try:
+        client_time = SyncQueue.objects.get(pk=id)
+        before_client = SyncQueue.objects.filter(datetime__lt=client_time.datetime)
+        pos = before_client.count()
+    except SyncQueue.DoesNotExist:
+        pos = 0  # in case the queue is empty
     return pos
 
 
@@ -181,15 +184,22 @@ class SyncQueueViewSet(viewsets.ViewSet):
 
     def check_queue(self, pk=None):
         current_transfers = TransferSession.objects.filter(active=True).count()
-        if current_transfers <= MAX_CONCURRENT_SYNCS:
+        if current_transfers < MAX_CONCURRENT_SYNCS:
             allow_sync = True
             data = {"action": SYNC}
         else:
-            polling = current_transfers + SyncQueue.objects.all().count()
+            # polling time at least HANDSHAKING_TIME seconds per position in the queue to
+            # be greater than the time needed for the handshake part of the ssl protocol
             if pk is not None:
                 # if updating the element let's assign
                 # its time depending on its position in the queue
-                polling = current_transfers + position_in_queue(pk)
+                polling = HANDSHAKING_TIME * (
+                    MAX_CONCURRENT_SYNCS + position_in_queue(pk)
+                )
+            else:
+                polling = HANDSHAKING_TIME * (
+                    MAX_CONCURRENT_SYNCS + SyncQueue.objects.all().count()
+                )
             data = {
                 "action": QUEUED,
                 "keep_alive": polling,
@@ -199,8 +209,8 @@ class SyncQueueViewSet(viewsets.ViewSet):
 
     def create(self, request):
         SyncQueue.clean_stale()  # first, ensure not expired devices are in the queue
-        device_info = get_device_info()
-        if device_info["subset_of_users_device"]:
+        is_SoUE = get_device_setting("subset_of_users_device", False)
+        if is_SoUE:
             content = {"I'm a Subset of users device": "Nothing to do here"}
             # would love to use HTTP 418, but it's not fully usable in browsers
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
