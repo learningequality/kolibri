@@ -9,8 +9,10 @@ from kolibri.core.tasks.utils import stringify_func
 
 class TestTaskDecorators(TestCase):
     def setUp(self):
-        JobRegistry.REGISTERED_JOBS.clear()
         self.registered_jobs = JobRegistry.REGISTERED_JOBS
+
+    def tearDown(self):
+        JobRegistry.REGISTERED_JOBS.clear()
 
     def test_task_register_without_args(self):
         @task.register
