@@ -1,32 +1,19 @@
 <template>
 
-  <div>
-    <div
-      class="hint-btn-container"
-    >
-      <KButton
-        class="hint-btn"
-        appearance="basic-link"
-        :text="$tr('hint', { hintsLeft: availableHints })"
-        :primary="false"
-        @click="takeHint"
-      />
-
-      <CoreInfoIcon
-        class="info-icon"
-        tooltipPosition="bottom right"
-        :iconAriaLabel="$tr('hintExplanation')"
-        :tooltipText="$tr('hintExplanation')"
-      />
-    </div>
-
-
-    <div v-if="hinted" id="hintlabel" :dir="contentDirection">
-      {{ $tr("hintLabel") }}
-    </div>
-    <div id="hintsarea" :dir="contentDirection" style="margin-left: 0px"></div>
-
-    <div style="clear: both;"></div>
+  <div class="hint-btn-container">
+    <KButton
+      class="hint-btn"
+      appearance="basic-link"
+      :text="$tr('hint', { hintsLeft: availableHints })"
+      :primary="false"
+      @click="takeHint"
+    />
+    <CoreInfoIcon
+      class="info-icon"
+      tooltipPosition="bottom right"
+      :iconAriaLabel="$tr('hintExplanation')"
+      :tooltipText="$tr('hintExplanation')"
+    />
   </div>
 
 </template>
@@ -35,25 +22,20 @@
 <script>
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
 
   export default {
     name: 'Hint',
-    mixins: [responsiveWindowMixin],
-    props: {},
-    data() {
-      return {};
+    components: {
+      CoreInfoIcon,
     },
-    computed: {},
-    watch: {},
-
-    methods: {},
+    mixins: [responsiveWindowMixin],
     /** https://github.com/learningequality/kolibri-exercise-perseus-plugin/blob/develop/
      * kolibri_exercise_perseus_plugin/assets/src/views/PerseusRendererIndex.vue
      */
     $trs: {
       hint: 'Use a hint ({hintsLeft, number} left)',
       hintExplanation: 'If you use a hint, this question will not be added to your progress',
-      hintLabel: 'Hint:',
     },
   };
 
@@ -65,11 +47,15 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .hint-btn-container {
+    margin-top: 4px; // to align with OverallStatus text
     text-align: right;
   }
   .hint-btn {
+    position: relative;
     vertical-align: text-bottom;
-    border: 2px solid red;
+  }
+  .info-icon {
+    margin-left: 8px;
   }
 
 </style>

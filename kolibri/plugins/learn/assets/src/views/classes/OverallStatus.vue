@@ -1,8 +1,9 @@
 <template>
 
   <div class="overall-status" :style="{ color: $themeTokens.text }">
-    <KIcon
+    <KIconButton
       icon="mastered"
+      disabled="true"
       :color="success ? $themeTokens.mastered : $themePalette.grey.v_200"
     />
     <div class="overall-status-text">
@@ -21,19 +22,11 @@
 <script>
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  // import LearningActivityIcon from './LearningActivityIcon.vue';
 
   export default {
     name: 'OverallStatus',
     mixins: [responsiveWindowMixin],
-    props: {},
-    data() {
-      return {};
-    },
-    computed: {},
-    watch: {},
-
-    methods: {},
-
     $trs: {
       goal: {
         message: 'Get {count, number, integer} {count, plural, other {correct}}',
