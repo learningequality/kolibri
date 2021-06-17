@@ -2,10 +2,12 @@
 To run this test, type this in command line <kolibri manage test -- kolibri.core.content>
 """
 import datetime
+import unittest
 import uuid
 
 import mock
 import requests
+from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -333,6 +335,11 @@ class ContentNodeAPITestCase(APITestCase):
         self.assertEqual(len(response.data), expected_output)
         self._assert_nodes(response.data, nodes)
 
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        == "django.db.backends.postgresql",
+        "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
+    )
     def test_contentnode_list_long(self):
         # This will make > 1000 nodes which should test our ancestor batching behaviour
         builder = ChannelBuilder(num_children=10)
@@ -377,6 +384,11 @@ class ContentNodeAPITestCase(APITestCase):
         )
         self._recurse_and_assert([response.data], [root])
 
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        == "django.db.backends.postgresql",
+        "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
+    )
     def test_contentnode_tree_long(self):
         builder = ChannelBuilder(levels=2, num_children=30)
         builder.insert_into_default_db()
@@ -395,6 +407,11 @@ class ContentNodeAPITestCase(APITestCase):
         )
         self._recurse_and_assert([response.data], [root])
 
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        == "django.db.backends.postgresql",
+        "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
+    )
     def test_contentnode_tree_lft__gt(self):
         builder = ChannelBuilder(levels=2, num_children=30)
         builder.insert_into_default_db()
@@ -412,6 +429,11 @@ class ContentNodeAPITestCase(APITestCase):
             [response.data["children"]["results"][0]], [first_node], recursion_depth=1
         )
 
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        == "django.db.backends.postgresql",
+        "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
+    )
     def test_contentnode_tree_more(self):
         builder = ChannelBuilder(levels=2, num_children=30)
         builder.insert_into_default_db()
