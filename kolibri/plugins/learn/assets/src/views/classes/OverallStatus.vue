@@ -1,18 +1,21 @@
 <template>
 
-  <div class="overall-status" :style="{ color: $themeTokens.text }">
+  <div class="overall-container" :style="{ color: $themeTokens.text }">
     <KIconButton
       icon="mastered"
-      disabled="true"
+      :disabled="true"
       :color="success ? $themeTokens.mastered : $themePalette.grey.v_200"
     />
-    <div class="overall-status-text">
-      <span v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
-        {{ coreString('completedLabel') }}
-      </span>
+    <div class="overall-status">
       <span>
         {{ $tr('goal', { count: totalCorrectRequiredM }) }}
       </span>
+      <KIconButton
+        v-if="success"
+        icon="done"
+        :disabled="true"
+        :color="$themeTokens.mastered"
+      />
     </div>
   </div>
 
@@ -22,11 +25,34 @@
 <script>
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  // import LearningActivityIcon from './LearningActivityIcon.vue';
+  import { mapState } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'OverallStatus',
-    mixins: [responsiveWindowMixin],
+    mixins: [responsiveWindowMixin, commonCoreStrings],
+
+    computed: {
+      ...mapState({
+        mastered: state => state.core.logging.mastery.complete,
+      }),
+      success() {
+        return this.exerciseProgress === 1;
+      },
+      exerciseProgress() {
+        if (this.mastered) {
+          return 1;
+        }
+        return 0; //TODO: switch back to 0
+      },
+      totalCorrectRequiredM() {
+        console.log('mOfNMasteryModel', this);
+        return this.mOfNMasteryModel.m;
+      },
+    },
+    methods: {
+      // ...mapActions(['updateExerciseProgress']),
+    },
     $trs: {
       goal: {
         message: 'Get {count, number, integer} {count, plural, other {correct}}',
@@ -43,11 +69,11 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .overall-status {
+  .overall-container {
     margin-bottom: auto;
   }
 
-  .overall-status-text {
+  .overall-status {
     display: inline-block;
     margin-left: 4px;
   }

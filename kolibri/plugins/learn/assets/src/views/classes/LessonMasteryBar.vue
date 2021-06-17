@@ -17,7 +17,6 @@
 
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  // import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
   import OverallStatus from './OverallStatus.vue';
   import Hint from './Hint.vue';
 
