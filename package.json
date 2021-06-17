@@ -60,5 +60,8 @@
   "engines": {
     "node": "10.x",
     "yarn": ">= 1.12.3"
-  }
+  },
+  "browserslist": [
+    "extends browserslist-config-kolibri"
+  ]
 }
