@@ -5754,6 +5754,20 @@ eslint-module-utils@^2.4.1:
     debug "^2.6.9"
     pkg-dir "^2.0.0"
 
+eslint-plugin-compat@^3.0.0:
+  version "3.9.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-compat/-/eslint-plugin-compat-3.9.0.tgz#a7a224e09b102b58e7f7dff52c936428ff3e0186"
+  integrity sha512-lt3l5PHFHVEYSZ5zijcoYvtQJPsBifRiH5N0Et57KwVu7l/yxmHhSG6VJiLMa/lXrg93Qu8049RNQOMn0+yJBg==
+  dependencies:
+    "@mdn/browser-compat-data" "^2.0.7"
+    ast-metadata-inferer "^0.4.0"
+    browserslist "^4.12.2"
+    caniuse-lite "^1.0.30001166"
+    core-js "^3.6.5"
+    find-up "^4.1.0"
+    lodash.memoize "4.1.2"
+    semver "7.3.2"
+
 eslint-plugin-import@^2.20.0:
   version "2.20.2"
   resolved "https://registry.yarnpkg.com/eslint-plugin-import/-/eslint-plugin-import-2.20.2.tgz#91fc3807ce08be4837141272c8b99073906e588d"
