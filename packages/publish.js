@@ -23,7 +23,16 @@ versionTools.setVersion(path.resolve(__dirname, 'kolibri-tools/package.json'), v
 versionTools.setVersion(path.resolve(__dirname, 'eslint-plugin-kolibri/package.json'), version);
 
 /*
- * Step 4 - Set version of the kolibri-tools dev dependency
+ * Step 4 - Set version of the browserslist-config-kolibri package by the current Kolibri version
+ */
+
+versionTools.setVersion(
+  path.resolve(__dirname, 'browserslist-config-kolibri/package.json'),
+  version
+);
+
+/*
+ * Step 5 - Set version of the kolibri-tools dev dependency
  */
 
 versionTools.setDependencyVersion(
@@ -45,7 +54,8 @@ versionTools.setDependencyVersion(
 );
 
 /*
- * Step 6 - Set version of kolibri-tools' kolibri dependency and eslint-plugin-kolibri dependency
+ * Step 6 - Set version of kolibri-tools' kolibri dependency, eslint-plugin-kolibri dependency,
+ * and browserslist-config-kolibri dependency
  */
 
 versionTools.setDependencyVersion(
@@ -56,6 +66,21 @@ versionTools.setDependencyVersion(
 versionTools.setDependencyVersion(
   'eslint-plugin-kolibri',
   path.resolve(__dirname, 'kolibri-tools/package.json'),
+  version
+);
+
+versionTools.setDependencyVersion(
+  'browserslist-config-kolibri',
+  path.resolve(__dirname, 'kolibri-tools/package.json'),
+  version
+);
+
+/*
+ * Step 7 - Set the version of hashi's browserslist-config-kolibri dependency
+ */
+versionTools.setDependencyVersion(
+  'browserslist-config-kolibri',
+  path.resolve(__dirname, 'hashi/package.json'),
   version
 );
 
@@ -72,6 +97,8 @@ function publishCommand(workspace) {
   });
 }
 
-['eslint-plugin-kolibri', 'kolibri', 'kolibri-tools'].forEach(publishCommand);
+['browserslist-config-kolibri', 'eslint-plugin-kolibri', 'kolibri', 'kolibri-tools'].forEach(
+  publishCommand
+);
 
 process.chdir(currentCwd);

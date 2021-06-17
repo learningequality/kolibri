@@ -1,6 +1,6 @@
 const path = require('path');
 const apiSpecAliases = require('../lib/apiSpecExportTools').coreAliases();
-const babelConfig = require('../.babelrc.js');
+const babelConfig = require('../babel.config');
 
 const moduleNameMapper = {
   '^testUtils$': path.resolve(__dirname, './testUtils'),
@@ -28,7 +28,7 @@ module.exports = {
   moduleNameMapper,
   testURL: 'http://kolibri.time',
   transform: {
-    '^.+\\.js$': path.resolve(__dirname, './babel-jest-transform'),
+    '^.+\\.js$': 'babel-jest',
     '^.+\\.vue$': 'vue-jest',
   },
   transformIgnorePatterns: ['/node_modules/(?!(kolibri-tools|kolibri)/).*/'],

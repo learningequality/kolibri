@@ -1,3 +1,4 @@
+import 'regenerator-runtime/runtime';
 import '@testing-library/jest-dom';
 import 'intl';
 import 'intl/locale-data/jsonp/en.js';

@@ -88,14 +88,16 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
   const postCSSLoader = {
     loader: 'postcss-loader',
     options: {
-      config: { path: path.resolve(__dirname, '../postcss.config.js') },
+      postcssOptions: {
+        plugins: [['autoprefixer']],
+      },
       sourceMap: !production,
     },
   };
 
   const cssLoader = {
     loader: 'css-loader',
-    options: { minimize: production, sourceMap: !production },
+    options: { sourceMap: !production },
   };
 
   // for scss blocks
