@@ -165,7 +165,7 @@
 
   .truncate-description {
     width: 372px;
-    height: 170px;
+    max-height: 170px;
     margin-right: 32px;
     overflow-y: hidden;
     @media (max-width: 426px) {
