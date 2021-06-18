@@ -8,6 +8,13 @@ module.exports = {
     'compat/compat': 'error',
   },
   settings: {
-    polyfills: ['Object.values', 'Object.assign', 'Object.entries', 'array-includes', 'Promise'],
+    polyfills: [
+      'Object.values',
+      'Object.assign',
+      'Object.entries',
+      'array-includes',
+      'Promise',
+      'URL',
+    ],
   },
 };
