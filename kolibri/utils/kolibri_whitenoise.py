@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 from django.contrib.staticfiles import finders
 from django.core.files.storage import FileSystemStorage
+from django.utils._os import safe_join
 from whitenoise import WhiteNoise
 from whitenoise.string_utils import decode_path_info
 
@@ -25,9 +26,6 @@ class FileFinder(finders.FileSystemFinder):
             raise TypeError("locations argument is not a tuple or list")
         for root in locations:
             prefix, root = root
-            # Django requires paths, even on Windows, to use forward slashes
-            # do this substitution that will be idempotent on Unix
-            root = root.replace(os.sep, "/")
             if not prefix:
                 raise ValueError(
                     "Cannot use unprefixed locations for dynamic locations"
@@ -42,9 +40,20 @@ class FileFinder(finders.FileSystemFinder):
             filesystem_storage.prefix = prefix
             self.storages[root] = filesystem_storage
 
-    def find(self, path, all=False):
-        path = path.replace("/", os.sep)
-        return super(FileFinder, self).find(path, all=all)
+    def find_location(self, root, path, prefix=None):
+        """
+        Finds a requested static file in a location, returning the found
+        absolute path (or ``None`` if no match).
+        Vendored from Django to handle being passed a URL path instead of a file path.
+        """
+        if prefix:
+            prefix = prefix + "/"
+            if not path.startswith(prefix):
+                return None
+            path = path[len(prefix) :]
+        path = safe_join(root, path)
+        if os.path.exists(path):
+            return path
 
 
 class DynamicWhiteNoise(WhiteNoise):
