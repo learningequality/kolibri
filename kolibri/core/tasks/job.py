@@ -260,26 +260,46 @@ class Job(object):
 
 class RegisteredJob(object):
     """
-    This class's instance represents the API available to functions registered
-    via decorator.
+    This class's instance methods: enqueue, enqueue_at and enqueue_in are binded
+    as attributes to functions registered via task.register decorator.
+
+    For example, if `add` is registered as:
+
+        @task.register(priority="high", cancellable=True)
+        def add(x, y):
+            return x + y
+
+        Then, we can enqueue `add` by calling `add.enqueue(4, 2)`.
+
+        Also, we can schedule `add` by calling `add.enqueue_in(timedelta(1), args=(4, 2))`
+        or `add.enqueue_at(datetime.now(), args=(4, 2))`.
+
+        Look at each method's docstring for more info.
     """
 
-    def __init__(self, func, **kwargs):
-        validator = kwargs.pop("validator", None)
+    def __init__(self, func, validator=None, priority=Priority.REGULAR, **kwargs):
         if validator is not None and not callable(validator):
             raise TypeError("Can't assign validator of type {}".format(type(validator)))
-
-        self.validator = validator
-        self.permissions = kwargs.pop("permissions", [])
-        self.priority = kwargs.pop("priority", Priority.REGULAR)
+        elif priority.upper() not in [Priority.REGULAR, Priority.HIGH]:
+            raise ValueError("priority must be one of 'regular' or 'high'.")
 
         self.func = func
+        self.validator = validator
+        self.priority = priority.upper()
+
+        self.permissions = kwargs.pop("permissions", [])
+
         self.job_id = kwargs.pop("job_id", None)
         self.group = kwargs.pop("group", None)
         self.cancellable = kwargs.pop("cancellable", False)
         self.track_progress = kwargs.pop("track_progress", False)
 
     def enqueue(self, *args, **kwargs):
+        """
+        Enqueue the function with arguments passed to this method.
+
+        :return: enqueued job's id.
+        """
         from kolibri.core.tasks.main import PRIORITY_TO_QUEUE_MAP
 
         job_obj = self._ready_job(*args, **kwargs)
@@ -287,31 +307,49 @@ class RegisteredJob(object):
         return queue.enqueue(func=job_obj)
 
     def enqueue_in(self, delta_time, interval=0, repeat=0, args=(), kwargs={}):
+        """
+        Schedule the function to get enqueued in `delta_time` with args and
+        kwargs as its positional and keyword arguments.
+
+        Repeat of None with a specified interval means the job will repeat
+        forever at that interval.
+
+        :return: scheduled job's id.
+        """
         from kolibri.core.tasks.main import scheduler
 
         job_obj = self._ready_job(*args, **kwargs)
         return scheduler.enqueue_in(
-            delta_time=delta_time,
             func=job_obj,
+            delta_t=delta_time,
             interval=interval,
             repeat=repeat,
         )
 
-    def enqueue_at(self, specific_time, interval=0, repeat=0, args=(), kwargs={}):
+    def enqueue_at(self, datetime, interval=0, repeat=0, args=(), kwargs={}):
+        """
+        Schedule the function to get enqueued at a specific `datetime` with
+        args and kwargs as its positional and keyword arguments.
+
+        Repeat of None with a specified interval means the job will repeat
+        forever at that interval.
+
+        :return: scheduled job's id.
+        """
         from kolibri.core.tasks.main import scheduler
 
         job_obj = self._ready_job(*args, **kwargs)
         return scheduler.enqueue_at(
-            dt=specific_time,
             func=job_obj,
+            dt=datetime,
             interval=interval,
             repeat=repeat,
         )
 
     def _ready_job(self, *args, **kwargs):
         """
-        When self.validator is not None we run the validator by passing
-        args and kwargs received here.
+        When self.validator is not None it runs the validator with
+        arguments passed to this method.
 
         If validator raises an exception, we re-raise it otherwise we
         return a job object.
@@ -325,7 +363,7 @@ class RegisteredJob(object):
             kwargs["validator_result"] = validator_result
 
         job_obj = Job(
-            self.func,
+            func=self.func,
             job_id=self.job_id,
             group=self.group,
             cancellable=self.cancellable,

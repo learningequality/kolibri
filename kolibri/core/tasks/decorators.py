@@ -27,6 +27,7 @@ class _TaskDecorators(object):
         group=None,
         cancellable=False,
         track_progress=False,
+        permission_classes=[],
     ):
         if func is None:
             return partial(
@@ -37,6 +38,7 @@ class _TaskDecorators(object):
                 group=group,
                 cancellable=cancellable,
                 track_progress=track_progress,
+                permission_classes=permission_classes,
             )
 
         registered_job = RegisteredJob(
@@ -47,15 +49,17 @@ class _TaskDecorators(object):
             group=group,
             cancellable=cancellable,
             track_progress=track_progress,
+            permissions=[perm() for perm in permission_classes],
         )
 
-        # Expose registered_job's api to func.
-        setattr(func, "task", registered_job)
+        func.enqueue = registered_job.enqueue
+        func.enqueue_in = registered_job.enqueue_in
+        func.enqueue_at = registered_job.enqueue_at
 
         funcstring = stringify_func(func)
         JobRegistry.REGISTERED_JOBS[funcstring] = registered_job
 
-        logger.debug("Successfully registered '%s' as job", funcstring)
+        logger.debug("Successfully registered '%s' as job.", funcstring)
 
         return func
 

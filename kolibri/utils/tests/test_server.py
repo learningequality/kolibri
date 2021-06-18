@@ -111,13 +111,7 @@ class TestServerServices(object):
         initialize_workers,
         scheduler,
     ):
-        with mock.patch(
-            "kolibri.core.tasks.main.scheduler", wraps=scheduler
-        ), mock.patch(
-            "kolibri.core.analytics.utils.scheduler", wraps=scheduler
-        ), mock.patch(
-            "kolibri.core.deviceadmin.utils.scheduler", wraps=scheduler
-        ):
+        with mock.patch("kolibri.core.tasks.main.scheduler", wraps=scheduler):
 
             # Don't start scheduler in real, otherwise we may end up in infinite thread loop
             scheduler.start_scheduler = mock.MagicMock(name="start_scheduler")
@@ -136,11 +130,14 @@ class TestServerServices(object):
 
             # Currently, we must have exactly four scheduled jobs
             # two userdefined and two server defined (pingback and vacuum)
+            from kolibri.core.analytics.utils import DEFAULT_PING_JOB_ID
+            from kolibri.core.deviceadmin.utils import SCH_VACUUM_JOB_ID
+
             assert scheduler.count() == 4
             assert scheduler.get_job("test01") is not None
             assert scheduler.get_job("test02") is not None
-            assert scheduler.get_job(server.SCH_PING_JOB_ID) is not None
-            assert scheduler.get_job(server.SCH_VACUUM_JOB_ID) is not None
+            assert scheduler.get_job(DEFAULT_PING_JOB_ID) is not None
+            assert scheduler.get_job(SCH_VACUUM_JOB_ID) is not None
 
             # Restart services
             service_plugin.STOP()
@@ -150,8 +147,8 @@ class TestServerServices(object):
             assert scheduler.count() == 4
             assert scheduler.get_job("test01") is not None
             assert scheduler.get_job("test02") is not None
-            assert scheduler.get_job(server.SCH_PING_JOB_ID) is not None
-            assert scheduler.get_job(server.SCH_VACUUM_JOB_ID) is not None
+            assert scheduler.get_job(DEFAULT_PING_JOB_ID) is not None
+            assert scheduler.get_job(SCH_VACUUM_JOB_ID) is not None
 
     @mock.patch(
         "kolibri.core.discovery.utils.network.search.unregister_zeroconf_service"

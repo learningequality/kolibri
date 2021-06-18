@@ -56,6 +56,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_PING_INTERVAL = 24 * 60
 DEFAULT_PING_CHECKRATE = 15
+DEFAULT_PING_JOB_ID = "0"
 DEFAULT_SERVER_URL = "https://telemetry.learningequality.org"
 
 USER_THRESHOLD = 10
@@ -471,8 +472,7 @@ def ping_once(started, server=DEFAULT_SERVER_URL):
         create_and_update_notifications(stat_data, nutrition_endpoints.STATISTICS)
 
 
-# Added to test if decorator is working or not
-@task.register
+@task.register(job_id=DEFAULT_PING_JOB_ID)
 def _ping(started, server, checkrate):
     try:
         ping_once(started, server=server)
@@ -506,12 +506,13 @@ def schedule_ping(
     server=DEFAULT_SERVER_URL,
     checkrate=DEFAULT_PING_CHECKRATE,
     interval=DEFAULT_PING_INTERVAL,
-    job_id=None,
 ):
     # If pinging is not disabled by the environment
     if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
         started = local_now()
-        _ping.task.job_id = job_id
-        _ping.task.enqueue_at(started, interval=interval * 60, repeat=None).initiate(
-            started=started, server=server, checkrate=checkrate
+        _ping.enqueue_at(
+            started,
+            interval=interval * 60,
+            repeat=None,
+            kwargs=dict(started=started, server=server, checkrate=checkrate),
         )
