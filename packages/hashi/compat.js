@@ -14,6 +14,7 @@ module.exports = {
       'Object.entries',
       'array-includes',
       'Promise',
+      'Set',
       'URL',
     ],
   },

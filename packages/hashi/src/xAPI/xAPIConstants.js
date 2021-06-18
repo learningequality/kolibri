@@ -1,6 +1,9 @@
 /*
  * xAPI Constants
  */
+
+import 'core-js/features/set';
+
 export const OBJECT_TYPES = {
   AGENT: 'Agent',
   GROUP: 'Group',

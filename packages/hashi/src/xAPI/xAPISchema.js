@@ -4,6 +4,7 @@
  * For more information, see:
  * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md
  */
+import 'core-js/features/set';
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
