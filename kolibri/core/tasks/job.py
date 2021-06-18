@@ -79,8 +79,8 @@ class Priority(object):
     starts executing. Tasks that are tracked on task manager should use this priority.
 
     HIGH priority is for tasks that want execution as soon as possible. Tasks that
-    might affect user experience (e.g. on screen loading animation) like facility syncing,
-    csv export/import should use this priority.
+    might affect user experience (e.g. on screen loading animation) like importing
+    channel metadata.
     """
 
     REGULAR = "REGULAR"
@@ -260,38 +260,17 @@ class Job(object):
 
 class RegisteredJob(object):
     """
-    This class's instance represents the API available to functions registered via decorator.
-
-    Suppose, `add` is registered as:
-
-        @task.config(group="math")
-        @task.register(priority=task.priority.HIGH)
-        def add(x, y):
-            return x + y
-
-    Then, we can schedule `add` as `add.task.enqueue_in(delta_time_arg).initiate(args)` or
-    `add.task.enqueue_at(datetime_arg).initiate(args)`.
-
-    Also, we can directly queue the task by calling `add.task.initiate(args)`.
-    `add` will get enqueued in "math" group and on HIGH priority.
-
-    This design should allow very easy expansion of task's public api capabilities.
+    This class's instance represents the API available to functions registered
+    via decorator.
     """
 
-    def __init__(self, func, *args, **kwargs):
-        # The three attributes: validator, permission & priority are specific to a job that
-        # is registered.
-        # When func.initiatetask(...) is called, first self.validator is run, upon success,
-        # we enqueue func based on self.priority.
-        # self.permission will ONLY be used when the task gets submitted via the API endpoint.
+    def __init__(self, func, **kwargs):
         validator = kwargs.pop("validator", None)
         if validator is not None and not callable(validator):
             raise TypeError("Can't assign validator of type {}".format(type(validator)))
 
         self.validator = validator
-        # To do: type checking of permission,
-        # will be done during POST /api/task development
-        self.permission = kwargs.pop("permission", None)
+        self.permissions = kwargs.pop("permissions", [])
         self.priority = kwargs.pop("priority", Priority.REGULAR)
 
         self.func = func
@@ -300,56 +279,49 @@ class RegisteredJob(object):
         self.cancellable = kwargs.pop("cancellable", False)
         self.track_progress = kwargs.pop("track_progress", False)
 
-        self.enqueue_in_params = {}
-        self.enqueue_at_params = {}
-
-    def enqueue_in(self, delta_time, interval=0, repeat=0):
-        """
-        Set required attributes for enqueuing in given timedelta.
-        """
-        self.enqueue_in_params = {
-            "delta_t": delta_time,
-            "interval": interval,
-            "repeat": repeat,
-        }
-        self.enqueue_at_params.clear()
-        return self
-
-    def enqueue_at(self, specific_time, interval=0, repeat=0):
-        """
-        Set required attributes for enqueuing at a given datetime.
-        """
-        self.enqueue_at_params = {
-            "dt": specific_time,
-            "interval": interval,
-            "repeat": repeat,
-        }
-        self.enqueue_in_params.clear()
-        return self
-
-    def initiate(self, *args, **kwargs):
-        """
-        First runs the validator by passing args and kwargs received here.
-
-        Then if enqueue_in_params or enqueue_at_params are present, schedules job
-        accordingly.
-
-        Otherwise, directly enqueues to the queue based on priority.
-        """
-        from kolibri.core.tasks.main import scheduler
+    def enqueue(self, *args, **kwargs):
         from kolibri.core.tasks.main import PRIORITY_TO_QUEUE_MAP
 
-        validator_result = None
+        job_obj = self._ready_job(*args, **kwargs)
+        queue = PRIORITY_TO_QUEUE_MAP[self.priority]
+        return queue.enqueue(func=job_obj)
 
+    def enqueue_in(self, delta_time, interval=0, repeat=0, args=(), kwargs={}):
+        from kolibri.core.tasks.main import scheduler
+
+        job_obj = self._ready_job(*args, **kwargs)
+        return scheduler.enqueue_in(
+            delta_time=delta_time,
+            func=job_obj,
+            interval=interval,
+            repeat=repeat,
+        )
+
+    def enqueue_at(self, specific_time, interval=0, repeat=0, args=(), kwargs={}):
+        from kolibri.core.tasks.main import scheduler
+
+        job_obj = self._ready_job(*args, **kwargs)
+        return scheduler.enqueue_at(
+            dt=specific_time,
+            func=job_obj,
+            interval=interval,
+            repeat=repeat,
+        )
+
+    def _ready_job(self, *args, **kwargs):
+        """
+        When self.validator is not None we run the validator by passing
+        args and kwargs received here.
+
+        If validator raises an exception, we re-raise it otherwise we
+        return a job object.
+        """
         if self.validator is not None:
             try:
                 validator_result = self.validator(*args, **kwargs)
-            # To do: manual testing with other type of tasks to battle proof
-            # Will be done during POST /api/task developement
             except Exception as e:
                 raise e
 
-        if validator_result is not None:
             kwargs["validator_result"] = validator_result
 
         job_obj = Job(
@@ -362,12 +334,4 @@ class RegisteredJob(object):
             **kwargs
         )
 
-        if self.enqueue_at_params:
-            scheduler.enqueue_at(func=job_obj, **self.enqueue_at_params)
-        elif self.enqueue_in_params:
-            scheduler.enqueue_in(func=job_obj, **self.enqueue_in_params)
-        else:
-            queue = PRIORITY_TO_QUEUE_MAP[self.priority]
-            queue.enqueue(func=job_obj)
-
-        return job_obj.job_id
+        return job_obj

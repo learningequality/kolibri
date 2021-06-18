@@ -15,12 +15,3 @@ class JobNotFound(Exception):
 
 class JobNotRestartable(Exception):
     pass
-
-
-class FunctionNotRegisteredAsJob(Exception):
-    """
-    Raised when task.permission_classes decorator is applied without
-    first applying task.register decorator.
-    """
-
-    pass
