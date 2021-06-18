@@ -19,8 +19,8 @@ class JobNotRestartable(Exception):
 
 class FunctionNotRegisteredAsJob(Exception):
     """
-    Raised when task.config decorator is applied without first applying
-    the task.register decorator.
+    Raised when task.permission_classes decorator is applied without
+    first applying task.register decorator.
     """
 
     pass
