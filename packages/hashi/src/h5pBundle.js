@@ -11,6 +11,8 @@ import '../vendor/h5p/styles/h5p-confirmation-dialog.css';
 
 window.H5P = {
   jQuery,
+  // H5P complains if this is undefined, but because of our monkey patching
+  // this is never used.
   OfflineRequestQueue: function() {},
 };
 
@@ -40,4 +42,6 @@ require('../vendor/h5p/js/h5p-event-dispatcher');
 require('../vendor/h5p/js/h5p-x-api');
 require('../vendor/h5p/js/h5p-x-api-event');
 require('../vendor/h5p/js/h5p-content-type');
+require('../vendor/h5p/js/h5p-confirmation-dialog');
+require('../vendor/h5p/js/h5p-resizer');
 /* eslint-enable */

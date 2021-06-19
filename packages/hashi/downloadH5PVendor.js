@@ -9,9 +9,9 @@ var rimraf = require('rimraf');
 
 const purger = new PurgeCSS();
 
-const h5pVersion = '1.24.2';
+const h5pCommit = 'eeefc1228b4294d75288be341e5dea97a10927cb';
 
-const zipUrl = `https://codeload.github.com/h5p/h5p-php-library/zip/refs/tags/${h5pVersion}`;
+const zipUrl = `https://codeload.github.com/h5p/h5p-php-library/zip/${h5pCommit}`;
 
 const targetFolder = path.resolve(__dirname, './vendor/h5p');
 
@@ -23,8 +23,10 @@ const fileManifest = [
   /styles\/h5p-confirmation-dialog\.css/,
   /fonts\/h5p-core-[0-9]+\.(eot|svg|ttf|woff)/,
   /images\/.*/,
+  /js\/h5p-confirmation-dialog\.js/,
   /js\/h5p-content-type\.js/,
   /js\/h5p-event-dispatcher\.js/,
+  /js\/h5p-resizer\.js/,
   /js\/h5p-x-api-event\.js/,
   /js\/h5p-x-api\.js/,
   /js\/h5p\.js/,
