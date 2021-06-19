@@ -76,15 +76,13 @@
     },
     data() {
       return {
+        iframeHeight: (this.options && this.options.height) || defaultContentHeight,
         isInFullscreen: false,
       };
     },
     computed: {
       rooturl() {
         return urls.hashi();
-      },
-      iframeHeight() {
-        return (this.options && this.options.height) || defaultContentHeight;
       },
       iframeWidth() {
         return (this.options && this.options.width) || 'auto';
@@ -139,6 +137,9 @@
       });
       this.hashi.on('navigateTo', message => {
         this.$emit('navigateTo', message);
+      });
+      this.hashi.on(this.hashi.events.RESIZE, scrollHeight => {
+        this.iframeHeight = scrollHeight;
       });
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},
