@@ -155,6 +155,7 @@ export default class H5PRunner {
     // Set this to a dummy value - we use this for generating the H5P ids,
     // and for logging xAPI statements about the content.
     this.contentNamespace = CONTENT_ID;
+    const start = performance.now();
     // First load the full H5P file as binary so we can read it using JSZip
     loadBinary(this.filepath)
       .then(JSZip.loadAsync)
@@ -171,6 +172,7 @@ export default class H5PRunner {
         // dependencies have been loaded.
         this.setDependencies();
         return this.processFiles().then(() => {
+          console.debug(`H5P file processed in ${performance.now() - start} ms`);
           // Do any URL substitition on CSS dependencies
           // and turn them into Blob URLs.
           // Also order the dendencies according to our sorted
