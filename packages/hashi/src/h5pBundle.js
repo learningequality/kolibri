@@ -16,6 +16,25 @@ window.H5P = {
 
 window.$ = window.jQuery = jQuery;
 
+window.H5P.jQuery.fn.__originalLoad = window.H5P.jQuery.load;
+
+window.H5P.jQuery.fn.load = function(url) {
+  /**
+   * NOTE:
+   * This is needed in order to support old libraries that uses the .load() function
+   * for elements in the deprecated jQuery way (elem.load(fn)), the correct way to do this
+   * now is elem.on('load', fn)
+   */
+  if (typeof url === 'function') {
+    console.warn('You are using a deprecated H5P library. Please upgrade!');
+    let args = Array.prototype.slice.call(arguments);
+    args.unshift('load');
+    return window.H5P.jQuery.fn.on.apply(this, args);
+  }
+
+  return window.H5P.jQuery.fn.__originalLoad.apply(this, arguments);
+};
+
 require('../vendor/h5p/js/h5p');
 require('../vendor/h5p/js/h5p-event-dispatcher');
 require('../vendor/h5p/js/h5p-x-api');

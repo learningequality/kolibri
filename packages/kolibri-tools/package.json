@@ -87,7 +87,7 @@
     "webpack": "^4.6.0",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-bundle-tracker": "https://github.com/learningequality/webpack-bundle-tracker",
-    "webpack-cli": "^2.0.15",
+    "webpack-cli": "^4.7.2",
     "webpack-dev-middleware": "^3.1.2",
     "webpack-dev-server": "^3.1.14",
     "webpack-hot-middleware": "2.12.1",
@@ -100,5 +100,8 @@
   },
   "optionalDependencies": {
     "kolibri": "0.13.0-dev.10"
+  },
+  "devDependencies": {
+    "recast": "^0.20.4"
   }
 }
