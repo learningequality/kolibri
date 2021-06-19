@@ -24,12 +24,12 @@
   },
   "dependencies": {
     "core-js": "3.13",
-    "jszip": "^3.5.0",
-    "toposort-class": "^1.0.1",
     "dayjs": "^1.10.4",
+    "fflate": "^0.7.1",
     "iri": "^1.3.0",
     "is-language-code": "^3.0.12",
     "iso8601-duration": "^1.3.0",
+    "toposort-class": "^1.0.1",
     "uuid": "^8.3.2"
   },
   "browserslist": [

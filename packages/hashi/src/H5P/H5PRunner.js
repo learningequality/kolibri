@@ -1,14 +1,38 @@
-import JSZip from 'jszip';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import set from 'lodash/set';
 import debounce from 'lodash/debounce';
 import unset from 'lodash/unset';
 import Toposort from 'toposort-class';
+import { unzip, strFromU8 } from 'fflate';
 import { filename as H5PFilename } from '../../h5p_build.json';
 import mimetypes from '../mimetypes.json';
 import { XAPIVerbMap } from '../xAPI/xAPIVocabulary';
 import loadBinary from './loadBinary';
+
+class Zip {
+  constructor(file) {
+    this.zipfile = file;
+  }
+
+  _getFiles(filter) {
+    return new Promise((resolve, reject) => {
+      unzip(this.zipfile, { filter }, (err, unzipped) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(Object.entries(unzipped).map(([name, obj]) => ({ name, obj })));
+      });
+    });
+  }
+
+  file(filename) {
+    return this._getFiles(file => file.name === filename).then(files => files[0]);
+  }
+  files(path) {
+    return this._getFiles(file => file.name.startsWith(path));
+  }
+}
 
 const CONTENT_ID = '1234567890';
 
@@ -31,14 +55,6 @@ const debounceVerbs = ['answered', 'interacted'];
 const debounceDelay = 5;
 // Max time that debounce should delay by.
 const maxDelay = 30;
-
-/*
- * Helper function to escape a filePath to get an exact match in regex,
- * and to avoid the path characters being interpreted as regex operators
- */
-function escapeRegExp(string) {
-  return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-}
 
 function contentIdentifier(contentId) {
   return `cid-${contentId}`;
@@ -158,10 +174,9 @@ export default class H5PRunner {
     const start = performance.now();
     // First load the full H5P file as binary so we can read it using JSZip
     loadBinary(this.filepath)
-      .then(JSZip.loadAsync)
-      .then(zip => {
+      .then(file => {
         // Store the zip locally for later reference
-        this.zip = zip;
+        this.zip = new Zip(file);
         // Recurse all the package dependencies
         return this.recurseDependencies('h5p.json', true);
       })
@@ -464,62 +479,59 @@ export default class H5PRunner {
    * which will stop us from getting into a circular dependency hell.
    */
   recurseDependencies(jsonFile, root, visitedPaths = {}, packagePath = '') {
-    return this.zip
-      .file(jsonFile)
-      .async('string')
-      .then(content => {
-        const json = JSON.parse(content);
-        const dependencies = json['preloadedDependencies'] || [];
-        // Make a copy so that we are not modifying the same object
-        visitedPaths = {
-          ...visitedPaths,
-        };
-        // If root, then this JSON is the rootConfig.
-        if (root) {
-          this.rootConfig = json;
-        }
-        return Promise.all(
-          dependencies.map(dep => {
-            const packagePath = `${dep.machineName}-${dep.majorVersion}.${dep.minorVersion}/`;
-            // If root, then this is the root config, and so this descriptor is the main library
-            // descriptor for this H5P file.
-            if (root && !this.library && dep.machineName === json.mainLibrary) {
-              this.library = `${dep.machineName} ${dep.majorVersion}.${dep.minorVersion}`;
-            }
-            if (visitedPaths[packagePath]) {
-              // If we have visited this dependency before
-              // then we are in a cyclic dependency graph
-              // so stop!
-              return Promise.resolve(packagePath);
-            }
-            // Add this to our visited paths so that future recursive calls know a cyclic
-            // dependency when they see one!
-            visitedPaths[packagePath] = true;
-            // Now recurse the dependencies of each of the dependencies!
-            return this.recurseDependencies(
-              packagePath + 'library.json',
-              false,
-              visitedPaths,
-              packagePath
-            ).then(() => packagePath);
-          })
-        ).then(dependencies => {
-          if (packagePath) {
-            // If this specification is a package (i.e. not the root)
-            // then get all of the preloadedJs and preloadedCss that this
-            // package needs and summarize it in an object in our dependencies
-            // list.
-            const preloadedJs = (json['preloadedJs'] || []).map(js => js.path);
-            const preloadedCss = (json['preloadedCss'] || []).map(css => css.path);
-            this.dependencies.push({
-              packagePath,
-              dependencies,
-              preloadedCss,
-              preloadedJs,
-            });
+    return this.zip.file(jsonFile).then(file => {
+      const json = JSON.parse(strFromU8(file.obj));
+      const dependencies = json['preloadedDependencies'] || [];
+      // Make a copy so that we are not modifying the same object
+      visitedPaths = {
+        ...visitedPaths,
+      };
+      // If root, then this JSON is the rootConfig.
+      if (root) {
+        this.rootConfig = json;
+      }
+      return Promise.all(
+        dependencies.map(dep => {
+          const packagePath = `${dep.machineName}-${dep.majorVersion}.${dep.minorVersion}/`;
+          // If root, then this is the root config, and so this descriptor is the main library
+          // descriptor for this H5P file.
+          if (root && !this.library && dep.machineName === json.mainLibrary) {
+            this.library = `${dep.machineName} ${dep.majorVersion}.${dep.minorVersion}`;
           }
-        });
+          if (visitedPaths[packagePath]) {
+            // If we have visited this dependency before
+            // then we are in a cyclic dependency graph
+            // so stop!
+            return Promise.resolve(packagePath);
+          }
+          // Add this to our visited paths so that future recursive calls know a cyclic
+          // dependency when they see one!
+          visitedPaths[packagePath] = true;
+          // Now recurse the dependencies of each of the dependencies!
+          return this.recurseDependencies(
+            packagePath + 'library.json',
+            false,
+            visitedPaths,
+            packagePath
+          ).then(() => packagePath);
+        })
+      ).then(dependencies => {
+        if (packagePath) {
+          // If this specification is a package (i.e. not the root)
+          // then get all of the preloadedJs and preloadedCss that this
+          // package needs and summarize it in an object in our dependencies
+          // list.
+          const preloadedJs = (json['preloadedJs'] || []).map(js => js.path);
+          const preloadedCss = (json['preloadedCss'] || []).map(css => css.path);
+          this.dependencies.push({
+            packagePath,
+            dependencies,
+            preloadedCss,
+            preloadedJs,
+          });
+        }
       });
+    });
   }
 
   /*
@@ -566,16 +578,13 @@ export default class H5PRunner {
   processContent(file) {
     const fileName = file.name.replace('content/', '');
     if (fileName === 'content.json') {
-      return file.async('string').then(content => {
-        // Store this special file contents here as raw text
-        // as that is how H5P expects it.
-        this.contentJson = content;
-      });
+      // Store this special file contents here as raw text
+      // as that is how H5P expects it.
+      this.contentJson = strFromU8(file.obj);
+    } else {
+      // Create blob urls for every item in the content folder
+      this.contentPaths[fileName] = createBlobUrl(file.obj, fileName);
     }
-    // Create blob urls for every item in the content folder
-    return file.async('uint8array').then(uint8array => {
-      this.contentPaths[fileName] = createBlobUrl(uint8array, fileName);
-    });
   }
 
   /*
@@ -583,47 +592,43 @@ export default class H5PRunner {
    */
   processPackageFile(file, packagePath) {
     const fileName = file.name.replace(packagePath, '');
+    // Do special processing of js and css files for this package
+    // For both, track the file names to generate `loadedJS` and `loadedCSS`
+    // for H5P.
     const jsFile = this.jsDependencies[packagePath].indexOf(fileName) > -1;
     const cssFile = this.cssDependencies[packagePath].indexOf(fileName) > -1;
-    if (jsFile || cssFile) {
-      // Do special processing of js and css files for this package
-      // For both, track the file names to generate `loadedJS` and `loadedCSS`
-      // for H5P.
+    if (cssFile) {
       // For CSS, this allows us to do URL replacement. Possible we could do this for
       // JS files as well, but the H5P PHP implementation does not do anything for them.
       // Flag in our appropriate maps that these files will be preloaded.
+      this.loadedCss[file.name] = true;
+      // If it's a CSS file load as a string from the zipfile for later
+      // replacement of URLs.
+      this.packageFiles[packagePath][fileName] = strFromU8(file.obj);
+    } else {
       if (jsFile) {
         this.loadedJs[file.name] = true;
-      } else if (cssFile) {
-        this.loadedCss[file.name] = true;
-        // If it's a CSS file load as a string from the zipfile for later
-        // replacement of URLs.
-        return file.async('string').then(content => {
-          this.packageFiles[packagePath][fileName] = content;
-        });
       }
+      // Otherwise just create a blob URL for this file and store it in our packageFiles maps.
+      this.packageFiles[packagePath][fileName] = createBlobUrl(file.obj, fileName);
     }
-    // Otherwise just create a blob URL for this file and store it in our packageFiles maps.
-    return file.async('uint8array').then(uint8array => {
-      this.packageFiles[packagePath][fileName] = createBlobUrl(uint8array, fileName);
-    });
   }
 
   /*
    * Process all files in the zip, content files and files in the packages
    */
   processFiles() {
-    const contentFiles = this.zip.file(/content\//);
-    const promises = [];
-    promises.push(...contentFiles.map(file => this.processContent(file)));
-    promises.push(
+    return Promise.all([
+      this.zip.files('content/').then(contentFiles => {
+        contentFiles.map(file => this.processContent(file));
+      }),
       ...Object.keys(this.packageFiles).map(packagePath => {
         // JSZip uses regex for path matching, so we first do regex escaping on the packagePath
         // in order to get an exact match, and not accidentally do a regex match based on the path
-        const packageFiles = this.zip.file(new RegExp(escapeRegExp(packagePath)));
-        return Promise.all(packageFiles.map(file => this.processPackageFile(file, packagePath)));
-      })
-    );
-    return Promise.all(promises);
+        return this.zip.files(packagePath).then(packageFiles => {
+          packageFiles.map(file => this.processPackageFile(file, packagePath));
+        });
+      }),
+    ]);
   }
 }
