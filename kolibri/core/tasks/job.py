@@ -277,17 +277,26 @@ class RegisteredJob(object):
         Look at each method's docstring for more info.
     """
 
-    def __init__(self, func, validator=None, priority=Priority.REGULAR, **kwargs):
+    def __init__(
+        self,
+        func,
+        validator=None,
+        priority=Priority.REGULAR,
+        permission_classes=[],
+        **kwargs
+    ):
         if validator is not None and not callable(validator):
             raise TypeError("Can't assign validator of type {}".format(type(validator)))
         elif priority.upper() not in [Priority.REGULAR, Priority.HIGH]:
             raise ValueError("priority must be one of 'regular' or 'high'.")
+        elif not isinstance(permission_classes, list):
+            raise TypeError("permission_classes must be of list type.")
 
         self.func = func
         self.validator = validator
         self.priority = priority.upper()
 
-        self.permissions = kwargs.pop("permissions", [])
+        self.permissions = [perm() for perm in permission_classes]
 
         self.job_id = kwargs.pop("job_id", None)
         self.group = kwargs.pop("group", None)
@@ -363,12 +372,12 @@ class RegisteredJob(object):
             kwargs["validator_result"] = validator_result
 
         job_obj = Job(
-            func=self.func,
+            self.func,
+            *args,
             job_id=self.job_id,
             group=self.group,
             cancellable=self.cancellable,
             track_progress=self.track_progress,
-            *args,
             **kwargs
         )
 

@@ -49,7 +49,7 @@ class _TaskDecorators(object):
             group=group,
             cancellable=cancellable,
             track_progress=track_progress,
-            permissions=[perm() for perm in permission_classes],
+            permission_classes=permission_classes,
         )
 
         func.enqueue = registered_job.enqueue
