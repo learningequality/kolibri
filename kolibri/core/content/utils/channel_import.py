@@ -465,7 +465,6 @@ class ChannelImport(object):
 
             i = 0
             results_slice = list(islice(results, i, i + BATCH_SIZE))
-
             while results_slice:
                 insert_statement = insert(DestinationTable)
                 if do_not_overwrite:
@@ -513,7 +512,7 @@ class ChannelImport(object):
                         ),
                         template="(" + "%s, " * (len(columns) - 1) + "%s)",
                     )
-                i += 1
+                i += BATCH_SIZE
                 results_slice = list(islice(results, i, i + BATCH_SIZE))
         cursor.close()
 
@@ -806,11 +805,17 @@ class ChannelImport(object):
             transaction = self.destination.connection.begin()
             if self.check_and_delete_existing_channel():
                 for model in self.content_models:
+                    model_start = time.time()
                     mapping = self.schema_mapping.get(model, {})
                     row_mapper = self.generate_row_mapper(mapping.get("per_row"))
                     table_mapper = self.generate_table_mapper(mapping.get("per_table"))
                     logger.info("Importing {model} data".format(model=model.__name__))
                     self.table_import(model, row_mapper, table_mapper)
+                    logger.debug(
+                        "{model} data imported after {seconds} seconds".format(
+                            model=model.__name__, seconds=time.time() - model_start
+                        )
+                    )
                 import_ran = True
 
             transaction.commit()
