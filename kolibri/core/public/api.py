@@ -1,3 +1,4 @@
+import datetime
 import gzip
 import io
 import json
@@ -183,7 +184,10 @@ class SyncQueueViewSet(viewsets.ViewSet):
         return Response(queue)
 
     def check_queue(self, pk=None):
-        current_transfers = TransferSession.objects.filter(active=True).count()
+        last_activity = datetime.datetime.now() - datetime.timedelta(minutes=5)
+        current_transfers = TransferSession.objects.filter(
+            active=True, last_activity_timestamp__gte=last_activity
+        ).count()
         if current_transfers < MAX_CONCURRENT_SYNCS:
             allow_sync = True
             data = {"action": SYNC}

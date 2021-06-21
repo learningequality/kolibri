@@ -12,7 +12,10 @@ from zeroconf import ServiceInfo
 from zeroconf import USE_IP_OF_OUTGOING_INTERFACE
 from zeroconf import Zeroconf
 
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import DynamicNetworkLocation
+from kolibri.core.public.utils import begin_request_soud_sync
 from kolibri.core.public.utils import get_device_info
 
 logger = logging.getLogger(__name__)
@@ -192,6 +195,16 @@ class KolibriZeroconfListener(object):
                 )
             finally:
                 connection.close()
+
+            if (
+                "subset_of_users_device" in device_info
+            ):  # discards previous versions of Kolibri
+                if get_device_setting(
+                    "subset_of_users_device", False
+                ) and not device_info.get("subset_of_users_device", False):
+                    server = base_url[:-1]  # removes ending slash
+                    for user in FacilityUser.objects.all().values("id"):
+                        begin_request_soud_sync(server=server, user=user["id"])
 
     def remove_service(self, zeroconf, type, name):
         id = _id_from_name(name)
