@@ -234,9 +234,7 @@
         } else {
           // just return the existing query
           const urlParams = this.$route.query;
-          const fetchedEncodedContext = urlParams.has('context')
-            ? urlParams.get('context')
-            : this.context;
+          const fetchedEncodedContext = urlParams.context || this.context;
           message.context = decodeURI(JSON.stringify(fetchedEncodedContext));
         }
 
