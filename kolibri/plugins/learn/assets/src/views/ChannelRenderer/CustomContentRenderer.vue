@@ -86,7 +86,6 @@
     mounted() {
       this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
       const zipFile = this.topic.files.find(f => f.extension === 'zip');
-      this.hashi.initialize({}, {}, zipFile.storage_url, zipFile.checksum);
       this.hashi.on(events.COLLECTIONREQUESTED, message => {
         this.fetchContentCollection(message);
       });
@@ -108,6 +107,7 @@
       this.hashi.on(events.KOLIBRIVERSIONREQUESTED, message => {
         this.sendKolibriVersion.call(this, message);
       });
+      this.hashi.initialize({}, {}, zipFile.storage_url, zipFile.checksum);
     },
     methods: {
       // helper functions for fetching data from kolibri
