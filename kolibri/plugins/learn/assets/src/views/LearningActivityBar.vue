@@ -20,6 +20,8 @@
       <KIconButton
         icon="back"
         data-test="backButton"
+        :tooltip="$tr('goBack')"
+        :ariaLabel="$tr('goBack')"
         @click="onBackButtonClick"
       />
     </template>
@@ -265,6 +267,7 @@
       },
     },
     $trs: {
+      goBack: 'Go back',
       moreOptions: 'More options',
       viewLessonPlan: 'View lesson plan',
       viewTopicResources: 'View topic resources',
