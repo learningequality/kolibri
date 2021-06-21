@@ -1,3 +1,4 @@
+import 'regenerator-runtime/runtime';
 import '@testing-library/jest-dom';
 import 'intl';
 import 'intl/locale-data/jsonp/en.js';
@@ -7,6 +8,7 @@ import * as AphroditeNoImportant from 'aphrodite/no-important';
 import Vue from 'vue';
 import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
+import VueCompositionApi from '@vue/composition-api';
 import Vuex from 'vuex';
 import { i18nSetup } from 'kolibri.utils.i18n';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
@@ -35,6 +37,7 @@ Vue.use(VueRouter);
 Vue.use(VueMeta);
 Vue.use(KThemePlugin);
 Vue.use(KContentPlugin);
+Vue.use(VueCompositionApi);
 Vue.component('KSelect', KSelect);
 
 Vue.config.silent = true;

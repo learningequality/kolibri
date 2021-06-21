@@ -16,6 +16,7 @@
       </iframe>
       <ContentModal
         v-if="overlayIsOpen"
+        :key="currentContent.id"
         :contentNode="currentContent"
         :channelTheme="channelTheme"
         @close="overlayIsOpen = false"
@@ -36,6 +37,7 @@
   import router from 'kolibri.coreVue.router';
   import { events, MessageStatuses } from 'hashi/src/hashiBase';
   import { validateTheme } from '../../utils/themes';
+  import { PageNames } from '../../constants';
   import ContentModal from './ContentModal';
 
   function createReturnMsg({ message, data, err }) {
@@ -188,17 +190,23 @@
         let context = {};
         return ContentNodeResource.fetchModel({ id })
           .then(contentNode => {
-            let routeBase, path;
             if (contentNode && contentNode.kind === 'topic') {
-              routeBase = '/topics/t';
-              path = `${routeBase}/${id}`;
-              router.push({ path: path }).catch(() => {});
-            } else if (contentNode) {
-              // in a custom context, launch or maintain overlay
+              router.push(this.genContentLink(contentNode.id, contentNode.is_leaf));
+            } else if (contentNode && this.overlayIsOpen == false) {
+              // in a custom context, launch overlay
               this.currentContent = contentNode;
               this.overlayIsOpen = true;
               context.node_id = contentNode.id;
               context.customChannel = true;
+              const encodedContext = encodeURI(JSON.stringify(context));
+              router.replace({ query: { context: encodedContext } }).catch(() => {});
+            } else if (contentNode && this.overlayIsOpen == true) {
+              // in a custom context, within an overlay, switch the overlay
+              // content to the new content
+              this.currentContent = contentNode;
+              context.node_id = contentNode.id;
+              context.customChannel = true;
+              this.$forceUpdate();
               const encodedContext = encodeURI(JSON.stringify(context));
               router.replace({ query: { context: encodedContext } }).catch(() => {});
             }
@@ -210,6 +218,12 @@
           .then(newMsg => {
             this.hashi.mediator.sendLocalMessage(newMsg);
           });
+      },
+      genContentLink(id, isLeaf) {
+        return {
+          name: isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
+          params: { id },
+        };
       },
       getOrUpdateContext(message) {
         // to update context with the incoming context

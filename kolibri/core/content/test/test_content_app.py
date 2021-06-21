@@ -2,10 +2,12 @@
 To run this test, type this in command line <kolibri manage test -- kolibri.core.content>
 """
 import datetime
+import unittest
 import uuid
 
 import mock
 import requests
+from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -18,6 +20,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content import models as content
+from kolibri.core.content.test.test_channel_upgrade import ChannelBuilder
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.logger.models import ContentSessionLog
@@ -233,13 +236,223 @@ class ContentNodeAPITestCase(APITestCase):
         )
         self.assertEqual(response.data[0]["title"], "c2")
 
+    def map_language(self, lang):
+        if lang:
+            return {
+                f: getattr(lang, f)
+                for f in [
+                    "id",
+                    "lang_code",
+                    "lang_subcode",
+                    "lang_name",
+                    "lang_direction",
+                ]
+            }
+
+    def _assert_node(self, actual, expected):
+        assessmentmetadata = (
+            expected.assessmentmetadata.all()
+            .values(
+                "assessment_item_ids",
+                "number_of_assessments",
+                "mastery_model",
+                "randomize",
+                "is_manipulable",
+                "contentnode",
+            )
+            .first()
+        )
+        files = []
+        for f in expected.files.all():
+            "local_file__id",
+            "local_file__available",
+            "local_file__file_size",
+            "local_file__extension",
+            "lang_id",
+            file = {}
+            for field in [
+                "id",
+                "priority",
+                "preset",
+                "supplementary",
+                "thumbnail",
+            ]:
+                file[field] = getattr(f, field)
+            file["checksum"] = f.local_file_id
+            for field in [
+                "available",
+                "file_size",
+                "extension",
+            ]:
+                file[field] = getattr(f.local_file, field)
+            file["lang"] = self.map_language(f.lang)
+            file["storage_url"] = f.get_storage_url()
+            files.append(file)
+        self.assertEqual(
+            actual,
+            {
+                "id": expected.id,
+                "available": expected.available,
+                "author": expected.author,
+                "channel_id": expected.channel_id,
+                "coach_content": expected.coach_content,
+                "content_id": expected.content_id,
+                "description": expected.description,
+                "kind": expected.kind,
+                "lang": self.map_language(expected.lang),
+                "license_description": expected.license_description,
+                "license_name": expected.license_name,
+                "license_owner": expected.license_owner,
+                "num_coach_contents": expected.num_coach_contents,
+                "options": expected.options,
+                "parent": expected.parent_id,
+                "sort_order": expected.sort_order,
+                "title": expected.title,
+                "lft": expected.lft,
+                "rght": expected.rght,
+                "tree_id": expected.tree_id,
+                "ancestors": list(expected.get_ancestors().values("id", "title")),
+                "tags": list(
+                    expected.tags.all()
+                    .order_by("tag_name")
+                    .values_list("tag_name", flat=True)
+                ),
+                "assessmentmetadata": assessmentmetadata,
+                "is_leaf": expected.kind != "topic",
+                "files": files,
+            },
+        )
+
+    def _assert_nodes(self, data, nodes):
+        for actual, expected in zip(data, nodes):
+            self._assert_node(actual, expected)
+
     def test_contentnode_list(self):
         root = content.ContentNode.objects.get(title="root")
-        expected_output = (
-            root.get_descendants(include_self=True).filter(available=True).count()
-        )
+        nodes = root.get_descendants(include_self=True).filter(available=True)
+        expected_output = len(nodes)
         response = self.client.get(reverse("kolibri:core:contentnode-list"))
         self.assertEqual(len(response.data), expected_output)
+        self._assert_nodes(response.data, nodes)
+
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        == "django.db.backends.postgresql",
+        "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
+    )
+    def test_contentnode_list_long(self):
+        # This will make > 1000 nodes which should test our ancestor batching behaviour
+        builder = ChannelBuilder(num_children=10)
+        builder.insert_into_default_db()
+        content.ContentNode.objects.update(available=True)
+        nodes = content.ContentNode.objects.filter(available=True)
+        expected_output = len(nodes)
+        self.assertGreater(expected_output, 1000)
+        response = self.client.get(reverse("kolibri:core:contentnode-list"))
+        self.assertEqual(len(response.data), expected_output)
+        self._assert_nodes(response.data, nodes)
+
+    def _recurse_and_assert(self, data, nodes, recursion_depth=0):
+        for actual, expected in zip(data, nodes):
+            children = actual.pop("children", None)
+            self._assert_node(actual, expected)
+            if children:
+                child_nodes = content.ContentNode.objects.filter(
+                    available=True, parent=expected
+                )
+                if children["more"] is None:
+                    self.assertEqual(len(child_nodes), len(children["results"]))
+                else:
+                    self.assertGreater(len(child_nodes), len(children["results"]))
+                    self.assertEqual(children["more"]["id"], expected.id)
+                    self.assertEqual(
+                        children["more"]["params"]["lft__gt"], child_nodes[24].rght
+                    )
+                    self.assertEqual(
+                        children["more"]["params"]["depth"], 2 - recursion_depth
+                    )
+                self._recurse_and_assert(
+                    children["results"],
+                    child_nodes,
+                    recursion_depth=recursion_depth + 1,
+                )
+
+    def test_contentnode_tree(self):
+        root = content.ContentNode.objects.get(title="root")
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
+        )
+        self._recurse_and_assert([response.data], [root])
+
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        == "django.db.backends.postgresql",
+        "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
+    )
+    def test_contentnode_tree_long(self):
+        builder = ChannelBuilder(levels=2, num_children=30)
+        builder.insert_into_default_db()
+        content.ContentNode.objects.all().update(available=True)
+        root = content.ContentNode.objects.get(id=builder.root_node["id"])
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
+        )
+        self._recurse_and_assert([response.data], [root])
+
+    def test_contentnode_tree_depth_1(self):
+        root = content.ContentNode.objects.get(title="root")
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id}),
+            data={"depth": 1},
+        )
+        self._recurse_and_assert([response.data], [root])
+
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        == "django.db.backends.postgresql",
+        "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
+    )
+    def test_contentnode_tree_lft__gt(self):
+        builder = ChannelBuilder(levels=2, num_children=30)
+        builder.insert_into_default_db()
+        content.ContentNode.objects.all().update(available=True)
+        root = content.ContentNode.objects.get(id=builder.root_node["id"])
+        lft__gt = content.ContentNode.objects.filter(parent=root)[24].rght
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id}),
+            data={"lft__gt": lft__gt},
+        )
+        self.assertEqual(len(response.data["children"]["results"]), 5)
+        self.assertIsNone(response.data["children"]["more"])
+        first_node = content.ContentNode.objects.filter(parent=root)[25]
+        self._recurse_and_assert(
+            [response.data["children"]["results"][0]], [first_node], recursion_depth=1
+        )
+
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        == "django.db.backends.postgresql",
+        "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
+    )
+    def test_contentnode_tree_more(self):
+        builder = ChannelBuilder(levels=2, num_children=30)
+        builder.insert_into_default_db()
+        content.ContentNode.objects.all().update(available=True)
+        root = content.ContentNode.objects.get(id=builder.root_node["id"])
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
+        )
+        first_child = response.data["children"]["results"][0]
+        self.assertEqual(first_child["children"]["more"]["params"]["depth"], 1)
+        nested_page_response = self.client.get(
+            reverse(
+                "kolibri:core:contentnode_tree-detail",
+                kwargs={"pk": first_child["children"]["more"]["id"]},
+            ),
+            data=first_child["children"]["more"]["params"],
+        )
+        self.assertEqual(len(nested_page_response.data["children"]["results"]), 5)
+        self.assertIsNone(nested_page_response.data["children"]["more"])
 
     @mock.patch("kolibri.core.content.api.get_channel_stats_from_studio")
     def test_contentnode_granular_network_import(self, stats_mock):

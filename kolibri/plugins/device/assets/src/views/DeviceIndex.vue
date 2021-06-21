@@ -30,8 +30,10 @@
 
 <script>
 
+  import { getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+  import { useIntervalFn } from '@vueuse/core';
   import omit from 'lodash/omit';
-  import { mapState, mapGetters, mapActions } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { ContentWizardPages, PageNames } from '../constants';
   import DeviceTopNav from './DeviceTopNav';
@@ -45,6 +47,25 @@
       CoreBase,
       PostSetupModalGroup,
       DeviceTopNav,
+    },
+    setup() {
+      const polling = useIntervalFn(() => {
+        $store.dispatch('manageContent/refreshTaskList');
+      }, 1000);
+      const $store = getCurrentInstance().proxy.$store;
+      function startTaskPolling() {
+        if ($store.getters.canManageContent) {
+          polling.start();
+        }
+      }
+      function stopTaskPolling() {
+        polling.stop();
+      }
+
+      return {
+        stopTaskPolling,
+        startTaskPolling,
+      };
     },
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
@@ -169,20 +190,9 @@
       this.stopTaskPolling();
     },
     methods: {
-      ...mapActions('manageContent', ['refreshTaskList']),
       hideWelcomeModal() {
         window.sessionStorage.setItem(welcomeDimissalKey, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
-      },
-      startTaskPolling() {
-        if (!this.intervalId && this.canManageContent) {
-          this.intervalId = setInterval(this.refreshTaskList, 1000);
-        }
-      },
-      stopTaskPolling() {
-        if (this.intervalId) {
-          this.intervalId = clearInterval(this.intervalId);
-        }
       },
     },
     $trs: {

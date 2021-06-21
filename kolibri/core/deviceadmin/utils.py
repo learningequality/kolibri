@@ -7,6 +7,7 @@ from datetime import datetime
 from datetime import timedelta
 
 from django import db
+from django.apps import apps
 from django.conf import settings
 
 import kolibri
@@ -186,7 +187,7 @@ def search_latest(search_root, fallback_version):
 
 
 @task.register(job_id=SCH_VACUUM_JOB_ID)
-def perform_vacuum(database=db.DEFAULT_DB_ALIAS):
+def perform_vacuum(database=db.DEFAULT_DB_ALIAS, full=False):
     connection = db.connections[database]
     if connection.vendor == "sqlite":
         try:
@@ -209,6 +210,22 @@ def perform_vacuum(database=db.DEFAULT_DB_ALIAS):
             logger.error(new_msg)
         else:
             logger.info("Sqlite database Vacuum finished.")
+    elif connection.vendor == "postgresql":
+        if full:
+            morango_models = ("morango_recordmaxcounterbuffer", "morango_buffer")
+        else:
+            morango_models = [
+                m
+                for m in apps.get_models(include_auto_created=True)
+                if "morango.models" in str(m)
+            ]
+        cursor = connection.cursor()
+        for m in morango_models:
+            if full:
+                cursor.execute("vacuum full analyze {};".format(m))
+            else:
+                cursor.execute("vacuum analyze {};".format(m._meta.db_table))
+        connection.close()
 
 
 def schedule_vacuum():

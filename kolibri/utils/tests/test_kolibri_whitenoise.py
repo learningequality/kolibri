@@ -10,7 +10,7 @@ from kolibri.utils.kolibri_whitenoise import FileFinder
 def test_file_finder():
     tempdir1 = tempfile.mkdtemp()
     tempdir2 = tempfile.mkdtemp()
-    prefix = "test"
+    prefix = "/test"
     tempdir1tempfile, tempdir1tempfilepath = tempfile.mkstemp(dir=tempdir1)
     tempdir2tempfile, tempdir2tempfilepath = tempfile.mkstemp(dir=tempdir2)
     tempdir1tempfilename = os.path.basename(tempdir1tempfilepath)
@@ -30,14 +30,14 @@ def test_file_finder():
 def test_dynamic_whitenoise():
     tempdir11 = tempfile.mkdtemp()
     tempdir12 = tempfile.mkdtemp()
-    prefix1 = "test"
+    prefix1 = "/test"
     tempdir11tempfile, tempdir11tempfilepath = tempfile.mkstemp(dir=tempdir11)
     tempdir12tempfile, tempdir12tempfilepath = tempfile.mkstemp(dir=tempdir12)
     tempdir11tempfilename = os.path.basename(tempdir11tempfilepath)
     tempdir12tempfilename = os.path.basename(tempdir12tempfilepath)
     tempdir21 = tempfile.mkdtemp()
     tempdir22 = tempfile.mkdtemp()
-    prefix2 = "notatest"
+    prefix2 = "/notatest"
     tempdir21tempfile, tempdir21tempfilepath = tempfile.mkstemp(dir=tempdir21)
     tempdir22tempfile, tempdir22tempfilepath = tempfile.mkstemp(dir=tempdir22)
     tempdir21tempfilename = os.path.basename(tempdir21tempfilepath)

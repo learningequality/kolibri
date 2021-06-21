@@ -2,6 +2,7 @@
  * Provides the public API for the Kolibri FrontEnd core app.
  * @module Facade
  */
+import 'core-js';
 import '../styles/main.scss';
 import urls from 'kolibri.urls';
 import * as theme from 'kolibri-design-system/lib/styles/theme';
@@ -15,6 +16,7 @@ import Vue from 'vue';
 import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
+import VueCompositionApi from '@vue/composition-api';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 import heartbeat from 'kolibri.heartbeat';
 import KContentPlugin from 'kolibri-design-system/lib/content/KContentPlugin';
@@ -74,6 +76,7 @@ Vue.use(Vuex);
 Vue.use(VueRouter);
 Vue.use(VueMeta);
 Vue.use(KThemePlugin);
+Vue.use(VueCompositionApi);
 
 Vue.use(KContentPlugin, {
   languageDirection,

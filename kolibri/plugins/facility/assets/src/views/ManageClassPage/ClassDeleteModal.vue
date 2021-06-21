@@ -7,7 +7,7 @@
     @submit="classDelete"
     @cancel="$emit('cancel')"
   >
-    <p>{{ $tr('confirmation', { classname: classname }) }}</p>
+    <p>{{ $tr('confirmation', { classname: className }) }}</p>
     <p>{{ $tr('description') }}</p>
     <p>{{ coreString('cannotUndoActionWarning') }}</p>
   </KModal>
@@ -17,24 +17,31 @@
 
 <script>
 
+  import { readonly } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useDeleteClass from './useDeleteClass';
 
   export default {
     name: 'ClassDeleteModal',
     mixins: [commonCoreStrings],
+    setup(props) {
+      const { deleteSelectedClassModel } = useDeleteClass(props.classToDelete);
+      const { name } = props.classToDelete;
+      return {
+        className: readonly(name),
+        deleteSelectedClassModel,
+      };
+    },
     props: {
-      classname: {
-        type: String,
-        required: true,
-      },
-      classid: {
-        type: String,
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      classToDelete: {
+        type: Object,
         required: true,
       },
     },
     methods: {
       classDelete() {
-        this.$store.dispatch('classManagement/deleteClass', this.classid).then(() => {
+        this.deleteSelectedClassModel().then(() => {
           this.$emit('success');
           this.showSnackbarNotification('classDeleted');
         });

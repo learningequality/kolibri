@@ -10,7 +10,7 @@ export const events = {
   SEARCHRESULTREQUESTED: 'searchresultrequested',
   DATARETURNED: 'datareturned',
   KOLIBRIDATARETURNED: 'kolibridatareturned',
-  NAVIGATETO: 'navigateto',
+  NAVIGATETO: 'navigateTo',
   CONTEXT: 'context',
   THEMECHANGED: 'themechanged',
   KOLIBRIVERSIONREQUESTED: 'kolibriversionrequested',

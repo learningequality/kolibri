@@ -88,14 +88,16 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
   const postCSSLoader = {
     loader: 'postcss-loader',
     options: {
-      config: { path: path.resolve(__dirname, '../postcss.config.js') },
+      postcssOptions: {
+        plugins: [['autoprefixer']],
+      },
       sourceMap: !production,
     },
   };
 
   const cssLoader = {
     loader: 'css-loader',
-    options: { minimize: production, sourceMap: !production },
+    options: { sourceMap: !production },
   };
 
   // for scss blocks
@@ -129,7 +131,10 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
         {
           test: /\.js$/,
           loader: 'babel-loader',
-          exclude: /(node_modules\/vue|dist)/,
+          exclude: {
+            test: /(node_modules\/vue|dist|core-js)/,
+            not: [/\.(esm\.js|mjs)$/],
+          },
         },
         {
           test: /\.css$/,

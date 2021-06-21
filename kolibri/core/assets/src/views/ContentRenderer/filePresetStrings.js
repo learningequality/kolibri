@@ -20,6 +20,7 @@ const filePresetStrings = {
   exercise: 'Exercise ({fileSize})',
   html5_zip: 'HTML5 Zip ({fileSize})',
   epub: 'ePub Document ({fileSize})',
+  zim: 'ZIM Document ({fileSize})',
   slideshow_manifest: 'Slideshow ({fileSize})',
   slideshow_image: 'Slideshow image ({fileSize})',
 };

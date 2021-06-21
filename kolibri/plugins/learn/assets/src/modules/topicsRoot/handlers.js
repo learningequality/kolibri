@@ -58,12 +58,15 @@ export function showChannels(store) {
               });
             });
 
-        // Whether we've updated the rootNodes with progress or not, we need to updat the store
-        Promise.all(progressPromises).finally(() => {
+        // Whether we've updated the rootNodes with progress or not, we need to update the store
+        const updateStore = () => {
           store.commit('topicsRoot/SET_STATE', { rootNodes });
           store.commit('CORE_SET_PAGE_LOADING', false);
           store.commit('CORE_SET_ERROR', null);
-        });
+        };
+        Promise.all(progressPromises)
+          .then(updateStore)
+          .catch(updateStore);
       });
     },
     error => {

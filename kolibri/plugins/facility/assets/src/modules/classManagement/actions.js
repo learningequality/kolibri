@@ -19,18 +19,3 @@ export function createClass(store, name) {
     }
   );
 }
-
-/**
- * Do a DELETE to delete the class.
- * @param {string or Integer} id
- */
-export function deleteClass(store, id) {
-  return ClassroomResource.deleteModel({ id }).then(
-    () => {
-      store.commit('DELETE_CLASS', id);
-    },
-    error => {
-      store.dispatch('handleApiError', error, { root: true });
-    }
-  );
-}

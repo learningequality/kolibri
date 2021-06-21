@@ -89,14 +89,14 @@
         <tr>
           <th>{{ coreString('genderLabel') }}</th>
           <td>
-            <GenderDisplayText :gender="facilityUser.gender" />
+            <GenderDisplayText :gender="currentUser.gender" />
           </td>
         </tr>
 
         <tr>
           <th>{{ coreString('birthYearLabel') }}</th>
           <td>
-            <BirthYearDisplayText :birthYear="facilityUser.birth_year" />
+            <BirthYearDisplayText :birthYear="currentUser.birth_year" />
           </td>
         </tr>
 
@@ -127,6 +127,7 @@
 
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { mapState, mapGetters } from 'vuex';
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -135,11 +136,11 @@
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
-  import { FacilityUserResource } from 'kolibri.resources';
   import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
   import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
   import { ComponentMap } from '../../constants';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
+  import useCurrentUser from './useCurrentUser';
 
   export default {
     name: 'ProfilePage',
@@ -158,10 +159,12 @@
       UserTypeDisplay,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
-    data() {
+    setup() {
+      const showPasswordModal = ref(false);
+      const { currentUser } = useCurrentUser();
       return {
-        facilityUser: {},
-        showPasswordModal: false,
+        currentUser,
+        showPasswordModal,
       };
     },
     computed: {
@@ -215,20 +218,12 @@
     created() {
       this.$store.dispatch('fetchPoints');
     },
-    mounted() {
-      this.fetchFacilityUser();
-    },
     methods: {
       getPermissionString(permission) {
         if (permission === 'can_manage_content') {
           return this.$tr('manageContent');
         }
         return permission;
-      },
-      fetchFacilityUser() {
-        FacilityUserResource.fetchModel({ id: this.session.user_id }).then(facilityUser => {
-          this.facilityUser = { ...facilityUser };
-        });
       },
     },
     $trs: {
