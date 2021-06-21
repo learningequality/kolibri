@@ -19,7 +19,14 @@ class Command(BaseCommand):
             default=DEFAULT_DB_ALIAS,
             help='Specifies the database to vacuum. Defaults to the "default" database.',
         )
+        parser.add_argument(
+            "--full",
+            type=bool,
+            dest="full",
+            default=False,
+            help="If set, in a Postgresql database a full vacuum will be done on the morango_recordmaxcounterbuffer and morango_buffer tables",
+        )
 
     def handle(self, *args, **options):
         database = options["database"]
-        perform_vacuum(database)
+        perform_vacuum(database, options["full"])

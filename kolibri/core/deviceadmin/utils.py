@@ -183,7 +183,7 @@ def search_latest(search_root, fallback_version):
         return os.path.join(search_root, newest)
 
 
-def perform_vacuum(database=db.DEFAULT_DB_ALIAS):
+def perform_vacuum(database=db.DEFAULT_DB_ALIAS, full=False):
     connection = db.connections[database]
     if connection.vendor == "sqlite":
         try:
@@ -207,14 +207,20 @@ def perform_vacuum(database=db.DEFAULT_DB_ALIAS):
         else:
             logger.info("Sqlite database Vacuum finished.")
     elif connection.vendor == "postgresql":
-        morango_models = [
-            m
-            for m in apps.get_models(include_auto_created=True)
-            if "morango.models" in str(m)
-        ]
+        if full:
+            morango_models = ("morango_recordmaxcounterbuffer", "morango_buffer")
+        else:
+            morango_models = [
+                m
+                for m in apps.get_models(include_auto_created=True)
+                if "morango.models" in str(m)
+            ]
         cursor = connection.cursor()
         for m in morango_models:
-            cursor.execute("vacuum analyze {};".format(m._meta.db_table))
+            if full:
+                cursor.execute("vacuum full analyze {};".format(m))
+            else:
+                cursor.execute("vacuum analyze {};".format(m._meta.db_table))
         connection.close()
 
 
