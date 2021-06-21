@@ -802,16 +802,11 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
         lft__gt - a value to return child nodes with a lft value greater than this, if missing defaults to None
 
         The pagination object returned for "children" will have this form:
-        {
-            "results": [...<serialized children>],
-            "more": {
-                "id": <parent_id>,
-                "params": {
-                    lft__gt: <int>,
-                    depth: {1,2},
-                },
-            }
-        }
+        results - a list of serialized children, that can also have their own nested children attribute.
+        more - a dictionary or None, if a dictionary, will have an id key that is the id of the parent object
+        for these children, and a params key that is a dictionary of the required query parameters to query more
+        children for this parent - at a minimum this will include lft__gt and depth, but may also include
+        other query parameters for filtering content nodes.
 
         The "more" property describes the "id" required to do URL reversal on this endpoint, and the params that should
         be passed as query parameters to get the next set of results for pagination.
