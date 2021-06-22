@@ -214,32 +214,12 @@ export default class H5PRunner {
   }
 
   /*
-   * Run through an array of dependency objects
-   * where the fileMap property has values for all
-   * the files that we need to load.
-   * This creates appropriate script tags for each of them
-   * and waits for the previous one to load before loading
-   * the next.
-   */
-  loadDependencies(dependencies, css = false) {
-    return dependencies.reduce((p, depMap) => {
-      return p.then(() => {
-        return Promise.all(
-          Object.values(depMap.fileMap).map(url => {
-            return this.scriptLoader(url, css);
-          })
-        );
-      });
-    }, Promise.resolve());
-  }
-
-  /*
    * Shim H5P, load dependencies, and then start H5P in the contentWindow.
    */
   initH5P() {
     this.shimH5P(this.iframe.contentWindow);
-    return this.loadDependencies(this.cssDependencies, true).then(() => {
-      return this.loadDependencies(this.jsDependencies).then(() => {
+    return this.scriptLoader(this.cssURL, true).then(() => {
+      return this.scriptLoader(this.javascriptURL).then(() => {
         this.iframe.contentWindow.H5P.init();
         this.loaded();
       });
@@ -543,14 +523,14 @@ export default class H5PRunner {
    * dependency order.
    */
   processJsDependencies() {
-    this.jsDependencies = this.sortedDependencies.map(dependency => {
-      const fileMap = {};
-      const jsMap = { dependency, fileMap };
-      this.jsDependencies[dependency].map(jsDep => {
-        fileMap[jsDep] = this.packageFiles[dependency][jsDep];
-      });
-      return jsMap;
-    });
+    const concatenatedJS = this.sortedDependencies.reduce((wholeJS, dependency) => {
+      return this.jsDependencies[dependency].reduce((allJs, jsDep) => {
+        return `${allJs}${this.packageFiles[dependency][jsDep]}\n\n`;
+      }, wholeJS);
+    }, '');
+    this.javascriptURL = URL.createObjectURL(
+      new Blob([concatenatedJS], { type: 'text/javascript' })
+    );
   }
 
   /*
@@ -559,18 +539,14 @@ export default class H5PRunner {
    * and then substitute those referenced paths for the blob URLs
    */
   processCssDependencies() {
-    this.cssDependencies = this.sortedDependencies.map(dependency => {
-      const fileMap = {};
-      const cssMap = { dependency, fileMap };
-      this.cssDependencies[dependency].map(cssDep => {
+    const concatenatedCSS = this.sortedDependencies.reduce((wholeCSS, dependency) => {
+      return this.cssDependencies[dependency].reduce((allCss, cssDep) => {
         const css = replacePaths(cssDep, this.packageFiles[dependency]);
-        fileMap[cssDep] = URL.createObjectURL(new Blob([css], { type: 'text/css' }));
-        // We have completed the path substition, so replace the string content with
-        // the new Blob URL.
-        this.packageFiles[dependency][cssDep] = css;
-      });
-      return cssMap;
-    });
+        // We have completed the path substition, so concatenate the CSS.
+        return `${allCss}${css}\n\n`;
+      }, wholeCSS);
+    }, '');
+    this.cssURL = URL.createObjectURL(new Blob([concatenatedCSS], { type: 'text/css' }));
   }
 
   /*
@@ -600,18 +576,24 @@ export default class H5PRunner {
     // for H5P.
     const jsFile = this.jsDependencies[packagePath].indexOf(fileName) > -1;
     const cssFile = this.cssDependencies[packagePath].indexOf(fileName) > -1;
-    if (cssFile) {
+    if (cssFile || jsFile) {
       // For CSS, this allows us to do URL replacement. Possible we could do this for
       // JS files as well, but the H5P PHP implementation does not do anything for them.
       // Flag in our appropriate maps that these files will be preloaded.
-      this.loadedCss[file.name] = true;
-      // If it's a CSS file load as a string from the zipfile for later
-      // replacement of URLs.
-      this.packageFiles[packagePath][fileName] = strFromU8(file.obj);
-    } else {
+      // For both we will concatenate all the assets before turning into a blob
+      // URL, because some H5P packages depend on setTimeout delays to call dependencies that
+      // load after them in the same package - using chained script loading, this breaks,
+      // because the Promise allows the main thread to be released, and the setTimeout to jump in.
       if (jsFile) {
         this.loadedJs[file.name] = true;
+      } else {
+        this.loadedCss[file.name] = true;
       }
+      // If it's a CSS file load as a string from the zipfile for later
+      // replacement of URLs.
+      // For JS or CSS, we load as string to concatenate and later turn into a single file.
+      this.packageFiles[packagePath][fileName] = strFromU8(file.obj);
+    } else {
       // Otherwise just create a blob URL for this file and store it in our packageFiles maps.
       this.packageFiles[packagePath][fileName] = createBlobUrl(file.obj, fileName);
     }
