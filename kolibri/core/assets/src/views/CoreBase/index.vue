@@ -204,7 +204,7 @@
     setup() {
       const swipeZone = ref(null);
       const navShown = ref(false);
-      const { isSwiping } = useSwipe(swipeZone, {
+      useSwipe(swipeZone, {
         onSwipeEnd: (e, direction) => {
           if (direction === 'RIGHT' && !navShown.value) {
             navShown.value = true;
@@ -212,7 +212,7 @@
         },
       });
 
-      return { swipeZone, navShown, isSwiping };
+      return { swipeZone, navShown };
     },
     props: {
       appBarTitle: {

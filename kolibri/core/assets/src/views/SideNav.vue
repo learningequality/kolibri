@@ -9,6 +9,7 @@
     <transition name="side-nav">
       <div
         v-show="navShown"
+        ref="sideNavInside"
         class="side-nav"
         :style="{
           width: `${width}px`,
@@ -130,6 +131,8 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ref } from 'kolibri.lib.vueCompositionApi';
+  import { useSwipe } from '@vueuse/core';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
@@ -163,6 +166,19 @@
       PrivacyInfoModal,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
+    setup(props, { emit }) {
+      const sideNavInside = ref(null);
+      useSwipe(sideNavInside, {
+        threshold: 100,
+        onSwipeEnd: (e, direction) => {
+          if (direction === 'LEFT') {
+            emit('toggleSideNav');
+          }
+        },
+      });
+
+      return { sideNavInside };
+    },
     props: {
       navShown: {
         type: Boolean,
