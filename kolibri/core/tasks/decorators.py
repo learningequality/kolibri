@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 
 def register_task(
-    self,
     func=None,
     job_id=None,
     validator=None,
@@ -26,7 +25,7 @@ def register_task(
     """
     if func is None:
         return partial(
-            self.register,
+            register_task,
             job_id=job_id,
             validator=validator,
             priority=priority,
