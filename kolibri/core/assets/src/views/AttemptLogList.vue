@@ -21,7 +21,7 @@
           :key="index"
           class="attempt-item"
           :style="{
-            backgroundColor: isSelected(index) ? $themeTokens.textDisabled : '',
+            backgroundColor: isSelected(index) ? $themePalette.grey.v_100 : '',
           }"
         >
           <a
@@ -37,8 +37,7 @@
             <KIcon
               v-if="attemptLog.noattempt"
               class="item svg-item"
-              :style=" { fill: $themeTokens.annotation }"
-              icon="cancel"
+              icon="notStarted"
             />
             <KIcon
               v-else-if="attemptLog.correct"
