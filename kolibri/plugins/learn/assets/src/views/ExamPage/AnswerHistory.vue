@@ -15,7 +15,7 @@
       >
         <KIcon
           class="dot"
-          icon="dot"
+          icon="notStarted"
           :color="isAnswered(question) ? $themeTokens.progress : $themeTokens.textDisabled"
         />
         <div class="text">
@@ -80,7 +80,7 @@
       },
       buttonClass(index) {
         if (this.questionNumber === index) {
-          return this.$computedClass({ backgroundColor: this.$themePalette.grey.v_200 });
+          return this.$computedClass({ backgroundColor: this.$themePalette.grey.v_100 });
         }
         return this.$computedClass({
           backgroundColor: this.$themeTokens.surface,
