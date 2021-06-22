@@ -62,8 +62,6 @@ class Queue(object):
         else:
             job = Job(func, *args, **kwargs)
 
-        job.state = State.QUEUED
-
         job_id = self.storage.enqueue_job(job, self.name)
         return job_id
 

@@ -13,9 +13,31 @@ from kolibri.core.tasks.utils import stringify_func
 logger = logging.getLogger(__name__)
 
 
+class JobRegistry(object):
+    """
+    All jobs that get registered via `register_task` decorator are placed
+    in below REGISTERED_JOBS dictionary.
+
+    REGISTERED_JOBS dictionary's key is the stringified form of decorated function and value
+    is an instance of `RegisteredJob`. For example,
+
+        {
+            ...
+            "kolibri.core.content.tasks.importchannel": <RegisteredJob>,
+            "kolibri.core.content.tasks.exportchannel": <RegisteredJob>,
+            ...
+        }
+    """
+
+    REGISTERED_JOBS = {}
+
+
 class State(object):
     """
-    the State object enumerates a Job's possible valid states.
+    The State object enumerates a Job's possible valid states.
+
+    PENDING means the Job object has been created, but it has not been queued
+    for running.
 
     SCHEDULED means the Job has been accepted by the client, but has not been
     sent to the workers for running.
@@ -39,6 +61,7 @@ class State(object):
     should be set with the function's return value.
     """
 
+    PENDING = "PENDING"
     SCHEDULED = "SCHEDULED"
     QUEUED = "QUEUED"
     RUNNING = "RUNNING"
@@ -46,6 +69,22 @@ class State(object):
     CANCELING = "CANCELING"
     CANCELED = "CANCELED"
     COMPLETED = "COMPLETED"
+
+
+class Priority(object):
+    """
+    This class defines the priority levels and their corresponding string values.
+
+    REGULAR priority is for tasks that can wait for some time before it actually
+    starts executing. Tasks that are tracked on task manager should use this priority.
+
+    HIGH priority is for tasks that want execution as soon as possible. Tasks that
+    might affect user experience (e.g. on screen loading animation) like importing
+    channel metadata.
+    """
+
+    REGULAR = "REGULAR"
+    HIGH = "HIGH"
 
 
 def execute_job(job_id, db_type, db_url):
@@ -102,6 +141,7 @@ class Job(object):
         keys = [
             "job_id",
             "state",
+            "group",
             "traceback",
             "exception",
             "track_progress",
@@ -131,14 +171,20 @@ class Job(object):
             kwargs["track_progress"] = func.track_progress
             kwargs["cancellable"] = func.cancellable
             kwargs["extra_metadata"] = func.extra_metadata.copy()
+            kwargs["group"] = func.group
             func = func.func
+        elif not callable(func) and not isinstance(func, str):
+            raise TypeError(
+                "Cannot create Job for object of type {}".format(type(func))
+            )
 
         job_id = kwargs.pop("job_id", None)
         if job_id is None:
             job_id = uuid.uuid4().hex
 
         self.job_id = job_id
-        self.state = kwargs.pop("state", State.QUEUED)
+        self.state = kwargs.pop("state", State.PENDING)
+        self.group = kwargs.pop("group", None)
         self.traceback = ""
         self.exception = None
         self.track_progress = kwargs.pop("track_progress", False)
@@ -149,20 +195,8 @@ class Job(object):
         self.args = args
         self.kwargs = kwargs
         self.result = None
-
         self.storage = None
-
-        if callable(func):
-            funcstring = stringify_func(func)
-        elif isinstance(func, str):
-            funcstring = func
-        else:
-            raise Exception(
-                "Error in creating job. We do not know how to "
-                "handle a function of type {}".format(type(func))
-            )
-
-        self.func = funcstring
+        self.func = stringify_func(func)
 
     def save_meta(self):
         if self.storage is None:
@@ -222,3 +256,129 @@ class Job(object):
                 total=self.total_progress,
             )
         )
+
+
+class RegisteredJob(object):
+    """
+    This class's instance methods: enqueue, enqueue_at and enqueue_in are binded
+    as attributes to functions registered via `register_task` decorator.
+
+    For example, if `add` is registered as:
+
+        @register_task(priority="high", cancellable=True)
+        def add(x, y):
+            return x + y
+
+        Then, we can enqueue `add` by calling `add.enqueue(4, 2)`.
+
+        Also, we can schedule `add` by calling `add.enqueue_in(timedelta(1), args=(4, 2))`
+        or `add.enqueue_at(datetime.now(), args=(4, 2))`.
+
+        Look at each method's docstring for more info.
+    """
+
+    def __init__(
+        self,
+        func,
+        validator=None,
+        priority=Priority.REGULAR,
+        permission_classes=[],
+        **kwargs
+    ):
+        if validator is not None and not callable(validator):
+            raise TypeError("Can't assign validator of type {}".format(type(validator)))
+        elif priority.upper() not in [Priority.REGULAR, Priority.HIGH]:
+            raise ValueError("priority must be one of 'regular' or 'high'.")
+        elif not isinstance(permission_classes, list):
+            raise TypeError("permission_classes must be of list type.")
+
+        self.func = func
+        self.validator = validator
+        self.priority = priority.upper()
+
+        self.permissions = [perm() for perm in permission_classes]
+
+        self.job_id = kwargs.pop("job_id", None)
+        self.group = kwargs.pop("group", None)
+        self.cancellable = kwargs.pop("cancellable", False)
+        self.track_progress = kwargs.pop("track_progress", False)
+
+    def enqueue(self, *args, **kwargs):
+        """
+        Enqueue the function with arguments passed to this method.
+
+        :return: enqueued job's id.
+        """
+        from kolibri.core.tasks.main import PRIORITY_TO_QUEUE_MAP
+
+        job_obj = self._ready_job(*args, **kwargs)
+        queue = PRIORITY_TO_QUEUE_MAP[self.priority]
+        return queue.enqueue(func=job_obj)
+
+    def enqueue_in(self, delta_time, interval=0, repeat=0, args=(), kwargs={}):
+        """
+        Schedule the function to get enqueued in `delta_time` with args and
+        kwargs as its positional and keyword arguments.
+
+        Repeat of None with a specified interval means the job will repeat
+        forever at that interval.
+
+        :return: scheduled job's id.
+        """
+        from kolibri.core.tasks.main import scheduler
+
+        job_obj = self._ready_job(*args, **kwargs)
+        return scheduler.enqueue_in(
+            func=job_obj,
+            delta_t=delta_time,
+            interval=interval,
+            repeat=repeat,
+        )
+
+    def enqueue_at(self, datetime, interval=0, repeat=0, args=(), kwargs={}):
+        """
+        Schedule the function to get enqueued at a specific `datetime` with
+        args and kwargs as its positional and keyword arguments.
+
+        Repeat of None with a specified interval means the job will repeat
+        forever at that interval.
+
+        :return: scheduled job's id.
+        """
+        from kolibri.core.tasks.main import scheduler
+
+        job_obj = self._ready_job(*args, **kwargs)
+        return scheduler.enqueue_at(
+            func=job_obj,
+            dt=datetime,
+            interval=interval,
+            repeat=repeat,
+        )
+
+    def _ready_job(self, *args, **kwargs):
+        """
+        When self.validator is not None it runs the validator with
+        arguments passed to this method.
+
+        If validator raises an exception, we re-raise it otherwise we
+        return a job object.
+        """
+        if self.validator is not None:
+            try:
+                validator_result = self.validator(*args, **kwargs)
+            except Exception as e:
+                raise e
+
+            kwargs["validator_result"] = validator_result
+
+        job_obj = Job(
+            self.func,
+            *args,
+            job_id=self.job_id,
+            group=self.group,
+            cancellable=self.cancellable,
+            track_progress=self.track_progress,
+            **kwargs
+        )
+
+        return job_obj

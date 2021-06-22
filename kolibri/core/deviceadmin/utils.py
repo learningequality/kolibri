@@ -12,7 +12,7 @@ from django.conf import settings
 
 import kolibri
 from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
-from kolibri.core.tasks.main import scheduler
+from kolibri.core.tasks.decorators import register_task
 from kolibri.core.utils.lock import db_lock
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.time_utils import local_now
@@ -27,6 +27,9 @@ logger = logging.getLogger(__name__)
 # Use encoded text for Python 3 (doesn't work in Python 2!)
 KWARGS_IO_READ = {"mode": "r", "encoding": "utf-8"}
 KWARGS_IO_WRITE = {"mode": "w", "encoding": "utf-8"}
+
+# Constant job_id for vacuum task
+SCH_VACUUM_JOB_ID = "1"
 
 # Use binary file mode for Python 2 (doesn't work in Python 3!)
 if sys.version_info < (3,):
@@ -183,6 +186,7 @@ def search_latest(search_root, fallback_version):
         return os.path.join(search_root, newest)
 
 
+@register_task(job_id=SCH_VACUUM_JOB_ID)
 def perform_vacuum(database=db.DEFAULT_DB_ALIAS, full=False):
     connection = db.connections[database]
     if connection.vendor == "sqlite":
@@ -224,13 +228,11 @@ def perform_vacuum(database=db.DEFAULT_DB_ALIAS, full=False):
         connection.close()
 
 
-def schedule_vacuum(job_id=None):
+def schedule_vacuum():
     current_dt = local_now()
     vacuum_time = current_dt.replace(hour=3, minute=0, second=0, microsecond=0)
     if vacuum_time < current_dt:
         # If it is past 3AM, change the day to tomorrow.
         vacuum_time = vacuum_time + timedelta(days=1)
     # Repeat indefinitely
-    scheduler.schedule(
-        vacuum_time, perform_vacuum, repeat=None, interval=24 * 60 * 60, job_id=job_id
-    )
+    perform_vacuum.enqueue_at(vacuum_time, repeat=None, interval=24 * 60 * 60)

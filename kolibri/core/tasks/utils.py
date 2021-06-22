@@ -18,13 +18,16 @@ def get_current_job():
 
 
 def stringify_func(func):
-    if not callable(func):
-        raise TypeError(
-            "function {} passed to stringify_func isn't a function!".format(func)
+    if callable(func):
+        funcstring = "{module}.{funcname}".format(
+            module=func.__module__, funcname=func.__name__
         )
+    elif isinstance(func, str):
+        funcstring = func
+    else:
+        raise TypeError("Can't handle a function of type {}".format(type(func)))
 
-    fqn = "{module}.{funcname}".format(module=func.__module__, funcname=func.__name__)
-    return fqn
+    return funcstring
 
 
 def import_stringified_func(funcstring):

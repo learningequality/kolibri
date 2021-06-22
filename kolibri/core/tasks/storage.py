@@ -115,6 +115,8 @@ class Storage(StorageMixin):
             ]:
                 # If this job is already queued or running, don't try to replace it.
                 return j.job_id
+
+            j.state = State.QUEUED
             orm_job = ORMJob(id=j.job_id, state=j.state, queue=queue, obj=j)
             session.merge(orm_job)
             try:

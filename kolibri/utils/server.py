@@ -85,10 +85,6 @@ status_messages = {
     STATUS_UNKNOWN: "Could not determine status",
 }
 
-# Constant job_id for scheduled jobs that we want to keep track of across server restarts
-SCH_PING_JOB_ID = "0"
-SCH_VACUUM_JOB_ID = "1"
-
 
 RESTART = "restart"
 STOP = "stop"
@@ -249,18 +245,20 @@ class ServicesPlugin(SimplePlugin):
     def START(self):
         from kolibri.core.tasks.main import initialize_workers
         from kolibri.core.tasks.main import scheduler
+        from kolibri.core.analytics.utils import DEFAULT_PING_JOB_ID
+        from kolibri.core.deviceadmin.utils import SCH_VACUUM_JOB_ID
 
         # schedule the pingback job if not already scheduled
-        if SCH_PING_JOB_ID not in scheduler:
+        if DEFAULT_PING_JOB_ID not in scheduler:
             from kolibri.core.analytics.utils import schedule_ping
 
-            schedule_ping(job_id=SCH_PING_JOB_ID)
+            schedule_ping()
 
         # schedule the vacuum job if not already scheduled
         if SCH_VACUUM_JOB_ID not in scheduler:
             from kolibri.core.deviceadmin.utils import schedule_vacuum
 
-            schedule_vacuum(job_id=SCH_VACUUM_JOB_ID)
+            schedule_vacuum()
 
         # Initialize the iceqube engine to handle queued tasks
         self.workers = initialize_workers()
