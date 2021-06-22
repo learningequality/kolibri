@@ -8,6 +8,9 @@
 
     <div v-if="blockDoubleClicks" class="click-mask"></div>
 
+    <!-- Invisible div on the very edge that enables the swipe-to-open-menu gesture -->
+    <div v-if="windowIsSmall" ref="swipeZone" class="swipe-zone"></div>
+
     <ScrollingHeader
       :scrollPosition="scrollPosition"
       :alwaysVisible="fixedAppBar"
@@ -125,6 +128,8 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
+  import { ref } from 'kolibri.lib.vueCompositionApi';
+  import { useSwipe } from '@vueuse/core';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import AppBar from 'kolibri.coreVue.components.AppBar';
   import SideNav from 'kolibri.coreVue.components.SideNav';
@@ -196,6 +201,19 @@
       LanguageSwitcherModal,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
+    setup() {
+      const swipeZone = ref(null);
+      const navShown = ref(false);
+      const { isSwiping } = useSwipe(swipeZone, {
+        onSwipeEnd: (e, direction) => {
+          if (direction === 'RIGHT' && !navShown.value) {
+            navShown.value = true;
+          }
+        },
+      });
+
+      return { swipeZone, navShown, isSwiping };
+    },
     props: {
       appBarTitle: {
         type: String,
@@ -288,7 +306,6 @@
     },
     data() {
       return {
-        navShown: false,
         scrollPosition: 0,
         unwatchScrollHeight: undefined,
         notificationModalShown: true,
@@ -587,6 +604,16 @@
     font-size: large;
     font-weight: bold;
     line-height: 2em;
+  }
+
+  .swipe-zone {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 5;
+    width: 10px;
+    opacity: 0;
   }
 
 </style>
