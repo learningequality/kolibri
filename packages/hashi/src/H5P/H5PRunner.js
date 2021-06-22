@@ -197,9 +197,14 @@ export default class H5PRunner {
           this.processCssDependencies();
           this.processJsDependencies();
           // If the iframe has already loaded, start H5P
+          // Sometimes this check can catch the iframe before it has started
+          // to load H5P, when it is still blank, but loaded.
+          // So we also check that H5P is defined on the contentWindow to be sure
+          // that the ready state applies to the loading of the H5P html file.
           if (
             this.iframe.contentDocument &&
-            this.iframe.contentDocument.readyState === 'complete'
+            this.iframe.contentDocument.readyState === 'complete' &&
+            this.iframe.contentWindow.H5P
           ) {
             return this.initH5P();
           }
