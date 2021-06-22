@@ -304,7 +304,18 @@ export default class H5PRunner {
     H5P.ContentType = function(isRoot) {
       const ct = originalContentType(isRoot);
       ct.prototype.getLibraryFilePath = function(filePath) {
-        return self.packageFiles[this.libraryInfo.versionedNameNoSpaces + '/'][filePath];
+        const url = self.packageFiles[this.libraryInfo.versionedNameNoSpaces + '/'][filePath];
+        // Some H5P libraries use this with a blank filePath argument to get a file path they can
+        // append to for retrieving files - which is monumentally stupid, but what can you do?
+        // In this case, the URL will be undefined, so we should return the URL path for the
+        // zipcontent endpoint so they can get their files.
+        if (url) {
+          return url;
+        }
+        // Build the URL path to access files inside this specific library
+        return (
+          self.integrationShim.urlLibraries + '/' + this.libraryInfo.versionedNameNoSpaces + '/'
+        );
       };
       return ct;
     };
