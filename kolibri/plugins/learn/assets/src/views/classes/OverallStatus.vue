@@ -26,6 +26,7 @@
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { mapState } from 'vuex';
+  import { MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
@@ -33,9 +34,14 @@
     mixins: [responsiveWindowMixin, commonCoreStrings],
 
     computed: {
+      ...mapState('topicsTree', ['content']),
       ...mapState({
         mastered: state => state.core.logging.mastery.complete,
+        // userid: state => state.core.session.user_id,
       }),
+      masteryModel() {
+        return this.content.masteryModel;
+      },
       success() {
         return this.exerciseProgress === 1;
       },
@@ -45,14 +51,18 @@
         }
         return 0; //TODO: switch back to 0
       },
+      mOfNMasteryModel() {
+        return MasteryModelGenerators[this.masteryModel.type](
+          this.assessmentIds,
+          this.masteryModel
+        );
+      },
       totalCorrectRequiredM() {
-        console.log('mOfNMasteryModel', this);
+        console.log('in OverallStatus', this);
         return this.mOfNMasteryModel.m;
       },
     },
-    methods: {
-      // ...mapActions(['updateExerciseProgress']),
-    },
+
     $trs: {
       goal: {
         message: 'Get {count, number, integer} {count, plural, other {correct}}',
