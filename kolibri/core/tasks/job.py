@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class JobRegistry(object):
     """
-    All jobs that get registered via `task.register` decorator are placed
+    All jobs that get registered via `register_task` decorator are placed
     in below REGISTERED_JOBS dictionary.
 
     REGISTERED_JOBS dictionary's key is the stringified form of decorated function and value
@@ -261,11 +261,11 @@ class Job(object):
 class RegisteredJob(object):
     """
     This class's instance methods: enqueue, enqueue_at and enqueue_in are binded
-    as attributes to functions registered via task.register decorator.
+    as attributes to functions registered via `register_task` decorator.
 
     For example, if `add` is registered as:
 
-        @task.register(priority="high", cancellable=True)
+        @register_task(priority="high", cancellable=True)
         def add(x, y):
             return x + y
 

@@ -15,7 +15,7 @@ from django.db.utils import DatabaseError
 
 import kolibri
 from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
-from kolibri.core.tasks.decorators import import_tasks_module_from_django_apps
+from kolibri.core.tasks.main import import_tasks_module_from_django_apps
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
 from kolibri.plugins.utils import autoremove_unavailable_plugins

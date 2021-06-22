@@ -44,7 +44,7 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import UserSessionLog
-from kolibri.core.tasks.decorators import task
+from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.main import scheduler
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.lock import db_lock
@@ -472,7 +472,7 @@ def ping_once(started, server=DEFAULT_SERVER_URL):
         create_and_update_notifications(stat_data, nutrition_endpoints.STATISTICS)
 
 
-@task.register(job_id=DEFAULT_PING_JOB_ID)
+@register_task(job_id=DEFAULT_PING_JOB_ID)
 def _ping(started, server, checkrate):
     try:
         ping_once(started, server=server)

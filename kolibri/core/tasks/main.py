@@ -1,7 +1,9 @@
 import logging
 import os
 import sqlite3
+from importlib import import_module
 
+from django.apps import apps as django_apps
 from django.utils.functional import SimpleLazyObject
 from sqlalchemy import create_engine
 from sqlalchemy import event
@@ -145,3 +147,16 @@ def initialize_workers():
     priority_worker = Worker(priority_queue_name, connection=connection, num_workers=3)
     facility_worker = Worker(facility_queue_name, connection=connection, num_workers=1)
     return regular_worker, priority_worker, facility_worker
+
+
+def import_tasks_module_from_django_apps(app_configs=None):
+    if app_configs is None:
+        app_configs = django_apps.get_app_configs()
+
+    logger.info("Importing 'tasks' module from django apps")
+
+    for app_config in app_configs:
+        try:
+            import_module(".tasks", app_config.module.__name__)
+        except ImportError:
+            pass

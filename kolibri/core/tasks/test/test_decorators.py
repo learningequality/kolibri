@@ -1,7 +1,7 @@
 from django.test import TestCase
 from mock import patch
 
-from kolibri.core.tasks.decorators import task
+from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import JobRegistry
 from kolibri.core.tasks.job import RegisteredJob
 from kolibri.core.tasks.utils import stringify_func
@@ -16,7 +16,7 @@ class TestTaskDecorators(TestCase):
 
     @patch("kolibri.core.tasks.decorators.RegisteredJob")
     def test_register_decorator_calls_registered_job(self, MockRegisteredJob):
-        @task.register(
+        @register_task(
             job_id="test",
             validator=id,
             permission_classes=[int],
@@ -40,11 +40,11 @@ class TestTaskDecorators(TestCase):
         )
 
     def test_register_decorator_registers_without_args(self):
-        @task.register
+        @register_task
         def add(x, y):
             return x + y
 
-        @task.register()
+        @register_task()
         def subtract(x, y):
             return x - y
 
@@ -55,7 +55,7 @@ class TestTaskDecorators(TestCase):
         self.assertIsInstance(self.registered_jobs[subtract_funcstr], RegisteredJob)
 
     def test_register_decorator_assigns_api_methods(self):
-        @task.register(
+        @register_task(
             job_id="test",
             validator=id,
             permission_classes=[int],
@@ -76,7 +76,7 @@ class TestTaskDecorators(TestCase):
         self.assertEqual(add.enqueue_at, add_registered_job.enqueue_at)
 
     def test_register_decorator_preserves_functionality(self):
-        @task.register
+        @register_task
         def add(x, y):
             return x + y
 

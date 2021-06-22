@@ -12,7 +12,7 @@ from django.conf import settings
 
 import kolibri
 from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
-from kolibri.core.tasks.decorators import task
+from kolibri.core.tasks.decorators import register_task
 from kolibri.core.utils.lock import db_lock
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.time_utils import local_now
@@ -186,7 +186,7 @@ def search_latest(search_root, fallback_version):
         return os.path.join(search_root, newest)
 
 
-@task.register(job_id=SCH_VACUUM_JOB_ID)
+@register_task(job_id=SCH_VACUUM_JOB_ID)
 def perform_vacuum(database=db.DEFAULT_DB_ALIAS, full=False):
     connection = db.connections[database]
     if connection.vendor == "sqlite":
