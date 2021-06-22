@@ -103,15 +103,13 @@ export default class SandboxEnvironment {
     try {
       document.body.removeChild(this.iframe);
     } catch (e) {} // eslint-disable-line no-empty
+    this.lastSentHeight = null;
   }
 
   resize() {
     if (this.iframe && this.iframe.contentDocument.body) {
       const documentHeight = this.iframe.contentDocument.documentElement.scrollHeight;
-      if (
-        documentHeight > this.iframe.getBoundingClientRect().height &&
-        documentHeight !== this.lastSentHeight
-      ) {
+      if (documentHeight > this.iframe.getBoundingClientRect().height && !this.lastSentHeight) {
         this.lastSentHeight = documentHeight;
         this.mediator.sendMessage({
           nameSpace,
