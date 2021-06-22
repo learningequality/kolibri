@@ -126,7 +126,7 @@ export default class H5PRunner {
     this.scriptLoader = this.scriptLoader.bind(this);
   }
 
-  init(iframe, filepath) {
+  init(iframe, filepath, loaded) {
     // An array of the H5P package dependencies for this library
     // This is not a sorted list, but the result of recursing through
     this.dependencies = [];
@@ -168,6 +168,8 @@ export default class H5PRunner {
     this.iframe.src = `../h5p/${H5PFilename}`;
     // This is the path to the H5P file which we load in its entirety.
     this.filepath = filepath;
+    // Callback to call when H5P has finished loading
+    this.loaded = loaded;
     // Set this to a dummy value - we use this for generating the H5P ids,
     // and for logging xAPI statements about the content.
     this.contentNamespace = CONTENT_ID;
@@ -239,6 +241,7 @@ export default class H5PRunner {
     return this.loadDependencies(this.cssDependencies, true).then(() => {
       return this.loadDependencies(this.jsDependencies).then(() => {
         this.iframe.contentWindow.H5P.init();
+        this.loaded();
       });
     });
   }

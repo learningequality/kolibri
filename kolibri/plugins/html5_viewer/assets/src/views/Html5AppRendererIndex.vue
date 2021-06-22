@@ -31,6 +31,7 @@
     </div>
     <div class="iframe-container" :style="containerStyle">
       <iframe
+        v-show="!loading"
         ref="iframe"
         class="iframe"
         sandbox="allow-scripts allow-same-origin"
@@ -39,6 +40,10 @@
         :src="rooturl"
       >
       </iframe>
+      <KCircularLoader
+        v-if="loading"
+        :delay="false"
+      />
     </div>
   </CoreFullscreen>
 
@@ -78,6 +83,7 @@
       return {
         iframeHeight: (this.options && this.options.height) || defaultContentHeight,
         isInFullscreen: false,
+        loading: false,
       };
     },
     computed: {
@@ -140,6 +146,12 @@
       });
       this.hashi.on(this.hashi.events.RESIZE, scrollHeight => {
         this.iframeHeight = scrollHeight;
+      });
+      this.hashi.on(this.hashi.events.LOADING, () => {
+        this.loading = true;
+      });
+      this.hashi.on(this.hashi.events.LOADED, () => {
+        this.loading = false;
       });
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},

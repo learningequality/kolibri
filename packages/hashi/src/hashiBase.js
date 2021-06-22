@@ -16,6 +16,8 @@ export const events = {
   KOLIBRIVERSIONREQUESTED: 'kolibriversionrequested',
   NOW: 'now',
   RESIZE: 'resize',
+  LOADING: 'loading',
+  LOADED: 'loaded',
 };
 
 export const DataTypes = {
