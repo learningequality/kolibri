@@ -1,5 +1,6 @@
 import pickBy from 'lodash/pickBy';
 import uniq from 'lodash/uniq';
+import uniqBy from 'lodash/uniqBy';
 import unionBy from 'lodash/unionBy';
 import union from 'lodash/union';
 import shuffled from 'kolibri.utils.shuffled';
@@ -216,5 +217,35 @@ export function updateSelectedQuestions(store) {
       store.commit('LOADING_NEW_QUESTIONS', false);
       resolve();
     });
+  });
+}
+
+export function fetchChannelQuizzes(parent = null) {
+  return ContentNodeResource.fetchCollection({ modality: 'QUIZ' }).then(nodes => {
+    return uniqBy(
+      nodes
+        .map(node => {
+          let returnIndex;
+          if (parent) {
+            returnIndex = node.ancestors.findIndex(ancestor => ancestor.id === parent);
+            if (returnIndex === -1) {
+              return null;
+            }
+            returnIndex += 1;
+          } else {
+            returnIndex = 0;
+          }
+          if (returnIndex === node.ancestors.length) {
+            return node;
+          } else {
+            const topic = node.ancestors[returnIndex];
+            topic.is_leaf = false;
+            topic.kind = 'topic';
+            return topic;
+          }
+        })
+        .filter(Boolean),
+      'id'
+    );
   });
 }
