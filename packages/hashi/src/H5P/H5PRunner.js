@@ -168,6 +168,11 @@ export default class H5PRunner {
     this.iframe.src = `../h5p/${H5PFilename}`;
     // This is the path to the H5P file which we load in its entirety.
     this.filepath = filepath;
+    // A fallback URL to the zipcontent endpoint for this H5P file
+    this.zipcontentUrl = new URL(
+      `../../zipcontent/${this.filepath.substring(this.filepath.lastIndexOf('/') + 1)}`,
+      window.location
+    ).href;
     // Callback to call when H5P has finished loading
     this.loaded = loaded;
     // Set this to a dummy value - we use this for generating the H5P ids,
@@ -264,6 +269,9 @@ export default class H5PRunner {
       }
       return originalGetPath(path, contentId);
     };
+    H5P.getContentPath = function() {
+      return self.zipcontentUrl + '/content';
+    };
     // Shim the user data handling functions so that we return data from our
     // internal data storage for the H5P component.
     H5P.getUserData = function(contentId, dataId, done, subContentId = 0) {
@@ -318,9 +326,7 @@ export default class H5PRunner {
           return url;
         }
         // Build the URL path to access files inside this specific library
-        return (
-          self.integrationShim.urlLibraries + '/' + this.libraryInfo.versionedNameNoSpaces + '/'
-        );
+        return self.zipcontentUrl + '/' + this.libraryInfo.versionedNameNoSpaces + '/';
       };
       return ct;
     };
@@ -415,10 +421,7 @@ export default class H5PRunner {
       // endpoint URL for this H5P file, so that it just looks up
       // libraries inside the current H5P.
       get urlLibraries() {
-        return new URL(
-          `../../zipcontent/${self.filepath.substring(self.filepath.lastIndexOf('/') + 1)}`,
-          window.location
-        ).href;
+        return self.zipcontentUrl;
       },
     };
     Object.defineProperty(contentWindow, 'H5PIntegration', {
