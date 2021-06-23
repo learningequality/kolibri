@@ -487,6 +487,9 @@ export default class H5PRunner {
    */
   recurseDependencies(jsonFile, root, visitedPaths = {}, packagePath = '') {
     return this.zip.file(jsonFile).then(file => {
+      if (!file) {
+        return;
+      }
       const json = JSON.parse(strFromU8(file.obj));
       const dependencies = json['preloadedDependencies'] || [];
       // Make a copy so that we are not modifying the same object
@@ -548,7 +551,7 @@ export default class H5PRunner {
    */
   processJsDependencies() {
     const concatenatedJS = this.sortedDependencies.reduce((wholeJS, dependency) => {
-      return this.jsDependencies[dependency].reduce((allJs, jsDep) => {
+      return (this.jsDependencies[dependency] || []).reduce((allJs, jsDep) => {
         return `${allJs}${this.packageFiles[dependency][jsDep]}\n\n`;
       }, wholeJS);
     }, '');
@@ -564,7 +567,7 @@ export default class H5PRunner {
    */
   processCssDependencies() {
     const concatenatedCSS = this.sortedDependencies.reduce((wholeCSS, dependency) => {
-      return this.cssDependencies[dependency].reduce((allCss, cssDep) => {
+      return (this.cssDependencies[dependency] || []).reduce((allCss, cssDep) => {
         const css = replacePaths(cssDep, this.packageFiles[dependency]);
         // We have completed the path substition, so concatenate the CSS.
         return `${allCss}${css}\n\n`;
