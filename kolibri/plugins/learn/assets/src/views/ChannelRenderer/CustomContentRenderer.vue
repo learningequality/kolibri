@@ -1,28 +1,23 @@
 <template>
 
-  <CoreFullscreen
-    ref="html5Renderer"
-    class="html5-renderer"
-  >
-    <div class="iframe-container">
-      <iframe
-        ref="iframe"
-        class="iframe"
-        sandbox="allow-scripts allow-same-origin"
-        :style="{ backgroundColor: $themePalette.grey.v_100 }"
-        frameBorder="0"
-        :src="rooturl"
-      >
-      </iframe>
-      <ContentModal
-        v-if="overlayIsOpen"
-        :key="currentContent.id"
-        :contentNode="currentContent"
-        :channelTheme="channelTheme"
-        @close="overlayIsOpen = false"
-      />
-    </div>
-  </CoreFullscreen>
+  <div class="iframe-container">
+    <iframe
+      ref="iframe"
+      class="iframe"
+      sandbox="allow-scripts allow-same-origin"
+      :style="{ backgroundColor: $themePalette.grey.v_100 }"
+      frameBorder="0"
+      :src="rooturl"
+    >
+    </iframe>
+    <ContentModal
+      v-if="overlayIsOpen"
+      :key="currentContent.id"
+      :contentNode="currentContent"
+      :channelTheme="channelTheme"
+      @close="overlayIsOpen = false"
+    />
+  </div>
 
 </template>
 
@@ -30,7 +25,6 @@
 <script>
 
   import urls from 'kolibri.urls';
-  import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import Hashi from 'hashi';
   import { now } from 'kolibri.utils.serverClock';
   import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
@@ -59,7 +53,6 @@
   export default {
     name: 'CustomContentRenderer',
     components: {
-      CoreFullscreen,
       ContentModal,
     },
     props: {
@@ -86,7 +79,6 @@
     mounted() {
       this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
       const zipFile = this.topic.files.find(f => f.extension === 'zip');
-      this.hashi.initialize({}, {}, zipFile.storage_url, zipFile.checksum);
       this.hashi.on(events.COLLECTIONREQUESTED, message => {
         this.fetchContentCollection(message);
       });
@@ -108,6 +100,7 @@
       this.hashi.on(events.KOLIBRIVERSIONREQUESTED, message => {
         this.sendKolibriVersion.call(this, message);
       });
+      this.hashi.initialize({}, {}, zipFile.storage_url, zipFile.checksum);
     },
     methods: {
       // helper functions for fetching data from kolibri
@@ -234,9 +227,7 @@
         } else {
           // just return the existing query
           const urlParams = this.$route.query;
-          const fetchedEncodedContext = urlParams.has('context')
-            ? urlParams.get('context')
-            : this.context;
+          const fetchedEncodedContext = urlParams.context || this.context;
           message.context = decodeURI(JSON.stringify(fetchedEncodedContext));
         }
 
@@ -270,9 +261,6 @@
   }
 
   .iframe {
-    position: fixed;
-    top: 64px;
-    left: 0;
     width: 100%;
     height: 100%;
   }
@@ -280,7 +268,11 @@
   .iframe-container {
     @extend %momentum-scroll;
 
+    position: absolute;
+    top: 64px;
+    left: 0;
     width: 100%;
+    height: calc(100% - 64px);
     overflow: visible;
   }
 
