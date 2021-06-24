@@ -3,6 +3,7 @@ import { Resource } from 'kolibri.lib.apiResource';
 import Store from 'kolibri.coreVue.vuex.store';
 import urls from 'kolibri.urls';
 import cloneDeep from '../cloneDeep';
+import ConditionalPromise from '../conditionalPromise';
 
 /**
  * Type definition for Language metadata
@@ -115,12 +116,14 @@ export default new Resource({
   cache: {},
   fetchModel({ id }) {
     if (this.cache[id]) {
-      return Promise.resolve(cloneDeep(this.cache[id]));
+      return ConditionalPromise.resolve(cloneDeep(this.cache[id]));
     }
-    return this.client({ url: this.modelUrl(id) }).then(response => {
+    const promise = new ConditionalPromise();
+    promise._promise = this.client({ url: this.modelUrl(id) }).then(response => {
       this.cacheData(response.data);
       return response.data;
     });
+    return promise;
   },
   cacheData(data) {
     if (Array.isArray(data)) {
@@ -143,11 +146,13 @@ export default new Resource({
       }
     }
   },
-  fetchCollection(params) {
-    return this.client({ url: this.collectionUrl(), params }).then(response => {
+  fetchCollection({ getParams: params }) {
+    const promise = new ConditionalPromise();
+    promise._promise = this.client({ url: this.collectionUrl(), params }).then(response => {
       this.cacheData(response.data);
       return response.data;
     });
+    return promise;
   },
   /**
    * A method to request paginated tree data from the backend
