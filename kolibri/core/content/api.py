@@ -227,6 +227,22 @@ def map_file(file):
     return file
 
 
+kind_activity_map = {
+    content_kinds.EXERCISE: "practice",
+    content_kinds.VIDEO: "watch",
+    content_kinds.AUDIO: "listen",
+    content_kinds.DOCUMENT: "read",
+    content_kinds.HTML5: "explore",
+}
+
+
+def infer_learning_activity(node):
+    activity = kind_activity_map.get(node["kind"])
+    if activity:
+        return [activity]
+    return []
+
+
 class BaseContentNodeMixin(object):
     """
     A base mixin for viewsets that need to return the same format of data
@@ -258,6 +274,11 @@ class BaseContentNodeMixin(object):
         "rght",
         "tree_id",
     )
+
+    field_map = {
+        "learning_activities": infer_learning_activity,
+        "duration": lambda x: None,
+    }
 
     def get_queryset(self):
         return models.ContentNode.objects.filter(available=True)
@@ -545,6 +566,10 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
                     "title": next_item.title,
                     "thumbnail": thumbnails[0]["storage_url"],
                     "is_leaf": next_item.kind != content_kinds.TOPIC,
+                    "learning_activities": infer_learning_activity(
+                        {"kind": next_item.kind}
+                    ),
+                    "duration": None,
                 }
             )
         return Response(
@@ -553,6 +578,10 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
                 "id": next_item.id,
                 "title": next_item.title,
                 "is_leaf": next_item.kind != content_kinds.TOPIC,
+                "learning_activities": infer_learning_activity(
+                    {"kind": next_item.kind}
+                ),
+                "duration": None,
             }
         )
 
