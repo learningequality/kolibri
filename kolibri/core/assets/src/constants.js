@@ -30,14 +30,14 @@ export const ContentNodeKinds = {
 };
 
 export const LearningActivityKinds = {
-  CREATE: 'CREATE',
-  LISTEN: 'LISTEN',
-  REFLECT: 'REFLECT',
-  PRACTICE: 'PRACTICE',
-  READ: 'READ',
-  WATCH: 'WATCH',
-  EXPLORE: 'EXPLORE',
-  TOPIC: 'TOPIC',
+  CREATE: 'create',
+  LISTEN: 'listen',
+  REFLECT: 'reflect',
+  PRACTICE: 'practice',
+  READ: 'read',
+  WATCH: 'watch',
+  EXPLORE: 'explore',
+  TOPIC: 'topic',
 };
 
 // used internally on the client as a hack to allow content-icons to display users
