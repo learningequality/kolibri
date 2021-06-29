@@ -198,6 +198,22 @@ class ContentNodeQuerysetTestCase(TestCase):
         )
 
 
+kind_activity_map = {
+    content_kinds.EXERCISE: "practice",
+    content_kinds.VIDEO: "watch",
+    content_kinds.AUDIO: "listen",
+    content_kinds.DOCUMENT: "read",
+    content_kinds.HTML5: "explore",
+}
+
+
+def infer_learning_activity(kind):
+    activity = kind_activity_map.get(kind)
+    if activity:
+        return [activity]
+    return []
+
+
 class ContentNodeAPITestCase(APITestCase):
     """
     Testcase for content API methods
@@ -298,6 +314,8 @@ class ContentNodeAPITestCase(APITestCase):
                 "coach_content": expected.coach_content,
                 "content_id": expected.content_id,
                 "description": expected.description,
+                "duration": None,
+                "learning_activities": infer_learning_activity(expected.kind),
                 "kind": expected.kind,
                 "lang": self.map_language(expected.lang),
                 "license_description": expected.license_description,
