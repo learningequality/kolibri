@@ -258,7 +258,7 @@
       handleSelect({ value }) {
         const nextRoute = {
           MAKE_NEW_QUIZ: PageNames.EXAM_CREATION_ROOT,
-          // SELECT_QUIZ: ,
+          SELECT_QUIZ: PageNames.EXAM_CREATION_CHANNEL_QUIZ,
         }[value];
         this.$router.push(this.$router.getRoute(nextRoute));
       },

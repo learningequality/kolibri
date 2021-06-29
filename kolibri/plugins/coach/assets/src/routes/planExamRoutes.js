@@ -6,7 +6,9 @@ import {
   showExamCreationSearchPage,
   showExamCreationQuestionSelectionPage,
   showExamCreationPreviewPage,
+  showChannelQuizCreationRootPage,
 } from '../modules/examCreation/handlers';
+import CreateChannelQuizPage from '../views/plan/CreateExamPage/CreateChannelQuizPage.vue';
 import CreateExamPage from '../views/plan/CreateExamPage';
 import CreateExamPreview from '../views/plan/CreateExamPage/CreateExamPreview.vue';
 import PlanQuizPreviewPage from '../views/plan/PlanQuizPreviewPage';
@@ -33,6 +35,14 @@ export default [
     component: CreateExamPage,
     handler: toRoute => {
       showExamCreationRootPage(store, toRoute.params);
+    },
+  },
+  {
+    name: PageNames.EXAM_CREATION_CHANNEL_QUIZ,
+    path: '/:classId/plan/quizzes/new/search/channel_quiz',
+    component: CreateChannelQuizPage,
+    handler: toRoute => {
+      showChannelQuizCreationRootPage(store, toRoute.params);
     },
   },
   {

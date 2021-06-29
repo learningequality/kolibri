@@ -5,7 +5,7 @@ import { ContentNodeResource, ContentNodeSearchResource, ChannelResource } from 
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
-import { filterAndAnnotateContentList } from './actions';
+import { filterAndAnnotateContentList, fetchChannelQuizzes } from './actions';
 
 function showExamCreationPage(store, params) {
   const { contentList, pageName, ancestors = [], searchResults = null } = params;
@@ -44,7 +44,12 @@ export function showExamCreationRootPage(store, params) {
     });
   });
 }
-
+export function showChannelQuizCreationRootPage(store, params) {
+  console.log('params here are', params);
+  return store.dispatch('loading').then(() => {
+    return fetchChannelQuizzes();
+  });
+}
 export function showExamCreationTopicPage(store, params) {
   return store.dispatch('loading').then(() => {
     const { topicId } = params;
