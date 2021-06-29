@@ -128,6 +128,15 @@ export const NavComponentSections = {
   ACCOUNT: 'account',
 };
 
+export const SyncStatus = {
+  RECENTLY_SYNCED: 'RECENTLY_SYNCED',
+  SYNCING: 'SYNCING',
+  QUEUED: 'QUEUED',
+  UNABLE_TO_SYNC: 'UNABLE_TO_SYNC',
+  NOT_RECENTLY_SYNCED: 'NOT_RECENTLY_SYNCED',
+  NOT_CONNECTED: 'NOT_CONNECTED',
+};
+
 export const ERROR_CONSTANTS = {
   // These are an exact copy of the python module kolibri.core.error_constants
   // and should be kept in sync.

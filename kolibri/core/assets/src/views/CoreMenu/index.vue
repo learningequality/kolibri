@@ -127,7 +127,7 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
   .ui-menu-header {
-    padding: 1rem 1rem 1rem 50px;
+    padding: 1rem 1rem 1rem 1.2rem;
     font-size: 0.9375rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   }

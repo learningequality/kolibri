@@ -82,6 +82,10 @@
                   :userType="getUserKind"
                 />
               </div>
+              <div class="sync-status">
+                {{ $tr('deviceStatus') }}
+              </div>
+              <SyncStatusDisplay />
             </template>
 
             <template #options>
@@ -124,6 +128,7 @@
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
   import SkipNavigationLink from './SkipNavigationLink';
+  import SyncStatusDisplay from './SyncStatusDisplay';
 
   const hashedValuePattern = /^[a-f0-9]{30}$/;
 
@@ -138,6 +143,7 @@
       LogoutSideNavEntry,
       UserTypeDisplay,
       SkipNavigationLink,
+      SyncStatusDisplay,
     },
     mixins: [commonCoreStrings, navComponentsMixin],
     props: {
@@ -213,6 +219,7 @@
       openNav: 'Open site navigation',
       languageSwitchMenuOption: 'Change language',
       userMenu: 'User menu',
+      deviceStatus: 'Device status',
     },
   };
 
@@ -279,6 +286,13 @@
   }
 
   .role {
+    margin-bottom: 8px;
+    font-size: small;
+    font-weight: bold;
+  }
+
+  .sync-status {
+    margin-top: 16px;
     margin-bottom: 8px;
     font-size: small;
     font-weight: bold;
