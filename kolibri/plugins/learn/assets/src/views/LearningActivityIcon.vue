@@ -7,16 +7,16 @@
 
 <script>
 
-  import { LearningActivityKinds } from 'kolibri.coreVue.vuex.constants';
+  import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 
   const LearningActivityKindToIconMap = {
-    [LearningActivityKinds.CREATE]: 'create',
-    [LearningActivityKinds.LISTEN]: 'listen',
-    [LearningActivityKinds.REFLECT]: 'reflect',
-    [LearningActivityKinds.PRACTICE]: 'practice',
-    [LearningActivityKinds.READ]: 'read',
-    [LearningActivityKinds.WATCH]: 'watch',
-    [LearningActivityKinds.EXPLORE]: 'interact',
+    [LearningActivities.CREATE]: 'create',
+    [LearningActivities.LISTEN]: 'listen',
+    [LearningActivities.REFLECT]: 'reflect',
+    [LearningActivities.PRACTICE]: 'practice',
+    [LearningActivities.READ]: 'read',
+    [LearningActivities.WATCH]: 'watch',
+    [LearningActivities.EXPLORE]: 'interact',
   };
 
   export default {
@@ -29,7 +29,7 @@
         type: String,
         required: true,
         validator(value) {
-          return Object.values(LearningActivityKinds).includes(value);
+          return Object.values(LearningActivities).includes(value);
         },
       },
       /**

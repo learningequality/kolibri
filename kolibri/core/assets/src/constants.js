@@ -29,7 +29,7 @@ export const ContentNodeKinds = {
   SLIDESHOW: 'slideshow',
 };
 
-export const LearningActivityKinds = {
+export const LearningActivities = {
   CREATE: 'create',
   LISTEN: 'listen',
   REFLECT: 'reflect',

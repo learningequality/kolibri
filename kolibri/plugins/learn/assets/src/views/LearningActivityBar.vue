@@ -92,7 +92,7 @@
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
-  import { LearningActivityKinds } from 'kolibri.coreVue.vuex.constants';
+  import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
   import LearningActivityIcon from './LearningActivityIcon.vue';
 
   export default {
@@ -126,7 +126,7 @@
         type: String,
         required: true,
         validator(value) {
-          return Object.values(LearningActivityKinds).includes(value);
+          return Object.values(LearningActivities).includes(value);
         },
       },
       /**
