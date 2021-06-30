@@ -19,6 +19,7 @@ from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import DynamicNetworkLocation
 from kolibri.core.public.utils import begin_request_soud_sync
 from kolibri.core.public.utils import get_device_info
+from kolibri.core.public.utils import stop_request_soud_sync
 
 logger = logging.getLogger(__name__)
 
@@ -139,6 +140,11 @@ def parse_device_info(info):
     return obj
 
 
+def get_is_self(id):
+    zeroconf_service = ZEROCONF_STATE.get("service")
+    return zeroconf_service and zeroconf_service.id == id
+
+
 class KolibriZeroconfListener(object):
 
     instances = {}
@@ -157,9 +163,7 @@ class KolibriZeroconfListener(object):
         ip = socket.inet_ntoa(info.address)
 
         base_url = "http://{ip}:{port}/".format(ip=ip, port=info.port)
-
-        zeroconf_service = ZEROCONF_STATE.get("service")
-        is_self = zeroconf_service and zeroconf_service.id == id
+        is_self = get_is_self(id)
 
         instance = {
             "id": id,
@@ -234,6 +238,15 @@ class KolibriZeroconfListener(object):
 
         try:
             if id in self.instances:
+                if not get_is_self(id):
+                    instance = self.instances[id]
+                    if get_device_setting(
+                        "subset_of_users_device", False
+                    ) and not instance.get("subset_of_users_device", False):
+                        for user in FacilityUser.objects.all().values("id"):
+                            stop_request_soud_sync(
+                                server=instance.get("base_url"), user=user["id"]
+                            )
                 del self.instances[id]
         except KeyError:
             pass

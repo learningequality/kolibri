@@ -976,7 +976,7 @@ class FacilityTasksViewSet(BaseViewSet):
         facility_id = validate_facility(request)
         sync_args = validate_sync_task(request)
         job_data = prepare_sync_job(
-            facility_id,
+            facility_id=facility_id,
             extra_metadata=prepare_sync_task(*sync_args, type="SYNCDATAPORTAL"),
         )
         job_id = facility_queue.enqueue(call_command, "sync", **job_data)
@@ -1178,10 +1178,8 @@ def validate_sync_task(request):
     )
 
 
-def prepare_sync_job(facility_id, **kwargs):
-
+def prepare_sync_job(**kwargs):
     job_data = dict(
-        facility=facility_id,
         chunk_size=200,
         noninteractive=True,
         extra_metadata={},
@@ -1271,8 +1269,17 @@ def prepare_soud_sync_job(baseurl, facility_id, user_id, **kwargs):
     validation to keep overhead low for automated single-user syncing. To initialize with a peer
     for a SoUD, use `prepare_peer_sync_job` with `user` keyword argument
     """
-    kwargs.update(user=user_id)
-    return prepare_sync_job(facility_id, baseurl=baseurl, **kwargs)
+    return prepare_sync_job(
+        baseurl=baseurl, facility_id=facility_id, user=user_id, **kwargs
+    )
+
+
+def prepare_soud_resume_sync_job(baseurl, sync_session_id, **kwargs):
+    """
+    Resuming a SoUD sync requires that a normal sync has occurred and the `SyncSession` is still
+    active
+    """
+    return prepare_sync_job(baseurl=baseurl, id=sync_session_id, **kwargs)
 
 
 def _remoteimport(

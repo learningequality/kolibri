@@ -18,6 +18,7 @@ from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import SYNC
+from kolibri.core.tasks.api import prepare_soud_resume_sync_job
 from kolibri.core.tasks.api import prepare_soud_sync_job
 from kolibri.core.tasks.api import prepare_sync_task
 from kolibri.core.tasks.job import Job
@@ -117,27 +118,67 @@ def startpeerusersync(
     facility_id = user.facility.id
 
     device_info = get_device_info()
+    command = "sync"
+    common_job_args = dict(
+        keep_alive=True,
+        job_id=hashlib.md5("{}::{}".format(server, user).encode()).hexdigest(),
+        extra_metadata=prepare_sync_task(
+            facility_id,
+            user_id,
+            user.username,
+            user.facility.name,
+            device_info["device_name"],
+            device_info["instance_id"],
+            server,
+            type="SYNCPEER/SINGLE",
+        ),
+    )
+    job_data = None
+    # attempt to resume an existing session
+    try:
+        sync_session = UserSyncStatus.objects.get(user=user).sync_session
+        if sync_session and sync_session.active:
+            command = "resumesync"
+            # if resuming encounters an error, it should close the session to avoid a loop
+            job_data = prepare_soud_resume_sync_job(
+                server, sync_session.id, close_on_error=True, **common_job_args
+            )
+    except UserSyncStatus.DoesNotExist:
+        pass
 
-    extra_metadata = prepare_sync_task(
-        facility_id,
-        user_id,
-        user.username,
-        user.facility.name,
-        device_info["device_name"],
-        device_info["instance_id"],
+    # if not resuming, prepare normal job
+    if job_data is None:
+        job_data = prepare_soud_sync_job(
+            server, facility_id, user_id, **common_job_args
+        )
+
+    job_id = queue.enqueue(call_command, command, **job_data)
+    return job_id
+
+
+def stoppeerusersync(server, user_id):
+    """
+    Close the sync session with a server
+    """
+    # skip if no sync status, no sync session, or sync session is inactive
+    try:
+        sync_session = UserSyncStatus.objects.get(user=user_id).sync_session
+        if not sync_session or not sync_session.active:
+            return
+    except UserSyncStatus.DoesNotExist:
+        return
+
+    # hack: queue the resume job, without push or pull, and without keep_alive, so it should close
+    # the sync session any which way
+    job_data = prepare_soud_resume_sync_job(
         server,
-        type="SYNCPEER/SINGLE",
+        sync_session.id,
+        close_on_error=True,
+        no_push=True,
+        no_pull=True,
     )
-
-    job_data = prepare_soud_sync_job(
-        server, facility_id, user_id, extra_metadata=extra_metadata
-    )
-    job_data["resync_interval"] = resync_interval
-    JOB_ID = hashlib.md5("{}::{}".format(server, user).encode()).hexdigest()
-    job_data["job_id"] = JOB_ID
-    job = queue.enqueue(peer_sync, **job_data)
-
-    return job
+    job_id = queue.enqueue(call_command, "resumesync", **job_data)
+    return job_id
 
 
 def begin_request_soud_sync(server, user):
@@ -191,6 +232,20 @@ def begin_request_soud_sync(server, user):
         )
     )
     queue.enqueue(request_soud_sync, server, user)
+
+
+def stop_request_soud_sync(server, user):
+    """
+    Cleanup steps to stop SoUD syncing
+    """
+    info = get_device_info()
+    if not info["subset_of_users_device"]:
+        # this does not make sense unless this is a SoUD
+        logger.warn("Only Subsets of Users Devices can do this")
+        return
+
+    # close active sync session
+    stoppeerusersync(server, user)
 
 
 def request_soud_sync(server, user, queue_id=None, ttl=4):

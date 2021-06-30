@@ -937,7 +937,7 @@ class FacilityTaskHelperTestCase(TestCase):
             cancellable=False,
             extra_metadata=dict(type="test"),
         )
-        actual = prepare_sync_job(123, extra_metadata=dict(type="test"))
+        actual = prepare_sync_job(facility_id=123, extra_metadata=dict(type="test"))
         self.assertEqual(expected, actual)
 
     def test_validate_facility__parse_error(self):
