@@ -45,9 +45,22 @@ export function showExamCreationRootPage(store, params) {
   });
 }
 export function showChannelQuizCreationRootPage(store, params) {
-  console.log('params here are', params);
-  return store.dispatch('loading').then(() => {
-    return fetchChannelQuizzes();
+  return fetchChannelQuizzes().then(channels => {
+    const channelContentList = channels.map(channel => ({
+      ...channel,
+      id: channel.id,
+      title: channel.title,
+      kind: ContentNodeKinds.CHANNEL,
+      is_leaf: false,
+    }));
+    store.commit('SET_TOOLBAR_ROUTE', {
+      name: PageNames.EXAMS,
+    });
+    return showExamCreationPage(store, {
+      classId: params.classId,
+      contentList: channelContentList,
+      pageName: PageNames.EXAM_CREATION_ROOT,
+    });
   });
 }
 export function showExamCreationTopicPage(store, params) {
