@@ -220,10 +220,39 @@ export function updateSelectedQuestions(store) {
 }
 
 export function fetchChannelQuizzes(parent = null) {
+<<<<<<< HEAD
   return ContentNodeResource.fetchCollection({
     getParams: {
       [parent ? 'parent' : 'parent__isnull']: parent ? parent : true,
       contains_quiz: true,
     },
+=======
+  return ContentNodeResource.fetchCollection({ getParams: { modality: 'QUIZ' } }).then(nodes => {
+    return uniqBy(
+      nodes
+        .map(node => {
+          let returnIndex;
+          if (parent) {
+            returnIndex = node.ancestors.findIndex(ancestor => ancestor.id === parent);
+            if (returnIndex === -1) {
+              return null;
+            }
+            returnIndex += 1;
+          } else {
+            returnIndex = 0;
+          }
+          if (returnIndex === node.ancestors.length) {
+            return node;
+          } else {
+            const topic = node.ancestors[returnIndex];
+            topic.is_leaf = false;
+            topic.kind = 'topic';
+            return topic;
+          }
+        })
+        .filter(Boolean),
+      'id'
+    );
+>>>>>>> e3889d555 (Fix fetchCollection params)
   });
 }
