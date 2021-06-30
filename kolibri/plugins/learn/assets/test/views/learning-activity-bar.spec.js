@@ -1,6 +1,6 @@
 import { shallowMount, mount } from '@vue/test-utils';
 
-import { LearningActivityKinds } from 'kolibri.coreVue.vuex.constants';
+import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 import LearningActivityBar from '../../src/views/LearningActivityBar';
 
 function makeWrapper({ propsData } = {}) {
@@ -34,7 +34,7 @@ describe('LearningActivityBar', () => {
   it('shows a learning activity icon in the bar', () => {
     const wrapper = makeWrapper({
       propsData: {
-        learningActivityKind: LearningActivityKinds.WATCH,
+        learningActivityKind: LearningActivities.WATCH,
       },
     });
     expect(wrapper.find('[data-test="learningActivityIcon"]').exists()).toBeTruthy();
