@@ -54,7 +54,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  // import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -84,7 +84,7 @@
     },
     computed: {
       ...mapState(['toolbarRoute']),
-      ...mapState('examCreation', ['contentList', 'ancestors']),
+      ...mapState('examCreation', ['contentList', 'selectedExercises', 'ancestors']),
       pageName() {
         return this.$route.name;
       },
@@ -150,11 +150,23 @@
         }
       },
       contentIsSelected(content) {
-        console.log(content);
-        return false;
+        if (content.kind === ContentNodeKinds.TOPIC) {
+          return content.exercises.every(exercise => Boolean(this.selectedExercises[exercise.id]));
+        } else {
+          return Boolean(this.selectedExercises[content.id]);
+        }
       },
       selectionMetadata(content) {
-        console.log('selectionmetadata', content);
+        if (content.kind === ContentNodeKinds.TOPIC) {
+          const count = content.exercises.filter(exercise =>
+            Boolean(this.selectedExercises[exercise.id])
+          ).length;
+          if (count === 0) {
+            return '';
+          }
+          const total = content.exercises.length;
+          return this.$tr('selectionInformation', { count, total });
+        }
         return '';
       },
       finishProcess() {
@@ -165,6 +177,8 @@
     $trs: {
       createNewExamLabel: 'Create new quiz',
       selectChannelQuizLabel: 'Select a channel quiz',
+      selectionInformation:
+        '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
     },
   };
 
