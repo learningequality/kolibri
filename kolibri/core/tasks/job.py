@@ -357,20 +357,8 @@ class RegisteredJob(object):
 
     def _ready_job(self, *args, **kwargs):
         """
-        When self.validator is not None it runs the validator with
-        arguments passed to this method.
-
-        If validator raises an exception, we re-raise it otherwise we
-        return a job object.
+        Returns a job object with args and kwargs as its positional and keyword arguments.
         """
-        if self.validator is not None:
-            try:
-                validator_result = self.validator(*args, **kwargs)
-            except Exception as e:
-                raise e
-
-            kwargs["validator_result"] = validator_result
-
         job_obj = Job(
             self.func,
             *args,

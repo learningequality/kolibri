@@ -56,8 +56,10 @@ from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.exceptions import UserCancelledError
+from kolibri.core.tasks.job import JobRegistry
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import facility_queue
+from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.main import priority_queue
 from kolibri.core.tasks.main import queue
 from kolibri.core.tasks.utils import get_current_job
@@ -178,13 +180,45 @@ def validate_deletion_task(request, task_description):
     return task
 
 
+def validate_create_req_data(request, self):
+    if isinstance(request.data, list):
+        request_data_list = request.data
+    else:
+        request_data_list = [request.data]
+
+    for request_data in request_data_list:
+        if "task" not in request_data:
+            raise serializers.ValidationError("The 'task' field is required.")
+        if not isinstance(request_data["task"], string_types):
+            raise serializers.ValidationError("The 'task' value must be a string.")
+
+        funcstr = request_data.get("task")
+
+        # Make sure the task is registered
+        try:
+            registered_job = JobRegistry.REGISTERED_JOBS[funcstr]
+        except KeyError:
+            raise serializers.ValidationError(
+                "'{funcstr}' is not registered.".format(funcstr=funcstr)
+            )
+
+        # Check permissions the DRF way
+        for permission in registered_job.permissions:
+            if not permission.has_permission(request, self):
+                self.permission_denied(request)
+
+    return request_data_list
+
+
 class BaseViewSet(viewsets.ViewSet):
     queues = []
     permission_classes = []
 
     def initial(self, request, *args, **kwargs):
-        if len(self.permission_classes) == 0:
-            self.permission_classes = self.default_permission_classes()
+        # For now disable permission handling so that we can test create api
+
+        # if len(self.permission_classes) == 0:
+        #    self.permission_classes = self.default_permission_classes()
         return super(BaseViewSet, self).initial(request, *args, **kwargs)
 
     def default_permission_classes(self):
@@ -207,8 +241,43 @@ class BaseViewSet(viewsets.ViewSet):
         return Response(jobs_response)
 
     def create(self, request):
-        # unimplemented. Call out to the task-specific APIs for now.
-        pass
+        """
+        Submit a task for async processing.
+
+        API endpoint:
+            POST /api/tasks/
+        """
+        logger.info("User in `create` is: {user}".format(user=request.user))
+
+        request_data_list = validate_create_req_data(request, self)
+
+        enqueued_jobs_response = []
+
+        # Once we have validated all the tasks, we are good to go!
+        for request_data in request_data_list:
+
+            funcstr = request_data.get("task")
+            registered_job = JobRegistry.REGISTERED_JOBS[funcstr]
+
+            # Run validator with request and request_data as its argument
+            if registered_job.validator is not None:
+                try:
+                    validator_result = registered_job.validator(request, request_data)
+                except Exception as e:
+                    raise e
+
+                if not isinstance(validator_result, dict):
+                    raise serializers.ValidationError("Validator must return a dict.")
+
+                request_data = validator_result
+
+            job_id = registered_job.enqueue(**request_data)
+            enqueued_jobs_response.append(_job_to_response(job_storage.get_job(job_id)))
+
+        if len(enqueued_jobs_response) == 1:
+            enqueued_jobs_response = enqueued_jobs_response[0]
+
+        return Response(enqueued_jobs_response)
 
     def retrieve(self, request, pk=None):
         for _queue in self.queues:
