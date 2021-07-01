@@ -9,7 +9,7 @@ import { filterAndAnnotateContentList, fetchChannelQuizzes } from './actions';
 
 function showExamCreationPage(store, params) {
   const { contentList, pageName, ancestors = [], searchResults = null } = params;
-
+  console.log(pageName);
   return store.dispatch('loading').then(() => {
     store.commit('examCreation/SET_ANCESTORS', ancestors);
     store.commit('examCreation/SET_CONTENT_LIST', contentList);
@@ -59,7 +59,35 @@ export function showChannelQuizCreationRootPage(store, params) {
     return showExamCreationPage(store, {
       classId: params.classId,
       contentList: channelContentList,
-      pageName: PageNames.EXAM_CREATION_ROOT,
+      pageName: PageNames.EXAM_CREATION_CHANNEL_QUIZ,
+    });
+  });
+}
+export function showChannelQuizCreationTopicPage(store, params) {
+  return store.dispatch('loading').then(() => {
+    const { topicId } = params;
+    const topicNodePromise = ContentNodeResource.fetchModel({ id: topicId });
+    const childNodesPromise = ContentNodeResource.fetchCollection({
+      getParams: {
+        parent: topicId,
+        kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
+      },
+    });
+    const loadRequirements = [topicNodePromise, childNodesPromise];
+
+    return Promise.all(loadRequirements).then(([topicNode, childNodes]) => {
+      return filterAndAnnotateContentList(childNodes).then(contentList => {
+        store.commit('SET_TOOLBAR_ROUTE', {
+          name: PageNames.EXAMS,
+        });
+
+        return showExamCreationPage(store, {
+          classId: params.classId,
+          contentList,
+          pageName: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
+          ancestors: [...topicNode.ancestors, topicNode],
+        });
+      });
     });
   });
 }
