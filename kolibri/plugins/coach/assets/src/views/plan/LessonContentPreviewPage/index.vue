@@ -31,6 +31,13 @@
                 @click="removeResource"
               />
               <KButton
+                v-else-if="isChannelQuiz"
+                :text="$tr('selectQuiz')"
+                :primary="true"
+                :disabled="disableSelectButton"
+                @click="submit"
+              />
+              <KButton
                 v-else
                 :text="$tr('addButtonLabel')"
                 :primary="true"
@@ -110,6 +117,8 @@
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
   import markdownIt from 'markdown-it';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import MasteryModel from '../../common/MasteryModel';
   import commonCoach from '../../common';
   import QuestionList from './QuestionList';
@@ -155,11 +164,17 @@
         required: false,
         default: false,
       },
+      isChannelQuiz: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     data() {
       return {
         selectedQuestionIndex: 0,
         disableSelectButton: false,
+        showError: false,
       };
     },
     computed: {
@@ -214,6 +229,26 @@
         this.disableSelectButton = true;
         this.$emit('removeResource', this.content);
       },
+      submit() {
+        const params = {
+          classId: this.classId,
+        };
+        this.$store
+          .dispatch('examCreation/createExamAndRoute', params)
+          .then(() => {
+            this.showSnackbarNotification('quizCreated');
+          })
+          .catch(error => {
+            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            if (errors) {
+              this.showError = true;
+              this.showTitleError = true;
+              this.$refs.title.focus();
+            } else {
+              this.$store.dispatch('handleApiError', error);
+            }
+          });
+      },
     },
     $trs: {
       authorDataHeader: 'Author',
@@ -221,6 +256,7 @@
       copyrightHolderDataHeader: 'Copyright holder',
       addedIndicator: 'Added',
       addButtonLabel: 'Add',
+      selectQuiz: 'Select',
     },
   };
 
