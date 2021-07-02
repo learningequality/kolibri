@@ -150,7 +150,25 @@ export function showExamCreationPreviewPage(store, params, query = {}) {
       });
   });
 }
-
+export function showChannelQuizCreationPreviewPage(store, params) {
+  const { classId, contentId } = params;
+  return store.dispatch('loading').then(() => {
+    return Promise.all([_prepExamContentPreview(store, classId, contentId)])
+      .then(([contentNode]) => {
+        store.commit('SET_TOOLBAR_ROUTE', {
+          name: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
+          params: {
+            topicId: contentNode.parent,
+          },
+        });
+        store.dispatch('notLoading');
+      })
+      .catch(error => {
+        store.dispatch('notLoading');
+        return store.dispatch('handleApiError', error);
+      });
+  });
+}
 function _prepExamContentPreview(store, classId, contentId) {
   return ContentNodeResource.fetchModel({ id: contentId }).then(
     contentNode => {
