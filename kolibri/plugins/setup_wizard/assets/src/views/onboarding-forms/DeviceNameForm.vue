@@ -22,6 +22,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import OnboardingForm from './OnboardingForm';
 
@@ -38,6 +39,7 @@
       };
     },
     computed: {
+      ...mapState(['service']),
       invalidText() {
         if (!this.shouldValidate) {
           return '';
@@ -54,6 +56,7 @@
         if (this.invalidText) {
           this.$refs.textbox.focus();
         } else {
+          this.service.send('CONTINUE');
           this.$store.commit('SET_DEVICE_NAME', this.value);
           this.$emit('click_next');
         }

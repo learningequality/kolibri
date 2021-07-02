@@ -24,6 +24,7 @@
 <script>
 
   // PersonalSetup only has one step: Providing user credentials
+  import { mapState } from 'vuex';
   import every from 'lodash/every';
   import commonSetupElements from '../../../commonSetupElements';
   import ProgressToolbar from './ProgressToolbar';
@@ -36,8 +37,12 @@
       SuperuserCredentialsForm,
     },
     mixins: [commonSetupElements],
+    computed: {
+      ...mapState(['service']),
+    },
     methods: {
       goToLastStep() {
+        this.service.send('BACK');
         this.$router.push({
           name: 'GETTING_STARTED',
         });

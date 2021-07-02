@@ -44,8 +44,21 @@
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     computed: {
-      ...mapState(['loading', 'error']),
+      ...mapState(['loading', 'error', 'service']),
     },
+    created() {
+      this.service.start();
+      this.service.onTransition(state => {
+        const stateID = Object.keys(state.meta)[0];
+        const routeName = state.meta[stateID].route;
+        console.log(routeName);
+        // this.$router.push(routeName);
+      });
+    },
+    destroyed() {
+      this.service.stop();
+    },
+
     // As a minimal precaution, we restart the entire wizard if a user refreshes in the middle
     // and loses saved state
     beforeMount() {

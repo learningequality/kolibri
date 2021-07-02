@@ -17,6 +17,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import find from 'lodash/find';
   import commonSetupElements from '../../../commonSetupElements';
   import ProgressToolbar from './ProgressToolbar';
@@ -42,6 +43,7 @@
     },
     mixins: [commonSetupElements],
     computed: {
+      ...mapState(['service']),
       removeNavIcon() {
         return this.$route.name === 'DEFAULT_LANGUAGE';
       },
@@ -55,6 +57,7 @@
         this.$router.push({ name });
       },
       goToLastStep() {
+        this.service.send('BACK');
         const name = getFromPair(this.$route.name, 1);
         this.$router.push({ name });
       },

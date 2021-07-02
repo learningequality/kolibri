@@ -18,6 +18,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import commonSetupElements from '../../../commonSetupElements';
   import FacilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
   import GuestAccessForm from './onboarding-forms/GuestAccessForm';
@@ -47,6 +48,7 @@
     },
     mixins: [commonSetupElements],
     computed: {
+      ...mapState(['service']),
       currentComponent() {
         const { step } = this.$route.params;
         return stepToComponentMap[step];
@@ -81,6 +83,7 @@
             },
           });
         } else if (this.currentStep === 1) {
+          this.service.send('BACK');
           this.goToSetupMethodPage();
         }
       },

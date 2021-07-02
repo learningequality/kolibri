@@ -39,6 +39,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import OnboardingForm from './OnboardingForm';
@@ -55,11 +56,16 @@
         showAddressModal: false,
       };
     },
+    computed: {
+      ...mapState(['service']),
+    },
     methods: {
       startNewFacilityFlow() {
+        this.service.send({ type: 'CONTINUE', value: false });
         this.$router.push({ path: '/create_facility/1' });
       },
       startFacilityImportFlow(address) {
+        this.service.send({ type: 'CONTINUE', value: true });
         this.$router.push({
           path: '/import_facility/1',
           query: {

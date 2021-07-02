@@ -24,6 +24,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import commonSetupElements from '../../../commonSetupElements';
   import ProgressToolbar from './ProgressToolbar';
@@ -76,6 +77,7 @@
       };
     },
     computed: {
+      ...mapState(['service']),
       currentComponent() {
         const { step } = this.$route.params;
         return stepToComponentMap[step];
@@ -124,6 +126,7 @@
             },
           });
         } else if (this.currentStep === 1) {
+          this.service.send('BACK');
           this.goToSetupMethodPage();
         }
       },

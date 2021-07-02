@@ -12,6 +12,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import LanguageSwitcherList from 'kolibri.coreVue.components.LanguageSwitcherList';
   import OnboardingForm from './OnboardingForm';
 
@@ -21,10 +22,14 @@
       OnboardingForm,
       LanguageSwitcherList,
     },
+    computed: {
+      ...mapState(['service']),
+    },
     methods: {
       handleSubmit() {
         const currentLanguageId = this.$store.state.onboardingData.language_id;
         this.$store.commit('SET_LANGUAGE', currentLanguageId);
+        this.service.send('CONTINUE');
         this.$emit('click_next');
       },
     },

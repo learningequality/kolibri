@@ -23,6 +23,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import { Presets } from '../../constants';
   import OnboardingForm from './OnboardingForm';
 
@@ -50,6 +51,7 @@
       };
     },
     computed: {
+      ...mapState(['service']),
       isPersonal() {
         return this.selected === Options.PERSONAL;
       },
@@ -60,6 +62,7 @@
         this.goToNextStep();
       },
       goToNextStep() {
+        this.service.send({ type: 'CONTINUE', value: this.isPersonal });
         this.$router.push({
           name: this.isPersonal ? 'PERSONAL_SETUP' : 'DEVICE_NAME',
         });
