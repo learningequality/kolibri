@@ -119,7 +119,7 @@
         const { query } = this.$route;
         console.log('query in contentlink', query);
         return {
-          name: PageNames.EXAM_CREATION_PREVIEW,
+          name: PageNames.EXAM_CREATION_CHANNEL_QUIZ_PREVIEW,
           params: {
             classId: this.classId,
             contentId: content.id,

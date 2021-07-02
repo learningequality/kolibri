@@ -15,6 +15,7 @@
         :isSelected="isSelected"
         :questions="preview.questions"
         :displaySelectOptions="true"
+        :isChannelQuiz="true"
         :completionData="preview.completionData"
         @addResource="handleAddResource"
         @removeResource="handleRemoveResource"

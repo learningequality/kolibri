@@ -153,7 +153,7 @@ export function showExamCreationPreviewPage(store, params, query = {}) {
 export function showChannelQuizCreationPreviewPage(store, params) {
   const { classId, contentId } = params;
   return store.dispatch('loading').then(() => {
-    return Promise.all([_prepExamContentPreview(store, classId, contentId)])
+    return Promise.all([_prepChannelQuizContentPreview(store, classId, contentId)])
       .then(([contentNode]) => {
         store.commit('SET_TOOLBAR_ROUTE', {
           name: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
@@ -168,6 +168,25 @@ export function showChannelQuizCreationPreviewPage(store, params) {
         return store.dispatch('handleApiError', error);
       });
   });
+}
+
+function _prepChannelQuizContentPreview(store, classId, contentId) {
+  return ContentNodeResource.fetchModel({ id: contentId }).then(
+    contentNode => {
+      const contentMetadata = assessmentMetaDataState(contentNode);
+      store.commit('SET_TOOLBAR_ROUTE', {});
+      store.commit('examCreation/SET_CURRENT_CONTENT_NODE', { ...contentNode });
+      store.commit('examCreation/SET_PREVIEW_STATE', {
+        questions: contentMetadata.assessmentIds,
+        completionData: contentMetadata.masteryModel,
+      });
+      store.commit('SET_PAGE_NAME', PageNames.EXAM_CREATION_CHANNEL_QUIZ_PREVIEW);
+      return contentNode;
+    },
+    error => {
+      return store.dispatch('handleApiError', error);
+    }
+  );
 }
 function _prepExamContentPreview(store, classId, contentId) {
   return ContentNodeResource.fetchModel({ id: contentId }).then(
