@@ -303,6 +303,8 @@ class RegisteredJob(object):
         self.cancellable = kwargs.pop("cancellable", False)
         self.track_progress = kwargs.pop("track_progress", False)
 
+        self.extra_metadata = {}
+
     def enqueue(self, *args, **kwargs):
         """
         Enqueue the function with arguments passed to this method.
@@ -366,7 +368,8 @@ class RegisteredJob(object):
             group=self.group,
             cancellable=self.cancellable,
             track_progress=self.track_progress,
+            extra_metadata=self.extra_metadata,
             **kwargs
         )
-
+        self.extra_metadata.clear()
         return job_obj

@@ -22,6 +22,8 @@ from rest_framework import decorators
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import APIException
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import ParseError
@@ -214,24 +216,17 @@ class BaseViewSet(viewsets.ViewSet):
     queues = []
     permission_classes = []
 
-    def initial(self, request, *args, **kwargs):
-        # For now disable permission handling so that we can test create api
+    # Adding auth classes explicitly until we find a fix for BasicAuth not
+    # working for tasks API
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
 
-        # if len(self.permission_classes) == 0:
-        #    self.permission_classes = self.default_permission_classes()
+    def initial(self, request, *args, **kwargs):
+        self.permission_classes = self.set_permission_classes()
         return super(BaseViewSet, self).initial(request, *args, **kwargs)
 
-    def default_permission_classes(self):
-        # task permissions shared between facility management and device management
-        if self.action in ["list", "deletefinishedtasks"]:
-            return [CanManageContent | CanExportLogs]
-        elif self.action == "startexportlogcsv":
-            return [CanExportLogs]
-        elif self.action in ["importusersfromcsv", "exportuserstocsv"]:
-            return [CanImportUsers]
-
-        # this was the default before, so leave as is for any other endpoints
-        return [CanManageContent]
+    def set_permission_classes(self):
+        # For all /api/tasks/ endpoints
+        return [CanManageContent | CanExportLogs]
 
     def list(self, request):
         jobs_response = [
@@ -242,13 +237,19 @@ class BaseViewSet(viewsets.ViewSet):
 
     def create(self, request):
         """
-        Submit a task for async processing.
+        Enqueue a task for async processing.
 
         API endpoint:
             POST /api/tasks/
-        """
-        logger.info("User in `create` is: {user}".format(user=request.user))
 
+        Request payload parameters:
+            - `task`: the dotted path to task function.
+            - all other key value pairs are passed to `task` function as keyword args.
+
+        If a task function has a validator then dict returned by the validator is passed
+        to task function as keyword args otherwise all request data is passed to task function
+        as keyword args.
+        """
         request_data_list = validate_create_req_data(request, self)
 
         enqueued_jobs_response = []
@@ -382,12 +383,16 @@ class TasksViewSet(BaseViewSet):
     def queues(self):
         return [queue, priority_queue]
 
-    def default_permission_classes(self):
-        # exclusive permission for facility management
-        if self.action == "startexportlogcsv":
+    def set_permission_classes(self):
+        if self.action in ["list", "deletefinishedtasks"]:
+            return [CanManageContent | CanExportLogs]
+        elif self.action == "startexportlogcsv":
             return [CanExportLogs]
+        elif self.action in ["importusersfromcsv", "exportuserstocsv"]:
+            return [CanImportUsers]
 
-        return super(TasksViewSet, self).permission_classes
+        # For all other tasks
+        return [CanManageContent]
 
     @decorators.action(methods=["post"], detail=False)
     def startchannelupdate(self, request):
@@ -938,14 +943,9 @@ class FacilityTasksViewSet(BaseViewSet):
     def queues(self):
         return [facility_queue]
 
-    def default_permission_classes(self):
-        permission_classes = super(FacilityTasksViewSet, self).permission_classes
-
+    def set_permission_classes(self):
         if self.action in ["list", "retrieve"]:
-            return [p | FacilitySyncPermissions for p in permission_classes]
-
-        # All other permissions are deferred to permission_classes decorator
-        return []
+            return [FacilitySyncPermissions]
 
     @decorators.action(
         methods=["post"], detail=False, permission_classes=[FacilitySyncPermissions]
