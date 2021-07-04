@@ -52,9 +52,9 @@
         const stateID = Object.keys(state.meta)[0];
         let newRoute = state.meta[stateID].route;
         if (newRoute != this.$router.currentRoute.name) {
-          const routePath = state.meta[stateID].path;
-          if (routePath != undefined) newRoute = { name: newRoute, path: routePath };
-          this.$router.push(newRoute);
+          if ('path' in state.meta[stateID])
+            this.$router.push({ name: newRoute, path: state.meta[stateID].path });
+          else this.$router.push(newRoute);
         }
       });
     },

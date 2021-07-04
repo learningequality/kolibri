@@ -41,9 +41,6 @@
     methods: {
       goToLastStep() {
         this.service.send('BACK');
-        this.$router.push({
-          name: 'GETTING_STARTED',
-        });
       },
       finalizeOnboardingData() {
         // Set defaults that are skipped in Personal setup. This should guarantee

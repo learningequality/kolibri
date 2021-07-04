@@ -49,7 +49,7 @@ export const wizardMachine = createMachine({
       ],
     },
     personalSetup: {
-      meta: { route: 'PERSONAL_SETUP', path: '/personal_setup' },
+      meta: { route: 'PERSONAL_SETUP' },
       on: {
         BACK: 'gettingStarted',
       },
