@@ -25,66 +25,62 @@ export const wizardMachine = createMachine({
   },
   states: {
     defaultLanguage: {
-      meta: { route: 'DEFAULT_LANGUAGE' },
+      meta: { route: 'DEFAULT_LANGUAGE', path: '/' },
       on: {
         CONTINUE: 'gettingStarted',
       },
     },
     gettingStarted: {
-      meta: { route: 'GETTING_STARTED' },
+      meta: { route: 'GETTING_STARTED', path: '/' },
       on: {
         CONTINUE: { target: 'quickOrAdvanced', actions: setQuick },
         BACK: 'defaultLanguage',
       },
     },
     quickOrAdvanced: {
-      on: {
-        '': [
-          {
-            cond: isQuick,
-            target: 'personalSetup',
-          },
-          {
-            target: 'deviceName',
-          },
-        ],
-      },
+      always: [
+        {
+          cond: isQuick,
+          target: 'personalSetup',
+        },
+        {
+          target: 'deviceName',
+        },
+      ],
     },
     personalSetup: {
-      meta: { route: 'PERSONAL_SETUP' },
+      meta: { route: 'PERSONAL_SETUP', path: '/personal_setup' },
       on: {
         BACK: 'gettingStarted',
       },
     },
     deviceName: {
-      meta: { route: 'DEVICE_NAME' },
+      meta: { route: 'DEVICE_NAME', path: '/' },
       on: {
         CONTINUE: 'publicSetup',
         BACK: 'gettingStarted',
       },
     },
     publicSetup: {
-      meta: { route: 'PUBLIC_SETUP_METHOD' },
+      meta: { route: 'PUBLIC_SETUP_METHOD', path: '/' },
       on: {
         CONTINUE: { target: 'importOrNew', actions: setImport },
         BACK: 'deviceName',
       },
     },
     importOrNew: {
-      on: {
-        '': [
-          {
-            cond: isNewFacility,
-            target: 'createFacility',
-          },
-          {
-            target: 'importFacility',
-          },
-        ],
-      },
+      always: [
+        {
+          cond: isNewFacility,
+          target: 'createFacility',
+        },
+        {
+          target: 'importFacility',
+        },
+      ],
     },
     createFacility: {
-      meta: { route: 'CREATE_FACILITY' },
+      meta: { route: 'CREATE_FACILITY/1' },
       CONTINUE: 'quickOrAdvanced',
       on: {
         BACK: 'publicSetup',

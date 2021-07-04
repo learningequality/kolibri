@@ -63,9 +63,6 @@
       },
       goToNextStep() {
         this.service.send({ type: 'CONTINUE', value: this.isPersonal });
-        this.$router.push({
-          name: this.isPersonal ? 'PERSONAL_SETUP' : 'DEVICE_NAME',
-        });
       },
     },
     $trs: {

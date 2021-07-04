@@ -26,7 +26,6 @@
   // PersonalSetup only has one step: Providing user credentials
   import { mapState } from 'vuex';
   import every from 'lodash/every';
-  import commonSetupElements from '../../../commonSetupElements';
   import ProgressToolbar from './ProgressToolbar';
   import SuperuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm';
 
@@ -36,7 +35,6 @@
       ProgressToolbar,
       SuperuserCredentialsForm,
     },
-    mixins: [commonSetupElements],
     computed: {
       ...mapState(['service']),
     },

@@ -50,9 +50,12 @@
       this.service.start();
       this.service.onTransition(state => {
         const stateID = Object.keys(state.meta)[0];
-        const routeName = state.meta[stateID].route;
-        console.log(routeName);
-        // this.$router.push(routeName);
+        let newRoute = state.meta[stateID].route;
+        if (newRoute != this.$router.currentRoute.name) {
+          const routePath = state.meta[stateID].path;
+          if (routePath != undefined) newRoute = { name: newRoute, path: routePath };
+          this.$router.push(newRoute);
+        }
       });
     },
     destroyed() {

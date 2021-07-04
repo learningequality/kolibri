@@ -26,7 +26,6 @@
 
   import { mapState } from 'vuex';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import commonSetupElements from '../../../commonSetupElements';
   import ProgressToolbar from './ProgressToolbar';
   import OnboardingForm from './onboarding-forms/OnboardingForm';
   import PersonalDataConsentForm from './onboarding-forms/PersonalDataConsentForm';
@@ -52,7 +51,7 @@
       PersonalDataConsentForm,
       ProgressToolbar,
     },
-    mixins: [commonSetupElements, commonSyncElements],
+    mixins: [commonSyncElements],
     data() {
       // Global state for the import process
       return {
@@ -127,7 +126,6 @@
           });
         } else if (this.currentStep === 1) {
           this.service.send('BACK');
-          this.goToSetupMethodPage();
         }
       },
       finalizeOnboardingData() {
