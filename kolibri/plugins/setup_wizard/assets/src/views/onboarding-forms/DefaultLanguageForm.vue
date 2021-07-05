@@ -30,7 +30,6 @@
         const currentLanguageId = this.$store.state.onboardingData.language_id;
         this.$store.commit('SET_LANGUAGE', currentLanguageId);
         this.service.send('CONTINUE');
-        this.$emit('click_next');
       },
     },
     $trs: {

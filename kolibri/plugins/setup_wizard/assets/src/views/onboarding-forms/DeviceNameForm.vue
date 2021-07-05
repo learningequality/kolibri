@@ -56,9 +56,8 @@
         if (this.invalidText) {
           this.$refs.textbox.focus();
         } else {
-          this.service.send('CONTINUE');
           this.$store.commit('SET_DEVICE_NAME', this.value);
-          this.$emit('click_next');
+          this.service.send('CONTINUE');
         }
       },
     },
