@@ -1,31 +1,44 @@
 <template>
 
   <OnboardingForm
-    :header="$tr('setupMethodHeader')"
+    :header="$tr('initializeDevice')"
+    @submit="handleSubmit"
   >
     <p class="p1">
       {{ $tr('descriptionParagraph1') }}
     </p>
-    <p class="p2">
-      {{ $tr('descriptionParagraph2') }}
-    </p>
+    <h3>
+      {{ $tr('fullDevice') }}
+      <CoreInfoIcon
+        :iconAriaLabel="$tr('fullDeviceTooltip')"
+        :tooltipText="$tr('fullDeviceTooltip')"
+      />
+    </h3>
+    <KRadioButton
+      v-model="initializeMethod"
+      :label="$tr('createNewFacilityAction')"
+      :value="'new'"
+    />
+    <KRadioButton
+      v-model="initializeMethod"
+      :label="$tr('importFacilityAction')"
+      :value="'import'"
+    />
 
-    <template #buttons>
-      <KButtonGroup>
-        <KButton
-          class="left-button"
-          :text="$tr('createNewFacilityAction')"
-          appearance="raised-button"
-          primary
-          @click="startNewFacilityFlow"
-        />
-        <KButton
-          :text="$tr('importFacilityAction')"
-          appearance="flat-button"
-          @click="showAddressModal = true"
-        />
-      </KButtonGroup>
-    </template>
+
+    <h3>
+      {{ $tr('LOD') }}
+      <CoreInfoIcon
+        :iconAriaLabel="$tr('LODTooltip')"
+        :tooltipText="$tr('LODTooltip')"
+      />
+    </h3>
+    <KRadioButton
+      v-model="initializeMethod"
+      :description="$tr('descriptionImportLOD')"
+      :label="$tr('importLOD')"
+      :value="'lod'"
+    />
 
     <SelectAddressModalGroup
       v-if="showAddressModal"
@@ -42,11 +55,13 @@
   import { mapState } from 'vuex';
   import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import OnboardingForm from './OnboardingForm';
 
   export default {
     name: 'SetupMethod',
     components: {
+      CoreInfoIcon,
       OnboardingForm,
       SelectAddressModalGroup,
     },
@@ -54,12 +69,26 @@
     data() {
       return {
         showAddressModal: false,
+        initializeMethod: 'new',
       };
     },
     computed: {
       ...mapState(['service']),
     },
     methods: {
+      handleSubmit() {
+        switch (this.initializeMethod) {
+          case 'new':
+            this.startNewFacilityFlow();
+            break;
+          case 'import':
+            this.showAddressModal = true;
+            break;
+          case 'lod':
+            break;
+        }
+      },
+
       startNewFacilityFlow() {
         this.service.send({ type: 'CONTINUE', value: false });
       },
@@ -74,30 +103,50 @@
       },
     },
     $trs: {
-      setupMethodHeader: {
-        message: 'Create or import facility',
+      initializeDevice: {
+        message: 'Initialize device',
         context: 'Page title',
+      },
+      fullDevice: {
+        message: 'Full device',
+        context:
+          'Create or import a device that will be a server to be used by coaches and learners',
+      },
+      fullDeviceTooltip: {
+        message:
+          'Create or import a device that will be a server to be used by coaches and learners',
+        context: 'Tooltip for full device',
+      },
+      LOD: {
+        message: 'Learn-only device',
+        context: 'Import one more learners from an existing Kolibri server',
+      },
+      LODTooltip: {
+        message: 'Import one more learners from an existing Kolibri server',
+        context: 'Tooltip for Learn-only device',
       },
       descriptionParagraph1: {
         message:
-          'A facility represents the location where you are installing Kolibri, such as a school, training center, or a home.',
-
+          'Choose a facility setup for this device. A facility represents the location where you are installing Kolibri, such as a school, training center, or a home.',
         context: 'First paragraph of description',
       },
-      descriptionParagraph2: {
-        message:
-          'You can create a new facility or import an existing facility from another device on your network',
-
-        context: 'Second paragraph of description',
-      },
       createNewFacilityAction: {
-        message: 'New facility',
-        context: 'Button that takes user to a workflow to create a new facility from scratch',
+        message: 'Create a new facility',
+        context: 'Option that takes the user to a workflow to create a new facility from scratch',
       },
       importFacilityAction: {
-        message: 'Import facility',
+        message: 'Import all data from an existing facility',
         context:
-          'Button that takes user to a workflow to import a facility and its data from the network or internet',
+          'Option that takes the user to a workflow to import a facility and its data from the network or internet',
+      },
+      importLOD: {
+        message: 'Import one or more user accounts from an existing facility',
+        context:
+          'Option that takes the user to a workflow to import some user accounts from a facility from the network',
+      },
+      descriptionImportLOD: {
+        message: 'This device supports auto-syncing with a full device that has the same facility',
+        context: 'Description of the import a Learn-only device option',
       },
     },
   };
