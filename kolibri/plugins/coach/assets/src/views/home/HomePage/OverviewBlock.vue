@@ -35,6 +35,17 @@
           {{ $formatNumber(learnerNames.length) }}
         </template>
       </HeaderTableRow>
+      <HeaderTableRow v-if="learnerNames.length > 0">
+        <template #key>
+        </template>
+        <template #value>
+          <KButton
+            :text="$tr('viewLearners')"
+            secondary
+            @click="viewLearners"
+          />
+        </template>
+      </HeaderTableRow>
     </HeaderTable>
   </KPageContainer>
 
@@ -65,10 +76,16 @@
         return this.$router.getRoute('CoachClassListPage', {}, { facility_id });
       },
     },
+    methods: {
+      viewLearners() {
+        this.$router.push(this.$router.getRoute('ClassLearnersListPage'));
+      },
+    },
     $trs: {
       allClassesLabel: 'All classes',
       coach: '{count, plural, one {Coach} other {Coaches}}',
       learner: '{count, plural, one {Learner} other {Learners}}',
+      viewLearners: 'View learners',
     },
   };
 

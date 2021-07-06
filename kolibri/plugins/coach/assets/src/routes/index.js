@@ -2,6 +2,7 @@ import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import AllFacilitiesPage from '../views/AllFacilitiesPage';
 import CoachClassListPage from '../views/CoachClassListPage';
+import ClassLearnersListPage from '../views/ClassLearnersListPage';
 import HomePage from '../views/home/HomePage';
 import CoachPrompts from '../views/CoachPrompts';
 import HomeActivityPage from '../views/home/HomeActivityPage';
@@ -62,6 +63,14 @@ export default [
     },
     meta: {
       titleParts: ['activityLabel', 'CLASS_NAME'],
+    },
+  },
+
+  {
+    path: '/:classId/learners',
+    component: ClassLearnersListPage,
+    handler() {
+      store.dispatch('notLoading');
     },
   },
   {
