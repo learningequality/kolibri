@@ -182,51 +182,59 @@ def validate_deletion_task(request, task_description):
     return task
 
 
-def validate_create_req_data(request, self):
-    if isinstance(request.data, list):
-        request_data_list = request.data
-    else:
-        request_data_list = [request.data]
-
-    for request_data in request_data_list:
-        if "task" not in request_data:
-            raise serializers.ValidationError("The 'task' field is required.")
-        if not isinstance(request_data["task"], string_types):
-            raise serializers.ValidationError("The 'task' value must be a string.")
-
-        funcstr = request_data.get("task")
-
-        # Make sure the task is registered
-        try:
-            registered_job = JobRegistry.REGISTERED_JOBS[funcstr]
-        except KeyError:
-            raise serializers.ValidationError(
-                "'{funcstr}' is not registered.".format(funcstr=funcstr)
-            )
-
-        # Check permissions the DRF way
-        for permission in registered_job.permissions:
-            if not permission.has_permission(request, self):
-                self.permission_denied(request)
-
-    return request_data_list
-
-
 class BaseViewSet(viewsets.ViewSet):
     queues = []
     permission_classes = []
 
     # Adding auth classes explicitly until we find a fix for BasicAuth not
-    # working for tasks API
+    # working on tasks API (in dev settings)
     authentication_classes = [SessionAuthentication, BasicAuthentication]
 
     def initial(self, request, *args, **kwargs):
-        self.permission_classes = self.set_permission_classes()
+        if len(self.permission_classes) == 0:
+            self.permission_classes = self.default_permission_classes()
+        if self.permission_classes is None:
+            self.permission_classes = []
         return super(BaseViewSet, self).initial(request, *args, **kwargs)
 
-    def set_permission_classes(self):
+    def default_permission_classes(self):
         # For all /api/tasks/ endpoints
-        return [CanManageContent | CanExportLogs]
+        return [CanManageContent]
+
+    def validate_create_req_data(self, request):
+        """
+        Validates the request data received on POST /api/tasks/.
+
+        If `request.user` is authorized to initiate the `task` function, this returns
+        a list of `request.data` otherwise raises PermissionDenied.
+        """
+        if isinstance(request.data, list):
+            request_data_list = request.data
+        else:
+            request_data_list = [request.data]
+
+        for request_data in request_data_list:
+            if "task" not in request_data:
+                raise serializers.ValidationError("The 'task' field is required.")
+            if not isinstance(request_data["task"], string_types):
+                raise serializers.ValidationError("The 'task' value must be a string.")
+
+            funcstr = request_data.get("task")
+
+            # Make sure the task is registered
+            try:
+                registered_job = JobRegistry.REGISTERED_JOBS[funcstr]
+            except KeyError:
+                raise serializers.ValidationError(
+                    "'{funcstr}' is not registered.".format(funcstr=funcstr)
+                )
+
+            # Check permissions the DRF way
+            for permission in registered_job.permissions:
+                if not permission.has_permission(request, self):
+                    self.permission_denied(request)
+
+        return request_data_list
 
     def list(self, request):
         jobs_response = [
@@ -243,14 +251,15 @@ class BaseViewSet(viewsets.ViewSet):
             POST /api/tasks/
 
         Request payload parameters:
-            - `task`: the dotted path to task function.
-            - all other key value pairs are passed to `task` function as keyword args.
+            - `task` (required): a string representing the dotted path to task function.
+            - all other key value pairs are passed to the validator if the
+              task function has one otherwise they are passed to the task function itself
+              as keyword args.
 
-        If a task function has a validator then dict returned by the validator is passed
-        to task function as keyword args otherwise all request data is passed to task function
-        as keyword args.
+        Keep in mind: If a task function has a validator then dict returned by the validator
+        is passed to the task function as keyword args.
         """
-        request_data_list = validate_create_req_data(request, self)
+        request_data_list = self.validate_create_req_data(request)
 
         enqueued_jobs_response = []
 
@@ -383,7 +392,7 @@ class TasksViewSet(BaseViewSet):
     def queues(self):
         return [queue, priority_queue]
 
-    def set_permission_classes(self):
+    def default_permission_classes(self):
         if self.action in ["list", "deletefinishedtasks"]:
             return [CanManageContent | CanExportLogs]
         elif self.action == "startexportlogcsv":
@@ -943,7 +952,7 @@ class FacilityTasksViewSet(BaseViewSet):
     def queues(self):
         return [facility_queue]
 
-    def set_permission_classes(self):
+    def default_permission_classes(self):
         if self.action in ["list", "retrieve"]:
             return [FacilitySyncPermissions]
 

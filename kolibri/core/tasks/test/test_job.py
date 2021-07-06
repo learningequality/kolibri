@@ -52,15 +52,14 @@ class TestRegisteredJob(TestCase):
         self.assertEqual(self.registered_job.group, "human")
         self.assertEqual(self.registered_job.cancellable, True)
         self.assertEqual(self.registered_job.track_progress, True)
+        self.assertEqual(self.registered_job.extra_metadata, {})
 
     @mock.patch("kolibri.core.tasks.job.Job")
-    def test__ready_job_runs_validator_and_passes_result_to_job(self, MockJob):
-        self.registered_job.validator = mock.MagicMock()
-        self.registered_job.validator.return_value = {"result": 42}
+    def test__ready_job_initializes_job_and_clears_metadata(self, MockJob):
+        self.registered_job = mock.MagicMock(extra_metadata={"meta": "test"})
 
         self.registered_job._ready_job("10", base=10)
 
-        self.registered_job.validator.assert_called_once_with("10", base=10)
         MockJob.assert_called_once_with(
             int,
             "10",  # arg that was passed to _ready_job()
@@ -68,9 +67,12 @@ class TestRegisteredJob(TestCase):
             group="human",
             cancellable=True,
             track_progress=True,
+            extra_metadata={"meta": "test"},
             base=10,  # kwarg that was passed to _ready_job()
-            validator_result={"result": 42},  # validator return value
         )
+
+        # Do we clear metadata after creating job object?
+        self.registered_job.extra_metadata.clear.assert_called_once()
 
     def test__ready_job_returns_job_object(self):
         result = self.registered_job._ready_job("10", base=10)
