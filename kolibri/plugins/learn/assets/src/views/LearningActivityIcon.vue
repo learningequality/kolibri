@@ -10,7 +10,7 @@
   import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 
   const AllActivitiesIcon = 'allActivities';
-  const LearningActivityKindToIconMap = {
+  const LearningActivityToIconMap = {
     [LearningActivities.CREATE]: 'create',
     [LearningActivities.LISTEN]: 'listen',
     [LearningActivities.REFLECT]: 'reflect',
@@ -70,7 +70,7 @@
           kind = this.kind[0];
         }
 
-        const icon = LearningActivityKindToIconMap[kind];
+        const icon = LearningActivityToIconMap[kind];
         if (this.shaded) {
           return icon + 'Shaded';
         }
