@@ -9,6 +9,7 @@
 
   import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 
+  const AllActivitiesIcon = 'allActivities';
   const LearningActivityKindToIconMap = {
     [LearningActivities.CREATE]: 'create',
     [LearningActivities.LISTEN]: 'listen',
@@ -19,17 +20,31 @@
     [LearningActivities.EXPLORE]: 'interact',
   };
 
+  /**
+   * Displays a corresponding icon for a single learning activity
+   * or an icon for more activities if more than one learning
+   * activity is provided.
+   */
   export default {
     name: 'LearningActivityIcon',
     props: {
       /**
-       * Learning activity constant
+       * Learning activity constant(s)
+       * Can be one constant or an array of constants
        */
       kind: {
-        type: String,
+        type: [String, Array],
         required: true,
         validator(value) {
-          return Object.values(LearningActivities).includes(value);
+          const isValidLearningActivity = v => Object.values(LearningActivities).includes(v);
+
+          if (Array.isArray(value) && value.length > 0) {
+            return value.every(isValidLearningActivity);
+          } else if (typeof value === 'string') {
+            return isValidLearningActivity(value);
+          } else {
+            return false;
+          }
         },
       },
       /**
@@ -44,7 +59,18 @@
     },
     computed: {
       icon() {
-        const icon = LearningActivityKindToIconMap[this.kind];
+        // more activities
+        if (Array.isArray(this.kind) && this.kind.length > 1) {
+          return AllActivitiesIcon;
+        }
+
+        let kind = this.kind;
+        // one activity but as an array
+        if (Array.isArray(this.kind) && this.kind.length === 1) {
+          kind = this.kind[0];
+        }
+
+        const icon = LearningActivityKindToIconMap[kind];
         if (this.shaded) {
           return icon + 'Shaded';
         }
