@@ -4,9 +4,8 @@
     <KLabeledIcon :style="{ 'margin-top': '8px' }">
       <template #icon>
         <LearningActivityIcon
-          v-if="learningActivityKind"
           data-test="learningActivityIcon"
-          :kind="learningActivityKind"
+          :kind="learningActivities"
           :shaded="true"
         />
       </template>
@@ -120,13 +119,14 @@
         required: true,
       },
       /**
-       * Learning activity constant
+       * An array of one or more learning activities constants
        */
-      learningActivityKind: {
-        type: String,
+      learningActivities: {
+        type: Array,
         required: true,
-        validator(value) {
-          return Object.values(LearningActivities).includes(value);
+        validator(arr) {
+          const isValidLearningActivity = v => Object.values(LearningActivities).includes(v);
+          return arr.length > 0 && arr.every(isValidLearningActivity);
         },
       },
       /**

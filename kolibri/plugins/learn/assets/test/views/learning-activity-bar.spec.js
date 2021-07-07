@@ -9,24 +9,39 @@ function makeWrapper({ propsData } = {}) {
 
 describe('LearningActivityBar', () => {
   it('smoke test', () => {
-    const wrapper = shallowMount(LearningActivityBar);
+    const wrapper = shallowMount(LearningActivityBar, {
+      propsData: {
+        learningActivities: [LearningActivities.WATCH],
+      },
+    });
     expect(wrapper.exists()).toBe(true);
   });
 
   it('shows a resource title in the bar', () => {
     const wrapper = makeWrapper({
-      propsData: { resourceTitle: 'Practice and applications of math' },
+      propsData: {
+        resourceTitle: 'Practice and applications of math',
+        learningActivities: [LearningActivities.WATCH],
+      },
     });
     expect(wrapper.text()).toContain('Practice and applications of math');
   });
 
   it('shows the back button in the bar', () => {
-    const wrapper = makeWrapper();
+    const wrapper = makeWrapper({
+      propsData: {
+        learningActivities: [LearningActivities.WATCH],
+      },
+    });
     expect(wrapper.find('[data-test="backButton"]').exists()).toBeTruthy();
   });
 
   it('emits `navigateBack` event on the back button click', () => {
-    const wrapper = makeWrapper();
+    const wrapper = makeWrapper({
+      propsData: {
+        learningActivities: [LearningActivities.WATCH],
+      },
+    });
     wrapper.find('[data-test="backButton"]').trigger('click');
     expect(wrapper.emitted().navigateBack.length).toBe(1);
   });
@@ -34,7 +49,7 @@ describe('LearningActivityBar', () => {
   it('shows a learning activity icon in the bar', () => {
     const wrapper = makeWrapper({
       propsData: {
-        learningActivityKind: LearningActivities.WATCH,
+        learningActivities: [LearningActivities.WATCH],
       },
     });
     expect(wrapper.find('[data-test="learningActivityIcon"]').exists()).toBeTruthy();
@@ -52,7 +67,12 @@ describe('LearningActivityBar', () => {
       let wrapper;
 
       beforeEach(() => {
-        wrapper = makeWrapper({ propsData: { isLessonContext: true } });
+        wrapper = makeWrapper({
+          propsData: {
+            isLessonContext: true,
+            learningActivities: [LearningActivities.WATCH],
+          },
+        });
       });
 
       it("doesn't show 'View topic resources' button in the bar", () => {
@@ -73,7 +93,12 @@ describe('LearningActivityBar', () => {
       let wrapper;
 
       beforeEach(() => {
-        wrapper = makeWrapper({ propsData: { isLessonContext: false } });
+        wrapper = makeWrapper({
+          propsData: {
+            isLessonContext: false,
+            learningActivities: [LearningActivities.WATCH],
+          },
+        });
       });
 
       it("doesn't show 'View lesson plan' button in the bar", () => {
@@ -94,7 +119,12 @@ describe('LearningActivityBar', () => {
       let wrapper;
 
       beforeEach(() => {
-        wrapper = makeWrapper({ propsData: { isBookmarked: true } });
+        wrapper = makeWrapper({
+          propsData: {
+            isBookmarked: true,
+            learningActivities: [LearningActivities.WATCH],
+          },
+        });
       });
 
       it("doesn't show the add bookmark button in the bar", () => {
@@ -115,7 +145,12 @@ describe('LearningActivityBar', () => {
       let wrapper;
 
       beforeEach(() => {
-        wrapper = makeWrapper({ propsData: { isBookmarked: false } });
+        wrapper = makeWrapper({
+          propsData: {
+            isBookmarked: false,
+            learningActivities: [LearningActivities.WATCH],
+          },
+        });
       });
 
       it("doesn't show the remove bookmark button in the bar", () => {
@@ -136,7 +171,12 @@ describe('LearningActivityBar', () => {
       let wrapper;
 
       beforeEach(() => {
-        wrapper = makeWrapper({ propsData: { allowMarkComplete: true } });
+        wrapper = makeWrapper({
+          propsData: {
+            allowMarkComplete: true,
+            learningActivities: [LearningActivities.WATCH],
+          },
+        });
       });
 
       it('shows the more options button', () => {
@@ -168,7 +208,12 @@ describe('LearningActivityBar', () => {
       let wrapper;
 
       beforeEach(() => {
-        wrapper = makeWrapper({ propsData: { allowMarkComplete: false } });
+        wrapper = makeWrapper({
+          propsData: {
+            allowMarkComplete: false,
+            learningActivities: [LearningActivities.WATCH],
+          },
+        });
       });
 
       it("doesn't show the more options button", () => {
