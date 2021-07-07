@@ -48,7 +48,46 @@
           </KGridItem>
         </KGrid>
         <CoachContentLabel :value="content.num_coach_contents" :isTopic="false" />
-        <HeaderTable>
+
+        <HeaderTable v-if="isChannelQuiz">
+          <HeaderTableRow
+            :keyText="$tr('totalQuestionsHeader')"
+          >
+            <template #value>
+              {{ content.assessmentmetadata.number_of_assessments }}
+            </template>
+          </HeaderTableRow>
+          <HeaderTableRow
+            :keyText="$tr('quizDurationHeader')"
+          >
+            <template #value>
+              {{ licenseName }}
+            </template>
+          </HeaderTableRow>
+          <HeaderTableRow
+            v-if="licenseName"
+            :keyText="$tr('licenseDataHeader')"
+          >
+            <template #value>
+              {{ licenseName }}
+              <InfoIcon
+                v-if="licenseDescription"
+                :tooltipText="licenseDescription"
+                :iconAriaLabel="licenseDescription"
+              />
+            </template>
+          </HeaderTableRow>
+          <HeaderTableRow
+            v-if="content.license_owner"
+            :keyText="$tr('copyrightHolderDataHeader')"
+          >
+            <template #value>
+              {{ content.license_owner }}
+            </template>
+          </HeaderTableRow>
+        </HeaderTable>
+
+        <HeaderTable v-else>
           <HeaderTableRow
             v-if="completionData"
             :keyText="coachString('masteryModelLabel')"
@@ -59,8 +98,8 @@
           </HeaderTableRow>
         </HeaderTable>
         <!-- eslint-disable-next-line vue/no-v-html -->
-        <p v-if="description" dir="auto" v-html="description"></p>
-        <ul class="meta">
+        <p v-if="description && !isChannelQuiz" dir="auto" v-html="description"></p>
+        <ul v-if="!isChannelQuiz" class="meta">
           <li v-if="content.author">
             {{ $tr('authorDataHeader') }}:
             {{ content.author }}
@@ -108,6 +147,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
@@ -178,6 +218,7 @@
       };
     },
     computed: {
+      ...mapState('examCreation'),
       isExercise() {
         return this.content.kind === 'exercise';
       },
@@ -199,6 +240,7 @@
         return this.currentContentNode;
       },
       licenseName() {
+        console.log(this.content);
         return licenseLongName(this.content.license_name);
       },
       licenseDescription() {
@@ -233,9 +275,11 @@
         const params = {
           classId: this.classId,
         };
+        console.log(this.classId);
         this.$store
           .dispatch('examCreation/createExamAndRoute', params)
           .then(() => {
+            console.log(this);
             this.showSnackbarNotification('quizCreated');
           })
           .catch(error => {
@@ -254,9 +298,11 @@
       authorDataHeader: 'Author',
       licenseDataHeader: 'License',
       copyrightHolderDataHeader: 'Copyright holder',
+      totalQuestionsHeader: 'Total questions',
+      quizDurationHeader: 'Quiz duration',
       addedIndicator: 'Added',
       addButtonLabel: 'Add',
-      selectQuiz: 'Select',
+      selectQuiz: 'Select quiz',
     },
   };
 

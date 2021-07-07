@@ -12,39 +12,23 @@
     :marginBottom="72"
   >
 
-    <KPageContainer>
-      <h1>{{ $tr('selectChannelQuizLabel') }}</h1>
+    <h1>{{ $tr('selectChannelQuizLabel') }}</h1>
 
-      <ResourceSelectionBreadcrumbs
-        :ancestors="ancestors"
-        :channelsLink="channelsLink"
-        :topicsLink="topicsLink"
-      />
+    <ResourceSelectionBreadcrumbs
+      :ancestors="ancestors"
+      :channelsLink="channelsLink"
+      :topicsLink="topicsLink"
+    />
 
-      <ContentCardList
-        :contentList="filteredContentList"
-        :contentCardMessage="selectionMetadata"
-        :contentCardLink="contentLink"
-        :viewMoreButtonState="viewMoreButtonState"
-        :contentIsChecked="contentIsSelected"
-        :contentHasCheckbox="contentHasCheckbox"
-      />
+    <ContentCardList
+      :contentList="filteredContentList"
+      :contentCardMessage="selectionMetadata"
+      :contentCardLink="contentLink"
+      :viewMoreButtonState="viewMoreButtonState"
+      :contentIsChecked="contentIsSelected"
+      :contentHasCheckbox="contentHasCheckbox"
+    />
 
-      <BottomAppBar>
-        <KButtonGroup>
-          <KRouterLink
-            appearance="flat-button"
-            :text="coreString('cancelAction')"
-            :to="toolbarRoute"
-          />
-          <KButton
-            :text="coreString('finishAction')"
-            primary
-            @click="finishProcess"
-          />
-        </KButtonGroup>
-      </BottomAppBar>
-    </KPageContainer>
 
   </CoreBase>
 
@@ -56,7 +40,6 @@
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import pickBy from 'lodash/pickBy';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
@@ -67,7 +50,6 @@
   export default {
     name: 'CreateChannelQuizPage',
     components: {
-      BottomAppBar,
       ResourceSelectionBreadcrumbs,
       ContentCardList,
     },
@@ -85,9 +67,6 @@
     computed: {
       ...mapState(['toolbarRoute']),
       ...mapState('examCreation', ['contentList', 'selectedExercises', 'ancestors']),
-      pageName() {
-        return this.$route.name;
-      },
       filteredContentList() {
         console.log(this);
         return this.contentList;
@@ -133,7 +112,6 @@
         };
       },
       topicsLink(topicId) {
-        console.log(this, topicId);
         return {
           name: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
           params: {
@@ -143,11 +121,7 @@
         };
       },
       contentHasCheckbox() {
-        if (this.pageName === 'EXAM_CREATION_CHANNEL_QUIZ') {
-          return this.pageName !== PageNames.EXAM_CREATION_CHANNEL_QUIZ;
-        } else if (this.pageName === 'EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC') {
-          return this.pageName !== PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC;
-        }
+        return false;
       },
       contentIsSelected(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {
@@ -168,10 +142,6 @@
           return this.$tr('selectionInformation', { count, total });
         }
         return '';
-      },
-      finishProcess() {
-        console.log('here');
-        return;
       },
     },
     $trs: {

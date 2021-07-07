@@ -87,6 +87,7 @@ export function fetchAdditionalSearchResults(store, params) {
 }
 
 export function createExamAndRoute(store, { classId }) {
+  console.log('here');
   const exam = {
     collection: classId,
     title: store.state.title,
@@ -98,6 +99,7 @@ export function createExamAndRoute(store, { classId }) {
     date_archived: null,
     date_activated: null,
   };
+  console.log(exam);
 
   return createExam(store, exam).then(() => {
     return router.push({ name: PageNames.EXAMS });

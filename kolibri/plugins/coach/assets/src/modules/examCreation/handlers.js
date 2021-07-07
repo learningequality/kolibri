@@ -9,7 +9,7 @@ import { filterAndAnnotateContentList, fetchChannelQuizzes } from './actions';
 
 function showExamCreationPage(store, params) {
   const { contentList, pageName, ancestors = [], searchResults = null } = params;
-  console.log(pageName);
+  console.log(params);
   return store.dispatch('loading').then(() => {
     store.commit('examCreation/SET_ANCESTORS', ancestors);
     store.commit('examCreation/SET_CONTENT_LIST', contentList);
@@ -26,6 +26,7 @@ export function showExamCreationRootPage(store, params) {
     return ChannelResource.fetchCollection({
       getParams: { available: true, has_exercise: true },
     }).then(channels => {
+      console.log(channels);
       const channelContentList = channels.map(channel => ({
         ...channel,
         id: channel.root,
@@ -33,6 +34,7 @@ export function showExamCreationRootPage(store, params) {
         kind: ContentNodeKinds.CHANNEL,
         is_leaf: false,
       }));
+      console.log(channelContentList);
       store.commit('SET_TOOLBAR_ROUTE', {
         name: PageNames.EXAMS,
       });
@@ -46,6 +48,7 @@ export function showExamCreationRootPage(store, params) {
 }
 export function showChannelQuizCreationRootPage(store, params) {
   return fetchChannelQuizzes().then(channels => {
+    console.log(channels);
     const channelContentList = channels.map(channel => ({
       ...channel,
       id: channel.id,
@@ -53,6 +56,7 @@ export function showChannelQuizCreationRootPage(store, params) {
       kind: ContentNodeKinds.CHANNEL,
       is_leaf: false,
     }));
+    console.log(channelContentList);
     store.commit('SET_TOOLBAR_ROUTE', {
       name: PageNames.EXAMS,
     });
