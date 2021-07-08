@@ -5,6 +5,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.db import models
 from morango.models import UUIDField
+from morango.models.core import SyncSession
 
 from .utils import LANDING_PAGE_LEARN
 from .utils import LANDING_PAGE_SIGN_IN
@@ -207,3 +208,11 @@ class SyncQueue(models.Model):
         """
         staled_time = time.time() - expire
         cls.objects.filter(updated__lte=staled_time).delete()
+
+
+class UserSyncStatus(models.Model):
+    user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE, null=False)
+    sync_session = models.ForeignKey(
+        SyncSession, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    queued = models.BooleanField(default=False)
