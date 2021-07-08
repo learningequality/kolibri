@@ -11,24 +11,26 @@
     :pageTitle="$tr('selectChannelQuizLabel')"
     :marginBottom="72"
   >
+    <KPageContainer>
 
-    <h1>{{ $tr('selectChannelQuizLabel') }}</h1>
+      <h1>{{ $tr('selectChannelQuizLabel') }}</h1>
 
-    <ResourceSelectionBreadcrumbs
-      :ancestors="ancestors"
-      :channelsLink="channelsLink"
-      :topicsLink="topicsLink"
-    />
+      <ResourceSelectionBreadcrumbs
+        :ancestors="ancestors"
+        :channelsLink="channelsLink"
+        :topicsLink="topicsLink"
+      />
 
-    <ContentCardList
-      :contentList="filteredContentList"
-      :contentCardMessage="selectionMetadata"
-      :contentCardLink="contentLink"
-      :viewMoreButtonState="viewMoreButtonState"
-      :contentIsChecked="contentIsSelected"
-      :contentHasCheckbox="contentHasCheckbox"
-    />
+      <ContentCardList
+        :contentList="filteredContentList"
+        :contentCardMessage="selectionMetadata"
+        :contentCardLink="contentLink"
+        :viewMoreButtonState="viewMoreButtonState"
+        :contentIsChecked="contentIsSelected"
+        :contentHasCheckbox="contentHasCheckbox"
+      />
 
+    </KPageContainer>
 
   </CoreBase>
 
@@ -56,24 +58,16 @@
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     data() {
       return {
-        // showError: false,
-        // filters: {
-        //   channel: this.$route.query.channel || null,
-        //   kind: this.$route.query.kind || null,
-        //   role: this.$route.query.role || null,
-        // },
+        viewMoreButtonState: 'no_more_results',
+        contentHasCheckbox: () => false,
+        contentIsSelected: () => '',
       };
     },
     computed: {
       ...mapState(['toolbarRoute']),
       ...mapState('examCreation', ['contentList', 'selectedExercises', 'ancestors']),
       filteredContentList() {
-        console.log(this);
         return this.contentList;
-      },
-      viewMoreButtonState() {
-        console.log('here');
-        return 'visible';
       },
       channelsLink() {
         return {
@@ -96,7 +90,6 @@
           };
         }
         const { query } = this.$route;
-        console.log('query in contentlink', query);
         return {
           name: PageNames.EXAM_CREATION_CHANNEL_QUIZ_PREVIEW,
           params: {
@@ -119,16 +112,6 @@
             topicId,
           },
         };
-      },
-      contentHasCheckbox() {
-        return false;
-      },
-      contentIsSelected(content) {
-        if (content.kind === ContentNodeKinds.TOPIC) {
-          return content.exercises.every(exercise => Boolean(this.selectedExercises[exercise.id]));
-        } else {
-          return Boolean(this.selectedExercises[content.id]);
-        }
       },
       selectionMetadata(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {

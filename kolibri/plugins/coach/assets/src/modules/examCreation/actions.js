@@ -99,7 +99,7 @@ export function createExamAndRoute(store, { classId }) {
     date_archived: null,
     date_activated: null,
   };
-  console.log(exam);
+  console.log(store, exam);
 
   return createExam(store, exam).then(() => {
     return router.push({ name: PageNames.EXAMS });

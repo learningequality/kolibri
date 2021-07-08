@@ -5,6 +5,7 @@ export function createExam(store, exam) {
 }
 
 export function examState(exam) {
+  console.log('created exam', exam);
   return {
     id: exam.id,
     title: exam.title,

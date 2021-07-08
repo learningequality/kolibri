@@ -17,67 +17,59 @@
             :layout8="{ span: 2 }"
             :layout12="{ span: 3 }"
           >
-            <template v-if="displaySelectOptions">
-              <template v-if="isSelected">
-                <KIcon icon="onDevice" />
-                {{ $tr('addedIndicator') }}
-              </template>
-
-              <KButton
-                v-if="isSelected"
-                :text="coreString('removeAction')"
-                :primary="true"
-                :disabled="disableSelectButton"
-                @click="removeResource"
-              />
-              <KButton
-                v-else
-                :text="$tr('addButtonLabel')"
-                :primary="true"
-                :disabled="disableSelectButton"
-                @click="addResource"
-              />
-            </template>
+            <KButton
+              :text="$tr('selectQuiz')"
+              :primary="true"
+              :disabled="false"
+              @click="submit"
+            />
           </KGridItem>
         </KGrid>
         <CoachContentLabel :value="content.num_coach_contents" :isTopic="false" />
+
         <HeaderTable>
           <HeaderTableRow
-            v-if="completionData"
-            :keyText="coachString('masteryModelLabel')"
+            :keyText="$tr('totalQuestionsHeader')"
           >
             <template #value>
-              <MasteryModel :masteryModel="completionData" />
+              {{ content.assessmentmetadata.number_of_assessments }}
+            </template>
+          </HeaderTableRow>
+          <HeaderTableRow
+            :keyText="$tr('quizDurationHeader')"
+          >
+            <template #value>
+              {{ licenseName }}
+            </template>
+          </HeaderTableRow>
+          <HeaderTableRow
+            v-if="licenseName"
+            :keyText="$tr('licenseDataHeader')"
+          >
+            <template #value>
+              {{ licenseName }}
+              <InfoIcon
+                v-if="licenseDescription"
+                :tooltipText="licenseDescription"
+                :iconAriaLabel="licenseDescription"
+              />
+            </template>
+          </HeaderTableRow>
+          <HeaderTableRow
+            v-if="content.license_owner"
+            :keyText="$tr('copyrightHolderDataHeader')"
+          >
+            <template #value>
+              {{ content.license_owner }}
             </template>
           </HeaderTableRow>
         </HeaderTable>
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <p v-if="description" dir="auto" v-html="description"></p>
-        <ul class="meta">
-          <li v-if="content.author">
-            {{ $tr('authorDataHeader') }}:
-            {{ content.author }}
-          </li>
-          <li v-if="licenseName">
-            {{ $tr('licenseDataHeader') }}:
-            {{ licenseName }}
-            <InfoIcon
-              v-if="licenseDescription"
-              :tooltipText="licenseDescription"
-              :iconAriaLabel="licenseDescription"
-            />
-          </li>
-          <li v-if="content.license_owner">
-            {{ $tr('copyrightHolderDataHeader') }}:
-            {{ content.license_owner }}
-          </li>
-        </ul>
+
       </div>
     </template>
 
     <template #aside>
       <QuestionList
-        v-if="isExercise"
         :questions="questions"
         :questionLabel="questionLabel"
         :selectedIndex="selectedQuestionIndex"
@@ -101,6 +93,7 @@
 
 <script>
 
+  import { mapState, mapActions } from 'vuex';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
@@ -109,14 +102,12 @@
     licenseLongName,
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
-  import markdownIt from 'markdown-it';
-  import MasteryModel from '../../common/MasteryModel';
   import commonCoach from '../../common';
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
 
   export default {
-    name: 'LessonContentPreviewPage',
+    name: 'ChannelQuizContentPreviewPage',
     metaInfo() {
       return {
         title: this.currentContentNode.title,
@@ -128,7 +119,6 @@
       CoachContentLabel,
       InfoIcon,
       MultiPaneLayout,
-      MasteryModel,
     },
     mixins: [commonCoreStrings, commonCoach],
     props: {
@@ -136,33 +126,20 @@
         type: Object,
         required: true,
       },
-      isSelected: {
-        type: Boolean,
-        required: true,
-      },
       questions: {
         type: Array,
         required: false,
         default: () => [],
       },
-      completionData: {
-        type: Object,
-        required: false,
-        default: () => ({}),
-      },
-      displaySelectOptions: {
-        type: Boolean,
-        required: false,
-        default: false,
-      },
     },
     data() {
       return {
         selectedQuestionIndex: 0,
-        disableSelectButton: false,
       };
     },
     computed: {
+      ...mapState('examCreation'),
+      ...mapActions('examCreation'),
       isExercise() {
         return this.content.kind === 'exercise';
       },
@@ -172,18 +149,11 @@
         }
         return '';
       },
-      description() {
-        if (this.content) {
-          const md = new markdownIt('zero', { breaks: true });
-          return md.render(this.content.description);
-        }
-
-        return undefined;
-      },
       content() {
         return this.currentContentNode;
       },
       licenseName() {
+        console.log(this.content);
         return licenseLongName(this.content.license_name);
       },
       licenseDescription() {
@@ -191,11 +161,6 @@
           this.content.license_name,
           this.content.license_description
         );
-      },
-    },
-    watch: {
-      isSelected() {
-        this.disableSelectButton = false;
       },
     },
     methods: {
@@ -206,21 +171,16 @@
         const questionNumber = questionIndex + 1;
         return this.coreString('questionNumberLabel', { questionNumber });
       },
-      addResource() {
-        this.disableSelectButton = true;
-        this.$emit('addResource', this.content);
-      },
-      removeResource() {
-        this.disableSelectButton = true;
-        this.$emit('removeResource', this.content);
+      submit() {
+        this.$emit('submit', this.content, this.classId);
       },
     },
     $trs: {
-      authorDataHeader: 'Author',
       licenseDataHeader: 'License',
       copyrightHolderDataHeader: 'Copyright holder',
-      addedIndicator: 'Added',
-      addButtonLabel: 'Add',
+      totalQuestionsHeader: 'Total questions',
+      quizDurationHeader: 'Quiz duration',
+      selectQuiz: 'Select quiz',
     },
   };
 

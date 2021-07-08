@@ -10,7 +10,7 @@
     authorizedRole="adminOrCoach"
   >
     <KPageContainer>
-      <LessonContentPreviewPage
+      <ChannelQuizContentPreviewPage
         :currentContentNode="currentContentNode"
         :isSelected="isSelected"
         :questions="preview.questions"
@@ -31,12 +31,12 @@
   import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
-  import LessonContentPreviewPage from '../LessonContentPreviewPage';
+  import ChannelQuizContentPreviewPage from '../LessonContentPreviewPage/ChannelQuizContentPreviewPage';
 
   export default {
     name: 'PlanChannelQuizPreviewPage',
     components: {
-      LessonContentPreviewPage,
+      ChannelQuizContentPreviewPage,
     },
     mixins: [commonCoreStrings, commonCoach],
     computed: {

@@ -234,6 +234,7 @@
           const params = {
             classId: this.classId,
           };
+          console.log('working exam, this', this);
           this.$store
             .dispatch('examCreation/createExamAndRoute', params)
             .then(() => {
