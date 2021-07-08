@@ -82,10 +82,15 @@
                   :userType="getUserKind"
                 />
               </div>
-              <div class="sync-status">
-                {{ $tr('deviceStatus') }}
+              <div v-if="getUserKind === 'learner'">
+                <div class="sync-status">
+                  {{ $tr('deviceStatus') }}
+                </div>
+                <SyncStatusDisplay
+                  :syncStatus="syncStatusValue"
+                  displaySize="sync-status-large"
+                />
               </div>
-              <SyncStatusDisplay />
             </template>
 
             <template #options>
@@ -175,6 +180,10 @@
       // temp hack for the VF plugin
       dropdownName() {
         return !hashedValuePattern.test(this.username) ? this.username : this.fullName;
+      },
+      syncStatusValue() {
+        // this.user.syncStatus
+        return 'SYNCING';
       },
     },
     created() {

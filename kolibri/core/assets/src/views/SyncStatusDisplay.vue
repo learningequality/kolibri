@@ -5,13 +5,15 @@
       v-if="syncInProgress"
       size="20"
       class="inline-loader"
+      data-test="syncStatusSpinner"
     />
     <KIcon
       v-else
       :icon="syncIconDisplayMap"
       class="inline-icon"
+      data-test="syncStatusIcon"
     />
-    <p :class="displaySize">{{ syncTextDisplayMap }}</p>
+    <p :class="displaySize" data-test="syncStatusText">{{ syncTextDisplayMap }}</p>
   </span>
 
 </template>
@@ -58,12 +60,12 @@
             return 'onDevice';
           case SyncStatus.UNABLE_TO_SYNC:
             return 'error';
-          // case SyncStatus.NOT_RECENTLY_SYNCED:
-          //   return 'error';
+          case SyncStatus.NOT_RECENTLY_SYNCED:
+            return 'error';
           case SyncStatus.NOT_CONNECTED:
             return 'error';
           default:
-            return '';
+            return null;
         }
       },
       syncInProgress() {
