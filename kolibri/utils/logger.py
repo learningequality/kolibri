@@ -1,7 +1,5 @@
 import logging
 import os
-import re
-from logging import Formatter
 from logging.handlers import TimedRotatingFileHandler
 
 from . import conf
@@ -96,22 +94,6 @@ class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
         return result
 
 
-class KolibriLogFileFormatter(Formatter):
-    """
-    A custom Formatter to change the format string of Cherrypy logging messages.
-    """
-
-    def format(self, record):
-        if "cherrypy" in record.name:
-            # Remove the timestamp from Cherrypy logging so that the message only contains one timestamp.
-            record.msg = re.sub(r"\[[^)]*\]\s", "", record.msg)
-            # Change the format string for Cherrypy logging messages from %module(_cplogging) to %name.
-            record.module = record.name
-
-        message = super(KolibriLogFileFormatter, self).format(record)
-        return message
-
-
 class FalseFilter(logging.Filter):
     """
     A filter that ignores everything, useful to create log config
@@ -157,10 +139,6 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             },
             "simple": {"format": "%(levelname)s %(message)s"},
             "simple_date": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
-            "simple_date_file": {
-                "()": "kolibri.utils.logger.KolibriLogFileFormatter",
-                "format": "%(levelname)s %(asctime)s %(name)s %(message)s",
-            },
             "color": {
                 "()": "colorlog.ColoredFormatter",
                 "format": "%(log_color)s%(levelname)-8s %(message)s",
@@ -184,7 +162,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "filters": [],
                 "class": "kolibri.utils.logger.KolibriTimedRotatingFileHandler",
                 "filename": os.path.join(LOG_ROOT, "kolibri.txt"),
-                "formatter": "simple_date_file",
+                "formatter": "simple_date",
                 "when": "midnight",
                 "backupCount": 30,
             },
