@@ -87,7 +87,7 @@
                   {{ $tr('deviceStatus') }}
                 </div>
                 <SyncStatusDisplay
-                  :syncStatus="syncStatusValue"
+                  :syncStatus="userStatus.sync_session"
                   displaySize="sync-status-large"
                 />
               </div>
@@ -130,6 +130,7 @@
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import branding from 'kolibri.utils.branding';
+  import { UserSyncStatusResource } from 'kolibri.resources';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
   import SkipNavigationLink from './SkipNavigationLink';
@@ -164,6 +165,8 @@
     data() {
       return {
         userMenuDropdownIsOpen: false,
+        userStatus: null,
+        isPolling: false,
       };
     },
     computed: {
@@ -181,19 +184,35 @@
       dropdownName() {
         return !hashedValuePattern.test(this.username) ? this.username : this.fullName;
       },
-      syncStatusValue() {
-        // this.user.syncStatus
-        return 'SYNCING';
-      },
     },
     created() {
       window.addEventListener('click', this.handleWindowClick);
       this.$kolibriBranding = branding;
     },
+    beforeMount() {
+      this.isPolling = true;
+      this.pollUserSyncStatusTask();
+    },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
     },
     methods: {
+      pollUserSyncStatusTask() {
+        UserSyncStatusResource.fetchCollection({
+          force: true,
+        }).then(statuses => {
+          console.log('statuses', statuses[0]);
+          this.userStatus = {
+            ...statuses[0],
+          };
+          console.log('user sync status', this.userStatus);
+        });
+        if (this.isPolling) {
+          setTimeout(() => {
+            this.pollUserSyncStatusTask();
+          }, 10000);
+        }
+      },
       handleUserMenuButtonClick(event) {
         this.userMenuDropdownIsOpen = !this.userMenuDropdownIsOpen;
         if (this.userMenuDropdownIsOpen) {
