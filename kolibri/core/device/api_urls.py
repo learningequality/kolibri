@@ -8,11 +8,13 @@ from .api import DevicePermissionsViewSet
 from .api import DeviceProvisionView
 from .api import DeviceSettingsView
 from .api import FreeSpaceView
+from .api import UserSyncStatusViewSet
 
 router = routers.SimpleRouter()
 router.register(
     r"devicepermissions", DevicePermissionsViewSet, base_name="devicepermissions"
 )
+router.register(r"usersyncStatus", UserSyncStatusViewSet, base_name="usersyncstatus")
 
 urlpatterns = [
     url(r"^", include(router.urls)),

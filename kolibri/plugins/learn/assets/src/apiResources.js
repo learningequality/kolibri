@@ -20,11 +20,3 @@ export const LearnerLessonResource = new Resource({
   name: 'learnerlesson',
   namespace: 'kolibri.plugins.learn',
 });
-
-/**
- * Gets Sync Status for a learner or a classroom of learners
- */
-export const LearnerSyncStatusResource = new Resource({
-  name: 'learnersyncstatus',
-  namespace: 'kolibri.plugins.learn',
-});

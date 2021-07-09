@@ -12,11 +12,13 @@ from rest_framework.response import Response
 import kolibri
 from .models import DevicePermissions
 from .models import DeviceSettings
+from .models import UserSyncStatus
 from .permissions import NotProvisionedCanPost
 from .permissions import UserHasAnyDevicePermissions
 from .serializers import DevicePermissionsSerializer
 from .serializers import DeviceProvisionSerializer
 from .serializers import DeviceSettingsSerializer
+from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.content.permissions import CanManageContent
@@ -164,3 +166,25 @@ class DeviceNameView(views.APIView):
         settings.name = request.data["name"]
         settings.save()
         return Response({"name": settings.name})
+
+
+class UserSyncStatusViewSet(ReadOnlyValuesViewset):
+    values = (
+        "id",
+        "queued",
+        "sync_session",
+        "user",
+    )
+
+    def get_queryset(self):
+        return UserSyncStatus.objects.all()
+
+    def consolidate(self, items, queryset):
+        return [
+            {
+                "id": 1,
+                "queued": False,
+                "sync_session": "SYNCING",
+                "user": "4a4d2e2789e0b48a76c7ce329b02a183",
+            }
+        ]
