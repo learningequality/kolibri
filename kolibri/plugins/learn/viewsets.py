@@ -186,3 +186,40 @@ class LearnerLessonViewset(ReadOnlyValuesViewset):
                 lesson_assignments__collection__membership__user=self.request.user,
                 is_active=True,
             )
+
+
+class LearnerSyncStatusViewset(ReadOnlyValuesViewset):
+    """
+    Special Viewset for Coaches and Admins to view the Sync Statuses
+    for all learners in a class.
+    """
+
+    permission_classes = (IsAuthenticated,)
+
+    values = (
+        "id",
+        "user_id",
+        # queuing
+        "last_activity",
+        "queued",
+        # transfer sessions
+        # "transfer_stage",
+        # "transfer_stage_status",
+    )
+
+    # def get_queryset(self):
+    #     if self.request.user.is_anonymous():
+    #         return SyncStatus.objects.none()
+    #     else:
+    #         return SyncStatus.objects
+
+    def consolidate(self, items, queryset):
+        # SyncStatus.objects = [{id: 1, user_id: '1234', last_activity: '2020-12-04 01:50:17', queued: false}]
+        return [
+            {
+                "id": "1",
+                "user_id": "12345",
+                "last_activity": "2020-12-04 01:50:17",
+                "queued": "False",
+            }
+        ]

@@ -5,10 +5,10 @@
     immersivePageIcon="back"
     :immersivePagePrimary="false"
     :immersivePageRoute="$router.getRoute('HomePage')"
-    :appBarTitle="className"
+    :appBarTitle="$store.state.classSummary.name"
   >
     <KPageContainer>
-      <h1>{{ $tr('pageHeader', { className: className }) }} </h1>
+      <h1>{{ $tr('pageHeader', { className: $store.state.classSummary.name }) }} </h1>
       <KButton
         :text="$tr('howToTroubleshootModalHeader')"
         appearance="basic-link"
@@ -78,7 +78,7 @@
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  // import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
+  import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import SyncStatusDisplay from '../../../../../core/assets/src/views/SyncStatusDisplay';
   import SyncStatusDescription from '../../../../../core/assets/src/views/SyncStatusDescription';
 
@@ -122,13 +122,13 @@
       };
     },
     computed: {
-      // syncStatusOptions() {
-      //   let options = [];
-      //   for (status in SyncStatus) {
-      //     options.push(SyncStatus[status]);
-      //   }
-      //   return options;
-      // },
+      syncStatusOptions() {
+        let options = [];
+        for (const [value] of Object.entries(SyncStatus)) {
+          options.push(value);
+        }
+        return options;
+      },
       // syncStatusDescriptions() {
       //   let options = [];
       //   for (status in SyncStatus) {

@@ -1,4 +1,9 @@
-import { ContentNodeResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
+import {
+  ContentNodeResource,
+  MembershipResource,
+  FacilityUserResource,
+  LearnerSyncStatusResource,
+} from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
 import { PageNames, pageNameToModuleMap } from '../../constants';
@@ -80,5 +85,13 @@ export function deferProfileUpdates(store, demographicInfo) {
       gender: demographicInfo.gender || DEFERRED,
       birth_year: demographicInfo.birth_year || DEFERRED,
     },
+  });
+}
+
+export function getFacilityUsersSyncStatuses(store, ids) {
+  return new Promise((resolve, reject) => {
+    LearnerSyncStatusResource.fetchCollection(ids)
+      .then(statuses => resolve(statuses))
+      .catch(error => reject(error));
   });
 }
