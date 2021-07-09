@@ -10,6 +10,8 @@ from . import conf
 GET_FILES_TO_DELETE = "getFilesToDelete"
 DO_ROLLOVER = "doRollover"
 
+NO_FILE_BASED_LOGGING = os.environ.get("KOLIBRI_NO_FILE_BASED_LOGGING", False)
+
 
 class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
     """
@@ -137,6 +139,10 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
     configuration.
     """
 
+    DEFAULT_HANDLERS = (
+        ["console"] if NO_FILE_BASED_LOGGING else ["file", "console", "file_debug"]
+    )
+
     # This is the general level
     DEFAULT_LEVEL = "INFO" if not debug else "DEBUG"
     DATABASE_LEVEL = "INFO" if not debug_database else "DEBUG"
@@ -192,7 +198,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
         },
         "loggers": {
             "kolibri": {
-                "handlers": ["file", "console", "file_debug"],
+                "handlers": DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
@@ -200,27 +206,27 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             # We should introduce custom debug log levels or log
             # targets, i.e. --debug-level=high
             "kolibri.core.tasks.worker": {
-                "handlers": ["file", "console", "file_debug"],
+                "handlers": DEFAULT_HANDLERS,
                 "level": "INFO",
                 "propagate": False,
             },
             "morango": {
-                "handlers": ["file", "console", "file_debug"],
+                "handlers": DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
             "django": {
-                "handlers": ["file", "console", "file_debug"],
+                "handlers": DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
             "django.db.backends": {
-                "handlers": ["file", "console", "file_debug"],
+                "handlers": DEFAULT_HANDLERS,
                 "level": DATABASE_LEVEL,
                 "propagate": False,
             },
             "django.request": {
-                "handlers": ["file", "console", "file_debug"],
+                "handlers": DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
