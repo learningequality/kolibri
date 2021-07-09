@@ -463,24 +463,24 @@ def stop():
 
     with open(PROCESS_CONTROL_FLAG, "w") as f:
         f.write(STOP)
-    if not wait_for_status(STATUS_STOPPED, timeout=30):
+    wait_for_status(STATUS_STOPPED, timeout=10)
+    if pid_exists(pid):
+        logger.debug("Process wth pid %s still exists; attempting a SIGKILL." % pid)
+        try:
+            os.kill(pid, signal.SIGKILL)
+        except SystemError as e:
+            logger.debug(
+                "Received an error while trying to kill the Kolibri process: %s" % e
+            )
+    starttime = time.time()
+    while time.time() - starttime <= 10:
         if pid_exists(pid):
-            logger.debug("Process wth pid %s still exists; attempting a SIGKILL." % pid)
-            try:
-                os.kill(pid, signal.SIGKILL)
-            except SystemError as e:
-                logger.debug(
-                    "Received an error while trying to kill the Kolibri process: %s" % e
-                )
-        starttime = time.time()
-        while time.time() - starttime <= 10:
-            if pid_exists(pid):
-                time.sleep(0.1)
-            else:
-                break
-        if pid_exists(pid):
-            logging.error("Kolibri process has failed to shutdown")
-            return STATUS_UNCLEAN_SHUTDOWN
+            time.sleep(0.1)
+        else:
+            break
+    if pid_exists(pid):
+        logging.error("Kolibri process has failed to shutdown")
+        return STATUS_UNCLEAN_SHUTDOWN
     return STATUS_STOPPED
 
 

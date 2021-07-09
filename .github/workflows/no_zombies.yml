@@ -14,7 +14,7 @@ jobs:
         uses: fkirc/skip-duplicate-actions@master
         with:
           github_token: ${{ github.token }}
-          paths: '["kolibri/**.py", "requirements/base.txt"]'
+          paths: '["kolibri/**/*.py", "requirements/base.txt"]'
   zombies:
     name: No zombies
     needs: pre_job
@@ -44,3 +44,4 @@ jobs:
         # ensure kolibri stops within 20 seconds 10 times in a row
         ./test/ensure_kolibri_stops_within_time.sh 20 10 8082 8083
         ./test/ensure_no_kolibris_running_on_port.sh 8082
+        ./test/ensure_no_kolibris_running_on_port.sh 8083
