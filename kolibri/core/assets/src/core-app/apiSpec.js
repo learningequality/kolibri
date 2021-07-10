@@ -97,6 +97,7 @@ import AttemptLogList from '../views/AttemptLogList';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
 import TextTruncator from '../views/TextTruncator';
+import TimeDuration from '../views/TimeDuration';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import filterUsersByNames from '../utils/filterUsersByNames';
@@ -157,6 +158,7 @@ export default {
       InteractionList,
       ExamReport,
       TextTruncator,
+      TimeDuration,
       MultiPaneLayout,
       CoreFullscreen,
       CoreLogo,
