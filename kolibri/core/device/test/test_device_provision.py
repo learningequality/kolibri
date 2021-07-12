@@ -5,17 +5,16 @@ from __future__ import unicode_literals
 from django.core.management import call_command
 from django.test import TestCase
 
-from ..management.commands.provisiondevice import create_device_settings
-from ..management.commands.provisiondevice import create_facility
-from ..management.commands.provisiondevice import create_superuser
 from ..models import DeviceSettings
 from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.auth.constants.facility_presets import presets
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import clear_process_cache
-from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.helpers import setup_device
+from kolibri.core.device.utils import create_facility
+from kolibri.core.device.utils import provision_device
+from kolibri.core.device.utils import setup_device_and_facility
 
 
 class DeviceProvisionTestCase(TestCase):
@@ -40,28 +39,23 @@ class DeviceProvisionTestCase(TestCase):
     def test_no_facility_return_default(self):
         setup_device()
         default_facility = Facility.get_default_facility()
-        facility = create_facility(facility_name=default_facility.name)
-        self.assertEqual(default_facility, facility)
-
-    def test_create_super_user(self):
-        Facility.objects.create(name="Test")
-        provision_device()
-        create_superuser(username="test", password="test")
-        self.assertTrue(FacilityUser.objects.get(username="test").is_superuser)
+        self.assertIsNotNone(default_facility)
+        setup_device_and_facility(None, None, None, None, {}, None, None)
+        self.assertEqual(Facility.objects.all().count(), 1)
 
     def test_create_device_settings_provisioned(self):
         facility = Facility.objects.create(name="Test")
-        create_device_settings(language_id="en", facility=facility)
+        provision_device(language_id="en", default_facility=facility)
         self.assertTrue(DeviceSettings.objects.get().is_provisioned)
 
     def test_create_device_settings_language(self):
         facility = Facility.objects.create(name="Test")
-        create_device_settings(language_id="en", facility=facility)
+        provision_device(language_id="en", default_facility=facility)
         self.assertEqual(DeviceSettings.objects.get().language_id, "en")
 
     def test_create_device_settings_default_facility(self):
         facility = Facility.objects.create(name="Test")
-        create_device_settings(language_id="en", facility=facility)
+        provision_device(language_id="en", default_facility=facility)
         self.assertEqual(DeviceSettings.objects.get().default_facility, facility)
 
 

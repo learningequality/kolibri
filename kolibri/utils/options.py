@@ -360,6 +360,11 @@ base_option_spec = {
             "default": "",
             "description": "Additional directories in which Kolibri will look for content files and content database files.",
         },
+        "AUTOMATIC_PROVISION_FILE": {
+            "type": "path",
+            "default": "automatic_provision.json",
+            "description": "The file that contains the automatic device provisioning data.",
+        },
     },
     "Urls": {
         "CENTRAL_CONTENT_BASE_URL": {

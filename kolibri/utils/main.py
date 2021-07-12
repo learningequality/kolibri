@@ -14,6 +14,7 @@ from django.core.management.base import handle_default_options
 from django.db.utils import DatabaseError
 
 import kolibri
+from kolibri.core.device.utils import provision_from_file
 from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
 from kolibri.core.tasks.main import import_tasks_module_from_django_apps
 from kolibri.core.upgrade import matches_version
@@ -150,6 +151,15 @@ def _setup_django():
         raise
 
 
+def _upgrades_before_django_setup(updated, version):
+    if updated:
+        check_plugin_config_file_location(version)
+        # Reset the enabled plugins to the defaults
+        # This needs to be run before dbbackup because
+        # dbbackup relies on settings.INSTALLED_APPS
+        enable_new_default_plugins()
+
+
 def initialize(
     skip_update=False,
     settings=None,
@@ -181,12 +191,7 @@ def initialize(
 
     updated = version_updated(kolibri.__version__, version)
 
-    if updated:
-        check_plugin_config_file_location(version)
-        # Reset the enabled plugins to the defaults
-        # This needs to be run before dbbackup because
-        # dbbackup relies on settings.INSTALLED_APPS
-        enable_new_default_plugins()
+    _upgrades_before_django_setup(updated, version)
 
     _setup_django()
 
@@ -230,6 +235,10 @@ def initialize(
                 "and an error occurred: {}".format(e)
             )
             raise
+
+        # On first ever run, attempt automatic provisioning
+        if not version:
+            provision_from_file(OPTIONS["Paths"]["AUTOMATIC_PROVISION_FILE"])
 
     import_tasks_module_from_django_apps()
 
