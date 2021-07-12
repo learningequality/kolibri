@@ -35,6 +35,7 @@ class KolibriTimedRotatingFileHandlerTestCase(TestCase):
     def test_getFilesToDelete(self):
         temp_dir = tempfile.mkdtemp()
         file_handle, log_file = tempfile.mkstemp(suffix=".txt", dir=temp_dir)
+        os.close(file_handle)
         handler = KolibriTimedRotatingFileHandler(log_file, backupCount=3, when="s")
         sleep(1)
         handler.doRollover()
@@ -45,6 +46,8 @@ class KolibriTimedRotatingFileHandlerTestCase(TestCase):
         sleep(1)
         handler.doRollover()
         self.assertEqual(len(handler.getFilesToDelete()), 1)
-        os.close(file_handle)
-        os.remove(log_file)
+        try:
+            os.remove(log_file)
+        except OSError:
+            pass
         shutil.rmtree(temp_dir, ignore_errors=True)
