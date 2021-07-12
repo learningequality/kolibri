@@ -9,6 +9,7 @@ from sqlite3 import DatabaseError as SQLite3DatabaseError
 
 import django
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.management.base import handle_default_options
 from django.db.utils import DatabaseError
@@ -160,6 +161,18 @@ def _upgrades_before_django_setup(updated, version):
         enable_new_default_plugins()
 
 
+def _upgrades_after_django_setup(updated, version):
+    # On first ever run, attempt automatic provisioning
+    if not version and OPTIONS["Paths"]["AUTOMATIC_PROVISION_FILE"]:
+        try:
+            provision_from_file(OPTIONS["Paths"]["AUTOMATIC_PROVISION_FILE"])
+        except ValidationError as e:
+            logging.error(
+                "Tried to automatically provision the device but received an error"
+            )
+            logging.error(e)
+
+
 def initialize(
     skip_update=False,
     settings=None,
@@ -236,9 +249,7 @@ def initialize(
             )
             raise
 
-        # On first ever run, attempt automatic provisioning
-        if not version:
-            provision_from_file(OPTIONS["Paths"]["AUTOMATIC_PROVISION_FILE"])
+        _upgrades_after_django_setup(updated, version)
 
     import_tasks_module_from_django_apps()
 

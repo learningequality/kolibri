@@ -125,8 +125,11 @@ def path(value):
 
     if not isinstance(value, string_types):
         raise VdtValueError(repr(value))
-    # ensure all path arguments, e.g. under section "Paths", are fully resolved and expanded, relative to KOLIBRI_HOME
-    return os.path.join(KOLIBRI_HOME, os.path.expanduser(value))
+    # Allow for blank paths
+    if value:
+        # ensure all path arguments, e.g. under section "Paths", are fully resolved and expanded, relative to KOLIBRI_HOME
+        return os.path.join(KOLIBRI_HOME, os.path.expanduser(value))
+    return value
 
 
 def path_list(value):
@@ -362,7 +365,7 @@ base_option_spec = {
         },
         "AUTOMATIC_PROVISION_FILE": {
             "type": "path",
-            "default": "automatic_provision.json",
+            "default": "",
             "description": "The file that contains the automatic device provisioning data.",
         },
     },

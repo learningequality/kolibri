@@ -237,53 +237,8 @@ def setup_device_and_facility(
                 )
 
 
-def provision_from_file(file_path):
-    """
-    Expects a JSON file with the following format (example values supplied):
-    {
-        "facility": "My Facility",
-        "preset": "formal",
-        "facility_settings": {
-            "learner_can_edit_username": true,
-            "learner_can_edit_name": true,
-            "learner_can_edit_password": true,
-            "learner_can_sign_up": true,
-            "learner_can_delete_account": true,
-            "learner_can_login_with_no_password": true,
-            "show_download_button_in_learn": true
-        },
-        "device_settings": {
-            "language_id": "en",
-            "landing_page": "homepage",
-            "allow_guest_access": true,
-            "allow_peer_unlisted_channel_import": true,
-            "allow_learner_unassigned_resource_access": true,
-            "name": "My Device",
-            "allow_other_browsers_to_connect": true
-        },
-        "username": "superuser",
-        "password": "password"
-    }
-    All fields are optional.
-    """
+def get_facility_by_name(facility_name):
     from kolibri.core.auth.models import Facility
-
-    if device_provisioned() or not os.path.exists(file_path):
-        return
-
-    try:
-        with open(file_path, "r") as f:
-            logger.info(
-                "Attempting to automatically provision device from data in {}".format(
-                    file_path
-                )
-            )
-            options = json.load(f)
-    except (IOError, ValueError) as e:
-        logging.error("Failed to load {}:\n{}".format(file_path, e))
-        return
-
-    facility_name = options.get("facility")
 
     facility = None
 
@@ -300,23 +255,77 @@ def provision_from_file(file_path):
     else:
         facility = Facility.get_default_facility() or Facility.objects.first()
 
+    return facility
+
+
+def provision_from_file(file_path):
+    """
+    Expects a JSON file with the following format (example values supplied):
+    {
+        "facility_name": "My Facility",
+        "preset": "formal",
+        "facility_settings": {
+            "learner_can_edit_username": true,
+            "learner_can_edit_name": true,
+            "learner_can_edit_password": true,
+            "learner_can_sign_up": true,
+            "learner_can_delete_account": true,
+            "learner_can_login_with_no_password": true,
+            "show_download_button_in_learn": true
+        },
+        "device_settings": {
+            "language_id": "en",
+            "landing_page": "learn",
+            "allow_guest_access": true,
+            "allow_peer_unlisted_channel_import": true,
+            "allow_learner_unassigned_resource_access": true,
+            "name": "My Device",
+            "allow_other_browsers_to_connect": true
+        },
+        "superuser": {
+            "username": "superuser",
+            "password": "password"
+        }
+    }
+    All fields are optional.
+    """
+    if device_provisioned():
+        raise ValidationError("Device is already provisioned")
+
+    if not os.path.exists(file_path):
+        raise ValidationError("File {} does not exist".format(file_path))
+
+    try:
+        with open(file_path, "r") as f:
+            options = json.load(f)
+    except IOError:
+        raise ValidationError("File {} could not be opened".format(file_path))
+    except ValueError:
+        raise ValidationError("File {} did not contain valid JSON".format(file_path))
+
+    facility_name = options.get("facility_name")
+
+    facility = get_facility_by_name(facility_name)
+
     try:
         device_settings = validate_device_settings(**options.get("device_settings", {}))
     except ValueError:
-        logging.error("Invalid device settings specified in {}.".format(file_path))
-        return
+        raise ValidationError(
+            "Invalid device settings specified in {}.".format(file_path)
+        )
 
     try:
         facility_settings = validate_facility_settings(
             options.get("facility_settings", {})
         )
     except ValueError:
-        logging.error("Invalid facility settings specified in {}.".format(file_path))
-        return
+        raise ValidationError(
+            "Invalid facility settings specified in {}.".format(file_path)
+        )
 
     preset = options.get("preset")
-    username = options.get("username")
-    password = options.get("password")
+    username = options.get("superuser", {}).get("username")
+    password = options.get("superuser", {}).get("password")
 
     setup_device_and_facility(
         facility,

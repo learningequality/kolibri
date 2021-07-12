@@ -9,7 +9,7 @@ from django.core.management.base import CommandError
 from django.utils import six
 
 from kolibri.core.auth.constants.facility_presets import presets
-from kolibri.core.auth.models import Facility
+from kolibri.core.device.utils import get_facility_by_name
 from kolibri.core.device.utils import setup_device_and_facility
 from kolibri.core.device.utils import validate_device_settings
 from kolibri.core.device.utils import validate_facility_settings
@@ -36,10 +36,9 @@ def json_file_contents(parser, arg):
         return parser.error("The file '{}' does not exist".format(arg))
     with open(arg, "r") as f:
         try:
-            output = json.load(f)
+            return json.load(f)
         except ValueError as e:  # Use ValueError rather than JSONDecodeError for Py2 compatibility
             return parser.error("The file '{}' is not valid JSON:\n{}".format(arg, e))
-    return output
 
 
 def get_all_user_input(facility_name, preset, language_id, username, password):
@@ -95,22 +94,10 @@ def validate_options(options):
             facility_name, preset, language_id, username, password
         )
 
-    facility = None
+    facility = get_facility_by_name(facility_name)
 
-    if facility_name:
-        facility_query = Facility.objects.filter(name__iexact=facility_name)
-
-        if facility_query.exists():
-            facility = facility_query.get()
-            logger.warn(
-                "Facility with name '{name}' already exists, not modifying preset.".format(
-                    name=facility.name
-                )
-            )
-    else:
-        facility = Facility.get_default_facility() or Facility.objects.first()
-        if not facility:
-            raise CommandError("No facility exists")
+    if not facility and not facility_name:
+        raise CommandError("No facility exists")
 
     try:
         device_settings = validate_device_settings(
