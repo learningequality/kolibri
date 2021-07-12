@@ -14,6 +14,8 @@ window.H5P = {
   // H5P complains if this is undefined, but because of our monkey patching
   // this is never used.
   OfflineRequestQueue: function() {},
+  externalEmbed: true,
+  preventInit: true,
 };
 
 window.$ = window.jQuery = jQuery;
