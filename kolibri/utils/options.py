@@ -469,6 +469,14 @@ base_option_spec = {
                 In case a SoUD connects to this server, the SoUD should use this interval to resync every user.
             """,
         },
+        "PROJECT": {
+            "type": "string",
+            "skip_blank": True,
+            "description": """
+                The custom identifier for a project. This is used to identify the project in the telemetry
+                data that is returned to our telemetry server.
+            """,
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
