@@ -45,8 +45,8 @@ const doNotLogVerbs = [
   'accessed-copyright',
 ];
 const doNotLogVerbMap = {};
-for (let i = 0; i < doNotLogVerbs.length; i++) {
-  doNotLogVerbMap[XAPIVerbMap[doNotLogVerbs[i]]] = true;
+for (let doNotLogVerb of doNotLogVerbs) {
+  doNotLogVerbMap[XAPIVerbMap[doNotLogVerb]] = true;
 }
 // These verbs are reported too much by H5P leading to spammy responses,
 // so we debounce logging of these responses.
@@ -338,8 +338,8 @@ export default class H5PRunner {
       }
     };
     const debouncedHandlers = {};
-    for (let i = 0; i < debounceVerbs.length; i++) {
-      const verb = XAPIVerbMap[debounceVerbs[i]];
+    for (let debouncedVerb of debounceVerbs) {
+      const verb = XAPIVerbMap[debouncedVerb];
       debouncedHandlers[verb] = debounce(
         function(statement) {
           contentWindow.xAPI.sendStatement(statement, true).catch(err => {
@@ -465,8 +465,7 @@ export default class H5PRunner {
   setDependencies() {
     const dependencySorter = new Toposort();
 
-    for (let i = 0; i < this.dependencies.length; i++) {
-      const dependency = this.dependencies[i];
+    for (let dependency of this.dependencies) {
       this.packageFiles[dependency.packagePath] = {};
       dependencySorter.add(dependency.packagePath, dependency.dependencies);
 
@@ -491,7 +490,7 @@ export default class H5PRunner {
         return;
       }
       const json = JSON.parse(strFromU8(file.obj));
-      const dependencies = json['preloadedDependencies'] || [];
+      const preloadedDependencies = json['preloadedDependencies'] || [];
       // Make a copy so that we are not modifying the same object
       visitedPaths = {
         ...visitedPaths,
@@ -501,29 +500,29 @@ export default class H5PRunner {
         this.rootConfig = json;
       }
       return Promise.all(
-        dependencies.map(dep => {
-          const packagePath = `${dep.machineName}-${dep.majorVersion}.${dep.minorVersion}/`;
+        preloadedDependencies.map(dep => {
+          const depPackagePath = `${dep.machineName}-${dep.majorVersion}.${dep.minorVersion}/`;
           // If root, then this is the root config, and so this descriptor is the main library
           // descriptor for this H5P file.
           if (root && !this.library && dep.machineName === json.mainLibrary) {
             this.library = `${dep.machineName} ${dep.majorVersion}.${dep.minorVersion}`;
           }
-          if (visitedPaths[packagePath]) {
+          if (visitedPaths[depPackagePath]) {
             // If we have visited this dependency before
             // then we are in a cyclic dependency graph
             // so stop!
-            return Promise.resolve(packagePath);
+            return Promise.resolve(depPackagePath);
           }
           // Add this to our visited paths so that future recursive calls know a cyclic
           // dependency when they see one!
-          visitedPaths[packagePath] = true;
+          visitedPaths[depPackagePath] = true;
           // Now recurse the dependencies of each of the dependencies!
           return this.recurseDependencies(
-            packagePath + 'library.json',
+            depPackagePath + 'library.json',
             false,
             visitedPaths,
-            packagePath
-          ).then(() => packagePath);
+            depPackagePath
+          ).then(() => depPackagePath);
         })
       ).then(dependencies => {
         if (packagePath) {
