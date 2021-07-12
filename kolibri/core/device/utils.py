@@ -302,7 +302,7 @@ def provision_from_file(file_path):
 
     try:
         device_settings = validate_device_settings(**options.get("device_settings", {}))
-    except ValueError as e:
+    except ValueError:
         logging.error("Invalid device settings specified in {}.".format(file_path))
         return
 
@@ -310,7 +310,7 @@ def provision_from_file(file_path):
         facility_settings = validate_facility_settings(
             options.get("facility_settings", {})
         )
-    except ValueError as e:
+    except ValueError:
         logging.error("Invalid facility settings specified in {}.".format(file_path))
         return
 
