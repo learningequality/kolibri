@@ -82,7 +82,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                 validated_data["superuser"]["username"],
                 validated_data["superuser"]["password"],
                 facility=facility,
-                full_name=validated_data["superuser"]["full_name"],
+                full_name=validated_data["superuser"].get("full_name"),
             )
 
             # Create device settings

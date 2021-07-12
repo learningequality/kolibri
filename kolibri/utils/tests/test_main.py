@@ -83,9 +83,12 @@ def test_update_no_version_change(dbbackup, update, get_version):
     dbbackup.assert_not_called()
 
 
+@patch("kolibri.utils.main.provision_from_file")
 @patch("kolibri.utils.main._migrate_databases")
 @patch("kolibri.utils.main.version_updated")
-def test_migrate_if_unmigrated(version_updated, _migrate_databases):
+def test_migrate_if_unmigrated(
+    version_updated, _migrate_databases, provision_from_file
+):
     # No matter what, ensure that version_updated returns False
     version_updated.return_value = False
     from morango.models import InstanceIDModel
