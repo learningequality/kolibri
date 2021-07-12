@@ -31,7 +31,6 @@
     </div>
     <div class="iframe-container" :style="containerStyle">
       <iframe
-        v-show="!loading"
         ref="iframe"
         class="iframe"
         sandbox="allow-scripts allow-same-origin"
@@ -43,6 +42,7 @@
       <KCircularLoader
         v-if="loading"
         :delay="false"
+        class="loader"
       />
     </div>
   </CoreFullscreen>
@@ -217,6 +217,12 @@
 
     width: 100%;
     overflow: visible;
+  }
+
+  .loader {
+    position: absolute;
+    top: calc(50% - 16px);
+    left: calc(50% - 16px);
   }
 
 </style>

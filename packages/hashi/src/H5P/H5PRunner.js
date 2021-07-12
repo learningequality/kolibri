@@ -232,11 +232,6 @@ export default class H5PRunner {
       return this.scriptLoader(this.javascriptURL).then(() => {
         this.iframe.contentWindow.H5P.init();
         this.loaded();
-        setTimeout(() => {
-          for (let instance of this.iframe.contentWindow.H5P.instances) {
-            this.iframe.contentWindow.H5P.trigger(instance, 'resize');
-          }
-        }, 0);
       });
     });
   }
