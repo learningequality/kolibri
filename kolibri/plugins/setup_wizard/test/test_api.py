@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase
 
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import create_dummy_facility_data
 from kolibri.core.auth.test.helpers import provision_device
@@ -85,3 +86,37 @@ class GrantSuperuserPermissionsTest(APITestCase):
             {"user_id": self.admin.id, "password": "password"}
         )
         self.assertEqual(response.status_code, 200)
+
+
+class CreateSuperuserTest(APITestCase):
+    def setUp(self):
+        clear_process_cache()
+
+        facility_data = create_dummy_facility_data(classroom_count=1)
+        self.admin = facility_data["facility_admin"]
+        self.admin.set_password("password")
+        self.admin.save()
+        self.coach = facility_data["classroom_coaches"][0]
+        self.coach.set_password("password")
+        self.coach.save()
+
+    def _make_request(self, data):
+        return self.client.post(
+            reverse(
+                "kolibri:kolibri.plugins.setup_wizard:facilityimport-createsuperuser"
+            ),
+            data,
+            format="json",
+        )
+
+    def test_successfully_adds_device_permissions(self):
+        response = self._make_request(
+            {
+                "username": "new_superuser",
+                "password": "password",
+                "full_name": "Super User",
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        superuser = FacilityUser.objects.get(username="new_superuser")
+        self.assertTrue(superuser.is_superuser)
