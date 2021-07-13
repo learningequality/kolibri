@@ -1,4 +1,3 @@
-import datetime
 import json
 import uuid
 
@@ -16,11 +15,15 @@ from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import AttemptLog
+from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.test.factory_logger import ContentSessionLogFactory
 from kolibri.core.logger.test.factory_logger import ContentSummaryLogFactory
 from kolibri.core.logger.test.factory_logger import FacilityUserFactory
+from kolibri.core.notifications.api import batch_process_attemptlogs
+from kolibri.core.notifications.api import batch_process_examlogs
+from kolibri.core.notifications.api import batch_process_summarylogs
 from kolibri.core.notifications.api import create_examlog
 from kolibri.core.notifications.api import create_notification
 from kolibri.core.notifications.api import create_summarylog
@@ -49,13 +52,6 @@ class NotificationsAPITestCase(APITestCase):
         self.classroom = ClassroomFactory.create(parent=self.facility)
         self.classroom.add_member(self.user1)
 
-        self.payload = {
-            "user": self.user1.pk,
-            "content_id": uuid.uuid4().hex,
-            "channel_id": uuid.uuid4().hex,
-            "kind": "exercise",
-            "start_timestamp": str(datetime.datetime.now()),
-        }
         self.channel_id = "15f32edcec565396a1840c5413c92450"
         self.lesson_id = "15f32edcec565396a1840c5413c92452"
         self.content_ids = [
@@ -592,4 +588,282 @@ class NotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             timestamp=attemptlog3.start_timestamp,
+        )
+
+
+class BulkNotificationsAPITestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.user2 = FacilityUserFactory.create(facility=cls.facility)
+        # create classroom, learner group, add user1
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+        cls.classroom.add_member(cls.user1)
+
+        cls.channel_id = "15f32edcec565396a1840c5413c92450"
+        cls.lesson_id = "15f32edcec565396a1840c5413c92452"
+        cls.content_ids = [
+            "15f32edcec565396a1840c5413c92451",
+            "15f32edcec565396a1840c5413c92452",
+            "15f32edcec565396a1840c5413c92453",
+        ]
+        cls.contentnode_ids = [
+            "25f32edcec565396a1840c5413c92451",
+            "25f32edcec565396a1840c5413c92452",
+            "25f32edcec565396a1840c5413c92453",
+        ]
+        cls.node_1 = ContentNode.objects.create(
+            title="Node 1",
+            available=True,
+            id=cls.contentnode_ids[0],
+            content_id=cls.content_ids[0],
+            channel_id=cls.channel_id,
+            kind=content_kinds.EXERCISE,
+        )
+        cls.node_2 = ContentNode.objects.create(
+            title="Node 2",
+            available=True,
+            id=cls.contentnode_ids[1],
+            content_id=cls.content_ids[1],
+            channel_id=cls.channel_id,
+            kind=content_kinds.EXERCISE,
+        )
+        cls.lesson = Lesson.objects.create(
+            id=cls.lesson_id,
+            title="My Lesson",
+            is_active=True,
+            created_by=cls.superuser,
+            collection=cls.classroom,
+            resources=json.dumps(
+                [
+                    {
+                        "contentnode_id": cls.node_1.id,
+                        "content_id": cls.node_1.content_id,
+                        "channel_id": cls.channel_id,
+                    },
+                    {
+                        "contentnode_id": cls.node_2.id,
+                        "content_id": cls.node_2.content_id,
+                        "channel_id": cls.channel_id,
+                    },
+                ]
+            ),
+        )
+
+        cls.lesson_assignment = LessonAssignment.objects.create(
+            lesson=cls.lesson, assigned_by=cls.superuser, collection=cls.classroom
+        )
+
+        cls.exam1 = Exam.objects.create(
+            title="title1",
+            question_count=1,
+            active=True,
+            collection=cls.classroom,
+            creator=cls.superuser,
+        )
+        cls.exam1_assignment = ExamAssignment.objects.create(
+            exam=cls.exam1, collection=cls.classroom, assigned_by=cls.superuser
+        )
+        cls.examlog1 = ExamLog.objects.create(
+            exam=cls.exam1,
+            user=cls.user1,
+            closed=True,
+            completion_timestamp=local_now(),
+        )
+        cls.examattemptlog1 = ExamAttemptLog.objects.create(
+            examlog=cls.examlog1,
+            user=cls.user1,
+            start_timestamp=local_now(),
+            end_timestamp=local_now(),
+            complete=False,
+            correct=0.0,
+            content_id=uuid.uuid4(),
+        )
+
+        cls.exam2 = Exam.objects.create(
+            title="title2",
+            question_count=1,
+            active=True,
+            collection=cls.classroom,
+            creator=cls.superuser,
+        )
+        cls.exam2_assignment = ExamAssignment.objects.create(
+            exam=cls.exam2, collection=cls.classroom, assigned_by=cls.superuser
+        )
+        cls.examlog2 = ExamLog.objects.create(
+            exam=cls.exam2,
+            user=cls.user1,
+            closed=False,
+        )
+
+        cls.summarylog1 = ContentSummaryLogFactory.create(
+            user=cls.user1,
+            content_id=cls.node_1.content_id,
+            channel_id=cls.channel_id,
+        )
+
+        cls.summarylog2 = ContentSummaryLogFactory.create(
+            user=cls.user1,
+            content_id=cls.node_2.content_id,
+            channel_id=cls.channel_id,
+            kind=content_kinds.EXERCISE,
+        )
+
+        cls.sessionlog = ContentSessionLogFactory(
+            user=cls.user1,
+            content_id=cls.summarylog1.content_id,
+            channel_id=cls.summarylog1.channel_id,
+        )
+
+        cls.mlog = masterylog = MasteryLog.objects.create(
+            summarylog=cls.summarylog1,
+            user=cls.user1,
+            start_timestamp=local_now(),
+            mastery_level=1,
+            complete=True,
+        )
+        interactions = [{"type": "answer", "correct": 0}]
+        cls.attemptlog1 = AttemptLog.objects.create(
+            masterylog=masterylog,
+            sessionlog=cls.sessionlog,
+            user=cls.user1,
+            start_timestamp=local_now(),
+            end_timestamp=local_now(),
+            time_spent=1.0,
+            complete=True,
+            correct=0,
+            hinted=False,
+            error=False,
+            interaction_history=interactions,
+        )
+
+        cls.attemptlog2 = AttemptLog.objects.create(
+            masterylog=masterylog,
+            sessionlog=cls.sessionlog,
+            user=cls.user1,
+            start_timestamp=local_now(),
+            end_timestamp=local_now(),
+            time_spent=1.0,
+            complete=True,
+            correct=0,
+            hinted=False,
+            error=False,
+            interaction_history=interactions,
+        )
+
+    def test_batch_summarylog_notifications(self):
+        LearnerProgressNotification.objects.all().delete()
+        batch_process_summarylogs([self.summarylog1.id, self.summarylog2.id])
+        self.assertEqual(
+            LearnerProgressNotification.objects.filter(
+                contentnode_id=self.node_1.id,
+                notification_object=NotificationObjectType.Resource,
+                notification_event=NotificationEventType.Started,
+            ).count(),
+            1,
+        )
+        self.assertEqual(
+            LearnerProgressNotification.objects.filter(
+                contentnode_id=self.node_2.id,
+                notification_object=NotificationObjectType.Resource,
+                notification_event=NotificationEventType.Started,
+            ).count(),
+            1,
+        )
+        self.assertEqual(
+            LearnerProgressNotification.objects.filter(
+                lesson_id=self.lesson.id,
+                notification_object=NotificationObjectType.Lesson,
+                notification_event=NotificationEventType.Started,
+            ).count(),
+            1,
+        )
+
+    def test_batch_examlog_notifications(self):
+        LearnerProgressNotification.objects.all().delete()
+        batch_process_examlogs(
+            [self.examlog1.id, self.examlog2.id], [self.examattemptlog1.id]
+        )
+        self.assertEqual(
+            LearnerProgressNotification.objects.filter(
+                quiz_id=self.exam1.id, notification_event=NotificationEventType.Started
+            ).count(),
+            1,
+        )
+        self.assertEqual(
+            LearnerProgressNotification.objects.filter(
+                quiz_id=self.exam1.id, notification_event=NotificationEventType.Answered
+            ).count(),
+            1,
+        )
+        self.assertEqual(
+            LearnerProgressNotification.objects.filter(
+                quiz_id=self.exam1.id,
+                notification_event=NotificationEventType.Completed,
+            ).count(),
+            1,
+        )
+        self.assertEqual(
+            LearnerProgressNotification.objects.filter(quiz_id=self.exam2.id).count(), 0
+        )
+
+    def test_batch_attemptlog_notifications(self):
+        LearnerProgressNotification.objects.all().delete()
+        batch_process_attemptlogs([self.attemptlog1.id, self.attemptlog2.id])
+        self.assertEqual(
+            LearnerProgressNotification.objects.filter(
+                contentnode_id=self.node_1.id,
+                notification_object=NotificationObjectType.Resource,
+                notification_event=NotificationEventType.Answered,
+            ).count(),
+            2,
+        )
+        self.assertEqual(
+            LearnerProgressNotification.objects.filter(
+                contentnode_id=self.node_1.id,
+                notification_object=NotificationObjectType.Resource,
+                notification_event=NotificationEventType.Help,
+            ).count(),
+            0,
+        )
+
+    def test_batch_attemptlog_needs_help(self):
+        LearnerProgressNotification.objects.all().delete()
+        # more than 3 attempts will trigger the help notification
+        interactions = [{"type": "answer", "correct": 0}] * 3
+        attemptlog3 = AttemptLog.objects.create(
+            masterylog=self.mlog,
+            sessionlog=self.sessionlog,
+            user=self.user1,
+            start_timestamp=local_now(),
+            end_timestamp=local_now(),
+            time_spent=1.0,
+            complete=True,
+            correct=0,
+            hinted=False,
+            error=False,
+            interaction_history=interactions,
+        )
+        batch_process_attemptlogs(
+            [self.attemptlog1.id, self.attemptlog2.id, attemptlog3.id]
+        )
+        self.assertEqual(
+            LearnerProgressNotification.objects.filter(
+                contentnode_id=self.node_1.id,
+                notification_object=NotificationObjectType.Resource,
+                notification_event=NotificationEventType.Answered,
+            ).count(),
+            3,
+        )
+        self.assertEqual(
+            LearnerProgressNotification.objects.filter(
+                contentnode_id=self.node_1.id,
+                notification_object=NotificationObjectType.Resource,
+                notification_event=NotificationEventType.Help,
+            ).count(),
+            1,
         )

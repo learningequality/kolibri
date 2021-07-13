@@ -16,6 +16,8 @@ from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import ExamAttemptLog
+from kolibri.core.logger.models import ExamLog
 from kolibri.core.query import annotate_array_aggregate
 
 
@@ -186,7 +188,7 @@ def check_and_created_answered_lesson(lesson, user_id, contentnode_id, timestamp
         classroom_id=lesson["classroom_id"],
         timestamp=timestamp,
     ).exists():
-        # Let's create an Lesson Completion notification
+        # Let's create an Lesson Answered notification
         notification = create_notification(
             NotificationObjectType.Resource,
             NotificationEventType.Answered,
@@ -483,3 +485,26 @@ def parse_attemptslog(attemptlog):
 
     if notifications:
         save_notifications(notifications)
+
+
+def batch_process_attemptlogs(attemptlog_ids):
+    for attemptlog in AttemptLog.objects.filter(id__in=attemptlog_ids):
+        parse_attemptslog(attemptlog)
+
+
+def batch_process_examlogs(examlog_ids, examattemptlog_ids):
+    for examlog in ExamLog.objects.filter(id__in=examlog_ids):
+        parse_examlog(examlog, examlog.completion_timestamp)
+    for examattemptlog in (
+        ExamAttemptLog.objects.filter(id__in=examattemptlog_ids)
+        .select_related("examlog")
+        .order_by("start_timestamp")
+    ):
+        create_examlog(examattemptlog.examlog, examattemptlog.start_timestamp)
+        create_examattemptslog(examattemptlog.examlog, examattemptlog.start_timestamp)
+
+
+def batch_process_summarylogs(summarylog_ids):
+    for summarylog in ContentSummaryLog.objects.filter(id__in=summarylog_ids):
+        create_summarylog(summarylog)
+        parse_summarylog(summarylog)
