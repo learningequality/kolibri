@@ -126,7 +126,7 @@ export default class H5PRunner {
     this.scriptLoader = this.scriptLoader.bind(this);
   }
 
-  init(iframe, filepath, loaded) {
+  init(iframe, filepath, loaded, errored) {
     // An array of the H5P package dependencies for this library
     // This is not a sorted list, but the result of recursing through
     this.dependencies = [];
@@ -175,6 +175,8 @@ export default class H5PRunner {
     ).href;
     // Callback to call when H5P has finished loading
     this.loaded = loaded;
+    // Callback to call when H5P errors
+    this.errored = errored;
     // Set this to a dummy value - we use this for generating the H5P ids,
     // and for logging xAPI statements about the content.
     this.contentNamespace = CONTENT_ID;
@@ -230,8 +232,19 @@ export default class H5PRunner {
     this.shimH5P(this.iframe.contentWindow);
     return this.scriptLoader(this.cssURL, true).then(() => {
       return this.scriptLoader(this.javascriptURL).then(() => {
-        this.iframe.contentWindow.H5P.init();
-        this.loaded();
+        try {
+          // Start H5P
+          // In spite of our best effors, we can't guarantee that the H5P
+          // library will run properly - at least one of the libraries
+          // e.g. Find The Words, is not compatible with IE11, and so causes
+          // errors when attempting to render.
+          // We catch the error and report it to the user to avoid confusion and
+          // allow the to report to us.
+          this.iframe.contentWindow.H5P.init();
+          this.loaded();
+        } catch (e) {
+          this.errored(e);
+        }
       });
     });
   }

@@ -147,11 +147,12 @@
       this.hashi.on(this.hashi.events.RESIZE, scrollHeight => {
         this.iframeHeight = scrollHeight;
       });
-      this.hashi.on(this.hashi.events.LOADING, () => {
-        this.loading = true;
+      this.hashi.on(this.hashi.events.LOADING, loading => {
+        this.loading = loading;
       });
-      this.hashi.on(this.hashi.events.LOADED, () => {
+      this.hashi.on(this.hashi.events.ERROR, err => {
         this.loading = false;
+        this.$emit('error', err);
       });
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},

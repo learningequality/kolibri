@@ -17,7 +17,7 @@ export const events = {
   NOW: 'now',
   RESIZE: 'resize',
   LOADING: 'loading',
-  LOADED: 'loaded',
+  ERROR: 'error',
 };
 
 export const DataTypes = {

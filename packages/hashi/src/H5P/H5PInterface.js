@@ -11,6 +11,7 @@ export default class H5P extends BaseShim {
     this.__setData = this.__setData.bind(this);
     this.__setUserData = this.__setUserData.bind(this);
     this.loaded = this.loaded.bind(this);
+    this.errored = this.errored.bind(this);
     this.on(this.events.STATEUPDATE, this.__setData);
     this.on(this.events.USERDATAUPDATE, this.__setUserData);
   }
@@ -18,7 +19,7 @@ export default class H5P extends BaseShim {
   init(iframe, filepath) {
     import(/* webpackChunkName: "H5PRunner" */ './H5PRunner').then(({ default: H5PRunner }) => {
       this.H5PRunner = new H5PRunner(this);
-      this.H5PRunner.init(iframe, filepath, this.loaded);
+      this.H5PRunner.init(iframe, filepath, this.loaded, this.errored);
     });
   }
 
@@ -40,6 +41,10 @@ export default class H5P extends BaseShim {
   }
 
   loaded() {
-    this.__mediator.sendMessage({ nameSpace, event: events.LOADED });
+    this.__mediator.sendMessage({ nameSpace, event: events.LOADING, data: false });
+  }
+
+  errored(err) {
+    this.__mediator.sendMessage({ nameSpace, event: events.ERROR, data: err });
   }
 }
