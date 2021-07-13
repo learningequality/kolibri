@@ -2,39 +2,28 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import json
 import logging
 import mimetypes
 import os
 import re
 import time
 import zipfile
-from collections import OrderedDict
 
 import html5lib
 from cheroot import wsgi
-from django.conf import settings
 from django.core.cache import cache
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
 from django.http import HttpResponseNotAllowed
 from django.http import HttpResponseNotFound
 from django.http import HttpResponseNotModified
-from django.http import HttpResponsePermanentRedirect
 from django.http.response import FileResponse
 from django.http.response import StreamingHttpResponse
-from django.template import Context
-from django.template.engine import Engine
 from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
 from django.utils.http import http_date
 
-from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.utils.paths import get_content_storage_file_path
-from kolibri.core.content.utils.paths import get_hashi_base_path
-from kolibri.core.content.utils.paths import get_hashi_html_filename
-from kolibri.core.content.utils.paths import get_hashi_js_filename
-from kolibri.core.content.utils.paths import get_hashi_path
 from kolibri.core.content.utils.paths import get_zip_content_base_path
 
 
@@ -69,104 +58,11 @@ def django_response_to_wsgi(response, environ, start_response):
     return response
 
 
-template_engine = Engine(
-    dirs=[os.path.join(os.path.dirname(__file__), "./templates/content")],
-    libraries={"zipcontent": "kolibri.core.content.templatetags.zip_content_tags"},
-)
-h5p_template = template_engine.get_template("h5p.html")
-hashi_template = template_engine.get_template("hashi.html")
-
 allowed_methods = set(["GET", "OPTIONS"])
 
-
-def _hashi_response_from_request(request):
-    if request.method not in allowed_methods:
-        return HttpResponseNotAllowed(allowed_methods)
-
-    filename = request.path_info.lstrip("/")
-
-    if filename.split(".")[-1] != "html":
-        return HttpResponseNotFound()
-
-    if filename != get_hashi_html_filename():
-        return HttpResponsePermanentRedirect(get_hashi_path())
-
-    if request.method == "OPTIONS":
-        return HttpResponse()
-
-    developer_mode = getattr(settings, "DEVELOPER_MODE", False)
-
-    # if client has a cached version, use that we can safely assume nothing has changed
-    # as we provide a unique path per compiled hashi JS file.
-    if request.META.get("HTTP_IF_MODIFIED_SINCE") and not developer_mode:
-        return HttpResponseNotModified()
-    CACHE_KEY = "HASHI_VIEW_RESPONSE_{}".format(get_hashi_html_filename())
-    cached_response = cache.get(CACHE_KEY)
-    if cached_response is not None and not developer_mode:
-        return cached_response
-
-    content = hashi_template.render(
-        Context(
-            {
-                "hashi_file_path": "content/{filename}".format(
-                    filename=get_hashi_js_filename()
-                )
-            }
-        )
-    )
-
-    response = HttpResponse(content, content_type="text/html")
-    response["Content-Length"] = len(response.content)
-    response["Last-Modified"] = http_date(time.time())
-    patch_response_headers(response, cache_timeout=YEAR_IN_SECONDS)
-    cache.set(CACHE_KEY, response, YEAR_IN_SECONDS)
-    return response
-
-
-def get_hashi_view_response(environ):
-    request = WSGIRequest(environ)
-    response = _hashi_response_from_request(request)
-    add_security_headers(request, response)
-    return response
-
-
-def hashi_view(environ, start_response):
-    response = get_hashi_view_response(environ)
-    return django_response_to_wsgi(response, environ, start_response)
-
-
-def load_json_from_zipfile(zf, filepath):
-    with zf.open(filepath, "r") as f:
-        return json.load(f)
-
-
-def recursive_h5p_dependencies(zf, data, prefix=""):
-
-    jsfiles = OrderedDict()
-    cssfiles = OrderedDict()
-
-    # load the dependencies, recursively, to extract their JS and CSS paths to include
-    for dep in data.get("preloadedDependencies", []):
-        packagepath = "{machineName}-{majorVersion}.{minorVersion}/".format(**dep)
-        librarypath = packagepath + "library.json"
-        content = load_json_from_zipfile(zf, librarypath)
-        newjs, newcss = recursive_h5p_dependencies(zf, content, packagepath)
-        cssfiles.update(newcss)
-        jsfiles.update(newjs)
-
-    # load the JS required for the current package
-    for js in data.get("preloadedJs", []):
-        path = prefix + js["path"]
-        jsfiles[path] = True
-
-    # load the CSS required for the current package
-    for css in data.get("preloadedCss", []):
-        path = prefix + css["path"]
-        cssfiles[path] = True
-
-    return jsfiles, cssfiles
-
-
+# This is also included in packages/hashi/src/h5p.html
+# ideally, we should never ever update this code
+# but if we do we should update it there.
 INITIALIZE_HASHI_FROM_IFRAME = "if (window.parent && window.parent.hashi) {try {window.parent.hashi.initializeIframe(window);} catch (e) {}}"
 
 
@@ -229,56 +125,8 @@ def parse_html(content):
         return content
 
 
-def get_h5p(zf):
-    file_size = 0
-    # Get the h5p bootloader, and then run it through our hashi templating code.
-    # return the H5P bootloader code
-    try:
-        h5pdata = load_json_from_zipfile(zf, "h5p.json")
-        contentdata = load_json_from_zipfile(zf, "content/content.json")
-    except KeyError:
-        return HttpResponseNotFound("No valid h5p file was found at this location")
-    jsfiles, cssfiles = recursive_h5p_dependencies(zf, h5pdata)
-    jsfiles = jsfiles.keys()
-    cssfiles = cssfiles.keys()
-    path_includes_version = (
-        "true" if "-" in [name for name in zf.namelist() if "/" in name][0] else "false"
-    )
-    main_library_data = [
-        lib
-        for lib in h5pdata["preloadedDependencies"]
-        if lib["machineName"] == h5pdata["mainLibrary"]
-    ][0]
-    bootstrap_content = h5p_template.render(
-        Context(
-            {
-                "jsfiles": jsfiles,
-                "cssfiles": cssfiles,
-                "content": json.dumps(
-                    json.dumps(contentdata, separators=(",", ":"), ensure_ascii=False)
-                ),
-                "library": "{machineName} {majorVersion}.{minorVersion}".format(
-                    **main_library_data
-                ),
-                "path_includes_version": path_includes_version,
-            }
-        ),
-    )
-    content = parse_html(bootstrap_content)
-    content_type = "text/html"
-    response = HttpResponse(content, content_type=content_type)
-    file_size = len(response.content)
-    if file_size:
-        response["Content-Length"] = file_size
-    return response
-
-
 def get_embedded_file(zipped_path, zipped_filename, embedded_filepath):
     with zipfile.ZipFile(zipped_path) as zf:
-
-        # handle H5P files
-        if zipped_path.endswith("h5p") and not embedded_filepath:
-            return get_h5p(zf)
         # if no path, or a directory, is being referenced, look for an index.html file
         if not embedded_filepath or embedded_filepath.endswith("/"):
             embedded_filepath += "index.html"
@@ -300,9 +148,7 @@ def get_embedded_file(zipped_path, zipped_filename, embedded_filepath):
         content_type = (
             mimetypes.guess_type(embedded_filepath)[0] or "application/octet-stream"
         )
-        if zipped_filename.endswith("zip") and (
-            embedded_filepath.endswith("htm") or embedded_filepath.endswith("html")
-        ):
+        if embedded_filepath.endswith("htm") or embedded_filepath.endswith("html"):
             content = zf.open(info).read()
             html = parse_html(content)
             response = HttpResponse(html, content_type=content_type)
@@ -320,16 +166,6 @@ def get_embedded_file(zipped_path, zipped_filename, embedded_filepath):
 
 path_regex = re.compile("/(?P<zipped_filename>[^/]+)/(?P<embedded_filepath>.*)")
 
-
-def get_zipped_file_path(zipped_filename):
-    # calculate the local file path to the zip file
-    zipped_path = get_content_storage_file_path(zipped_filename)
-    # if the zipfile does not exist on disk, return a 404
-    if not os.path.exists(zipped_path):
-        raise InvalidStorageFilenameError()
-    return zipped_path
-
-
 YEAR_IN_SECONDS = 60 * 60 * 24 * 365
 
 
@@ -346,9 +182,10 @@ def _zip_content_from_request(request):
 
     zipped_filename, embedded_filepath = match.groups()
 
-    try:
-        zipped_path = get_zipped_file_path(zipped_filename)
-    except InvalidStorageFilenameError:
+    # calculate the local file path to the zip file
+    zipped_path = get_content_storage_file_path(zipped_filename)
+    # if the zipfile does not exist on disk, return a 404
+    if not os.path.exists(zipped_path):
         return HttpResponseNotFound(
             '"%(filename)s" is not a valid zip file' % {"filename": zipped_filename}
         )
@@ -415,7 +252,6 @@ def zip_content_view(environ, start_response):
 
 def get_application():
     path_map = {
-        get_hashi_base_path(): hashi_view,
         get_zip_content_base_path(): zip_content_view,
     }
 

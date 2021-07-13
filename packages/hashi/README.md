@@ -23,7 +23,6 @@ Step 2: Build Kolibri and hashi
 
 `yarn run build`
 
-
 Custom Navigation: Kolibri Namespace Data Flow
 -----------------------------------------------
 
@@ -167,3 +166,10 @@ function createReturnMsg({ message, data, err }) {
 ```
 
 Finally, the same process of postMessages then happens in reverse, with `CustomContentRenderer.vue` sending a message to `mainClient.js`, which in turn sends a message to `mediator.js` which then resolves or rejects the promise that has been pending with `kolibri.getContentById()`.
+
+H5P Static Files
+----------------
+
+This code is currently generated from https://github.com/h5p/h5p-php-library
+
+To update, update the `h5pVersion` variable in `downloadH5PVendor.js` to the desired tag and then run `yarn run build-h5p`.

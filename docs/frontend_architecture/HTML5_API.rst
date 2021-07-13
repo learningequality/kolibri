@@ -1,5 +1,31 @@
+HTML5 API
+=========
+
+In order to effectively and safely host embedded HTML5 apps as a first class content type in Kolibri, we use the standard IFrame Sandbox functionality and serve HTML5 apps from a separate origin. This allows for HTML5 apps to run arbitrary Javascript, without concerns about accessing privileged user data, as the separate origin will prevent leakage of the session authentication into the sandboxed context.
+
+
+Standard Web APIs
+-----------------
+
+This shared origin does mean that every HTML5 app running in Kolibri is sharing the same origin - for standard Web APIs like cookies, local storage, and IndexedDB, this poses an issue, as it is possible that multiple HTML5 apps might overwrite each other's data.
+
+To handle this eventuality, and to provide an enhanced user experience across multiple devices we shim these APIs in the context of the sandbox. Cookies and LocalStorage are persisted across the IFrame boundary, meaning that if a user interacts with an HTML5 app and it sets data to cookies and local storage, then if the user subsequently returns to the same HTML5 app, the cookies and local storage values from the previous session will be restored and available.
+
+IndexedDB is also shimmed, but due to the very large amount of data that can be stored in IndexedDB, and the fact that it is often used for the local caching of file based assets (by the Unity framework, for example) this data is transmitted out of the IFrame sandbox. Instead the databases for IndexedDB are namespaced, in order to prevent clashes between IndexedDB storage from multiple HTML5 apps - however, this does mean that any data persisted to IndexedDB will only be preserved within the same browser only.
+
+SCORM
+-----
+
+A large number of educational web content relies on the SCORM API to log data about learner interactions. In order to support this, Kolibri embeds a `SCORM` namespace on `window.parent` within the HTML5 app context. This is the standard place for SCORM API to be located, so any existing content that is SCORM compatible can be used without modification in this context. Currently, only SCORM 1.2 is supported by this interface, and there are no plans as yet to support the sequencing standard introduced by SCORM 2004. `More information about SCORM 1.2 and the API it exposes is available at the SCORM website <https://scorm.com/scorm-explained/technical-scorm/run-time/run-time-reference/#section-2>`__.
+
+xAPI
+----
+
+A more general purpose, but not as widely used, standard for logging interactions about learning content is xAPI. In order to provide preliminary support for this standard, Kolibri exposes a `window.xAPI` object in the HTML5 app context. This API offers a set of methods that allow for using xAPI equivalent actions via a Promise based API. The methods available are loosely based on the `XAPIWrapper Javascript library API <https://github.com/adlnet/xAPIWrapper>`__, but limits its support to sending and querying statements, state, activity profiles, and agents. At the moment, the primary use case for this API is internal, it is used to log data from H5P content interactions.
+
+
 Custom Navigation
-=================
+-----------------
 
 The purpose of the ``kolibri.js`` extension of our HTML5 API is to allow a sandboxed HTML5 app to safely request the main Kolibri application's data.
 

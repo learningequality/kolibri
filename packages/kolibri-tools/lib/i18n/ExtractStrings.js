@@ -43,6 +43,11 @@ function ExtractStrings(messageDir, messagesName) {
   this.messagesName = messagesName;
 }
 
+const espreeOptions = {
+  sourceType: 'module',
+  ecmaVersion: 2020,
+};
+
 ExtractStrings.prototype.apply = function(compiler) {
   var self = this;
   // Only do this in non-production mode, as otherwise the module detection code
@@ -103,10 +108,7 @@ ExtractStrings.prototype.apply = function(compiler) {
           ) {
             // Inspect each source file in the chunk if it is a vue file.
             // Parse the AST for the Vue file.
-            ast = espree.parse(module._source.source(), {
-              sourceType: 'module',
-              ecmaVersion: 2018,
-            });
+            ast = espree.parse(module._source.source(), espreeOptions);
             // Maintain references to possible component definitions in case
             // it is not exported as the default export
             var componentCache = {};
@@ -216,9 +218,7 @@ ExtractStrings.prototype.apply = function(compiler) {
             !module.resource.includes('node_modules')
           ) {
             // Inspect each source file in the chunk if it is a js file too.
-            ast = espree.parse(module._source.source(), {
-              sourceType: 'module',
-            });
+            ast = espree.parse(module._source.source(), espreeOptions);
             var createTranslateFn;
             // First find the reference being used for the create translator function
             ast.body.forEach(node => {

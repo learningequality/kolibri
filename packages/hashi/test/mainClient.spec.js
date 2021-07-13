@@ -185,6 +185,20 @@ describe('Hashi mainClient', () => {
       };
       data[SCORM.nameSpace] = SCORMData;
       SCORM.setData(SCORMData);
+      const xAPI = hashi.storage.xAPI;
+      const xAPIData = {
+        statements: [],
+      };
+      data[xAPI.nameSpace] = xAPIData;
+      xAPI.setData(xAPIData);
+      const H5P = hashi.storage.H5P;
+      const H5PData = {
+        random: {
+          data: 123,
+        },
+      };
+      data[H5P.nameSpace] = H5PData;
+      H5P.setData(H5PData);
       expect(hashi.data).toEqual(data);
     });
   });
