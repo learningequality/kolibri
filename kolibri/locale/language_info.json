@@ -49,6 +49,13 @@
     "default_font": "NotoSans"
   },
   {
+    "crowdin_code": "id",
+    "intl_code": "id",
+    "language_name": "Bahasa Indonesia",
+    "english_name": "Indonesian",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "la",
     "intl_code": "es-419",
     "language_name": "Español",
