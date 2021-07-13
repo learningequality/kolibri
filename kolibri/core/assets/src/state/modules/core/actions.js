@@ -13,6 +13,7 @@ import {
   AttemptLogResource,
   UserProgressResource,
   UserSyncStatusResource,
+  ClassListSyncStatusResource,
   PingbackNotificationResource,
   PingbackNotificationDismissedResource,
 } from 'kolibri.resources';
@@ -899,11 +900,20 @@ export function notLoading(store) {
   });
 }
 
-export function fetchClassListSyncStatuses() {
+export function fetchClassListSyncStatuses(params) {
+  ClassListSyncStatusResource.fetchCollection({
+    force: true,
+    getParams: params,
+  }).then(data => {
+    return data;
+  });
+}
+
+export function fetchUserSyncStatus(store) {
   UserSyncStatusResource.fetchCollection({
     force: true,
-    getParams: { classroom_id: this.$route.params.classId },
-  }).then(status => {
-    this.classSyncStatusObject = status;
+    getParams: { user_id: store.state.session.user_id },
+  }).then(data => {
+    return data;
   });
 }

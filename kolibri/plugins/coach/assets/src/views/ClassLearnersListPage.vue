@@ -82,7 +82,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
-  import { mapActions } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
   import SyncStatusDisplay from '../../../../../core/assets/src/views/SyncStatusDisplay';
   import SyncStatusDescription from '../../../../../core/assets/src/views/SyncStatusDescription';
 
@@ -107,7 +107,7 @@
       };
     },
     computed: {
-      ...mapActions(['fetchClassListSyncStatuses']),
+      ...mapState('classSummary', ['learnerMap']),
       syncStatusOptions() {
         let options = [];
         for (const [value] of Object.entries(SyncStatus)) {
@@ -116,14 +116,15 @@
         return options;
       },
     },
-    beforeMount() {
+    mounted() {
       this.isPolling = true;
-      this.pollClassListSyncStatuses(this.classId);
+      this.pollClassListSyncStatuses({ classroom_id: this.$route.params.classId });
     },
     beforeDestroy() {
       this.isPolling = false;
     },
     methods: {
+      ...mapActions(['fetchClassListSyncStatuses']),
       mapLastSynctedTimeToLearner(learnerId) {
         let learnerSyncData;
         if (this.classSyncStatusObject) {
@@ -167,9 +168,14 @@
         return 'NOT_CONNECTED';
       },
       pollClassListSyncStatuses() {
+        this.fetchClassListSyncStatuses({ classroom_id: this.$route.params.classId }).then(
+          status => {
+            this.classSyncStatusObject = status;
+          }
+        );
         if (this.isPolling) {
           setTimeout(() => {
-            this.fetchClassListSyncStatuses();
+            this.pollClassListSyncStatuses();
           }, 10000);
         }
       },

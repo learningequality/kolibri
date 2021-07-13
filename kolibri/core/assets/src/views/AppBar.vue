@@ -87,7 +87,7 @@
                   {{ $tr('deviceStatus') }}
                 </div>
                 <SyncStatusDisplay
-                  :syncStatus="userStatus.sync_session"
+                  :syncStatus="mapSyncStatusOptionToLearner()"
                   displaySize="sync-status-large"
                 />
               </div>
@@ -119,7 +119,7 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapGetters, mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
@@ -130,7 +130,6 @@
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import branding from 'kolibri.utils.branding';
-  import { UserSyncStatusResource } from 'kolibri.resources';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
   import SkipNavigationLink from './SkipNavigationLink';
@@ -165,7 +164,7 @@
     data() {
       return {
         userMenuDropdownIsOpen: false,
-        userStatus: null,
+        userSyncStatus: {},
         isPolling: false,
       };
     },
@@ -174,6 +173,7 @@
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
+        userId: state => state.core.session.user_id,
       }),
       menuOptions() {
         return navComponents
@@ -189,23 +189,20 @@
       window.addEventListener('click', this.handleWindowClick);
       this.$kolibriBranding = branding;
     },
-    beforeMount() {
+    mounted() {
       this.isPolling = true;
-      this.pollUserSyncStatusTask();
+      this.pollUserSyncStatusTask(this.userId);
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
+      this.isPolling = false;
     },
     methods: {
+      ...mapActions(['fetchUserSyncStatus']),
       pollUserSyncStatusTask() {
-        UserSyncStatusResource.fetchCollection({
-          force: true,
-        }).then(statuses => {
-          console.log('statuses', statuses[0]);
-          this.userStatus = {
-            ...statuses[0],
-          };
-          console.log('user sync status', this.userStatus);
+        // console.log(this.userId);
+        this.fetchUserSyncStatus().then(status => {
+          this.userSyncStatus = status;
         });
         if (this.isPolling) {
           setTimeout(() => {
@@ -241,6 +238,25 @@
       handleChangeLanguage() {
         this.$emit('showLanguageModal');
         this.userMenuDropdownIsOpen = false;
+      },
+      mapSyncStatusOptionToLearner() {
+        if (this.userSyncStatus) {
+          if (this.userSyncStatus.active) {
+            return 'SYNCING';
+          } else if (this.userSyncStatus.queued) {
+            return 'QUEUED';
+          } else if (this.userSyncStatus.last_activity_timestamp) {
+            const currentDateTime = new Date();
+            const TimeDifference = this.userSyncStatus.last_activity_timestamp - currentDateTime;
+            const diffMins = Math.round(((TimeDifference % 86400000) % 3600000) / 60000);
+            if (diffMins < 60) {
+              return 'RECENTLY_SYNCED';
+            } else {
+              return 'NOT_RECENTLY_SYNCED';
+            }
+          }
+        }
+        return 'NOT_CONNECTED';
       },
     },
     $trs: {

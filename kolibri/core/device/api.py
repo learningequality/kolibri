@@ -179,11 +179,26 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
     )
 
     def get_queryset(self):
+        queryset = UserSyncStatus.objects.all()
         classroom_id = self.request.query_params.get("classroom_id")
         if classroom_id is not None:
             classroom = Classroom.objects.get(pk=classroom_id)
             classroom_users = FacilityUser.objects.filter(
                 memberships__collection=classroom
             )
-            queryset = UserSyncStatus.objects.filter(user__in=classroom_users)
+            queryset = queryset.filter(user__in=classroom_users)
+        return queryset
+
+
+class ClassListSyncStatusViewSet(ReadOnlyValuesViewset):
+    values = (
+        "id",
+        "queued",
+        "sync_session",
+        "user",
+    )
+
+    def get_queryset(self):
+        user_id = self.request.query_params.get("user_id")
+        queryset = UserSyncStatus.objects.filter(user=user_id)
         return queryset

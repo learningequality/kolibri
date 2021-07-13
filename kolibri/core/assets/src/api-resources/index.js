@@ -35,6 +35,7 @@ export { default as ExamAttemptLogResource } from './examAttemptLog';
 export { default as FacilityDatasetResource } from './facilityDataset';
 export { default as UserProgressResource } from './userProgress';
 export { default as UserSyncStatusResource } from './userSyncStatus';
+export { default as ClassListSyncStatusResource } from './classListSyncStatus';
 export { default as ContentNodeProgressResource } from './contentNodeProgress';
 export { default as DevicePermissionsResource } from './devicePermissions';
 export { default as RemoteChannelResource } from './remoteChannel';
