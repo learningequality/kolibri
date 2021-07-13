@@ -12,6 +12,7 @@ import {
   ChannelResource,
   AttemptLogResource,
   UserProgressResource,
+  UserSyncStatusResource,
   PingbackNotificationResource,
   PingbackNotificationDismissedResource,
 } from 'kolibri.resources';
@@ -895,5 +896,14 @@ export function notLoading(store) {
     Vue.nextTick(() => {
       resolve();
     });
+  });
+}
+
+export function fetchClassListSyncStatuses() {
+  UserSyncStatusResource.fetchCollection({
+    force: true,
+    getParams: { classroom_id: this.$route.params.classId },
+  }).then(status => {
+    this.classSyncStatusObject = status;
   });
 }

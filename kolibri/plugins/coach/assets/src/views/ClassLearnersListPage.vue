@@ -41,26 +41,29 @@
         <template #tbody>
           <tbody>
             <tr
-              v-for="user in users"
-              :key="user.id"
+              v-for="learner in learnerMap"
+              :key="learner.id"
             >
               <td>
                 <KLabeledIcon
                   icon="person"
-                  :label="user.full_name"
+                  :label="learner.name"
                 />
               </td>
               <td>
                 <span dir="auto">
-                  {{ user.username }}
+                  {{ learner.username }}
                 </span>
               </td>
               <td>
-                <SyncStatusDisplay :syncStatus="user.sync_status" displaySize="sync-status-large" />
+                <SyncStatusDisplay
+                  :syncStatus="mapSyncStatusOptionToLearner(learner.id)"
+                  displaySize="sync-status-large"
+                />
               </td>
               <td>
                 <span dir="auto">
-                  {{ user.lastSynced }}
+                  {{ mapLastSynctedTimeToLearner(learner.id) }}
                 </span>
               </td>
             </tr>
@@ -79,6 +82,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
+  import { mapActions } from 'vuex';
   import SyncStatusDisplay from '../../../../../core/assets/src/views/SyncStatusDisplay';
   import SyncStatusDescription from '../../../../../core/assets/src/views/SyncStatusDescription';
 
@@ -98,30 +102,12 @@
     mixins: [commonCoreStrings],
     data: function() {
       return {
-        users: [
-          {
-            full_name: 'Full Name',
-            username: 'username',
-            sync_status: 'QUEUED',
-            lastSynced: '1 hr',
-          },
-          {
-            full_name: 'Full Name',
-            username: 'username',
-            sync_status: 'SYNCING',
-            lastSynced: '1 hr',
-          },
-          {
-            full_name: 'Full Name',
-            username: 'username',
-            sync_status: 'UNABLE_TO_SYNC',
-            lastSynced: '1 hr',
-          },
-        ],
         displayTroubleshootModal: false,
+        classSyncStatusObject: [],
       };
     },
     computed: {
+      ...mapActions(['fetchClassListSyncStatuses']),
       syncStatusOptions() {
         let options = [];
         for (const [value] of Object.entries(SyncStatus)) {
@@ -129,16 +115,64 @@
         }
         return options;
       },
-      // syncStatusDescriptions() {
-      //   let options = [];
-      //   for (status in SyncStatus) {
-      //     options.push(SyncStatus[status]);
-      //   }
-      //   let descriptions = options.map(option => {
-      //     this.syncDescriptionDisplayMap(option);
-      //   });
-      //   return descriptions;
-      // },
+    },
+    beforeMount() {
+      this.isPolling = true;
+      this.pollClassListSyncStatuses(this.classId);
+    },
+    beforeDestroy() {
+      this.isPolling = false;
+    },
+    methods: {
+      mapLastSynctedTimeToLearner(learnerId) {
+        let learnerSyncData;
+        if (this.classSyncStatusObject) {
+          learnerSyncData = this.classSyncStatusObject.filter(learnerStatusObject => {
+            learnerStatusObject.user === learnerId;
+          });
+        }
+        if (learnerSyncData) {
+          if (learnerSyncData.last_active_sync) {
+            const currentDateTime = new Date();
+            const TimeDifference = learnerSyncData.last_active_sync - currentDateTime;
+            const diffMins = Math.round(((TimeDifference % 86400000) % 3600000) / 60000);
+            return diffMins;
+          }
+        }
+        return '--';
+      },
+      mapSyncStatusOptionToLearner(learnerId) {
+        let learnerSyncData;
+        if (this.classSyncStatusObject) {
+          learnerSyncData = this.classSyncStatusObject.filter(learnerStatusObject => {
+            learnerStatusObject.user === learnerId;
+          });
+        }
+        if (learnerSyncData) {
+          if (learnerSyncData.active) {
+            return 'SYNCING';
+          } else if (learnerSyncData.queued) {
+            return 'QUEUED';
+          } else if (learnerSyncData.last_activity_timestamp) {
+            const currentDateTime = new Date();
+            const TimeDifference = learnerSyncData.last_activity_timestamp - currentDateTime;
+            const diffMins = Math.round(((TimeDifference % 86400000) % 3600000) / 60000);
+            if (diffMins < 60) {
+              return 'RECENTLY_SYNCED';
+            } else {
+              return 'NOT_RECENTLY_SYNCED';
+            }
+          }
+        }
+        return 'NOT_CONNECTED';
+      },
+      pollClassListSyncStatuses() {
+        if (this.isPolling) {
+          setTimeout(() => {
+            this.fetchClassListSyncStatuses();
+          }, 10000);
+        }
+      },
     },
     $trs: {
       pageHeader: "Learners in '{className}'",

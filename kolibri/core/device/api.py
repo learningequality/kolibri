@@ -21,6 +21,8 @@ from .serializers import DeviceSettingsSerializer
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+from kolibri.core.auth.models import Classroom
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import get_urls
@@ -177,14 +179,11 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
     )
 
     def get_queryset(self):
-        return UserSyncStatus.objects.all()
-
-    def consolidate(self, items, queryset):
-        return [
-            {
-                "id": 1,
-                "queued": False,
-                "sync_session": "SYNCING",
-                "user": "4a4d2e2789e0b48a76c7ce329b02a183",
-            }
-        ]
+        classroom_id = self.request.query_params.get("classroom_id")
+        if classroom_id is not None:
+            classroom = Classroom.objects.get(pk=classroom_id)
+            classroom_users = FacilityUser.objects.filter(
+                memberships__collection=classroom
+            )
+            queryset = UserSyncStatus.objects.filter(user__in=classroom_users)
+        return queryset
