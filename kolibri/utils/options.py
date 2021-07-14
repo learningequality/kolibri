@@ -296,6 +296,7 @@ base_option_spec = {
             "type": "boolean",
             "default": True,
             "description": "DEPRECATED - do not use this option, use the 'kolibri services' command instead.",
+            "deprecated": True,
         },
         "CHERRYPY_THREAD_POOL": {
             "type": "integer",
@@ -366,7 +367,7 @@ base_option_spec = {
         "CENTRAL_CONTENT_BASE_URL": {
             "type": "string",
             "default": "https://studio.learningequality.org",
-            "envvars": ("CENTRAL_CONTENT_DOWNLOAD_BASE_URL",),
+            "deprecated_envvars": ("CENTRAL_CONTENT_DOWNLOAD_BASE_URL",),
             "description": """
                 URL to use as the default source for content import.
                 Slightly counterintuitively this will still be displayed in the UI as 'import from Kolibri Studio'.
@@ -382,10 +383,7 @@ base_option_spec = {
         "HTTP_PORT": {
             "type": "port",
             "default": 8080,
-            "envvars": (
-                "KOLIBRI_HTTP_PORT",
-                "KOLIBRI_LISTEN_PORT",
-            ),
+            "deprecated_envvars": ("KOLIBRI_LISTEN_PORT",),
             "description": "Sets the port that Kolibri will serve on. This can be further overridden by command line arguments.",
         },
         "RUN_MODE": {
@@ -518,7 +516,9 @@ def _get_option_spec():
     envvars = set()
     for section, opts in option_spec.items():
         for optname, attrs in opts.items():
-            opt_envvars = attrs.get("envvars", tuple())
+            opt_envvars = attrs.get("envvars", tuple()) + attrs.get(
+                "deprecated_envvars", tuple()
+            )
             default_envvar = "KOLIBRI_{}".format(optname.upper())
             if default_envvar not in envvars:
                 envvars.add(default_envvar)
@@ -532,7 +532,7 @@ def _get_option_spec():
                     section.upper(), optname.upper()
                 )
             if default_envvar not in opt_envvars:
-                attrs["envvars"] = opt_envvars + (default_envvar,)
+                attrs["envvars"] = (default_envvar,) + opt_envvars
     return option_spec
 
 
@@ -567,6 +567,53 @@ def get_configspec():
     return ConfigObj(lines, _inspec=True)
 
 
+def _set_from_envvars(conf):
+    """
+    Set the configuration from environment variables.
+    """
+    logger = _get_logger()
+    # keep track of which options were overridden using environment variables, to support error reporting
+    using_env_vars = {}
+
+    deprecation_warning = "Option {optname} in section [{section}] being overridden by deprecated environment variable {envvar}, please update to: {envvars}"
+    # override any values from their environment variables (if set)
+    # and check for use of deprecated environment variables and options
+    for section, opts in option_spec.items():
+        for optname, attrs in opts.items():
+            for envvar in attrs.get("envvars", []):
+                if os.environ.get(envvar):
+                    deprecated_envvars = attrs.get("deprecated_envvars", tuple())
+                    if envvar in deprecated_envvars:
+                        logger.warn(
+                            deprecation_warning.format(
+                                optname=optname,
+                                section=section,
+                                envvar=envvar,
+                                envvars=", ".join(
+                                    e
+                                    for e in attrs.get("envvars", [])
+                                    if e not in deprecated_envvars
+                                ),
+                            )
+                        )
+                    else:
+                        logger.info(
+                            "Option {optname} in section [{section}] being overridden by environment variable {envvar}".format(
+                                optname=optname, section=section, envvar=envvar
+                            )
+                        )
+                    if attrs.get("deprecated", False):
+                        logger.warn(
+                            "Option {optname} in section [{section}] is deprecated, please remove it from your options.ini file".format(
+                                optname=optname, section=section
+                            )
+                        )
+                    conf[section][optname] = os.environ[envvar]
+                    using_env_vars[optname] = envvar
+                    break
+    return using_env_vars
+
+
 def read_options_file(ini_filename="options.ini"):
 
     from kolibri.utils.conf import KOLIBRI_HOME
@@ -577,25 +624,24 @@ def read_options_file(ini_filename="options.ini"):
 
     conf = ConfigObj(ini_path, configspec=get_configspec())
 
+    # Check for use of deprecated options
+    for section, opts in option_spec.items():
+        for optname, attrs in opts.items():
+            if (
+                attrs.get("deprecated", False)
+                and section in conf
+                and optname in conf[section]
+            ):
+                logger.warn(
+                    "Option {optname} in section [{section}] is deprecated, please remove it from your options.ini file".format(
+                        optname=optname, section=section
+                    )
+                )
+
     # validate once up front to ensure section structure is in place
     conf.validate(_get_validator())
 
-    # keep track of which options were overridden using environment variables, to support error reporting
-    using_env_vars = {}
-
-    # override any values from their environment variables (if set)
-    for section, opts in option_spec.items():
-        for optname, attrs in opts.items():
-            for envvar in attrs.get("envvars", []):
-                if os.environ.get(envvar):
-                    logger.info(
-                        "Option {optname} in section [{section}] being overridden by environment variable {envvar}".format(
-                            optname=optname, section=section, envvar=envvar
-                        )
-                    )
-                    conf[section][optname] = os.environ[envvar]
-                    using_env_vars[optname] = envvar
-                    break
+    using_env_vars = _set_from_envvars(conf)
 
     validation = conf.validate(_get_validator(), preserve_errors=True)
 
@@ -699,7 +745,9 @@ def generate_empty_options_file(ini_filename="options.ini"):
             conf.comments[section] = comments
         comments = []
         for optname, attrs in opts.items():
-            if not attrs.get("skip_blank", False):
+            if not attrs.get("skip_blank", False) and not attrs.get(
+                "deprecated", False
+            ):
                 if "description" in attrs:
                     comments.extend(attrs["description"].strip().split("\n"))
                 comments.append("{} = {}".format(optname, attrs.get("default", "")))
