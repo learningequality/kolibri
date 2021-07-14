@@ -449,3 +449,35 @@ def list():
             + " " * (max_len - len(plugin) + 4)
             + ("ENABLED" if plugin in config.ACTIVE_PLUGINS else "DISABLED")
         )
+
+
+@main.command(cls=KolibriGroupCommand, help="Configure Kolibri and enabled plugins")
+def configure():
+    pass
+
+
+def _get_env_vars():
+    """
+    Generator to iterate over all environment variables
+    """
+    template = "{envvar} - {description}\n\n"
+
+    from kolibri.utils.env import ENVIRONMENT_VARIABLES
+
+    for key, value in ENVIRONMENT_VARIABLES.items():
+        yield template.format(envvar=key, description=value.get("description", ""))
+
+    from kolibri.utils.options import option_spec
+
+    for value in option_spec.values():
+        for v in value.values():
+            if "envvars" in v:
+                for envvar in v["envvars"]:
+                    yield template.format(
+                        envvar=envvar, description=v.get("description", "")
+                    )
+
+
+@configure.command(help="List all available environment variables to configure Kolibri")
+def list_env():
+    click.echo_via_pager(_get_env_vars())
