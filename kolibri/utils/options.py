@@ -221,13 +221,11 @@ base_option_spec = {
             "default": "localhost:6379",
             "description": "Host and port at which to connect to Redis, Redis only.",
         },
-        "CACHE_REDIS_MIN_DB": {
+        "CACHE_REDIS_DB": {
             "type": "integer",
             "default": 0,
-            "description": """
-                The starting database number for Redis.
-                This and subsequent database numbers will be used for multiple cache scenarios.
-            """,
+            "description": "The database number for Redis.",
+            "deprecated_aliases": ("CACHE_REDIS_MIN_DB",),
         },
         "CACHE_REDIS_MAX_POOL_SIZE": {
             "type": "integer",
@@ -516,6 +514,13 @@ def _get_option_spec():
     envvars = set()
     for section, opts in option_spec.items():
         for optname, attrs in opts.items():
+            if "deprecated_aliases" in attrs:
+                attrs["deprecated_envvars"] = attrs.get("deprecated_envvars", tuple())
+                for alias in attrs["deprecated_aliases"]:
+                    alias_ev = "KOLIBRI_{}".format(alias)
+                    if alias_ev not in envvars:
+                        attrs["deprecated_envvars"] += (alias_ev,)
+
             opt_envvars = attrs.get("envvars", tuple()) + attrs.get(
                 "deprecated_envvars", tuple()
             )
@@ -614,6 +619,35 @@ def _set_from_envvars(conf):
     return using_env_vars
 
 
+def _set_from_deprecated_aliases(conf):
+    """
+    Set the configuration from deprecated aliases.
+    """
+    logger = _get_logger()
+    # keep track of which options were overridden using environment variables, to support error reporting
+    using_deprecated_alias = {}
+
+    deprecation_warning = "Option {optname} in section [{section}] being set by deprecated alias {alias}, please update to: {optname}"
+    # override any values from their environment variables (if set)
+    # and check for use of deprecated environment variables and options
+    for section, opts in option_spec.items():
+        for optname, attrs in opts.items():
+            for alias in attrs.get("deprecated_aliases", tuple()):
+                if alias in conf[section]:
+                    logger.warn(
+                        deprecation_warning.format(
+                            optname=optname,
+                            section=section,
+                            alias=alias,
+                        )
+                    )
+                    conf[section][optname] = conf[section][alias]
+                    del conf[section][alias]
+                    using_deprecated_alias[optname] = alias
+                    break
+    return using_deprecated_alias
+
+
 def read_options_file(ini_filename="options.ini"):
 
     from kolibri.utils.conf import KOLIBRI_HOME
@@ -643,6 +677,8 @@ def read_options_file(ini_filename="options.ini"):
 
     using_env_vars = _set_from_envvars(conf)
 
+    using_deprecated_alias = _set_from_deprecated_aliases(conf)
+
     validation = conf.validate(_get_validator(), preserve_errors=True)
 
     # loop over and display any errors with config values, and then bail
@@ -653,6 +689,15 @@ def read_options_file(ini_filename="options.ini"):
                 logger.error(
                     "Error processing environment variable option {envvar}: {error}".format(
                         envvar=using_env_vars[optname], error=error
+                    )
+                )
+            elif optname in using_deprecated_alias:
+                logger.error(
+                    "Error processing {file} under section [{section}] for option {alias}: {error}".format(
+                        file=ini_path,
+                        section=section,
+                        alias=using_deprecated_alias[optname],
+                        error=error,
                     )
                 )
             else:
