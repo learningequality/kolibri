@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from morango.models import UUIDField
 from morango.models.core import SyncSession
 
@@ -11,6 +12,8 @@ from .utils import LANDING_PAGE_LEARN
 from .utils import LANDING_PAGE_SIGN_IN
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.permissions.base import q_none
+from kolibri.core.auth.permissions.general import DenyAll
 from kolibri.core.utils.cache import process_cache as cache
 from kolibri.plugins.app.utils import interface
 
@@ -210,9 +213,34 @@ class SyncQueue(models.Model):
         cls.objects.filter(updated__lte=staled_time).delete()
 
 
+class SyncStatusPermissions(DenyAll):
+    """
+    By default set all permissions to read only, as these should
+    only be directly updated by internal Kolibri processes, not by users.
+    """
+
+    def user_can_read_object(self, user, obj):
+        if hasattr(user, "dataset"):
+            return obj.user.dataset_id == user.dataset_id
+        return False
+
+    def readable_by_user_filter(self, user):
+        """
+        For simplicity, let anyone from the same facility read the sync status
+        for now. In the future, we may want to restrict this, but it is not
+        sensitive information.
+        """
+        if hasattr(user, "dataset"):
+            return Q(user__dataset=user.dataset)
+        else:
+            return q_none
+
+
 class UserSyncStatus(models.Model):
     user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE, null=False)
     sync_session = models.ForeignKey(
         SyncSession, on_delete=models.SET_NULL, null=True, blank=True
     )
     queued = models.BooleanField(default=False)
+
+    permissions = SyncStatusPermissions()
