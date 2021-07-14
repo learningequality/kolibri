@@ -166,7 +166,7 @@ def test_deprecated_values_ini_file(monkeypatch):
         with open(tmp_ini_path, "w") as f:
             f.write("\n".join(["[Server]", "CHERRYPY_START = false"]))
         options.read_options_file(ini_filename=tmp_ini_path)
-        assert "deprecated" in LOG_LOGGER[-1][-1]
+        assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
 
 
 def test_deprecated_values_envvars(monkeypatch):
@@ -182,7 +182,7 @@ def test_deprecated_values_envvars(monkeypatch):
             f.write("\n")
         with mock.patch.dict(os.environ, {"KOLIBRI_CHERRYPY_START": "false"}):
             options.read_options_file(ini_filename=tmp_ini_path)
-            assert "deprecated" in LOG_LOGGER[-1][-1]
+            assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
 
 
 def test_deprecated_envvars(monkeypatch):
@@ -198,7 +198,7 @@ def test_deprecated_envvars(monkeypatch):
             f.write("\n")
         with mock.patch.dict(os.environ, {"KOLIBRI_LISTEN_PORT": "1234"}):
             options.read_options_file(ini_filename=tmp_ini_path)
-            assert "deprecated" in LOG_LOGGER[-1][-1]
+            assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
 
 
 def test_deprecated_aliases(monkeypatch):
@@ -213,7 +213,7 @@ def test_deprecated_aliases(monkeypatch):
         with open(tmp_ini_path, "w") as f:
             f.write("\n".join(["[Cache]", "CACHE_REDIS_MIN_DB = 7"]))
         options.read_options_file(ini_filename=tmp_ini_path)
-        assert "deprecated" in LOG_LOGGER[-1][-1]
+        assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
 
 
 def test_deprecated_aliases_envvars(monkeypatch):
@@ -229,7 +229,7 @@ def test_deprecated_aliases_envvars(monkeypatch):
             f.write("\n")
         with mock.patch.dict(os.environ, {"KOLIBRI_CACHE_REDIS_MIN_DB": "1234"}):
             options.read_options_file(ini_filename=tmp_ini_path)
-            assert "deprecated" in LOG_LOGGER[-1][-1]
+            assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
 
 
 def test_option_writing():
