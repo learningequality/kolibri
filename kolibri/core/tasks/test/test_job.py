@@ -38,7 +38,6 @@ class TestRegisteredJob(TestCase):
             priority="high",
             permission_classes=[int],
             job_id="test",
-            group="human",
             cancellable=True,
             track_progress=True,
         )
@@ -49,7 +48,6 @@ class TestRegisteredJob(TestCase):
         self.assertEqual(self.registered_job.priority, "HIGH")
         self.assertEqual(self.registered_job.permissions, [p() for p in [int]])
         self.assertEqual(self.registered_job.job_id, "test")
-        self.assertEqual(self.registered_job.group, "human")
         self.assertEqual(self.registered_job.cancellable, True)
         self.assertEqual(self.registered_job.track_progress, True)
 
@@ -65,7 +63,6 @@ class TestRegisteredJob(TestCase):
             int,
             "10",  # arg that was passed to _ready_job()
             job_id="test",
-            group="human",
             cancellable=True,
             track_progress=True,
             base=10,  # kwarg that was passed to _ready_job()
