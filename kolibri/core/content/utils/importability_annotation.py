@@ -25,6 +25,7 @@ from kolibri.core.content.utils.sqlalchemybridge import Bridge
 from kolibri.core.content.utils.sqlalchemybridge import coerce_key
 from kolibri.core.content.utils.sqlalchemybridge import filter_by_checksums
 from kolibri.core.content.utils.sqlalchemybridge import filter_by_uuids
+from kolibri.core.content.utils.tree import get_channel_node_depth
 from kolibri.core.utils.cache import process_cache
 
 logger = logging.getLogger(__name__)
@@ -80,13 +81,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
         .values(available=exists(contentnode_statement))
     )
 
-    ContentNodeClass = bridge.get_class(ContentNode)
-
-    node_depth = (
-        bridge.session.query(func.max(ContentNodeClass.level))
-        .filter_by(channel_id=channel_id)
-        .scalar()
-    )
+    node_depth = get_channel_node_depth(bridge, channel_id)
 
     child = ContentNodeTable.alias()
 
