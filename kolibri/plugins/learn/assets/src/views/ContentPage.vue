@@ -134,10 +134,12 @@
       </template>
     </slot>
 
-    <MasteredSnackbars
+    <CompletionModal
       v-if="progress >= 1 && wasIncomplete"
-      :nextContent="content.next_content"
-      :nextContentLink="nextContentLink"
+      :nextContentNode="content.next_content"
+      :nextContentNodeRoute="nextContentNodeRoute"
+      :recommendedContentNodes="recommended"
+      :genContentLink="genContentLink"
       @close="markAsComplete"
     />
 
@@ -167,7 +169,7 @@
   import PageHeader from './PageHeader';
   import ContentCardGroupCarousel from './ContentCardGroupCarousel';
   import AssessmentWrapper from './AssessmentWrapper';
-  import MasteredSnackbars from './MasteredSnackbars';
+  import CompletionModal from './CompletionModal';
   import { lessonResourceViewerLink } from './classes/classPageLinks';
   import commonLearnStrings from './commonLearnStrings';
 
@@ -191,7 +193,7 @@
       ContentCardGroupCarousel,
       DownloadButton,
       AssessmentWrapper,
-      MasteredSnackbars,
+      CompletionModal,
     },
     mixins: [commonLearnStrings],
     data() {
@@ -269,7 +271,7 @@
       primaryFilename() {
         return `${this.primaryFile.checksum}.${this.primaryFile.extension}`;
       },
-      nextContentLink() {
+      nextContentNodeRoute() {
         // HACK Use a the Resource Viewer Link instead
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
           return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);
