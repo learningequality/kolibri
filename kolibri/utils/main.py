@@ -261,8 +261,3 @@ def update(old_version, new_version):
 
     with open(version_file(), "w") as f:
         f.write(kolibri.__version__)
-
-    from django.core.cache import caches
-
-    cache = caches["built_files"]
-    cache.clear()
