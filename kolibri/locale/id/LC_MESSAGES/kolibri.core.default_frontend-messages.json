@@ -4,7 +4,7 @@
   "AddAddressForm.addressPlaceholder": "contoh alamat IP 192.168.0.100:8080",
   "AddAddressForm.errorCouldNotConnect": "Tidak dapat terhubung ke jaringan internet",
   "AddAddressForm.errorInvalidAddress": "Masukan alamat Protokol Internet, URL atau nama host yang benar",
-  "AddAddressForm.header": "alamat baru",
+  "AddAddressForm.header": "Alamat baru",
   "AddAddressForm.nameDesc": "Beri nama pada alamat ini agar anda dapat mengingatnya nanti",
   "AddAddressForm.nameLabel": "Nama",
   "AddAddressForm.namePlaceholder": "contohnya Beranda jaringan",
