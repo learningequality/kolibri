@@ -196,7 +196,9 @@ def test_deprecated_envvars(monkeypatch):
         # deprecated envvars for otherwise valid options log warnings
         with open(tmp_ini_path, "w") as f:
             f.write("\n")
-        with mock.patch.dict(os.environ, {"KOLIBRI_LISTEN_PORT": "1234"}):
+        with mock.patch.dict(
+            os.environ, {"KOLIBRI_LISTEN_PORT": "1234", "KOLIBRI_HTTP_PORT": ""}
+        ):
             options.read_options_file(ini_filename=tmp_ini_path)
             assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
 
