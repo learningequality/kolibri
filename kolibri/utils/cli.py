@@ -456,16 +456,29 @@ def configure():
     pass
 
 
+def _format_env_var(envvar, value):
+    if value.get("deprecated", False) or envvar in value.get(
+        "deprecated_envvars", tuple()
+    ):
+        return click.style(
+            "{envvar} - DEPRECATED - {description}\n\n".format(
+                envvar=envvar, description=value.get("description", "")
+            ),
+            fg="yellow",
+        )
+    return "{envvar} - {description}\n\n".format(
+        envvar=envvar, description=value.get("description", "")
+    )
+
+
 def _get_env_vars():
     """
     Generator to iterate over all environment variables
     """
-    template = "{envvar} - {description}\n\n"
-
     from kolibri.utils.env import ENVIRONMENT_VARIABLES
 
     for key, value in ENVIRONMENT_VARIABLES.items():
-        yield template.format(envvar=key, description=value.get("description", ""))
+        yield _format_env_var(key, value)
 
     from kolibri.utils.options import option_spec
 
@@ -473,9 +486,7 @@ def _get_env_vars():
         for v in value.values():
             if "envvars" in v:
                 for envvar in v["envvars"]:
-                    yield template.format(
-                        envvar=envvar, description=v.get("description", "")
-                    )
+                    yield _format_env_var(envvar, v)
 
 
 @configure.command(help="List all available environment variables to configure Kolibri")

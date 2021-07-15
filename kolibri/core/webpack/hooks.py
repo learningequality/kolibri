@@ -22,7 +22,6 @@ from functools import partial
 from django.conf import settings
 from django.contrib.staticfiles.finders import find as find_staticfiles
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.core.cache import caches
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.six.moves.urllib.request import url2pathname
@@ -34,19 +33,14 @@ from six import text_type
 
 from kolibri.plugins import hooks
 
-# Use the cache specifically for built files
-# Only reference the specific cache inside methods
-# to allow this file to be imported without initiating
-# Django settings configuration.
-CACHE_NAMESPACE = "built_files"
 
 IGNORE_PATTERNS = (re.compile(I) for I in [r".+\.hot-update.js", r".+\.map"])
 
 
 class WebpackError(Exception):
-    def __init__(self, message, extra_info={}):
-        self.extra_info = extra_info
-        return Exception.__init__(self, message)
+    def __init__(self, message, extra_info=None):
+        self.extra_info = extra_info or {}
+        Exception.__init__(self, message)
 
 
 logger = logging.getLogger(__name__)
@@ -100,45 +94,37 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: A dict of the data contained in the JSON files which are
           written by Webpack.
         """
-        cache_key = "json_stats_file_cache_{unique_id}".format(unique_id=self.unique_id)
-        stats_file_content = caches[CACHE_NAMESPACE].get(cache_key)
+        STATS_ERR = "Error accessing stats file '{}': {}"
 
-        if not stats_file_content or getattr(settings, "DEVELOPER_MODE", False):
+        try:
+            with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
+                stats = json.load(f)
+        except IOError as e:
+            raise WebpackError(STATS_ERR.format(self._stats_file, e))
 
-            STATS_ERR = "Error accessing stats file '{}': {}"
+        if getattr(settings, "DEVELOPER_MODE", False):
+            timeout = 0
 
-            try:
-                with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
-                    stats = json.load(f)
-            except IOError as e:
-                raise WebpackError(STATS_ERR.format(self._stats_file, e))
+            while stats["status"] == "compiling":
+                time.sleep(0.1)
+                timeout += 0.1
 
-            if getattr(settings, "DEVELOPER_MODE", False):
-                timeout = 0
+                try:
+                    with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
+                        stats = json.load(f)
+                except IOError as e:
+                    raise WebpackError(STATS_ERR.format(self._stats_file, e))
 
-                while stats["status"] == "compiling":
-                    time.sleep(0.1)
-                    timeout += 0.1
+                if timeout >= 5:
+                    raise WebpackError("Compilation still in progress")
 
-                    try:
-                        with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
-                            stats = json.load(f)
-                    except IOError as e:
-                        raise WebpackError(STATS_ERR.format(self._stats_file, e))
+            if stats["status"] == "error":
+                raise WebpackError("Compilation has errored", stats)
 
-                    if timeout >= 5:
-                        raise WebpackError("Compilation still in progress")
-
-                if stats["status"] == "error":
-                    raise WebpackError("Compilation has errored", stats)
-
-            stats_file_content = {
-                "files": stats.get("chunks", {}).get(self.unique_id, []),
-                "hasMessages": stats.get("messages", False),
-            }
-            # Don't invalidate during runtime.
-            # Might need to change this if we move to a different cache backend.
-            caches[CACHE_NAMESPACE].set(cache_key, stats_file_content, None)
+        stats_file_content = {
+            "files": stats.get("chunks", {}).get(self.unique_id, []),
+            "hasMessages": stats.get("messages", False),
+        }
 
         return stats_file_content
 
@@ -209,17 +195,11 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     def frontend_messages(self):
         lang_code = get_language()
-        cache_key = "json_message_file_cache_{unique_id}_{lang}".format(
-            unique_id=self.unique_id, lang=lang_code
-        )
-        message_file_content = caches[CACHE_NAMESPACE].get(cache_key, {})
-        if not message_file_content or getattr(settings, "DEVELOPER_MODE", False):
-            frontend_message_file = self.frontend_message_file(lang_code)
-            if frontend_message_file:
-                with io.open(frontend_message_file, mode="r", encoding="utf-8") as f:
-                    message_file_content = json.load(f)
-                caches[CACHE_NAMESPACE].set(cache_key, message_file_content, None)
-        return message_file_content
+        frontend_message_file = self.frontend_message_file(lang_code)
+        if frontend_message_file:
+            with io.open(frontend_message_file, mode="r", encoding="utf-8") as f:
+                message_file_content = json.load(f)
+            return message_file_content
 
     def sorted_chunks(self):
         bidi = get_language_info(get_language())["bidi"]
@@ -349,25 +329,21 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         Reads file contents using given `charset` and returns it as text.
         """
-        cache_key = "inline_static_file_content_{url}".format(url=url)
-        content = caches[CACHE_NAMESPACE].get(cache_key)
-        if content is None:
-            # Removes Byte Oorder Mark
-            charset = "utf-8-sig"
-            basename = self.get_basename(url)
+        # Removes Byte Oorder Mark
+        charset = "utf-8-sig"
+        basename = self.get_basename(url)
 
-            if basename is None:
-                return None
+        if basename is None:
+            return None
 
-            filename = self.get_filename(basename)
+        filename = self.get_filename(basename)
 
-            if filename is None:
-                return None
+        if filename is None:
+            return None
 
-            with codecs.open(filename, "r", charset) as fd:
-                content = fd.read()
-            # Cache this forever, as URLs will update for new files
-            caches[CACHE_NAMESPACE].set(cache_key, content, None)
+        with codecs.open(filename, "r", charset) as fd:
+            content = fd.read()
+        # Cache this forever, as URLs will update for new files
         return content
 
     def render_to_page_load_sync_html(self):
