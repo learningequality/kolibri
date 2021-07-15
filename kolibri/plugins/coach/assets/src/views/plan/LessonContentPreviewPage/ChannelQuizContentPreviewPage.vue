@@ -39,7 +39,7 @@
             :keyText="$tr('quizDurationHeader')"
           >
             <template #value>
-              {{ licenseName }}
+              {{ currentContentNode.duration || 'Not available' }}
             </template>
           </HeaderTableRow>
           <HeaderTableRow
