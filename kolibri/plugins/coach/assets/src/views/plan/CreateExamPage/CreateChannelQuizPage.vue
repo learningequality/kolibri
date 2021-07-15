@@ -43,7 +43,6 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import pickBy from 'lodash/pickBy';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import { PageNames } from '../../../constants/';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
@@ -89,18 +88,15 @@
             },
           };
         }
-        const { query } = this.$route;
+
+        let value = content.assessmentmetadata.assessment_item_ids.length;
+        this.$store.commit('examCreation/SET_NUMBER_OF_QUESTIONS', value);
+
         return {
           name: PageNames.EXAM_CREATION_CHANNEL_QUIZ_PREVIEW,
           params: {
             classId: this.classId,
             contentId: content.id,
-          },
-          query: {
-            ...query,
-            ...pickBy({
-              searchTerm: this.$route.params.searchTerm,
-            }),
           },
         };
       },

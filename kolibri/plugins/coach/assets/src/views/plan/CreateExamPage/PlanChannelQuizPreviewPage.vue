@@ -17,8 +17,7 @@
         :displaySelectOptions="true"
         :isChannelQuiz="true"
         :completionData="preview.completionData"
-        @addResource="handleAddResource"
-        @removeResource="handleRemoveResource"
+        @submit="handleSubmit"
       />
     </KPageContainer>
   </CoreBase>
@@ -30,6 +29,8 @@
 
   import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import commonCoach from '../../common';
   import ChannelQuizContentPreviewPage from '../LessonContentPreviewPage/ChannelQuizContentPreviewPage';
 
@@ -57,18 +58,31 @@
     },
     methods: {
       ...mapActions(['clearSnackbar']),
-      ...mapActions('examCreation', ['addToSelectedExercises', 'removeFromSelectedExercises']),
-      handleAddResource(content) {
-        this.$router.push(this.returnBackRoute).then(() => {
-          this.addToSelectedExercises([content]);
-          this.showSnackbarNotification('resourcesAddedWithCount', { count: 1 });
-        });
-      },
-      handleRemoveResource(content) {
-        this.$router.push(this.returnBackRoute).then(() => {
-          this.removeFromSelectedExercises([content]);
-          this.showSnackbarNotification('resourcesRemovedWithCount', { count: 1 });
-        });
+      ...mapActions('examCreation', ['addToSelectedExercises']),
+      handleSubmit(content, id) {
+        this.addToSelectedExercises([content]);
+        this.$store
+          .dispatch('examCreation/updateSelectedQuestions')
+          .then(() => {
+            const params = {
+              classId: id,
+              title: content.title,
+            };
+            return this.$store.dispatch('examCreation/createChannelQuizAndRoute', params);
+          })
+          .then(() => {
+            this.showSnackbarNotification('quizCreated');
+          })
+          .catch(error => {
+            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            if (errors) {
+              this.showError = true;
+              this.showTitleError = true;
+              this.$refs.title.focus();
+            } else {
+              this.$store.dispatch('handleApiError', error);
+            }
+          });
       },
     },
   };

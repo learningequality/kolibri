@@ -86,8 +86,8 @@ export function fetchAdditionalSearchResults(store, params) {
   });
 }
 
-export function createExamAndRoute(store, { classId }) {
-  console.log('here');
+export function createChannelQuizAndRoute(store, { classId, title }) {
+  store.commit('SET_TITLE', title);
   const exam = {
     collection: classId,
     title: store.state.title,
@@ -99,8 +99,23 @@ export function createExamAndRoute(store, { classId }) {
     date_archived: null,
     date_activated: null,
   };
-  console.log(store, exam);
+  return createExam(store, exam).then(() => {
+    return router.push({ name: PageNames.EXAMS });
+  });
+}
 
+export function createExamAndRoute(store, { classId }) {
+  const exam = {
+    collection: classId,
+    title: store.state.title,
+    seed: store.state.seed,
+    question_count: store.state.selectedQuestions.length,
+    question_sources: store.state.selectedQuestions,
+    assignments: [classId],
+    learners_see_fixed_order: store.state.learnersSeeFixedOrder,
+    date_archived: null,
+    date_activated: null,
+  };
   return createExam(store, exam).then(() => {
     return router.push({ name: PageNames.EXAMS });
   });

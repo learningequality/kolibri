@@ -93,7 +93,6 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
@@ -138,8 +137,6 @@
       };
     },
     computed: {
-      ...mapState('examCreation'),
-      ...mapActions('examCreation'),
       isExercise() {
         return this.content.kind === 'exercise';
       },
@@ -153,7 +150,6 @@
         return this.currentContentNode;
       },
       licenseName() {
-        console.log(this.content);
         return licenseLongName(this.content.license_name);
       },
       licenseDescription() {
