@@ -3,7 +3,7 @@
   <span>
     <KCircularLoader
       v-if="syncInProgress"
-      size="20"
+      :size="20"
       class="inline-loader"
       data-test="syncStatusSpinner"
     />

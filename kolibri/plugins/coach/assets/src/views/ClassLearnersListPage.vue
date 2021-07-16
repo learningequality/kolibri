@@ -103,7 +103,7 @@
     data: function() {
       return {
         displayTroubleshootModal: false,
-        classSyncStatusObject: [],
+        classSyncStatusList: [],
       };
     },
     computed: {
@@ -124,12 +124,12 @@
       this.isPolling = false;
     },
     methods: {
-      ...mapActions(['fetchClassListSyncStatuses']),
+      ...mapActions(['fetchUserSyncStatus']),
       mapLastSynctedTimeToLearner(learnerId) {
         let learnerSyncData;
-        if (this.classSyncStatusObject) {
-          learnerSyncData = this.classSyncStatusObject.filter(learnerStatusObject => {
-            learnerStatusObject.user === learnerId;
+        if (this.classSyncStatusList) {
+          learnerSyncData = this.classSyncStatusList.filter(entry => {
+            entry.user_id == learnerId;
           });
         }
         if (learnerSyncData) {
@@ -144,10 +144,11 @@
       },
       mapSyncStatusOptionToLearner(learnerId) {
         let learnerSyncData;
-        if (this.classSyncStatusObject) {
-          learnerSyncData = this.classSyncStatusObject.filter(learnerStatusObject => {
-            learnerStatusObject.user === learnerId;
+        if (this.classSyncStatusList) {
+          learnerSyncData = this.classSyncStatusList.filter(entry => {
+            return entry.user_id == learnerId;
           });
+          learnerSyncData = learnerSyncData[learnerSyncData.length - 1];
         }
         if (learnerSyncData) {
           if (learnerSyncData.active) {
@@ -168,11 +169,9 @@
         return 'NOT_CONNECTED';
       },
       pollClassListSyncStatuses() {
-        this.fetchClassListSyncStatuses({ classroom_id: this.$route.params.classId }).then(
-          status => {
-            this.classSyncStatusObject = status;
-          }
-        );
+        this.fetchUserSyncStatus({ id: this.$route.params.classId }).then(status => {
+          this.classSyncStatusList = status;
+        });
         if (this.isPolling) {
           setTimeout(() => {
             this.pollClassListSyncStatuses();

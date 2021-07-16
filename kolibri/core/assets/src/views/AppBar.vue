@@ -164,7 +164,7 @@
     data() {
       return {
         userMenuDropdownIsOpen: false,
-        userSyncStatus: {},
+        userSyncStatus: [],
         isPolling: false,
       };
     },
@@ -200,9 +200,10 @@
     methods: {
       ...mapActions(['fetchUserSyncStatus']),
       pollUserSyncStatusTask() {
-        // console.log(this.userId);
-        this.fetchUserSyncStatus().then(status => {
-          this.userSyncStatus = status;
+        this.fetchUserSyncStatus({ id: this.userId }).then(syncData => {
+          if (syncData[0]) {
+            this.userSyncStatus = syncData[0];
+          }
         });
         if (this.isPolling) {
           setTimeout(() => {

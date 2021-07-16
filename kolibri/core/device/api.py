@@ -1,7 +1,11 @@
 from sys import version_info
 
 from django.conf import settings
+from django.db.models.query import Q
 from django.http.response import HttpResponseBadRequest
+from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import ModelChoiceFilter
 from morango.models import InstanceIDModel
 from rest_framework import mixins
 from rest_framework import status
@@ -21,8 +25,7 @@ from .serializers import DeviceSettingsSerializer
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
-from kolibri.core.auth.models import Classroom
-from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import Collection
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import get_urls
@@ -170,35 +173,35 @@ class DeviceNameView(views.APIView):
         return Response({"name": settings.name})
 
 
+class SyncStatusFilter(FilterSet):
+
+    member_of = ModelChoiceFilter(
+        method="filter_member_of", queryset=Collection.objects.all()
+    )
+
+    def filter_member_of(self, queryset, name, value):
+        return queryset.filter(
+            Q(user__memberships__collection=value) | Q(user__facility=value)
+        )
+
+    class Meta:
+        model = UserSyncStatus
+        fields = ["user", "member_of"]
+
+
 class UserSyncStatusViewSet(ReadOnlyValuesViewset):
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
+    queryset = UserSyncStatus.objects.all()
+    filter_class = SyncStatusFilter
+
     values = (
         "id",
         "queued",
         "sync_session",
         "user",
+        "user_id",
     )
 
     def get_queryset(self):
-        queryset = UserSyncStatus.objects.all()
-        classroom_id = self.request.query_params.get("classroom_id")
-        if classroom_id is not None:
-            classroom = Classroom.objects.get(pk=classroom_id)
-            classroom_users = FacilityUser.objects.filter(
-                memberships__collection=classroom
-            )
-            queryset = queryset.filter(user__in=classroom_users)
-        return queryset
-
-
-class ClassListSyncStatusViewSet(ReadOnlyValuesViewset):
-    values = (
-        "id",
-        "queued",
-        "sync_session",
-        "user",
-    )
-
-    def get_queryset(self):
-        user_id = self.request.query_params.get("user_id")
-        queryset = UserSyncStatus.objects.filter(user=user_id)
-        return queryset
+        return UserSyncStatus.objects.filter()

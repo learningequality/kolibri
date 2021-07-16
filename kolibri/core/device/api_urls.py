@@ -2,7 +2,6 @@ from django.conf.urls import include
 from django.conf.urls import url
 from rest_framework import routers
 
-from .api import ClassListSyncStatusViewSet
 from .api import DeviceInfoView
 from .api import DeviceNameView
 from .api import DevicePermissionsViewSet
@@ -16,9 +15,6 @@ router.register(
     r"devicepermissions", DevicePermissionsViewSet, base_name="devicepermissions"
 )
 router.register(r"usersyncstatus", UserSyncStatusViewSet, base_name="usersyncstatus")
-router.register(
-    r"classlistsyncstatus", ClassListSyncStatusViewSet, base_name="classlistsyncstatus"
-)
 
 
 urlpatterns = [

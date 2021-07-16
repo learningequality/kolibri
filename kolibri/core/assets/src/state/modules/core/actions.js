@@ -13,7 +13,6 @@ import {
   AttemptLogResource,
   UserProgressResource,
   UserSyncStatusResource,
-  ClassListSyncStatusResource,
   PingbackNotificationResource,
   PingbackNotificationDismissedResource,
 } from 'kolibri.resources';
@@ -159,6 +158,9 @@ function _notificationListState(data) {
   }));
 }
 
+function _userSyncStatusState(data) {
+  return data;
+}
 /**
  * Actions
  *
@@ -900,20 +902,15 @@ export function notLoading(store) {
   });
 }
 
-export function fetchClassListSyncStatuses(params) {
-  ClassListSyncStatusResource.fetchCollection({
-    force: true,
-    getParams: params,
-  }).then(data => {
-    return data;
-  });
-}
-
-export function fetchUserSyncStatus(store) {
-  UserSyncStatusResource.fetchCollection({
-    force: true,
-    getParams: { user_id: store.state.session.user_id },
-  }).then(data => {
-    return data;
-  });
+export function fetchUserSyncStatus(store, id) {
+  return UserSyncStatusResource.fetchCollection({ force: true, getParams: { id: id } }).then(
+    syncData => {
+      store.commit('SET_CORE_CHANNEL_LIST', _userSyncStatusState(syncData));
+      return syncData;
+    },
+    error => {
+      store.dispatch('handleApiError', error);
+      return error;
+    }
+  );
 }
