@@ -3,7 +3,12 @@
   <div v-show="!$isPrint" class="report-controls">
     <slot></slot>
     <div class="report-controls-buttons">
-
+      <KButton
+        :text="$tr('viewLearners')"
+        appearance="basic-link"
+        class="learner-device-link"
+        @click="viewLearners"
+      />
       <KIconButton
         ref="printButton"
         icon="print"
@@ -56,6 +61,14 @@
         return isEmbeddedWebView || this.disableExport;
       },
     },
+    methods: {
+      viewLearners() {
+        this.$router.push(this.$router.getRoute('ClassLearnersListPage'));
+      },
+    },
+    $trs: {
+      viewLearners: 'View learner devices',
+    },
   };
 
 </script>
@@ -74,6 +87,11 @@
     top: 50%;
     right: 0;
     transform: translateY(-50%);
+  }
+
+  .learner-device-link {
+    margin-right: 10px;
+    font-size: 14px;
   }
 
 </style>
