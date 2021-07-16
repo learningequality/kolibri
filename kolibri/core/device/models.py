@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.db import models
+from django.db.models import QuerySet
 from morango.models import UUIDField
 
 from .utils import LANDING_PAGE_LEARN
@@ -36,7 +37,13 @@ class DevicePermissions(models.Model):
 DEVICE_SETTINGS_CACHE_KEY = "device_settings_cache_key"
 
 
-class DeviceSettingsManager(models.Manager):
+class DeviceSettingsQuerySet(QuerySet):
+    def delete(self, **kwargs):
+        cache.delete(DEVICE_SETTINGS_CACHE_KEY)
+        return super(DeviceSettingsQuerySet, self).delete(**kwargs)
+
+
+class DeviceSettingsManager(models.Manager.from_queryset(DeviceSettingsQuerySet)):
     def get(self, **kwargs):
         if DEVICE_SETTINGS_CACHE_KEY not in cache:
             model = super(DeviceSettingsManager, self).get(**kwargs)
@@ -92,6 +99,10 @@ class DeviceSettings(models.Model):
         self.full_clean()
         super(DeviceSettings, self).save(*args, **kwargs)
         cache.set(DEVICE_SETTINGS_CACHE_KEY, self, 600)
+
+    def delete(self, *args, **kwargs):
+        super(DeviceSettings, self).delete(*args, **kwargs)
+        cache.delete(DEVICE_SETTINGS_CACHE_KEY)
 
 
 CONTENT_CACHE_KEY_CACHE_KEY = "content_cache_key"
