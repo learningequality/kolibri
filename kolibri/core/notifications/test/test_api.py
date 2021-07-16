@@ -755,83 +755,125 @@ class BulkNotificationsAPITestCase(APITestCase):
             interaction_history=interactions,
         )
 
-    def test_batch_summarylog_notifications(self):
+    def _assert_call_contains(self, call, *args, **kwargs):
+        # Check args that are [1] in the call
+        for actual, expected in zip(call[1], args):
+            self.assertEqual(actual, expected)
+        # Check kwargs that are [2] in the call
+        for key, actual in call[2].items():
+            if key in kwargs:
+                expected = kwargs[key]
+                self.assertEqual(actual, expected)
+
+    @patch("kolibri.core.notifications.api.create_notification")
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_batch_summarylog_notifications(
+        self, save_notifications, create_notification
+    ):
         LearnerProgressNotification.objects.all().delete()
         batch_process_summarylogs([self.summarylog1.id, self.summarylog2.id])
-        self.assertEqual(
-            LearnerProgressNotification.objects.filter(
-                contentnode_id=self.node_1.id,
-                notification_object=NotificationObjectType.Resource,
-                notification_event=NotificationEventType.Started,
-            ).count(),
-            1,
+        assert save_notifications.called
+        create_notification.assert_any_call(
+            NotificationObjectType.Resource,
+            NotificationEventType.Started,
+            self.attemptlog1.user_id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            lesson_id=self.lesson_id,
+            contentnode_id=self.node_1.id,
+            timestamp=self.summarylog1.end_timestamp,
         )
-        self.assertEqual(
-            LearnerProgressNotification.objects.filter(
-                contentnode_id=self.node_2.id,
-                notification_object=NotificationObjectType.Resource,
-                notification_event=NotificationEventType.Started,
-            ).count(),
-            1,
+        create_notification.assert_any_call(
+            NotificationObjectType.Resource,
+            NotificationEventType.Started,
+            self.attemptlog1.user_id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            lesson_id=self.lesson_id,
+            contentnode_id=self.node_2.id,
+            timestamp=self.summarylog2.end_timestamp,
         )
-        self.assertEqual(
-            LearnerProgressNotification.objects.filter(
-                lesson_id=self.lesson.id,
-                notification_object=NotificationObjectType.Lesson,
-                notification_event=NotificationEventType.Started,
-            ).count(),
-            1,
+        create_notification.assert_any_call(
+            NotificationObjectType.Lesson,
+            NotificationEventType.Started,
+            self.attemptlog1.user_id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            lesson_id=self.lesson_id,
+            timestamp=self.summarylog1.end_timestamp,
         )
 
-    def test_batch_examlog_notifications(self):
+    @patch("kolibri.core.notifications.api.create_notification")
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_batch_examlog_notifications(self, save_notifications, create_notification):
         LearnerProgressNotification.objects.all().delete()
         batch_process_examlogs(
             [self.examlog1.id, self.examlog2.id], [self.examattemptlog1.id]
         )
-        self.assertEqual(
-            LearnerProgressNotification.objects.filter(
-                quiz_id=self.exam1.id, notification_event=NotificationEventType.Started
-            ).count(),
-            1,
+        assert save_notifications.called
+        self._assert_call_contains(
+            create_notification.mock_calls[0],
+            NotificationObjectType.Quiz,
+            NotificationEventType.Started,
+            self.user1.id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            quiz_id=self.exam1.id,
+            timestamp=self.examattemptlog1.start_timestamp,
         )
-        self.assertEqual(
-            LearnerProgressNotification.objects.filter(
-                quiz_id=self.exam1.id, notification_event=NotificationEventType.Answered
-            ).count(),
-            1,
+        self._assert_call_contains(
+            create_notification.mock_calls[1],
+            NotificationObjectType.Quiz,
+            NotificationEventType.Answered,
+            self.user1.id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            quiz_id=self.exam1.id,
+            timestamp=self.examattemptlog1.start_timestamp,
         )
-        self.assertEqual(
-            LearnerProgressNotification.objects.filter(
-                quiz_id=self.exam1.id,
-                notification_event=NotificationEventType.Completed,
-            ).count(),
-            1,
-        )
-        self.assertEqual(
-            LearnerProgressNotification.objects.filter(quiz_id=self.exam2.id).count(), 0
+        self._assert_call_contains(
+            create_notification.mock_calls[2],
+            NotificationObjectType.Quiz,
+            NotificationEventType.Completed,
+            self.user1.id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            quiz_id=self.exam1.id,
+            timestamp=self.examlog1.completion_timestamp,
         )
 
-    def test_batch_attemptlog_notifications(self):
+    @patch("kolibri.core.notifications.api.create_notification")
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_batch_attemptlog_notifications(
+        self, save_notifications, create_notification
+    ):
         LearnerProgressNotification.objects.all().delete()
         batch_process_attemptlogs([self.attemptlog1.id, self.attemptlog2.id])
-        self.assertEqual(
-            LearnerProgressNotification.objects.filter(
-                contentnode_id=self.node_1.id,
-                notification_object=NotificationObjectType.Resource,
-                notification_event=NotificationEventType.Answered,
-            ).count(),
-            2,
+        assert save_notifications.called
+        create_notification.assert_any_call(
+            NotificationObjectType.Resource,
+            NotificationEventType.Answered,
+            self.attemptlog1.user_id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            lesson_id=self.lesson_id,
+            contentnode_id=self.node_1.id,
+            timestamp=self.attemptlog1.end_timestamp,
         )
-        self.assertEqual(
-            LearnerProgressNotification.objects.filter(
-                contentnode_id=self.node_1.id,
-                notification_object=NotificationObjectType.Resource,
-                notification_event=NotificationEventType.Help,
-            ).count(),
-            0,
+        create_notification.assert_any_call(
+            NotificationObjectType.Resource,
+            NotificationEventType.Answered,
+            self.attemptlog2.user_id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            lesson_id=self.lesson_id,
+            contentnode_id=self.node_1.id,
+            timestamp=self.attemptlog2.end_timestamp,
         )
 
-    def test_batch_attemptlog_needs_help(self):
+    @patch("kolibri.core.notifications.api.create_notification")
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_batch_attemptlog_needs_help(self, save_notifications, create_notification):
         LearnerProgressNotification.objects.all().delete()
         # more than 3 attempts will trigger the help notification
         interactions = [{"type": "answer", "correct": 0}] * 3
@@ -851,19 +893,25 @@ class BulkNotificationsAPITestCase(APITestCase):
         batch_process_attemptlogs(
             [self.attemptlog1.id, self.attemptlog2.id, attemptlog3.id]
         )
-        self.assertEqual(
-            LearnerProgressNotification.objects.filter(
-                contentnode_id=self.node_1.id,
-                notification_object=NotificationObjectType.Resource,
-                notification_event=NotificationEventType.Answered,
-            ).count(),
-            3,
+        assert save_notifications.called
+        create_notification.assert_any_call(
+            NotificationObjectType.Resource,
+            NotificationEventType.Answered,
+            attemptlog3.user_id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            lesson_id=self.lesson_id,
+            contentnode_id=self.node_1.id,
+            timestamp=attemptlog3.end_timestamp,
         )
-        self.assertEqual(
-            LearnerProgressNotification.objects.filter(
-                contentnode_id=self.node_1.id,
-                notification_object=NotificationObjectType.Resource,
-                notification_event=NotificationEventType.Help,
-            ).count(),
-            1,
+        create_notification.assert_any_call(
+            NotificationObjectType.Resource,
+            NotificationEventType.Help,
+            attemptlog3.user_id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            lesson_id=self.lesson_id,
+            contentnode_id=self.node_1.id,
+            reason=HelpReason.Multiple,
+            timestamp=attemptlog3.end_timestamp,
         )

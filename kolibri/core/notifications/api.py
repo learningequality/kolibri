@@ -347,7 +347,7 @@ def num_answered(examlog):
 
 
 def created_quiz_notification(examlog, event_type, timestamp):
-    assigned_collections = (
+    assigned_collections = list(
         ExamAssignment.objects.filter(
             exam_id=examlog.exam_id,
             collection_id__in=examlog.user.memberships.all().values_list(
@@ -493,8 +493,6 @@ def batch_process_attemptlogs(attemptlog_ids):
 
 
 def batch_process_examlogs(examlog_ids, examattemptlog_ids):
-    for examlog in ExamLog.objects.filter(id__in=examlog_ids):
-        parse_examlog(examlog, examlog.completion_timestamp)
     for examattemptlog in (
         ExamAttemptLog.objects.filter(id__in=examattemptlog_ids)
         .select_related("examlog")
@@ -502,6 +500,8 @@ def batch_process_examlogs(examlog_ids, examattemptlog_ids):
     ):
         create_examlog(examattemptlog.examlog, examattemptlog.start_timestamp)
         create_examattemptslog(examattemptlog.examlog, examattemptlog.start_timestamp)
+    for examlog in ExamLog.objects.filter(id__in=examlog_ids):
+        parse_examlog(examlog, examlog.completion_timestamp)
 
 
 def batch_process_summarylogs(summarylog_ids):
