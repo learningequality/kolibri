@@ -1,6 +1,7 @@
 from sys import version_info
 
 from django.conf import settings
+from django.db.models import Max
 from django.db.models.query import Q
 from django.http.response import HttpResponseBadRequest
 from django_filters.rest_framework import DjangoFilterBackend
@@ -199,9 +200,20 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
         "id",
         "queued",
         "sync_session",
+        "last_synced",
+        "active",
         "user",
         "user_id",
     )
 
     def get_queryset(self):
         return UserSyncStatus.objects.filter()
+
+    def annotate_queryset(self, queryset):
+
+        queryset = queryset.annotate(
+            last_synced=Max("sync_session__last_activity_timestamp")
+        )
+        queryset = queryset.annotate(active=Max("sync_session__active"))
+
+        return queryset
