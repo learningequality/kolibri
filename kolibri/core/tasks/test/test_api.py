@@ -20,6 +20,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.tasks.api import prepare_peer_sync_job
 from kolibri.core.tasks.api import prepare_sync_job
@@ -28,9 +29,12 @@ from kolibri.core.tasks.api import ResourceGoneError
 from kolibri.core.tasks.api import validate_facility
 from kolibri.core.tasks.api import validate_peer_sync_job
 from kolibri.core.tasks.api import validate_sync_task
+from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import JobRegistry
 from kolibri.core.tasks.job import State
+
 
 DUMMY_PASSWORD = "password"
 
@@ -140,6 +144,348 @@ class TaskAPITestCase(BaseAPITestCase):
         }
 
         self.assertDictEqual(response.data, expected_response)
+
+
+@patch("kolibri.core.tasks.api.job_storage")
+@patch("kolibri.core.tasks.job.RegisteredJob.enqueue")
+class CreateTaskAPITestCase(BaseAPITestCase):
+    def tearDown(self):
+        JobRegistry.REGISTERED_JOBS.clear()
+
+    def test_api_validator_task_field_check(self, mock_enqueue, mock_job_storage):
+        # When "task" is absent.
+        response = self.client.post(
+            reverse("kolibri:core:managetask-list"), {"x": 0, "y": 42}, format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+
+        response = self.client.post(
+            reverse("kolibri:core:managetask-list"),
+            [{"x": 0, "y": 42}, {"x": 0, "y": 42}],
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+        # When "task" has a value of incorrect type.
+        response = self.client.post(
+            reverse("kolibri:core:managetask-list"),
+            {"task": 100, "x": 0, "y": 42},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+        response = self.client.post(
+            reverse("kolibri:core:managetask-list"),
+            [{"task": 100, "x": 0, "y": 42}, {"task": True, "x": 0, "y": 42}],
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_api_validator_unregistered_task(self, mock_enqueue, mock_job_storage):
+        # When "task" is not registered via the decorator.
+        def add(x, y):
+            return x + y
+
+        response = self.client.post(
+            reverse("kolibri:core:managetask-list"),
+            {
+                "task": "kolibri.core.tasks.test.test_api.add",
+                "x": 0,
+                "y": 42,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+        response = self.client.post(
+            reverse("kolibri:core:managetask-list"),
+            [
+                {
+                    "task": "kolibri.core.tasks.test.test_api.add",
+                    "x": 0,
+                    "y": 42,
+                }
+            ],
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_api_validator_handles_task_permissions(
+        self, mock_enqueue, mock_job_storage
+    ):
+        @register_task(permission_classes=[IsSuperuser])
+        def add(x, y):
+            return x + y
+
+        # Let us logout the superuser to send request anonymously.
+        self.client.logout()
+
+        response = self.client.post(
+            reverse("kolibri:core:managetask-list"),
+            {"task": "kolibri.core.tasks.test.test_api.add", "x": 0, "y": 42},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_api_errors_on_task_validator_wrong_return_type(
+        self, mock_enqueue, mock_job_storage
+    ):
+        def add_validator(request, req_data):
+            return "kolibri"
+
+        @register_task(validator=add_validator)
+        def add(x, y):
+            return x + y
+
+        response = self.client.post(
+            reverse("kolibri:core:managetask-list"),
+            {"task": "kolibri.core.tasks.test.test_api.add", "x": 0, "y": 42},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_api_reraises_task_validator_exception(
+        self, mock_enqueue, mock_job_storage
+    ):
+        def add_validator(req, req_data):
+            raise TypeError
+
+        @register_task(validator=add_validator)
+        def add(x, y):
+            return x + y
+
+        with self.assertRaises(TypeError):
+            self.client.post(
+                reverse("kolibri:core:managetask-list"),
+                {"task": "kolibri.core.tasks.test.test_api.add", "x": 0, "y": 42},
+                format="json",
+            )
+
+    def test_api_handles_single_task_without_vaidator(
+        self, mock_enqueue, mock_job_storage
+    ):
+        @register_task(permission_classes=[IsSuperuser])
+        def add(x, y):
+            return x + y
+
+        mock_enqueue.return_value = "test"
+        mock_job_storage.get_job.return_value = fake_job(
+            state=State.QUEUED, job_id="test"
+        )
+
+        response = self.client.post(
+            reverse("kolibri:core:managetask-list"),
+            {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
+            format="json",
+        )
+
+        expected_response = {
+            "id": "test",
+            "status": "QUEUED",
+            "exception": "",
+            "traceback": "",
+            "percentage": 0,
+            "cancellable": False,
+            "clearable": False,
+        }
+
+        # Did API return the right stuff?
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.data, expected_response)
+
+        # Do we call enqueue the right way i.e. are we passing
+        # the request's data as keyword args to enqueue method?
+        mock_enqueue.assert_called_once_with(
+            **{"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"}
+        )
+
+        # Do we retrieve the task from db to ready the response?
+        mock_job_storage.get_job.assert_called_once_with("test")
+
+    def test_api_handles_bulk_task_without_vaidator(
+        self, mock_enqueue, mock_job_storage
+    ):
+        @register_task(permission_classes=[IsSuperuser])
+        def add(x, y):
+            return x + y
+
+        mock_enqueue.return_value = "test"
+        mock_job_storage.get_job.return_value = fake_job(
+            state=State.QUEUED, job_id="test"
+        )
+
+        request_payload = [
+            {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
+            {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
+        ]
+
+        response = self.client.post(
+            reverse("kolibri:core:managetask-list"),
+            request_payload,
+            format="json",
+        )
+
+        expected_response = [
+            {
+                "id": "test",
+                "status": "QUEUED",
+                "exception": "",
+                "traceback": "",
+                "percentage": 0,
+                "cancellable": False,
+                "clearable": False,
+            },
+            {
+                "id": "test",
+                "status": "QUEUED",
+                "exception": "",
+                "traceback": "",
+                "percentage": 0,
+                "cancellable": False,
+                "clearable": False,
+            },
+        ]
+
+        # Did API return the right stuff?
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, expected_response)
+
+        # Do we call enqueue the right way i.e. are we passing
+        # the request's data as keyword args to enqueue method?
+        self.assertEqual(mock_enqueue.call_count, 2)
+        mock_enqueue.assert_has_calls(
+            [
+                call(
+                    **{"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"}
+                ),
+                call(
+                    **{"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"}
+                ),
+            ]
+        )
+
+        # Do we retrieve the task from db to ready the response?
+        self.assertEqual(mock_job_storage.get_job.call_count, 2)
+        mock_job_storage.get_job.assert_has_calls([call("test"), call("test")])
+
+    def test_api_handles_single_task_with_vaidator(
+        self, mock_enqueue, mock_job_storage
+    ):
+        def add_validator(req, req_data):
+            # Does validator receives the right arguments?
+            self.assertIsInstance(req, Request)
+            self.assertDictEqual(
+                req_data,
+                {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
+            )
+            add.extra_metadata = {"facility": "kolibri HQ"}
+            return {"x": 0, "y": 42}
+
+        @register_task(validator=add_validator, permission_classes=[IsSuperuser])
+        def add(x, y):
+            return x + y
+
+        mock_enqueue.return_value = "test"
+        mock_job_storage.get_job.return_value = fake_job(
+            state=State.QUEUED, job_id="test", extra_metadata={"facility": "kolibri HQ"}
+        )
+
+        response = self.client.post(
+            reverse("kolibri:core:managetask-list"),
+            {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
+            format="json",
+        )
+
+        expected_response = {
+            "id": "test",
+            "status": "QUEUED",
+            "exception": "",
+            "traceback": "",
+            "percentage": 0,
+            "cancellable": False,
+            "clearable": False,
+            "facility": "kolibri HQ",
+        }
+
+        # Did API return the right stuff?
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.data, expected_response)
+
+        # Do we call enqueue the right way i.e. are we passing
+        # the return value of validator as keyword args to enqueue method?
+        mock_enqueue.assert_called_once_with(**{"x": 0, "y": 42})
+
+        # Do we retrieve the task from db to ready the response?
+        mock_job_storage.get_job.assert_called_once_with("test")
+
+    def test_api_handles_bulk_task_with_vaidator(self, mock_enqueue, mock_job_storage):
+        def add_validator(req, req_data):
+            # Does validator receives the right arguments?
+            self.assertIsInstance(req, Request)
+            self.assertDictEqual(
+                req_data,
+                {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
+            )
+            add.extra_metadata = {"facility": "kolibri HQ"}
+            return {"x": 0, "y": 42}
+
+        @register_task(validator=add_validator, permission_classes=[IsSuperuser])
+        def add(x, y):
+            return x + y
+
+        mock_enqueue.return_value = "test"
+        mock_job_storage.get_job.return_value = fake_job(
+            state=State.QUEUED, job_id="test", extra_metadata={"facility": "kolibri HQ"}
+        )
+
+        request_payload = [
+            {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
+            {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
+        ]
+
+        response = self.client.post(
+            reverse("kolibri:core:managetask-list"),
+            request_payload,
+            format="json",
+        )
+
+        expected_response = [
+            {
+                "id": "test",
+                "status": "QUEUED",
+                "exception": "",
+                "traceback": "",
+                "percentage": 0,
+                "cancellable": False,
+                "clearable": False,
+                "facility": "kolibri HQ",
+            },
+            {
+                "id": "test",
+                "status": "QUEUED",
+                "exception": "",
+                "traceback": "",
+                "percentage": 0,
+                "cancellable": False,
+                "clearable": False,
+                "facility": "kolibri HQ",
+            },
+        ]
+
+        # Did API return the right stuff?
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, expected_response)
+
+        # Do we call enqueue the right way i.e. are we passing
+        # the return value of validator as keyword args to enqueue method?
+        self.assertEqual(mock_enqueue.call_count, 2)
+        mock_enqueue.assert_has_calls(
+            [call(**{"x": 0, "y": 42}), call(**{"x": 0, "y": 42})]
+        )
+
+        # Do we retrieve the task from db to ready the response?
+        self.assertEqual(mock_job_storage.get_job.call_count, 2)
+        mock_job_storage.get_job.assert_has_calls([call("test"), call("test")])
 
 
 @patch("kolibri.core.tasks.api.priority_queue")
