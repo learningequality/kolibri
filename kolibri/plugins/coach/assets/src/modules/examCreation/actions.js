@@ -86,8 +86,7 @@ export function fetchAdditionalSearchResults(store, params) {
   });
 }
 
-export function createChannelQuizAndRoute(store, { classId, title }) {
-  store.commit('SET_TITLE', title);
+export function createChannelQuizAndRoute(store, { classId }) {
   const exam = {
     collection: classId,
     title: store.state.title,

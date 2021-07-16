@@ -66,7 +66,6 @@
           .then(() => {
             const params = {
               classId: id,
-              title: content.title,
             };
             return this.$store.dispatch('examCreation/createChannelQuizAndRoute', params);
           })
@@ -78,7 +77,6 @@
             if (errors) {
               this.showError = true;
               this.showTitleError = true;
-              this.$refs.title.focus();
             } else {
               this.$store.dispatch('handleApiError', error);
             }

@@ -9,7 +9,7 @@
             :layout12="{ span: 9 }"
           >
             <h1>
-              <KLabeledIcon :icon="content.kind" :label="content.title" />
+              <KLabeledIcon :icon="content.kind" :label="updateTitle" />
             </h1>
           </KGridItem>
           <KGridItem
@@ -93,6 +93,7 @@
 
 <script>
 
+  import { mapState, mapGetters } from 'vuex';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
@@ -137,6 +138,8 @@
       };
     },
     computed: {
+      ...mapState('examCreation', ['title']),
+      ...mapGetters('classSummary', ['exams']),
       isExercise() {
         return this.content.kind === 'exercise';
       },
@@ -158,6 +161,26 @@
           this.content.license_description
         );
       },
+      newTitle() {
+        let currentChannelQuizName = this.content.title;
+        let channelQuizNameAlreadyExists = this.exams.filter(exam =>
+          exam.title.includes(currentChannelQuizName)
+        );
+
+        if (channelQuizNameAlreadyExists.length >= 1) {
+          // Set the new (#) for additional copies based on how many copies exist
+          let newCopyNum = channelQuizNameAlreadyExists.length;
+          return this.$tr('duplicateTitle', {
+            copyNum: newCopyNum,
+            originalTitle: this.content.title,
+          });
+        }
+        return this.content.title;
+      },
+      updateTitle() {
+        this.$store.commit('examCreation/SET_TITLE', this.newTitle);
+        return this.title;
+      },
     },
     methods: {
       questionLabel(questionIndex) {
@@ -177,6 +200,7 @@
       totalQuestionsHeader: 'Total questions',
       quizDurationHeader: 'Quiz duration',
       selectQuiz: 'Select quiz',
+      duplicateTitle: '{ originalTitle } ({ copyNum, number })',
     },
   };
 
