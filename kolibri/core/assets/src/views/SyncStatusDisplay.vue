@@ -76,7 +76,7 @@
       },
     },
     $trs: {
-      recentlySynced: 'Synced ___ minutes ago',
+      recentlySynced: 'Synced',
       syncing: 'Syncing...',
       queued: 'Waiting to sync...',
       unableToSync: 'Unable to sync',
@@ -112,6 +112,14 @@
     margin-top: 0;
     margin-bottom: 0;
     font-size: 14px;
+  }
+
+  .sync-status-large-bold {
+    display: inline-block;
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: bold;
   }
 
 </style>

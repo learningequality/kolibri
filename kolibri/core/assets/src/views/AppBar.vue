@@ -128,7 +128,7 @@
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import UiButton from 'kolibri-design-system/lib/keen/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
-  import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
+  import { NavComponentSections, SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import branding from 'kolibri.utils.branding';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
@@ -243,21 +243,21 @@
       mapSyncStatusOptionToLearner() {
         if (this.userSyncStatus) {
           if (this.userSyncStatus.active) {
-            return 'SYNCING';
+            return SyncStatus.SYNCINGSYNCING;
           } else if (this.userSyncStatus.queued) {
-            return 'QUEUED';
-          } else if (this.userSyncStatus.last_activity_timestamp) {
+            return SyncStatus.QUEUED;
+          } else if (this.userSyncStatus.last_synced) {
             const currentDateTime = new Date();
-            const TimeDifference = this.userSyncStatus.last_activity_timestamp - currentDateTime;
+            const TimeDifference = this.userSyncStatus.last_synced - currentDateTime;
             const diffMins = Math.round(((TimeDifference % 86400000) % 3600000) / 60000);
             if (diffMins < 60) {
-              return 'RECENTLY_SYNCED';
+              return SyncStatus.RECENTLY_SYNCED;
             } else {
-              return 'NOT_RECENTLY_SYNCED';
+              return SyncStatus.NOT_RECENTLY_SYNCED;
             }
           }
         }
-        return 'NOT_CONNECTED';
+        return SyncStatus.NOT_CONNECTED;
       },
     },
     $trs: {

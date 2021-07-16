@@ -22,9 +22,8 @@
         :submitText="$tr('close')"
         @submit="displayTroubleshootModal = false"
       >
-        <p>{{ $tr('howToTroubleshootModalSubheader') }}</p>
-        <div v-for="status in syncStatusOptions" :key="status.id">
-          <SyncStatusDisplay :syncStatus="status" displaySize="sync-status-large" />
+        <div v-for="status in syncStatusOptions" :key="status.id" class="status-option-display">
+          <SyncStatusDisplay :syncStatus="status" displaySize="sync-status-large-bold" />
           <SyncStatusDescription :syncStatus="status" />
         </div>
       </KModal>
@@ -111,7 +110,8 @@
       syncStatusOptions() {
         let options = [];
         for (const [value] of Object.entries(SyncStatus)) {
-          options.push(value);
+          // skip displaying the "not recently synced" as a separate option, per Figma design
+          value !== SyncStatus.NOT_RECENTLY_SYNCED ? options.push(value) : null;
         }
         return options;
       },
@@ -133,9 +133,9 @@
           });
         }
         if (learnerSyncData) {
-          if (learnerSyncData.last_active_sync) {
+          if (learnerSyncData.last_synced) {
             const currentDateTime = new Date();
-            const TimeDifference = learnerSyncData.last_active_sync - currentDateTime;
+            const TimeDifference = learnerSyncData.last_synced - currentDateTime;
             const diffMins = Math.round(((TimeDifference % 86400000) % 3600000) / 60000);
             return diffMins;
           }
@@ -149,24 +149,25 @@
             return entry.user_id == learnerId;
           });
           learnerSyncData = learnerSyncData[learnerSyncData.length - 1];
+          console.log(learnerSyncData);
         }
         if (learnerSyncData) {
           if (learnerSyncData.active) {
-            return 'SYNCING';
+            return SyncStatus.SYNCINGSYNCING;
           } else if (learnerSyncData.queued) {
-            return 'QUEUED';
-          } else if (learnerSyncData.last_activity_timestamp) {
+            return SyncStatus.QUEUED;
+          } else if (learnerSyncData.last_synced) {
             const currentDateTime = new Date();
-            const TimeDifference = learnerSyncData.last_activity_timestamp - currentDateTime;
+            const TimeDifference = learnerSyncData.last_synced - currentDateTime;
             const diffMins = Math.round(((TimeDifference % 86400000) % 3600000) / 60000);
             if (diffMins < 60) {
-              return 'RECENTLY_SYNCED';
+              return SyncStatus.RECENTLY_SYNCED;
             } else {
-              return 'NOT_RECENTLY_SYNCED';
+              return SyncStatus.NOT_RECENTLY_SYNCED;
             }
           }
         }
-        return 'NOT_CONNECTED';
+        return SyncStatus.NOT_CONNECTED;
       },
       pollClassListSyncStatuses() {
         this.fetchUserSyncStatus({ id: this.$route.params.classId }).then(status => {
@@ -183,8 +184,7 @@
       pageHeader: "Learners in '{className}'",
       deviceStatus: 'Device status',
       lastSyncedStatus: 'Last synced',
-      howToTroubleshootModalHeader: 'How to troubleshoot learner devices',
-      howToTroubleshootModalSubheader: 'Here are the different device statuses and their meanings',
+      howToTroubleshootModalHeader: 'Information about sync statuses',
       close: 'Close',
     },
   };
@@ -198,13 +198,17 @@
     margin-bottom: 40px;
   }
 
-  // #modal-title {
-  //   padding-bottom: 4px;
-  //   font-size: 18px;
-  // }
+  /deep/ .title {
+    padding-bottom: 24px;
+    font-size: 18px;
+  }
 
   /deep/ .content {
     font-size: 14px;
+  }
+
+  .status-option-display {
+    padding-bottom: 8px;
   }
 
 </style>
