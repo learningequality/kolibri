@@ -781,7 +781,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
-            timestamp=self.summarylog1.end_timestamp,
+            timestamp=self.summarylog1.start_timestamp,
         )
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
@@ -791,7 +791,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_2.id,
-            timestamp=self.summarylog2.end_timestamp,
+            timestamp=self.summarylog2.start_timestamp,
         )
         create_notification.assert_any_call(
             NotificationObjectType.Lesson,
@@ -800,7 +800,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             self.classroom.id,
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
-            timestamp=self.summarylog1.end_timestamp,
+            timestamp=self.summarylog1.start_timestamp,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")

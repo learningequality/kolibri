@@ -260,7 +260,7 @@ def create_summarylog(summarylog):
     notifications = []
     for lesson, contentnode_id in lessons:
         notifications_started = check_and_created_started(
-            lesson, summarylog.user_id, contentnode_id, summarylog.end_timestamp
+            lesson, summarylog.user_id, contentnode_id, summarylog.start_timestamp
         )
         notifications += notifications_started
 
