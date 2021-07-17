@@ -236,6 +236,12 @@ Feature: Coach creates quizzes
 		Then I am redirected to the *Coach - '<class>' > Plan > Quizzes* page
 			And I see a snackbar confirmation
 
+	Scenario: Select a duplicate channel-based quiz
+		Given I have created a channel-based quiz already
+			And I am creating a second copy of the same channel-based quiz
+		When I am on the "Preview page" of this second copy
+		Then I see that the title of the channel quiz has a number appended to it to indicate it is a copy
+
 Examples:
     | quiz          | number_of_question | exercises_questions | channel                | topic               |
     | First Quarter | 5                  | Mathématiques       | Khan Academy (English) | Recognize fractions |
