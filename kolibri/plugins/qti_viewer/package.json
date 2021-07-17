@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "name": "qti-viewer",
+  "description": "A plugin for rendering QTI questions",
+  "private": true,
+  "dependencies": {
+    "fast-xml-parser": "^3.19.0",
+    "fflate": "^0.7.1",
+    "xss": "^1.0.9"
+  }
+}
