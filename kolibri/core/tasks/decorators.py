@@ -50,8 +50,6 @@ def register_task(
     func.enqueue_in = registered_job.enqueue_in
     func.enqueue_at = registered_job.enqueue_at
 
-    func.extra_metadata = registered_job.extra_metadata
-
     funcstring = stringify_func(func)
     JobRegistry.REGISTERED_JOBS[funcstring] = registered_job
 

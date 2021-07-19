@@ -52,13 +52,9 @@ class TestRegisteredJob(TestCase):
         self.assertEqual(self.registered_job.group, "human")
         self.assertEqual(self.registered_job.cancellable, True)
         self.assertEqual(self.registered_job.track_progress, True)
-        self.assertEqual(self.registered_job.extra_metadata, {})
 
     @mock.patch("kolibri.core.tasks.job.Job", spec=True)
     def test__ready_job(self, MockJob):
-        extra_metadata = {"meta": "test"}
-        self.registered_job.extra_metadata = extra_metadata
-
         result = self.registered_job._ready_job("10", base=10)
 
         MockJob.assert_called_once_with(
@@ -68,12 +64,9 @@ class TestRegisteredJob(TestCase):
             group="human",
             cancellable=True,
             track_progress=True,
-            extra_metadata=extra_metadata,
             base=10,  # kwarg that was passed to _ready_job()
         )
 
-        # Do we clear metadata after creating job object?
-        self.assertEqual(self.registered_job.extra_metadata, {})
         # Do we return the job object?
         self.assertIsInstance(result, Job)
 
