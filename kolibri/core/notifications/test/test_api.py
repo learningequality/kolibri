@@ -1,5 +1,6 @@
 import json
 import uuid
+from datetime import timedelta
 
 from le_utils.constants import content_kinds
 from mock import patch
@@ -678,7 +679,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             examlog=cls.examlog1,
             user=cls.user1,
             start_timestamp=local_now(),
-            end_timestamp=local_now(),
+            end_timestamp=local_now() + timedelta(seconds=10),
             complete=False,
             correct=0.0,
             content_id=uuid.uuid4(),
@@ -732,7 +733,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             sessionlog=cls.sessionlog,
             user=cls.user1,
             start_timestamp=local_now(),
-            end_timestamp=local_now(),
+            end_timestamp=local_now() + timedelta(seconds=10),
             time_spent=1.0,
             complete=True,
             correct=0,
@@ -746,7 +747,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             sessionlog=cls.sessionlog,
             user=cls.user1,
             start_timestamp=local_now(),
-            end_timestamp=local_now(),
+            end_timestamp=local_now() + timedelta(seconds=10),
             time_spent=1.0,
             complete=True,
             correct=0,
@@ -882,7 +883,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             sessionlog=self.sessionlog,
             user=self.user1,
             start_timestamp=local_now(),
-            end_timestamp=local_now(),
+            end_timestamp=local_now() + timedelta(seconds=10),
             time_spent=1.0,
             complete=True,
             correct=0,
