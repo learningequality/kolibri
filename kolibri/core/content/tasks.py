@@ -1,6 +1,6 @@
 """
 The purpose of this module is to manually test & demonstrate the
-entire task submission workflow. This module will be deleted before the merge.
+entire task submission workflow.
 
 Right now, I've imported the validator from the api module but we'll
 shift those to their suitable directories in coming times.

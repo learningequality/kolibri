@@ -129,20 +129,25 @@ def __queue():
 queue = SimpleLazyObject(__queue)
 
 
-PRIORITY_TO_QUEUE_MAP = {
-    Priority.REGULAR: queue,
-    Priority.HIGH: priority_queue,
-}
-
-# This storage instance should be used to access job_storage db
-job_storage = Storage(connection=connection)
-
-
 def __scheduler():
     return Scheduler(queue=queue, connection=connection)
 
 
 scheduler = SimpleLazyObject(__scheduler)
+
+
+def __job_storage():
+    return Storage(connection=connection)
+
+
+# This storage instance should be used to access job_storage db.
+job_storage = SimpleLazyObject(__job_storage)
+
+
+PRIORITY_TO_QUEUE_MAP = {
+    Priority.REGULAR: queue,
+    Priority.HIGH: priority_queue,
+}
 
 
 def initialize_workers():

@@ -155,12 +155,12 @@ class CreateTaskAPITestCase(BaseAPITestCase):
     def test_api_validator_task_field_check(self, mock_enqueue, mock_job_storage):
         # When "task" is absent.
         response = self.client.post(
-            reverse("kolibri:core:managetask-list"), {"x": 0, "y": 42}, format="json"
+            reverse("kolibri:core:task-list"), {"x": 0, "y": 42}, format="json"
         )
         self.assertEqual(response.status_code, 400)
 
         response = self.client.post(
-            reverse("kolibri:core:managetask-list"),
+            reverse("kolibri:core:task-list"),
             [{"x": 0, "y": 42}, {"x": 0, "y": 42}],
             format="json",
         )
@@ -168,14 +168,14 @@ class CreateTaskAPITestCase(BaseAPITestCase):
 
         # When "task" has a value of incorrect type.
         response = self.client.post(
-            reverse("kolibri:core:managetask-list"),
+            reverse("kolibri:core:task-list"),
             {"task": 100, "x": 0, "y": 42},
             format="json",
         )
         self.assertEqual(response.status_code, 400)
 
         response = self.client.post(
-            reverse("kolibri:core:managetask-list"),
+            reverse("kolibri:core:task-list"),
             [{"task": 100, "x": 0, "y": 42}, {"task": True, "x": 0, "y": 42}],
             format="json",
         )
@@ -187,7 +187,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             return x + y
 
         response = self.client.post(
-            reverse("kolibri:core:managetask-list"),
+            reverse("kolibri:core:task-list"),
             {
                 "task": "kolibri.core.tasks.test.test_api.add",
                 "x": 0,
@@ -198,7 +198,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 400)
 
         response = self.client.post(
-            reverse("kolibri:core:managetask-list"),
+            reverse("kolibri:core:task-list"),
             [
                 {
                     "task": "kolibri.core.tasks.test.test_api.add",
@@ -221,7 +221,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         self.client.logout()
 
         response = self.client.post(
-            reverse("kolibri:core:managetask-list"),
+            reverse("kolibri:core:task-list"),
             {"task": "kolibri.core.tasks.test.test_api.add", "x": 0, "y": 42},
             format="json",
         )
@@ -238,7 +238,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             return x + y
 
         response = self.client.post(
-            reverse("kolibri:core:managetask-list"),
+            reverse("kolibri:core:task-list"),
             {"task": "kolibri.core.tasks.test.test_api.add", "x": 0, "y": 42},
             format="json",
         )
@@ -256,7 +256,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
 
         with self.assertRaises(TypeError):
             self.client.post(
-                reverse("kolibri:core:managetask-list"),
+                reverse("kolibri:core:task-list"),
                 {"task": "kolibri.core.tasks.test.test_api.add", "x": 0, "y": 42},
                 format="json",
             )
@@ -274,7 +274,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         )
 
         response = self.client.post(
-            reverse("kolibri:core:managetask-list"),
+            reverse("kolibri:core:task-list"),
             {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
             format="json",
         )
@@ -320,7 +320,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         ]
 
         response = self.client.post(
-            reverse("kolibri:core:managetask-list"),
+            reverse("kolibri:core:task-list"),
             request_payload,
             format="json",
         )
@@ -391,7 +391,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         )
 
         response = self.client.post(
-            reverse("kolibri:core:managetask-list"),
+            reverse("kolibri:core:task-list"),
             {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
             format="json",
         )
@@ -444,7 +444,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         ]
 
         response = self.client.post(
-            reverse("kolibri:core:managetask-list"),
+            reverse("kolibri:core:task-list"),
             request_payload,
             format="json",
         )
