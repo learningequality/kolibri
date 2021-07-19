@@ -13,8 +13,6 @@ from sqlalchemy import event
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.ext.automap import generate_relationship
 from sqlalchemy.orm import interfaces
-from sqlalchemy.orm import scoped_session
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import UnaryExpression
@@ -94,13 +92,13 @@ def get_engine(connection_string):
     Get a SQLAlchemy engine that allows us to connect to a database.
     """
     # Set echo to False, as otherwise we get full SQL Query outputted, which can overwhelm the terminal
+    # Set convert_unicode to True, to properly handle unicode in the DB
     engine_kwargs = {"echo": False, "convert_unicode": True}
 
     if connection_string.startswith("sqlite"):
-        # Set timeout to 60s, as with most of our content import write operations
+        # Set timeout to 300s, as with most of our content import write operations
         # it is more important to complete, than to do so quickly.
         engine_kwargs["connect_args"] = {"check_same_thread": False, "timeout": 5 * 60}
-        engine_kwargs["poolclass"] = NullPool
     else:
         engine_kwargs["pool_pre_ping"] = True
 
@@ -111,21 +109,8 @@ def get_engine(connection_string):
         event.listen(engine, "connect", set_sqlite_connection_pragma)
         connection = engine.connect()
         connection.execute(START_PRAGMAS)
-        connection.close()
 
     return engine
-
-
-def make_session(connection_string):
-    """
-    Make a session for a particular SQLAlchemy database, this handles opening a connection
-    from the engine, and will automatically start transactions for us.
-    We use the autoflush option to the sessionmaker in order to have explicit control over
-    when we actually commit to the database.
-    """
-    engine = get_engine(connection_string)
-    Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
-    return Session(), engine
 
 
 def get_class(DjangoModel, Base):
@@ -300,35 +285,31 @@ class Bridge(object):
         if sqlite_file_path is None:
             # If sqlite_file_path is None, we are referencing the Django default database
             self.connection_string = get_default_db_string()
-            self.schema_version = schema_version or CURRENT_SCHEMA_VERSION
+            schema_version = schema_version or CURRENT_SCHEMA_VERSION
         else:
             # Otherwise, we are accessing an external database.
             self.connection_string = sqlite_connection_string(sqlite_file_path)
-            # If the schema_version is defined, then use the schema_version that was
-            # set.
-            if schema_version is not None:
-                self.schema_version = schema_version
+
+        self.engine = get_engine(self.connection_string)
+        # If the schema_version is defined, then use the schema_version that was
+        # set.
+        if schema_version is not None:
+            self.schema_version = schema_version
+        else:
+            # If not, we are probably looking at an imported content db
+            # So we try each of our historical database schema in order to see
+            # which glass slipper fits! If none do, just turn into a pumpkin.
+            for version in CONTENT_DB_SCHEMA_VERSIONS:
+                self.schema_version = version
+                try:
+                    db_matches_schema(BASES[self.schema_version], self.engine)
+                    break
+                except DBSchemaError as e:
+                    logging.debug(e)
             else:
-                # If not, we are probably looking at an imported content db
-                # So we try each of our historical database schema in order to see
-                # which glass slipper fits! If none do, just turn into a pumpkin.
-                for version in CONTENT_DB_SCHEMA_VERSIONS:
-                    self.schema_version = version
-                    self.session, self.engine = make_session(self.connection_string)
-                    try:
-                        db_matches_schema(BASES[self.schema_version], self.session)
-                        break
-                    except DBSchemaError as e:
-                        logging.debug(e)
-                else:
-                    raise SchemaNotFoundError(
-                        "No matching schema found for this database"
-                    )
+                raise SchemaNotFoundError("No matching schema found for this database")
 
         self.Base = BASES[self.schema_version]
-        # We are using scoped sessions, so should always return the same session
-        # in the same thread
-        self.session, self.engine = make_session(self.connection_string)
 
         if schema_version is not None and sqlite_file_path is not None:
             # In this case we are not using the default database, nor have
@@ -341,7 +322,7 @@ class Bridge(object):
             # change in the schema beyond creating tables.
             self.Base.metadata.create_all(self.engine)
 
-        self.connection = None
+        self._connection = None
 
     def get_class(self, DjangoModel):
         return get_class(DjangoModel, self.Base)
@@ -358,15 +339,19 @@ class Bridge(object):
         return conn.connection
 
     def get_connection(self):
-        if self.connection is None:
-            self.connection = self.engine.connect()
         return self.connection
 
+    @property
+    def connection(self):
+        if self._connection is None:
+            self._connection = self.engine.connect()
+        return self._connection
+
+    def execute(self, query, *args):
+        return self.connection.execute(query, *args)
+
     def end(self):
-        # Clean up session
-        self.session.close()
-        if self.connection:
-            self.connection.close()
+        self.connection.close()
         self.engine.dispose()
 
 

@@ -1,10 +1,13 @@
 import os
+import shutil
+import tempfile
 from time import sleep
 
 from django.conf import settings
 from django.test import TestCase
 
 from kolibri.utils import cli
+from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 
 
 class KolibriTimedRotatingFileHandlerTestCase(TestCase):
@@ -28,3 +31,23 @@ class KolibriTimedRotatingFileHandlerTestCase(TestCase):
         settings.LOGGING["handlers"]["file"]["when"] = orig_value
 
         self.assertNotEqual(os.listdir(archive_dir), [])
+
+    def test_getFilesToDelete(self):
+        temp_dir = tempfile.mkdtemp()
+        file_handle, log_file = tempfile.mkstemp(suffix=".txt", dir=temp_dir)
+        os.close(file_handle)
+        handler = KolibriTimedRotatingFileHandler(log_file, backupCount=3, when="s")
+        sleep(1)
+        handler.doRollover()
+        sleep(1)
+        handler.doRollover()
+        sleep(1)
+        handler.doRollover()
+        sleep(1)
+        handler.doRollover()
+        self.assertEqual(len(handler.getFilesToDelete()), 1)
+        try:
+            os.remove(log_file)
+        except OSError:
+            pass
+        shutil.rmtree(temp_dir, ignore_errors=True)

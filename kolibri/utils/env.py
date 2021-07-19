@@ -7,6 +7,39 @@ logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
 
 
+def settings_module():
+    from .build_config.default_settings import settings_path
+
+    return settings_path
+
+
+# Enumerate all the environment variables that are used in Kolibri, and describe
+# their usage. Optionally provide a default value as a callback function, to set as
+# a default if the environment variable is not set.
+ENVIRONMENT_VARIABLES = {
+    "DJANGO_SETTINGS_MODULE": {
+        "default": settings_module,
+        "description": "The Django settings module to use.",
+    },
+    "KOLIBRI_HOME": {
+        "default": lambda: os.path.join(os.path.expanduser("~"), ".kolibri"),
+        "description": "The base directory for the Kolibri installation.",
+    },
+    "KOLIBRI_NO_FILE_BASED_LOGGING": {
+        "description": "Disable file-based logging.",
+    },
+    "KOLIBRI_APK_VERSION_NAME": {
+        "description": "Version name for the Kolibri APK (Android Installer)",
+    },
+    "LISTEN_PID": {
+        "description": """
+            The PID of the process to listen for signals from -
+            used to detect whether running under socket activation under Debian.
+        """,
+    },
+}
+
+
 def prepend_cext_path(dist_path):
     """
     Calculate the directory of C extensions and add it to sys.path if exists.
@@ -71,10 +104,7 @@ def set_env():
             )
         ]
 
-    from .build_config.default_settings import settings_path
-
     # Set default env
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_path)
-    os.environ.setdefault(
-        "KOLIBRI_HOME", os.path.join(os.path.expanduser("~"), ".kolibri")
-    )
+    for key, value in ENVIRONMENT_VARIABLES.items():
+        if "default" in value:
+            os.environ.setdefault(key, value["default"]())

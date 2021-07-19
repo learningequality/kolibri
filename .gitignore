@@ -93,6 +93,8 @@ js-dist
 storage/*
 kolibri/content/content_db/*.sqlite3
 kolibri/core/content/contentschema/migrations/*
+# Check in h5p specific files
+!kolibri/core/content/static/h5p/
 
 # virtual environment
 venv/

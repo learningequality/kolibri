@@ -24,6 +24,7 @@ from kolibri.core.content.utils.channels import get_channel_ids_for_content_dirs
 from kolibri.core.content.utils.paths import get_all_content_dir_paths
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.sqlalchemybridge import Bridge
+from kolibri.core.content.utils.tree import get_channel_node_depth
 from kolibri.core.upgrade import version_upgrade
 
 
@@ -133,8 +134,6 @@ def update_num_coach_contents():
     """
     bridge = Bridge(app_name=KolibriContentConfig.label)
 
-    ContentNodeClass = bridge.get_class(ContentNode)
-
     ContentNodeTable = bridge.get_table(ContentNode)
 
     connection = bridge.get_connection()
@@ -177,11 +176,7 @@ def update_num_coach_contents():
 
     for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
 
-        node_depth = (
-            bridge.session.query(func.max(ContentNodeClass.level))
-            .filter_by(channel_id=channel_id)
-            .scalar()
-        )
+        node_depth = get_channel_node_depth(bridge, channel_id)
 
         # Go from the deepest level to the shallowest
         for level in range(node_depth, 0, -1):
@@ -217,8 +212,6 @@ def update_on_device_resources():
     those that were imported before annotations were performed
     """
     bridge = Bridge(app_name=KolibriContentConfig.label)
-
-    ContentNodeClass = bridge.get_class(ContentNode)
 
     ContentNodeTable = bridge.get_table(ContentNode)
 
@@ -262,11 +255,7 @@ def update_on_device_resources():
 
     for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
 
-        node_depth = (
-            bridge.session.query(func.max(ContentNodeClass.level))
-            .filter_by(channel_id=channel_id)
-            .scalar()
-        )
+        node_depth = get_channel_node_depth(bridge, channel_id)
 
         # Go from the deepest level to the shallowest
         for level in range(node_depth, 0, -1):

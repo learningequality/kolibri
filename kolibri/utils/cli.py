@@ -449,3 +449,46 @@ def list():
             + " " * (max_len - len(plugin) + 4)
             + ("ENABLED" if plugin in config.ACTIVE_PLUGINS else "DISABLED")
         )
+
+
+@main.command(cls=KolibriGroupCommand, help="Configure Kolibri and enabled plugins")
+def configure():
+    pass
+
+
+def _format_env_var(envvar, value):
+    if value.get("deprecated", False) or envvar in value.get(
+        "deprecated_envvars", tuple()
+    ):
+        return click.style(
+            "{envvar} - DEPRECATED - {description}\n\n".format(
+                envvar=envvar, description=value.get("description", "")
+            ),
+            fg="yellow",
+        )
+    return "{envvar} - {description}\n\n".format(
+        envvar=envvar, description=value.get("description", "")
+    )
+
+
+def _get_env_vars():
+    """
+    Generator to iterate over all environment variables
+    """
+    from kolibri.utils.env import ENVIRONMENT_VARIABLES
+
+    for key, value in ENVIRONMENT_VARIABLES.items():
+        yield _format_env_var(key, value)
+
+    from kolibri.utils.options import option_spec
+
+    for value in option_spec.values():
+        for v in value.values():
+            if "envvars" in v:
+                for envvar in v["envvars"]:
+                    yield _format_env_var(envvar, v)
+
+
+@configure.command(help="List all available environment variables to configure Kolibri")
+def list_env():
+    click.echo_via_pager(_get_env_vars())

@@ -1,6 +1,6 @@
 const path = require('path');
 const apiSpecAliases = require('../lib/apiSpecExportTools').coreAliases();
-const babelConfig = require('../babel.config');
+const babelConfig = require('./babel.config');
 
 const moduleNameMapper = {
   '^testUtils$': path.resolve(__dirname, './testUtils'),

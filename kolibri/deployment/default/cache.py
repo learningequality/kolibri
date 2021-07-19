@@ -40,14 +40,6 @@ default_cache = {
     "OPTIONS": {"MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"]},
 }
 
-built_files_prefix = "built_files"
-
-built_files_cache = {
-    "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-    # Default time out of each cache key
-    "TIMEOUT": cache_options["CACHE_TIMEOUT"],
-    "OPTIONS": {"MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"]},
-}
 
 # Setup a special cache specifically for items that are likely to be needed
 # to be shared across processes - most frequently, things that might be needed
@@ -86,17 +78,11 @@ if cache_options["CACHE_BACKEND"] == "redis":
         },
     }
     default_cache = copy.deepcopy(base_cache)
-    default_cache["OPTIONS"]["DB"] = cache_options["CACHE_REDIS_MIN_DB"]
-    built_files_cache = copy.deepcopy(base_cache)
-    built_files_cache["OPTIONS"]["DB"] = cache_options["CACHE_REDIS_MIN_DB"] + 1
-
-built_files_cache["KEY_PREFIX"] = built_files_prefix
+    default_cache["OPTIONS"]["DB"] = cache_options["CACHE_REDIS_DB"]
 
 CACHES = {
     # Default cache
     "default": default_cache,
-    # Cache for builtfiles - frontend assets that only change on upgrade.
-    "built_files": built_files_cache,
 }
 
 if cache_options["CACHE_BACKEND"] != "redis":

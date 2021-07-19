@@ -15,7 +15,7 @@ from kolibri.utils.server import get_zip_port
 VALID_STORAGE_FILENAME = re.compile(r"[0-9a-f]{32}(-data)?\.[0-9a-z]+")
 
 # set of file extensions that should be considered zip files and allow access to internal files
-POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".zip", ".h5p"])
+POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".zip"])
 
 
 def _maybe_makedirs(path):
@@ -281,13 +281,13 @@ def zip_content_path_prefix():
 
 
 def get_zip_content_base_path():
-    return "{}{}".format(zip_content_path_prefix(), ZIPCONTENT)
+    return "{}{}".format(get_content_url(zip_content_path_prefix()), ZIPCONTENT)
 
 
 HASHI_FILENAME = None
 
 
-def get_hashi_js_filename():
+def get_hashi_html_filename():
     global HASHI_FILENAME
     if HASHI_FILENAME is None or getattr(settings, "DEVELOPER_MODE", None):
         with io.open(
@@ -299,20 +299,12 @@ def get_hashi_js_filename():
     return HASHI_FILENAME
 
 
-def get_hashi_html_filename():
-    return "{}.html".format(".".join(get_hashi_js_filename().split(".")[:-1]))
-
-
-def get_hashi_base_path():
-    return "{}{}".format(zip_content_path_prefix(), HASHI)
+def zip_content_static_root():
+    return urljoin(get_content_url(zip_content_path_prefix()), "static/")
 
 
 def get_hashi_path():
-    return "{}{}{}".format(zip_content_path_prefix(), HASHI, get_hashi_html_filename())
-
-
-def zip_content_static_root():
-    return urljoin(zip_content_path_prefix(), "static/")
+    return "{}{}{}".format(zip_content_static_root(), HASHI, get_hashi_html_filename())
 
 
 def get_content_storage_file_url(filename):

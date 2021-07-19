@@ -57,6 +57,8 @@ class FileFinder(finders.FileSystemFinder):
 
 
 class DynamicWhiteNoise(WhiteNoise):
+    index_file = "index.html"
+
     def __init__(self, application, dynamic_locations=None, **kwargs):
         whitenoise_settings = {
             # Use 1 day as the default cache time for static assets

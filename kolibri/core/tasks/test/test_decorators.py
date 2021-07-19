@@ -23,7 +23,6 @@ class TestTaskDecorators(TestCase):
             priority="high",
             cancellable=True,
             track_progress=True,
-            group="math",
         )
         def add(x, y):
             return x + y
@@ -36,7 +35,6 @@ class TestTaskDecorators(TestCase):
             priority="high",
             cancellable=True,
             track_progress=True,
-            group="math",
         )
 
     def test_register_decorator_registers_without_args(self):
@@ -62,7 +60,6 @@ class TestTaskDecorators(TestCase):
             priority="high",
             cancellable=True,
             track_progress=True,
-            group="math",
         )
         def add(x, y):
             return x + y

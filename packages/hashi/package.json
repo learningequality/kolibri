@@ -7,21 +7,30 @@
     "build-base": "webpack --config ./webpack.config.js",
     "build": "yarn run build-base --mode=production",
     "dev": "yarn run build-base --mode=development --watch",
-    "compat": "eslint -c ./compat.js ./src/*.js"
+    "compat": "eslint -c ./compat.js ./src/*.js",
+    "mimetypes": "node ./generateH5PMimeTypeDB.js",
+    "build-h5p": "node ./downloadH5PVendor.js && webpack --config ./webpack.config.h5p.js --mode=production"
   },
   "author": "Learning Equality",
   "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "^7.13.14",
-    "@babel/core": "^7.13.15",
-    "@babel/preset-env": "^7.13.15",
-    "babel-loader": "^8.2.2",
     "eslint-plugin-compat": "^3.0.0",
-    "webpack": "4.6.0",
-    "webpack-cli": "^3.1.2"
+    "html-webpack-plugin": "4",
+    "jquery": "3.5.1",
+    "mime-db": "^1.46.0",
+    "mutationobserver-shim": "^0.3.7",
+    "purgecss": "^4.0.3",
+    "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "core-js": "3.13"
+    "core-js": "3.13",
+    "dayjs": "^1.10.4",
+    "fflate": "^0.7.1",
+    "iri": "^1.3.0",
+    "is-language-code": "^3.0.12",
+    "iso8601-duration": "^1.3.0",
+    "toposort-class": "^1.0.1",
+    "uuid": "^8.3.2"
   },
   "browserslist": [
     "extends browserslist-config-kolibri"

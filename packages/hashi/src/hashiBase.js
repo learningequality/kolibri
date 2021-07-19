@@ -14,6 +14,10 @@ export const events = {
   CONTEXT: 'context',
   THEMECHANGED: 'themechanged',
   KOLIBRIVERSIONREQUESTED: 'kolibriversionrequested',
+  NOW: 'now',
+  RESIZE: 'resize',
+  LOADING: 'loading',
+  ERROR: 'error',
 };
 
 export const DataTypes = {

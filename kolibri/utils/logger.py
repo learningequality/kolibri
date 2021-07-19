@@ -1,7 +1,5 @@
 import logging
 import os
-import re
-from logging import Formatter
 from logging.handlers import TimedRotatingFileHandler
 
 from . import conf
@@ -9,6 +7,8 @@ from . import conf
 
 GET_FILES_TO_DELETE = "getFilesToDelete"
 DO_ROLLOVER = "doRollover"
+
+NO_FILE_BASED_LOGGING = os.environ.get("KOLIBRI_NO_FILE_BASED_LOGGING", False)
 
 
 class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
@@ -94,22 +94,6 @@ class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
         return result
 
 
-class KolibriLogFileFormatter(Formatter):
-    """
-    A custom Formatter to change the format string of Cherrypy logging messages.
-    """
-
-    def format(self, record):
-        if "cherrypy" in record.name:
-            # Remove the timestamp from Cherrypy logging so that the message only contains one timestamp.
-            record.msg = re.sub(r"\[[^)]*\]\s", "", record.msg)
-            # Change the format string for Cherrypy logging messages from %module(_cplogging) to %name.
-            record.module = record.name
-
-        message = super(KolibriLogFileFormatter, self).format(record)
-        return message
-
-
 class FalseFilter(logging.Filter):
     """
     A filter that ignores everything, useful to create log config
@@ -137,6 +121,10 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
     configuration.
     """
 
+    DEFAULT_HANDLERS = (
+        ["console"] if NO_FILE_BASED_LOGGING else ["file", "console", "file_debug"]
+    )
+
     # This is the general level
     DEFAULT_LEVEL = "INFO" if not debug else "DEBUG"
     DATABASE_LEVEL = "INFO" if not debug_database else "DEBUG"
@@ -151,10 +139,6 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             },
             "simple": {"format": "%(levelname)s %(message)s"},
             "simple_date": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
-            "simple_date_file": {
-                "()": "kolibri.utils.logger.KolibriLogFileFormatter",
-                "format": "%(levelname)s %(asctime)s %(name)s %(message)s",
-            },
             "color": {
                 "()": "colorlog.ColoredFormatter",
                 "format": "%(log_color)s%(levelname)-8s %(message)s",
@@ -178,7 +162,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "filters": [],
                 "class": "kolibri.utils.logger.KolibriTimedRotatingFileHandler",
                 "filename": os.path.join(LOG_ROOT, "kolibri.txt"),
-                "formatter": "simple_date_file",
+                "formatter": "simple_date",
                 "when": "midnight",
                 "backupCount": 30,
             },
@@ -192,7 +176,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
         },
         "loggers": {
             "kolibri": {
-                "handlers": ["file", "console", "file_debug"],
+                "handlers": DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
@@ -200,27 +184,27 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             # We should introduce custom debug log levels or log
             # targets, i.e. --debug-level=high
             "kolibri.core.tasks.worker": {
-                "handlers": ["file", "console", "file_debug"],
+                "handlers": DEFAULT_HANDLERS,
                 "level": "INFO",
                 "propagate": False,
             },
             "morango": {
-                "handlers": ["file", "console", "file_debug"],
+                "handlers": DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
             "django": {
-                "handlers": ["file", "console", "file_debug"],
+                "handlers": DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
             "django.db.backends": {
-                "handlers": ["file", "console", "file_debug"],
+                "handlers": DEFAULT_HANDLERS,
                 "level": DATABASE_LEVEL,
                 "propagate": False,
             },
             "django.request": {
-                "handlers": ["file", "console", "file_debug"],
+                "handlers": DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
                 "propagate": False,
             },

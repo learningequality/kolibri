@@ -39,6 +39,11 @@
         :src="rooturl"
       >
       </iframe>
+      <KCircularLoader
+        v-if="loading"
+        :delay="false"
+        class="loader"
+      />
     </div>
   </CoreFullscreen>
 
@@ -60,17 +65,30 @@
     components: {
       CoreFullscreen,
     },
+    props: {
+      userId: {
+        type: String,
+        default: '',
+      },
+      userFullName: {
+        type: String,
+        default: '',
+      },
+      progress: {
+        type: Number,
+        default: 0,
+      },
+    },
     data() {
       return {
+        iframeHeight: (this.options && this.options.height) || defaultContentHeight,
         isInFullscreen: false,
+        loading: false,
       };
     },
     computed: {
       rooturl() {
         return urls.hashi();
-      },
-      iframeHeight() {
-        return (this.options && this.options.height) || defaultContentHeight;
       },
       iframeWidth() {
         return (this.options && this.options.width) || 'auto';
@@ -125,6 +143,16 @@
       });
       this.hashi.on('navigateTo', message => {
         this.$emit('navigateTo', message);
+      });
+      this.hashi.on(this.hashi.events.RESIZE, scrollHeight => {
+        this.iframeHeight = scrollHeight;
+      });
+      this.hashi.on(this.hashi.events.LOADING, loading => {
+        this.loading = loading;
+      });
+      this.hashi.on(this.hashi.events.ERROR, err => {
+        this.loading = false;
+        this.$emit('error', err);
       });
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},
@@ -190,6 +218,12 @@
 
     width: 100%;
     overflow: visible;
+  }
+
+  .loader {
+    position: absolute;
+    top: calc(50% - 16px);
+    left: calc(50% - 16px);
   }
 
 </style>

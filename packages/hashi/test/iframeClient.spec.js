@@ -1,3 +1,4 @@
+import 'mutationobserver-shim';
 import Hashi from '../src/iframeClient';
 import { events, nameSpace } from '../src/hashiBase';
 

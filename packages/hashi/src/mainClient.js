@@ -1,7 +1,9 @@
 import Mediator from './mediator';
 import LocalStorage from './localStorage';
 import Cookie from './cookie';
+import H5P from './H5P/H5PInterface';
 import SCORM from './SCORM';
+import xAPI from './xAPI/xAPIInterface';
 import { events, nameSpace, DataTypes } from './hashiBase';
 import Kolibri from './kolibri';
 
@@ -21,7 +23,9 @@ export default class MainClient {
     this.storage = {
       localStorage: new LocalStorage(this.mediator),
       cookie: new Cookie(this.mediator),
+      H5P: new H5P(this.mediator),
       SCORM: new SCORM(this.mediator),
+      xAPI: new xAPI(this.mediator),
     };
     this.kolibri = new Kolibri(this.mediator);
     this.now = now;
@@ -29,6 +33,7 @@ export default class MainClient {
     this.contentNamespace = null;
     this.startUrl = null;
     this.__setData = this.__setData.bind(this);
+    this.resize = this.resize.bind(this);
   }
   initialize(contentState, userData, startUrl, contentNamespace) {
     /*
@@ -45,6 +50,14 @@ export default class MainClient {
 
     this.contentNamespace = contentNamespace;
     this.startUrl = startUrl;
+
+    this.iframe.style.width = '100%';
+
+    // Bugfix for Chrome: Force update of iframe width. If this is not done the
+    // document size may not be updated before the content resizes.
+    this.iframe.getBoundingClientRect();
+
+    this.on(this.events.RESIZE, this.resize);
 
     // Set this here so that any time the inner frame declares it is ready
     // it can reinitialize its SandboxEnvironment.
@@ -123,15 +136,21 @@ export default class MainClient {
 
   getProgress() {
     // Return any calculated progress from the storage APIs
-    // So far, only the SCORM shim supports this
+    // So far, only the SCORM and xAPI shim supports this
     // If no progress has been reported, this will be null.
+    const xAPIprogress = this.storage.xAPI.__calculateProgress();
+    if (xAPIprogress !== null) {
+      return xAPIprogress;
+    }
     return this.storage.SCORM.__calculateProgress();
   }
 
   __setData(contentState, userData) {
     this.updateData({ contentState, userData });
     if (this.now) {
-      this.storage.cookie.setNow(this.now());
+      Object.keys(this.storage).forEach(key => {
+        this.storage[key].setNow(this.now());
+      });
     }
   }
   __setListeners() {
@@ -167,5 +186,11 @@ export default class MainClient {
 
   onProgressUpdate(callback) {
     this.on(events.PROGRESSUPDATE, callback);
+  }
+
+  resize(scrollHeight) {
+    if (this.iframe.getBoundingClientRect().height !== scrollHeight) {
+      this.iframe.style.height = scrollHeight + 'px';
+    }
   }
 }

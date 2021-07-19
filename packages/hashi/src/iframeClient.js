@@ -6,6 +6,8 @@ import SCORM from './SCORM';
 import Kolibri from './kolibri';
 import patchIndexedDB from './patchIndexedDB';
 import { events, nameSpace } from './hashiBase';
+import H5P from './H5P/H5PInterface';
+import xAPI from './xAPI/xAPIInterface';
 
 /*
  * This class is initialized inside the context of a sandboxed iframe.
@@ -29,6 +31,16 @@ export default class SandboxEnvironment {
     this.kolibri = new Kolibri(this.mediator);
 
     this.SCORM = new SCORM(this.mediator);
+
+    this.H5P = new H5P(this.mediator);
+
+    this.xAPI = new xAPI(this.mediator);
+
+    this.resize = this.resize.bind(this);
+
+    this.mutationObserver = new MutationObserver(this.resize);
+
+    this.lastSentHeight = null;
 
     // We initialize SCORM here, as the usual place for SCORM
     // to look for its API is window.parent.
@@ -70,7 +82,14 @@ export default class SandboxEnvironment {
         this.sessionStorage.iframeInitialize(this.iframe.contentWindow);
         this.cookie.iframeInitialize(this.iframe.contentWindow);
         this.kolibri.iframeInitialize(this.iframe.contentWindow);
+        this.H5P.iframeInitialize(this.iframe.contentWindow);
+        this.xAPI.iframeInitialize(this.iframe.contentWindow);
         patchIndexedDB(this.contentNamespace, this.iframe.contentWindow);
+        this.mutationObserver.observe(this.iframe.contentDocument, {
+          attributes: true,
+          childList: true,
+          subtree: true,
+        });
       } catch (e) {
         console.log('Shimming storage APIs failed, data will not persist'); // eslint-disable-line no-console
       }
@@ -79,11 +98,26 @@ export default class SandboxEnvironment {
 
   clearIframe() {
     try {
-      this.iframe.contentWindow.removeEventListener('resize', this.resizeIframe);
+      this.mutationObserver.disconnect();
     } catch (e) {} // eslint-disable-line no-empty
     try {
       document.body.removeChild(this.iframe);
     } catch (e) {} // eslint-disable-line no-empty
+    this.lastSentHeight = null;
+  }
+
+  resize() {
+    if (this.iframe && this.iframe.contentDocument.body) {
+      const documentHeight = this.iframe.contentDocument.documentElement.scrollHeight;
+      if (documentHeight > this.iframe.getBoundingClientRect().height && !this.lastSentHeight) {
+        this.lastSentHeight = documentHeight;
+        this.mediator.sendMessage({
+          nameSpace,
+          event: events.RESIZE,
+          data: documentHeight,
+        });
+      }
+    }
   }
 
   createIframe({ contentNamespace, startUrl = '' } = {}) {
@@ -92,7 +126,6 @@ export default class SandboxEnvironment {
     }
     this.contentNamespace = contentNamespace;
     this.iframe = document.createElement('iframe');
-    this.iframe.src = startUrl;
     this.iframe.style.border = 0;
     this.iframe.style.padding = 0;
     this.iframe.style.margin = 0;
@@ -100,6 +133,11 @@ export default class SandboxEnvironment {
     this.iframe.style.width = '100%';
     this.iframe.height = '100%';
     document.body.appendChild(this.iframe);
-    this.initializeIframe(this.iframe.contentWindow);
+    if (startUrl.indexOf('.h5p') === startUrl.length - 4) {
+      this.mediator.sendMessage({ nameSpace, event: events.LOADING, data: true });
+      this.H5P.init(this.iframe, startUrl);
+    } else {
+      this.iframe.src = startUrl;
+    }
   }
 }

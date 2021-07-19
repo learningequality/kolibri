@@ -12,6 +12,7 @@ from rest_framework import status
 
 import kolibri
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.public.constants.user_sync_statuses import QUEUED
@@ -143,6 +144,11 @@ def request_soud_sync(server, user=None, queue_id=None, ttl=10):
         return  # Request done to a server not owning this user's data
 
     if response.status_code == status.HTTP_200_OK:
+        # In either case, we set the sync status for this user as queued
+        # Once the sync starts, then this should get cleared and the SyncSession
+        # set on the status, so that more info can be garnered.
+        UserSyncStatus.objects.update_or_create(user_id=user, defaults={"queued": True})
+
         if server_response["action"] == SYNC:
             job_id = startpeerfacilitysync(server, user)
             logger.info(

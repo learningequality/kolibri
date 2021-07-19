@@ -141,7 +141,6 @@ class Job(object):
         keys = [
             "job_id",
             "state",
-            "group",
             "traceback",
             "exception",
             "track_progress",
@@ -171,7 +170,6 @@ class Job(object):
             kwargs["track_progress"] = func.track_progress
             kwargs["cancellable"] = func.cancellable
             kwargs["extra_metadata"] = func.extra_metadata.copy()
-            kwargs["group"] = func.group
             func = func.func
         elif not callable(func) and not isinstance(func, str):
             raise TypeError(
@@ -184,7 +182,6 @@ class Job(object):
 
         self.job_id = job_id
         self.state = kwargs.pop("state", State.PENDING)
-        self.group = kwargs.pop("group", None)
         self.traceback = ""
         self.exception = None
         self.track_progress = kwargs.pop("track_progress", False)
@@ -299,7 +296,6 @@ class RegisteredJob(object):
         self.permissions = [perm() for perm in permission_classes]
 
         self.job_id = kwargs.pop("job_id", None)
-        self.group = kwargs.pop("group", None)
         self.cancellable = kwargs.pop("cancellable", False)
         self.track_progress = kwargs.pop("track_progress", False)
 
@@ -363,7 +359,6 @@ class RegisteredJob(object):
             self.func,
             *args,
             job_id=self.job_id,
-            group=self.group,
             cancellable=self.cancellable,
             track_progress=self.track_progress,
             **kwargs

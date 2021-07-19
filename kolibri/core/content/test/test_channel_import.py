@@ -33,6 +33,7 @@ from kolibri.core.content.utils.annotation import (
     set_leaf_node_availability_from_local_file_availability,
 )
 from kolibri.core.content.utils.annotation import update_content_metadata
+from kolibri.core.content.utils.channel_import import BATCH_SIZE
 from kolibri.core.content.utils.channel_import import ChannelImport
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
@@ -211,19 +212,6 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
     Testcase for the base channel import class table import method
     """
 
-    def test_no_models_unflushed_rows_passed_through(
-        self, apps_mock, tree_id_mock, BridgeMock
-    ):
-        channel_import = ChannelImport("test")
-        record_mock = MagicMock(spec=["__table__"])
-        channel_import.destination.get_class.return_value = record_mock
-        self.assertEqual(
-            0,
-            channel_import.table_import(
-                MagicMock(), lambda x, y: None, lambda x: [], 0
-            ),
-        )
-
     def test_no_merge_records_bulk_insert_no_flush(
         self, apps_mock, tree_id_mock, BridgeMock
     ):
@@ -232,9 +220,9 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         record_mock.__table__.columns.items.return_value = [("test_attr", MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         channel_import.table_import(
-            MagicMock(), lambda x, y: "test_val", lambda x: [{}] * 100, 0
+            MagicMock(), lambda x, y: "test_val", lambda x: [{}] * (BATCH_SIZE // 10)
         )
-        channel_import.destination.session.flush.assert_not_called()
+        channel_import.destination.execute.assert_called_once()
 
     def test_no_merge_records_bulk_insert_flush(
         self, apps_mock, tree_id_mock, BridgeMock
@@ -244,43 +232,9 @@ class BaseChannelImportClassTableImportTestCase(TestCase):
         record_mock.__table__.columns.items.return_value = [("test_attr", MagicMock())]
         channel_import.destination.get_class.return_value = record_mock
         channel_import.table_import(
-            MagicMock(), lambda x, y: "test_val", lambda x: [{}] * 10000, 0
+            MagicMock(), lambda x, y: "test_val", lambda x: [{}] * (BATCH_SIZE + 1)
         )
-        channel_import.destination.session.flush.assert_called_once_with()
-
-    @patch("kolibri.core.content.utils.channel_import.merge_models", new=[])
-    def test_merge_records_merge_no_flush(self, apps_mock, tree_id_mock, BridgeMock):
-        from kolibri.core.content.utils.channel_import import merge_models
-
-        channel_import = ChannelImport("test")
-        record_mock = MagicMock(spec=["__table__"])
-        record_mock.__table__.columns.items.return_value = [("test_attr", MagicMock())]
-        channel_import.destination.get_class.return_value = record_mock
-        model_mock = MagicMock()
-        model_mock._meta.pk.name = "test_attr"
-        merge_models.append(model_mock)
-        channel_import.merge_record = Mock()
-        channel_import.table_import(
-            model_mock, lambda x, y: "test_val", lambda x: [{}] * 100, 0
-        )
-        channel_import.destination.session.flush.assert_not_called()
-
-    @patch("kolibri.core.content.utils.channel_import.merge_models", new=[])
-    def test_merge_records_merge_flush(self, apps_mock, tree_id_mock, BridgeMock):
-        from kolibri.core.content.utils.channel_import import merge_models
-
-        channel_import = ChannelImport("test")
-        record_mock = Mock(spec=["__table__"])
-        record_mock.__table__.columns.items.return_value = [("test_attr", MagicMock())]
-        channel_import.destination.get_class.return_value = record_mock
-        model_mock = Mock()
-        model_mock._meta.pk.name = "test_attr"
-        merge_models.append(model_mock)
-        channel_import.merge_record = Mock()
-        channel_import.table_import(
-            model_mock, lambda x, y: "test_val", lambda x: [{}] * 10000, 0
-        )
-        channel_import.destination.session.flush.assert_called_once_with()
+        self.assertEqual(channel_import.destination.execute.call_count, 2)
 
 
 @patch("kolibri.core.content.utils.channel_import.Bridge")
@@ -311,7 +265,6 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             )
             channel_import.table_import.assert_called_once()
             channel_import.check_and_delete_existing_channel.assert_called_once()
-            channel_import.destination.session.commit.assert_called_once_with()
 
     def test_end(self, apps_mock, tree_id_mock, BridgeMock):
         channel_import = ChannelImport("test")
@@ -325,18 +278,8 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
         channel_import.get_all_destination_tree_ids()
         channel_import.destination.assert_has_calls(
             [
-                call.session.query(class_mock.tree_id),
-                call.session.query().distinct(),
-                call.session.query().distinct().all(),
+                call.execute().fetchall(),
             ]
-        )
-
-    def test_base_table_mapper(self, apps_mock, tree_id_mock, BridgeMock):
-        channel_import = ChannelImport("test")
-        class_mock = Mock()
-        [record for record in channel_import.base_table_mapper(class_mock)]
-        channel_import.destination.assert_has_calls(
-            [call.session.query(class_mock), call.session.query().all()]
         )
 
 
@@ -431,6 +374,7 @@ class ContentImportTestBase(TransactionTestCase):
 
             import_channel_from_local_db("6199dde695db4ee4ab392222d5af1e5c")
             update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
+        self.content_engine.dispose()
 
     def get_engine(self, connection_string):
         if connection_string == get_default_db_string():
@@ -517,6 +461,16 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
         self.set_content_fixture()
         with self.assertRaises(ContentNode.DoesNotExist):
             assert ContentNode.objects.get(pk=obj_id)
+
+    def test_prerequisites_not_duplicated(self):
+        prereqs = ContentNode.has_prerequisite.through.objects.all().count()
+        channel = ChannelMetadata.objects.first()
+        # Decrement current channel version to ensure reimport
+        channel.version -= 1
+        channel.save()
+        self.set_content_fixture()
+        new_prereqs = ContentNode.has_prerequisite.through.objects.all().count()
+        self.assertEqual(prereqs, new_prereqs)
 
     def test_existing_localfiles_are_not_overwritten(self):
 

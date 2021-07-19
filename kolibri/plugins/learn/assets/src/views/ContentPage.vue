@@ -35,6 +35,7 @@
         @addProgress="addProgress"
         @updateContentState="updateContentState"
         @navigateTo="navigateTo"
+        @error="onError"
       />
 
       <AssessmentWrapper
@@ -365,6 +366,9 @@
             copyrightHolder: this.content.license_owner,
           }),
         }).catch(() => {});
+      },
+      onError(error) {
+        this.$store.dispatch('handleApiError', error);
       },
     },
     $trs: {

@@ -1,6 +1,6 @@
 FROM ubuntu:bionic
 
-ENV NODE_VERSION=10.14.1
+ENV NODE_VERSION=10.24.1
 
 # install required packages
 RUN apt-get update && \

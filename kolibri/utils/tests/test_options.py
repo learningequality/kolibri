@@ -9,6 +9,7 @@ import logging
 import os
 import sys
 import tempfile
+from contextlib import contextmanager
 
 import mock
 import pytest
@@ -31,6 +32,7 @@ def log_logger(logger_instance, LEVEL, msg, args, **kwargs):
     logger_instance.__log(LEVEL, msg, args, **kwargs)
 
 
+@contextmanager
 def activate_log_logger(monkeypatch):
     """
     Activates logging everything to ``LOG_LOGGER`` with the monkeypatch pattern
@@ -38,6 +40,9 @@ def activate_log_logger(monkeypatch):
     """
     monkeypatch.setattr(logging.Logger, "__log", logging.Logger._log, raising=False)
     monkeypatch.setattr(logging.Logger, "_log", log_logger)
+    yield
+    # Use this to clear the list for Py2 compatibility
+    del LOG_LOGGER[:]
 
 
 def test_option_reading_and_precedence_rules():
@@ -84,7 +89,7 @@ def test_option_reading_and_precedence_rules():
     # when a higher precedence env var is set, it overrides the lower precedence env var
     with mock.patch.dict(
         os.environ,
-        {"KOLIBRI_HTTP_PORT": str(_HTTP_PORT_ENV), "KOLIBRI_LISTEN_PORT": "88888"},
+        {"KOLIBRI_HTTP_PORT": str(_HTTP_PORT_ENV), "KOLIBRI_LISTEN_PORT": "64000"},
     ):
         OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
         assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_ENV
@@ -112,40 +117,121 @@ def test_default_envvar_generation():
 
 def test_improper_settings_display_errors_and_exit(monkeypatch):
     """
-    Checks that options can be read from a dummy options.ini file, and overridden by env vars.
+    Checks invalid options log errors and exit.
     """
 
-    activate_log_logger(monkeypatch)
+    with activate_log_logger(monkeypatch):
 
-    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+        _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
 
-    # non-numeric arguments for an integer option in the ini file cause it to bail
-    with open(tmp_ini_path, "w") as f:
-        f.write("\n".join(["[Deployment]", "HTTP_PORT = abba"]))
-    with mock.patch.dict(
-        os.environ, {"KOLIBRI_HTTP_PORT": "", "KOLIBRI_LISTEN_PORT": ""}
-    ):
-        with pytest.raises(SystemExit):
+        # non-numeric arguments for an integer option in the ini file cause it to bail
+        with open(tmp_ini_path, "w") as f:
+            f.write("\n".join(["[Deployment]", "HTTP_PORT = abba"]))
+        with mock.patch.dict(
+            os.environ, {"KOLIBRI_HTTP_PORT": "", "KOLIBRI_LISTEN_PORT": ""}
+        ):
+            with pytest.raises(SystemExit):
+                options.read_options_file(ini_filename=tmp_ini_path)
+            assert 'value "abba" is of the wrong type' in LOG_LOGGER[-2][1]
+
+        # non-numeric arguments for an integer option in the env var cause it to bail, even when ini file is ok
+        with open(tmp_ini_path, "w") as f:
+            f.write("\n".join(["[Deployment]", "HTTP_PORT = 1278"]))
+        with mock.patch.dict(
+            os.environ, {"KOLIBRI_HTTP_PORT": "baba", "KOLIBRI_LISTEN_PORT": ""}
+        ):
+            with pytest.raises(SystemExit):
+                options.read_options_file(ini_filename=tmp_ini_path)
+            assert 'value "baba" is of the wrong type' in LOG_LOGGER[-2][1]
+
+        # invalid choice for "option" type causes it to bail
+        with open(tmp_ini_path, "w") as f:
+            f.write("\n".join(["[Database]", "DATABASE_ENGINE = penguin"]))
+        with mock.patch.dict(os.environ, {"KOLIBRI_DATABASE_ENGINE": ""}):
+            with pytest.raises(SystemExit):
+                options.read_options_file(ini_filename=tmp_ini_path)
+            assert 'value "penguin" is unacceptable' in LOG_LOGGER[-2][1]
+
+
+def test_deprecated_values_ini_file(monkeypatch):
+    """
+    Checks that deprecated options log warnings.
+    """
+
+    with activate_log_logger(monkeypatch):
+
+        _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+
+        # deprecated options in the ini file log warnings
+        with open(tmp_ini_path, "w") as f:
+            f.write("\n".join(["[Server]", "CHERRYPY_START = false"]))
+        options.read_options_file(ini_filename=tmp_ini_path)
+        assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
+
+
+def test_deprecated_values_envvars(monkeypatch):
+    """
+    Checks that deprecated options log warnings.
+    """
+
+    with activate_log_logger(monkeypatch):
+
+        _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+        # deprecated options in the envvars log warnings
+        with open(tmp_ini_path, "w") as f:
+            f.write("\n")
+        with mock.patch.dict(os.environ, {"KOLIBRI_CHERRYPY_START": "false"}):
             options.read_options_file(ini_filename=tmp_ini_path)
-        assert 'value "abba" is of the wrong type' in LOG_LOGGER[-2][1]
+            assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
 
-    # non-numeric arguments for an integer option in the env var cause it to bail, even when ini file is ok
-    with open(tmp_ini_path, "w") as f:
-        f.write("\n".join(["[Deployment]", "HTTP_PORT = 1278"]))
-    with mock.patch.dict(
-        os.environ, {"KOLIBRI_HTTP_PORT": "baba", "KOLIBRI_LISTEN_PORT": ""}
-    ):
-        with pytest.raises(SystemExit):
-            options.read_options_file(ini_filename=tmp_ini_path)
-        assert 'value "baba" is of the wrong type' in LOG_LOGGER[-2][1]
 
-    # invalid choice for "option" type causes it to bail
-    with open(tmp_ini_path, "w") as f:
-        f.write("\n".join(["[Database]", "DATABASE_ENGINE = penguin"]))
-    with mock.patch.dict(os.environ, {"KOLIBRI_DATABASE_ENGINE": ""}):
-        with pytest.raises(SystemExit):
+def test_deprecated_envvars(monkeypatch):
+    """
+    Checks that deprecated options log warnings.
+    """
+
+    with activate_log_logger(monkeypatch):
+
+        _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+        # deprecated envvars for otherwise valid options log warnings
+        with open(tmp_ini_path, "w") as f:
+            f.write("\n")
+        with mock.patch.dict(
+            os.environ, {"KOLIBRI_LISTEN_PORT": "1234", "KOLIBRI_HTTP_PORT": ""}
+        ):
             options.read_options_file(ini_filename=tmp_ini_path)
-        assert 'value "penguin" is unacceptable' in LOG_LOGGER[-2][1]
+            assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
+
+
+def test_deprecated_aliases(monkeypatch):
+    """
+    Checks that deprecated options log warnings.
+    """
+
+    with activate_log_logger(monkeypatch):
+
+        _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+        # deprecated aliases for otherwise valid options log warnings
+        with open(tmp_ini_path, "w") as f:
+            f.write("\n".join(["[Cache]", "CACHE_REDIS_MIN_DB = 7"]))
+        options.read_options_file(ini_filename=tmp_ini_path)
+        assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
+
+
+def test_deprecated_aliases_envvars(monkeypatch):
+    """
+    Checks that deprecated options log warnings.
+    """
+
+    with activate_log_logger(monkeypatch):
+
+        _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+        # envvars for deprecated aliases of otherwise valid options log warnings
+        with open(tmp_ini_path, "w") as f:
+            f.write("\n")
+        with mock.patch.dict(os.environ, {"KOLIBRI_CACHE_REDIS_MIN_DB": "1234"}):
+            options.read_options_file(ini_filename=tmp_ini_path)
+            assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
 
 
 def test_option_writing():
