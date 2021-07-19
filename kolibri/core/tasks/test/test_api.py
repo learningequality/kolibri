@@ -183,8 +183,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
 
     def test_api_validator_unregistered_task(self, mock_enqueue, mock_job_storage):
         # When "task" is not registered via the decorator.
-        def add(x, y):
-            return x + y
+        def add(**kwargs):
+            return kwargs["x"] + kwargs["y"]
 
         response = self.client.post(
             reverse("kolibri:core:task-list"),
@@ -214,8 +214,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         self, mock_enqueue, mock_job_storage
     ):
         @register_task(permission_classes=[IsSuperuser])
-        def add(x, y):
-            return x + y
+        def add(**kwargs):
+            return kwargs["x"] + kwargs["y"]
 
         # Let us logout the superuser to send request anonymously.
         self.client.logout()
@@ -234,8 +234,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             return "kolibri"
 
         @register_task(validator=add_validator)
-        def add(x, y):
-            return x + y
+        def add(**kwargs):
+            return kwargs["x"] + kwargs["y"]
 
         response = self.client.post(
             reverse("kolibri:core:task-list"),
@@ -251,8 +251,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             raise TypeError
 
         @register_task(validator=add_validator)
-        def add(x, y):
-            return x + y
+        def add(**kwargs):
+            return kwargs["x"] + kwargs["y"]
 
         with self.assertRaises(TypeError):
             self.client.post(
@@ -261,12 +261,28 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 format="json",
             )
 
+    def test_api_checks_extra_metadata_type(self, mock_enqueue, mock_job_storage):
+        def add_validator(req, req_data):
+            req_data["extra_metadata"] = "string"
+            return req_data
+
+        @register_task(validator=add_validator)
+        def add(**kwargs):
+            return kwargs["x"] + kwargs["y"]
+
+        response = self.client.post(
+            reverse("kolibri:core:task-list"),
+            {"task": "kolibri.core.tasks.test.test_api.add", "x": 0, "y": 42},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
     def test_api_handles_single_task_without_vaidator(
         self, mock_enqueue, mock_job_storage
     ):
         @register_task(permission_classes=[IsSuperuser])
-        def add(x, y):
-            return x + y
+        def add(**kwargs):
+            return kwargs["x"] + kwargs["y"]
 
         mock_enqueue.return_value = "test"
         mock_job_storage.get_job.return_value = fake_job(
@@ -306,8 +322,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         self, mock_enqueue, mock_job_storage
     ):
         @register_task(permission_classes=[IsSuperuser])
-        def add(x, y):
-            return x + y
+        def add(**kwargs):
+            return kwargs["x"] + kwargs["y"]
 
         mock_enqueue.return_value = "test"
         mock_job_storage.get_job.return_value = fake_job(
@@ -378,12 +394,11 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 req_data,
                 {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
             )
-            add.extra_metadata = {"facility": "kolibri HQ"}
-            return {"x": 0, "y": 42}
+            return {"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}
 
         @register_task(validator=add_validator, permission_classes=[IsSuperuser])
-        def add(x, y):
-            return x + y
+        def add(**kwargs):
+            return kwargs["x"] + kwargs["y"]
 
         mock_enqueue.return_value = "test"
         mock_job_storage.get_job.return_value = fake_job(
@@ -413,7 +428,9 @@ class CreateTaskAPITestCase(BaseAPITestCase):
 
         # Do we call enqueue the right way i.e. are we passing
         # the return value of validator as keyword args to enqueue method?
-        mock_enqueue.assert_called_once_with(**{"x": 0, "y": 42})
+        mock_enqueue.assert_called_once_with(
+            **{"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}
+        )
 
         # Do we retrieve the task from db to ready the response?
         mock_job_storage.get_job.assert_called_once_with("test")
@@ -426,12 +443,11 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 req_data,
                 {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
             )
-            add.extra_metadata = {"facility": "kolibri HQ"}
-            return {"x": 0, "y": 42}
+            return {"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}
 
         @register_task(validator=add_validator, permission_classes=[IsSuperuser])
-        def add(x, y):
-            return x + y
+        def add(**kwargs):
+            return kwargs["x"] + kwargs["y"]
 
         mock_enqueue.return_value = "test"
         mock_job_storage.get_job.return_value = fake_job(
@@ -480,7 +496,10 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         # the return value of validator as keyword args to enqueue method?
         self.assertEqual(mock_enqueue.call_count, 2)
         mock_enqueue.assert_has_calls(
-            [call(**{"x": 0, "y": 42}), call(**{"x": 0, "y": 42})]
+            [
+                call(**{"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}),
+                call(**{"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}),
+            ]
         )
 
         # Do we retrieve the task from db to ready the response?

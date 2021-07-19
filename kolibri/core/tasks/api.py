@@ -256,8 +256,12 @@ class BaseViewSet(viewsets.ViewSet):
               task function has one otherwise they are passed to the task function itself
               as keyword args.
 
-        Keep in mind: If a task function has a validator then dict returned by the validator
-        is passed to the task function as keyword args.
+        Keep in mind:
+            If a task function has a validator then dict returned by the validator
+            is passed to the task function as keyword args.
+
+            The validator can add `extra_metadata` in the returning dict to set `extra_metadata`
+            in the enqueued task.
         """
         request_data_list = self.validate_create_req_data(request)
 
@@ -278,6 +282,12 @@ class BaseViewSet(viewsets.ViewSet):
 
                 if not isinstance(validator_result, dict):
                     raise serializers.ValidationError("Validator must return a dict.")
+
+                extra_metadata = validator_result.get("extra_metadata")
+                if extra_metadata is not None and not isinstance(extra_metadata, dict):
+                    raise serializers.ValidationError(
+                        "In the dict returned by validator, 'extra_metadata' must be a dict."
+                    )
 
                 request_data = validator_result
 

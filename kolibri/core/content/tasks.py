@@ -15,7 +15,7 @@ from kolibri.core.tasks.decorators import register_task
 def validate_diskimportcontent(request, request_data):
     task = validate_local_import_task(request, request_data)
     task.update({"type": "DISKCONTENTIMPORT"})
-    importcontentfromdisk.extra_metadata = task
+    task["extra_metadata"] = task
     return task
 
 
