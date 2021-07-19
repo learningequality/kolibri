@@ -14,6 +14,9 @@
     <KPageContainer>
 
       <h1>{{ $tr('selectChannelQuizLabel') }}</h1>
+      <h2 v-if="ancestors.length === 0">
+        {{ $tr('channelsWithQuizzesLabel') }}
+      </h2>
 
       <ResourceSelectionBreadcrumbs
         :ancestors="ancestors"
@@ -126,6 +129,7 @@
     $trs: {
       createNewExamLabel: 'Create new quiz',
       selectChannelQuizLabel: 'Select a channel quiz',
+      channelsWithQuizzesLabel: 'The following channels contain pre-made quizzes',
       selectionInformation:
         '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
     },
