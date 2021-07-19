@@ -55,6 +55,7 @@
       },
     },
     computed: {
+      ...mapState(['classList']),
       ...mapState('lessonSummary', ['currentLesson']),
       AssignmentActions() {
         return AssignmentActions;

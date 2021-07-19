@@ -62,7 +62,7 @@
               </td>
               <td>
                 <span dir="auto">
-                  {{ mapLastSynctedTimeToLearner(learner.id) }}
+                  {{ $tr('lastSyncedTime', { time: mapLastSynctedTimeToLearner(learner.id) }) }}
                 </span>
               </td>
             </tr>
@@ -133,12 +133,16 @@
           });
         }
         if (learnerSyncData) {
+          learnerSyncData.last_synced = new Date(new Date().valueOf() - 1000);
           if (learnerSyncData.last_synced) {
             const currentDateTime = new Date();
-            const TimeDifference = learnerSyncData.last_synced - currentDateTime;
-            const diffMins = Math.round(((TimeDifference % 86400000) % 3600000) / 60000);
-            return diffMins;
+            const timeDifference = (currentDateTime - learnerSyncData.last_synced) / 1000;
+            if (timeDifference <= 60) {
+              const diffMins = Math.round(timeDifference / 60).toString();
+              return diffMins.toString();
+            }
           }
+          return '--';
         }
         return '--';
       },
@@ -149,7 +153,6 @@
             return entry.user_id == learnerId;
           });
           learnerSyncData = learnerSyncData[learnerSyncData.length - 1];
-          console.log(learnerSyncData);
         }
         if (learnerSyncData) {
           if (learnerSyncData.active) {
@@ -184,6 +187,7 @@
       pageHeader: "Learners in '{className}'",
       deviceStatus: 'Device status',
       lastSyncedStatus: 'Last synced',
+      lastSyncedTime: 'Last synced {time} minutes ago',
       howToTroubleshootModalHeader: 'Information about sync statuses',
       close: 'Close',
     },

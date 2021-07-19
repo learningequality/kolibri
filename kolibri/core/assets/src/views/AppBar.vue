@@ -87,7 +87,7 @@
                   {{ $tr('deviceStatus') }}
                 </div>
                 <SyncStatusDisplay
-                  :syncStatus="mapSyncStatusOptionToLearner()"
+                  :syncStatus="mapSyncStatusOptionToLearner"
                   displaySize="sync-status-large"
                 />
               </div>
@@ -164,7 +164,7 @@
     data() {
       return {
         userMenuDropdownIsOpen: false,
-        userSyncStatus: [],
+        userSyncStatus: null,
         isPolling: false,
       };
     },
@@ -183,6 +183,25 @@
       // temp hack for the VF plugin
       dropdownName() {
         return !hashedValuePattern.test(this.username) ? this.username : this.fullName;
+      },
+      mapSyncStatusOptionToLearner() {
+        if (this.userSyncStatus) {
+          if (this.userSyncStatus.active) {
+            return SyncStatus.SYNCINGSYNCING;
+          } else if (this.userSyncStatus.queued) {
+            return SyncStatus.QUEUED;
+          } else if (this.userSyncStatus.last_synced) {
+            const currentDateTime = new Date();
+            const TimeDifference = this.userSyncStatus.last_synced - currentDateTime;
+            const diffMins = Math.round(((TimeDifference % 86400000) % 3600000) / 60000);
+            if (diffMins < 60) {
+              return SyncStatus.RECENTLY_SYNCED;
+            } else {
+              return SyncStatus.NOT_RECENTLY_SYNCED;
+            }
+          }
+        }
+        return SyncStatus.NOT_CONNECTED;
       },
     },
     created() {
@@ -239,25 +258,6 @@
       handleChangeLanguage() {
         this.$emit('showLanguageModal');
         this.userMenuDropdownIsOpen = false;
-      },
-      mapSyncStatusOptionToLearner() {
-        if (this.userSyncStatus) {
-          if (this.userSyncStatus.active) {
-            return SyncStatus.SYNCINGSYNCING;
-          } else if (this.userSyncStatus.queued) {
-            return SyncStatus.QUEUED;
-          } else if (this.userSyncStatus.last_synced) {
-            const currentDateTime = new Date();
-            const TimeDifference = this.userSyncStatus.last_synced - currentDateTime;
-            const diffMins = Math.round(((TimeDifference % 86400000) % 3600000) / 60000);
-            if (diffMins < 60) {
-              return SyncStatus.RECENTLY_SYNCED;
-            } else {
-              return SyncStatus.NOT_RECENTLY_SYNCED;
-            }
-          }
-        }
-        return SyncStatus.NOT_CONNECTED;
       },
     },
     $trs: {
