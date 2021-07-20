@@ -143,6 +143,9 @@ class IdFilter(FilterSet):
         fields = ["ids"]
 
 
+MODALITIES = set(["QUIZ"])
+
+
 class ContentNodeFilter(IdFilter):
     kind = ChoiceFilter(
         method="filter_kind",
@@ -151,12 +154,15 @@ class ContentNodeFilter(IdFilter):
     exclude_content_ids = CharFilter(method="filter_exclude_content_ids")
     kind_in = CharFilter(method="filter_kind_in")
     parent = UUIDFilter("parent")
+    parent__isnull = BooleanFilter(field_name="parent", lookup_expr="isnull")
     include_coach_content = BooleanFilter(method="filter_include_coach_content")
+    contains_quiz = CharFilter(method="filter_contains_quiz")
 
     class Meta:
         model = models.ContentNode
         fields = [
             "parent",
+            "parent__isnull",
             "prerequisite_for",
             "has_prerequisite",
             "related",
@@ -167,6 +173,7 @@ class ContentNodeFilter(IdFilter):
             "kind",
             "include_coach_content",
             "kind_in",
+            "contains_quiz",
         ]
 
     def filter_kind(self, queryset, name, value):
@@ -199,6 +206,14 @@ class ContentNodeFilter(IdFilter):
         if value:
             return queryset
         return queryset.filter(coach_content=False)
+
+    def filter_contains_quiz(self, queryset, name, value):
+        if value:
+            quizzes = models.ContentNode.objects.filter(
+                options__contains='"modality": "QUIZ"'
+            ).get_ancestors(include_self=True)
+            return queryset.filter(pk__in=quizzes.values_list("pk", flat=True))
+        return queryset
 
 
 class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
