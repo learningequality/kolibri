@@ -24,7 +24,6 @@
 <script>
 
   // PersonalSetup only has one step: Providing user credentials
-  import { mapState } from 'vuex';
   import every from 'lodash/every';
   import ProgressToolbar from './ProgressToolbar';
   import SuperuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm';
@@ -35,12 +34,10 @@
       ProgressToolbar,
       SuperuserCredentialsForm,
     },
-    computed: {
-      ...mapState(['service']),
-    },
+    inject: ['wizardService'],
     methods: {
       goToLastStep() {
-        this.service.send('BACK');
+        this.wizardService.send('BACK');
       },
       finalizeOnboardingData() {
         // Set defaults that are skipped in Personal setup. This should guarantee

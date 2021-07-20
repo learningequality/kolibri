@@ -25,9 +25,11 @@
 
 <script>
 
+  import { interpret } from 'xstate';
   import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { wizardMachine } from '../wizardMachine';
   import LoadingPage from './submission-states/LoadingPage';
   import ErrorPage from './submission-states/ErrorPage';
 
@@ -43,8 +45,18 @@
       ErrorPage,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
+    data() {
+      return {
+        service: interpret(wizardMachine),
+      };
+    },
+    provide() {
+      return {
+        wizardService: this.service,
+      };
+    },
     computed: {
-      ...mapState(['loading', 'error', 'service']),
+      ...mapState(['loading', 'error']),
     },
     created() {
       this.service.start();

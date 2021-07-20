@@ -23,7 +23,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import { Presets } from '../../constants';
   import OnboardingForm from './OnboardingForm';
 
@@ -50,8 +49,8 @@
         Options,
       };
     },
+    inject: ['wizardService'],
     computed: {
-      ...mapState(['service']),
       isPersonal() {
         return this.selected === Options.PERSONAL;
       },
@@ -62,7 +61,7 @@
         this.goToNextStep();
       },
       goToNextStep() {
-        this.service.send({ type: 'CONTINUE', value: this.isPersonal });
+        this.wizardService.send({ type: 'CONTINUE', value: this.isPersonal });
       },
     },
     $trs: {

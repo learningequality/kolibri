@@ -17,7 +17,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import ProgressToolbar from './ProgressToolbar';
 
   // Template that places simplified UIBar at the top
@@ -27,15 +26,15 @@
     components: {
       ProgressToolbar,
     },
+    inject: ['wizardService'],
     computed: {
-      ...mapState(['service']),
       removeNavIcon() {
         return this.$route.name === 'DEFAULT_LANGUAGE';
       },
     },
     methods: {
       goToLastStep() {
-        this.service.send('BACK');
+        this.wizardService.send('BACK');
       },
     },
   };

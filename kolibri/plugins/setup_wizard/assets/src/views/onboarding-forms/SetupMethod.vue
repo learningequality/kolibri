@@ -27,10 +27,10 @@
 
 
     <h3>
-      {{ $tr('LOD') }}
+      {{ $tr('lod') }}
       <CoreInfoIcon
-        :iconAriaLabel="$tr('LODTooltip')"
-        :tooltipText="$tr('LODTooltip')"
+        :iconAriaLabel="$tr('lodTooltip')"
+        :tooltipText="$tr('lodTooltip')"
       />
     </h3>
     <KRadioButton
@@ -52,7 +52,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
@@ -72,9 +71,7 @@
         initializeMethod: 'new',
       };
     },
-    computed: {
-      ...mapState(['service']),
-    },
+    inject: ['wizardService'],
     methods: {
       handleSubmit() {
         switch (this.initializeMethod) {
@@ -90,10 +87,10 @@
       },
 
       startNewFacilityFlow() {
-        this.service.send({ type: 'CONTINUE', value: false });
+        this.wizardService.send({ type: 'CONTINUE', value: false });
       },
       startFacilityImportFlow(address) {
-        this.service.send({ type: 'CONTINUE', value: true });
+        this.wizardService.send({ type: 'CONTINUE', value: true });
         this.$router.push({
           path: '/import_facility/1',
           query: {
@@ -117,11 +114,11 @@
           'Create or import a device that will be a server to be used by coaches and learners',
         context: 'Tooltip for full device',
       },
-      LOD: {
+      lod: {
         message: 'Learn-only device',
         context: 'Import one more learners from an existing Kolibri server',
       },
-      LODTooltip: {
+      lodTooltip: {
         message: 'Import one more learners from an existing Kolibri server',
         context: 'Tooltip for Learn-only device',
       },

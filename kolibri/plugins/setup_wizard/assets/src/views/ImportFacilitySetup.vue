@@ -24,7 +24,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import ProgressToolbar from './ProgressToolbar';
   import OnboardingForm from './onboarding-forms/OnboardingForm';
@@ -75,8 +74,8 @@
         },
       };
     },
+    inject: ['wizardService'],
     computed: {
-      ...mapState(['service']),
       currentComponent() {
         const { step } = this.$route.params;
         return stepToComponentMap[step];
@@ -125,7 +124,7 @@
             },
           });
         } else if (this.currentStep === 1) {
-          this.service.send('BACK');
+          this.wizardService.send('BACK');
         }
       },
       finalizeOnboardingData() {

@@ -1,10 +1,9 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import { currentLanguage, createTranslator } from 'kolibri.utils.i18n';
-import { interpret } from 'xstate';
+
 import { Presets, permissionPresets } from '../constants';
 import { FacilityImportResource } from '../api';
-import { wizardMachine } from '../wizardMachine';
 
 const SetupStrings = createTranslator('SetupStrings', {
   personalFacilityName: {
@@ -48,7 +47,6 @@ export default {
       },
       loading: false,
       error: false,
-      service: interpret(wizardMachine),
     };
   },
   actions: {

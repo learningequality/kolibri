@@ -18,7 +18,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import FacilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
   import GuestAccessForm from './onboarding-forms/GuestAccessForm';
   import CreateLearnerAccountForm from './onboarding-forms/CreateLearnerAccountForm';
@@ -45,8 +44,8 @@
     components: {
       ProgressToolbar,
     },
+    inject: ['wizardService'],
     computed: {
-      ...mapState(['service']),
       currentComponent() {
         const { step } = this.$route.params;
         return stepToComponentMap[step];
@@ -81,7 +80,7 @@
             },
           });
         } else if (this.currentStep === 1) {
-          this.service.send('BACK');
+          this.wizardService.send('BACK');
         }
       },
       finalizeOnboardingData() {
