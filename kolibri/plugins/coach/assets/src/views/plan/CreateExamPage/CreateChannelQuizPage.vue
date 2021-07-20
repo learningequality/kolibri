@@ -14,9 +14,9 @@
     <KPageContainer>
 
       <h1>{{ $tr('selectChannelQuizLabel') }}</h1>
-      <h2 v-if="ancestors.length === 0">
+      <div v-if="ancestors.length === 0">
         {{ $tr('channelsWithQuizzesLabel') }}
-      </h2>
+      </div>
 
       <ResourceSelectionBreadcrumbs
         :ancestors="ancestors"

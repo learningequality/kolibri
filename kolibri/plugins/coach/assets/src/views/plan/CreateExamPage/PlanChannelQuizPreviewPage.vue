@@ -66,6 +66,7 @@
           .then(() => {
             const params = {
               classId: id,
+              randomized: content.assessmentmetadata.randomize,
             };
             return this.$store.dispatch('examCreation/createChannelQuizAndRoute', params);
           })

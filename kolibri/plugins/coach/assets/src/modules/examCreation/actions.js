@@ -86,7 +86,9 @@ export function fetchAdditionalSearchResults(store, params) {
   });
 }
 
-export function createChannelQuizAndRoute(store, { classId }) {
+export function createChannelQuizAndRoute(store, { classId, randomized }) {
+  // 'randomized' means question order IS random, so fixed order means randomized is false
+  store.commit('SET_FIXED_ORDER', !randomized);
   const exam = {
     collection: classId,
     title: store.state.title,
