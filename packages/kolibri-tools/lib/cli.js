@@ -349,7 +349,7 @@ program
     require('jest-cli/build/cli').run();
   });
 
-// Test
+// Compress
 program
   .command('compress')
   .arguments('[files...]', 'List of custom file globs or file names to compress')
@@ -367,6 +367,19 @@ program
         })
       );
     }
+  });
+
+// I18N Intl and Vue-Intl Polyfill Code Generation
+program
+  .command('i18n-code-gen')
+  .option('--lang-info <langInfo>', 'Set path for file that contains language information')
+  .option('--output-dir <outputDir>', 'Directory in which to write JS intl polyfill files')
+  .allowUnknownOption()
+  .action(function(options) {
+    const intlCodeGen = require('./i18n/intl_code_gen');
+    const outputDir = path.resolve(process.cwd(), options.outputDir);
+    const langInfo = path.resolve(process.cwd(), options.langInfo);
+    intlCodeGen(outputDir, langInfo);
   });
 
 // Check engines, then process args

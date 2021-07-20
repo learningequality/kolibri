@@ -214,7 +214,7 @@ i18n-convert:
 i18n-download-translations:
 	python packages/kolibri-tools/lib/i18n/crowdin.py rebuild-translations ${branch}
 	python packages/kolibri-tools/lib/i18n/crowdin.py download-translations ${branch}
-	node packages/kolibri-tools/lib/i18n/intl_code_gen.js
+	yarn exec kolibri-tools i18n-code-gen -- --output-dir ./kolibri/core/assets/src/utils --lang-info ./kolibri/locale/language_info.json
 	$(MAKE) i18n-django-compilemessages
 	python packages/kolibri-tools/lib/i18n/crowdin.py convert-files
 
