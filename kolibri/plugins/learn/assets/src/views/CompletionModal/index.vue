@@ -27,20 +27,20 @@
                 id="modal-title"
                 class="title"
               >
-                {{ $tr('resourceCompleted') }}          
+                {{ $tr('resourceCompleted') }}
               </h1>
             </KFixedGridItem>
             <KFixedGridItem
               :span="3"
               alignment="right"
             >
-              <KIconButton
-                ref="closeButton"
-                icon="close"
-                :ariaLabel="$tr('close')"
-                :tooltip="$tr('close')"
-                @click="$emit('close')"
-              />
+              <!--
+                leave some space for absolutely positioned close button
+                to avoid overlapping with the title (the button markup is
+                at the end of the modal to achieve correct focus order
+                without the need to set specific tabindex on all focusable
+                elements)
+              -->
             </KFixedGridItem>
           </KFixedGrid>
 
@@ -148,6 +148,15 @@
               </KGrid>
             </CompletionModalSection>
           </div>
+
+          <KIconButton
+            ref="closeButton"
+            class="close-button"
+            icon="close"
+            :ariaLabel="$tr('close')"
+            :tooltip="$tr('close')"
+            @click="$emit('close')"
+          />
         </FocusTrap>
       </div>
     </div>
@@ -400,6 +409,12 @@
   .title {
     margin: 0;
     font-size: 24px;
+  }
+
+  .close-button {
+    position: absolute;
+    top: 24px;
+    right: 24px;
   }
 
   .stats {
