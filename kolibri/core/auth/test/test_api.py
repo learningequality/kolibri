@@ -50,6 +50,11 @@ class ClassroomFactory(factory.DjangoModelFactory):
     name = factory.Sequence(lambda n: "Basic Rock Theory #%d" % n)
 
 
+class UserSyncStatusFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.UserSyncStatus
+
+
 class LearnerGroupFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.LearnerGroup

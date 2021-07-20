@@ -22,10 +22,13 @@ from kolibri.core.auth.models import Role
 from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.auth.test.test_api import ClassroomFactory
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
+from kolibri.core.auth.test.test_api import UserSyncStatusFactory
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.models import UserSyncStatus
 
 DUMMY_PASSWORD = "password"
 
@@ -462,3 +465,49 @@ class DeviceNameTestCase(APITestCase):
                 exceeds_max_length_name,
                 format="json",
             )
+
+
+class UserSyncStatusTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = UserSyncStatusFactory.create()
+        cls.coach = FacilityUserFactory.create(facility=cls.facility)
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.user2 = FacilityUserFactory.create(facility=cls.facility)
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+        cls.classroom.add_member(cls.user2)
+        cls.classroom.add_coach(cls.class_coach)
+
+    def setUp(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def test_usersyncstatus_list(self):
+        response = self.client.get(
+            reverse("kolibri:core:usersyncsession-list"), format="json"
+        )
+        expected_count = UserSyncStatus.objects.count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_user_sync_status_class_single_user_for_filter(self):
+        response = self.client.get(
+            reverse("kolibri:core:usersynstatus-list"),
+            data={"user_id": self.user2.id},
+        )
+        expected_user = UserSyncStatus.objects.filter(user__pk=self.user2.id).count()
+
+        self.assertEqual(response.data, expected_user)
+
+    def test_user_sync_status_class_for_filter(self):
+        response = self.client.get(
+            reverse("kolibri:core:usersyncstatus-list"),
+            data={"classroom_id": self.classroom.id},
+        )
+
+        expected_users = UserSyncStatus.objects.filter(user__pk__in=self.user2.id)
+        # Should return sync status for all users in the classroom
+        self.assertEqual(len(response.data), len(expected_users))
