@@ -14,6 +14,7 @@ from kolibri.core.sqlite.utils import repair_sqlite_db
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.scheduler import Scheduler
+from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.worker import Worker
 from kolibri.utils import conf
 
@@ -128,17 +129,25 @@ def __queue():
 queue = SimpleLazyObject(__queue)
 
 
-PRIORITY_TO_QUEUE_MAP = {
-    Priority.REGULAR: queue,
-    Priority.HIGH: priority_queue,
-}
-
-
 def __scheduler():
     return Scheduler(queue=queue, connection=connection)
 
 
 scheduler = SimpleLazyObject(__scheduler)
+
+
+def __job_storage():
+    return Storage(connection=connection)
+
+
+# This storage instance should be used to access job_storage db.
+job_storage = SimpleLazyObject(__job_storage)
+
+
+PRIORITY_TO_QUEUE_MAP = {
+    Priority.REGULAR: queue,
+    Priority.HIGH: priority_queue,
+}
 
 
 def initialize_workers():
