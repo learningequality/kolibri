@@ -383,28 +383,32 @@ program
   });
 
 // Check engines, then process args
-const engines = require(path.resolve(__dirname, '../../../package.json')).engines;
-checkVersion(engines, (err, results) => {
-  if (err) {
-    cliLogging.break();
-    cliLogging.error(err);
-    process.exit(1);
-  }
-
-  if (results.isSatisfied) {
-    program.parse(process.argv);
-    return;
-  }
-
-  for (const packageName of Object.keys(results.versions)) {
-    if (!results.versions[packageName].isSatisfied) {
-      let required = engines[packageName];
+try {
+  const engines = require(path.join(process.cwd(), 'package.json')).engines;
+  checkVersion(engines, (err, results) => {
+    if (err) {
       cliLogging.break();
-      cliLogging.error(`Incorrect version of ${packageName}.`);
-      cliLogging.error(`${packageName} ${required} is required.`);
+      cliLogging.error(err);
+      process.exit(1);
     }
-  }
 
-  cliLogging.break();
-  process.exit(1);
-});
+    if (results.isSatisfied) {
+      program.parse(process.argv);
+      return;
+    }
+
+    for (const packageName of Object.keys(results.versions)) {
+      if (!results.versions[packageName].isSatisfied) {
+        let required = engines[packageName];
+        cliLogging.break();
+        cliLogging.error(`Incorrect version of ${packageName}.`);
+        cliLogging.error(`${packageName} ${required} is required.`);
+      }
+    }
+
+    cliLogging.break();
+    process.exit(1);
+  });
+} catch (e) {
+  program.parse(process.argv);
+}
