@@ -45,6 +45,12 @@
       @submit="startFacilityImportFlow"
       @cancel="showAddressModal = false"
     />
+    <SelectAddressModalGroup
+      v-if="showLODAddressModal"
+      :filterLODAvailable="true"
+      @submit="startFacilityImportFlow"
+      @cancel="showLODAddressModal = false"
+    />
   </OnboardingForm>
 
 </template>
@@ -68,6 +74,7 @@
     data() {
       return {
         showAddressModal: false,
+        showLODAddressModal: false,
         initializeMethod: 'new',
       };
     },
@@ -82,6 +89,7 @@
             this.showAddressModal = true;
             break;
           case 'lod':
+            this.showLODAddressModal = true;
             break;
         }
       },

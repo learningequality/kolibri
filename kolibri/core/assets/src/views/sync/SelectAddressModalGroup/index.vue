@@ -5,6 +5,7 @@
       v-if="stage === Stages.SELECT_ADDRESS"
       :filterByChannelId="filterByChannelId"
       :filterByFacilityId="filterByFacilityId"
+      :filterLODAvailable="filterLODAvailable"
       :selectedId="addedAddressId"
       :formDisabled="$attrs.selectAddressDisabled"
       @click_add_address="goToAddAddress"
@@ -49,6 +50,10 @@
       filterByFacilityId: {
         type: String,
         default: null,
+      },
+      filterLODAvailable: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {

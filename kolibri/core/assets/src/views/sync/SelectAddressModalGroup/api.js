@@ -27,6 +27,14 @@ function channelIsAvailableAtLocation(channelId, location) {
     });
 }
 
+function fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
+  return LocationResource.fetchCollection({ force: true }).then(locations => {
+    return locations.filter(
+      location => has(location, 'subset_of_users_device') && location['subset_of_users_device']
+    );
+  });
+}
+
 function fetchAddressesWithChannel(withChannelId = '', LocationResource = NetworkLocationResource) {
   return LocationResource.fetchCollection({ force: true }).then(locations => {
     // If channelId is provided, then we are in an 'import-more' workflow and disable
@@ -89,6 +97,8 @@ export function fetchStaticAddresses(args) {
     return fetchAddressesWithChannel(args.channelId, StaticNetworkLocationResource);
   } else if (has(args, 'facilityId')) {
     return fetchAddressesWithFacility(args.facilityId, StaticNetworkLocationResource);
+  } else if (has(args, 'lod')) {
+    return []; // Only devices discovered in the local network can be used
   } else {
     // As a default, just show any online location
     return fetchAddressesWithFacility('', StaticNetworkLocationResource);
@@ -100,6 +110,8 @@ export function fetchDynamicAddresses(args) {
     return fetchAddressesWithChannel(args.channelId, DynamicNetworkLocationResource);
   } else if (has(args, 'facilityId')) {
     return fetchAddressesWithFacility(args.facilityId, DynamicNetworkLocationResource);
+  } else if (has(args, 'lod')) {
+    return fetchAddressesForLOD(DynamicNetworkLocationResource);
   } else {
     // As a default, just show any online location
     return fetchAddressesWithFacility('', DynamicNetworkLocationResource);

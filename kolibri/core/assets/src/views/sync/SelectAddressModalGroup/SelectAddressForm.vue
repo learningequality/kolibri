@@ -9,6 +9,9 @@
     @cancel="$emit('cancel')"
   >
     <template>
+      <p v-if="filterLODAvailable">
+        {{ $tr('lodSubHeader') }}
+      </p>
       <p v-if="initialFetchingComplete && !combinedAddresses.length">
         {{ $tr('noAddressText') }}
       </p>
@@ -206,6 +209,10 @@
         type: Boolean,
         default: false,
       },
+      filterLODAvailable: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -230,7 +237,7 @@
         );
       },
       newAddressButtonDisabled() {
-        return this.hideSavedAddresses || this.fetchingAddresses;
+        return this.filterLODAvailable || this.hideSavedAddresses || this.fetchingAddresses;
       },
       uiAlertProps() {
         let text;
@@ -312,6 +319,10 @@
         message: 'Add new address',
         context:
           'The "Add new address" link appears in the \'Select network address\' screen. This option allows you to add a new network address from which to sync data.',
+      },
+      lodSubHeader: {
+        message: 'Select a device with Kolibri version 0.15 to import learner user accounts',
+        context: "In the Device > Facilities section, you select the 'SYNC' option to choose the network address you want to sync from.\n\nYou do this in the 'Select network address' section which displays a list of network addresses.",
       },
       noAddressText: {
         message: 'There are no addresses yet',
