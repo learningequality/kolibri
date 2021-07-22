@@ -130,7 +130,7 @@ class Exam(AbstractFacilityDataModel):
 
     """
     As we evolve this model in ways that migrations can't handle, certain fields may
-    become deprecated, and other fields may need to be interpretted differently. This
+    become deprecated, and other fields may need to be interpreted differently. This
     may happen when multiple versions of the model need to coexist in the same database.
 
     The 'data_model_version' field is used to keep track of the version of the model.

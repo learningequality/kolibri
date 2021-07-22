@@ -57,7 +57,7 @@ class KolibriServer(object):
 
     def create_model(self, model, **kwargs):
         kwarg_text = ",".join(
-            '{key}=\\"{value}\\"'.format(key=key, value=value)
+            "{key}={value}".format(key=key, value=repr(value))
             for key, value in kwargs.items()
         )
         self.pipe_shell(
