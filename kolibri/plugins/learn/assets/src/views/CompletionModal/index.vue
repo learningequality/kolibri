@@ -45,7 +45,19 @@
           </KFixedGrid>
 
           <div :style="contentStyle">
-            <div class="stats">
+            <UiAlert
+              v-if="!isUserLoggedIn"
+              :dismissible="false"
+              :removeIcon="true"
+              type="warning"
+              :style="{ marginTop: '8px' }"
+            >
+              {{ $tr('signIn') }}
+            </UiAlert>
+            <div
+              v-else
+              class="stats"
+            >
               <div class="points">
                 <PointsIcon :style="{ display: 'inline-block' }" />
                 <span :style="{ color: $themeTokens.correct }">
@@ -168,6 +180,7 @@
 <script>
 
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { MaxPointsPerContent } from 'kolibri.coreVue.vuex.constants';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
@@ -192,9 +205,14 @@
       PointsIcon,
       CompletionModalSection,
       ResourceItem,
+      UiAlert,
     },
     mixins: [KResponsiveWindowMixin],
     props: {
+      isUserLoggedIn: {
+        type: Boolean,
+        required: true,
+      },
       nextContentNode: {
         type: Object,
         required: false,
@@ -344,6 +362,7 @@
       },
     },
     $trs: {
+      signIn: 'Sign in or create an account to begin earning points',
       resourceCompleted: 'Resource completed',
       plusPoints: '+ { points, number } points',
       keepUpTheGreatProgress: 'Keep up the great progress!',

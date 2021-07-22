@@ -136,6 +136,7 @@
 
     <CompletionModal
       v-if="progress >= 1 && wasIncomplete"
+      :isUserLoggedIn="isUserLoggedIn"
       :nextContentNode="content.next_content"
       :nextContentNodeRoute="nextContentNodeRoute"
       :recommendedContentNodes="recommended"
