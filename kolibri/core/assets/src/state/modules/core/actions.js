@@ -903,6 +903,10 @@ export function notLoading(store) {
 }
 
 export function fetchUserSyncStatus(store, id) {
+  // note: the way we have set up filtering on the backend, and based on the different ways this
+  // data is present to the user, an ID can be an individual user or a classroom id
+  // This setup was intended to reduce redundancy, but if it is confusing or inflexible,
+  // it can be refactored in the future
   return UserSyncStatusResource.fetchCollection({ force: true, getParams: { id: id } }).then(
     syncData => {
       store.commit('SET_CORE_CHANNEL_LIST', _userSyncStatusState(syncData));

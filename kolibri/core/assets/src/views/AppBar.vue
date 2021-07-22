@@ -166,6 +166,8 @@
         userMenuDropdownIsOpen: false,
         userSyncStatus: null,
         isPolling: false,
+        // poll every 10 seconds
+        pollingInterval: 10000,
       };
     },
     computed: {
@@ -192,9 +194,8 @@
             return SyncStatus.QUEUED;
           } else if (this.userSyncStatus.last_synced) {
             const currentDateTime = new Date();
-            const TimeDifference = this.userSyncStatus.last_synced - currentDateTime;
-            const diffMins = Math.round(((TimeDifference % 86400000) % 3600000) / 60000);
-            if (diffMins < 60) {
+            const timeDifference = currentDateTime - this.userSyncStatus.last_synced;
+            if (timeDifference < 5184000000) {
               return SyncStatus.RECENTLY_SYNCED;
             } else {
               return SyncStatus.NOT_RECENTLY_SYNCED;
@@ -227,7 +228,7 @@
         if (this.isPolling) {
           setTimeout(() => {
             this.pollUserSyncStatusTask();
-          }, 10000);
+          }, this.pollingInterval);
         }
       },
       handleUserMenuButtonClick(event) {

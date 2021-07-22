@@ -45,6 +45,7 @@
           [SyncStatus.QUEUED]: this.$tr('queued'),
           [SyncStatus.SYNCING]: this.$tr('syncing'),
           [SyncStatus.UNABLE_TO_SYNC]: this.$tr('unableToSync'),
+          [SyncStatus.UNABLE_OR_NOT_SYNCED]: this.$tr('unableOrNotSynced'),
           [SyncStatus.NOT_CONNECTED]: this.$tr('notConnected'),
         };
         return statusTranslations[this.syncStatus] || '';
@@ -54,6 +55,7 @@
           [SyncStatus.RECENTLY_SYNCED]: 'onDevice',
           [SyncStatus.UNABLE_TO_SYNC]: 'error',
           [SyncStatus.NOT_RECENTLY_SYNCED]: 'error',
+          [SyncStatus.UNABLE_OR_NOT_SYNCED]: 'error',
           [SyncStatus.NOT_CONNECTED]: 'error',
         };
         return statusIcons[this.syncStatus] || '';
@@ -70,7 +72,7 @@
       syncing: 'Syncing...',
       queued: 'Waiting to sync...',
       unableToSync: 'Unable to sync',
-      // notRecentlySynced: 'Last synced ___ minutes ago',
+      unableOrNotSynced: 'Not recently synced or unable to sync',
       notConnected: 'Not connected to server',
     },
   };

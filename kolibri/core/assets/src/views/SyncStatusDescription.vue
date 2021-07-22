@@ -25,7 +25,7 @@
           [SyncStatus.RECENTLY_SYNCED]: this.$tr('syncedDescription'),
           [SyncStatus.QUEUED]: this.$tr('queuedDescription'),
           [SyncStatus.SYNCING]: this.$tr('syncingDescription'),
-          [SyncStatus.UNABLE_TO_SYNC]: this.$tr('noSyncDescription'),
+          [SyncStatus.UNABLE_OR_NOT_SYNCED]: this.$tr('unableOrNoSyncDescription'),
           [SyncStatus.NOT_CONNECTED]: this.$tr('notConnectedDescription'),
         };
         return statusTranslations[this.syncStatus] || '';
@@ -35,7 +35,7 @@
       syncedDescription: 'Device has recently successfully synced to class server',
       syncingDescription: 'Device is in the process of syncing information',
       queuedDescription: 'Device is in queue to sync',
-      noSyncDescription:
+      unableOrNoSyncDescription:
         'The problem can be that the device is connected to server but hasn’t recently synced. Or syncing was attempted but failed for some reason.',
       notConnectedDescription: 'Device isn’t connected to a server it can sync with',
     },

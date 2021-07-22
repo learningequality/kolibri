@@ -112,8 +112,11 @@
       syncStatusOptions() {
         let options = [];
         for (const [value] of Object.entries(SyncStatus)) {
-          // skip displaying the "not recently synced" as a separate option, per Figma design
-          value !== SyncStatus.NOT_RECENTLY_SYNCED ? options.push(value) : null;
+          // skip displaying the "not recently synced" "unable to sync"
+          // so they can be as separate option, per Figma design
+          if (value !== SyncStatus.NOT_RECENTLY_SYNCED && value !== SyncStatus.UNABLE_TO_SYNC) {
+            options.push(value);
+          }
         }
         return options;
       },
