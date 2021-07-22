@@ -109,6 +109,7 @@
     display: block; // make sure that focus ring displays around the whole item area
     color: inherit;
     text-decoration: none;
+    direction: inherit; // ensure that RTL works well when used within `KGrid`
   }
 
 </style>
