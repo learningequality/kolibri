@@ -3,11 +3,10 @@
   <div v-show="!$isPrint" class="report-controls">
     <slot></slot>
     <div class="report-controls-buttons">
-      <KButton
+      <KRouterLink
         :text="$tr('viewLearners')"
         appearance="basic-link"
-        class="learner-device-link"
-        @click="viewLearners"
+        :to="classLearnersListRoute"
       />
       <KIconButton
         ref="printButton"
@@ -60,10 +59,8 @@
         // Always disable in app mode until we add the ability to download files.
         return isEmbeddedWebView || this.disableExport;
       },
-    },
-    methods: {
-      viewLearners() {
-        this.$router.push(this.$router.getRoute('ClassLearnersListPage'));
+      classLearnersListRoute() {
+        return this.$router.getRoute('ClassLearnersListPage');
       },
     },
     $trs: {

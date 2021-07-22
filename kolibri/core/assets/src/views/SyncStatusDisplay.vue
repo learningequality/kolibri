@@ -33,40 +33,30 @@
       displaySize: {
         type: String,
         default: '',
+        validator(val) {
+          return ['small', 'large', 'large-bold'].includes(val);
+        },
       },
     },
     computed: {
       syncTextDisplayMap() {
-        switch (this.syncStatus) {
-          case SyncStatus.RECENTLY_SYNCED:
-            return this.$tr('recentlySynced');
-          case SyncStatus.QUEUED:
-            return this.$tr('queued');
-          case SyncStatus.SYNCING:
-            return this.$tr('syncing');
-          case SyncStatus.UNABLE_TO_SYNC:
-            return this.$tr('unableToSync');
-          // case SyncStatus.NOT_RECENTLY_SYNCED:
-          //   return this.$tr('notRecentlySynced');
-          case SyncStatus.NOT_CONNECTED:
-            return this.$tr('notConnected');
-          default:
-            return '';
-        }
+        const statusTranslations = {
+          [SyncStatus.RECENTLY_SYNCED]: this.$tr('recentlySynced'),
+          [SyncStatus.QUEUED]: this.$tr('queued'),
+          [SyncStatus.SYNCING]: this.$tr('syncing'),
+          [SyncStatus.UNABLE_TO_SYNC]: this.$tr('unableToSync'),
+          [SyncStatus.NOT_CONNECTED]: this.$tr('notConnected'),
+        };
+        return statusTranslations[this.syncStatus] || '';
       },
       syncIconDisplayMap() {
-        switch (this.syncStatus) {
-          case SyncStatus.RECENTLY_SYNCED:
-            return 'onDevice';
-          case SyncStatus.UNABLE_TO_SYNC:
-            return 'error';
-          case SyncStatus.NOT_RECENTLY_SYNCED:
-            return 'error';
-          case SyncStatus.NOT_CONNECTED:
-            return 'error';
-          default:
-            return null;
-        }
+        const statusIcons = {
+          [SyncStatus.RECENTLY_SYNCED]: 'onDevice',
+          [SyncStatus.UNABLE_TO_SYNC]: 'error',
+          [SyncStatus.NOT_RECENTLY_SYNCED]: 'error',
+          [SyncStatus.NOT_CONNECTED]: 'error',
+        };
+        return statusIcons[this.syncStatus] || '';
       },
       syncInProgress() {
         if (this.syncStatus === SyncStatus.SYNCING || this.syncStatus === SyncStatus.QUEUED) {
@@ -101,20 +91,20 @@
     vertical-align: top;
   }
 
-  .sync-status-small {
+  .small {
     display: inline-block;
     margin-top: 0;
     font-size: 11px;
   }
 
-  .sync-status-large {
+  .large {
     display: inline-block;
     margin-top: 0;
     margin-bottom: 0;
     font-size: 14px;
   }
 
-  .sync-status-large-bold {
+  .large-bold {
     display: inline-block;
     margin-top: 0;
     margin-bottom: 0;

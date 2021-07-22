@@ -21,20 +21,14 @@
     },
     computed: {
       syncTextDisplayMap() {
-        switch (this.syncStatus) {
-          case SyncStatus.RECENTLY_SYNCED:
-            return this.$tr('syncedDescription');
-          case SyncStatus.QUEUED:
-            return this.$tr('queuedDescription');
-          case SyncStatus.SYNCING:
-            return this.$tr('syncingDescription');
-          case SyncStatus.UNABLE_TO_SYNC:
-            return this.$tr('noSyncDescription');
-          case SyncStatus.NOT_CONNECTED:
-            return this.$tr('notConnectedDescription');
-          default:
-            return '';
-        }
+        const statusTranslations = {
+          [SyncStatus.RECENTLY_SYNCED]: this.$tr('syncedDescription'),
+          [SyncStatus.QUEUED]: this.$tr('queuedDescription'),
+          [SyncStatus.SYNCING]: this.$tr('syncingDescription'),
+          [SyncStatus.UNABLE_TO_SYNC]: this.$tr('noSyncDescription'),
+          [SyncStatus.NOT_CONNECTED]: this.$tr('notConnectedDescription'),
+        };
+        return statusTranslations[this.syncStatus] || '';
       },
     },
     $trs: {

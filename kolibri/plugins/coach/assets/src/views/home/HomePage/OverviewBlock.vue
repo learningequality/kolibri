@@ -39,10 +39,10 @@
         <template #key>
         </template>
         <template #value>
-          <KButton
+          <KRouterLink
             :text="$tr('viewLearners')"
-            secondary
-            @click="viewLearners"
+            appearance="raised-button"
+            :to="classLearnersListRoute"
           />
         </template>
       </HeaderTableRow>
@@ -75,10 +75,8 @@
         }
         return this.$router.getRoute('CoachClassListPage', {}, { facility_id });
       },
-    },
-    methods: {
-      viewLearners() {
-        this.$router.push(this.$router.getRoute('ClassLearnersListPage'));
+      classLearnersListRoute() {
+        return this.$router.getRoute('ClassLearnersListPage');
       },
     },
     $trs: {

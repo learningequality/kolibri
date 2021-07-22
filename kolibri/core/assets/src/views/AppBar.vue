@@ -88,7 +88,7 @@
                 </div>
                 <SyncStatusDisplay
                   :syncStatus="mapSyncStatusOptionToLearner"
-                  displaySize="sync-status-large"
+                  displaySize="large"
                 />
               </div>
             </template>
@@ -187,7 +187,7 @@
       mapSyncStatusOptionToLearner() {
         if (this.userSyncStatus) {
           if (this.userSyncStatus.active) {
-            return SyncStatus.SYNCINGSYNCING;
+            return SyncStatus.SYNCING;
           } else if (this.userSyncStatus.queued) {
             return SyncStatus.QUEUED;
           } else if (this.userSyncStatus.last_synced) {
@@ -209,7 +209,7 @@
       this.$kolibriBranding = branding;
     },
     mounted() {
-      this.isPolling = true;
+      this.isUserLoggedIn ? (this.isPolling = true) : null;
       this.pollUserSyncStatusTask(this.userId);
     },
     beforeDestroy() {

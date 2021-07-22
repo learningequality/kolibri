@@ -10,8 +10,6 @@ router.register(
     r"learnerclassroom", LearnerClassroomViewset, base_name="learnerclassroom"
 )
 router.register(r"learnerlesson", LearnerLessonViewset, base_name="learnerlesson")
-router.register(
-    r"learnersyncstatus", LearnerLessonViewset, base_name="learnersyncstatus"
-)
+
 
 urlpatterns = [url(r"^", include(router.urls))]
