@@ -356,7 +356,7 @@ program
   .allowUnknownOption()
   .action(function(files) {
     if (!files.length) {
-      program.help();
+      program.command('compress').help();
     } else {
       const glob = require('glob');
       const compressFile = require('./compress');
@@ -374,12 +374,81 @@ program
   .command('i18n-code-gen')
   .option('--lang-info <langInfo>', 'Set path for file that contains language information')
   .option('--output-dir <outputDir>', 'Directory in which to write JS intl polyfill files')
-  .allowUnknownOption()
   .action(function(options) {
     const intlCodeGen = require('./i18n/intl_code_gen');
     const outputDir = path.resolve(process.cwd(), options.outputDir);
     const langInfo = path.resolve(process.cwd(), options.langInfo);
     intlCodeGen(outputDir, langInfo);
+  });
+
+// I18N Message Extraction
+program
+  .command('extract-messages')
+  .option(
+    '--dry-run',
+    `Will only run this file up to the point where we start extracting strings
+                        I found it useful for debugging early on - may be useful for future iterations
+                        such as for adding new projects or other root-level changes in the code base`
+  )
+  .option(
+    '--dump-extracted',
+    `Will dump extractedMessages to a json file in the root where you ran this script.
+                              The file will be timestamped for uniqueness.`
+  )
+  .option(
+    '-pf , --pluginFile <pluginFile>',
+    'Set custom file which lists plugins that should be built'
+  )
+  .option(
+    '-p, --plugins <plugins...>',
+    'An explicit comma separated list of plugins that should be built',
+    list,
+    []
+  )
+  .option(
+    '--pluginPath <pluginPath>',
+    'A system path to the plugin or module that should be added to the Python path so that it can be imported during build time',
+    String,
+    ''
+  )
+  .option('-i, --ignore <patterns...>', 'Ignore these comma separated patterns', list, [])
+  .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
+  .option('--localePath <localePath>', 'Set path to write locale files to')
+  .option(
+    '--searchPath <searchPath>',
+    'Set path to search for files containing strings to be extracted'
+  )
+  .action(function(options) {
+    const bundleData = readWebpackJson.readPythonPlugins({
+      pluginFile: options.pluginFile,
+      plugins: options.plugins,
+      pluginPath: options.pluginPath,
+    });
+    let pathInfo;
+    if (bundleData.length) {
+      pathInfo = bundleData.map(bundle => {
+        return {
+          localeFilePath: bundle.locale_data_folder,
+          moduleFilePath: bundle.plugin_path,
+          name: bundle.module_path,
+        };
+      });
+    } else if (options.namespace && options.localePath && options.searchPath) {
+      pathInfo = [
+        {
+          localeFilePath: options.localePath,
+          moduleFilePath: options.searchPath,
+          name: options.namespace,
+        },
+      ];
+    } else {
+      cliLogging.error(
+        'Must specify either Kolibri plugins or search path, locale path, and namespace.'
+      );
+      program.command('extract-messages').help();
+    }
+    const extractMessages = require('./i18n/ExtractMessages');
+    extractMessages(options.dryRun, options.dumpExtracted, pathInfo, options.ignore);
   });
 
 // Check engines, then process args
