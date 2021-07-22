@@ -7,6 +7,7 @@ import HomePage from '../views/home/HomePage';
 import CoachPrompts from '../views/CoachPrompts';
 import HomeActivityPage from '../views/home/HomeActivityPage';
 import StatusTestPage from '../views/common/status/StatusTestPage';
+import { ClassesPageNames } from '../../../../learn/assets/src/constants';
 import reportRoutes from './reportRoutes';
 import planRoutes from './planRoutes';
 
@@ -67,6 +68,7 @@ export default [
   },
 
   {
+    name: ClassesPageNames.CLASS_LEARNERS_LIST_VIEWER,
     path: '/:classId/learners',
     component: ClassLearnersListPage,
     handler() {

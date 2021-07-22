@@ -55,7 +55,10 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import pickBy from 'lodash/pickBy';
+  import { ClassesPageNames } from '../../../../../../learn/assets/src/constants';
   import commonCoach from '../../common';
+  import { LastPages } from '../../../constants/lastPagesConstants';
 
   export default {
     name: 'OverviewBlock',
@@ -76,7 +79,20 @@
         return this.$router.getRoute('CoachClassListPage', {}, { facility_id });
       },
       classLearnersListRoute() {
-        return this.$router.getRoute('ClassLearnersListPage');
+        const { query } = this.$route;
+        const route = {
+          name: ClassesPageNames.CLASS_LEARNERS_LIST_VIEWER,
+          params: {
+            id: this.classId,
+          },
+          query: {
+            ...query,
+            ...pickBy({
+              last: LastPages.HOME_PAGE,
+            }),
+          },
+        };
+        return route;
       },
     },
     $trs: {

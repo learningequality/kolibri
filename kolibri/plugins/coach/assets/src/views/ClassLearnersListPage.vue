@@ -4,7 +4,7 @@
     :immersivePage="true"
     immersivePageIcon="back"
     :immersivePagePrimary="false"
-    :immersivePageRoute="$router.getRoute('HomePage')"
+    :immersivePageRoute="backlink"
     :appBarTitle="$store.state.classSummary.name"
   >
     <KPageContainer>
@@ -119,6 +119,15 @@
           }
         }
         return options;
+      },
+      backlink() {
+        let backRoute;
+        if (this.$route.query.last === 'homepage') {
+          backRoute = this.$router.getRoute('HomePage');
+        } else {
+          backRoute = this.$router.getRoute('ReportsQuizListPage');
+        }
+        return backRoute;
       },
     },
     mounted() {

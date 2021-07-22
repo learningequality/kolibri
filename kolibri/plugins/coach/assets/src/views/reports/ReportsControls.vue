@@ -4,6 +4,7 @@
     <slot></slot>
     <div class="report-controls-buttons">
       <KRouterLink
+        v-if="isQuizTab"
         :text="$tr('viewLearners')"
         appearance="basic-link"
         :to="classLearnersListRoute"
@@ -43,7 +44,10 @@
 <script>
 
   import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
+  import pickBy from 'lodash/pickBy';
   import commonCoach from '../common';
+  import { ClassesPageNames } from '../../../../../learn/assets/src/constants';
+  import { LastPages } from '../../constants/lastPagesConstants';
 
   export default {
     name: 'ReportsControls',
@@ -59,8 +63,24 @@
         // Always disable in app mode until we add the ability to download files.
         return isEmbeddedWebView || this.disableExport;
       },
+      isQuizTab() {
+        return this.$route.name === 'ReportsQuizListPage';
+      },
       classLearnersListRoute() {
-        return this.$router.getRoute('ClassLearnersListPage');
+        const { query } = this.$route;
+        const route = {
+          name: ClassesPageNames.CLASS_LEARNERS_LIST_VIEWER,
+          params: {
+            id: this.classId,
+          },
+          query: {
+            ...query,
+            ...pickBy({
+              last: LastPages.RESOURCE_LEARNER_LIST_BY_GROUPS,
+            }),
+          },
+        };
+        return route;
       },
     },
     $trs: {
