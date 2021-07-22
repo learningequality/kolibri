@@ -23,7 +23,7 @@
         @submit="displayTroubleshootModal = false"
       >
         <div v-for="status in syncStatusOptions" :key="status.id" class="status-option-display">
-          <SyncStatusDisplay :syncStatus="status" displaySize="sync-status-large-bold" />
+          <SyncStatusDisplay :syncStatus="status" displaySize="large-bold" />
           <SyncStatusDescription :syncStatus="status" />
         </div>
       </KModal>
@@ -57,7 +57,7 @@
               <td>
                 <SyncStatusDisplay
                   :syncStatus="mapSyncStatusOptionToLearner(learner.id)"
-                  displaySize="sync-status-large"
+                  displaySize="large"
                 />
               </td>
               <td>
@@ -103,6 +103,8 @@
       return {
         displayTroubleshootModal: false,
         classSyncStatusList: [],
+        // poll every 10 seconds
+        pollingInterval: 10000,
       };
     },
     computed: {
@@ -118,7 +120,7 @@
     },
     mounted() {
       this.isPolling = true;
-      this.pollClassListSyncStatuses({ classroom_id: this.$route.params.classId });
+      this.pollClassListSyncStatuses();
     },
     beforeDestroy() {
       this.isPolling = false;
@@ -136,8 +138,8 @@
           learnerSyncData.last_synced = new Date(new Date().valueOf() - 1000);
           if (learnerSyncData.last_synced) {
             const currentDateTime = new Date();
-            const timeDifference = (currentDateTime - learnerSyncData.last_synced) / 1000;
-            if (timeDifference <= 60) {
+            const timeDifference = currentDateTime - learnerSyncData.last_synced;
+            if (timeDifference < 5184000000) {
               const diffMins = Math.round(timeDifference / 60).toString();
               return diffMins.toString();
             }
@@ -156,14 +158,13 @@
         }
         if (learnerSyncData) {
           if (learnerSyncData.active) {
-            return SyncStatus.SYNCINGSYNCING;
+            return SyncStatus.SYNCING;
           } else if (learnerSyncData.queued) {
             return SyncStatus.QUEUED;
           } else if (learnerSyncData.last_synced) {
             const currentDateTime = new Date();
-            const TimeDifference = learnerSyncData.last_synced - currentDateTime;
-            const diffMins = Math.round(((TimeDifference % 86400000) % 3600000) / 60000);
-            if (diffMins < 60) {
+            const timeDifference = currentDateTime - learnerSyncData.last_synced;
+            if (timeDifference < 5184000000) {
               return SyncStatus.RECENTLY_SYNCED;
             } else {
               return SyncStatus.NOT_RECENTLY_SYNCED;
@@ -179,7 +180,7 @@
         if (this.isPolling) {
           setTimeout(() => {
             this.pollClassListSyncStatuses();
-          }, 10000);
+          }, this.pollingInterval);
         }
       },
     },
