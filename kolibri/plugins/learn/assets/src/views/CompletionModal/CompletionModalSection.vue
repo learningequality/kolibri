@@ -60,7 +60,7 @@
 
     <div
       v-if="hasButton && !displayGridButton"
-      :style="{ textAlign: 'right', marginTop: '28px' }"
+      :style="{ textAlign: isRtl ? 'left' : 'right', marginTop: '28px' }"
     >
       <component
         :is="buttonRoute ? 'KRouterLink' : 'KButton'"
