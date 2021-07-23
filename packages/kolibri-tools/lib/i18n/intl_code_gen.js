@@ -1,6 +1,5 @@
 const path = require('path');
-const fs = require('fs');
-const { lint } = require('kolibri-tools/lib/lint');
+const { writeSourceToFile } = require('./utils');
 
 module.exports = function(
   outputDir,
@@ -126,19 +125,7 @@ module.exports = function(
     commonHeader + intlHeader + languageInfo.map(generateIntlItems).join('') + intlFooter;
 
   const intlModulePath = path.resolve(outputDir, 'intl-locale-data.js');
-  fs.writeFileSync(vueIntlModulePath, vueIntlModule, { encoding: 'utf-8' });
+  writeSourceToFile(vueIntlModulePath, vueIntlModule);
 
-  fs.writeFileSync(intlModulePath, intlModule, { encoding: 'utf-8' });
-
-  lint({
-    file: intlModulePath,
-    write: true,
-    silent: true,
-  });
-
-  lint({
-    file: vueIntlModulePath,
-    write: true,
-    silent: true,
-  });
+  writeSourceToFile(intlModulePath, intlModule);
 };

@@ -3,7 +3,6 @@ const path = require('path');
 const mkdirp = require('mkdirp');
 const sortBy = require('lodash/sortBy');
 const glob = require('glob');
-const recast = require('recast');
 const traverse = require('ast-traverse');
 const get = require('lodash/get');
 const del = require('del');
@@ -11,10 +10,10 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const vueCompiler = require('vue-template-compiler');
 const logging = require('../logging');
 const { resolve } = require('../alias_import_resolver');
-const { getVueSFCName } = require('./astUtils');
+const { getVueSFCName, parseAST, is$trs, isCreateTranslator } = require('./astUtils');
+const { CONTEXT_LINE } = require('./constants');
 
 const GLOB = '/**/*.@(vue|js)';
-const CONTEXT_LINE = '\n-- CONTEXT --\n';
 
 // This function will clear the way for new CSV files to avoid any conflicts
 function clearCsvPath(csvPath) {
@@ -110,33 +109,11 @@ function processFiles(moduleFilePath, ignore) {
     }
 
     // Finally! Do the extraction
-    const ast = recast.parse(scriptContent, {
-      parser: require('recast/parsers/babylon'),
-      tabWidth: 2,
-      reuseWhitespace: false,
-    });
+    const ast = parseAST(scriptContent);
     Object.assign(messages, extract$trs(ast, filePath));
     Object.assign(messages, extractCreateTranslator(ast, filePath));
   });
   return messages;
-}
-
-// boolean check for if a node is where the $trs are defined in a Vue SFC
-function is$trs(node) {
-  return (
-    node.type === 'ObjectProperty' &&
-    node.key.name === '$trs' &&
-    node.value.type === 'ObjectExpression'
-  );
-}
-
-// boolean check if a node is a call of the fn 'createTranslator()'
-function isCreateTranslator(node) {
-  return (
-    node.type === 'CallExpression' &&
-    node.callee.type === 'Identifier' &&
-    node.callee.name === 'createTranslator'
-  );
 }
 
 // Returns { message, context } for a given node. We're getting the AST nodes
@@ -266,11 +243,7 @@ function getPropertyKey(node, ast, filePath) {
 
           const file = fs.readFileSync(targetFile);
 
-          const importedAst = recast.parse(file, {
-            parser: require('recast/parsers/babylon'),
-            tabWidth: 2,
-            reuseWhitespace: false,
-          });
+          const importedAst = parseAST(file);
 
           // Remember - we're only here because we're looking for the value of an Object's property
           traverse(importedAst, {
@@ -366,27 +339,12 @@ function extract$trs(ast, filePath) {
   // The name of the message namespace
   // For a Vue file, this is the component name, and will be the same
   // for all messages in a vue file.
-  let messageNamespace;
+  const messageNamespace = getVueSFCName(ast);
 
   // To house the ast node for the definitions object
   // We currently only support one $trs occurrence per SFC file
   let messageNodeProperties;
 
-  const nameSpaceFoundMsg = 'Namespace found!';
-  try {
-    traverse(ast, {
-      pre: node => {
-        messageNamespace = getVueSFCName(node);
-        if (messageNamespace) {
-          throw new Error(nameSpaceFoundMsg);
-        }
-      },
-    });
-  } catch (e) {
-    if (e.message !== nameSpaceFoundMsg) {
-      throw e;
-    }
-  }
   traverse(ast, {
     pre: node => {
       // If we find a $trs definition, we're in a Vue SFC and have found some defined messages

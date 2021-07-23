@@ -8,6 +8,7 @@ const esLintFormatter = require('eslint/lib/cli-engine/formatters/stylish');
 const stylelint = require('stylelint');
 const colors = require('colors');
 const stylelintFormatter = require('stylelint').formatters.string;
+const { insertContent } = require('./vueTools');
 
 require('./htmlhint_custom');
 
@@ -66,27 +67,6 @@ styleLangs.forEach(lang => {
 
 const errorOrChange = 1;
 const noChange = 0;
-/*
-  Modifications to match our component linting conventions.
-  Surround style and script blocks by 2 new lines and ident.
-*/
-function indentAndAddNewLines(str) {
-  if (str) {
-    str = str.replace(/^(\n)*/, '\n\n');
-    str = str.replace(/(\n)*$/, '\n\n');
-    str = str.replace(/(.*\S.*)/g, '  $1');
-    return str;
-  }
-}
-
-function insertContent(source, block, formatted) {
-  if (source) {
-    const start = block.start;
-    const end = block.end;
-    const indented = indentAndAddNewLines(formatted);
-    return source.replace(source.slice(start, end), indented);
-  }
-}
 
 function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
   return new Promise((resolve, reject) => {

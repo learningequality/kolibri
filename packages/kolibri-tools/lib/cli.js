@@ -376,9 +376,10 @@ program
     intlCodeGen(outputDir, langInfo);
   });
 
-// I18N Message Extraction
+// I18N Message Handling
 program
-  .command('extract-messages')
+  .command('i18n')
+  .arguments('<mode>', 'Mode to run in, options are: extract, transfer, profile')
   .option(
     '--dry-run',
     `Will only run this file up to the point where we start extracting strings
@@ -413,7 +414,20 @@ program
     '--searchPath <searchPath>',
     'Set path to search for files containing strings to be extracted'
   )
-  .action(function(options) {
+  .action(function(mode, options) {
+    const modes = {
+      EXTRACT: 'extract',
+      TRANSFER: 'transfer',
+      PROFILE: 'profile',
+    };
+    if (typeof mode !== 'string') {
+      cliLogging.error('Mode must be specified');
+      program.command('i18n').help();
+    }
+    if (!Object.values(modes).includes(mode)) {
+      cliLogging.error('Mode invalid value');
+      program.command('i18n').help();
+    }
     const bundleData = readWebpackJson.readPythonPlugins({
       pluginFile: options.pluginFile,
       plugins: options.plugins,
@@ -440,10 +454,15 @@ program
       cliLogging.error(
         'Must specify either Kolibri plugins or search path, locale path, and namespace.'
       );
-      program.command('extract-messages').help();
+      program.command('i18n').help();
     }
-    const extractMessages = require('./i18n/ExtractMessages');
-    extractMessages(options.dryRun, options.dumpExtracted, pathInfo, options.ignore);
+    if (mode === modes.EXTRACT) {
+      const extractMessages = require('./i18n/ExtractMessages');
+      extractMessages(options.dryRun, options.dumpExtracted, pathInfo, options.ignore);
+    } else if (mode === modes.TRANSFER) {
+      const syncContext = require('./i18n/SyncContext');
+      syncContext(options.dryRun, options.dumpExtracted, pathInfo, options.ignore);
+    }
   });
 
 // Check engines, then process args
