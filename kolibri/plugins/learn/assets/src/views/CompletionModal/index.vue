@@ -75,7 +75,6 @@
               :description="$tr('moveOnDescription')"
               :buttonLabel="$tr('moveOnButtonLabel')"
               :buttonRoute="nextContentNodeRoute"
-              icon="help"
             >
               <ResourceItem
                 :contentNode="nextContentNode"
@@ -93,7 +92,6 @@
               :title="$tr('stayTitle')"
               :description="$tr('stayDescription')"
               :buttonLabel="$tr('stayButtonLabel')"
-              icon="help"
               @buttonClick="$emit('close')"
             >
               <template #icon>
@@ -106,7 +104,6 @@
               :class="sectionClass"
               :title="$tr('helpfulResourcesTitle')"
               :description="$tr('helpfulResourcesDescription')"
-              icon="help"
             >
               <template #icon>
                 <KIcon icon="alternativeRoute" />
