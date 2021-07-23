@@ -7,9 +7,10 @@
         :span="gridIconSpan"
         class="icon-wrapper"
       >
-        <div class="icon">
-          <slot name="icon"></slot>
-        </div>
+        <KIcon
+          class="icon"
+          :icon="icon"
+        />
       </KFixedGridItem>
 
       <KFixedGridItem :span="gridDescriptionSpan">
@@ -96,6 +97,10 @@
     mixins: [KResponsiveWindowMixin],
     props: {
       title: {
+        type: String,
+        required: true,
+      },
+      icon: {
         type: String,
         required: true,
       },

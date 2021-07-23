@@ -70,6 +70,7 @@
             <CompletionModalSection
               v-if="nextContentNode"
               ref="nextContentNodeSection"
+              icon="forwardRounded"
               :class="sectionClass"
               :title="$tr('moveOnTitle')"
               :description="$tr('moveOnDescription')"
@@ -80,35 +81,25 @@
                 :contentNode="nextContentNode"
                 size="small"
               />
-
-              <template #icon>
-                <KIcon icon="forwardRounded" />
-              </template>
             </CompletionModalSection>
 
             <CompletionModalSection
               ref="staySection"
+              icon="restart"
               :class="sectionClass"
               :title="$tr('stayTitle')"
               :description="$tr('stayDescription')"
               :buttonLabel="$tr('stayButtonLabel')"
               @buttonClick="$emit('close')"
-            >
-              <template #icon>
-                <KIcon icon="restart" />
-              </template>
-            </CompletionModalSection>
+            />
 
             <CompletionModalSection
               v-if="recommendedContentNodes && recommendedContentNodes.length"
+              icon="alternativeRoute"
               :class="sectionClass"
               :title="$tr('helpfulResourcesTitle')"
               :description="$tr('helpfulResourcesDescription')"
             >
-              <template #icon>
-                <KIcon icon="alternativeRoute" />
-              </template>
-
               <KGrid>
                 <KGridItem
                   v-for="contentNode in recommendedContentNodes"
