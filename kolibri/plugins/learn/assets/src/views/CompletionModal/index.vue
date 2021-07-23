@@ -432,8 +432,8 @@
 
   .close-button {
     position: absolute;
-    top: 24px;
-    right: 24px;
+    top: 20px;
+    right: 20px;
   }
 
   .stats {
