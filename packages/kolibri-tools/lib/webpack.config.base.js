@@ -16,7 +16,6 @@ const WebpackRTLPlugin = require('webpack-rtl-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
-const ExtractStrings = require('./i18n/ExtractStrings');
 const logging = require('./logging');
 const coreExternals = require('./apiSpecExportTools').coreExternals();
 const coreAliases = require('./apiSpecExportTools').coreAliases();
@@ -247,7 +246,6 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
         __version: JSON.stringify(data.version),
         __copyrightYear: new Date().getFullYear(),
       }),
-      new ExtractStrings(data.locale_data_folder, data.name),
       // Add custom messages per bundle.
       new WebpackMessages({
         name: data.name,

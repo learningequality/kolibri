@@ -86,7 +86,6 @@ program
     const modes = {
       DEV: 'dev',
       PROD: 'prod',
-      I18N: 'i18n',
       CLEAN: 'clean',
       STATS: 'stats',
     };
@@ -99,9 +98,6 @@ program
       p: modes.PROD,
       prod: modes.PROD,
       production: modes.PROD,
-      i: modes.I18N,
-      i18n: modes.I18N,
-      internationalization: modes.I18N,
       s: modes.STATS,
       stats: modes.STATS,
     };
@@ -141,7 +137,6 @@ program
     const buildModule = {
       [modes.PROD]: 'production.js',
       [modes.DEV]: 'webpackdevserver.js',
-      [modes.I18N]: 'i18n/index.js',
       [modes.STATS]: 'bundleStats.js',
       [modes.CLEAN]: 'clean.js',
     }[mode];
