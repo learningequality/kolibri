@@ -238,6 +238,8 @@ program
     }
   });
 
+const ignoreDefaults = ['**/node_modules/**', '**/static/**'];
+
 // Lint
 program
   .command('lint')
@@ -246,7 +248,12 @@ program
   .option('-w, --write', 'Write autofixes to file', false)
   .option('-e, --encoding <string>', 'Text encoding of file', 'utf-8')
   .option('-m, --monitor', 'Monitor files and check on change', false)
-  .option('-i, --ignore <patterns...>', 'Ignore these comma separated patterns', list, [])
+  .option(
+    '-i, --ignore <patterns...>',
+    'Ignore these comma separated patterns',
+    list,
+    ignoreDefaults
+  )
   .option('-p, --pattern <string>', 'Lint only files that match this comma separated pattern', null)
   .action(function(args, options) {
     const files = [];
@@ -422,7 +429,12 @@ program
     String,
     ''
   )
-  .option('-i, --ignore <patterns...>', 'Ignore these comma separated patterns', list, [])
+  .option(
+    '-i, --ignore <patterns...>',
+    'Ignore these comma separated patterns',
+    list,
+    ignoreDefaults
+  )
   .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
   .option('--localePath <localePath>', 'Set path to write locale files to')
   .option(
@@ -505,7 +517,12 @@ program
     String,
     ''
   )
-  .option('-i, --ignore <patterns...>', 'Ignore these comma separated patterns', list, [])
+  .option(
+    '-i, --ignore <patterns...>',
+    'Ignore these comma separated patterns',
+    list,
+    ignoreDefaults
+  )
   .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
   .option('--localePath <localePath>', 'Set path to write locale files to')
   .option(
