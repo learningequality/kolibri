@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const fs = require('fs');
 
 const os = require('os');
 const path = require('path');
@@ -375,7 +376,13 @@ program
     }
   });
 
-const langInfoDefault = path.join(__dirname, './i18n/language_info.json');
+// Path to the kolibri locale language_info file, which we use if we are running
+// from inside the Kolibri repository.
+const _kolibriLangInfoPath = path.join(__dirname, '../../../kolibri/locale/language_info.json');
+
+const langInfoDefault = fs.existsSync(_kolibriLangInfoPath)
+  ? _kolibriLangInfoPath
+  : path.join(__dirname, './i18n/language_info.json');
 
 // I18N Intl and Vue-Intl Polyfill Code Generation
 program
@@ -492,7 +499,7 @@ program
     }
   });
 
-// I18N Message Handling
+// I18N CSV to JSON
 program
   .command('i18n-csv-to-json')
   .option(
