@@ -4,7 +4,6 @@ const path = require('path');
 const glob = require('glob');
 const traverse = require('ast-traverse');
 const get = require('lodash/get');
-const parseCsvSync = require('csv-parse/lib/sync');
 const vueCompiler = require('vue-template-compiler');
 const logging = require('../logging');
 const { insertContent } = require('../vueTools');
@@ -17,7 +16,7 @@ const {
   extractContext,
   printAST,
 } = require('./astUtils');
-const { writeSourceToFile } = require('./utils');
+const { getCSVDefinitions, writeSourceToFile } = require('./utils');
 
 // Glob path patterns
 // All JS files
@@ -169,38 +168,14 @@ function processJSFiles(files, definitions) {
     .filter(Boolean);
 }
 
-// Compile all of the defined strings & context from the CSVs that have been downloaded
-// from Crowdin.
-function parseCSVDefinitions(dir) {
-  return glob.sync(path.join(dir, '**/*.csv')).reduce((acc, filePath) => {
-    const csvFile = fs.readFileSync(filePath).toString();
-
-    return [...acc, ...parseCsvSync(csvFile, { skip_empty_lines: true, columns: true })];
-  }, []);
-}
-
 module.exports = function(dryRun, dump, pathInfo, ignore) {
   logging.info('Transferring context...');
 
   // An object for storing our updated files.
   const updatedFiles = [];
-  // Get a unique set of locale file paths to look for CSV files in
-  const localFilePaths = Array.from(new Set(pathInfo.map(pathData => pathData.localeFilePath)));
-  const csvDefinitions = localFilePaths
-    .reduce((acc, filePath) => {
-      return [
-        ...acc,
-        ...parseCSVDefinitions(
-          path.join(
-            path.dirname(path.dirname(filePath)),
-            // Grab all downloaded CSV files so we don't have to play whackamole trying to work out
-            // which language actually has all the included context in the exported CSV files.
-            'CSV_FILES'
-          )
-        ),
-      ];
-    }, [])
-    .filter(definition => definition['Context'] && extractContext(definition['Context']) !== '');
+  const csvDefinitions = getCSVDefinitions(pathInfo).filter(
+    definition => definition['Context'] && extractContext(definition['Context']) !== ''
+  );
 
   if (!csvDefinitions.length) {
     logging.error('No context data was found in CSV files');

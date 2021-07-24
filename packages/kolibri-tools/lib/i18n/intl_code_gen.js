@@ -1,10 +1,7 @@
 const path = require('path');
 const { writeSourceToFile } = require('./utils');
 
-module.exports = function(
-  outputDir,
-  languageInfoPath = path.join(__dirname, './language_info.json')
-) {
+module.exports = function(outputDir, languageInfoPath) {
   const languageInfo = require(languageInfoPath);
 
   const commonHeader = `

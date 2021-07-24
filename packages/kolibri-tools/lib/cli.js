@@ -15,6 +15,10 @@ function list(val) {
   return val.split(',');
 }
 
+function filePath(val) {
+  return path.resolve(process.cwd(), val);
+}
+
 program.version(version).description('Tools for Kolibri frontend plugins');
 
 function statsCompletionCallback(bundleData, options) {
@@ -364,16 +368,25 @@ program
     }
   });
 
+const langInfoDefault = path.join(__dirname, './i18n/language_info.json');
+
 // I18N Intl and Vue-Intl Polyfill Code Generation
 program
   .command('i18n-code-gen')
-  .option('--lang-info <langInfo>', 'Set path for file that contains language information')
-  .option('--output-dir <outputDir>', 'Directory in which to write JS intl polyfill files')
+  .option(
+    '--lang-info <langInfo>',
+    'Set path for file that contains language information',
+    filePath,
+    langInfoDefault
+  )
+  .option(
+    '--output-dir <outputDir>',
+    'Directory in which to write JS intl polyfill files',
+    filePath
+  )
   .action(function(options) {
     const intlCodeGen = require('./i18n/intl_code_gen');
-    const outputDir = path.resolve(process.cwd(), options.outputDir);
-    const langInfo = path.resolve(process.cwd(), options.langInfo);
-    intlCodeGen(outputDir, langInfo);
+    intlCodeGen(options.outputDir, options.langInfo);
   });
 
 // I18N Message Handling
@@ -384,12 +397,14 @@ program
     '--dry-run',
     `Will only run this file up to the point where we start extracting strings
                         I found it useful for debugging early on - may be useful for future iterations
-                        such as for adding new projects or other root-level changes in the code base`
+                        such as for adding new projects or other root-level changes in the code base`,
+    false
   )
   .option(
     '--dump-extracted',
     `Will dump extractedMessages to a json file in the root where you ran this script.
-                              The file will be timestamped for uniqueness.`
+                              The file will be timestamped for uniqueness.`,
+    false
   )
   .option(
     '-pf , --pluginFile <pluginFile>',
@@ -463,6 +478,85 @@ program
       const syncContext = require('./i18n/SyncContext');
       syncContext(options.dryRun, options.dumpExtracted, pathInfo, options.ignore);
     }
+  });
+
+// I18N Message Handling
+program
+  .command('i18n-csv-to-json')
+  .option(
+    '--dry-run',
+    `Will only run this file up to the point where we start extracting strings
+                        I found it useful for debugging early on - may be useful for future iterations
+                        such as for adding new projects or other root-level changes in the code base`
+  )
+  .option(
+    '-pf , --pluginFile <pluginFile>',
+    'Set custom file which lists plugins that should be built'
+  )
+  .option(
+    '-p, --plugins <plugins...>',
+    'An explicit comma separated list of plugins that should be built',
+    list,
+    []
+  )
+  .option(
+    '--pluginPath <pluginPath>',
+    'A system path to the plugin or module that should be added to the Python path so that it can be imported during build time',
+    String,
+    ''
+  )
+  .option('-i, --ignore <patterns...>', 'Ignore these comma separated patterns', list, [])
+  .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
+  .option('--localePath <localePath>', 'Set path to write locale files to')
+  .option(
+    '--searchPath <searchPath>',
+    'Set path to search for files containing strings to be extracted'
+  )
+  .option(
+    '--lang-info <langInfo>',
+    'Set path for file that contains language information',
+    filePath,
+    langInfoDefault
+  )
+  .action(function(options) {
+    const bundleData = readWebpackJson({
+      pluginFile: options.pluginFile,
+      plugins: options.plugins,
+      pluginPath: options.pluginPath,
+    });
+    let pathInfo;
+    if (bundleData.length) {
+      pathInfo = bundleData.map(bundle => {
+        let buildConfig = require(bundle.config_path);
+        if (bundle.index !== null) {
+          buildConfig = buildConfig[bundle.index];
+        }
+        const entry = buildConfig.webpack_config.entry;
+        return {
+          localeFilePath: bundle.locale_data_folder,
+          moduleFilePath: bundle.plugin_path,
+          namespace: bundle.module_path,
+          name: bundle.name,
+          entry,
+        };
+      });
+    } else if (options.namespace && options.localePath && options.searchPath) {
+      pathInfo = [
+        {
+          localeFilePath: options.localePath,
+          moduleFilePath: options.searchPath,
+          namespace: options.namespace,
+          name: options.namespace,
+        },
+      ];
+    } else {
+      cliLogging.error(
+        'Must specify either Kolibri plugins or search path, locale path, and namespace.'
+      );
+      program.command('i18n-csv-to-json').help();
+    }
+    const csvToJSON = require('./i18n/csvToJSON');
+    csvToJSON(options.dryRun, pathInfo, options.ignore, options.langInfo);
   });
 
 // Check engines, then process args
