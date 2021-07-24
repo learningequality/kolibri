@@ -28,6 +28,7 @@
     "browserslist-config-kolibri": "0.13.0-dev.10",
     "check-node-version": "^3.3.0",
     "chokidar": "^2.0.4",
+    "cli-table": "^0.3.6",
     "colors": "^1.1.2",
     "commander": "^2.9.0",
     "core-js": "3",
