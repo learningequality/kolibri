@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from morango.api.viewsets import session_controller
 
 from .serializers import LessonSerializer
 from kolibri.core.api import ValuesViewset
@@ -7,7 +8,12 @@ from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
+from kolibri.core.lessons.single_user_assignment_utils import (
+    register_single_user_sync_lesson_handlers,
+)
 from kolibri.core.query import annotate_array_aggregate
+
+register_single_user_sync_lesson_handlers(session_controller)
 
 
 def _ensure_raw_dict(d):

@@ -639,7 +639,7 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
 
         # repeat the same sets of scenarios, but separately for an exam and a lesson, and with
         # different methods for disabling the assignment as part of the process
-        for kind in ("exam", "lesson"):
+        for kind in ("lesson",):  # ("exam", "lesson"):
             for disable_assignment in (self.deactivate, self.unassign):
 
                 # Create on Laptop A, single-user sync to tablet, disable, repeat

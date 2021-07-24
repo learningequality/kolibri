@@ -23,6 +23,9 @@ from kolibri.core.auth.constants.morango_sync import State
 from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.auth.management.utils import run_once
 from kolibri.core.auth.models import dataset_cache
+from kolibri.core.lessons.single_user_assignment_utils import (
+    register_single_user_sync_lesson_handlers,
+)
 from kolibri.core.logger.utils.data import bytes_for_humans
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
@@ -218,6 +221,8 @@ class Command(AsyncCommand):
             client_cert, server_cert, chunk_size=chunk_size
         )
 
+        register_single_user_sync_lesson_handlers(sync_session_client.controller)
+
         try:
             # pull from server
             if not no_pull:
@@ -407,7 +412,7 @@ class Command(AsyncCommand):
 
         # allow server timeout since remotely integrating data can take a while and the request
         # could timeout. In that case, we'll assume everything is good.
-        sync_client.finalize(allow_server_timeout=True)
+        sync_client.finalize()
 
     def _update_all_progress(self, progress_fraction, progress):
         """
@@ -475,11 +480,14 @@ class Command(AsyncCommand):
             """
             :type transfer_session: morango.models.core.TransferSession
             """
-            progress = (
-                100
-                * transfer_session.records_transferred
-                / float(transfer_session.records_total)
-            )
+            try:
+                progress = (
+                    100
+                    * transfer_session.records_transferred
+                    / float(transfer_session.records_total)
+                )
+            except ZeroDivisionError:
+                progress = 100
             tracker.update_progress(
                 increment=math.ceil(progress - tracker.progress),
                 message=stats_msg(transfer_session),

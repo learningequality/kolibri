@@ -122,3 +122,47 @@ class LessonAssignment(AbstractFacilityDataModel):
 
     def calculate_partition(self):
         return self.dataset_id
+
+
+class IndividualSyncableLesson(AbstractFacilityDataModel):
+    """
+    Represents a Lesson and its assignment to a particular user
+    in such a way that it can be synced to a single-user device.
+    Note: This is not the canonical representation of a user's
+    relation to a lesson (which is captured in a LessonAssignment
+    combined with a user's Membership in an associated Collection;
+    the purpose of this model is as a derived/denormalized
+    representation of a specific user's lesson assignments).
+    """
+
+    morango_model_name = "individualsyncablelesson"
+
+    user = models.ForeignKey(FacilityUser)
+    collection = models.ForeignKey(Collection)
+    lesson_id = models.UUIDField()
+
+    serialized_lesson = JSONField()
+
+    def infer_dataset(self, *args, **kwargs):
+        return self.cached_related_dataset_lookup("user")
+
+    def calculate_source_id(self):
+        return self.lesson_id
+
+    def calculate_partition(self):
+        return "{dataset_id}:user-ro:{user_id}".format(
+            dataset_id=self.dataset_id, user_id=self.user_id
+        )
+
+    @classmethod
+    def serialize_lesson(cls, lesson):
+        serialized = lesson.serialize()
+        for key in ["is_active", "created_by_id", "date_created", "collection_id"]:
+            serialized.pop(key, None)
+        return serialized
+
+    @classmethod
+    def deserialize_lesson(cls, serialized_lesson):
+        lesson = Lesson.deserialize(serialized_lesson)
+        lesson.is_active = True
+        return lesson
