@@ -14,7 +14,7 @@
     "coverage": "yarn run test-jest-cov",
     "build": "kolibri-tools build prod --file ./build_tools/build_plugins.txt && yarn run hashi-build",
     "makemessages": "kolibri-tools i18n extract --pluginFile ./build_tools/build_plugins.txt",
-    "combineprofiles": "node ./packages/kolibri-tools/lib/i18n/combineStringProfiles.js ./kolibri/locale/en/LC_MESSAGES/profiles/",
+    "createprofiles": "kolibri-tools i18n-profile --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/strings.csv",
     "transfercontext": "kolibri-tools i18n transfer --pluginFile ./build_tools/build_plugins.txt",
     "watch": "kolibri-tools build dev --file ./build_tools/build_plugins.txt",
     "watch-hot": "yarn run watch --hot",

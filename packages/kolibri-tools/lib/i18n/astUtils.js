@@ -5,6 +5,9 @@ const babylonParser = require('recast/parsers/babylon');
 const traverse = require('ast-traverse');
 const vueCompiler = require('vue-template-compiler');
 const get = require('lodash/get');
+const isPlainObject = require('lodash/isPlainObject');
+const isString = require('lodash/isString');
+const isArray = require('lodash/isArray');
 const { glob } = require('glob');
 const logging = require('../logging');
 const { resolve } = require('../alias_import_resolver');
@@ -521,18 +524,69 @@ function getAstFromFile(filePath) {
 
 const GLOB = '/**/*.@(vue|js)';
 
-function getAllMessagesFromFilePath(moduleFilePath, ignore) {
+function getFilesFromFilePath(moduleFilePath, ignore) {
   const globPath = path.join(moduleFilePath, GLOB);
   logging.info(`Getting files from glob: ${globPath}`);
-  const files = glob.sync(globPath, { ignore });
-  logging.info('Processing ', files.length, ' files...');
+  return glob.sync(globPath, { ignore });
+}
 
+function getAllMessagesFromFilePath(moduleFilePath, ignore) {
+  const files = getFilesFromFilePath(moduleFilePath, ignore);
+  logging.info('Processing ', files.length, ' files...');
   const messages = {};
 
   files.forEach(filePath => {
     Object.assign(messages, getMessagesFromFile(filePath));
   });
   return messages;
+}
+
+function recurseForStrings(entryFile, ignore, visited) {
+  const outputStrings = {};
+  if (!visited.has(entryFile)) {
+    Object.assign(outputStrings, getMessagesFromFile(entryFile));
+    for (let filePath of getImportFileNames(entryFile, ignore)) {
+      Object.assign(outputStrings, recurseForStrings(filePath, ignore, visited));
+    }
+    visited.add(entryFile);
+  }
+  return outputStrings;
+}
+
+function _validateEntryFiles(entryFiles) {
+  if (isString(entryFiles)) {
+    entryFiles = [entryFiles];
+  } else if (isPlainObject(entryFiles)) {
+    entryFiles = Object.values(entryFiles);
+  } else if (!isArray(entryFiles)) {
+    throw new TypeError('Invalid type for entry files');
+  }
+  return entryFiles;
+}
+
+function getAllMessagesFromEntryFiles(entryFiles, moduleFilePath, ignore) {
+  entryFiles = _validateEntryFiles(entryFiles);
+  const visited = new Set();
+  return entryFiles.reduce((acc, entryFile) => {
+    try {
+      const filePath = getFileNameForImport(path.join(moduleFilePath, entryFile), '/');
+      return Object.assign(acc, recurseForStrings(filePath, ignore, visited));
+    } catch (e) {
+      return acc;
+    }
+  }, {});
+}
+
+function getFilesFromEntryFiles(entryFiles, moduleFilePath, ignore) {
+  entryFiles = _validateEntryFiles(entryFiles);
+  const visited = new Set();
+  entryFiles.map(entryFile => {
+    try {
+      const filePath = getFileNameForImport(path.join(moduleFilePath, entryFile), '/');
+      recurseForStrings(filePath, ignore, visited);
+    } catch (e) {} // eslint-disable-line no-empty
+  });
+  return visited;
 }
 
 function getMessagesFromFile(filePath) {
@@ -554,11 +608,15 @@ function getMessagesFromFile(filePath) {
 }
 
 module.exports = {
+  getFilesFromFilePath,
+  getFilesFromEntryFiles,
   getAllMessagesFromFilePath,
+  getAllMessagesFromEntryFiles,
   getMessagesFromFile,
   getFileNameForImport,
   getImportFileNames,
   getVueSFCName,
+  getAstFromFile,
   parseAST,
   printAST,
   is$trs,

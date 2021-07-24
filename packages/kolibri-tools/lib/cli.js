@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 const fs = require('fs');
-
 const os = require('os');
 const path = require('path');
 const program = require('commander');
@@ -581,6 +580,83 @@ program
     }
     const csvToJSON = require('./i18n/csvToJSON');
     csvToJSON(options.dryRun, pathInfo, options.ignore, options.langInfo);
+  });
+
+// I18N Profile
+program
+  .command('i18n-profile')
+  .option(
+    '-pf , --pluginFile <pluginFile>',
+    'Set custom file which lists plugins that should be built'
+  )
+  .option(
+    '-p, --plugins <plugins...>',
+    'An explicit comma separated list of plugins that should be built',
+    list,
+    []
+  )
+  .option(
+    '--pluginPath <pluginPath>',
+    'A system path to the plugin or module that should be added to the Python path so that it can be imported during build time',
+    String,
+    ''
+  )
+  .option(
+    '-i, --ignore <patterns...>',
+    'Ignore these comma separated patterns',
+    list,
+    ignoreDefaults
+  )
+  .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
+  .option('--localePath <localePath>', 'Set path to write locale files to')
+  .option(
+    '--searchPath <searchPath>',
+    'Set path to search for files containing strings to be extracted'
+  )
+  .option(
+    '--output-file <outputFile>',
+    'File path and name to which to write out the profile to',
+    filePath
+  )
+  .action(function(options) {
+    const bundleData = readWebpackJson({
+      pluginFile: options.pluginFile,
+      plugins: options.plugins,
+      pluginPath: options.pluginPath,
+    });
+    let pathInfo;
+    if (bundleData.length) {
+      pathInfo = bundleData.map(bundle => {
+        let buildConfig = require(bundle.config_path);
+        if (bundle.index !== null) {
+          buildConfig = buildConfig[bundle.index];
+        }
+        const entry = buildConfig.webpack_config.entry;
+        return {
+          localeFilePath: bundle.locale_data_folder,
+          moduleFilePath: bundle.plugin_path,
+          namespace: bundle.module_path,
+          name: bundle.name,
+          entry,
+        };
+      });
+    } else if (options.namespace && options.localePath && options.searchPath) {
+      pathInfo = [
+        {
+          localeFilePath: options.localePath,
+          moduleFilePath: options.searchPath,
+          namespace: options.namespace,
+          name: options.namespace,
+        },
+      ];
+    } else {
+      cliLogging.error(
+        'Must specify either Kolibri plugins or search path, locale path, and namespace.'
+      );
+      program.command('i18n-profile').help();
+    }
+    const profileStrings = require('./i18n/ProfileStrings');
+    profileStrings(pathInfo, options.ignore, options.outputFile);
   });
 
 // Check engines, then process args

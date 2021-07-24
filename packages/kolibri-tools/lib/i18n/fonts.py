@@ -533,7 +533,6 @@ def command_gen_subset_fonts():
         logging.info("gen subset for {}".format(lang_info[utils.KEY_ENG_NAME]))
         strings = []
         strings.extend(_get_lang_strings(utils.local_locale_path(lang_info)))
-        strings.extend(_get_lang_strings(utils.local_perseus_locale_path(lang_info)))
 
         name = lang_info[utils.KEY_INTL_CODE]
         _subset_and_merge_fonts(

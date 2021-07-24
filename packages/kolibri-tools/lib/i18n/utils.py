@@ -6,25 +6,6 @@ import logging
 import os
 import sys
 
-try:
-    import kolibri_exercise_perseus_plugin
-
-    PERSEUS_LOCALE_PATH = os.path.join(
-        os.path.dirname(kolibri_exercise_perseus_plugin.__file__), "locale"
-    )
-    PERSEUS_SOURCE_PATH = os.path.join(PERSEUS_LOCALE_PATH, "en", "LC_MESSAGES")
-except ModuleNotFoundError:
-    # We don't throw an error here as it will be handled later if needed.
-    # Not all projects depend on our Perseus plugin
-    PERSEUS_LOCALE_PATH = None
-    PERSEUS_SOURCE_PATH = None
-
-# Let's make sure the paths actually exist
-if PERSEUS_SOURCE_PATH and not os.path.exists(PERSEUS_SOURCE_PATH):
-    os.makedirs(PERSEUS_SOURCE_PATH)
-if PERSEUS_LOCALE_PATH and not os.path.exists(PERSEUS_LOCALE_PATH):
-    os.makedirs(PERSEUS_LOCALE_PATH)
-
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
 
@@ -49,7 +30,7 @@ if not LOCALE_PATH:
 try:
     if not os.path.exists(LOCALE_PATH):
         os.makedirs(LOCALE_PATH)
-except NotADirectoryError:
+except OSError:
     # This means you're not using the correct CROWDIN_PROJECT
     logging.error(
         "Please ensure that CROWDIN_PROJECT {} is correct and that you're running this command from the\
@@ -146,22 +127,6 @@ def local_locale_csv_path():
     if not os.path.exists(csv_path):
         os.makedirs(csv_path)
     return csv_path
-
-
-@memoize
-def local_perseus_locale_path(lang_object):
-    if PERSEUS_LOCALE_PATH:
-        return os.path.join(
-            PERSEUS_LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
-        )
-    return ""
-
-
-@memoize
-def local_perseus_locale_csv_path():
-    if PERSEUS_LOCALE_PATH:
-        return os.path.join(PERSEUS_LOCALE_PATH, "CSV_FILES")
-    return ""
 
 
 def json_dump_formatted(data, file_path, file_name):

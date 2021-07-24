@@ -1,44 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const isPlainObject = require('lodash/isPlainObject');
-const isString = require('lodash/isString');
-const isArray = require('lodash/isArray');
 const logging = require('../logging');
 const { getCSVDefinitions } = require('./utils');
-const {
-  getFileNameForImport,
-  getImportFileNames,
-  getMessagesFromFile,
-  getAllMessagesFromFilePath,
-} = require('./astUtils');
-
-function recurseForStrings(entryFile, ignore, visited) {
-  if (!visited.has(entryFile)) {
-    const outputStrings = Object.keys(getMessagesFromFile(entryFile));
-    for (let filePath of getImportFileNames(entryFile, ignore)) {
-      outputStrings.push(...recurseForStrings(filePath, ignore, visited));
-    }
-    visited.add(entryFile);
-    return outputStrings;
-  }
-  return [];
-}
-
-function recurseEntryFiles(entryFiles, moduleFilePath, ignore) {
-  const visited = new Set();
-  return Array.from(
-    new Set(
-      entryFiles.reduce((acc, entryFile) => {
-        try {
-          const filePath = getFileNameForImport(path.join(moduleFilePath, entryFile), '/');
-          return [...acc, ...recurseForStrings(filePath, ignore, visited)];
-        } catch (e) {
-          return acc;
-        }
-      }, [])
-    )
-  );
-}
+const { getAllMessagesFromEntryFiles, getAllMessagesFromFilePath } = require('./astUtils');
 
 module.exports = function(dryRun, pathInfo, ignore, langInfo) {
   const languageInfo = require(langInfo);
@@ -52,17 +16,9 @@ module.exports = function(dryRun, pathInfo, ignore, langInfo) {
     const name = pathData.name;
     logging.info(`Gathering required string ids for ${name}`);
     if (pathData.entry) {
-      let entryFiles;
-      // If the pathData specifies the entry, we can traverse each entry
-      // in order to pick up any specified translation strings.
-      if (isString(pathData.entry)) {
-        entryFiles = [pathData.entry];
-      } else if (isArray(pathData.entry)) {
-        entryFiles = pathData.entry;
-      } else if (isPlainObject(pathData.entry)) {
-        entryFiles = Object.values(pathData.entry);
-      }
-      requiredMessages[name] = recurseEntryFiles(entryFiles, moduleFilePath, ignore);
+      requiredMessages[name] = Object.keys(
+        getAllMessagesFromEntryFiles(pathData.entry, moduleFilePath, ignore)
+      );
     } else {
       requiredMessages[name] = Object.keys(getAllMessagesFromFilePath(moduleFilePath, ignore));
     }
