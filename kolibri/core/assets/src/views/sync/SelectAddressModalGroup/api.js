@@ -27,10 +27,17 @@ function channelIsAvailableAtLocation(channelId, location) {
     });
 }
 
+function versionCompare(version) {
+  //check if version is >= 0.15.0
+  const v = version.split('.');
+  if (parseInt(v[0]) > 0) return true;
+  if (parseInt(v[1]) >= 15) return true;
+  return false;
+}
 function fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
   return LocationResource.fetchCollection({ force: true }).then(locations => {
     return locations.filter(
-      location => has(location, 'subset_of_users_device') && location['subset_of_users_device']
+      location => !location['subset_of_users_device'] && versionCompare(location.kolibri_version)
     );
   });
 }

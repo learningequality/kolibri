@@ -230,7 +230,7 @@
       submitDisabled() {
         return (
           this.selectedAddressId === '' ||
-          this.fetchingAddresses ||
+          this.fetchingAddresses & !this.filterLODAvailable ||
           this.deletingAddress ||
           this.discoveryFailed ||
           this.availableAddressIds.length === 0

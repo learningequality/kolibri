@@ -48,7 +48,7 @@
     <SelectAddressModalGroup
       v-if="showLODAddressModal"
       :filterLODAvailable="true"
-      @submit="startFacilityImportFlow"
+      @submit="startLODImportFlow"
       @cancel="showLODAddressModal = false"
     />
   </OnboardingForm>
@@ -98,6 +98,15 @@
         this.wizardService.send({ type: 'CONTINUE', value: false });
       },
       startFacilityImportFlow(address) {
+        this.wizardService.send({ type: 'CONTINUE', value: true });
+        this.$router.push({
+          path: '/import_facility/1',
+          query: {
+            device_id: address.id,
+          },
+        });
+      },
+      startLODImportFlow(address) {
         this.wizardService.send({ type: 'CONTINUE', value: true });
         this.$router.push({
           path: '/import_facility/1',
