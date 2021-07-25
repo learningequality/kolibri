@@ -23,56 +23,86 @@ logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
 
 
-"""
-Ensure that the API key is set
-"""
+# crowdin project name
+project_option = click.Option(
+    param_decls=["--project"],
+    envvar="CROWDIN_PROJECT",
+    help="Set the Crowdin Project",
+    prompt="Crowdin Project name",
+    required=True,
+)
+
+login_option = click.Option(
+    param_decls=["--login"],
+    envvar="CROWDIN_LOGIN",
+    help="Set the Crowdin Login Username",
+    prompt="Crowdin username",
+    required=True,
+)
+
+key_option = click.Option(
+    param_decls=["--key"],
+    envvar="CROWDIN_API_KEY",
+    help="Set the Crowdin API key",
+    prompt="Crowdin API key",
+    required=True,
+)
+
+branch_argument = click.argument(
+    "branch",
+    envvar="CROWDIN_BRANCH",
+    required=True,
+)
 
 
-def checkApiKey():
-    if "CROWDIN_API_KEY" not in os.environ:
-        logging.error("The CROWDIN_API_KEY environment variable needs to be set")
-        sys.exit(1)
+# We could attempt to infer this in the Kolibri and Kolibri plugin
+# case, using our plugin machinery - but this would require us to
+# import functions from webpack_json.py which is not currently possible
+# as these modules do not constitute a package and so cannot do relative
+# imports.
+locale_data_folder_option = click.option(
+    "--locale-data-folder",
+    envvar="LOCALE_DATA_FOLDER",
+    help="Set path to write locale files to",
+    type=click.Path(file_okay=False),
+    prompt="Path to locale folder",
+    required=True,
+)
 
 
-"""
-Gather needed environment variables
-"""
+class CrowdinCommand(click.Command):
+    """
+    A command class for Crowdin commands.
+    By default adds parameters for crowdin access
+    and path configuration.
+    """
 
-CROWDIN_PROJECT = os.getenv(
-    "CROWDIN_PROJECT", "kolibri"
-)  # crowdin project name - default to "kolibri"
-CROWDIN_LOGIN = os.getenv("CROWDIN_LOGIN", None)
+    allow_extra_args = True
 
-# We need the login to interact with the API at all
-if not CROWDIN_LOGIN:
-    logging.error(
-        "\nPlease set the `CROWDIN_LOGIN` environment variable to your Crowdin username.\n"
-    )
-    sys.exit(1)
+    def __init__(self, *args, **kwargs):
+        kwargs["params"] = [project_option, login_option, key_option] + (
+            kwargs["params"] if "params" in kwargs else []
+        )
+        super(CrowdinCommand, self).__init__(*args, **kwargs)
 
 
 """
 Shared constants and helpers
 """
-
-
-CROWDIN_API_KEY = os.environ["CROWDIN_API_KEY"]
 CROWDIN_API_URL = "https://api.crowdin.com/api/project/{proj}/{cmd}?account-key={key}&login={username}{params}"
 
-DJANGO_PO = "django.po"
 GLOSSARY_XML_FILE = "glossary.tbx"
 
-DETAILS_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="info",
-    params="&json",
-)
 
-
-def get_crowdin_details():
-    r = requests.get(DETAILS_URL)
+def get_crowdin_details(project, key, login):
+    details_url = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        username=login,
+        cmd="info",
+        params="&json",
+    )
+    r = requests.get(details_url)
     r.raise_for_status()
     return r.json()
 
@@ -101,25 +131,22 @@ def is_string_file(file_name):
 Rebuild
 """
 
-REBUILD_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="export",
-    params="&branch={branch}&json",
-)
 
-
-@click.command()
-@click.argument("branch")
-def rebuild_translations(branch):
+@click.command(cls=CrowdinCommand)
+@branch_argument
+def rebuild_translations(branch, project, key, login):
     """
     Rebuild the given branch
     """
-    checkApiKey()
-
     logging.info("Crowdin: rebuilding '{}'. This could take a while...".format(branch))
-    r = requests.get(REBUILD_URL.format(branch=branch))
+    rebuild_url = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        username=login,
+        cmd="export",
+        params="&branch={branch}&json".format(branch=branch),
+    )
+    r = requests.get(rebuild_url)
     r.raise_for_status()
     if r.json()["success"]["status"] == "skipped":
         logging.info("Crowdin: rebuild skipped. Can only be run once every 30 min.")
@@ -133,36 +160,24 @@ def rebuild_translations(branch):
 Pre-translate command
 """
 
+
 # pre-translate all strings matches, and auto-approve only those with exact ID matches
-PRETRANSLATE_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    cmd="pre-translate",
-    username=CROWDIN_LOGIN,
-    # perfect_match=0 - apply TM to all identical strings, regardless of ID
-    # apply_untranslated_strings_only=1 - don't apply TM to strings that already have translations
-    # approve_translated=1 - auto-approve
-    params="&method=tm&approve_translated=1&auto_approve_option={approve_option}&json&apply_untranslated_strings_only=1&perfect_match=0",
-)
-
-
-@click.command()
+@click.command(cls=CrowdinCommand)
+@branch_argument
 @click.option(
     "--approve-all",
     is_flag=True,
     default=False,
     help="Automatically approve all string matches (default False)",
 )
-@click.argument("branch")
-def pretranslate(branch, approve_all=False):
+def pretranslate(branch, project, key, login, approve_all=False):
     """
     Apply pre-translation to the given branch
     """
-    checkApiKey()
-
     params = []
     files = [
-        "{}/{}".format(branch, f) for f in crowdin_files(branch, get_crowdin_details())
+        "{}/{}".format(branch, f)
+        for f in crowdin_files(branch, get_crowdin_details(project, key, login))
     ]
     params.extend([("files[]", file) for file in files])
     codes = [lang[utils.KEY_CROWDIN_CODE] for lang in utils.available_languages()]
@@ -177,9 +192,20 @@ def pretranslate(branch, approve_all=False):
     msg += "\n\tYou should see the results on Crowdin eventually..."
     logging.info(msg.format(branch))
 
-    r = requests.post(
-        PRETRANSLATE_URL.format(approve_option=0 if approve_all else 1), params=params
+    pretranslate_url = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        cmd="pre-translate",
+        username=login,
+        # perfect_match=0 - apply TM to all identical strings, regardless of ID
+        # apply_untranslated_strings_only=1 - don't apply TM to strings that already have translations
+        # approve_translated=1 - auto-approve
+        params="&method=tm&approve_translated=1&auto_approve_option={approve_option}&json&apply_untranslated_strings_only=1&perfect_match=0".format(
+            approve_option=0 if approve_all else 1
+        ),
     )
+
+    r = requests.post(pretranslate_url, params=params)
     r.raise_for_status()
     logging.info("Crowdin: succeeded!")
 
@@ -188,24 +214,16 @@ def pretranslate(branch, approve_all=False):
 Upload translations
 """
 
-UPLOAD_TRANSLATION_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="upload-translation",
-    params="&branch={branch}&language={language}&auto_approve_imported=1&import_duplicates=1&json",
-)
 
-
-def _translation_upload_ref(file_name, lang_object):
-    source_path = utils.local_locale_path(lang_object)
+def _translation_upload_ref(file_name, lang_object, locale_data_folder):
+    source_path = utils.local_locale_path(lang_object, locale_data_folder)
     file_pointer = open(os.path.join(source_path, file_name), "rb")
     return ("files[{0}]".format(file_name), file_pointer)
 
 
-def _upload_translation(branch, lang_object):
+def _upload_translation(branch, project, key, login, lang_object, locale_data_folder):
 
-    if no_crowdin_branch(branch, get_crowdin_details()):
+    if no_crowdin_branch(branch, get_crowdin_details(project, key, login)):
         logging.error("Branch '{}' not found.".format(branch))
         sys.exit(1)
 
@@ -214,18 +232,25 @@ def _upload_translation(branch, lang_object):
             lang_object[utils.KEY_CROWDIN_CODE], branch
         )
     )
-
-    url = UPLOAD_TRANSLATION_URL.format(
-        branch=branch, language=lang_object[utils.KEY_CROWDIN_CODE]
+    url = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        username=login,
+        cmd="upload-translation",
+        params="&branch={branch}&language={language}&auto_approve_imported=1&import_duplicates=1&json".format(
+            branch=branch, language=lang_object[utils.KEY_CROWDIN_CODE]
+        ),
     )
 
     file_names = []
-    for name in os.listdir(utils.local_locale_path(lang_object)):
+    for name in os.listdir(utils.local_locale_path(lang_object, locale_data_folder)):
         if is_string_file(name):
             file_names.append(name)
 
     for chunk in _chunks(file_names):
-        references = [_translation_upload_ref(f, lang_object) for f in chunk]
+        references = [
+            _translation_upload_ref(f, lang_object, locale_data_folder) for f in chunk
+        ]
         r = requests.post(url, files=references)
         r.raise_for_status()
         for ref in references:
@@ -234,32 +259,25 @@ def _upload_translation(branch, lang_object):
     logging.info("Crowdin: translation upload succeeded!")
 
 
-@click.command()
-@click.argument("branch")
-def upload_translations(branch):
+@click.command(cls=CrowdinCommand)
+@branch_argument
+@locale_data_folder_option
+def upload_translations(branch, project, key, login, locale_data_folder):
     """
     Upload translations to the given branch
     """
-    checkApiKey()
-
     available_languages = utils.available_languages(
         include_in_context=False, include_english=False
     )
     for lang_object in available_languages:
-        _upload_translation(branch, lang_object)
+        _upload_translation(
+            branch, project, key, login, lang_object, locale_data_folder
+        )
 
 
 """
 Download translations
 """
-
-DOWNLOAD_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="download/all.zip",
-    params="&branch={branch}",
-)
 
 
 def _wipe_translations(locale_path):
@@ -269,18 +287,25 @@ def _wipe_translations(locale_path):
             shutil.rmtree(target)
 
 
-@click.command()
-@click.argument("branch")
-def download_translations(branch):
+@click.command(cls=CrowdinCommand)
+@branch_argument
+@locale_data_folder_option
+def download_translations(branch, project, key, login, locale_data_folder):
     """
     Download translations from the given branch
     """
-    checkApiKey()
-
     logging.info("Crowdin: downloading '{}'...".format(branch))
 
     # delete previous files
-    _wipe_translations(utils.LOCALE_PATH)
+    _wipe_translations(locale_data_folder)
+
+    DOWNLOAD_URL = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        username=login,
+        cmd="download/all.zip",
+        params="&branch={branch}&language={language}",
+    )
 
     for lang_object in utils.available_languages(include_in_context=True):
         code = lang_object[utils.KEY_CROWDIN_CODE]
@@ -288,7 +313,7 @@ def download_translations(branch):
         r = requests.get(url)
         r.raise_for_status()
         z = zipfile.ZipFile(io.BytesIO(r.content))
-        target = utils.local_locale_csv_path()
+        target = utils.local_locale_csv_path(locale_data_folder)
         logging.info("\tExtracting {} to {}".format(code, target))
         z.extractall(target)
 
@@ -299,33 +324,22 @@ def download_translations(branch):
 Glossary commands
 """
 
-DOWNLOAD_GLOSSARY_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="download-glossary",
-    params="",
-)
 
-UPLOAD_GLOSSARY_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="upload-glossary",
-    params="",
-)
-
-GLOSSARY_FILE = os.path.join(utils.LOCALE_PATH, GLOSSARY_XML_FILE)
-
-
-@click.command()
-def download_glossary():
+@click.command(cls=CrowdinCommand)
+@locale_data_folder_option
+def download_glossary(project, key, login, locale_data_folder):
     """
     Download glossary file
     """
-    checkApiKey()
-
+    GLOSSARY_FILE = os.path.join(locale_data_folder, GLOSSARY_XML_FILE)
     logging.info("Crowdin: downloading glossary...")
+    DOWNLOAD_GLOSSARY_URL = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        username=login,
+        cmd="download-glossary",
+        params="",
+    )
     r = requests.get(DOWNLOAD_GLOSSARY_URL)
     r.raise_for_status()
     with io.open(GLOSSARY_FILE, mode="w", encoding="utf-8") as f:
@@ -333,14 +347,21 @@ def download_glossary():
     logging.info("Crowdin: download succeeded!")
 
 
-@click.command()
-def upload_glossary():
+@click.command(cls=CrowdinCommand)
+@locale_data_folder_option
+def upload_glossary(project, key, login, locale_data_folder):
     """
     Upload glossary file
     """
-    checkApiKey()
-
     logging.info("Crowdin: uploading glossary...")
+    UPLOAD_GLOSSARY_URL = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        username=login,
+        cmd="upload-glossary",
+        params="",
+    )
+    GLOSSARY_FILE = os.path.join(locale_data_folder, GLOSSARY_XML_FILE)
     files = {"file": open(GLOSSARY_FILE, "rb")}
     r = requests.post(UPLOAD_GLOSSARY_URL, files=files)
     r.raise_for_status()
@@ -351,32 +372,11 @@ def upload_glossary():
 Upload source files
 """
 
-ADD_BRANCH_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="add-directory",
-    params="&name={branch}&is_branch=1&json",
-)
-ADD_SOURCE_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="add-file",
-    params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0",
-)
-UPDATE_SOURCE_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="update-file",
-    params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0",
-)
 
-
-def _source_upload_ref(file_name):
+def _source_upload_ref(file_name, locale_data_folder):
     file_pointer = open(
-        os.path.join(utils.local_locale_csv_source_path(), file_name), "rb"
+        os.path.join(utils.local_locale_csv_source_path(locale_data_folder), file_name),
+        "rb",
     )
     return ("files[{0}]".format(file_name), file_pointer)
 
@@ -389,36 +389,46 @@ def _chunks(files):
         yield files[i : i + MAX_FILES]
 
 
-def _modify(url, file_names):
+def _modify(url, file_names, locale_data_folder):
     # split into multiple requests
     logging.info("Uploading {}".format(url))
     for chunk in _chunks(file_names):
         # generate the weird syntax and data structure required by crowdin + requests
-        references = [_source_upload_ref(file_name) for file_name in chunk]
+        references = [
+            _source_upload_ref(file_name, locale_data_folder) for file_name in chunk
+        ]
         r = requests.post(url, files=references)
         r.raise_for_status()
         for ref in references:
             ref[1].close()
 
 
-@click.command()
-@click.argument("branch")
-def upload_sources(branch):
+@click.command(cls=CrowdinCommand)
+@branch_argument
+@locale_data_folder_option
+def upload_sources(branch, project, key, login, locale_data_folder):
     """
     Upload English source files to the given branch
     """
-    checkApiKey()
-
     logging.info("Crowdin: uploading sources for '{}'...".format(branch))
-    details = get_crowdin_details()
+    details = get_crowdin_details(project, key, login)
     if no_crowdin_branch(branch, details):
         logging.info("\tcreating branch '{}'...".format(branch))
-        r = requests.post(ADD_BRANCH_URL.format(branch=branch))
+        ADD_BRANCH_URL = CROWDIN_API_URL.format(
+            proj=project,
+            key=key,
+            username=login,
+            cmd="add-directory",
+            params="&name={branch}&is_branch=1&json".format(branch=branch),
+        )
+        r = requests.post(ADD_BRANCH_URL)
         r.raise_for_status()
 
     source_files = set(
         file_name
-        for file_name in os.listdir(utils.local_locale_csv_source_path())
+        for file_name in os.listdir(
+            utils.local_locale_csv_source_path(locale_data_folder)
+        )
         if is_string_file(file_name)
     )
 
@@ -428,10 +438,28 @@ def upload_sources(branch):
 
     if to_add:
         logging.info("\tAdd in '{}': {}".format(branch, ", ".join(to_add)))
-        _modify(ADD_SOURCE_URL.format(branch=branch), to_add)
+        ADD_SOURCE_URL = CROWDIN_API_URL.format(
+            proj=project,
+            key=key,
+            username=login,
+            cmd="add-file",
+            params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0".format(
+                branch=branch
+            ),
+        )
+        _modify(ADD_SOURCE_URL, to_add, locale_data_folder)
     if to_update:
         logging.info("\tUpdate in '{}': {}".format(branch, ", ".join(to_update)))
-        _modify(UPDATE_SOURCE_URL.format(branch=branch), to_update)
+        UPDATE_SOURCE_URL = CROWDIN_API_URL.format(
+            proj=project,
+            key=key,
+            username=login,
+            cmd="update-file",
+            params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0".format(
+                branch=branch
+            ),
+        )
+        _modify(UPDATE_SOURCE_URL, to_update)
 
     logging.info("Crowdin: source file upload succeeded!")
 
@@ -461,23 +489,13 @@ Branch: {branch}
 =================================================================
 """
 
-LANG_STATUS_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="language-status",
-    params="&language={language}&json",
-)
 
-
-@click.command()
-@click.argument("branch")
-def translation_stats(branch):
+@click.command(cls=CrowdinCommand)
+@branch_argument
+def translation_stats(branch, project, key, login):
     """
     Print stats for the given branch
     """
-    checkApiKey()
-
     logging.info("Crowdin: getting details for '{}'...".format(branch))
 
     def _is_branch_node(node):
@@ -491,6 +509,15 @@ def translation_stats(branch):
     sorted_languages = sorted(
         utils.available_languages(), key=lambda x: x[utils.KEY_ENG_NAME]
     )
+
+    LANG_STATUS_URL = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        username=login,
+        cmd="language-status",
+        params="&language={language}&json",
+    )
+
     for lang in sorted_languages:
 
         logging.info("Retrieving stats for {}...".format(lang[utils.KEY_ENG_NAME]))

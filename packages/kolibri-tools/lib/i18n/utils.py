@@ -10,43 +10,19 @@ logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
 
 
-PROJECT_NAME = os.getenv("CROWDIN_PROJECT", "kolibri")
+# Path to the kolibri locale language_info file, which we use if we are running
+# from inside the Kolibri repository.
+_KOLIBRI_LANGUAGE_INFO_PATH = os.path.join(
+    os.path.dirname(__file__), "../../../kolibri/locale/language_info.json"
+)
 
-THIS_FILE_PATH = os.path.abspath(os.getcwd())
-
-LOCALE_OPTIONS = {
-    "kolibri": os.path.join(THIS_FILE_PATH, "kolibri/locale"),
-    "kolibri-studio": os.path.join(THIS_FILE_PATH, "contentcuration/locale"),
-}
-
-LOCALE_PATH = LOCALE_OPTIONS[PROJECT_NAME]
-
-if not LOCALE_PATH:
-    logging.error(
-        "\nCould not get LOCALE_PATH for CROWDIN_PROJECT {}".format(PROJECT_NAME)
-    )
-    sys.exit(1)
-
-try:
-    if not os.path.exists(LOCALE_PATH):
-        os.makedirs(LOCALE_PATH)
-except OSError:
-    # This means you're not using the correct CROWDIN_PROJECT
-    logging.error(
-        "Please ensure that CROWDIN_PROJECT {} is correct and that you're running this command from the\
-                  root of that project. This failed trying to make this directory: {}".format(
-            PROJECT_NAME, LOCALE_PATH
-        )
-    )
-    sys.exit(1)
-
-SOURCE_PATH = os.path.join(LOCALE_PATH, "en", "LC_MESSAGES")
-
-if not os.path.exists(SOURCE_PATH):
-    os.makedirs(SOURCE_PATH)
-
-
-LANGUAGE_INFO_PATH = os.path.join(os.path.dirname(__file__), "language_info.json")
+# If we are in the built version of kolibri-tools, we only have access to the local
+# copy if we are in the repo, we use the repo copy.
+LANGUAGE_INFO_PATH = (
+    _KOLIBRI_LANGUAGE_INFO_PATH
+    if os.path.exists(_KOLIBRI_LANGUAGE_INFO_PATH)
+    else os.path.join(os.path.dirname(__file__), "language_info.json")
+)
 
 # Keys used in language_info.json
 KEY_CROWDIN_CODE = "crowdin_code"
@@ -102,9 +78,11 @@ def available_languages(include_in_context=False, include_english=False):
 
 
 @memoize
-def local_locale_path(lang_object):
+def local_locale_path(lang_object, locale_data_folder):
     local_path = os.path.abspath(
-        os.path.join(LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES")
+        os.path.join(
+            locale_data_folder, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
+        )
     )
     if not os.path.exists(local_path):
         os.makedirs(local_path)
@@ -113,8 +91,8 @@ def local_locale_path(lang_object):
 
 # Defines where we find the extracted messages
 @memoize
-def local_locale_csv_source_path():
-    csv_path = os.path.abspath(os.path.join(LOCALE_PATH, "CSV_FILES", "en"))
+def local_locale_csv_source_path(locale_data_folder):
+    csv_path = os.path.abspath(os.path.join(locale_data_folder, "CSV_FILES", "en"))
     if not os.path.exists(csv_path):
         os.makedirs(csv_path)
     return csv_path
@@ -122,8 +100,8 @@ def local_locale_csv_source_path():
 
 # Defines where we'll find the downloaded CSV files from Crowdin (non english files)
 @memoize
-def local_locale_csv_path():
-    csv_path = os.path.abspath(os.path.join(LOCALE_PATH, "CSV_FILES"))
+def local_locale_csv_path(locale_data_folder):
+    csv_path = os.path.abspath(os.path.join(locale_data_folder, "CSV_FILES"))
     if not os.path.exists(csv_path):
         os.makedirs(csv_path)
     return csv_path
