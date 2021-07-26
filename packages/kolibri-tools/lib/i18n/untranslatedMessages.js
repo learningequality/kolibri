@@ -1,8 +1,8 @@
 const Table = require('cli-table');
-const { getCSVDefinitions } = require('./utils');
+const { parseCSVDefinitions } = require('./utils');
 const { getAllMessagesFromEntryFiles, getAllMessagesFromFilePath } = require('./astUtils');
 
-module.exports = function(pathInfo, ignore, langInfo) {
+module.exports = function(pathInfo, ignore, langInfo, localeDataFolder) {
   const languageInfo = require(langInfo);
   // A map per webpack bundle designating which messages
   // are needed for full translation. Will be a map from:
@@ -23,7 +23,7 @@ module.exports = function(pathInfo, ignore, langInfo) {
   for (let langObject of languageInfo) {
     const crowdinCode = langObject['crowdin_code'];
     const intlCode = langObject['intl_code'];
-    const csvDefinitions = getCSVDefinitions(pathInfo, crowdinCode);
+    const csvDefinitions = parseCSVDefinitions(localeDataFolder, crowdinCode);
     // An object for storing missing messages.
     const missingMessages = {};
     for (let name in requiredMessages) {

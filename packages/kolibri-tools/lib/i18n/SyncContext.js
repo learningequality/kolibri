@@ -16,7 +16,7 @@ const {
   extractContext,
   printAST,
 } = require('./astUtils');
-const { getCSVDefinitions, writeSourceToFile } = require('./utils');
+const { parseCSVDefinitions, writeSourceToFile } = require('./utils');
 
 // Glob path patterns
 // All JS files
@@ -168,12 +168,12 @@ function processJSFiles(files, definitions) {
     .filter(Boolean);
 }
 
-module.exports = function(dryRun, dump, pathInfo, ignore) {
+module.exports = function(dryRun, dump, pathInfo, ignore, localeDataFolder) {
   logging.info('Transferring context...');
 
   // An object for storing our updated files.
   const updatedFiles = [];
-  const csvDefinitions = getCSVDefinitions(pathInfo).filter(
+  const csvDefinitions = parseCSVDefinitions(localeDataFolder).filter(
     definition => definition['Context'] && extractContext(definition['Context']) !== ''
   );
 

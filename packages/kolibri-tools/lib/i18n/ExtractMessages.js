@@ -109,29 +109,22 @@ function toCSV(csvPath, namespace, messages) {
   return csvWriter.writeRecords(sortBy(csvData, 'identifier'));
 }
 
-module.exports = function(dryRun, dump, pathInfo, ignore) {
+module.exports = function(dryRun, dump, pathInfo, ignore, localeDataFolder) {
   // An object for storing our messages.
   const extractedMessages = {};
-  const localePaths = {};
   pathInfo.forEach(pathData => {
     const namespace = pathData.name;
     extractedMessages[namespace] = getAllMessagesFromFilePath(pathData.moduleFilePath, ignore);
-    localePaths[namespace] = path.join(
-      path.dirname(path.dirname(pathData.localeFilePath)),
-      'CSV_FILES',
-      'en'
-    );
   });
 
   if (!dryRun) {
-    for (let csvPath of new Set(Object.values(localePaths))) {
-      // Let's just get rid of the old files to limit room for issues w/ file system
-      clearCsvPath(csvPath);
-    }
+    const csvPath = path.join(localeDataFolder, 'CSV_FILES', 'en');
+    // Let's just get rid of the old files to limit room for issues w/ file system
+    clearCsvPath(csvPath);
 
     // Now we go through each namespace and write a CSV for it
     const PromisesToWriteCSVs = Object.keys(extractedMessages).map(namespace => {
-      return toCSV(localePaths[namespace], namespace, extractedMessages[namespace]);
+      return toCSV(csvPath, namespace, extractedMessages[namespace]);
     });
     Promise.all(PromisesToWriteCSVs).then(() =>
       logging.info('Messages successfully written to CSV files.')

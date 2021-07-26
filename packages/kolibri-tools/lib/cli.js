@@ -4,6 +4,8 @@ const os = require('os');
 const path = require('path');
 const program = require('commander');
 const checkVersion = require('check-node-version');
+const ini = require('ini');
+const get = require('lodash/get');
 const version = require('../package.json');
 const logger = require('./logging');
 
@@ -18,6 +20,8 @@ function list(val) {
 function filePath(val) {
   return path.resolve(process.cwd(), val);
 }
+
+const config = ini.parse(fs.readFileSync(path.join(process.cwd(), './setup.cfg'), 'utf-8'));
 
 program.version(version).description('Tools for Kolibri frontend plugins');
 
@@ -375,6 +379,8 @@ program
     }
   });
 
+const localeDataFolderDefault = filePath(get(config, ['i18n', 'locale_data_folder']));
+
 // Path to the kolibri locale language_info file, which we use if we are running
 // from inside the Kolibri repository.
 const _kolibriLangInfoPath = path.join(__dirname, '../../../kolibri/locale/language_info.json');
@@ -442,7 +448,12 @@ program
     ignoreDefaults
   )
   .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
-  .option('--localePath <localePath>', 'Set path to write locale files to')
+  .option(
+    '--localeDataFolder <localeDataFolder>',
+    'Set path to write locale files to',
+    filePath,
+    localeDataFolderDefault
+  )
   .option(
     '--searchPath <searchPath>',
     'Set path to search for files containing strings to be extracted'
@@ -451,7 +462,6 @@ program
     const modes = {
       EXTRACT: 'extract',
       TRANSFER: 'transfer',
-      PROFILE: 'profile',
     };
     if (typeof mode !== 'string') {
       cliLogging.error('Mode must be specified');
@@ -470,15 +480,13 @@ program
     if (bundleData.length) {
       pathInfo = bundleData.map(bundle => {
         return {
-          localeFilePath: bundle.locale_data_folder,
           moduleFilePath: bundle.plugin_path,
           name: bundle.module_path,
         };
       });
-    } else if (options.namespace && options.localePath && options.searchPath) {
+    } else if (options.namespace && options.localeDataFolder && options.searchPath) {
       pathInfo = [
         {
-          localeFilePath: options.localePath,
           moduleFilePath: options.searchPath,
           name: options.namespace,
         },
@@ -491,10 +499,22 @@ program
     }
     if (mode === modes.EXTRACT) {
       const extractMessages = require('./i18n/ExtractMessages');
-      extractMessages(options.dryRun, options.dumpExtracted, pathInfo, options.ignore);
+      extractMessages(
+        options.dryRun,
+        options.dumpExtracted,
+        pathInfo,
+        options.ignore,
+        options.localeDataFolder
+      );
     } else if (mode === modes.TRANSFER) {
       const syncContext = require('./i18n/SyncContext');
-      syncContext(options.dryRun, options.dumpExtracted, pathInfo, options.ignore);
+      syncContext(
+        options.dryRun,
+        options.dumpExtracted,
+        pathInfo,
+        options.ignore,
+        options.localeDataFolder
+      );
     }
   });
 
@@ -530,7 +550,12 @@ program
     ignoreDefaults
   )
   .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
-  .option('--localePath <localePath>', 'Set path to write locale files to')
+  .option(
+    '--localeDataFolder <localeDataFolder>',
+    'Set path to write locale files to',
+    filePath,
+    localeDataFolderDefault
+  )
   .option(
     '--searchPath <searchPath>',
     'Set path to search for files containing strings to be extracted'
@@ -556,17 +581,15 @@ program
         }
         const entry = buildConfig.webpack_config.entry;
         return {
-          localeFilePath: bundle.locale_data_folder,
           moduleFilePath: bundle.plugin_path,
           namespace: bundle.module_path,
           name: bundle.name,
           entry,
         };
       });
-    } else if (options.namespace && options.localePath && options.searchPath) {
+    } else if (options.namespace && options.localeDataFolder && options.searchPath) {
       pathInfo = [
         {
-          localeFilePath: options.localePath,
           moduleFilePath: options.searchPath,
           namespace: options.namespace,
           name: options.namespace,
@@ -579,7 +602,7 @@ program
       program.command('i18n-csv-to-json').help();
     }
     const csvToJSON = require('./i18n/csvToJSON');
-    csvToJSON(options.dryRun, pathInfo, options.ignore, options.langInfo);
+    csvToJSON(options.dryRun, pathInfo, options.ignore, options.langInfo, options.localeDataFolder);
   });
 
 // I18N Stats
@@ -608,7 +631,12 @@ program
     ignoreDefaults
   )
   .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
-  .option('--localePath <localePath>', 'Set path to write locale files to')
+  .option(
+    '--localeDataFolder <localeDataFolder>',
+    'Set path to write locale files to',
+    filePath,
+    localeDataFolderDefault
+  )
   .option(
     '--searchPath <searchPath>',
     'Set path to search for files containing strings to be extracted'
@@ -634,17 +662,15 @@ program
         }
         const entry = buildConfig.webpack_config.entry;
         return {
-          localeFilePath: bundle.locale_data_folder,
           moduleFilePath: bundle.plugin_path,
           namespace: bundle.module_path,
           name: bundle.name,
           entry,
         };
       });
-    } else if (options.namespace && options.localePath && options.searchPath) {
+    } else if (options.namespace && options.localeDataFolder && options.searchPath) {
       pathInfo = [
         {
-          localeFilePath: options.localePath,
           moduleFilePath: options.searchPath,
           namespace: options.namespace,
           name: options.namespace,
@@ -657,7 +683,7 @@ program
       program.command('i18n-stats').help();
     }
     const untranslatedMessages = require('./i18n/untranslatedMessages');
-    untranslatedMessages(pathInfo, options.ignore, options.langInfo);
+    untranslatedMessages(pathInfo, options.ignore, options.langInfo, options.localeDataFolder);
   });
 
 // I18N Profile
@@ -686,7 +712,6 @@ program
     ignoreDefaults
   )
   .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
-  .option('--localePath <localePath>', 'Set path to write locale files to')
   .option(
     '--searchPath <searchPath>',
     'Set path to search for files containing strings to be extracted'
@@ -711,26 +736,22 @@ program
         }
         const entry = buildConfig.webpack_config.entry;
         return {
-          localeFilePath: bundle.locale_data_folder,
           moduleFilePath: bundle.plugin_path,
           namespace: bundle.module_path,
           name: bundle.name,
           entry,
         };
       });
-    } else if (options.namespace && options.localePath && options.searchPath) {
+    } else if (options.namespace && options.searchPath) {
       pathInfo = [
         {
-          localeFilePath: options.localePath,
           moduleFilePath: options.searchPath,
           namespace: options.namespace,
           name: options.namespace,
         },
       ];
     } else {
-      cliLogging.error(
-        'Must specify either Kolibri plugins or search path, locale path, and namespace.'
-      );
+      cliLogging.error('Must specify either Kolibri plugins or search path and namespace.');
       program.command('i18n-profile').help();
     }
     const profileStrings = require('./i18n/ProfileStrings');

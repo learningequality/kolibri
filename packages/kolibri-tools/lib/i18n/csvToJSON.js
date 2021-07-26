@@ -1,16 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 const logging = require('../logging');
-const { getCSVDefinitions } = require('./utils');
+const { parseCSVDefinitions } = require('./utils');
 const { getAllMessagesFromEntryFiles, getAllMessagesFromFilePath } = require('./astUtils');
 
-module.exports = function(dryRun, pathInfo, ignore, langInfo) {
+module.exports = function(dryRun, pathInfo, ignore, langInfo, localeDataFolder) {
   const languageInfo = require(langInfo);
   // A map per webpack bundle designating which messages
   // are needed for full translation. Will be a map from:
   // name to an array of message ids of format namespace.key.
   const requiredMessages = {};
-  const pathDataByName = {};
   for (let pathData of pathInfo) {
     const moduleFilePath = pathData.moduleFilePath;
     const name = pathData.name;
@@ -23,7 +22,6 @@ module.exports = function(dryRun, pathInfo, ignore, langInfo) {
       requiredMessages[name] = Object.keys(getAllMessagesFromFilePath(moduleFilePath, ignore));
     }
     logging.info(`Gathered ${requiredMessages[name].length} required string ids for ${name}`);
-    pathDataByName[name] = pathData;
   }
   for (let langObject of languageInfo) {
     const crowdinCode = langObject['crowdin_code'];
@@ -31,7 +29,7 @@ module.exports = function(dryRun, pathInfo, ignore, langInfo) {
     logging.info(
       `Converting CSV files to JSON for crowdin code ${crowdinCode} / Intl code ${intlCode}`
     );
-    const csvDefinitions = getCSVDefinitions(pathInfo, crowdinCode);
+    const csvDefinitions = parseCSVDefinitions(localeDataFolder, crowdinCode);
     for (let name in requiredMessages) {
       // An object for storing our messages.
       const messages = {};
@@ -44,10 +42,8 @@ module.exports = function(dryRun, pathInfo, ignore, langInfo) {
         }
       }
       if (!dryRun) {
-        const pathData = pathDataByName[name];
-
         fs.writeFileSync(
-          path.join(pathData.localeFilePath, name + '-messages.json'),
+          path.join(localeDataFolder, name + '-messages.json'),
           // pretty print and sort keys
           JSON.stringify(messages, Object.keys(messages).sort(), 2)
         );
