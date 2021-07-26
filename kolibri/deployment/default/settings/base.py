@@ -17,6 +17,7 @@ import sys
 
 import pytz
 from django.conf import locale
+from morango.constants import settings as morango_settings
 from six.moves.urllib.parse import urljoin
 from tzlocal import get_localzone
 
@@ -26,6 +27,7 @@ from kolibri.plugins.utils.settings import apply_settings
 from kolibri.utils import conf
 from kolibri.utils import i18n
 from kolibri.utils.logger import get_logging_config
+
 
 try:
     isolation_level = None
@@ -358,3 +360,8 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 1200
 
 apply_settings(sys.modules[__name__])
+
+# prepend operation to generate notifications to sync cleanup
+MORANGO_CLEANUP_OPERATIONS = (
+    "kolibri.core.auth.utils:GenerateNotifications",
+) + morango_settings.MORANGO_CLEANUP_OPERATIONS
