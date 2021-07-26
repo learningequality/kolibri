@@ -34,6 +34,7 @@ class NetworkClient(object):
 
     def _attempt_connections(self, urls):
         from kolibri.core.public.utils import DEVICE_INFO_VERSION
+        from kolibri.core.public.utils import device_info_keys
 
         # try each of the URLs in turn, returning the first one that succeeds
         for url in urls:
@@ -51,7 +52,10 @@ class NetworkClient(object):
                 if response.status_code == 200 and response_path.rstrip("/").endswith(
                     "/api/public/info"
                 ):
-                    self.info = response.json()
+                    info = response.json()
+                    self.info = {}
+                    for key in device_info_keys.get(DEVICE_INFO_VERSION, []):
+                        self.info[key] = info.get(key)
                     if self.info["application"] not in ["studio", "kolibri"]:
                         raise requests.RequestException(
                             "Server is not running Kolibri or Studio"

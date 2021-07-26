@@ -27,7 +27,7 @@ from kolibri.core.tasks.main import scheduler
 logger = logging.getLogger(__name__)
 
 
-keys_by_version = {
+device_info_keys = {
     "1": [
         "application",
         "kolibri_version",
@@ -56,7 +56,7 @@ def get_device_info(version=DEVICE_INFO_VERSION):
     We maintain historic versions for backwards compatibility
     """
 
-    if version not in keys_by_version:
+    if version not in device_info_keys:
         version = DEVICE_INFO_VERSION
 
     instance_model = InstanceIDModel.get_or_create_current_instance()[0]
@@ -79,8 +79,8 @@ def get_device_info(version=DEVICE_INFO_VERSION):
 
     info = {}
 
-    # By this point, we have validated that the version is in keys_by_version
-    for key in keys_by_version.get(version, []):
+    # By this point, we have validated that the version is in device_info_keys
+    for key in device_info_keys.get(version, []):
         info[key] = all_info[key]
 
     return info
