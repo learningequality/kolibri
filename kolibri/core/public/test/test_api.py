@@ -98,7 +98,7 @@ class PublicAPITestCase(APITransactionTestCase):
         )
         set_channel_metadata_fields(channel2.id, public=True)
 
-    def test_info_endpoint(self):
+    def test_info_endpoint_unversioned(self):
         response = self.client.get(reverse("kolibri:core:info-list"))
         instance_model = InstanceIDModel.get_or_create_current_instance()[0]
         settings = DeviceSettings.objects.get()
@@ -107,6 +107,31 @@ class PublicAPITestCase(APITransactionTestCase):
         self.assertEqual(response.data["instance_id"], instance_model.id)
         self.assertEqual(response.data["device_name"], settings.name)
         self.assertEqual(response.data["operating_system"], platform.system())
+        self.assertIsNone(response.data.get("subset_of_users_device"))
+
+    def test_info_endpoint_v1(self):
+        response = self.client.get(reverse("kolibri:core:info-list"), data={"v": "1"})
+        instance_model = InstanceIDModel.get_or_create_current_instance()[0]
+        settings = DeviceSettings.objects.get()
+        self.assertEqual(response.data["application"], "kolibri")
+        self.assertEqual(response.data["kolibri_version"], kolibri.__version__)
+        self.assertEqual(response.data["instance_id"], instance_model.id)
+        self.assertEqual(response.data["device_name"], settings.name)
+        self.assertEqual(response.data["operating_system"], platform.system())
+        self.assertIsNone(response.data.get("subset_of_users_device"))
+
+    def test_info_endpoint_v2(self):
+        response = self.client.get(reverse("kolibri:core:info-list"), data={"v": "2"})
+        instance_model = InstanceIDModel.get_or_create_current_instance()[0]
+        settings = DeviceSettings.objects.get()
+        self.assertEqual(response.data["application"], "kolibri")
+        self.assertEqual(response.data["kolibri_version"], kolibri.__version__)
+        self.assertEqual(response.data["instance_id"], instance_model.id)
+        self.assertEqual(response.data["device_name"], settings.name)
+        self.assertEqual(response.data["operating_system"], platform.system())
+        self.assertEqual(
+            response.data["subset_of_users_device"], settings.subset_of_users_device
+        )
 
     def test_public_channel_list(self):
         response = self.client.get(get_channel_lookup_url(baseurl="/"))
