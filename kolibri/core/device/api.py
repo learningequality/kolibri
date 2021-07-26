@@ -1,13 +1,16 @@
 from sys import version_info
 
 from django.conf import settings
+from django.db.models import Exists
 from django.db.models import Max
+from django.db.models import OuterRef
 from django.db.models.query import Q
 from django.http.response import HttpResponseBadRequest
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
 from morango.models import InstanceIDModel
+from morango.models import SyncSession
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework import views
@@ -214,6 +217,11 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
         queryset = queryset.annotate(
             last_synced=Max("sync_session__last_activity_timestamp")
         )
-        queryset = queryset.annotate(active=Max("sync_session__active"))
+
+        sync_sessions = SyncSession.objects.filter(
+            id=OuterRef("sync_session__pk"), active=True
+        )
+
+        queryset = queryset.annotate(active=Exists(sync_sessions))
 
         return queryset
