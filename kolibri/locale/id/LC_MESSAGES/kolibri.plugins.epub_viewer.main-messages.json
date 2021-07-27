@@ -11,7 +11,7 @@
   "SearchSideBar.loadingResults": "Memuat hasil",
   "SearchSideBar.noSearchResults": "Tidak ada hasil",
   "SearchSideBar.numberOfSearchResults": "{num, number, integer} {num, plural, other {results}}",
-  "SearchSideBar.overCertainNumberOfSearchResults": "Lebih dari {num, number, integer} {num, plural, one {hasil} other {hasil}}\n\n",
+  "SearchSideBar.overCertainNumberOfSearchResults": "Lebih dari {num, number, integer} {num, plural, one {hasil} other {hasil}}",
   "SearchSideBar.searchThroughBook": "Cari melalui buku",
   "SearchSideBar.submitSearchQuery": "Kirimkan permintaan pencarian",
   "SettingsButton.toggleSettingsSideBar": "Alihkan pengaturan",
