@@ -1,6 +1,7 @@
 import sys
 
 from django.utils.six.moves import input
+from morango.sync.operations import LocalOperation
 
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import FacilityDataset
@@ -9,8 +10,13 @@ from kolibri.core.auth.models import Membership
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import ExamAttemptLog
+from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
+from kolibri.core.notifications.api import batch_process_attemptlogs
+from kolibri.core.notifications.api import batch_process_examlogs
+from kolibri.core.notifications.api import batch_process_summarylogs
 
 
 def confirm_or_exit(message):
@@ -112,3 +118,41 @@ def merge_users(source_user, target_user):
     _merge_log_data(MasteryLog)
 
     _merge_log_data(AttemptLog)
+
+
+class GenerateNotifications(LocalOperation):
+    """
+    Generates notifications at cleanup stage (the end) of a transfer, if our instance was a
+    "receiver" meaning we have received data
+    """
+
+    def handle(self, context):
+        """
+        :type context: morango.sync.context.LocalSessionContext
+        :return: False
+        """
+        assert context.is_receiver
+        assert context.transfer_session is not None
+
+        batch_process_attemptlogs(
+            context.transfer_session.get_touched_record_ids_for_model(
+                AttemptLog.morango_model_name
+            )
+        )
+        batch_process_examlogs(
+            context.transfer_session.get_touched_record_ids_for_model(
+                ExamLog.morango_model_name
+            ),
+            context.transfer_session.get_touched_record_ids_for_model(
+                ExamAttemptLog.morango_model_name
+            ),
+        )
+        batch_process_summarylogs(
+            context.transfer_session.get_touched_record_ids_for_model(
+                ContentSummaryLog.morango_model_name
+            )
+        )
+
+        # always return false, indicating that other operations in this stage's configuration
+        # should also be executed
+        return False

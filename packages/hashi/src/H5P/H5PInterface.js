@@ -37,7 +37,7 @@ export default class H5P extends BaseShim {
    * to configure itself.
    */
   iframeInitialize(contentWindow) {
-    this.H5PRunner.shimH5PIntegration(contentWindow);
+    this.H5PRunner && this.H5PRunner.shimH5PIntegration(contentWindow);
   }
 
   loaded() {

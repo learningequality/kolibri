@@ -26,12 +26,16 @@
             while the above <KSelect> is hidden
         -->
         <div>&nbsp;</div>
-        <KRouterLink
-          :primary="true"
-          appearance="raised-button"
-          :to="newExamRoute"
-          :text="coachString('newQuizAction')"
-        />
+        <KButtonGroup>
+          <KDropdownMenu
+            appearance="raised-button"
+            :primary="true"
+            :text="coachString('newQuizAction')"
+            :options="dropdownOptions"
+            class="options-btn"
+            @select="handleSelect"
+          />
+        </KButtonGroup>
       </div>
       <CoreTable>
         <template #headers>
@@ -203,8 +207,11 @@
         }
         return this.sortedExams;
       },
-      newExamRoute() {
-        return { name: PageNames.EXAM_CREATION_ROOT };
+      dropdownOptions() {
+        return [
+          { label: this.$tr('newQuiz'), value: 'MAKE_NEW_QUIZ' },
+          { label: this.$tr('selectQuiz'), value: 'SELECT_QUIZ' },
+        ];
       },
     },
     methods: {
@@ -248,11 +255,20 @@
             this.$store.dispatch('createSnackbar', this.coachString('quizFailedToCloseMessage'));
           });
       },
+      handleSelect({ value }) {
+        const nextRoute = {
+          MAKE_NEW_QUIZ: PageNames.EXAM_CREATION_ROOT,
+          SELECT_QUIZ: PageNames.EXAM_CREATION_CHANNEL_QUIZ,
+        }[value];
+        this.$router.push(this.$router.getRoute(nextRoute));
+      },
     },
     $trs: {
       noExams: 'You do not have any quizzes',
       noActiveExams: 'No active quizzes',
       noInactiveExams: 'No inactive quizzes',
+      newQuiz: 'Create new quiz',
+      selectQuiz: 'Select channel quiz',
     },
   };
 

@@ -51,14 +51,10 @@ class TestRegisteredJob(TestCase):
         self.assertEqual(self.registered_job.cancellable, True)
         self.assertEqual(self.registered_job.track_progress, True)
 
-    @mock.patch("kolibri.core.tasks.job.Job")
-    def test__ready_job_runs_validator_and_passes_result_to_job(self, MockJob):
-        self.registered_job.validator = mock.MagicMock()
-        self.registered_job.validator.return_value = {"result": 42}
+    @mock.patch("kolibri.core.tasks.job.Job", spec=True)
+    def test__ready_job(self, MockJob):
+        result = self.registered_job._ready_job("10", base=10)
 
-        self.registered_job._ready_job("10", base=10)
-
-        self.registered_job.validator.assert_called_once_with("10", base=10)
         MockJob.assert_called_once_with(
             int,
             "10",  # arg that was passed to _ready_job()
@@ -66,11 +62,9 @@ class TestRegisteredJob(TestCase):
             cancellable=True,
             track_progress=True,
             base=10,  # kwarg that was passed to _ready_job()
-            validator_result={"result": 42},  # validator return value
         )
 
-    def test__ready_job_returns_job_object(self):
-        result = self.registered_job._ready_job("10", base=10)
+        # Do we return the job object?
         self.assertIsInstance(result, Job)
 
     @mock.patch("kolibri.core.tasks.job.RegisteredJob._ready_job")

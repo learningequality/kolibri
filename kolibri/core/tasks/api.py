@@ -22,6 +22,8 @@ from rest_framework import decorators
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import APIException
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import ParseError
@@ -56,8 +58,10 @@ from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.exceptions import UserCancelledError
+from kolibri.core.tasks.job import JobRegistry
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import facility_queue
+from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.main import priority_queue
 from kolibri.core.tasks.main import queue
 from kolibri.core.tasks.utils import get_current_job
@@ -182,22 +186,55 @@ class BaseViewSet(viewsets.ViewSet):
     queues = []
     permission_classes = []
 
+    # Adding auth classes explicitly until we find a fix for BasicAuth not
+    # working on tasks API (in dev settings)
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+
     def initial(self, request, *args, **kwargs):
         if len(self.permission_classes) == 0:
             self.permission_classes = self.default_permission_classes()
+        if self.permission_classes is None:
+            self.permission_classes = []
         return super(BaseViewSet, self).initial(request, *args, **kwargs)
 
     def default_permission_classes(self):
-        # task permissions shared between facility management and device management
-        if self.action in ["list", "deletefinishedtasks"]:
-            return [CanManageContent | CanExportLogs]
-        elif self.action == "startexportlogcsv":
-            return [CanExportLogs]
-        elif self.action in ["importusersfromcsv", "exportuserstocsv"]:
-            return [CanImportUsers]
-
-        # this was the default before, so leave as is for any other endpoints
+        # For all /api/tasks/ endpoints
         return [CanManageContent]
+
+    def validate_create_req_data(self, request):
+        """
+        Validates the request data received on POST /api/tasks/.
+
+        If `request.user` is authorized to initiate the `task` function, this returns
+        a list of `request.data` otherwise raises PermissionDenied.
+        """
+        if isinstance(request.data, list):
+            request_data_list = request.data
+        else:
+            request_data_list = [request.data]
+
+        for request_data in request_data_list:
+            if "task" not in request_data:
+                raise serializers.ValidationError("The 'task' field is required.")
+            if not isinstance(request_data["task"], string_types):
+                raise serializers.ValidationError("The 'task' value must be a string.")
+
+            funcstr = request_data.get("task")
+
+            # Make sure the task is registered
+            try:
+                registered_job = JobRegistry.REGISTERED_JOBS[funcstr]
+            except KeyError:
+                raise serializers.ValidationError(
+                    "'{funcstr}' is not registered.".format(funcstr=funcstr)
+                )
+
+            # Check permissions the DRF way
+            for permission in registered_job.permissions:
+                if not permission.has_permission(request, self):
+                    self.permission_denied(request)
+
+        return request_data_list
 
     def list(self, request):
         jobs_response = [
@@ -207,8 +244,60 @@ class BaseViewSet(viewsets.ViewSet):
         return Response(jobs_response)
 
     def create(self, request):
-        # unimplemented. Call out to the task-specific APIs for now.
-        pass
+        """
+        Enqueue a task for async processing.
+
+        API endpoint:
+            POST /api/tasks/
+
+        Request payload parameters:
+            - `task` (required): a string representing the dotted path to task function.
+            - all other key value pairs are passed to the validator if the
+              task function has one otherwise they are passed to the task function itself
+              as keyword args.
+
+        Keep in mind:
+            If a task function has a validator then dict returned by the validator
+            is passed to the task function as keyword args.
+
+            The validator can add `extra_metadata` in the returning dict to set `extra_metadata`
+            in the enqueued task.
+        """
+        request_data_list = self.validate_create_req_data(request)
+
+        enqueued_jobs_response = []
+
+        # Once we have validated all the tasks, we are good to go!
+        for request_data in request_data_list:
+
+            funcstr = request_data.get("task")
+            registered_job = JobRegistry.REGISTERED_JOBS[funcstr]
+
+            # Run validator with request and request_data as its argument
+            if registered_job.validator is not None:
+                try:
+                    validator_result = registered_job.validator(request, request_data)
+                except Exception as e:
+                    raise e
+
+                if not isinstance(validator_result, dict):
+                    raise serializers.ValidationError("Validator must return a dict.")
+
+                extra_metadata = validator_result.get("extra_metadata")
+                if extra_metadata is not None and not isinstance(extra_metadata, dict):
+                    raise serializers.ValidationError(
+                        "In the dict returned by validator, 'extra_metadata' must be a dict."
+                    )
+
+                request_data = validator_result
+
+            job_id = registered_job.enqueue(**request_data)
+            enqueued_jobs_response.append(_job_to_response(job_storage.get_job(job_id)))
+
+        if len(enqueued_jobs_response) == 1:
+            enqueued_jobs_response = enqueued_jobs_response[0]
+
+        return Response(enqueued_jobs_response)
 
     def retrieve(self, request, pk=None):
         for _queue in self.queues:
@@ -314,11 +403,15 @@ class TasksViewSet(BaseViewSet):
         return [queue, priority_queue]
 
     def default_permission_classes(self):
-        # exclusive permission for facility management
-        if self.action == "startexportlogcsv":
+        if self.action in ["list", "deletefinishedtasks"]:
+            return [CanManageContent | CanExportLogs]
+        elif self.action == "startexportlogcsv":
             return [CanExportLogs]
+        elif self.action in ["importusersfromcsv", "exportuserstocsv"]:
+            return [CanImportUsers]
 
-        return super(TasksViewSet, self).permission_classes
+        # For all other tasks
+        return [CanManageContent]
 
     @decorators.action(methods=["post"], detail=False)
     def startchannelupdate(self, request):
@@ -870,13 +963,8 @@ class FacilityTasksViewSet(BaseViewSet):
         return [facility_queue]
 
     def default_permission_classes(self):
-        permission_classes = super(FacilityTasksViewSet, self).permission_classes
-
         if self.action in ["list", "retrieve"]:
-            return [p | FacilitySyncPermissions for p in permission_classes]
-
-        # All other permissions are deferred to permission_classes decorator
-        return []
+            return [FacilitySyncPermissions]
 
     @decorators.action(
         methods=["post"], detail=False, permission_classes=[FacilitySyncPermissions]

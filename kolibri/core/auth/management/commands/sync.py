@@ -487,6 +487,7 @@ class Command(AsyncCommand):
                 )
             except ZeroDivisionError:
                 progress = 100
+
             tracker.update_progress(
                 increment=math.ceil(progress - tracker.progress),
                 message=stats_msg(transfer_session),

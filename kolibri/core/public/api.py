@@ -44,8 +44,11 @@ class InfoViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """Returns metadata information about the device"""
+        # Default to version 1, as earlier versions of Kolibri
+        # will not have sent a "v" query param.
+        version = request.query_params.get("v", "1")
 
-        return Response(get_device_info())
+        return Response(get_device_info(version))
 
 
 def _get_channel_list(version, params, identifier=None):
