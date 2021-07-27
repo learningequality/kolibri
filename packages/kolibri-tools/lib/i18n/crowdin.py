@@ -14,7 +14,6 @@ import sys
 import zipfile
 
 import click
-import configparser
 import requests
 import utils
 from tabulate import tabulate
@@ -86,13 +85,7 @@ class CrowdinCommand(click.Command):
         )
         context_settings = kwargs.get("context_settings", {})
         default_map = context_settings.get("default_map", {})
-        config_file = os.path.join(os.getcwd(), "setup.cfg")
-        if os.path.exists(config_file):
-            config = configparser.ConfigParser()
-            config.read(config_file)
-            if "i18n" in config:
-                for key in config["i18n"]:
-                    default_map[key] = config["i18n"][key]
+        default_map.update(utils.read_config_file())
         context_settings["default_map"] = default_map
         kwargs["context_settings"] = context_settings
         super(CrowdinCommand, self).__init__(*args, **kwargs)

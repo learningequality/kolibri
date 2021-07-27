@@ -6,6 +6,8 @@ import logging
 import os
 import sys
 
+import configparser
+
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
 
@@ -144,3 +146,15 @@ def json_dump_formatted(data, file_path, file_name):
                 separators=(",", ": "),
                 ensure_ascii=False,
             )
+
+
+def read_config_file():
+    output = {}
+    config_file = os.path.join(os.getcwd(), "setup.cfg")
+    if os.path.exists(config_file):
+        config = configparser.ConfigParser()
+        config.read(config_file)
+        if "i18n" in config:
+            for key in config["i18n"]:
+                output[key] = config["i18n"][key]
+    return output
