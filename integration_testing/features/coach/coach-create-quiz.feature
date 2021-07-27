@@ -223,6 +223,25 @@ Feature: Coach creates quizzes
     Then I am redirected to the *Coach - '<class>' > Plan > Quizzes* page
     And I loose all quiz creation progress
 
+	Scenario: Create channel-based quiz
+		When I click the *New quiz* button
+			And I see the dropdown option to "Select channel quiz"
+			And I click "Select channel quiz"
+		Then I see a list of channel cards that contain channel quizzes
+			And I can click through all the cards to the "Preview page"
+
+	Scenario: Select a channel-based quiz
+		Given I am on the "Preview page" after creating a channel-based quiz
+		When I click "Select quiz"
+		Then I am redirected to the *Coach - '<class>' > Plan > Quizzes* page
+			And I see a snackbar confirmation
+
+	Scenario: Select a duplicate channel-based quiz
+		Given I have created a channel-based quiz already
+			And I am creating a second copy of the same channel-based quiz
+		When I am on the "Preview page" of this second copy
+		Then I see that the title of the channel quiz has a number appended to it to indicate it is a copy
+
 Examples:
     | quiz          | number_of_question | exercises_questions | channel                | topic               |
     | First Quarter | 5                  | Mathématiques       | Khan Academy (English) | Recognize fractions |
