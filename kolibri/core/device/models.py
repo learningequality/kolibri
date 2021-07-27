@@ -10,8 +10,11 @@ from morango.models.core import SyncSession
 
 from .utils import LANDING_PAGE_LEARN
 from .utils import LANDING_PAGE_SIGN_IN
+from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.permissions.base import RoleBasedPermissions
+from kolibri.core.auth.permissions.general import IsOwn
 from kolibri.core.utils.cache import process_cache as cache
 from kolibri.plugins.app.utils import interface
 
@@ -229,3 +232,15 @@ class UserSyncStatus(models.Model):
         SyncSession, on_delete=models.SET_NULL, null=True, blank=True
     )
     queued = models.BooleanField(default=False)
+
+    # users can read their own SyncStatus
+    own = IsOwn(read_only=True)
+    # SyncStatus can be read by admins, and coaches, for the member user
+    role = RoleBasedPermissions(
+        target_field="user",
+        can_be_created_by=(),
+        can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+        can_be_updated_by=(),
+        can_be_deleted_by=(),
+    )
+    permissions = own | role
