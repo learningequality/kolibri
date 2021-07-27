@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+const mkdirp = require('mkdirp');
 const logging = require('../logging');
-const { parseCSVDefinitions } = require('./utils');
+const { parseCSVDefinitions, toLocale } = require('./utils');
 const { getAllMessagesFromEntryFiles, getAllMessagesFromFilePath } = require('./astUtils');
 
 module.exports = function(dryRun, pathInfo, ignore, langInfo, localeDataFolder) {
@@ -42,11 +43,20 @@ module.exports = function(dryRun, pathInfo, ignore, langInfo, localeDataFolder) 
         }
       }
       if (!dryRun) {
-        fs.writeFileSync(
-          path.join(localeDataFolder, name + '-messages.json'),
-          // pretty print and sort keys
-          JSON.stringify(messages, Object.keys(messages).sort(), 2)
-        );
+        const localeFolder = path.join(localeDataFolder, toLocale(intlCode), 'LC_MESSAGES');
+        mkdirp.sync(localeFolder);
+        const filename = path.join(localeFolder, name + '-messages.json');
+        if (Object.keys(messages).length) {
+          fs.writeFileSync(
+            filename,
+            // pretty print and sort keys
+            JSON.stringify(messages, Object.keys(messages).sort(), 2)
+          );
+        } else {
+          try {
+            fs.unlinkSync(filename);
+          } catch (err) {} // eslint-disable-line no-empty
+        }
       }
     }
   }
