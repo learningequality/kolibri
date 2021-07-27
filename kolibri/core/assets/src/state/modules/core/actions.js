@@ -902,19 +902,37 @@ export function notLoading(store) {
   });
 }
 
-export function fetchUserSyncStatus(store, id) {
-  // note: the way we have set up filtering on the backend, and based on the different ways this
-  // data is present to the user, an ID can be an individual user or a classroom id
-  // This setup was intended to reduce redundancy, but if it is confusing or inflexible,
-  // it can be refactored in the future
-  return UserSyncStatusResource.fetchCollection({ force: true, getParams: { id: id } }).then(
-    syncData => {
-      store.commit('SET_CORE_CHANNEL_LIST', _userSyncStatusState(syncData));
-      return syncData;
-    },
-    error => {
-      store.dispatch('handleApiError', error);
-      return error;
-    }
-  );
+export function fetchUserSyncStatus(store, params) {
+  // for fetching all users that are members of a particular classroom id
+  if (params.member_of) {
+    return UserSyncStatusResource.fetchCollection({
+      force: true,
+      getParams: { member_of: params.member_of },
+    }).then(
+      syncData => {
+        store.commit('SET_CORE_CHANNEL_LIST', _userSyncStatusState(syncData));
+        return syncData;
+      },
+      error => {
+        store.dispatch('handleApiError', error);
+        return error;
+      }
+    );
+  }
+  // for fetching an individual user
+  else if (params.user) {
+    return UserSyncStatusResource.fetchCollection({
+      force: true,
+      getParams: { user: params.user },
+    }).then(
+      syncData => {
+        store.commit('SET_CORE_CHANNEL_LIST', _userSyncStatusState(syncData));
+        return syncData;
+      },
+      error => {
+        store.dispatch('handleApiError', error);
+        return error;
+      }
+    );
+  }
 }

@@ -220,7 +220,7 @@
     methods: {
       ...mapActions(['fetchUserSyncStatus']),
       pollUserSyncStatusTask() {
-        this.fetchUserSyncStatus({ id: this.userId }).then(syncData => {
+        this.fetchUserSyncStatus({ user: this.userId }).then(syncData => {
           if (syncData && syncData[0]) {
             this.userSyncStatus = syncData[0];
           }

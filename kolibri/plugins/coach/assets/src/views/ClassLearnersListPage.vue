@@ -186,7 +186,7 @@
         return SyncStatus.NOT_CONNECTED;
       },
       pollClassListSyncStatuses() {
-        this.fetchUserSyncStatus({ id: this.$route.params.classId }).then(status => {
+        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(status => {
           this.classSyncStatusList = status;
         });
         if (this.isPolling) {
