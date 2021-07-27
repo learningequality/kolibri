@@ -86,6 +86,25 @@ export function fetchAdditionalSearchResults(store, params) {
   });
 }
 
+export function createChannelQuizAndRoute(store, { classId, randomized }) {
+  // 'randomized' means question order IS random, so fixed order means randomized is false
+  store.commit('SET_FIXED_ORDER', !randomized);
+  const exam = {
+    collection: classId,
+    title: store.state.title,
+    seed: store.state.seed,
+    question_count: store.state.selectedQuestions.length,
+    question_sources: store.state.selectedQuestions,
+    assignments: [classId],
+    learners_see_fixed_order: store.state.learnersSeeFixedOrder,
+    date_archived: null,
+    date_activated: null,
+  };
+  return createExam(store, exam).then(() => {
+    return router.push({ name: PageNames.EXAMS });
+  });
+}
+
 export function createExamAndRoute(store, { classId }) {
   const exam = {
     collection: classId,
@@ -98,7 +117,6 @@ export function createExamAndRoute(store, { classId }) {
     date_archived: null,
     date_activated: null,
   };
-
   return createExam(store, exam).then(() => {
     return router.push({ name: PageNames.EXAMS });
   });
@@ -216,5 +234,14 @@ export function updateSelectedQuestions(store) {
       store.commit('LOADING_NEW_QUESTIONS', false);
       resolve();
     });
+  });
+}
+
+export function fetchChannelQuizzes(parent = null) {
+  return ContentNodeResource.fetchCollection({
+    getParams: {
+      [parent ? 'parent' : 'parent__isnull']: parent ? parent : true,
+      contains_quiz: true,
+    },
   });
 }

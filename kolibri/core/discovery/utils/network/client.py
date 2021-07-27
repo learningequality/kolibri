@@ -2,6 +2,7 @@ import logging
 
 import requests
 from six.moves.urllib.parse import urljoin
+from six.moves.urllib.parse import urlparse
 
 from . import errors
 from .urls import get_normalized_url_variations
@@ -32,6 +33,9 @@ class NetworkClient(object):
             )
 
     def _attempt_connections(self, urls):
+        from kolibri.core.public.utils import DEVICE_INFO_VERSION
+        from kolibri.core.public.utils import device_info_keys
+
         # try each of the URLs in turn, returning the first one that succeeds
         for url in urls:
             try:
@@ -41,12 +45,17 @@ class NetworkClient(object):
                     base_url=url,
                     timeout=self.timeout,
                     allow_redirects=True,
+                    params={"v": DEVICE_INFO_VERSION},
                 )
                 # check that we successfully connected, and if we were redirected that it's still the right endpoint
-                if response.status_code == 200 and response.url.rstrip("/").endswith(
+                response_path = urlparse(response.url).path
+                if response.status_code == 200 and response_path.rstrip("/").endswith(
                     "/api/public/info"
                 ):
-                    self.info = response.json()
+                    info = response.json()
+                    self.info = {}
+                    for key in device_info_keys.get(DEVICE_INFO_VERSION, []):
+                        self.info[key] = info.get(key)
                     if self.info["application"] not in ["studio", "kolibri"]:
                         raise requests.RequestException(
                             "Server is not running Kolibri or Studio"

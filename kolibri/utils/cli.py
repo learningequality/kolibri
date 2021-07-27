@@ -6,6 +6,7 @@ import importlib
 import logging
 import signal
 import sys
+import traceback
 
 import click
 from django.core.management import execute_from_command_line
@@ -184,8 +185,8 @@ class KolibriDjangoCommand(click.Command):
     def invoke(self, ctx):
         try:
             initialize(**get_initialize_params())
-        except Exception as e:
-            raise click.ClickException(e)
+        except Exception:
+            raise click.ClickException(traceback.format_exc())
 
         # Remove parameters that are not for Django management command
         for param in initialize_params:

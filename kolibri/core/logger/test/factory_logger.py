@@ -1,9 +1,8 @@
-import datetime
-
 import factory
 
 from .. import models
 from kolibri.core.auth.test.test_api import FacilityUserFactory
+from kolibri.utils.time_utils import local_now
 
 
 class ContentSessionLogFactory(factory.DjangoModelFactory):
@@ -11,7 +10,7 @@ class ContentSessionLogFactory(factory.DjangoModelFactory):
         model = models.ContentSessionLog
 
     user = factory.SubFactory(FacilityUserFactory)
-    start_timestamp = datetime.datetime.now()
+    start_timestamp = local_now()
 
 
 class ContentSummaryLogFactory(factory.DjangoModelFactory):
@@ -19,7 +18,7 @@ class ContentSummaryLogFactory(factory.DjangoModelFactory):
         model = models.ContentSummaryLog
 
     user = factory.SubFactory(FacilityUserFactory)
-    start_timestamp = datetime.datetime.now()
+    start_timestamp = local_now()
 
 
 class UserSessionLogFactory(factory.DjangoModelFactory):

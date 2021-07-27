@@ -27,8 +27,37 @@ from kolibri.core.tasks.main import scheduler
 logger = logging.getLogger(__name__)
 
 
-def get_device_info():
-    """Returns metadata information about the device"""
+device_info_keys = {
+    "1": [
+        "application",
+        "kolibri_version",
+        "instance_id",
+        "device_name",
+        "operating_system",
+    ],
+    "2": [
+        "application",
+        "kolibri_version",
+        "instance_id",
+        "device_name",
+        "operating_system",
+        "subset_of_users_device",
+    ],
+}
+
+DEVICE_INFO_VERSION = "2"
+
+
+def get_device_info(version=DEVICE_INFO_VERSION):
+    """
+    Returns metadata information about the device
+    The default kwarg version should always be the latest
+    version of device info that this function supports.
+    We maintain historic versions for backwards compatibility
+    """
+
+    if version not in device_info_keys:
+        version = DEVICE_INFO_VERSION
 
     instance_model = InstanceIDModel.get_or_create_current_instance()[0]
     try:
@@ -39,7 +68,7 @@ def get_device_info():
         device_name = instance_model.hostname
         subset_of_users_device = False
 
-    info = {
+    all_info = {
         "application": "kolibri",
         "kolibri_version": kolibri.__version__,
         "instance_id": instance_model.id,
@@ -47,6 +76,13 @@ def get_device_info():
         "operating_system": platform.system(),
         "subset_of_users_device": subset_of_users_device,
     }
+
+    info = {}
+
+    # By this point, we have validated that the version is in device_info_keys
+    for key in device_info_keys.get(version, []):
+        info[key] = all_info[key]
+
     return info
 
 

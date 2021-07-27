@@ -12,6 +12,11 @@ INVALID_DEVICE_INFO = Nothing("invalid device info")
 FAILED_TO_CONNECT = Nothing("failed to connect")
 
 
+device_info_defaults = {
+    "subset_of_users_device": False,
+}
+
+
 def check_if_port_open(base_url, timeout=1):
     scheme, host, port, _ = parse_address_into_components(base_url)
 
@@ -28,7 +33,7 @@ def check_device_info(base_url):
     try:
         info = NetworkClient(base_url=base_url).info
         if info["application"] in ["studio", "kolibri"]:
-            return info
+            return device_info_defaults.copy().update(info)
         else:
             return INVALID_DEVICE_INFO
     except (errors.NetworkClientError, errors.NetworkLocationNotFound):
