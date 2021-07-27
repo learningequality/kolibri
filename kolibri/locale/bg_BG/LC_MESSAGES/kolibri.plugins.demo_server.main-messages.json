@@ -4,7 +4,6 @@
   "DemoServerBannerContent.demoServerHeader": "Добре дошли в Колибри демо сайта",
   "DemoServerBannerContent.demoServerL1": "Ученик ({user}/{pass} или влез като гост, използвайки \"Разгледай без профил\")",
   "DemoServerBannerContent.demoServerL2": "Учител ({user}/{pass})",
-  "DemoServerBannerContent.demoServerL3": "Администратор ({user}/{pass})",
   "DemoServerBannerContent.demoServerP1": "Разгледай трите основни вида потребители:",
   "DemoServerBannerContent.demoServerP2": "Тази онлайн версия на Колибри е предназначена само за демонстрационни цели. Потребителите и данните ще бъдат периодично изтривани. Демото показва функциите на най-новата версия на Колибри и всички налични ресурси са примерни.",
   "DemoServerBannerContent.demoServerP3": "За да научиш повече как да използваш Колибри офлайн, както и платформата като цяло:"
