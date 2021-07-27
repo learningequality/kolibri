@@ -59,10 +59,10 @@
               class="stats"
             >
               <div class="points">
-                <PointsIcon :style="{ display: 'inline-block' }" />
                 <span :style="{ color: $themeTokens.correct }">
                   {{ $tr('plusPoints', { points }) }}
                 </span>
+                <PointsIcon :style="{ display: 'inline-block' }" />
               </div>
               <div>{{ $tr('keepUpTheGreatProgress') }}</div>
             </div>
