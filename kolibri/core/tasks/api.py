@@ -1248,6 +1248,18 @@ def prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs):
     return job_data
 
 
+def prepare_soud_sync_job(baseurl, facility_id, user_id, **kwargs):
+    """
+    A SoUD sync requires that the device is already "registered" with the server, so there
+    shouldn't be a need for username/password and the verification of those
+    """
+    if not ScopeDefinition.objects.filter():
+        call_command("loaddata", "scopedefinitions")
+
+    kwargs.update(user=user_id)
+    return prepare_sync_job(facility_id, baseurl=baseurl, **kwargs)
+
+
 def _remoteimport(
     channel_id,
     baseurl,
