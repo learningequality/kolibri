@@ -23,14 +23,13 @@ from kolibri.core.auth.constants.morango_sync import State
 from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.auth.management.utils import run_once
 from kolibri.core.auth.models import dataset_cache
-from kolibri.core.lessons.single_user_assignment_utils import (
-    register_single_user_sync_lesson_handlers,
-)
+from kolibri.core.auth.sync_event_hook_utils import register_sync_event_handlers
 from kolibri.core.logger.utils.data import bytes_for_humans
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.utils.lock import db_lock
 from kolibri.utils import conf
+
 
 DATA_PORTAL_SYNCING_BASE_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
 TRANSFER_MESSAGE = "{records_transferred}/{records_total}, {transfer_total}"
@@ -221,7 +220,7 @@ class Command(AsyncCommand):
             client_cert, server_cert, chunk_size=chunk_size
         )
 
-        register_single_user_sync_lesson_handlers(sync_session_client.controller)
+        register_sync_event_handlers(sync_session_client.controller)
 
         try:
             # pull from server

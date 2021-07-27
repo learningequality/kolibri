@@ -1,81 +1,15 @@
-import json
-
-from morango.sync.context import LocalSessionContext
-
 from .models import IndividualSyncableLesson
 from .models import LessonAssignment
-from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.management.utils import DisablePostDeleteSignal
-from kolibri.core.auth.models import FacilityUser
 
 
-def _get_our_cert(context):
-    ss = context.sync_session
-    return ss.server_certificate if ss.is_server else ss.client_certificate
-
-
-def _get_their_cert(context):
-    ss = context.sync_session
-    return ss.client_certificate if ss.is_server else ss.server_certificate
-
-
-def _this_side_using_single_user_cert(context):
-    return _get_our_cert(context).scope_definition_id == ScopeDefinitions.SINGLE_USER
-
-
-def _other_side_using_single_user_cert(context):
-    return _get_their_cert(context).scope_definition_id == ScopeDefinitions.SINGLE_USER
-
-
-def _get_user_for_single_user_sync(context):
-    cert = None
-    if _other_side_using_single_user_cert(context):
-        cert = _get_their_cert(context)
-    elif _this_side_using_single_user_cert(context):
-        cert = _get_our_cert(context)
-    else:
-        return ""
-    return FacilityUser.objects.get(id=json.loads(cert.scope_params)["user_id"])
-
-
-def _initializing_handler(context):
-    assert context is not None
-
-    if (
-        isinstance(context, LocalSessionContext)
-        and context.is_producer
-        and _other_side_using_single_user_cert(context)
-    ):
-        update_individual_syncable_lessons_from_assignments(
-            _get_user_for_single_user_sync(context)
-        )
-
-
-def _cleanup_handler(context):
-    assert context is not None
-
-    if (
-        isinstance(context, LocalSessionContext)
-        and context.is_receiver
-        and _this_side_using_single_user_cert(context)
-    ):
-        update_assignments_from_individual_syncable_lessons(
-            _get_user_for_single_user_sync(context)
-        )
-
-
-def register_single_user_sync_lesson_handlers(session_controller):
-    session_controller.signals.initializing.completed.connect(_initializing_handler)
-    session_controller.signals.cleanup.completed.connect(_cleanup_handler)
-
-
-def update_individual_syncable_lessons_from_assignments(user):
+def update_individual_syncable_lessons_from_assignments(user_id):
     """
     Updates the set of IndividualSyncableLesson objects for the user.
     """
-    syncablelessons = IndividualSyncableLesson.objects.filter(user=user)
+    syncablelessons = IndividualSyncableLesson.objects.filter(user_id=user_id)
     assignments = LessonAssignment.objects.filter(
-        collection__membership__user=user, lesson__is_active=True
+        collection__membership__user_id=user_id, lesson__is_active=True
     ).distinct()
 
     # get a list of all active assignments that don't have a syncable lesson
@@ -96,7 +30,7 @@ def update_individual_syncable_lessons_from_assignments(user):
     # create new syncable lesson objects for all new assignments
     for assignment in to_create:
         IndividualSyncableLesson.objects.create(
-            user=user,
+            user_id=user_id,
             lesson_id=assignment.lesson_id,
             serialized_lesson=IndividualSyncableLesson.serialize_lesson(
                 assignment.lesson
@@ -122,14 +56,14 @@ def update_individual_syncable_lessons_from_assignments(user):
     to_delete.delete()
 
 
-def update_assignments_from_individual_syncable_lessons(user):
+def update_assignments_from_individual_syncable_lessons(user_id):
     """
     Looks at IndividualSyncableLessons for a user and creates/deletes
     the corresponding Lessons and LessonAssignments as needed.
     """
-    syncablelessons = IndividualSyncableLesson.objects.filter(user=user)
+    syncablelessons = IndividualSyncableLesson.objects.filter(user_id=user_id)
     assignments = LessonAssignment.objects.filter(
-        collection__membership__user=user, lesson__is_active=True
+        collection__membership__user_id=user_id, lesson__is_active=True
     ).distinct()
 
     # get a list of all syncable lessons that aren't locally assigned
@@ -155,7 +89,7 @@ def update_assignments_from_individual_syncable_lessons(user):
         )
         lesson.collection = syncablelesson.collection
         # shouldn't need to set this field (as it's nullable, according to the model definition, but got errors)
-        lesson.created_by = user
+        lesson.created_by_id = user_id
         lesson.save(update_dirty_bit_to=None)
 
         try:
@@ -167,7 +101,7 @@ def update_assignments_from_individual_syncable_lessons(user):
             assignment = LessonAssignment(
                 collection=syncablelesson.collection,
                 lesson=lesson,
-                assigned_by=user,  # failed validation without this, so pretend it's self-assigned
+                assigned_by_id=user_id,  # failed validation without this, so pretend it's self-assigned
             )
             assignment.save(update_dirty_bit_to=None)
 
