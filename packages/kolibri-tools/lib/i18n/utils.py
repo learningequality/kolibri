@@ -13,7 +13,7 @@ logging.StreamHandler(sys.stdout)
 # Path to the kolibri locale language_info file, which we use if we are running
 # from inside the Kolibri repository.
 _KOLIBRI_LANGUAGE_INFO_PATH = os.path.join(
-    os.path.dirname(__file__), "../../../kolibri/locale/language_info.json"
+    os.path.dirname(__file__), "../../../../kolibri/locale/language_info.json"
 )
 
 # If we are in the built version of kolibri-tools, we only have access to the local
