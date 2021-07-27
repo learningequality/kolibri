@@ -64,8 +64,8 @@ def get_assignments(user, summarylog, attempt=False):
             pk__in=lesson_contentnode_map.values()
         ).in_bulk()
         for lesson_id, contentnode_id in lesson_contentnode_map.items():
-            content_node = content_nodes[contentnode_id]
-            if content_node.kind != content_kinds.EXERCISE:
+            content_node = content_nodes.get(contentnode_id, None)
+            if content_node is not None and content_node.kind != content_kinds.EXERCISE:
                 to_delete.append(lesson_id)
         for lesson_id in to_delete:
             del lesson_contentnode_map[lesson_id]

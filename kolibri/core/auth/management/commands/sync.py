@@ -407,7 +407,7 @@ class Command(AsyncCommand):
 
         # allow server timeout since remotely integrating data can take a while and the request
         # could timeout. In that case, we'll assume everything is good.
-        sync_client.finalize(allow_server_timeout=True)
+        sync_client.finalize()
 
     def _update_all_progress(self, progress_fraction, progress):
         """
@@ -475,11 +475,15 @@ class Command(AsyncCommand):
             """
             :type transfer_session: morango.models.core.TransferSession
             """
-            progress = (
-                100
-                * transfer_session.records_transferred
-                / float(transfer_session.records_total)
-            )
+            try:
+                progress = (
+                    100
+                    * transfer_session.records_transferred
+                    / float(transfer_session.records_total)
+                )
+            except ZeroDivisionError:
+                progress = 100
+
             tracker.update_progress(
                 increment=math.ceil(progress - tracker.progress),
                 message=stats_msg(transfer_session),
