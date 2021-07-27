@@ -9,9 +9,11 @@ import time
 import uuid
 
 import requests
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection
 from django.db import connections
 from django.utils.functional import wraps
+from morango.models.core import DatabaseIDModel
 from requests.exceptions import RequestException
 
 
@@ -29,16 +31,22 @@ class KolibriServer(object):
         autostart=True,
         settings="kolibri.deployment.default.settings.base",
         db_name="default",
+        kolibri_home=None,
+        seeded_kolibri_home=None,
     ):
         self.env = os.environ.copy()
-        self.env["KOLIBRI_HOME"] = tempfile.mkdtemp()
+        self.env["KOLIBRI_HOME"] = kolibri_home or tempfile.mkdtemp()
         self.env["DJANGO_SETTINGS_MODULE"] = settings
         self.env["POSTGRES_DB"] = db_name
+        self.env["KOLIBRI_RUN_MODE"] = self.env.get("KOLIBRI_RUN_MODE", "") + "-testing"
         self.env["KOLIBRI_ZIP_CONTENT_PORT"] = str(get_free_tcp_port())
         self.db_path = os.path.join(self.env["KOLIBRI_HOME"], "db.sqlite3")
         self.db_alias = uuid.uuid4().hex
         self.port = get_free_tcp_port()
         self.baseurl = "http://127.0.0.1:{}/".format(self.port)
+        if seeded_kolibri_home is not None:
+            shutil.rmtree(self.env["KOLIBRI_HOME"])
+            shutil.copytree(seeded_kolibri_home, self.env["KOLIBRI_HOME"])
         if autostart:
             self.start()
 
@@ -56,10 +64,7 @@ class KolibriServer(object):
         )
 
     def create_model(self, model, **kwargs):
-        kwarg_text = ",".join(
-            "{key}={value}".format(key=key, value=repr(value))
-            for key, value in kwargs.items()
-        )
+        kwarg_text = DjangoJSONEncoder().encode(kwargs)
         self.pipe_shell(
             "from {module_path} import {model_name}; {model_name}.objects.create({})".format(
                 kwarg_text, module_path=model.__module__, model_name=model.__name__
@@ -67,10 +72,7 @@ class KolibriServer(object):
         )
 
     def delete_model(self, model, **kwargs):
-        kwarg_text = ",".join(
-            '{key}=\\"{value}\\"'.format(key=key, value=value)
-            for key, value in kwargs.items()
-        )
+        kwarg_text = DjangoJSONEncoder().encode(kwargs)
         self.pipe_shell(
             "from {module_path} import {model_name}; obj = {model_name}.objects.get({}); obj.delete()".format(
                 kwarg_text, module_path=model.__module__, model_name=model.__name__
@@ -112,7 +114,18 @@ class multiple_kolibri_servers(object):
         # spin up the servers
         if "sqlite" in connection.vendor:
 
-            self.servers = [KolibriServer() for i in range(self.server_count)]
+            tempserver = KolibriServer(
+                autostart=False,
+                kolibri_home=os.environ.get("KOLIBRI_TEST_PRESEEDED_HOME"),
+            )
+            tempserver.manage("migrate")
+            tempserver.delete_model(DatabaseIDModel)
+            preseeded_home = tempserver.env["KOLIBRI_HOME"]
+
+            self.servers = [
+                KolibriServer(seeded_kolibri_home=preseeded_home)
+                for i in range(self.server_count)
+            ]
 
             # calculate the DATABASE settings
             connections.databases = {
