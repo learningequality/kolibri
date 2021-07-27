@@ -56,7 +56,7 @@
           [SyncStatus.UNABLE_TO_SYNC]: 'error',
           [SyncStatus.NOT_RECENTLY_SYNCED]: 'error',
           [SyncStatus.UNABLE_OR_NOT_SYNCED]: 'error',
-          [SyncStatus.NOT_CONNECTED]: 'error',
+          [SyncStatus.NOT_CONNECTED]: 'disconnected',
         };
         return statusIcons[this.syncStatus] || '';
       },

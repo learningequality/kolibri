@@ -158,9 +158,6 @@ function _notificationListState(data) {
   }));
 }
 
-function _userSyncStatusState(data) {
-  return data;
-}
 /**
  * Actions
  *
@@ -910,7 +907,6 @@ export function fetchUserSyncStatus(store, params) {
       getParams: { member_of: params.member_of },
     }).then(
       syncData => {
-        store.commit('SET_CORE_CHANNEL_LIST', _userSyncStatusState(syncData));
         return syncData;
       },
       error => {
@@ -926,7 +922,6 @@ export function fetchUserSyncStatus(store, params) {
       getParams: { user: params.user },
     }).then(
       syncData => {
-        store.commit('SET_CORE_CHANNEL_LIST', _userSyncStatusState(syncData));
         return syncData;
       },
       error => {
