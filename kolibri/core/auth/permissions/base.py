@@ -54,8 +54,8 @@ class BasePermissions(object):
             "Override `user_can_delete_object` in your permission class before you use it."
         )
 
-    def readable_by_user_filter(self, user, queryset):
-        """Applies a filter to the provided queryset, only returning items for which the user has read permission."""
+    def readable_by_user_filter(self, user):
+        """Returns a Q object that defines a filter for objects readable by this user."""
         raise NotImplementedError(
             "Override `readable_by_user_filter` in your permission class before you use it."
         )
@@ -297,10 +297,12 @@ class PermissionsFromAll(BasePermissions):
 
     def readable_by_user_filter(self, user):
         # call each of the children permissions instances in turn, conjoining each filter
-        filter = Q()
+        intersection_filter = Q()
         for perm in self.perms:
-            filter = filter & perm.readable_by_user_filter(user)
-        return filter
+            intersection_filter = intersection_filter & perm.readable_by_user_filter(
+                user
+            )
+        return intersection_filter
 
 
 # helper functions
