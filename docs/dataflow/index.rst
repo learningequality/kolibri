@@ -11,22 +11,35 @@ In Django, Model data are usually exposed to users through webpages that are gen
 
 In the ``api.py`` files, Django REST framework ViewSets are defined which describe how the data is made available through the REST API. Each ViewSet also requires a defined Serializer, which describes the way in which the data from the Django model is serialized into JSON and returned through the REST API. Additionally, optional filters can be applied to the ViewSet which will allow queries to filter by particular features of the data (for example by a field) or by more complex constraints, such as which group the user associated with the data belongs to. Permissions can be applied to a ViewSet, allowing the API to implicitly restrict the data that is returned, based on the currently logged in user.
 
+The default DRF use of Serializers for serialization to JSON tends to encourage the adoption of non-performant patterns of code, particularly ones that use DRF Serializer Method Fields, which then do further queries on a per model basis inside the method. This can easily result in the N + 1 query problem, whereby the number of queries required scales with the number of entities requested in the query. To make this and other performance issues less of a concern, we have created a special ValuesViewset class defined at :code:`kolibri/core/api.py`, which relies on queryset annotation and post query processing in order to serialize all the relevant data. In addition, to prevent the inflation of full Django models into memory, all queries are done with a `values` call resulting in lower memory overhead.
+
 Finally, in the ``api_urls.py`` file, the ViewSets are given a name (through the :code:`base_name` keyword argument), which sets a particular URL namespace, which is then registered and exposed when the Django server runs. Sometimes, a more complex URL scheme is used, as in the content core app, where every query is required to be prefixed by a channel id (hence the :code:`<channel_id>` placeholder in that route's regex pattern)
 
 .. code-block:: python
   :caption: api_urls.py
 
   router = routers.SimpleRouter()
-  router.register('content', ChannelMetadataCacheViewSet, base_name="channel")
+  router.register("channel", ChannelMetadataViewSet, base_name="channel")
 
-  content_router = routers.SimpleRouter()
-  content_router.register(r'contentnode', ContentNodeViewset, base_name='contentnode')
-  content_router.register(r'file', FileViewset, base_name='file')
+  router.register(r"contentnode", ContentNodeViewset, base_name="contentnode")
+  router.register(
+      r"contentnode_tree", ContentNodeTreeViewset, base_name="contentnode_tree"
+  )
+  router.register(
+      r"contentnode_search", ContentNodeSearchViewset, base_name="contentnode_search"
+  )
+  router.register(r"file", FileViewset, base_name="file")
+  router.register(
+      r"contentnodeprogress", ContentNodeProgressViewset, base_name="contentnodeprogress"
+  )
+  router.register(
+      r"contentnode_granular",
+      ContentNodeGranularViewset,
+      base_name="contentnode_granular",
+  )
+  router.register(r"remotechannel", RemoteChannelViewSet, base_name="remotechannel")
 
-  urlpatterns = [
-      url(r'^', include(router.urls)),
-      url(r'^content/(?P<channel_id>[^/.]+)/', include(content_router.urls)),
-  ]
+  urlpatterns = [url(r"^", include(router.urls))]
 
 To explore the server REST APIs, visit `/api_explorer/` on the Kolibri server while running with developer settings.
 
@@ -45,87 +58,44 @@ In order to access a particular REST API endpoint, a Javascript Resource has to 
   :caption: channel.js
   :emphasize-lines: 5
 
-  const Resource = require('kolibri.lib.apiResource').Resource;
+  import { Resource } from 'kolibri.lib.apiResource';
 
-  class ChannelResource extends Resource {
-    static resourceName() {
-      return 'channel';
-    }
-  }
+  export default new Resource({
+    name: 'channel',
+  });
 
-  module.exports = ChannelResource;
 
-Here, the :code:`resourceName` static method must return :code:`'channel'` in order to match the :code:`base_name` assigned to the :code:`/content` endpoint in `api_urls.py`.
+Here, the :code:`name` property is set to :code:`'channel'` in order to match the :code:`base_name` assigned to the :code:`/channel` endpoint in `api_urls.py`.
 
-However, in the case of a more complex endpoint, where arguments are required to form the URL itself (such as in the :code:`contentnode` endpoints above) - we can add additional required arguments with the :code:`resourceIdentifiers` static method return value
-
-.. code-block:: javascript
-  :caption: contentNode.js
-
-  const Resource = require('kolibri.lib.apiResource').Resource;
-
-  class ContentNodeResource extends Resource {
-    static resourceName() {
-      return 'contentnode';
-    }
-    static idKey() {
-      return 'pk';
-    }
-    static resourceIdentifiers() {
-      // because ContentNode resources are accessed via
-      // /api/content/<channel_id>/contentnode/<pk>
-      return [
-        'channel_id',
-      ];
-    }
-  }
-
-  module.exports = ContentNodeResource;
-
-If this resource is part of the core app, it can be added to a global registry of resources inside :code:`kolibri/core/assets/src/api-resources/index.js`. Otherwise, it can be instantiated as needed, such as in the coach reports module
-
-.. code-block:: javascript
-
-  const ContentSummaryResourceConstructor = require('./apiResources/contentSummary');
-  const ContentSummaryResource = new ContentSummaryResourceConstructor(coreApp);
-
-First the constructor is imported from the require file, and then an instance is created - with a reference to the Kolibri core app module passed as the only argument.
+If this resource is part of the core app, it can be added to a global registry of resources inside :code:`kolibri/core/assets/src/api-resources/index.js`. Otherwise, it can be imported as needed, such as in the coach reports module.
 
 Models
 ~~~~~~
 
-The instantiated Resource can then be queried for client side representations of particular information. For a representation of a single server side Django model, we can request a Model from the Resource, using :code:`getModel`
+The instantiated Resource can then be queried for client side representations of particular information. For a representation of a single server side Django model, we can request a Model from the Resource, using :code:`fetchModel`
 
 .. code-block:: javascript
 
-  // corresponds to resource address /api/content/<channelId>/contentnode/<id>
-  const contentModel = ContentNodeResource.getModel(id, { channel_id: channelId });
+  // corresponds to resource address /api/content/contentnode/<id>
+  const modelPromise = ContentNodeResource.fetchModel(id);
 
-The first argument is the database id (primary key) for the model, while the second argument defines any additional required :code:`resourceIdentifiers` that we need to build up the URL.
+The argument is the database id (primary key) for the model.
 
-We now have a reference for a representation of the data on the server. To ensure that it has data from the server, we can call :code:`.fetch` on it which will resolve to an object representing the data
+We now have a reference for the promise to fetch data fron the server. To read the data, we must resolve the promise to an object representing the data
 
 .. code-block:: javascript
 
-  contentModel.fetch().then((data) => {
+  modelPromise.then((data) => {
     logging.info('This is the model data: ', data);
   });
 
-The :code:`fetch` method returns a :code:`Promise` which resolves when the data has been successfully retrieved. This may have been due to a round trip call to the REST API, or, if the data has already been previously returned, then it will skip the call to the REST API and return a cached copy of the data.
+The :code:`fetchModel` method returns a :code:`Promise` which resolves when the data has been successfully retrieved. This may have been due to a round trip call to the REST API, or, if the data has already been previously returned, then it will skip the call to the REST API and return a cached copy of the data.
 
-If you want to pass additional GET parameters to the REST API (to only return a limited set of fields, for example), then you can pass GET parameters in the first argument
-
-.. code-block:: javascript
-
-  contentModel.fetch({ title: true }).then((data) => {
-    logging.info('This is the model data: ', data);
-  });
-
-If it is important to get data that has not been cached, you can call the :code:`fetch` method with a force parameter
+If it is important to get data that has not been cached, you can call the :code:`fetchModel` method with a force parameter
 
 .. code-block:: javascript
 
-  contentModel.fetch({}, true).then((data) => {
+  ContentNodeResource.fetchModel(id, { force: true }).then((data) => {
     logging.info('This is definitely the most up to date model data: ', data);
   });
 
@@ -137,35 +107,26 @@ Collections are a cached view onto the data table, which are populated by Models
 
 .. code-block:: javascript
 
-  // corresponds to /api/content/<channelId>/contentnode/?popular=1
-  const contentCollection = ContentNodeResource.getCollection({ channel_id: channelId }, { popular: 1 });
+  // corresponds to /api/content/contentnode/?popular=1
+  const collectionPromise = ContentNodeResource.fetchCollection({ getParams: { popular: 1 } });
 
-The first argument defines any additional required :code:`resourceIdentifiers` that we need to build up the URL, while the second argument defines the GET parameters that are used to define the filters to be applied to the data and hence the subset of the data that the Collection represents.
+The getParams option defines the GET parameters that are used to define the filters to be applied to the data and hence the subset of the data that the Collection represents.
 
-We now have a reference for a representation of this data on the server. To ensure that it has data from the server, we can call :code:`fetch` on it, this will resolve to an array of the returned data objects
-
-.. code-block:: javascript
-
-  contentCollection.fetch().then((dataArray) => {
-    logging.info('This is the model data: ', dataArray);
-  });
-
-The :code:`fetch` method returns a :code:`Promise` which resolves when the data has been successfully retrieved. This may have been due to a round trip call to the REST API, or, if the data has already been previously returned, then it will skip the call to the REST API and return a cached copy of the data.
-
-If you want to pass additional GET parameters to the REST API (to only return a limited set of fields, for example), then you can pass GET parameters in the first argument
+We now have a reference for the promise to fetch data fron the server. To read the data, we must resolve the promise to an array of the returned data objects
 
 .. code-block:: javascript
 
-  // GET /api/content/<channelId>/contentnode/?popular=1&title=true
-  contentCollection.fetch({ title: true }).then((dataArray) => {
+  collectionPromise.then((dataArray) => {
     logging.info('This is the model data: ', dataArray);
   });
+
+The :code:`fetchCollection` method returns a :code:`Promise` which resolves when the data has been successfully retrieved. This may have been due to a round trip call to the REST API, or, if the data has already been previously returned, then it will skip the call to the REST API and return a cached copy of the data.
 
 If it is important to get data that has not been cached, you can call the :code:`fetch` method with a force parameter
 
 .. code-block:: javascript
 
-  contentCollection.fetch({}, true).then((dataArray) => {
+  ContentNodeResource.fetchCollection({ getParams: { popular: 1 }, force: true }).then((dataArray) => {
     logging.info('This is the model data: ', dataArray);
   });
 
