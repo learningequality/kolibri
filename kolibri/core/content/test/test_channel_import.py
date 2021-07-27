@@ -36,8 +36,16 @@ from kolibri.core.content.utils.annotation import update_content_metadata
 from kolibri.core.content.utils.channel_import import BATCH_SIZE
 from kolibri.core.content.utils.channel_import import ChannelImport
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
+from kolibri.core.content.utils.channel_import import topological_sort
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 from kolibri.core.content.utils.sqlalchemybridge import load_metadata
+
+
+class UtilityTestCase(TestCase):
+    def test_topological_sort(self):
+        sorted_models = topological_sort([File, LocalFile, ContentNode])
+        self.assertGreater(sorted_models.index(File), sorted_models.index(ContentNode))
+        self.assertGreater(sorted_models.index(File), sorted_models.index(LocalFile))
 
 
 @patch("kolibri.core.content.utils.channel_import.Bridge")

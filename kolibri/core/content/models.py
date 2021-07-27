@@ -237,9 +237,14 @@ class LocalFileQueryset(models.QuerySet, FilterByUUIDQuerysetMixin):
         return self.filter(files__isnull=True).delete()
 
     def get_unused_files(self):
-        return self.filter(
-            ~Q(files__contentnode__available=True) | Q(files__isnull=True)
-        ).filter(available=True)
+        ids = LocalFile.objects.filter(
+            Q(files__contentnode__available=False) | Q(files__isnull=True)
+        )
+        return (
+            self.filter(id__in=ids)
+            .exclude(files__contentnode__available=True)
+            .filter(available=True)
+        )
 
 
 @python_2_unicode_compatible
