@@ -535,3 +535,49 @@ class UserSyncStatusTestCase(APITestCase):
         )
         expected_count = UserSyncStatus.objects.filter(user_id=self.user1.id).count()
         self.assertEqual(len(response.data), expected_count)
+
+    def test_usersyncstatus_list_learner_permissions(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["user"], self.user1.id)
+
+    def test_usersyncstatus_list_facility_admin_permissions(self):
+        fadmin = FacilityUserFactory.create(facility=self.facility)
+        self.facility.add_admin(fadmin)
+        self.client.login(
+            username=fadmin.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        expected_count = UserSyncStatus.objects.count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_usersyncstatus_list_facility_coach_permissions(self):
+        fcoach = FacilityUserFactory.create(facility=self.facility)
+        self.facility.add_coach(fcoach)
+        self.client.login(
+            username=fcoach.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        expected_count = UserSyncStatus.objects.count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_usersyncstatus_list_class_coach_permissions(self):
+        ccoach = FacilityUserFactory.create(facility=self.facility)
+        self.classroom.add_coach(ccoach)
+        self.client.login(
+            username=ccoach.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["user"], self.user1.id)

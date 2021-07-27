@@ -242,5 +242,7 @@ class UserSyncStatus(models.Model):
         can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
         can_be_updated_by=(),
         can_be_deleted_by=(),
+        collection_field="user__memberships__collection",
+        is_syncable=False,
     )
     permissions = own | role
