@@ -1,5 +1,6 @@
 from __future__ import with_statement
 
+import json
 import os
 import shutil
 import socket
@@ -9,7 +10,6 @@ import time
 import uuid
 
 import requests
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection
 from django.db import connections
 from django.utils.functional import wraps
@@ -64,24 +64,24 @@ class KolibriServer(object):
         )
 
     def create_model(self, model, **kwargs):
-        kwarg_text = DjangoJSONEncoder().encode(kwargs)
+        kwarg_text = json.dumps(kwargs, default=str)
         self.pipe_shell(
-            "from {module_path} import {model_name}; {model_name}.objects.create({})".format(
+            'import json; from {module_path} import {model_name}; kwargs = json.loads("""{}"""); {model_name}.objects.create(**kwargs)'.format(
                 kwarg_text, module_path=model.__module__, model_name=model.__name__
             )
         )
 
     def delete_model(self, model, **kwargs):
-        kwarg_text = DjangoJSONEncoder().encode(kwargs)
+        kwarg_text = json.dumps(kwargs, default=str)
         self.pipe_shell(
-            "from {module_path} import {model_name}; obj = {model_name}.objects.get({}); obj.delete()".format(
+            'import json; from {module_path} import {model_name}; kwargs = json.loads("""{}"""); obj = {model_name}.objects.get(**kwargs); obj.delete()'.format(
                 kwarg_text, module_path=model.__module__, model_name=model.__name__
             )
         )
 
     def pipe_shell(self, text):
         subprocess.call(
-            'echo "{}" | kolibri shell'.format(text), env=self.env, shell=True
+            "echo '{}' | kolibri shell".format(text), env=self.env, shell=True
         )
 
     def _wait_for_server_start(self, timeout=20):
