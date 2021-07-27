@@ -130,7 +130,7 @@ class Exam(AbstractFacilityDataModel):
 
     """
     As we evolve this model in ways that migrations can't handle, certain fields may
-    become deprecated, and other fields may need to be interpretted differently. This
+    become deprecated, and other fields may need to be interpreted differently. This
     may happen when multiple versions of the model need to coexist in the same database.
 
     The 'data_model_version' field is used to keep track of the version of the model.
@@ -186,3 +186,53 @@ class ExamAssignment(AbstractFacilityDataModel):
 
     def calculate_partition(self):
         return self.dataset_id
+
+
+class IndividualSyncableExam(AbstractFacilityDataModel):
+    """
+    Represents a Exam and its assignment to a particular user
+    in such a way that it can be synced to a single-user device.
+    Note: This is not the canonical representation of a user's
+    relation to an exam (which is captured in an ExamAssignment
+    combined with a user's Membership in an associated Collection;
+    the purpose of this model is as a derived/denormalized
+    representation of a specific user's exam assignments).
+    """
+
+    morango_model_name = "individualsyncableexam"
+
+    user = models.ForeignKey(FacilityUser)
+    collection = models.ForeignKey(Collection)
+    exam_id = models.UUIDField()
+
+    serialized_exam = JSONField()
+
+    def infer_dataset(self, *args, **kwargs):
+        return self.cached_related_dataset_lookup("user")
+
+    def calculate_source_id(self):
+        return self.exam_id
+
+    def calculate_partition(self):
+        return "{dataset_id}:user-ro:{user_id}".format(
+            dataset_id=self.dataset_id, user_id=self.user_id
+        )
+
+    @classmethod
+    def serialize_exam(cls, exam):
+        serialized = exam.serialize()
+        for key in [
+            "active",
+            "creator_id",
+            "date_created",
+            "date_activated",
+            "collection_id",
+        ]:
+            serialized.pop(key, None)
+        return serialized
+
+    @classmethod
+    def deserialize_exam(cls, serialized_exam):
+        exam = Exam.deserialize(serialized_exam)
+        exam.active = True
+        return exam

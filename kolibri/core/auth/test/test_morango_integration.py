@@ -22,6 +22,10 @@ from ..models import Membership
 from ..models import Role
 from .helpers import DUMMY_PASSWORD
 from .sync_utils import multiple_kolibri_servers
+from kolibri.core.exams.models import Exam
+from kolibri.core.exams.models import ExamAssignment
+from kolibri.core.lessons.models import Lesson
+from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 
@@ -457,6 +461,12 @@ class EcosystemTestCase(TestCase):
                 FacilityDataset.objects.using(servers[0].db_alias).first().id,
             )
 
+
+@unittest.skipIf(
+    not os.environ.get("INTEGRATION_TEST"),
+    "This test will only be run during integration testing.",
+)
+class EcosystemSingleUserTestCase(TestCase):
     @multiple_kolibri_servers(3)
     def test_single_user_sync(self, servers):
         self.maxDiff = None
@@ -571,7 +581,6 @@ class EcosystemTestCase(TestCase):
             "--user",
             learner1.id,
         )
-        # Test that we can single user sync with learner creds
         servers[2].manage(
             "sync",
             "--baseurl",
@@ -594,3 +603,263 @@ class EcosystemTestCase(TestCase):
             .count(),
             2,
         )
+
+
+@unittest.skipIf(
+    not os.environ.get("INTEGRATION_TEST"),
+    "This test will only be run during integration testing.",
+)
+class EcosystemSingleUserAssignmentTestCase(TestCase):
+    @multiple_kolibri_servers(3)
+    def test_single_user_assignment_sync(self, servers):
+        """
+        Testing scenarios that are described in:
+        https://github.com/learningequality/kolibri/issues/8079
+        """
+
+        self.maxDiff = None
+        self.servers = servers
+        self.laptop_a = 0
+        self.laptop_b = 1
+        self.tablet = 2
+
+        # create the original facility on Laptop A
+        alias = servers[self.laptop_a].db_alias
+        servers[self.laptop_a].manage("loaddata", "content_test")
+        servers[self.laptop_a].manage(
+            "generateuserdata", "--no-onboarding", "--num-content-items", "1"
+        )
+        self.facility_id = Facility.objects.using(alias).get().id
+        self.learner = FacilityUser.objects.using(alias).filter(roles__isnull=True)[0]
+        self.teacher = FacilityUser.objects.using(alias).filter(roles__isnull=False)[0]
+        self.classroom = Classroom.objects.using(alias).first()
+        servers[self.laptop_a].create_model(
+            Membership, user_id=self.learner.id, collection_id=self.classroom.id
+        )
+
+        # repeat the same sets of scenarios, but separately for an exam and a lesson, and with
+        # different methods for disabling the assignment as part of the process
+        for kind in ("exam", "lesson"):
+            for disable_assignment in (self.deactivate, self.unassign):
+
+                # Create on Laptop A, single-user sync to tablet, disable, repeat
+                # (making sure it gets both created and removed on the tablet)
+                assignment_id = self.create_assignment(kind)
+                self.assert_existence(
+                    self.laptop_a, kind, assignment_id, should_exist=True
+                )
+                self.assert_existence(
+                    self.tablet, kind, assignment_id, should_exist=False
+                )
+                self.sync_single_user(self.laptop_a)
+                self.assert_existence(
+                    self.laptop_a, kind, assignment_id, should_exist=True
+                )
+                self.assert_existence(
+                    self.tablet, kind, assignment_id, should_exist=True
+                )
+                disable_assignment(self.laptop_a, kind, assignment_id)
+                self.assert_existence(
+                    self.laptop_a, kind, assignment_id, should_exist=False
+                )
+                self.assert_existence(
+                    self.tablet, kind, assignment_id, should_exist=True
+                )
+                self.sync_single_user(self.laptop_a)
+                self.assert_existence(
+                    self.laptop_a, kind, assignment_id, should_exist=False
+                )
+                self.assert_existence(
+                    self.tablet, kind, assignment_id, should_exist=False
+                )
+
+                # Create on Laptop A, single-user sync tablet to Laptop A, and then Laptop B
+                # (making sure it doesn't get removed when syncing with server that doesn't
+                #  know about the assignment yet)
+                assignment_id = self.create_assignment(kind)
+                self.assert_existence(
+                    self.tablet, kind, assignment_id, should_exist=False
+                )
+                self.sync_single_user(self.laptop_a)
+                self.assert_existence(
+                    self.tablet, kind, assignment_id, should_exist=True
+                )
+                self.sync_single_user(self.laptop_b)
+                self.assert_existence(
+                    self.tablet, kind, assignment_id, should_exist=True
+                )
+
+                # Create on Laptop A, do a full sync to Laptop B, single-user sync from there
+                # to tablet, then remove on Laptop B, sync that to Laptop A, reverse sync tablet to A
+                assignment_id = self.create_assignment(kind)
+                self.assert_existence(
+                    self.tablet, kind, assignment_id, should_exist=False
+                )
+                self.assert_existence(
+                    self.laptop_b, kind, assignment_id, should_exist=False
+                )
+                self.sync_full_facility_servers()
+                self.assert_existence(
+                    self.tablet, kind, assignment_id, should_exist=False
+                )
+                self.assert_existence(
+                    self.laptop_b, kind, assignment_id, should_exist=True
+                )
+                self.sync_single_user(self.laptop_b)
+                self.assert_existence(
+                    self.tablet, kind, assignment_id, should_exist=True
+                )
+                disable_assignment(self.laptop_b, kind, assignment_id)
+                self.sync_full_facility_servers()
+                self.assert_existence(
+                    self.tablet, kind, assignment_id, should_exist=True
+                )
+                self.sync_single_user(self.laptop_a, tablet_is_client=False)
+                self.assert_existence(
+                    self.tablet, kind, assignment_id, should_exist=False
+                )
+
+    def sync_full_facility_servers(self):
+        """
+        Perform a full sync between Laptop A and Laptop B.
+        """
+
+        self.servers[self.laptop_b].manage(
+            "sync",
+            "--baseurl",
+            self.servers[self.laptop_a].baseurl,
+            "--username",
+            "superuser",
+            "--password",
+            "password",
+            "--facility",
+            self.facility_id,
+        )
+
+    def sync_single_user(self, full_server, tablet_is_client=True):
+        """
+        Perform a single-user sync from the tablet to one of the full facility servers.
+        (Optionally, have it do the sync from the full facility server to the tablet instead.)
+        """
+
+        if tablet_is_client:
+            self.servers[self.tablet].manage(
+                "sync",
+                "--baseurl",
+                self.servers[full_server].baseurl,
+                "--username",
+                "superuser",
+                "--password",
+                "password",
+                "--facility",
+                self.facility_id,
+                "--user",
+                self.learner.id,
+            )
+        else:
+            self.servers[full_server].manage(
+                "sync",
+                "--baseurl",
+                self.servers[self.tablet].baseurl,
+                "--facility",
+                self.facility_id,
+                "--user",
+                self.learner.id,
+            )
+
+    def create_assignment(self, kind):
+        """
+        Create an exam or lesson and assign it to the class, on a particular server.
+        """
+        alias = self.servers[self.laptop_a].db_alias
+        title = uuid.uuid4().hex
+        if kind == "exam":
+            self.servers[self.laptop_a].create_model(
+                Exam,
+                title=title,
+                question_count=1,
+                question_sources=["a"],
+                collection_id=self.classroom.id,
+                creator_id=self.teacher.id,
+                active=True,
+            )
+            self.servers[self.laptop_a].create_model(
+                ExamAssignment,
+                exam_id=Exam.objects.using(alias).get(title=title).id,
+                collection_id=self.classroom.id,
+                assigned_by_id=self.teacher.id,
+            )
+            return ExamAssignment.objects.using(alias).get(exam__title=title).id
+        elif kind == "lesson":
+            self.servers[self.laptop_a].create_model(
+                Lesson,
+                title=title,
+                resources=["a"],
+                collection_id=self.classroom.id,
+                created_by_id=self.teacher.id,
+                is_active=True,
+            )
+            self.servers[self.laptop_a].create_model(
+                LessonAssignment,
+                lesson_id=Lesson.objects.using(alias).get(title=title).id,
+                collection_id=self.classroom.id,
+                assigned_by_id=self.teacher.id,
+            )
+            return LessonAssignment.objects.using(alias).get(lesson__title=title).id
+
+    def unassign(self, server, kind, assignment_id):
+        """
+        Remove an exam or lesson assignment from a particular server.
+        """
+        if kind == "exam":
+            self.servers[server].delete_model(ExamAssignment, id=assignment_id)
+        elif kind == "lesson":
+            self.servers[server].delete_model(LessonAssignment, id=assignment_id)
+
+    def deactivate(self, server, kind, assignment_id):
+        """
+        Set the active state of a lesson or exam to False on a particular server.
+        """
+        self.set_active_state(server, kind, assignment_id, False)
+
+    def set_active_state(self, server, kind, assignment_id, state):
+        """
+        Set the active state of a lesson or exam on a particular server.
+        """
+        alias = self.servers[server].db_alias
+        if kind == "exam":
+            assignment = ExamAssignment.objects.using(alias).get(id=assignment_id)
+            exam = assignment.exam
+            exam.active = state
+            exam.save()
+        elif kind == "lesson":
+            assignment = LessonAssignment.objects.using(alias).get(id=assignment_id)
+            lesson = assignment.lesson
+            lesson.is_active = state
+            lesson.save()
+
+    def assert_existence(self, server, kind, assignment_id, should_exist=True):
+        """
+        Assert that an exam or lesson is active and assigned to the class on a particular server.
+        """
+        alias = self.servers[server].db_alias
+        try:
+            if kind == "exam":
+                ExamAssignment.objects.using(alias).get(
+                    id=assignment_id, exam__active=True
+                )
+            elif kind == "lesson":
+                LessonAssignment.objects.using(alias).get(
+                    id=assignment_id, lesson__is_active=True
+                )
+            assert (
+                should_exist
+            ), "Assignment {assignment_id} should not exist on server {server} but does!".format(
+                assignment_id=assignment_id, server=server
+            )
+        except (ExamAssignment.DoesNotExist, LessonAssignment.DoesNotExist):
+            assert (
+                not should_exist
+            ), "Assignment {assignment_id} should exist on server {server}!".format(
+                assignment_id=assignment_id, server=server
+            )
