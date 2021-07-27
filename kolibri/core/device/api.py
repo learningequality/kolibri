@@ -202,7 +202,6 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
     values = (
         "id",
         "queued",
-        "sync_session",
         "last_synced",
         "active",
         "user",

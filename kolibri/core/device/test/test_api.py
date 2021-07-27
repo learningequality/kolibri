@@ -32,6 +32,7 @@ from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.models import UserSyncStatus
 
+
 DUMMY_PASSWORD = "password"
 
 
@@ -476,6 +477,7 @@ class UserSyncStatusTestCase(APITestCase):
         cls.facility = FacilityFactory.create()
         cls.superuser = create_superuser(cls.facility)
         cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.user2 = FacilityUserFactory.create(facility=cls.facility)
         cls.classroom = ClassroomFactory.create(parent=cls.facility)
         cls.classroom.add_member(cls.user1)
         cls.classroom.add_coach(cls.superuser)
@@ -489,13 +491,30 @@ class UserSyncStatusTestCase(APITestCase):
             "server_instance": False,
             "extra_fields": {},
         }
-        syncsession = SyncSession.objects.create(**syncdata)
-        data = {
+        syncsession1 = SyncSession.objects.create(**syncdata)
+        data1 = {
             "user_id": cls.user1.id,
-            "sync_session": syncsession,
+            "sync_session": syncsession1,
             "queued": True,
         }
-        UserSyncStatus.objects.create(**data)
+        UserSyncStatus.objects.create(**data1)
+        syncdata2 = {
+            "id": uuid.uuid4().hex,
+            "start_timestamp": timezone.now(),
+            "last_activity_timestamp": timezone.now(),
+            "active": False,
+            "is_server": False,
+            "client_instance": True,
+            "server_instance": False,
+            "extra_fields": {},
+        }
+        syncsession2 = SyncSession.objects.create(**syncdata2)
+        data2 = {
+            "user_id": cls.user2.id,
+            "sync_session": syncsession2,
+            "queued": False,
+        }
+        UserSyncStatus.objects.create(**data2)
 
     def setUp(self):
         self.client.login(
@@ -512,7 +531,7 @@ class UserSyncStatusTestCase(APITestCase):
     def test_user_sync_status_class_single_user_for_filter(self):
         response = self.client.get(
             reverse("kolibri:core:usersyncstatus-list"),
-            data={"user_id": self.user1.id},
+            data={"user": self.user1.id},
         )
-        expected_count = UserSyncStatus.objects.filter(user__pk=self.user1.id).count()
+        expected_count = UserSyncStatus.objects.filter(user_id=self.user1.id).count()
         self.assertEqual(len(response.data), expected_count)
