@@ -125,6 +125,50 @@ class StringIteratorIO(io.TextIOBase):
 BATCH_SIZE = 1000
 
 
+def _get_dependencies(content_models):
+    references = {}
+    for model in content_models:
+        meta = model._meta
+        for f in meta.concrete_fields:
+            if f.is_relation and f.many_to_one:
+                if f.related_model not in references:
+                    references[f.related_model] = set()
+                if f.related_model is not model:
+                    references[f.related_model].add(model)
+    return references
+
+
+def topological_sort(content_models):
+    """
+    Carries out a depth first search topological sort of content models to ensure we
+    import them in the correct order.
+    ref: https://en.wikipedia.org/wiki/Topological_sorting#Depth-first_search
+    """
+    # First collect all non-self referential foreign key references
+    # in the set of models. We can't resolve the self-referentiality in a topological
+    # sort, so we simply ignore it.
+    references = _get_dependencies(content_models)
+
+    sorted_models = []
+    visiting = set()
+
+    def visit(n):
+        if n in sorted_models:
+            return
+        if n in visiting:
+            raise ReferenceError(n)
+        visiting.add(n)
+        for m in references.get(n, set()):
+            visit(m)
+        visiting.remove(n)
+        sorted_models.insert(0, n)
+
+    for model in content_models:
+        visit(model)
+
+    return sorted_models
+
+
 class ChannelImport(object):
     """
     The ChannelImport class has two functions:
@@ -203,6 +247,8 @@ class ChannelImport(object):
         for blacklisted_model in models_to_exclude:
             if blacklisted_model in self.content_models:
                 self.content_models.remove(blacklisted_model)
+
+        self.content_models = topological_sort(self.content_models)
 
         # Get the next available tree_id in our database
         self.available_tree_id = self.find_unique_tree_id()
