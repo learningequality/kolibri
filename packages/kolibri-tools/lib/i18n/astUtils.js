@@ -100,23 +100,30 @@ function extractContext(context) {
   return splitContext[splitContext.length - 1];
 }
 
-// Given a definition, return an ObjectExpression that includes context & string values
+// Given a definition and the node it is being merged with, return an ObjectExpression that
+// includes context & string values - we use context from the definition but the string
+// from the node.
 // This ought to be assigned to the right-hand value of an ObjectProperty node's `value`
 // where the `key` on that ObjectProperty is the `Identifier` used for the defined
 // translation string.
-function objectToAst(def, valueIsTemplateNode = false) {
-  const sourceStringValue = valueIsTemplateNode ? templateLiteralNode(def) : stringLiteralNode(def);
+function objectToAst(def, nodeValue) {
+  let messageProperty;
+  if (nodeValue.type !== 'ObjectExpression') {
+    messageProperty = {
+      type: 'ObjectProperty',
+      key: {
+        type: 'Identifier',
+        name: 'message',
+      },
+      value: nodeValue,
+    };
+  } else {
+    messageProperty = nodeValue.properties.find(n => n.key.name === 'message');
+  }
   return {
     type: 'ObjectExpression',
     properties: [
-      {
-        type: 'ObjectProperty',
-        key: {
-          type: 'Identifier',
-          name: 'message',
-        },
-        value: sourceStringValue,
-      },
+      messageProperty,
       {
         type: 'ObjectProperty',
         key: {

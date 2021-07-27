@@ -57,7 +57,7 @@ function modifyTranslationObjectNode(node, namespace, definitions) {
 
   // Only definitions with context have been preserved to this point
   // so we must have some context to add
-  node.value = objectToAst(definition, node.value.type === 'TemplateLiteral');
+  node.value = objectToAst(definition, node.value);
 
   return true;
 }
