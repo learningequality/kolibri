@@ -319,15 +319,21 @@ def download_translations(branch, project, key, login, locale_data_folder):
         params="&branch={branch}&language={language}",
     )
 
+    csv_dir_path = utils.local_locale_csv_path(locale_data_folder)
     for lang_object in utils.available_languages(include_in_context=True):
         code = lang_object[utils.KEY_CROWDIN_CODE]
         url = DOWNLOAD_URL.format(language=code, branch=branch)
         r = requests.get(url)
         r.raise_for_status()
         z = zipfile.ZipFile(io.BytesIO(r.content))
-        target = utils.local_locale_csv_path(locale_data_folder)
-        logging.info("\tExtracting {} to {}".format(code, target))
-        z.extractall(target)
+        logging.info("\tExtracting {} to {}".format(code, csv_dir_path))
+        z.extractall(csv_dir_path)
+        csv_locale_dir_path = os.path.join(csv_dir_path, lang_object["crowdin_code"])
+        po_file = os.path.join(csv_locale_dir_path, "django.po")
+        if os.path.exists(po_file):
+            shutil.move(
+                po_file, utils.local_locale_path(lang_object, locale_data_folder)
+            )
 
     logging.info("Crowdin: download succeeded!")
 
