@@ -97,12 +97,14 @@ class DeviceSettings(models.Model):
     def save(self, *args, **kwargs):
         self.pk = 1
         self.full_clean()
-        super(DeviceSettings, self).save(*args, **kwargs)
+        out = super(DeviceSettings, self).save(*args, **kwargs)
         cache.set(DEVICE_SETTINGS_CACHE_KEY, self, 600)
+        return out
 
     def delete(self, *args, **kwargs):
-        super(DeviceSettings, self).delete(*args, **kwargs)
+        out = super(DeviceSettings, self).delete(*args, **kwargs)
         cache.delete(DEVICE_SETTINGS_CACHE_KEY)
+        return out
 
 
 CONTENT_CACHE_KEY_CACHE_KEY = "content_cache_key"

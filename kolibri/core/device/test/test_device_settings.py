@@ -31,3 +31,10 @@ class DeviceSettingsTestCase(TestCase):
         DeviceSettings.objects.all().delete()
         with self.assertRaises(DeviceSettings.DoesNotExist):
             DeviceSettings.objects.get()
+
+    def test_delete_setting_manager(self):
+        cache.clear()
+        DeviceSettings.objects.create()
+        DeviceSettings.objects.delete()
+        with self.assertRaises(DeviceSettings.DoesNotExist):
+            DeviceSettings.objects.get()
