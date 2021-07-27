@@ -199,16 +199,22 @@ function getImportFileNames(filePath, ignore) {
   if (ast) {
     traverse(ast, {
       pre: astNode => {
-        if (astNode.type === 'ImportDeclaration') {
+        if (
+          astNode.type === 'ImportDeclaration' ||
+          astNode.type === 'ExportNamedDeclaration' ||
+          astNode.type === 'ExportAllDeclaration'
+        ) {
           const fileImportedFrom = get(astNode, 'source.value');
-          try {
-            const targetFile = getFileNameForImport(fileImportedFrom, filePath);
-            // Don't return files that we are meant to ignore
-            const filterFiles = glob.sync(targetFile, { ignore });
-            if (filterFiles.length) {
-              fileNames.push(targetFile);
-            }
-          } catch (e) {} // eslint-disable-line no-empty
+          if (fileImportedFrom) {
+            try {
+              const targetFile = getFileNameForImport(fileImportedFrom, filePath);
+              // Don't return files that we are meant to ignore
+              const filterFiles = glob.sync(targetFile, { ignore });
+              if (filterFiles.length) {
+                fileNames.push(targetFile);
+              }
+            } catch (e) {} // eslint-disable-line no-empty
+          }
         }
       },
     });
