@@ -1,8 +1,16 @@
 from sys import version_info
 
 from django.conf import settings
+from django.db.models import Exists
+from django.db.models import Max
+from django.db.models import OuterRef
+from django.db.models.query import Q
 from django.http.response import HttpResponseBadRequest
+from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import ModelChoiceFilter
 from morango.models import InstanceIDModel
+from morango.models import SyncSession
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework import views
@@ -12,13 +20,16 @@ from rest_framework.response import Response
 import kolibri
 from .models import DevicePermissions
 from .models import DeviceSettings
+from .models import UserSyncStatus
 from .permissions import NotProvisionedCanPost
 from .permissions import UserHasAnyDevicePermissions
 from .serializers import DevicePermissionsSerializer
 from .serializers import DeviceProvisionSerializer
 from .serializers import DeviceSettingsSerializer
+from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+from kolibri.core.auth.models import Collection
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import get_urls
@@ -164,3 +175,52 @@ class DeviceNameView(views.APIView):
         settings.name = request.data["name"]
         settings.save()
         return Response({"name": settings.name})
+
+
+class SyncStatusFilter(FilterSet):
+
+    member_of = ModelChoiceFilter(
+        method="filter_member_of", queryset=Collection.objects.all()
+    )
+
+    def filter_member_of(self, queryset, name, value):
+        return queryset.filter(
+            Q(user__memberships__collection=value) | Q(user__facility=value)
+        )
+
+    class Meta:
+        model = UserSyncStatus
+        fields = ["user", "member_of"]
+
+
+class UserSyncStatusViewSet(ReadOnlyValuesViewset):
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
+    queryset = UserSyncStatus.objects.all()
+    filter_class = SyncStatusFilter
+
+    values = (
+        "id",
+        "queued",
+        "last_synced",
+        "active",
+        "user",
+        "user_id",
+    )
+
+    def get_queryset(self):
+        return UserSyncStatus.objects.filter()
+
+    def annotate_queryset(self, queryset):
+
+        queryset = queryset.annotate(
+            last_synced=Max("sync_session__last_activity_timestamp")
+        )
+
+        sync_sessions = SyncSession.objects.filter(
+            id=OuterRef("sync_session__pk"), active=True
+        )
+
+        queryset = queryset.annotate(active=Exists(sync_sessions))
+
+        return queryset

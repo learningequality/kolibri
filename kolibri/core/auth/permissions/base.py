@@ -89,6 +89,7 @@ class RoleBasedPermissions(BasePermissions):
         can_be_updated_by,
         can_be_deleted_by,
         collection_field="collection",
+        is_syncable=True,
     ):
         """
         :param str target_field: the name of the field through which the role target (user or collection) will be referenced
@@ -99,6 +100,8 @@ class RoleBasedPermissions(BasePermissions):
         :param tuple can_be_updated_by: a tuple of role kinds that should give a user permission to update the object
         :param tuple can_be_deleted_by: a tuple of role kinds that should give a user permission to delete the object
         :param str collection_field: the name of the field through which collections can be identified for the object.
+        :param is_syncable: Boolean indicating whether the model is a syncable model, if it is, we can use dataset_id
+        to do quick filtering in some cases, if not, then we need to use the target_field as the source of the dataset_id.
         """
         self.can_be_created_by = can_be_created_by
         self.can_be_read_by = can_be_read_by
@@ -106,6 +109,7 @@ class RoleBasedPermissions(BasePermissions):
         self.can_be_deleted_by = can_be_deleted_by
         self.target_field = target_field
         self.collection_field = collection_field
+        self.is_syncable = is_syncable
 
     def _get_target_object(self, obj):
         if self.target_field == ".":  # this means the object itself is the target
@@ -173,7 +177,11 @@ class RoleBasedPermissions(BasePermissions):
         # anything in the facility.
         if any(r["collection_id"] == user.facility_id for r in roles):
             # Everything in the facility shares the same dataset_id so use this for quick filtering.
-            return Q(dataset_id=user.dataset_id)
+            if self.is_syncable:
+                # If it is a syncable model then it will have a dataset_id
+                return Q(dataset_id=user.dataset_id)
+            # If it is not syncable, then reference the dataset_id from the target_field
+            return Q(**{"{}__dataset_id".format(self.target_field): user.dataset_id})
 
         # If we've got to this point, we've already checked for facility admins, and we currently only allow
         # admins to be set at the facility level, so if we're not allowing coaches to read this, we can return none

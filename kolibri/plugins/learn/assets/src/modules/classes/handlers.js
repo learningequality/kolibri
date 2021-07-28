@@ -20,3 +20,22 @@ export function showAllClassesPage(store) {
       });
   });
 }
+
+// Shows a list of all the Learners in a given class and their sync statuses
+export function showAllLearnersInClass(store) {
+  return store.dispatch('loading').then(() => {
+    return LearnerClassroomResource.fetchCollection()
+      .then(() => {
+        store.commit('SET_PAGE_NAME', ClassesPageNames.LEARNER_SYNC_STATUS_VIEWER);
+        store.dispatch('notLoading');
+      })
+      .catch(error => {
+        if (error instanceof Error) {
+          return store.dispatch('handleApiError', error);
+        }
+
+        // Allows triggering of AuthMessage.vue
+        return store.dispatch('handleError', error);
+      });
+  });
+}
