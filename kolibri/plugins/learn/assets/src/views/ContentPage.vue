@@ -124,14 +124,6 @@
           :contents="[content.next_content]"
         />
       </template>
-      <template v-if="showRecommended">
-        <h2>{{ learnString('recommendedLabel') }}</h2>
-        <ContentCardGroupCarousel
-          :genContentLink="genContentLink"
-          :header="recommendedText"
-          :contents="recommended"
-        />
-      </template>
     </slot>
 
     <CompletionModal
@@ -165,7 +157,7 @@
     licenseLongName,
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
-  import { PageNames, PageModes, ClassesPageNames } from '../constants';
+  import { PageNames, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
   import PageHeader from './PageHeader';
   import ContentCardGroupCarousel from './ContentCardGroupCarousel';
@@ -205,7 +197,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'pageMode', 'currentUserId']),
+      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'currentUserId']),
       ...mapState(['pageName']),
       ...mapState('topicsTree', ['content', 'channel', 'recommended']),
       ...mapState('topicsTree', {
@@ -245,9 +237,6 @@
         }
         return '';
       },
-      recommendedText() {
-        return this.learnString('recommendedLabel');
-      },
       progress() {
         if (this.isUserLoggedIn) {
           // if there no attempts for this exercise, there is no progress
@@ -257,11 +246,6 @@
           return this.summaryProgress;
         }
         return this.sessionProgress;
-      },
-      showRecommended() {
-        return (
-          this.recommended && this.recommended.length && this.pageMode === PageModes.RECOMMENDED
-        );
       },
       downloadableFiles() {
         return this.content.files.filter(file => !file.preset.endsWith('thumbnail'));
