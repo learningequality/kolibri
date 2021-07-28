@@ -1219,7 +1219,13 @@ def validate_peer_sync_job(request):
 
 
 def prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs):
-    job_data = prepare_sync_job(facility_id, baseurl=baseurl, **kwargs)  # ToDo
+    """
+    Initializes and validates connection to peer with username and password for the sync command. If
+    already initialized, the username and password do not need to be supplied
+    """
+    # get the `user` for the sync command if present for provisioning
+    user_id = kwargs.get("user", None)
+    job_data = prepare_sync_job(facility_id, baseurl=baseurl, **kwargs)
 
     # call this in case user directly syncs without migrating database
     if not ScopeDefinition.objects.filter():
@@ -1237,7 +1243,12 @@ def prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs):
 
         # username and password are not required for this to succeed unless there is no cert
         get_client_and_server_certs(
-            username, password, dataset_id, network_connection, noninteractive=True
+            username,
+            password,
+            dataset_id,
+            network_connection,
+            user_id=user_id,
+            noninteractive=True,
         )
     except (CommandError, HTTPError) as e:
         if not username and not password:
@@ -1251,11 +1262,10 @@ def prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs):
 def prepare_soud_sync_job(baseurl, facility_id, user_id, **kwargs):
     """
     A SoUD sync requires that the device is already "registered" with the server, so there
-    shouldn't be a need for username/password and the verification of those
+    shouldn't be a need for username/password and the verification of those. This eliminates the
+    validation to keep overhead low for automated single-user syncing. To initialize with a peer
+    for a SoUD, use `prepare_peer_sync_job` with `user` keyword argument
     """
-    if not ScopeDefinition.objects.filter():
-        call_command("loaddata", "scopedefinitions")
-
     kwargs.update(user=user_id)
     return prepare_sync_job(facility_id, baseurl=baseurl, **kwargs)
 
