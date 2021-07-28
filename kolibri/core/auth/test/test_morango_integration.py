@@ -623,16 +623,24 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
         self.laptop_b = 1
         self.tablet = 2
 
+        self.alias_a = servers[self.laptop_a].db_alias
+        self.alias_b = servers[self.laptop_b].db_alias
+        self.alias_t = servers[self.tablet].db_alias
+
         # create the original facility on Laptop A
-        alias = servers[self.laptop_a].db_alias
         servers[self.laptop_a].manage("loaddata", "content_test")
         servers[self.laptop_a].manage(
             "generateuserdata", "--no-onboarding", "--num-content-items", "1"
         )
-        self.facility_id = Facility.objects.using(alias).get().id
-        self.learner = FacilityUser.objects.using(alias).filter(roles__isnull=True)[0]
-        self.teacher = FacilityUser.objects.using(alias).filter(roles__isnull=False)[0]
-        self.classroom = Classroom.objects.using(alias).first()
+        self.facility_id = Facility.objects.using(self.alias_a).get().id
+        self.learner = FacilityUser.objects.using(self.alias_a).filter(
+            roles__isnull=True
+        )[0]
+        self.teacher = FacilityUser.objects.using(self.alias_a).filter(
+            roles__isnull=False
+        )[0]
+        self.classroom = Classroom.objects.using(self.alias_a).first()
+        self.classroom2 = Classroom.objects.using(self.alias_a).all()[1]
         servers[self.laptop_a].create_model(
             Membership, user_id=self.learner.id, collection_id=self.classroom.id
         )
@@ -718,6 +726,55 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
                 self.assert_existence(
                     self.tablet, kind, assignment_id, should_exist=False
                 )
+
+        # Create exam on Laptop A, single-user sync to tablet, then modify exam on Laptop A and
+        # single-user sync again to check that "updating" works
+        assignment_id = self.create_assignment("exam")
+        self.sync_single_user(self.laptop_a)
+        assignment_a = ExamAssignment.objects.using(self.alias_a).get(id=assignment_id)
+        assignment_a.exam.seed = 433
+        assignment_a.exam.save()
+        self.sync_single_user(self.laptop_a)
+        assignment_t = ExamAssignment.objects.using(self.alias_t).get(id=assignment_id)
+        assert assignment_t.exam.seed == 433
+
+        # Create lesson on Laptop A, single-user sync to tablet, then modify lesson on Laptop A
+        # and single-user sync again to check that "updating" works
+        assignment_id = self.create_assignment("lesson")
+        self.sync_single_user(self.laptop_a)
+        assignment_a = LessonAssignment.objects.using(self.alias_a).get(
+            id=assignment_id
+        )
+        assignment_a.lesson.title = "Bee Boo"
+        assignment_a.lesson.save()
+        self.sync_single_user(self.laptop_a)
+        assignment_t = LessonAssignment.objects.using(self.alias_t).get(
+            id=assignment_id
+        )
+        assert assignment_t.lesson.title == "Bee Boo"
+
+        # The morango dirty bits should not be set on exams, lessons, and assignments on the tablet,
+        # since we never want these "ghost" copies to sync back out to anywhere else
+        assert (
+            ExamAssignment.objects.using(self.alias_t)
+            .filter(_morango_dirty_bit=True)
+            .count()
+            == 0
+        )
+        assert (
+            Exam.objects.using(self.alias_t).filter(_morango_dirty_bit=True).count()
+            == 0
+        )
+        assert (
+            LessonAssignment.objects.using(self.alias_t)
+            .filter(_morango_dirty_bit=True)
+            .count()
+            == 0
+        )
+        assert (
+            Lesson.objects.using(self.alias_t).filter(_morango_dirty_bit=True).count()
+            == 0
+        )
 
     def sync_full_facility_servers(self):
         """

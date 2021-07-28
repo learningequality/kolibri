@@ -87,7 +87,7 @@ class KolibriServer(object):
     def _wait_for_server_start(self, timeout=20):
         for i in range(timeout * 2):
             try:
-                resp = requests.get(self.baseurl, timeout=3)
+                resp = requests.get(self.baseurl + "api/public/info/", timeout=3)
                 if resp.status_code > 0:
                     return
             except RequestException:
@@ -98,7 +98,7 @@ class KolibriServer(object):
 
     def kill(self):
         try:
-            subprocess.call("kolibri stop", env=self.env, shell=True)
+            subprocess.Popen("kolibri stop", env=self.env, shell=True)
             self._instance.kill()
             shutil.rmtree(self.env["KOLIBRI_HOME"])
         except OSError:
