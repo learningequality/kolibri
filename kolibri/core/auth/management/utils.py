@@ -21,6 +21,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_device
+from kolibri.core.device.utils import set_device_settings
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
@@ -290,6 +291,7 @@ def provision_single_user_device(user_id):
     # if device has not been provisioned, set it up
     if not device_provisioned():
         provision_device(default_facility=user.facility)
+        set_device_settings(subset_of_users_device=True)
 
     DevicePermissions.objects.get_or_create(
         user=user, defaults={"is_superuser": False, "can_manage_content": True}

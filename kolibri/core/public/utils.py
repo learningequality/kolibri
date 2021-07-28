@@ -17,7 +17,7 @@ from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import SYNC
-from kolibri.core.tasks.api import prepare_peer_sync_job
+from kolibri.core.tasks.api import prepare_soud_sync_job
 from kolibri.core.tasks.api import prepare_sync_task
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.main import queue
@@ -107,8 +107,8 @@ def startpeerfacilitysync(server, user_id):
         type="SYNCPEER/FULL",
     )
 
-    job_data = prepare_peer_sync_job(
-        server, facility_id, user.username, user.password, extra_metadata=extra_metadata
+    job_data = prepare_soud_sync_job(
+        server, facility_id, user_id, extra_metadata=extra_metadata
     )
 
     job_id = queue.enqueue(call_command, "sync", **job_data)
@@ -126,6 +126,7 @@ def begin_request_soud_sync(server, user):
         # this does not make sense unless this is a SoUD
         logger.warn("Only Subsets of Users Devices can do this")
         return
+    logger.info("Queuing SoUD syncing request")
     queue.enqueue(request_soud_sync, server, user)
 
 
