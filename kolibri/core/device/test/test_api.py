@@ -536,6 +536,13 @@ class UserSyncStatusTestCase(APITestCase):
         expected_count = UserSyncStatus.objects.filter(user_id=self.user1.id).count()
         self.assertEqual(len(response.data), expected_count)
 
+    def test_user_sync_status_class_list_for_filter(self):
+        response = self.client.get(
+            reverse("kolibri:core:usersyncstatus-list"),
+            data={"member_of": self.classroom.id},
+        )
+        self.assertEqual(len(response.data), 1)
+
     def test_usersyncstatus_list_learner_permissions(self):
         self.client.login(
             username=self.user1.username,
