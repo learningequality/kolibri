@@ -8,7 +8,10 @@ import { learnerProgressTranslators } from '../views/common/status/statusStrings
 import { coachStrings } from '../views/common/commonCoachStrings';
 
 const FieldsMixinStrings = createTranslator('FieldsMixinStrings', {
-  allLearners: 'All learners',
+  allLearners: {
+    message: 'All learners',
+    context: 'Link that takes coach back to the learners list view.',
+  },
   recipientType: {
     message: 'Assigned to',
     context: 'Column header for the quiz report exported as CSV',
@@ -18,13 +21,22 @@ const FieldsMixinStrings = createTranslator('FieldsMixinStrings', {
     context:
       'One of the options in the quiz report exported as CSV indicating that a quiz or a lesson has been assigned to both individual learners and groups.',
   },
-  wholeClass: 'Whole class',
+  wholeClass: {
+    message: 'Whole class',
+    context: 'Column header for the quiz report exported as CSV.',
+  },
   questionsCorrect: {
     message: 'Questions answered correctly',
     context: 'Column header for the quiz report exported as CSV',
   },
-  questionsTotal: 'Total questions',
-  questionsAnswered: 'Answered questions',
+  questionsTotal: {
+    message: 'Total questions',
+    context: 'Column header for the quiz report exported as CSV.',
+  },
+  questionsAnswered: {
+    message: 'Answered questions',
+    context: 'Column header for the quiz report exported as CSV.',
+  },
 });
 
 const VERB_MAP = {

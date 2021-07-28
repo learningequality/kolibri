@@ -90,7 +90,10 @@
       },
     },
     $trs: {
-      nextInLesson: 'Next in lesson',
+      nextInLesson: {
+        message: 'Next in lesson',
+        context: 'Refers to the next learning resource in a lesson.',
+      },
     },
   };
 

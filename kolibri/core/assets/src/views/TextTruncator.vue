@@ -112,7 +112,11 @@
       },
     },
     $trs: {
-      viewLessButtonPrompt: 'View less',
+      viewLessButtonPrompt: {
+        message: 'View less',
+        context:
+          "Button which allows a user to view less information. It's the opposite of 'View more'.",
+      },
     },
   };
 

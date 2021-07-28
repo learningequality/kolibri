@@ -205,10 +205,23 @@
       },
     },
     $trs: {
-      undoActionPrompt: 'Undo',
-      moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',
-      moveResourceDownButtonDescription: 'Move this resource one position down in this lesson',
-      parentChannelLabel: 'Parent channel:',
+      undoActionPrompt: {
+        message: 'Undo',
+        context: 'Allows user to undo an action.',
+      },
+      moveResourceUpButtonDescription: {
+        message: 'Move this resource one position up in this lesson',
+        context: 'Refers to ordering resources.',
+      },
+      moveResourceDownButtonDescription: {
+        message: 'Move this resource one position down in this lesson',
+        context: 'Refers to ordering resources.',
+      },
+      parentChannelLabel: {
+        message: 'Parent channel:',
+        context:
+          'Describes the name of the main channel which the specific learning resource belongs to.\n',
+      },
     },
   };
 

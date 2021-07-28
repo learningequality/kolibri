@@ -208,28 +208,68 @@
       },
     },
     $trs: {
-      importError: 'Importing is not possible due to the following errors:',
-      success: 'The import succeeded',
+      importError: {
+        message: 'Importing is not possible due to the following errors:',
+        context: 'Error message that displays when the import CSV functionality fails.',
+      },
+      success: {
+        message: 'The import succeeded',
+        context: 'Success notification when import CSV works correctly.',
+      },
       changesMade: 'The following changes were made:',
-      summary: 'Summary of changes if you choose to import:',
-      updated: 'Updated',
-      added: 'Added',
-      deleted: 'Deleted',
+      summary: {
+        message: 'Summary of changes if you choose to import:',
+        context: "Description on the 'Import users' preview page.",
+      },
+      updated: {
+        message: 'Updated',
+        context:
+          'Indicates elements like users or classes that will be updated if the CSV import is completed.',
+      },
+      added: {
+        message: 'Added',
+        context:
+          "Refers to elements like users or classes 'added' when importing a CSV file. This displays on the 'Import users' preview screen so the user can see the changes before confirming the import.",
+      },
+      deleted: {
+        message: 'Deleted',
+        context:
+          "Refers to elements like users or classes 'deleted' when importing a CSV file. This displays on the 'Import users' preview screen so the user can see the changes before confirming the import.",
+      },
       skipped: {
         message: 'Skipped',
         context: 'Refers to rows in the CSV file.\n\n',
       },
-      users: 'Users',
-      classes: 'Classes',
+      users: {
+        message: 'Users',
+        context: 'Refers to the users being updated with the CSV import.',
+      },
+      classes: {
+        message: 'Classes',
+        context: 'Refers to the summary of changes in classes produced by a CSV import.',
+      },
       someSkipped: 'These rows were skipped:',
       someRowErrors: 'These rows have errors and will be skipped if you continue:',
-      rowNumber: 'Row number',
+      rowNumber: {
+        message: 'Row number',
+        context: 'Refers to rows in the CSV file.\n',
+      },
       columnName: 'Column name',
       value: 'Value',
-      error: 'Error',
+      error: {
+        message: 'Error',
+        context: 'Title of error message.',
+      },
       close: 'Close',
-      back: 'Back',
-      import: 'Import',
+      back: {
+        message: 'Back',
+        context:
+          "Option to go 'back' on the 'Import users' preview screen if the user decides not to continue with the import.",
+      },
+      import: {
+        message: 'Import',
+        context: 'Refers to importing CSV files.',
+      },
     },
   };
 

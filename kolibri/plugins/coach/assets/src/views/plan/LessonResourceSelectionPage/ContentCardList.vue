@@ -137,7 +137,10 @@
       },
     },
     $trs: {
-      selectAllCheckboxLabel: 'Select all',
+      selectAllCheckboxLabel: {
+        message: 'Select all',
+        context: 'Generic checkbox label used to select all elements in a list.',
+      },
       // noMoreResults: 'No more results',
       // moreResultsError: 'Failed to get more results',
     },

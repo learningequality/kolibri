@@ -185,8 +185,16 @@
       },
     },
     $trs: {
-      exitFullscreen: 'Exit Fullscreen',
-      enterFullscreen: 'View Fullscreen',
+      exitFullscreen: {
+        message: 'Exit Fullscreen',
+        context:
+          "Learners can use the Esc key or the 'exit fullscreen' button to close the fullscreen view on an html5 app.",
+      },
+      enterFullscreen: {
+        message: 'View Fullscreen',
+        context:
+          'Learners can use the full screen button in the upper right corner to open an html5 app in fullscreen view.\n',
+      },
     },
   };
 

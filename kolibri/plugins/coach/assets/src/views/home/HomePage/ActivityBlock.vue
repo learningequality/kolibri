@@ -66,8 +66,16 @@
       },
     },
     $trs: {
-      classActivityLabel: 'Class activity',
-      noActivityLabel: 'No activity in your class',
+      classActivityLabel: {
+        message: 'Class activity',
+        context:
+          "Refers to the section within the 'Class home' tab which provides real time notifications of what's happening with the learners in a class. \n\nCoaches can track learners' progress here.",
+      },
+      noActivityLabel: {
+        message: 'No activity in your class',
+        context:
+          "Message that displays in the 'Class activity' section when there is no activity in that specific class.",
+      },
     },
   };
 

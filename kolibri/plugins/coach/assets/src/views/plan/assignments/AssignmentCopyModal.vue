@@ -160,8 +160,15 @@
       },
     },
     $trs: {
-      currentClass: '{ name } (current class)',
-      destinationExplanation: `Will be copied to '{classroomName}'`,
+      currentClass: {
+        message: '{ name } (current class)',
+        context: 'Indicates the name of the current class.',
+      },
+      destinationExplanation: {
+        message: `Will be copied to '{classroomName}'`,
+        context:
+          'Coaches can copy lessons to a different group or or another class in their facility. This is a validation message informing the coach where the lesson will be copied to.',
+      },
     },
   };
 

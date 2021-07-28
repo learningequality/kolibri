@@ -57,7 +57,10 @@
       },
     },
     $trs: {
-      questionListHeader: '{numOfQuestions, number} Questions',
+      questionListHeader: {
+        message: '{numOfQuestions, number} Questions',
+        context: 'Indicates the number of questions in a quiz.',
+      },
     },
   };
 

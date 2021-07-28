@@ -51,7 +51,11 @@
       },
     },
     $trs: {
-      back: 'All groups',
+      back: {
+        message: 'All groups',
+        context:
+          "Refers to a link that takes the user back to the 'Groups' tab in the 'Reports' section where they can see a list of all the groups in a class.",
+      },
     },
   };
 

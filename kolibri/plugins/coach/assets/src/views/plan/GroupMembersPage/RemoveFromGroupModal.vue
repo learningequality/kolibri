@@ -34,8 +34,16 @@
       },
     },
     $trs: {
-      modalTitle: 'Remove user',
-      confirmation: "Are you sure you want to remove '{ username }' from '{ classname }'?",
+      modalTitle: {
+        message: 'Remove user',
+        context:
+          "Title of the confirmation window that displays when a user uses the 'Remove' button to remove a learner from a group.\n\nNote that learners removed from a group will not be deleted from the database, and their accounts can still accessed from the 'Users' tab in the 'Facility' dashboard.",
+      },
+      confirmation: {
+        message: "Are you sure you want to remove '{ username }' from '{ classname }'?",
+        context:
+          "Description of the confirmation window that displays when a user uses the 'Remove' button to remove a learner from a group.\n\nNote that learners removed from a group will not be deleted from the database, and their accounts can still accessed from the 'Users' tab in the 'Facility' dashboard.",
+      },
     },
   };
 

@@ -25,7 +25,10 @@
       },
     },
     $trs: {
-      loadingBook: 'Loading book',
+      loadingBook: {
+        message: 'Loading book',
+        context: 'Message that displays when an EPUB file is loading. The learner should wait.',
+      },
     },
   };
 

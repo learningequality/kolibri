@@ -249,23 +249,41 @@
       this.$kolibriBranding = branding;
     },
     $trs: {
-      accessAsGuest: 'Explore without account',
-      oidcGenericExplanation:
-        'Kolibri is an e-learning platform. You can also use your Kolibri account to log in to some third-party applications.',
+      accessAsGuest: {
+        message: 'Explore without account',
+        context:
+          'Link on sign in page which upon clicking allows user to access Kolibri as a guest user.',
+      },
+      oidcGenericExplanation: {
+        message:
+          'Kolibri is an e-learning platform. You can also use your Kolibri account to log in to some third-party applications.',
+        context: 'Generic explanation about Kolibri.',
+      },
       // eslint-disable-next-line kolibri/vue-no-unused-translations
-      oidcSpecificExplanation:
-        "You were sent here from the application '{app_name}'. Kolibri is an e-learning platform, and you can also use your Kolibri account to access '{app_name}'.",
-      poweredBy: 'Kolibri {version}',
-      poweredByKolibri: 'Powered by Kolibri',
+      oidcSpecificExplanation: {
+        message:
+          "You were sent here from the application '{app_name}'. Kolibri is an e-learning platform, and you can also use your Kolibri account to access '{app_name}'.",
+        context:
+          'Explanation of Kolibri that a user sees if they are sent to Kolibri from a different application.',
+      },
+      poweredBy: {
+        message: 'Kolibri {version}',
+        context:
+          'Indicates the current version of Kolibri.\n\nFor languages with non-latin scripts, Kolibri should be transcribed phonetically into the target language, similar to a person\'s name. It should not be translated as "hummingbird".',
+      },
+      poweredByKolibri: {
+        message: 'Powered by Kolibri',
+        context: 'Indicates that Kolibri is the technology behind this application.',
+      },
       whatsThis: "What's this?",
       restrictedAccess: {
         message: 'Access to Kolibri has been restricted for external devices',
-        context:
-          'This warning is displayed when somebody in the same network tries to connect to Kolibri running as a standalone app on a tablet or a smartphone. It indicates that Kolibri is accessible only to the person(s) physically using that tablet or a phone, and no other devices in the network can access and use Kolibri.',
+        context: 'Error message description',
       },
       restrictedAccessDescription: {
         message:
           'To change this, sign in as a super admin and update the Device network access settings',
+
         context: 'Error message description',
       },
       photoCreditLabel: {

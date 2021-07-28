@@ -193,25 +193,71 @@
       },
     },
     $trs: {
-      pageHeading: 'Export usage data',
-      pageSubHeading:
-        'Download CSV (comma-separated value) files containing information about users and their interactions with the resources on this device',
-      detailsHeading: 'Session logs',
-      detailsSubHeading: 'Individual visits to each resource',
-      summaryHeading: 'Summary logs',
-      summarySubHeading: 'Total time/progress for each resource',
-      detailsInfo:
-        'When a user views a resource, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific resource. This includes anonymous usage, when no user is signed in.',
-      summaryInfo:
-        'A user may visit the same resource multiple times. This file records the total time and progress each user has achieved for each resource, summarized across possibly more than one visit. Anonymous usage is not included.',
+      pageHeading: {
+        message: 'Export usage data',
+        context: 'Heading for the Facilty > Data page.',
+      },
+      pageSubHeading: {
+        message:
+          'Download CSV (comma-separated value) files containing information about users and their interactions with the resources on this device',
+        context: "Description of the 'Export usage data' page.\n",
+      },
+      detailsHeading: {
+        message: 'Session logs',
+        context: "'Session logs' refer to individual visits to each resource.",
+      },
+      detailsSubHeading: {
+        message: 'Individual visits to each resource',
+        context: "Description of 'Session logs'.",
+      },
+      summaryHeading: {
+        message: 'Summary logs',
+        context:
+          'Summary logs record the total time and progress each user has achieved for each resource.',
+      },
+      summarySubHeading: {
+        message: 'Total time/progress for each resource',
+        context: "Description of 'Summary logs'.",
+      },
+      detailsInfo: {
+        message:
+          'When a user views a resource, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific resource. This includes anonymous usage, when no user is signed in.',
+        context: "Detailed explanation of 'Session logs'.",
+      },
+      summaryInfo: {
+        message:
+          'A user may visit the same resource multiple times. This file records the total time and progress each user has achieved for each resource, summarized across possibly more than one visit. Anonymous usage is not included.',
+        context: "Detailed explanation of 'Summary logs'.\n",
+      },
       generateLog: 'Generate log file',
-      regenerateLog: 'Generate a new log file',
-      noLogsYet: 'No logs are available to download.',
-      download: 'Download',
-      note: 'Note:',
-      noDownload: 'Download is not supported on Android',
-      documentTitle: 'Manage Data',
-      generatingLog: 'Generating log file...',
+      regenerateLog: {
+        message: 'Generate a new log file',
+        context: 'Option to generate a log file which can then be downloaded in CSV format.',
+      },
+      noLogsYet: {
+        message: 'No logs are available to download.',
+        context: "Message that displays if no logs are available yet in the user's facility.",
+      },
+      download: {
+        message: 'Download',
+        context: 'Button used to download logs contained in CSV files.',
+      },
+      note: {
+        message: 'Note:',
+        context: 'Precedes the more detailed explanation of what logs are.\n',
+      },
+      noDownload: {
+        message: 'Download is not supported on Android',
+        context: 'Android specific message.',
+      },
+      documentTitle: {
+        message: 'Manage Data',
+        context: 'Refers to the page title of the Facility > Data section of Kolibri.',
+      },
+      generatingLog: {
+        message: 'Generating log file...',
+        context: "Message that displays when user clicks on 'Generate a new log file'.",
+      },
     },
   };
 

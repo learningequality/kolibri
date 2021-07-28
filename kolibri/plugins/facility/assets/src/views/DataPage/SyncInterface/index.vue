@@ -180,11 +180,29 @@
       },
     },
     $trs: {
-      syncData: 'Sync facility data',
-      learnMore: 'Usage and privacy',
-      facility: 'Facility',
-      register: 'Register',
-      sync: 'Sync',
+      syncData: {
+        message: 'Sync facility data',
+        context:
+          'Option to sync the current facility data with the Learning Equality Kolibri Data Portal in the cloud.',
+      },
+      learnMore: {
+        message: 'Usage and privacy',
+        context:
+          "A link to 'Usage and privacy' information which pops up in a window when clicked.",
+      },
+      facility: {
+        message: 'Facility',
+        context: "Refers to the facility name on the 'Sync Facility Data' window.",
+      },
+      register: {
+        message: 'Register',
+        context: 'Describes the button to register a new facility.',
+      },
+      sync: {
+        message: 'Sync',
+        context:
+          "Describes the 'sync' button which is used to synchronize data from a facility with the project on the Kolibri Data Portal.",
+      },
     },
   };
 

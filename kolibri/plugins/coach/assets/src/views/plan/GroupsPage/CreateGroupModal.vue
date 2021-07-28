@@ -93,8 +93,15 @@
       },
     },
     $trs: {
-      newLearnerGroup: 'Create new group',
-      duplicateName: 'A group with that name already exists',
+      newLearnerGroup: {
+        message: 'Create new group',
+        context: 'Name of window used to create a new group of learners.',
+      },
+      duplicateName: {
+        message: 'A group with that name already exists',
+        context:
+          'Error message that displays if user creates a group with a name that already exisits.',
+      },
     },
   };
 

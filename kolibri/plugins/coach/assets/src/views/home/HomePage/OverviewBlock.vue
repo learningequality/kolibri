@@ -96,9 +96,20 @@
       },
     },
     $trs: {
-      allClassesLabel: 'All classes',
-      coach: '{count, plural, one {Coach} other {Coaches}}',
-      learner: '{count, plural, one {Learner} other {Learners}}',
+      allClassesLabel: {
+        message: 'All classes',
+        context: "Link to take coach back to the 'Classes' section.",
+      },
+      coach: {
+        message: '{count, plural, one {Coach} other {Coaches}}',
+        context:
+          "Refers to the coach or coaches who have been assigned to a class. For example:\n\n'2 coaches'",
+      },
+      learner: {
+        message: '{count, plural, one {Learner} other {Learners}}',
+        context:
+          "Refers to the learner or learners who are in a class. For example:\n\n'6 learners'",
+      },
       viewLearners: 'View learners',
     },
   };

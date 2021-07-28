@@ -97,7 +97,10 @@
       },
     },
     $trs: {
-      showMoreLanguagesSelector: 'More languages',
+      showMoreLanguagesSelector: {
+        message: 'More languages',
+        context: 'An option to view more languages in which the Kolibri interface is available.',
+      },
     },
   };
 

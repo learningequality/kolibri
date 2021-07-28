@@ -167,8 +167,15 @@
       },
     },
     $trs: {
-      documentTitleForChannel: 'Topics - { channelTitle }',
-      documentTitleForTopic: '{ topicTitle } - { channelTitle }',
+      documentTitleForChannel: {
+        message: 'Topics - { channelTitle }',
+        context:
+          'A topic is a collection of resources and other topics within a channel. This string indicates the topics grouped under a specific channel.',
+      },
+      documentTitleForTopic: {
+        message: '{ topicTitle } - { channelTitle }',
+        context: 'DO NOT TRANSLATE',
+      },
     },
   };
 

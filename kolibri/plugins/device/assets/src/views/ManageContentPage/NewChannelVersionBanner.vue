@@ -40,7 +40,11 @@
         context:
           '\nWhen a new version of the channel is available, this message alerts the user that they can update. ',
       },
-      viewChangesAction: 'View changes',
+      viewChangesAction: {
+        message: 'View changes',
+        context:
+          'Option to view what changes have been made in Kolibri when a new version is available.',
+      },
     },
   };
 

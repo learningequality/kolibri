@@ -151,16 +151,37 @@
       },
     },
     $trs: {
-      importAction: 'Import',
-      exportAction: 'Export',
-      deleteAction: 'Delete',
-      channelsSelectedNoFileSize:
-        '{count, number} {count, plural, one {channel} other {channels}} selected',
-      channelsSelectedWithFileSize:
-        '{count} {count, plural, one {channel} other {channels}} selected ({bytesText})',
-      zeroResourcesSelected: '0 resources selected',
-      someResourcesSelected:
-        '{count} {count, plural, one {resource} other {resources}} selected ({bytesText})',
+      importAction: {
+        message: 'Import',
+        context: 'Refers to a button the user uses to import resources.',
+      },
+      exportAction: {
+        message: 'Export',
+        context: 'Refers to a button the user uses to export resources.',
+      },
+      deleteAction: {
+        message: 'Delete',
+        context: 'Refers to a button the user uses to delete resources.',
+      },
+      channelsSelectedNoFileSize: {
+        message: '{count, number} {count, plural, one {channel} other {channels}} selected',
+        context:
+          "Indicates the amount of channels selected to import. For example:\n\n'7 channels selected'",
+      },
+      channelsSelectedWithFileSize: {
+        message: '{count} {count, plural, one {channel} other {channels}} selected ({bytesText})',
+        context:
+          "Indicates the amount of channels selected to import along with the file size. For example:\n\n'7 channels (22 GB)'",
+      },
+      zeroResourcesSelected: {
+        message: '0 resources selected',
+        context: 'Indicates that the user has selected no resources.',
+      },
+      someResourcesSelected: {
+        message: '{count} {count, plural, one {resource} other {resources}} selected ({bytesText})',
+        context:
+          "Indicates the amount of resources selected to import along with the file size. For example:\n\n'727 resources (22 GB)'\n",
+      },
     },
   };
 

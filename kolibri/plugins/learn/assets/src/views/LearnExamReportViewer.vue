@@ -99,8 +99,16 @@
       },
     },
     $trs: {
-      documentTitle: '{ examTitle } report',
-      missingContent: 'This quiz cannot be displayed because some resources were deleted',
+      documentTitle: {
+        message: '{ examTitle } report',
+        context:
+          "Title indicating for a learner's report page that also indicates the name of the quiz.",
+      },
+      missingContent: {
+        message: 'This quiz cannot be displayed because some resources were deleted',
+        context:
+          'Error message a user sees if there was a problem accessing a quiz report page. This is because the resource has been removed.',
+      },
     },
   };
 

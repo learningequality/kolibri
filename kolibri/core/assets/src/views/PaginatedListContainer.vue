@@ -136,10 +136,20 @@
       },
     },
     $trs: {
-      previousResults: 'Previous results',
-      nextResults: 'Next results',
-      pagination:
-        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredItems, number }',
+      previousResults: {
+        message: 'Previous results',
+        context:
+          'Text which indicates the previous page of results when a user makes a search query.\n',
+      },
+      nextResults: {
+        message: 'Next results',
+        context: 'Text which indicates the next page of results when a user makes a search query.',
+      },
+      pagination: {
+        message:
+          '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredItems, number }',
+        context: "Refers to pagination. Only translate the word \"of''.",
+      },
     },
   };
 

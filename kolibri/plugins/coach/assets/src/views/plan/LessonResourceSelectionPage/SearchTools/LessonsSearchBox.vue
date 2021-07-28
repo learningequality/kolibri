@@ -98,8 +98,14 @@
       },
     },
     $trs: {
-      clearButtonLabel: 'Clear',
-      startSearchButtonLabel: 'Start search',
+      clearButtonLabel: {
+        message: 'Clear',
+        context: "Used to clear a search query. Marked with an 'X'.",
+      },
+      startSearchButtonLabel: {
+        message: 'Start search',
+        context: 'Refers to the search button used to initiate a search.',
+      },
     },
   };
 

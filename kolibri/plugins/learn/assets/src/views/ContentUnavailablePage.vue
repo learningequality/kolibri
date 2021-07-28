@@ -40,9 +40,19 @@
       },
     },
     $trs: {
-      header: 'No resources available',
-      adminLink: 'As an administrator, you can import channels',
-      learnerText: 'Please ask your coach or administrator for assistance',
+      header: {
+        message: 'No resources available',
+        context:
+          'Message displayed when there are no learning resources available for the learner to view.',
+      },
+      adminLink: {
+        message: 'As an administrator, you can import channels',
+        context: 'Message for admin indicating the possibility of importing channels into Kolibri.',
+      },
+      learnerText: {
+        message: 'Please ask your coach or administrator for assistance',
+        context: "Description on the 'No resources available' page.",
+      },
       documentTitle: {
         message: 'Content Unavailable',
         context: '\nThis string should actually say "Resource unavailable"',

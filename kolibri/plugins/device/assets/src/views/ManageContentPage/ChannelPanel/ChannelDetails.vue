@@ -79,8 +79,16 @@
       },
     },
     $trs: {
-      versionNumber: 'Version {v, number, integer}',
-      defaultDescription: '(No description)',
+      versionNumber: {
+        message: 'Version {v, number, integer}',
+        context:
+          'Indicates the channel version. This can be updated when new resources are made available in a channel.\n',
+      },
+      defaultDescription: {
+        message: '(No description)',
+        context:
+          'This text will display only if a description for the channel has not been written by the resource creator.',
+      },
     },
   };
 

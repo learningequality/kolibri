@@ -288,13 +288,41 @@
       },
     },
     $trs: {
-      deletingFailedText: 'There was a problem removing this address',
-      fetchingFailedText: 'There was a problem getting the available addresses',
-      forgetAddressButtonLabel: 'Forget',
-      header: 'Select network address',
-      newAddressButtonLabel: 'Add new address',
-      noAddressText: 'There are no addresses yet',
-      refreshAddressesButtonLabel: 'Refresh addresses',
+      deletingFailedText: {
+        message: 'There was a problem removing this address',
+        context:
+          'Error message that displays when an admin attempts to remove a network address, but is unable to do so.',
+      },
+      fetchingFailedText: {
+        message: 'There was a problem getting the available addresses',
+        context:
+          'Error message that displays when an admin attempts to find a network address, but the address is not found.',
+      },
+      forgetAddressButtonLabel: {
+        message: 'Forget',
+        context:
+          "Selecting 'Forget' removes a network address from the list of network addresses which have been registered in the Device > Facilities section.",
+      },
+      header: {
+        message: 'Select network address',
+        context:
+          "In the Device > Facilities section, you select the 'SYNC' option to choose the network address you want to sync from.\n\nYou do this in the 'Select network address' section which displays a list of network addresses.",
+      },
+      newAddressButtonLabel: {
+        message: 'Add new address',
+        context:
+          'The "Add new address" link appears in the \'Select network address\' screen. This option allows you to add a new network address from which to sync data.',
+      },
+      noAddressText: {
+        message: 'There are no addresses yet',
+        context:
+          "This message displays when there are no network addresses to sync with.\n\nIt appears when selecting 'SYNC' in the Device > Facilities section if there are no network addresses.",
+      },
+      refreshAddressesButtonLabel: {
+        message: 'Refresh addresses',
+        context:
+          'This message displays if there was a problem getting the network addresses. It allows the user to refresh the application to be able to see all the addresses available.',
+      },
     },
   };
 

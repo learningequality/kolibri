@@ -63,8 +63,15 @@
       },
     },
     $trs: {
-      home: 'Class Home',
-      plan: 'Plan',
+      home: {
+        message: 'Class Home',
+        context:
+          "Tab name of the main 'Class' section where the coach can see all the information relating to a specific class.\n",
+      },
+      plan: {
+        message: 'Plan',
+        context: "Refers the 'Plan' tab where coches manage lessons, quizzes, and groups.",
+      },
     },
   };
 

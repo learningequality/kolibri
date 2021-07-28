@@ -146,7 +146,10 @@
       },
     },
     $trs: {
-      lessonProgressLabel: "'{lesson}' progress",
+      lessonProgressLabel: {
+        message: "'{lesson}' progress",
+        context: 'Indicates the progress for a specific lesson.',
+      },
     },
   };
 

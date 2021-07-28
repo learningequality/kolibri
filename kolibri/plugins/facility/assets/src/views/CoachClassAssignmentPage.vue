@@ -61,8 +61,16 @@
       },
     },
     $trs: {
-      pageHeader: "Assign a coach to '{className}'",
-      pageSubheader: 'Showing coaches that are not assigned to this class',
+      pageHeader: {
+        message: "Assign a coach to '{className}'",
+        context:
+          "Title of the coach assignment page where a user can assign a coach to a class.\n\nThis is accessed via the  'Assign coaches' button on the Facility > Classes page.",
+      },
+      pageSubheader: {
+        message: 'Showing coaches that are not assigned to this class',
+        context:
+          "Description of the coach assignment page where a user can assign coaches to a class.\n\nThis is accessed via the  'Assign coaches' button on the Facility > Classes page.",
+      },
     },
   };
 

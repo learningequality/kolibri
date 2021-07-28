@@ -4,8 +4,14 @@ import { createTranslator } from 'kolibri.utils.i18n';
 
 const translator = createTranslator('UserPermissionToolbarTitles', {
   loading: 'Loading user permissions…',
-  goBackTitle: 'Go Back',
-  invalidUserTitle: 'Invalid user ID',
+  goBackTitle: {
+    message: 'Go Back',
+    context: 'Link to go back to the list of users.',
+  },
+  invalidUserTitle: {
+    message: 'Invalid user ID',
+    context: 'Error message.',
+  },
 });
 
 /**

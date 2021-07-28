@@ -130,8 +130,16 @@
       },
     },
     $trs: {
-      confirmPasswordLabel: 'Re-enter password',
-      errorNotMatching: 'Passwords do not match',
+      confirmPasswordLabel: {
+        message: 'Re-enter password',
+        context:
+          "This text displays on the 'Create an account' form when a new user signs up for Kolibri. A new users needs to confirm their password  in the 'Re-enter password' field to make sure it matches the 'Password' entered in the previous field.",
+      },
+      errorNotMatching: {
+        message: 'Passwords do not match',
+        context:
+          "This message will display on the 'Create an account' form if the password entered in the 'Password' field does not match the password entered in the 'Re-enter password' field.",
+      },
     },
   };
 

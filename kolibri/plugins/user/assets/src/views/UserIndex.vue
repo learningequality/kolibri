@@ -88,9 +88,19 @@
       },
     },
     $trs: {
-      userProfileTitle: 'Profile',
-      signUpStep1Title: 'Step 1 of 2',
-      signUpStep2Title: 'Step 2 of 2',
+      userProfileTitle: {
+        message: 'Profile',
+        context:
+          'The user profile contains detailed information about the user such as their name or user type.\n\nThis text is visible upon selecting the username in the top right part of the screen once signed in.',
+      },
+      signUpStep1Title: {
+        message: 'Step 1 of 2',
+        context: 'Indicates at which stage of the sign up process the user is at.',
+      },
+      signUpStep2Title: {
+        message: 'Step 2 of 2',
+        context: 'Indicates at which stage of the sign up process the user is at.',
+      },
     },
   };
 

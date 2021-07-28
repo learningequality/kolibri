@@ -262,9 +262,21 @@
       },
     },
     $trs: {
-      openNav: 'Open site navigation',
-      languageSwitchMenuOption: 'Change language',
-      userMenu: 'User menu',
+      openNav: {
+        message: 'Open site navigation',
+        context:
+          "This message is providing additional context to the screen-reader users, but is not visible in the Kolibri UI.\n\nIn this case the screen-reader will announce the message when user navigates to the 'hamburger' button with the keyboard, to indicate that it allows them to open the sidebar navigation menu.",
+      },
+      languageSwitchMenuOption: {
+        message: 'Change language',
+        context:
+          'General user setting where a user can choose the language they want to view the Kolibri interface in.',
+      },
+      userMenu: {
+        message: 'User menu',
+        context:
+          'The user menu is located in the upper right corner of the interface. \n\nUsers can use it to adjust their settings like the language used in Kolibri or their name.',
+      },
       deviceStatus: 'Device status',
     },
   };

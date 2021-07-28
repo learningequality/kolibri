@@ -142,7 +142,10 @@
       },
     },
     $trs: {
-      printLabel: '{className} Groups',
+      printLabel: {
+        message: '{className} Groups',
+        context: 'Indicates the groups that are associated with a specific class.',
+      },
     },
   };
 

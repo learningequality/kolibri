@@ -31,8 +31,16 @@
       },
     },
     $trs: {
-      header: 'Allow anyone to create their own learner account?',
-      noOptionLabel: 'No. Admins must create all accounts',
+      header: {
+        message: 'Allow anyone to create their own learner account?',
+        context:
+          'Admins have the option to allow either anyone to create a user account for themselves, or for accounts to be created only by Kolibri admins.\n\n',
+      },
+      noOptionLabel: {
+        message: 'No. Admins must create all accounts',
+        context:
+          'Possible answer to the \'Allow anyone to create their own learner account?" question.',
+      },
     },
   };
 

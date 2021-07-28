@@ -5,18 +5,47 @@ import { createTranslator } from 'kolibri.utils.i18n';
 import { selectContentTopicLink } from '../ManageContentPage/manageContentLinks';
 
 const translator = createTranslator('TreeViewRowMessages', {
-  alreadyOnYourDevice: 'Already on your device',
-  fractionOfResourcesOnDevice:
-    '{onDevice, number, useGrouping} of {total, number, useGrouping} resources on your device',
-  resourcesSelected:
-    '{total, number, useGrouping} {total, plural, one {resource} other {resources}} selected',
-  fractionOfResourcesSelected:
-    '{selected, number, useGrouping} of {total, number, useGrouping} {total, plural, one {resource} other {resources}} selected',
-  noTitle: 'No title',
-  someResourcesSelected: 'Some resources selected',
-  someResourcesOnDevice: 'Some resources on this device',
-  allResourcesSelected: 'All resources selected',
-  allResourcesOnDevice: 'All resources on this device',
+  alreadyOnYourDevice: {
+    message: 'Already on your device',
+    context: 'Indicates that a resource or channel is already on the device being used.',
+  },
+  fractionOfResourcesOnDevice: {
+    message:
+      '{onDevice, number, useGrouping} of {total, number, useGrouping} resources on your device',
+    context:
+      "Indicates the number of resources on a device out of the total number. For example:\n\n'7 of 10 resources on your device'",
+  },
+  resourcesSelected: {
+    message:
+      '{total, number, useGrouping} {total, plural, one {resource} other {resources}} selected',
+    context: "Indicates the number of resources selected. For example:\n\n'7 resources selected'",
+  },
+  fractionOfResourcesSelected: {
+    message:
+      '{selected, number, useGrouping} of {total, number, useGrouping} {total, plural, one {resource} other {resources}} selected',
+    context:
+      "Indicates the number of resources on a device that have been selected out of the total number. For example:\n\n'7 of 10 resources selected'",
+  },
+  noTitle: {
+    message: 'No title',
+    context: 'Displays if a resource has no title.',
+  },
+  someResourcesSelected: {
+    message: 'Some resources selected',
+    context: 'Indicates that some resources from a specific topic have been selected.',
+  },
+  someResourcesOnDevice: {
+    message: 'Some resources on this device',
+    context: 'Indicates that there are some resources on the device.',
+  },
+  allResourcesSelected: {
+    message: 'All resources selected',
+    context: 'Indicates that all resources from a specific topic have been selected.',
+  },
+  allResourcesOnDevice: {
+    message: 'All resources on this device',
+    context: 'Refers to a list of all the resources on a specific device.',
+  },
   resourceSelected: 'Resource selected',
 });
 

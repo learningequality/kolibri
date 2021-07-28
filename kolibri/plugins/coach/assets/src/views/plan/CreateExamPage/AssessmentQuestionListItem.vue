@@ -124,8 +124,16 @@
       },
     },
     $trs: {
-      moveExerciseUp: 'Move this exercise up by one position',
-      moveExerciseDown: 'Move this exercise down by one position',
+      moveExerciseUp: {
+        message: 'Move this exercise up by one position',
+        context:
+          'This is a screen reader option which refers to the option to reorder the way exercises are displayed to a learner.',
+      },
+      moveExerciseDown: {
+        message: 'Move this exercise down by one position',
+        context:
+          'This is a screen reader option which refers to the option to reorder the way exercises are displayed to a learner.',
+      },
     },
   };
 

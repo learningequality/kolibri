@@ -196,8 +196,16 @@
       },
     },
     $trs: {
-      deviceManagementTitle: 'Device',
-      permissionsLabel: 'Permissions',
+      deviceManagementTitle: {
+        message: 'Device',
+        context:
+          'The device is the physical or virtual machine that has the Kolibri server installed on it.',
+      },
+      permissionsLabel: {
+        message: 'Permissions',
+        context:
+          'Indicates the Device > Permissions tab. Permissions refer to what users can manage on the device.',
+      },
     },
   };
 

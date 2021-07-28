@@ -152,8 +152,14 @@
       },
     },
     $trs: {
-      newGroupAction: 'New group',
-      noGroups: 'You do not have any groups',
+      newGroupAction: {
+        message: 'New group',
+        context: 'Button used to create a new group of learners. ',
+      },
+      noGroups: {
+        message: 'You do not have any groups',
+        context: 'Message displayed when there are no groups within a class.',
+      },
     },
   };
 

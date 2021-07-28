@@ -248,15 +248,49 @@
       },
     },
     $trs: {
-      clearButtonLabel: 'Clear',
-      startSearchButtonLabel: 'Start search',
-      resourceType: 'Type',
-      topics: 'Topics',
-      exercises: 'Exercises',
-      videos: 'Videos',
-      audio: 'Audio',
-      documents: 'Documents',
-      html5: 'Apps',
+      clearButtonLabel: {
+        message: 'Clear',
+        context:
+          "Used any time to clear some information. Also can describe the icon 'X' used to clear the search field.",
+      },
+      startSearchButtonLabel: {
+        message: 'Start search',
+        context:
+          'Describes the functionality of the search icon. By selecting it the user starts a search for the term in the search field.',
+      },
+      resourceType: {
+        message: 'Type',
+        context:
+          'Learners can filter their searches for resources by type. For example, audio files, video files etc.',
+      },
+      topics: {
+        message: 'Topics',
+        context:
+          'Learners can filter their searches for resources by type. In this case, topics.\n\nA topic is a collection of resources and other topics within a channel.',
+      },
+      exercises: {
+        message: 'Exercises',
+        context:
+          'Learners can filter their searches for resources by type. In this case, exercises.',
+      },
+      videos: {
+        message: 'Videos',
+        context: 'Learners can filter their searches for resources by type. In this case, videos.',
+      },
+      audio: {
+        message: 'Audio',
+        context:
+          'Learners can filter their searches for resources by type. In this case, audio files.',
+      },
+      documents: {
+        message: 'Documents',
+        context:
+          'Learners can filter their searches for resources by type. In this case, documents.',
+      },
+      html5: {
+        message: 'Apps',
+        context: 'Learners can filter their searches for resources by type. In this case, apps.',
+      },
     },
   };
 

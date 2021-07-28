@@ -135,10 +135,23 @@
       },
     },
     $trs: {
-      viewPermissions: 'View Permissions',
-      editPermissions: 'Edit Permissions',
-      noUsersMatching: 'No users match the selected filters',
-      selfUsernameLabel: '{full_name} (You)',
+      viewPermissions: {
+        message: 'View Permissions',
+        context: 'Link to view the permissions of the admin user who is currently logged in.',
+      },
+      editPermissions: {
+        message: 'Edit Permissions',
+        context:
+          'Button that a user can use to manage the permissions of another user on the Device.',
+      },
+      noUsersMatching: {
+        message: 'No users match the selected filters',
+        context: 'Message displays when a search for a user returns no results.',
+      },
+      selfUsernameLabel: {
+        message: '{full_name} (You)',
+        context: 'Indicates the user who is currently signed in at that moment.',
+      },
     },
   };
 

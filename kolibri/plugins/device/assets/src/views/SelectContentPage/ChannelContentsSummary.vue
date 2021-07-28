@@ -97,12 +97,34 @@
       bytesForHumans,
     },
     $trs: {
-      onDeviceRow: 'On your device',
-      resourceCount: '{count, number, useGrouping}',
-      sizeCol: 'Size',
-      totalSizeRow: 'Total size',
-      version: 'Version {version, number, integer}',
-      unlistedChannelTooltip: 'Unlisted channel',
+      onDeviceRow: {
+        message: 'On your device',
+        context: "Indicates resources that are on the user's device.",
+      },
+      resourceCount: {
+        message: '{count, number, useGrouping}',
+        context: 'DO NOT TRANSLATE.',
+      },
+      sizeCol: {
+        message: 'Size',
+        context:
+          'Refers to the weight or size (usually in MB or GB) that a resource takes up on a device.',
+      },
+      totalSizeRow: {
+        message: 'Total size',
+        context:
+          'Refers to the total weight or size (usually in MB or GB) that resources takes up on a device.\n',
+      },
+      version: {
+        message: 'Version {version, number, integer}',
+        context:
+          'Indicates the channel version. This can be updated when new resources are made available in a channel.',
+      },
+      unlistedChannelTooltip: {
+        message: 'Unlisted channel',
+        context:
+          'Tooltip to indicate a private channels which shows with the unlisted channel icon.\n',
+      },
       newOrUpdatedLabel: {
         message: 'New or updated',
         context:

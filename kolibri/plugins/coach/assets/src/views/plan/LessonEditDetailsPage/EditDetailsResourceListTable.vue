@@ -207,12 +207,34 @@
       },
     },
     $trs: {
-      undoActionPrompt: 'Undo',
-      singleResourceRemovalConfirmationMessage: `Removed '{resourceTitle}'`,
-      multipleResourceRemovalsConfirmationMessage: 'Removed { numberOfRemovals } resources',
-      moveResourceUpButtonDescription: 'Move this resource one position up in this lesson',
-      moveResourceDownButtonDescription: 'Move this resource one position down in this lesson',
-      parentChannelLabel: 'Parent channel:',
+      undoActionPrompt: {
+        message: 'Undo',
+        context:
+          'Option to undo the removal of a resource from a lesson if the user has made a mistake, for example.',
+      },
+      singleResourceRemovalConfirmationMessage: {
+        message: `Removed '{resourceTitle}'`,
+        context:
+          'Confirmation message that displays when use removes a learning resource from a lesson.',
+      },
+      multipleResourceRemovalsConfirmationMessage: {
+        message: 'Removed { numberOfRemovals } resources',
+        context:
+          'Confirmation message when user removes a specific amount of resources from a lesson.',
+      },
+      moveResourceUpButtonDescription: {
+        message: 'Move this resource one position up in this lesson',
+        context: 'Refers to changing the order of resources in a lesson.',
+      },
+      moveResourceDownButtonDescription: {
+        message: 'Move this resource one position down in this lesson',
+        context: 'Refers to changing the order of resources in a lesson.',
+      },
+      parentChannelLabel: {
+        message: 'Parent channel:',
+        context:
+          'Describes the name of the main channel which the specific learning resource belongs to.',
+      },
     },
   };
 

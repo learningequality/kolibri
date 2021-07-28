@@ -62,8 +62,14 @@
       },
     },
     $trs: {
-      pageHeader: "Enroll learners into '{className}'",
-      pageSubheader: 'Only showing learners that are not enrolled in this class',
+      pageHeader: {
+        message: "Enroll learners into '{className}'",
+        context: 'Title of page where users can add (enroll) learners to a class.',
+      },
+      pageSubheader: {
+        message: 'Only showing learners that are not enrolled in this class',
+        context: "Description of 'Enroll learners into '{className}'' page.",
+      },
     },
   };
 

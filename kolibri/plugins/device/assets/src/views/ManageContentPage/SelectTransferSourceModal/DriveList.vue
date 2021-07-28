@@ -77,11 +77,25 @@
       },
     },
     $trs: {
-      drivesFound: 'Drives found',
-      noImportableDrives: 'No drives with Kolibri resources are connected to the server',
-      noDriveWithSelectedChannelError:
-        'No drives with the selected channel are connected to the server',
-      noExportableDrives: 'Could not find a writable drive connected to the server',
+      drivesFound: {
+        message: 'Drives found',
+        context:
+          'Refers to importing and exporting channels from external USB or disk drives that Kolibri can recognize and export channels to.',
+      },
+      noImportableDrives: {
+        message: 'No drives with Kolibri resources are connected to the server',
+        context:
+          "Error message that refers to importing resources. If the drive being used doesn't have Kolibri resources on it, then this message will display.",
+      },
+      noDriveWithSelectedChannelError: {
+        message: 'No drives with the selected channel are connected to the server',
+        context:
+          'Refers to importing and exporting channels from external USB or disk drives. If no drives are found this error message displays.',
+      },
+      noExportableDrives: {
+        message: 'Could not find a writable drive connected to the server',
+        context: "Error message that displays if Kolibri can't find a drive to export data to.",
+      },
     },
   };
 

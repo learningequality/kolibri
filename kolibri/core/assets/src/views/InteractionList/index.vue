@@ -61,8 +61,16 @@
       },
     },
     $trs: {
-      currAnswer: 'Attempt {value, number, integer}',
-      noInteractions: 'No attempts made on this question',
+      currAnswer: {
+        message: 'Attempt {value, number, integer}',
+        context:
+          'This text appears on a report when a coach reviews the answers a learner has given for a quiz. It can indicate how many times the learner has tried to answer a question, for example.\n\nThis helps the coach understand which questions learners had difficulties answering correctly.',
+      },
+      noInteractions: {
+        message: 'No attempts made on this question',
+        context:
+          "When a coach reviews a learner's report, they can see how many times the learner has attempted to answer a question in a quiz.\n\nIf the learner hasn't made any attempts at all to answer the question this message displays beside the question.",
+      },
     },
   };
 

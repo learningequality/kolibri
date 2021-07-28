@@ -334,16 +334,45 @@
       },
     },
     $trs: {
-      submitExam: 'Submit quiz',
-      questionsAnswered:
-        '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
-      previousQuestion: 'Previous',
-      nextQuestion: 'Next',
-      areYouSure: 'You cannot change your answers after you submit',
-      unanswered:
-        'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
-      noItemId: 'This question has an error, please move on to the next question',
-      question: 'Question {num, number, integer} of {total, number, integer}',
+      submitExam: {
+        message: 'Submit quiz',
+        context:
+          'Action that learner takes to submit their quiz answers so that the coach can review them.',
+      },
+      questionsAnswered: {
+        message:
+          '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
+        context:
+          'Indicates the number of questions a learner has answered. Only translate "of" and "question/questions answered".',
+      },
+      previousQuestion: {
+        message: 'Previous',
+        context: 'Button indicating the previous question in a quiz.',
+      },
+      nextQuestion: {
+        message: 'Next',
+        context: 'Button indicating the next question in a quiz.',
+      },
+      areYouSure: {
+        message: 'You cannot change your answers after you submit',
+        context:
+          "Message a learner sees when they submit answers in an exercise to their coach. It serves as a way of checking that the user is aware that once they've submitted their answers, they cannot change them afterwards.",
+      },
+      unanswered: {
+        message:
+          'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
+        context: 'Indicates how many unanswered questions the learner has.',
+      },
+      noItemId: {
+        message: 'This question has an error, please move on to the next question',
+        context:
+          'Message they may appear to the learner if there is a question missing in a quiz. The question may have been deleted accidentally, for example.',
+      },
+      question: {
+        message: 'Question {num, number, integer} of {total, number, integer}',
+        context:
+          'Indicates which question the user is working on currently and the total number of questions in a quiz.',
+      },
     },
   };
 

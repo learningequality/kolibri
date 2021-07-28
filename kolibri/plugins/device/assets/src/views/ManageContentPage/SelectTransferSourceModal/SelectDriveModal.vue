@@ -161,9 +161,19 @@
       },
     },
     $trs: {
-      findingLocalDrives: 'Finding local drives…',
-      problemFindingLocalDrives: 'There was a problem finding local drives.',
-      selectDrive: 'Select a drive',
+      findingLocalDrives: {
+        message: 'Finding local drives…',
+        context: 'Message related to searching for local drives.',
+      },
+      problemFindingLocalDrives: {
+        message: 'There was a problem finding local drives.',
+        context:
+          "Error message that displays when a user has selected a drive that can't be found.",
+      },
+      selectDrive: {
+        message: 'Select a drive',
+        context: 'Refers to choosing a drive from which to import resources.',
+      },
       // selectExportDestination: 'Select an export destination',
       notEnoughFreeSpaceWarning: {
         message: 'Not enough space available. Free up space on the drive or select fewer resources',

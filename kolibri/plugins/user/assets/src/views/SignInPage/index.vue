@@ -519,11 +519,29 @@
         message: 'Incorrect username',
         context: 'Error that is shown when a user provides a username that is not in the facility',
       },
-      requiredForCoachesAdmins: 'Password is required for coaches and admins',
-      documentTitle: 'User Sign In',
-      nextLabel: 'Next',
-      changeUser: 'Change user',
-      changeFacility: 'Change facility',
+      requiredForCoachesAdmins: {
+        message: 'Password is required for coaches and admins',
+        context:
+          'Indicates that the user needs to enter a password if their user type is either coach or admin.',
+      },
+      documentTitle: {
+        message: 'User Sign In',
+        context: 'User sign in page.',
+      },
+      nextLabel: {
+        message: 'Next',
+        context: 'Button that user selects to navigate to the next page in the sign in process.',
+      },
+      changeUser: {
+        message: 'Change user',
+        context:
+          'Link to change the user account which the user uses to sign in if they have more than one account.\n',
+      },
+      changeFacility: {
+        message: 'Change facility',
+        context:
+          'Users can change the facility to sign in to when the device has more than one facility.\n',
+      },
     },
   };
 

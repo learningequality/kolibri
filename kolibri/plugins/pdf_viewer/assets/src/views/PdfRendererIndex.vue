@@ -387,8 +387,16 @@
       },
     },
     $trs: {
-      exitFullscreen: 'Exit fullscreen',
-      enterFullscreen: 'Enter fullscreen',
+      exitFullscreen: {
+        message: 'Exit fullscreen',
+        context:
+          "Learners can use the Esc key or the 'exit fullscreen' button to close the fullscreen view on the PDF Viewer.",
+      },
+      enterFullscreen: {
+        message: 'Enter fullscreen',
+        context:
+          'Learners can use the full screen button in the upper right corner to open a PDF in fullscreen view.',
+      },
     },
   };
 

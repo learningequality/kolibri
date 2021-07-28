@@ -29,7 +29,10 @@
       },
     },
     $trs: {
-      languageFormHeader: 'Please select the default language for Kolibri',
+      languageFormHeader: {
+        message: 'Please select the default language for Kolibri',
+        context: 'Admins must pick the default language they want to use in Kolibri.',
+      },
     },
   };
 

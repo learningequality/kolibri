@@ -137,12 +137,14 @@
       adminCredentialsPromptMultipleFacilities: {
         message:
           "Enter the username and password for a facility admin of '{facility}' or a super admin of '{device}'",
+
         context:
           '\n        Menu description text: users must provide the facility admin credentials\n        for a selected source facility, or super admin credentials for the source\n        device, before they are able to import\n      ',
       },
       adminCredentialsPromptOneFacility: {
         message:
           "Enter the username and password for a facility admin or a super admin of '{device}'",
+
         context: 'Alternative phrasing for the facility admin credentials prompt',
       },
       duplicateFacilityNamesExplanation: {

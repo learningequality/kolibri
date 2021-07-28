@@ -273,8 +273,15 @@
         context:
           'A label for a checkbox that allows the Coach to assign the quiz to individual learners who may not be in a selected group.',
       },
-      searchPlaceholder: 'Search for a user…',
-      noUsersMatch: 'No users match',
+      searchPlaceholder: {
+        message: 'Search for a user…',
+        context: 'Indicates the search function which allows coaches to add learners to a lesson.',
+      },
+      noUsersMatch: {
+        message: 'No users match',
+        context:
+          "When searching for individual learner to add to a lesson, if no search term matches a learner's name this message is displayed.",
+      },
     },
   };
 

@@ -83,8 +83,14 @@
       },
     },
     $trs: {
-      resetPassword: 'Reset user password',
-      username: 'Username: ',
+      resetPassword: {
+        message: 'Reset user password',
+        context: "Refers to the 'Reset password' option in the Facility > Users section.",
+      },
+      username: {
+        message: 'Username: ',
+        context: "Displayed in the 'Reset user password' window.\n",
+      },
     },
   };
 

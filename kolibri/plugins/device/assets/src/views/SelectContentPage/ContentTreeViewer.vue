@@ -264,8 +264,14 @@
       },
     },
     $trs: {
-      selectAll: 'Select all',
-      topicHasNoContents: 'This topic has no sub-topics or resources',
+      selectAll: {
+        message: 'Select all',
+        context: 'Channel picker.',
+      },
+      topicHasNoContents: {
+        message: 'This topic has no sub-topics or resources',
+        context: 'Message displays if a topic has no content.',
+      },
     },
   };
 

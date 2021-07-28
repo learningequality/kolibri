@@ -134,9 +134,20 @@
       },
     },
     $trs: {
-      pageTitle: `Edit quiz details for '{title}'`,
-      appBarTitle: `Edit quiz details`,
-      submitErrorMessage: 'There was a problem saving your changes',
+      pageTitle: {
+        message: `Edit quiz details for '{title}'`,
+        context:
+          "Title of the page accessed via the 'Edit details' option on the Plan > Quizzes page. (Not seen in the UI)\n",
+      },
+      appBarTitle: {
+        message: `Edit quiz details`,
+        context:
+          "Title of the screen accessed via the 'Edit details' option on the Plan > Quizzes page.",
+      },
+      submitErrorMessage: {
+        message: 'There was a problem saving your changes',
+        context: 'Generic error message.',
+      },
     },
   };
 
