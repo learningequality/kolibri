@@ -19,6 +19,7 @@ class FacilityUserBackend(object):
         """
         Authenticates the user if the credentials correspond to a FacilityUser for the specified Facility.
 
+        :param request: The request is a required positional argument in newer versions of Django
         :param username: a string
         :param password: a string
         :param kwargs: a dict of additional credentials (see `keyword`s)
