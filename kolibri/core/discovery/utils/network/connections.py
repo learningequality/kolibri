@@ -2,6 +2,7 @@ import socket
 from contextlib import closing
 
 from . import errors
+from .client import device_info_defaults
 from .client import NetworkClient
 from .urls import parse_address_into_components
 from kolibri.core.utils.cache import process_cache
@@ -10,11 +11,6 @@ from kolibri.core.utils.nothing import Nothing
 
 INVALID_DEVICE_INFO = Nothing("invalid device info")
 FAILED_TO_CONNECT = Nothing("failed to connect")
-
-
-device_info_defaults = {
-    "subset_of_users_device": False,
-}
 
 
 def check_if_port_open(base_url, timeout=1):
@@ -33,7 +29,9 @@ def check_device_info(base_url):
     try:
         info = NetworkClient(base_url=base_url).info
         if info["application"] in ["studio", "kolibri"]:
-            return device_info_defaults.copy().update(info)
+            complete_info = device_info_defaults.copy()
+            complete_info.update(info)
+            return complete_info
         else:
             return INVALID_DEVICE_INFO
     except (errors.NetworkClientError, errors.NetworkLocationNotFound):

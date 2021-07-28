@@ -9,6 +9,10 @@ from .urls import get_normalized_url_variations
 
 logger = logging.getLogger(__name__)
 
+device_info_defaults = {
+    "subset_of_users_device": False,
+}
+
 
 class NetworkClient(object):
     DEFAULT_TIMEOUT_IN_SECS = 5
@@ -55,7 +59,7 @@ class NetworkClient(object):
                     info = response.json()
                     self.info = {}
                     for key in device_info_keys.get(DEVICE_INFO_VERSION, []):
-                        self.info[key] = info.get(key)
+                        self.info[key] = info.get(key, device_info_defaults.get(key))
                     if self.info["application"] not in ["studio", "kolibri"]:
                         raise requests.RequestException(
                             "Server is not running Kolibri or Studio"
