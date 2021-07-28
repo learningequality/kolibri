@@ -15,6 +15,7 @@ from morango.models import Certificate
 from morango.models import ScopeDefinition
 from six.moves.urllib.parse import urljoin
 
+from kolibri.core.auth.backends import FACILITY_CREDENTIAL_NAME
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -227,11 +228,16 @@ def get_client_and_server_certs(
                 username = input("Please enter username: ")
                 password = getpass.getpass("Please enter password: ")
 
+        # add facility so `FacilityUserBackend` can validate
+        userargs = {
+            FacilityUser.USERNAME_FIELD: username,
+            FACILITY_CREDENTIAL_NAME: dataset_id,
+        }
         client_cert = nc.certificate_signing_request(
             server_cert,
             client_scope,
             csr_scope_params,
-            userargs=username,
+            userargs=userargs,
             password=password,
         )
     else:
