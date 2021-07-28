@@ -55,7 +55,7 @@ class NetworkClient(object):
                     info = response.json()
                     self.info = {}
                     for key in device_info_keys.get(DEVICE_INFO_VERSION, []):
-                        self.info[key] = info.get(key)
+                        self.info[key] = info.get(key) or False
                     if self.info["application"] not in ["studio", "kolibri"]:
                         raise requests.RequestException(
                             "Server is not running Kolibri or Studio"
