@@ -15,10 +15,10 @@ Feature: Import individual users
 		Then I see *Device name*
 			And I see <My device's name>
 		When I click *Continue*
-		Then I see *Initialize device*
+		Then I see *Select a facility setup for this device*
 
-	Scenario: See available *Initialize device* page features
-		Given I see *Initialize device*
+	Scenario: See available *Select a facility setup for this device* page features
+		Given I see *Select a facility setup for this device*
 		Then I see the *Full device* section
 			And I see the radio options *Create a new facility* and *Import all data from an existing facility*
 			And I see the *Learn-only device* section
@@ -30,7 +30,7 @@ Feature: Import individual users
 		Then I see *Only features for learners will be available. Features for coaches and admins will not be available.*
 
 	Scenario: Import one user when there is only one facility in the network
-		Given I see *Initialize device*
+		Given I see *Select a facility setup for this device*
 		When I select *Import one or more user accounts from an existing facility*
 			And I click *Continue*
 		Then I see *Select network address*
