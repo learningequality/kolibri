@@ -19,7 +19,7 @@ def prune_empty_adhoc_groups():
 
 
 @version_upgrade(old_version="<0.15.0")
-def named_unnamed_adhoc_groups():
+def name_unnamed_adhoc_groups():
     """
     We started making adhoc groups for every lesson and quiz, even though they were not
     needed. This upgrade task cleans up those empty adhoc groups.
