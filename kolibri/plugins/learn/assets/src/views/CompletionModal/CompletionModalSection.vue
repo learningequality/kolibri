@@ -180,7 +180,7 @@
 
   .completion-modal-section {
     padding-bottom: 22px;
-    margin: 28px 0;
+    margin: 28px 0 0;
     font-size: 14px;
   }
 

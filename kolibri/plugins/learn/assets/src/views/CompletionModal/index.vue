@@ -100,20 +100,19 @@
               :title="$tr('helpfulResourcesTitle')"
               :description="$tr('helpfulResourcesDescription')"
             >
-              <KGrid>
+              <KGrid :style="{ marginTop: '6px' }">
                 <KGridItem
                   v-for="contentNode in recommendedContentNodes"
                   :key="contentNode.id"
                   :layout12="{ span: 6 }"
                   :layout8="{ span: 4 }"
                   :layout4="{ span: 4 }"
-                  :style="{ marginTop: '16px' } "
+                  :style="{ marginBottom: '24px' }"
                 >
                   <ResourceItem
                     :contentNode="contentNode"
                     :contentNodeRoute="genContentLink(contentNode.id, contentNode.is_leaf)"
                     :size="recommendedResourceItemSize"
-                    :style="{ marginBottom: '24px' }"
                   />
                 </KGridItem>
               </KGrid>
