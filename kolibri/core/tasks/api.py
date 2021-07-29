@@ -1248,6 +1248,7 @@ def prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs):
             dataset_id,
             network_connection,
             user_id=user_id,
+            facility_id=facility_id,
             noninteractive=True,
         )
     except (CommandError, HTTPError) as e:
