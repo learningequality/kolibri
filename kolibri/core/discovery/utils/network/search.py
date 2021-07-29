@@ -27,7 +27,12 @@ LOCAL_DOMAIN = "kolibri.local"
 TRUE = "TRUE"
 FALSE = "FALSE"
 
-ZEROCONF_STATE = {"zeroconf": None, "listener": None, "service": None}
+ZEROCONF_STATE = {
+    "zeroconf": None,
+    "listener": None,
+    "service": None,
+    "addresses": None,
+}
 
 
 def _id_from_name(name):
@@ -108,7 +113,8 @@ class KolibriZeroconfService(object):
             logging.error("Service is not registered!")
             return
 
-        ZEROCONF_STATE["zeroconf"].unregister_service(self.info)
+        if self.info.name.lower() in ZEROCONF_STATE["zeroconf"].services:
+            ZEROCONF_STATE["zeroconf"].unregister_service(self.info)
 
         self.info = None
 
@@ -268,6 +274,26 @@ def initialize_zeroconf_listener():
     ZEROCONF_STATE["zeroconf"].add_service_listener(
         SERVICE_TYPE, ZEROCONF_STATE["listener"]
     )
+    ZEROCONF_STATE["addresses"] = set(get_all_addresses())
+
+
+def reinitialize_zeroconf_if_network_has_changed():
+    if ZEROCONF_STATE["addresses"] == set(get_all_addresses()):
+        return
+    if ZEROCONF_STATE["listener"] is None:
+        initialize_zeroconf_listener()
+        return
+    logger.info(
+        "New addresses detected since zeroconf was initialized, re-initializing now"
+    )
+    if ZEROCONF_STATE["zeroconf"] is not None:
+        ZEROCONF_STATE["zeroconf"].close()
+    ZEROCONF_STATE["zeroconf"] = Zeroconf()
+    ZEROCONF_STATE["zeroconf"].add_service_listener(
+        SERVICE_TYPE, ZEROCONF_STATE["listener"]
+    )
+    ZEROCONF_STATE["addresses"] = set(get_all_addresses())
+    logger.info("Zeroconf has reinitialized")
 
 
 def get_peer_instances():
