@@ -16,3 +16,12 @@ def prune_empty_adhoc_groups():
     needed. This upgrade task cleans up those empty adhoc groups.
     """
     AdHocGroup.objects.filter(membership__isnull=True).delete()
+
+
+@version_upgrade(old_version="<0.15.0")
+def name_unnamed_adhoc_groups():
+    """
+    We started making adhoc groups for every lesson and quiz, even though they were not
+    needed. This upgrade task cleans up those empty adhoc groups.
+    """
+    AdHocGroup.objects.filter(name="").update(name="Ad hoc")
