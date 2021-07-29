@@ -12,7 +12,6 @@ const {
   parseAST,
   is$trs,
   isCreateTranslator,
-  objectToAst,
   extractContext,
   printAST,
 } = require('./astUtils');
@@ -57,8 +56,44 @@ function modifyTranslationObjectNode(node, namespace, definitions) {
 
   // Only definitions with context have been preserved to this point
   // so we must have some context to add
-  node.value = objectToAst(definition, node.value);
-
+  const contextValue = extractContext(definition['Context']);
+  let messageProperty;
+  if (node.value.type !== 'ObjectExpression') {
+    messageProperty = {
+      type: 'ObjectProperty',
+      key: {
+        type: 'Identifier',
+        name: 'message',
+      },
+      value: node.value,
+    };
+  } else {
+    messageProperty = node.value.properties.find(n => n.key.name === 'message');
+    const contextProperty = node.value.properties.find(n => n.key.name === 'context');
+    if (
+      contextProperty.value.type === 'StringLiteral' &&
+      contextProperty.value.value === contextValue
+    ) {
+      return false;
+    }
+  }
+  node.value = {
+    type: 'ObjectExpression',
+    properties: [
+      messageProperty,
+      {
+        type: 'ObjectProperty',
+        key: {
+          type: 'Identifier',
+          name: 'context',
+        },
+        value: {
+          type: 'StringLiteral',
+          value: contextValue,
+        },
+      },
+    ],
+  };
   return true;
 }
 

@@ -100,45 +100,6 @@ function extractContext(context) {
   return splitContext[splitContext.length - 1];
 }
 
-// Given a definition and the node it is being merged with, return an ObjectExpression that
-// includes context & string values - we use context from the definition but the string
-// from the node.
-// This ought to be assigned to the right-hand value of an ObjectProperty node's `value`
-// where the `key` on that ObjectProperty is the `Identifier` used for the defined
-// translation string.
-function objectToAst(def, nodeValue) {
-  let messageProperty;
-  if (nodeValue.type !== 'ObjectExpression') {
-    messageProperty = {
-      type: 'ObjectProperty',
-      key: {
-        type: 'Identifier',
-        name: 'message',
-      },
-      value: nodeValue,
-    };
-  } else {
-    messageProperty = nodeValue.properties.find(n => n.key.name === 'message');
-  }
-  return {
-    type: 'ObjectExpression',
-    properties: [
-      messageProperty,
-      {
-        type: 'ObjectProperty',
-        key: {
-          type: 'Identifier',
-          name: 'context',
-        },
-        value: {
-          type: 'StringLiteral',
-          value: extractContext(def['Context']),
-        },
-      },
-    ],
-  };
-}
-
 // Get the value we care about from a node that is type TemplateLiteral or StringLiteral
 function stringFromAnyLiteral(node) {
   if (['TemplateLiteral', 'StringLiteral'].includes(node.type)) {
@@ -634,7 +595,6 @@ module.exports = {
   printAST,
   is$trs,
   isCreateTranslator,
-  objectToAst,
   stringLiteralNode,
   templateLiteralNode,
   extractContext,
