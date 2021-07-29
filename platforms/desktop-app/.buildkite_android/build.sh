@@ -33,4 +33,4 @@ mv ./dist/android/*.apk ./dist
 # fi
 
 echo "--- Uploading artifact"
-# buildkite-agent artifact upload dist/*.apk
+buildkite-agent artifact upload dist/*.apk
