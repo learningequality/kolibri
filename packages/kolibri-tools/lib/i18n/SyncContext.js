@@ -168,7 +168,7 @@ function processJSFiles(files, definitions) {
     .filter(Boolean);
 }
 
-module.exports = function(dryRun, dump, pathInfo, ignore, localeDataFolder) {
+module.exports = function(pathInfo, ignore, localeDataFolder) {
   logging.info('Transferring context...');
 
   // An object for storing our updated files.
@@ -200,25 +200,10 @@ module.exports = function(dryRun, dump, pathInfo, ignore, localeDataFolder) {
     updatedFiles.push(...jsFilesToWrite);
   }
 
-  if (!dryRun) {
-    // Write the updated files
-    updatedFiles.forEach(fileObj => {
-      writeSourceToFile(fileObj.filePath, fileObj.newFile);
-    });
-  }
-
-  if (dump) {
-    const timestamp = Math.floor(Date.now() / 1000);
-    writeSourceToFile(
-      `updatedContextFiles-${timestamp}.txt`,
-      updatedFiles.reduce((acc, fileObj) => {
-        return acc + fileObj.filePath + '\n' + fileObj.newFile + '\n\n';
-      })
-    );
-    logging.info(
-      `--dump-extracted --> source files with updated context dumped to updatedContextFiles-${timestamp}.txt`
-    );
-  }
+  // Write the updated files
+  updatedFiles.forEach(fileObj => {
+    writeSourceToFile(fileObj.filePath, fileObj.newFile);
+  });
 
   logging.info('Context transfer has completed!');
 };

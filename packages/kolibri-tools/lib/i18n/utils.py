@@ -154,7 +154,7 @@ def read_config_file():
     if os.path.exists(config_file):
         config = configparser.ConfigParser()
         config.read(config_file)
-        if "i18n" in config:
-            for key in config["i18n"]:
-                output[key] = config["i18n"][key]
+        if "kolibri:i18n" in config:
+            for key in config["kolibri:i18n"]:
+                output[key] = config["kolibri:i18n"][key]
     return output

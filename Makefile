@@ -214,7 +214,7 @@ i18n-download-translations:
 	python packages/kolibri-tools/lib/i18n/crowdin.py download-translations ${branch}
 	yarn exec kolibri-tools i18n-code-gen -- --output-dir ./kolibri/core/assets/src/utils
 	$(MAKE) i18n-django-compilemessages
-	yarn exec kolibri-tools i18n-csv-to-json -- --pluginFile ./build_tools/build_plugins.txt
+	yarn exec kolibri-tools i18n-create-message-files -- --pluginFile ./build_tools/build_plugins.txt
 
 i18n-download-source-fonts:
 	python packages/kolibri-tools/lib/i18n/fonts.py download-source-fonts

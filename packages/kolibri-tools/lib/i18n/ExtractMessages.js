@@ -109,7 +109,7 @@ function toCSV(csvPath, namespace, messages) {
   return csvWriter.writeRecords(sortBy(csvData, 'identifier'));
 }
 
-module.exports = function(dryRun, dump, pathInfo, ignore, localeDataFolder) {
+module.exports = function(pathInfo, ignore, localeDataFolder) {
   // An object for storing our messages.
   const extractedMessages = {};
   pathInfo.forEach(pathData => {
@@ -117,32 +117,22 @@ module.exports = function(dryRun, dump, pathInfo, ignore, localeDataFolder) {
     extractedMessages[namespace] = getAllMessagesFromFilePath(pathData.moduleFilePath, ignore);
   });
 
-  if (!dryRun) {
-    const csvPath = path.join(localeDataFolder, 'CSV_FILES', 'en');
-    // Let's just get rid of the old files to limit room for issues w/ file system
-    clearCsvPath(csvPath);
+  const csvPath = path.join(localeDataFolder, 'CSV_FILES', 'en');
+  // Let's just get rid of the old files to limit room for issues w/ file system
+  clearCsvPath(csvPath);
 
-    // Now we go through each namespace and write a CSV for it
-    const PromisesToWriteCSVs = Object.keys(extractedMessages).map(namespace => {
-      return toCSV(csvPath, namespace, extractedMessages[namespace]);
-    });
-    Promise.all(PromisesToWriteCSVs).then(() =>
-      logging.info('Messages successfully written to CSV files.')
-    );
-  }
+  // Now we go through each namespace and write a CSV for it
+  const PromisesToWriteCSVs = Object.keys(extractedMessages).map(namespace => {
+    return toCSV(csvPath, namespace, extractedMessages[namespace]);
+  });
+  Promise.all(PromisesToWriteCSVs).then(() =>
+    logging.info('Messages successfully written to CSV files.')
+  );
 
   let messageCount = 0;
   Object.keys(extractedMessages).forEach(
     ns => (messageCount += Object.keys(extractedMessages[ns]).length)
   );
-
-  if (dump) {
-    const timestamp = Math.floor(Date.now() / 1000);
-    fs.writeFileSync(`extractedMessages-${timestamp}.json`, JSON.stringify(extractedMessages));
-    logging.info(
-      `--dump-extracted --> extractedMessages dumped to extractedMessages-${timestamp}.json`
-    );
-  }
 
   logging.info(`Successfully extracted ${messageCount} messages!`);
 };

@@ -379,7 +379,7 @@ program
     }
   });
 
-const localeDataFolderDefault = filePath(get(config, ['i18n', 'locale_data_folder']));
+const localeDataFolderDefault = filePath(get(config, ['kolibri:i18n', 'locale_data_folder']));
 
 // Path to the kolibri locale language_info file, which we use if we are running
 // from inside the Kolibri repository.
@@ -410,25 +410,8 @@ program
 
 // I18N Message Handling
 program
-  .command('i18n')
-  .arguments('<mode>', 'Mode to run in, options are: extract, transfer, profile')
-  .option(
-    '--dry-run',
-    `Will only run this file up to the point where we start extracting strings
-                        I found it useful for debugging early on - may be useful for future iterations
-                        such as for adding new projects or other root-level changes in the code base`,
-    false
-  )
-  .option(
-    '--dump-extracted',
-    `Will dump extractedMessages to a json file in the root where you ran this script.
-                              The file will be timestamped for uniqueness.`,
-    false
-  )
-  .option(
-    '-pf , --pluginFile <pluginFile>',
-    'Set custom file which lists plugins that should be built'
-  )
+  .command('i18n-extract-messages')
+  .option('--pluginFile <pluginFile>', 'Set custom file which lists plugins that should be built')
   .option(
     '-p, --plugins <plugins...>',
     'An explicit comma separated list of plugins that should be built',
@@ -458,19 +441,7 @@ program
     '--searchPath <searchPath>',
     'Set path to search for files containing strings to be extracted'
   )
-  .action(function(mode, options) {
-    const modes = {
-      EXTRACT: 'extract',
-      TRANSFER: 'transfer',
-    };
-    if (typeof mode !== 'string') {
-      cliLogging.error('Mode must be specified');
-      program.command('i18n').help();
-    }
-    if (!Object.values(modes).includes(mode)) {
-      cliLogging.error('Mode invalid value');
-      program.command('i18n').help();
-    }
+  .action(function(options) {
     const bundleData = readWebpackJson.readPythonPlugins({
       pluginFile: options.pluginFile,
       plugins: options.plugins,
@@ -495,42 +466,79 @@ program
       cliLogging.error(
         'Must specify either Kolibri plugins or search path, locale path, and namespace.'
       );
-      program.command('i18n').help();
+      program.command('i18n-extract-messages').help();
     }
-    if (mode === modes.EXTRACT) {
-      const extractMessages = require('./i18n/ExtractMessages');
-      extractMessages(
-        options.dryRun,
-        options.dumpExtracted,
-        pathInfo,
-        options.ignore,
-        options.localeDataFolder
-      );
-    } else if (mode === modes.TRANSFER) {
-      const syncContext = require('./i18n/SyncContext');
-      syncContext(
-        options.dryRun,
-        options.dumpExtracted,
-        pathInfo,
-        options.ignore,
-        options.localeDataFolder
-      );
-    }
+    const extractMessages = require('./i18n/ExtractMessages');
+    extractMessages(pathInfo, options.ignore, options.localeDataFolder);
   });
 
-// I18N CSV to JSON
 program
-  .command('i18n-csv-to-json')
+  .command('i18n-transfer-context')
+  .option('--pluginFile <pluginFile>', 'Set custom file which lists plugins that should be built')
   .option(
-    '--dry-run',
-    `Will only run this file up to the point where we start extracting strings
-                        I found it useful for debugging early on - may be useful for future iterations
-                        such as for adding new projects or other root-level changes in the code base`
+    '-p, --plugins <plugins...>',
+    'An explicit comma separated list of plugins that should be built',
+    list,
+    []
   )
   .option(
-    '-pf , --pluginFile <pluginFile>',
-    'Set custom file which lists plugins that should be built'
+    '--pluginPath <pluginPath>',
+    'A system path to the plugin or module that should be added to the Python path so that it can be imported during build time',
+    String,
+    ''
   )
+  .option(
+    '-i, --ignore <patterns...>',
+    'Ignore these comma separated patterns',
+    list,
+    ignoreDefaults
+  )
+  .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
+  .option(
+    '--localeDataFolder <localeDataFolder>',
+    'Set path to write locale files to',
+    filePath,
+    localeDataFolderDefault
+  )
+  .option(
+    '--searchPath <searchPath>',
+    'Set path to search for files containing strings to be extracted'
+  )
+  .action(function(options) {
+    const bundleData = readWebpackJson.readPythonPlugins({
+      pluginFile: options.pluginFile,
+      plugins: options.plugins,
+      pluginPath: options.pluginPath,
+    });
+    let pathInfo;
+    if (bundleData.length) {
+      pathInfo = bundleData.map(bundle => {
+        return {
+          moduleFilePath: bundle.plugin_path,
+          name: bundle.module_path,
+        };
+      });
+    } else if (options.namespace && options.localeDataFolder && options.searchPath) {
+      pathInfo = [
+        {
+          moduleFilePath: options.searchPath,
+          name: options.namespace,
+        },
+      ];
+    } else {
+      cliLogging.error(
+        'Must specify either Kolibri plugins or search path, locale path, and namespace.'
+      );
+      program.command('i18n-transfer-context').help();
+    }
+    const syncContext = require('./i18n/SyncContext');
+    syncContext(pathInfo, options.ignore, options.localeDataFolder);
+  });
+
+// I18N Create runtime message files
+program
+  .command('i18n-create-message-files')
+  .option('--pluginFile <pluginFile>', 'Set custom file which lists plugins that should be built')
   .option(
     '-p, --plugins <plugins...>',
     'An explicit comma separated list of plugins that should be built',
@@ -599,19 +607,16 @@ program
       cliLogging.error(
         'Must specify either Kolibri plugins or search path, locale path, and namespace.'
       );
-      program.command('i18n-csv-to-json').help();
+      program.command('i18n-create-message-files').help();
     }
     const csvToJSON = require('./i18n/csvToJSON');
-    csvToJSON(options.dryRun, pathInfo, options.ignore, options.langInfo, options.localeDataFolder);
+    csvToJSON(pathInfo, options.ignore, options.langInfo, options.localeDataFolder);
   });
 
-// I18N Stats
+// I18N Untranslated, used messages
 program
-  .command('i18n-stats')
-  .option(
-    '-pf , --pluginFile <pluginFile>',
-    'Set custom file which lists plugins that should be built'
-  )
+  .command('i18n-untranslated-messages')
+  .option('--pluginFile <pluginFile>', 'Set custom file which lists plugins that should be built')
   .option(
     '-p, --plugins <plugins...>',
     'An explicit comma separated list of plugins that should be built',
@@ -680,7 +685,7 @@ program
       cliLogging.error(
         'Must specify either Kolibri plugins or search path, locale path, and namespace.'
       );
-      program.command('i18n-stats').help();
+      program.command('i18n-untranslated-messages').help();
     }
     const untranslatedMessages = require('./i18n/untranslatedMessages');
     untranslatedMessages(pathInfo, options.ignore, options.langInfo, options.localeDataFolder);
@@ -689,10 +694,7 @@ program
 // I18N Profile
 program
   .command('i18n-profile')
-  .option(
-    '-pf , --pluginFile <pluginFile>',
-    'Set custom file which lists plugins that should be built'
-  )
+  .option('--pluginFile <pluginFile>', 'Set custom file which lists plugins that should be built')
   .option(
     '-p, --plugins <plugins...>',
     'An explicit comma separated list of plugins that should be built',
