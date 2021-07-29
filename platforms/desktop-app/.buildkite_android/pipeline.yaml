@@ -4,13 +4,13 @@ steps:
     # Only run triggered by the Kolibri pipeline and it's not a release
     if: build.env("LE_KOLIBRI_RELEASE") == "false" || build.env("LE_TRIGGERED_FROM_KOLIBRI_VERSION_TAG") == ""
 
-  - label: "Build Dev Android APK (32bit) :tada:"
+  - label: "Build Android APK (32bit) :tada:"
     command: ".buildkite_android/build.sh"
     env:
-      KOLIBRI_ANDROID_BUILD_MODE: "dev"
+      KOLIBRI_ANDROID_BUILD_MODE: "release"
 
-  - label: "Build Dev Android APK (64bit) :tada:"
+  - label: "Build Android APK (64bit) :tada:"
     command: ".buildkite_android/build.sh"
     env:
-      KOLIBRI_ANDROID_BUILD_MODE: "dev"
+      KOLIBRI_ANDROID_BUILD_MODE: "release"
       ARCH: "64bit"
