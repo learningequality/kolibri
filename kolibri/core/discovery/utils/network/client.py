@@ -3,7 +3,6 @@ import logging
 import requests
 from six.moves.urllib.parse import urljoin
 from six.moves.urllib.parse import urlparse
-from six.moves.urllib.parse import urlunparse
 
 from . import errors
 from .urls import get_normalized_url_variations
@@ -68,8 +67,7 @@ class NetworkClient(object):
                         )
                     logger.info("Success! We connected to: {}".format(response.url))
 
-                    # return (scheme, netloc) of url
-                    return urlunparse(parsed_url[:2])
+                    return "{}://{}".format(parsed_url.scheme, parsed_url.netloc)
             except (requests.RequestException) as e:
                 logger.info("Unable to connect: {}".format(e))
             except ValueError:

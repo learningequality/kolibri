@@ -3,11 +3,10 @@ Implements custom auth backends as described in the Django docs, for our custom 
 The appropriate classes should be listed in the AUTHENTICATION_BACKENDS. Note that authentication
 backends are checked in the order they're listed.
 """
-from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 
 
-FACILITY_CREDENTIAL_NAME = "facility"
+FACILITY_CREDENTIAL_KEY = "facility"
 
 
 class FacilityUserBackend(object):
@@ -26,11 +25,10 @@ class FacilityUserBackend(object):
         :keyword facility: a Facility object or facility ID
         :return: A FacilityUser instance if successful, or None if authentication failed.
         """
-        facility = kwargs.get(FACILITY_CREDENTIAL_NAME, None)
         users = FacilityUser.objects.filter(username__iexact=username)
+        facility = kwargs.get(FACILITY_CREDENTIAL_KEY, None)
         if facility:
-            facility_id = facility.pk if isinstance(facility, Facility) else facility
-            users = users.filter(facility_id=facility_id)
+            users = users.filter(facility=facility)
         for user in users:
             if user.check_password(password):
                 return user

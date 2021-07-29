@@ -5,9 +5,11 @@ import os
 import unittest
 import uuid
 
+from django.core.management import call_command
 from django.test import TestCase
 from django.utils import timezone
 from morango.models import InstanceIDModel
+from morango.models import ScopeDefinition
 from morango.models import Store
 from morango.models import syncable_models
 from morango.sync.controller import MorangoProfileController
@@ -22,6 +24,7 @@ from ..models import Membership
 from ..models import Role
 from .helpers import DUMMY_PASSWORD
 from .sync_utils import multiple_kolibri_servers
+from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
@@ -64,6 +67,52 @@ class DateTimeTZFieldTestCase(TestCase):
             self.controller.deserialize_from_store()
         except AttributeError as e:
             self.fail(e.message)
+
+
+@unittest.skipIf(
+    not os.environ.get("INTEGRATION_TEST"),
+    "This test will only be run during integration testing.",
+)
+class CertificateAuthenticationTestCase(TestCase):
+    @multiple_kolibri_servers(1)
+    def test_learner_passwordless_authentication(self, servers):
+        # START: setup server
+        server = servers[0]
+        server.manage("loaddata", "scopedefinitions")
+        server.manage("loaddata", "content_test")
+        server.manage("generateuserdata", "--no-onboarding", "--num-content-items", "1")
+
+        facility = Facility.objects.using(server.db_alias).first()
+        facility.dataset.learner_can_login_with_no_password = True
+        facility.dataset.learner_can_edit_password = False
+        facility.dataset.save(using=server.db_alias)
+        learner = FacilityUser(
+            username=uuid.uuid4().hex[:30], password=DUMMY_PASSWORD, facility=facility
+        )
+        learner.save(using=server.db_alias)
+        # END: setup server
+
+        # START: local setup
+        if not ScopeDefinition.objects.filter():
+            call_command("loaddata", "scopedefinitions")
+
+        controller = MorangoProfileController(PROFILE_FACILITY_DATA)
+        network_connection = controller.create_network_connection(server.baseurl)
+
+        # if it's not working, this will throw:
+        #   requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url
+        client_cert, server_cert, username = get_client_and_server_certs(
+            learner.username,
+            "NOT_THE_DUMMY_PASSWORD",
+            facility.dataset_id,
+            network_connection,
+            user_id=learner.pk,
+            facility_id=facility.id,
+            noninteractive=True,
+        )
+        self.assertIsNotNone(client_cert)
+        self.assertIsNotNone(server_cert)
+        self.assertIsNotNone(username)
 
 
 @unittest.skipIf(

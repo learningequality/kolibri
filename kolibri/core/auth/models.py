@@ -171,7 +171,7 @@ class FacilityDataset(FacilityDataSyncableModel):
         if self.learner_can_login_with_no_password and self.learner_can_edit_password:
             raise IncompatibleDeviceSettingError(
                 "Device Settings [learner_can_login_with_no_password={}] & [learner_can_edit_password={}] "
-                "values incompatible togeather.".format(
+                "values incompatible together.".format(
                     self.learner_can_login_with_no_password,
                     self.learner_can_edit_password,
                 )
