@@ -134,21 +134,58 @@
       },
     },
     $trs: {
-      addressDesc:
-        "The network address can be an IP and port like '192.168.0.100:8080' or a URL like 'example.com':",
-      addressLabel: 'Full network address',
-      addressPlaceholder: 'e.g. 192.168.0.100:8080',
-      errorCouldNotConnect: 'Could not connect to this network address',
-      errorInvalidAddress: 'Please enter a valid IP address, URL, or hostname',
-      header: 'New address',
-      nameDesc: 'Choose a name for this address so you can remember it later:',
+      addressDesc: {
+        message:
+          "The network address can be an IP and port like '192.168.0.100:8080' or a URL like 'example.com':",
+        context:
+          'This text appears as a helper for admins in the Device > Facilities section so they know what the format of the network address should be like.\n\nUsers can import resources from a different device running Kolibri in their same local network, or from a Kolibri server hosted outside their LAN, provided they know its exact IP address.',
+      },
+      addressLabel: {
+        message: 'Full network address',
+        context:
+          'This is the field where an admin enters the network address of a different device running Kolibri. This can be either in their same local network, or from a Kolibri server hosted outside their LAN.\n\nThe admin adds this network address in the Device > Facilities section.',
+      },
+      addressPlaceholder: {
+        message: 'e.g. 192.168.0.100:8080',
+        context: 'Example of a network address.',
+      },
+      errorCouldNotConnect: {
+        message: 'Could not connect to this network address',
+        context:
+          "This is an error message that an admin will see when Kolibri can't connect to another network device when trying to import resources.",
+      },
+      errorInvalidAddress: {
+        message: 'Please enter a valid IP address, URL, or hostname',
+        context:
+          'This is an error validation message that an admin will see when they do not enter a valid network address.',
+      },
+      header: {
+        message: 'New address',
+        context:
+          'The title of the section that an admin accesses when they select the "Add new address" link in the Device > Facilities section.\n\nThey use this screen to add a new network address.',
+      },
+      nameDesc: {
+        message: 'Choose a name for this address so you can remember it later:',
+        context:
+          'When an admin adds a new network address they can give it a name. This is a helper text to remind them to choose a name for the address.',
+      },
       nameLabel: {
         message: 'Name',
         context: "\nThis should be just 'Name', not 'Network name'",
       },
-      namePlaceholder: 'e.g. House network',
-      submitButtonLabel: 'Add',
-      tryingToConnect: 'Trying to connect to server…',
+      namePlaceholder: {
+        message: 'e.g. House network',
+        context: 'Example of a network name.',
+      },
+      submitButtonLabel: {
+        message: 'Add',
+        context: 'Text for button used to add a new network address.',
+      },
+      tryingToConnect: {
+        message: 'Trying to connect to server…',
+        context:
+          'Progress message an admin sees when Kolibri is attempting to connect to a network address.',
+      },
     },
   };
 

@@ -193,7 +193,11 @@
         context:
           'Column header for table of lessons which will include a toggle switch the user can use to set the visibility status of a lesson.',
       },
-      printLabel: '{className} Lessons',
+      printLabel: {
+        message: '{className} Lessons',
+        context:
+          "Title that displays on a printed copy of the 'Reports' > 'Lessons' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
+      },
     },
   };
 

@@ -54,12 +54,24 @@
       },
     },
     $trs: {
-      titleMultipleResources: 'Delete resources',
-      titleSingleResource: 'Delete resource',
-      confirmationQuestionOneResource:
-        'Are you sure you want to delete this resource from your device?',
-      confirmationQuestionMultipleResources:
-        'Are you sure you want to delete these resources from your device?',
+      titleMultipleResources: {
+        message: 'Delete resources',
+        context:
+          'Title of window that displays when user deletes multiple learning resources from a channel.',
+      },
+      titleSingleResource: {
+        message: 'Delete resource',
+        context:
+          'Title of window that displays when user deletes a single learning resource from a channel.',
+      },
+      confirmationQuestionOneResource: {
+        message: 'Are you sure you want to delete this resource from your device?',
+        context: 'Confirmation of single resource deletion.',
+      },
+      confirmationQuestionMultipleResources: {
+        message: 'Are you sure you want to delete these resources from your device?',
+        context: 'Confirmation of multiple resource deletion.',
+      },
       deleteEverywhereLabel: {
         message: 'Also delete any copies found in other locations and channels',
         context:

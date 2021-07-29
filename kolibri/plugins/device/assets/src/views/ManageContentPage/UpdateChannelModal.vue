@@ -41,10 +41,20 @@
       },
     },
     $trs: {
-      title: 'Update channel',
-      updateChannelExplanation:
-        'A channel you selected for import will be automatically updated to the latest version. Do you wish to continue?',
-      updateChannelExplanationWithName: `Are you sure you want to update '{channelName}' to version {versionNumber}`,
+      title: {
+        message: 'Update channel',
+        context:
+          'Public channels on Kolibri Studio are periodically updated from their original sources. Private and unlisted channels on a local Kolibri device may also have changed since they were first imported. This section is where the user would update these channels.',
+      },
+      updateChannelExplanation: {
+        message:
+          'A channel you selected for import will be automatically updated to the latest version. Do you wish to continue?',
+        context: 'Explanation message when a user updates a channel to a new version.',
+      },
+      updateChannelExplanationWithName: {
+        message: `Are you sure you want to update '{channelName}' to version {versionNumber}`,
+        context: 'Confirmation message before an admin updates a channel to a new version.',
+      },
     },
   };
 

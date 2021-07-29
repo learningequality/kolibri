@@ -56,7 +56,11 @@
     },
     $trs: {
       yourClassesHeader: 'Your classes',
-      noClasses: 'You are not enrolled in any classes',
+      noClasses: {
+        message: 'You are not enrolled in any classes',
+        context:
+          'Message that a learner sees in the Learn > CLASSES section if they are not enrolled in any classes.',
+      },
     },
   };
 

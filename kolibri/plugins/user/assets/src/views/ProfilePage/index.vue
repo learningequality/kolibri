@@ -227,16 +227,50 @@
       },
     },
     $trs: {
-      detailsHeader: 'Details',
-      editAction: 'Edit',
-      isSuperuser: 'Super admin permissions ',
-      manageContent: 'Manage content',
-      manageDevicePermissions: 'Manage device permissions',
-      points: 'Points',
-      limitedPermissions: 'Limited permissions',
-      youCan: 'You can:',
-      changePasswordPrompt: 'Change password',
-      documentTitle: 'User Profile',
+      detailsHeader: {
+        message: 'Details',
+        context:
+          'Title for the page which indicates further information about the user such as the number of points they have, or their user type, for example.',
+      },
+      editAction: {
+        message: 'Edit',
+        context: 'Button which allows the user to modify some information on their profile.',
+      },
+      isSuperuser: {
+        message: 'Super admin permissions ',
+        context:
+          'A super admin is an account type that can manage the device. Super admin accounts also have permission to do everything that admins, coaches, and learners can do.',
+      },
+      manageContent: {
+        message: 'Manage content',
+        context: 'A type of device permission.',
+      },
+      manageDevicePermissions: {
+        message: 'Manage device permissions',
+        context: 'A type of device permission.',
+      },
+      points: {
+        message: 'Points',
+        context:
+          'Points are an abstract reward given to learners as they make progress through resources.',
+      },
+      limitedPermissions: {
+        message: 'Limited permissions',
+        context: 'A type of device permission.',
+      },
+      youCan: {
+        message: 'You can:',
+        context: 'Descriptive text on user profile page. Indicates the permissions a user has.',
+      },
+      changePasswordPrompt: {
+        message: 'Change password',
+        context:
+          'Users have the option to change their password if, for example, they have forgotten it.\n\nThis is the text that appears on the change password prompt.',
+      },
+      documentTitle: {
+        message: 'User Profile',
+        context: 'Title of the user profile page.',
+      },
     },
   };
 

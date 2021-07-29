@@ -76,11 +76,13 @@
       descriptionParagraph1: {
         message:
           'A facility represents the location where you are installing Kolibri, such as a school, training center, or a home.',
+
         context: 'First paragraph of description',
       },
       descriptionParagraph2: {
         message:
           'You can create a new facility or import an existing facility from another device on your network',
+
         context: 'Second paragraph of description',
       },
       createNewFacilityAction: {

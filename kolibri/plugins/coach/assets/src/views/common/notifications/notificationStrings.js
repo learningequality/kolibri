@@ -17,21 +17,54 @@ const { COMPLETED, STARTED, HELP_NEEDED } = NotificationEvents;
 
 const nStrings = createTranslator('NotificationStrings', {
   // started
-  individualStarted: `{learnerName} started '{itemName}'`,
-  multipleStarted: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} started '{itemName}'`,
-  wholeClassStarted: `Everyone started '{itemName}'`,
-  wholeGroupStarted: `Everyone in '{groupName}' started '{itemName}'`,
-  everyoneStarted: `Everyone started '{itemName}'`,
+  individualStarted: {
+    message: `{learnerName} started '{itemName}'`,
+    context: 'Indicates that a learner has started a lesson.',
+  },
+  multipleStarted: {
+    message: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} started '{itemName}'`,
+    context: 'Indicates the learner name and how many other learners started a specific exercise.',
+  },
+  wholeClassStarted: {
+    message: `Everyone started '{itemName}'`,
+    context: 'Indicates that every learner in the class started an activity.',
+  },
+  wholeGroupStarted: {
+    message: `Everyone in '{groupName}' started '{itemName}'`,
+    context: 'Indicates that all the learners in a specific group started a lesson.',
+  },
+  everyoneStarted: {
+    message: `Everyone started '{itemName}'`,
+    context: 'Indicates that every learner in the group or class started an activity.',
+  },
 
   // completed
-  individualCompleted: `{learnerName} completed '{itemName}'`,
-  multipleCompleted: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} completed '{itemName}'`,
-  wholeClassCompleted: `Everyone completed '{itemName}'`,
-  wholeGroupCompleted: `Everyone in '{groupName}' completed '{itemName}'`,
-  everyoneCompleted: `Everyone completed '{itemName}'`,
+  individualCompleted: {
+    message: `{learnerName} completed '{itemName}'`,
+    context: 'Indicates that a learner has completed an exercise.',
+  },
+  multipleCompleted: {
+    message: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} completed '{itemName}'`,
+    context: 'Indicates a learner and one other or others have completed an exercise.',
+  },
+  wholeClassCompleted: {
+    message: `Everyone completed '{itemName}'`,
+    context: 'Indicates that every learner in the class completed an activity.',
+  },
+  wholeGroupCompleted: {
+    message: `Everyone in '{groupName}' completed '{itemName}'`,
+    context: 'Indicates that all the learners in a specific group completed a lesson.',
+  },
+  everyoneCompleted: {
+    message: `Everyone completed '{itemName}'`,
+    context: 'Indicates that every learner in the group or class completed an activity.',
+  },
 
   // needs help
-  individualNeedsHelp: `{learnerName} needs help with '{itemName}'`,
+  individualNeedsHelp: {
+    message: `{learnerName} needs help with '{itemName}'`,
+    context: 'Indicates that a learner needs help with a specific lesson.',
+  },
   multipleNeedHelp: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} need help with '{itemName}'`,
 });
 

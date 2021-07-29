@@ -88,7 +88,11 @@
       },
     },
     $trs: {
-      backToFacilitiesLabel: 'Back to facilities',
+      backToFacilitiesLabel: {
+        message: 'Back to facilities',
+        context:
+          'Link to take user back to the Device > Facilities page where they can see the list of facilities.',
+      },
     },
   };
 

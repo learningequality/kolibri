@@ -43,8 +43,16 @@
     },
     mixins: [commonCoach, nStringsMixin],
     $trs: {
-      back: 'Class home',
-      noActivityLabel: 'No activity in your class',
+      back: {
+        message: 'Class home',
+        context:
+          "Tab name of the main 'Class' section where the coach can see all the information relating to a specific class.\n",
+      },
+      noActivityLabel: {
+        message: 'No activity in your class',
+        context:
+          "Message displayed in the 'Class activity' section when there has been no activity in the class made by learners.",
+      },
     },
   };
 

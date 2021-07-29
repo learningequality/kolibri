@@ -89,10 +89,21 @@
       },
     },
     $trs: {
-      searchForUser: 'Search for a user',
+      searchForUser: {
+        message: 'Search for a user',
+        context: 'Descriptive text which appears in the search field on the Facility > Users page.',
+      },
       // TODO clarify empty state messages after string freeze
-      noUsersMatch: 'No users match the filter: "{filterText}"',
-      allUsersAlready: 'All users are already enrolled in this class',
+      noUsersMatch: {
+        message: 'No users match the filter: "{filterText}"',
+        context:
+          'Message that displays on the Facility > Users page when a search for a user produces no results.',
+      },
+      allUsersAlready: {
+        message: 'All users are already enrolled in this class',
+        context:
+          'If all the users in a facility are already enrolled in a class, no more can be added.',
+      },
     },
   };
 

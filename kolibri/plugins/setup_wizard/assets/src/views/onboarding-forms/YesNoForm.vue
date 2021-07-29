@@ -93,8 +93,15 @@
       },
     },
     $trs: {
-      details: 'You can change this in your facility settings later',
-      yesOptionLabel: 'Yes',
+      details: {
+        message: 'You can change this in your facility settings later',
+        context:
+          "Note to indicate that admins can change all the settings later after they've done the initial set up.",
+      },
+      yesOptionLabel: {
+        message: 'Yes',
+        context: 'Option label.',
+      },
     },
   };
 

@@ -221,9 +221,21 @@
       },
     },
     $trs: {
-      label: 'Transcript',
-      transcriptBeginning: 'Beginning of transcript',
-      transcriptEnd: 'End of transcript',
+      label: {
+        message: 'Transcript',
+        context:
+          'Refers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
+      },
+      transcriptBeginning: {
+        message: 'Beginning of transcript',
+        context:
+          "Text which displays within the 'Transcript' option to mark the start of the transcript content.",
+      },
+      transcriptEnd: {
+        message: 'End of transcript',
+        context:
+          "Text which displays within the 'Transcript' option to mark the end of the transcript content.",
+      },
     },
   };
 

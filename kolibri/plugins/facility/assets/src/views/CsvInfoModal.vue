@@ -152,23 +152,70 @@
       },
     },
     $trs: {
-      csvDetails: 'CSV details',
+      csvDetails: {
+        message: 'CSV details',
+        context:
+          "Title of the spreadsheet format reference window.\n\nCSV is a spreadsheet format that stands for 'Comma-separated values'. More here: https://en.wikipedia.org/wiki/Comma-separated_values",
+      },
       sectionDescription:
         'A CSV spreadsheet should use the first row as a header, and contain the following columns:',
-      close: 'Close',
-      required: 'Required',
-      optional: 'Optional',
-      uuidInfo:
-        'An ID used by Kolibri to uniquely identify a user. Leave it blank to create a new user',
-      usernameInfo: 'Maximum 125 characters. Can contain letters, numbers and underscores',
-      passwordInfo: 'Maximum 125 characters. To leave unchanged, use an asterisk:',
-      fullNameInfo: 'Maximum 125 characters',
-      possibleValues: 'Possible values:',
-      identifierInfo:
-        'Any identifying string, such as a student ID or email address. Maximum 64 characters',
-      yearInfo: 'A four-digit year, greater than 1900',
-      listClassesEnrolled: 'Classes to enroll the user in as a learner:',
-      listClassesEnrolledL1: 'Can be any type of user',
+      close: {
+        message: 'Close',
+        context: 'Button to close the spreadsheet format reference window.',
+      },
+      required: {
+        message: 'Required',
+        context: "Columns in the CSV file can be either 'optional' or 'required'.\n",
+      },
+      optional: {
+        message: 'Optional',
+        context: "Columns in the CSV file can be either 'optional' or 'required'.",
+      },
+      uuidInfo: {
+        message:
+          'An ID used by Kolibri to uniquely identify a user. Leave it blank to create a new user',
+        context:
+          "Refers to values in the 'Database ID' column of the CSV (comma separated values) file used to import and export users.\n",
+      },
+      usernameInfo: {
+        message: 'Maximum 125 characters. Can contain letters, numbers and underscores',
+        context:
+          "Refers to values in the 'Username' column of the CSV (comma separated values) file used to import and export users.",
+      },
+      passwordInfo: {
+        message: 'Maximum 125 characters. To leave unchanged, use an asterisk:',
+        context:
+          "Refers to values in the 'Password' column of the CSV (comma separated values) file used to import and export users.\n",
+      },
+      fullNameInfo: {
+        message: 'Maximum 125 characters',
+        context: 'Description on the spreadsheet format reference window.',
+      },
+      possibleValues: {
+        message: 'Possible values:',
+        context:
+          'Refers to values the CSV (comma separated values) file used to import and export users.\n',
+      },
+      identifierInfo: {
+        message:
+          'Any identifying string, such as a student ID or email address. Maximum 64 characters',
+        context: "Description of the 'Identifier' option.",
+      },
+      yearInfo: {
+        message: 'A four-digit year, greater than 1900',
+        context:
+          "Refers to values in the 'Birth year' column of the CSV (comma separated values) file used to import and export users.\n",
+      },
+      listClassesEnrolled: {
+        message: 'Classes to enroll the user in as a learner:',
+        context:
+          "Refers to values in the 'Learner enrollment' column of the CSV (comma separated values) file used to import and export users.\n",
+      },
+      listClassesEnrolledL1: {
+        message: 'Can be any type of user',
+        context:
+          "Refers to values in the 'Learner enrollment' column of the CSV (comma separated values) file used to import and export users.\n",
+      },
       listClassesEnrolledL2: {
         message: 'Write the class names separated by commas',
         context:
@@ -177,6 +224,7 @@
       listClassesEnrolledL3: {
         message:
           'If an existing class does not match by name, a new class with that name will be created',
+
         context:
           'Refers to values in a column of the CSV (comma separated values) file used to import users. When a CSV file contains a class name that is not present in the database, import command will create it.',
       },
@@ -190,25 +238,80 @@
         context:
           'Refers to values in a column of the CSV (comma separated values) file used to import and export users.',
       },
-      listClassesAssignedL2: 'List of class names, separated by commas',
+      listClassesAssignedL2: {
+        message: 'List of class names, separated by commas',
+        context:
+          "Refers to values in the 'Coach assignment' column of the CSV (comma separated values) file used to import and export users.\n",
+      },
       listClassesAssignedL3: {
         message: 'If an existing class does not match by name, it will be created',
         context:
           'Explanation that when a CSV file is used to import users and classes they are assigned to, and the CSV file contains a class name that is not already present in a facility, a new class with the name listed in the CSV file will be created.  ',
       },
-      columnNameHeader: 'Column',
-      columnIDHeader: 'Identifier',
-      columnInfoHeader: 'Information',
-      uuid: 'Database ID',
-      username: 'Username',
-      password: 'Password',
-      fullName: 'Full name',
-      userType: 'User type',
-      identifier: 'Identifier',
-      birthYear: 'Birth year',
-      gender: 'Gender',
-      enrolled: 'Learner enrollment',
-      assigned: 'Coach assignment',
+      columnNameHeader: {
+        message: 'Column',
+        context:
+          'Refers to the title of a type of data on the spreadsheet format reference window.\n',
+      },
+      columnIDHeader: {
+        message: 'Identifier',
+        context:
+          "An identifier for a type of data. For example, FULL_NAME is the identifier for 'Full name'.\n\nThis can be used on a spreadsheet.",
+      },
+      columnInfoHeader: {
+        message: 'Information',
+        context: 'Title of a column on the spreadsheet format reference window.',
+      },
+      uuid: {
+        message: 'Database ID',
+        context:
+          "Optional column to be used on a spreadsheet.\n\nUsers see this information by clicking on the 'View spreadsheet format reference' link.\n\nA database ID is an ID used by Kolibri to uniquely identify a user.",
+      },
+      username: {
+        message: 'Username',
+        context:
+          "Required column to be used on a spreadsheet.\n\nUsers see this information by clicking on the 'View spreadsheet format reference' link.",
+      },
+      password: {
+        message: 'Password',
+        context:
+          "Required column to be used on a spreadsheet.\n\nUsers see this information by clicking on the 'View spreadsheet format reference' link.",
+      },
+      fullName: {
+        message: 'Full name',
+        context:
+          "Required column for an imported spreadsheet.\n\nUsers see this information by clicking on the 'View spreadsheet format reference' link.",
+      },
+      userType: {
+        message: 'User type',
+        context:
+          "Required column to be used on a spreadsheet.\n\nUsers see this information by clicking on the 'View spreadsheet format reference' link.",
+      },
+      identifier: {
+        message: 'Identifier',
+        context:
+          "Optional column that can be used on an imported spreadsheet.\n\nUsers see this information by clicking on the 'View spreadsheet format reference' link.",
+      },
+      birthYear: {
+        message: 'Birth year',
+        context:
+          "Optional column that can be used on an imported spreadsheet.\n\nUsers see this information by clicking on the 'View spreadsheet format reference' link.",
+      },
+      gender: {
+        message: 'Gender',
+        context:
+          "Optional column that can be used on an imported spreadsheet.\n\nUsers see this information by clicking on the 'View spreadsheet format reference' link.",
+      },
+      enrolled: {
+        message: 'Learner enrollment',
+        context:
+          "Optional column that can be used on an imported spreadsheet.\n\nUsers see this information by clicking on the 'View spreadsheet format reference' link.",
+      },
+      assigned: {
+        message: 'Coach assignment',
+        context:
+          "Optional column that can be used on an imported spreadsheet.\n\nUsers see this information by clicking on the 'View spreadsheet format reference' link.",
+      },
       /* eslint-disable kolibri/vue-no-unused-translations */
       // stub out some extra strings
       downloadSample: 'Download a sample CSV file',

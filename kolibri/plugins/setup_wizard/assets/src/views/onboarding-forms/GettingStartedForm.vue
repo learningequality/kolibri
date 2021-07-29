@@ -77,6 +77,7 @@
       quickStartDescription: {
         message:
           'For homeschooling, supplementary individual learning, and other self-directed use',
+
         context: 'Option description text',
       },
       advancedSetupLabel: {
@@ -86,6 +87,7 @@
       advancedSetupDescription: {
         message:
           'For schools, educational programs, organizations, or other group learning settings that will share the use of Kolibri',
+
         context: 'Option description text',
       },
     },

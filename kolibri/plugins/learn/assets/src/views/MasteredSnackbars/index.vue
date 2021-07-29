@@ -169,9 +169,20 @@
       }
     },
     $trs: {
-      plusPoints: '+ { maxPoints, number } Points',
-      next: 'Next:',
-      signIn: 'Sign in or create an account to begin earning points',
+      plusPoints: {
+        message: '+ { maxPoints, number } Points',
+        context:
+          'Indicates the number of points earned for completing a task. You should only translate the word "points".',
+      },
+      next: {
+        message: 'Next:',
+        context: 'Indicates the name of the next resource in the lesson.',
+      },
+      signIn: {
+        message: 'Sign in or create an account to begin earning points',
+        context:
+          'Notification to learner indicating that they need to sign in or sign up to Kolibri in order to earn points from completing exercises.',
+      },
     },
   };
 

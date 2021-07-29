@@ -305,8 +305,15 @@
       },
     },
     $trs: {
-      versionIsAvailable: `Version {nextVersion} of '{channelName}' is available`,
-      youAreCurrentlyOnVersion: 'You are currently on version {currentVersion}',
+      versionIsAvailable: {
+        message: `Version {nextVersion} of '{channelName}' is available`,
+        context:
+          'When a new version of a channel is available, users can download it from this page.',
+      },
+      youAreCurrentlyOnVersion: {
+        message: 'You are currently on version {currentVersion}',
+        context: 'Indicates to the user which version of the channel they are currently using.',
+      },
       versionChangesHeader: {
         message: 'Changes if you choose to update from version {oldVersion} to {newVersion}:',
         context:
@@ -325,18 +332,30 @@
       resourcesToBeDeletedTooltip: {
         message:
           'When you update this channel, some resources will be deleted. This may affect lessons or quizzes that are using the deleted resources',
+
         context: 'Warning about the effects of updating the channel',
       },
       resourcesToBeUpdated: {
         message: 'Resources to be updated',
         context: 'Label associated with the number of resources would be updated',
       },
-      updateChannelAction: 'Update channel',
-      versionNumberHeader: 'Version {version}',
-      updateConfirmationQuestion: `Are you sure you want to update '{channelName}' to version {version}?`,
+      updateChannelAction: {
+        message: 'Update channel',
+        context: "Title of the button on the 'Update channel' page.",
+      },
+      versionNumberHeader: {
+        message: 'Version {version}',
+        context: 'Indicates the version number of a new version of the specified channel.',
+      },
+      updateConfirmationQuestion: {
+        message: `Are you sure you want to update '{channelName}' to version {version}?`,
+        context:
+          "Confirmation message that shows if user wants to complete the update channel action. For example:\n\n'Are you sure you want to update 'CREE' to version5?'",
+      },
       channelIsIncomplete: {
         message:
           "This copy of '{channel}' is incomplete. It contains {resourcesInChannel} of {totalResources} resources from the original channel",
+
         context:
           'Warning indicating that the source does not have all content from the original channel',
       },

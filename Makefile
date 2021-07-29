@@ -1,6 +1,7 @@
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
 .PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-translations i18n-download-glossary i18n-upload-glossary docker-whl docker-demoserver docker-devserver docker-envlist
 
+
 help:
 	@echo "Usage:"
 	@echo ""
@@ -208,15 +209,12 @@ i18n-pretranslate:
 i18n-pretranslate-approve-all:
 	python packages/kolibri-tools/lib/i18n/crowdin.py pretranslate ${branch} --approve-all
 
-i18n-convert:
-	python packages/kolibri-tools/lib/i18n/crowdin.py convert-files
-
 i18n-download-translations:
 	python packages/kolibri-tools/lib/i18n/crowdin.py rebuild-translations ${branch}
 	python packages/kolibri-tools/lib/i18n/crowdin.py download-translations ${branch}
-	node packages/kolibri-tools/lib/i18n/intl_code_gen.js
+	yarn exec kolibri-tools i18n-code-gen -- --output-dir ./kolibri/core/assets/src/utils
 	$(MAKE) i18n-django-compilemessages
-	python packages/kolibri-tools/lib/i18n/crowdin.py convert-files
+	yarn exec kolibri-tools i18n-create-message-files -- --pluginFile ./build_tools/build_plugins.txt
 
 i18n-download-source-fonts:
 	python packages/kolibri-tools/lib/i18n/fonts.py download-source-fonts

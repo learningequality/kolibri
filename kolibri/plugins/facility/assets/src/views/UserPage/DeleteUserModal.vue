@@ -54,9 +54,19 @@
       },
     },
     $trs: {
-      deleteUser: 'Delete user',
-      confirmation: "Are you sure you want to delete the user '{ username }'?",
-      warning: 'All data and logs for this user will be lost.',
+      deleteUser: {
+        message: 'Delete user',
+        context:
+          'Title for the window where a user can confirm if they want to delete another user.',
+      },
+      confirmation: {
+        message: "Are you sure you want to delete the user '{ username }'?",
+        context: "Conformation message that displays in the 'Delete user' window.",
+      },
+      warning: {
+        message: 'All data and logs for this user will be lost.',
+        context: "Warning information on 'Delete user' window.",
+      },
     },
   };
 

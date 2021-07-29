@@ -190,16 +190,47 @@
       },
     },
     $trs: {
-      pageHeader: "Enroll learners into '{className}'",
-      searchForUser: 'Search for a user',
-      userTableLabel: 'User List',
-      noUsersMatch: 'No users match',
-      previousResults: 'Previous results',
-      nextResults: 'Next results',
-      allUsersAlready: 'All users are already enrolled in this class',
-      pagination:
-        '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
-      learnerGroups: 'Current groups',
+      pageHeader: {
+        message: "Enroll learners into '{className}'",
+        context: 'Describes title of page where the coach enrolls learners in a new group.',
+      },
+      searchForUser: {
+        message: 'Search for a user',
+        context: 'Text in the search field.',
+      },
+      userTableLabel: {
+        message: 'User List',
+        context: 'Indicates list of users that can be enrolled into a specific group.',
+      },
+      noUsersMatch: {
+        message: 'No users match',
+        context:
+          'If no users match the search for users to enroll in a group, this message will display.',
+      },
+      previousResults: {
+        message: 'Previous results',
+        context:
+          'Indicates previous page of results shown on the enroll learners page. This is not seen in the UI.\n',
+      },
+      nextResults: {
+        message: 'Next results',
+        context:
+          'Indicates next page of results shown on the enroll learners page. This is not seen in the UI.',
+      },
+      allUsersAlready: {
+        message: 'All users are already enrolled in this class',
+        context:
+          'Message that displays on group when all learners in a class have already been added to the group and there are no more to add.',
+      },
+      pagination: {
+        message:
+          '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
+        context: 'Indicates the pagination of the enroll users into a group page.',
+      },
+      learnerGroups: {
+        message: 'Current groups',
+        context: 'Indicates the groups that the learner is already part of.',
+      },
     },
   };
 

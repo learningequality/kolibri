@@ -186,7 +186,11 @@
       },
     },
     $trs: {
-      noItemId: 'This question has an error, please move on to the next question',
+      noItemId: {
+        message: 'This question has an error, please move on to the next question',
+        context:
+          'Message that a coach would see in a report that indicates that there is an error in one of the questions in a quiz.',
+      },
     },
   };
 

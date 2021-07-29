@@ -297,8 +297,15 @@
       },
     },
     $trs: {
-      createAccount: 'Create an account',
-      documentTitle: 'Create account',
+      createAccount: {
+        message: 'Create an account',
+        context: 'Title on sign in page where user creates an account.',
+      },
+      documentTitle: {
+        message: 'Create account',
+        context:
+          "Title of the 'Create account' page accessed by selecting the 'CREATE  AN ACCOUNT' button.",
+      },
       demographicInfoOptional: {
         message: 'Providing this information is optional.',
         context: '\nClarifying information that providing the demographic information is optional.',
@@ -306,6 +313,7 @@
       demographicInfoExplanation: {
         message:
           'It will be visible to administrators. It will also be used to help improve the software and resources for different learner types and needs.',
+
         context: '\nDetails on how the demographic information requested in the form will be used.',
       },
       privacyLinkText: {

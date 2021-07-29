@@ -214,14 +214,37 @@
       },
     },
     $trs: {
-      searchThroughBook: 'Search through book',
-      noSearchResults: 'No results',
-      loadingResults: 'Loading results',
-      overCertainNumberOfSearchResults:
-        'Over {num, number, integer} {num, plural, one {result} other {results}}',
-      numberOfSearchResults: '{num, number, integer} {num, plural, one {result} other {results}}',
-      enterSearchQuery: 'Enter search query',
-      submitSearchQuery: 'Submit search query',
+      searchThroughBook: {
+        message: 'Search through book',
+        context: 'Option in the EPUB reader to search for a term throughout the entire book.',
+      },
+      noSearchResults: {
+        message: 'No results',
+        context:
+          'Displayed when no results are obtained after a learner searches for a term in a digital book.',
+      },
+      loadingResults: {
+        message: 'Loading results',
+        context:
+          'Message indicating the EPUB reader is loading the results of a search within a book.',
+      },
+      overCertainNumberOfSearchResults: {
+        message: 'Over {num, number, integer} {num, plural, one {result} other {results}}',
+        context:
+          'Refers to number of search results when there are over a specified amount. Only translate "over", "result" and "results".\n',
+      },
+      numberOfSearchResults: {
+        message: '{num, number, integer} {num, plural, one {result} other {results}}',
+        context: 'Refers to number of search results. Only translate "result" and "results".',
+      },
+      enterSearchQuery: {
+        message: 'Enter search query',
+        context: 'Refers to the to the search field in the EPUB reader.',
+      },
+      submitSearchQuery: {
+        message: 'Submit search query',
+        context: 'Refers to initialing a search query in an EPUB book.',
+      },
     },
   };
 

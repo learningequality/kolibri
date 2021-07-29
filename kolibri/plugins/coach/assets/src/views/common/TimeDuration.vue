@@ -34,10 +34,25 @@
       },
     },
     $trs: {
-      seconds: '{value, number, integer} {value, plural, one {second} other {seconds}}',
-      minutes: '{value, number, integer} {value, plural, one {minute} other {minutes}}',
-      hours: '{value, number, integer} {value, plural, one {hour} other {hours}}',
-      days: '{value, number, integer} {value, plural, one {day} other {days}}',
+      seconds: {
+        message: '{value, number, integer} {value, plural, one {second} other {seconds}}',
+        context:
+          'Indicates time spent by learner on a specific activity. Only translate second/seconds.',
+      },
+      minutes: {
+        message: '{value, number, integer} {value, plural, one {minute} other {minutes}}',
+        context:
+          'Indicates time spent by learner on a specific activity. Only translate minute/minutes.',
+      },
+      hours: {
+        message: '{value, number, integer} {value, plural, one {hour} other {hours}}',
+        context:
+          'Indicates time spent by learner on a specific activity. Only translate hour/hours.',
+      },
+      days: {
+        message: '{value, number, integer} {value, plural, one {day} other {days}}',
+        context: 'Indicates time spent by learner on a specific activity. Only translate day/days.',
+      },
     },
   };
 

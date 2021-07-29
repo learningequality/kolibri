@@ -323,8 +323,14 @@
       startDeleteTask,
     },
     $trs: {
-      title: `Manage '{channelName}'`,
-      importMoreAction: 'Import more',
+      title: {
+        message: `Manage '{channelName}'`,
+        context: 'Refers to the title of the page where a user manages a specific channel.',
+      },
+      importMoreAction: {
+        message: 'Import more',
+        context: 'Button which user can use to import more channels.',
+      },
     },
   };
 

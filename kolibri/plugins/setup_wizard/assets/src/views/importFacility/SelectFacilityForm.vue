@@ -160,7 +160,10 @@
       },
     },
     $trs: {
-      commaSeparatedPair: '{first}, {second}',
+      commaSeparatedPair: {
+        message: '{first}, {second}',
+        context: 'DO NOT TRANSLATE.',
+      },
     },
   };
 

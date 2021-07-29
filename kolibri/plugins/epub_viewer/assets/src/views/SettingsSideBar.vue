@@ -139,14 +139,44 @@
       },
     },
     $trs: {
-      textSize: 'Text size',
-      decrease: 'Decrease',
-      increase: 'Increase',
-      theme: 'Theme',
-      setWhiteTheme: 'Set white theme',
-      setBeigeTheme: 'Set beige theme',
-      setGreyTheme: 'Set grey theme',
-      setBlackTheme: 'Set black theme',
+      textSize: {
+        message: 'Text size',
+        context:
+          'Indicate the size of the text in the EPUB reader. Learner can either decrease of increase the size of the text.',
+      },
+      decrease: {
+        message: 'Decrease',
+        context: 'Button used to make the EPUB reader text size smaller.',
+      },
+      increase: {
+        message: 'Increase',
+        context: 'Button used to make the EPUB reader text size larger.',
+      },
+      theme: {
+        message: 'Theme',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option.",
+      },
+      setWhiteTheme: {
+        message: 'Set white theme',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to white.",
+      },
+      setBeigeTheme: {
+        message: 'Set beige theme',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to beige.",
+      },
+      setGreyTheme: {
+        message: 'Set grey theme',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to grey.",
+      },
+      setBlackTheme: {
+        message: 'Set black theme',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to black.",
+      },
     },
   };
 

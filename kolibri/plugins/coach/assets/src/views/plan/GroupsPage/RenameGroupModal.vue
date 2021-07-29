@@ -106,8 +106,16 @@
       },
     },
     $trs: {
-      renameLearnerGroup: 'Rename group',
-      duplicateName: 'A group with that name already exists',
+      renameLearnerGroup: {
+        message: 'Rename group',
+        context:
+          "Title of window that displays when user uses the 'Rename' option to rename a group.",
+      },
+      duplicateName: {
+        message: 'A group with that name already exists',
+        context:
+          'Message that displays if a user creates a group with the same name as one that already exists.',
+      },
     },
   };
 

@@ -191,10 +191,23 @@
       },
     },
     $trs: {
-      deleteAppBarTitle: 'Delete channels',
-      exportAppBarTitle: 'Export channels',
-      channelsOnDevice: 'Channels on device',
-      channelSelectedMessage: '{bytesText} selected',
+      deleteAppBarTitle: {
+        message: 'Delete channels',
+        context: "Accessed via the 'Options' button.",
+      },
+      exportAppBarTitle: {
+        message: 'Export channels',
+        context:
+          "Accessed via the 'Options' button. Admins can export Kolibri channels on a local drive in order to share with another device. ",
+      },
+      channelsOnDevice: {
+        message: 'Channels on device',
+        context: 'Indicates the channels which are on a device.',
+      },
+      channelSelectedMessage: {
+        message: '{bytesText} selected',
+        context: 'Indicates the size of the channels selected in bytes (GB or MB)',
+      },
     },
   };
 

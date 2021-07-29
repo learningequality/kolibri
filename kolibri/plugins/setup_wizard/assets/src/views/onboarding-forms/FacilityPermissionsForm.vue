@@ -97,8 +97,12 @@
         message: 'What kind of learning environment is your facility?',
         context: 'Page title',
       },
-      facilityPermissionsSetupFormDescription:
-        'A facility is the location where you are installing Kolibri, such as a school, training center, or a home.',
+      facilityPermissionsSetupFormDescription: {
+        message:
+          'A facility is the location where you are installing Kolibri, such as a school, training center, or a home.',
+        context:
+          'Description of a facility which the admin sees to help them decide what type of facility they should create.',
+      },
       formalLabel: {
         message: 'Formal',
         context: 'Label for the radio button option in the facility setup',
@@ -114,6 +118,7 @@
       nonFormalDescription: {
         message:
           'Libraries, orphanages, correctional facilities, youth centers, computer labs, and other non-formal learning contexts',
+
         context: 'Option description text',
       },
     },

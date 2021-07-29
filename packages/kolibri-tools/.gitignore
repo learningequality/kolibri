@@ -1,3 +1,5 @@
 # Do not ignore this lib dir
 !lib
 dist/*
+# Ignore any copied version of language info
+lib/i18n/language_info.json

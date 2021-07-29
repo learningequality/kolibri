@@ -211,14 +211,35 @@
       },
     },
     $trs: {
-      adminClassPageSubheader: 'View and manage your classes',
-      addNew: 'New class',
-      deleteClass: 'Delete class',
+      adminClassPageSubheader: {
+        message: 'View and manage your classes',
+        context: 'Description on Facility > Classes page.',
+      },
+      addNew: {
+        message: 'New class',
+        context: 'Button used to create a new class.',
+      },
+      deleteClass: {
+        message: 'Delete class',
+        context: 'Option to delete a class.',
+      },
       tableCaption: 'List of classes',
-      twoCoachNames: '{name1}, {name2}',
-      manyCoachNames: '{name1}, {name2}… (+{numRemaining, number})',
+      twoCoachNames: {
+        message: '{name1}, {name2}',
+        context:
+          'Refers to the names of the coaches that have been assigned to a class.\n\nDO NOT TRANSLATE.',
+      },
+      manyCoachNames: {
+        message: '{name1}, {name2}… (+{numRemaining, number})',
+        context:
+          'Refers to the names of the coaches that have been assigned to a class.\n\nDO NOT TRANSLATE.',
+      },
       actions: 'Actions',
-      noClassesExist: 'No classes exist',
+      noClassesExist: {
+        message: 'No classes exist',
+        context:
+          'Message that displays when there are no classes created in the Facility > Classes section.',
+      },
     },
   };
 

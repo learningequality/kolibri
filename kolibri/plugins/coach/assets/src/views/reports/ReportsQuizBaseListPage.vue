@@ -122,7 +122,11 @@
       },
     },
     $trs: {
-      allQuizzes: 'All quizzes',
+      allQuizzes: {
+        message: 'All quizzes',
+        context:
+          "Link that takes user back to the list of quizzes on the 'Reports' tab, from the individual learner's information page.",
+      },
       activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',
     },

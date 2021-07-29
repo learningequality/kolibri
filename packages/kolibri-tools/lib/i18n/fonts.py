@@ -506,7 +506,7 @@ def _subset_and_merge_fonts(text, default_font, subset_reg_path, subset_bold_pat
     _merge_fonts(bold_subsets, os.path.join(OUTPUT_PATH, subset_bold_path))
 
 
-def command_gen_subset_fonts():
+def command_gen_subset_fonts(locale_data_folder):
     """
     Creates custom fonts that attempt to contain all the glyphs and other font features
     that are used in user-facing text for the translation in each language.
@@ -532,8 +532,9 @@ def command_gen_subset_fonts():
     for lang_info in languages:
         logging.info("gen subset for {}".format(lang_info[utils.KEY_ENG_NAME]))
         strings = []
-        strings.extend(_get_lang_strings(utils.local_locale_path(lang_info)))
-        strings.extend(_get_lang_strings(utils.local_perseus_locale_path(lang_info)))
+        strings.extend(
+            _get_lang_strings(utils.local_locale_path(lang_info, locale_data_folder))
+        )
 
         name = lang_info[utils.KEY_INTL_CODE]
         _subset_and_merge_fonts(
@@ -607,6 +608,8 @@ def main():
     parser = argparse.ArgumentParser(description=description)
     subparsers = parser.add_subparsers(dest="command")
 
+    config = utils.read_config_file()
+
     subparsers.add_parser(
         "update-font-manifest",
         help="Update manifest from https://github.com/googlei18n/noto-fonts/",
@@ -623,6 +626,8 @@ def main():
 
     subparsers.add_parser(
         "generate-subset-fonts", help="Generate subset fonts based on app text"
+    ).add_argument(
+        "--locale-data-folder", type=str, default=config.get("locale_data_folder", "")
     )
 
     subparsers.add_parser("generate-full-fonts", help="Generate full fonts")
@@ -634,7 +639,7 @@ def main():
     elif args.command == "download-source-fonts":
         command_download_source_fonts()
     elif args.command == "generate-subset-fonts":
-        command_gen_subset_fonts()
+        command_gen_subset_fonts(args.locale_data_folder)
     elif args.command == "generate-full-fonts":
         command_gen_full_fonts()
     else:

@@ -216,9 +216,20 @@
       },
     },
     $trs: {
-      authorDataHeader: 'Author',
-      licenseDataHeader: 'License',
-      copyrightHolderDataHeader: 'Copyright holder',
+      authorDataHeader: {
+        message: 'Author',
+        context:
+          'Refers to the creator of the learning resource. For example, the author could be Learning Equality.',
+      },
+      licenseDataHeader: {
+        message: 'License',
+        context:
+          "Refers to the type of license the learning resource has. For example, 'CC BY-NC' meaning 'Creative Commons: attribution, non-commercial'.",
+      },
+      copyrightHolderDataHeader: {
+        message: 'Copyright holder',
+        context: 'Refers to the person or organization who holds the copyright for that resource.',
+      },
       addedIndicator: 'Added',
       addButtonLabel: 'Add',
     },

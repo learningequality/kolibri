@@ -1,17 +1,22 @@
 const fs = require('fs');
 const path = require('path');
-const url = require('url');
 const mkdirp = require('mkdirp');
-const espree = require('espree');
 const traverse = require('ast-traverse');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-const csv = require('csv-parser');
 const reduce = require('lodash/reduce');
+const get = require('lodash/get');
 const isEqual = require('lodash/isEqual');
 const vueCompiler = require('vue-template-compiler');
 const logging = require('../logging');
-
-const PROFILES_FOLDER = 'profiles';
+const {
+  getAllMessagesFromEntryFiles,
+  getAllMessagesFromFilePath,
+  getFilesFromFilePath,
+  getFilesFromEntryFiles,
+  getVueSFCName,
+  getAstFromFile,
+  parseAST,
+} = require('./astUtils');
 
 // If you ever add a namespace here - you should also add that to the
 // $TR_FUNCTIONS array in the vue-no-unused-translations eslint rule.
@@ -21,209 +26,20 @@ const COMMON_NAMESPACES = {
   learnString: 'CommonLearnStrings',
 };
 
-function ProfileStrings(localePath, moduleName) {
-  this.localePath = localePath;
-  this.moduleName = moduleName;
-}
-
 function logKeyError(namespace, key) {
-  logging.log(
+  logging.warn(
     `No string found for '${namespace}.${key}' ` +
       '(either not defined, or the key was passed as a variable and not a string)'
   );
 }
 
-/* Webpack Entry */
-ProfileStrings.prototype.apply = function(compiler) {
-  const self = this;
-
-  // Only works in non-production mode.
-  if (process.env.NODE_ENV === 'profiling') {
-    compiler.hooks.emit.tapAsync('profileStrings', function(compilation, callback) {
-      function processChunks(strProfile) {
-        compilation.chunks.forEach(chunk => {
-          let parsedUrl;
-          let ast;
-
-          // Walk through the modules being given to us in compilation.
-          for (const module of chunk.modulesIterable) {
-            parsedUrl = module.resource && url.parse(module.resource);
-
-            // Processing Vue files only here.
-            if (urlIsVue(parsedUrl, module)) {
-              // module._source.source() returns the part of the Vue file between the
-              // <script> tags only - will not parse the <template> tag content at all.
-              ast = espree.parse(module._source.source(), {
-                sourceType: 'module',
-                ecmaVersion: 2018,
-              });
-              strProfile = profileVueScript(strProfile, ast, parsedUrl.pathname, self.moduleName);
-
-              if (parsedUrl.pathname) {
-                // If we have a pathname - which ostensibly points to a Vue file - we
-                // can now parse the <template> portion of the Vue file.
-                const vueFile = fs.readFileSync(parsedUrl.pathname);
-                // Compile the <template>.
-                const template = vueCompiler.compile(vueFile.toString(), {
-                  whitespace: 'condense',
-                });
-
-                /**
-                 * The vueCompiler.compile() function returns an object including an anemic AST
-                 * and a property called `render` which has some stringified JS code.
-                 *
-                 * That code is what Vue would use to render the component - but it's wrapped in
-                 * a `with(this) {}` expression which returns an array of valid JS expressions in
-                 * an array.
-                 *
-                 * It's a string - which is what espree wants anyway - so we can strip the `with()`
-                 * altogether, leaving us with a stringified array containing everything we need to
-                 * create a thorough AST of the compiled Vue template.               *
-                 */
-                const render = template.render.replace(/^.{18}|.{1}$/g, '');
-                ast = espree.parse(render, {
-                  ecmaVersion: '2018',
-                  sourceType: 'module',
-                  ecmaFeatures: { jsx: true, templateStrings: true },
-                });
-
-                strProfile = profileVueTemplate(
-                  strProfile,
-                  ast,
-                  parsedUrl.pathname,
-                  self.moduleName
-                );
-              }
-            }
-
-            // Processing *.js files now
-            if (urlIsJS(module)) {
-              ast = espree.parse(module._source.source(), {
-                sourceType: 'module',
-              });
-
-              strProfile = profileJSFile(strProfile, ast, parsedUrl.pathname, self.moduleName);
-            }
-          }
-          // Write this module out to CSV.
-          writeProfileToCSV(strProfile, self.moduleName, self.localePath);
-          // Also dump the JSON profiles so that we can easily combine data.
-          fs.writeFileSync(
-            `${self.localePath}/${PROFILES_FOLDER}/${self.moduleName}.json`,
-            JSON.stringify(strProfile)
-          );
-        });
-      }
-
-      getStringDefinitions(self.localePath, self.moduleName, processChunks, callback);
-
-      callback();
-    });
-  }
-}; // End AST Parsing and Webpack processing.
-
 /* Utility Functions */
 
-/**
- * Returns an object where "Translation strings" are the keys.
- * Each key refers to another object with `definitions` and `uses`.
- *
- * This function instantiates the `definitions` data by reading all of the
- * strings, namespaces and keys from the given module's *-messages.json file.
- *
- * `definitions` stores an array of objects storing Namespace & Key combinations
- * which specifically refer to the string used as it's key.
- *
- * This function returns an emtpy array for each of the `uses` keys - saving
- * us from having to check if it's there or not later while parsing the code.
- *
- * `uses` stores all objects including all Namespace+Key combinations in which
- * that literal string of text is called upon as well as other related information.
- *
- */
-function getStringDefinitions(localeBasePath, moduleName, callback, failureCb) {
-  const localeFilePath = `${localeBasePath}/${moduleName}-messages.csv`;
-  let coreStringsFilePath = `${localeBasePath}/default_frontend-messages.csv`;
-  let fileContents = [];
-  let definitions = {};
-
-  /*
-   * fileContents will be loaded with each row of the following headers, in order:
-   *
-   * Identifier | String | Context | Translation
-   *
-   *  We only care about Identifier ( eg, ComponentName.helloWorld )
-   *  and String ( eg, "Hello world" )
-   *
-   *  Each row is an object structured as follows, and acts like an array
-   *
-   *  {
-   *    0: 'ComponentName.hellowWorld',
-   *    1: 'Hello world',
-   *    2: <context>,
-   *    3: <translation>
-   *  }
-   *
-   * Some modules (particularly in Kolibri) have a shared or "core" strings file.
-   *
-   * We try to get that file if we can, but if not it is fine but we warn in case
-   * the user is expecting differently.
-   */
-  try {
-    [localeFilePath, coreStringsFilePath].forEach(path => {
-      if (fs.existsSync(path)) {
-        fs.createReadStream(path)
-          .pipe(csv({ headers: false, skipLines: 1 }))
-          .on('data', data => fileContents.push(data))
-          .on('end', () => {
-            console.log('Successfully loaded CSV from ', path);
-
-            fileContents.forEach(defRow => {
-              const nsAndKey = defRow[0].split('.');
-              const namespace = nsAndKey[0];
-              const key = nsAndKey[1];
-              const string = defRow[1];
-
-              if (definitions[string]) {
-                definitions[string].definitions.push({
-                  namespace,
-                  key,
-                });
-              } else {
-                definitions[string] = {
-                  definitions: [{ namespace, key }],
-                  uses: [],
-                };
-              }
-            });
-            callback(definitions);
-          });
-      } else {
-        console.warn('Could not find string definitions at ', path);
-      }
-    });
-  } catch (e) {
-    // Not all modules have messages files - return null and we'll bail.
-    if (!fileContents) {
-      console.error(e);
-      failureCb();
-      return;
-    }
-  }
-}
-
 // Instantiates the CSV data and writes to a file.
-function writeProfileToCSV(profile, moduleName, localePath) {
-  // Be sure the output path is going to the profiles folder.
-  let baseOutputPath = `${path.resolve(localePath)}`;
-  if (!baseOutputPath.includes(PROFILES_FOLDER)) {
-    baseOutputPath += `/${PROFILES_FOLDER}`;
-  }
-
+function writeProfileToCSV(profile, outputFile) {
   // Ensure we have a {localePath}/profile directory available.
-  mkdirp.sync(baseOutputPath);
+  mkdirp.sync(path.dirname(outputFile));
 
-  const outputFile = `${baseOutputPath}/${moduleName}.csv`;
   const csvData = profileToCSV(profile);
   const csvWriter = createCsvWriter({
     path: outputFile,
@@ -284,37 +100,8 @@ function profileToCSV(profile) {
  * @param {string} key          - The key to query.
  * @param {bool} common         - Is the suspected use one of a Common string set?
  */
-function getStringFromNamespaceKey(profile, namespace, key) {
-  // Check against every translation string in the profile as a key.
-  for (let str of Object.keys(profile)) {
-    let matchedNamespace = profile[str].definitions.find(def => def.namespace === namespace);
-    let matchedKey = profile[str].definitions.find(def => def.key === key);
-
-    // If we have matched the translation string to our NS and Key then we win!
-    if (matchedNamespace && matchedKey) {
-      return str;
-    }
-  }
-}
-
-// Returns if the file is the type of *.vue file we're interested in.
-function urlIsVue(parsedUrl, module) {
-  return (
-    module.resource &&
-    parsedUrl.pathname.endsWith('.vue') &&
-    parsedUrl.query &&
-    parsedUrl.query.includes('lang=js') &&
-    !parsedUrl.pathname.includes('node_modules')
-  );
-}
-
-// Returns if the file is the type of *.js file we're interested in.
-function urlIsJS(module) {
-  return (
-    module.resource &&
-    module.resource.indexOf('.js') === module.resource.length - 3 &&
-    !module.resource.includes('node_modules')
-  );
+function getStringFromNamespaceKey(allMessages, namespace, key) {
+  return get(allMessages, [`${namespace}.${key}`, 'message']);
 }
 
 // Given a node's array of arguments, extract and return the key... or null no dice.
@@ -322,7 +109,7 @@ function keyFromArguments(args, namespace) {
   let key = null;
   if (args && Array.isArray(args)) {
     if (args.length > 0) {
-      if (args[0].type === 'Literal') {
+      if (args[0].type === 'StringLiteral') {
         key = args[0].value;
       }
     }
@@ -331,22 +118,6 @@ function keyFromArguments(args, namespace) {
     logKeyError(namespace, key);
   }
   return key;
-}
-
-// Given a /path/to/file/ we can have two kinds:
-// /path/NameSpace/index.vue or /path/to/NameSpace.vue
-// If the last bit is `index.vue` we use the parent dir, otherwise
-// we use the filename.
-function namespaceFromPath(path) {
-  const parts = path.split('/');
-  const lastIndex = parts.length - 1;
-  const lastPart = parts[lastIndex];
-
-  if (lastPart === 'index.vue') {
-    return parts[lastIndex - 1]; // Parent dir name
-  } else {
-    return lastPart.replace('.vue', ''); // Vue filename sans .vue
-  }
 }
 
 // Returns true if the string given is a *Common$tr
@@ -366,20 +137,12 @@ function isCommonFn(string) {
  * profileJSFile - parses JS files.
  */
 
-function profileVueScript(profile, ast, pathname) {
-  let namespace;
+function profileVueScript(profile, ast, pathname, namespace, allMessages) {
   let key;
   let common = false;
   try {
     traverse(ast, {
       pre: function(node) {
-        // If the node is a Property and has a key.name of `name` then it's
-        // going to give us the namespace of our current module.
-        if (node.type === 'Property' && !namespace) {
-          if (node.key.name === 'name') {
-            namespace = node.value.value;
-          }
-        }
         // The CallExpressions will find all potential $tr and commont$tr calls.
         if (node.type === 'CallExpression') {
           if (node.callee.property) {
@@ -404,7 +167,7 @@ function profileVueScript(profile, ast, pathname) {
                 : namespace;
 
               if (key && currentNamespace) {
-                let $tring = getStringFromNamespaceKey(profile, currentNamespace, key);
+                let $tring = getStringFromNamespaceKey(allMessages, currentNamespace, key);
 
                 if ($tring) {
                   profile[$tring].uses.push({
@@ -429,18 +192,12 @@ function profileVueScript(profile, ast, pathname) {
   return profile;
 }
 
-function profileVueTemplate(profile, ast, pathname) {
-  let namespace;
+function profileVueTemplate(profile, ast, pathname, namespace, allMessages) {
   let key;
   let common = false;
   try {
     traverse(ast, {
       pre: function(node) {
-        // If the node is a Property and has a key.name of `name` then it's
-        // going to give us the namespace of our current module.
-        if (!namespace) {
-          namespace = namespaceFromPath(pathname);
-        }
         // The CallExpressions will find all potential $tr and commont$tr calls.
         // NOTE: This differs from the above - this AST is conveniently slightly
         // different in structure - so there are not `property` objects here.
@@ -460,7 +217,7 @@ function profileVueTemplate(profile, ast, pathname) {
             let currentNamespace = common ? COMMON_NAMESPACES[node.callee.name] : namespace;
 
             if (key && currentNamespace) {
-              let $tring = getStringFromNamespaceKey(profile, currentNamespace, key);
+              let $tring = getStringFromNamespaceKey(allMessages, currentNamespace, key);
 
               if ($tring) {
                 profile[$tring].uses.push({
@@ -482,7 +239,7 @@ function profileVueTemplate(profile, ast, pathname) {
   return profile;
 }
 
-function profileJSFile(profile, ast, pathname) {
+function profileJSFile(profile, ast, pathname, allMessages) {
   let common = false;
   let varDeclarations = {};
   let $trUses = {};
@@ -531,14 +288,14 @@ function profileJSFile(profile, ast, pathname) {
   // varDeclarations stores variableName => namespace
   // $trUses stores variableName => [key1, key2, key3] (each key that was used)
   Object.keys(varDeclarations).forEach(variable => {
-    let namespace = varDeclarations[variable];
+    const namespace = varDeclarations[variable];
 
-    let uses = $trUses[variable];
+    const uses = $trUses[variable];
     if (uses) {
       uses.forEach(key => {
-        let $tring = getStringFromNamespaceKey(profile, namespace, key);
-        if (namespace && key && $tring) {
-          profile[$tring].uses.push({
+        const message = getStringFromNamespaceKey(allMessages, namespace, key);
+        if (namespace && key && message) {
+          profile[message].uses.push({
             namespace,
             key,
             common,
@@ -551,5 +308,88 @@ function profileJSFile(profile, ast, pathname) {
 
   return profile;
 }
-module.exports = ProfileStrings;
-module.exports.writeProfileToCSV = writeProfileToCSV;
+
+function getVueTemplateAST(filePath) {
+  const vueFile = fs.readFileSync(filePath);
+  // Compile the <template>.
+  const template = vueCompiler.compile(vueFile.toString(), {
+    whitespace: 'preserve',
+  });
+
+  /**
+   * The vueCompiler.compile() function returns an object including an anemic AST
+   * and a property called `render` which has some stringified JS code.
+   *
+   * That code is what Vue would use to render the component - but it's wrapped in
+   * a `with(this) {}` expression which returns an array of valid JS expressions in
+   * an array.
+   *
+   * It's a string - which is what espree wants anyway - so we can strip the `with()`
+   * altogether, leaving us with a stringified array containing everything we need to
+   * create a thorough AST of the compiled Vue template.               *
+   */
+  const render = template.render.replace(/^.{18}|.{1}$/g, '');
+  return parseAST(render);
+}
+
+module.exports = function(pathInfo, ignore, outputFile) {
+  const allMessages = {};
+  /**
+   * An object where "Translation strings" are the keys.
+   * Each key refers to another object with `definitions` and `uses`.
+   *
+   * `uses` stores all objects including all Namespace+Key combinations in which
+   * that literal string of text is called upon as well as other related information.
+   *
+   */
+  const definitions = {};
+  for (let pathData of pathInfo) {
+    const moduleFilePath = pathData.moduleFilePath;
+    const name = pathData.name;
+    logging.info(`Gathering string ids for ${name}`);
+    let bundleMessages;
+    if (pathData.entry) {
+      bundleMessages = getAllMessagesFromEntryFiles(pathData.entry, moduleFilePath, ignore);
+    } else {
+      bundleMessages = getAllMessagesFromFilePath(moduleFilePath, ignore);
+    }
+    for (let id in bundleMessages) {
+      const message = bundleMessages[id]['message'];
+      const [namespace, key] = id.split('.');
+      if (!definitions[message]) {
+        definitions[message] = { definitions: [], uses: [] };
+      }
+      definitions[message].definitions.push({
+        namespace,
+        key,
+      });
+    }
+    Object.assign(allMessages, bundleMessages);
+    logging.info(`Gathered ${Object.keys(bundleMessages).length} string ids for ${name}`);
+  }
+  logging.info(`Gathered ${Object.keys(definitions).length} unique strings`);
+  for (let pathData of pathInfo) {
+    const moduleFilePath = pathData.moduleFilePath;
+    const name = pathData.name;
+    logging.info(`Gathering string uses for ${name}`);
+    let files;
+    if (pathData.entry) {
+      files = getFilesFromEntryFiles(pathData.entry, moduleFilePath, ignore);
+    } else {
+      files = getFilesFromFilePath(moduleFilePath, ignore);
+    }
+    for (let filePath of files) {
+      const scriptAST = getAstFromFile(filePath);
+      if (filePath.endsWith('.vue')) {
+        const namespace = getVueSFCName(scriptAST);
+        profileVueScript(definitions, scriptAST, filePath, namespace, allMessages);
+        const templateAST = getVueTemplateAST(filePath);
+        profileVueTemplate(definitions, templateAST, filePath, namespace, allMessages);
+      } else if (filePath.endsWith('.js')) {
+        profileJSFile(definitions, scriptAST, filePath, allMessages);
+      }
+    }
+    logging.info(`Gathered string uses from ${files.size} files for ${name}`);
+  }
+  writeProfileToCSV(definitions, outputFile);
+};

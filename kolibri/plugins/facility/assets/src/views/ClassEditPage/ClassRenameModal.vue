@@ -100,8 +100,15 @@
       },
     },
     $trs: {
-      modalTitle: 'Rename class',
-      duplicateName: 'A class with that name already exists',
+      modalTitle: {
+        message: 'Rename class',
+        context:
+          "Title of the 'Rename class' window, accessed via the 'Edit' option on the individual 'Class' page.",
+      },
+      duplicateName: {
+        message: 'A class with that name already exists',
+        context: 'Message that displays if user tries to give a class a name that already exists.',
+      },
     },
   };
 

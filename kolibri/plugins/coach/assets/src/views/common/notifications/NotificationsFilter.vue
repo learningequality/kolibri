@@ -126,13 +126,35 @@
       },
     },
     $trs: {
-      appsLabel: 'Apps',
-      audioLabel: 'Audio',
-      documentsLabel: 'Documents',
-      exercisesLabel: 'Exercises',
-      progressTypeLabel: 'Progress type',
-      resourceTypeLabel: 'Resource type',
-      videosLabel: 'Videos',
+      appsLabel: {
+        message: 'Apps',
+        context: 'Type of resource material.',
+      },
+      audioLabel: {
+        message: 'Audio',
+        context: 'Type of resource material.',
+      },
+      documentsLabel: {
+        message: 'Documents',
+        context: 'Type of resource material.',
+      },
+      exercisesLabel: {
+        message: 'Exercises',
+        context: 'Type of resource material.',
+      },
+      progressTypeLabel: {
+        message: 'Progress type',
+        context: 'Filter where coach can check learner progress based on different statuses.',
+      },
+      resourceTypeLabel: {
+        message: 'Resource type',
+        context:
+          'Coaches can filter learner activity by the type of resources they are working on.',
+      },
+      videosLabel: {
+        message: 'Videos',
+        context: 'Type of resource material.',
+      },
     },
   };
 

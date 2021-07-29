@@ -60,8 +60,14 @@
     },
     mixins: [commonCoreStrings],
     $trs: {
-      data: 'Data',
-      settings: 'Settings',
+      data: {
+        message: 'Data',
+        context: "Title of tab in 'Facility' section.",
+      },
+      settings: {
+        message: 'Settings',
+        context: "Title of tab in 'Facility' section.",
+      },
     },
   };
 

@@ -52,9 +52,16 @@
       },
     },
     $trs: {
-      coachResourceLabel: 'Coach resource',
-      topicTitle:
-        'Contains {count, number, integer} {count, plural, one {coach resource} other {coach resources}}',
+      coachResourceLabel: {
+        message: 'Coach resource',
+        context:
+          'Coach resource materials can be lesson plans, professional development readings, training materials, etc. only viewable by coaches and not learners.',
+      },
+      topicTitle: {
+        message:
+          'Contains {count, number, integer} {count, plural, one {coach resource} other {coach resources}}',
+        context: "You only need to translate the word 'Contains' here.",
+      },
     },
   };
 

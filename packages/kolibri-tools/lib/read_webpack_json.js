@@ -23,7 +23,10 @@ function parseConfig(buildConfig, pythonData, configPath, index = null) {
   };
 }
 
-module.exports = function({ pluginFile, plugins, pluginPath }) {
+function readPythonPlugins({ pluginFile, plugins, pluginPath }) {
+  if (!pluginFile && !plugins && !plugins.length) {
+    return [];
+  }
   // the temporary path where the webpack_json json is stored
   const webpack_json_tempfile = temp.openSync({ suffix: '.json' }).path;
 
@@ -61,23 +64,28 @@ module.exports = function({ pluginFile, plugins, pluginPath }) {
   temp.cleanupSync(); // cleanup the tempfile immediately!
 
   if (result.length > 0) {
-    // The above script prints JSON to stdout, here we parse that JSON and use it
+    // The above script writes JSON to a temp file, here we parse that JSON and use it
     // as input to our webpack configuration builder.
-    const parsedResult = JSON.parse(result);
-    const output = [];
-    parsedResult.forEach(pythonData => {
-      const configPath = path.join(pythonData.plugin_path, 'buildConfig.js');
-      const buildConfig = require(configPath);
-      if (Array.isArray(buildConfig)) {
-        buildConfig.forEach((configObj, i) => {
-          output.push(parseConfig(configObj, pythonData, configPath, i));
-        });
-      } else {
-        output.push(parseConfig(buildConfig, pythonData, configPath));
-      }
-    });
-    return output;
+    return JSON.parse(result);
   }
-
   return [];
+}
+
+module.exports = function({ pluginFile, plugins, pluginPath }) {
+  const parsedResult = readPythonPlugins({ pluginFile, plugins, pluginPath });
+  const output = [];
+  parsedResult.forEach(pythonData => {
+    const configPath = path.join(pythonData.plugin_path, 'buildConfig.js');
+    const buildConfig = require(configPath);
+    if (Array.isArray(buildConfig)) {
+      buildConfig.forEach((configObj, i) => {
+        output.push(parseConfig(configObj, pythonData, configPath, i));
+      });
+    } else {
+      output.push(parseConfig(buildConfig, pythonData, configPath));
+    }
+  });
+  return output;
 };
+
+module.exports.readPythonPlugins = readPythonPlugins;

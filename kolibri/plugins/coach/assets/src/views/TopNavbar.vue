@@ -63,8 +63,16 @@
       },
     },
     $trs: {
-      home: 'Class Home',
-      plan: 'Plan',
+      home: {
+        message: 'Class Home',
+        context:
+          "Tab name of the main 'Class' section where the coach can see all the information relating to a specific class.\n",
+      },
+      plan: {
+        message: 'Plan',
+        context:
+          "Translate as a VERB. Refers to the 'Plan' tab where coaches manage lessons, quizzes, and groups.",
+      },
     },
   };
 

@@ -127,7 +127,11 @@
       },
     },
     $trs: {
-      lessonLabel: 'Lesson',
+      lessonLabel: {
+        message: 'Lesson',
+        context:
+          'A lesson is a linear learning pathway defined by a coach. The coach can select resources from any channel, add them to the lesson, define the ordering, and assign the lesson to learners in their class.',
+      },
     },
   };
 

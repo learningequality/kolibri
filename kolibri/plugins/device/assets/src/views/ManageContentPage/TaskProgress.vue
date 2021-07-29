@@ -126,18 +126,51 @@
       },
     },
     $trs: {
-      importingContent: 'Importing resources…',
-      exportingContent: 'Exporting resources…',
-      finished: 'Finished! Click "Close" button to see changes.',
-      preparingTask: 'Preparing…',
-      taskHasFailed: 'Transfer failed. Please try again.',
-      deleteTaskHasFailed: 'Attempt to delete channel failed. Please try again.',
-      deletingChannel: 'Deleting channel…',
-      downloadingChannelContents: 'Generating channel listing. This could take a few minutes',
+      importingContent: {
+        message: 'Importing resources…',
+        context: 'Indicates that selected resources are being imported.\n',
+      },
+      exportingContent: {
+        message: 'Exporting resources…',
+        context: 'Indicates that selected resources are being exported to a drive.',
+      },
+      finished: {
+        message: 'Finished! Click "Close" button to see changes.',
+        context: 'Indicates when a task has completed.',
+      },
+      preparingTask: {
+        message: 'Preparing…',
+        context: 'Indicates that a task is being prepared.',
+      },
+      taskHasFailed: {
+        message: 'Transfer failed. Please try again.',
+        context:
+          'Indicates that a task, like a transfer of learning resources from an external drive to a facility, has failed.',
+      },
+      deleteTaskHasFailed: {
+        message: 'Attempt to delete channel failed. Please try again.',
+        context: 'Indicates if a deletion of a channel has failed in the task manager.',
+      },
+      deletingChannel: {
+        message: 'Deleting channel…',
+        context: 'Indicates a channel is being deleted.',
+      },
+      downloadingChannelContents: {
+        message: 'Generating channel listing. This could take a few minutes',
+        context:
+          'Text in the task manager panel indicating that a channel listing is being created.',
+      },
       /* eslint-disable kolibri/vue-no-unused-translations */
-      updatingChannel: 'Updating channel…',
-      comparingChannelContents:
-        'Comparing resources on device with new channel version. This could take a few minutes',
+      updatingChannel: {
+        message: 'Updating channel…',
+        context:
+          'Indicates that a channel is in the process of being updated with some new resources.',
+      },
+      comparingChannelContents: {
+        message:
+          'Comparing resources on device with new channel version. This could take a few minutes',
+        context: 'Describes an ongoing task in the task manager.',
+      },
       /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };

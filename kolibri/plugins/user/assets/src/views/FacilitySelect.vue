@@ -119,10 +119,19 @@
       },
     },
     $trs: {
-      canSignUpForFacilityLabel:
-        'Select the facility that you want to associate your new account with:',
-      askAdminForAccountLabel: 'Ask your administrator to create an account for these facilities:',
-      selectFacilityLabel: 'Select the facility that has your account',
+      canSignUpForFacilityLabel: {
+        message: 'Select the facility that you want to associate your new account with:',
+        context: 'Displays if the user has been given access to multiple facilities. ',
+      },
+      askAdminForAccountLabel: {
+        message: 'Ask your administrator to create an account for these facilities:',
+        context:
+          'This message will display if the user needs to ask an admin to get access to specific facilities.',
+      },
+      selectFacilityLabel: {
+        message: 'Select the facility that has your account',
+        context: 'Displays if the user has been given access to multiple facilities.',
+      },
     },
   };
 

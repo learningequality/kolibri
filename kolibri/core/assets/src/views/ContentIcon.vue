@@ -176,17 +176,61 @@
       },
     },
     $trs: {
-      topic: 'Topic',
-      channel: 'Channel',
-      exercise: 'Exercise',
-      video: 'Video',
-      audio: 'Audio',
-      document: 'Document',
-      html5: 'App',
-      exam: 'Quiz',
-      lesson: 'Lesson',
-      user: 'User',
-      slideshow: 'Slideshow',
+      topic: {
+        message: 'Topic',
+        context:
+          'A topic is a collection of learning resources and other topics within a channel. Nested topics are like folders, and allow a channel to be organized as a tree or hierarchy.',
+      },
+      channel: {
+        message: 'Channel',
+        context:
+          'A channel is a set of learning resources that can be imported to and exported from Kolibri. It is often curated in order to achieve certain pre-defined learning objectives. Channels are originally created within Kolibri Studio.',
+      },
+      exercise: {
+        message: 'Exercise',
+        context:
+          'An exercise is an interactive formative assessment resource. Exercises usually contain multiple questions, and have an associated mastery model.\n\nIndividual questions from exercises are also used to create summative assessments in the form of quizzes.',
+      },
+      video: {
+        message: 'Video',
+        context:
+          'A video is a type of learning resource that is available in Kolibri. Other types of resources are documents, exercises or slideshows.',
+      },
+      audio: {
+        message: 'Audio',
+        context:
+          'Audio is a type of education material available to learners in Kolibri. Other types of material could be exercises, videos or document files.',
+      },
+      document: {
+        message: 'Document',
+        context:
+          'A document is a type of learning resource that is available in Kolibri. Other types of resources are videos, exercises or slideshows.',
+      },
+      html5: {
+        message: 'App',
+        context:
+          'In Kolibri, an app is a certain kind of learning resource. Specifically, apps are generally self-contained, interactive HTML and Javascript applications.',
+      },
+      exam: {
+        message: 'Quiz',
+        context:
+          'A quiz is an assessment made up of questions taken from exercises. Quizzes are created by coaches and then assigned to learners in a class.\n\nWe intentionally renamed "exam" to "quiz" in order to encourage use as an informal diagnostic tool for teachers.',
+      },
+      lesson: {
+        message: 'Lesson',
+        context:
+          'A lesson is a linear learning pathway defined by a coach. The coach can select resources from any channel, add them to the lesson, define the ordering, and assign the lesson to learners in their class.',
+      },
+      user: {
+        message: 'User',
+        context:
+          'A user is any person who has access to a facility in Kolibri. There are four main types of users in Kolibri: Learners, Coaches, Admins and Super admins.',
+      },
+      slideshow: {
+        message: 'Slideshow',
+        context:
+          'A slideshow is a type of learning resource that is available in Kolibri. Slideshows contain slides and you navigate through them using arrows. Other types of resources are videos, exercises or documents.',
+      },
     },
   };
 

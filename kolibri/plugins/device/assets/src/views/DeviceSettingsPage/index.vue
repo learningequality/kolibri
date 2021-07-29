@@ -295,27 +295,66 @@
       saveDeviceSettings,
     },
     $trs: {
-      browserDefaultLanguage: 'Browser default',
-      pageDescription: 'The changes you make here will affect this device only.',
-      pageHeader: 'Device settings',
-      saveFailureNotification: 'Settings have not been updated',
-      saveSuccessNotification: 'Settings have been updated',
-      selectedLanguageLabel: 'Default language',
-      facilitySettings: 'You can also configure facility settings',
-      allowGuestAccess: 'Allow users to explore resources without signing in',
+      browserDefaultLanguage: {
+        message: 'Browser default',
+        context:
+          "Indicates that the language used for the device will be the same as the default language of the user's browser.",
+      },
+      pageDescription: {
+        message: 'The changes you make here will affect this device only.',
+        context: "Description on 'Device settings' page.",
+      },
+      pageHeader: {
+        message: 'Device settings',
+        context: 'Title of page.',
+      },
+      saveFailureNotification: {
+        message: 'Settings have not been updated',
+        context: 'Error message that displays if device settings are not saved correctly.',
+      },
+      saveSuccessNotification: {
+        message: 'Settings have been updated',
+        context: 'Notification that displays if device settings have been saved correctly.\n',
+      },
+      selectedLanguageLabel: {
+        message: 'Default language',
+        context: 'Option that allows user to set the default language of the device.',
+      },
+      facilitySettings: {
+        message: 'You can also configure facility settings',
+        context:
+          "Text link on the 'Device settings' page that links to the 'Facility settings' page.",
+      },
+      allowGuestAccess: {
+        message: 'Allow users to explore resources without signing in',
+        context: "Option on the 'Device settings' page.",
+      },
       disallowGuestAccess: 'Learners must sign in to explore resources',
-      lockedContent: 'Signed in learners should only see resources assigned to them in classes',
+      lockedContent: {
+        message: 'Signed in learners should only see resources assigned to them in classes',
+        context: "Option on the 'Device settings' page.",
+      },
       landingPageLabel: {
         message: 'Default landing page',
-        context: 'The page that users see immediately after they log in',
+        context:
+          "This option allows the admin to configure the default landing page for learners to be either the 'Kolibri Sign-in' page or the 'Learn' page.",
       },
-      signInPageChoice: 'Sign-in page',
+      signInPageChoice: {
+        message: 'Sign-in page',
+        context: 'Refers to an option to set the default Kolibri landing page.',
+      },
       learnerAppPageChoice: {
         message: 'Learn page',
         context: '\nThis refers to the page you reach when you click "Learn" in the main side nav',
       },
-      unlistedChannels: 'Allow other computers on this network to import my unlisted channels',
-      configureFacilitySettingsHeader: 'Configure facility settings',
+      unlistedChannels: {
+        message: 'Allow other computers on this network to import my unlisted channels',
+        context: "Option on 'Device settings' page.",
+      },
+      configureFacilitySettingsHeader: {
+        message: 'Configure facility settings',
+        context: "Title of the 'Facility settings' page.",
+      },
       allowExternalConnectionsApp: {
         message: 'Allow others in the network to access Kolibri on this device using a browser',
         context:
@@ -324,6 +363,7 @@
       allowExternalConnectionsAppDescription: {
         message:
           'If learners are allowed to sign in with no password on this device, enabling this may allow external devices to view the user data, which could be a potential security concern.',
+
         context:
           'Warns the user of the potential security risk if this setting is enabled together with users accesing without password',
       },

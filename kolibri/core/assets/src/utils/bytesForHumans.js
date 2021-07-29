@@ -1,10 +1,26 @@
 import { createTranslator } from './i18n';
 
 const translator = createTranslator('BytesForHumansStrings', {
-  fileSizeInBytes: '{n, number, integer} B',
-  fileSizeInKilobytes: '{n, number, integer} KB',
-  fileSizeInMegabytes: '{n, number, integer} MB',
-  fileSizeInGigabytes: '{n, number, integer} GB',
+  fileSizeInBytes: {
+    message: '{n, number, integer} B',
+    context:
+      'Indicates the byte unit of digital information when referring to a file size.\n\nSee: https://en.wikipedia.org/wiki/Byte',
+  },
+  fileSizeInKilobytes: {
+    message: '{n, number, integer} KB',
+    context:
+      'Indicates the kilobyte unit of digital information when referring to a file size.\n\nSee https://en.wikipedia.org/wiki/Kilobyte',
+  },
+  fileSizeInMegabytes: {
+    message: '{n, number, integer} MB',
+    context:
+      'Indicates the megabyte unit of digital information when referring to a file size.\n\nSee https://en.wikipedia.org/wiki/Megabyte',
+  },
+  fileSizeInGigabytes: {
+    message: '{n, number, integer} GB',
+    context:
+      'Indicates the gigabyte unit of digital information when referring to a file size.\n\nSee https://en.wikipedia.org/wiki/Gigabyte',
+  },
 });
 
 const ONE_B = 1;

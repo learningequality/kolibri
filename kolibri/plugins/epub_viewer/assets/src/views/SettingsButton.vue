@@ -16,7 +16,11 @@
   export default {
     name: 'SettingsButton',
     $trs: {
-      toggleSettingsSideBar: 'Toggle settings',
+      toggleSettingsSideBar: {
+        message: 'Toggle settings',
+        context:
+          'Used to open and close the settings button where a learner can adjust things like the text size or the background color.',
+      },
     },
   };
 

@@ -89,9 +89,13 @@
       renameFacilityExplanation: {
         message:
           'Warning: Only the facility name will be changed, and the new name will be synced and updated on other devices linked to this facility.',
+
         context: 'Explanation of what consequences renaming will have',
       },
-      title: 'Rename facility',
+      title: {
+        message: 'Rename facility',
+        context: 'Title of window where a user can rename a facility.',
+      },
     },
   };
 

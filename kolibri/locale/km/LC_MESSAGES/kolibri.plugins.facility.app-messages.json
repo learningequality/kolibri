@@ -19,9 +19,6 @@
   "ClassRenameModal.modalTitle": "ប្តូរឈ្មោះថ្នាក់",
   "CoachClassAssignmentPage.pageHeader": "ចាត់តាំងគ្រូទៅថ្នាក់ \"{className}\"",
   "CoachClassAssignmentPage.pageSubheader": "កំពុងបង្ហាញគ្រូដែលមិនបានចាត់តាំងទៅថ្នាក់នេះ",
-  "ConfigPageNotifications.pageloadFailure": "មានបញ្ហាក្នុងការទាញការកំណត់របស់អ្នក",
-  "ConfigPageNotifications.saveFailure": "មានបញ្ហាក្នុងការរក្សាទុកការកំណត់របស់អ្នក",
-  "ConfigPageNotifications.saveSuccess": "ការកំណត់នៃទីតាំងបានធ្វើបច្ចុប្បន្នភាព",
   "ConfirmResetModal.confirmationQuestion": "តើអ្នកពិតជាចង់កំណត់ឡើងវិញមែនទេ?",
   "ConfirmResetModal.reconfirmation": "រាល់ការផ្លាស់ប្តូរផ្ទាល់ខ្លួននឹងត្រូវបាត់បង់។",
   "ConfirmResetModal.reset": "កំណត់​ឡើង​វិញ",
@@ -163,7 +160,6 @@
   "PrivacyModal.syncToKDP": "Kolibri Data Portal",
   "ResetUserPasswordModal.resetPassword": "កំណត់ពាក្យសម្ងាត់អ្នកប្រើប្រាស់ឡើងវិញ",
   "ResetUserPasswordModal.username": "ឈ្មោះអ្នកប្រើប្រាស់៖ ",
-  "SyncInterface.access": "នេះគឺជាមុខងារពិសោធន៍មួយ។ អ្នកអាចប្រើវាបានប្រសិនបើអ្នកមានសិទ្ធិចូលមើល Kolibri Data Portal",
   "SyncInterface.facility": "ទីតាំង",
   "SyncInterface.learnMore": "ការប្រើប្រាស់ និងភាពឯកជន",
   "SyncInterface.register": "ចុះឈ្មោះ",
@@ -196,6 +192,6 @@
   "UserRemoveConfirmationModal.modalTitle": "លុប​អ្នកប្រើប្រាស់",
   "UserTable.role": "តួនាទី",
   "UserTable.selectAllLabel": "ជ្រើសរើសទាំងអស់",
-  "UserTable.userActionsColumnHeader": "សកម្មភាព",
+  "UserTable.userActionsColumnHeader": "សកម្មភាពនានា",
   "UserTable.userCheckboxLabel": "ជ្រើសរើសអ្នកប្រើប្រាស់"
 }

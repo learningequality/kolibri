@@ -3,7 +3,10 @@ import { createTranslator } from 'kolibri.utils.i18n';
 import store from 'kolibri.coreVue.vuex.store';
 
 const translator = createTranslator('ExamReportPageTitles', {
-  examReportTitle: '{examTitle} report',
+  examReportTitle: {
+    message: '{examTitle} report',
+    context: 'Indicates the name of the report.',
+  },
 });
 
 export function generateExamReportDetailHandler(paramsToCheck) {

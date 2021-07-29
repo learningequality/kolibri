@@ -90,7 +90,11 @@
       },
     },
     $trs: {
-      registeredAlready: 'Registered to `Kolibri Data Portal`',
+      registeredAlready: {
+        message: 'Registered to `Kolibri Data Portal`',
+        context:
+          'If a Kolibri facility is part of a larger organization that tracks data on the Kolibri Data Portal,  it can be registered to the Kolibri Data Portal.\n\nThis text indicates that the facility has been registered to the Data Portal.',
+      },
       neverSynced: {
         message: 'Never synced',
         context:
@@ -98,15 +102,23 @@
       },
       lastSync: {
         message: 'Last successful sync: {relativeTime}',
-        context: 'Shown with facilities that were synced at least once.',
+        context:
+          'Used to indicate a time period when the last successful sync took place. For example, the value of last successful sync could be something like "2 months ago".\'\n',
       },
       justNow: {
         message: 'Just now',
         context:
           '\nThis is used to indicate when an event occurred. It\'s associated with the label "Last successful sync:"',
       },
-      syncFailed: 'Most recent sync failed',
-      syncing: 'Syncing',
+      syncFailed: {
+        message: 'Most recent sync failed',
+        context:
+          'This text will display under the name of the facility in Device > FACILITIES section if the most recent attempt at syncing has been unsuccessful.',
+      },
+      syncing: {
+        message: 'Syncing',
+        context: 'Indicates when a syncing process between facilities is in progress.',
+      },
     },
   };
 

@@ -71,8 +71,15 @@
       },
     },
     $trs: {
-      passwordChangeFormHeader: 'Change Password',
-      passwordChangedNotification: 'Your password has been changed.',
+      passwordChangeFormHeader: {
+        message: 'Change Password',
+        context:
+          'Users have the option to change their password if, for example, they have forgotten it.\n\nThis is the text that appears on the change password header.',
+      },
+      passwordChangedNotification: {
+        message: 'Your password has been changed.',
+        context: 'Notification indicating a user has changed their password.',
+      },
     },
   };
 

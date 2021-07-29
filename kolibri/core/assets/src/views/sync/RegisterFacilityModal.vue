@@ -70,10 +70,25 @@
       },
     },
     $trs: {
-      registerFacility: 'Register facility',
-      enterToken: 'Enter a project token from Kolibri Data Portal',
-      projectToken: 'Project token',
-      invalidToken: 'Invalid token',
+      registerFacility: {
+        message: 'Register facility',
+        context: "An action that describes 'registering' a facility to the Kolibri Data Portal.",
+      },
+      enterToken: {
+        message: 'Enter a project token from Kolibri Data Portal',
+        context:
+          'If the Kolibri facility is part of a larger organization that tracks data on the Kolibri Data Portal, an admin may receive a project token to sync the facility data with the organization in the cloud.\n\nThis text is a prompt that appears on the Sync Facility Data screen where the admin would enter this project token.\n\nThe project token is usually composed of a short sequence of characters.',
+      },
+      projectToken: {
+        message: 'Project token',
+        context:
+          'If the Kolibri facility is part of a larger organization that tracks data on the Kolibri Data Portal, the admin may receive a project token to sync the facility data with the organization in the cloud.\n\nThe project token is usually composed of a short sequence of characters.',
+      },
+      invalidToken: {
+        message: 'Invalid token',
+        context:
+          "This is an error message that displays when an admin enters an incorrect project token on the 'Sync Facility Data' screen.\n\nThe project token is usually composed of a short sequence of characters.",
+      },
     },
   };
 

@@ -132,14 +132,41 @@
       },
     },
     $trs: {
-      header: 'Device info',
-      kolibriVersion: 'Kolibri version',
-      url: 'Server {count, plural, one {URL} other {URLs}}',
-      freeDisk: 'Free disk space',
-      advanced: 'Advanced',
-      advancedDescription: 'This information may be helpful for troubleshooting or error reporting',
-      hide: 'Hide',
-      deviceNameWithId: '{deviceName} ({deviceId})',
+      header: {
+        message: 'Device info',
+        context: 'Title of the Device > Info page.',
+      },
+      kolibriVersion: {
+        message: 'Kolibri version',
+        context: 'Indicates the version of Kolibri currently running on the device.',
+      },
+      url: {
+        message: 'Server {count, plural, one {URL} other {URLs}}',
+        context: 'Indicates the server URL. (In plural if there is more than one URL)',
+      },
+      freeDisk: {
+        message: 'Free disk space',
+        context:
+          "In the 'Advanced' section this indicates how much disk space is free on the Device.",
+      },
+      advanced: {
+        message: 'Advanced',
+        context:
+          'Option on the Device > Info tab which shows more detailed information about the device.',
+      },
+      advancedDescription: {
+        message: 'This information may be helpful for troubleshooting or error reporting',
+        context: "Description of the 'Advanced' section on the 'Device info' page.",
+      },
+      hide: {
+        message: 'Hide',
+        context:
+          "Option to show or hide the 'Advanced' information section of the 'Device info' page.",
+      },
+      deviceNameWithId: {
+        message: '{deviceName} ({deviceId})',
+        context: 'DO NOT TRANSLATE.',
+      },
     },
   };
 

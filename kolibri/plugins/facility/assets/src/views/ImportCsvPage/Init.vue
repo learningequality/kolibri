@@ -110,23 +110,63 @@
       },
     },
     $trs: {
-      introduction:
-        'When importing from a spreadsheet you can create, update, and optionally delete dozens or hundreds of facility users at a time by loading new information from comma-separated-value (CSV) files.',
-      caution:
-        'CAUTION: importing from CSV will make many changes to your users and classes, and these changes cannot be easily reverted.',
-      viewFormat: 'View spreadsheet format reference',
-      importingWill: 'Importing from CSV will:',
-      importL1: 'create new users',
-      importL2: 'update existing users (for users with matching usernames)',
-      importL3: 'set which classes each learner is enrolled in',
-      importL4: 'set which classes each coach is assigned to',
-      importL5: 'create new classes (for any referenced class names that do not yet exist)',
-      optionally:
-        'Optionally, you can also delete users and classes that are not referenced in the spreadsheet.',
-      proceed: 'To proceed, select a CSV file:',
-      beforeCommitting:
-        'Before committing the import you will be shown a summary of changes that will be made.',
-      labelDelete: 'Also delete users and classes not in CSV',
+      introduction: {
+        message:
+          'When importing from a spreadsheet you can create, update, and optionally delete dozens or hundreds of facility users at a time by loading new information from comma-separated-value (CSV) files.',
+        context: "Description on 'Import users' page.",
+      },
+      caution: {
+        message:
+          'CAUTION: importing from CSV will make many changes to your users and classes, and these changes cannot be easily reverted.',
+        context: "Warning message on 'Import users' page.",
+      },
+      viewFormat: {
+        message: 'View spreadsheet format reference',
+        context: 'Link to the spreadsheet format reference doc.',
+      },
+      importingWill: {
+        message: 'Importing from CSV will:',
+        context: "Description on 'Import users' page.",
+      },
+      importL1: {
+        message: 'create new users',
+        context: "Description on 'Import users' page.",
+      },
+      importL2: {
+        message: 'update existing users (for users with matching usernames)',
+        context: "Description on 'Import users' page.",
+      },
+      importL3: {
+        message: 'set which classes each learner is enrolled in',
+        context: "Description on 'Import users' page.",
+      },
+      importL4: {
+        message: 'set which classes each coach is assigned to',
+        context: "Description on 'Import users' page.",
+      },
+      importL5: {
+        message: 'create new classes (for any referenced class names that do not yet exist)',
+        context: "Description on 'Import users' page.",
+      },
+      optionally: {
+        message:
+          'Optionally, you can also delete users and classes that are not referenced in the spreadsheet.',
+        context: "Description on 'Import users' page.",
+      },
+      proceed: {
+        message: 'To proceed, select a CSV file:',
+        context: "Description on 'Import users' page.\n",
+      },
+      beforeCommitting: {
+        message:
+          'Before committing the import you will be shown a summary of changes that will be made.',
+        context: "Description on 'Import users' page.",
+      },
+      labelDelete: {
+        message: 'Also delete users and classes not in CSV',
+        context:
+          'Option to allow user to delete users and classes that are not referenced in the spreadsheet.',
+      },
     },
   };
 

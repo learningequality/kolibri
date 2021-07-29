@@ -526,18 +526,45 @@
       },
     },
     $trs: {
-      createNewExamLabel: 'Create new quiz',
-      chooseExercises: 'Select topics or exercises',
-      numQuestions: 'Number of questions',
+      createNewExamLabel: {
+        message: 'Create new quiz',
+        context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.",
+      },
+      chooseExercises: {
+        message: 'Select topics or exercises',
+        context:
+          'When creating a new quiz, coaches can choose which topics or excercises they want to include in the quiz from the list of resources available.',
+      },
+      numQuestions: {
+        message: 'Number of questions',
+        context: 'Indicates the number of questions that the quiz will have.',
+      },
       numQuestionsBetween: 'Enter a number between 1 and 50',
-      numQuestionsExceed:
-        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+      numQuestionsExceed: {
+        message:
+          'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+        context:
+          'This message displays if the learning resource has less questions than the number selected by the coach initially.',
+      },
       numQuestionsExceedNoExercises:
         'The max number of questions based on the exercises you selected is 0. Select more exercises to reach {inputNumQuestions} questions.',
-      noneSelected: 'No exercises are selected',
-      exitSearchButtonLabel: 'Exit search',
-      selectionInformation:
-        '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
+      noneSelected: {
+        message: 'No exercises are selected',
+        context:
+          "Error message which displays if no resources have been selected in the 'Create new quiz' screen.",
+      },
+      exitSearchButtonLabel: {
+        message: 'Exit search',
+        context:
+          "Button to exit the 'Search' page when user searches for resources to use in a quiz.",
+      },
+      selectionInformation: {
+        message:
+          '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
+
+        context:
+          "Indicates the number of resources selected by the coach. For example: '3 of 5 resources selected'.\n\nOnly translate 'of' and 'resource/resources selected'",
+      },
     },
   };
 
