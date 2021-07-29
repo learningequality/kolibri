@@ -234,7 +234,7 @@
       },
       editAction: {
         message: 'Edit',
-        context: 'Button which allows the user to modify some information about the user.',
+        context: 'Button which allows the user to modify some information on their profile.',
       },
       isSuperuser: {
         message: 'Super admin permissions ',

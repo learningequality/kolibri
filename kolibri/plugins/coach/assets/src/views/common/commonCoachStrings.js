@@ -26,7 +26,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   newQuizAction: {
     message: 'New quiz',
     context:
-      "In the Plan > Quizzes section, coaches can create new quizzes using the 'New quizz' button.\n",
+      "In the Plan > Quizzes section, coaches can create new quizzes using the 'New quiz' button.",
   },
   previewAction: {
     message: 'Preview',
@@ -86,12 +86,12 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   classLabel: {
     message: 'Class',
     context:
-      'A class is a group of enrolled learners and assigned coaches, created and managed by an admin. Coaches can assign lessons and quizzes to the learners in a class, and view reports of their progress and performance.',
+      'A class is a group of enrolled learners and assigned coaches, created and managed by an admin.\n\nCoaches can assign lessons and quizzes to the learners in a class, and view reports of their progress and performance.',
   },
   classesLabel: {
     message: 'Classes',
     context:
-      'A class is a group of enrolled learners and assigned coaches, created and managed by an admin. Coaches can assign lessons and quizzes to the learners in a class, and view reports of their progress and performance.',
+      'A class is a group of enrolled learners and assigned coaches, created and managed by an admin.\n\nCoaches can assign lessons and quizzes to the learners in a class, and view reports of their progress and performance.',
   }, // Kept for use in common.js
   coachLabel: {
     message: 'Coach',
@@ -129,7 +129,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   entireClassLabel: {
     message: 'Entire class',
     context:
-      "Coaches have the option to assign lessons to groups, individual learners or the 'entire class' when they create a lesson.",
+      "Coaches have the option to assign activities to groups, individual learners or the 'entire class' when they create a lesson.",
   },
   exercisesCompletedLabel: {
     message: 'Exercises completed',
@@ -183,7 +183,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   membersLabel: {
     message: 'Members',
     context:
-      "In the 'Members' sub-tab within the 'Reports' section, coaches can view a summary of completed exercises, scores and viewed resources for each group learner.",
+      "Refers to members of a group.\n\nIn the 'Members' sub-tab within the 'Reports' section, coaches can view a summary of completed exercises, scores and viewed resources for each group learner.",
   },
   nameLabel: {
     message: 'Name',
@@ -273,7 +273,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   startedLabel: {
     message: 'Started',
-    context: 'Indicates if a learner has started a quiz.',
+    context: 'Indicates if a learner has started a specific activity, like a quiz.',
   },
   statusLabel: {
     message: 'Status',
@@ -373,7 +373,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   ratioShort: {
     message: '{value, number, integer} of {total, number, integer}',
     context:
-      "Refers to a number out of a total. For example, a number of learners in a class. Only translate 'of'.",
+      "Refers to a number out of a total. For example, a number of learners in a class. \n\ne.g. 5 of 10. (Only translate 'of'.)",
   },
 
   // Errors

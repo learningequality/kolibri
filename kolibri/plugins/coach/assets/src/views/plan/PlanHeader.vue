@@ -48,7 +48,7 @@
     $trs: {
       planYourClassLabel: {
         message: 'Plan your class',
-        context: "Description of the 'Plan your class' section.",
+        context: "Title of the 'Plan your class' section.",
       },
       planYourClassDescription: {
         message: 'Create and manage your lessons, quizzes, and groups',

@@ -136,7 +136,7 @@
       noClassesDetailsForAdmin: {
         message: 'Create a class and enroll learners',
         context:
-          "This message displays if there are no classes in the 'Classes' section. Coaches who are also admins can create classes and enroll learners to them.",
+          "This message displays if there are no classes in the 'Classes' section. Admins can create classes and enroll learners to them. ",
       },
       noClassesDetailsForFacilityCoach: {
         message: 'Please consult your Kolibri administrator',

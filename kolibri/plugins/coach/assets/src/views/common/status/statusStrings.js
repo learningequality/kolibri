@@ -14,7 +14,7 @@ export const learnerProgressTranslators = {
   completed: createTranslator('LearnersCompleted', {
     label: {
       message: '{count, plural, one {Completed by learner} other {Completed by learners}}',
-      context: 'Label that refers to the number of learners that completed an activity.\n',
+      context: 'Label that refers to a learner or learners who completed an activity.',
     },
     labelShort: {
       message: '{count, plural, other {Completed}}',
@@ -23,7 +23,9 @@ export const learnerProgressTranslators = {
     count: {
       message:
         '{count, plural, other {Completed by}} {count, number, integer} {count, plural, one {learner} other {learners}}',
-      context: 'Refers to the number of learners that completed an activity.',
+
+      context:
+        "Refers to the number of learners that completed an activity. For example:\n\n'Completed by 10 learners'",
     },
     countShort: {
       message: '{count, number, integer} {count, plural, other {completed}}',
@@ -32,13 +34,14 @@ export const learnerProgressTranslators = {
     allOfMoreThanTwo: {
       message:
         'Completed by all {total, number, integer} {total, plural, one {learner} other {learners}}',
+
       context:
-        'Indicates an activity has been completed by all of the learners in that class or group.',
+        "Indicates an activity has been completed by all of the learners in that class or group. For example:\n\n'Completed by all 10 learners'",
     },
     allOfMoreThanTwoShort: {
       message: 'Completed by all {total, number, integer}',
       context:
-        'Indicates an activity has been completed by all of the learners in that class or group. (short version)',
+        "Indicates an activity has been completed by all of the learners in that class or group. For example:\n\n'Completed by all 10 (learners)' (short version)",
     },
     ratio: {
       message:
@@ -56,12 +59,12 @@ export const learnerProgressTranslators = {
   notStarted: createTranslator('LearnersDidNotStart', {
     label: {
       message: '{count, plural, one {Learner has not started} other {Learners have not started}}',
-      context: "Label that refers to the number of learners who haven't started an activity.",
+      context: "Label that refers to a learner or learners who haven't started an activity.",
     },
     labelShort: {
       message: '{count, plural, one {Has not started} other {Have not started}}',
       context:
-        "Label that refers to the number of learners who haven't started an activity. (short version)\n",
+        "Label that refers to a learner or learners who haven't started an activity. (short version)\n\nOnly translate 'Has not started' and 'Have not started'.",
     },
     count: {
       message:
@@ -91,12 +94,12 @@ export const learnerProgressTranslators = {
   needHelp: createTranslator('LearnersNeedHelp', {
     label: {
       message: '{count, plural, one {Learner needs help} other {Learners need help}}',
-      context: 'Label indicating that a specified number of learners doing an activity need help.',
+      context: 'Label indicating that a learner or learners doing an activity need help.',
     },
     labelShort: {
       message: '{count, plural, one {Needs help} other {Need help}}',
       context:
-        'Label indicating that a specified number of learners doing an activity need help. (short version)',
+        "Label indicating that a learner or learners doing an activity need help. (short version)\n\nOnly translate 'Needs help' and 'Need help'",
     },
     count: {
       message:
@@ -133,12 +136,12 @@ export const learnerProgressTranslators = {
   started: createTranslator('LearnersStarted', {
     label: {
       message: '{count, plural, one {Learner has started} other {Learners have started}}',
-      context: 'Indicates that a specified number of learners have started an activity.',
+      context: 'Indicates that a learner or learners have started an activity.',
     },
     labelShort: {
       message: '{count, plural, other {Started}}',
       context:
-        'Indicates that a specified number of learners have started an activity. (short version)\n',
+        "Indicates that a learner or learners have started an activity. (short version)\n\nOnly translate 'Started'.",
     },
     count: {
       message:

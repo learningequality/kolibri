@@ -68,7 +68,7 @@
       },
       titleMultipleChannels: {
         message: 'Delete channels',
-        context: 'Title of window that displays when a user tries to delete multiple channels.',
+        context: 'Title of window that displays when a user tries to delete a channel or channels.',
       },
     },
   };

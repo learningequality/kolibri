@@ -561,8 +561,9 @@
       selectionInformation: {
         message:
           '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
+
         context:
-          "Indicates the number of resources selected by the coach. Only translate 'of' and 'resource/resources selected'",
+          "Indicates the number of resources selected by the coach. For example: '3 of 5 resources selected'.\n\nOnly translate 'of' and 'resource/resources selected'",
       },
     },
   };

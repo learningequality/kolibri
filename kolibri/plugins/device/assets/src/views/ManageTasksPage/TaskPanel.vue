@@ -310,7 +310,7 @@
       },
       deleteChannelPartial: {
         message: `Delete resources from '{channelName}'`,
-        context: 'Indicates from which channel the resources will be deleted.',
+        context: 'Indicates the channel from which resources will be deleted.',
       },
       updatingChannelVersion: {
         message: `Update {channelName} to version {newVersion}`,

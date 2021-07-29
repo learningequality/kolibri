@@ -32,11 +32,13 @@
     $trs: {
       twoItems: {
         message: '{item1}, {item2}',
-        context: "'item' will be replaced by the name of the coach(es) in the list of classes.\n",
+        context:
+          "DO NOT TRANSLATE\n'item' will be replaced by the name of the coach(es) in the list of classes.\n",
       },
       threeItems: {
         message: '{item1}, {item2}, {item3}',
-        context: "'item' will be replaced by the name of the coach(es) in the list of classes.",
+        context:
+          "DO NOT TRANSLATE\n'item' will be replaced by the name of the coach(es) in the list of classes.",
       },
       manyItems: {
         message: '{item1}, {item2}, and {count, number, integer} others',

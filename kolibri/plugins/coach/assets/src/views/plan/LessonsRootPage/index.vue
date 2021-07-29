@@ -233,7 +233,7 @@
       size: {
         message: 'Size',
         context:
-          "'Size' is a column name in the 'Lessons' section. It refers to how many learning resources there are in a specific lesson.",
+          "'Size' is a column name in the 'Lessons' section. It refers to the number or learning resources there are in a specific lesson.",
       },
       noLessons: {
         message: 'You do not have any lessons',

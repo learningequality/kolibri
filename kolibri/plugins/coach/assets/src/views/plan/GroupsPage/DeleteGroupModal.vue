@@ -48,7 +48,7 @@
       },
       areYouSure: {
         message: "Are you sure you want to delete '{ groupName }'?",
-        context: 'Confirmation message when user attempts to delete a group of users.',
+        context: 'Confirmation message when the coach attempts to delete a group of learners.',
       },
     },
   };

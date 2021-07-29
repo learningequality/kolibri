@@ -70,7 +70,8 @@
       },
       plan: {
         message: 'Plan',
-        context: "Refers the 'Plan' tab where coches manage lessons, quizzes, and groups.",
+        context:
+          "Translate as a VERB. Refers to the 'Plan' tab where coaches manage lessons, quizzes, and groups.",
       },
     },
   };

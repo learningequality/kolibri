@@ -199,7 +199,7 @@
       },
       titleFilterPlaceholder: {
         message: 'Search for a channel',
-        context: 'Refers to the search for a channel option.',
+        context: 'Refers to text in the search field.',
       },
       allLanguages: {
         message: 'All languages',

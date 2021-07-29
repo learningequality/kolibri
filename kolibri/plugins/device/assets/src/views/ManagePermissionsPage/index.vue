@@ -262,7 +262,7 @@
       },
       allPermissionsFilterLabel: {
         message: 'All',
-        context: 'Refers to the all permission type filter.',
+        context: 'Refers to the all permissions type filter.',
       },
       allUserTypeFilter: {
         message: 'All',

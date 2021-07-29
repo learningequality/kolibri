@@ -59,7 +59,7 @@
     $trs: {
       questionListHeader: {
         message: '{numOfQuestions, number} Questions',
-        context: 'Indicates the number of questions in a quiz.',
+        context: 'Indicates the questions in a quiz.',
       },
     },
   };

@@ -100,7 +100,7 @@
     $trs: {
       clearButtonLabel: {
         message: 'Clear',
-        context: "Used to clear a search query. Marked with an 'X'.",
+        context: 'Button used to clear a search query, for example.',
       },
       startSearchButtonLabel: {
         message: 'Start search',
