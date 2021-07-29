@@ -1,4 +1,4 @@
-# Kolibri Android Installer
+# Kolibri Android Installer (Note: this repo is deprecated, and the newer code is now integrated [here](https://github.com/learningequality/kolibri-app) )
 
 Wraps Kolibri in an android-compatibility layer. Uses PyEverywhere to automate build, and relies on Python-For-Android for compatibility on the Android platform.
 
