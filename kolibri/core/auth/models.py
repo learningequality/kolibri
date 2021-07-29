@@ -1512,6 +1512,15 @@ class AdHocGroup(Collection):
     class Meta:
         proxy = True
 
+    @classmethod
+    def deserialize(cls, dict_model):
+        # be defensive against blank names, set to `Ad hoc` if blank
+        name = dict_model.get("name", "") or ""
+        if len(name) == 0:
+            dict_model.update(name="Ad hoc")
+
+        return super(AdHocGroup, cls).deserialize(dict_model)
+
     def save(self, *args, **kwargs):
         if not self.parent:
             raise IntegrityError(
