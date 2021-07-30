@@ -1,3 +1,4 @@
+from datetime import timedelta
 from sys import version_info
 
 from django.conf import settings
@@ -6,6 +7,7 @@ from django.db.models import Max
 from django.db.models import OuterRef
 from django.db.models.query import Q
 from django.http.response import HttpResponseBadRequest
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
@@ -31,6 +33,8 @@ from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Collection
 from kolibri.core.content.permissions import CanManageContent
+from kolibri.core.device.utils import get_device_setting
+from kolibri.core.discovery.models import DynamicNetworkLocation
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
@@ -193,6 +197,28 @@ class SyncStatusFilter(FilterSet):
         fields = ["user", "member_of"]
 
 
+RECENTLY_SYNCED = "RECENTLY_SYNCED"
+SYNCING = "SYNCING"
+QUEUED = "QUEUED"
+NOT_RECENTLY_SYNCED = "NOT_RECENTLY_SYNCED"
+
+
+def map_status(status):
+    """
+    Summarize the current state of the sync into a constant for use by
+    the frontend.
+    """
+    if status["active"]:
+        return SYNCING
+    elif status["queued"]:
+        return QUEUED
+    elif status["last_synced"]:
+        if timezone.now() - status["last_synced"] < timedelta(hours=1):
+            return RECENTLY_SYNCED
+        else:
+            return NOT_RECENTLY_SYNCED
+
+
 class UserSyncStatusViewSet(ReadOnlyValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
@@ -200,16 +226,27 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
     filter_class = SyncStatusFilter
 
     values = (
-        "id",
         "queued",
         "last_synced",
         "active",
         "user",
-        "user_id",
     )
 
+    field_map = {
+        "status": map_status,
+    }
+
     def get_queryset(self):
-        return UserSyncStatus.objects.filter()
+        # If this is a subset of users device, we should just return no data
+        # if there are no possible devices we could sync to.
+        if (
+            get_device_setting("subset_of_users_device", False)
+            and not DynamicNetworkLocation.objects.filter(
+                subset_of_users_device=False
+            ).exists()
+        ):
+            return UserSyncStatus.objects.none()
+        return UserSyncStatus.objects.all()
 
     def annotate_queryset(self, queryset):
 
