@@ -43,7 +43,7 @@ kolibrihome_test/
 
 # Translations
 kolibri/locale/en/
-kolibri/locale/CSV_FILES/**/*
+kolibri/locale/**/LC_MESSAGES/*.csv
 
 # Mr Developer
 .mr.developer.cfg
