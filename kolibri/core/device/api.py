@@ -10,7 +10,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
 from morango.models import InstanceIDModel
-from morango.models import SyncSession
+from morango.models import TransferSession
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework import views
@@ -217,10 +217,10 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             last_synced=Max("sync_session__last_activity_timestamp")
         )
 
-        sync_sessions = SyncSession.objects.filter(
-            id=OuterRef("sync_session__pk"), active=True
+        active_transfer_sessions = TransferSession.objects.filter(
+            sync_session=OuterRef("sync_session"), active=True
         )
 
-        queryset = queryset.annotate(active=Exists(sync_sessions))
+        queryset = queryset.annotate(active=Exists(active_transfer_sessions))
 
         return queryset
