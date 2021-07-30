@@ -29,7 +29,7 @@
   import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { wizardMachine } from '../wizardMachine';
+  import { wizardMachine } from '../machines/wizardMachine';
   import LoadingPage from './submission-states/LoadingPage';
   import ErrorPage from './submission-states/ErrorPage';
 

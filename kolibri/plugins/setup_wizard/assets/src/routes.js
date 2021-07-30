@@ -7,6 +7,7 @@ import UngroupedSetupSteps from './views/UngroupedSetupSteps';
 import PersonalSetup from './views/PersonalSetup';
 import CreateFacilitySetup from './views/CreateFacilitySetup';
 import ImportFacilitySetup from './views/ImportFacilitySetup';
+import ImportLODUsersSetup from './views/ImportLODUsersSetup.vue';
 
 export default [
   {
@@ -54,5 +55,10 @@ export default [
     name: 'IMPORT_FACILITY',
     path: '/import_facility/:step',
     component: ImportFacilitySetup,
+  },
+  {
+    name: 'IMPORT_LOD',
+    path: '/import_lod/:step',
+    component: ImportLODUsersSetup,
   },
 ];

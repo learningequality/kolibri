@@ -5,15 +5,19 @@ const isQuick = context => {
 };
 
 const isNewFacility = context => {
-  return !context.import;
+  return context.setupType === 'new';
+};
+
+const isLODSetup = context => {
+  return context.setupType === 'lod';
 };
 
 const setQuick = assign({
   quick: (_, event) => event.value,
 });
 
-const setImport = assign({
-  import: (_, event) => event.value,
+const setSetupType = assign({
+  setupType: (_, event) => event.value,
 });
 
 export const wizardMachine = createMachine({
@@ -21,7 +25,7 @@ export const wizardMachine = createMachine({
   initial: 'defaultLanguage',
   context: {
     quick: true,
-    import: false,
+    setupType: false,
   },
   states: {
     defaultLanguage: {
@@ -64,7 +68,7 @@ export const wizardMachine = createMachine({
     publicSetup: {
       meta: { route: 'PUBLIC_SETUP_METHOD', path: '/' },
       on: {
-        CONTINUE: { target: 'importOrNew', actions: setImport },
+        CONTINUE: { target: 'importOrNew', actions: setSetupType },
         BACK: 'deviceName',
       },
     },
@@ -73,6 +77,10 @@ export const wizardMachine = createMachine({
         {
           cond: isNewFacility,
           target: 'createFacility',
+        },
+        {
+          cond: isLODSetup,
+          target: 'importLODUsers',
         },
         {
           target: 'importFacility',
@@ -88,6 +96,12 @@ export const wizardMachine = createMachine({
     },
     importFacility: {
       meta: { route: 'IMPORT_FACILITY' },
+      on: {
+        BACK: 'publicSetup',
+      },
+    },
+    importLODUsers: {
+      meta: { route: 'IMPORT_LOD' },
       on: {
         BACK: 'publicSetup',
       },

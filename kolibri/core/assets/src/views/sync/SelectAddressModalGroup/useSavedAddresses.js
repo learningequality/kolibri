@@ -77,7 +77,7 @@ export default function useSavedAddresses(props, context) {
   });
 
   onBeforeMount(() => {
-    refreshSavedAddressList();
+    if (!props.filterLODAvailable) refreshSavedAddressList();
   });
 
   const requestsFailed = computed(() => {

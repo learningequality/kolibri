@@ -95,10 +95,10 @@
       },
 
       startNewFacilityFlow() {
-        this.wizardService.send({ type: 'CONTINUE', value: false });
+        this.wizardService.send({ type: 'CONTINUE', value: 'new' });
       },
       startFacilityImportFlow(address) {
-        this.wizardService.send({ type: 'CONTINUE', value: true });
+        this.wizardService.send({ type: 'CONTINUE', value: 'import' });
         this.$router.push({
           path: '/import_facility/1',
           query: {
@@ -107,9 +107,9 @@
         });
       },
       startLODImportFlow(address) {
-        this.wizardService.send({ type: 'CONTINUE', value: true });
+        this.wizardService.send({ type: 'CONTINUE', value: 'lod' });
         this.$router.push({
-          path: '/import_facility/1',
+          path: '/import_lod/1',
           query: {
             device_id: address.id,
           },
