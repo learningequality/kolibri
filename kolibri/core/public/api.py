@@ -29,6 +29,7 @@ from kolibri.core.content.models import LocalFile
 from kolibri.core.content.serializers import PublicChannelSerializer
 from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
 from kolibri.core.device.models import SyncQueue
+from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.device.utils import allow_peer_unlisted_channel_import
 
 MAX_CONCURRENT_SYNCS = 1
@@ -239,14 +240,18 @@ class SyncQueueViewSet(viewsets.ViewSet):
             )
             data["id"] = element.id
 
+        UserSyncStatus.objects.update_or_create(
+            user_id=user, defaults={"queued": not allow_sync}
+        )
+
         return Response(data)
 
     def update(self, request, pk=None):
         SyncQueue.clean_stale()  # first, ensure not expired devices are in the queue
         allow_sync, data = self.check_queue(pk)
 
+        element = SyncQueue.objects.filter(id=pk).first()
         if not allow_sync:
-            element = SyncQueue.objects.filter(id=pk).first()
             if not element:
                 # this device has been deleted from the queue, likely due to keep alive expiration
                 content = {
@@ -259,4 +264,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
             data["id"] = element.id
         else:
             SyncQueue.objects.filter(id=pk).delete()
+        UserSyncStatus.objects.update_or_create(
+            user=element.user, defaults={"queued": not allow_sync}
+        )
         return Response(data)
