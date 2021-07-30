@@ -61,9 +61,9 @@
                 />
               </td>
               <td>
-                <span dir="auto">
-                  {{ $tr('lastSyncedTime', { time: mapLastSynctedTimeToLearner(learner.id) }) }}
-                </span>
+                <ElapsedTime
+                  :date="mapLastSyncedTimeToLearner(entry)"
+                />
               </td>
             </tr>
           </tbody>
@@ -79,6 +79,7 @@
 
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import { mapState, mapActions } from 'vuex';
@@ -95,6 +96,7 @@
     components: {
       CoreBase,
       CoreTable,
+      ElapsedTime,
       SyncStatusDisplay,
       SyncStatusDescription,
     },
@@ -102,7 +104,7 @@
     data: function() {
       return {
         displayTroubleshootModal: false,
-        classSyncStatusList: [],
+        classSyncStatusList: {},
         // poll every 10 seconds
         pollingInterval: 10000,
       };
@@ -139,55 +141,27 @@
     },
     methods: {
       ...mapActions(['fetchUserSyncStatus']),
-      mapLastSynctedTimeToLearner(learnerId) {
-        let learnerSyncData;
-        if (this.classSyncStatusList) {
-          learnerSyncData = this.classSyncStatusList.filter(entry => {
-            entry.user_id == learnerId;
-          });
-        }
+      mapLastSyncedTimeToLearner(learnerId) {
+        const learnerSyncData = this.classSyncStatusList[learnerId];
         if (learnerSyncData) {
-          learnerSyncData.last_synced = new Date(new Date().valueOf() - 1000);
-          if (learnerSyncData.last_synced) {
-            const currentDateTime = new Date();
-            const timeDifference = currentDateTime - learnerSyncData.last_synced;
-            if (timeDifference < 5184000000) {
-              const diffMins = Math.round(timeDifference / 60).toString();
-              return diffMins.toString();
-            }
-          }
-          return '--';
+          return learnerSyncData.last_synced;
         }
-        return '--';
+        return null;
       },
       mapSyncStatusOptionToLearner(learnerId) {
-        let learnerSyncData;
-        if (this.classSyncStatusList) {
-          learnerSyncData = this.classSyncStatusList.filter(entry => {
-            return entry.user_id == learnerId;
-          });
-          learnerSyncData = learnerSyncData[learnerSyncData.length - 1];
-        }
+        const learnerSyncData = this.classSyncStatusList[learnerId];
         if (learnerSyncData) {
-          if (learnerSyncData.active) {
-            return SyncStatus.SYNCING;
-          } else if (learnerSyncData.queued) {
-            return SyncStatus.QUEUED;
-          } else if (learnerSyncData.last_synced) {
-            const currentDateTime = new Date();
-            const timeDifference = currentDateTime - learnerSyncData.last_synced;
-            if (timeDifference < 5184000000) {
-              return SyncStatus.RECENTLY_SYNCED;
-            } else {
-              return SyncStatus.NOT_RECENTLY_SYNCED;
-            }
-          }
+          return learnerSyncData.status;
         }
         return SyncStatus.NOT_CONNECTED;
       },
       pollClassListSyncStatuses() {
-        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(status => {
-          this.classSyncStatusList = status;
+        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+          const statuses = {};
+          for (let status of data) {
+            statuses[status.user] = status;
+          }
+          this.classSyncStatusList = statuses;
         });
         if (this.isPolling) {
           setTimeout(() => {
@@ -200,7 +174,6 @@
       pageHeader: "Learners in '{className}'",
       deviceStatus: 'Device status',
       lastSyncedStatus: 'Last synced',
-      lastSyncedTime: 'Last synced {time} minutes ago',
       howToTroubleshootModalHeader: 'Information about sync statuses',
       close: 'Close',
     },

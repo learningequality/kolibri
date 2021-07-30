@@ -45,6 +45,7 @@
           [SyncStatus.QUEUED]: this.$tr('queued'),
           [SyncStatus.SYNCING]: this.$tr('syncing'),
           [SyncStatus.UNABLE_TO_SYNC]: this.$tr('unableToSync'),
+          [SyncStatus.NOT_RECENTLY_SYNCED]: this.$tr('notRecentlySynced'),
           [SyncStatus.UNABLE_OR_NOT_SYNCED]: this.$tr('unableOrNotSynced'),
           [SyncStatus.NOT_CONNECTED]: this.$tr('notConnected'),
         };
@@ -72,6 +73,7 @@
       syncing: 'Syncing...',
       queued: 'Waiting to sync...',
       unableToSync: 'Unable to sync',
+      notRecentlySynced: 'Not recently synced',
       unableOrNotSynced: 'Not recently synced or unable to sync',
       notConnected: 'Not connected to server',
     },

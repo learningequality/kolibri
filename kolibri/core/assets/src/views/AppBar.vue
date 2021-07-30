@@ -188,19 +188,7 @@
       },
       mapSyncStatusOptionToLearner() {
         if (this.userSyncStatus) {
-          if (this.userSyncStatus.active) {
-            return SyncStatus.SYNCING;
-          } else if (this.userSyncStatus.queued) {
-            return SyncStatus.QUEUED;
-          } else if (this.userSyncStatus.last_synced) {
-            const currentDateTime = new Date();
-            const timeDifference = currentDateTime - this.userSyncStatus.last_synced;
-            if (timeDifference < 5184000000) {
-              return SyncStatus.RECENTLY_SYNCED;
-            } else {
-              return SyncStatus.NOT_RECENTLY_SYNCED;
-            }
-          }
+          return this.userSyncStatus.status;
         }
         return SyncStatus.NOT_CONNECTED;
       },
