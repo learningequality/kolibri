@@ -92,9 +92,11 @@ if pew.ui.platform == "android":
 KOLIBRI_ROOT_URL = 'http://localhost:{}'.format(KOLIBRI_PORT)
 os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base"
 
-app_data_dir = pew.get_app_files_dir()
-os.makedirs(app_data_dir, exist_ok=True)
-
+try:
+    os.makedirs(pew.get_app_files_dir(), exist_ok=True)
+except PermissionError:
+    pass
+    
 if not 'KOLIBRI_HOME' in os.environ:
     kolibri_home = os.path.join(os.path.expanduser("~"), ".kolibri")
 
