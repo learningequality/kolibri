@@ -20,7 +20,6 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { RadioButtonGroup } from 'kolibri.coreVue.componentSets.sync';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
@@ -31,7 +30,7 @@
       RadioButtonGroup,
       OnboardingForm,
     },
-    mixins: [commonCoreStrings, commonSyncElements],
+    mixins: [commonSyncElements],
     data() {
       return {
         selectedFacilityId: '',

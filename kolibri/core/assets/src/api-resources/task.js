@@ -160,6 +160,19 @@ export default new Resource({
     return this.getListEndpoint('localdrive');
   },
 
+  /**
+   * Params for Start provisioning an Single User Device
+   *
+   * @param {string} baseurl - peer URL
+   * @param {string} facility - facility ID
+   * @param {string} username - username for admin or username to be imported
+   * @param {string} password - password for admin or for the user to be imported
+   * @param {string} user_id  - user_id to be imported
+   * @param {string} device_name -- name of the device to be provisioned
+   */
+  startprovisionsoud(params) {
+    return this.postListEndpoint('startprovisionsoud', pickBy(params));
+  },
   // TODO: switch to Model.delete()
   cancelTask(taskId) {
     return this.postListEndpoint('canceltask', {

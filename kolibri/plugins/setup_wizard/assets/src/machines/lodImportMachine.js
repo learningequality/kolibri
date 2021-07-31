@@ -2,6 +2,7 @@ import { createMachine, assign } from 'xstate';
 
 // import PersonalDataConsentForm from './onboarding-forms/PersonalDataConsentForm';
 import SelectFacilityForm from '../views/importLODUsers/SelectFacilityForm.vue';
+import ImportIndividualUserForm from '../views/importLODUsers/ImportIndividualUserForm.vue';
 import SelectSuperAdminAccountForm from '../views/importFacility/SelectSuperAdminAccountForm';
 // import LoadingTaskPage from './importFacility/LoadingTaskPage';
 
@@ -31,6 +32,10 @@ const assignFacility = assign({
   facility: (_, event) => event.value,
 });
 
+const importUser = assign((context, event) => {
+  context.users.push(event.value);
+});
+
 export const lodImportMachine = createMachine({
   initial: 'selectFacility',
   context: {
@@ -50,9 +55,9 @@ export const lodImportMachine = createMachine({
       },
     },
     userCredentials: {
-      meta: { step: '2' },
+      meta: { step: '2', component: ImportIndividualUserForm },
       on: {
-        CONTINUE: { target: 'importingUser' },
+        CONTINUE: { target: 'importingUser', actions: importUser },
         CONTINUEADMIN: { target: 'adminCredentials' },
         BACK: 'selectFacility',
       },

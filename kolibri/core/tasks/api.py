@@ -13,8 +13,10 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.http.response import Http404
 from django.http.response import HttpResponseBadRequest
+from django.urls import reverse
 from django.utils.translation import get_language_from_request
 from django.utils.translation import gettext_lazy as _
+from morango.models import InstanceIDModel
 from morango.models import ScopeDefinition
 from morango.sync.controller import MorangoProfileController
 from requests.exceptions import HTTPError
@@ -31,6 +33,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from six import string_types
+from six.moves.urllib.parse import urljoin
 
 from .permissions import FacilitySyncPermissions
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
@@ -955,6 +958,62 @@ class TasksViewSet(BaseViewSet):
 
         resp = _job_to_response(priority_queue.fetch_job(job_id))
 
+        return Response(resp)
+
+    @decorators.action(
+        methods=["post"],
+        detail=False,
+        permission_classes=[IsSuperuser | NotProvisionedCanPost],
+    )
+    def startprovisionsoud(self, request):
+        baseurl = request.data.get("baseurl", None)
+        facility_id = request.data.get("facility_id", None)
+        username = request.data.get("username", None)
+        password = request.data.get("password", None)
+        user_id = request.data.get("user_id", None)
+        device_name = request.data.get("device_name", None)
+        if user_id is None:
+            auth_url = urljoin(baseurl, reverse("kolibri:core:session-list"))
+            params = {
+                "username": username,
+                "password": password,
+                "facility": facility_id,
+            }
+            try:
+                response = requests.post(auth_url, data=params)
+                response.raise_for_status()
+            except (CommandError, HTTPError) as e:
+                if not username and not password:
+                    raise PermissionDenied()
+                else:
+                    raise AuthenticationFailed(e)
+            session = response.json()
+            user_id = session["user_id"]
+
+        kwargs = {"user": user_id}
+        resp = prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs)
+        instance_model = InstanceIDModel.get_or_create_current_instance()[0]
+
+        extra_metadata = prepare_sync_task(
+            facility_id,
+            user_id,
+            username,
+            None,  # uneeded facility_name
+            None,  # ignored by prepare_sync_task with SYNCPEER/SINGLE
+            instance_model.id,
+            baseurl,
+            type="SYNCPEER/SINGLE",
+        )
+        if device_name is not None:  # Needed when first provisioning a device
+            extra_metadata["device_name"] = device_name
+
+        job_data = prepare_soud_sync_job(
+            baseurl, facility_id, user_id, extra_metadata=extra_metadata
+        )
+
+        job_id = queue.enqueue(call_command, "sync", **job_data)
+        resp = _job_to_response(facility_queue.fetch_job(job_id))
+        resp["user"] = user_id
         return Response(resp)
 
 

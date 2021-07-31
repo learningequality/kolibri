@@ -322,7 +322,8 @@
       },
       lodSubHeader: {
         message: 'Select a device with Kolibri version 0.15 to import learner user accounts',
-        context: "In the Device > Facilities section, you select the 'SYNC' option to choose the network address you want to sync from.\n\nYou do this in the 'Select network address' section which displays a list of network addresses.",
+        context:
+          "In the first startup wizard, when you select to 'Import one or more user accounts from an existing facility' option to choose the network address you want to sync from.\n\nYou do this in the 'Select network address' section which displays a list of network addresses.",
       },
       noAddressText: {
         message: 'There are no addresses yet',
