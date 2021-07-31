@@ -46,9 +46,19 @@
       },
     },
     $trs: {
-      planYourClassLabel: 'Plan your class',
-      planYourClassDescription: 'Create and manage your lessons, quizzes, and groups',
-      home: 'Class Home',
+      planYourClassLabel: {
+        message: 'Plan your class',
+        context: "Title of the 'Plan your class' section.",
+      },
+      planYourClassDescription: {
+        message: 'Create and manage your lessons, quizzes, and groups',
+        context: "Description of the 'Plan your class' section.",
+      },
+      home: {
+        message: 'Class Home',
+        context:
+          "Tab name of the main 'Class' section where the coach can see all the information relating to a specific class.",
+      },
     },
   };
 

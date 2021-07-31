@@ -100,7 +100,11 @@
       },
     },
     $trs: {
-      toggleFullscreen: 'Toggle fullscreen',
+      toggleFullscreen: {
+        message: 'Toggle fullscreen',
+        context:
+          'Learners can use the fullscreen button in the upper right corner to open the ebook in fullscreen view.',
+      },
     },
   };
 

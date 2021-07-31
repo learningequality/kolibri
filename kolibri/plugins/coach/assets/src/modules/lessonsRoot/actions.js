@@ -4,7 +4,10 @@ import { createTranslator } from 'kolibri.utils.i18n';
 import { lessonSummaryLink } from '../../routes/planLessonsRouterUtils';
 
 const translator = createTranslator('LessonRootActionTexts', {
-  newLessonCreated: 'New lesson created',
+  newLessonCreated: {
+    message: 'New lesson created',
+    context: 'Notification that a new lesson has been created.',
+  },
 });
 
 export function refreshClassLessons(store, classId) {

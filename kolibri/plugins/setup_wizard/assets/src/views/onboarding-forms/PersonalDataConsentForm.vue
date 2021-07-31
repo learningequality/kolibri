@@ -70,9 +70,16 @@
       },
     },
     $trs: {
-      description:
-        'If you are setting up Kolibri to be used by other users, you or someone you delegate will be responsible for protecting and managing the user accounts and personal information stored on this device.',
-      header: 'Responsibilities as an administrator',
+      description: {
+        message:
+          'If you are setting up Kolibri to be used by other users, you or someone you delegate will be responsible for protecting and managing the user accounts and personal information stored on this device.',
+        context: "Description of the 'Responsibilities as an administrator' page.",
+      },
+      header: {
+        message: 'Responsibilities as an administrator',
+        context:
+          'When an admin sets up a Kolibri facility they need to take into consideration the relevant privacy laws and regulations. This is the title of that section in the set up process where they can view those regulations.',
+      },
     },
   };
 

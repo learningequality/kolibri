@@ -83,7 +83,7 @@ class TestServerServices(object):
         with mock.patch("kolibri.core.tasks.main.scheduler") as scheduler:
 
             # Start server services
-            services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"), 1234)
+            services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
             services_plugin.START()
 
             # Do we initialize workers when services start?
@@ -93,11 +93,6 @@ class TestServerServices(object):
             scheduler.start_scheduler.assert_called_once()
 
             register_zeroconf_service.assert_not_called()
-
-            services_plugin.SERVING(1234)
-
-            # Do we register ourselves on zeroconf?
-            register_zeroconf_service.assert_called_once_with(port=1234)
 
     @mock.patch("kolibri.core.tasks.main.initialize_workers")
     @mock.patch(
@@ -125,7 +120,7 @@ class TestServerServices(object):
             scheduler.schedule(schedule_time, id, job_id="test02")
 
             # Now, start services plugin
-            service_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"), 1234)
+            service_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
             service_plugin.START()
 
             # Currently, we must have exactly four scheduled jobs
@@ -150,14 +145,11 @@ class TestServerServices(object):
             assert scheduler.get_job(DEFAULT_PING_JOB_ID) is not None
             assert scheduler.get_job(SCH_VACUUM_JOB_ID) is not None
 
-    @mock.patch(
-        "kolibri.core.discovery.utils.network.search.unregister_zeroconf_service"
-    )
-    def test_services_shutdown_on_stop(self, unregister_zeroconf_service):
+    def test_services_shutdown_on_stop(self):
         with mock.patch("kolibri.core.tasks.main.scheduler") as scheduler:
 
             # Initialize and ready services plugin for testing
-            services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"), 1234)
+            services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
 
             from kolibri.core.tasks.worker import Worker
 
@@ -180,8 +172,43 @@ class TestServerServices(object):
                     mock.call.shutdown(wait=True),
                 ]
 
-            # Do we unregister ourselves from zeroconf network?
-            unregister_zeroconf_service.assert_called_once()
+
+class TestZeroConfPlugin(object):
+    @mock.patch("kolibri.core.discovery.utils.network.search.register_zeroconf_service")
+    @mock.patch(
+        "kolibri.core.discovery.utils.network.search.reinitialize_zeroconf_if_network_has_changed"
+    )
+    def test_required_services_initiate_on_start(
+        self,
+        reinitialize_zeroconf_if_network_has_changed,
+        register_zeroconf_service,
+    ):
+
+        # Start zeroconf services
+        zeroconf_plugin = server.ZeroConfPlugin(mock.MagicMock(name="bus"), 1234)
+        zeroconf_plugin.START()
+
+        register_zeroconf_service.assert_not_called()
+
+        reinitialize_zeroconf_if_network_has_changed.assert_not_called()
+
+        zeroconf_plugin.SERVING(1234)
+
+        # Do we register ourselves on zeroconf?
+        register_zeroconf_service.assert_called_once_with(port=1234)
+
+        zeroconf_plugin.STOP()
+
+    @mock.patch(
+        "kolibri.core.discovery.utils.network.search.unregister_zeroconf_service"
+    )
+    def test_services_shutdown_on_stop(self, unregister_zeroconf_service):
+        zeroconf_plugin = server.ZeroConfPlugin(mock.MagicMock(name="bus"), 1234)
+        # Now, let us stop services plugin
+        zeroconf_plugin.STOP()
+
+        # Do we unregister ourselves from zeroconf network?
+        unregister_zeroconf_service.assert_called_once()
 
 
 class ServerInitializationTestCase(TestCase):

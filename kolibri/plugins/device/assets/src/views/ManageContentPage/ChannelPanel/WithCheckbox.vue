@@ -64,7 +64,11 @@
       },
     },
     $trs: {
-      resourcesOnDevice: 'Resources on device',
+      resourcesOnDevice: {
+        message: 'Resources on device',
+        context:
+          'Indicates that the learning resources are on the device being used at that moment.\n',
+      },
     },
   };
 

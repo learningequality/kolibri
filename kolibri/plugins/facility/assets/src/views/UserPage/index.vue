@@ -201,18 +201,58 @@
       },
     },
     $trs: {
-      searchText: 'Search for a user…',
-      admins: 'Admins',
-      superAdmins: 'Super admins',
-      newUserButtonLabel: 'New User',
-      noUsersExist: 'No users exist',
-      allUsersFilteredOut: "No users match the filter: '{filterText}'",
-      optionsButtonLabel: 'Options',
-      resetUserPassword: 'Reset password',
-      noLearnersExist: 'No learners exist',
-      noCoachesExist: 'No coaches exist',
-      noSuperAdminsExist: 'No super admins exist',
-      noAdminsExist: 'No admins exist',
+      searchText: {
+        message: 'Search for a user…',
+        context: 'Refers to the search option on the user page.',
+      },
+      admins: {
+        message: 'Admins',
+        context: 'Refers to the list of admins in a facility.',
+      },
+      superAdmins: {
+        message: 'Super admins',
+        context: 'A user type.',
+      },
+      newUserButtonLabel: {
+        message: 'New User',
+        context: 'Button to create new user.',
+      },
+      noUsersExist: {
+        message: 'No users exist',
+        context: "Displayed when there are no users in the facility on the 'Users' page.",
+      },
+      allUsersFilteredOut: {
+        message: "No users match the filter: '{filterText}'",
+        context: "Refers to the 'Search for a user' filter when no users are found.",
+      },
+      optionsButtonLabel: {
+        message: 'Options',
+        context: 'User options button.',
+      },
+      resetUserPassword: {
+        message: 'Reset password',
+        context: "Option to reset a user's password.",
+      },
+      noLearnersExist: {
+        message: 'No learners exist',
+        context:
+          "Displayed when there are no learners in the facility. Seen when using the 'User type' filter on the 'Users' page.",
+      },
+      noCoachesExist: {
+        message: 'No coaches exist',
+        context:
+          "Displayed when there are no coaches in the facility. Seen when using the 'User type' filter on the 'Users' page.",
+      },
+      noSuperAdminsExist: {
+        message: 'No super admins exist',
+        context:
+          "Displayed when there are no super admins in the facility. Seen when using the 'User type' filter on the 'Users' page.",
+      },
+      noAdminsExist: {
+        message: 'No admins exist',
+        context:
+          "Displayed when there are no admins in the facility. Seen when using the 'User type' filter on the 'Users' page.",
+      },
     },
   };
 

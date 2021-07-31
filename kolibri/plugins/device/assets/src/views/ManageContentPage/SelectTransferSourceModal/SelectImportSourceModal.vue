@@ -89,15 +89,34 @@
       },
     },
     $trs: {
-      network: 'Kolibri Studio (online)',
-      localNetworkOrInternet: 'Local network or internet',
-      localDrives: 'Attached drive or memory card',
-      studioDescription:
-        'Import resources from Kolibri Studio if you are connected to the internet',
-      networkDescription:
-        'Import resources from another instance of Kolibri running on another device, either in the same local network or on the internet',
-      localDescription:
-        'Import resources from a drive. Channels must have first been exported onto the drive from another instance of Kolibri',
+      network: {
+        message: 'Kolibri Studio (online)',
+        context: 'Refers to a source where resources can be imported from.\n',
+      },
+      localNetworkOrInternet: {
+        message: 'Local network or internet',
+        context: 'Refers to a source where resources can be imported from.\n',
+      },
+      localDrives: {
+        message: 'Attached drive or memory card',
+        context: 'Refers to a source where resources can be imported from.',
+      },
+      studioDescription: {
+        message: 'Import resources from Kolibri Studio if you are connected to the internet',
+        context: 'Description referring to importing channels from Kolibri Studio.',
+      },
+      networkDescription: {
+        message:
+          'Import resources from another instance of Kolibri running on another device, either in the same local network or on the internet',
+        context:
+          'Description referring to importing channels from a local network or the internet.',
+      },
+      localDescription: {
+        message:
+          'Import resources from a drive. Channels must have first been exported onto the drive from another instance of Kolibri',
+        context:
+          'Description referring to importing channels from an attached drive or memory card.',
+      },
     },
   };
 

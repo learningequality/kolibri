@@ -121,9 +121,19 @@
       },
     },
     $trs: {
-      backToChannelsAction: 'Back to channels',
-      tasksHeader: 'Tasks',
-      appBarTitle: 'Task manager',
+      backToChannelsAction: {
+        message: 'Back to channels',
+        context:
+          'Link that takes user back to the list of channels in the Device > Channels section.',
+      },
+      tasksHeader: {
+        message: 'Tasks',
+        context: 'Heading in the task manager section.',
+      },
+      appBarTitle: {
+        message: 'Task manager',
+        context: 'Title of the page that displays all the tasks in the task manager. ',
+      },
       clearCompletedAction: {
         message: 'Clear completed',
         context:

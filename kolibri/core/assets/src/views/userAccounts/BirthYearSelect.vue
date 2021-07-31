@@ -93,8 +93,16 @@
       },
     },
     $trs: {
-      placeholder: 'Select year',
-      birthYearTooltip: 'Provide an estimate if you are unsure.',
+      placeholder: {
+        message: 'Select year',
+        context:
+          "When you edit or create a user you can optionally add the year they were born. You use the 'Select year' drop-down menu to do this. This is located under the 'Birth year' title.",
+      },
+      birthYearTooltip: {
+        message: 'Provide an estimate if you are unsure.',
+        context:
+          "This is a helper text that appears when you select the 'i' icon next to the 'Birth year' field when creating or editing a user.\n\nIt asks the user to provide an estimate of the birth year of a user if the age of the user is unknown.",
+      },
       birthyearAriaLabel: {
         message: 'About providing your birth year.',
         context:

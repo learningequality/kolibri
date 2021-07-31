@@ -47,7 +47,10 @@
       },
     },
     $trs: {
-      label: 'Identifier (Optional)',
+      label: {
+        message: 'Identifier (Optional)',
+        context: 'Optional type of data that can be used on an imported spreadsheet.',
+      },
     },
   };
 

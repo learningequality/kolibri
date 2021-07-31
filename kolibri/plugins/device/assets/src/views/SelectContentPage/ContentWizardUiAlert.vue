@@ -49,19 +49,52 @@
       },
     },
     $trs: {
-      channelNotFoundError: 'Channel not found',
-      channelNotFoundOnDriveError: 'Channel not found on drive',
-      channelNotFoundOnServerError: 'Channel is not available to export from server',
-      driveUnavailableError: 'Drive not found or is disconnected',
-      driveNotWritableError: 'Drive is not writable',
-      driveError: 'There was a problem accessing the drives connected to the server',
-      networkLocationDoesNotExist: 'The device with this ID does not exist',
-      networkLocationUnavailable:
-        'The Kolibri server on the selected device is not available at the moment',
-      transferInProgressError: 'A transfer is currently in progress',
-      kolibriStudioUnavailable: 'Kolibri Studio is unavailable',
-      networkLocationDoesNotHaveChannel:
-        'The device with this ID does not have the desired channel',
+      channelNotFoundError: {
+        message: 'Channel not found',
+        context: 'Error message that displays if a channel cannot be found.',
+      },
+      channelNotFoundOnDriveError: {
+        message: 'Channel not found on drive',
+        context:
+          'Error message that displays if a channel cannot be found on an external disk drive.\n',
+      },
+      channelNotFoundOnServerError: {
+        message: 'Channel is not available to export from server',
+        context: 'Error message.',
+      },
+      driveUnavailableError: {
+        message: 'Drive not found or is disconnected',
+        context: 'Error message.',
+      },
+      driveNotWritableError: {
+        message: 'Drive is not writable',
+        context:
+          'Error message that displays if the drive being used is not capable of having new data written on it.',
+      },
+      driveError: {
+        message: 'There was a problem accessing the drives connected to the server',
+        context: 'Error message.',
+      },
+      networkLocationDoesNotExist: {
+        message: 'The device with this ID does not exist',
+        context: 'Error message.\n',
+      },
+      networkLocationUnavailable: {
+        message: 'The Kolibri server on the selected device is not available at the moment',
+        context: 'Error message.\n',
+      },
+      transferInProgressError: {
+        message: 'A transfer is currently in progress',
+        context: 'Error message.\n',
+      },
+      kolibriStudioUnavailable: {
+        message: 'Kolibri Studio is unavailable',
+        context: 'Error message.',
+      },
+      networkLocationDoesNotHaveChannel: {
+        message: 'The device with this ID does not have the desired channel',
+        context: 'Error message.\n',
+      },
     },
   };
 

@@ -44,7 +44,13 @@
     methods: {
       ...mapActions(['fetchPoints']),
     },
-    $trs: { pointsTooltip: 'You earned { points, number } points' },
+    $trs: {
+      pointsTooltip: {
+        message: 'You earned { points, number } points',
+        context:
+          'Notification indicating how many point a leaner has earned for competing an exercise.',
+      },
+    },
   };
 
 </script>

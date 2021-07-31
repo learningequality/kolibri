@@ -36,7 +36,11 @@
       },
     },
     $trs: {
-      transcript: 'Transcript',
+      transcript: {
+        message: 'Transcript',
+        context:
+          'Refers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
+      },
     },
   };
 

@@ -160,12 +160,23 @@
       },
     },
     $trs: {
-      allQuizzes: 'All quizzes',
+      allQuizzes: {
+        message: 'All quizzes',
+        context:
+          "Link that takes user back to the list of quizzes on the 'Reports' tab, from the individual learner's information page.\n",
+      },
       activeQuizzes: 'Active quizzes',
       inactiveQuizzes: 'Inactive quizzes',
-      allQuestionsAnswered: 'All questions answered',
-      questionsCompletedRatioLabel:
-        '{count, number, integer} of {total, number, integer} questions {count, plural, other {answered}}',
+      allQuestionsAnswered: {
+        message: 'All questions answered',
+        context: 'Indicates that a learner has answered all the questions in an exercise.',
+      },
+      questionsCompletedRatioLabel: {
+        message:
+          '{count, number, integer} of {total, number, integer} questions {count, plural, other {answered}}',
+        context:
+          "Refers to the amount of questions answered by a learner based on the total number of questions in a quiz. For example:\n\n'3 of 10 questions answered'",
+      },
     },
   };
 

@@ -362,14 +362,33 @@
       },
     },
     $trs: {
-      editUserDetailsHeader: 'Edit user details',
-      changeInDeviceTabPrompt: 'Go to Device permissions to change this',
+      editUserDetailsHeader: {
+        message: 'Edit user details',
+        context: 'Refers to edit existing users option.',
+      },
+      changeInDeviceTabPrompt: {
+        message: 'Go to Device permissions to change this',
+        context: 'Refers to admin permissions.',
+      },
       viewInDeviceTabPrompt: 'View details in Device permissions',
-      classCoachDescription: "Can only instruct classes that they're assigned to",
-      facilityCoachDescription: 'Can instruct all classes in your facility',
-      userUpdateNotification: 'Changes saved',
-      forceLogoutWarning:
-        'Warning: By making your self a non-admin, you will be logged out after clicking "Save".',
+      classCoachDescription: {
+        message: "Can only instruct classes that they're assigned to",
+        context: "Description of the 'Class coach' user type.",
+      },
+      facilityCoachDescription: {
+        message: 'Can instruct all classes in your facility',
+        context: "Refers to a description of the 'Facility coach' user type.\n",
+      },
+      userUpdateNotification: {
+        message: 'Changes saved',
+        context: 'Notification.',
+      },
+      forceLogoutWarning: {
+        message:
+          'Warning: By making your self a non-admin, you will be logged out after clicking "Save".',
+        context:
+          'Warning provoked if a user with admin permissions changes their user type to become a non-admin. This avoids dangerous deletions.',
+      },
     },
   };
 

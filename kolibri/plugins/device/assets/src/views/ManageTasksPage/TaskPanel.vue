@@ -256,42 +256,117 @@
         message: "Started by '{user}'",
         context: '\nRefers to the content management *task*.\n',
       },
-      numResourcesAndSize:
-        '{numResources} {numResources, plural, one {resource} other {resources}} ({bytesText})',
-      statusInProgress: 'In-progress',
-      statusInQueue: 'Waiting',
+      numResourcesAndSize: {
+        message:
+          '{numResources} {numResources, plural, one {resource} other {resources}} ({bytesText})',
+        context: 'Indicates the number of resources and their size.',
+      },
+      statusInProgress: {
+        message: 'In-progress',
+        context: 'Label indicating that a task is in progress.',
+      },
+      statusInQueue: {
+        message: 'Waiting',
+        context: 'Label indicating that a task is queued.\n',
+      },
       statusComplete: {
         message: 'Finished',
         context: '\nLabel indicating that the *task* was completed successfully. \n\n',
       },
-      statusFailed: 'Failed',
-      statusCanceled: 'Canceled',
-      statusCanceling: 'Canceling',
-      importChannelWhole: `Import '{channelName}'`,
-      importChannelPartial: `Import resources from '{channelName}'`,
-      exportChannelWhole: `Export '{channelName}'`,
-      exportChannelPartial: `Export resources from '{channelName}'`,
-      deleteChannelWhole: `Delete '{channelName}'`,
-      deleteChannelPartial: `Delete resources from '{channelName}'`,
-      updatingChannelVersion: `Update {channelName} to version {newVersion}`,
+      statusFailed: {
+        message: 'Failed',
+        context: 'Label indicating that a task failed, i.e. it has not been completed.\n',
+      },
+      statusCanceled: {
+        message: 'Canceled',
+        context: 'Refers to a canceled task in the task manager section.',
+      },
+      statusCanceling: {
+        message: 'Canceling',
+        context: 'Refers to a task being canceled in the task manager section.',
+      },
+      importChannelWhole: {
+        message: `Import '{channelName}'`,
+        context:
+          "Indicates the user is importing an entire channel. For example:\n\n'Import 'Ubongo Kids''",
+      },
+      importChannelPartial: {
+        message: `Import resources from '{channelName}'`,
+        context:
+          'Indicates the user is importing a selection of resources from a specific channel.\n',
+      },
+      exportChannelWhole: {
+        message: `Export '{channelName}'`,
+        context: 'Indicates the user is exporting an entire channel.',
+      },
+      exportChannelPartial: {
+        message: `Export resources from '{channelName}'`,
+        context:
+          'Indicates the user is exporting a selection of resources from a specific channel.',
+      },
+      deleteChannelWhole: {
+        message: `Delete '{channelName}'`,
+        context: 'Refers to deleting an entire channel.',
+      },
+      deleteChannelPartial: {
+        message: `Delete resources from '{channelName}'`,
+        context: 'Indicates the channel from which resources will be deleted.',
+      },
+      updatingChannelVersion: {
+        message: `Update {channelName} to version {newVersion}`,
+        context: 'Refers to a task where a channel is updated to a new version.',
+      },
       // Catch-all strings if the channel or username doesn't get attached to Task
-      unknownUsername: 'Unknown user',
-      unknownChannelName: '(Channel name unavailable)',
+      unknownUsername: {
+        message: 'Unknown user',
+        context: 'Displays if the name of the user carrying out a specific task is not known.',
+      },
+      unknownChannelName: {
+        message: '(Channel name unavailable)',
+        context: 'This displays if Kolibri is unable to recognize the name of the channel.',
+      },
       /* eslint-disable kolibri/vue-no-unused-translations */
       // stubs
-      stopAction: 'Stop',
-      importPartialRatio:
-        '{currentResources} of {totalResources} {totalResources, plural, one {resource} other {resources}} ({currentSize} of {totalSize}) imported',
-      exportPartialRatio:
-        '{currentResources} of {totalResources} {totalResources, plural, one {resource} other {resources}} ({currentSize} of {totalSize}) exported',
-      deletePartialRatio:
-        '{currentResources} of {totalResources} {totalResources, plural, one {resource} other {resources}} ({currentSize} of {totalSize}) deleted',
-      importSuccess:
-        '{totalResources} {totalResources, plural, one {resource} other {resources}} ({totalSize}) successfully imported',
-      exportSuccess:
-        '{totalResources} {totalResources, plural, one {resource} other {resources}} ({totalSize}) successfully exported',
-      deleteSuccess:
-        '{totalResources} {totalResources, plural, one {resource} other {resources}} ({totalSize}) successfully deleted',
+      stopAction: {
+        message: 'Stop',
+        context: 'Button to stop a task from executing.',
+      },
+      importPartialRatio: {
+        message:
+          '{currentResources} of {totalResources} {totalResources, plural, one {resource} other {resources}} ({currentSize} of {totalSize}) imported',
+        context:
+          "Indicates how many resources are being imported out of the total resources available on that specific channel and the size of the resources. For example:\n\n'718 of 742 resources (22 GB of 22 GB) imported'",
+      },
+      exportPartialRatio: {
+        message:
+          '{currentResources} of {totalResources} {totalResources, plural, one {resource} other {resources}} ({currentSize} of {totalSize}) exported',
+        context:
+          "Indicates how many resources are being exported out of the total resources available on that specific channel, and the size of the resources. For example:\n\n'7 of 10 resources (22 GB of 22 GB) exported'",
+      },
+      deletePartialRatio: {
+        message:
+          '{currentResources} of {totalResources} {totalResources, plural, one {resource} other {resources}} ({currentSize} of {totalSize}) deleted',
+        context:
+          "Indicates how many resources are being deleted out of the total resources available on that specific channel. For example:\n\n'10 of 20 resources deleted'",
+      },
+      importSuccess: {
+        message:
+          '{totalResources} {totalResources, plural, one {resource} other {resources}} ({totalSize}) successfully imported',
+        context:
+          "Indicates the successful import of a specified number of resources. For example:\n\n'4752 resources (29 GB) successfully imported'",
+      },
+      exportSuccess: {
+        message:
+          '{totalResources} {totalResources, plural, one {resource} other {resources}} ({totalSize}) successfully exported',
+        context:
+          "Indicates the successful export of a specified number of resources.\n\n'7 of 10 resources successfully exported'",
+      },
+      deleteSuccess: {
+        message:
+          '{totalResources} {totalResources, plural, one {resource} other {resources}} ({totalSize}) successfully deleted',
+        context:
+          "Indicates the successful deletion of a specified number of resources. For example:\n\n'976 resources (178 MB) successfully deleted'",
+      },
       /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };

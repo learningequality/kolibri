@@ -206,7 +206,10 @@
       },
     },
     $trs: {
-      editProfileHeader: 'Edit profile',
+      editProfileHeader: {
+        message: 'Edit profile',
+        context: "Title of the 'Edit profile' page.",
+      },
     },
   };
 

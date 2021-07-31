@@ -87,8 +87,15 @@
       },
     },
     $trs: {
-      createNewClassHeader: 'Create new class',
-      duplicateName: 'A class with that name already exists',
+      createNewClassHeader: {
+        message: 'Create new class',
+        context:
+          "Refers to the title of the 'Create new class' window which a user opens by using the 'New class' button.",
+      },
+      duplicateName: {
+        message: 'A class with that name already exists',
+        context: 'Message that displays if user creates a class using a name that already exists.',
+      },
     },
   };
 

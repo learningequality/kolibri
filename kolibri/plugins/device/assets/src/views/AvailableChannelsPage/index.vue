@@ -390,16 +390,50 @@
       },
     },
     $trs: {
-      importChannelsHeader: 'Select channels for import',
-      importResourcesHeader: 'Select resources for import',
-      importFromDisk: `Import from '{driveName}'`,
-      importFromPeer: `Import from '{deviceName}' ({address})`,
-      importFromKolibriStudio: 'Import from Kolibri Studio',
-      channelTokenButtonLabel: 'Import with token',
-      pageLoadError: 'There was a problem loading this page…',
-      documentTitleForLocalImport: "Available Channels on '{driveName}'",
-      documentTitleForRemoteImport: 'Available Channels on Kolibri Studio',
-      noChannelsAvailable: 'No channels are available on this device',
+      importChannelsHeader: {
+        message: 'Select channels for import',
+        context:
+          'Title of the page where a user can select entire channels of resources to import.',
+      },
+      importResourcesHeader: {
+        message: 'Select resources for import',
+        context:
+          'Title of the page where a user can select topics and resources to import, rather than entire channels.\n',
+      },
+      importFromDisk: {
+        message: `Import from '{driveName}'`,
+        context: 'Title page user sees when they opt to import resources from a local disk drive.',
+      },
+      importFromPeer: {
+        message: `Import from '{deviceName}' ({address})`,
+        context:
+          'Page user sees when they opt to import resources from another device in the same local network through peer import.',
+      },
+      importFromKolibriStudio: {
+        message: 'Import from Kolibri Studio',
+        context: 'Option to import resources from Kolibri Studio.',
+      },
+      channelTokenButtonLabel: {
+        message: 'Import with token',
+        context:
+          "If a user needs to import learning resources from a private/unlisted channel, they would click on the 'Import with token' button above the channel list.",
+      },
+      pageLoadError: {
+        message: 'There was a problem loading this page…',
+        context: 'Error message.',
+      },
+      documentTitleForLocalImport: {
+        message: "Available Channels on '{driveName}'",
+        context: 'Indicates the available resource channels on a device.',
+      },
+      documentTitleForRemoteImport: {
+        message: 'Available Channels on Kolibri Studio',
+        context: 'Indicates the available resource channels on Kolibri Studio.',
+      },
+      noChannelsAvailable: {
+        message: 'No channels are available on this device',
+        context: 'Message shows if there are no channels available on the device.',
+      },
       selectEntireChannels: {
         message: 'Select entire channels instead',
         context:
@@ -413,6 +447,7 @@
       notEnoughSpaceForChannelsWarning: {
         message:
           'Not enough space available on your device. Free up disk space or select fewer resources',
+
         context:
           '\nWarning that appears when there is not enough space on the user’s device for the selected resources',
       },

@@ -36,11 +36,22 @@
       },
     },
     $trs: {
-      errorPageHeader: 'Something went wrong',
-      errorPageSubheader: 'Please check your server connection and retry.',
-      errorPageAdditionalGuidance:
-        "If retrying doesn't work, restart the server and refresh the page.",
-      errorPageRetryButtonLabel: 'Retry',
+      errorPageHeader: {
+        message: 'Something went wrong',
+        context: 'Generic error message.',
+      },
+      errorPageSubheader: {
+        message: 'Please check your server connection and retry.',
+        context: 'Error message containing some helper information.',
+      },
+      errorPageAdditionalGuidance: {
+        message: "If retrying doesn't work, restart the server and refresh the page.",
+        context: 'Guidance for the admin for handling errors.',
+      },
+      errorPageRetryButtonLabel: {
+        message: 'Retry',
+        context: 'Button to aid admin troubleshooting.',
+      },
     },
   };
 

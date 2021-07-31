@@ -516,16 +516,54 @@ oriented data synchronization.
         context:
           '\nMessage that indicates to the learner how many correct answers they need to give in order to master the given topic, and for the exercise to be considered completed.',
       },
-      tryAgain: 'Try again',
-      correct: 'Correct!',
-      check: 'Check',
-      next: 'Next',
-      itemError: 'There was an error showing this item',
-      inputAnswer: 'Please enter an answer above',
-      hintUsed: 'Hint used',
-      greatKeepGoing: 'Great! Keep going',
-      tryDifferentQuestion: 'Try a different question',
-      tryNextQuestion: 'Try next question',
+      tryAgain: {
+        message: 'Try again',
+        context:
+          "If a learner answers a question incorrectly, the message 'Try again' displays. They can then attempt to answer again.",
+      },
+      correct: {
+        message: 'Correct!',
+        context: "An answer that the learner got right will be marked as 'Correct!'.",
+      },
+      check: {
+        message: 'Check',
+        context:
+          "Learners use the 'CHECK' button when doing an exercise to check if they have answered a question correctly or not.",
+      },
+      next: {
+        message: 'Next',
+        context: 'Button that takes user to next question.',
+      },
+      itemError: {
+        message: 'There was an error showing this item',
+        context:
+          'Error message a user sees if there was a problem accessing a learning resource. This may be because the resource has been removed, for example.',
+      },
+      inputAnswer: {
+        message: 'Please enter an answer above',
+        context:
+          'Message that a learner sees if they try to check their answer without answering the question.',
+      },
+      hintUsed: {
+        message: 'Hint used',
+        context:
+          "Some exercises can offer hints. These can be suggestions to help learners solve a problem.\n\nIf the learner uses a hint, the text 'Hint used' appears in the exercise.",
+      },
+      greatKeepGoing: {
+        message: 'Great! Keep going',
+        context:
+          'Message of encouragement that learner is shown when they answer a question incorrectly but then on a further attempt they get it correct.',
+      },
+      tryDifferentQuestion: {
+        message: 'Try a different question',
+        context:
+          'Message that displays if learner answers a question incorrectly multiple times. It allows them to try a new question.',
+      },
+      tryNextQuestion: {
+        message: 'Try next question',
+        context:
+          'Message that displays if learner answers a question incorrectly multiple times. It allows them to move on to the next question.\n',
+      },
     },
   };
 

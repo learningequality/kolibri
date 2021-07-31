@@ -7,7 +7,11 @@ import {
 } from '../../../views/ManageContentPage/manageContentLinks';
 
 const translator = createTranslator('ContentWizardTexts', {
-  loadingChannelsToolbar: 'Loading channels…',
+  loadingChannelsToolbar: {
+    message: 'Loading channels…',
+    context:
+      "Displays when user clicks the 'import' button to indicate that channels are being loaded.",
+  },
 });
 
 // Provide a intermediate state before Available Channels is fully-loaded

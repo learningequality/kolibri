@@ -35,6 +35,17 @@
           {{ $formatNumber(learnerNames.length) }}
         </template>
       </HeaderTableRow>
+      <HeaderTableRow v-if="learnerNames.length > 0">
+        <template #key>
+        </template>
+        <template #value>
+          <KRouterLink
+            :text="$tr('viewLearners')"
+            appearance="raised-button"
+            :to="classLearnersListRoute"
+          />
+        </template>
+      </HeaderTableRow>
     </HeaderTable>
   </KPageContainer>
 
@@ -44,7 +55,10 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import pickBy from 'lodash/pickBy';
+  import { ClassesPageNames } from '../../../../../../learn/assets/src/constants';
   import commonCoach from '../../common';
+  import { LastPages } from '../../../constants/lastPagesConstants';
 
   export default {
     name: 'OverviewBlock',
@@ -64,11 +78,37 @@
         }
         return this.$router.getRoute('CoachClassListPage', {}, { facility_id });
       },
+      classLearnersListRoute() {
+        const { query } = this.$route;
+        const route = {
+          name: ClassesPageNames.CLASS_LEARNERS_LIST_VIEWER,
+          params: {
+            id: this.classId,
+          },
+          query: {
+            ...query,
+            ...pickBy({
+              last: LastPages.HOME_PAGE,
+            }),
+          },
+        };
+        return route;
+      },
     },
     $trs: {
-      allClassesLabel: 'All classes',
-      coach: '{count, plural, one {Coach} other {Coaches}}',
-      learner: '{count, plural, one {Learner} other {Learners}}',
+      allClassesLabel: {
+        message: 'All classes',
+        context: "Link to take coach back to the 'Classes' section.",
+      },
+      coach: {
+        message: '{count, plural, one {Coach} other {Coaches}}',
+        context: 'Refers to the coach or coaches who have been assigned to a class. ',
+      },
+      learner: {
+        message: '{count, plural, one {Learner} other {Learners}}',
+        context: 'Refers to the learner or learners who are in a class.',
+      },
+      viewLearners: 'View learners',
     },
   };
 

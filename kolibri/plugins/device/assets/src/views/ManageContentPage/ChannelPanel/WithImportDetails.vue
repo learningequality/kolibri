@@ -169,12 +169,31 @@
       bytesForHumans,
     },
     $trs: {
-      onYourDevice: 'Resources on device',
-      selectResourcesAction: 'Select resources',
-      newVersionMessage: 'New version available',
-      moreInformationLabel: 'More information',
-      channelSelectedNoFileSize: 'Selected',
-      channelSelectedWithFileSize: '{bytesText} selected',
+      onYourDevice: {
+        message: 'Resources on device',
+        context:
+          'Indicates that the learning resources are on the device being used at that moment.',
+      },
+      selectResourcesAction: {
+        message: 'Select resources',
+        context: 'Button to select individual resources from a channel.',
+      },
+      newVersionMessage: {
+        message: 'New version available',
+        context: "Indicates there's a new version of the channel available.",
+      },
+      moreInformationLabel: {
+        message: 'More information',
+        context: 'Link to find out more information about possible channel updates.',
+      },
+      channelSelectedNoFileSize: {
+        message: 'Selected',
+        context: 'Indicates the channels selected for import.',
+      },
+      channelSelectedWithFileSize: {
+        message: '{bytesText} selected',
+        context: "Indicated the size of the files selected. For example:\n\n'10 GB selected'",
+      },
     },
   };
 

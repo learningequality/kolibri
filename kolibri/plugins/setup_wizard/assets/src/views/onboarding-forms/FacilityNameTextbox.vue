@@ -53,9 +53,19 @@
       },
     },
     $trs: {
-      facilityNameFieldLabel: 'Facility name',
-      facilityNameFieldEmptyErrorMessage: 'Facility cannot be empty',
-      facilityNameFieldMaxLengthReached: 'Facility name cannot be more than 50 characters',
+      facilityNameFieldLabel: {
+        message: 'Facility name',
+        context: 'The field where the admin adds the name of their facility.',
+      },
+      facilityNameFieldEmptyErrorMessage: {
+        message: 'Facility cannot be empty',
+        context: 'Error message which displays if the admin does not enter a facility name.',
+      },
+      facilityNameFieldMaxLengthReached: {
+        message: 'Facility name cannot be more than 50 characters',
+        context:
+          "Error message which displays if the admin inputs a facility name that's over 50 characters.",
+      },
     },
   };
 

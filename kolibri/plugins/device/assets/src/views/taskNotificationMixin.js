@@ -2,11 +2,26 @@ import { createTranslator } from 'kolibri.utils.i18n';
 import { PageNames } from '../constants';
 
 const TaskSnackbarStrings = createTranslator('TaskSnackbarStrings', {
-  taskStarted: 'Task started…',
-  taskFailed: 'Task could not be started',
-  taskFinished: 'Task has finished',
-  viewTasksAction: 'View tasks',
-  clearTaskAction: 'Clear task',
+  taskStarted: {
+    message: 'Task started…',
+    context: 'Message displays when a task has started.',
+  },
+  taskFailed: {
+    message: 'Task could not be started',
+    context: 'Displays if a task action could not be started.',
+  },
+  taskFinished: {
+    message: 'Task has finished',
+    context: 'Message displays when a task has finished.',
+  },
+  viewTasksAction: {
+    message: 'View tasks',
+    context: 'Option to view the task manager.',
+  },
+  clearTaskAction: {
+    message: 'Clear task',
+    context: 'Action to clear a task from the list of tasks.',
+  },
 });
 
 export default {

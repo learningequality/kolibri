@@ -344,7 +344,10 @@
       },
     },
     $trs: {
-      examReportTitle: '{examTitle} report',
+      examReportTitle: {
+        message: '{examTitle} report',
+        context: 'Indicates the title of the quiz that the report corresponds to.',
+      },
     },
   };
 

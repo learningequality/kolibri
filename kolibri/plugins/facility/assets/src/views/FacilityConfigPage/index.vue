@@ -245,13 +245,31 @@
       // These are not going to be picked up by the linter because snake cased versions
       // are used to get the keys to these strings.
       /* eslint-disable kolibri/vue-no-unused-translations */
-      learnerCanEditName: 'Allow learners to edit their full name',
-      learnerCanEditPassword: 'Allow learners to edit their password when signed in',
-      learnerCanEditUsername: 'Allow learners to edit their username',
-      learnerCanSignUp: 'Allow learners to create accounts',
+      learnerCanEditName: {
+        message: 'Allow learners to edit their full name',
+        context: "Option on 'Facility settings' page.",
+      },
+      learnerCanEditPassword: {
+        message: 'Allow learners to edit their password when signed in',
+        context: "Option on 'Facility settings' page.",
+      },
+      learnerCanEditUsername: {
+        message: 'Allow learners to edit their username',
+        context: "Option on 'Facility settings' page.",
+      },
+      learnerCanSignUp: {
+        message: 'Allow learners to create accounts',
+        context: "Option on 'Facility settings' page.",
+      },
       learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
-      learnerNeedPasswordToLogin: 'Require password for learners',
-      showDownloadButtonInLearn: "Show 'download' button with resources",
+      learnerNeedPasswordToLogin: {
+        message: 'Require password for learners',
+        context: "Option on 'Facility settings' page.",
+      },
+      showDownloadButtonInLearn: {
+        message: "Show 'download' button with resources",
+        context: "Option on 'Facility settings' page.\n",
+      },
       allowGuestAccess: 'Allow users to access resources without signing in',
       /* eslint-enable kolibri/vue-no-unused-translations */
       saveFailure: 'There was a problem saving your settings',
@@ -260,10 +278,22 @@
         message: 'Configure facility settings here.',
         context: '\nInterpret as "[You can] configure facility settings here"',
       },
-      deviceSettings: 'You can also configure device settings',
-      pageHeader: 'Facility settings',
-      resetToDefaultSettings: 'Reset to defaults',
-      documentTitle: 'Configure Facility',
+      deviceSettings: {
+        message: 'You can also configure device settings',
+        context: 'Text link on Facility settings page.',
+      },
+      pageHeader: {
+        message: 'Facility settings',
+        context: 'Title of the Facility > Settings page.',
+      },
+      resetToDefaultSettings: {
+        message: 'Reset to defaults',
+        context: 'Button that resets the facility to its default settings.',
+      },
+      documentTitle: {
+        message: 'Configure Facility',
+        context: 'Title of page.',
+      },
     },
   };
 

@@ -422,16 +422,41 @@
       },
     },
     $trs: {
-      selectionInformation:
-        '{count, number, integer} of {total, number, integer} {total, plural, one {resource} other {resources}} selected',
-      totalResourcesSelected:
-        '{total, number, integer} {total, plural, one {resource} other {resources}} in this lesson',
-      documentTitle: `Manage resources in '{lessonName}'`,
-      resourcesChangedErrorSnackbarText: 'There was a problem updating this lesson',
-      saveBeforeExitSnackbarText: 'Saving your changes…',
+      selectionInformation: {
+        message:
+          '{count, number, integer} of {total, number, integer} {total, plural, one {resource} other {resources}} selected',
+        context:
+          "Indicates the amount of resources selected for a lesson in the 'Manage lesson resources' section.",
+      },
+      totalResourcesSelected: {
+        message:
+          '{total, number, integer} {total, plural, one {resource} other {resources}} in this lesson',
+        context:
+          "Indicates the amount of resources for a lesson in the 'Manage lesson resources' section. For example:\n\n'8 resources in this lesson'",
+      },
+      documentTitle: {
+        message: `Manage resources in '{lessonName}'`,
+        context:
+          "Title of window that displays when the user clicks on the 'manage resources' button within an individual lesson.\n\nOn this page the user can add new learning resources to the lesson.",
+      },
+      resourcesChangedErrorSnackbarText: {
+        message: 'There was a problem updating this lesson',
+        context: 'Error message.',
+      },
+      saveBeforeExitSnackbarText: {
+        message: 'Saving your changes…',
+        context: 'Notification that changes are being saved.',
+      },
       // only shown on search page
-      exitSearchButtonLabel: 'Exit search',
-      manageResourcesAction: 'Manage lesson resources',
+      exitSearchButtonLabel: {
+        message: 'Exit search',
+        context: "Button to exit the search function of the 'Manage lesson resources' window.",
+      },
+      manageResourcesAction: {
+        message: 'Manage lesson resources',
+        context:
+          "In the 'Manage lesson resources' coaches can add new resource material to a lesson.",
+      },
     },
   };
 

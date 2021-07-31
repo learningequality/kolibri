@@ -26,7 +26,11 @@
       },
     },
     $trs: {
-      signOut: 'Sign out',
+      signOut: {
+        message: 'Sign out',
+        context:
+          "Users can exit Kolibri by selecting 'Sign out' from the user menu in the upper right corner.",
+      },
     },
     role: UserKinds.LEARNER,
     priority: 100,

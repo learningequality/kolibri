@@ -162,9 +162,20 @@
       },
     },
     $trs: {
-      pageTitle: `Edit lesson details for '{title}'`,
-      appBarTitle: 'Edit lesson details',
-      submitErrorMessage: 'There was a problem saving your changes',
+      pageTitle: {
+        message: `Edit lesson details for '{title}'`,
+        context:
+          "Page title for page which coach accesses using the 'Edit details' option on the 'Plan' tab.\n",
+      },
+      appBarTitle: {
+        message: 'Edit lesson details',
+        context:
+          "Title of window that displays when coach uses the 'Edit details' option on the 'Plan' tab.",
+      },
+      submitErrorMessage: {
+        message: 'There was a problem saving your changes',
+        context: 'Generic error message.',
+      },
     },
   };
 

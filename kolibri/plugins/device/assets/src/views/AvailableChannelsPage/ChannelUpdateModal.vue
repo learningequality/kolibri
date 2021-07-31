@@ -21,9 +21,16 @@
     name: 'ChannelUpdateModal',
     mixins: [commonCoreStrings],
     $trs: {
-      title: 'Channel update',
-      channelUpdateExplanation:
-        'Some channels you selected for import will be automatically updated to the latest version. Do you wish to continue?',
+      title: {
+        message: 'Channel update',
+        context:
+          'Title of window that indicates some channels will be updated during the import process.',
+      },
+      channelUpdateExplanation: {
+        message:
+          'Some channels you selected for import will be automatically updated to the latest version. Do you wish to continue?',
+        context: 'Description of channel update message.',
+      },
     },
   };
 

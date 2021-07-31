@@ -46,7 +46,10 @@
       },
     },
     $trs: {
-      loadingMessage: 'Loading connections…',
+      loadingMessage: {
+        message: 'Loading connections…',
+        context: 'Refers to loading connections to different sources.',
+      },
     },
   };
 

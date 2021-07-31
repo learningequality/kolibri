@@ -41,8 +41,16 @@
       clearInterval(this.timer);
     },
     $trs: {
-      generatedMomentsAgo: 'Generated moments ago.',
-      generatedInPast: 'Generated {relativeTimeAgo}.',
+      generatedMomentsAgo: {
+        message: 'Generated moments ago.',
+        context:
+          "Indicates logs were generated using the 'Generate a new log file' option recently.",
+      },
+      generatedInPast: {
+        message: 'Generated {relativeTimeAgo}.',
+        context:
+          "Indicates the last time logs were generated using the 'Generate a new log file' option.",
+      },
     },
   };
 

@@ -83,9 +83,16 @@
       },
     },
     $trs: {
-      someTasksComplete:
-        '{done, number} of {total, plural, one {{total, number} task completed} other {{total, number} tasks completed}}',
-      taskManagerLink: 'View task manager',
+      someTasksComplete: {
+        message:
+          '{done, number} of {total, plural, one {{total, number} task completed} other {{total, number} tasks completed}}',
+        context: "Indicates the amount of tasks completed. For example:\n\n'7 tasks completed'",
+      },
+      taskManagerLink: {
+        message: 'View task manager',
+        context:
+          'Text link on the Device > Channel section which tasks user to a page where they can see all the current tasks and their statuses.',
+      },
     },
   };
 

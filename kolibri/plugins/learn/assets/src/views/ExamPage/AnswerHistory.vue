@@ -91,7 +91,11 @@
       },
     },
     $trs: {
-      question: 'Question { num, number, integer}',
+      question: {
+        message: 'Question { num, number, integer}',
+        context:
+          "In the report section, the 'Answer history' shows the learner if they have answered questions correctly or incorrectly.",
+      },
     },
   };
 

@@ -119,16 +119,47 @@
       },
     },
     $trs: {
-      defaultErrorHeader: 'Sorry! Something went wrong!',
+      defaultErrorHeader: {
+        message: 'Sorry! Something went wrong!',
+        context:
+          'This is a generic error message that the user will see when an error has occurred.',
+      },
       // eslint-disable-next-line
-      defaultErrorExitPrompt: 'Back to home',
-      pageReloadPrompt: 'Refresh',
-      defaultErrorMessage:
-        'We care about your experience on Kolibri and are working hard to fix this issue',
-      defaultErrorResolution: 'Try refreshing this page or going back to the home page',
-      defaultErrorReportPrompt: 'Help us by reporting this error',
-      resourceNotFoundHeader: 'Resource not found',
-      resourceNotFoundMessage: 'Sorry, that resource does not exist',
+      defaultErrorExitPrompt: {
+        message: 'Back to home',
+        context:
+          'If Kolibri produces an unexpected error, this link appears which take the user back to the homepage.',
+      },
+      pageReloadPrompt: {
+        message: 'Refresh',
+        context:
+          'Button which allows the user to refresh the application if an error has occurred.',
+      },
+      defaultErrorMessage: {
+        message: 'We care about your experience on Kolibri and are working hard to fix this issue',
+        context:
+          'Error message that a user will see if an error that is the result of a known bug has occurred.',
+      },
+      defaultErrorResolution: {
+        message: 'Try refreshing this page or going back to the home page',
+        context:
+          'Helper text which advises the user to refresh their browser if an error has occurred, or go back to the home page.',
+      },
+      defaultErrorReportPrompt: {
+        message: 'Help us by reporting this error',
+        context:
+          'Text that informs the user about how to report an error if they see one in Kolibri.',
+      },
+      resourceNotFoundHeader: {
+        message: 'Resource not found',
+        context:
+          'Error message that may appear if Kolibri cannot find a learning resource such as a video or a quiz.',
+      },
+      resourceNotFoundMessage: {
+        message: 'Sorry, that resource does not exist',
+        context:
+          'Message that appears when a user tries to access a learning resource that is not available in Kolibri.',
+      },
     },
   };
 

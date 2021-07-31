@@ -48,7 +48,11 @@
       },
     },
     $trs: {
-      documentTitle: 'All channels',
+      documentTitle: {
+        message: 'All channels',
+        context:
+          'A channel is a set of learning resources. This title is seen on a page where all the channels available to the learner are shown.',
+      },
     },
   };
 

@@ -101,7 +101,11 @@
       },
     },
     $trs: {
-      errorNotUnique: 'Username already exists',
+      errorNotUnique: {
+        message: 'Username already exists',
+        context:
+          'Error message displayed to user if they chose a username that another user has already taken.',
+      },
     },
   };
 

@@ -32,7 +32,10 @@
       },
     },
     $trs: {
-      couldNotLoadThisBook: 'Could not load this book',
+      couldNotLoadThisBook: {
+        message: 'Could not load this book',
+        context: 'Error message that displays when a digital book cannot be loaded.',
+      },
     },
   };
 

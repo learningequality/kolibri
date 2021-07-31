@@ -271,9 +271,19 @@
       },
     },
     $trs: {
-      createNewUserHeader: 'Create new user',
-      classCoachDescription: "Can only instruct classes that they're assigned to",
-      facilityCoachDescription: 'Can instruct all classes in your facility',
+      createNewUserHeader: {
+        message: 'Create new user',
+        context:
+          "Refers to the window accessed via the 'New user' button in the Facility > Users section.",
+      },
+      classCoachDescription: {
+        message: "Can only instruct classes that they're assigned to",
+        context: "Description of the 'Class coach' user type.",
+      },
+      facilityCoachDescription: {
+        message: 'Can instruct all classes in your facility',
+        context: "Refers to a description of the 'Facility coach' user type.",
+      },
     },
   };
 

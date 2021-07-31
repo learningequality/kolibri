@@ -19,9 +19,6 @@
   "ClassRenameModal.modalTitle": "crwdns278024:0crwdne278024:0",
   "CoachClassAssignmentPage.pageHeader": "crwdns278026:0{className}crwdne278026:0",
   "CoachClassAssignmentPage.pageSubheader": "crwdns278028:0crwdne278028:0",
-  "ConfigPageNotifications.pageloadFailure": "crwdns278030:0crwdne278030:0",
-  "ConfigPageNotifications.saveFailure": "crwdns278032:0crwdne278032:0",
-  "ConfigPageNotifications.saveSuccess": "crwdns278034:0crwdne278034:0",
   "ConfirmResetModal.confirmationQuestion": "crwdns278036:0crwdne278036:0",
   "ConfirmResetModal.reconfirmation": "crwdns278038:0crwdne278038:0",
   "ConfirmResetModal.reset": "crwdns278040:0crwdne278040:0",
@@ -163,7 +160,6 @@
   "PrivacyModal.syncToKDP": "crwdns278304:0crwdne278304:0",
   "ResetUserPasswordModal.resetPassword": "crwdns278306:0crwdne278306:0",
   "ResetUserPasswordModal.username": "crwdns278308:0crwdne278308:0",
-  "SyncInterface.access": "crwdns278310:0crwdne278310:0",
   "SyncInterface.facility": "crwdns278312:0crwdne278312:0",
   "SyncInterface.learnMore": "crwdns278314:0crwdne278314:0",
   "SyncInterface.register": "crwdns278316:0crwdne278316:0",
@@ -194,8 +190,8 @@
   "UserRemoveConfirmationModal.confirmation": "crwdns278366:0{ username }crwdnd278366:0{ classname }crwdne278366:0",
   "UserRemoveConfirmationModal.description": "crwdns278368:0crwdne278368:0",
   "UserRemoveConfirmationModal.modalTitle": "crwdns278370:0crwdne278370:0",
-  "UserTable.role": "crwdns278372:0crwdne278372:0",
-  "UserTable.selectAllLabel": "crwdns278374:0crwdne278374:0",
-  "UserTable.userActionsColumnHeader": "crwdns278376:0crwdne278376:0",
-  "UserTable.userCheckboxLabel": "crwdns278378:0crwdne278378:0"
+  "UserTable.role": "crwdns277422:0crwdne277422:0",
+  "UserTable.selectAllLabel": "crwdns277424:0crwdne277424:0",
+  "UserTable.userActionsColumnHeader": "crwdns277426:0crwdne277426:0",
+  "UserTable.userCheckboxLabel": "crwdns277428:0crwdne277428:0"
 }

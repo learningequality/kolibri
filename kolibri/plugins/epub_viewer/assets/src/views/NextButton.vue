@@ -27,7 +27,10 @@
       },
     },
     $trs: {
-      goToNextPage: 'Go to next page',
+      goToNextPage: {
+        message: 'Go to next page',
+        context: 'Digital book navigation option.',
+      },
     },
   };
 

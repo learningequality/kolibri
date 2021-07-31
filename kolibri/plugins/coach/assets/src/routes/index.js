@@ -2,10 +2,12 @@ import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import AllFacilitiesPage from '../views/AllFacilitiesPage';
 import CoachClassListPage from '../views/CoachClassListPage';
+import ClassLearnersListPage from '../views/ClassLearnersListPage';
 import HomePage from '../views/home/HomePage';
 import CoachPrompts from '../views/CoachPrompts';
 import HomeActivityPage from '../views/home/HomeActivityPage';
 import StatusTestPage from '../views/common/status/StatusTestPage';
+import { ClassesPageNames } from '../../../../learn/assets/src/constants';
 import reportRoutes from './reportRoutes';
 import planRoutes from './planRoutes';
 
@@ -62,6 +64,15 @@ export default [
     },
     meta: {
       titleParts: ['activityLabel', 'CLASS_NAME'],
+    },
+  },
+
+  {
+    name: ClassesPageNames.CLASS_LEARNERS_LIST_VIEWER,
+    path: '/:classId/learners',
+    component: ClassLearnersListPage,
+    handler() {
+      store.dispatch('notLoading');
     },
   },
   {

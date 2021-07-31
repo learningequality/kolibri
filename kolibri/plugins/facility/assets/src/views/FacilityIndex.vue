@@ -113,9 +113,18 @@
       },
     },
     $trs: {
-      adminOrSuperuser: 'You must be signed in as an admin or super admin to view this page',
-      facilityLabelWithName: 'Facility – {facilityName}',
-      importPageHeader: 'Import users from spreadsheet',
+      adminOrSuperuser: {
+        message: 'You must be signed in as an admin or super admin to view this page',
+        context: 'Message to users indicating the types of users who can view the specified page.',
+      },
+      facilityLabelWithName: {
+        message: 'Facility – {facilityName}',
+        context: 'Indicates the name of the facility.',
+      },
+      importPageHeader: {
+        message: 'Import users from spreadsheet',
+        context: "Heading for 'Import users' page.",
+      },
     },
   };
 

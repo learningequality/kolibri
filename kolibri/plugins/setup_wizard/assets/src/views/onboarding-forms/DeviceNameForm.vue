@@ -63,6 +63,7 @@
       deviceNameExplanation: {
         message:
           'Giving this device a meaningful name can help you and others you connect with to recognize it',
+
         context: 'Device naming description ',
       },
     },

@@ -215,10 +215,19 @@
       },
     },
     $trs: {
-      role: 'Role',
+      role: {
+        message: 'Role',
+        context: "Indicates the user's role (coach, learner etc.)",
+      },
       userActionsColumnHeader: 'Actions',
-      selectAllLabel: 'Select all',
-      userCheckboxLabel: 'Select user',
+      selectAllLabel: {
+        message: 'Select all',
+        context: 'Generic checkbox label used to select all elements in a list.',
+      },
+      userCheckboxLabel: {
+        message: 'Select user',
+        context: 'Checkbox used to select a specific user from a list.\n',
+      },
     },
   };
 

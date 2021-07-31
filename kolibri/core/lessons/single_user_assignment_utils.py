@@ -87,10 +87,10 @@ def update_assignments_from_individual_syncable_lessons(user_id):
         lesson = IndividualSyncableLesson.deserialize_lesson(
             syncablelesson.serialized_lesson
         )
-        lesson.collection = syncablelesson.collection
+        lesson.collection_id = syncablelesson.collection_id
         # shouldn't need to set this field (as it's nullable, according to the model definition, but got errors)
         lesson.created_by_id = user_id
-        lesson.save(update_dirty_bit_to=None)
+        lesson.save(update_dirty_bit_to=False)
 
         try:
             LessonAssignment.objects.get(
@@ -103,7 +103,7 @@ def update_assignments_from_individual_syncable_lessons(user_id):
                 lesson=lesson,
                 assigned_by_id=user_id,  # failed validation without this, so pretend it's self-assigned
             )
-            assignment.save(update_dirty_bit_to=None)
+            assignment.save(update_dirty_bit_to=False)
 
     # update existing lesson/assignment objects for all syncable lessons
     for assignment in to_update:
@@ -118,10 +118,12 @@ def update_assignments_from_individual_syncable_lessons(user_id):
             lesson = IndividualSyncableLesson.deserialize_lesson(
                 syncablelesson.serialized_lesson
             )
-            lesson.save(update_dirty_bit_to=None)
+            lesson.collection_id = syncablelesson.collection_id
+            lesson.created_by_id = user_id
+            lesson.save(update_dirty_bit_to=False)
             assignment.lesson = lesson
             assignment.collection_id = syncablelesson.collection_id
-            assignment.save(update_dirty_bit_to=None)
+            assignment.save(update_dirty_bit_to=False)
 
     # delete lessons/assignments that no longer have a syncable lesson object
     with DisablePostDeleteSignal():

@@ -192,13 +192,36 @@
       },
     },
     $trs: {
-      languageFilterLabel: 'Language',
-      titleFilterPlaceholder: 'Search for a channel',
-      allLanguages: 'All languages',
-      numChannelsAvailable:
-        '{count, number, integer} {count, plural, one {channel} other {channels}} available',
-      noMatchingItems: 'There are no channels matching these filters',
-      selectAll: 'Select all on page',
+      languageFilterLabel: {
+        message: 'Language',
+        context:
+          'Refers to a filter option when exporting channels on a device. The user can either export channels in all languages or choose specific ones from a list.',
+      },
+      titleFilterPlaceholder: {
+        message: 'Search for a channel',
+        context: 'Refers to text in the search field.',
+      },
+      allLanguages: {
+        message: 'All languages',
+        context:
+          'Refers to a filter option when exporting channels on a device. The user can either export channels in all languages or choose specific ones from a list.',
+      },
+      numChannelsAvailable: {
+        message:
+          '{count, number, integer} {count, plural, one {channel} other {channels}} available',
+        context:
+          "Indicates the number of channels available. For example:\n\n'4 channels available'",
+      },
+      noMatchingItems: {
+        message: 'There are no channels matching these filters',
+        context:
+          'When using the filter options, this message will display if there are no channels that match the filter options used.',
+      },
+      selectAll: {
+        message: 'Select all on page',
+        context:
+          "Option to select all of the channels that appear on the page in the 'Channels on device' section.",
+      },
     },
   };
 

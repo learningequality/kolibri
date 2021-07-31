@@ -46,7 +46,10 @@
     },
     $trs: {
       yourLessonsHeader: 'Your lessons',
-      noLessonsMessage: 'You have no lessons assigned',
+      noLessonsMessage: {
+        message: 'You have no lessons assigned',
+        context: 'Message that a learner sees if a coach has not assigned any lessons to them.',
+      },
     },
   };
 

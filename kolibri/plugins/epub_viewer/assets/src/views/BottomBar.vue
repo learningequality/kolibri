@@ -75,9 +75,20 @@
       },
     },
     $trs: {
-      progress: `{progress, number, percent}`,
-      jumpToPositionInBook: 'Jump to position in book',
-      preparingSlider: 'Preparing slider',
+      progress: {
+        message: `{progress, number, percent}`,
+        context: 'DO NOT TRANSLATE.',
+      },
+      jumpToPositionInBook: {
+        message: 'Jump to position in book',
+        context:
+          'To read digital books in Kolibri learners have several available controls inside the reader.\n\nOne of them allows the learner to access a specific page in the book using the slider control bar at the bottom of the screen.',
+      },
+      preparingSlider: {
+        message: 'Preparing slider',
+        context:
+          "The slider option is a bar that appears at the bottom of the EPUB reader which allows learners to navigate the pages of the book they're reading. This message appears when the slider is loading.",
+      },
     },
   };
 

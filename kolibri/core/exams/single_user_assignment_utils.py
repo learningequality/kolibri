@@ -69,10 +69,10 @@ def update_assignments_from_individual_syncable_exams(user_id):
     for syncableexam in to_create:
 
         exam = IndividualSyncableExam.deserialize_exam(syncableexam.serialized_exam)
-        exam.collection = syncableexam.collection
+        exam.collection_id = syncableexam.collection_id
         # shouldn't need to set this field (as it's nullable, according to the model definition, but got errors)
         exam.creator_id = user_id
-        exam.save(update_dirty_bit_to=None)
+        exam.save(update_dirty_bit_to=False)
 
         try:
             ExamAssignment.objects.get(
@@ -85,7 +85,7 @@ def update_assignments_from_individual_syncable_exams(user_id):
                 exam=exam,
                 assigned_by_id=user_id,  # failed validation without this, so pretend it's self-assigned
             )
-            assignment.save(update_dirty_bit_to=None)
+            assignment.save(update_dirty_bit_to=False)
 
     # update existing exam/assignment objects for all syncable exams
     for assignment in to_update:
@@ -96,10 +96,12 @@ def update_assignments_from_individual_syncable_exams(user_id):
             or syncableexam.collection_id != assignment.collection_id
         ):
             exam = IndividualSyncableExam.deserialize_exam(syncableexam.serialized_exam)
-            exam.save(update_dirty_bit_to=None)
+            exam.collection_id = syncableexam.collection_id
+            exam.creator_id = user_id
+            exam.save(update_dirty_bit_to=False)
             assignment.exam = exam
             assignment.collection_id = syncableexam.collection_id
-            assignment.save(update_dirty_bit_to=None)
+            assignment.save(update_dirty_bit_to=False)
 
     # delete exams/assignments that no longer have a syncable exam object
     with DisablePostDeleteSignal():

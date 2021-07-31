@@ -58,7 +58,10 @@
       },
     },
     $trs: {
-      pct: '{0, number, percent}',
+      pct: {
+        message: '{0, number, percent}',
+        context: 'DO NOT TRANSLATE.',
+      },
     },
   };
 

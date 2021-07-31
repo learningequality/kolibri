@@ -101,7 +101,10 @@
       },
     },
     $trs: {
-      pageTitle: `Preview of quiz '{title}'`,
+      pageTitle: {
+        message: `Preview of quiz '{title}'`,
+        context: "Title that displays when use selects the 'Preview' option of a quiz.",
+      },
     },
   };
 

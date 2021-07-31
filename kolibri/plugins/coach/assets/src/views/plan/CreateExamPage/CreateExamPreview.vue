@@ -253,15 +253,40 @@
       },
     },
     $trs: {
-      title: 'Select questions',
-      appBarLabel: 'Select exercises',
-      randomize: 'Choose a different set of questions',
-      questionsLabel: 'Questions',
-      preview: 'Preview quiz',
+      title: {
+        message: 'Select questions',
+        context: 'Refers to questions that a coach can choose to include in a quiz.',
+      },
+      appBarLabel: {
+        message: 'Select exercises',
+        context:
+          "Title of the 'Select exercises' page which displays when the coach is creating a new quiz.",
+      },
+      randomize: {
+        message: 'Choose a different set of questions',
+        context:
+          'Option that a coach can select when creating quizzes.\n\nThey use it to obtain an alternative selection of questions to display based on the chosen learning resource.',
+      },
+      questionsLabel: {
+        message: 'Questions',
+        context: 'Refers to quiz questions.',
+      },
+      preview: {
+        message: 'Preview quiz',
+        context:
+          'When coaches have finished selecting resources for a quiz, they can preview the quiz to see what it looks like.',
+      },
       numQuestionsBetween: 'Enter a number between 1 and 50',
-      numQuestionsExceed:
-        'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
-      numQuestions: 'Number of questions',
+      numQuestionsExceed: {
+        message:
+          'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
+        context:
+          'This message displays if the learning resource has less questions than the number selected by the coach initially.\n',
+      },
+      numQuestions: {
+        message: 'Number of questions',
+        context: 'Indicates the number of questions a quiz has.',
+      },
     },
   };
 
