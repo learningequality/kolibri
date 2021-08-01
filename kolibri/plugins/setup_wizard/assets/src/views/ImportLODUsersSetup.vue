@@ -4,6 +4,7 @@
     <ProgressToolbar
       :removeNavIcon="removeNavIcon"
       :title="currentTitle"
+      @click_back="previousStep"
     />
     <div class="main">
       <KPageContainer>
@@ -26,8 +27,6 @@
   import ProgressToolbar from './ProgressToolbar';
   import PersonalDataConsentForm from './onboarding-forms/PersonalDataConsentForm';
 
-  // Template for the 'Import Facility' workflow, which manages the title
-  // and back/forth flow for this group of steps.
   export default {
     name: 'ImportLODUsersSetup',
     components: {
@@ -105,16 +104,20 @@
     destroyed() {
       this.service.stop();
     },
-    // methods: {
-    //   finalizeOnboardingData() {
-    //     this.$store.dispatch('provisionDeviceAfterImport', {
-    //       username: this.superuser.username,
-    //       password: this.superuser.password,
-    //       facility: this.facility.id,
-    //       lodUsers: this.lodUsers,
-    //     });
-    //   },
-    // },
+    methods: {
+      previousStep() {
+        if (this.state.matches('selectFacility')) this.wizardService.send('BACK');
+        else this.service.send('BACK');
+      },
+      //   finalizeOnboardingData() {
+      //     this.$store.dispatch('provisionDeviceAfterImport', {
+      //       username: this.superuser.username,
+      //       password: this.superuser.password,
+      //       facility: this.facility.id,
+      //       lodUsers: this.lodUsers,
+      //     });
+      //   },
+    },
     $trs: {
       stepTitle: {
         message: 'Import individual user accounts - {step, number} of {total, number}',

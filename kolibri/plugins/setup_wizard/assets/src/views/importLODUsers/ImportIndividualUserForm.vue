@@ -32,6 +32,16 @@
         @click="moveAdmin"
       />
     </p>
+
+    <KModal
+      v-if="deviceLimitations"
+      :title="$tr('deviceLimitationsTitle') "
+      :cancelText="coreString('cancelAction')"
+      @cancel="closeModal"
+    >
+      <p> {{ modalMessage }} </p>
+    </KModal>
+
   </OnboardingForm>
 
 </template>
@@ -60,7 +70,10 @@
       return {
         username: '',
         password: '',
+        full_name: '',
+        roles: '',
         error: false,
+        deviceLimitations: false,
       };
     },
     inject: ['lodService', 'state'],
@@ -80,8 +93,19 @@
         }
         return '';
       },
+      modalMessage() {
+        return this.$tr('deviceLimitationsMessage', {
+          full_name: this.full_name,
+          username: this.username,
+          roles: this.roles,
+          device: this.device.name,
+        });
+      },
     },
     methods: {
+      closeModal() {
+        this.deviceLimitations = false;
+      },
       handleSubmit() {
         const params = {
           baseurl: this.device.baseurl,
@@ -94,10 +118,15 @@
           .then(task => {
             this.lodService.send({
               type: 'CONTINUE',
-              value: { username: this.username, password: this.password, id: task.data.user },
+              value: {
+                username: this.username,
+                password: this.password,
+                full_name: task.data.full_name,
+              },
             });
           })
           .catch(error => {
+            const error_info = error.response.data;
             const errorsCaught = CatchErrors(error, [
               ERROR_CONSTANTS.INVALID_CREDENTIALS,
               ERROR_CONSTANTS.MISSING_PASSWORD,
@@ -106,6 +135,10 @@
             ]);
             if (errorsCaught) {
               this.error = true;
+            } else if (error_info['id'] === ERROR_CONSTANTS.DEVICE_LIMITATIONS) {
+              this.full_name = error_info['full_name'];
+              this.roles = error_info['roles'];
+              this.deviceLimitations = true;
             }
           });
       },
@@ -122,6 +155,12 @@
       enterCredentials: {
         message: 'Enter the credentials of the user account you want to import',
         context: 'Asking user and password of the user to be improted',
+      },
+      deviceLimitationsTitle: 'Device limitations',
+      deviceLimitationsMessage: {
+        message:
+          '’{full_name} ({username})’ is a {roles} on ‘{device}’. This device is limited to features for learners only. Features for coaches and admins will not be available.',
+        context: 'Message to warn only learners can do individual sync',
       },
       doNotHaveUserCredentials: 'Don’t have user’s credentials?',
       useAdmin: 'Use an admin account',

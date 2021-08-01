@@ -38,6 +38,10 @@ from six.moves.urllib.parse import urljoin
 from .permissions import FacilitySyncPermissions
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
+from kolibri.core.auth.constants.user_kinds import ADMIN
+from kolibri.core.auth.constants.user_kinds import ASSIGNABLE_COACH
+from kolibri.core.auth.constants.user_kinds import COACH
+from kolibri.core.auth.constants.user_kinds import SUPERUSER
 from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.auth.management.utils import get_dataset_id
 from kolibri.core.auth.models import Facility
@@ -57,6 +61,7 @@ from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
+from kolibri.core.error_constants import DEVICE_LIMITATIONS
 from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
@@ -987,8 +992,20 @@ class TasksViewSet(BaseViewSet):
                     raise PermissionDenied()
                 else:
                     raise AuthenticationFailed(e)
-            session = response.json()
-            user_id = session["user_id"]
+            auth_session = response.json()
+            full_name = auth_session["full_name"]
+            roles = auth_session["kind"]
+            not_syncable = (SUPERUSER, COACH, ASSIGNABLE_COACH, ADMIN)
+            if any([role in roles for role in not_syncable]):
+                # raise ValidationError({"id": DEVICE_LIMITATIONS, "full_name": full_name, "roles": roles})
+                raise ValidationError(
+                    detail={
+                        "id": DEVICE_LIMITATIONS,
+                        "full_name": full_name,
+                        "roles": ", ".join(roles),
+                    }
+                )
+            user_id = auth_session["user_id"]
 
         kwargs = {"user": user_id}
         resp = prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs)
@@ -1013,7 +1030,7 @@ class TasksViewSet(BaseViewSet):
 
         job_id = queue.enqueue(call_command, "sync", **job_data)
         resp = _job_to_response(facility_queue.fetch_job(job_id))
-        resp["user"] = user_id
+        resp["full_name"] = full_name
         return Response(resp)
 
 
