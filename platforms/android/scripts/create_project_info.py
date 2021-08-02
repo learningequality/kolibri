@@ -68,14 +68,15 @@ def build_number():
     # Envar was not being passed into the container this runs in, and the
     # build submitted to the play store ended up using the dev build number.
     # We can't go backwards. So we're adding to the one submitted at first.
-    build_base_number = 2009000000
+    build_base_number = 2008998000
 
     buildkite_build_number = os.getenv('BUILDKITE_BUILD_NUMBER')
-
+    increment_for_64bit = 1 if os.getenv('ARCH', '') == '64bit' else 0
+    
     print('--- Assigning Build Number')
 
     if buildkite_build_number is not None:
-        build_number = build_base_number + int(buildkite_build_number)
+        build_number = build_base_number + 2 * int(buildkite_build_number) + increment_for_64bit
         print(build_number)
         return str(build_number)
 
