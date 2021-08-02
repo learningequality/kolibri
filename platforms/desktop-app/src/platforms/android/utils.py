@@ -1,6 +1,9 @@
 import json
 import logging
 import os
+import re
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
 from jnius import autoclass, cast, jnius
 
 logging.basicConfig(level=logging.DEBUG)
@@ -41,13 +44,18 @@ def start_service(service_name, service_args):
     service = autoclass("org.learningequality.Kolibri.Service{}".format(service_name.title()))
     service.start(PythonActivity.mActivity, json.dumps(dict(service_args)))
 
+
 def get_service_args():
     assert is_service_context(), "Cannot get service args, as we are not in a service context."
     return json.loads(os.environ.get("PYTHON_SERVICE_ARGUMENT") or "{}")
 
 
+def get_package_info(package_name="org.learningequality.Kolibri", flags=0):
+    return get_activity().getPackageManager().getPackageInfo(package_name, flags)
+
+
 def get_version_name():
-    return get_activity().getPackageManager().getPackageInfo(PythonActivity.getPackageName(), 0).versionName
+    return get_package_info().versionName
 
 
 def get_activity():
@@ -79,9 +87,9 @@ def send_whatsapp_message(msg):
     share_by_intent(msg=msg, app="com.whatsapp")
 
 
-def share_by_intent(path=None, filename=None, msg=None, app=None, mimetype=None):
+def share_by_intent(path=None, filename=None, message=None, app=None, mimetype=None):
 
-    assert path or msg or filename, "Must provide either a path, a filename, or a msg to share"
+    assert path or message or filename, "Must provide either a path, a filename, or a msg to share"
 
     sendIntent = Intent()
     sendIntent.setAction(Intent.ACTION_SEND)
@@ -95,10 +103,10 @@ def share_by_intent(path=None, filename=None, msg=None, app=None, mimetype=None)
         sendIntent.putExtra(Intent.EXTRA_STREAM, parcelable)
         sendIntent.setType(AndroidString(mimetype or "*/*"))
         sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    if msg:
+    if message:
         if not path:
             sendIntent.setType(AndroidString(mimetype or "text/plain"))
-        sendIntent.putExtra(Intent.EXTRA_TEXT, AndroidString(msg))
+        sendIntent.putExtra(Intent.EXTRA_TEXT, AndroidString(message))
     if app:
         sendIntent.setPackage(AndroidString(app))
     sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -132,3 +140,16 @@ def make_service_foreground(title, message):
     notification_builder.setAutoCancel(True)
     new_notification = notification_builder.getNotification()
     service.startForeground(1, new_notification)
+
+
+def get_signature_key_issuer():
+    signature = get_package_info(flags=PackageManager.GET_SIGNATURES).signatures[0]
+    cert = x509.load_der_x509_certificate(signature.toByteArray().tostring(), default_backend())
+
+    return cert.issuer.rfc4514_string()
+
+
+def get_signature_key_issuing_organization():
+    signer = get_signature_key_issuer()
+    orgs = re.findall(r"\bO=([^,]+)", signer)
+    return orgs[0] if orgs else ""

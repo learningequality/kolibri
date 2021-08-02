@@ -35,7 +35,7 @@ if sys.platform.startswith('win'):
     ])
 else:
     excludes.extend([
-        '_sysconfigdata_m_linux_x86_64-linux-gnu'
+        '-linux-gnu',
     ])
 
 
