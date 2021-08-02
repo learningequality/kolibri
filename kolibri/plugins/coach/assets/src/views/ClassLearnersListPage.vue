@@ -62,7 +62,7 @@
               </td>
               <td>
                 <ElapsedTime
-                  :date="mapLastSyncedTimeToLearner(entry)"
+                  :date="mapLastSyncedTimeToLearner(learner.id)"
                 />
               </td>
             </tr>
