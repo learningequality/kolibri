@@ -16,7 +16,7 @@ function writeSourceToFile(filePath, fileSource) {
 
 // Compile all of the defined strings & context from the CSVs that have been downloaded
 // from Crowdin.
-function parseCSVDefinitions(dir, intlLangCode) {
+function parseCSVDefinitions(dir, intlLangCode = null) {
   if (intlLangCode) {
     intlLangCode = toLocale(intlLangCode);
   } else {
