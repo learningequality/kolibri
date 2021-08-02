@@ -8,7 +8,6 @@ from django.test import override_settings
 from django.test import TestCase
 from django.utils.http import http_date
 
-from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.zip_wsgi import generate_zip_content_response
 from kolibri.core.content.zip_wsgi import INITIALIZE_HASHI_FROM_IFRAME
@@ -91,27 +90,6 @@ class ZipContentTestCase(TestCase):
         self.environ["PATH_INFO"] = base_url + file_name
         self.environ.update(kwargs)
         return generate_zip_content_response(self.environ)
-
-    def test_zip_file_url_reversal(self):
-        from kolibri.utils.conf import OPTIONS
-
-        path_prefix = OPTIONS["Deployment"]["ZIP_CONTENT_URL_PATH_PREFIX"]
-
-        if path_prefix != "/":
-            path_prefix = "/" + path_prefix
-        file = LocalFile(id=self.hash, extension=self.extension, available=True)
-        self.assertEqual(
-            file.get_storage_url(),
-            "{}content/zipcontent/{}/".format(path_prefix, self.filename),
-        )
-
-    def test_non_zip_file_url_reversal(self):
-        file = LocalFile(id=self.hash, extension="otherextension", available=True)
-        filename = file.get_filename()
-        self.assertEqual(
-            file.get_storage_url(),
-            "/content/storage/{}/{}/{}".format(filename[0], filename[1], filename),
-        )
 
     def test_zip_file_internal_file_access(self):
         # test reading the data from file #1 inside the zip
