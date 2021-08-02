@@ -213,7 +213,9 @@ def map_status(status):
     elif status["queued"]:
         return QUEUED
     elif status["last_synced"]:
-        if timezone.now() - status["last_synced"] < timedelta(hours=1):
+        # Keep this as a fixed constant for now.
+        # In future versions this may be configurable.
+        if timezone.now() - status["last_synced"] < timedelta(minutes=15):
             return RECENTLY_SYNCED
         else:
             return NOT_RECENTLY_SYNCED
