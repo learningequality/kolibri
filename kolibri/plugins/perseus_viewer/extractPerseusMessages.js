@@ -3,9 +3,10 @@
  * with our i18n machinery. Also converts them into ICU format in the process.
  */
 
-const fs = require('fs');
 // We already have lodash installed, so use it for templating the code we generate
 const lodash = require('lodash');
+
+const { writeSourceToFile } = require('kolibri-tools/lib/i18n/utils');
 
 const gettextToICU = require('./gettextToICU');
 
@@ -31,6 +32,6 @@ module.exports = function() {
 
     // Write out the module to src files
 
-    fs.writeFileSync('./assets/src/translator.js', outputCode, { encoding: 'utf-8' });
+    writeSourceToFile('./assets/src/translator.js', outputCode);
   });
 }
