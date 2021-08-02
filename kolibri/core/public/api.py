@@ -264,7 +264,8 @@ class SyncQueueViewSet(viewsets.ViewSet):
             data["id"] = element.id
         else:
             SyncQueue.objects.filter(id=pk).delete()
-        UserSyncStatus.objects.update_or_create(
-            user=element.user, defaults={"queued": not allow_sync}
-        )
+        if element is not None:
+            UserSyncStatus.objects.update_or_create(
+                user=element.user, defaults={"queued": not allow_sync}
+            )
         return Response(data)

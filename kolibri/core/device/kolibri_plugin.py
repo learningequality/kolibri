@@ -3,7 +3,7 @@ from kolibri.plugins.hooks import register_hook
 
 
 @register_hook
-class SingleUserExamSyncHook(FacilityDataSyncHook):
+class UserSyncStatusHook(FacilityDataSyncHook):
     def pre_transfer(
         self,
         dataset_id,
@@ -12,7 +12,7 @@ class SingleUserExamSyncHook(FacilityDataSyncHook):
         single_user_id,
         context,
     ):
-        # if we're about to send data to a single-user device, prep the syncable exam assignments
+        # if we're about to do a single user sync, update UserSyncStatus accordingly
         if context.sync_session and single_user_id is not None:
             from kolibri.core.device.models import UserSyncStatus
 
