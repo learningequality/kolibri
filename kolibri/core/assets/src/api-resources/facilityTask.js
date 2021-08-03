@@ -1,3 +1,4 @@
+import pickBy from 'lodash/pickBy';
 import { Resource } from 'kolibri.lib.apiResource';
 
 export default new Resource({
@@ -66,5 +67,18 @@ export default new Resource({
     return this.postListEndpoint('startdeletefacility', { facility: facilityId }).then(response => {
       return response.data;
     });
+  },
+  /**
+   * Params for Start provisioning an Single User Device
+   *
+   * @param {string} baseurl - peer URL
+   * @param {string} facility - facility ID
+   * @param {string} username - username for admin or username to be imported
+   * @param {string} password - password for admin or for the user to be imported
+   * @param {string} user_id  - user_id to be imported
+   * @param {string} device_name -- name of the device to be provisioned
+   */
+  startprovisionsoud(params) {
+    return this.postListEndpoint('startprovisionsoud', pickBy(params));
   },
 });

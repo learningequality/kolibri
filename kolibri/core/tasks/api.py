@@ -19,6 +19,7 @@ from django.utils.translation import gettext_lazy as _
 from morango.models import InstanceIDModel
 from morango.models import ScopeDefinition
 from morango.sync.controller import MorangoProfileController
+from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from rest_framework import decorators
 from rest_framework import serializers
@@ -56,6 +57,7 @@ from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.upgrade import diff_stats
 from kolibri.core.device.permissions import IsSuperuser
+from kolibri.core.device.permissions import LODUserHasSyncPermissions
 from kolibri.core.device.permissions import NotProvisionedCanPost
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
@@ -965,74 +967,6 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @decorators.action(
-        methods=["post"],
-        detail=False,
-        permission_classes=[IsSuperuser | NotProvisionedCanPost],
-    )
-    def startprovisionsoud(self, request):
-        baseurl = request.data.get("baseurl", None)
-        facility_id = request.data.get("facility_id", None)
-        username = request.data.get("username", None)
-        password = request.data.get("password", None)
-        user_id = request.data.get("user_id", None)
-        device_name = request.data.get("device_name", None)
-        if user_id is None:
-            auth_url = urljoin(baseurl, reverse("kolibri:core:session-list"))
-            params = {
-                "username": username,
-                "password": password,
-                "facility": facility_id,
-            }
-            try:
-                response = requests.post(auth_url, data=params)
-                response.raise_for_status()
-            except (CommandError, HTTPError) as e:
-                if not username and not password:
-                    raise PermissionDenied()
-                else:
-                    raise AuthenticationFailed(e)
-            auth_session = response.json()
-            full_name = auth_session["full_name"]
-            roles = auth_session["kind"]
-            not_syncable = (SUPERUSER, COACH, ASSIGNABLE_COACH, ADMIN)
-            if any([role in roles for role in not_syncable]):
-                # raise ValidationError({"id": DEVICE_LIMITATIONS, "full_name": full_name, "roles": roles})
-                raise ValidationError(
-                    detail={
-                        "id": DEVICE_LIMITATIONS,
-                        "full_name": full_name,
-                        "roles": ", ".join(roles),
-                    }
-                )
-            user_id = auth_session["user_id"]
-
-        kwargs = {"user": user_id}
-        resp = prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs)
-        instance_model = InstanceIDModel.get_or_create_current_instance()[0]
-
-        extra_metadata = prepare_sync_task(
-            facility_id,
-            user_id,
-            username,
-            None,  # uneeded facility_name
-            None,  # ignored by prepare_sync_task with SYNCPEER/SINGLE
-            instance_model.id,
-            baseurl,
-            type="SYNCPEER/SINGLE",
-        )
-        if device_name is not None:  # Needed when first provisioning a device
-            extra_metadata["device_name"] = device_name
-
-        job_data = prepare_soud_sync_job(
-            baseurl, facility_id, user_id, extra_metadata=extra_metadata
-        )
-
-        job_id = queue.enqueue(call_command, "sync", **job_data)
-        resp = _job_to_response(facility_queue.fetch_job(job_id))
-        resp["full_name"] = full_name
-        return Response(resp)
-
 
 class FacilityTasksViewSet(BaseViewSet):
     @property
@@ -1176,6 +1110,76 @@ class FacilityTasksViewSet(BaseViewSet):
         )
 
         resp = _job_to_response(facility_queue.fetch_job(job_id))
+        return Response(resp)
+
+    @decorators.action(
+        methods=["post"],
+        detail=False,
+        permission_classes=[
+            IsSuperuser | NotProvisionedCanPost | LODUserHasSyncPermissions
+        ],
+    )
+    def startprovisionsoud(self, request):
+        baseurl = request.data.get("baseurl", None)
+        facility_id = request.data.get("facility_id", None)
+        username = request.data.get("username", None)
+        password = request.data.get("password", None)
+        user_id = request.data.get("user_id", None)
+        device_name = request.data.get("device_name", None)
+        if user_id is None:
+            auth_url = urljoin(baseurl, reverse("kolibri:core:session-list"))
+            params = {
+                "username": username,
+                "password": password,
+                "facility": facility_id,
+            }
+            try:
+                response = requests.post(auth_url, data=params)
+                response.raise_for_status()
+            except (CommandError, HTTPError, ConnectionError) as e:
+                if not username and not password:
+                    raise PermissionDenied()
+                else:
+                    raise AuthenticationFailed(e)
+            auth_session = response.json()
+            full_name = auth_session["full_name"]
+            roles = auth_session["kind"]
+            not_syncable = (SUPERUSER, COACH, ASSIGNABLE_COACH, ADMIN)
+            if any([role in roles for role in not_syncable]):
+                # raise ValidationError({"id": DEVICE_LIMITATIONS, "full_name": full_name, "roles": roles})
+                raise ValidationError(
+                    detail={
+                        "id": DEVICE_LIMITATIONS,
+                        "full_name": full_name,
+                        "roles": ", ".join(roles),
+                    }
+                )
+            user_id = auth_session["user_id"]
+
+        kwargs = {"user": user_id}
+        resp = prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs)
+        instance_model = InstanceIDModel.get_or_create_current_instance()[0]
+
+        extra_metadata = prepare_sync_task(
+            facility_id,
+            user_id,
+            username,
+            None,  # uneeded facility_name
+            None,  # ignored by prepare_sync_task with SYNCPEER/SINGLE
+            instance_model.id,
+            baseurl,
+            type="SYNCPEER/SINGLE",
+        )
+        if device_name is not None:  # Needed when first provisioning a device
+            extra_metadata["device_name"] = device_name
+
+        job_data = prepare_soud_sync_job(
+            baseurl, facility_id, user_id, extra_metadata=extra_metadata
+        )
+
+        job_id = facility_queue.enqueue(call_command, "sync", **job_data)
+        resp = _job_to_response(facility_queue.fetch_job(job_id))
+        resp["full_name"] = full_name
         return Response(resp)
 
 

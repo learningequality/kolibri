@@ -53,7 +53,7 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { TaskResource } from 'kolibri.resources';
+  import { FacilityTaskResource } from 'kolibri.resources';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
@@ -112,9 +112,9 @@
           username: this.username,
           password: this.password,
           facility_id: this.facility.id,
-          device_name: this.$store.state.onboardingData.device_name,
+          device_name: this.device.name,
         };
-        TaskResource.startprovisionsoud(params)
+        FacilityTaskResource.startprovisionsoud(params)
           .then(task => {
             this.lodService.send({
               type: 'CONTINUE',
@@ -122,6 +122,7 @@
                 username: this.username,
                 password: this.password,
                 full_name: task.data.full_name,
+                task: task.data,
               },
             });
           })

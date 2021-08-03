@@ -1,10 +1,8 @@
 import { createMachine, assign } from 'xstate';
-
-// import PersonalDataConsentForm from './onboarding-forms/PersonalDataConsentForm';
 import SelectFacilityForm from '../views/importLODUsers/SelectFacilityForm.vue';
 import ImportIndividualUserForm from '../views/importLODUsers/ImportIndividualUserForm.vue';
 import SelectSuperAdminAccountForm from '../views/importFacility/SelectSuperAdminAccountForm';
-// import LoadingTaskPage from './importFacility/LoadingTaskPage';
+import LoadingTaskPage from '../views/importLODUsers/LoadingTaskPage';
 
 const assignDevice = assign((_, event) => {
   const data = event.value;
@@ -33,7 +31,16 @@ const assignFacility = assign({
 });
 
 const importUser = assign((context, event) => {
-  context.users.push(event.value);
+  const user = {
+    username: event.value.username,
+    password: event.value.password,
+    full_name: event.value.full_name,
+    task: event.value.task.id,
+  };
+  context.users.push(user);
+  return {
+    task: event.value.task,
+  };
 });
 
 export const lodImportMachine = createMachine({
@@ -45,6 +52,7 @@ export const lodImportMachine = createMachine({
     facilities: [],
     facility: { name: null, id: null, adminuser: null, adminpassword: null },
     users: [],
+    task: null,
   },
   states: {
     selectFacility: {
@@ -63,17 +71,8 @@ export const lodImportMachine = createMachine({
       },
     },
     importingUser: {
-      meta: { step: '3' },
+      meta: { step: '3', component: LoadingTaskPage },
       on: {
-        CONTINUE: { target: 'importedUser' },
-        BACK: 'userCredentials',
-      },
-    },
-    importedUser: {
-      meta: { step: '4' },
-      on: {
-        CONTINUE: { target: 'welcome' },
-        CONTINUEADMIN: { target: 'selectUsers' },
         BACK: 'userCredentials',
       },
     },
@@ -92,9 +91,5 @@ export const lodImportMachine = createMachine({
       },
     },
     modalCoachAdmins: {},
-    welcome: {
-      type: 'final',
-      meta: { step: '5' },
-    },
   },
 });

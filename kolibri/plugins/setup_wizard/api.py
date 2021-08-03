@@ -22,6 +22,16 @@ class HasPermissionDuringSetup(BasePermission):
         return not device_provisioned()
 
 
+class HasPermissionDuringLODSetup(BasePermission):
+    def has_permission(self, request, view):
+        from kolibri.core.device.utils import get_device_setting
+
+        subset_of_users_device = get_device_setting(
+            "subset_of_users_device", default=False
+        )
+        return subset_of_users_device
+
+
 class FacilityImportViewSet(ViewSet):
     """
     A group of endpoints that are used by the SetupWizard to import a facility
@@ -122,11 +132,12 @@ class SetupWizardFacilityImportTaskView(FacilityTasksViewSet):
     import-facility task during setup
     """
 
-    permission_classes = (HasPermissionDuringSetup,)
+    permission_classes = [HasPermissionDuringSetup | HasPermissionDuringLODSetup]
 
     # Remove all the endpoints we don't want in setup wizard
     startdataportalsync = property()
     startdataportalbulksync = property()
     # startpeerfacilityimport: not overwritten
+    # startprovisionsoud: not overwritten
     startpeerfacilitysync = property()
     startdeletefacility = property()

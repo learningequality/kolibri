@@ -109,14 +109,6 @@
         if (this.state.matches('selectFacility')) this.wizardService.send('BACK');
         else this.service.send('BACK');
       },
-      //   finalizeOnboardingData() {
-      //     this.$store.dispatch('provisionDeviceAfterImport', {
-      //       username: this.superuser.username,
-      //       password: this.superuser.password,
-      //       facility: this.facility.id,
-      //       lodUsers: this.lodUsers,
-      //     });
-      //   },
     },
     $trs: {
       stepTitle: {
