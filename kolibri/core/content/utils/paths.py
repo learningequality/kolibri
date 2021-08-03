@@ -14,9 +14,6 @@ from kolibri.utils.server import get_zip_port
 # valid storage filenames consist of 32-char hex plus a file extension
 VALID_STORAGE_FILENAME = re.compile(r"[0-9a-f]{32}(-data)?\.[0-9a-z]+")
 
-# set of file extensions that should be considered zip files and allow access to internal files
-POSSIBLE_ZIPPED_FILE_EXTENSIONS = set([".zip"])
-
 
 def _maybe_makedirs(path):
     if not os.path.isdir(path):
@@ -49,7 +46,15 @@ def get_local_content_storage_file_url(obj):
     The same url will also be exposed by the file serializer.
     """
     if get_attribute(obj, "available"):
-        return get_content_storage_file_url(filename=get_content_file_name(obj))
+        filename = get_content_file_name(obj)
+        return "/{}{}/{}/{}".format(
+            get_content_storage_url(
+                conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
+            ).lstrip("/"),
+            filename[0],
+            filename[1],
+            filename,
+        )
     else:
         return None
 
@@ -305,23 +310,3 @@ def zip_content_static_root():
 
 def get_hashi_path():
     return "{}{}{}".format(zip_content_static_root(), HASHI, get_hashi_html_filename())
-
-
-def get_content_storage_file_url(filename):
-    """
-    Return the URL at which the specified file can be accessed. For regular files, this is a link to the static
-    file itself, under "/content/storage/". For "zip" files, this points to a dynamically generated view that
-    allows the client-side to index into the files within the zip.
-    """
-    ext = os.path.splitext(filename)[1]
-    if ext in POSSIBLE_ZIPPED_FILE_EXTENSIONS:
-        return "{}{}/".format(get_zip_content_base_path(), filename)
-    else:
-        return "/{}{}/{}/{}".format(
-            get_content_storage_url(
-                conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
-            ).lstrip("/"),
-            filename[0],
-            filename[1],
-            filename,
-        )
