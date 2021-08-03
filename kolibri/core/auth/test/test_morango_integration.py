@@ -31,6 +31,8 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import ExamAttemptLog
+from kolibri.core.logger.models import ExamLog
 
 
 class FacilityDatasetCertificateTestCase(TestCase):
@@ -786,6 +788,36 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
         self.sync_single_user(self.laptop_a)
         assignment_t = ExamAssignment.objects.using(self.alias_t).get(id=assignment_id)
         assert assignment_t.exam.seed == 433
+
+        # Create ExamLog and ExamAttemptLog on tablet and sync to laptop A to verify receipt
+        servers[self.tablet].create_model(
+            ExamLog,
+            exam_id=assignment_t.exam_id,
+            user_id=self.learner.id,
+            completion_timestamp=timezone.now(),
+        )
+        learner_exam_log = ExamLog.objects.using(self.alias_t).get(
+            exam_id=assignment_t.exam_id, user_id=self.learner.id
+        )
+        servers[self.tablet].create_model(
+            ExamAttemptLog,
+            user_id=self.learner.id,
+            examlog_id=learner_exam_log.id,
+            content_id=uuid.uuid4().hex,
+            item=uuid.uuid4().hex,
+            start_timestamp=timezone.now(),
+            end_timestamp=timezone.now(),
+            completion_timestamp=timezone.now(),
+            time_spent=2,
+            complete=True,
+            correct=False,
+        )
+        self.sync_single_user(self.laptop_a)
+        self.assertTrue(
+            ExamLog.objects.using(self.alias_a)
+            .filter(exam_id=assignment_t.exam_id, user_id=self.learner.id)
+            .exists()
+        )
 
         # Create lesson on Laptop A, single-user sync to tablet, then modify lesson on Laptop A
         # and single-user sync again to check that "updating" works
