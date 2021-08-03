@@ -12,7 +12,7 @@ function clearCsvPath(csvPath) {
   logging.info(`Removing existing messages files from ${csvPath}`);
 
   try {
-    const removedFiles = del.sync(csvPath);
+    const removedFiles = del.sync(path.join(csvPath, '*.csv'));
     logging.info(`Successfully cleared path for CSVs by removing: ${removedFiles.join('\n')}`);
   } catch (e) {
     logging.error('Failed to clear CSV path. Error message to follow...');
@@ -117,7 +117,7 @@ module.exports = function(pathInfo, ignore, localeDataFolder) {
     extractedMessages[namespace] = getAllMessagesFromFilePath(pathData.moduleFilePath, ignore);
   });
 
-  const csvPath = path.join(localeDataFolder, 'CSV_FILES', 'en');
+  const csvPath = path.join(localeDataFolder, 'en', 'LC_MESSAGES');
   // Let's just get rid of the old files to limit room for issues w/ file system
   clearCsvPath(csvPath);
 

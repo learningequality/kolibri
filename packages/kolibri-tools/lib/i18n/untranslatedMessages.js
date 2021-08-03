@@ -23,7 +23,7 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder) {
   for (let langObject of languageInfo) {
     const crowdinCode = langObject['crowdin_code'];
     const intlCode = langObject['intl_code'];
-    const csvDefinitions = parseCSVDefinitions(localeDataFolder, crowdinCode);
+    const csvDefinitions = parseCSVDefinitions(localeDataFolder, intlCode);
     // An object for storing missing messages.
     const missingMessages = {};
     for (let name in requiredMessages) {

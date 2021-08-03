@@ -30,7 +30,7 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder) {
     logging.info(
       `Converting CSV files to JSON for crowdin code ${crowdinCode} / Intl code ${intlCode}`
     );
-    const csvDefinitions = parseCSVDefinitions(localeDataFolder, crowdinCode);
+    const csvDefinitions = parseCSVDefinitions(localeDataFolder, intlCode);
     let messagesExist = false;
     const localeFolder = path.join(localeDataFolder, toLocale(intlCode), 'LC_MESSAGES');
     for (let name in requiredMessages) {
