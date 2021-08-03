@@ -211,12 +211,22 @@
         this.fetchUserSyncStatus({ user: this.userId }).then(syncData => {
           if (syncData && syncData[0]) {
             this.userSyncStatus = syncData[0];
+            this.setPollingInterval(this.userSyncStatus.status);
           }
         });
         if (this.isPolling) {
           setTimeout(() => {
             this.pollUserSyncStatusTask();
           }, this.pollingInterval);
+        }
+      },
+      setPollingInterval(status) {
+        if (status === SyncStatus.QUEUED) {
+          // check more frequently for updates if the user is waiting to sync,
+          // so that the sync isn't missed
+          this.pollingInterval = 1000;
+        } else {
+          this.pollingInterval = 10000;
         }
       },
       handleUserMenuButtonClick(event) {
