@@ -197,10 +197,6 @@
       window.addEventListener('click', this.handleWindowClick);
       this.$kolibriBranding = branding;
     },
-    mounted() {
-      this.isUserLoggedIn ? (this.isPolling = true) : null;
-      this.pollUserSyncStatusTask(this.userId);
-    },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
       this.isPolling = false;
@@ -234,7 +230,11 @@
         if (this.userMenuDropdownIsOpen) {
           this.$nextTick(() => {
             this.$refs.userMenuDropdown.$el.focus();
+            this.isPolling = true;
+            this.pollUserSyncStatusTask(this.userId);
           });
+        } else if (!this.userMenuDropdownIsOpen) {
+          this.isPolling = false;
         }
         return event;
       },
@@ -245,11 +245,13 @@
           this.userMenuDropdownIsOpen
         ) {
           this.userMenuDropdownIsOpen = false;
+          this.isPolling = false;
         }
         return event;
       },
       handleCoreMenuClose() {
         this.userMenuDropdownIsOpen = false;
+        this.isPolling = false;
         if (this.$refs.userMenuButton) {
           this.$refs.userMenuButton.$el.focus();
         }
@@ -257,6 +259,7 @@
       handleChangeLanguage() {
         this.$emit('showLanguageModal');
         this.userMenuDropdownIsOpen = false;
+        this.isPolling = false;
       },
     },
     $trs: {
