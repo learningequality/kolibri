@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotFound
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
 from morango.models.core import TransferSession
@@ -31,9 +32,9 @@ from kolibri.core.content.utils.file_availability import generate_checksum_integ
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.device.utils import allow_peer_unlisted_channel_import
-
-MAX_CONCURRENT_SYNCS = 1
-HANDSHAKING_TIME = 5
+from kolibri.core.public.constants.user_sync_options import HANDSHAKING_TIME
+from kolibri.core.public.constants.user_sync_options import MAX_CONCURRENT_SYNCS
+from kolibri.utils.conf import OPTIONS
 
 
 class InfoViewSet(viewsets.ViewSet):
@@ -188,13 +189,14 @@ class SyncQueueViewSet(viewsets.ViewSet):
         return Response(queue)
 
     def check_queue(self, pk=None):
-        last_activity = datetime.datetime.now() - datetime.timedelta(minutes=5)
+        sync_interval = OPTIONS["SYNCING"]["SYNC_INTERVAL"]
+        last_activity = timezone.now() - datetime.timedelta(minutes=5)
         current_transfers = TransferSession.objects.filter(
             active=True, last_activity_timestamp__gte=last_activity
         ).count()
         if current_transfers < MAX_CONCURRENT_SYNCS:
             allow_sync = True
-            data = {"action": SYNC}
+            data = {"action": SYNC, "sync_interval": sync_interval}
         else:
             # polling time at least HANDSHAKING_TIME seconds per position in the queue to
             # be greater than the time needed for the handshake part of the ssl protocol
