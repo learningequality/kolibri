@@ -15,6 +15,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
+from kolibri.core.public.constants.user_sync_options import SYNC_INTERVAL
 from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import SYNC
 from kolibri.core.tasks.api import prepare_soud_sync_job
@@ -189,14 +190,15 @@ def request_soud_sync(server, user=None, queue_id=None, ttl=10):
         )
         return
 
+    if response.status_code == status.HTTP_404_NOT_FOUND:
+        return  # Request done to a server not owning this user's data
+
     response_content = (
         response.content.decode()
         if isinstance(response.content, bytes)
         else response.content
     )
     server_response = json.loads(response_content or "{}")
-    if response.status_code == status.HTTP_404_NOT_FOUND:
-        return  # Request done to a server not owning this user's data
 
     if response.status_code == status.HTTP_200_OK:
         # In either case, we set the sync status for this user as queued
@@ -209,6 +211,10 @@ def request_soud_sync(server, user=None, queue_id=None, ttl=10):
             logger.info(
                 "Enqueuing a sync task for user {} in job {}".format(user, job_id)
             )
+            # reschedule the process for a new sync
+            dt = datetime.timedelta(minutes=SYNC_INTERVAL)
+            job = Job(request_soud_sync, server, user)
+            scheduler.enqueue_in(dt, job)
 
         elif server_response["action"] == QUEUED:
             pk = server_response["id"]
