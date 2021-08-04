@@ -464,7 +464,7 @@ def upload_sources(branch, project, key, login, locale_data_folder):
                 branch=branch
             ),
         )
-        _modify(UPDATE_SOURCE_URL, to_update)
+        _modify(UPDATE_SOURCE_URL, to_update, locale_data_folder)
 
     logging.info("Crowdin: source file upload succeeded!")
 
