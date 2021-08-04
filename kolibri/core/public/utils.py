@@ -133,11 +133,9 @@ def begin_request_soud_sync(server, user):
         "queued", "sync_session__last_activity_timestamp"
     )
     if users:
-        dt = datetime.timedelta(minutes=SYNC_INTERVAL)
+        dt = datetime.timedelta(seconds=SYNC_INTERVAL)
         if timezone.now() - users[0]["sync_session__last_activity_timestamp"] < dt:
-            # reschedule the process for a later sync
-            job = Job(request_soud_sync, server, user)
-            scheduler.enqueue_in(dt, job)
+            schedule_new_sync(server, user)
             return
 
         if users[0]["queued"]:
@@ -223,10 +221,6 @@ def request_soud_sync(server, user=None, queue_id=None, ttl=10):
             logger.info(
                 "Enqueuing a sync task for user {} in job {}".format(user, job_id)
             )
-            # reschedule the process for a new sync
-            dt = datetime.timedelta(minutes=SYNC_INTERVAL)
-            job = Job(request_soud_sync, server, user)
-            scheduler.enqueue_in(dt, job)
 
         elif server_response["action"] == QUEUED:
             pk = server_response["id"]
@@ -239,3 +233,10 @@ def request_soud_sync(server, user=None, queue_id=None, ttl=10):
                     time_alive, pk
                 )
             )
+
+
+def schedule_new_sync(server, user):
+    # reschedule the process for a new sync
+    dt = datetime.timedelta(seconds=SYNC_INTERVAL)
+    job = Job(request_soud_sync, server, user)
+    scheduler.enqueue_in(dt, job)

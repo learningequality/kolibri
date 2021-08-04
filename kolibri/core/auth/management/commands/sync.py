@@ -25,6 +25,7 @@ from kolibri.core.auth.management.utils import run_once
 from kolibri.core.auth.models import dataset_cache
 from kolibri.core.auth.sync_event_hook_utils import register_sync_event_handlers
 from kolibri.core.logger.utils.data import bytes_for_humans
+from kolibri.core.public.utils import schedule_new_sync
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.utils.lock import db_lock
@@ -269,6 +270,7 @@ class Command(AsyncCommand):
             self.job.save_meta()
 
         dataset_cache.deactivate()
+        schedule_new_sync(baseurl, user_id)
         logger.info("Syncing has been completed.")
 
     @contextmanager
