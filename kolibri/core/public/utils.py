@@ -20,6 +20,7 @@ from kolibri.core.public.constants.user_sync_statuses import SYNC
 from kolibri.core.tasks.api import prepare_soud_sync_job
 from kolibri.core.tasks.api import prepare_sync_task
 from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import queue
 from kolibri.core.tasks.main import scheduler
 
@@ -126,7 +127,24 @@ def begin_request_soud_sync(server, user):
         # this does not make sense unless this is a SoUD
         logger.warn("Only Subsets of Users Devices can do this")
         return
-    logger.info("Queuing SoUD syncing request")
+    if UserSyncStatus.objects.get(user_id=user).queued:
+        failed_jobs = [
+            j
+            for j in queue.jobs
+            if j.state == State.FAILED
+            and j.extra_metadata.get("started_by", None) == user
+            and j.extra_metadata.get("type", None) == "SYNCPEER/SINGLE"
+        ]
+        if failed_jobs:
+            for j in failed_jobs:
+                queue.clear_job(j.job_id)
+            # if previous sync jobs have failed, unblock UserSyncStatus to try again:
+            UserSyncStatus.objects.update_or_create(
+                user_id=user, defaults={"queued": False}
+            )
+        else:
+            return  # If there are pending and not failed jobs, don't enqueue a new one
+    logger.info("Queuing SoUD syncing request for user {}".format(user))
     queue.enqueue(request_soud_sync, server, user)
 
 
