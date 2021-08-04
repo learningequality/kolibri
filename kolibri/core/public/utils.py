@@ -7,6 +7,7 @@ import random
 import requests
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 from morango.models import InstanceIDModel
 from rest_framework import status
 
@@ -128,23 +129,34 @@ def begin_request_soud_sync(server, user):
         # this does not make sense unless this is a SoUD
         logger.warn("Only Subsets of Users Devices can do this")
         return
-    if UserSyncStatus.objects.get(user_id=user).queued:
-        failed_jobs = [
-            j
-            for j in queue.jobs
-            if j.state == State.FAILED
-            and j.extra_metadata.get("started_by", None) == user
-            and j.extra_metadata.get("type", None) == "SYNCPEER/SINGLE"
-        ]
-        if failed_jobs:
-            for j in failed_jobs:
-                queue.clear_job(j.job_id)
-            # if previous sync jobs have failed, unblock UserSyncStatus to try again:
-            UserSyncStatus.objects.update_or_create(
-                user_id=user, defaults={"queued": False}
-            )
-        else:
-            return  # If there are pending and not failed jobs, don't enqueue a new one
+    users = UserSyncStatus.objects.filter(user_id=user).values(
+        "queued", "sync_session__last_activity_timestamp"
+    )
+    if users:
+        dt = datetime.timedelta(minutes=SYNC_INTERVAL)
+        if timezone.now() - users[0]["sync_session__last_activity_timestamp"] < dt:
+            # reschedule the process for a later sync
+            job = Job(request_soud_sync, server, user)
+            scheduler.enqueue_in(dt, job)
+            return
+
+        if users[0]["queued"]:
+            failed_jobs = [
+                j
+                for j in queue.jobs
+                if j.state == State.FAILED
+                and j.extra_metadata.get("started_by", None) == user
+                and j.extra_metadata.get("type", None) == "SYNCPEER/SINGLE"
+            ]
+            if failed_jobs:
+                for j in failed_jobs:
+                    queue.clear_job(j.job_id)
+                # if previous sync jobs have failed, unblock UserSyncStatus to try again:
+                UserSyncStatus.objects.update_or_create(
+                    user_id=user, defaults={"queued": False}
+                )
+            else:
+                return  # If there are pending and not failed jobs, don't enqueue a new one
     logger.info("Queuing SoUD syncing request for user {}".format(user))
     queue.enqueue(request_soud_sync, server, user)
 
