@@ -85,8 +85,13 @@
     beforeMount() {
       this.fetchNetworkLocationFacilities(this.$route.query.device_id)
         .then(data => {
-          this.service.send({ type: 'DEVICE_DATA', value: data });
-          if (data.facilities.length === 1) this.service.send({ type: 'CONTINUE' });
+          if (data.facilities.length === 1)
+            this.service.send({ type: 'CONTINUE', value: data.facilities[0] });
+          else if (data.facilities.length > 1)
+            this.service.send({ type: 'DEVICE_DATA', value: data });
+          else if (data.facilities.length === 0)
+            //unprovisioned server, can't sync from it
+            this.wizardService.send({ type: 'BACK' });
         })
         .catch(error => {
           // TODO handle disconnected peers error more gracefully
