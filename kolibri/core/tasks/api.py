@@ -38,33 +38,26 @@ from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.auth.management.utils import get_dataset_id
 from kolibri.core.auth.models import Facility
-from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.permissions import CanExportLogs
 from kolibri.core.content.permissions import CanImportUsers
 from kolibri.core.content.permissions import CanManageContent
-from kolibri.core.content.utils.channels import get_mounted_drive_by_id
-from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.upgrade import diff_stats
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.permissions import NotProvisionedCanPost
-from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
-from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
-from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.job import JobRegistry
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import facility_queue
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.main import priority_queue
 from kolibri.core.tasks.main import queue
-from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
 
 try:
@@ -86,102 +79,6 @@ DISK_IO_ERROR_STRING = _("There was a disk access error.")
 CATCHALL_SERVER_ERROR_STRING = _("There was an unknown error.")
 
 
-def get_channel_name(channel_id, require_channel=False):
-    try:
-        channel = ChannelMetadata.objects.get(id=channel_id)
-        channel_name = channel.name
-    except ChannelMetadata.DoesNotExist:
-        if require_channel:
-            raise serializers.ValidationError("This channel does not exist")
-        channel_name = ""
-
-    return channel_name
-
-
-def validate_content_task(request, task_description, require_channel=False):
-    try:
-        channel_id = task_description["channel_id"]
-    except KeyError:
-        raise serializers.ValidationError("The channel_id field is required.")
-
-    channel_name = task_description.get(
-        "channel_name", get_channel_name(channel_id, require_channel)
-    )
-
-    node_ids = task_description.get("node_ids", None)
-    exclude_node_ids = task_description.get("exclude_node_ids", None)
-
-    if node_ids and not isinstance(node_ids, list):
-        raise serializers.ValidationError("node_ids must be a list.")
-
-    if exclude_node_ids and not isinstance(exclude_node_ids, list):
-        raise serializers.ValidationError("exclude_node_ids must be a list.")
-
-    return {
-        "channel_id": channel_id,
-        "channel_name": channel_name,
-        "exclude_node_ids": exclude_node_ids,
-        "node_ids": node_ids,
-        "started_by": request.user.pk,
-        "started_by_username": request.user.username,
-    }
-
-
-def validate_remote_import_task(request, task_description):
-    import_task = validate_content_task(request, task_description)
-    try:
-        peer_id = task_description["peer_id"]
-        baseurl = NetworkLocation.objects.values_list("base_url", flat=True).get(
-            id=peer_id
-        )
-    except NetworkLocation.DoesNotExist:
-        raise serializers.ValidationError(
-            "Peer with id {} does not exist".format(peer_id)
-        )
-    except KeyError:
-        baseurl = conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
-        peer_id = None
-
-    import_task.update({"baseurl": baseurl, "peer_id": peer_id})
-    return import_task
-
-
-def _add_drive_info(import_task, task_description):
-    try:
-        drive_id = task_description["drive_id"]
-    except KeyError:
-        raise serializers.ValidationError("The drive_id field is required.")
-
-    try:
-        drive = get_mounted_drive_by_id(drive_id)
-    except KeyError:
-        raise serializers.ValidationError(
-            "That drive_id was not found in the list of drives."
-        )
-
-    import_task.update({"drive_id": drive_id, "datafolder": drive.datafolder})
-
-    return import_task
-
-
-def validate_local_import_task(request, task_description):
-    task = validate_content_task(request, task_description)
-    task = _add_drive_info(task, task_description)
-    return task
-
-
-def validate_local_export_task(request, task_description):
-    task = validate_content_task(request, task_description, require_channel=True)
-    task = _add_drive_info(task, task_description)
-    return task
-
-
-def validate_deletion_task(request, task_description):
-    task = validate_content_task(request, task_description, require_channel=True)
-    task["force_delete"] = bool(task_description.get("force_delete"))
-    return task
-
-
 class BaseViewSet(viewsets.ViewSet):
     queues = []
     permission_classes = []
@@ -198,12 +95,12 @@ class BaseViewSet(viewsets.ViewSet):
         return super(BaseViewSet, self).initial(request, *args, **kwargs)
 
     def default_permission_classes(self):
-        # For all /api/tasks/ endpoints
+        # For all /api/tasks/tasks/ endpoints
         return [CanManageContent]
 
     def validate_create_req_data(self, request):
         """
-        Validates the request data received on POST /api/tasks/.
+        Validates the request data received on POST /api/tasks/tasks/.
 
         If `request.user` is authorized to initiate the `task` function, this returns
         a list of `request.data` otherwise raises PermissionDenied.
@@ -245,23 +142,25 @@ class BaseViewSet(viewsets.ViewSet):
 
     def create(self, request):
         """
-        Enqueue a task for async processing.
+        Enqueues a registered task for async processing.
+
+        If the registered task has a validator then that validator is run with the
+        `request` object as its argument. The dict returned by the validator is passed
+        as keyword arguments to the task function.
+
+        If the registered task has no validator then `request.data` is passed as keyword
+        arguments to the task function.
 
         API endpoint:
-            POST /api/tasks/
+            POST /api/tasks/tasks/
 
         Request payload parameters:
             - `task` (required): a string representing the dotted path to task function.
-            - all other key value pairs are passed to the validator if the
-              task function has one otherwise they are passed to the task function itself
-              as keyword args.
+            - key value pairs for `task`.
 
         Keep in mind:
-            If a task function has a validator then dict returned by the validator
-            is passed to the task function as keyword args.
-
-            The validator can add `extra_metadata` in the returning dict to set `extra_metadata`
-            in the enqueued task.
+            In the validator's returning dict we can add `extra_metadata` as a key value pair
+            to set `extra_metadata` for the task.
         """
         request_data_list = self.validate_create_req_data(request)
 
@@ -273,10 +172,10 @@ class BaseViewSet(viewsets.ViewSet):
             funcstr = request_data.get("task")
             registered_job = JobRegistry.REGISTERED_JOBS[funcstr]
 
-            # Run validator with request and request_data as its argument
+            # Run validator with `request` as its argument
             if registered_job.validator is not None:
                 try:
-                    validator_result = registered_job.validator(request, request_data)
+                    validator_result = registered_job.validator(request)
                 except Exception as e:
                     raise e
 
@@ -414,47 +313,6 @@ class TasksViewSet(BaseViewSet):
         return [CanManageContent]
 
     @decorators.action(methods=["post"], detail=False)
-    def startchannelupdate(self, request):
-
-        sourcetype = request.data.get("sourcetype", None)
-        new_version = request.data.get("new_version", None)
-
-        if sourcetype == "remote":
-            task = validate_remote_import_task(request, request.data)
-            task.update({"type": "UPDATECHANNEL", "new_version": new_version})
-            job_id = queue.enqueue(
-                _remoteimport,
-                task["channel_id"],
-                task["baseurl"],
-                peer_id=task["peer_id"],
-                node_ids=task["node_ids"],
-                is_updating=True,
-                extra_metadata=task,
-                track_progress=True,
-                cancellable=True,
-            )
-        elif sourcetype == "local":
-            task = validate_local_import_task(request, request.data)
-            task.update({"type": "UPDATECHANNEL", "new_version": new_version})
-            job_id = queue.enqueue(
-                _diskimport,
-                task["channel_id"],
-                task["datafolder"],
-                drive_id=task["drive_id"],
-                node_ids=task["node_ids"],
-                is_updating=True,
-                extra_metadata=task,
-                track_progress=True,
-                cancellable=True,
-            )
-        else:
-            raise serializers.ValidationError("sourcetype must be 'remote' or 'local'")
-
-        resp = _job_to_response(queue.fetch_job(job_id))
-
-        return Response(resp)
-
-    @decorators.action(methods=["post"], detail=False)
     def startremotebulkimport(self, request):
         if not isinstance(request.data, list):
             raise serializers.ValidationError(
@@ -479,51 +337,6 @@ class TasksViewSet(BaseViewSet):
             job_ids.append(import_job_id)
 
         resp = [_job_to_response(queue.fetch_job(job_id)) for job_id in job_ids]
-
-        return Response(resp)
-
-    @decorators.action(methods=["post"], detail=False)
-    def startremotechannelimport(self, request):
-
-        task = validate_remote_import_task(request, request.data)
-
-        task.update({"type": "REMOTECHANNELIMPORT"})
-
-        job_id = priority_queue.enqueue(
-            call_command,
-            "importchannel",
-            "network",
-            task["channel_id"],
-            baseurl=task["baseurl"],
-            peer_id=task["peer_id"],
-            extra_metadata=task,
-            cancellable=True,
-        )
-        resp = _job_to_response(priority_queue.fetch_job(job_id))
-
-        return Response(resp)
-
-    @decorators.action(methods=["post"], detail=False)
-    def startremotecontentimport(self, request):
-
-        task = validate_remote_import_task(request, request.data)
-        task.update({"type": "REMOTECONTENTIMPORT"})
-
-        job_id = queue.enqueue(
-            call_command,
-            "importcontent",
-            "network",
-            task["channel_id"],
-            baseurl=task["baseurl"],
-            peer_id=task["peer_id"],
-            node_ids=task["node_ids"],
-            exclude_node_ids=task["exclude_node_ids"],
-            extra_metadata=task,
-            track_progress=True,
-            cancellable=True,
-        )
-
-        resp = _job_to_response(queue.fetch_job(job_id))
 
         return Response(resp)
 
@@ -684,32 +497,6 @@ class TasksViewSet(BaseViewSet):
 
         return Response(resp)
 
-    @decorators.action(methods=["post"], detail=False)
-    def startdiskexport(self, request):
-        """
-        Export a channel to a local drive, and copy content to the drive.
-        """
-
-        task = validate_local_export_task(request, request.data)
-
-        task.update({"type": "DISKCONTENTEXPORT"})
-
-        task_id = queue.enqueue(
-            _localexport,
-            task["channel_id"],
-            task["drive_id"],
-            track_progress=True,
-            cancellable=True,
-            node_ids=task["node_ids"],
-            exclude_node_ids=task["exclude_node_ids"],
-            extra_metadata=task,
-        )
-
-        # attempt to get the created Task, otherwise return pending status
-        resp = _job_to_response(queue.fetch_job(task_id))
-
-        return Response(resp)
-
     @decorators.action(methods=["get"], detail=False)
     def localdrive(self, request):
         drives = get_mounted_drives_with_channel_info()
@@ -829,62 +616,6 @@ class TasksViewSet(BaseViewSet):
             "bulkexportusers",
             facility=facility,
             locale=locale,
-            overwrite="true",
-            extra_metadata=job_metadata,
-            track_progress=True,
-        )
-
-        resp = _job_to_response(priority_queue.fetch_job(job_id))
-
-        return Response(resp)
-
-    @decorators.action(methods=["post"], detail=False)
-    def startexportlogcsv(self, request):
-        """
-        Dumps in csv format the required logs.
-        By default it will be dump contentsummarylog.
-
-        :param: logtype: Kind of log to dump, summary or session
-        :param: facility
-        :returns: An object with the job information
-
-        """
-        facility_id = request.data.get("facility", None)
-        if facility_id:
-            facility = Facility.objects.get(pk=facility_id)
-        else:
-            facility = request.user.facility
-
-        log_type = request.data.get("logtype", "summary")
-        if log_type in CSV_EXPORT_FILENAMES.keys():
-            logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
-            filepath = os.path.join(
-                logs_dir,
-                CSV_EXPORT_FILENAMES[log_type].format(facility.name, facility_id[:4]),
-            )
-        else:
-            raise Http404(
-                "Impossible to create a csv export file for {}".format(log_type)
-            )
-        if not os.path.isdir(logs_dir):
-            os.mkdir(logs_dir)
-
-        job_type = (
-            "EXPORTSUMMARYLOGCSV" if log_type == "summary" else "EXPORTSESSIONLOGCSV"
-        )
-
-        job_metadata = {
-            "type": job_type,
-            "started_by": request.user.pk,
-            "facility": facility.id,
-        }
-
-        job_id = priority_queue.enqueue(
-            call_command,
-            "exportlogs",
-            log_type=log_type,
-            output_file=filepath,
-            facility=facility.id,
             overwrite="true",
             extra_metadata=job_metadata,
             track_progress=True,
@@ -1269,145 +1000,6 @@ def prepare_soud_sync_job(baseurl, facility_id, user_id, **kwargs):
     """
     kwargs.update(user=user_id)
     return prepare_sync_job(facility_id, baseurl=baseurl, **kwargs)
-
-
-def _remoteimport(
-    channel_id,
-    baseurl,
-    peer_id=None,
-    update_progress=None,
-    check_for_cancel=None,
-    node_ids=None,
-    is_updating=False,
-    exclude_node_ids=None,
-    extra_metadata=None,
-):
-
-    call_command(
-        "importchannel",
-        "network",
-        channel_id,
-        baseurl=baseurl,
-        update_progress=update_progress,
-        check_for_cancel=check_for_cancel,
-    )
-
-    # Make some real-time updates to the metadata
-    job = get_current_job()
-
-    # Signal to UI that the DB-downloading step is done so it knows to display
-    # progress correctly
-    job.update_progress(0, 1.0)
-    job.extra_metadata["database_ready"] = True
-
-    # Add the channel name if it wasn't added initially
-    if job and job.extra_metadata.get("channel_name", "") == "":
-        job.extra_metadata["channel_name"] = get_channel_name(channel_id)
-
-    job.save_meta()
-
-    call_command(
-        "importcontent",
-        "network",
-        channel_id,
-        baseurl=baseurl,
-        peer_id=peer_id,
-        node_ids=node_ids,
-        exclude_node_ids=exclude_node_ids,
-        import_updates=is_updating,
-        update_progress=update_progress,
-        check_for_cancel=check_for_cancel,
-    )
-
-
-def _diskimport(
-    channel_id,
-    directory,
-    drive_id=None,
-    update_progress=None,
-    check_for_cancel=None,
-    node_ids=None,
-    is_updating=False,
-    exclude_node_ids=None,
-    extra_metadata=None,
-):
-
-    call_command(
-        "importchannel",
-        "disk",
-        channel_id,
-        directory,
-        update_progress=update_progress,
-        check_for_cancel=check_for_cancel,
-    )
-
-    # Make some real-time updates to the metadata
-    job = get_current_job()
-
-    # Signal to UI that the DB-downloading step is done so it knows to display
-    # progress correctly
-    job.update_progress(0, 1.0)
-    job.extra_metadata["database_ready"] = True
-
-    # Add the channel name if it wasn't added initially
-    if job and job.extra_metadata.get("channel_name", "") == "":
-        job.extra_metadata["channel_name"] = get_channel_name(channel_id)
-
-    job.save_meta()
-
-    # Skip importcontent step if updating and no nodes have changed
-    if is_updating and (node_ids is not None) and len(node_ids) == 0:
-        pass
-    else:
-        call_command(
-            "importcontent",
-            "disk",
-            channel_id,
-            directory,
-            drive_id=drive_id,
-            node_ids=node_ids,
-            exclude_node_ids=exclude_node_ids,
-            update_progress=update_progress,
-            check_for_cancel=check_for_cancel,
-        )
-
-
-def _localexport(
-    channel_id,
-    drive_id,
-    update_progress=None,
-    check_for_cancel=None,
-    node_ids=None,
-    exclude_node_ids=None,
-    extra_metadata=None,
-):
-    drive = get_mounted_drive_by_id(drive_id)
-
-    call_command(
-        "exportchannel",
-        channel_id,
-        drive.datafolder,
-        update_progress=update_progress,
-        check_for_cancel=check_for_cancel,
-    )
-    try:
-        call_command(
-            "exportcontent",
-            channel_id,
-            drive.datafolder,
-            node_ids=node_ids,
-            exclude_node_ids=exclude_node_ids,
-            update_progress=update_progress,
-            check_for_cancel=check_for_cancel,
-        )
-    except UserCancelledError:
-        try:
-            os.remove(
-                get_content_database_file_path(channel_id, datafolder=drive.datafolder)
-            )
-        except OSError:
-            pass
-        raise
 
 
 def _job_to_response(job):
