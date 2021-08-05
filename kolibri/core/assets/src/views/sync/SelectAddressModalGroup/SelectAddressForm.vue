@@ -71,7 +71,7 @@
             class="radio-button"
             :value="d.instance_id"
             :label="formatNameAndId(d.device_name, d.id)"
-            :description="d.base_url"
+            :description="formatBaseAddress(d)"
             :disabled="formDisabled || discoveryFailed || !isAddressAvailable(d.id)"
           />
         </div>
@@ -277,6 +277,16 @@
       }, 100);
     },
     methods: {
+      formatBaseAddress(device) {
+        const url = device.base_url;
+        if (this.filterLODAvailable) {
+          const version = device.kolibri_version
+            .split('.')
+            .slice(0, 3)
+            .join('.');
+          return `${url}, Kolibri ${version}`;
+        } else return url;
+      },
       resetSelectedAddress() {
         if (this.availableAddressIds.length !== 0) {
           const selectedId = this.selectedId || this.storageAddressId || this.selectedAddressId;

@@ -54,6 +54,8 @@
 
 <script>
 
+  import urls from 'kolibri.urls';
+  import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import { SessionResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
@@ -148,12 +150,8 @@
       },
       loginFirstUser() {
         this.welcomeModal = false;
-        const firstUser = this.state.value.users[0];
-        this.$store.dispatch('kolibriLogin', {
-          username: firstUser.username,
-          password: firstUser.password,
-          facility: this.facility.id,
-        });
+        const content_url = urls['kolibri:kolibri.plugins.device:device_management']();
+        redirectBrowser(content_url);
       },
     },
     $trs: {

@@ -49,7 +49,7 @@ class IsSuperuser(DenyAll):
 
 class LODUserHasSyncPermissions(BasePermission):
     """
-    When a device for LOD is provsioned, after the first user has been synced,
+    When a subset_of_users_device is provisioned, after the first user has been synced,
     this user must be able to sync more users
     """
 

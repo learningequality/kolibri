@@ -26,7 +26,7 @@
     />
 
 
-    <h3>
+    <h3 class="learn-only-device">
       {{ $tr('lod') }}
       <CoreInfoIcon
         :iconAriaLabel="$tr('lodTooltip')"
@@ -180,6 +180,10 @@
 
   .left-button {
     margin-left: 0;
+  }
+
+  .learn-only-device {
+    padding-top: 16px;
   }
 
 </style>

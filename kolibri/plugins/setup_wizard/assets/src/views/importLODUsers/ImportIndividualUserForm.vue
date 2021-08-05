@@ -14,9 +14,13 @@
     <p v-if="error" class="error">
       {{ coreString('invalidCredentialsError') }}
     </p>
-    <UsernameTextbox
+    <KTextbox
       ref="usernameTextbox"
-      :value.sync="username"
+      v-model.trim="username"
+      :disabled="false"
+      :label="coreString('usernameLabel')"
+      :autofocus="$attrs.autofocus"
+      @blur="blurred = true"
     />
     <PasswordTextbox
       ref="passwordTextbox"
@@ -49,7 +53,6 @@
 
 <script>
 
-  import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
@@ -62,7 +65,6 @@
     name: 'ImportIndividualUserForm',
     components: {
       OnboardingForm,
-      UsernameTextbox,
       PasswordTextbox,
     },
     mixins: [commonSyncElements, commonCoreStrings],
@@ -150,7 +152,7 @@
     $trs: {
       commaSeparatedPair: '{first}, {second}',
       importIndividualUsersHeader: {
-        message: 'Import individual users accounts',
+        message: 'Import individual user accounts',
         context: "The title of the 'Import individual user accounts' step in the wizard setup",
       },
       enterCredentials: {

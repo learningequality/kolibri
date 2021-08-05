@@ -38,8 +38,10 @@
       paragraphs() {
         if (this.isLOD) {
           return [
-            this.$tr('posLODWelcomeMessage1'),
-            this.$tr('posLODWelcomeMessage2', { facilityName: this.importedFacility.name }),
+            this.$tr('learnOnlyDeviceWelcomeMessage1'),
+            this.$tr('learnOnlyDeviceWelcomeMessage2', {
+              facilityName: this.importedFacility.name,
+            }),
           ];
         }
         if (this.importedFacility) {
@@ -80,11 +82,11 @@
         message: `The learner reports, lessons, and quizzes in '{facilityName}' will not display properly until you import the resources associated with them.`,
         context: 'Welcome message for user indicating that they need to import resources.',
       },
-      posLODWelcomeMessage1: {
+      learnOnlyDeviceWelcomeMessage1: {
         message: 'The first thing you should do is import some channels to this device',
         context: 'Welcome message for user which appears after provisioning a Learner Only Device.',
       },
-      posLODWelcomeMessage2: {
+      learnOnlyDeviceWelcomeMessage2: {
         message: `The user reports, lessons, and quizzes in  '{facilityName}' will not display properly until you import the resources associated with them.`,
         context: 'Welcome message for user indicating that they need to import resources.',
       },

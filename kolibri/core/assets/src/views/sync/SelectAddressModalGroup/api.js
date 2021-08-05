@@ -30,10 +30,15 @@ function channelIsAvailableAtLocation(channelId, location) {
 function versionCompare(version) {
   //check if version is >= 0.15.0
   const v = version.split('.');
-  if (parseInt(v[0]) > 0) return true;
-  if (parseInt(v[1]) >= 15) return true;
+  if (v.length < 2) return false;
+  const mayor = parseInt(v[0]);
+  const minor = parseInt(v[1]);
+  if (!(!isNaN(mayor) && !isNaN(minor))) return false;
+  if (mayor > 0) return true;
+  if (minor >= 15) return true;
   return false;
 }
+
 function fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
   return LocationResource.fetchCollection({ force: true }).then(locations => {
     return locations.filter(
