@@ -45,7 +45,7 @@
       v-if="welcomeModal"
       :importedFacility="facility"
       :isLOD="true"
-      @submit="loginFirstUser"
+      @submit="redirectToChannels"
     />
   </OnboardingForm>
 
@@ -138,6 +138,7 @@
       finishedTask() {
         this.isPolling = false;
         this.clearTasks();
+        // after importing the first user, let's sign him in to continue:
         if (this.state.value.users.length === 1) {
           SessionResource.saveModel({
             data: {
@@ -148,10 +149,10 @@
           });
         }
       },
-      loginFirstUser() {
+      redirectToChannels() {
         this.welcomeModal = false;
-        const content_url = urls['kolibri:kolibri.plugins.device:device_management']();
-        redirectBrowser(content_url);
+        const device_url = urls['kolibri:kolibri.plugins.device:device_management']();
+        redirectBrowser(device_url);
       },
     },
     $trs: {

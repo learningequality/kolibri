@@ -118,7 +118,7 @@
     },
     $trs: {
       initializeDevice: {
-        message: 'Initialize device',
+        message: 'Select a facility setup for this device',
         context: 'Page title',
       },
       fullDevice: {
@@ -141,7 +141,7 @@
       },
       descriptionParagraph1: {
         message:
-          'Choose a facility setup for this device. A facility represents the location where you are installing Kolibri, such as a school, training center, or a home.',
+          'A facility represents the location where you are installing Kolibri, such as a school, training center, or a home.',
         context: 'First paragraph of description',
       },
       createNewFacilityAction: {
