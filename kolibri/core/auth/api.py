@@ -39,6 +39,8 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
@@ -59,10 +61,12 @@ from .serializers import FacilityUserSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
+from .serializers import PublicFacilityUserSerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesViewset
+from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import valid_app_key_on_request
@@ -192,6 +196,53 @@ class FacilityUserFilter(FilterSet):
     class Meta:
         model = FacilityUser
         fields = ["member_of"]
+
+
+class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
+    queryset = FacilityUser.objects.all()
+    serializer_class = PublicFacilityUserSerializer
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+    values = (
+        "id",
+        "username",
+        "full_name",
+        "facility",
+        "roles__kind",
+        "devicepermissions__is_superuser",
+    )
+    field_map = {
+        "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser")),
+    }
+
+    def get_queryset(self):
+        facility_id = self.request.query_params.get("facility_id", None)
+        if facility_id is None:
+            facility_id = Facility.get_default_facility().id
+
+        # if user has admin rights for the facility returns the list of users
+        queryset = self.queryset.filter(facility_id=facility_id)
+
+        # otherwise, the endpoint returns only the user information
+        if not self.request.user.is_superuser or not _user_is_admin_for_own_facility(
+            self.request.user
+        ):
+            queryset = queryset.filter(username=self.request.user.username)
+
+        return queryset
+
+    def consolidate(self, items, queryset):
+        output = []
+        items = sorted(items, key=lambda x: x["id"])
+        for key, group in groupby(items, lambda x: x["id"]):
+            roles = []
+            for item in group:
+                role = item.pop("roles__kind")
+                if role is not None:
+                    roles.append(role)
+            item["roles"] = roles
+            output.append(item)
+        return output
 
 
 class FacilityUserViewSet(ValuesViewset):

@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import base64
 import collections
 import sys
 from importlib import import_module
@@ -457,6 +458,31 @@ class FacilityAPITestCase(APITestCase):
     def test_public_facility_endpoint(self):
         response = self.client.get(reverse("kolibri:core:publicfacility-list"))
         self.assertEqual(models.Facility.objects.all().count(), len(response.data))
+
+    def test_public_facilityuser_endpoint(self):
+        credentials = base64.b64encode(
+            "{}:{}".format(self.user1.username, DUMMY_PASSWORD).encode("utf-8")
+        )
+        self.client.credentials(HTTP_AUTHORIZATION="Basic {}".format(credentials))
+        response = self.client.get(
+            reverse("kolibri:core:publicuser-list"),
+            {"facility_id": self.facility1.id},
+            format="json",
+        )
+        self.assertEqual(len(response.data), 1)
+        credentials = base64.b64encode(
+            "{}:{}".format(self.superuser.username, DUMMY_PASSWORD).encode("utf-8")
+        )
+        self.client.credentials(HTTP_AUTHORIZATION="Basic {}".format(credentials))
+        response = self.client.get(
+            reverse("kolibri:core:publicuser-list"),
+            {"facility_id": self.facility1.id},
+            format="json",
+        )
+        self.assertEqual(
+            models.FacilityUser.objects.filter(facility_id=self.facility1.id).count(),
+            len(response.data),
+        )
 
 
 class UserCreationTestCase(APITestCase):

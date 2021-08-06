@@ -1127,26 +1127,28 @@ class FacilityTasksViewSet(BaseViewSet):
         user_id = request.data.get("user_id", None)
         device_name = request.data.get("device_name", None)
         if user_id is None:
-            auth_url = urljoin(baseurl, reverse("kolibri:core:session-list"))
+            user_info_url = urljoin(baseurl, reverse("kolibri:core:publicuser-list"))
             params = {
-                "username": username,
-                "password": password,
-                "facility": facility_id,
+                "facility_id": facility_id,
             }
             try:
-                response = requests.post(auth_url, data=params)
+                response = requests.get(
+                    user_info_url, data=params, auth=(username, password)
+                )
                 response.raise_for_status()
             except (CommandError, HTTPError, ConnectionError) as e:
                 if not username and not password:
                     raise PermissionDenied()
                 else:
                     raise AuthenticationFailed(e)
-            auth_session = response.json()
-            full_name = auth_session["full_name"]
-            roles = auth_session["kind"]
+            auth_info = response.json()
+            if len(auth_info) > 1:
+                auth_info = [u for u in response.json() if u["username"] == username]
+            user_info = auth_info[0]
+            full_name = user_info["full_name"]
+            roles = user_info["roles"]
             not_syncable = (SUPERUSER, COACH, ASSIGNABLE_COACH, ADMIN)
             if any([role in roles for role in not_syncable]):
-                # raise ValidationError({"id": DEVICE_LIMITATIONS, "full_name": full_name, "roles": roles})
                 raise ValidationError(
                     detail={
                         "id": DEVICE_LIMITATIONS,
@@ -1154,7 +1156,7 @@ class FacilityTasksViewSet(BaseViewSet):
                         "roles": ", ".join(roles),
                     }
                 )
-            user_id = auth_session["user_id"]
+            user_id = user_info["id"]
 
         kwargs = {"user": user_id}
         resp = prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs)
