@@ -461,17 +461,20 @@ class FacilityAPITestCase(APITestCase):
 
     def test_public_facilityuser_endpoint(self):
         credentials = base64.b64encode(
-            "{}:{}".format(self.user1.username, DUMMY_PASSWORD).encode("utf-8")
+            "{}@{}:{}".format(
+                self.user1.username, self.facility1.id, DUMMY_PASSWORD
+            ).encode("utf-8")
         )
         self.client.credentials(HTTP_AUTHORIZATION="Basic {}".format(credentials))
         response = self.client.get(
             reverse("kolibri:core:publicuser-list"),
-            {"facility_id": self.facility1.id},
             format="json",
         )
         self.assertEqual(len(response.data), 1)
         credentials = base64.b64encode(
-            "{}:{}".format(self.superuser.username, DUMMY_PASSWORD).encode("utf-8")
+            "{}@{}:{}".format(
+                self.superuser.username, self.facility1.id, DUMMY_PASSWORD
+            ).encode("utf-8")
         )
         self.client.credentials(HTTP_AUTHORIZATION="Basic {}".format(credentials))
         response = self.client.get(

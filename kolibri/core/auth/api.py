@@ -34,6 +34,7 @@ from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
 from morango.models import TransferSession
 from rest_framework import decorators
+from rest_framework import exceptions
 from rest_framework import filters
 from rest_framework import permissions
 from rest_framework import status
@@ -76,6 +77,33 @@ from kolibri.core.mixins import BulkDeleteMixin
 from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
 from kolibri.plugins.app.utils import interface
+
+
+class BasicAuthenticationFacility(BasicAuthentication):
+    def authenticate_credentials(self, userid, password, request=None):
+        """
+        Authenticate the userid and password against username and password
+        with optional request for context.
+        I.E. user should be username@facility_id
+        """
+        user = userid.split("@")
+        facility_id = None
+        username = user[0]
+        if len(user) == 2:
+            facility_id = user[1]
+
+        credentials = {"username": username, "password": password}
+        if facility_id:
+            credentials["facility"] = facility_id
+        user = authenticate(request=request, **credentials)
+
+        if user is None:
+            raise exceptions.AuthenticationFailed("Invalid username/password.")
+
+        if not user.is_active:
+            raise exceptions.AuthenticationFailed("User inactive or deleted.")
+
+        return (user, None)
 
 
 class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
@@ -201,7 +229,7 @@ class FacilityUserFilter(FilterSet):
 class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
     queryset = FacilityUser.objects.all()
     serializer_class = PublicFacilityUserSerializer
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [BasicAuthenticationFacility]
     permission_classes = [IsAuthenticated]
     values = (
         "id",
