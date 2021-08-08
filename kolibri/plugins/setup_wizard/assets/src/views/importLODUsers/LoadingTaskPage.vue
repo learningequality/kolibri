@@ -61,9 +61,9 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import FacilityTaskPanel from '../../../../../device/assets/src/views/FacilitiesPage/FacilityTaskPanel.vue';
   import WelcomeModal from '../../../../../device/assets/src/views/WelcomeModal.vue';
-  import { TaskStatuses } from '../../../../../device/assets/src/constants.js';
+  import { TaskStatuses, TaskTypes } from '../../../../../device/assets/src/constants.js';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
-  import { SetupTasksResource } from '../../api';
+  import { SetupSoUDTasksResource } from '../../api';
 
   export default {
     name: 'LoadingTaskPage',
@@ -102,12 +102,13 @@
         return user.full_name;
       },
       pollTask() {
-        SetupTasksResource.fetchCollection({ force: true }).then(tasks => {
-          if (tasks.length > 0) {
+        SetupSoUDTasksResource.fetchCollection({ force: true }).then(tasks => {
+          const soudTasks = tasks.filter(t => t.type === TaskTypes.SYNCLOD);
+          if (soudTasks.length > 0) {
             this.loadingTask = {
-              ...tasks[0],
+              ...soudTasks[0],
               facility_name: this.facility.name,
-              full_name: this.fullName(tasks[0].id),
+              full_name: this.fullName(soudTasks[0].id),
               device_id: this.state.value.device.id,
             };
             if (this.loadingTask.status === TaskStatuses.COMPLETED) this.finishedTask();
@@ -120,7 +121,7 @@
         }
       },
       cancelTask() {
-        return SetupTasksResource.canceltask(this.loadingTask.id);
+        return SetupSoUDTasksResource.canceltask(this.loadingTask.id);
       },
       retryImport() {
         this.isPolling = false;
@@ -133,7 +134,7 @@
         this.state.value.users.forEach(function(u) {
           if (u.task == task_id) u.task = null;
         });
-        return SetupTasksResource.cleartasks();
+        return SetupSoUDTasksResource.cleartasks();
       },
       finishedTask() {
         this.isPolling = false;

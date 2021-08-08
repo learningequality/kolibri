@@ -12,6 +12,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import provision_device
 from kolibri.core.tasks.api import FacilityTasksViewSet
+from kolibri.core.tasks.api import TasksViewSet
 
 
 # Basic class that makes these endpoints unusable if device is provisioned
@@ -141,3 +142,12 @@ class SetupWizardFacilityImportTaskView(FacilityTasksViewSet):
     # startprovisionsoud: not overwritten
     startpeerfacilitysync = property()
     startdeletefacility = property()
+
+
+class SetupWizardSoUDTaskView(TasksViewSet):
+    """
+    Needed because TasksViewSet permissions don't allow
+    fetch list of task or create task from a provisioning device
+    """
+
+    permission_classes = [HasPermissionDuringSetup | HasPermissionDuringLODSetup]
