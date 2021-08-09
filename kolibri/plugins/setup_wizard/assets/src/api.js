@@ -18,6 +18,11 @@ export const FacilityImportResource = new Resource({
       return response.data;
     });
   },
+  listfacilitylearners(params) {
+    return this.postListEndpoint('listfacilitylearners', params).then(response => {
+      return response.data;
+    });
+  },
 });
 
 export const SetupTasksResource = new Resource({

@@ -11,7 +11,7 @@
       {{ formatNameAndId(facility.name, facility.id) }}
     </p>
     <p>{{ $tr('enterCredentials') }}</p>
-    <p v-if="error" class="error">
+    <p v-if="error && !useAdmin" class="error">
       {{ coreString('invalidCredentialsError') }}
     </p>
     <KTextbox
@@ -33,7 +33,7 @@
       <KButton
         :text=" $tr('useAdmin')"
         appearance="basic-link"
-        @click="moveAdmin"
+        @click="useAdmin = true"
       />
     </p>
 
@@ -44,6 +44,34 @@
       @cancel="closeModal"
     >
       <p> {{ modalMessage }} </p>
+    </KModal>
+
+    <KModal
+      v-if="useAdmin"
+      :title="$tr('headerAdmin') "
+      :cancelText="coreString('cancelAction')"
+      :submitText="coreString('continueAction')"
+      @cancel="closeModal"
+      @submit="moveAdmin"
+    >
+      <p> {{ adminModalMessage }} </p>
+      <p v-if="error && useAdmin" class="error">
+        {{ coreString('invalidCredentialsError') }}
+      </p>
+      <KTextbox
+        ref="adminUsernameTextbox"
+        v-model.trim="adminUsername"
+        :disabled="false"
+        :label="coreString('usernameLabel')"
+        :autofocus="$attrs.autofocus"
+        @blur="blurred = true"
+      />
+      <PasswordTextbox
+        ref="adminPasswordTextbox"
+        :value.sync="adminPassword"
+        :showConfirmationInput="false"
+        autocomplete="new-password"
+      />
     </KModal>
 
   </OnboardingForm>
@@ -59,7 +87,7 @@
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
-  import { SetupSoUDTasksResource } from '../../api';
+  import { FacilityImportResource, SetupSoUDTasksResource } from '../../api';
 
   export default {
     name: 'ImportIndividualUserForm',
@@ -76,6 +104,9 @@
         roles: '',
         error: false,
         deviceLimitations: false,
+        useAdmin: false,
+        adminUsername: null,
+        adminPassword: null,
       };
     },
     inject: ['lodService', 'state'],
@@ -103,10 +134,14 @@
           device: this.device.name,
         });
       },
+      adminModalMessage() {
+        return this.$tr('enterAdminCredentials', { facility: this.facility.name });
+      },
     },
     methods: {
       closeModal() {
         this.deviceLimitations = false;
+        this.useAdmin = false;
       },
       handleSubmit() {
         const task_name = 'kolibri.plugins.setup_wizard.tasks.startprovisionsoud';
@@ -147,7 +182,33 @@
           });
       },
       moveAdmin() {
-        this.lodService.send({ type: 'CONTINUEADMIN' });
+        const params = {
+          baseurl: this.device.baseurl,
+          username: this.adminUsername,
+          password: this.adminPassword,
+          facility_id: this.facility.id,
+        };
+        FacilityImportResource.listfacilitylearners(params)
+          .then(students => {
+            this.lodService.send({
+              type: 'CONTINUEADMIN',
+              value: {
+                adminUsername: this.adminUsername,
+                adminPassword: this.adminPassword,
+                users: students,
+              },
+            });
+          })
+          .catch(error => {
+            const errorsCaught = CatchErrors(error, [
+              ERROR_CONSTANTS.INVALID_CREDENTIALS,
+              ERROR_CONSTANTS.AUTHENTICATION_FAILED,
+              ERROR_CONSTANTS.PERMISSION_DENIED,
+            ]);
+            if (errorsCaught) {
+              this.error = true;
+            } else this.$store.dispatch('handleApiError', error);
+          });
       },
     },
     $trs: {
@@ -158,13 +219,22 @@
       },
       enterCredentials: {
         message: 'Enter the credentials of the user account you want to import',
-        context: 'Asking user and password of the user to be improted',
+        context: 'Asking user and password of the user to be imported',
+      },
+      enterAdminCredentials: {
+        message:
+          "Enter the username and password of a facility admin or a super admin of '{facility}'",
+        context: 'Asking user and password of the  admin user of the facility to be imported',
       },
       deviceLimitationsTitle: 'Device limitations',
       deviceLimitationsMessage: {
         message:
           '’{full_name} ({username})’ is a {roles} on ‘{device}’. This device is limited to features for learners only. Features for coaches and admins will not be available.',
         context: 'Message to warn only learners can do individual sync',
+      },
+      headerAdmin: {
+        message: 'Use an admin account',
+        context: 'Modal form to introduce admin account credentials',
       },
       doNotHaveUserCredentials: 'Don’t have user’s credentials?',
       useAdmin: 'Use an admin account',

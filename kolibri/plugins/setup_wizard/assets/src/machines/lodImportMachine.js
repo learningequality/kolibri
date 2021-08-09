@@ -43,6 +43,14 @@ const importUser = assign((context, event) => {
   };
 });
 
+const registerUsers = assign((context, event) => {
+  context.facility['adminUser'] = event.value.adminUsername;
+  context.facility['adminPassword'] = event.value.adminPassword;
+  return {
+    users: event.value.users,
+  };
+});
+
 export const lodImportMachine = createMachine({
   initial: 'selectFacility',
   context: {
@@ -50,7 +58,7 @@ export const lodImportMachine = createMachine({
     steps: 4,
     device: { name: null, id: null, baseurl: null },
     facilities: [],
-    facility: { name: null, id: null, adminuser: null, adminpassword: null },
+    facility: { name: null, id: null, adminUser: null, adminPassword: null },
     users: [],
     task: null,
   },
@@ -66,7 +74,7 @@ export const lodImportMachine = createMachine({
       meta: { step: '2', component: ImportIndividualUserForm },
       on: {
         CONTINUE: { target: 'importingUser', actions: importUser },
-        CONTINUEADMIN: { target: 'adminCredentials' },
+        CONTINUEADMIN: { target: 'adminCredentials', actions: registerUsers },
         BACK: 'selectFacility',
       },
     },

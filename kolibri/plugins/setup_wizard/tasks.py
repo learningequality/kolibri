@@ -24,13 +24,24 @@ from kolibri.core.tasks.api import prepare_sync_task
 from kolibri.core.tasks.decorators import register_task
 
 
-def validate_soud_credentials(request, task_description):
+def getusersinfo(request):
+    """
+    Using basic auth returns info from
+    the requested username.
+    If the requested username has admin rights it will return also
+    the list of users of the facility
+
+    :param baseurl: First part of the url of the server that's going to be requested
+    :param facility_id: Id of the facility to authenticate and get the list of users
+    :param username: Username of the user that's going to authenticate
+    :param password: Password of the user that's going to authenticate
+    :return: Dict with two keys: 'user' containing info of the user that authenticated and
+             'users' containing the list of users of the facility if the user had rights.
+    """
     baseurl = request.data.get("baseurl", None)
     facility_id = request.data.get("facility_id", None)
     username = request.data.get("username", None)
     password = request.data.get("password", None)
-    user_id = request.data.get("user_id", None)
-    device_name = request.data.get("device_name", None)
 
     user_info_url = urljoin(baseurl, reverse("kolibri:core:publicuser-list"))
     params = {
@@ -50,8 +61,23 @@ def validate_soud_credentials(request, task_description):
             raise AuthenticationFailed(e)
     auth_info = response.json()
     if len(auth_info) > 1:
-        auth_info = [u for u in response.json() if u["username"] == username]
-    user_info = auth_info[0]
+        user_info = [u for u in response.json() if u["username"] == username][0]
+    else:
+        user_info = auth_info[0]
+    facility_info = {"user": user_info, "users": auth_info}
+    return facility_info
+
+
+def validate_soud_credentials(request, task_description):
+    baseurl = request.data.get("baseurl", None)
+    facility_id = request.data.get("facility_id", None)
+    username = request.data.get("username", None)
+    password = request.data.get("password", None)
+    user_id = request.data.get("user_id", None)
+    device_name = request.data.get("device_name", None)
+
+    facility_info = getusersinfo(request)
+    user_info = facility_info["user"]
     full_name = user_info["full_name"]
     roles = user_info["roles"]
     not_syncable = (SUPERUSER, COACH, ASSIGNABLE_COACH, ADMIN)
