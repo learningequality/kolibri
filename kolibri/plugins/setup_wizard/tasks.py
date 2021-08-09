@@ -1,0 +1,115 @@
+import requests
+from django.core.management import call_command
+from django.core.management.base import CommandError
+from django.urls import reverse
+from morango.models import InstanceIDModel
+from requests.exceptions import ConnectionError
+from requests.exceptions import HTTPError
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import ValidationError
+from six.moves.urllib.parse import urljoin
+
+from kolibri.core.auth.constants.user_kinds import ADMIN
+from kolibri.core.auth.constants.user_kinds import ASSIGNABLE_COACH
+from kolibri.core.auth.constants.user_kinds import COACH
+from kolibri.core.auth.constants.user_kinds import SUPERUSER
+from kolibri.core.device.permissions import IsSuperuser
+from kolibri.core.device.permissions import LODUserHasSyncPermissions
+from kolibri.core.device.permissions import NotProvisionedCanPost
+from kolibri.core.error_constants import DEVICE_LIMITATIONS
+from kolibri.core.tasks.api import prepare_peer_sync_job
+from kolibri.core.tasks.api import prepare_soud_sync_job
+from kolibri.core.tasks.api import prepare_sync_task
+from kolibri.core.tasks.decorators import register_task
+
+
+def validate_soud_credentials(request, task_description):
+    baseurl = request.data.get("baseurl", None)
+    facility_id = request.data.get("facility_id", None)
+    username = request.data.get("username", None)
+    password = request.data.get("password", None)
+    user_id = request.data.get("user_id", None)
+    device_name = request.data.get("device_name", None)
+
+    user_info_url = urljoin(baseurl, reverse("kolibri:core:publicuser-list"))
+    params = {
+        "facility_id": facility_id,
+    }
+    try:
+        response = requests.get(
+            user_info_url,
+            data=params,
+            auth=("{}@{}".format(username, facility_id), password),
+        )
+        response.raise_for_status()
+    except (CommandError, HTTPError, ConnectionError) as e:
+        if not username and not password:
+            raise PermissionDenied()
+        else:
+            raise AuthenticationFailed(e)
+    auth_info = response.json()
+    if len(auth_info) > 1:
+        auth_info = [u for u in response.json() if u["username"] == username]
+    user_info = auth_info[0]
+    full_name = user_info["full_name"]
+    roles = user_info["roles"]
+    not_syncable = (SUPERUSER, COACH, ASSIGNABLE_COACH, ADMIN)
+    if any([role in roles for role in not_syncable]):
+        raise ValidationError(
+            detail={
+                "id": DEVICE_LIMITATIONS,
+                "full_name": full_name,
+                "roles": ", ".join(roles),
+            }
+        )
+    if user_id is None:
+        user_id = user_info["id"]
+
+    instance_model = InstanceIDModel.get_or_create_current_instance()[0]
+
+    extra_metadata = prepare_sync_task(
+        facility_id,
+        user_id,
+        username,
+        None,  # uneeded facility_name
+        None,  # ignored by prepare_sync_task with SYNCPEER/SINGLE
+        instance_model.id,
+        baseurl,
+        type="SYNCPEER/SINGLE",
+    )
+    if device_name is not None:  # Needed when first provisioning a device
+        extra_metadata["device_name"] = device_name
+    extra_metadata["full_name"] = full_name
+
+    return {
+        "username": username,
+        "password": password,
+        "user_id": user_id,
+        "extra_metadata": extra_metadata,
+        "baseurl": baseurl,
+        "facility_id": facility_id,
+    }
+
+
+@register_task(
+    validator=validate_soud_credentials,
+    cancellable=True,
+    track_progress=True,
+    permission_classes=[
+        IsSuperuser | NotProvisionedCanPost | LODUserHasSyncPermissions
+    ],
+)
+def startprovisionsoud(
+    username=None,
+    password=None,
+    baseurl=None,
+    facility_id=None,
+    user_id=None,
+    extra_metadata={},
+):
+    prepare_peer_sync_job(baseurl, facility_id, username, password, user=user_id)
+    job_data = prepare_soud_sync_job(
+        baseurl, facility_id, user_id, extra_metadata=extra_metadata
+    )
+    call_command("sync", **job_data)
