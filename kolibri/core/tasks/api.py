@@ -1,19 +1,11 @@
 import logging
-import ntpath
-import os
-import shutil
 from functools import partial
-from tempfile import mkstemp
 
 import requests
 from django.apps.registry import AppRegistryNotReady
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.core.files.uploadedfile import UploadedFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.http.response import Http404
-from django.http.response import HttpResponseBadRequest
-from django.utils.translation import get_language_from_request
 from django.utils.translation import gettext_lazy as _
 from morango.models import ScopeDefinition
 from morango.sync.controller import MorangoProfileController
@@ -506,124 +498,6 @@ class TasksViewSet(BaseViewSet):
         out = [mountdata._asdict() for mountdata in drives.values()]
 
         return Response(out)
-
-    @decorators.action(methods=["post"], detail=False)
-    def importusersfromcsv(self, request):
-        """
-        Import users, classes, roles and roles assignemnts from a csv file.
-        :param: FILE: file dictionary with the file object
-        :param: csvfile: filename of the file stored in kolibri temp folder
-        :param: dryrun: validate the data but don't modify the database
-        :param: delete: Users not in the csv will be deleted from the facility, and classes cleared
-        :returns: An object with the job information
-        """
-
-        def manage_fileobject(request, temp_dir):
-            upload = UploadedFile(request.FILES["csvfile"])
-            # Django uses InMemoryUploadedFile for files less than 2.5Mb
-            # and TemporaryUploadedFile for bigger files:
-            if type(upload.file) == InMemoryUploadedFile:
-                _, filepath = mkstemp(dir=temp_dir, suffix=".upload")
-                with open(filepath, "w+b") as dest:
-                    filepath = dest.name
-                    for chunk in upload.file.chunks():
-                        dest.write(chunk)
-            else:
-                tmpfile = upload.file.temporary_file_path()
-                filename = ntpath.basename(tmpfile)
-                filepath = os.path.join(temp_dir, filename)
-                shutil.copy(tmpfile, filepath)
-            return filepath
-
-        temp_dir = os.path.join(conf.KOLIBRI_HOME, "temp")
-        if not os.path.isdir(temp_dir):
-            os.mkdir(temp_dir)
-
-        locale = get_language_from_request(request)
-        # the request must contain either an object file
-        # or the filename of the csv stored in Kolibri temp folder
-        # Validation will provide the file object, while
-        # Importing will provide the filename, previously validated
-        if not request.FILES:
-            filename = request.data.get("csvfile", None)
-            if filename:
-                filepath = os.path.join(temp_dir, filename)
-            else:
-                return HttpResponseBadRequest("The request must contain a file object")
-        else:
-            if "csvfile" not in request.FILES:
-                return HttpResponseBadRequest("Wrong file object")
-            filepath = manage_fileobject(request, temp_dir)
-
-        delete = request.data.get("delete", None)
-        dryrun = request.data.get("dryrun", None)
-        userid = request.user.pk
-        facility_id = request.data.get("facility_id", None)
-        job_type = "IMPORTUSERSFROMCSV"
-        job_metadata = {"type": job_type, "started_by": userid, "facility": facility_id}
-        job_args = ["bulkimportusers"]
-        if dryrun:
-            job_args.append("--dryrun")
-        if delete:
-            job_args.append("--delete")
-        job_args.append(filepath)
-
-        job_kwd_args = {
-            "facility": facility_id,
-            "userid": userid,
-            "locale": locale,
-            "extra_metadata": job_metadata,
-            "track_progress": True,
-        }
-
-        job_id = priority_queue.enqueue(call_command, *job_args, **job_kwd_args)
-
-        resp = _job_to_response(priority_queue.fetch_job(job_id))
-
-        return Response(resp)
-
-    @decorators.action(methods=["post"], detail=False)
-    def exportuserstocsv(self, request):
-        """
-        Export users, classes, roles and roles assignemnts to a csv file.
-
-        :param: facility_id
-        :returns: An object with the job information
-
-        """
-        facility_id = request.data.get("facility_id", None)
-
-        try:
-            if facility_id:
-                facility = Facility.objects.get(pk=facility_id).id
-            else:
-                facility = request.user.facility
-        except Facility.DoesNotExist:
-            raise serializers.ValidationError(
-                "Facility with ID {} does not exist".format(facility_id)
-            )
-
-        job_type = "EXPORTUSERSTOCSV"
-        job_metadata = {
-            "type": job_type,
-            "started_by": request.user.pk,
-            "facility": facility,
-        }
-        locale = get_language_from_request(request)
-
-        job_id = priority_queue.enqueue(
-            call_command,
-            "bulkexportusers",
-            facility=facility,
-            locale=locale,
-            overwrite="true",
-            extra_metadata=job_metadata,
-            track_progress=True,
-        )
-
-        resp = _job_to_response(priority_queue.fetch_job(job_id))
-
-        return Response(resp)
 
     @decorators.action(methods=["post"], detail=False)
     def channeldiffstats(self, request):

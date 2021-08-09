@@ -1,18 +1,24 @@
 import os
 
 from django.core.management import call_command
+from rest_framework import serializers
 
 from kolibri.core.content.permissions import CanManageContent
-from kolibri.core.content.task_validators import get_channel_name
-from kolibri.core.content.task_validators import validate_startdiskexport
-from kolibri.core.content.task_validators import validate_startchannelupdate
-from kolibri.core.content.task_validators import validate_startdiskcontentimport
-from kolibri.core.content.task_validators import validate_startremotechannelimport
-from kolibri.core.content.task_validators import validate_startremotecontentimport
 from kolibri.core.content.utils.paths import get_content_database_file_path
+from kolibri.core.content.utils.task_validators_utils import get_channel_name
+from kolibri.core.content.utils.task_validators_utils import validate_local_export_task
+from kolibri.core.content.utils.task_validators_utils import validate_local_import_task
+from kolibri.core.content.utils.task_validators_utils import validate_remote_import_task
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import get_current_job
+
+
+def validate_startdiskcontentimport(request):
+    task = validate_local_import_task(request, request.data)
+    task.update({"type": "DISKCONTENTIMPORT"})
+    task["extra_metadata"] = task
+    return task
 
 
 @register_task(
@@ -31,6 +37,29 @@ def startdiskcontentimport(**kwargs):
         node_ids=kwargs["node_ids"],
         exclude_node_ids=kwargs["exclude_node_ids"],
     )
+
+
+def validate_startchannelupdate(request):
+    sourcetype = request.data.get("sourcetype", None)
+    new_version = request.data.get("new_version", None)
+
+    if sourcetype == "remote":
+        task = validate_remote_import_task(request, request.data)
+    elif sourcetype == "local":
+        task = validate_local_import_task(request, request.data)
+    else:
+        raise serializers.ValidationError("sourcetype must be 'remote' or 'local'.")
+
+    task.update(
+        {
+            "type": "UPDATECHANNEL",
+            "new_version": new_version,
+            "sourcetype": sourcetype,
+        }
+    )
+    task["extra_metadata"] = task
+
+    return task
 
 
 @register_task(
@@ -121,6 +150,13 @@ def startchannelupdate(**kwargs):
             )
 
 
+def validate_startremotechannelimport(request):
+    task = validate_remote_import_task(request, request.data)
+    task.update({"type": "REMOTECHANNELIMPORT"})
+    task["extra_metadata"] = task
+    return task
+
+
 @register_task(
     validator=validate_startremotechannelimport,
     cancellable=True,
@@ -134,6 +170,13 @@ def startremotechannelimport(**kwargs):
         baseurl=kwargs["baseurl"],
         peer_id=kwargs["peer_id"],
     )
+
+
+def validate_startremotecontentimport(request):
+    task = validate_remote_import_task(request, request.data)
+    task.update({"type": "REMOTECONTENTIMPORT"})
+    task["extra_metadata"] = task
+    return task
 
 
 @register_task(
@@ -152,6 +195,13 @@ def startremotecontentimport(**kwargs):
         node_ids=kwargs["node_ids"],
         exclude_node_ids=kwargs["exclude_node_ids"],
     )
+
+
+def validate_startdiskexport(request):
+    task = validate_local_export_task(request, request.data)
+    task.update({"type": "DISKCONTENTEXPORT"})
+    task["extra_metadata"] = task
+    return task
 
 
 @register_task(

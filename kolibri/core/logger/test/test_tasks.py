@@ -1,14 +1,14 @@
-import mock
+import os
 
+import mock
+from django.http.response import Http404
 from django.test import TestCase
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
-
-from kolibri.core.logger.task_validators import validate_startexportlogcsv
-from kolibri.core.logger.task_validators import get_logs_dir_and_filepath
+from kolibri.core.logger.tasks import get_logs_dir_and_filepath
 from kolibri.core.logger.tasks import startexportlogcsv
-from django.http.response import Http404
+from kolibri.core.logger.tasks import validate_startexportlogcsv
 
 
 class DummyRequest(object):
@@ -16,6 +16,7 @@ class DummyRequest(object):
     data = None
 
 
+@mock.patch.object(os, "mkdir")
 class StartExportLogCSVTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -28,13 +29,13 @@ class StartExportLogCSVTestCase(TestCase):
         self.dummy_request = DummyRequest()
         self.dummy_request.user = self.facility_user
 
-    def test_validator_raises_404_on_invalid_logtype(self):
+    def test_validator_raises_404_on_invalid_logtype(self, mock_os_mkdir):
         self.dummy_request.data = {"logtype": "invalid"}
 
         with self.assertRaises(Http404):
             validate_startexportlogcsv(self.dummy_request)
 
-    def test_validator_sets_right_metadata(self):
+    def test_validator_sets_right_metadata(self, mock_os_mkdir):
         self.dummy_request.data = {"logtype": "summary"}
         validated_data = validate_startexportlogcsv(self.dummy_request)
         self.assertEqual(
@@ -57,7 +58,7 @@ class StartExportLogCSVTestCase(TestCase):
             },
         )
 
-    def test_validator_returns_right_data_on_summary_logtype(self):
+    def test_validator_returns_right_data_on_summary_logtype(self, mock_os_mkdir):
         self.dummy_request.data = {"logtype": "summary"}
         validated_data = validate_startexportlogcsv(self.dummy_request)
         expected_extra_metadata = {
@@ -65,10 +66,11 @@ class StartExportLogCSVTestCase(TestCase):
             "started_by": self.dummy_request.user.pk,
             "facility": self.dummy_request.user.facility.id,
         }
-        _, expected_filepath = get_logs_dir_and_filepath(
+        logs_dir, expected_filepath = get_logs_dir_and_filepath(
             "summary", self.dummy_request.user.facility
         )
 
+        mock_os_mkdir.assert_called_once_with(logs_dir)
         self.assertEqual(
             validated_data,
             {
@@ -79,7 +81,7 @@ class StartExportLogCSVTestCase(TestCase):
             },
         )
 
-    def test_validator_returns_right_data_on_session_logtype(self):
+    def test_validator_returns_right_data_on_session_logtype(self, mock_os_mkdir):
         self.dummy_request.data = {"logtype": "session"}
         validated_data = validate_startexportlogcsv(self.dummy_request)
         expected_extra_metadata = {
@@ -87,10 +89,11 @@ class StartExportLogCSVTestCase(TestCase):
             "started_by": self.dummy_request.user.pk,
             "facility": self.dummy_request.user.facility.id,
         }
-        _, expected_filepath = get_logs_dir_and_filepath(
+        logs_dir, expected_filepath = get_logs_dir_and_filepath(
             "session", self.dummy_request.user.facility
         )
 
+        mock_os_mkdir.assert_called_once_with(logs_dir)
         self.assertEqual(
             validated_data,
             {
@@ -102,7 +105,7 @@ class StartExportLogCSVTestCase(TestCase):
         )
 
     @mock.patch("kolibri.core.logger.tasks.call_command")
-    def test_startexportlogcsv(self, mock_call_command):
+    def test_startexportlogcsv(self, mock_call_command, mock_os_mkdir):
         self.dummy_request.data = {"logtype": "summary"}
 
         validated_data = validate_startexportlogcsv(self.dummy_request)

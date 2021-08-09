@@ -1,14 +1,14 @@
 import mock
 from django.test import TestCase
 from rest_framework import serializers
-from kolibri.core.content.task_validators import add_drive_info
-from kolibri.core.content.task_validators import get_channel_name
-from kolibri.core.content.task_validators import validate_remote_import_task
-from kolibri.core.content.task_validators import validate_content_task
-from kolibri.core.content.models import ChannelMetadata
+
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.content.utils.channels import get_mounted_drive_by_id
+from kolibri.core.content.models import ChannelMetadata
+from kolibri.core.content.utils.task_validators_utils import add_drive_info
+from kolibri.core.content.utils.task_validators_utils import get_channel_name
+from kolibri.core.content.utils.task_validators_utils import validate_content_task
+from kolibri.core.content.utils.task_validators_utils import validate_remote_import_task
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.utils import conf
 
