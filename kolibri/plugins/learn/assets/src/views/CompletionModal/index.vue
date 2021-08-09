@@ -293,9 +293,9 @@
         }
 
         if (this.nextContentNode) {
-          this.firstFocusableEl = this.$refs.nextContentNodeSection.$refs.button.$el;
+          this.firstFocusableEl = this.$refs.nextContentNodeSection.getButtonRef().$el;
         } else {
-          this.firstFocusableEl = this.$refs.staySection.$refs.button.$el;
+          this.firstFocusableEl = this.$refs.staySection.getButtonRef().$el;
         }
         this.lastFocusableEl = this.$refs.closeButton.$el;
       });

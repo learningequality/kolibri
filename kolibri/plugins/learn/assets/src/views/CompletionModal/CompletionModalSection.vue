@@ -171,6 +171,14 @@
         return this.gridColumnsTotal - this.gridIconSpan;
       },
     },
+    methods: {
+      /**
+       * @public
+       */
+      getButtonRef() {
+        return this.$refs.button;
+      },
+    },
   };
 
 </script>
