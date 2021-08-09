@@ -7,6 +7,15 @@ from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
 from kolibri.utils import conf
 
 
+def get_logs_dir_and_filepath(log_type, facility):
+    logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
+    filepath = os.path.join(
+        logs_dir,
+        CSV_EXPORT_FILENAMES[log_type].format(facility.name, facility.id[:4]),
+    )
+    return logs_dir, filepath
+
+
 def validate_startexportlogcsv(request):
     facility_id = request.data.get("facility", None)
     if facility_id:
@@ -17,11 +26,7 @@ def validate_startexportlogcsv(request):
     log_type = request.data.get("logtype", "summary")
 
     if log_type in CSV_EXPORT_FILENAMES.keys():
-        logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
-        filepath = os.path.join(
-            logs_dir,
-            CSV_EXPORT_FILENAMES[log_type].format(facility.name, facility_id[:4]),
-        )
+        logs_dir, filepath = get_logs_dir_and_filepath(log_type, facility)
     else:
         raise Http404("Impossible to create a csv export file for {}".format(log_type))
 

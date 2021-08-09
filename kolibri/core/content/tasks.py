@@ -4,7 +4,7 @@ from django.core.management import call_command
 
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.task_validators import get_channel_name
-from kolibri.core.content.task_validators import validate_diskexport
+from kolibri.core.content.task_validators import validate_startdiskexport
 from kolibri.core.content.task_validators import validate_startchannelupdate
 from kolibri.core.content.task_validators import validate_startdiskcontentimport
 from kolibri.core.content.task_validators import validate_startremotechannelimport
@@ -155,7 +155,7 @@ def startremotecontentimport(**kwargs):
 
 
 @register_task(
-    validator=validate_diskexport,
+    validator=validate_startdiskexport,
     track_progress=True,
     cancellable=True,
     permission_classes=[CanManageContent],

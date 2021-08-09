@@ -169,7 +169,7 @@ class BaseViewSet(viewsets.ViewSet):
         # Once we have validated all the tasks, we are good to go!
         for request_data in request_data_list:
 
-            funcstr = request_data.get("task")
+            funcstr = request_data.pop("task")
             registered_job = JobRegistry.REGISTERED_JOBS[funcstr]
 
             # Run validator with `request` as its argument

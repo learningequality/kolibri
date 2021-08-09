@@ -27,13 +27,12 @@ def add_drive_info(import_task, task_description):
 def get_channel_name(channel_id, require_channel=False):
     try:
         channel = ChannelMetadata.objects.get(id=channel_id)
-        channel_name = channel.name
     except ChannelMetadata.DoesNotExist:
+        channel = None
         if require_channel:
-            raise serializers.ValidationError("This channel does not exist")
-        channel_name = ""
+            raise serializers.ValidationError("This channel does not exist.")
 
-    return channel_name
+    return "" if channel is None else channel.name
 
 
 def validate_content_task(request, task_description, require_channel=False):
@@ -102,31 +101,29 @@ def validate_deletion_task(request, task_description):
     return task
 
 
+"""
+Below are the specific task validators.
+"""
+
+
 def validate_startchannelupdate(request):
     sourcetype = request.data.get("sourcetype", None)
     new_version = request.data.get("new_version", None)
 
     if sourcetype == "remote":
         task = validate_remote_import_task(request, request.data)
-        task.update(
-            {
-                "type": "UPDATECHANNEL",
-                "new_version": new_version,
-                "sourcetype": "remote",
-            }
-        )
     elif sourcetype == "local":
         task = validate_local_import_task(request, request.data)
-        task.update(
-            {
-                "type": "UPDATECHANNEL",
-                "new_version": new_version,
-                "sourcetype": "local",
-            }
-        )
     else:
-        raise serializers.ValidationError("sourcetype must be 'remote' or 'local'")
+        raise serializers.ValidationError("sourcetype must be 'remote' or 'local'.")
 
+    task.update(
+        {
+            "type": "UPDATECHANNEL",
+            "new_version": new_version,
+            "sourcetype": sourcetype,
+        }
+    )
     task["extra_metadata"] = task
 
     return task
@@ -153,7 +150,7 @@ def validate_startremotecontentimport(request):
     return task
 
 
-def validate_diskexport(request):
+def validate_startdiskexport(request):
     task = validate_local_export_task(request, request.data)
     task.update({"type": "DISKCONTENTEXPORT"})
     task["extra_metadata"] = task
