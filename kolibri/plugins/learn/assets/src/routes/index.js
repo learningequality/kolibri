@@ -14,6 +14,7 @@ import {
 } from '../modules/recommended/handlers';
 import { showChannels } from '../modules/topicsRoot/handlers';
 import { PageNames, ClassesPageNames } from '../constants';
+import HomePage from '../views/HomePage';
 import RecommendedPage from '../views/RecommendedPage';
 import RecommendedSubpage from '../views/RecommendedSubpage';
 import classesRoutes from './classesRoutes';
@@ -44,6 +45,15 @@ export default [
             ? ClassesPageNames.ALL_CLASSES
             : PageNames.TOPICS_ROOT,
       });
+    },
+  },
+  {
+    name: PageNames.HOME,
+    path: '/home',
+    component: HomePage,
+    handler() {
+      store.commit('SET_PAGE_NAME', PageNames.HOME);
+      store.commit('CORE_SET_PAGE_LOADING', false);
     },
   },
   {

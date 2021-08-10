@@ -233,6 +233,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "Gender is an option which a user can select in Kolibri when they create another user.\n\nGender can be either 'Female', 'Male' or 'Not specified'.",
   },
+  homeLabel: {
+    message: 'Home',
+    context:
+      "Home page is a place for learners containing summary of their activities and suggestions for what to do next. For example, they can see a list of classess they're enrolled in, their recent lessons and quizess, and they can directly navigate to resources to continue learning from.",
+  },
   identifierLabel: {
     message: 'Identifier',
     context:
