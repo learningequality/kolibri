@@ -40,9 +40,9 @@
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import StatusSimple from '../common/status/StatusSimple';
-  import TimeDuration from '../common/TimeDuration';
   import TruncatedItemList from '../common/TruncatedItemList';
 
   export default {

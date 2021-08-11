@@ -16,23 +16,14 @@
         <slot name="header"></slot>
       </div>
 
-      <div
-        v-if="containFocus"
-        class="ui-menu-focus-redirector"
-        tabindex="0"
-        @focus="handleFirstTrapFocus"
+      <FocusTrap
+        ref="focusTrap"
+        :disabled="!containFocus"
+        :firstEl="firstFocusableEl"
+        :lastEl="lastFocusableEl"
       >
-      </div>
-
-      <slot name="options"></slot>
-
-      <div
-        v-if="containFocus"
-        class="ui-menu-focus-redirector"
-        tabindex="0"
-        @focus="handleLastTrapFocus"
-      >
-      </div>
+        <slot name="options"></slot>
+      </FocusTrap>
     </ul>
   </div>
 
@@ -42,9 +33,13 @@
 <script>
 
   import last from 'lodash/last';
+  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
 
   export default {
     name: 'CoreMenu',
+    components: {
+      FocusTrap,
+    },
     props: {
       // Whether to show if links are currently active
       showActive: {
@@ -75,7 +70,8 @@
     },
     data() {
       return {
-        containTopFocus: false,
+        firstFocusableEl: null,
+        lastFocusableEl: null,
       };
     },
     computed: {
@@ -89,34 +85,17 @@
     watch: {
       isOpen(val) {
         if (val === false) {
-          this.containTopFocus = false;
+          this.$refs.focusTrap.reset();
         }
       },
     },
-    methods: {
-      focusFirstOption() {
-        this.$el.querySelector('.core-menu-option').focus();
-      },
-      focusLastOption() {
-        const lastOption = last(this.$el.querySelectorAll('.core-menu-option'));
-        if (lastOption) {
-          lastOption.focus();
-        }
-      },
-      handleFirstTrapFocus(e) {
-        e.stopPropagation();
-        if (!this.containTopFocus) {
-          // On first focus, redirect to first option, then activate trap
-          this.focusFirstOption();
-          this.containTopFocus = true;
-        } else {
-          this.focusLastOption();
-        }
-      },
-      handleLastTrapFocus(e) {
-        e.stopPropagation();
-        this.focusFirstOption();
-      },
+    mounted() {
+      // make sure that all child components have been mounted
+      // before attempting to access their elements
+      this.$nextTick(() => {
+        this.firstFocusableEl = this.$el.querySelector('.core-menu-option');
+        this.lastFocusableEl = last(this.$el.querySelectorAll('.core-menu-option'));
+      });
     },
   };
 

@@ -25,7 +25,6 @@ import LessonStatus from './common/LessonStatus';
 import MasteryModel from './common/MasteryModel';
 import Recipients from './common/Recipients';
 import Score from './common/Score';
-import TimeDuration from './common/TimeDuration';
 import QuizActive from './common/QuizActive';
 import QuizLessonDetailsHeader from './common/QuizLessonDetailsHeader';
 import QuizStatus from './common/QuizStatus';
@@ -135,7 +134,6 @@ export default {
     MasteryModel,
     Recipients,
     Score,
-    TimeDuration,
     QuizActive,
     QuizLessonDetailsHeader,
     QuizStatus,

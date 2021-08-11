@@ -32,10 +32,10 @@
 
 <script>
 
+  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import HeaderTable from '../common/HeaderTable';
   import HeaderTableRow from '../common/HeaderTable/HeaderTableRow';
-  import TimeDuration from '../common/TimeDuration';
 
   export default {
     name: 'ReportsResourcesStats',
