@@ -156,7 +156,8 @@
         this.welcomeModal = false;
         window.sessionStorage.setItem(welcomeDimissalKey, true);
         const device_url = urls['kolibri:kolibri.plugins.device:device_management']();
-        redirectBrowser(device_url);
+        if (this.lodService.state.matches('importingUser')) redirectBrowser(device_url);
+        else this.$store.dispatch('kolibriLogout');
       },
     },
     $trs: {

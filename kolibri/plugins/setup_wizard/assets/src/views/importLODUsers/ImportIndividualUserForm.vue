@@ -33,7 +33,7 @@
       <KButton
         :text=" $tr('useAdmin')"
         appearance="basic-link"
-        @click="useAdmin = true"
+        @click="openAdminCredentialsForm"
       />
     </p>
 
@@ -143,6 +143,12 @@
         this.deviceLimitations = false;
         this.useAdmin = false;
       },
+      openAdminCredentialsForm() {
+        this.useAdmin = true;
+        this.$nextTick(function() {
+          this.$refs.adminUsernameTextbox.focus();
+        });
+      },
       handleSubmit() {
         const task_name = 'kolibri.plugins.setup_wizard.tasks.startprovisionsoud';
         const params = {
@@ -189,13 +195,14 @@
           facility_id: this.facility.id,
         };
         FacilityImportResource.listfacilitylearners(params)
-          .then(students => {
+          .then(data => {
             this.lodService.send({
               type: 'CONTINUEADMIN',
               value: {
                 adminUsername: this.adminUsername,
                 adminPassword: this.adminPassword,
-                users: students,
+                adminId: data.admin.id,
+                users: data.students,
               },
             });
           })

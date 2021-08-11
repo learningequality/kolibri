@@ -3,6 +3,7 @@ import SelectFacilityForm from '../views/importLODUsers/SelectFacilityForm.vue';
 import ImportIndividualUserForm from '../views/importLODUsers/ImportIndividualUserForm.vue';
 import LoadingTaskPage from '../views/importLODUsers/LoadingTaskPage';
 import MultipleUsers from '../views/importLODUsers/MultipleUsers';
+import { SetupSoUDTasksResource } from '../api';
 
 const getDevice = data => ({
   name: data.device_name,
@@ -50,9 +51,20 @@ const importUser = assign((context, event) => {
   };
 });
 
-const registerUsers = assign((context, event) => {
+const registerUsersAndSyncAdmin = assign((context, event) => {
   context.facility['adminUser'] = event.value.adminUsername;
   context.facility['adminPassword'] = event.value.adminPassword;
+  context.facility['adminId'] = event.value.adminId;
+  const task_name = 'kolibri.plugins.setup_wizard.tasks.startprovisionsoud';
+  const params = {
+    baseurl: context.device.baseurl,
+    username: context.facility.adminUser,
+    password: context.facility.adminPassword,
+    user_id: context.facility.adminId,
+    facility_id: context.facility.id,
+    device_name: context.device.name,
+  };
+  SetupSoUDTasksResource.createTask(task_name, params);
   return {
     remoteStudents: event.value.users,
   };
@@ -65,7 +77,7 @@ export const lodImportMachine = createMachine({
     steps: 4,
     device: { name: null, id: null, baseurl: null },
     facilities: [],
-    facility: { name: null, id: null, adminUser: null, adminPassword: null },
+    facility: { name: null, id: null, adminUser: null, adminPassword: null, adminTask: null },
     users: [],
     remoteStudents: [],
     task: null,
@@ -82,7 +94,7 @@ export const lodImportMachine = createMachine({
       meta: { step: '2', component: ImportIndividualUserForm },
       on: {
         CONTINUE: { target: 'importingUser', actions: importUser },
-        CONTINUEADMIN: { target: 'selectUsers', actions: registerUsers },
+        CONTINUEADMIN: { target: 'syncAdminUser', actions: registerUsersAndSyncAdmin },
         BACK: 'selectFacility',
       },
     },
@@ -90,6 +102,12 @@ export const lodImportMachine = createMachine({
       meta: { step: '3', component: LoadingTaskPage },
       on: {
         BACK: 'userCredentials',
+      },
+    },
+    syncAdminUser: {
+      meta: { step: '2', component: MultipleUsers },
+      on: {
+        CONTINUE: { target: 'selectUsers' },
       },
     },
     selectUsers: {

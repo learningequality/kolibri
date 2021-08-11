@@ -23,6 +23,7 @@
             <KButton
               v-if="isNotImported(userRow.user)"
               :text="coreString('importAction')"
+              :disabled="lodService.state.matches('syncAdminUser')"
               appearance="flat-button"
               @click="confirmImport(userRow.user)"
             />
@@ -34,22 +35,8 @@
       </template>
     </PaginatedListContainer>
     <template #buttons>
-      <KGrid>
-        <KGridItem :layout="{ alignment: 'right' }">
-          <KButton
-            primary
-            :text="coreString('finishAction')"
-            @click="welcomeModal = true"
-          />
-        </KGridItem>
-      </KGrid>
+      <div></div>
     </template>
-    <WelcomeModal
-      v-if="welcomeModal"
-      :importedFacility="facility"
-      :isLOD="true"
-      @submit="redirectToChannels"
-    />
   </OnboardingForm>
 
 </template>
@@ -57,16 +44,14 @@
 
 <script>
 
-  import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import { SessionResource } from 'kolibri.resources';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import UserTable from '../../../../../facility/assets/src/views/UserTable.vue';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
-  import WelcomeModal from '../../../../../device/assets/src/views/WelcomeModal.vue';
   import { SetupSoUDTasksResource } from '../../api';
-
-  const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+  import { TaskStatuses, TaskTypes } from '../../../../../device/assets/src/constants.js';
 
   export default {
     name: 'MultipleUsers',
@@ -74,13 +59,12 @@
       OnboardingForm,
       PaginatedListContainer,
       UserTable,
-      WelcomeModal,
     },
     mixins: [commonCoreStrings, commonSyncElements],
 
     data() {
       return {
-        welcomeModal: false,
+        isPolling: false,
       };
     },
     inject: ['lodService', 'state'],
@@ -113,6 +97,10 @@
         return 'color:#CCCCCC;';
       },
     },
+    beforeMount() {
+      this.isPolling = true;
+      this.pollAdminSyncTask();
+    },
     methods: {
       confirmImport(learner) {
         const task_name = 'kolibri.plugins.setup_wizard.tasks.startprovisionsoud';
@@ -144,10 +132,35 @@
         const user = this.state.value.users.filter(u => u.username === learner.username);
         return user.length === 0;
       },
-      redirectToChannels() {
-        window.sessionStorage.setItem(welcomeDimissalKey, true);
-        this.welcomeModal = false;
-        redirectBrowser();
+
+      pollAdminSyncTask() {
+        SetupSoUDTasksResource.fetchCollection({ force: true }).then(tasks => {
+          const soudTasks = tasks.filter(t => t.type === TaskTypes.SYNCLOD);
+          if (soudTasks.length > 0) {
+            this.loadingTask = {
+              ...soudTasks[0],
+            };
+            if (this.loadingTask.status === TaskStatuses.COMPLETED) {
+              SetupSoUDTasksResource.cleartasks();
+              // after importing the admin, let's sign him in to continue:
+              SessionResource.saveModel({
+                data: {
+                  username: this.facility.adminUser,
+                  password: this.facility.adminPassword,
+                  facility: this.facility.id,
+                },
+              }).then(() => {
+                this.isPolling = false;
+                this.lodService.send('CONTINUE');
+              });
+            }
+          }
+        });
+        if (this.isPolling) {
+          setTimeout(() => {
+            this.pollAdminSyncTask();
+          }, 500);
+        }
       },
     },
     $trs: {

@@ -13,6 +13,22 @@
         />
       </KPageContainer>
     </div>
+
+    <BottomAppBar v-if="service.state.matches('selectUsers')">
+      <KButton
+        primary
+        :text="coreString('finishAction')"
+        :disabled="users.length === 0"
+        @click="welcomeModal = true"
+      />
+    </BottomAppBar>
+
+    <WelcomeModal
+      v-if="welcomeModal"
+      :importedFacility="facility"
+      :isLOD="true"
+      @submit="redirectToChannels"
+    />
   </div>
 
 </template>
@@ -22,18 +38,23 @@
 
   import { computed } from 'kolibri.lib.vueCompositionApi';
   import { interpret } from 'xstate';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { lodImportMachine } from '../machines/lodImportMachine';
+  import WelcomeModal from '../../../../device/assets/src/views/WelcomeModal.vue';
   import ProgressToolbar from './ProgressToolbar';
-  import PersonalDataConsentForm from './onboarding-forms/PersonalDataConsentForm';
+
+  const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
   export default {
     name: 'ImportLODUsersSetup',
     components: {
-      PersonalDataConsentForm,
+      BottomAppBar,
       ProgressToolbar,
+      WelcomeModal,
     },
-    mixins: [commonSyncElements],
+    mixins: [commonSyncElements, commonCoreStrings],
 
     data() {
       // Global state for the import process
@@ -42,7 +63,7 @@
         state: lodImportMachine.initialState,
         total_steps: 4,
         stateID: null,
-        // lodUsers: [],
+        welcomeModal: false,
       };
     },
     provide() {
@@ -68,6 +89,12 @@
       removeNavIcon() {
         // TODO disable backwards navigation at the router level
         return this.currentStep > 1;
+      },
+      facility() {
+        return this.state.context.facility;
+      },
+      users() {
+        return this.state.context.users;
       },
     },
 
@@ -116,6 +143,11 @@
       previousStep() {
         if (this.state.matches('selectFacility')) this.wizardService.send('BACK');
         else this.service.send('BACK');
+      },
+      redirectToChannels() {
+        window.sessionStorage.setItem(welcomeDimissalKey, true);
+        this.welcomeModal = false;
+        this.$store.dispatch('kolibriLogout');
       },
     },
     $trs: {

@@ -137,7 +137,7 @@ class FacilityImportViewSet(ViewSet):
         :param facility_id: Id of the facility to authenticate and get the list of users
         :param username: Username of the user that's going to authenticate
         :param password: Password of the user that's going to authenticate
-        :return: List of the learnres of the facility.
+        :return: List of the learners of the facility.
         """
         facility_info = getusersinfo(request)
         user_info = facility_info["user"]
@@ -146,7 +146,7 @@ class FacilityImportViewSet(ViewSet):
         if not any([role in roles for role in admin_roles]):
             raise PermissionDenied()
         students = [u for u in facility_info["users"] if not u["roles"]]
-        return Response(students)
+        return Response({"students": students, "admin": facility_info["user"]})
 
 
 class SetupWizardFacilityImportTaskView(FacilityTasksViewSet):
