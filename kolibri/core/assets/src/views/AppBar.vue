@@ -82,7 +82,7 @@
                   :userType="getUserKind"
                 />
               </div>
-              <div v-if="getUserKind === 'learner'">
+              <div v-if="shouldPollAndDisplaySyncStatus" data-test="syncStatusInDropdown">
                 <div class="sync-status">
                   {{ $tr('deviceStatus') }}
                 </div>
@@ -128,12 +128,13 @@
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import UiButton from 'kolibri-design-system/lib/keen/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
-  import { NavComponentSections, SyncStatus } from 'kolibri.coreVue.vuex.constants';
+  import { NavComponentSections, SyncStatus, UserKinds } from 'kolibri.coreVue.vuex.constants';
   import branding from 'kolibri.utils.branding';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
   import SkipNavigationLink from './SkipNavigationLink';
   import SyncStatusDisplay from './SyncStatusDisplay';
+  import plugin_data from 'plugin_data';
 
   const hashedValuePattern = /^[a-f0-9]{30}$/;
 
@@ -168,6 +169,7 @@
         isPolling: false,
         // poll every 10 seconds
         pollingInterval: 10000,
+        isSubsetOfUsersDevice: plugin_data['isSubsetOfUsersDevice'],
       };
     },
     computed: {
@@ -192,6 +194,10 @@
         }
         return SyncStatus.NOT_CONNECTED;
       },
+      shouldPollAndDisplaySyncStatus() {
+        // We only show sync status (and poll for it) if a learner is on a SoUD
+        return this.isSubsetOfUsersDevice && this.getUserKind === UserKinds.LEARNER;
+      },
     },
     created() {
       window.addEventListener('click', this.handleWindowClick);
@@ -210,7 +216,7 @@
             this.setPollingInterval(this.userSyncStatus.status);
           }
         });
-        if (this.isPolling) {
+        if (this.isPolling && this.shouldPollAndDisplaySyncStatus) {
           setTimeout(() => {
             this.pollUserSyncStatusTask();
           }, this.pollingInterval);

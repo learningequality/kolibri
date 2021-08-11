@@ -6,6 +6,7 @@ import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
 import AppBar from '../../src/views/AppBar';
 import logoutSideNavEntry from '../../src/views/LogoutSideNavEntry';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
+import SyncStatusDisplay from '../../src/views/SyncStatusDisplay';
 
 jest.mock('kolibri.urls');
 
@@ -70,6 +71,29 @@ describe('app bar component', () => {
       setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent(logoutSideNavEntry).element).toBeTruthy();
+    });
+    describe('SoUD sync status indicator', () => {
+      it('should show the status and poll when a Learner is on an SoUD', async () => {
+        const wrapper = createWrapper(undefined, {
+          userMenuDropdownIsOpen: true,
+          isSubsetOfUsersDevice: true,
+        });
+        setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.find('[data-test="syncStatusInDropdown"]').exists()).toBe(true);
+      });
+      it('should not show the status for non-Learner users even on SoUD', async () => {
+        const wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
+        setUserKind(wrapper.vm.$store, UserKinds.ADMIN);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.find('[data-test="syncStatusInDropdown"]').exists()).toBe(false);
+      });
+      it('should not show the status for any non-SoUD', async () => {
+        const wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: false });
+        setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.find('[data-test="syncStatusInDropdown"]').exists()).toBe(false);
+      });
     });
     describe('only non-account components are added', () => {
       afterEach(() => {
