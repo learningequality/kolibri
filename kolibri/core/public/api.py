@@ -189,7 +189,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
         return Response(queue)
 
     def check_queue(self, pk=None):
-        sync_interval = OPTIONS["SYNCING"]["SYNC_INTERVAL"]
+        sync_interval = OPTIONS["Deployment"]["SYNC_INTERVAL"]
         last_activity = timezone.now() - datetime.timedelta(minutes=5)
         current_transfers = TransferSession.objects.filter(
             active=True, last_activity_timestamp__gte=last_activity

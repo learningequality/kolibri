@@ -25,7 +25,6 @@ from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import queue
 from kolibri.core.tasks.main import scheduler
 from kolibri.utils.conf import OPTIONS
-from kolibri.utils.options import update_options_file
 
 
 logger = logging.getLogger(__name__)
@@ -90,7 +89,9 @@ def get_device_info(version=DEVICE_INFO_VERSION):
     return info
 
 
-def startpeerusersync(server, user_id):
+def startpeerusersync(
+    server, user_id, resync_interval=OPTIONS["Deployment"]["SYNC_INTERVAL"]
+):
     """
     Initiate a SYNC (PULL + PUSH) of a specific user from another device.
     """
@@ -114,7 +115,7 @@ def startpeerusersync(server, user_id):
     job_data = prepare_soud_sync_job(
         server, facility_id, user_id, extra_metadata=extra_metadata
     )
-
+    job_data["resync_interval"] = resync_interval
     job_id = queue.enqueue(call_command, "sync", **job_data)
 
     return job_id
@@ -134,7 +135,7 @@ def begin_request_soud_sync(server, user):
         "queued", "sync_session__last_activity_timestamp"
     )
     if users:
-        SYNC_INTERVAL = OPTIONS["SYNCING"]["SYNC_INTERVAL"]
+        SYNC_INTERVAL = OPTIONS["Deployment"]["SYNC_INTERVAL"]
         dt = datetime.timedelta(seconds=SYNC_INTERVAL)
         if timezone.now() - users[0]["sync_session__last_activity_timestamp"] < dt:
             schedule_new_sync(server, user)
@@ -230,13 +231,10 @@ def handle_server_sync_response(response, server, user):
     UserSyncStatus.objects.update_or_create(user_id=user, defaults={"queued": True})
 
     if server_response["action"] == SYNC:
-        SYNC_INTERVAL = OPTIONS["SYNCING"]["SYNC_INTERVAL"]
-        server_sync_interval = server_response.get("sync_interval", str(SYNC_INTERVAL))
-        if server_sync_interval != str(SYNC_INTERVAL):
-            update_options_file("SYNCING", "SYNC_INTERVAL", server_sync_interval)
-            OPTIONS["SYNCING"]["SYNC_INTERVAL"] = int(server_sync_interval)
-
-        job_id = startpeerusersync(server, user)
+        server_sync_interval = server_response.get(
+            "sync_interval", str(OPTIONS["Deployment"]["SYNC_INTERVAL"])
+        )
+        job_id = startpeerusersync(server, user, server_sync_interval)
         logger.info("Enqueuing a sync task for user {} in job {}".format(user, job_id))
 
     elif server_response["action"] == QUEUED:
@@ -252,9 +250,8 @@ def handle_server_sync_response(response, server, user):
         )
 
 
-def schedule_new_sync(server, user):
+def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVAL"]):
     # reschedule the process for a new sync
-    SYNC_INTERVAL = OPTIONS["SYNCING"]["SYNC_INTERVAL"]
-    dt = datetime.timedelta(seconds=SYNC_INTERVAL)
+    dt = datetime.timedelta(seconds=interval)
     job = Job(request_soud_sync, server, user)
     scheduler.enqueue_in(dt, job)

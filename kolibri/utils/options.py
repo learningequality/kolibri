@@ -454,6 +454,13 @@ base_option_spec = {
                 Server configuration should handle ensuring that the files are properly served.
             """,
         },
+        "SYNC_INTERVAL": {
+            "type": "integer",
+            "default": 5,
+            "description": """
+                In case a SoUD connects to this server, the SoUD should use this interval to resync every user.
+            """,
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
@@ -472,15 +479,6 @@ base_option_spec = {
             "description": """
                 Whether to use Python multiprocessing for worker pools. If False, then it will use threading. This may be useful,
                 if running on a dedicated device with multiple cores, and a lot of asynchronous tasks get run.
-            """,
-        }
-    },
-    "SYNCING": {
-        "SYNC_INTERVAL": {
-            "type": "integer",
-            "default": 5,
-            "description": """
-                In case a SoUD connects to this server, the SoUD should use this interval to resync every user.
             """,
         }
     },

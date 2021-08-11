@@ -82,6 +82,12 @@ class Command(AsyncCommand):
             action="store_true",
             help="do not create a facility and temporary superuser",
         )
+        parser.add_argument(
+            "--resync-interval",
+            type=int,
+            default=5,
+            help="Seconds to schedule a new sync",
+        )
         # parser.add_argument("--scope-id", type=str, default=FULL_FACILITY)
 
     def handle_async(self, *args, **options):  # noqa C901
@@ -97,6 +103,7 @@ class Command(AsyncCommand):
             no_pull,
             noninteractive,
             no_provision,
+            resync_interval,
         ) = (
             options["baseurl"],
             options["facility"],
@@ -108,6 +115,7 @@ class Command(AsyncCommand):
             options["no_pull"],
             options["noninteractive"],
             options["no_provision"],
+            options["resync_interval"],
         )
 
         PORTAL_SYNC = baseurl == DATA_PORTAL_SYNCING_BASE_URL
@@ -270,7 +278,8 @@ class Command(AsyncCommand):
             self.job.save_meta()
 
         dataset_cache.deactivate()
-        schedule_new_sync(baseurl, user_id)
+        if user_id:
+            schedule_new_sync(baseurl, user_id, resync_interval)
         logger.info("Syncing has been completed.")
 
     @contextmanager
