@@ -41,8 +41,15 @@
       },
     },
     $trs: {
-      deleteLearnerGroup: 'Delete group',
-      areYouSure: "Are you sure you want to delete '{ groupName }'?",
+      deleteLearnerGroup: {
+        message: 'Delete group',
+        context:
+          "Title of the confirmation window which appears when user uses the 'Delete' option in the group section.",
+      },
+      areYouSure: {
+        message: "Are you sure you want to delete '{ groupName }'?",
+        context: 'Confirmation message when the coach attempts to delete a group of learners.',
+      },
     },
   };
 

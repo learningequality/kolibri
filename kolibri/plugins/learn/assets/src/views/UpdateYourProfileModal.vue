@@ -50,10 +50,21 @@
       };
     },
     $trs: {
-      title: 'Update your profile',
-      updateProfileExplanation:
-        'Some information is missing from your profile. Would you like to update it?',
-      skipUpdateProfileAction: 'Skip',
+      title: {
+        message: 'Update your profile',
+        context:
+          "If a user account has been created prior to version 0.13 of Kolibri, the user will see a notification that they can update their profile to provide their birth year and gender.\n\nSelecting 'UPDATE' opens the 'Update your profile' window.",
+      },
+      updateProfileExplanation: {
+        message: 'Some information is missing from your profile. Would you like to update it?',
+        context:
+          "If a user account has been created prior to version 0.13 of Kolibri, the user will see a notification that they can update their profile to provide their birth year and gender.\n\nSelecting 'UPDATE' opens the 'Update your profile' window with this message.",
+      },
+      skipUpdateProfileAction: {
+        message: 'Skip',
+        context:
+          "If a user account has been created prior to version 0.13 of Kolibri, the user will see a notification that they can update their profile to provide their birth year and gender.\n\nThe user can choose not to update their profile by selecting 'SKIP'.",
+      },
     },
   };
 

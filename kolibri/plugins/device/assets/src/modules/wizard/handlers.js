@@ -14,7 +14,10 @@ import {
 import { getChannelWithContentSizes } from './apiChannelMetadata';
 
 const translator = createTranslator('WizardHandlerTexts', {
-  loadingChannelToolbar: 'Loading channel…',
+  loadingChannelToolbar: {
+    message: 'Loading channel…',
+    context: 'Indicates a channel is loading.',
+  },
 });
 
 // Utilities for the show*Page actions

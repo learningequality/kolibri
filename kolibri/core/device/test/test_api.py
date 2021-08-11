@@ -1,15 +1,18 @@
 import os
 import platform
 import sys
+import uuid
 from collections import namedtuple
 
 import mock
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 from mock import patch
 from morango.models import DatabaseIDModel
 from morango.models import InstanceIDModel
+from morango.models import SyncSession
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -22,10 +25,13 @@ from kolibri.core.auth.models import Role
 from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.auth.test.test_api import ClassroomFactory
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.models import UserSyncStatus
+
 
 DUMMY_PASSWORD = "password"
 
@@ -462,3 +468,123 @@ class DeviceNameTestCase(APITestCase):
                 exceeds_max_length_name,
                 format="json",
             )
+
+
+class UserSyncStatusTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.user2 = FacilityUserFactory.create(facility=cls.facility)
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+        cls.classroom.add_member(cls.user1)
+        cls.classroom.add_coach(cls.superuser)
+        syncdata = {
+            "id": uuid.uuid4().hex,
+            "start_timestamp": timezone.now(),
+            "last_activity_timestamp": timezone.now(),
+            "active": False,
+            "is_server": False,
+            "client_instance": True,
+            "server_instance": False,
+            "extra_fields": {},
+        }
+        syncsession1 = SyncSession.objects.create(**syncdata)
+        data1 = {
+            "user_id": cls.user1.id,
+            "sync_session": syncsession1,
+            "queued": True,
+        }
+        UserSyncStatus.objects.create(**data1)
+        syncdata2 = {
+            "id": uuid.uuid4().hex,
+            "start_timestamp": timezone.now(),
+            "last_activity_timestamp": timezone.now(),
+            "active": False,
+            "is_server": False,
+            "client_instance": True,
+            "server_instance": False,
+            "extra_fields": {},
+        }
+        syncsession2 = SyncSession.objects.create(**syncdata2)
+        data2 = {
+            "user_id": cls.user2.id,
+            "sync_session": syncsession2,
+            "queued": False,
+        }
+        UserSyncStatus.objects.create(**data2)
+
+    def setUp(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def test_usersyncstatus_list(self):
+        response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        expected_count = UserSyncStatus.objects.count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_user_sync_status_class_single_user_for_filter(self):
+        response = self.client.get(
+            reverse("kolibri:core:usersyncstatus-list"),
+            data={"user": self.user1.id},
+        )
+        expected_count = UserSyncStatus.objects.filter(user_id=self.user1.id).count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_user_sync_status_class_list_for_filter(self):
+        response = self.client.get(
+            reverse("kolibri:core:usersyncstatus-list"),
+            data={"member_of": self.classroom.id},
+        )
+        self.assertEqual(len(response.data), 1)
+
+    def test_usersyncstatus_list_learner_permissions(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["user"], self.user1.id)
+
+    def test_usersyncstatus_list_facility_admin_permissions(self):
+        fadmin = FacilityUserFactory.create(facility=self.facility)
+        self.facility.add_admin(fadmin)
+        self.client.login(
+            username=fadmin.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        expected_count = UserSyncStatus.objects.count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_usersyncstatus_list_facility_coach_permissions(self):
+        fcoach = FacilityUserFactory.create(facility=self.facility)
+        self.facility.add_coach(fcoach)
+        self.client.login(
+            username=fcoach.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        expected_count = UserSyncStatus.objects.count()
+        self.assertEqual(len(response.data), expected_count)
+
+    def test_usersyncstatus_list_class_coach_permissions(self):
+        ccoach = FacilityUserFactory.create(facility=self.facility)
+        self.classroom.add_coach(ccoach)
+        self.client.login(
+            username=ccoach.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["user"], self.user1.id)

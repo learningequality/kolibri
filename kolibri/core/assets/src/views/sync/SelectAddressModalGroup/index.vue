@@ -88,8 +88,14 @@
       },
     },
     $trs: {
-      addAddressSnackbarText: 'Successfully added address',
-      removeAddressSnackbarText: 'Successfully removed address',
+      addAddressSnackbarText: {
+        message: 'Successfully added address',
+        context: 'This message appears if a network address has been added correctly.',
+      },
+      removeAddressSnackbarText: {
+        message: 'Successfully removed address',
+        context: 'This message appears if a network address has been removed correctly.',
+      },
     },
   };
 

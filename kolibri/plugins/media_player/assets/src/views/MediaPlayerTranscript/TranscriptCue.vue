@@ -130,8 +130,15 @@
       },
     },
     $trs: {
-      title: 'Seek to {startTime}',
-      timeLabel: 'Transcript cue start time',
+      title: {
+        message: 'Seek to {startTime}',
+        context: 'Option to start over a video file from the beginning.',
+      },
+      timeLabel: {
+        message: 'Transcript cue start time',
+        context:
+          'This string is used to describe the container where the caption appears to help those using screen readers assistive technology.',
+      },
       textLabel: {
         message: 'Transcript cue caption text',
         context:

@@ -109,11 +109,31 @@
       },
     },
     $trs: {
-      overallScore: 'Overall score',
-      questionsCorrectLabel: 'Questions correct',
-      questionsCorrectValue: '{correct, number} out of {total, number}',
-      inProgress: 'In progress',
-      notStartedLabel: 'Not started',
+      overallScore: {
+        message: 'Overall score',
+        context:
+          "String appears on the 'Quiz report' that a learner can access after they submit the quiz. Value is expressed as a percentage of correctly answered questions. Can be translated as 'Score'.  ",
+      },
+      questionsCorrectLabel: {
+        message: 'Questions correct',
+        context:
+          "When reviewing a learner's report, a coach can see how many questions the learner has got correct in a quiz. The 'Questions correct' label will indicate something like 4 out of 5, or 8 out of 10, for example.",
+      },
+      questionsCorrectValue: {
+        message: '{correct, number} out of {total, number}',
+        context:
+          "When reviewing a learner's report, a coach can see how many questions the learner has got correct in a quiz. The 'Questions correct' label will indicate something like 4 out of 5, or 8 out of 10, for example. That's to say, the number of correct answers as well as the total number of questions.",
+      },
+      inProgress: {
+        message: 'In progress',
+        context:
+          "When a learner starts doing an exercise, viewing a video, or reading a document, this will be marked with the 'In progress' icon.\n\nThe text 'In progress' appears if the learner moves their mouse over the icon.",
+      },
+      notStartedLabel: {
+        message: 'Not started',
+        context:
+          "When a coach creates a quiz, by default it is marked as 'Not started'. This means that learners will not see it in the Learn > Classes view.\n\nThe coach needs to use the 'START QUIZ' button to enable learners to see the quiz and start answering the questions.",
+      },
     },
   };
 

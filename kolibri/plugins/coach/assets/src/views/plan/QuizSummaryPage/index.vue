@@ -251,7 +251,11 @@
       },
     },
     $trs: {
-      uniqueTitleError: `A quiz titled '{title}' already exists in '{className}'`,
+      uniqueTitleError: {
+        message: `A quiz titled '{title}' already exists in '{className}'`,
+        context:
+          'Displays if user attempts to give a quiz the same name as one that already exists.',
+      },
     },
   };
 

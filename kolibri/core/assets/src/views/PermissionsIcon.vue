@@ -79,7 +79,11 @@
       },
     },
     $trs: {
-      limitedPermissionsTooltip: 'Limited permissions',
+      limitedPermissionsTooltip: {
+        message: 'Limited permissions',
+        context:
+          "This string appears on the user 'Details' screen if the user has limited device permissions.",
+      },
     },
   };
 

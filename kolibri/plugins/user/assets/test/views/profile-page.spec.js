@@ -22,6 +22,10 @@ function makeWrapper() {
     router,
     stubs: {
       RouterLink: RouterLinkStub,
+      AppBar: {
+        name: 'AppBar',
+        template: '<div></div>',
+      },
     },
   });
 }

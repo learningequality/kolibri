@@ -447,37 +447,115 @@
       },
     },
     $trs: {
-      replay: 'Go back 10 seconds',
+      replay: {
+        message: 'Go back 10 seconds',
+        context: 'Option to rewind a video or audio file by 10 seconds.\n',
+      },
       // Pulled from https://github.com/videojs/video.js/blob/master/lang/en.json
-      forward: 'Go forward 10 seconds',
-      play: 'Play',
-      pause: 'Pause',
-      currentTime: 'Current time',
-      durationTime: 'Duration time',
-      loaded: 'Loaded',
-      progressBar: 'Progress bar',
-      fullscreen: 'Fullscreen',
-      nonFullscreen: 'Non-fullscreen',
-      mute: 'Mute',
-      unmute: 'Unmute',
-      playbackRate: 'Playback rate',
-      captions: 'Captions',
-      captionsOff: 'Captions off',
+      forward: {
+        message: 'Go forward 10 seconds',
+        context: 'Option to advance a video or audio file by 10 seconds.',
+      },
+      play: {
+        message: 'Play',
+        context: 'Describes button used to play a media file. This toggles between play and pause.',
+      },
+      pause: {
+        message: 'Pause',
+        context:
+          'Describes button used to stop or pause a media file in the player. This toggles between play and pause.',
+      },
+      currentTime: {
+        message: 'Current time',
+        context:
+          'Indicates the moment in time that the video or audio is at. For example, 1:10, meaning one minute and 10 seconds.',
+      },
+      durationTime: {
+        message: 'Duration time',
+        context:
+          'Indicates the length of a video or audio file. For example, 5:15, meaning 5 minutes and 10 seconds.',
+      },
+      loaded: {
+        message: 'Loaded',
+        context: 'Indicates a media file has loaded into the player.',
+      },
+      progressBar: {
+        message: 'Progress bar',
+        context:
+          'Describes the time tracker indicator bar in the bottom of the media player which allows a learner to view the progress through a media file and skip to specific times.',
+      },
+      fullscreen: {
+        message: 'Fullscreen',
+        context:
+          'Learners can use the full screen button in the bottom right corner to open the media player in fullscreen view.\n',
+      },
+      nonFullscreen: {
+        message: 'Non-fullscreen',
+        context:
+          'Learners can use the full screen button in the bottom right corner to exit the media player from fullscreen view. This text appears upon mouse over of the button.\n',
+      },
+      mute: {
+        message: 'Mute',
+        context: 'Option to silence the audio track of a media file.',
+      },
+      unmute: {
+        message: 'Unmute',
+        context: 'Option to un-silence the audio track of a media file.',
+      },
+      playbackRate: {
+        message: 'Playback rate',
+        context:
+          'Speed at which a media file can be played. For example, a video could be played a 1.5 times the original speed.',
+      },
+      captions: {
+        message: 'Captions',
+        context:
+          "The Kolibri media player allows learners to view audiovisual content with subtitles (captions) in different languages. These are accessed via the 'CC' option on the player.",
+      },
+      captionsOff: {
+        message: 'Captions off',
+        context: 'Option for the learner to turn off subtitles (captions) in the media player.',
+      },
       transcript: {
         message: 'Transcript',
         context:
           '\nRefers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
       },
-      transcriptOff: 'Transcript off',
-      languages: 'Languages',
-      volumeLevel: 'Volume level',
-      networkError: 'A network error caused the media download to fail part-way',
-      formatError:
-        'The media could not be loaded, either because the server or network failed or because the format is not supported',
-      corruptionOrSupportError:
-        'The media playback was aborted due to a corruption problem or because the media used features your browser did not support',
-      sourceError: 'No compatible source was found for this media',
-      encryptionError: 'The media is encrypted and we do not have the keys to decrypt it',
+      transcriptOff: {
+        message: 'Transcript off',
+        context: 'Describes option to turn off the transcript.',
+      },
+      languages: {
+        message: 'Languages',
+        context: 'Indicates languages which are used in a media file.',
+      },
+      volumeLevel: {
+        message: 'Volume level',
+        context: 'Indicates the volume control scrollbar.',
+      },
+      networkError: {
+        message: 'A network error caused the media download to fail part-way',
+        context:
+          'Error message displayed in the media player when a media download fails because the internet connection cuts out.\n',
+      },
+      formatError: {
+        message:
+          'The media could not be loaded, either because the server or network failed or because the format is not supported',
+        context: 'Error message displayed in the media player.\n',
+      },
+      corruptionOrSupportError: {
+        message:
+          'The media playback was aborted due to a corruption problem or because the media used features your browser did not support',
+        context: 'Error message displayed in the media player.',
+      },
+      sourceError: {
+        message: 'No compatible source was found for this media',
+        context: 'Error message displayed in the media player.',
+      },
+      encryptionError: {
+        message: 'The media is encrypted and we do not have the keys to decrypt it',
+        context: 'Error message displayed in the media player.\n',
+      },
     },
   };
 

@@ -79,17 +79,43 @@
       },
     },
     $trs: {
-      reportErrorHeader: 'Report Error',
-      forumPrompt: 'Visit the community forums',
+      reportErrorHeader: {
+        message: 'Report Error',
+        context: 'Title of the window where the user can report an error.',
+      },
+      forumPrompt: {
+        message: 'Visit the community forums',
+        context:
+          'If a user spots an error in Kolibri, this prompt links through to the Kolibri community forums where they can also report errors or search for similar issues.',
+      },
       // reall long
-      forumUseTips:
-        'Search the community forum to see if others encountered similar issues. If unable to find anything, paste the error details below into a new forum post so we can rectify the error in a future version of Kolibri.',
-      forumPostingTips:
-        'Include a description of what you were trying to do and what you clicked on when the error appeared.',
-      emailPrompt: 'Send an email to the developers',
-      emailDescription:
-        'Contact the support team with your error details and we’ll do our best to help.',
-      errorDetailsHeader: 'Error details',
+      forumUseTips: {
+        message:
+          'Search the community forum to see if others encountered similar issues. If unable to find anything, paste the error details below into a new forum post so we can rectify the error in a future version of Kolibri.',
+        context:
+          'If a user spots an error in Kolibri, this text indicates that in Kolibri community forums they can also report errors or search for similar issues.',
+      },
+      forumPostingTips: {
+        message:
+          'Include a description of what you were trying to do and what you clicked on when the error appeared.',
+        context:
+          'Helper text for the user when describing the details of the error they saw in their email to the development team.\n',
+      },
+      emailPrompt: {
+        message: 'Send an email to the developers',
+        context:
+          'Users can send an email to the Kolibri development team indicating details about an error if they see one.',
+      },
+      emailDescription: {
+        message: 'Contact the support team with your error details and we’ll do our best to help.',
+        context:
+          'This is a message that a user sees if they provoke an error in Kolibri. They can send an email to the Kolibri development team indicating further details about the error.',
+      },
+      errorDetailsHeader: {
+        message: 'Error details',
+        context:
+          'Here the user would indicate the details of the error they saw in their email to the development team.',
+      },
     },
   };
 

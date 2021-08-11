@@ -48,10 +48,20 @@
       },
     },
     $trs: {
-      modalTitle: 'Delete class',
-      confirmation: "Are you sure you want to delete '{ classname }'?",
-      description:
-        "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",
+      modalTitle: {
+        message: 'Delete class',
+        context: "Title of 'Delete class' window.",
+      },
+      confirmation: {
+        message: "Are you sure you want to delete '{ classname }'?",
+        context:
+          "Confirmation message on 'Delete class' window accessed via the 'Delete class' button.",
+      },
+      description: {
+        message:
+          "Enrolled users will be removed from the class but remain accessible from the 'Users' tab.",
+        context: "Description on 'Delete class' window accessed via the 'Delete class' button.",
+      },
     },
   };
 

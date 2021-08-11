@@ -117,7 +117,11 @@
       },
     },
     $trs: {
-      back: 'All learners',
+      back: {
+        message: 'All learners',
+        context:
+          "Link that takes user back to the list of learners on the 'Reports' tab, from the individual learner's information page.",
+      },
     },
   };
 

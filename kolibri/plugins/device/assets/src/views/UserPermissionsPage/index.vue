@@ -209,16 +209,41 @@
         context:
           '\nLabel for the checkbox to confirm granting a user permissions to manage content on the device.',
       },
-      documentTitle: "{ name }'s Device Permissions",
-      makeSuperAdmin: 'Make super admin',
-      saveButton: 'Save Changes',
-      saveFailureNotification: 'There was a problem saving these changes.',
-      userDoesNotExist: 'User does not exist',
-      superAdminExplanation1:
-        'Has all device permissions and can manage the device permissions of other users',
-      superAdminExplanation2:
-        "Has admin permissions for all facilities on this device, but is still a member of the facility '{facilityName}'",
-      you: 'You',
+      documentTitle: {
+        message: "{ name }'s Device Permissions",
+        context:
+          'Page title for the individual user device permissions view. This is not seen in the UI.',
+      },
+      makeSuperAdmin: {
+        message: 'Make super admin',
+        context:
+          'Label for the checkbox to confirm giving the user super admin permissions on the device.\n',
+      },
+      saveButton: {
+        message: 'Save Changes',
+        context: 'Button on user permission page.',
+      },
+      saveFailureNotification: {
+        message: 'There was a problem saving these changes.',
+        context: 'Error message if changes made on user permissions page are not saved.',
+      },
+      userDoesNotExist: {
+        message: 'User does not exist',
+        context: 'Error message.',
+      },
+      superAdminExplanation1: {
+        message: 'Has all device permissions and can manage the device permissions of other users',
+        context: 'Description of super admin role.',
+      },
+      superAdminExplanation2: {
+        message:
+          "Has admin permissions for all facilities on this device, but is still a member of the facility '{facilityName}'",
+        context: 'Description of super admin role.',
+      },
+      you: {
+        message: 'You',
+        context: 'Refers to the admin user who is currently logged in to Kolibri.',
+      },
     },
   };
 

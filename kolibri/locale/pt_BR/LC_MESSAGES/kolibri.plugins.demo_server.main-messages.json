@@ -4,7 +4,6 @@
   "DemoServerBannerContent.demoServerHeader": "Bem-vindo ao site de demonstração Kolibri",
   "DemoServerBannerContent.demoServerL1": "Aluno ({user}/{pass} ou acessar como convidado)",
   "DemoServerBannerContent.demoServerL2": "Professor ({user}/{pass})",
-  "DemoServerBannerContent.demoServerL3": "Administrador ({user}/{pass})",
   "DemoServerBannerContent.demoServerP1": "Aqui você poderá explorar os três tipos de usuário em Kolibri, utilizando os nomes de usuário/senha entre parênteses",
   "DemoServerBannerContent.demoServerP2": "Atenção: este site foi concebido apenas para uso demonstrativo. Os materiais educativos aqui presentes são uma pequena amostra de tudo o que existe na Biblioteca de Conteúdos Kolibri. Além disso, as contas de usuário, classes, lições e testes criados aqui são apagados periodicamente. ",
   "DemoServerBannerContent.demoServerP3": "Para saber mais sobre como utilizar Kolibri num ambiente offline e entender melhor a plataforma:"

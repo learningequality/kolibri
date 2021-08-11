@@ -50,7 +50,11 @@
       },
     },
     $trs: {
-      placeholder: 'Select gender',
+      placeholder: {
+        message: 'Select gender',
+        context:
+          "This option allows a user to specify whether their gender is 'Male, Female' or 'Not specified'.",
+      },
     },
   };
 

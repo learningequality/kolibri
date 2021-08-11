@@ -231,11 +231,9 @@ class ZipContentServerPlugin(ServerPlugin):
 
 
 class ServicesPlugin(SimplePlugin):
-    def __init__(self, bus, port):
+    def __init__(self, bus):
         self.bus = bus
-        self.port = port
         self.workers = None
-        self.bus.subscribe("SERVING", self.SERVING)
 
     def ENTER(self):
         from kolibri.deployment.default.cache import recreate_diskcache
@@ -266,6 +264,23 @@ class ServicesPlugin(SimplePlugin):
         # Initialize the iceqube scheduler to handle scheduled tasks
         scheduler.start_scheduler()
 
+    def STOP(self):
+        from kolibri.core.tasks.main import scheduler
+
+        scheduler.shutdown_scheduler()
+
+        if self.workers is not None:
+            for worker in self.workers:
+                worker.shutdown(wait=True)
+
+
+class ZeroConfPlugin(Monitor):
+    def __init__(self, bus, port):
+        self.addresses = set()
+        self.port = port
+        Monitor.__init__(self, bus, self.run, 1)
+        self.bus.subscribe("SERVING", self.SERVING)
+
     def SERVING(self, port):
         # Register the Kolibri zeroconf service so it will be discoverable on the network
         from kolibri.core.discovery.utils.network.search import (
@@ -275,18 +290,21 @@ class ServicesPlugin(SimplePlugin):
         register_zeroconf_service(port=port or self.port)
 
     def STOP(self):
+        super(ZeroConfPlugin, self).STOP()
         from kolibri.core.discovery.utils.network.search import (
             unregister_zeroconf_service,
         )
 
         unregister_zeroconf_service()
-        from kolibri.core.tasks.main import scheduler
 
-        scheduler.shutdown_scheduler()
+    def run(self):
+        from kolibri.core.discovery.utils.network.search import ZEROCONF_STATE
+        from kolibri.core.discovery.utils.network.search import (
+            reinitialize_zeroconf_if_network_has_changed,
+        )
 
-        if self.workers is not None:
-            for worker in self.workers:
-                worker.shutdown(wait=True)
+        if ZEROCONF_STATE["service"] is not None:
+            reinitialize_zeroconf_if_network_has_changed()
 
 
 status_map = {
@@ -612,8 +630,12 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
         configure_http_server(port, zip_port, bus)
 
     # Setup plugin for services
-    service_plugin = ServicesPlugin(bus, port)
+    service_plugin = ServicesPlugin(bus)
     service_plugin.subscribe()
+
+    # Setup zeroconf plugin
+    zeroconf_plugin = ZeroConfPlugin(bus, port)
+    zeroconf_plugin.subscribe()
 
     signal_handler = SignalHandler(bus)
 

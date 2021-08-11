@@ -36,7 +36,11 @@
       },
     },
     $trs: {
-      subtitles: 'Subtitles',
+      subtitles: {
+        message: 'Subtitles',
+        context:
+          "The Kolibri media player allows learners to view audiovisual content with subtitles (captions) in different languages. These are accessed via the 'CC' option on the player.\n\nThey can also select a download of the media file containing the subtitles they want to view, where available.",
+      },
     },
   };
 

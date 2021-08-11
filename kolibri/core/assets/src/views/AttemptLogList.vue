@@ -156,7 +156,11 @@
       },
     },
     $trs: {
-      answerHistoryLabel: 'Answer history',
+      answerHistoryLabel: {
+        message: 'Answer history',
+        context:
+          'Indicates to a record of answers that a learner has responded to questions in a quiz, for example.',
+      },
     },
   };
 

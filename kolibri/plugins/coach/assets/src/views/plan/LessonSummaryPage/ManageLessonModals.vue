@@ -125,12 +125,35 @@
       },
     },
     $trs: {
-      copyLessonTitle: 'Copy lesson to',
-      assignmentQuestion: 'Assign lesson to',
-      deleteLessonTitle: 'Delete lesson',
-      deleteLessonConfirmation: "Are you sure you want to delete '{ title }'?",
-      copyOfLesson: 'Copy of { lessonTitle }',
-      uniqueTitleError: `A lesson titled '{title}' already exists in '{className}'`,
+      copyLessonTitle: {
+        message: 'Copy lesson to',
+        context:
+          "Coaches can copy a quiz to a different group, another class or individual learners.\n\nThis is the title of window that displays when user uses the 'Copy lesson' function from the 'Lessons' > 'Options' menu.",
+      },
+      assignmentQuestion: {
+        message: 'Assign lesson to',
+        context: "Text which appears on the 'Copy lesson' modal.",
+      },
+      deleteLessonTitle: {
+        message: 'Delete lesson',
+        context:
+          "Title of the confirmation window that displays when user uses the 'Delete' option from the 'Lessons' > 'Options' menu.",
+      },
+      deleteLessonConfirmation: {
+        message: "Are you sure you want to delete '{ title }'?",
+        context:
+          "Description of the confirmation window that displays when user uses the 'Delete' option from the 'Lessons' > 'Options' menu.\n",
+      },
+      copyOfLesson: {
+        message: 'Copy of { lessonTitle }',
+        context:
+          "If a lesson is copied to another group in the same class, it will appear in the 'Lessons' tab as the 'Copy of (original name of lesson)'.\n",
+      },
+      uniqueTitleError: {
+        message: `A lesson titled '{title}' already exists in '{className}'`,
+        context:
+          'Error message that displays when a user tries to give a name to a lesson that already exists.',
+      },
     },
   };
 

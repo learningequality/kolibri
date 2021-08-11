@@ -6,12 +6,12 @@ For usage instructions, see:
 This set of functions interacts with the crowdin API as documented here:
     https://support.crowdin.com/api/api-integration-setup/
 """
-import csv
 import io
 import logging
 import os
 import shutil
 import sys
+import tempfile
 import zipfile
 
 import click
@@ -24,104 +24,91 @@ logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
 
 
-"""
-Ensure that the API key is set
-"""
+# crowdin project name
+project_option = click.Option(
+    param_decls=["--project"],
+    envvar="CROWDIN_PROJECT",
+    help="Set the Crowdin Project",
+    prompt="Crowdin Project name",
+    required=True,
+)
+
+login_option = click.Option(
+    param_decls=["--login"],
+    envvar="CROWDIN_LOGIN",
+    help="Set the Crowdin Login Username",
+    prompt="Crowdin username",
+    required=True,
+)
+
+key_option = click.Option(
+    param_decls=["--key"],
+    envvar="CROWDIN_API_KEY",
+    help="Set the Crowdin API key",
+    prompt="Crowdin API key",
+    required=True,
+)
+
+branch_argument = click.argument(
+    "branch",
+    envvar="CROWDIN_BRANCH",
+    required=True,
+)
 
 
-def checkApiKey():
-    if "CROWDIN_API_KEY" not in os.environ:
-        logging.error("The CROWDIN_API_KEY environment variable needs to be set")
-        sys.exit(1)
+# We could attempt to infer this in the Kolibri and Kolibri plugin
+# case, using our plugin machinery - but this would require us to
+# import functions from webpack_json.py which is not currently possible
+# as these modules do not constitute a package and so cannot do relative
+# imports.
+locale_data_folder_option = click.option(
+    "--locale-data-folder",
+    envvar="LOCALE_DATA_FOLDER",
+    help="Set path to write locale files to",
+    type=click.Path(file_okay=False),
+    prompt="Path to locale folder",
+    required=True,
+)
 
 
-"""
-Ensure that Perseus is installed for development - but only in Kolibri
-"""
+class CrowdinCommand(click.Command):
+    """
+    A command class for Crowdin commands.
+    By default adds parameters for crowdin access
+    and path configuration.
+    """
 
-PERSEUS_NOT_INSTALLED_FOR_DEV = """
-Perseus strings must be updated during releases along with Kolibri.
+    allow_extra_args = True
 
-Clone https://github.com/learningequality/kolibri-exercise-perseus-plugin/
-and ensure that it has been checked out the the correct commit.
-
-Install it in Kolibri in development mode:
-
-    pip install -e [local_path_to_perseus_repo]
-
-For more information see:
-https://kolibri-dev.readthedocs.io/en/develop/i18n.html#updating-the-perseus-plugin
-"""
-
-
-PERSEUS_CSV_NOT_AVAILABLE = """
-You must manually generate Perseus CSV files in order to upload them.
-Change to the installed Perseus directory and run:
-
-    yarn run makemessages
-"""
-
-"""
-Gather needed environment variables
-"""
-
-CROWDIN_PROJECT = os.getenv(
-    "CROWDIN_PROJECT", "kolibri"
-)  # crowdin project name - default to "kolibri"
-CROWDIN_LOGIN = os.getenv("CROWDIN_LOGIN", None)
-
-# We need the login to interact with the API at all
-if not CROWDIN_LOGIN:
-    logging.error(
-        "\nPlease set the `CROWDIN_LOGIN` environment variable to your Crowdin username.\n"
-    )
-    sys.exit(1)
-
-
-def checkPerseus():
-    if CROWDIN_PROJECT != "kolibri":
-        return
-
-    print("THE PROJECT IS {}".format(CROWDIN_PROJECT))
-
-    if not utils.PERSEUS_LOCALE_PATH or not (os.path.exists(utils.PERSEUS_LOCALE_PATH)):
-        logging.error("Cannot find Perseus locale directory.")
-        logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
-        sys.exit(1)
-    elif "/site-packages/" in utils.PERSEUS_LOCALE_PATH:
-        logging.warning("It appears that Perseus is not installed for development.")
-        logging.info(PERSEUS_NOT_INSTALLED_FOR_DEV)
-        click.confirm("Continue anyway?", abort=True)
-
-    if not (os.path.exists(os.path.join(utils.PERSEUS_SOURCE_PATH, PERSEUS_CSV))):
-        logging.warning("Perseus strings are not available as CSVs")
-        logging.info(PERSEUS_CSV_NOT_AVAILABLE)
-        click.confirm("Continue anyway?", abort=True)
+    def __init__(self, *args, **kwargs):
+        kwargs["params"] = [project_option, login_option, key_option] + (
+            kwargs["params"] if "params" in kwargs else []
+        )
+        context_settings = kwargs.get("context_settings", {})
+        default_map = context_settings.get("default_map", {})
+        default_map.update(utils.read_config_file())
+        context_settings["default_map"] = default_map
+        kwargs["context_settings"] = context_settings
+        super(CrowdinCommand, self).__init__(*args, **kwargs)
 
 
 """
 Shared constants and helpers
 """
-
-
-CROWDIN_API_KEY = os.environ["CROWDIN_API_KEY"]
 CROWDIN_API_URL = "https://api.crowdin.com/api/project/{proj}/{cmd}?account-key={key}&login={username}{params}"
 
-PERSEUS_CSV = "kolibri_exercise_perseus_plugin.main-messages.csv"
-DJANGO_PO = "django.po"
 GLOSSARY_XML_FILE = "glossary.tbx"
 
-DETAILS_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="info",
-    params="&json",
-)
 
-
-def get_crowdin_details():
-    r = requests.get(DETAILS_URL)
+def get_crowdin_details(project, key, login):
+    details_url = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        username=login,
+        cmd="info",
+        params="&json",
+    )
+    r = requests.get(details_url)
     r.raise_for_status()
     return r.json()
 
@@ -150,25 +137,22 @@ def is_string_file(file_name):
 Rebuild
 """
 
-REBUILD_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="export",
-    params="&branch={branch}&json",
-)
 
-
-@click.command()
-@click.argument("branch")
-def rebuild_translations(branch):
+@click.command(cls=CrowdinCommand)
+@branch_argument
+def rebuild_translations(branch, project, key, login):
     """
     Rebuild the given branch
     """
-    checkApiKey()
-
     logging.info("Crowdin: rebuilding '{}'. This could take a while...".format(branch))
-    r = requests.get(REBUILD_URL.format(branch=branch))
+    rebuild_url = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        username=login,
+        cmd="export",
+        params="&branch={branch}&json".format(branch=branch),
+    )
+    r = requests.get(rebuild_url)
     r.raise_for_status()
     if r.json()["success"]["status"] == "skipped":
         logging.info("Crowdin: rebuild skipped. Can only be run once every 30 min.")
@@ -182,36 +166,24 @@ def rebuild_translations(branch):
 Pre-translate command
 """
 
+
 # pre-translate all strings matches, and auto-approve only those with exact ID matches
-PRETRANSLATE_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    cmd="pre-translate",
-    username=CROWDIN_LOGIN,
-    # perfect_match=0 - apply TM to all identical strings, regardless of ID
-    # apply_untranslated_strings_only=1 - don't apply TM to strings that already have translations
-    # approve_translated=1 - auto-approve
-    params="&method=tm&approve_translated=1&auto_approve_option={approve_option}&json&apply_untranslated_strings_only=1&perfect_match=0",
-)
-
-
-@click.command()
+@click.command(cls=CrowdinCommand)
+@branch_argument
 @click.option(
     "--approve-all",
     is_flag=True,
     default=False,
     help="Automatically approve all string matches (default False)",
 )
-@click.argument("branch")
-def pretranslate(branch, approve_all=False):
+def pretranslate(branch, project, key, login, approve_all=False):
     """
     Apply pre-translation to the given branch
     """
-    checkApiKey()
-
     params = []
     files = [
-        "{}/{}".format(branch, f) for f in crowdin_files(branch, get_crowdin_details())
+        "{}/{}".format(branch, f)
+        for f in crowdin_files(branch, get_crowdin_details(project, key, login))
     ]
     params.extend([("files[]", file) for file in files])
     codes = [lang[utils.KEY_CROWDIN_CODE] for lang in utils.available_languages()]
@@ -226,9 +198,20 @@ def pretranslate(branch, approve_all=False):
     msg += "\n\tYou should see the results on Crowdin eventually..."
     logging.info(msg.format(branch))
 
-    r = requests.post(
-        PRETRANSLATE_URL.format(approve_option=0 if approve_all else 1), params=params
+    pretranslate_url = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        cmd="pre-translate",
+        username=login,
+        # perfect_match=0 - apply TM to all identical strings, regardless of ID
+        # apply_untranslated_strings_only=1 - don't apply TM to strings that already have translations
+        # approve_translated=1 - auto-approve
+        params="&method=tm&approve_translated=1&auto_approve_option={approve_option}&json&apply_untranslated_strings_only=1&perfect_match=0".format(
+            approve_option=0 if approve_all else 1
+        ),
     )
+
+    r = requests.post(pretranslate_url, params=params)
     r.raise_for_status()
     logging.info("Crowdin: succeeded!")
 
@@ -237,27 +220,16 @@ def pretranslate(branch, approve_all=False):
 Upload translations
 """
 
-UPLOAD_TRANSLATION_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="upload-translation",
-    params="&branch={branch}&language={language}&auto_approve_imported=1&import_duplicates=1&json",
-)
 
-
-def _translation_upload_ref(file_name, lang_object):
-    if file_name == PERSEUS_CSV:  # hack for perseus, assumes the same file name
-        source_path = utils.local_perseus_locale_path(lang_object)
-    else:
-        source_path = utils.local_locale_path(lang_object)
+def _translation_upload_ref(file_name, lang_object, locale_data_folder):
+    source_path = utils.local_locale_path(lang_object, locale_data_folder)
     file_pointer = open(os.path.join(source_path, file_name), "rb")
     return ("files[{0}]".format(file_name), file_pointer)
 
 
-def _upload_translation(branch, lang_object):
+def _upload_translation(branch, project, key, login, lang_object, locale_data_folder):
 
-    if no_crowdin_branch(branch, get_crowdin_details()):
+    if no_crowdin_branch(branch, get_crowdin_details(project, key, login)):
         logging.error("Branch '{}' not found.".format(branch))
         sys.exit(1)
 
@@ -266,218 +238,92 @@ def _upload_translation(branch, lang_object):
             lang_object[utils.KEY_CROWDIN_CODE], branch
         )
     )
-
-    url = UPLOAD_TRANSLATION_URL.format(
-        branch=branch, language=lang_object[utils.KEY_CROWDIN_CODE]
+    url = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        username=login,
+        cmd="upload-translation",
+        params="&branch={branch}&language={language}&auto_approve_imported=1&import_duplicates=1&json".format(
+            branch=branch, language=lang_object[utils.KEY_CROWDIN_CODE]
+        ),
     )
 
     file_names = []
-    for name in os.listdir(utils.local_locale_path(lang_object)):
-        if is_string_file(name):
-            file_names.append(name)
-    for name in os.listdir(utils.local_perseus_locale_path(lang_object)):
+    for name in os.listdir(utils.local_locale_path(lang_object, locale_data_folder)):
         if is_string_file(name):
             file_names.append(name)
 
     for chunk in _chunks(file_names):
-        references = [_translation_upload_ref(f, lang_object) for f in chunk]
+        references = [
+            _translation_upload_ref(f, lang_object, locale_data_folder) for f in chunk
+        ]
         r = requests.post(url, files=references)
         r.raise_for_status()
         for ref in references:
             ref[1].close()
 
-    logging.info("Crowdin: upload succeeded!")
+    logging.info("Crowdin: translation upload succeeded!")
 
 
-@click.command()
-@click.argument("branch")
-def upload_translations(branch):
+@click.command(cls=CrowdinCommand)
+@branch_argument
+@locale_data_folder_option
+def upload_translations(branch, project, key, login, locale_data_folder):
     """
     Upload translations to the given branch
     """
-    checkPerseus()
-    checkApiKey()
-
     available_languages = utils.available_languages(
         include_in_context=False, include_english=False
     )
     for lang_object in available_languages:
-        _upload_translation(branch, lang_object)
-
-
-"""
-Convert CSV to JSON command
-"""
-
-
-def _process_downloaded_files():  # noqa: C901
-    """
-    Convert all CSV json files to JSON and ensure consistent diffs with ordered keys.
-    Also copy over django.po files
-    """
-
-    for lang_object in utils.available_languages(include_in_context=True):
-        locale_path = utils.local_locale_path(lang_object)
-
-        csv_locale_dir_path = os.path.join(
-            utils.local_locale_csv_path(), lang_object["crowdin_code"]
+        _upload_translation(
+            branch, project, key, login, lang_object, locale_data_folder
         )
-        if not os.path.exists(csv_locale_dir_path):
-            os.makedirs(csv_locale_dir_path)
-
-        if utils.local_perseus_locale_path:
-            perseus_path = utils.local_perseus_locale_path(lang_object)
-
-            perseus_locale_dir_path = os.path.join(
-                utils.local_perseus_locale_csv_path(), lang_object["crowdin_code"]
-            )
-
-            # Make sure that the Perseus directory for CSV_FILES/{lang_code} exists
-            if not os.path.exists(perseus_locale_dir_path):
-                os.makedirs(perseus_locale_dir_path)
-
-        try:
-            files = os.listdir(csv_locale_dir_path)
-
-            if utils.PERSEUS_LOCALE_PATH:
-                files += os.listdir(perseus_locale_dir_path) or []
-
-        except Exception as e:
-            print(e)
-            next
-
-        for file_name in files:
-            if file_name == PERSEUS_CSV:
-                file_path = os.path.join(perseus_locale_dir_path, file_name)
-            else:
-                file_path = os.path.join(csv_locale_dir_path, file_name)
-
-            if file_name == DJANGO_PO:
-                shutil.move(file_path, locale_path)
-                continue
-
-            if "csv" not in file_name:
-                continue
-
-            # Account for csv reading differences in Pythons 2 and 3
-            try:
-                newline = None if sys.version_info[0] < 3 else ""
-                mode = "r+b" if sys.version_info[0] < 3 else "r"
-                encoding = None if sys.version_info[0] < 3 else "utf-8"
-                csv_file = io.open(
-                    file_path, mode=mode, encoding=encoding, newline=newline
-                )
-            except EnvironmentError:
-                logging.info("Failed to find CSV file in: {}".format(file_path))
-                continue
-
-            with csv_file as f:
-                csv_data = list(row for row in csv.DictReader(f))
-
-            data = _locale_data_from_csv(csv_data)
-
-            if file_name == PERSEUS_CSV:
-                utils.json_dump_formatted(
-                    data, perseus_path, file_name.replace("csv", "json")
-                )
-            else:
-                utils.json_dump_formatted(
-                    data, locale_path, file_name.replace("csv", "json")
-                )
-
-
-def _locale_data_from_csv(file_data):
-    json = dict()
-
-    for row in file_data:
-        if len(row.keys()) == 0:
-            return json
-        # First index is Identifier, Third index is the translation
-        json[row["Identifier"]] = row["Translation"]
-
-    return json
-
-
-@click.command()
-def convert_files():
-    """
-    Convert downloaded CSV files to JSON
-    """
-    _process_downloaded_files()
-    logging.info("Kolibri: CSV to JSON conversion succeeded!")
 
 
 """
 Download translations
 """
 
-DOWNLOAD_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="download/all.zip",
-    params="&branch={branch}",
-)
 
-
-def _wipe_translations(locale_path):
-    for file_name in os.listdir(locale_path):
-        target = os.path.join(locale_path, file_name)
-        if file_name != "en" and os.path.isdir(target):
-            shutil.rmtree(target)
-
-
-@click.command()
-@click.argument("branch")
-def download_translations(branch):
+@click.command(cls=CrowdinCommand)
+@branch_argument
+@locale_data_folder_option
+def download_translations(branch, project, key, login, locale_data_folder):
     """
     Download translations from the given branch
     """
-    checkPerseus()
-    checkApiKey()
-
     logging.info("Crowdin: downloading '{}'...".format(branch))
 
-    # delete previous files
-    _wipe_translations(utils.LOCALE_PATH)
+    DOWNLOAD_URL = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        username=login,
+        cmd="download/all.zip",
+        params="&branch={branch}".format(branch=branch),
+    )
 
-    if utils.PERSEUS_LOCALE_PATH:
-        _wipe_translations(utils.PERSEUS_LOCALE_PATH)
+    zip_dir = tempfile.mkdtemp()
+
+    r = requests.get(DOWNLOAD_URL)
+    r.raise_for_status()
+    z = zipfile.ZipFile(io.BytesIO(r.content))
+    z.extractall(zip_dir)
 
     for lang_object in utils.available_languages(include_in_context=True):
         code = lang_object[utils.KEY_CROWDIN_CODE]
-        url = DOWNLOAD_URL.format(language=code, branch=branch)
-        r = requests.get(url)
-        r.raise_for_status()
-        z = zipfile.ZipFile(io.BytesIO(r.content))
-        target = utils.local_locale_csv_path()
-        logging.info("\tExtracting {} to {}".format(code, target))
-        z.extractall(target)
-
-        if utils.PERSEUS_LOCALE_PATH:
-            # hack for perseus
-            perseus_target = os.path.join(
-                utils.local_perseus_locale_csv_path(), lang_object["crowdin_code"]
-            )
-
-            # TODO - Update this to work with perseus properly - likely to need to update
-            # the kolibri-exercise-perseus-plugin repo directly to produce a CSV for its
-            # translations.
-
-            if not os.path.exists(perseus_target):
-                os.makedirs(perseus_target)
-
-            try:
+        locale_dir_path = utils.local_locale_path(lang_object, locale_data_folder)
+        logging.info("\tExtracting {} to {}".format(code, locale_dir_path))
+        MESSAGES = os.path.join(zip_dir, code)
+        if os.path.exists(MESSAGES):
+            for msg_file in os.listdir(MESSAGES):
                 shutil.move(
-                    os.path.join(target, lang_object["crowdin_code"], PERSEUS_CSV),
-                    os.path.join(perseus_target, PERSEUS_CSV),
+                    os.path.join(MESSAGES, msg_file),
+                    os.path.join(locale_dir_path, msg_file),
                 )
-            except Exception as e:
-                logging.error("Ignoring an exception")
-                logging.error(e)
 
-    # TODO Don't need to format here... going to do this in the new command.
-    _process_downloaded_files()  # clean them up to make git diffs more meaningful
+    shutil.rmtree(zip_dir, ignore_errors=True)
+
     logging.info("Crowdin: download succeeded!")
 
 
@@ -485,33 +331,22 @@ def download_translations(branch):
 Glossary commands
 """
 
-DOWNLOAD_GLOSSARY_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="download-glossary",
-    params="",
-)
 
-UPLOAD_GLOSSARY_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="upload-glossary",
-    params="",
-)
-
-GLOSSARY_FILE = os.path.join(utils.LOCALE_PATH, GLOSSARY_XML_FILE)
-
-
-@click.command()
-def download_glossary():
+@click.command(cls=CrowdinCommand)
+@locale_data_folder_option
+def download_glossary(project, key, login, locale_data_folder):
     """
     Download glossary file
     """
-    checkApiKey()
-
+    GLOSSARY_FILE = os.path.join(locale_data_folder, GLOSSARY_XML_FILE)
     logging.info("Crowdin: downloading glossary...")
+    DOWNLOAD_GLOSSARY_URL = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        username=login,
+        cmd="download-glossary",
+        params="",
+    )
     r = requests.get(DOWNLOAD_GLOSSARY_URL)
     r.raise_for_status()
     with io.open(GLOSSARY_FILE, mode="w", encoding="utf-8") as f:
@@ -519,54 +354,37 @@ def download_glossary():
     logging.info("Crowdin: download succeeded!")
 
 
-@click.command()
-def upload_glossary():
+@click.command(cls=CrowdinCommand)
+@locale_data_folder_option
+def upload_glossary(project, key, login, locale_data_folder):
     """
     Upload glossary file
     """
-    checkApiKey()
-
     logging.info("Crowdin: uploading glossary...")
+    UPLOAD_GLOSSARY_URL = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        username=login,
+        cmd="upload-glossary",
+        params="",
+    )
+    GLOSSARY_FILE = os.path.join(locale_data_folder, GLOSSARY_XML_FILE)
     files = {"file": open(GLOSSARY_FILE, "rb")}
     r = requests.post(UPLOAD_GLOSSARY_URL, files=files)
     r.raise_for_status()
-    logging.info("Crowdin: upload succeeded!")
+    logging.info("Crowdin: glossary upload succeeded!")
 
 
 """
 Upload source files
 """
 
-ADD_BRANCH_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="add-directory",
-    params="&name={branch}&is_branch=1&json",
-)
-ADD_SOURCE_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="add-file",
-    params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0",
-)
-UPDATE_SOURCE_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="update-file",
-    params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0",
-)
 
-
-def _source_upload_ref(file_name):
-    if file_name == PERSEUS_CSV:  # hack for perseus, assumes the same file name
-        file_pointer = open(os.path.join(utils.PERSEUS_SOURCE_PATH, file_name), "rb")
-    else:
-        file_pointer = open(
-            os.path.join(utils.local_locale_csv_source_path(), file_name), "rb"
-        )
+def _source_upload_ref(file_name, locale_data_folder):
+    file_pointer = open(
+        os.path.join(utils.local_locale_source_path(locale_data_folder), file_name),
+        "rb",
+    )
     return ("files[{0}]".format(file_name), file_pointer)
 
 
@@ -578,43 +396,46 @@ def _chunks(files):
         yield files[i : i + MAX_FILES]
 
 
-def _modify(url, file_names):
+def _modify(url, file_names, locale_data_folder):
     # split into multiple requests
     logging.info("Uploading {}".format(url))
     for chunk in _chunks(file_names):
         # generate the weird syntax and data structure required by crowdin + requests
-        references = [_source_upload_ref(file_name) for file_name in chunk]
+        references = [
+            _source_upload_ref(file_name, locale_data_folder) for file_name in chunk
+        ]
         r = requests.post(url, files=references)
         r.raise_for_status()
         for ref in references:
             ref[1].close()
 
 
-@click.command()
-@click.argument("branch")
-def upload_sources(branch):
+@click.command(cls=CrowdinCommand)
+@branch_argument
+@locale_data_folder_option
+def upload_sources(branch, project, key, login, locale_data_folder):
     """
     Upload English source files to the given branch
     """
-    checkPerseus()
-    checkApiKey()
-
     logging.info("Crowdin: uploading sources for '{}'...".format(branch))
-    details = get_crowdin_details()
+    details = get_crowdin_details(project, key, login)
     if no_crowdin_branch(branch, details):
         logging.info("\tcreating branch '{}'...".format(branch))
-        r = requests.post(ADD_BRANCH_URL.format(branch=branch))
+        ADD_BRANCH_URL = CROWDIN_API_URL.format(
+            proj=project,
+            key=key,
+            username=login,
+            cmd="add-directory",
+            params="&name={branch}&is_branch=1&json".format(branch=branch),
+        )
+        r = requests.post(ADD_BRANCH_URL)
         r.raise_for_status()
 
     source_files = set(
         file_name
-        for file_name in os.listdir(utils.local_locale_csv_source_path())
+        for file_name in os.listdir(utils.local_locale_source_path(locale_data_folder))
         if is_string_file(file_name)
     )
-
-    # hack for perseus
-    if utils.PERSEUS_LOCALE_PATH and utils.PERSEUS_SOURCE_PATH:
-        source_files.add(PERSEUS_CSV)
 
     current_files = crowdin_files(branch, details)
     to_add = source_files.difference(current_files)
@@ -622,12 +443,30 @@ def upload_sources(branch):
 
     if to_add:
         logging.info("\tAdd in '{}': {}".format(branch, ", ".join(to_add)))
-        _modify(ADD_SOURCE_URL.format(branch=branch), to_add)
+        ADD_SOURCE_URL = CROWDIN_API_URL.format(
+            proj=project,
+            key=key,
+            username=login,
+            cmd="add-file",
+            params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0".format(
+                branch=branch
+            ),
+        )
+        _modify(ADD_SOURCE_URL, to_add, locale_data_folder)
     if to_update:
         logging.info("\tUpdate in '{}': {}".format(branch, ", ".join(to_update)))
-        _modify(UPDATE_SOURCE_URL.format(branch=branch), to_update)
+        UPDATE_SOURCE_URL = CROWDIN_API_URL.format(
+            proj=project,
+            key=key,
+            username=login,
+            cmd="update-file",
+            params="&branch={branch}&scheme=identifier,source_phrase,context,translation&json&first_line_contains_header&import_translations=0".format(
+                branch=branch
+            ),
+        )
+        _modify(UPDATE_SOURCE_URL, to_update)
 
-    logging.info("Crowdin: upload succeeded!")
+    logging.info("Crowdin: source file upload succeeded!")
 
 
 """
@@ -655,23 +494,13 @@ Branch: {branch}
 =================================================================
 """
 
-LANG_STATUS_URL = CROWDIN_API_URL.format(
-    proj=CROWDIN_PROJECT,
-    key=CROWDIN_API_KEY,
-    username=CROWDIN_LOGIN,
-    cmd="language-status",
-    params="&language={language}&json",
-)
 
-
-@click.command()
-@click.argument("branch")
-def translation_stats(branch):
+@click.command(cls=CrowdinCommand)
+@branch_argument
+def translation_stats(branch, project, key, login):
     """
     Print stats for the given branch
     """
-    checkApiKey()
-
     logging.info("Crowdin: getting details for '{}'...".format(branch))
 
     def _is_branch_node(node):
@@ -685,6 +514,15 @@ def translation_stats(branch):
     sorted_languages = sorted(
         utils.available_languages(), key=lambda x: x[utils.KEY_ENG_NAME]
     )
+
+    LANG_STATUS_URL = CROWDIN_API_URL.format(
+        proj=project,
+        key=key,
+        username=login,
+        cmd="language-status",
+        params="&language={language}&json",
+    )
+
     for lang in sorted_languages:
 
         logging.info("Retrieving stats for {}...".format(lang[utils.KEY_ENG_NAME]))
@@ -765,7 +603,6 @@ def main():
     """
 
 
-main.add_command(convert_files)
 main.add_command(download_translations)
 main.add_command(pretranslate)
 main.add_command(rebuild_translations)

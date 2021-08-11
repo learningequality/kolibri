@@ -1008,7 +1008,13 @@ class FacilityTaskHelperTestCase(TestCase):
         )
 
         get_client_and_server_certs.assert_called_with(
-            "tester", "mypassword", dataset_id, network_connection, noninteractive=True
+            "tester",
+            "mypassword",
+            dataset_id,
+            network_connection,
+            user_id=None,
+            facility_id=123,
+            noninteractive=True,
         )
 
     def test_validate_peer_sync_job__no_baseurl(self):

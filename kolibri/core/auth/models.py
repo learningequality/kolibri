@@ -171,7 +171,7 @@ class FacilityDataset(FacilityDataSyncableModel):
         if self.learner_can_login_with_no_password and self.learner_can_edit_password:
             raise IncompatibleDeviceSettingError(
                 "Device Settings [learner_can_login_with_no_password={}] & [learner_can_edit_password={}] "
-                "values incompatible togeather.".format(
+                "values incompatible together.".format(
                     self.learner_can_login_with_no_password,
                     self.learner_can_edit_password,
                 )
@@ -1511,6 +1511,15 @@ class AdHocGroup(Collection):
 
     class Meta:
         proxy = True
+
+    @classmethod
+    def deserialize(cls, dict_model):
+        # be defensive against blank names, set to `Ad hoc` if blank
+        name = dict_model.get("name", "") or ""
+        if len(name) == 0:
+            dict_model.update(name="Ad hoc")
+
+        return super(AdHocGroup, cls).deserialize(dict_model)
 
     def save(self, *args, **kwargs):
         if not self.parent:

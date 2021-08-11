@@ -66,11 +66,27 @@
       },
     },
     $trs: {
-      one: 'Get one question correct',
+      one: {
+        message: 'Get one question correct',
+        context:
+          'In order for exercises to be considered completed or "mastered", learners must complete the required number of correct answers.\n\nIn this option the learner must get just one question correct.',
+      },
       // TODO(i18n) add pluralized versions of 'streak', and 'mofN'
-      streak: 'Get {count, number, integer} questions in a row correct',
-      mOfN: 'Get {M, number, integer} of the last {N, number, integer} questions correct',
-      doAll: 'Get every question correct',
+      streak: {
+        message: 'Get {count, number, integer} questions in a row correct',
+        context:
+          'In order for exercises to be considered completed or "mastered", learners must complete the required number of correct answers.\n\nIn this option the learner must get a specific number of questions correct in a row.',
+      },
+      mOfN: {
+        message: 'Get {M, number, integer} of the last {N, number, integer} questions correct',
+        context:
+          'In order for exercises to be considered completed or "mastered", learners must complete the required number of correct answers.\n\nIn this option the learner must get a specific number of questions correct from the last set of questions.',
+      },
+      doAll: {
+        message: 'Get every question correct',
+        context:
+          'In order for exercises to be considered completed or "mastered", learners must complete the required number of correct answers.\n\nIn this option the learner must get all questions correct.',
+      },
       unknown: {
         message: 'Unknown mastery model',
         context:

@@ -158,18 +158,59 @@
       },
     },
     $trs: {
-      audio: 'Audio',
-      channelFilterLabel: 'Channel:',
-      contentKindFilterLabel: 'Type:',
-      documents: 'Documents',
-      exercises: 'Exercises',
-      html5: 'Apps',
-      coachResourcesLabel: 'Coach resources:',
-      topics: 'Topics',
-      videos: 'Videos',
-      hideAction: 'Hide',
-      searchResultsMessage: `Results for '{searchTerm}'`,
-      noSearchResultsMessage: `No results for '{searchTerm}'`,
+      audio: {
+        message: 'Audio',
+        context:
+          "A type of file that users can search for using the filter in the 'Manage lessons resources' screen.",
+      },
+      channelFilterLabel: {
+        message: 'Channel:',
+        context:
+          'Refers to an option in the search filter where users can search by different resource channel types.',
+      },
+      contentKindFilterLabel: {
+        message: 'Type:',
+        context:
+          'Title of a search filter. Refers to the type of resource material, for example, documents, videos, audio etc.',
+      },
+      documents: {
+        message: 'Documents',
+        context: 'Type of resource material.',
+      },
+      exercises: {
+        message: 'Exercises',
+        context: 'Type of resource material.',
+      },
+      html5: {
+        message: 'Apps',
+        context: 'Type of resource material.',
+      },
+      coachResourcesLabel: {
+        message: 'Coach resources:',
+        context:
+          "Title of search filter. Users have the option to either 'Show' or 'Hide' coach resources in a search.\n\nCoach resources can be lesson plans, professional development readings, training materials, etc. only viewable by coaches and not learners.",
+      },
+      topics: {
+        message: 'Topics',
+        context: 'Type of resource material.',
+      },
+      videos: {
+        message: 'Videos',
+        context: 'Type of resource material.',
+      },
+      hideAction: {
+        message: 'Hide',
+        context:
+          "Users have the option to either 'Show' or 'Hide' coach resources.\n\nCoach resources can be lesson plans, professional development readings, training materials, etc. only viewable by coaches and not learners.",
+      },
+      searchResultsMessage: {
+        message: `Results for '{searchTerm}'`,
+        context: 'Indicates the results for a specific search term.',
+      },
+      noSearchResultsMessage: {
+        message: `No results for '{searchTerm}'`,
+        context: 'Message displayed if no results match the search term used.',
+      },
     },
   };
 

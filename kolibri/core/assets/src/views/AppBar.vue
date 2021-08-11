@@ -82,6 +82,15 @@
                   :userType="getUserKind"
                 />
               </div>
+              <div v-if="getUserKind === 'learner'">
+                <div class="sync-status">
+                  {{ $tr('deviceStatus') }}
+                </div>
+                <SyncStatusDisplay
+                  :syncStatus="mapSyncStatusOptionToLearner"
+                  displaySize="large"
+                />
+              </div>
             </template>
 
             <template #options>
@@ -110,7 +119,7 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapGetters, mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
@@ -119,11 +128,12 @@
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import UiButton from 'kolibri-design-system/lib/keen/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
-  import { NavComponentSections } from 'kolibri.coreVue.vuex.constants';
+  import { NavComponentSections, SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import branding from 'kolibri.utils.branding';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
   import SkipNavigationLink from './SkipNavigationLink';
+  import SyncStatusDisplay from './SyncStatusDisplay';
 
   const hashedValuePattern = /^[a-f0-9]{30}$/;
 
@@ -138,6 +148,7 @@
       LogoutSideNavEntry,
       UserTypeDisplay,
       SkipNavigationLink,
+      SyncStatusDisplay,
     },
     mixins: [commonCoreStrings, navComponentsMixin],
     props: {
@@ -153,6 +164,10 @@
     data() {
       return {
         userMenuDropdownIsOpen: false,
+        userSyncStatus: null,
+        isPolling: false,
+        // poll every 10 seconds
+        pollingInterval: 10000,
       };
     },
     computed: {
@@ -160,6 +175,7 @@
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
+        userId: state => state.core.session.user_id,
       }),
       menuOptions() {
         return navComponents
@@ -170,15 +186,39 @@
       dropdownName() {
         return !hashedValuePattern.test(this.username) ? this.username : this.fullName;
       },
+      mapSyncStatusOptionToLearner() {
+        if (this.userSyncStatus) {
+          return this.userSyncStatus.status;
+        }
+        return SyncStatus.NOT_CONNECTED;
+      },
     },
     created() {
       window.addEventListener('click', this.handleWindowClick);
       this.$kolibriBranding = branding;
     },
+    mounted() {
+      this.isUserLoggedIn ? (this.isPolling = true) : null;
+      this.pollUserSyncStatusTask(this.userId);
+    },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
+      this.isPolling = false;
     },
     methods: {
+      ...mapActions(['fetchUserSyncStatus']),
+      pollUserSyncStatusTask() {
+        this.fetchUserSyncStatus({ user: this.userId }).then(syncData => {
+          if (syncData && syncData[0]) {
+            this.userSyncStatus = syncData[0];
+          }
+        });
+        if (this.isPolling) {
+          setTimeout(() => {
+            this.pollUserSyncStatusTask();
+          }, this.pollingInterval);
+        }
+      },
       handleUserMenuButtonClick(event) {
         this.userMenuDropdownIsOpen = !this.userMenuDropdownIsOpen;
         if (this.userMenuDropdownIsOpen) {
@@ -210,9 +250,22 @@
       },
     },
     $trs: {
-      openNav: 'Open site navigation',
-      languageSwitchMenuOption: 'Change language',
-      userMenu: 'User menu',
+      openNav: {
+        message: 'Open site navigation',
+        context:
+          "This message is providing additional context to the screen-reader users, but is not visible in the Kolibri UI.\n\nIn this case the screen-reader will announce the message when user navigates to the 'hamburger' button with the keyboard, to indicate that it allows them to open the sidebar navigation menu.",
+      },
+      languageSwitchMenuOption: {
+        message: 'Change language',
+        context:
+          'General user setting where a user can choose the language they want to view the Kolibri interface in.',
+      },
+      userMenu: {
+        message: 'User menu',
+        context:
+          'The user menu is located in the upper right corner of the interface. \n\nUsers can use it to adjust their settings like the language used in Kolibri or their name.',
+      },
+      deviceStatus: 'Device status',
     },
   };
 
@@ -279,6 +332,13 @@
   }
 
   .role {
+    margin-bottom: 8px;
+    font-size: small;
+    font-weight: bold;
+  }
+
+  .sync-status {
+    margin-top: 16px;
     margin-bottom: 8px;
     font-size: small;
     font-weight: bold;

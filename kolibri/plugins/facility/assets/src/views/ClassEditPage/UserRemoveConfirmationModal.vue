@@ -33,9 +33,19 @@
       },
     },
     $trs: {
-      modalTitle: 'Remove user',
-      confirmation: "Are you sure you want to remove '{ username }' from '{ classname }'?",
-      description: "You can still access this account from the 'Users' tab.",
+      modalTitle: {
+        message: 'Remove user',
+        context:
+          'Option to remove a user from a class. This does not delete them from the facility entirely.',
+      },
+      confirmation: {
+        message: "Are you sure you want to remove '{ username }' from '{ classname }'?",
+        context: 'Confirmation of delete user.',
+      },
+      description: {
+        message: "You can still access this account from the 'Users' tab.",
+        context: 'Information displayed when removing a user from a class.',
+      },
     },
   };
 

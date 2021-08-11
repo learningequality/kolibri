@@ -24,10 +24,26 @@
     name: 'ConfirmResetModal',
     mixins: [commonCoreStrings],
     $trs: {
-      confirmationQuestion: 'Are you sure you want to reset your settings?',
-      reconfirmation: 'Any custom changes will be lost.',
-      reset: 'Reset',
-      title: 'Reset to defaults',
+      confirmationQuestion: {
+        message: 'Are you sure you want to reset your settings?',
+        context:
+          "Confirmation message on the 'Reset to defaults' window accessed via the Facility > Settings page.",
+      },
+      reconfirmation: {
+        message: 'Any custom changes will be lost.',
+        context:
+          "Description on the 'Reset to defaults' window accessed via the Facility > Settings page.",
+      },
+      reset: {
+        message: 'Reset',
+        context:
+          "Button on the the 'Reset to defaults' window accessed via the Facility > Settings page.\n\nUsers would use this button to reset the Facility settings to default.",
+      },
+      title: {
+        message: 'Reset to defaults',
+        context:
+          "Title of the 'Reset to defaults' window accessed via the Facility > Settings page.\n",
+      },
     },
   };
 

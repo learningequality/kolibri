@@ -63,7 +63,11 @@
       },
     },
     $trs: {
-      copyQuizAction: 'Copy quiz',
+      copyQuizAction: {
+        message: 'Copy quiz',
+        context:
+          'Coaches can copy a quiz to a different group, another class or individual learners.',
+      },
     },
   };
 

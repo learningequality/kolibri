@@ -154,6 +154,7 @@ class Command(AsyncCommand):
                 dataset_id,
                 network_connection,
                 user_id=user_id,
+                facility_id=facility_id,
                 noninteractive=noninteractive,
             )
 
@@ -212,6 +213,7 @@ class Command(AsyncCommand):
                 password,
                 dataset_id,
                 network_connection,
+                facility_id=facility_id,
                 noninteractive=noninteractive,
             )
 

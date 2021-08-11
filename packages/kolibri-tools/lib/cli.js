@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-
+const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const program = require('commander');
 const checkVersion = require('check-node-version');
+const ini = require('ini');
+const get = require('lodash/get');
 const version = require('../package.json');
 const logger = require('./logging');
 
@@ -14,6 +16,12 @@ const cliLogging = logger.getLogger('Kolibri CLI');
 function list(val) {
   return val.split(',');
 }
+
+function filePath(val) {
+  return path.resolve(process.cwd(), val);
+}
+
+const config = ini.parse(fs.readFileSync(path.join(process.cwd(), './setup.cfg'), 'utf-8'));
 
 program.version(version).description('Tools for Kolibri frontend plugins');
 
@@ -86,7 +94,6 @@ program
     const modes = {
       DEV: 'dev',
       PROD: 'prod',
-      I18N: 'i18n',
       CLEAN: 'clean',
       STATS: 'stats',
     };
@@ -99,9 +106,6 @@ program
       p: modes.PROD,
       prod: modes.PROD,
       production: modes.PROD,
-      i: modes.I18N,
-      i18n: modes.I18N,
-      internationalization: modes.I18N,
       s: modes.STATS,
       stats: modes.STATS,
     };
@@ -141,7 +145,6 @@ program
     const buildModule = {
       [modes.PROD]: 'production.js',
       [modes.DEV]: 'webpackdevserver.js',
-      [modes.I18N]: 'i18n/index.js',
       [modes.STATS]: 'bundleStats.js',
       [modes.CLEAN]: 'clean.js',
     }[mode];
@@ -239,6 +242,8 @@ program
     }
   });
 
+const ignoreDefaults = ['**/node_modules/**', '**/static/**'];
+
 // Lint
 program
   .command('lint')
@@ -247,7 +252,12 @@ program
   .option('-w, --write', 'Write autofixes to file', false)
   .option('-e, --encoding <string>', 'Text encoding of file', 'utf-8')
   .option('-m, --monitor', 'Monitor files and check on change', false)
-  .option('-i, --ignore <patterns...>', 'Ignore these comma separated patterns', list, [])
+  .option(
+    '-i, --ignore <patterns...>',
+    'Ignore these comma separated patterns',
+    list,
+    ignoreDefaults
+  )
   .option('-p, --pattern <string>', 'Lint only files that match this comma separated pattern', null)
   .action(function(args, options) {
     const files = [];
@@ -349,14 +359,14 @@ program
     require('jest-cli/build/cli').run();
   });
 
-// Test
+// Compress
 program
   .command('compress')
   .arguments('[files...]', 'List of custom file globs or file names to compress')
   .allowUnknownOption()
   .action(function(files) {
     if (!files.length) {
-      program.help();
+      program.command('compress').help();
     } else {
       const glob = require('glob');
       const compressFile = require('./compress');
@@ -369,29 +379,414 @@ program
     }
   });
 
-// Check engines, then process args
-const engines = require(path.resolve(__dirname, '../../../package.json')).engines;
-checkVersion(engines, (err, results) => {
-  if (err) {
-    cliLogging.break();
-    cliLogging.error(err);
-    process.exit(1);
-  }
+const localeDataFolderDefault = filePath(get(config, ['kolibri:i18n', 'locale_data_folder']));
 
-  if (results.isSatisfied) {
-    program.parse(process.argv);
-    return;
-  }
+// Path to the kolibri locale language_info file, which we use if we are running
+// from inside the Kolibri repository.
+const _kolibriLangInfoPath = path.join(__dirname, '../../../kolibri/locale/language_info.json');
 
-  for (const packageName of Object.keys(results.versions)) {
-    if (!results.versions[packageName].isSatisfied) {
-      let required = engines[packageName];
-      cliLogging.break();
-      cliLogging.error(`Incorrect version of ${packageName}.`);
-      cliLogging.error(`${packageName} ${required} is required.`);
+const langInfoDefault = fs.existsSync(_kolibriLangInfoPath)
+  ? _kolibriLangInfoPath
+  : path.join(__dirname, './i18n/language_info.json');
+
+// I18N Intl and Vue-Intl Polyfill Code Generation
+program
+  .command('i18n-code-gen')
+  .option(
+    '--lang-info <langInfo>',
+    'Set path for file that contains language information',
+    filePath,
+    langInfoDefault
+  )
+  .option(
+    '--output-dir <outputDir>',
+    'Directory in which to write JS intl polyfill files',
+    filePath
+  )
+  .action(function(options) {
+    const intlCodeGen = require('./i18n/intl_code_gen');
+    intlCodeGen(options.outputDir, options.langInfo);
+  });
+
+// I18N Message Handling
+program
+  .command('i18n-extract-messages')
+  .option('--pluginFile <pluginFile>', 'Set custom file which lists plugins that should be built')
+  .option(
+    '-p, --plugins <plugins...>',
+    'An explicit comma separated list of plugins that should be built',
+    list,
+    []
+  )
+  .option(
+    '--pluginPath <pluginPath>',
+    'A system path to the plugin or module that should be added to the Python path so that it can be imported during build time',
+    String,
+    ''
+  )
+  .option(
+    '-i, --ignore <patterns...>',
+    'Ignore these comma separated patterns',
+    list,
+    ignoreDefaults
+  )
+  .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
+  .option(
+    '--localeDataFolder <localeDataFolder>',
+    'Set path to write locale files to',
+    filePath,
+    localeDataFolderDefault
+  )
+  .option(
+    '--searchPath <searchPath>',
+    'Set path to search for files containing strings to be extracted'
+  )
+  .action(function(options) {
+    const bundleData = readWebpackJson.readPythonPlugins({
+      pluginFile: options.pluginFile,
+      plugins: options.plugins,
+      pluginPath: options.pluginPath,
+    });
+    let pathInfo;
+    if (bundleData.length) {
+      pathInfo = bundleData.map(bundle => {
+        return {
+          moduleFilePath: bundle.plugin_path,
+          name: bundle.module_path,
+        };
+      });
+    } else if (options.namespace && options.localeDataFolder && options.searchPath) {
+      pathInfo = [
+        {
+          moduleFilePath: options.searchPath,
+          name: options.namespace,
+        },
+      ];
+    } else {
+      cliLogging.error(
+        'Must specify either Kolibri plugins or search path, locale path, and namespace.'
+      );
+      program.command('i18n-extract-messages').help();
     }
-  }
+    const extractMessages = require('./i18n/ExtractMessages');
+    extractMessages(pathInfo, options.ignore, options.localeDataFolder);
+  });
 
-  cliLogging.break();
-  process.exit(1);
-});
+program
+  .command('i18n-transfer-context')
+  .option('--pluginFile <pluginFile>', 'Set custom file which lists plugins that should be built')
+  .option(
+    '-p, --plugins <plugins...>',
+    'An explicit comma separated list of plugins that should be built',
+    list,
+    []
+  )
+  .option(
+    '--pluginPath <pluginPath>',
+    'A system path to the plugin or module that should be added to the Python path so that it can be imported during build time',
+    String,
+    ''
+  )
+  .option(
+    '-i, --ignore <patterns...>',
+    'Ignore these comma separated patterns',
+    list,
+    ignoreDefaults
+  )
+  .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
+  .option(
+    '--localeDataFolder <localeDataFolder>',
+    'Set path to write locale files to',
+    filePath,
+    localeDataFolderDefault
+  )
+  .option(
+    '--searchPath <searchPath>',
+    'Set path to search for files containing strings to be extracted'
+  )
+  .action(function(options) {
+    const bundleData = readWebpackJson.readPythonPlugins({
+      pluginFile: options.pluginFile,
+      plugins: options.plugins,
+      pluginPath: options.pluginPath,
+    });
+    let pathInfo;
+    if (bundleData.length) {
+      pathInfo = bundleData.map(bundle => {
+        return {
+          moduleFilePath: bundle.plugin_path,
+          name: bundle.module_path,
+        };
+      });
+    } else if (options.namespace && options.localeDataFolder && options.searchPath) {
+      pathInfo = [
+        {
+          moduleFilePath: options.searchPath,
+          name: options.namespace,
+        },
+      ];
+    } else {
+      cliLogging.error(
+        'Must specify either Kolibri plugins or search path, locale path, and namespace.'
+      );
+      program.command('i18n-transfer-context').help();
+    }
+    const syncContext = require('./i18n/SyncContext');
+    syncContext(pathInfo, options.ignore, options.localeDataFolder);
+  });
+
+// I18N Create runtime message files
+program
+  .command('i18n-create-message-files')
+  .option('--pluginFile <pluginFile>', 'Set custom file which lists plugins that should be built')
+  .option(
+    '-p, --plugins <plugins...>',
+    'An explicit comma separated list of plugins that should be built',
+    list,
+    []
+  )
+  .option(
+    '--pluginPath <pluginPath>',
+    'A system path to the plugin or module that should be added to the Python path so that it can be imported during build time',
+    String,
+    ''
+  )
+  .option(
+    '-i, --ignore <patterns...>',
+    'Ignore these comma separated patterns',
+    list,
+    ignoreDefaults
+  )
+  .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
+  .option(
+    '--localeDataFolder <localeDataFolder>',
+    'Set path to write locale files to',
+    filePath,
+    localeDataFolderDefault
+  )
+  .option(
+    '--searchPath <searchPath>',
+    'Set path to search for files containing strings to be extracted'
+  )
+  .option(
+    '--lang-info <langInfo>',
+    'Set path for file that contains language information',
+    filePath,
+    langInfoDefault
+  )
+  .action(function(options) {
+    const bundleData = readWebpackJson({
+      pluginFile: options.pluginFile,
+      plugins: options.plugins,
+      pluginPath: options.pluginPath,
+    });
+    let pathInfo;
+    if (bundleData.length) {
+      pathInfo = bundleData.map(bundle => {
+        let buildConfig = require(bundle.config_path);
+        if (bundle.index !== null) {
+          buildConfig = buildConfig[bundle.index];
+        }
+        const entry = buildConfig.webpack_config.entry;
+        return {
+          moduleFilePath: bundle.plugin_path,
+          namespace: bundle.module_path,
+          name: bundle.name,
+          entry,
+        };
+      });
+    } else if (options.namespace && options.localeDataFolder && options.searchPath) {
+      pathInfo = [
+        {
+          moduleFilePath: options.searchPath,
+          namespace: options.namespace,
+          name: options.namespace,
+        },
+      ];
+    } else {
+      cliLogging.error(
+        'Must specify either Kolibri plugins or search path, locale path, and namespace.'
+      );
+      program.command('i18n-create-message-files').help();
+    }
+    const csvToJSON = require('./i18n/csvToJSON');
+    csvToJSON(pathInfo, options.ignore, options.langInfo, options.localeDataFolder);
+  });
+
+// I18N Untranslated, used messages
+program
+  .command('i18n-untranslated-messages')
+  .option('--pluginFile <pluginFile>', 'Set custom file which lists plugins that should be built')
+  .option(
+    '-p, --plugins <plugins...>',
+    'An explicit comma separated list of plugins that should be built',
+    list,
+    []
+  )
+  .option(
+    '--pluginPath <pluginPath>',
+    'A system path to the plugin or module that should be added to the Python path so that it can be imported during build time',
+    String,
+    ''
+  )
+  .option(
+    '-i, --ignore <patterns...>',
+    'Ignore these comma separated patterns',
+    list,
+    ignoreDefaults
+  )
+  .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
+  .option(
+    '--localeDataFolder <localeDataFolder>',
+    'Set path to write locale files to',
+    filePath,
+    localeDataFolderDefault
+  )
+  .option(
+    '--searchPath <searchPath>',
+    'Set path to search for files containing strings to be extracted'
+  )
+  .option(
+    '--lang-info <langInfo>',
+    'Set path for file that contains language information',
+    filePath,
+    langInfoDefault
+  )
+  .action(function(options) {
+    const bundleData = readWebpackJson({
+      pluginFile: options.pluginFile,
+      plugins: options.plugins,
+      pluginPath: options.pluginPath,
+    });
+    let pathInfo;
+    if (bundleData.length) {
+      pathInfo = bundleData.map(bundle => {
+        let buildConfig = require(bundle.config_path);
+        if (bundle.index !== null) {
+          buildConfig = buildConfig[bundle.index];
+        }
+        const entry = buildConfig.webpack_config.entry;
+        return {
+          moduleFilePath: bundle.plugin_path,
+          namespace: bundle.module_path,
+          name: bundle.name,
+          entry,
+        };
+      });
+    } else if (options.namespace && options.localeDataFolder && options.searchPath) {
+      pathInfo = [
+        {
+          moduleFilePath: options.searchPath,
+          namespace: options.namespace,
+          name: options.namespace,
+        },
+      ];
+    } else {
+      cliLogging.error(
+        'Must specify either Kolibri plugins or search path, locale path, and namespace.'
+      );
+      program.command('i18n-untranslated-messages').help();
+    }
+    const untranslatedMessages = require('./i18n/untranslatedMessages');
+    untranslatedMessages(pathInfo, options.ignore, options.langInfo, options.localeDataFolder);
+  });
+
+// I18N Profile
+program
+  .command('i18n-profile')
+  .option('--pluginFile <pluginFile>', 'Set custom file which lists plugins that should be built')
+  .option(
+    '-p, --plugins <plugins...>',
+    'An explicit comma separated list of plugins that should be built',
+    list,
+    []
+  )
+  .option(
+    '--pluginPath <pluginPath>',
+    'A system path to the plugin or module that should be added to the Python path so that it can be imported during build time',
+    String,
+    ''
+  )
+  .option(
+    '-i, --ignore <patterns...>',
+    'Ignore these comma separated patterns',
+    list,
+    ignoreDefaults
+  )
+  .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
+  .option(
+    '--searchPath <searchPath>',
+    'Set path to search for files containing strings to be extracted'
+  )
+  .option(
+    '--output-file <outputFile>',
+    'File path and name to which to write out the profile to',
+    filePath
+  )
+  .action(function(options) {
+    const bundleData = readWebpackJson({
+      pluginFile: options.pluginFile,
+      plugins: options.plugins,
+      pluginPath: options.pluginPath,
+    });
+    let pathInfo;
+    if (bundleData.length) {
+      pathInfo = bundleData.map(bundle => {
+        let buildConfig = require(bundle.config_path);
+        if (bundle.index !== null) {
+          buildConfig = buildConfig[bundle.index];
+        }
+        const entry = buildConfig.webpack_config.entry;
+        return {
+          moduleFilePath: bundle.plugin_path,
+          namespace: bundle.module_path,
+          name: bundle.name,
+          entry,
+        };
+      });
+    } else if (options.namespace && options.searchPath) {
+      pathInfo = [
+        {
+          moduleFilePath: options.searchPath,
+          namespace: options.namespace,
+          name: options.namespace,
+        },
+      ];
+    } else {
+      cliLogging.error('Must specify either Kolibri plugins or search path and namespace.');
+      program.command('i18n-profile').help();
+    }
+    const profileStrings = require('./i18n/ProfileStrings');
+    profileStrings(pathInfo, options.ignore, options.outputFile);
+  });
+
+// Check engines, then process args
+try {
+  const engines = require(path.join(process.cwd(), 'package.json')).engines;
+  checkVersion(engines, (err, results) => {
+    if (err) {
+      cliLogging.break();
+      cliLogging.error(err);
+      process.exit(1);
+    }
+
+    if (results.isSatisfied) {
+      program.parse(process.argv);
+      return;
+    }
+
+    for (const packageName of Object.keys(results.versions)) {
+      if (!results.versions[packageName].isSatisfied) {
+        let required = engines[packageName];
+        cliLogging.break();
+        cliLogging.error(`Incorrect version of ${packageName}.`);
+        cliLogging.error(`${packageName} ${required} is required.`);
+      }
+    }
+
+    cliLogging.break();
+    process.exit(1);
+  });
+} catch (e) {
+  program.parse(process.argv);
+}

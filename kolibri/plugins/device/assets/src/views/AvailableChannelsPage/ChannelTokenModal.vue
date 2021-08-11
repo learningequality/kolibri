@@ -98,11 +98,28 @@
       },
     },
     $trs: {
-      channelTokenLabel: 'Channel token',
-      enterChannelToken: 'Enter channel token',
-      invalidTokenMessage: 'Check whether you entered token correctly',
-      networkErrorMessage: 'Unable to connect to token',
-      tokenExplanation: 'Channel tokens unlock unlisted channels from Kolibri Studio',
+      channelTokenLabel: {
+        message: 'Channel token',
+        context:
+          'Each Kolibri channel has its own token in Kolibri Studio. Users can freely view and browse resources to import from the public channels in Kolibri, but in order to import resources from private or unlisted channels, the user will need the channel token from the resources curator who assembled it.',
+      },
+      enterChannelToken: {
+        message: 'Enter channel token',
+        context: 'Prompt for entering the channel token.',
+      },
+      invalidTokenMessage: {
+        message: 'Check whether you entered token correctly',
+        context: 'Message that displays if Kolibri detects an invalid channel token.',
+      },
+      networkErrorMessage: {
+        message: 'Unable to connect to token',
+        context:
+          'Message that displays if Kolibri is unable to connect to a channel using a token because of a network error.\n',
+      },
+      tokenExplanation: {
+        message: 'Channel tokens unlock unlisted channels from Kolibri Studio',
+        context: 'Description of a channel token.',
+      },
     },
   };
 

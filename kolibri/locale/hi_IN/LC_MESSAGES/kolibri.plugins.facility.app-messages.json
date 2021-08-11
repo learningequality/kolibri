@@ -19,9 +19,6 @@
   "ClassRenameModal.modalTitle": "कक्षा का नाम बदलें",
   "CoachClassAssignmentPage.pageHeader": "'{className}' में कोच नियुक्त करें",
   "CoachClassAssignmentPage.pageSubheader": "इस कक्षा के लिए नियुक्त नहीं किए गए कोच दिखा रहा है",
-  "ConfigPageNotifications.pageloadFailure": "आपकी सेटिंग लोड करने में समस्या थी",
-  "ConfigPageNotifications.saveFailure": "आपकी सेटिंग सेव करने में समस्या थी",
-  "ConfigPageNotifications.saveSuccess": "सुविधा सेटिंग्स अद्यतन की गईं",
   "ConfirmResetModal.confirmationQuestion": "क्या आप वाकई अपनी सेटिंग रीसेट करना चाहते हैं?",
   "ConfirmResetModal.reconfirmation": "कस्टम परिवर्तन खो जाएंगे।",
   "ConfirmResetModal.reset": "रीसेट करें (Reset)",
@@ -163,7 +160,6 @@
   "PrivacyModal.syncToKDP": "कोलिब्री डेटा पोर्टल",
   "ResetUserPasswordModal.resetPassword": "अपना पासवर्ड रीसेट करें",
   "ResetUserPasswordModal.username": "उपयोगकर्ता नाम: ",
-  "SyncInterface.access": "यह एक प्रायोगिक विशेषता है। यदि आप कोलिब्री डेटा पोर्टल तक पहुंच रखते हैं, तो आप इसका उपयोग कर सकते हैं।",
   "SyncInterface.facility": "सुविधा",
   "SyncInterface.learnMore": "उपयोग और गोपनीयता",
   "SyncInterface.register": "पंजीकरण करें",
@@ -195,7 +191,7 @@
   "UserRemoveConfirmationModal.description": "आप अभी भी ' उपयोगकर्ता ' टैब से इस खाते तक पहुंच सकते हैं ।",
   "UserRemoveConfirmationModal.modalTitle": "उपयोगकर्ता को हटाएँ",
   "UserTable.role": "भूमिका",
-  "UserTable.selectAllLabel": "सभी का चयन करें",
+  "UserTable.selectAllLabel": "सभी चुनें",
   "UserTable.userActionsColumnHeader": "क्रियाएँ",
   "UserTable.userCheckboxLabel": "उपयोगकर्ता (user) का चयन करें"
 }

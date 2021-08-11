@@ -119,8 +119,16 @@
       },
     },
     $trs: {
-      filter: 'filter',
-      clear: 'clear',
+      filter: {
+        message: 'filter',
+        context:
+          'The filter functionality allows users to find elements in Kolibri more efficiently. For example, in a list of users the filter can be used to view users by permissions, user type or facility.',
+      },
+      clear: {
+        message: 'clear',
+        context:
+          "The 'CLEAR' button clears single tasks in the Kolibri Task Manager.\n\nUsing 'CLEAR COMPLETED' will remove ALL the tasks from the list.",
+      },
     },
   };
 

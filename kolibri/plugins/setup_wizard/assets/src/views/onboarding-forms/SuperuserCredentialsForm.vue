@@ -152,11 +152,21 @@
       },
     },
     $trs: {
-      adminAccountCreationHeader: 'Create super admin account',
-      adminAccountCreationDescription:
-        'This account allows you to manage the facility, resources, and user accounts on this device',
-      rememberThisAccountInformation:
-        'Important: please remember this account information. Write it down if needed',
+      adminAccountCreationHeader: {
+        message: 'Create super admin account',
+        context:
+          "The title of the 'Create a super admin account' section. A super admin can manage all the content and all other Kolibri users on the device.",
+      },
+      adminAccountCreationDescription: {
+        message:
+          'This account allows you to manage the facility, resources, and user accounts on this device',
+        context: "Description of the 'Create super admin account' page.",
+      },
+      rememberThisAccountInformation: {
+        message: 'Important: please remember this account information. Write it down if needed',
+        context:
+          'Helper/information text to remind admin to take note of their account information.',
+      },
     },
   };
 

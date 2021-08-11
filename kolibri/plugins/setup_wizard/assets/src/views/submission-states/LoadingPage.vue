@@ -17,8 +17,14 @@
     name: 'LoadingPage',
     components: { SubmissionStatePage },
     $trs: {
-      loadingPageHeader: 'Setting up your facility...',
-      loadingPageSubheader: 'Please be patient. Setup may take several minutes',
+      loadingPageHeader: {
+        message: 'Setting up your facility...',
+        context: 'Message on loading page when facility set up is in progress.',
+      },
+      loadingPageSubheader: {
+        message: 'Please be patient. Setup may take several minutes',
+        context: "Description below 'Setting up your facility...' message.",
+      },
     },
   };
 

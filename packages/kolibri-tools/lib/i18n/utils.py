@@ -6,66 +6,25 @@ import logging
 import os
 import sys
 
-try:
-    import kolibri_exercise_perseus_plugin
-
-    PERSEUS_LOCALE_PATH = os.path.join(
-        os.path.dirname(kolibri_exercise_perseus_plugin.__file__), "locale"
-    )
-    PERSEUS_SOURCE_PATH = os.path.join(PERSEUS_LOCALE_PATH, "en", "LC_MESSAGES")
-except ModuleNotFoundError:
-    # We don't throw an error here as it will be handled later if needed.
-    # Not all projects depend on our Perseus plugin
-    PERSEUS_LOCALE_PATH = None
-    PERSEUS_SOURCE_PATH = None
-
-# Let's make sure the paths actually exist
-if PERSEUS_SOURCE_PATH and not os.path.exists(PERSEUS_SOURCE_PATH):
-    os.makedirs(PERSEUS_SOURCE_PATH)
-if PERSEUS_LOCALE_PATH and not os.path.exists(PERSEUS_LOCALE_PATH):
-    os.makedirs(PERSEUS_LOCALE_PATH)
+import configparser
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
 
 
-PROJECT_NAME = os.getenv("CROWDIN_PROJECT", "kolibri")
+# Path to the kolibri locale language_info file, which we use if we are running
+# from inside the Kolibri repository.
+_KOLIBRI_LANGUAGE_INFO_PATH = os.path.join(
+    os.path.dirname(__file__), "../../../../kolibri/locale/language_info.json"
+)
 
-THIS_FILE_PATH = os.path.abspath(os.getcwd())
-
-LOCALE_OPTIONS = {
-    "kolibri": os.path.join(THIS_FILE_PATH, "kolibri/locale"),
-    "kolibri-studio": os.path.join(THIS_FILE_PATH, "contentcuration/locale"),
-}
-
-LOCALE_PATH = LOCALE_OPTIONS[PROJECT_NAME]
-
-if not LOCALE_PATH:
-    logging.error(
-        "\nCould not get LOCALE_PATH for CROWDIN_PROJECT {}".format(PROJECT_NAME)
-    )
-    sys.exit(1)
-
-try:
-    if not os.path.exists(LOCALE_PATH):
-        os.makedirs(LOCALE_PATH)
-except NotADirectoryError:
-    # This means you're not using the correct CROWDIN_PROJECT
-    logging.error(
-        "Please ensure that CROWDIN_PROJECT {} is correct and that you're running this command from the\
-                  root of that project. This failed trying to make this directory: {}".format(
-            PROJECT_NAME, LOCALE_PATH
-        )
-    )
-    sys.exit(1)
-
-SOURCE_PATH = os.path.join(LOCALE_PATH, "en", "LC_MESSAGES")
-
-if not os.path.exists(SOURCE_PATH):
-    os.makedirs(SOURCE_PATH)
-
-
-LANGUAGE_INFO_PATH = os.path.join(os.path.dirname(__file__), "language_info.json")
+# If we are in the built version of kolibri-tools, we only have access to the local
+# copy if we are in the repo, we use the repo copy.
+LANGUAGE_INFO_PATH = (
+    _KOLIBRI_LANGUAGE_INFO_PATH
+    if os.path.exists(_KOLIBRI_LANGUAGE_INFO_PATH)
+    else os.path.join(os.path.dirname(__file__), "language_info.json")
+)
 
 # Keys used in language_info.json
 KEY_CROWDIN_CODE = "crowdin_code"
@@ -121,9 +80,11 @@ def available_languages(include_in_context=False, include_english=False):
 
 
 @memoize
-def local_locale_path(lang_object):
+def local_locale_path(lang_object, locale_data_folder):
     local_path = os.path.abspath(
-        os.path.join(LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES")
+        os.path.join(
+            locale_data_folder, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
+        )
     )
     if not os.path.exists(local_path):
         os.makedirs(local_path)
@@ -132,36 +93,8 @@ def local_locale_path(lang_object):
 
 # Defines where we find the extracted messages
 @memoize
-def local_locale_csv_source_path():
-    csv_path = os.path.abspath(os.path.join(LOCALE_PATH, "CSV_FILES", "en"))
-    if not os.path.exists(csv_path):
-        os.makedirs(csv_path)
-    return csv_path
-
-
-# Defines where we'll find the downloaded CSV files from Crowdin (non english files)
-@memoize
-def local_locale_csv_path():
-    csv_path = os.path.abspath(os.path.join(LOCALE_PATH, "CSV_FILES"))
-    if not os.path.exists(csv_path):
-        os.makedirs(csv_path)
-    return csv_path
-
-
-@memoize
-def local_perseus_locale_path(lang_object):
-    if PERSEUS_LOCALE_PATH:
-        return os.path.join(
-            PERSEUS_LOCALE_PATH, to_locale(lang_object[KEY_INTL_CODE]), "LC_MESSAGES"
-        )
-    return ""
-
-
-@memoize
-def local_perseus_locale_csv_path():
-    if PERSEUS_LOCALE_PATH:
-        return os.path.join(PERSEUS_LOCALE_PATH, "CSV_FILES")
-    return ""
+def local_locale_source_path(locale_data_folder):
+    return local_locale_path({KEY_INTL_CODE: "en"}, locale_data_folder)
 
 
 def json_dump_formatted(data, file_path, file_name):
@@ -201,3 +134,15 @@ def json_dump_formatted(data, file_path, file_name):
                 separators=(",", ": "),
                 ensure_ascii=False,
             )
+
+
+def read_config_file():
+    output = {}
+    config_file = os.path.join(os.getcwd(), "setup.cfg")
+    if os.path.exists(config_file):
+        config = configparser.ConfigParser()
+        config.read(config_file)
+        if "kolibri:i18n" in config:
+            for key in config["kolibri:i18n"]:
+                output[key] = config["kolibri:i18n"][key]
+    return output

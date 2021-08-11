@@ -146,7 +146,11 @@
       },
     },
     $trs: {
-      printLabel: '{className} Learners',
+      printLabel: {
+        message: '{className} Learners',
+        context:
+          "Title that displays on a printed copy of the 'Reports' > 'Learners' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
+      },
     },
   };
 

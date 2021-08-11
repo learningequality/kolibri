@@ -1,9 +1,11 @@
 import json
 import logging
 import socket
+import time
 
 from django.core.exceptions import ValidationError
 from django.db import connection
+from django.db.utils import OperationalError
 from six import integer_types
 from six import string_types
 from zeroconf import get_all_addresses
@@ -25,7 +27,12 @@ LOCAL_DOMAIN = "kolibri.local"
 TRUE = "TRUE"
 FALSE = "FALSE"
 
-ZEROCONF_STATE = {"zeroconf": None, "listener": None, "service": None}
+ZEROCONF_STATE = {
+    "zeroconf": None,
+    "listener": None,
+    "service": None,
+    "addresses": None,
+}
 
 
 def _id_from_name(name):
@@ -106,7 +113,8 @@ class KolibriZeroconfService(object):
             logging.error("Service is not registered!")
             return
 
-        ZEROCONF_STATE["zeroconf"].unregister_service(self.info)
+        if self.info.name.lower() in ZEROCONF_STATE["zeroconf"].services:
+            ZEROCONF_STATE["zeroconf"].unregister_service(self.info)
 
         self.info = None
 
@@ -168,43 +176,55 @@ class KolibriZeroconfListener(object):
 
         if not is_self:
 
-            try:
+            logger.info(
+                "Kolibri instance '%s' joined zeroconf network; service info: %s"
+                % (id, self.instances[id])
+            )
 
-                DynamicNetworkLocation.objects.update_or_create(
-                    dict(base_url=base_url, **device_info), id=id
-                )
+            db_locked = self.store_service(id, base_url, device_info)
 
-                logger.info(
-                    "Kolibri instance '%s' joined zeroconf network; service info: %s"
-                    % (id, self.instances[id])
-                )
+            if get_device_setting(
+                "subset_of_users_device", False
+            ) and not device_info.get("subset_of_users_device", False):
+                server = base_url[:-1]  # removes ending slash
+                for user in FacilityUser.objects.all().values("id"):
+                    begin_request_soud_sync(server=server, user=user["id"])
 
-            except ValidationError:
-                import traceback
+            attempts = 0
+            while db_locked and attempts < 5:
+                db_locked = self.store_service(id, base_url, device_info)
+                attempts += 1
+                time.sleep(0.1)
 
-                logger.warn(
+    def store_service(self, id, base_url, device_info):
+        db_locked = False
+        try:
+
+            DynamicNetworkLocation.objects.update_or_create(
+                dict(base_url=base_url, **device_info), id=id
+            )
+
+        except ValidationError:
+            import traceback
+
+            logger.warn(
+                """
+                    A new Kolibri instance '%s' was seen on the zeroconf network,
+                    but we had trouble getting the information we needed about it.
+                    Service info:
+                    %s
+                    The following exception was raised:
+                    %s
                     """
-                        A new Kolibri instance '%s' was seen on the zeroconf network,
-                        but we had trouble getting the information we needed about it.
-                        Service info:
-                        %s
-                        The following exception was raised:
-                        %s
-                        """
-                    % (id, self.instances[id], traceback.format_exc(limit=1))
-                )
-            finally:
-                connection.close()
-
-            if (
-                "subset_of_users_device" in device_info
-            ):  # discards previous versions of Kolibri
-                if get_device_setting(
-                    "subset_of_users_device", False
-                ) and not device_info.get("subset_of_users_device", False):
-                    server = base_url[:-1]  # removes ending slash
-                    for user in FacilityUser.objects.all().values("id"):
-                        begin_request_soud_sync(server=server, user=user["id"])
+                % (id, self.instances[id], traceback.format_exc(limit=1))
+            )
+        except OperationalError as e:
+            if "database is locked" not in str(e):
+                raise
+            db_locked = True
+        finally:
+            connection.close()
+        return db_locked
 
     def remove_service(self, zeroconf, type, name):
         id = _id_from_name(name)
@@ -254,6 +274,26 @@ def initialize_zeroconf_listener():
     ZEROCONF_STATE["zeroconf"].add_service_listener(
         SERVICE_TYPE, ZEROCONF_STATE["listener"]
     )
+    ZEROCONF_STATE["addresses"] = set(get_all_addresses())
+
+
+def reinitialize_zeroconf_if_network_has_changed():
+    if ZEROCONF_STATE["addresses"] == set(get_all_addresses()):
+        return
+    if ZEROCONF_STATE["listener"] is None:
+        initialize_zeroconf_listener()
+        return
+    logger.info(
+        "New addresses detected since zeroconf was initialized, re-initializing now"
+    )
+    if ZEROCONF_STATE["zeroconf"] is not None:
+        ZEROCONF_STATE["zeroconf"].close()
+    ZEROCONF_STATE["zeroconf"] = Zeroconf()
+    ZEROCONF_STATE["zeroconf"].add_service_listener(
+        SERVICE_TYPE, ZEROCONF_STATE["listener"]
+    )
+    ZEROCONF_STATE["addresses"] = set(get_all_addresses())
+    logger.info("Zeroconf has reinitialized")
 
 
 def get_peer_instances():

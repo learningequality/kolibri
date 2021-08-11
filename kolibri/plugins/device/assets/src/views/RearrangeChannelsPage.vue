@@ -148,11 +148,29 @@
         message: 'Channel order saved',
         context: '\nSuccess message shown when the admin re-orders channels',
       },
-      failureNotification: 'There was a problem reordering the channels',
-      noChannels: 'There are no channels',
-      upLabel: 'Move {name} up one',
-      downLabel: 'Move {name} down one',
-      title: 'Edit channel order',
+      failureNotification: {
+        message: 'There was a problem reordering the channels',
+        context:
+          "Error message that displays if there is a problem reordering channels on the 'Edit channel order' page.",
+      },
+      noChannels: {
+        message: 'There are no channels',
+        context:
+          "This message will display on the 'Edit channel order' page if there are no channels available.",
+      },
+      upLabel: {
+        message: 'Move {name} up one',
+        context: 'Label to rearrange channel order. Not seen on UI.',
+      },
+      downLabel: {
+        message: 'Move {name} down one',
+        context: 'Label to rearrange channel order. Not seen on UI.',
+      },
+      title: {
+        message: 'Edit channel order',
+        context:
+          "Title of the 'Edit channel order' page where users can rearrange the order in which channels will be displayed to learners and coaches.",
+      },
     },
   };
 

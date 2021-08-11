@@ -102,11 +102,13 @@ const taskStrings = createTranslator('TaskStrings', {
   },
   importSuccessStatus: {
     message: `'{facilityName}' successfully loaded to this device`,
-    context: 'Message that shows after Facility is successfully imported',
+    context:
+      "Confirmation message displayed when a facility's data is imported successfully in the syncing process.",
   },
   importFailedStatus: {
     message: `Could not import '{facilityName}'`,
-    context: 'Message that shows after Facility fails to import',
+    context:
+      "Error message displayed when a facility's data cannot be imported in the syncing process.",
   },
 });
 

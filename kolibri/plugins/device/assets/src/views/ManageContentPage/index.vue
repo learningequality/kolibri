@@ -210,12 +210,31 @@
       },
     },
     $trs: {
-      import: 'Import',
-      documentTitle: 'Manage Device Channels',
-      exportChannels: 'Export channels',
-      deleteChannels: 'Delete channels',
-      editChannelOrder: 'Edit channel order',
-      emptyChannelListMessage: 'No channels installed',
+      import: {
+        message: 'Import',
+        context: 'Option to import channels from another device.\n',
+      },
+      documentTitle: {
+        message: 'Manage Device Channels',
+        context: 'Title of page where admin can manage channels on the device.',
+      },
+      exportChannels: {
+        message: 'Export channels',
+        context: 'Option to export channels to another device.',
+      },
+      deleteChannels: {
+        message: 'Delete channels',
+        context: 'Option to delete specific channels from the device.',
+      },
+      editChannelOrder: {
+        message: 'Edit channel order',
+        context:
+          'Option to control the order in which channels will be displayed to learners and coaches.',
+      },
+      emptyChannelListMessage: {
+        message: 'No channels installed',
+        context: 'Will display if there are no channels in the Device > Channels section.',
+      },
     },
   };
 

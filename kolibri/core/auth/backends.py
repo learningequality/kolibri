@@ -6,21 +6,27 @@ backends are checked in the order they're listed.
 from kolibri.core.auth.models import FacilityUser
 
 
+FACILITY_CREDENTIAL_KEY = "facility"
+
+
 class FacilityUserBackend(object):
     """
     A class that implements authentication for FacilityUsers.
     """
 
-    def authenticate(self, username=None, password=None, facility=None):
+    def authenticate(self, request, username=None, password=None, **kwargs):
         """
         Authenticates the user if the credentials correspond to a FacilityUser for the specified Facility.
 
+        :param request: The request is a required positional argument in newer versions of Django
         :param username: a string
         :param password: a string
-        :param facility: a Facility
+        :param kwargs: a dict of additional credentials (see `keyword`s)
+        :keyword facility: a Facility object or facility ID
         :return: A FacilityUser instance if successful, or None if authentication failed.
         """
         users = FacilityUser.objects.filter(username__iexact=username)
+        facility = kwargs.get(FACILITY_CREDENTIAL_KEY, None)
         if facility:
             users = users.filter(facility=facility)
         for user in users:

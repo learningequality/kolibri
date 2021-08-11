@@ -86,9 +86,9 @@ def get_device_info(version=DEVICE_INFO_VERSION):
     return info
 
 
-def startpeerfacilitysync(server, user_id):
+def startpeerusersync(server, user_id):
     """
-    Initiate a SYNC (PULL + PUSH) of a specific facility from another device.
+    Initiate a SYNC (PULL + PUSH) of a specific user from another device.
     """
 
     user = FacilityUser.objects.get(pk=user_id)
@@ -104,7 +104,7 @@ def startpeerfacilitysync(server, user_id):
         device_info["device_name"],
         device_info["instance_id"],
         server,
-        type="SYNCPEER/FULL",
+        type="SYNCPEER/SINGLE",
     )
 
     job_data = prepare_soud_sync_job(
@@ -187,7 +187,7 @@ def request_soud_sync(server, user=None, queue_id=None, ttl=10):
         UserSyncStatus.objects.update_or_create(user_id=user, defaults={"queued": True})
 
         if server_response["action"] == SYNC:
-            job_id = startpeerfacilitysync(server, user)
+            job_id = startpeerusersync(server, user)
             logger.info(
                 "Enqueuing a sync task for user {} in job {}".format(user, job_id)
             )

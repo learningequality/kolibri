@@ -79,9 +79,18 @@
       ...mapGetters(['canManageContent', 'isSuperuser']),
     },
     $trs: {
-      permissionsLabel: 'Permissions',
-      infoLabel: 'Info',
-      settingsLabel: 'Settings',
+      permissionsLabel: {
+        message: 'Permissions',
+        context: 'Refers to the Device > Permissions tab.\n',
+      },
+      infoLabel: {
+        message: 'Info',
+        context: 'Refers to the Device > Info tab.',
+      },
+      settingsLabel: {
+        message: 'Settings',
+        context: 'Refers to the Device > Settings tab.\n',
+      },
     },
   };
 

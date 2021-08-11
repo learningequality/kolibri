@@ -92,14 +92,24 @@
       },
     },
     $trs: {
-      registerFacility: 'Register facility',
-      register: 'Register',
+      registerFacility: {
+        message: 'Register facility',
+        context: "An action that describes 'registering' a facility to the Kolibri Data Portal.",
+      },
+      register: {
+        message: 'Register',
+        context: "An action that describes 'registering' a facility to the Kolibri Data Portal.",
+      },
       registerWith: {
         message: "Register with '{name}'?",
         context:
           '\nKolibri is asking for a confirmation before registering the facility with a project called {name}.',
       },
-      dataSaved: 'Data will be saved to the cloud',
+      dataSaved: {
+        message: 'Data will be saved to the cloud',
+        context:
+          'Message indicating that facility data will be synced with the organization in the cloud.',
+      },
       alreadyRegistered: {
         message: "Already registered with '{name}'",
         context:

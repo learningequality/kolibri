@@ -372,14 +372,43 @@
       },
     },
     $trs: {
-      author: 'Author: {author}',
-      license: 'License: {license}',
-      toggleLicenseDescription: 'Toggle license description',
-      copyrightHolder: 'Copyright holder: {copyrightHolder}',
-      shareMessage: '"{title}" (in "{topic}"), from {copyrightHolder}',
-      nextResource: 'Next resource',
-      documentTitle: '{ contentTitle } - { channelTitle }',
-      shareFile: 'Share',
+      author: {
+        message: 'Author: {author}',
+        context:
+          'Indicates who is the author of that specific learning resource. For example, "Author: Learning Equality".',
+      },
+      license: {
+        message: 'License: {license}',
+        context:
+          'Indicates the type of license of that specific learning resource. For example, "License: CC BY-NC-ND".\n',
+      },
+      toggleLicenseDescription: {
+        message: 'Toggle license description',
+        context:
+          'Describes the arrow which a learner can select to view more information about the type of license that a resource has.',
+      },
+      copyrightHolder: {
+        message: 'Copyright holder: {copyrightHolder}',
+        context:
+          'Indicates who holds the copyright of that specific learning resource. For example, "Copyright holder: Ubongo Media".',
+      },
+      shareMessage: {
+        message: '"{title}" (in "{topic}"), from {copyrightHolder}',
+        context: 'Refers to a specific learning resource. Only translate "in" and "from".',
+      },
+      nextResource: {
+        message: 'Next resource',
+        context:
+          "Indicates the next learning resource that the learner should go to once they've finished the current one.",
+      },
+      documentTitle: {
+        message: '{ contentTitle } - { channelTitle }',
+        context: 'DO NOT TRANSLATE.',
+      },
+      shareFile: {
+        message: 'Share',
+        context: 'Option to share a specific file from a learning resource.',
+      },
     },
   };
 

@@ -74,7 +74,11 @@
       },
     },
     $trs: {
-      inProgress: 'In progress',
+      inProgress: {
+        message: 'In progress',
+        context:
+          "When a learner starts an exercise, viewing a video, or reading a document, this will be marked with the 'In progress' icon.\n\nThe text 'In progress' appears if the user moves their mouse over the icon.",
+      },
     },
   };
 

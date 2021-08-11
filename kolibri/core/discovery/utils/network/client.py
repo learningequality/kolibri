@@ -9,6 +9,10 @@ from .urls import get_normalized_url_variations
 
 logger = logging.getLogger(__name__)
 
+device_info_defaults = {
+    "subset_of_users_device": False,
+}
+
 
 class NetworkClient(object):
     DEFAULT_TIMEOUT_IN_SECS = 5
@@ -47,21 +51,23 @@ class NetworkClient(object):
                     allow_redirects=True,
                     params={"v": DEVICE_INFO_VERSION},
                 )
-                # check that we successfully connected, and if we were redirected that it's still the right endpoint
-                response_path = urlparse(response.url).path
-                if response.status_code == 200 and response_path.rstrip("/").endswith(
+                # check that we successfully connected, and if we were redirected that it's still
+                # the right endpoint
+                parsed_url = urlparse(response.url)
+                if response.status_code == 200 and parsed_url.path.rstrip("/").endswith(
                     "/api/public/info"
                 ):
                     info = response.json()
                     self.info = {}
                     for key in device_info_keys.get(DEVICE_INFO_VERSION, []):
-                        self.info[key] = info.get(key)
+                        self.info[key] = info.get(key, device_info_defaults.get(key))
                     if self.info["application"] not in ["studio", "kolibri"]:
                         raise requests.RequestException(
                             "Server is not running Kolibri or Studio"
                         )
                     logger.info("Success! We connected to: {}".format(response.url))
-                    return response.url.rstrip("/").replace("api/public/info", "")
+
+                    return "{}://{}".format(parsed_url.scheme, parsed_url.netloc)
             except (requests.RequestException) as e:
                 logger.info("Unable to connect: {}".format(e))
             except ValueError:

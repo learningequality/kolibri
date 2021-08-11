@@ -54,7 +54,11 @@
       },
     },
     $trs: {
-      superUserLabel: 'Super admin',
+      superUserLabel: {
+        message: 'Super admin',
+        context:
+          'An account type that can manage the device. Super admin accounts also have permission to do everything that admins, coaches, and learners can do.',
+      },
     },
   };
 

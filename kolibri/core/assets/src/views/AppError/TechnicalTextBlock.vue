@@ -85,8 +85,16 @@
       ...mapActions(['createSnackbar']),
     },
     $trs: {
-      copyToClipboardButtonPrompt: 'Copy to clipboard',
-      copiedToClipboardConfirmation: 'Copied to clipboard',
+      copyToClipboardButtonPrompt: {
+        message: 'Copy to clipboard',
+        context:
+          'Button which allows the user to copy content to the clipboard.\n\nA clipboard is a temporary storage area where material cut or copied from a file is kept for pasting into another file.',
+      },
+      copiedToClipboardConfirmation: {
+        message: 'Copied to clipboard',
+        context:
+          'Message displayed when some content is copied to the clipboard.\n\nA clipboard is a temporary storage area where material cut or copied from a file is kept for pasting into another file.',
+      },
     },
   };
 

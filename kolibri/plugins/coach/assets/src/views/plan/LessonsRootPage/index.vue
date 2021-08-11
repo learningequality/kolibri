@@ -223,11 +223,23 @@
       },
     },
     $trs: {
-      allLessons: 'All lessons',
+      allLessons: {
+        message: 'All lessons',
+        context:
+          'Indicates a link that takes the user back to the main list of lessons from an individual lesson.',
+      },
       activeLessons: 'Active lessons',
       inactiveLessons: 'Inactive lessons',
-      size: 'Size',
-      noLessons: 'You do not have any lessons',
+      size: {
+        message: 'Size',
+        context:
+          "'Size' is a column name in the 'Lessons' section. It refers to the number or learning resources there are in a specific lesson.",
+      },
+      noLessons: {
+        message: 'You do not have any lessons',
+        context:
+          "Text displayed in the 'Lessons' tab of the 'Plan' section if there are no lessons created",
+      },
       noActiveLessons: 'No active lessons',
       noInactiveLessons: 'No inactive lessons',
       visibleToLearnersLabel: {

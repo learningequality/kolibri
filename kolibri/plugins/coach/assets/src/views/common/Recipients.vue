@@ -37,7 +37,11 @@
       },
     },
     $trs: {
-      noOne: 'No one',
+      noOne: {
+        message: 'No one',
+        context:
+          'Displays next to an activity in the lesson if no learners have been assigned to it.',
+      },
     },
   };
 

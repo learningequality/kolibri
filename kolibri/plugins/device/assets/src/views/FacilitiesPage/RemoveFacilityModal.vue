@@ -108,16 +108,17 @@
       },
       willLoseAccessWarning: {
         message: `You will lose access to all '{facilityName}' data.`,
-        context: '',
+        context: "Warning message on the 'Remove facility from this device' window.",
       },
       facilityReloadExplanation: {
         message:
           'If you have synced this facility to Kolibri Data Portal or to another device on your local network, you may be able to load it back to this device.',
+
         context: 'Modal description text when removing a facility that has previously been synced',
       },
       removingFacilityConfirmation: {
         message: 'I understand the consequences of removing the facility',
-        context: '',
+        context: "Confirmation message on the 'Remove facility from this device' window.",
       },
       cannotRemoveOwnFacilityExplanation: {
         message: 'Super admins cannot remove facilities they are a member of.',
@@ -126,6 +127,7 @@
       signInAsOtherAdminExplanation: {
         message:
           "You cannot remove the facility that your user is a member of. To remove '{facilityName}', create a super admin in a different facility and sign in as them.",
+
         context: 'Modal description text',
       },
     },

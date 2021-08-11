@@ -1,10 +1,25 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 
 export const trs = createTranslator('DisconnectionSnackbars', {
-  disconnected: 'Disconnected from server. Will try to reconnect in { remainingTime }',
-  tryNow: 'Try now',
-  tryingToReconnect: 'Trying to reconnect…',
-  successfullyReconnected: 'Successfully reconnected!',
+  disconnected: {
+    message: 'Disconnected from server. Will try to reconnect in { remainingTime }',
+    context:
+      'Message that indicates when Kolibri is disconnected from a server. It also displays the time in countdown format that it will waiting until attempting to connect again.',
+  },
+  tryNow: {
+    message: 'Try now',
+    context:
+      'Prompt indicating to the user that they should try again to reconnect Kolibri with the server.',
+  },
+  tryingToReconnect: {
+    message: 'Trying to reconnect…',
+    context:
+      'Message which displays while Kolibri is trying to reconnect with the server following a disconnection.',
+  },
+  successfullyReconnected: {
+    message: 'Successfully reconnected!',
+    context: 'Message indicating that Kolibri has been able to connect with the server again.',
+  },
 });
 
 export function createTryingToReconnectSnackbar(store) {

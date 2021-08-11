@@ -70,10 +70,24 @@
       },
     },
     $trs: {
-      correct: 'Correct',
-      incorrect: 'Incorrect',
-      hintUsed: 'Hint used',
-      incorrectFirstTry: 'Incorrect first try',
+      correct: {
+        message: 'Correct',
+        context: 'Indicates if the learner answered the question correctly.',
+      },
+      incorrect: {
+        message: 'Incorrect',
+        context: 'Indicates if the learner answered the question incorrectly.',
+      },
+      hintUsed: {
+        message: 'Hint used',
+        context:
+          "Some exercises can offer hints. These can be suggestions to help learners solve a problem.\n\nIf the learner uses a hint, the text 'Hint used' appears in the exercise.",
+      },
+      incorrectFirstTry: {
+        message: 'Incorrect first try',
+        context:
+          'Indicates if the learner answered a question incorrectly on the first attempt at answering it.\n',
+      },
     },
   };
 

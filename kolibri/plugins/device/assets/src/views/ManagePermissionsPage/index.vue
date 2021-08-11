@@ -228,17 +228,51 @@
       this.userTypeFilter = this.query.userTypeFilter || this.userTypeOptions[0];
     },
     $trs: {
-      devicePermissionsDescription: 'Make changes to what users can manage on your device',
-      searchPlaceholder: 'Search for a user…',
-      documentTitle: 'Manage Device Permissions',
-      adminsLabel: 'Admins',
-      permissionsLabel: 'Permissions',
-      canManageContentLabel: 'Can manage content',
-      superAdminLabel: 'Super admin',
-      noDevicePermissionsLabel: 'No device permissions',
-      allPermissionsFilterLabel: 'All',
-      allUserTypeFilter: 'All',
-      allFacilityFilter: 'All',
+      devicePermissionsDescription: {
+        message: 'Make changes to what users can manage on your device',
+        context: "Description on the 'Device permissions' page.",
+      },
+      searchPlaceholder: {
+        message: 'Search for a user…',
+        context: "Refers to the search for a user option on the 'Device permissions' page.",
+      },
+      documentTitle: {
+        message: 'Manage Device Permissions',
+        context: "Title of the 'Device permissions' page.",
+      },
+      adminsLabel: {
+        message: 'Admins',
+        context: "Refers to the filter by user type in the 'Device permissions' page.",
+      },
+      permissionsLabel: {
+        message: 'Permissions',
+        context: 'Refers to the Device > Permissions page.',
+      },
+      canManageContentLabel: {
+        message: 'Can manage content',
+        context: 'Type of permission that can be given to a user.',
+      },
+      superAdminLabel: {
+        message: 'Super admin',
+        context: 'Type of permission that can be given to a user.\n',
+      },
+      noDevicePermissionsLabel: {
+        message: 'No device permissions',
+        context: 'Type of permission that can be given to a user.',
+      },
+      allPermissionsFilterLabel: {
+        message: 'All',
+        context: 'Refers to the all permissions type filter.',
+      },
+      allUserTypeFilter: {
+        message: 'All',
+        context: 'Refer to the all user types filter.',
+      },
+      allFacilityFilter: {
+        message: 'All',
+        context:
+          'Refers to the all facility filter. Will only display if the user has access to multiple facilities.',
+      },
     },
   };
 

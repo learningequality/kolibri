@@ -16,7 +16,11 @@
   export default {
     name: 'TocButton',
     $trs: {
-      toggleTocSideBar: 'Toggle table of contents',
+      toggleTocSideBar: {
+        message: 'Toggle table of contents',
+        context:
+          'Learners can use the list button in the upper left corner to view the table of contents with all the book chapters.',
+      },
     },
   };
 

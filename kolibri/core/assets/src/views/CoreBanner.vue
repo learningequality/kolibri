@@ -83,7 +83,10 @@
       },
     },
     $trs: {
-      openButton: 'More Info',
+      openButton: {
+        message: 'More Info',
+        context: 'Indicates that there is more information available when this button is selected.',
+      },
     },
   };
 

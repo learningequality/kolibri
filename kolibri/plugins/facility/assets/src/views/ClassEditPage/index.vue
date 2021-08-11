@@ -176,14 +176,35 @@
       },
     },
     $trs: {
-      enrollLearnerButtonLabel: 'Enroll learners',
-      assignCoachesButtonLabel: 'Assign coaches',
-      coachEnrollmentPageTitle: 'Manage class coaches and learners',
-      noCoachesInClassMessge: "You don't have any assigned coaches",
-      noLearnersInClassMessage: "You don't have any enrolled learners",
+      enrollLearnerButtonLabel: {
+        message: 'Enroll learners',
+        context: 'Button on class edit page used to add learners to a class.',
+      },
+      assignCoachesButtonLabel: {
+        message: 'Assign coaches',
+        context: 'Button on class edit page which user uses to add a coach to a class.',
+      },
+      coachEnrollmentPageTitle: {
+        message: 'Manage class coaches and learners',
+        context: 'Description of class edit page.',
+      },
+      noCoachesInClassMessge: {
+        message: "You don't have any assigned coaches",
+        context:
+          'This text displays in the edit class page if there are no coaches assigned to a class.',
+      },
+      noLearnersInClassMessage: {
+        message: "You don't have any enrolled learners",
+        context:
+          'This text displays in the edit class page if there are no learners enrolled in a class.',
+      },
       edit: 'Edit class name',
       documentTitle: 'Edit Class',
-      renameButtonLabel: 'Edit',
+      renameButtonLabel: {
+        message: 'Edit',
+        context:
+          "Users can change the name of a class using the 'Edit' button beside the class name.",
+      },
     },
   };
 

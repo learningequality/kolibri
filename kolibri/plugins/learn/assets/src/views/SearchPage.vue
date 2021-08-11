@@ -114,10 +114,19 @@
       },
     },
     $trs: {
-      noSearch: 'Search by typing in the box above',
-      showingResultsFor:
-        "{totalResults, plural, one {{totalResults} result} other {{totalResults} results}} for '{searchTerm}'",
-      noResultsMsg: "No results for '{searchTerm}'",
+      noSearch: {
+        message: 'Search by typing in the box above',
+        context: 'Indicates how to use the search functionality,',
+      },
+      showingResultsFor: {
+        message:
+          "{totalResults, plural, one {{totalResults} result} other {{totalResults} results}} for '{searchTerm}'",
+        context: 'Indicates the number of search results for the specific search term.',
+      },
+      noResultsMsg: {
+        message: "No results for '{searchTerm}'",
+        context: 'Message displayed if no results are matched in a search query.',
+      },
     },
   };
 

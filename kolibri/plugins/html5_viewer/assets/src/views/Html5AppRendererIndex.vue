@@ -157,7 +157,9 @@
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},
         this.userData,
-        this.defaultFile.storage_url,
+        this.defaultFile.extension === 'zip'
+          ? urls.zipContentUrl(this.defaultFile.checksum, this.defaultFile.extension)
+          : this.defaultFile.storage_url,
         this.defaultFile.checksum
       );
       this.$emit('startTracking');
@@ -185,8 +187,16 @@
       },
     },
     $trs: {
-      exitFullscreen: 'Exit Fullscreen',
-      enterFullscreen: 'View Fullscreen',
+      exitFullscreen: {
+        message: 'Exit Fullscreen',
+        context:
+          "Learners can use the Esc key or the 'exit fullscreen' button to close the fullscreen view on an html5 app.",
+      },
+      enterFullscreen: {
+        message: 'View Fullscreen',
+        context:
+          'Learners can use the full screen button in the upper right corner to open an html5 app in fullscreen view.\n',
+      },
     },
   };
 

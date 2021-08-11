@@ -89,8 +89,15 @@
       },
     },
     $trs: {
-      pageHeader: 'Import users',
-      loading: 'Loading...',
+      pageHeader: {
+        message: 'Import users',
+        context: "Title of the 'Import users' page where spreadsheets can be imported.",
+      },
+      loading: {
+        message: 'Loading...',
+        context:
+          "Refers to when a CSV is being imported. During the import process this texts displays to indicate that it is 'loading' into Kolibri.",
+      },
     },
   };
 
