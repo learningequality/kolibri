@@ -15,52 +15,84 @@
       <h1>
         {{ $tr('documentTitle', { lessonName: currentLesson.title }) }}
       </h1>
+      <div v-if="!showChannels">
+        <!-- <div><a href="#" @click="showChannels = true">Select source </a> > <b>Bookmarks</b></div> -->
+        <ResourceSelectionBreadcrumbs
+          v-if="!inSearchMode"
+          :ancestors="ancestors"
+          :topicsLink="topicsLink"
+          :channelsLink="{}"
+        />
+        <ContentCardList
+          v-if="bookmarkNodes"
+          :contentList="bookmarkNodes"
+          :showSelectAll="selectAllIsVisible"
+          :selectAllChecked="addableContent.length === 0"
+          :contentCardLink="contentLink"
+          :contentIsChecked="contentIsInLesson"
+          :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
+          :viewMoreButtonState="viewMoreButtonState"
+          :contentCardMessage="selectionMetadata"
+          @changeselectall="toggleTopicInWorkingResources"
+          @change_content_card="toggleSelected"
+          @moreresults="handleMoreResults"
+        />
+      </div>
+      <div v-else>
+        <div @click="lessonCardClicked">
+          <LessonContentCard
+            title="Bookmarks"
+            :link="{}"
+            kind="bookmark"
+            :description="this.bookmarks.length + ' resources'"
+            :isLeaf="false"
+          />
+        </div>
+        <KGrid>
+          <KGridItem :layout12="{ span: 6 }">
+            <LessonsSearchBox @searchterm="handleSearchTerm" />
+          </KGridItem>
 
-      <KGrid>
-        <KGridItem :layout12="{ span: 6 }">
-          <LessonsSearchBox @searchterm="handleSearchTerm" />
-        </KGridItem>
+          <KGridItem :layout12="{ span: 6, alignment: 'right' }">
+            <p>
+              {{ $tr('totalResourcesSelected', { total: workingResources.length }) }}
+            </p>
+          </KGridItem>
+        </KGrid>
 
-        <KGridItem :layout12="{ span: 6, alignment: 'right' }">
-          <p>
-            {{ $tr('totalResourcesSelected', { total: workingResources.length }) }}
-          </p>
-        </KGridItem>
-      </KGrid>
+        <LessonsSearchFilters
+          v-if="inSearchMode"
+          v-model="filters"
+          class="search-filters"
+          :searchTerm="searchTerm"
+          :searchResults="searchResults"
+        />
 
-      <LessonsSearchFilters
-        v-if="inSearchMode"
-        v-model="filters"
-        class="search-filters"
-        :searchTerm="searchTerm"
-        :searchResults="searchResults"
-      />
+        <ResourceSelectionBreadcrumbs
+          v-if="!inSearchMode"
+          :ancestors="ancestors"
+          :channelsLink="channelsLink"
+          :topicsLink="topicsLink"
+        />
 
-      <ResourceSelectionBreadcrumbs
-        v-if="!inSearchMode"
-        :ancestors="ancestors"
-        :channelsLink="channelsLink"
-        :topicsLink="topicsLink"
-      />
+        <h2>{{ topicTitle }}</h2>
+        <p>{{ topicDescription }}</p>
 
-      <h2>{{ topicTitle }}</h2>
-      <p>{{ topicDescription }}</p>
-
-      <ContentCardList
-        v-if="!isExiting"
-        :contentList="filteredContentList"
-        :showSelectAll="selectAllIsVisible"
-        :viewMoreButtonState="viewMoreButtonState"
-        :selectAllChecked="addableContent.length === 0"
-        :contentIsChecked="contentIsInLesson"
-        :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
-        :contentCardMessage="selectionMetadata"
-        :contentCardLink="contentLink"
-        @changeselectall="toggleTopicInWorkingResources"
-        @change_content_card="toggleSelected"
-        @moreresults="handleMoreResults"
-      />
-
+        <ContentCardList
+          v-if="!isExiting"
+          :contentList="filteredContentList"
+          :showSelectAll="selectAllIsVisible"
+          :viewMoreButtonState="viewMoreButtonState"
+          :selectAllChecked="addableContent.length === 0"
+          :contentIsChecked="contentIsInLesson"
+          :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
+          :contentCardMessage="selectionMetadata"
+          :contentCardLink="contentLink"
+          @changeselectall="toggleTopicInWorkingResources"
+          @change_content_card="toggleSelected"
+          @moreresults="handleMoreResults"
+        />
+      </div>
     </KPageContainer>
 
     <BottomAppBar>
@@ -88,6 +120,11 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
+  import {
+    BookmarksResource,
+    ContentNodeResource,
+  } from '../../../../../../../../kolibri/core/assets/src/api-resources/index.js';
+  import LessonContentCard from './LessonContentCard/index';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from './SearchTools/ResourceSelectionBreadcrumbs';
@@ -107,6 +144,7 @@
       LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
       BottomAppBar,
+      LessonContentCard,
     },
     mixins: [commonCoach, commonCoreStrings],
     data() {
@@ -120,6 +158,9 @@
         isExiting: false,
         moreResultsState: null,
         resourcesChanged: false,
+        bookmarks: [],
+        bookmarkNodes: [],
+        showChannels: true,
       };
     },
     computed: {
@@ -240,6 +281,15 @@
       },
     },
     watch: {
+      $route(to, from) {
+        if (this.$route.params.topicId) {
+          ContentNodeResource.fetchCollection({
+            getParams: { parent: this.$route.params.topicId },
+          }).then(bookmarks => {
+            this.bookmarkNodes = bookmarks;
+          });
+        }
+      },
       workingResources(newVal, oldVal) {
         this.showResourcesDifferenceMessage(newVal.length - oldVal.length);
         this.debouncedSaveResources();
@@ -290,6 +340,11 @@
           });
       }
     },
+    created() {
+      this.getBookmarks().then(data => {
+        this.getBookmarksData();
+      });
+    },
     methods: {
       ...mapActions(['createSnackbar', 'clearSnackbar']),
       ...mapActions('lessonSummary', ['saveLessonResources', 'addToResourceCache']),
@@ -298,6 +353,21 @@
         addToWorkingResources: 'ADD_TO_WORKING_RESOURCES',
         removeFromSelectedResources: 'REMOVE_FROM_WORKING_RESOURCES',
       }),
+      getBookmarksData() {
+        this.bookmarks.forEach(bookmark => {
+          ContentNodeResource.fetchModel({ id: bookmark.contentnode_id }).then(data => {
+            this.bookmarkNodes.push(data);
+          });
+        });
+      },
+      getBookmarks() {
+        return BookmarksResource.fetchCollection().then(bookmarks => {
+          this.bookmarks = bookmarks;
+        });
+      },
+      lessonCardClicked() {
+        this.showChannels = false;
+      },
       showResourcesDifferenceMessage(difference) {
         if (difference === 0) {
           return;

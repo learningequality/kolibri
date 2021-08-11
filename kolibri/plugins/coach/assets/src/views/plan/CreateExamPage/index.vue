@@ -81,44 +81,71 @@
       </KGrid>
 
       <h2>{{ $tr('chooseExercises') }}</h2>
+      <div v-if="!showChannels">
+        <br>
+        <ContentCardList 
+          :contentList="bookmarkNodes"
+          :contentHasCheckbox="contentHasCheckbox"
+          :contentCardMessage="() => {return ''}"
+          :contentCardLink="contentLink"
+          :contentIsChecked="() => {return false}"
+          :viewMoreButtonState="viewMoreButtonState"
+          :showSelectAll="selectAllIsVisible"
+          :contentIsIndeterminate="() => { return false }"
+          :selectAllChecked="selectAllChecked"
+          :selectAllIndeterminate="selectAllIndeterminate"
+          @changeselectall="toggleTopicInWorkingResources"
+          @change_content_card="toggleSelected"
+          @moreresults="handleMoreResults"
+        />
+      </div>
+      <div v-if="showChannels">
+        <p>Select from bookmarks</p>
+        <div @click="lessonCardClicked">
+          <LessonContentCard
+            title="Bookmarks"
+            :link="{}"
+            kind="bookmark"
+            :description="this.bookmarks.length + ' resources'"
+            :isLeaf="false"
+          />
+        </div>
+        <LessonsSearchBox
+          class="search-box"
+          @searchterm="handleSearchTerm"
+        />
 
-      <LessonsSearchBox
-        class="search-box"
-        @searchterm="handleSearchTerm"
-      />
-
-      <LessonsSearchFilters
-        v-if="inSearchMode"
-        v-model="filters"
-        :searchTerm="searchTerm"
-        :searchResults="searchResults"
-      />
-      <ResourceSelectionBreadcrumbs
-        v-else
-        :ancestors="ancestors"
-        :channelsLink="channelsLink"
-        :topicsLink="topicsLink"
-      />
-
-      <h2>{{ topicTitle }}</h2>
-      <p>{{ topicDescription }}</p>
-
-      <ContentCardList
-        :contentList="filteredContentList"
-        :showSelectAll="selectAllIsVisible"
-        :viewMoreButtonState="viewMoreButtonState"
-        :selectAllChecked="selectAllChecked"
-        :selectAllIndeterminate="selectAllIndeterminate"
-        :contentIsChecked="contentIsSelected"
-        :contentIsIndeterminate="contentIsIndeterminate"
-        :contentHasCheckbox="contentHasCheckbox"
-        :contentCardMessage="selectionMetadata"
-        :contentCardLink="contentLink"
-        @changeselectall="toggleTopicInWorkingResources"
-        @change_content_card="toggleSelected"
-        @moreresults="handleMoreResults"
-      />
-
+        <LessonsSearchFilters
+          v-if="inSearchMode"
+          v-model="filters"
+          :searchTerm="searchTerm"
+          :searchResults="searchResults"
+        />
+        <ResourceSelectionBreadcrumbs
+          v-else
+          :ancestors="ancestors"
+          :channelsLink="channelsLink"
+          :topicsLink="topicsLink"
+        />
+        <h2>{{ topicTitle }}</h2>
+        <p>{{ topicDescription }}</p>
+        <p>Select from channels</p>
+        <ContentCardList
+          :contentList="filteredContentList"
+          :showSelectAll="selectAllIsVisible"
+          :viewMoreButtonState="viewMoreButtonState"
+          :selectAllChecked="selectAllChecked"
+          :selectAllIndeterminate="selectAllIndeterminate"
+          :contentIsChecked="contentIsSelected"
+          :contentIsIndeterminate="contentIsIndeterminate"
+          :contentHasCheckbox="contentHasCheckbox"
+          :contentCardMessage="selectionMetadata"
+          :contentCardLink="contentLink"
+          @changeselectall="toggleTopicInWorkingResources"
+          @change_content_card="toggleSelected"
+          @moreresults="handleMoreResults"
+        />
+      </div>
       <BottomAppBar v-if="inSearchMode">
         <KRouterLink
           appearance="raised-button"
@@ -159,6 +186,11 @@
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import {
+    BookmarksResource,
+    ContentNodeResource,
+  } from '../../../../../../../core/assets/src/api-resources/index';
+
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
@@ -166,6 +198,7 @@
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
   import commonCoach from '../../common';
+  import LessonContentCard from '../LessonResourceSelectionPage/LessonContentCard/index';
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -177,6 +210,7 @@
       ResourceSelectionBreadcrumbs,
       ContentCardList,
       BottomAppBar,
+      LessonContentCard,
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     data() {
@@ -190,6 +224,9 @@
           role: this.$route.query.role || null,
         },
         numQuestionsBlurred: false,
+        showChannels: true,
+        bookmarks: [],
+        bookmarkNodes: [],
       };
     },
     computed: {
@@ -359,11 +396,25 @@
       },
     },
     watch: {
+      $route(to, from) {
+        if (this.$route.params.topicId) {
+          ContentNodeResource.fetchCollection({
+            getParams: { parent: this.$route.params.topicId },
+          }).then(bookmarks => {
+            this.bookmarkNodes = bookmarks;
+          });
+        }
+      },
       filters(newVal) {
         this.$router.push({
           query: { ...this.$route.query, ...pickBy(newVal) },
         });
       },
+    },
+    created() {
+      this.getBookmarks().then(data => {
+        this.getBookmarksData();
+      });
     },
     methods: {
       ...mapActions('examCreation', [
@@ -371,6 +422,21 @@
         'removeFromSelectedExercises',
         'fetchAdditionalSearchResults',
       ]),
+      getBookmarksData() {
+        this.bookmarks.forEach(bookmark => {
+          ContentNodeResource.fetchModel({ id: bookmark.contentnode_id }).then(data => {
+            this.bookmarkNodes.push(data);
+          });
+        });
+      },
+      getBookmarks() {
+        return BookmarksResource.fetchCollection().then(bookmarks => {
+          this.bookmarks = bookmarks;
+        });
+      },
+      lessonCardClicked() {
+        this.showChannels = false;
+      },
       contentLink(content) {
         if (!content.is_leaf) {
           return {
@@ -549,6 +615,15 @@
   .search-box {
     display: inline-block;
     vertical-align: middle;
+  }
+
+  .bookmarks-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .lesson-content-card {
+    width: 100%;
   }
 
 </style>

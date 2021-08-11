@@ -12,6 +12,10 @@ export const DynamicNetworkLocationResource = new Resource({
   name: 'dynamicnetworklocation',
 });
 
+export const BookmarksResource = new Resource({
+  name: 'bookmarks',
+});
+
 export { default as ClassroomResource } from './classroom';
 export { default as ContentNodeResource } from './contentNode';
 export { default as ContentNodeGranularResource } from './contentNodeGranular';
