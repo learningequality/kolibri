@@ -62,7 +62,10 @@
     },
     methods: {
       handleNext() {
-        this.lodService.send({ type: 'CONTINUE', value: this.selectedFacility });
+        this.lodService.send({
+          type: 'CONTINUE',
+          value: { device: null, facility: this.selectedFacility },
+        });
       },
     },
     $trs: {

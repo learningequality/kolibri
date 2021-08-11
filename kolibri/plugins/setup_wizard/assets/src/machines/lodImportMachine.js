@@ -4,14 +4,15 @@ import ImportIndividualUserForm from '../views/importLODUsers/ImportIndividualUs
 import LoadingTaskPage from '../views/importLODUsers/LoadingTaskPage';
 import MultipleUsers from '../views/importLODUsers/MultipleUsers';
 
+const getDevice = data => ({
+  name: data.device_name,
+  id: data.device_id,
+  baseurl: data.device_address,
+  facilities: [...data.facilities],
+});
+
 const assignDevice = assign((_, event) => {
-  const data = event.value;
-  const _device = {
-    name: data.device_name,
-    id: data.device_id,
-    baseurl: data.device_address,
-    facilities: [...data.facilities],
-  };
+  const _device = getDevice(event.value);
   const _facility = { name: null, id: null, adminuser: null, adminpassword: null };
   if (_device.facilities.length === 1) {
     _facility.name = _device.facilities[0].name;
@@ -26,8 +27,13 @@ const assignDevice = assign((_, event) => {
   };
 });
 
-const assignFacility = assign({
-  facility: (_, event) => event.value,
+const assignFacility = assign((_, event) => {
+  const ctx = { facility: event.value.facility };
+  if (event.value.device) {
+    ctx['device'] = getDevice(event.value.device);
+    ctx['total_steps'] = 3;
+  }
+  return ctx;
 });
 
 const importUser = assign((context, event) => {

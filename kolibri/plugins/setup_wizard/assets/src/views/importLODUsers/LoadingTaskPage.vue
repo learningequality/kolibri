@@ -65,6 +65,8 @@
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
   import { SetupSoUDTasksResource } from '../../api';
 
+  const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+
   export default {
     name: 'LoadingTaskPage',
     components: {
@@ -152,6 +154,7 @@
       },
       redirectToChannels() {
         this.welcomeModal = false;
+        window.sessionStorage.setItem(welcomeDimissalKey, true);
         const device_url = urls['kolibri:kolibri.plugins.device:device_management']();
         redirectBrowser(device_url);
       },

@@ -86,7 +86,10 @@
       this.fetchNetworkLocationFacilities(this.$route.query.device_id)
         .then(data => {
           if (data.facilities.length === 1)
-            this.service.send({ type: 'CONTINUE', value: data.facilities[0] });
+            this.service.send({
+              type: 'CONTINUE',
+              value: { device: data, facility: data.facilities[0] },
+            });
           else if (data.facilities.length > 1)
             this.service.send({ type: 'DEVICE_DATA', value: data });
           else if (data.facilities.length === 0)
