@@ -3,7 +3,7 @@
   <OnboardingForm
     :header="$tr('importIndividualUsersHeader')"
     :description="formDescription"
-    :submitText="$tr('import')"
+    :submitText="coreString('importAction')"
     :disabled="username === ''"
     @submit="handleSubmit"
   >
@@ -238,7 +238,6 @@
       },
       doNotHaveUserCredentials: 'Don’t have user’s credentials?',
       useAdmin: 'Use an admin account',
-      import: 'Import',
     },
   };
 

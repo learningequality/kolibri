@@ -1,8 +1,8 @@
 import { createMachine, assign } from 'xstate';
 import SelectFacilityForm from '../views/importLODUsers/SelectFacilityForm.vue';
 import ImportIndividualUserForm from '../views/importLODUsers/ImportIndividualUserForm.vue';
-import SelectSuperAdminAccountForm from '../views/importFacility/SelectSuperAdminAccountForm';
 import LoadingTaskPage from '../views/importLODUsers/LoadingTaskPage';
+import MultipleUsers from '../views/importLODUsers/MultipleUsers';
 
 const assignDevice = assign((_, event) => {
   const data = event.value;
@@ -32,6 +32,7 @@ const assignFacility = assign({
 
 const importUser = assign((context, event) => {
   const user = {
+    id: event.value.id,
     username: event.value.username,
     password: event.value.password,
     full_name: event.value.full_name,
@@ -47,7 +48,7 @@ const registerUsers = assign((context, event) => {
   context.facility['adminUser'] = event.value.adminUsername;
   context.facility['adminPassword'] = event.value.adminPassword;
   return {
-    users: event.value.users,
+    remoteStudents: event.value.users,
   };
 });
 
@@ -60,6 +61,7 @@ export const lodImportMachine = createMachine({
     facilities: [],
     facility: { name: null, id: null, adminUser: null, adminPassword: null },
     users: [],
+    remoteStudents: [],
     task: null,
   },
   states: {
@@ -74,7 +76,7 @@ export const lodImportMachine = createMachine({
       meta: { step: '2', component: ImportIndividualUserForm },
       on: {
         CONTINUE: { target: 'importingUser', actions: importUser },
-        CONTINUEADMIN: { target: 'adminCredentials', actions: registerUsers },
+        CONTINUEADMIN: { target: 'selectUsers', actions: registerUsers },
         BACK: 'selectFacility',
       },
     },
@@ -84,18 +86,17 @@ export const lodImportMachine = createMachine({
         BACK: 'userCredentials',
       },
     },
-    adminCredentials: {
-      meta: { step: '2', component: SelectSuperAdminAccountForm },
+    selectUsers: {
+      meta: { step: '2', component: MultipleUsers },
       on: {
-        CONTINUE: { target: 'selectUsers' },
+        CONTINUE: { target: 'importingSingleUser', actions: importUser },
         BACK: 'userCredentials',
       },
     },
-    selectUsers: {
-      meta: { step: '3' },
+    importingSingleUser: {
+      meta: { step: '3', component: LoadingTaskPage },
       on: {
-        CONTINUE: { target: 'importingUser' },
-        BACK: 'adminCredentials',
+        BACK: { target: 'selectUsers' },
       },
     },
     modalCoachAdmins: {},

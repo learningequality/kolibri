@@ -80,16 +80,18 @@ def validate_soud_credentials(request, task_description):
     user_info = facility_info["user"]
     full_name = user_info["full_name"]
     roles = user_info["roles"]
-    not_syncable = (SUPERUSER, COACH, ASSIGNABLE_COACH, ADMIN)
-    if any([role in roles for role in not_syncable]):
-        raise ValidationError(
-            detail={
-                "id": DEVICE_LIMITATIONS,
-                "full_name": full_name,
-                "roles": ", ".join(roles),
-            }
-        )
+
+    # syncing as a normal user, not using an admin account:
     if user_id is None:
+        not_syncable = (SUPERUSER, COACH, ASSIGNABLE_COACH, ADMIN)
+        if any([role in roles for role in not_syncable]):
+            raise ValidationError(
+                detail={
+                    "id": DEVICE_LIMITATIONS,
+                    "full_name": full_name,
+                    "roles": ", ".join(roles),
+                }
+            )
         user_id = user_info["id"]
 
     instance_model = InstanceIDModel.get_or_create_current_instance()[0]
