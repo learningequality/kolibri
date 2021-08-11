@@ -85,7 +85,7 @@ class Command(AsyncCommand):
         parser.add_argument(
             "--resync-interval",
             type=int,
-            default=5,
+            default=None,
             help="Seconds to schedule a new sync",
         )
         # parser.add_argument("--scope-id", type=str, default=FULL_FACILITY)
@@ -278,7 +278,7 @@ class Command(AsyncCommand):
             self.job.save_meta()
 
         dataset_cache.deactivate()
-        if user_id:
+        if user_id and resync_interval:
             schedule_new_sync(baseurl, user_id, resync_interval)
         logger.info("Syncing has been completed.")
 
