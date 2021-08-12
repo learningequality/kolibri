@@ -460,22 +460,40 @@ class FacilityAPITestCase(APITestCase):
         self.assertEqual(models.Facility.objects.all().count(), len(response.data))
 
     def test_public_facilityuser_endpoint(self):
-        credentials = base64.b64encode(
-            "{}@{}:{}".format(
-                self.user1.username, self.facility1.id, DUMMY_PASSWORD
-            ).encode("utf-8")
-        )
+        if sys.version_info[0] == 2:
+            credentials = base64.b64encode(
+                "{}@{}:{}".format(
+                    self.user1.username, self.facility1.id, DUMMY_PASSWORD
+                ).encode("utf-8")
+            )
+        else:
+            credentials = base64.b64encode(
+                str.encode(
+                    "{}@{}:{}".format(
+                        self.user1.username, self.facility1.id, DUMMY_PASSWORD
+                    )
+                )
+            ).decode("ascii")
         self.client.credentials(HTTP_AUTHORIZATION="Basic {}".format(credentials))
         response = self.client.get(
             reverse("kolibri:core:publicuser-list"),
             format="json",
         )
         self.assertEqual(len(response.data), 1)
-        credentials = base64.b64encode(
-            "{}@{}:{}".format(
-                self.superuser.username, self.facility1.id, DUMMY_PASSWORD
-            ).encode("utf-8")
-        )
+        if sys.version_info[0] == 2:
+            credentials = base64.b64encode(
+                "{}@{}:{}".format(
+                    self.superuser.username, self.facility1.id, DUMMY_PASSWORD
+                ).encode("utf-8")
+            )
+        else:
+            credentials = base64.b64encode(
+                str.encode(
+                    "{}@{}:{}".format(
+                        self.superuser.username, self.facility1.id, DUMMY_PASSWORD
+                    )
+                )
+            ).decode("ascii")
         self.client.credentials(HTTP_AUTHORIZATION="Basic {}".format(credentials))
         response = self.client.get(
             reverse("kolibri:core:publicuser-list"),
