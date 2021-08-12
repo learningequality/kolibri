@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import json
 import logging
 import platform
@@ -116,9 +117,11 @@ def startpeerusersync(
         server, facility_id, user_id, extra_metadata=extra_metadata
     )
     job_data["resync_interval"] = resync_interval
-    job_id = queue.enqueue(call_command, "sync", **job_data)
+    JOB_ID = hashlib.md5("{}::{}".format(server, user).encode()).hexdigest()
+    job_data["job_id"] = JOB_ID
+    job = queue.enqueue(call_command, "sync", **job_data)
 
-    return job_id
+    return job
 
 
 def begin_request_soud_sync(server, user):
@@ -222,6 +225,7 @@ def handle_server_sync_response(response, server, user):
     # In either case, we set the sync status for this user as queued
     # Once the sync starts, then this should get cleared and the SyncSession
     # set on the status, so that more info can be garnered.
+    JOB_ID = hashlib.md5("{}::{}".format(server, user).encode()).hexdigest()
     response_content = (
         response.content.decode()
         if isinstance(response.content, bytes)
@@ -241,7 +245,7 @@ def handle_server_sync_response(response, server, user):
         pk = server_response["id"]
         time_alive = server_response["keep_alive"]
         dt = datetime.timedelta(seconds=int(time_alive))
-        job = Job(request_soud_sync, server, user, pk)
+        job = Job(request_soud_sync, server, user, pk, job_id=JOB_ID)
         scheduler.enqueue_in(dt, job)
         logger.info(
             "Server busy, will try again in {} seconds with pk={}".format(
@@ -253,5 +257,6 @@ def handle_server_sync_response(response, server, user):
 def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVAL"]):
     # reschedule the process for a new sync
     dt = datetime.timedelta(seconds=interval)
-    job = Job(request_soud_sync, server, user)
+    JOB_ID = hashlib.md5("{}:{}".format(server, user).encode()).hexdigest()
+    job = Job(request_soud_sync, server, user, job_id=JOB_ID)
     scheduler.enqueue_in(dt, job)
