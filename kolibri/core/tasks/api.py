@@ -272,7 +272,6 @@ class BaseViewSet(viewsets.ViewSet):
 
             funcstr = request_data.pop("task")
             registered_job = JobRegistry.REGISTERED_JOBS[funcstr]
-
             # Run validator with request and request_data as its argument
             if registered_job.validator is not None:
                 try:

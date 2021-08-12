@@ -311,9 +311,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
 
         # Do we call enqueue the right way i.e. are we passing
         # the request's data as keyword args to enqueue method?
-        mock_enqueue.assert_called_once_with(
-            **{"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"}
-        )
+        mock_enqueue.assert_called_once_with(**{"kolibri": "fly"})
 
         # Do we retrieve the task from db to ready the response?
         mock_job_storage.get_job.assert_called_once_with("test")
@@ -371,12 +369,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         self.assertEqual(mock_enqueue.call_count, 2)
         mock_enqueue.assert_has_calls(
             [
-                call(
-                    **{"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"}
-                ),
-                call(
-                    **{"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"}
-                ),
+                call(**{"kolibri": "fly"}),
+                call(**{"kolibri": "fly"}),
             ]
         )
 
@@ -392,7 +386,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             self.assertIsInstance(req, Request)
             self.assertDictEqual(
                 req_data,
-                {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
+                {"kolibri": "fly"},
             )
             return {"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}
 
@@ -435,13 +429,13 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         # Do we retrieve the task from db to ready the response?
         mock_job_storage.get_job.assert_called_once_with("test")
 
-    def test_api_handles_bulk_task_with_vaidator(self, mock_enqueue, mock_job_storage):
+    def test_api_handles_bulk_task_with_validator(self, mock_enqueue, mock_job_storage):
         def add_validator(req, req_data):
             # Does validator receives the right arguments?
             self.assertIsInstance(req, Request)
             self.assertDictEqual(
                 req_data,
-                {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
+                {"kolibri": "fly"},
             )
             return {"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}
 
@@ -458,7 +452,6 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
             {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
         ]
-
         response = self.client.post(
             reverse("kolibri:core:task-list"),
             request_payload,
