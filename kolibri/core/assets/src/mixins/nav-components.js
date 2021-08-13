@@ -37,5 +37,15 @@ export default {
         return this.isLearner || this.isCoach || this.isAdmin || this.isSuperuser;
       }
     },
+    filterIfSoUD(isSoUD) {
+      // Returns a filter predicate depending on if on SoUD
+      if (!isSoUD) {
+        // Don't filter anything if not on SoUD
+        return () => true;
+      } else {
+        const hiddenNavItemRoles = [UserKinds.COACH, UserKinds.ADMIN, UserKinds.CAN_MANAGE_CONTENT];
+        return navItem => !hiddenNavItemRoles.includes(navItem.role);
+      }
+    },
   },
 };

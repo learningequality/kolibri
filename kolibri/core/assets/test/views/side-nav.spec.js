@@ -189,20 +189,39 @@ describe('side nav component', () => {
     });
   });
 
-  describe('SoUD sync status and learn-only device indicators', () => {
+  describe('when on an SoUD or NOT', () => {
     describe('on an SoUD', () => {
       let wrapper;
-      beforeAll(async () => {
+      beforeEach(async () => {
         wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
       });
 
       it('shows the Learn-only notice', () => {
         expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
       });
+
+      const hiddenSideNavComponentRoles = [
+        UserKinds.ADMIN,
+        UserKinds.COACH,
+        UserKinds.CAN_MANAGE_CONTENT,
+      ];
+
+      it.each(hiddenSideNavComponentRoles)('does not show the %s SideNavEntry', async role => {
+        const hiddenComponent = createAndRegisterComponent(`${role}SideNavEntry`, { role });
+        const learnComponent = createAndRegisterComponent(`${UserKinds.LEARNER}SideNavEntry`, {
+          role: UserKinds.LEARNER,
+        });
+
+        setUserKind(wrapper.vm.$store, UserKinds.SUPERUSER);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.findComponent(learnComponent).exists()).toBe(true);
+        expect(wrapper.findComponent(hiddenComponent).exists()).toBe(false);
+      });
     });
-    describe('not on a SoUD', () => {
+    describe('NOT on a SoUD', () => {
       let wrapper;
-      beforeAll(async () => {
+      beforeEach(async () => {
         wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: false });
       });
 

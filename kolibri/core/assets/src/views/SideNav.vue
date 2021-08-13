@@ -204,9 +204,9 @@
         const accountComponents = navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
           .sort(this.compareMenuComponents);
-        return [...topComponents, SideNavDivider, ...accountComponents, logout].filter(
-          this.filterByRole
-        );
+        return [...topComponents, SideNavDivider, ...accountComponents, logout]
+          .filter(this.filterByRole)
+          .filter(this.filterIfSoUD(this.isSubsetOfUsersDevice));
       },
       sideNavTitleText() {
         if (this.$kolibriBranding.sideNav.title) {
