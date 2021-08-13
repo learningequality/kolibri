@@ -135,14 +135,13 @@ class BaseValuesViewset(viewsets.GenericViewSet):
     field_map = {}
 
     def __init__(self, *args, **kwargs):
-        viewset = super(BaseValuesViewset, self).__init__(*args, **kwargs)
+        super(BaseValuesViewset, self).__init__(*args, **kwargs)
         if not hasattr(self, "values") or not isinstance(self.values, tuple):
             raise TypeError("values must be defined as a tuple")
         self._values = tuple(self.values)
         if not isinstance(self.field_map, dict):
             raise TypeError("field_map must be defined as a dict")
         self._field_map = self.field_map.copy()
-        return viewset
 
     def generate_serializer(self):
         queryset = getattr(self, "queryset", None)
