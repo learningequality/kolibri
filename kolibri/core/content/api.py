@@ -1189,7 +1189,6 @@ class ContentNodeProgressViewset(ReadOnlyValuesViewset):
         return models.ContentNode.objects.all()
 
     def consolidate(self, items, queryset):
-        from kolibri.core.logger.models import ContentSummaryLog
 
         leaves = (
             queryset.get_descendants(include_self=True)

@@ -367,7 +367,6 @@ class DaemonizePlugin(SimplePlugin):
     def ENTER(self):
         self.bus.publish("log", "Running Kolibri as background process", 20)
         # Daemonize at this point, no more user output is needed
-        from django.conf import settings
 
         kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
         self.bus.publish(
