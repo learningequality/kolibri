@@ -4,16 +4,20 @@ import navComponents from 'kolibri.utils.navComponents';
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
 import SideNav from '../../src/views/SideNav';
 import logoutSideNavEntry from '../../src/views/LogoutSideNavEntry';
+import LearnOnlyDeviceNotice from '../../src/views/LearnOnlyDeviceNotice';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
 
 jest.mock('kolibri.urls');
 
-function createWrapper({ navShown = true, headerHeight = 20, width = 100 } = {}) {
+function createWrapper({ navShown = true, headerHeight = 20, width = 100 } = {}, data = {}) {
   return mount(SideNav, {
     propsData: {
       navShown,
       headerHeight,
       width,
+    },
+    data() {
+      return { ...data };
     },
     store: makeStore(),
   });
@@ -182,6 +186,29 @@ describe('side nav component', () => {
       const wrapper = createWrapper();
       expect(wrapper.vm.menuOptions[1]).toBe(component1);
       expect(wrapper.vm.menuOptions[0]).toBe(component2);
+    });
+  });
+
+  describe('SoUD sync status and learn-only device indicators', () => {
+    describe('on an SoUD', () => {
+      let wrapper;
+      beforeAll(async () => {
+        wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
+      });
+
+      it('shows the Learn-only notice', () => {
+        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
+      });
+    });
+    describe('not on a SoUD', () => {
+      let wrapper;
+      beforeAll(async () => {
+        wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: false });
+      });
+
+      it('shows no notice', () => {
+        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(false);
+      });
     });
   });
 });

@@ -82,7 +82,7 @@
                   :userType="getUserKind"
                 />
               </div>
-              <div v-if="shouldPollAndDisplaySyncStatus" data-test="syncStatusInDropdown">
+              <div v-if="isSubsetOfUsersDevice" data-test="syncStatusInDropdown">
                 <div class="sync-status">
                   {{ $tr('deviceStatus') }}
                 </div>
@@ -104,6 +104,12 @@
               <LogoutSideNavEntry v-if="isUserLoggedIn" />
             </template>
 
+            <template #footer>
+              <!-- Only show this when on a SoUD -->
+              <div v-if="isSubsetOfUsersDevice" class="role" data-test="learnOnlyNotice">
+                <LearnOnlyDeviceNotice />
+              </div>
+            </template>
           </CoreMenu>
 
         </div>
@@ -122,13 +128,14 @@
   import { mapGetters, mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
+  import LearnOnlyDeviceNotice from 'kolibri.coreVue.components.LearnOnlyDeviceNotice';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import UiButton from 'kolibri-design-system/lib/keen/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
-  import { NavComponentSections, SyncStatus, UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import { NavComponentSections, SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import branding from 'kolibri.utils.branding';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
@@ -146,6 +153,7 @@
       CoreMenu,
       UiButton,
       CoreMenuOption,
+      LearnOnlyDeviceNotice,
       LogoutSideNavEntry,
       UserTypeDisplay,
       SkipNavigationLink,
@@ -194,10 +202,6 @@
         }
         return SyncStatus.NOT_CONNECTED;
       },
-      shouldPollAndDisplaySyncStatus() {
-        // We only show sync status (and poll for it) if a learner is on a SoUD
-        return this.isSubsetOfUsersDevice && this.getUserKind === UserKinds.LEARNER;
-      },
     },
     created() {
       window.addEventListener('click', this.handleWindowClick);
@@ -216,7 +220,7 @@
             this.setPollingInterval(this.userSyncStatus.status);
           }
         });
-        if (this.isPolling && this.shouldPollAndDisplaySyncStatus) {
+        if (this.isPolling && this.isSubsetOfUsersDevice) {
           setTimeout(() => {
             this.pollUserSyncStatusTask();
           }, this.pollingInterval);
@@ -356,7 +360,8 @@
     font-weight: bold;
   }
 
-  .sync-status {
+  .sync-status,
+  .notice-label {
     margin-top: 16px;
     margin-bottom: 8px;
     font-size: small;

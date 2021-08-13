@@ -1,3 +1,4 @@
+import Vuex from 'vuex';
 import { mount } from '@vue/test-utils';
 import navComponents from 'kolibri.utils.navComponents';
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
@@ -6,11 +7,26 @@ import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
 import AppBar from '../../src/views/AppBar';
 import logoutSideNavEntry from '../../src/views/LogoutSideNavEntry';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
-import SyncStatusDisplay from '../../src/views/SyncStatusDisplay';
 
 jest.mock('kolibri.urls');
 
-function createWrapper({ navShown = true, height = 20, title = 'test' } = {}, data) {
+function createWrapper(
+  { navShown = true, height = 20, title = 'test' } = {},
+  data,
+  isUserLoggedIn = false
+) {
+  let store = makeStore();
+
+  store.hotUpdate(
+    new Vuex.Store({
+      getters: {
+        isUserLoggedIn() {
+          return jest.fn(() => isUserLoggedIn);
+        },
+      },
+    })
+  );
+
   return mount(AppBar, {
     propsData: {
       navShown,
@@ -20,7 +36,7 @@ function createWrapper({ navShown = true, height = 20, title = 'test' } = {}, da
     data() {
       return { ...data };
     },
-    store: makeStore(),
+    store,
   });
 }
 
@@ -67,34 +83,43 @@ describe('app bar component', () => {
     });
     it('should show logout if no components are added and user is logged in', async () => {
       expect(navComponents).toHaveLength(0);
-      const wrapper = createWrapper();
+      const wrapper = createWrapper(undefined, {}, true);
       setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent(logoutSideNavEntry).element).toBeTruthy();
     });
-    describe('SoUD sync status indicator', () => {
-      it('should show the status and poll when a Learner is on an SoUD', async () => {
-        const wrapper = createWrapper(undefined, {
-          userMenuDropdownIsOpen: true,
-          isSubsetOfUsersDevice: true,
+
+    describe('SoUD sync status and learn-only device indicators', () => {
+      describe('on an SoUD', () => {
+        let wrapper;
+        beforeAll(() => {
+          wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true }, true);
         });
-        setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
-        await wrapper.vm.$nextTick();
-        expect(wrapper.find('[data-test="syncStatusInDropdown"]').exists()).toBe(true);
+
+        it('shows sync status indicator', () => {
+          expect(wrapper.find('[data-test="syncStatusInDropdown"]').exists()).toBe(true);
+        });
+
+        it('shows the Learn-only notice', () => {
+          expect(wrapper.find('[data-test="learnOnlyNotice"]').exists()).toBe(true);
+        });
       });
-      it('should not show the status for non-Learner users even on SoUD', async () => {
-        const wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
-        setUserKind(wrapper.vm.$store, UserKinds.ADMIN);
-        await wrapper.vm.$nextTick();
-        expect(wrapper.find('[data-test="syncStatusInDropdown"]').exists()).toBe(false);
-      });
-      it('should not show the status for any non-SoUD', async () => {
-        const wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: false });
-        setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
-        await wrapper.vm.$nextTick();
-        expect(wrapper.find('[data-test="syncStatusInDropdown"]').exists()).toBe(false);
+      describe('not on a SoUD', () => {
+        let wrapper;
+        beforeAll(() => {
+          wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: false }, true);
+        });
+
+        it('no indicator is shown', () => {
+          expect(wrapper.find('[data-test="syncStatusInDropdown"]').exists()).toBe(false);
+        });
+
+        it('no notice is shown', () => {
+          expect(wrapper.find('[data-test="learnOnlyNotice"]').exists()).toBe(false);
+        });
       });
     });
+
     describe('only non-account components are added', () => {
       afterEach(() => {
         navComponents.pop();
