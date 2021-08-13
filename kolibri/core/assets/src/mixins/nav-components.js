@@ -43,7 +43,7 @@ export default {
         // Don't filter anything if not on SoUD
         return () => true;
       } else {
-        const hiddenNavItemRoles = [UserKinds.COACH, UserKinds.ADMIN, UserKinds.CAN_MANAGE_CONTENT];
+        const hiddenNavItemRoles = [UserKinds.COACH, UserKinds.ADMIN];
         return navItem => !hiddenNavItemRoles.includes(navItem.role);
       }
     },

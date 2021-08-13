@@ -200,11 +200,7 @@ describe('side nav component', () => {
         expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
       });
 
-      const hiddenSideNavComponentRoles = [
-        UserKinds.ADMIN,
-        UserKinds.COACH,
-        UserKinds.CAN_MANAGE_CONTENT,
-      ];
+      const hiddenSideNavComponentRoles = [UserKinds.ADMIN, UserKinds.COACH];
 
       it.each(hiddenSideNavComponentRoles)('does not show the %s SideNavEntry', async role => {
         const hiddenComponent = createAndRegisterComponent(`${role}SideNavEntry`, { role });
