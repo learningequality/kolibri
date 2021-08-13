@@ -646,7 +646,7 @@ def validate_birth_year(value):
         raise ValidationError(error)
 
 
-role_kinds_set = set(r[0] for r in role_kinds.choices)
+role_kinds_set = {r[0] for r in role_kinds.choices}
 
 
 def validate_role_kinds(kinds):

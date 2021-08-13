@@ -144,7 +144,7 @@ class WindowsFilesystemTestCase(TestCase):
 
     def test_drive_list_members(self):
         self.assertSetEqual(
-            set(drive.path for drive in self.drives.values()), set(["C:\\", "D:\\"])
+            {drive.path for drive in self.drives.values()}, set(["C:\\", "D:\\"])
         )
 
     def test_drive_writability(self):
@@ -185,7 +185,7 @@ class LinuxFilesystemTestCase(TestCase):
 
     def test_drive_list_members(self):
         self.assertSetEqual(
-            set(drive.path for drive in self.drives.values()),
+            {drive.path for drive in self.drives.values()},
             set(["/media/user/F571-7814", "/", "/media/user/disk"]),
         )
 
@@ -230,7 +230,7 @@ class OSXFilesystemTestCase(TestCase):
 
     def test_drive_list_members(self):
         self.assertSetEqual(
-            set(drive.path for drive in self.drives.values()),
+            {drive.path for drive in self.drives.values()},
             set(["/Volumes/HP v125w", "/"]),
         )
 

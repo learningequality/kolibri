@@ -124,9 +124,9 @@ def crowdin_files(branch, details):
     if no_crowdin_branch(branch, details):
         return set()
     branch_node = next(node for node in details["files"] if node["name"] == branch)
-    return set(
+    return {
         node["name"] for node in branch_node["files"] if node["node_type"] == "file"
-    )
+    }
 
 
 def is_string_file(file_name):
@@ -431,11 +431,11 @@ def upload_sources(branch, project, key, login, locale_data_folder):
         r = requests.post(ADD_BRANCH_URL)
         r.raise_for_status()
 
-    source_files = set(
+    source_files = {
         file_name
         for file_name in os.listdir(utils.local_locale_source_path(locale_data_folder))
         if is_string_file(file_name)
-    )
+    }
 
     current_files = crowdin_files(branch, details)
     to_add = source_files.difference(current_files)
