@@ -13,3 +13,7 @@ enabled = true
 
   [analyzers.meta]
   plugins = ["vue"]
+
+[[transformers]]
+name = "black"
+enabled = true
