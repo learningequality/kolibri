@@ -61,7 +61,7 @@
             </template>
           </CoreMenu>
 
-          <div v-if="isSubsetOfUsersDevice" style="padding: 8px 16px">
+          <div v-if="isSubsetOfUsersDevice" style="padding: 16px">
             <LearnOnlyDeviceNotice />
           </div>
 
