@@ -173,7 +173,7 @@ def exported_logs_info(request, facility_id, facility):
     logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
     csv_statuses = {}
 
-    for log_type in CSV_EXPORT_FILENAMES.keys():
+    for log_type in CSV_EXPORT_FILENAMES:
         log_path = os.path.join(
             logs_dir, CSV_EXPORT_FILENAMES[log_type].format(facility, facility_id[:4])
         )

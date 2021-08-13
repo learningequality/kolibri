@@ -157,7 +157,7 @@ class PortCache:
 
     def save(self):
         with open(PORT_CACHE, "w") as f:
-            f.write("\n".join(str(p) for p in self.values.keys()))
+            f.write("\n".join(str(p) for p in self.values))
 
     def load(self):
         try:

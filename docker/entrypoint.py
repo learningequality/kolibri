@@ -54,7 +54,7 @@ def set_default_envs():
     Set default values for ENV variables and infer DEPLOY_TYPE.
     """
     envs = os.environ
-    for key in DEFAULT_ENVS.keys():
+    for key in DEFAULT_ENVS:
         env = os.getenv(key, None)
         if env is None:
             envs[key] = DEFAULT_ENVS[key]
