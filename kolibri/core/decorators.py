@@ -117,7 +117,7 @@ class ParamValidator(object):
         return param
 
     def check_type(self, param):
-        """ Check that the type of param is valid, or raise an Exception. This doesn't take self.many into account. """
+        """Check that the type of param is valid, or raise an Exception. This doesn't take self.many into account."""
         if isinstance(self.param_type, TUPLE_TYPES):
             self.check_tuple_type(param)
         else:
@@ -125,7 +125,7 @@ class ParamValidator(object):
         return param
 
     def check_value(self, param):
-        """ Check that a single value is lt/gt/etc. Doesn't take self.many into account. """
+        """Check that a single value is lt/gt/etc. Doesn't take self.many into account."""
         if self.param_type == int or self.param_type == float:
             self.check_value_constraints(param)
         elif self.param_type == str:

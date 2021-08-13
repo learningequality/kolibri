@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class BulkCreateMixin(object):
     def get_serializer(self, *args, **kwargs):
-        """ if an array is passed, set serializer to many """
+        """if an array is passed, set serializer to many"""
         if isinstance(kwargs.get("data", {}), list):
             kwargs["many"] = True
         return super(BulkCreateMixin, self).get_serializer(*args, **kwargs)

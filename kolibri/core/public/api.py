@@ -97,7 +97,7 @@ def _get_channel_list_v1(params, identifier=None):
 
 @api_view(["GET"])
 def get_public_channel_list(request, version):
-    """ Endpoint: /public/<version>/channels/?=<query params> """
+    """Endpoint: /public/<version>/channels/?=<query params>"""
     try:
         channel_list = _get_channel_list(version, request.query_params)
     except LookupError:
@@ -113,7 +113,7 @@ def get_public_channel_list(request, version):
 
 @api_view(["GET"])
 def get_public_channel_lookup(request, version, identifier):
-    """ Endpoint: /public/<version>/channels/lookup/<identifier> """
+    """Endpoint: /public/<version>/channels/lookup/<identifier>"""
     try:
         channel_list = _get_channel_list(
             version,
@@ -140,7 +140,7 @@ def get_public_channel_lookup(request, version, identifier):
 @csrf_exempt
 @gzip_page
 def get_public_file_checksums(request, version):
-    """ Endpoint: /public/<version>/file_checksums/ """
+    """Endpoint: /public/<version>/file_checksums/"""
     if version == "v1":
         if request.content_type == "application/json":
             data = request.body
