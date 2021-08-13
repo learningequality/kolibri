@@ -450,7 +450,7 @@ def version_matches_range(version, version_range):
     if "," in version_range:
         return all(
             version_matches_range(version, vrange)
-                for vrange in version_range.split(",")
+            for vrange in version_range.split(",")
         )
 
     # extract and normalize version strings
