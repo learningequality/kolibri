@@ -345,6 +345,32 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     filter_fields = ["user", "collection", "kind", "user_ids"]
 
 
+dataset_keys = [
+    "dataset__id",
+    "dataset__learner_can_edit_username",
+    "dataset__learner_can_edit_name",
+    "dataset__learner_can_edit_password",
+    "dataset__learner_can_sign_up",
+    "dataset__learner_can_delete_account",
+    "dataset__learner_can_login_with_no_password",
+    "dataset__show_download_button_in_learn",
+    "dataset__description",
+    "dataset__location",
+    "dataset__registered",
+    "dataset__preset",
+]
+
+
+# map function to pop() all of the dataset__ items into an dict
+# then assign that new dict to the `dataset` key of the facility
+def _map_dataset(facility):
+    dataset = {}
+    for dataset_key in dataset_keys:
+        stripped_key = dataset_key.replace("dataset__", "")
+        dataset[stripped_key] = facility.pop(dataset_key)
+    return dataset
+
+
 class FacilityViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
@@ -353,33 +379,7 @@ class FacilityViewSet(ValuesViewset):
 
     facility_values = ["id", "name", "num_classrooms", "num_users", "last_synced"]
 
-    dataset_keys = [
-        "dataset__id",
-        "dataset__learner_can_edit_username",
-        "dataset__learner_can_edit_name",
-        "dataset__learner_can_edit_password",
-        "dataset__learner_can_sign_up",
-        "dataset__learner_can_delete_account",
-        "dataset__learner_can_login_with_no_password",
-        "dataset__show_download_button_in_learn",
-        "dataset__description",
-        "dataset__location",
-        "dataset__registered",
-        "dataset__preset",
-    ]
-
     values = tuple(facility_values + dataset_keys)
-
-    # map function to pop() all of the dataset__ items into an dict
-    # then assign that new dict to the `dataset` key of the facility
-    def _map_dataset(facility, dataset_keys=None):
-        if dataset_keys is None:
-            dataset_keys = dataset_keys
-        dataset = {}
-        for dataset_key in dataset_keys:
-            stripped_key = dataset_key.replace("dataset__", "")
-            dataset[stripped_key] = facility.pop(dataset_key)
-        return dataset
 
     field_map = {"dataset": _map_dataset}
 
