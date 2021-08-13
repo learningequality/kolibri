@@ -46,7 +46,9 @@ class KolibriZeroconfService(object):
 
     info = None
 
-    def __init__(self, id, port=8080, data={}):
+    def __init__(self, id, port=8080, data=None):
+        if data is None:
+            data = {}
         self.id = id
         self.port = port
         self.data = {}

@@ -49,7 +49,7 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
 
 
 class ValuesViewsetOrderingFilter(OrderingFilter):
-    def get_default_valid_fields(self, queryset, view, context={}):
+    def get_default_valid_fields(self, queryset, view, context=None):
         """
         The original implementation of this makes the assumption that the DRF serializer for the class
         encodes all the serialization behaviour for the viewset:
@@ -62,6 +62,8 @@ class ValuesViewsetOrderingFilter(OrderingFilter):
         value is requried for ordering, it should be defined in the get_queryset method of the viewset, and not
         the annotate_queryset method, which is executed after filtering.
         """
+        if context is None:
+            context = {}
         default_fields = set()
         # All the fields that we have field maps defined for - this only allows for simple mapped fields
         # where the field is essentially a rename, as we have no good way of doing ordering on a field that

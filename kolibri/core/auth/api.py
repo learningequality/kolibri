@@ -372,7 +372,9 @@ class FacilityViewSet(ValuesViewset):
 
     # map function to pop() all of the dataset__ items into an dict
     # then assign that new dict to the `dataset` key of the facility
-    def _map_dataset(facility, dataset_keys=dataset_keys):
+    def _map_dataset(facility, dataset_keys=None):
+        if dataset_keys is None:
+            dataset_keys = dataset_keys
         dataset = {}
         for dataset_key in dataset_keys:
             stripped_key = dataset_key.replace("dataset__", "")

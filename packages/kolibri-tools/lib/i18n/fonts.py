@@ -228,10 +228,12 @@ Full Fonts
 """
 
 
-def _full_font_face(font_family, font_name, is_bold, omit_glyphs=set()):
+def _full_font_face(font_family, font_name, is_bold, omit_glyphs=None):
     """
     generate the CSS reference for a single full font
     """
+    if omit_glyphs is None:
+        omit_glyphs = set()
     file_path = _woff_font_path(_scoped(SCOPE_FULL, font_name), is_bold=is_bold)
     file_name = os.path.basename(file_path)
     glyphs = _font_glyphs(file_path) - omit_glyphs
