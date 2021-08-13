@@ -169,8 +169,10 @@ class DeviceChannelOrderView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             ids = request.data
-            assert isinstance(ids, list)
-            assert all(map(validate_uuid, ids))
+            if not isinstance(ids, list):
+                raise AssertionError
+            if not all(map(validate_uuid, ids)):
+                raise AssertionError
         except AssertionError:
             raise ParseError("Array of ids not sent in body of request")
         queryset = ChannelMetadata.objects.filter(root__available=True)

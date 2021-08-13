@@ -1068,7 +1068,8 @@ def import_channel_from_local_db(channel_id, cancel_check=None):
     channel = ChannelMetadata.objects.get(id=channel_id)
     channel.last_updated = local_now()
     try:
-        assert channel.root
+        if not channel.root:
+            raise AssertionError
     except ContentNode.DoesNotExist:
         node_id = channel.root_id
         ContentNode.objects.create(

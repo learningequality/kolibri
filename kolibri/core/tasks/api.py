@@ -715,7 +715,8 @@ class TasksViewSet(BaseViewSet):
         drives = get_mounted_drives_with_channel_info()
 
         # make sure everything is a dict, before converting to JSON
-        assert isinstance(drives, dict)
+        if not isinstance(drives, dict):
+            raise AssertionError
         out = [mountdata._asdict() for mountdata in drives.values()]
 
         return Response(out)

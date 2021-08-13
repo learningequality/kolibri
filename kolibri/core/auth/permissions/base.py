@@ -122,9 +122,10 @@ class RoleBasedPermissions(BasePermissions):
 
         roles = getattr(self, "can_be_created_by", None)
 
-        assert isinstance(
-            roles, tuple
-        ), "If `can_be_created_by` is None, then `user_can_create_object` method must be overridden with custom behavior."
+        if not isinstance(roles, tuple):
+            raise AssertionError(
+                "If `can_be_created_by` is None, then `user_can_create_object` method must be overridden with custom behavior."
+            )
 
         target_object = self._get_target_object(obj)
         return user.has_role_for(roles, target_object)
@@ -133,9 +134,10 @@ class RoleBasedPermissions(BasePermissions):
 
         roles = getattr(self, "can_be_read_by", None)
 
-        assert isinstance(
-            roles, tuple
-        ), "If `can_be_read_by` is None, then `user_can_read_object` method must be overridden with custom behavior."
+        if not isinstance(roles, tuple):
+            raise AssertionError(
+                "If `can_be_read_by` is None, then `user_can_read_object` method must be overridden with custom behavior."
+            )
 
         target_object = self._get_target_object(obj)
         return user.has_role_for(roles, target_object)
@@ -144,9 +146,10 @@ class RoleBasedPermissions(BasePermissions):
 
         roles = getattr(self, "can_be_updated_by", None)
 
-        assert isinstance(
-            roles, tuple
-        ), "If `can_be_updated_by` is None, then `user_can_update_object` method must be overridden with custom behavior."
+        if not isinstance(roles, tuple):
+            raise AssertionError(
+                "If `can_be_updated_by` is None, then `user_can_update_object` method must be overridden with custom behavior."
+            )
 
         target_object = self._get_target_object(obj)
         return user.has_role_for(roles, target_object)
@@ -155,9 +158,10 @@ class RoleBasedPermissions(BasePermissions):
 
         roles = getattr(self, "can_be_deleted_by", None)
 
-        assert isinstance(
-            roles, tuple
-        ), "If `can_be_deleted_by` is None, then `user_can_delete_object` method must be overridden with custom behavior."
+        if not isinstance(roles, tuple):
+            raise AssertionError(
+                "If `can_be_deleted_by` is None, then `user_can_delete_object` method must be overridden with custom behavior."
+            )
 
         target_object = self._get_target_object(obj)
         return user.has_role_for(roles, target_object)
@@ -228,9 +232,10 @@ class PermissionsFromAny(BasePermissions):
         self.perms = []
         for perm in perms:
             # ensure that perm is an instance of a subclass of BasePermissions
-            assert isinstance(
-                perm, BasePermissions
-            ), "each of the arguments to __init__ must be a subclass (or instance of a subclass) of BasePermissions"
+            if not isinstance(perm, BasePermissions):
+                raise AssertionError(
+                    "each of the arguments to __init__ must be a subclass (or instance of a subclass) of BasePermissions"
+                )
             # add it into the children permissions list
             self.perms.append(perm)
 
@@ -275,9 +280,10 @@ class PermissionsFromAll(BasePermissions):
         self.perms = []
         for perm in perms:
             # ensure that perm is an instance of a subclass of BasePermissions
-            assert isinstance(
-                perm, BasePermissions
-            ), "each of the arguments to __init__ must be a subclass (or instance of a subclass) of BasePermissions"
+            if not isinstance(perm, BasePermissions):
+                raise AssertionError(
+                    "each of the arguments to __init__ must be a subclass (or instance of a subclass) of BasePermissions"
+                )
             # add it into the children permissions list
             self.perms.append(perm)
 
