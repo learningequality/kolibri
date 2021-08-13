@@ -1,4 +1,8 @@
 {
   "CommonLearnStrings.learnLabel": "सीखें",
-  "CommonLearnStrings.recommendedLabel": "अनुशंसित किया गया"
+  "CommonLearnStrings.mostPopularLabel": "सबसे अधिक लोकप्रिय",
+  "CommonLearnStrings.nextStepsLabel": "अगले कदम",
+  "CommonLearnStrings.popularLabel": "लोकप्रिय",
+  "CommonLearnStrings.recommendedLabel": "अनुशंसित किया गया",
+  "CommonLearnStrings.resumeLabel": "फिर से शुरू करें"
 }

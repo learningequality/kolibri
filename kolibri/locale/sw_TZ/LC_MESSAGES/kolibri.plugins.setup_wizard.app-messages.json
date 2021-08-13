@@ -52,7 +52,7 @@
   "SetupMethod.descriptionParagraph2": "Unaweza kuunda kituo kipya au kuagiza kituo kilichopo kutoka kwa kifaa kingine kwenye mtandao wako",
   "SetupMethod.importFacilityAction": "Kituo cha kuagiza",
   "SetupMethod.setupMethodHeader": "Unda au uingize kituo",
-  "SetupStrings.personalFacilityName": "Nyumbani Kituo {name}",
+  "SetupStrings.personalFacilityName": "",
   "SetupWizardIndex.documentTitle": "Sogora ya Kusanidi",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "Akaunti hii hukuruhusu kusimamia kituo, rasilimali, na akaunti za watumiaji kwenye mtambo huu",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "Tengeneza akaunti ya msimamizi mkuu",

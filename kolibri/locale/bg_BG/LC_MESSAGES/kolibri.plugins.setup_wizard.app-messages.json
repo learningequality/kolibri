@@ -52,7 +52,7 @@
   "SetupMethod.descriptionParagraph2": "Може да създадеш нова институция или да импортираш вече съществуваща институция от друго устройство в твоята мрежа",
   "SetupMethod.importFacilityAction": "Импортиране на институция",
   "SetupMethod.setupMethodHeader": "Създаване или импортиране на институция",
-  "SetupStrings.personalFacilityName": "Институция {name}",
+  "SetupStrings.personalFacilityName": "",
   "SetupWizardIndex.documentTitle": "Съветник за настройване",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "Този профил ти позволява да управляваш институцията, материалите и потребителите на това устройство",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "Създай суперадминистраторски профил",

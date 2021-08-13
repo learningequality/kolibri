@@ -4,7 +4,7 @@
   "CreateLearnerAccountForm.noOptionLabel": "Không. Quản trị viên phải tạo tất cả tài khoản",
   "DefaultLanguageForm.languageFormHeader": "Vui lòng chọn ngôn ngữ mặc định cho Kolibri",
   "DeviceNameForm.deviceNameExplanation": "Đặt tên có ý nghĩa có thể giúp bạn và những người khác mà bạn có kết nối nhận ra thiết bị này",
-  "ErrorPage.errorPageAdditionalGuidance": "Nếu thử lại không được, hãy khởi động lại máy chủ và làm mới trang.",
+  "ErrorPage.errorPageAdditionalGuidance": "Nếu thử lại không có tác dụng, hãy khởi động lại máy chủ và làm mới trang.",
   "ErrorPage.errorPageHeader": "Đã xảy ra lỗi",
   "ErrorPage.errorPageRetryButtonLabel": "Thử lại",
   "ErrorPage.errorPageSubheader": "Vui lòng kiểm tra kết nối máy chủ và thử lại.",
@@ -52,11 +52,11 @@
   "SetupMethod.descriptionParagraph2": "Bạn có thể tạo một địa điểm mới hoặc nhập một địa điểm sẵn có từ thiết bị khác trên mạng của mình",
   "SetupMethod.importFacilityAction": "Nhập địa điểm",
   "SetupMethod.setupMethodHeader": "Tạo hoặc nhập địa điểm",
-  "SetupStrings.personalFacilityName": "Địa điểm nhà {name}",
+  "SetupStrings.personalFacilityName": "",
   "SetupWizardIndex.documentTitle": "Thuật sĩ thiết lập",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "Tài khoản này cho phép bạn quản lý địa điểm, tài liệu và tài khoản người dùng trên thiết bị",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "Tạo tài khoản siêu quản trị viên",
-  "SuperuserCredentialsForm.rememberThisAccountInformation": "Lưu ý: ghi nhớ thông tin tài khoản. Ghi ra giấy nếu cần thiết",
+  "SuperuserCredentialsForm.rememberThisAccountInformation": "Quan trọng: ghi nhớ thông tin tài khoản. Ghi ra giấy nếu cần thiết",
   "YesNoForm.details": "Bạn có thể thay đổi địa điểm sau đó trong cài đặt địa điểm",
   "YesNoForm.yesOptionLabel": "Có"
 }

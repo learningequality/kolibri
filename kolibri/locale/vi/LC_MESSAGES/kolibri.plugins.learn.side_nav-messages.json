@@ -1,4 +1,8 @@
 {
   "CommonLearnStrings.learnLabel": "Học",
-  "CommonLearnStrings.recommendedLabel": "Đề nghị"
+  "CommonLearnStrings.mostPopularLabel": "Phổ biến nhất",
+  "CommonLearnStrings.nextStepsLabel": "Bước tiếp theo",
+  "CommonLearnStrings.popularLabel": "Phổ biến",
+  "CommonLearnStrings.recommendedLabel": "Đề nghị",
+  "CommonLearnStrings.resumeLabel": "Tiếp tục"
 }

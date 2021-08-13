@@ -52,7 +52,7 @@
   "SetupMethod.descriptionParagraph2": "మీరు ఒక కొత్త సదుపాయాన్ని సృష్టించవచ్చు లేదా ఇప్పటికే ఉన్న ఒక సదుపాయాన్ని మీ నెట్‌వర్క్‌లోని ఇతర పరికరం నుండి దిగుమతి చేయవచ్చు",
   "SetupMethod.importFacilityAction": "సదుపాయాన్ని దిగుమతి చేయి",
   "SetupMethod.setupMethodHeader": "సదుపాయాన్ని సృష్టించు లేదా దిగుమతి చేయి",
-  "SetupStrings.personalFacilityName": "హోమ్ సదుపాయం {name}",
+  "SetupStrings.personalFacilityName": "",
   "SetupWizardIndex.documentTitle": "సెటప్ విజార్డ్",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "ఈ పరికరంలో సదుపాయం, వనరులు మరియు వినియోగదారు ఖాతాలను నిర్వహించగలిగేలా ఈ ఖాతా మిమ్మల్ని అనుమతిస్తుంది",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "ప్రధాన నిర్వాహక ఖాతాని సృష్టించండి",

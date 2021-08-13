@@ -52,7 +52,7 @@
   "SetupMethod.descriptionParagraph2": "您可以创建一个新的设施或从您的网络上的另一个设备导入一个现有的设施",
   "SetupMethod.importFacilityAction": "导入设施",
   "SetupMethod.setupMethodHeader": "创建或导入设施",
-  "SetupStrings.personalFacilityName": "主设施 {name}",
+  "SetupStrings.personalFacilityName": "",
   "SetupWizardIndex.documentTitle": "安装向导",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "此帐户允许您在此设备上管理设施、资源和用户帐户",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "创建超级管理员帐户",

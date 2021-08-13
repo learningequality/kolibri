@@ -52,7 +52,7 @@
   "SetupMethod.descriptionParagraph2": "يمكنك إنشاء مرفق تعليمي جديد أو استيراد مرفق تعليمي موجود من جهاز آخر على الشبكة الخاصة بك",
   "SetupMethod.importFacilityAction": "استيراد مرفق تعليمي",
   "SetupMethod.setupMethodHeader": "إنشاء أو استيراد مرفق تعليمي",
-  "SetupStrings.personalFacilityName": "الشبكة المنزلية {name}",
+  "SetupStrings.personalFacilityName": "",
   "SetupWizardIndex.documentTitle": "معالج الإعداد",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "يسمح لك هذا الحساب بإدارة المَرْفق التعليمي والمصادر وحسابات المستخدمين على هذا الجهاز",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "إنشاء حساب المشرف المتميز الخاص بك",

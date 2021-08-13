@@ -1,4 +1,8 @@
 {
   "CommonLearnStrings.learnLabel": "Lernen",
-  "CommonLearnStrings.recommendedLabel": "Empfohlen"
+  "CommonLearnStrings.mostPopularLabel": "Die beliebtesten",
+  "CommonLearnStrings.nextStepsLabel": "Nächste Schritte",
+  "CommonLearnStrings.popularLabel": "Beliebt",
+  "CommonLearnStrings.recommendedLabel": "Empfohlen",
+  "CommonLearnStrings.resumeLabel": "Lebenslauf"
 }

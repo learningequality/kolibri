@@ -52,7 +52,7 @@
   "SetupMethod.descriptionParagraph2": "iwọ le ṣẹda a obinrin titun apo ile-iwe, tabi gbe wọle ohun  tẹlẹ  apo ile-iwe lati miiran ẹrọl or irẹ nẹtiwọki",
   "SetupMethod.importFacilityAction": "gbe wọle apo ile-iwe",
   "SetupMethod.setupMethodHeader": "ṣẹda tabi gbe wọle apo ile-iwe",
-  "SetupStrings.personalFacilityName": "Ohun elò Ilé {name}",
+  "SetupStrings.personalFacilityName": "",
   "SetupWizardIndex.documentTitle": "Ètò ìṣiṣẹ́",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "Àkáǹtì yíì fi àyè gbà ọ́ láti ṣe àbójútó ìkànnì, ohun èlò, àti àkántì tó ń bẹ lórí ẹ̀rọ yí",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "Seda Àkáǹtì alábòójútó",

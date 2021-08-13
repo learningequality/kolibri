@@ -1,4 +1,8 @@
 {
   "CommonLearnStrings.learnLabel": "သင်ယူမည်",
-  "CommonLearnStrings.recommendedLabel": "ရည်ညွှန်းလိုသော"
+  "CommonLearnStrings.mostPopularLabel": "နာမည်အကြီးဆုံး",
+  "CommonLearnStrings.nextStepsLabel": "နောက်အဆင့်",
+  "CommonLearnStrings.popularLabel": "ကျော်ကြားသော",
+  "CommonLearnStrings.recommendedLabel": "ရည်ညွှန်းလိုသော",
+  "CommonLearnStrings.resumeLabel": "ပြန်လည်စတင်မည်"
 }

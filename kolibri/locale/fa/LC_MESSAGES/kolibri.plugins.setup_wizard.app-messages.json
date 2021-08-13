@@ -52,7 +52,7 @@
   "SetupMethod.descriptionParagraph2": "شما می‌توانید یک مجموعه جدید بسازید یا یک مجموعه‌ی موجود از یک دستگاه دیگر را بر روی شبکه‌تان وارد کنید",
   "SetupMethod.importFacilityAction": "وارد کردن مجموعه",
   "SetupMethod.setupMethodHeader": "ایجاد یا وارد کردن مجموعه",
-  "SetupStrings.personalFacilityName": "مرکز خانه {name}",
+  "SetupStrings.personalFacilityName": "",
   "SetupWizardIndex.documentTitle": "ویزاردِ نصب کردن",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "این حساب کاربری به شما اجازه می‌دهد تا مجموعه یا مرکز، منابع و حساب‌های کاربری را بر روی این دستگاه مدیریت کنید",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "ایجاد حساب کاربری ویژه",
