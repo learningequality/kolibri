@@ -29,8 +29,7 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
     def get_queryset(self):
         if self.request.user.is_anonymous():
             return Classroom.objects.none()
-        else:
-            return Classroom.objects.filter(membership__user=self.request.user)
+        return Classroom.objects.filter(membership__user=self.request.user)
 
     def consolidate(self, items, queryset):
         lessons = (
@@ -181,8 +180,7 @@ class LearnerLessonViewset(ReadOnlyValuesViewset):
     def get_queryset(self):
         if self.request.user.is_anonymous():
             return Lesson.objects.none()
-        else:
-            return Lesson.objects.filter(
-                lesson_assignments__collection__membership__user=self.request.user,
-                is_active=True,
-            )
+        return Lesson.objects.filter(
+            lesson_assignments__collection__membership__user=self.request.user,
+            is_active=True,
+        )

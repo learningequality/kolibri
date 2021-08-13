@@ -72,8 +72,7 @@ class patch_disk_usage(object):
     def __call__(self, f):
         if sys.version_info >= (3, 3):
             return patch("shutil.disk_usage", self.mocked_disk_usage)(f)
-        else:
-            return patch("os.statvfs", self.mocked_disk_usage)(f)
+        return patch("os.statvfs", self.mocked_disk_usage)(f)
 
 
 def patch_os_access(readable, writable):

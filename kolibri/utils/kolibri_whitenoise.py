@@ -90,8 +90,7 @@ class DynamicWhiteNoise(WhiteNoise):
             static_file = self.find_and_cache_dynamic_file(path)
         if static_file is None:
             return self.application(environ, start_response)
-        else:
-            return self.serve(static_file, environ, start_response)
+        return self.serve(static_file, environ, start_response)
 
     def find_and_cache_dynamic_file(self, url):
         path = self.get_dynamic_path(url)

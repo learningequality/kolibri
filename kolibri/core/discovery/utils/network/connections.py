@@ -32,8 +32,7 @@ def check_device_info(base_url):
             complete_info = device_info_defaults.copy()
             complete_info.update(info)
             return complete_info
-        else:
-            return INVALID_DEVICE_INFO
+        return INVALID_DEVICE_INFO
     except (errors.NetworkClientError, errors.NetworkLocationNotFound):
         return FAILED_TO_CONNECT
     except KeyError:

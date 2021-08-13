@@ -51,8 +51,7 @@ def filter_by_bidi(bidi, chunk):
         return True
     if bidi:
         return chunk["name"].split(".")[-2] == "rtl"
-    else:
-        return chunk["name"].split(".")[-2] != "rtl"
+    return chunk["name"].split(".")[-2] != "rtl"
 
 
 @hooks.define_hook
@@ -247,9 +246,9 @@ class WebpackBundleHook(hooks.KolibriHook):
         if self.frontend_messages():
             return [
                 """
-                <script>
-                    {kolibri_name}.registerLanguageAssets('{bundle}', '{lang_code}', JSON.parse({messages}));
-                </script>""".format(
+                        <script>
+                            {kolibri_name}.registerLanguageAssets('{bundle}', '{lang_code}', JSON.parse({messages}));
+                        </script>""".format(
                     kolibri_name="kolibriCoreAppGlobal",
                     bundle=self.unique_id,
                     lang_code=get_language(),
@@ -262,18 +261,17 @@ class WebpackBundleHook(hooks.KolibriHook):
                     ),
                 )
             ]
-        else:
-            return []
+        return []
 
     def plugin_data_tag(self):
         if self.plugin_data:
             return [
                 """
-                <script>
-                    window['{name}'] = window['{name}'] || {{}};
-                    window['{name}']['{bundle}'] = JSON.parse({plugin_data});
-                </script>
-                """.format(
+                        <script>
+                            window['{name}'] = window['{name}'] || {{}};
+                            window['{name}']['{bundle}'] = JSON.parse({plugin_data});
+                        </script>
+                        """.format(
                     name="kolibriPluginDataGlobal",
                     bundle=self.unique_id,
                     plugin_data=json.dumps(
@@ -283,8 +281,7 @@ class WebpackBundleHook(hooks.KolibriHook):
                     ),
                 )
             ]
-        else:
-            return []
+        return []
 
     def get_basename(self, url):
         """
