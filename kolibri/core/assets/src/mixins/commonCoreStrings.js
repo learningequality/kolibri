@@ -368,6 +368,21 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   watchActivity: 'Watch',
   exploreActivity: 'Explore',
   topicLabel: 'Topic',
+  readReference: {
+    message: 'Reference',
+    context:
+      'We display time duration for most of learning activities. However, for read activity, we display this label instead of time duration information.',
+  },
+  shortActivity: {
+    message: 'Short activity',
+    context:
+      'This is what we display as time estimation for some types of learning activities that take less than 30 minutes',
+  },
+  longActivity: {
+    message: 'Long activity',
+    context:
+      'This is what we display as time estimation for some types of learning activities that take more than 30 minutes',
+  },
 
   // Notifications
   changesSavedNotification: {
