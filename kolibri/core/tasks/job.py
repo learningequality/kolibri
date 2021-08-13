@@ -153,7 +153,7 @@ class Job(object):
             "func",
             "result",
         ]
-        return {key: self.__dict__[key] for key in keys}
+        return {key: self.__dict__[key] for key in keys if key in self.__dict__}
 
     def __init__(self, func, *args, **kwargs):
         """
