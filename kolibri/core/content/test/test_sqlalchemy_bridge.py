@@ -95,7 +95,7 @@ class SQLAlchemyBridgeSQLAlchemyFunctionsTestCase(TestCase):
         self.assertEqual("sqlite:///test", sqlite_connection_string("test"))
 
     def test_get_engine(self):
-        self.assertEquals(type(get_engine("sqlite:///")), Engine)
+        self.assertEqual(type(get_engine("sqlite:///")), Engine)
 
     def test_get_class_exists(self):
         DjangoModel = MagicMock()
