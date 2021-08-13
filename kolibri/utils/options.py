@@ -454,6 +454,13 @@ base_option_spec = {
                 Server configuration should handle ensuring that the files are properly served.
             """,
         },
+        "SYNC_INTERVAL": {
+            "type": "integer",
+            "default": 5,
+            "description": """
+                In case a SoUD connects to this server, the SoUD should use this interval to resync every user.
+            """,
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
