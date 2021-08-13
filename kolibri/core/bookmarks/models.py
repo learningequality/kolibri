@@ -32,7 +32,10 @@ class Bookmark(AbstractFacilityDataModel):
                 pass
         # if no user or matching facility, infer dataset from the default facility
         facility = Facility.get_default_facility()
-        assert facility, "Before you can save bookmarks, you must have a facility"
+        if not facility:
+            raise AssertionError(
+                "Before you can save bookmarks, you must have a facility"
+            )
         return facility.dataset_id
 
     def calculate_partition(self):

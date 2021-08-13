@@ -129,8 +129,10 @@ def get_complete_version(version=None):
     if version is None:
         from kolibri import VERSION as version
     else:
-        assert len(version) == 5
-        assert version[3] in ORDERED_VERSIONS
+        if len(version) != 5:
+            raise AssertionError
+        if version[3] not in ORDERED_VERSIONS:
+            raise AssertionError
 
     return version
 
