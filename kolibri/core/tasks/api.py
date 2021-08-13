@@ -1186,7 +1186,7 @@ def prepare_sync_job(facility_id, **kwargs):
         facility=facility_id,
         chunk_size=200,
         noninteractive=True,
-        extra_metadata=dict(),
+        extra_metadata={},
         track_progress=True,
         cancellable=False,
     )
