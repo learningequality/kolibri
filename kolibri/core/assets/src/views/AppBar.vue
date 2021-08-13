@@ -82,7 +82,7 @@
                   :userType="getUserKind"
                 />
               </div>
-              <div v-if="isSubsetOfUsersDevice" data-test="syncStatusInDropdown">
+              <div v-if="isSubsetOfUsersDevice && userIsLearner" data-test="syncStatusInDropdown">
                 <div class="sync-status">
                   {{ $tr('deviceStatus') }}
                 </div>
@@ -135,7 +135,7 @@
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import UiButton from 'kolibri-design-system/lib/keen/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
-  import { NavComponentSections, SyncStatus } from 'kolibri.coreVue.vuex.constants';
+  import { NavComponentSections, SyncStatus, UserKinds } from 'kolibri.coreVue.vuex.constants';
   import branding from 'kolibri.utils.branding';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
@@ -187,6 +187,9 @@
         fullName: state => state.core.session.full_name,
         userId: state => state.core.session.user_id,
       }),
+      userIsLearner() {
+        return this.getUserKind == UserKinds.LEARNER;
+      },
       menuOptions() {
         return navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)

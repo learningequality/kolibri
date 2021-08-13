@@ -92,21 +92,33 @@ describe('app bar component', () => {
     describe('SoUD sync status and learn-only device indicators', () => {
       describe('on an SoUD', () => {
         let wrapper;
-        beforeAll(() => {
+        beforeEach(() => {
           wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true }, true);
-        });
-
-        it('shows sync status indicator', () => {
-          expect(wrapper.find('[data-test="syncStatusInDropdown"]').exists()).toBe(true);
         });
 
         it('shows the Learn-only notice', () => {
           expect(wrapper.find('[data-test="learnOnlyNotice"]').exists()).toBe(true);
         });
+
+        describe('when signed in as a learner', () => {
+          it('shows sync status indicator', async () => {
+            setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
+            await wrapper.vm.$nextTick();
+            expect(wrapper.find('[data-test="syncStatusInDropdown"]').exists()).toBe(true);
+          });
+        });
+
+        describe('when NOT signed in as a learner', () => {
+          it('does not show the status indicator', async () => {
+            setUserKind(wrapper.vm.$store, UserKinds.COACH);
+            await wrapper.vm.$nextTick();
+            expect(wrapper.find('[data-test="syncStatusInDropdown"]').exists()).toBe(false);
+          });
+        });
       });
       describe('not on a SoUD', () => {
         let wrapper;
-        beforeAll(() => {
+        beforeEach(() => {
           wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: false }, true);
         });
 
