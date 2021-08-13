@@ -1,0 +1,8 @@
+name: Kolibri Build Assets for Pull Request
+
+on: pull_request
+
+jobs:
+  whl:
+    name: Build WHL file
+    uses: ./.github/workflows/build_whl.yml
