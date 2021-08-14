@@ -25,7 +25,7 @@ def check_if_port_open(base_url, timeout=1):
 
 
 def check_device_info(base_url):
-    """ try to get device info for a Kolibri instance at `base_url` """
+    """try to get device info for a Kolibri instance at `base_url`"""
     try:
         info = NetworkClient(base_url=base_url).info
         if info["application"] in ["studio", "kolibri"]:
@@ -91,7 +91,7 @@ class CachedDeviceConnectionChecker(object):
 
     @property
     def device_port_open(self):
-        """ check to see if a port is open at a given `base_url` """
+        """check to see if a port is open at a given `base_url`"""
 
         cached = process_cache.get(DEVICE_PORT_CACHE_KEY.format(url=self.base_url))
 
