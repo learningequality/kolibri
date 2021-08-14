@@ -157,7 +157,7 @@ class Job(object):
             "func",
             "result",
         ]
-        return {key: self.__dict__[key] for key in keys}
+        return {key: self.__dict__[key] for key in keys if key in self.__dict__}
 
     def __init__(self, func, *args, **kwargs):
         """
@@ -244,8 +244,7 @@ class Job(object):
 
         if self.total_progress != 0:
             return float(self.progress) / self.total_progress
-        else:
-            return self.progress
+        return self.progress
 
     def __repr__(self):
         return (
@@ -289,6 +288,8 @@ class RegisteredJob(object):
         cancellable,
         track_progress,
     ):
+        if permission_classes is None:
+            permission_classes = []
         if validator is not None and not callable(validator):
             raise TypeError("Can't assign validator of type {}".format(type(validator)))
         elif priority.upper() not in Priority.PriorityOrder:
@@ -320,7 +321,7 @@ class RegisteredJob(object):
         job_obj = self._ready_job(*args, **kwargs)
         return job_storage.enqueue_job(job_obj, self.queue, self.priority)
 
-    def enqueue_in(self, delta_time, interval=0, repeat=0, args=(), kwargs={}):
+    def enqueue_in(self, delta_time, interval=0, repeat=0, args=(), kwargs=None):
         """
         Schedule the function to get enqueued in `delta_time` with args and
         kwargs as its positional and keyword arguments.
@@ -330,6 +331,8 @@ class RegisteredJob(object):
 
         :return: scheduled job's id.
         """
+        if kwargs is None:
+            kwargs = {}
         from kolibri.core.tasks.main import scheduler
 
         job_obj = self._ready_job(*args, **kwargs)
@@ -340,7 +343,7 @@ class RegisteredJob(object):
             repeat=repeat,
         )
 
-    def enqueue_at(self, datetime, interval=0, repeat=0, args=(), kwargs={}):
+    def enqueue_at(self, datetime, interval=0, repeat=0, args=(), kwargs=None):
         """
         Schedule the function to get enqueued at a specific `datetime` with
         args and kwargs as its positional and keyword arguments.
@@ -350,6 +353,8 @@ class RegisteredJob(object):
 
         :return: scheduled job's id.
         """
+        if kwargs is None:
+            kwargs = {}
         from kolibri.core.tasks.main import scheduler
 
         job_obj = self._ready_job(*args, **kwargs)

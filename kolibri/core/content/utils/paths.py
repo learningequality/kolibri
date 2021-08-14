@@ -55,8 +55,7 @@ def get_local_content_storage_file_url(obj):
             filename[1],
             filename,
         )
-    else:
-        return None
+    return None
 
 
 # DISK PATHS
@@ -65,10 +64,9 @@ def get_local_content_storage_file_url(obj):
 def get_content_dir_path(datafolder=None, contentfolder=None):
     if contentfolder:
         return contentfolder
-    elif datafolder:
+    if datafolder:
         return os.path.join(datafolder, "content")
-    else:
-        return conf.OPTIONS["Paths"]["CONTENT_DIR"]
+    return conf.OPTIONS["Paths"]["CONTENT_DIR"]
 
 
 def get_content_fallback_paths():

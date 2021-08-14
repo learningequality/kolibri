@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import json
 import logging
 import platform
@@ -7,6 +8,7 @@ import random
 import requests
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 from morango.models import InstanceIDModel
 from rest_framework import status
 
@@ -20,8 +22,10 @@ from kolibri.core.public.constants.user_sync_statuses import SYNC
 from kolibri.core.tasks.api import prepare_soud_sync_job
 from kolibri.core.tasks.api import prepare_sync_task
 from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import queue
 from kolibri.core.tasks.main import scheduler
+from kolibri.utils.conf import OPTIONS
 
 
 logger = logging.getLogger(__name__)
@@ -86,7 +90,9 @@ def get_device_info(version=DEVICE_INFO_VERSION):
     return info
 
 
-def startpeerusersync(server, user_id):
+def startpeerusersync(
+    server, user_id, resync_interval=OPTIONS["Deployment"]["SYNC_INTERVAL"]
+):
     """
     Initiate a SYNC (PULL + PUSH) of a specific user from another device.
     """
@@ -110,10 +116,12 @@ def startpeerusersync(server, user_id):
     job_data = prepare_soud_sync_job(
         server, facility_id, user_id, extra_metadata=extra_metadata
     )
+    job_data["resync_interval"] = resync_interval
+    JOB_ID = hashlib.md5("{}::{}".format(server, user).encode()).hexdigest()
+    job_data["job_id"] = JOB_ID
+    job = queue.enqueue(call_command, "sync", **job_data)
 
-    job_id = queue.enqueue(call_command, "sync", **job_data)
-
-    return job_id
+    return job
 
 
 def begin_request_soud_sync(server, user):
@@ -126,11 +134,46 @@ def begin_request_soud_sync(server, user):
         # this does not make sense unless this is a SoUD
         logger.warn("Only Subsets of Users Devices can do this")
         return
-    logger.info("Queuing SoUD syncing request")
+    users = UserSyncStatus.objects.filter(user_id=user).values(
+        "queued", "sync_session__last_activity_timestamp"
+    )
+    if users:
+        SYNC_INTERVAL = OPTIONS["Deployment"]["SYNC_INTERVAL"]
+        dt = datetime.timedelta(seconds=SYNC_INTERVAL)
+        if timezone.now() - users[0]["sync_session__last_activity_timestamp"] < dt:
+            schedule_new_sync(server, user)
+            return
+
+        if users[0]["queued"]:
+            failed_jobs = [
+                j
+                for j in queue.jobs
+                if j.state == State.FAILED
+                and j.extra_metadata.get("started_by", None) == user
+                and j.extra_metadata.get("type", None) == "SYNCPEER/SINGLE"
+            ]
+            queued_jobs = [
+                j
+                for j in queue.jobs
+                if j.state == State.QUEUED
+                and j.extra_metadata.get("started_by", None) == user
+                and j.extra_metadata.get("type", None) == "SYNCPEER/SINGLE"
+            ]
+            if failed_jobs:
+                for j in failed_jobs:
+                    queue.clear_job(j.job_id)
+                # if previous sync jobs have failed, unblock UserSyncStatus to try again:
+                UserSyncStatus.objects.update_or_create(
+                    user_id=user, defaults={"queued": False}
+                )
+            elif queued_jobs:
+                return  # If there are pending and not failed jobs, don't enqueue a new one
+
+    logger.info("Queuing SoUD syncing request for user {}".format(user))
     queue.enqueue(request_soud_sync, server, user)
 
 
-def request_soud_sync(server, user=None, queue_id=None, ttl=10):
+def request_soud_sync(server, user, queue_id=None, ttl=10):
     """
     Make a request to the serverurl endpoint to sync this SoUD (Subset of Users Device)
         - If the server says "sync now" immediately queue a sync task for the server
@@ -171,35 +214,49 @@ def request_soud_sync(server, user=None, queue_id=None, ttl=10):
         )
         return
 
+    if response.status_code == status.HTTP_404_NOT_FOUND:
+        return  # Request done to a server not owning this user's data
+
+    if response.status_code == status.HTTP_200_OK:
+        handle_server_sync_response(response, server, user)
+
+
+def handle_server_sync_response(response, server, user):
+    # In either case, we set the sync status for this user as queued
+    # Once the sync starts, then this should get cleared and the SyncSession
+    # set on the status, so that more info can be garnered.
+    JOB_ID = hashlib.md5("{}::{}".format(server, user).encode()).hexdigest()
     response_content = (
         response.content.decode()
         if isinstance(response.content, bytes)
         else response.content
     )
     server_response = json.loads(response_content or "{}")
-    if response.status_code == status.HTTP_404_NOT_FOUND:
-        return  # Request done to a server not owning this user's data
+    UserSyncStatus.objects.update_or_create(user_id=user, defaults={"queued": True})
 
-    if response.status_code == status.HTTP_200_OK:
-        # In either case, we set the sync status for this user as queued
-        # Once the sync starts, then this should get cleared and the SyncSession
-        # set on the status, so that more info can be garnered.
-        UserSyncStatus.objects.update_or_create(user_id=user, defaults={"queued": True})
+    if server_response["action"] == SYNC:
+        server_sync_interval = server_response.get(
+            "sync_interval", str(OPTIONS["Deployment"]["SYNC_INTERVAL"])
+        )
+        job_id = startpeerusersync(server, user, server_sync_interval)
+        logger.info("Enqueuing a sync task for user {} in job {}".format(user, job_id))
 
-        if server_response["action"] == SYNC:
-            job_id = startpeerusersync(server, user)
-            logger.info(
-                "Enqueuing a sync task for user {} in job {}".format(user, job_id)
+    elif server_response["action"] == QUEUED:
+        pk = server_response["id"]
+        time_alive = server_response["keep_alive"]
+        dt = datetime.timedelta(seconds=int(time_alive))
+        job = Job(request_soud_sync, server, user, pk, job_id=JOB_ID)
+        scheduler.enqueue_in(dt, job)
+        logger.info(
+            "Server busy, will try again in {} seconds with pk={}".format(
+                time_alive, pk
             )
+        )
 
-        elif server_response["action"] == QUEUED:
-            pk = server_response["id"]
-            time_alive = server_response["keep_alive"]
-            dt = datetime.timedelta(seconds=int(time_alive))
-            job = Job(request_soud_sync, server, user, pk)
-            scheduler.enqueue_in(dt, job)
-            logger.info(
-                "Server busy, will try again in {} seconds with pk={}".format(
-                    time_alive, pk
-                )
-            )
+
+def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVAL"]):
+    # reschedule the process for a new sync
+    dt = datetime.timedelta(seconds=interval)
+    JOB_ID = hashlib.md5("{}:{}".format(server, user).encode()).hexdigest()
+    job = Job(request_soud_sync, server, user, job_id=JOB_ID)
+    scheduler.enqueue_in(dt, job)

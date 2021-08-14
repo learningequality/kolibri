@@ -28,13 +28,11 @@ class NotProvisionedHasPermission(BasePermission):
 
         if device_provisioned():
             return False
-
-        else:
-            return (
-                request.method == "GET"
-                or request.method == "POST"
-                or request.method == "DELETE"
-            )
+        return (
+            request.method == "GET"
+            or request.method == "POST"
+            or request.method == "DELETE"
+        )
 
 
 class UserHasAnyDevicePermissions(DenyAll):

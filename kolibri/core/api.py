@@ -49,7 +49,7 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
 
 
 class ValuesViewsetOrderingFilter(OrderingFilter):
-    def get_default_valid_fields(self, queryset, view, context={}):
+    def get_default_valid_fields(self, queryset, view, context=None):
         """
         The original implementation of this makes the assumption that the DRF serializer for the class
         encodes all the serialization behaviour for the viewset:
@@ -62,6 +62,8 @@ class ValuesViewsetOrderingFilter(OrderingFilter):
         value is requried for ordering, it should be defined in the get_queryset method of the viewset, and not
         the annotate_queryset method, which is executed after filtering.
         """
+        if context is None:
+            context = {}
         default_fields = set()
         # All the fields that we have field maps defined for - this only allows for simple mapped fields
         # where the field is essentially a rename, as we have no good way of doing ordering on a field that
@@ -135,14 +137,13 @@ class BaseValuesViewset(viewsets.GenericViewSet):
     field_map = {}
 
     def __init__(self, *args, **kwargs):
-        viewset = super(BaseValuesViewset, self).__init__(*args, **kwargs)
+        super(BaseValuesViewset, self).__init__(*args, **kwargs)
         if not hasattr(self, "values") or not isinstance(self.values, tuple):
             raise TypeError("values must be defined as a tuple")
         self._values = tuple(self.values)
         if not isinstance(self.field_map, dict):
             raise TypeError("field_map must be defined as a dict")
         self._field_map = self.field_map.copy()
-        return viewset
 
     def generate_serializer(self):
         queryset = getattr(self, "queryset", None)
@@ -195,12 +196,13 @@ class BaseValuesViewset(viewsets.GenericViewSet):
     def _get_lookup_filter(self):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
-        assert lookup_url_kwarg in self.kwargs, (
-            "Expected view %s to be called with a URL keyword argument "
-            'named "%s". Fix your URL conf, or set the `.lookup_field` '
-            "attribute on the view correctly."
-            % (self.__class__.__name__, lookup_url_kwarg)
-        )
+        if lookup_url_kwarg not in self.kwargs:
+            raise AssertionError(
+                "Expected view %s to be called with a URL keyword argument "
+                'named "%s". Fix your URL conf, or set the `.lookup_field` '
+                "attribute on the view correctly."
+                % (self.__class__.__name__, lookup_url_kwarg)
+            )
 
         return {self.lookup_field: self.kwargs[lookup_url_kwarg]}
 

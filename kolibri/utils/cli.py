@@ -458,9 +458,7 @@ def configure():
 
 
 def _format_env_var(envvar, value):
-    if value.get("deprecated", False) or envvar in value.get(
-        "deprecated_envvars", tuple()
-    ):
+    if value.get("deprecated", False) or envvar in value.get("deprecated_envvars", ()):
         return click.style(
             "{envvar} - DEPRECATED - {description}\n\n".format(
                 envvar=envvar, description=value.get("description", "")

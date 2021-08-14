@@ -317,8 +317,7 @@ def get_single_user_sync_filter(dataset_id, user_id, is_read):
     scope = scopedef.get_scope({"dataset_id": dataset_id, "user_id": user_id})
     if is_read:
         return str(scope.read_filter)
-    else:
-        return str(scope.write_filter)
+    return str(scope.write_filter)
 
 
 def run_once(f):
@@ -396,7 +395,7 @@ class GroupDeletion(object):
         :rtype: tuple(int, dict)
         """
         total_count = 0
-        all_deletions = dict()
+        all_deletions = {}
         sleep = self.sleep if sleep is None else sleep
 
         for qs in self.groups:

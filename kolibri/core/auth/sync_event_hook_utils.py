@@ -45,7 +45,8 @@ def _extract_kwargs_from_context(context):
 
 
 def _pre_transfer_handler(context):
-    assert context is not None
+    if context is None:
+        raise AssertionError
 
     kwargs = _extract_kwargs_from_context(context)
 
@@ -55,7 +56,8 @@ def _pre_transfer_handler(context):
 
 
 def _post_transfer_handler(context):
-    assert context is not None
+    if context is None:
+        raise AssertionError
 
     kwargs = _extract_kwargs_from_context(context)
 

@@ -131,8 +131,10 @@ class GenerateNotifications(LocalOperation):
         :type context: morango.sync.context.LocalSessionContext
         :return: False
         """
-        assert context.is_receiver
-        assert context.transfer_session is not None
+        if not context.is_receiver:
+            raise AssertionError
+        if context.transfer_session is None:
+            raise AssertionError
 
         batch_process_attemptlogs(
             context.transfer_session.get_touched_record_ids_for_model(

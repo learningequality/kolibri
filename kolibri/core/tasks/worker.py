@@ -180,10 +180,8 @@ class Worker(object):
 
         if is_future_cancelled:  # success!
             return True
-        else:
-            if future.running():
-                # Already running, so we manually mark the future as cancelled
-                setattr(future, "_is_cancelled", True)
-                return False
-            else:  # probably finished already, too late to cancel!
-                return False
+        if future.running():
+            # Already running, so we manually mark the future as cancelled
+            setattr(future, "_is_cancelled", True)
+            return False
+        return False

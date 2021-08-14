@@ -129,8 +129,10 @@ def get_complete_version(version=None):
     if version is None:
         from kolibri import VERSION as version
     else:
-        assert len(version) == 5
-        assert version[3] in ORDERED_VERSIONS
+        if len(version) != 5:
+            raise AssertionError
+        if version[3] not in ORDERED_VERSIONS:
+            raise AssertionError
 
     return version
 
@@ -142,8 +144,7 @@ def get_docs_version(version=None):
     version = get_complete_version(version)
     if version[3] != "final":
         return "dev"
-    else:
-        return "%d.%d" % version[:2]
+    return "%d.%d" % version[:2]
 
 
 def get_git_changeset():
@@ -447,10 +448,8 @@ def version_matches_range(version, version_range):
     # support having multiple comma-delimited version criteria
     if "," in version_range:
         return all(
-            [
-                version_matches_range(version, vrange)
-                for vrange in version_range.split(",")
-            ]
+            version_matches_range(version, vrange)
+            for vrange in version_range.split(",")
         )
 
     # extract and normalize version strings
