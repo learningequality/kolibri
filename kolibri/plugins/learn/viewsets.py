@@ -46,9 +46,9 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
         )
         lesson_content_ids = set()
         for lesson in lessons:
-            lesson_content_ids |= set(
-                (resource["content_id"] for resource in lesson["resources"])
-            )
+            lesson_content_ids |= {
+                resource["content_id"] for resource in lesson["resources"]
+            }
 
         progress_map = {
             l["content_id"]: l["progress"]
