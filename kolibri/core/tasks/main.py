@@ -146,7 +146,7 @@ job_storage = SimpleLazyObject(__job_storage)
 def initialize_workers():
     logger.info("Starting async task workers.")
     single_worker_pool = Worker(connection=connection, num_workers=4)
-    return single_worker_pool
+    return [single_worker_pool]
 
 
 def import_tasks_module_from_django_apps(app_configs=None):

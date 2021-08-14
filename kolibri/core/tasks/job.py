@@ -6,7 +6,6 @@ import uuid
 from django.db import connection as django_connection
 
 from kolibri.core.tasks.exceptions import UserCancelledError
-from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.utils import current_state_tracker
 from kolibri.core.tasks.utils import import_stringified_func
 from kolibri.core.tasks.utils import stringify_func
@@ -316,6 +315,8 @@ class RegisteredJob(object):
 
         :return: enqueued job's id.
         """
+        from kolibri.core.tasks.main import job_storage
+
         job_obj = self._ready_job(*args, **kwargs)
         return job_storage.enqueue_job(job_obj, self.queue, self.priority)
 
