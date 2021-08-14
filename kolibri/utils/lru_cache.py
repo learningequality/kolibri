@@ -76,7 +76,7 @@ except ImportError:
 
         def decorating_function(user_function):
 
-            cache = dict()
+            cache = {}
             # make statistics updateable non-locally
             stats = [0, 0]
             HITS, MISSES = 0, 1  # names for the stats fields

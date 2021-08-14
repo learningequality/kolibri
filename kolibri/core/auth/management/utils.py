@@ -396,7 +396,7 @@ class GroupDeletion(object):
         :rtype: tuple(int, dict)
         """
         total_count = 0
-        all_deletions = dict()
+        all_deletions = {}
         sleep = self.sleep if sleep is None else sleep
 
         for qs in self.groups:
