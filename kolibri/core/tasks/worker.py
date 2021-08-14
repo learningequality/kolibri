@@ -17,26 +17,22 @@ class Empty(Exception):
 
 
 class Worker(object):
-    def __init__(self, queues, connection=None, num_workers=3):
+    def __init__(self, connection, num_workers=2):
         # Internally, we use concurrent.future.Future to run and track
         # job executions. We need to keep track of which future maps to which
         # job they were made from, and we use the job_future_mapping dict to do
         # so.
-        if connection is None:
-            raise ValueError("Connection must be defined")
 
-        # Queues that this worker executes tasks for
-        if type(queues) is not list:
-            queues = [queues]
-        self.queues = queues
         # Key: future object, Value: job object
         self.job_future_mapping = {}
+
         # Key: job_id, Value: future object
         self.future_job_mapping = {}
+
         self.storage = Storage(connection)
         self.num_workers = num_workers
 
-        self.workers = self.start_workers(num_workers=self.num_workers)
+        self.workers = self.start_workers()
         self.job_checker = self.start_job_checker()
 
     def shutdown_workers(self, wait=True):
@@ -50,8 +46,8 @@ class Worker(object):
         # Now shutdown the workers
         self.workers.shutdown(wait=wait)
 
-    def start_workers(self, num_workers):
-        pool = PoolExecutor(max_workers=num_workers)
+    def start_workers(self):
+        pool = PoolExecutor(max_workers=self.num_workers)
         return pool
 
     def handle_finished_future(self, future):
@@ -91,7 +87,7 @@ class Worker(object):
         Returns: the Thread object.
         """
         t = InfiniteLoopThread(
-            self.check_jobs, thread_name="JOBCHECKER", wait_between_runs=0.5
+            self.check_jobs, thread_name="JOBCHECKER", wait_between_runs=0.2
         )
         t.start()
         return t
@@ -107,7 +103,8 @@ class Worker(object):
                 self.start_next_job()
         except Empty:
             logger.debug("No jobs to start.")
-        for job in self.storage.get_canceling_jobs(self.queues):
+
+        for job in self.storage.get_canceling_jobs():
             job_id = job.job_id
             if job_id in self.future_job_mapping:
                 self.cancel(job_id)
@@ -134,7 +131,7 @@ class Worker(object):
 
         :return future:
         """
-        job = self.storage.get_next_queued_job(self.queues)
+        job = self.storage.get_next_queued_job()
 
         if not job:
             raise Empty

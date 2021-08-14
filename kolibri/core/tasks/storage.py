@@ -5,7 +5,6 @@ from copy import copy
 from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import func
-from sqlalchemy import Integer
 from sqlalchemy import or_
 from sqlalchemy import PickleType
 from sqlalchemy import String
@@ -14,6 +13,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from kolibri.core.tasks.exceptions import JobNotFound
+from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
 from kolibri.utils.conf import OPTIONS
 
@@ -31,14 +31,14 @@ class ORMJob(Base):
 
     __tablename__ = "jobs"
 
-    # The hex UUID given to the job upon first creation
+    # The hex UUID given to the job upon first creation.
     id = Column(String, primary_key=True, autoincrement=False)
 
     # The job's state. Inflated here for easier querying to the job's state.
     state = Column(String, index=True)
 
-    # The job's order in the entire global queue of jobs.
-    queue_order = Column(Integer, autoincrement=True)
+    # The job's priority. Helps to decide which job to run next.
+    priority = Column(String, index=True)
 
     # The queue name passed to the client when the job is scheduled.
     queue = Column(String, index=True)
@@ -100,7 +100,7 @@ class Storage(StorageMixin):
         job.storage = self
         return job
 
-    def enqueue_job(self, j, queue):
+    def enqueue_job(self, j, queue, priority=Priority.REGULAR):
         """
         Add the job given by j to the job queue.
 
@@ -117,7 +117,13 @@ class Storage(StorageMixin):
                 return j.job_id
 
             j.state = State.QUEUED
-            orm_job = ORMJob(id=j.job_id, state=j.state, queue=queue, obj=j)
+            orm_job = ORMJob(
+                id=j.job_id,
+                state=j.state,
+                priority=priority,
+                queue=queue,
+                obj=j,
+            )
             session.merge(orm_job)
             try:
                 session.commit()
@@ -143,39 +149,60 @@ class Storage(StorageMixin):
         """
         self._update_job(job_id, State.CANCELING)
 
-    def get_next_queued_job(self, queues):
+    def get_next_queued_job(self, queues=None):
         with self.session_scope() as s:
-            orm_job = (
-                s.query(ORMJob)
-                .filter(ORMJob.queue.in_(queues))
-                .filter_by(state=State.QUEUED)
-                .order_by(ORMJob.queue_order)
-                .first()
-            )
+            q = s.query(ORMJob).filter(ORMJob.state == State.QUEUED)
+
+            if queues:
+                q = q.filter(ORMJob.queue.in_(queues))
+
+            orm_job = None
+            for priority in Priority.PriorityOrder:
+                orm_job = (
+                    q.filter(ORMJob.priority == priority)
+                    .order_by(ORMJob.time_created)
+                    .first()
+                )
+                if orm_job:
+                    break
+
             if orm_job:
                 job = self._add_storage(orm_job.obj)
             else:
                 job = None
+
             return job
 
-    def get_canceling_jobs(self, queues):
+    def get_canceling_jobs(self, queues=None):
         with self.session_scope() as s:
-            jobs = (
-                s.query(ORMJob)
-                .filter(ORMJob.queue.in_(queues))
-                .filter_by(state=State.CANCELING)
-                .order_by(ORMJob.queue_order)
-            )
+            q = s.query(ORMJob).filter(ORMJob.state == State.CANCELING)
+
+            if queues:
+                q = q.filter(ORMJob.queue.in_(queues))
+
+            jobs = q.order_by(ORMJob.time_created).all()
+
             return [self._add_storage(job.obj) for job in jobs]
 
-    def get_all_jobs(self, queue):
+    def get_all_jobs(self, queue=None):
         with self.session_scope() as s:
-            orm_jobs = s.query(ORMJob).filter(ORMJob.queue == queue).all()
+            q = s.query(ORMJob)
+
+            if queue:
+                q = q.filter(ORMJob.queue == queue)
+
+            orm_jobs = q.all()
+
             return [self._add_storage(o.obj) for o in orm_jobs]
 
-    def count_all_jobs(self, queue):
+    def count_all_jobs(self, queue=None):
         with self.session_scope() as s:
-            return s.query(ORMJob).filter(ORMJob.queue == queue).count()
+            q = s.query(ORMJob)
+
+            if queue:
+                q = q.filter(ORMJob.queue == queue)
+
+            return q.count()
 
     def get_job(self, job_id):
         with self.session_scope() as session:
