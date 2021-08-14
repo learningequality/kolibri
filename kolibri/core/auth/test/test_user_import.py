@@ -293,7 +293,7 @@ class UserImportCommandTestCase(TestCase):
         csv_file = open_csv_for_reading(self.csvpath)
         with csv_file as source:
             reader = csv.DictReader(source)
-            rows = list(row for row in reader)
+            rows = [row for row in reader]
         csv_file = open_csv_for_writing(self.csvpath)
         with csv_file as result:
             writer = csv.DictWriter(
@@ -324,7 +324,7 @@ class UserImportCommandTestCase(TestCase):
         csv_file = open_csv_for_reading(self.csvpath)
         with csv_file as source:
             reader = csv.DictReader(source)
-            rows = list(row for row in reader)
+            rows = [row for row in reader]
         csv_file = open_csv_for_writing(self.csvpath)
         with csv_file as result:
             writer = csv.DictWriter(

@@ -89,8 +89,7 @@ def logout_view(request):
         return HttpResponseRedirect(
             next(obj.url for obj in LogoutRedirectHook.registered_hooks)
         )
-    else:
-        return HttpResponseRedirect(reverse("kolibri:core:redirect_user"))
+    return HttpResponseRedirect(reverse("kolibri:core:redirect_user"))
 
 
 def get_urls_by_role(role):

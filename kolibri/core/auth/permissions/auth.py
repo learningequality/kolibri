@@ -38,11 +38,10 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
         if obj.kind == FACILITY:
             # permissions for creating Facilities are defined elsewhere; they can't be created by FacilityUser
             return False
-        else:
-            # we allow a Collection to be created if the user has permissions to update the parent Collection
-            return super(
-                CollectionSpecificRoleBasedPermissions, self
-            ).user_can_update_object(user, obj.parent)
+        # we allow a Collection to be created if the user has permissions to update the parent Collection
+        return super(
+            CollectionSpecificRoleBasedPermissions, self
+        ).user_can_update_object(user, obj.parent)
 
     def user_can_delete_object(self, user, obj):
         """
@@ -51,11 +50,10 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
         if obj.kind == FACILITY:
             # disallow a FacilityUser from deleting a Facility
             return False
-        else:
-            # for non-Facility Collections, defer to the roles to determine delete permissions
-            return super(
-                CollectionSpecificRoleBasedPermissions, self
-            ).user_can_update_object(user, obj.parent)
+        # for non-Facility Collections, defer to the roles to determine delete permissions
+        return super(
+            CollectionSpecificRoleBasedPermissions, self
+        ).user_can_update_object(user, obj.parent)
 
     def readable_by_user_filter(self, user):
         if user.is_anonymous():
@@ -73,8 +71,7 @@ class AnonUserCanReadFacilities(DenyAll):
     def user_can_read_object(self, user, obj):
         if obj.kind == FACILITY:
             return isinstance(user, AnonymousUser)
-        else:
-            return False
+        return False
 
     def readable_by_user_filter(self, user):
         if isinstance(user, AnonymousUser):

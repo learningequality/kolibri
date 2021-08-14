@@ -25,7 +25,8 @@ class VersionUpgrade(object):
         # If None - should be applied to all.
         self.OLD_VERSION = old_version
         try:
-            assert self._old
+            if not self._old:
+                raise AssertionError
         except AssertionError:
             raise TypeError(
                 "Unparseable semver version or range passed to upgrade object for old_version"
@@ -35,7 +36,8 @@ class VersionUpgrade(object):
         # If None - should be applied to all.
         self.NEW_VERSION = new_version
         try:
-            assert self._new
+            if not self._new:
+                raise AssertionError
         except AssertionError:
             raise TypeError(
                 "Unparseable semver version or range passed to upgrade object for new_version"

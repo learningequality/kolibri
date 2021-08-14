@@ -87,10 +87,9 @@ class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
         ):
             # only filter down the queryset in the case of the list view being requested
             return request.user.filter_readable(queryset)
-        else:
-            # otherwise, return the full queryset, as permission checks will happen object-by-object
-            # (and filtering here then leads to 404's instead of the more correct 403's)
-            return queryset
+        # otherwise, return the full queryset, as permission checks will happen object-by-object
+        # (and filtering here then leads to 404's instead of the more correct 403's)
+        return queryset
 
 
 def _ensure_raw_dict(d):
@@ -130,12 +129,11 @@ class KolibriAuthPermissions(permissions.BasePermission):
         # note that there is no entry for POST here, as creation is handled by `has_permission`, above
         if request.method in permissions.SAFE_METHODS:  # 'GET', 'OPTIONS' or 'HEAD'
             return request.user.can_read(obj)
-        elif request.method in ["PUT", "PATCH"]:
+        if request.method in ["PUT", "PATCH"]:
             return request.user.can_update(obj)
-        elif request.method == "DELETE":
+        if request.method == "DELETE":
             return request.user.can_delete(obj)
-        else:
-            return False
+        return False
 
 
 class FacilityDatasetViewSet(ValuesViewset):
@@ -345,6 +343,32 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     filter_fields = ["user", "collection", "kind", "user_ids"]
 
 
+dataset_keys = [
+    "dataset__id",
+    "dataset__learner_can_edit_username",
+    "dataset__learner_can_edit_name",
+    "dataset__learner_can_edit_password",
+    "dataset__learner_can_sign_up",
+    "dataset__learner_can_delete_account",
+    "dataset__learner_can_login_with_no_password",
+    "dataset__show_download_button_in_learn",
+    "dataset__description",
+    "dataset__location",
+    "dataset__registered",
+    "dataset__preset",
+]
+
+
+# map function to pop() all of the dataset__ items into an dict
+# then assign that new dict to the `dataset` key of the facility
+def _map_dataset(facility):
+    dataset = {}
+    for dataset_key in dataset_keys:
+        stripped_key = dataset_key.replace("dataset__", "")
+        dataset[stripped_key] = facility.pop(dataset_key)
+    return dataset
+
+
 class FacilityViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
@@ -353,31 +377,7 @@ class FacilityViewSet(ValuesViewset):
 
     facility_values = ["id", "name", "num_classrooms", "num_users", "last_synced"]
 
-    dataset_keys = [
-        "dataset__id",
-        "dataset__learner_can_edit_username",
-        "dataset__learner_can_edit_name",
-        "dataset__learner_can_edit_password",
-        "dataset__learner_can_sign_up",
-        "dataset__learner_can_delete_account",
-        "dataset__learner_can_login_with_no_password",
-        "dataset__show_download_button_in_learn",
-        "dataset__description",
-        "dataset__location",
-        "dataset__registered",
-        "dataset__preset",
-    ]
-
     values = tuple(facility_values + dataset_keys)
-
-    # map function to pop() all of the dataset__ items into an dict
-    # then assign that new dict to the `dataset` key of the facility
-    def _map_dataset(facility, dataset_keys=dataset_keys):
-        dataset = {}
-        for dataset_key in dataset_keys:
-            stripped_key = dataset_key.replace("dataset__", "")
-            dataset[stripped_key] = facility.pop(dataset_key)
-        return dataset
 
     field_map = {"dataset": _map_dataset}
 
@@ -657,7 +657,7 @@ class SessionViewSet(viewsets.ViewSet):
             login(request, user)
             # Success!
             return self.get_session_response(request)
-        elif (
+        if (
             unauthenticated_user is not None
             and unauthenticated_user.password == "NOT_SPECIFIED"
         ):
@@ -676,7 +676,7 @@ class SessionViewSet(viewsets.ViewSet):
                 ],
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        elif (
+        if (
             not password
             and FacilityUser.objects.filter(
                 username__iexact=username, facility=facility_id
@@ -695,12 +695,11 @@ class SessionViewSet(viewsets.ViewSet):
                 ],
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        else:
-            # Respond with error
-            return Response(
-                [{"id": error_constants.INVALID_CREDENTIALS, "metadata": {}}],
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+        # Respond with error
+        return Response(
+            [{"id": error_constants.INVALID_CREDENTIALS, "metadata": {}}],
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
 
     def destroy(self, request, pk=None):
         logout(request)

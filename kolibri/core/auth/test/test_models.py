@@ -297,12 +297,12 @@ class CollectionRelatedObjectTestCase(TestCase):
 
     def test_get_learner_groups(self):
         self.assertSetEqual(
-            {self.lg.pk}, set(lg.pk for lg in self.cr.get_learner_groups())
+            {self.lg.pk}, {lg.pk for lg in self.cr.get_learner_groups()}
         )
 
     def test_get_classrooms(self):
         self.assertSetEqual(
-            {self.cr.pk}, set(cr.pk for cr in self.facility.get_classrooms())
+            {self.cr.pk}, {cr.pk for cr in self.facility.get_classrooms()}
         )
 
     def test_get_classroom(self):

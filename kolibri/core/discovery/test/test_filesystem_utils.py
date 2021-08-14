@@ -72,8 +72,7 @@ class patch_disk_usage(object):
     def __call__(self, f):
         if sys.version_info >= (3, 3):
             return patch("shutil.disk_usage", self.mocked_disk_usage)(f)
-        else:
-            return patch("os.statvfs", self.mocked_disk_usage)(f)
+        return patch("os.statvfs", self.mocked_disk_usage)(f)
 
 
 def patch_os_access(readable, writable):
@@ -144,7 +143,7 @@ class WindowsFilesystemTestCase(TestCase):
 
     def test_drive_list_members(self):
         self.assertSetEqual(
-            set(drive.path for drive in self.drives.values()), set(["C:\\", "D:\\"])
+            {drive.path for drive in self.drives.values()}, set(["C:\\", "D:\\"])
         )
 
     def test_drive_writability(self):
@@ -185,7 +184,7 @@ class LinuxFilesystemTestCase(TestCase):
 
     def test_drive_list_members(self):
         self.assertSetEqual(
-            set(drive.path for drive in self.drives.values()),
+            {drive.path for drive in self.drives.values()},
             set(["/media/user/F571-7814", "/", "/media/user/disk"]),
         )
 
@@ -230,7 +229,7 @@ class OSXFilesystemTestCase(TestCase):
 
     def test_drive_list_members(self):
         self.assertSetEqual(
-            set(drive.path for drive in self.drives.values()),
+            {drive.path for drive in self.drives.values()},
             set(["/Volumes/HP v125w", "/"]),
         )
 

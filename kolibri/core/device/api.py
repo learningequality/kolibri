@@ -35,6 +35,11 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import DynamicNetworkLocation
+from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
+from kolibri.core.public.constants.user_sync_statuses import NOT_RECENTLY_SYNCED
+from kolibri.core.public.constants.user_sync_statuses import QUEUED
+from kolibri.core.public.constants.user_sync_statuses import RECENTLY_SYNCED
+from kolibri.core.public.constants.user_sync_statuses import SYNCING
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
@@ -197,12 +202,6 @@ class SyncStatusFilter(FilterSet):
         fields = ["user", "member_of"]
 
 
-RECENTLY_SYNCED = "RECENTLY_SYNCED"
-SYNCING = "SYNCING"
-QUEUED = "QUEUED"
-NOT_RECENTLY_SYNCED = "NOT_RECENTLY_SYNCED"
-
-
 def map_status(status):
     """
     Summarize the current state of the sync into a constant for use by
@@ -213,12 +212,9 @@ def map_status(status):
     elif status["queued"]:
         return QUEUED
     elif status["last_synced"]:
-        # Keep this as a fixed constant for now.
-        # In future versions this may be configurable.
-        if timezone.now() - status["last_synced"] < timedelta(minutes=15):
+        if timezone.now() - status["last_synced"] < timedelta(seconds=DELAYED_SYNC):
             return RECENTLY_SYNCED
-        else:
-            return NOT_RECENTLY_SYNCED
+        return NOT_RECENTLY_SYNCED
 
 
 class UserSyncStatusViewSet(ReadOnlyValuesViewset):

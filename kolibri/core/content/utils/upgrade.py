@@ -273,10 +273,10 @@ def get_new_resources_available_for_import(destination, channel_id):
         )
     )
 
-    new_resource_node_ids = list(
+    new_resource_node_ids = [
         coerce_key(c[0])
         for c in connection.execute(new_resource_node_ids_statement).fetchall()
-    )
+    ]
 
     trans.rollback()
 
@@ -337,10 +337,10 @@ def get_new_resources_available_for_import(destination, channel_id):
         .distinct()
     )
 
-    new_resource_content_ids = list(
+    new_resource_content_ids = [
         coerce_key(c[0])
         for c in connection.execute(new_resource_content_ids_statement).fetchall()
-    )
+    ]
 
     trans.rollback()
 

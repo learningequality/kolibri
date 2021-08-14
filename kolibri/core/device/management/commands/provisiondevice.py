@@ -66,8 +66,7 @@ def get_user_response(prompt, valid_answers=None, to_lower_case=True):
         answer = six.moves.input(prompt)
     if to_lower_case:
         return answer.lower()
-    else:
-        return answer
+    return answer
 
 
 languages = dict(settings.LANGUAGES)
@@ -164,8 +163,10 @@ def create_superuser(username=None, password=None, interactive=False, facility=N
 
 
 def create_device_settings(
-    language_id=None, facility=None, interactive=False, new_settings={}
+    language_id=None, facility=None, interactive=False, new_settings=None
 ):
+    if new_settings is None:
+        new_settings = {}
     if language_id is None and interactive:
         language_id = get_user_response(
             "Enter a default language code [{langs}]: ".format(

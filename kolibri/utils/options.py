@@ -454,6 +454,13 @@ base_option_spec = {
                 Server configuration should handle ensuring that the files are properly served.
             """,
         },
+        "SYNC_INTERVAL": {
+            "type": "integer",
+            "default": 5,
+            "description": """
+                In case a SoUD connects to this server, the SoUD should use this interval to resync every user.
+            """,
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
@@ -515,15 +522,13 @@ def _get_option_spec():
     for section, opts in option_spec.items():
         for optname, attrs in opts.items():
             if "deprecated_aliases" in attrs:
-                attrs["deprecated_envvars"] = attrs.get("deprecated_envvars", tuple())
+                attrs["deprecated_envvars"] = attrs.get("deprecated_envvars", ())
                 for alias in attrs["deprecated_aliases"]:
                     alias_ev = "KOLIBRI_{}".format(alias)
                     if alias_ev not in envvars:
                         attrs["deprecated_envvars"] += (alias_ev,)
 
-            opt_envvars = attrs.get("envvars", tuple()) + attrs.get(
-                "deprecated_envvars", tuple()
-            )
+            opt_envvars = attrs.get("envvars", ()) + attrs.get("deprecated_envvars", ())
             default_envvar = "KOLIBRI_{}".format(optname.upper())
             if default_envvar not in envvars:
                 envvars.add(default_envvar)
@@ -587,7 +592,7 @@ def _set_from_envvars(conf):
         for optname, attrs in opts.items():
             for envvar in attrs.get("envvars", []):
                 if os.environ.get(envvar):
-                    deprecated_envvars = attrs.get("deprecated_envvars", tuple())
+                    deprecated_envvars = attrs.get("deprecated_envvars", ())
                     if envvar in deprecated_envvars:
                         logger.warn(
                             deprecation_warning.format(
@@ -632,7 +637,7 @@ def _set_from_deprecated_aliases(conf):
     # and check for use of deprecated environment variables and options
     for section, opts in option_spec.items():
         for optname, attrs in opts.items():
-            for alias in attrs.get("deprecated_aliases", tuple()):
+            for alias in attrs.get("deprecated_aliases", ()):
                 if alias in conf[section]:
                     logger.warn(
                         deprecation_warning.format(

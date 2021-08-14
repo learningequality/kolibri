@@ -251,12 +251,12 @@ class Validator(object):
     """
 
     def __init__(self, header_translation):
-        self._checks = list()
-        self.classrooms = dict()
-        self.coach_classrooms = dict()
-        self.users = dict()
+        self._checks = []
+        self.classrooms = {}
+        self.coach_classrooms = {}
+        self.users = {}
         self.header_translation = header_translation
-        self.roles = {r: list() for r in roles_map.values() if r is not None}
+        self.roles = {r: [] for r in roles_map.values() if r is not None}
 
     def add_check(self, header_name, check, message):
         """
@@ -529,10 +529,10 @@ class Command(AsyncCommand):
         return changed
 
     def build_users_objects(self, users):
-        new_users = list()
-        update_users = list()
-        keeping_users = list()
-        per_line_errors = list()
+        new_users = []
+        update_users = []
+        keeping_users = []
+        per_line_errors = []
         users_uuid = [
             u[self.header_translation["UUID"]]
             for u in users.values()
@@ -640,8 +640,8 @@ class Command(AsyncCommand):
         fixed_classes - Same original classes tuple, but with the names normalized
 
         """
-        new_classes = list()
-        update_classes = list()
+        new_classes = []
+        update_classes = []
         total_classes = set([k for k in classes[0]] + [v for v in classes[1]])
         existing_classes = (
             Classroom.objects.filter(parent=self.default_facility)
@@ -768,7 +768,6 @@ class Command(AsyncCommand):
                 self.job.extra_metadata["filename"] = ""
                 self.job.save_meta()
             raise CommandError("File errors: {}".format(str(self.overall_error)))
-            sys.exit(1)
         return
 
     def remove_memberships(self, users, enrolled, assigned):

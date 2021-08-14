@@ -106,7 +106,9 @@ def collect_local_artifacts():
     return artifacts_dict
 
 
-def upload_gh_release_artifacts(artifacts={}):
+def upload_gh_release_artifacts(artifacts=None):
+    if artifacts is None:
+        artifacts = {}
     # Have to do this with requests because github3 does not support this interface yet
     get_release_asset_url = requests.get(
         "https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}".format(

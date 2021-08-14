@@ -153,7 +153,7 @@ class ExamSerializer(ModelSerializer):
                     collection__kind=ADHOCLEARNERSGROUP
                 ).values_list("collection__id", flat=True)
             )
-            new_group_ids = set(x.id for x in collections)
+            new_group_ids = {x.id for x in collections}
 
             for cid in new_group_ids - current_group_ids:
                 collection = Collection.objects.get(id=cid)
@@ -199,7 +199,7 @@ class ExamSerializer(ModelSerializer):
                     collection=adhoc_group_assignment.collection
                 ).values_list("user_id", flat=True)
                 original_learner_ids_set = set(original_learner_ids)
-                learner_ids_set = set(learner.id for learner in learners)
+                learner_ids_set = {learner.id for learner in learners}
                 if original_learner_ids_set != learner_ids_set:
                     # Only bother to do anything if these are different
                     new_learner_ids = learner_ids_set - original_learner_ids_set
