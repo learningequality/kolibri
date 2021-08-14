@@ -768,7 +768,6 @@ class Command(AsyncCommand):
                 self.job.extra_metadata["filename"] = ""
                 self.job.save_meta()
             raise CommandError("File errors: {}".format(str(self.overall_error)))
-            sys.exit(1)
         return
 
     def remove_memberships(self, users, enrolled, assigned):
