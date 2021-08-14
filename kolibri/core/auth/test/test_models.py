@@ -229,48 +229,48 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
             self.cr.remove_coach(self.learner)
 
     def test_remove_indirect_admin_role(self):
-        """ Trying to remove the admin role for a a Facility admin from a descendant classroom doesn't actually remove anything. """
+        """Trying to remove the admin role for a a Facility admin from a descendant classroom doesn't actually remove anything."""
         with self.assertRaises(UserDoesNotHaveRoleError):
             self.cr.remove_admin(self.facility_admin)
 
     def test_delete_learner_group(self):
-        """ Deleting a LearnerGroup should delete its associated Memberships as well """
+        """Deleting a LearnerGroup should delete its associated Memberships as well"""
         self.assertEqual(Membership.objects.filter(collection=self.lg.id).count(), 1)
         self.lg.delete()
         self.assertEqual(Membership.objects.filter(collection=self.lg.id).count(), 0)
 
     def test_delete_classroom_pt1(self):
-        """ Deleting a Classroom should delete its associated Roles as well """
+        """Deleting a Classroom should delete its associated Roles as well"""
         self.assertEqual(Role.objects.filter(collection=self.cr.id).count(), 1)
         self.cr.delete()
         self.assertEqual(Role.objects.filter(collection=self.cr.id).count(), 0)
 
     def test_delete_classroom_pt2(self):
-        """ Deleting a Classroom should delete its associated LearnerGroups """
+        """Deleting a Classroom should delete its associated LearnerGroups"""
         self.assertEqual(LearnerGroup.objects.count(), 1)
         self.cr.delete()
         self.assertEqual(LearnerGroup.objects.count(), 0)
 
     def test_delete_facility_pt1(self):
-        """ Deleting a Facility should delete associated Roles as well """
+        """Deleting a Facility should delete associated Roles as well"""
         self.assertEqual(Role.objects.filter(collection=self.facility.id).count(), 2)
         self.facility.delete()
         self.assertEqual(Role.objects.filter(collection=self.facility.id).count(), 0)
 
     def test_delete_facility_pt2(self):
-        """ Deleting a Facility should delete Classrooms under it. """
+        """Deleting a Facility should delete Classrooms under it."""
         self.assertEqual(Classroom.objects.count(), 1)
         self.facility.delete()
         self.assertEqual(Classroom.objects.count(), 0)
 
     def test_delete_facility_pt3(self):
-        """ Deleting a Facility should delete *every* Collection under it and associated Roles """
+        """Deleting a Facility should delete *every* Collection under it and associated Roles"""
         self.facility.delete()
         self.assertEqual(Collection.objects.count(), 0)
         self.assertEqual(Role.objects.count(), 0)
 
     def test_delete_facility_user(self):
-        """ Deleting a FacilityUser should delete associated Memberships """
+        """Deleting a FacilityUser should delete associated Memberships"""
         self.learner.delete()
         self.assertEqual(Membership.objects.filter(user=self.learner).count(), 0)
 
