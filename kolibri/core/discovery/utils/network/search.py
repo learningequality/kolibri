@@ -36,9 +36,8 @@ ZEROCONF_STATE = {
 
 
 def _id_from_name(name):
-    assert name.endswith(SERVICE_TYPE), (
-        "Invalid service name; must end with '%s'" % SERVICE_TYPE
-    )
+    if not name.endswith(SERVICE_TYPE):
+        raise AssertionError("Invalid service name; must end with '%s'" % SERVICE_TYPE)
     return name.replace(SERVICE_TYPE, "").strip(".")
 
 
@@ -46,7 +45,9 @@ class KolibriZeroconfService(object):
 
     info = None
 
-    def __init__(self, id, port=8080, data={}):
+    def __init__(self, id, port=8080, data=None):
+        if data is None:
+            data = {}
         self.id = id
         self.port = port
         self.data = {}

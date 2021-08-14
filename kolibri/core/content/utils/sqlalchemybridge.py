@@ -265,15 +265,14 @@ def get_default_db_string():
     destination_db = settings.DATABASES.get("default")
     if "sqlite" in destination_db["ENGINE"]:
         return sqlite_connection_string(destination_db["NAME"])
-    else:
-        return "{dialect}://{user}:{password}@{host}{port}/{dbname}".format(
-            dialect=destination_db["ENGINE"].split(".")[-1],
-            user=destination_db["USER"],
-            password=destination_db["PASSWORD"],
-            host=destination_db.get("HOST", "localhost"),
-            port=":" + destination_db.get("PORT") if destination_db.get("PORT") else "",
-            dbname=destination_db["NAME"],
-        )
+    return "{dialect}://{user}:{password}@{host}{port}/{dbname}".format(
+        dialect=destination_db["ENGINE"].split(".")[-1],
+        user=destination_db["USER"],
+        password=destination_db["PASSWORD"],
+        host=destination_db.get("HOST", "localhost"),
+        port=":" + destination_db.get("PORT") if destination_db.get("PORT") else "",
+        dbname=destination_db["NAME"],
+    )
 
 
 class SchemaNotFoundError(Exception):

@@ -715,7 +715,8 @@ class TasksViewSet(BaseViewSet):
         drives = get_mounted_drives_with_channel_info()
 
         # make sure everything is a dict, before converting to JSON
-        assert isinstance(drives, dict)
+        if not isinstance(drives, dict):
+            raise AssertionError
         out = [mountdata._asdict() for mountdata in drives.values()]
 
         return Response(out)
@@ -1186,7 +1187,7 @@ def prepare_sync_job(facility_id, **kwargs):
         facility=facility_id,
         chunk_size=200,
         noninteractive=True,
-        extra_metadata=dict(),
+        extra_metadata={},
         track_progress=True,
         cancellable=False,
     )
@@ -1422,15 +1423,14 @@ def _job_to_response(job):
             "cancellable": False,
             "clearable": False,
         }
-    else:
-        output = {
-            "status": job.state,
-            "exception": str(job.exception),
-            "traceback": str(job.traceback),
-            "percentage": job.percentage_progress,
-            "id": job.job_id,
-            "cancellable": job.cancellable,
-            "clearable": job.state in [State.FAILED, State.CANCELED, State.COMPLETED],
-        }
-        output.update(job.extra_metadata)
-        return output
+    output = {
+        "status": job.state,
+        "exception": str(job.exception),
+        "traceback": str(job.traceback),
+        "percentage": job.percentage_progress,
+        "id": job.job_id,
+        "cancellable": job.cancellable,
+        "clearable": job.state in [State.FAILED, State.CANCELED, State.COMPLETED],
+    }
+    output.update(job.extra_metadata)
+    return output

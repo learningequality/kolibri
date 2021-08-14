@@ -45,7 +45,7 @@ fake_job_defaults = dict(
     traceback="",
     percentage_progress=0,
     cancellable=False,
-    extra_metadata=dict(),
+    extra_metadata={},
     func=lambda: None,
 )
 
@@ -941,7 +941,7 @@ class FacilityTaskHelperTestCase(TestCase):
         self.assertEqual(expected, actual)
 
     def test_validate_facility__parse_error(self):
-        req = Mock(spec="rest_framework.requests.Request", data=dict())
+        req = Mock(spec="rest_framework.requests.Request", data={})
 
         with self.assertRaises(ParseError):
             validate_facility(req)

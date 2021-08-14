@@ -67,12 +67,13 @@ class CustomAuthenticationMiddleware(AuthenticationMiddleware):
     """
 
     def process_request(self, request):
-        assert hasattr(request, "session"), (
-            "The authentication middleware requires session middleware "
-            "to be installed. Edit your MIDDLEWARE_CLASSES setting to insert "
-            "'django.contrib.sessions.middleware.SessionMiddleware' before "
-            "'kolibri.core.auth.middleware.CustomAuthenticationMiddleware'."
-        )
+        if not hasattr(request, "session"):
+            raise AssertionError(
+                "The authentication middleware requires session middleware "
+                "to be installed. Edit your MIDDLEWARE_CLASSES setting to insert "
+                "'django.contrib.sessions.middleware.SessionMiddleware' before "
+                "'kolibri.core.auth.middleware.CustomAuthenticationMiddleware'."
+            )
         request.user = SimpleLazyObject(lambda: _get_user(request))
 
 

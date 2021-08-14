@@ -140,8 +140,7 @@ class IsFromSameFacility(BasePermissions):
     def readable_by_user_filter(self, user):
         if hasattr(user, "dataset"):
             return Q(dataset=user.dataset)
-        else:
-            return q_none
+        return q_none
 
 
 def _user_is_admin_for_own_facility(user, obj=None):
@@ -184,5 +183,4 @@ class IsAdminForOwnFacility(BasePermissions):
     def readable_by_user_filter(self, user):
         if _user_is_admin_for_own_facility(user):
             return Q(dataset=user.dataset)
-        else:
-            return q_none
+        return q_none

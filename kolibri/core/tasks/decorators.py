@@ -17,11 +17,13 @@ def register_task(
     priority=Priority.REGULAR,
     cancellable=False,
     track_progress=False,
-    permission_classes=[],
+    permission_classes=None,
 ):
     """
     Registers the decorated function as task.
     """
+    if permission_classes is None:
+        permission_classes = []
     if func is None:
         return partial(
             register_task,

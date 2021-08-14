@@ -54,8 +54,7 @@ def _windows_pid_exists(pid):
     if process != 0:
         kernel32.CloseHandle(process)
         return True
-    else:
-        return False
+    return False
 
 
 buffering = int(six.PY3)  # No unbuffered text I/O on Python 3 (#20815).

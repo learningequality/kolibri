@@ -89,7 +89,8 @@ class ParamValidator(object):
         elif self.param_type == float:
             param = float(param)
         elif self.param_type == str:
-            assert isinstance(param, string_types)
+            if not isinstance(param, string_types):
+                raise AssertionError
         elif self.param_type == bool:
             param = str(param).lower()  # bool isn't case sensitive
             if param in TRUE_VALUES:
@@ -192,17 +193,20 @@ class ParamValidator(object):
         if suffix == "method":
             self.set_method(value)
         elif suffix in BOOL_PARTS:
-            assert isinstance(value, bool)
+            if not isinstance(value, bool):
+                raise AssertionError
             setattr(self, suffix, value)
         elif suffix in NUM_PARTS:
-            assert isinstance(value, int) or isinstance(value, float)
+            if not (isinstance(value, int) or isinstance(value, float)):
+                raise AssertionError
             setattr(self, suffix, value)
         elif suffix == "default":
             self.optional = True
             self.default = value
 
         elif suffix == "field":
-            assert isinstance(suffix, str)
+            if not isinstance(suffix, str):
+                raise AssertionError
             self.field = value
         else:
             raise InvalidQueryParamsException(
@@ -255,7 +259,7 @@ class ParamValidator(object):
             return param
 
 
-def query_params_required(**kwargs):
+def query_params_required(**kwargs):  # noqa: C901
     """
     Request fn decorator that builds up a list of params and automatically returns a 400 if they are invalid.
     The validated params are passed to the wrapped function as kwargs.
@@ -280,9 +284,10 @@ def query_params_required(**kwargs):
 
     def _params(cls):
 
-        assert issubclass(
-            cls, APIView
-        ), "query_params_required decorator can only be used on subclasses of APIView"
+        if not issubclass(cls, APIView):
+            raise AssertionError(
+                "query_params_required decorator can only be used on subclasses of APIView"
+            )
 
         def initial(self, request, *args, **kwargs):
 

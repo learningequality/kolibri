@@ -157,7 +157,7 @@ class PortCache:
 
     def save(self):
         with open(PORT_CACHE, "w") as f:
-            f.write("\n".join(str(p) for p in self.values.keys()))
+            f.write("\n".join(str(p) for p in self.values))
 
     def load(self):
         try:
@@ -197,11 +197,10 @@ class ServerPlugin(BaseServerPlugin):
     def interface(self):
         if self.httpserver.bind_addr is None:
             return "unknown interface (dynamic?)"
-        elif isinstance(self.httpserver.bind_addr, tuple):
+        if isinstance(self.httpserver.bind_addr, tuple):
             host, port = self.httpserver.bind_addr
             return "%s:%s" % (host, port)
-        else:
-            return "socket file: %s" % self.httpserver.bind_addr
+        return "socket file: %s" % self.httpserver.bind_addr
 
 
 class KolibriServerPlugin(ServerPlugin):
@@ -367,7 +366,6 @@ class DaemonizePlugin(SimplePlugin):
     def ENTER(self):
         self.bus.publish("log", "Running Kolibri as background process", 20)
         # Daemonize at this point, no more user output is needed
-        from django.conf import settings
 
         kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
         self.bus.publish(

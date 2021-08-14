@@ -88,7 +88,8 @@ class BaseLogModel(AbstractFacilityDataModel):
                 pass
         # if no user or matching facility, infer dataset from the default facility
         facility = Facility.get_default_facility()
-        assert facility, "Before you can save logs, you must have a facility"
+        if not facility:
+            raise AssertionError("Before you can save logs, you must have a facility")
         return facility.dataset_id
 
     objects = BaseLogQuerySet.as_manager()
@@ -98,8 +99,7 @@ class BaseLogModel(AbstractFacilityDataModel):
             return "{dataset_id}:user-rw:{user_id}".format(
                 dataset_id=self.dataset_id, user_id=self.user_id
             )
-        else:
-            return "{dataset_id}:anonymous".format(dataset_id=self.dataset_id)
+        return "{dataset_id}:anonymous".format(dataset_id=self.dataset_id)
 
 
 class ContentSessionLog(BaseLogModel):
