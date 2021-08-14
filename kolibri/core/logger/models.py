@@ -99,8 +99,7 @@ class BaseLogModel(AbstractFacilityDataModel):
             return "{dataset_id}:user-rw:{user_id}".format(
                 dataset_id=self.dataset_id, user_id=self.user_id
             )
-        else:
-            return "{dataset_id}:anonymous".format(dataset_id=self.dataset_id)
+        return "{dataset_id}:anonymous".format(dataset_id=self.dataset_id)
 
 
 class ContentSessionLog(BaseLogModel):

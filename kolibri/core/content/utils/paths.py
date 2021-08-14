@@ -50,8 +50,7 @@ def get_local_content_storage_file_url(obj):
     """
     if get_attribute(obj, "available"):
         return get_content_storage_file_url(filename=get_content_file_name(obj))
-    else:
-        return None
+    return None
 
 
 # DISK PATHS
@@ -60,10 +59,9 @@ def get_local_content_storage_file_url(obj):
 def get_content_dir_path(datafolder=None, contentfolder=None):
     if contentfolder:
         return contentfolder
-    elif datafolder:
+    if datafolder:
         return os.path.join(datafolder, "content")
-    else:
-        return conf.OPTIONS["Paths"]["CONTENT_DIR"]
+    return conf.OPTIONS["Paths"]["CONTENT_DIR"]
 
 
 def get_content_fallback_paths():
@@ -316,12 +314,11 @@ def get_content_storage_file_url(filename):
     ext = os.path.splitext(filename)[1]
     if ext in POSSIBLE_ZIPPED_FILE_EXTENSIONS:
         return "{}{}/".format(get_zip_content_base_path(), filename)
-    else:
-        return "/{}{}/{}/{}".format(
-            get_content_storage_url(
-                conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
-            ).lstrip("/"),
-            filename[0],
-            filename[1],
-            filename,
-        )
+    return "/{}{}/{}/{}".format(
+        get_content_storage_url(conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]).lstrip(
+            "/"
+        ),
+        filename[0],
+        filename[1],
+        filename,
+    )

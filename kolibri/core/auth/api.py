@@ -87,10 +87,9 @@ class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
         ):
             # only filter down the queryset in the case of the list view being requested
             return request.user.filter_readable(queryset)
-        else:
-            # otherwise, return the full queryset, as permission checks will happen object-by-object
-            # (and filtering here then leads to 404's instead of the more correct 403's)
-            return queryset
+        # otherwise, return the full queryset, as permission checks will happen object-by-object
+        # (and filtering here then leads to 404's instead of the more correct 403's)
+        return queryset
 
 
 def _ensure_raw_dict(d):
@@ -130,12 +129,11 @@ class KolibriAuthPermissions(permissions.BasePermission):
         # note that there is no entry for POST here, as creation is handled by `has_permission`, above
         if request.method in permissions.SAFE_METHODS:  # 'GET', 'OPTIONS' or 'HEAD'
             return request.user.can_read(obj)
-        elif request.method in ["PUT", "PATCH"]:
+        if request.method in ["PUT", "PATCH"]:
             return request.user.can_update(obj)
-        elif request.method == "DELETE":
+        if request.method == "DELETE":
             return request.user.can_delete(obj)
-        else:
-            return False
+        return False
 
 
 class FacilityDatasetViewSet(ValuesViewset):
@@ -659,7 +657,7 @@ class SessionViewSet(viewsets.ViewSet):
             login(request, user)
             # Success!
             return self.get_session_response(request)
-        elif (
+        if (
             unauthenticated_user is not None
             and unauthenticated_user.password == "NOT_SPECIFIED"
         ):
@@ -678,7 +676,7 @@ class SessionViewSet(viewsets.ViewSet):
                 ],
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        elif (
+        if (
             not password
             and FacilityUser.objects.filter(
                 username__iexact=username, facility=facility_id
@@ -697,12 +695,11 @@ class SessionViewSet(viewsets.ViewSet):
                 ],
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        else:
-            # Respond with error
-            return Response(
-                [{"id": error_constants.INVALID_CREDENTIALS, "metadata": {}}],
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+        # Respond with error
+        return Response(
+            [{"id": error_constants.INVALID_CREDENTIALS, "metadata": {}}],
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
 
     def destroy(self, request, pk=None):
         logout(request)

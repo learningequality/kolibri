@@ -110,8 +110,7 @@ def get_kolibri_version(kolibri_cmd):
     if m:
         major, minor = m.groupdict()["major"], m.groupdict()["minor"]
         return int(major), int(minor)
-    else:
-        return None, None
+    return None, None
 
 
 def create_facility(kolibri_cmd):

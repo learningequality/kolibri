@@ -66,12 +66,11 @@ def column_not_auto_integer_pk(column):
 def convert_to_sqlite_value(python_value):
     if isinstance(python_value, bool):
         return "1" if python_value else "0"
-    elif python_value is None:
+    if python_value is None:
         return "null"
-    elif isinstance(python_value, dict) or isinstance(python_value, list):
+    if isinstance(python_value, dict) or isinstance(python_value, list):
         return '"{}"'.format(json.dumps(python_value))
-    else:
-        return repr(python_value)
+    return repr(python_value)
 
 
 def clean_csv_value(value):
@@ -331,8 +330,7 @@ class ChannelImport(object):
                     mapping = getattr(self, col_map)
                     if callable(mapping):
                         return mapping(record)
-                    else:
-                        return mapping
+                    return mapping
                 else:
                     # If neither of these true, we specified a column mapping that is invalid
                     raise AttributeError(

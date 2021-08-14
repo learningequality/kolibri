@@ -240,8 +240,7 @@ class Job(object):
 
         if self.total_progress != 0:
             return float(self.progress) / self.total_progress
-        else:
-            return self.progress
+        return self.progress
 
     def __repr__(self):
         return (

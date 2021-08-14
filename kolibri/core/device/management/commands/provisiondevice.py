@@ -66,8 +66,7 @@ def get_user_response(prompt, valid_answers=None, to_lower_case=True):
         answer = six.moves.input(prompt)
     if to_lower_case:
         return answer.lower()
-    else:
-        return answer
+    return answer
 
 
 languages = dict(settings.LANGUAGES)

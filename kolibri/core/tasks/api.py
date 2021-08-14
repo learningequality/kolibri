@@ -1423,15 +1423,14 @@ def _job_to_response(job):
             "cancellable": False,
             "clearable": False,
         }
-    else:
-        output = {
-            "status": job.state,
-            "exception": str(job.exception),
-            "traceback": str(job.traceback),
-            "percentage": job.percentage_progress,
-            "id": job.job_id,
-            "cancellable": job.cancellable,
-            "clearable": job.state in [State.FAILED, State.CANCELED, State.COMPLETED],
-        }
-        output.update(job.extra_metadata)
-        return output
+    output = {
+        "status": job.state,
+        "exception": str(job.exception),
+        "traceback": str(job.traceback),
+        "percentage": job.percentage_progress,
+        "id": job.job_id,
+        "cancellable": job.cancellable,
+        "clearable": job.state in [State.FAILED, State.CANCELED, State.COMPLETED],
+    }
+    output.update(job.extra_metadata)
+    return output

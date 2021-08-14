@@ -114,9 +114,8 @@ class RoleBasedPermissions(BasePermissions):
     def _get_target_object(self, obj):
         if self.target_field == ".":  # this means the object itself is the target
             return obj
-        else:  # otherwise, do the lookup based on the provided field name, and fetch the target object
-            # TODO(jamalex): allow related object lookups (e.g. "classroom__parent"), rather than just direct FK's
-            return getattr(obj, self.target_field)
+        # TODO(jamalex): allow related object lookups (e.g. "classroom__parent"), rather than just direct FK's
+        return getattr(obj, self.target_field)
 
     def user_can_create_object(self, user, obj):
 

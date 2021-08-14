@@ -178,5 +178,4 @@ class FilterByUUIDQuerysetMixin(object):
         kwargs = {"{}__{}".format(field_name, lookup): ids}
         if include:
             return self.filter(**kwargs)
-        else:
-            return self.exclude(**kwargs)
+        return self.exclude(**kwargs)

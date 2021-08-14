@@ -137,10 +137,9 @@ class MasteryLogSerializer(KolibriModelSerializer):
         # get the first x logs depending on the exercise type
         if exercise_type == exercises.M_OF_N:
             return attemptlogs[: mastery_criterion["n"]]
-        elif MAPPING.get(exercise_type):
+        if MAPPING.get(exercise_type):
             return attemptlogs[: MAPPING.get(exercise_type)]
-        else:
-            return attemptlogs[:10]
+        return attemptlogs[:10]
 
     def get_totalattempts(self, obj):
         return AttemptLog.objects.filter(masterylog__summarylog=obj.summarylog).count()

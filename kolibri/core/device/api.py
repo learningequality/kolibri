@@ -214,8 +214,7 @@ def map_status(status):
     elif status["last_synced"]:
         if timezone.now() - status["last_synced"] < timedelta(seconds=DELAYED_SYNC):
             return RECENTLY_SYNCED
-        else:
-            return NOT_RECENTLY_SYNCED
+        return NOT_RECENTLY_SYNCED
 
 
 class UserSyncStatusViewSet(ReadOnlyValuesViewset):

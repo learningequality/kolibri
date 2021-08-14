@@ -197,11 +197,10 @@ class ServerPlugin(BaseServerPlugin):
     def interface(self):
         if self.httpserver.bind_addr is None:
             return "unknown interface (dynamic?)"
-        elif isinstance(self.httpserver.bind_addr, tuple):
+        if isinstance(self.httpserver.bind_addr, tuple):
             host, port = self.httpserver.bind_addr
             return "%s:%s" % (host, port)
-        else:
-            return "socket file: %s" % self.httpserver.bind_addr
+        return "socket file: %s" % self.httpserver.bind_addr
 
 
 class KolibriServerPlugin(ServerPlugin):

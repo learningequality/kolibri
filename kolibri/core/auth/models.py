@@ -160,8 +160,7 @@ class FacilityDataset(FacilityDataSyncableModel):
             return "FacilityDataset for {}".format(
                 Facility.objects.get(id=facilities[0].id)
             )
-        else:
-            return "FacilityDataset (no associated Facility)"
+        return "FacilityDataset (no associated Facility)"
 
     def save(self, *args, **kwargs):
         self.ensure_compatibility()
@@ -537,29 +536,25 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
         # check the object permissions, if available, just in case permissions are granted to anon users
         if _has_permissions_class(obj):
             return obj.permissions.user_can_create_object(self, obj)
-        else:
-            return False
+        return False
 
     def can_read(self, obj):
         # check the object permissions, if available, just in case permissions are granted to anon users
         if _has_permissions_class(obj):
             return obj.permissions.user_can_read_object(self, obj)
-        else:
-            return False
+        return False
 
     def can_update(self, obj):
         # check the object permissions, if available, just in case permissions are granted to anon users
         if _has_permissions_class(obj):
             return obj.permissions.user_can_update_object(self, obj)
-        else:
-            return False
+        return False
 
     def can_delete(self, obj):
         # check the object permissions, if available, just in case permissions are granted to anon users
         if _has_permissions_class(obj):
             return obj.permissions.user_can_delete_object(self, obj)
-        else:
-            return False
+        return False
 
     def filter_readable(self, queryset):
         # check the object permissions, if available, just in case permissions are granted to anon users
@@ -567,8 +562,7 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
             return queryset.filter(
                 queryset.model.permissions.readable_by_user_filter(self)
             ).distinct()
-        else:
-            return queryset.none()
+        return queryset.none()
 
 
 class FacilityUserModelManager(SyncableModelManager, UserManager):
@@ -837,8 +831,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         # a FacilityUser's permissions are determined through the object's permission class
         if _has_permissions_class(obj):
             return obj.permissions.user_can_create_object(self, obj)
-        else:
-            return False
+        return False
 
     def can_read(self, obj):
         if self.is_superuser:
@@ -846,8 +839,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         # a FacilityUser's permissions are determined through the object's permission class
         if _has_permissions_class(obj):
             return obj.permissions.user_can_read_object(self, obj)
-        else:
-            return False
+        return False
 
     def can_update(self, obj):
         # Superusers cannot update their own permissions, because they only thing they can do is make themselves
@@ -857,8 +849,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         # a FacilityUser's permissions are determined through the object's permission class
         if _has_permissions_class(obj):
             return obj.permissions.user_can_update_object(self, obj)
-        else:
-            return False
+        return False
 
     def can_delete(self, obj):
         # Users cannot delete themselves
@@ -871,8 +862,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         # a FacilityUser's permissions are determined through the object's permission class
         if _has_permissions_class(obj):
             return obj.permissions.user_can_delete_object(self, obj)
-        else:
-            return False
+        return False
 
     def filter_readable(self, queryset):
         if self.is_superuser:
@@ -881,8 +871,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return queryset.filter(
                 queryset.model.permissions.readable_by_user_filter(self)
             ).distinct()
-        else:
-            return queryset.none()
+        return queryset.none()
 
     def __str__(self):
         return '"{user}"@"{facility}"'.format(
@@ -1088,9 +1077,8 @@ class Collection(AbstractFacilityDataModel):
             # subcollections inherit dataset from root of their tree
             # (we can't call `get_root` directly on self, as it won't work if self hasn't yet been saved)
             return self.parent.dataset_id
-        else:
-            # the root node (i.e. Facility) must be explicitly tied to a dataset
-            return None
+        # the root node (i.e. Facility) must be explicitly tied to a dataset
+        return None
 
     def __str__(self):
         return '"{name}" ({kind})'.format(name=self.name, kind=self.kind)
