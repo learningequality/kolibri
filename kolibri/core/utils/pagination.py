@@ -28,9 +28,7 @@ class ValuesViewsetPaginator(Paginator):
             )
         self.queryset = object_list
         object_list = object_list.values_list("pk", flat=True).distinct()
-        return super(ValuesViewsetPaginator, self).__init__(
-            object_list, *args, **kwargs
-        )
+        super(ValuesViewsetPaginator, self).__init__(object_list, *args, **kwargs)
 
     def _get_page(self, object_list, *args, **kwargs):
         pks = list(object_list)
