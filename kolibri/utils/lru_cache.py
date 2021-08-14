@@ -28,12 +28,14 @@ except ImportError:
         kwds,
         typed,
         kwd_mark=(object(),),
-        fasttypes={int, str, frozenset, type(None)},
+        fasttypes=None,
         sorted=sorted,
         tuple=tuple,
         type=type,
         len=len,
-    ):  # NOQA @ReservedAssignment
+    ):
+        if fasttypes is None:
+            fasttypes = {int, str, frozenset, type(None)}
         "Make a cache key from optionally typed positional and keyword arguments"
         key = args
         if kwds:

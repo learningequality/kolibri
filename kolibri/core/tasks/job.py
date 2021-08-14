@@ -279,9 +279,11 @@ class RegisteredJob(object):
         func,
         validator=None,
         priority=Priority.REGULAR,
-        permission_classes=[],
+        permission_classes=None,
         **kwargs
     ):
+        if permission_classes is None:
+            permission_classes = []
         if validator is not None and not callable(validator):
             raise TypeError("Can't assign validator of type {}".format(type(validator)))
         elif priority.upper() not in [Priority.REGULAR, Priority.HIGH]:
@@ -311,7 +313,7 @@ class RegisteredJob(object):
         queue = PRIORITY_TO_QUEUE_MAP[self.priority]
         return queue.enqueue(func=job_obj)
 
-    def enqueue_in(self, delta_time, interval=0, repeat=0, args=(), kwargs={}):
+    def enqueue_in(self, delta_time, interval=0, repeat=0, args=(), kwargs=None):
         """
         Schedule the function to get enqueued in `delta_time` with args and
         kwargs as its positional and keyword arguments.
@@ -321,6 +323,8 @@ class RegisteredJob(object):
 
         :return: scheduled job's id.
         """
+        if kwargs is None:
+            kwargs = {}
         from kolibri.core.tasks.main import scheduler
 
         job_obj = self._ready_job(*args, **kwargs)
@@ -331,7 +335,7 @@ class RegisteredJob(object):
             repeat=repeat,
         )
 
-    def enqueue_at(self, datetime, interval=0, repeat=0, args=(), kwargs={}):
+    def enqueue_at(self, datetime, interval=0, repeat=0, args=(), kwargs=None):
         """
         Schedule the function to get enqueued at a specific `datetime` with
         args and kwargs as its positional and keyword arguments.
@@ -341,6 +345,8 @@ class RegisteredJob(object):
 
         :return: scheduled job's id.
         """
+        if kwargs is None:
+            kwargs = {}
         from kolibri.core.tasks.main import scheduler
 
         job_obj = self._ready_job(*args, **kwargs)
