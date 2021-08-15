@@ -26,7 +26,7 @@ def error_func():
 @pytest.fixture
 def worker():
     with connection() as c:
-        b = Worker(QUEUE, c)
+        b = Worker(c)
         b.storage.clear(force=True)
         yield b
         b.storage.clear(force=True)

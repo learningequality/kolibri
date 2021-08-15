@@ -36,6 +36,7 @@ class TestRegisteredJob(TestCase):
             int,
             validator=int,
             priority="high",
+            queue="test",
             permission_classes=[int],
             job_id="test",
             cancellable=True,
@@ -48,6 +49,7 @@ class TestRegisteredJob(TestCase):
         self.assertEqual(self.registered_job.priority, "HIGH")
         self.assertEqual(self.registered_job.permissions, [p() for p in [int]])
         self.assertEqual(self.registered_job.job_id, "test")
+        self.assertEqual(self.registered_job.queue, "test")
         self.assertEqual(self.registered_job.cancellable, True)
         self.assertEqual(self.registered_job.track_progress, True)
 
@@ -116,19 +118,16 @@ class TestRegisteredJob(TestCase):
         )
 
     @mock.patch("kolibri.core.tasks.job.RegisteredJob._ready_job")
-    def test_enqueue(self, _ready_job_mock):
-        mock_queue = mock.MagicMock()
+    @mock.patch("kolibri.core.tasks.main.job_storage")
+    def test_enqueue(self, job_storage_mock, _ready_job_mock):
+        args = ("10",)
+        kwargs = dict(base=10)
 
-        with mock.patch.dict(
-            "kolibri.core.tasks.main.PRIORITY_TO_QUEUE_MAP",
-            {"REGULAR": mock_queue, "HIGH": mock_queue},
-        ):
-            args = ("10",)
-            kwargs = dict(base=10)
+        _ready_job_mock.return_value = "job"
 
-            _ready_job_mock.return_value = "job"
+        self.registered_job.enqueue(*args, **kwargs)
 
-            self.registered_job.enqueue(*args, **kwargs)
-
-            _ready_job_mock.assert_called_once_with(*args, **kwargs)
-            mock_queue.enqueue.assert_called_once_with(func="job")
+        _ready_job_mock.assert_called_once_with(*args, **kwargs)
+        job_storage_mock.enqueue_job.assert_called_once_with(
+            "job", self.registered_job.queue, self.registered_job.priority
+        )
