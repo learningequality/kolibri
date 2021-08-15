@@ -5,19 +5,15 @@ from concurrent.futures import CancelledError
 
 from kolibri.core.tasks.compat import PoolExecutor
 from kolibri.core.tasks.job import execute_job
+from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.utils import InfiniteLoopThread
 
 logger = logging.getLogger(__name__)
 
 
-class Empty(Exception):
-    # An exception to raise when there are now queued jobs waiting to be started.
-    pass
-
-
 class Worker(object):
-    def __init__(self, connection, num_workers=2):
+    def __init__(self, connection, regular_workers=2, high_workers=1):
         # Internally, we use concurrent.future.Future to run and track
         # job executions. We need to keep track of which future maps to which
         # job they were made from, and we use the job_future_mapping dict to do
@@ -30,7 +26,8 @@ class Worker(object):
         self.future_job_mapping = {}
 
         self.storage = Storage(connection)
-        self.num_workers = num_workers
+        self.regular_workers = regular_workers
+        self.max_workers = regular_workers + high_workers
 
         self.workers = self.start_workers()
         self.job_checker = self.start_job_checker()
@@ -47,7 +44,7 @@ class Worker(object):
         self.workers.shutdown(wait=wait)
 
     def start_workers(self):
-        pool = PoolExecutor(max_workers=self.num_workers)
+        pool = PoolExecutor(max_workers=self.max_workers)
         return pool
 
     def handle_finished_future(self, future):
@@ -98,11 +95,21 @@ class Worker(object):
         If fewer workers are running than there are available workers, start a new job!
         Returns: None
         """
-        try:
-            while len(self.future_job_mapping) < self.num_workers:
-                self.start_next_job()
-        except Empty:
-            logger.debug("No jobs to start.")
+        job_to_start = None
+
+        while len(self.future_job_mapping) < self.max_workers:
+            if len(self.future_job_mapping) < self.regular_workers:
+                job_to_start = self.storage.get_next_queued_job()
+            elif len(self.future_job_mapping) < self.max_workers:
+                job_to_start = self.storage.get_next_queued_job(
+                    priority_levels=[Priority.HIGH]
+                )
+
+            if job_to_start:
+                self.start_next_job(job_to_start)
+            else:
+                logger.debug("No jobs to start.")
+                break
 
         for job in self.storage.get_canceling_jobs():
             job_id = job.job_id
@@ -125,17 +132,12 @@ class Worker(object):
     def update_progress(self, job_id, progress, total_progress, stage=""):
         self.storage.update_job_progress(job_id, progress, total_progress)
 
-    def start_next_job(self):
+    def start_next_job(self, job):
         """
         start the next scheduled job to the type of workers spawned by self.start_workers.
 
         :return future:
         """
-        job = self.storage.get_next_queued_job()
-
-        if not job:
-            raise Empty
-
         self.storage.mark_job_as_running(job.job_id)
 
         db_type_lookup = {
