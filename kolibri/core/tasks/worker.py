@@ -105,8 +105,6 @@ class Worker(object):
 
         Returns: None
         """
-        job_to_start = None
-
         while len(self.future_job_mapping) < self.max_workers:
             if len(self.future_job_mapping) < self.regular_workers:
                 job_to_start = self.storage.get_next_queued_job()
