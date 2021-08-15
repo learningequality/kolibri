@@ -134,9 +134,7 @@ class Storage(StorageMixin):
 
     def mark_job_as_canceled(self, job_id):
         """
-
         Mark the job as canceled. Does not actually try to cancel a running job.
-
         """
         self._update_job(job_id, State.CANCELED)
 
@@ -149,7 +147,18 @@ class Storage(StorageMixin):
         """
         self._update_job(job_id, State.CANCELING)
 
-    def get_next_queued_job(self, queues=None, priority_levels=Priority.PriorityOrder):
+    def get_next_queued_job(self, queues=None, priority_order=Priority.PriorityOrder):
+        """
+        Looks for the oldest queued job with priorities provided in `priority_order`. It
+        runs through the `priority_oder` list sequentially.
+
+        If `queues` is not None and a list of queue names, we only look in those `queues` else
+        we look irrespective of `queue`.
+
+        :param queues: the queue names we should look into.
+        :param priority_order: the order of priority we should follow.
+        :return: job if found else None.
+        """
         with self.session_scope() as s:
             q = s.query(ORMJob).filter(ORMJob.state == State.QUEUED)
 
@@ -157,7 +166,7 @@ class Storage(StorageMixin):
                 q = q.filter(ORMJob.queue.in_(queues))
 
             orm_job = None
-            for priority in priority_levels:
+            for priority in priority_order:
                 orm_job = (
                     q.filter(ORMJob.priority == priority)
                     .order_by(ORMJob.time_created)

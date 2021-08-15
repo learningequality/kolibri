@@ -26,6 +26,9 @@ class Worker(object):
         self.future_job_mapping = {}
 
         self.storage = Storage(connection)
+
+        # Regular workers run both 'high' and 'regular' priority jobs.
+        # High workers run only 'high' priority jobs.
         self.regular_workers = regular_workers
         self.max_workers = regular_workers + high_workers
 
@@ -91,8 +94,15 @@ class Worker(object):
 
     def check_jobs(self):
         """
-        Check how many workers are currently running.
-        If fewer workers are running than there are available workers, start a new job!
+        If less workers are running than there are regular workers, we look first for
+        jobs with 'high' priority, if found one we run it else we look for jobs with 'regular'
+        priority, if found we run it.
+
+        If all regular workers are busy, then the remaining workers only look for
+        'high' priority jobs. If found one, we run it.
+
+        This algorithm will make sure 'high' jobs don't wait :)
+
         Returns: None
         """
         job_to_start = None
@@ -102,7 +112,7 @@ class Worker(object):
                 job_to_start = self.storage.get_next_queued_job()
             elif len(self.future_job_mapping) < self.max_workers:
                 job_to_start = self.storage.get_next_queued_job(
-                    priority_levels=[Priority.HIGH]
+                    priority_order=[Priority.HIGH]
                 )
 
             if job_to_start:
