@@ -94,30 +94,13 @@ class Worker(object):
 
     def check_jobs(self):
         """
-        If less workers are running than there are regular workers, we look first for
-        jobs with 'high' priority, if found one we run it else we look for jobs with 'regular'
-        priority, if found we run it.
-
-        If all regular workers are busy, then the remaining workers only look for
-        'high' priority jobs. If found one, we run it.
-
-        This algorithm will make sure 'high' jobs don't wait :)
+        Checks for the next job to run and also checks for jobs that should be cancelled.
 
         Returns: None
         """
-        while len(self.future_job_mapping) < self.max_workers:
-            if len(self.future_job_mapping) < self.regular_workers:
-                job_to_start = self.storage.get_next_queued_job()
-            elif len(self.future_job_mapping) < self.max_workers:
-                job_to_start = self.storage.get_next_queued_job(
-                    priority_order=[Priority.HIGH]
-                )
-
-            if job_to_start:
-                self.start_next_job(job_to_start)
-            else:
-                logger.debug("No jobs to start.")
-                break
+        job_to_start = self.get_next_job()
+        if job_to_start:
+            self.start_next_job(job_to_start)
 
         for job in self.storage.get_canceling_jobs():
             job_id = job.job_id
@@ -139,6 +122,34 @@ class Worker(object):
 
     def update_progress(self, job_id, progress, total_progress, stage=""):
         self.storage.update_job_progress(job_id, progress, total_progress)
+
+    def get_next_job(self):
+        """
+        Fetches the next potential QUEUED job.
+
+        If less workers are running than there are regular workers, we look first for
+        jobs with 'high' priority, if found one we run it else we look for jobs with 'regular'
+        priority, if found we run it.
+
+        If all regular workers are busy, then the remaining workers only look for
+        'high' priority jobs. If found one, we run it.
+
+        This algorithm will make sure 'high' jobs don't wait :)
+
+        Returns the job object if a job is available based on the above algorithm else None.
+        """
+        job = None
+        workers_currently_busy = len(self.future_job_mapping)
+
+        if workers_currently_busy < self.regular_workers:
+            job = self.storage.get_next_queued_job()
+        elif workers_currently_busy < self.max_workers:
+            job = self.storage.get_next_queued_job(priority_order=[Priority.HIGH])
+        else:
+            logger.debug("All workers busy.")
+            return None
+
+        return job
 
     def start_next_job(self, job):
         """
@@ -178,6 +189,7 @@ class Worker(object):
         a special variable inside the future that we can check
         inside a special check_for_cancel function passed to the
         job.
+
         :param job_id:
         :return:
         """

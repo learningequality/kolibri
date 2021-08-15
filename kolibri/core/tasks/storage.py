@@ -120,7 +120,7 @@ class Storage(StorageMixin):
             orm_job = ORMJob(
                 id=j.job_id,
                 state=j.state,
-                priority=priority,
+                priority=priority.upper(),
                 queue=queue,
                 obj=j,
             )
