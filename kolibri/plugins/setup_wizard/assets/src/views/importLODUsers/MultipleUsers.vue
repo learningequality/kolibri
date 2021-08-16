@@ -141,7 +141,6 @@
               ...soudTasks[0],
             };
             if (this.loadingTask.status === TaskStatuses.COMPLETED) {
-              SetupSoUDTasksResource.cleartasks();
               // after importing the admin, let's sign him in to continue:
               SessionResource.saveModel({
                 data: {
@@ -153,8 +152,9 @@
                 this.isPolling = false;
                 this.lodService.send('CONTINUE');
               });
+              SetupSoUDTasksResource.cleartasks();
             }
-          }
+          } else this.isPolling = false;
         });
         if (this.isPolling) {
           setTimeout(() => {

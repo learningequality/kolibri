@@ -20,8 +20,8 @@ from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
 from kolibri.core import error_constants
+from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.device.utils import set_device_settings
-
 
 # A weird hack because of http://bugs.python.org/issue17866
 if sys.version_info >= (3,):
@@ -462,15 +462,21 @@ class FacilityAPITestCase(APITestCase):
     def test_public_facilityuser_endpoint(self):
         if sys.version_info[0] == 2:
             credentials = base64.b64encode(
-                "{}@{}:{}".format(
-                    self.user1.username, self.facility1.id, DUMMY_PASSWORD
+                "username={}&{}={}:{}".format(
+                    self.user1.username,
+                    FACILITY_CREDENTIAL_KEY,
+                    self.facility1.id,
+                    DUMMY_PASSWORD,
                 ).encode("utf-8")
             )
         else:
             credentials = base64.b64encode(
                 str.encode(
-                    "{}@{}:{}".format(
-                        self.user1.username, self.facility1.id, DUMMY_PASSWORD
+                    "username={}&{}={}:{}".format(
+                        self.user1.username,
+                        FACILITY_CREDENTIAL_KEY,
+                        self.facility1.id,
+                        DUMMY_PASSWORD,
                     )
                 )
             ).decode("ascii")
@@ -482,15 +488,21 @@ class FacilityAPITestCase(APITestCase):
         self.assertEqual(len(response.data), 1)
         if sys.version_info[0] == 2:
             credentials = base64.b64encode(
-                "{}@{}:{}".format(
-                    self.superuser.username, self.facility1.id, DUMMY_PASSWORD
+                "username={}&{}={}:{}".format(
+                    self.superuser.username,
+                    FACILITY_CREDENTIAL_KEY,
+                    self.facility1.id,
+                    DUMMY_PASSWORD,
                 ).encode("utf-8")
             )
         else:
             credentials = base64.b64encode(
                 str.encode(
-                    "{}@{}:{}".format(
-                        self.superuser.username, self.facility1.id, DUMMY_PASSWORD
+                    "username={}&{}={}:{}".format(
+                        self.superuser.username,
+                        FACILITY_CREDENTIAL_KEY,
+                        self.facility1.id,
+                        DUMMY_PASSWORD,
                     )
                 )
             ).decode("ascii")

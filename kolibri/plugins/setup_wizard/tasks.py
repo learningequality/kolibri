@@ -10,6 +10,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ValidationError
 from six.moves.urllib.parse import urljoin
 
+from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants.user_kinds import ADMIN
 from kolibri.core.auth.constants.user_kinds import ASSIGNABLE_COACH
 from kolibri.core.auth.constants.user_kinds import COACH
@@ -51,7 +52,12 @@ def getusersinfo(request):
         response = requests.get(
             user_info_url,
             data=params,
-            auth=("{}@{}".format(username, facility_id), password),
+            auth=(
+                "username={}&{}={}".format(
+                    username, FACILITY_CREDENTIAL_KEY, facility_id
+                ),
+                password,
+            ),
         )
         response.raise_for_status()
     except (CommandError, HTTPError, ConnectionError) as e:
