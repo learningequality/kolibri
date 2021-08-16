@@ -49,20 +49,19 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
   return store.dispatch('loading').then(() => {
     store.commit('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
     const promises = [
-      ContentNodeResource.fetchModel({ id, force: true }), // the topic
-      ContentNodeResource.fetchCollection({
-        getParams: {
-          parent: id,
+      ContentNodeResource.fetchTree({
+        id,
+        params: {
           include_coach_content:
             store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
         },
-      }), // the topic's children
+      }),
       store.dispatch('setChannelInfo'),
     ];
 
     return ConditionalPromise.all(promises).only(
       samePageCheckGenerator(store),
-      ([topic, children]) => {
+      ([topic]) => {
         const currentChannel = store.getters.getChannelObject(topic.channel_id);
         if (!currentChannel) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
@@ -73,6 +72,8 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
           topic.tagline = currentChannel.tagline;
           topic.thumbnail = currentChannel.thumbnail;
         }
+        const children = topic.children.results || [];
+
         store.commit('topicsTree/SET_STATE', {
           isRoot,
           channel: currentChannel,

@@ -73,13 +73,27 @@
         </KGrid>
 
       </div>
-
+      <div v-for="t in topics" :key="t.id">
+        <h3>
+          {{ t.title }}
+        </h3>
+        <ContentCardGroupGrid
+          v-if="t.children.results && t.children.results.length"
+          :contents="t.children.results"
+          :genContentLink="genContentLink"
+        />
+        <KButton v-if="t.children && t.children.more" @click="childLoadMore(t.children.more)">
+          {{ $tr('viewMore') }}
+        </KButton>
+      </div>
       <ContentCardGroupGrid
-        v-if="contents.length"
-        :contents="contents"
+        v-if="resources.length"
+        :contents="resources"
         :genContentLink="genContentLink"
       />
-
+      <KButton v-if="topic.children && topic.children.more" @click="loadMore()">
+        {{ $tr('viewMore') }}
+      </KButton>
     </div>
 
   </div>
@@ -89,9 +103,11 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapMutations, mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeResource } from 'kolibri.resources';
   import { PageNames } from '../constants';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import CustomContentRenderer from './ChannelRenderer/CustomContentRenderer';
@@ -126,6 +142,12 @@
       channelTitle() {
         return this.channel.title;
       },
+      resources() {
+        return this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
+      },
+      topics() {
+        return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
+      },
       topicOrChannel() {
         // Get the channel if we're root, topic if not
         return this.isRoot ? this.channel : this.topic;
@@ -136,7 +158,6 @@
           this.topic &&
           this.topic.options.modality === 'CUSTOM_NAVIGATION'
         ) {
-          this.topic.options.modality === 'CUSTOM_NAVIGATION';
           return true;
         }
         return false;
@@ -158,12 +179,24 @@
       },
     },
     methods: {
+      ...mapMutations('topicsTree', ['ADD_MORE_CONTENTS', 'ADD_MORE_CHILD_CONTENTS']),
       genContentLink(id, isLeaf) {
         const routeName = isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC;
         return {
           name: routeName,
           params: { id },
         };
+      },
+      loadMore() {
+        return ContentNodeResource.fetchTree(this.topic.children.more).then(data => {
+          this.ADD_MORE_CONTENTS(data.children);
+        });
+      },
+      childLoadMore(more) {
+        return ContentNodeResource.fetchTree(more).then(data => {
+          const index = this.contents.findIndex(content => content.id === more.id);
+          this.ADD_MORE_CHILD_CONTENTS({ index, ...data.children });
+        });
       },
     },
     $trs: {
@@ -176,6 +209,7 @@
         message: '{ topicTitle } - { channelTitle }',
         context: 'DO NOT TRANSLATE',
       },
+      viewMore: 'View more',
     },
   };
 
