@@ -8,6 +8,7 @@ from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
+from kolibri.core.device.utils import get_device_setting
 
 
 class Coach(KolibriPluginBase):
@@ -32,3 +33,9 @@ class CoachNavItem(NavigationHook):
 @register_hook
 class CoachAsset(webpack_hooks.WebpackBundleHook):
     bundle_id = "app"
+
+    @property
+    def plugin_data(self):
+        return {
+            "isSubsetOfUsersDevice": get_device_setting("subset_of_users_device"),
+        }

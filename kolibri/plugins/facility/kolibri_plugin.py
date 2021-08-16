@@ -8,6 +8,7 @@ from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
+from kolibri.core.device.utils import get_device_setting
 
 
 class FacilityManagementPlugin(KolibriPluginBase):
@@ -18,6 +19,12 @@ class FacilityManagementPlugin(KolibriPluginBase):
 @register_hook
 class FacilityManagementAsset(WebpackBundleHook):
     bundle_id = "app"
+
+    @property
+    def plugin_data(self):
+        return {
+            "isSubsetOfUsersDevice": get_device_setting("subset_of_users_device"),
+        }
 
 
 @register_hook

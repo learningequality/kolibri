@@ -22,8 +22,10 @@
   import { mapState, mapGetters } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import urls from 'kolibri.urls';
   import { PageNames } from '../constants';
   import FacilityTopNav from './FacilityTopNav';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'FacilityIndex',
@@ -111,6 +113,12 @@
         }
         return false;
       },
+    },
+    beforeMount() {
+      // Redirect to Learn if on SoUD
+      if (plugin_data['isSubsetOfUsersDevice']) {
+        window.location.href = urls['kolibri:kolibri.plugins.learn:learn']();
+      }
     },
     $trs: {
       adminOrSuperuser: {
