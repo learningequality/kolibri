@@ -1,6 +1,15 @@
 <template>
 
+  <LearnImmersiveLayout
+    v-if="currentPageIsContent"
+    :authorized="userIsAuthorized"
+    authorizedRole="registeredUser"
+    :back="learnBackPageRoute"
+    :content="topicsTreeContent"
+  />
+
   <CoreBase
+    v-else
     :marginBottom="bottomSpaceReserved"
     :showSubNav="topNavIsVisible"
     :authorized="userIsAuthorized"
@@ -56,7 +65,6 @@
 
   import { mapGetters, mapState } from 'vuex';
   import urls from 'kolibri.urls';
-  import lastItem from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
@@ -68,6 +76,7 @@
   import ContentUnavailablePage from './ContentUnavailablePage';
   import Breadcrumbs from './Breadcrumbs';
   import SearchPage from './SearchPage';
+  import LearnImmersiveLayout from './LearnImmersiveLayout';
   import ExamPage from './ExamPage';
   import ExamReportViewer from './LearnExamReportViewer';
   import TotalPoints from './TotalPoints';
@@ -104,6 +113,7 @@
       CoreBase,
       LearnTopNav,
       TotalPoints,
+      LearnImmersiveLayout,
       UpdateYourProfileModal,
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
@@ -142,6 +152,9 @@
           pageNameToComponentMap[PageNames.TOPICS_TOPIC],
           pageNameToComponentMap[PageNames.TOPICS_CHANNEL],
         ].includes(this.currentPage);
+      },
+      currentPageIsContent() {
+        return this.pageName === PageNames.TOPICS_CONTENT;
       },
       currentChannelIsCustom() {
         return (
@@ -202,44 +215,6 @@
             immersivePageIcon: 'back',
           };
         }
-        if (this.pageName === PageNames.TOPICS_CONTENT) {
-          let immersivePageRoute = {};
-          let appBarTitle;
-          const { searchTerm, last } = this.$route.query;
-          if (searchTerm) {
-            appBarTitle = this.coreString('searchLabel');
-            immersivePageRoute = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
-          } else if (last) {
-            // 'last' should only be route names for Recommended Page and its subpages
-            immersivePageRoute = this.$router.getRoute(last);
-            appBarTitle = {
-              [PageNames.RECOMMENDED_POPULAR]: this.learnString('popularLabel'),
-              [PageNames.RECOMMENDED_RESUME]: this.learnString('resumeLabel'),
-              [PageNames.RECOMMENDED_NEXT_STEPS]: this.learnString('nextStepsLabel'),
-              [PageNames.RECOMMENDED]: this.learnString('recommendedLabel'),
-            }[last];
-          } else if (this.topicsTreeContent.parent) {
-            // Need to guard for parent being non-empty to avoid console errors
-            immersivePageRoute = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
-              id: this.topicsTreeContent.parent,
-            });
-
-            if (this.topicsTreeContent.breadcrumbs.length > 0) {
-              appBarTitle = lastItem(this.topicsTreeContent.breadcrumbs).title;
-            } else {
-              // `breadcrumbs` is empty if the direct parent is the channel, so pull
-              // channel info from state.topicsTree.channel
-              appBarTitle = this.topicsTreeChannel.title;
-            }
-          }
-          return {
-            appBarTitle,
-            immersivePage: true,
-            immersivePageRoute,
-            immersivePagePrimary: false,
-            immersivePageIcon: 'close',
-          };
-        }
 
         return {
           appBarTitle: this.learnString('learnLabel'),
@@ -261,10 +236,7 @@
           return QUIZ_FOOTER;
         }
         let content;
-        if (
-          this.pageName === PageNames.TOPICS_CONTENT ||
-          this.pageName === PageNames.RECOMMENDED_CONTENT
-        ) {
+        if (this.pageName === PageNames.RECOMMENDED_CONTENT) {
           content = this.topicsTreeContent;
         } else if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
           content = this.lessonContent;
@@ -287,6 +259,21 @@
       },
       userPluginUrl() {
         return urls['kolibri:kolibri.plugins.user:user'];
+      },
+      learnBackPageRoute() {
+        // extract the key pieces of routing from immersive page props, but since we don't need
+        // them all, just create two alternative route paths for return/'back' navigation
+        let route = {};
+        const { searchTerm } = this.$route.query;
+        if (searchTerm) {
+          route = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
+        } else if (this.topicsTreeContent.parent) {
+          // Need to guard for parent being non-empty to avoid console errors
+          route = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
+            id: this.topicsTreeContent.parent,
+          });
+        }
+        return route;
       },
     },
     watch: {
