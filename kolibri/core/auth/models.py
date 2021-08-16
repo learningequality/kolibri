@@ -742,7 +742,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             target_user = FacilityUser.objects.get(id=scope_params.get("user_id"))
             if self == target_user:
                 return True
-            if self.has_role_for_user(target_user, role_kinds.ADMIN):
+            if self.has_role_for_user(role_kinds.ADMIN, target_user):
                 return True
             return False
         return False
