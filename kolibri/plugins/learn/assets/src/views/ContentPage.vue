@@ -54,7 +54,7 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapState, mapGetters, mapActions } from 'vuex';
   import { ContentNodeResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
   import AssessmentWrapper from './AssessmentWrapper';
@@ -175,14 +175,14 @@
       this.stopTracking();
     },
     methods: {
-      // ...mapActions({
-      //   initSessionAction: 'initContentSession',
-      //   updateProgressAction: 'updateProgress',
-      //   addProgressAction: 'addProgress',
-      //   startTracking: 'startTrackingProgress',
-      //   stopTracking: 'stopTrackingProgress',
-      //   updateContentNodeState: 'updateContentState',
-      // }),
+      ...mapActions({
+        initSessionAction: 'initContentSession',
+        // updateProgressAction: 'updateProgress',
+        // addProgressAction: 'addProgress',
+        // startTracking: 'startTrackingProgress',
+        // stopTracking: 'stopTrackingProgress',
+        // updateContentNodeState: 'updateContentState',
+      }),
       // setWasIncomplete() {
       //   this.wasIncomplete = this.progress < 1;
       // },
