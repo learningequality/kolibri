@@ -3,28 +3,29 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from kolibri.core.auth.constants.user_kinds import ADMIN
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
-from kolibri.core.device.utils import get_device_setting
 
 
 class FacilityManagementPlugin(KolibriPluginBase):
-    translated_view_urls = "urls"
     untranslated_view_urls = "api_urls"
+
+    @property
+    def translated_view_urls(self):
+        # On an SoUD this plugin should be disabled. In lieu of properly
+        # disabling the plugin, we will just not register any urls for now
+        if not get_device_setting("subset_of_users_device", False):
+            return "urls"
+        return None
 
 
 @register_hook
 class FacilityManagementAsset(WebpackBundleHook):
     bundle_id = "app"
-
-    @property
-    def plugin_data(self):
-        return {
-            "isSubsetOfUsersDevice": get_device_setting("subset_of_users_device"),
-        }
 
 
 @register_hook

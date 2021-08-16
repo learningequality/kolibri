@@ -191,6 +191,8 @@ describe('side nav component', () => {
 
   describe('when on an SoUD or NOT', () => {
     describe('on an SoUD', () => {
+      /* Note that Facilty & Coach plugins are hackily disabled in their kolibri_plugin
+       * definitions - hence no tests to ensure they're hidden here when on SoUD */
       let wrapper;
       beforeEach(async () => {
         wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
@@ -198,21 +200,6 @@ describe('side nav component', () => {
 
       it('shows the Learn-only notice', () => {
         expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
-      });
-
-      const hiddenSideNavComponentRoles = [UserKinds.ADMIN, UserKinds.COACH];
-
-      it.each(hiddenSideNavComponentRoles)('does not show the %s SideNavEntry', async role => {
-        const hiddenComponent = createAndRegisterComponent(`${role}SideNavEntry`, { role });
-        const learnComponent = createAndRegisterComponent(`${UserKinds.LEARNER}SideNavEntry`, {
-          role: UserKinds.LEARNER,
-        });
-
-        setUserKind(wrapper.vm.$store, UserKinds.SUPERUSER);
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.findComponent(learnComponent).exists()).toBe(true);
-        expect(wrapper.findComponent(hiddenComponent).exists()).toBe(false);
       });
     });
     describe('NOT on a SoUD', () => {

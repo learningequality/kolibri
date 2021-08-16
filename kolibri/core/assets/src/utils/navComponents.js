@@ -1,6 +1,5 @@
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
 import logger from 'kolibri.lib.logging';
-import plugin_data from 'plugin_data';
 
 const logging = logger.getLogger(__filename);
 
@@ -29,22 +28,11 @@ function validateSection(section) {
   return !checkDeclared(section) || Object.values(NavComponentSections).includes(section);
 }
 
-function validateIfSoUD(role) {
-  console.log(plugin_data);
-  if (plugin_data['isSubsetOfUsersDevice']) {
-    console.log('ok');
-    return ![UserKinds.ADMIN, UserKinds.COACH].includes(role);
-  } else {
-    return true;
-  }
-}
-
 function validateComponent(component) {
   return (
     validatePriority(component.priority) &&
     validateRole(component.role) &&
-    validateSection(component.section) &&
-    validateIfSoUD(component.role)
+    validateSection(component.section)
   );
 }
 
