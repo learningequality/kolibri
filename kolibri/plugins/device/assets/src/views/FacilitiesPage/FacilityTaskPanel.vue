@@ -95,12 +95,15 @@
         return this.taskInfo.statusMsg;
       },
       headingMsg() {
+        if (this.task.type === TaskTypes.SYNCLOD) return '';
         return this.taskInfo.headingMsg;
       },
       underHeadingMsg() {
+        if (this.task.type === TaskTypes.SYNCLOD) return '';
         return this.taskInfo.deviceNameMsg;
       },
       underProgressMsg() {
+        if (this.task.type === TaskTypes.SYNCLOD) return '';
         return this.taskInfo.bytesTransferredMsg;
       },
       buttonSet() {
