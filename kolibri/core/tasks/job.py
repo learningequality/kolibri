@@ -86,6 +86,10 @@ class Priority(object):
     REGULAR = "REGULAR"
     HIGH = "HIGH"
 
+    # PriorityOrder is for ordering all the priority levels in their
+    # descending order of priority. Used for fetching the next queued job.
+    PriorityOrder = [HIGH, REGULAR]
+
 
 def execute_job(job_id, db_type, db_url):
     """
@@ -276,29 +280,35 @@ class RegisteredJob(object):
     def __init__(
         self,
         func,
-        validator=None,
-        priority=Priority.REGULAR,
-        permission_classes=None,
-        **kwargs
+        validator,
+        priority,
+        permission_classes,
+        queue,
+        job_id,
+        cancellable,
+        track_progress,
     ):
         if permission_classes is None:
             permission_classes = []
         if validator is not None and not callable(validator):
             raise TypeError("Can't assign validator of type {}".format(type(validator)))
-        elif priority.upper() not in [Priority.REGULAR, Priority.HIGH]:
-            raise ValueError("priority must be one of 'regular' or 'high'.")
+        elif priority.upper() not in Priority.PriorityOrder:
+            raise ValueError("priority must be one of 'regular' or 'high' (string).")
         elif not isinstance(permission_classes, list):
             raise TypeError("permission_classes must be of list type.")
+        elif not isinstance(queue, str):
+            raise TypeError("queue must be of string type.")
 
         self.func = func
         self.validator = validator
         self.priority = priority.upper()
+        self.queue = queue
 
         self.permissions = [perm() for perm in permission_classes]
 
-        self.job_id = kwargs.pop("job_id", None)
-        self.cancellable = kwargs.pop("cancellable", False)
-        self.track_progress = kwargs.pop("track_progress", False)
+        self.job_id = job_id
+        self.cancellable = cancellable
+        self.track_progress = track_progress
 
     def enqueue(self, *args, **kwargs):
         """
@@ -306,11 +316,10 @@ class RegisteredJob(object):
 
         :return: enqueued job's id.
         """
-        from kolibri.core.tasks.main import PRIORITY_TO_QUEUE_MAP
+        from kolibri.core.tasks.main import job_storage
 
         job_obj = self._ready_job(*args, **kwargs)
-        queue = PRIORITY_TO_QUEUE_MAP[self.priority]
-        return queue.enqueue(func=job_obj)
+        return job_storage.enqueue_job(job_obj, self.queue, self.priority)
 
     def enqueue_in(self, delta_time, interval=0, repeat=0, args=(), kwargs=None):
         """

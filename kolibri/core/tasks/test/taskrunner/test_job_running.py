@@ -28,7 +28,7 @@ def backend():
 @pytest.fixture
 def inmem_queue():
     with connection() as conn:
-        e = Worker(queues="pytest", connection=conn)
+        e = Worker(connection=conn)
         c = Queue(queue="pytest", connection=conn)
         c.e = e
         c.storage.clear(force=True)
