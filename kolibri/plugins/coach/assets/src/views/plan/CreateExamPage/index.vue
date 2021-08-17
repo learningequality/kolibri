@@ -391,7 +391,7 @@
       },
     },
     watch: {
-      $route(to, from) {
+      $route() {
         if (this.$route.params.topicId) {
           ContentNodeResource.fetchCollection({
             getParams: { parent: this.$route.params.topicId },
@@ -407,7 +407,7 @@
       },
     },
     created() {
-      this.getBookmarks().then(data => {
+      this.getBookmarks().then(() => {
         this.getBookmarksData();
       });
     },
