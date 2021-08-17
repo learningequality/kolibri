@@ -12,6 +12,10 @@ export const SyncTaskStatuses = {
   PUSHING: 'PUSHING',
   REMOTE_DEQUEUING: 'REMOTE_DEQUEUING',
   REMOVING_FACILITY: 'REMOVING_FACILITY',
+  PENDING: 'PENDING',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  FAILED: 'FAILED',
 };
 
 const { getTaskString } = taskStrings.methods;
