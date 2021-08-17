@@ -166,6 +166,15 @@ writeversion:
 	@echo ""
 	@echo "Current version is now `cat kolibri/VERSION`"
 
+preseeddb:
+	$(eval TEMPKHOME := $(shell mktemp -d /tmp/kolibri-preseeddb-XXXXXXXX))
+	PYTHONPATH=".:$$PYTHONPATH" KOLIBRI_HOME=$(TEMPKHOME) python -m kolibri manage migrate
+	yes yes | PYTHONPATH=".:$$PYTHONPATH" KOLIBRI_HOME=$(TEMPKHOME) python -m kolibri manage deprovision
+	mkdir kolibri/dist/home
+	mv $(TEMPKHOME)/db.sqlite3 kolibri/dist/home/db.sqlite3
+	mv $(TEMPKHOME)/notifications.sqlite3 kolibri/dist/home/notifications.sqlite3
+	rm -r $(TEMPKHOME)
+
 setrequirements:
 	rm -r requirements.txt || true # remove requirements.txt
 	git checkout -- requirements.txt # restore requirements.txt
