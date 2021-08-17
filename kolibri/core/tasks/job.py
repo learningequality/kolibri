@@ -277,26 +277,28 @@ class RegisteredJob(object):
         Look at each method's docstring for more info.
     """
 
+    from kolibri.core.tasks.queue import DEFAULT_QUEUE
+
     def __init__(
         self,
         func,
-        validator,
-        priority,
-        permission_classes,
-        queue,
-        job_id,
-        cancellable,
-        track_progress,
+        job_id=None,
+        queue=DEFAULT_QUEUE,
+        validator=None,
+        priority=Priority.REGULAR,
+        cancellable=False,
+        track_progress=False,
+        permission_classes=None,
     ):
         if permission_classes is None:
             permission_classes = []
         if validator is not None and not callable(validator):
             raise TypeError("Can't assign validator of type {}".format(type(validator)))
-        elif priority.upper() not in Priority.PriorityOrder:
+        if priority.upper() not in Priority.PriorityOrder:
             raise ValueError("priority must be one of 'regular' or 'high' (string).")
-        elif not isinstance(permission_classes, list):
+        if not isinstance(permission_classes, list):
             raise TypeError("permission_classes must be of list type.")
-        elif not isinstance(queue, str):
+        if queue is not None and not isinstance(queue, str):
             raise TypeError("queue must be of string type.")
 
         self.func = func
@@ -372,9 +374,9 @@ class RegisteredJob(object):
         job_obj = Job(
             self.func,
             *args,
-            job_id=self.job_id,
-            cancellable=self.cancellable,
-            track_progress=self.track_progress,
+            job_id=kwargs.pop("job_id", self.job_id),
+            cancellable=kwargs.pop("cancellable", self.cancellable),
+            track_progress=kwargs.pop("track_progress", self.track_progress),
             **kwargs
         )
         return job_obj

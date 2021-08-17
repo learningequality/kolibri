@@ -29,6 +29,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import ParseError
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from six import string_types
 
@@ -187,7 +188,7 @@ class BaseViewSet(viewsets.ViewSet):
     permission_classes = []
 
     # Adding auth classes explicitly until we find a fix for BasicAuth not
-    # working on tasks API (in dev settings)
+    # working on tasks API (in dev settings).
     authentication_classes = [SessionAuthentication, BasicAuthentication]
 
     def initial(self, request, *args, **kwargs):
@@ -197,16 +198,25 @@ class BaseViewSet(viewsets.ViewSet):
             self.permission_classes = []
         return super(BaseViewSet, self).initial(request, *args, **kwargs)
 
-    def default_permission_classes(self):
-        # For all /api/tasks/ endpoints
-        return [CanManageContent]
+    def check_registered_job_permissions(self, request, registered_job):
+        """
+        Checks whether the `request` is allowed to proceed based on
+        `registered_job.permissions`.
+
+        Raises `PermissionDenied` if `request.user` is not allowed to proceed.
+        """
+        for permission in registered_job.permissions:
+            if not permission.has_permission(request, self):
+                raise PermissionDenied
 
     def validate_create_req_data(self, request):
         """
         Validates the request data received on POST /api/tasks/.
 
+        If `task` parameter is absent or not a string type then `ValidationError` is raised.
+
         If `request.user` is authorized to initiate the `task` function, this returns
-        a list of `request.data` otherwise raises PermissionDenied.
+        a list of `request.data` otherwise raises `PermissionDenied`.
         """
         if isinstance(request.data, list):
             request_data_list = request.data
@@ -230,38 +240,64 @@ class BaseViewSet(viewsets.ViewSet):
                 )
 
             # Check permissions the DRF way
-            for permission in registered_job.permissions:
-                if not permission.has_permission(request, self):
-                    self.permission_denied(request)
+            self.check_registered_job_permissions(request, registered_job)
 
         return request_data_list
 
     def list(self, request):
-        jobs_response = [
-            _job_to_response(j) for _queue in self.queues for j in _queue.jobs
-        ]
+        """
+        Returns a list of jobs that `request.user` has permissions for.
+
+        Accepts a query parameter named `queue` that filters jobs by `queue`.
+        """
+        queue = request.query_params.get("queue", None)
+
+        all_jobs = job_storage.get_all_jobs(queue=queue)
+
+        jobs_response = []
+        for job in all_jobs:
+            try:
+                registered_job = JobRegistry.REGISTERED_JOBS[job.func]
+                self.check_registered_job_permissions(request, registered_job)
+                jobs_response.append(_job_to_response(job))
+            except KeyError:
+                # Note: Temporarily including unregistered tasks until we complete
+                # our transition to to the new tasks API.
+                # After completing transition to the new tasks API, we won't be
+                # including unregistered tasks to the response list.
+                jobs_response.append(_job_to_response(job))
+            except PermissionDenied:
+                # `request.user` do not have permission for this job hence
+                # we we will NOT append this job to the list.
+                pass
 
         return Response(jobs_response)
 
     def create(self, request):
         """
-        Enqueue a task for async processing.
+        Enqueues a registered task for async processing.
+
+        If the registered task has a validator then that validator is run with the
+        `request` object as its argument. The dict returned by the validator is passed
+        as keyword arguments to the task function.
+
+        If the registered task has no validator then `request.data` is passed as keyword
+        arguments to the task function.
 
         API endpoint:
-            POST /api/tasks/
+            POST /api/tasks/tasks/
 
         Request payload parameters:
             - `task` (required): a string representing the dotted path to task function.
-            - all other key value pairs are passed to the validator if the
-              task function has one otherwise they are passed to the task function itself
-              as keyword args.
+            - Other key value pairs.
 
         Keep in mind:
-            If a task function has a validator then dict returned by the validator
-            is passed to the task function as keyword args.
+            In the validator's returning dict we can add `extra_metadata` as a key value pair
+            to set `extra_metadata` for the task.
 
-            The validator can add `extra_metadata` in the returning dict to set `extra_metadata`
-            in the enqueued task.
+            `extra_metadata` value must be of dict type.
+
+            The `extra_metadata` dict is not passed to the `task` function.
         """
         request_data_list = self.validate_create_req_data(request)
 
@@ -270,13 +306,13 @@ class BaseViewSet(viewsets.ViewSet):
         # Once we have validated all the tasks, we are good to go!
         for request_data in request_data_list:
 
-            funcstr = request_data.get("task")
+            funcstr = request_data.pop("task")
             registered_job = JobRegistry.REGISTERED_JOBS[funcstr]
 
-            # Run validator with request and request_data as its argument
+            # Run validator with `request` as its argument.
             if registered_job.validator is not None:
                 try:
-                    validator_result = registered_job.validator(request, request_data)
+                    validator_result = registered_job.validator(request)
                 except Exception as e:
                     raise e
 
@@ -300,21 +336,30 @@ class BaseViewSet(viewsets.ViewSet):
         return Response(enqueued_jobs_response)
 
     def retrieve(self, request, pk=None):
-        for _queue in self.queues:
-            try:
-                task = _job_to_response(_queue.fetch_job(pk))
-                break
-            except JobNotFound:
-                continue
-        else:
+        """
+        Retrieve a task by id only if `request.user` has permissions for it otherwise
+        raises `PermissionDenied`.
+        """
+        try:
+            job = job_storage.get_job(job_id=pk)
+            registered_job = JobRegistry.REGISTERED_JOBS[job.func]
+            self.check_registered_job_permissions(request, registered_job)
+        except JobNotFound:
             raise Http404("Task with {pk} not found".format(pk=pk))
+        except KeyError:
+            # Note: Temporarily allowing unregistered tasks until we complete our transition to
+            # to the new tasks API.
+            # After completing our transition this should raise a ValidationError saying
+            # the task is not registered.
+            pass
 
-        return Response(task)
+        job_response = _job_to_response(job)
+        return Response(job_response)
 
     @decorators.action(methods=["post"], detail=False)
     def restarttask(self, request):
         """
-        Restart a task with its task id given in the task_id parameter.
+        Restarts a task with its task id given in the `task_id` parameter.
         """
 
         if "task_id" not in request.data:
@@ -322,18 +367,30 @@ class BaseViewSet(viewsets.ViewSet):
         if not isinstance(request.data["task_id"], string_types):
             raise serializers.ValidationError("The 'task_id' should be a string.")
 
-        resp = {}
-        for _queue in self.queues:
-            try:
-                task_id = _queue.restart_job(request.data["task_id"])
-                resp = _job_to_response(_queue.fetch_job(task_id))
-                break
-            except JobNotFound:
-                continue
-            except JobNotRestartable as e:
-                raise serializers.ValidationError(str(e))
+        job_to_restart_id = request.data.get("task_id")
 
-        return Response(resp)
+        try:
+            job_to_restart = job_storage.get_job(job_id=job_to_restart_id)
+        except JobNotFound:
+            raise Http404("Task with {pk} not found.".format(pk=job_to_restart_id))
+
+        try:
+            registered_job = JobRegistry.REGISTERED_JOBS[job_to_restart.func]
+            self.check_registered_job_permissions(request, registered_job)
+        except KeyError:
+            raise serializers.ValidationError(
+                "'{funcstr}' is not registered.".format(funcstr=job_to_restart.func)
+            )
+
+        try:
+            restarted_job_id = job_storage.restart_job(job_id=job_to_restart.job_id)
+        except JobNotRestartable:
+            raise serializers.ValidationError(
+                "Cannot restart job with state={}".format(job_to_restart.state)
+            )
+
+        job_response = _job_to_response(job_storage.get_job(job_id=restarted_job_id))
+        return Response(job_response)
 
     def destroy(self, request, pk=None):
         # unimplemented for now.
@@ -403,14 +460,17 @@ class TasksViewSet(BaseViewSet):
         return [queue, priority_queue]
 
     def default_permission_classes(self):
-        if self.action in ["list", "deletefinishedtasks"]:
+        # Permission for /api/tasks/tasks/ endpoints.
+        if self.action in ["list", "retrieve", "create", "restarttask"]:
+            return [IsAuthenticated]
+        elif self.action in ["deletefinishedtasks"]:
             return [CanManageContent | CanExportLogs]
         elif self.action == "startexportlogcsv":
             return [CanExportLogs]
         elif self.action in ["importusersfromcsv", "exportuserstocsv"]:
             return [CanImportUsers]
 
-        # For all other tasks
+        # For all other task endpoints.
         return [CanManageContent]
 
     @decorators.action(methods=["post"], detail=False)
