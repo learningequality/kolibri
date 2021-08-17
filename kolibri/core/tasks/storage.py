@@ -147,7 +147,7 @@ class Storage(StorageMixin):
         """
         self._update_job(job_id, State.CANCELING)
 
-    def get_next_queued_job(self, queues=None, priority_order=Priority.PriorityOrder):
+    def get_next_queued_job(self, priority_order=Priority.PriorityOrder):
         """
         Looks for the oldest queued job with priorities provided in `priority_order`. It
         runs through the `priority_oder` list sequentially.
@@ -161,9 +161,6 @@ class Storage(StorageMixin):
         """
         with self.session_scope() as s:
             q = s.query(ORMJob).filter(ORMJob.state == State.QUEUED)
-
-            if queues:
-                q = q.filter(ORMJob.queue.in_(queues))
 
             orm_job = None
             for priority in priority_order:
