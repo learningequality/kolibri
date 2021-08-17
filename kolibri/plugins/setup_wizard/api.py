@@ -6,12 +6,14 @@ from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
+from .tasks import getusersinfo
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import provision_device
 from kolibri.core.tasks.api import FacilityTasksViewSet
+from kolibri.core.tasks.api import TasksViewSet
 
 
 # Basic class that makes these endpoints unusable if device is provisioned
@@ -20,6 +22,16 @@ class HasPermissionDuringSetup(BasePermission):
         from kolibri.core.device.utils import device_provisioned
 
         return not device_provisioned()
+
+
+class HasPermissionDuringLODSetup(BasePermission):
+    def has_permission(self, request, view):
+        from kolibri.core.device.utils import get_device_setting
+
+        subset_of_users_device = get_device_setting(
+            "subset_of_users_device", default=False
+        )
+        return subset_of_users_device
 
 
 class FacilityImportViewSet(ViewSet):
@@ -115,6 +127,27 @@ class FacilityImportViewSet(ViewSet):
 
         return Response({})
 
+    @decorators.action(methods=["post"], detail=False)
+    def listfacilitylearners(self, request):
+        """
+        If the request is done by an admin user  it will return a list of the users of the
+        facility
+
+        :param baseurl: First part of the url of the server that's going to be requested
+        :param facility_id: Id of the facility to authenticate and get the list of users
+        :param username: Username of the user that's going to authenticate
+        :param password: Password of the user that's going to authenticate
+        :return: List of the learners of the facility.
+        """
+        facility_info = getusersinfo(request)
+        user_info = facility_info["user"]
+        roles = user_info["roles"]
+        admin_roles = (user_kinds.ADMIN, user_kinds.SUPERUSER)
+        if not any([role in roles for role in admin_roles]):
+            raise PermissionDenied()
+        students = [u for u in facility_info["users"] if not u["roles"]]
+        return Response({"students": students, "admin": facility_info["user"]})
+
 
 class SetupWizardFacilityImportTaskView(FacilityTasksViewSet):
     """
@@ -122,11 +155,21 @@ class SetupWizardFacilityImportTaskView(FacilityTasksViewSet):
     import-facility task during setup
     """
 
-    permission_classes = (HasPermissionDuringSetup,)
+    permission_classes = [HasPermissionDuringSetup | HasPermissionDuringLODSetup]
 
     # Remove all the endpoints we don't want in setup wizard
     startdataportalsync = property()
     startdataportalbulksync = property()
     # startpeerfacilityimport: not overwritten
+    # startprovisionsoud: not overwritten
     startpeerfacilitysync = property()
     startdeletefacility = property()
+
+
+class SetupWizardSoUDTaskView(TasksViewSet):
+    """
+    Needed because TasksViewSet permissions don't allow
+    fetch list of task or create task from a provisioning device
+    """
+
+    permission_classes = [HasPermissionDuringSetup | HasPermissionDuringLODSetup]

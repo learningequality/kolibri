@@ -124,20 +124,15 @@
           :contents="[content.next_content]"
         />
       </template>
-      <template v-if="showRecommended">
-        <h2>{{ learnString('recommendedLabel') }}</h2>
-        <ContentCardGroupCarousel
-          :genContentLink="genContentLink"
-          :header="recommendedText"
-          :contents="recommended"
-        />
-      </template>
     </slot>
 
-    <MasteredSnackbars
+    <CompletionModal
       v-if="progress >= 1 && wasIncomplete"
-      :nextContent="content.next_content"
-      :nextContentLink="nextContentLink"
+      :isUserLoggedIn="isUserLoggedIn"
+      :nextContentNode="content.next_content"
+      :nextContentNodeRoute="nextContentNodeRoute"
+      :recommendedContentNodes="recommended"
+      :genContentLink="genContentLink"
       @close="markAsComplete"
     />
 
@@ -162,12 +157,12 @@
     licenseLongName,
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
-  import { PageNames, PageModes, ClassesPageNames } from '../constants';
+  import { PageNames, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
   import PageHeader from './PageHeader';
   import ContentCardGroupCarousel from './ContentCardGroupCarousel';
   import AssessmentWrapper from './AssessmentWrapper';
-  import MasteredSnackbars from './MasteredSnackbars';
+  import CompletionModal from './CompletionModal';
   import { lessonResourceViewerLink } from './classes/classPageLinks';
   import commonLearnStrings from './commonLearnStrings';
 
@@ -191,7 +186,7 @@
       ContentCardGroupCarousel,
       DownloadButton,
       AssessmentWrapper,
-      MasteredSnackbars,
+      CompletionModal,
     },
     mixins: [commonLearnStrings],
     data() {
@@ -202,7 +197,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'pageMode', 'currentUserId']),
+      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'currentUserId']),
       ...mapState(['pageName']),
       ...mapState('topicsTree', ['content', 'channel', 'recommended']),
       ...mapState('topicsTree', {
@@ -242,9 +237,6 @@
         }
         return '';
       },
-      recommendedText() {
-        return this.learnString('recommendedLabel');
-      },
       progress() {
         if (this.isUserLoggedIn) {
           // if there no attempts for this exercise, there is no progress
@@ -255,11 +247,6 @@
         }
         return this.sessionProgress;
       },
-      showRecommended() {
-        return (
-          this.recommended && this.recommended.length && this.pageMode === PageModes.RECOMMENDED
-        );
-      },
       downloadableFiles() {
         return this.content.files.filter(file => !file.preset.endsWith('thumbnail'));
       },
@@ -269,7 +256,7 @@
       primaryFilename() {
         return `${this.primaryFile.checksum}.${this.primaryFile.extension}`;
       },
-      nextContentLink() {
+      nextContentNodeRoute() {
         // HACK Use a the Resource Viewer Link instead
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
           return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);

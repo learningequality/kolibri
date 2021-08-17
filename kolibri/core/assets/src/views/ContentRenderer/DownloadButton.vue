@@ -11,7 +11,6 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
   import { getFilePresetString } from './filePresetStrings';
 
   export default {
@@ -32,7 +31,7 @@
           const label = getFilePresetString(file);
           return {
             label,
-            url: urls.downloadUrl(file.checksum, file.extension),
+            url: file.storage_url,
             fileName: this.$tr('downloadFilename', {
               resourceTitle: this.nodeTitle,
               fileExtension: file.extension,

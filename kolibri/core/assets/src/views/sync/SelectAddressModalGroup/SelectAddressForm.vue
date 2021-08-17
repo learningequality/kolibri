@@ -9,6 +9,9 @@
     @cancel="$emit('cancel')"
   >
     <template>
+      <p v-if="filterLODAvailable">
+        {{ $tr('lodSubHeader') }}
+      </p>
       <p v-if="initialFetchingComplete && !combinedAddresses.length">
         {{ $tr('noAddressText') }}
       </p>
@@ -68,7 +71,7 @@
             class="radio-button"
             :value="d.instance_id"
             :label="formatNameAndId(d.device_name, d.id)"
-            :description="d.base_url"
+            :description="formatBaseAddress(d)"
             :disabled="formDisabled || discoveryFailed || !isAddressAvailable(d.id)"
           />
         </div>
@@ -206,6 +209,10 @@
         type: Boolean,
         default: false,
       },
+      filterLODAvailable: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -223,14 +230,14 @@
       submitDisabled() {
         return (
           this.selectedAddressId === '' ||
-          this.fetchingAddresses ||
+          this.fetchingAddresses & !this.filterLODAvailable ||
           this.deletingAddress ||
           this.discoveryFailed ||
           this.availableAddressIds.length === 0
         );
       },
       newAddressButtonDisabled() {
-        return this.hideSavedAddresses || this.fetchingAddresses;
+        return this.filterLODAvailable || this.hideSavedAddresses || this.fetchingAddresses;
       },
       uiAlertProps() {
         let text;
@@ -270,6 +277,16 @@
       }, 100);
     },
     methods: {
+      formatBaseAddress(device) {
+        const url = device.base_url;
+        if (this.filterLODAvailable) {
+          const version = device.kolibri_version
+            .split('.')
+            .slice(0, 3)
+            .join('.');
+          return `${url}, Kolibri ${version}`;
+        } else return url;
+      },
       resetSelectedAddress() {
         if (this.availableAddressIds.length !== 0) {
           const selectedId = this.selectedId || this.storageAddressId || this.selectedAddressId;
@@ -312,6 +329,11 @@
         message: 'Add new address',
         context:
           'The "Add new address" link appears in the \'Select network address\' screen. This option allows you to add a new network address from which to sync data.',
+      },
+      lodSubHeader: {
+        message: 'Select a device with Kolibri version 0.15 to import learner user accounts',
+        context:
+          "In the first startup wizard, when you select to 'Import one or more user accounts from an existing facility' option to choose the network address you want to sync from.\n\nYou do this in the 'Select network address' section which displays a list of network addresses.",
       },
       noAddressText: {
         message: 'There are no addresses yet',

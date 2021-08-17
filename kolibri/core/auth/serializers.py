@@ -113,6 +113,19 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
         fields = ("id", "dataset", "name")
 
 
+class PublicFacilityUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FacilityUser
+        fields = (
+            "id",
+            "username",
+            "full_name",
+            "facility",
+            "roles",
+            "is_superuser",
+        )
+
+
 class ClassroomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Classroom

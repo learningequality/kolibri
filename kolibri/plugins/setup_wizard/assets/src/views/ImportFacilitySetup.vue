@@ -25,7 +25,6 @@
 <script>
 
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import commonSetupElements from '../../../commonSetupElements';
   import ProgressToolbar from './ProgressToolbar';
   import OnboardingForm from './onboarding-forms/OnboardingForm';
   import PersonalDataConsentForm from './onboarding-forms/PersonalDataConsentForm';
@@ -51,7 +50,7 @@
       PersonalDataConsentForm,
       ProgressToolbar,
     },
-    mixins: [commonSetupElements, commonSyncElements],
+    mixins: [commonSyncElements],
     data() {
       // Global state for the import process
       return {
@@ -75,6 +74,7 @@
         },
       };
     },
+    inject: ['wizardService'],
     computed: {
       currentComponent() {
         const { step } = this.$route.params;
@@ -124,7 +124,7 @@
             },
           });
         } else if (this.currentStep === 1) {
-          this.goToSetupMethodPage();
+          this.wizardService.send('BACK');
         }
       },
       finalizeOnboardingData() {

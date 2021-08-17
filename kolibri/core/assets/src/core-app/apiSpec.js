@@ -75,6 +75,7 @@ import Draggable from '../views/sortable/Draggable';
 import DragHandle from '../views/sortable/DragHandle';
 import DragContainer from '../views/sortable/DragContainer';
 import DragSortWidget from '../views/sortable/DragSortWidget';
+import FocusTrap from '../views/FocusTrap';
 import BottomAppBar from '../views/BottomAppBar';
 import GenderSelect from '../views/userAccounts/GenderSelect';
 import BirthYearSelect from '../views/userAccounts/BirthYearSelect';
@@ -97,6 +98,7 @@ import AttemptLogList from '../views/AttemptLogList';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
 import TextTruncator from '../views/TextTruncator';
+import TimeDuration from '../views/TimeDuration';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import filterUsersByNames from '../utils/filterUsersByNames';
@@ -157,6 +159,7 @@ export default {
       InteractionList,
       ExamReport,
       TextTruncator,
+      TimeDuration,
       MultiPaneLayout,
       CoreFullscreen,
       CoreLogo,
@@ -170,6 +173,7 @@ export default {
       DragHandle,
       DragContainer,
       DragSortWidget,
+      FocusTrap,
       BottomAppBar,
       GenderSelect,
       GenderDisplayText,

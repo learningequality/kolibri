@@ -26,6 +26,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
             "operating_system",
             "application",
             "kolibri_version",
+            "subset_of_users_device",
         )
         read_only_fields = (
             "available",
@@ -37,6 +38,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
             "operating_system",
             "application",
             "kolibri_version",
+            "subset_of_users_device",
         )
 
     def validate_base_url(self, value):

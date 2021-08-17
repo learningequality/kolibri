@@ -157,7 +157,9 @@
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},
         this.userData,
-        this.defaultFile.storage_url,
+        this.defaultFile.extension === 'zip'
+          ? urls.zipContentUrl(this.defaultFile.checksum, this.defaultFile.extension)
+          : this.defaultFile.storage_url,
         this.defaultFile.checksum
       );
       this.$emit('startTracking');
