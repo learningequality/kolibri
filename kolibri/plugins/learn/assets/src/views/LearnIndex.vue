@@ -1,11 +1,11 @@
 <template>
 
   <LearnImmersiveLayout
-    v-if="currentPageIsContent"
+    v-if="currentPageIsContentOrLesson"
     :authorized="userIsAuthorized"
     authorizedRole="registeredUser"
     :back="learnBackPageRoute"
-    :content="topicsTreeContent"
+    :content="content"
   />
 
   <CoreBase
@@ -127,7 +127,6 @@
       ...mapGetters(['isUserLoggedIn', 'canAccessUnassignedContent']),
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
-        currentLesson: 'currentLesson',
       }),
       ...mapState('classAssignments', {
         classroomName: state => state.currentClassroom.name,
@@ -153,8 +152,11 @@
           pageNameToComponentMap[PageNames.TOPICS_CHANNEL],
         ].includes(this.currentPage);
       },
-      currentPageIsContent() {
-        return this.pageName === PageNames.TOPICS_CONTENT;
+      currentPageIsContentOrLesson() {
+        return (
+          this.pageName === PageNames.TOPICS_CONTENT ||
+          this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER
+        );
       },
       currentChannelIsCustom() {
         return (
@@ -169,15 +171,6 @@
             appBarTitle: this.classroomName || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.CLASS_ASSIGNMENTS),
-            immersivePagePrimary: true,
-            immersivePageIcon: 'close',
-          };
-        }
-        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-          return {
-            appBarTitle: this.currentLesson.title || '',
-            immersivePage: true,
-            immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
             immersivePagePrimary: true,
             immersivePageIcon: 'close',
           };
@@ -231,6 +224,15 @@
           !this.immersivePageProps.immersivePage
         );
       },
+      content() {
+        let content;
+        if (this.pageName === PageNames.TOPICS_CONTENT) {
+          content = this.topicsTreeContent;
+        } else if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          content = this.lessonContent;
+        }
+        return content;
+      },
       bottomSpaceReserved() {
         if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
           return QUIZ_FOOTER;
@@ -267,6 +269,8 @@
         const { searchTerm } = this.$route.query;
         if (searchTerm) {
           route = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
+        } else if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          route = this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST);
         } else if (this.topicsTreeContent.parent) {
           // Need to guard for parent being non-empty to avoid console errors
           route = this.$router.getRoute(PageNames.TOPICS_TOPIC, {

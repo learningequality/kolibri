@@ -4,7 +4,6 @@
     v-if="!loading"
     ref="mainWrapper"
     class="main-wrapper"
-    :style="mainWrapperStyles"
   >
 
     <div v-if="blockDoubleClicks" class="click-mask"></div>
@@ -42,9 +41,11 @@
       role="main"
       tabindex="-1"
       class="main"
-      :style="mainStyles"
     >
-      <ContentPage class="content" />
+      <ContentPage
+        class="content"
+        :content="content"
+      />
     </div>
   </div>
 
@@ -57,7 +58,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
+  import { LearningActivities, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
   import ContentPage from './ContentPage';
@@ -138,21 +139,13 @@
         }
         return !this.authorized;
       },
-      mainWrapperStyles() {
-        return {
-          backgroundColor: this.$themePalette.grey.v_100,
-          paddingTop: `${this.appbarHeight}px`,
-          paddingBottom: `${this.marginBottom}px`,
-        };
-      },
       mappedLearningActivities() {
         let learningActivities = [];
         learningActivities.push(mapOldContentTypesToLearningActivities[this.content.kind]);
         return learningActivities;
       },
       isPracticeActivity() {
-        // TODO Update when secondary header bar is conneted
-        return false;
+        return this.content.kind === ContentNodeKinds.EXERCISE;
       },
     },
     methods: {
