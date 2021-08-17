@@ -1,5 +1,6 @@
 import datetime
 import hashlib
+import json
 import logging
 import platform
 import random
@@ -9,9 +10,13 @@ from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from morango.models import InstanceIDModel
+from morango.models import SyncSession
+from morango.models import TransferSession
 from rest_framework import status
 
 import kolibri
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.device.utils import DeviceNotProvisioned
@@ -90,6 +95,45 @@ def get_device_info(version=DEVICE_INFO_VERSION):
     return info
 
 
+def find_soud_sync_sessions(**filters):
+    """
+    :param filters: A dict of queryset filter
+    :return: A SyncSession queryset
+    """
+    return SyncSession.objects.filter(
+        active=True,
+        connection_kind="network",
+        profile=PROFILE_FACILITY_DATA,
+        client_certificate__scope_definition_id=ScopeDefinitions.SINGLE_USER,
+        **filters
+    ).order("-last_activity_timestamp")
+
+
+def find_soud_sync_session_for_resume(user, base_url):
+    """
+    Finds the most recently active sync session for a SoUD sync
+
+    :type user: FacilityUser
+    :type base_url: str
+    :rtype: SyncSession|None
+    """
+    # SoUD requests sync with server, so for resume we filter by client and matching base url
+    sync_sessions = find_soud_sync_sessions(
+        is_server=False,
+        connection_path__startswith=base_url,
+    )
+
+    # ensure the certificate is for the user we're checking for
+    for sync_session in sync_sessions:
+        scope_params = json.loads(sync_session.client_certificate.scope_params)
+        dataset_id = scope_params.get("dataset_id")
+        user_id = scope_params.get("user_id", None)
+        if user_id == user.id and user.dataset_id == dataset_id:
+            return sync_session
+
+    return None
+
+
 def peer_sync(**kwargs):
     try:
         call_command("sync", **kwargs)
@@ -135,16 +179,13 @@ def startpeerusersync(
     )
     job_data = None
     # attempt to resume an existing session
-    try:
-        sync_session = UserSyncStatus.objects.get(user=user).sync_session
-        if sync_session and sync_session.active:
-            command = "resumesync"
-            # if resuming encounters an error, it should close the session to avoid a loop
-            job_data = prepare_soud_resume_sync_job(
-                server, sync_session.id, close_on_error=True, **common_job_args
-            )
-    except UserSyncStatus.DoesNotExist:
-        pass
+    sync_session = find_soud_sync_session_for_resume(user, server)
+    if sync_session is not None:
+        command = "resumesync"
+        # if resuming encounters an error, it should close the session to avoid a loop
+        job_data = prepare_soud_resume_sync_job(
+            server, sync_session.id, close_on_error=True, **common_job_args
+        )
 
     # if not resuming, prepare normal job
     if job_data is None:
@@ -160,12 +201,11 @@ def stoppeerusersync(server, user_id):
     """
     Close the sync session with a server
     """
-    # skip if no sync status, no sync session, or sync session is inactive
-    try:
-        sync_session = UserSyncStatus.objects.get(user=user_id).sync_session
-        if not sync_session or not sync_session.active:
-            return
-    except UserSyncStatus.DoesNotExist:
+    user = FacilityUser.objects.get(pk=user_id)
+    sync_session = find_soud_sync_session_for_resume(user, server)
+
+    # skip if we couldn't find one for resume
+    if sync_session is None:
         return
 
     # hack: queue the resume job, without push or pull, and without keep_alive, so it should close
@@ -359,3 +399,19 @@ def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVA
     JOB_ID = hashlib.md5("{}:{}".format(server, user).encode()).hexdigest()
     job = Job(request_soud_sync, server, user, job_id=JOB_ID)
     scheduler.enqueue_in(dt, job)
+
+
+def cleanup_server_soud_sync(device_info):
+    """
+    :param device_info: Client's device info
+    """
+    sync_sessions = find_soud_sync_sessions(is_server=True)
+    for sync_session in sync_sessions:
+        if (
+            TransferSession.objects.filter(
+                sync_session=sync_session, active=True
+            ).count()
+            == 0
+        ):
+            sync_session.active = False
+            sync_session.save()

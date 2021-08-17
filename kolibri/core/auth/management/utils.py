@@ -483,7 +483,7 @@ class MorangoSyncCommand(AsyncCommand):
 
         client_cert = sync_session_client.sync_session.client_certificate
         register_sync_event_handlers(sync_session_client.controller)
-        sync_filter = get_sync_filter(client_cert)
+        client_cert_scope = client_cert.get_scope()
 
         scope_params = json.loads(client_cert.scope_params)
         dataset_id = scope_params.get("dataset_id")
@@ -503,14 +503,14 @@ class MorangoSyncCommand(AsyncCommand):
                 self._pull(
                     sync_session_client,
                     noninteractive,
-                    sync_filter,
+                    client_cert_scope.read_filter,
                 )
                 # and push our own data to server
             if not no_push:
                 self._push(
                     sync_session_client,
                     noninteractive,
-                    sync_filter,
+                    client_cert_scope.write_filter,
                 )
 
             if not no_provision:

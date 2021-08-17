@@ -18,6 +18,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import DynamicNetworkLocation
 from kolibri.core.public.utils import begin_request_soud_sync
+from kolibri.core.public.utils import cleanup_server_soud_sync
 from kolibri.core.public.utils import get_device_info
 from kolibri.core.public.utils import stop_request_soud_sync
 
@@ -240,13 +241,18 @@ class KolibriZeroconfListener(object):
             if id in self.instances:
                 if not get_is_self(id):
                     instance = self.instances[id]
-                    if get_device_setting(
-                        "subset_of_users_device", False
-                    ) and not instance.get("subset_of_users_device", False):
-                        for user in FacilityUser.objects.all().values("id"):
-                            stop_request_soud_sync(
-                                server=instance.get("base_url"), user=user["id"]
-                            )
+                    is_soud = instance.get("subset_of_users_device", False)
+
+                    if get_device_setting("subset_of_users_device", False):
+                        if not is_soud:
+                            for user in FacilityUser.objects.all().values("id"):
+                                stop_request_soud_sync(
+                                    server=instance.get("base_url"), user=user["id"]
+                                )
+                    elif is_soud:
+                        # this means our device is not SoUD, and instance is a SoUD
+                        cleanup_server_soud_sync(instance)
+
                 del self.instances[id]
         except KeyError:
             pass
