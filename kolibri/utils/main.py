@@ -155,7 +155,7 @@ def _setup_django():
 
 
 def _upgrades_before_django_setup(updated, version):
-    if updated:
+    if version and updated:
         check_plugin_config_file_location(version)
         # Reset the enabled plugins to the defaults
         # This needs to be run before dbbackup because
