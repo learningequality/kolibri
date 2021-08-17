@@ -16,13 +16,6 @@
         {{ $tr('documentTitle', { lessonName: currentLesson.title }) }}
       </h1>
       <div v-if="!showChannels">
-        <!-- <div><a href="#" @click="showChannels = true">Select source </a> > <b>Bookmarks</b></div> -->
-        <ResourceSelectionBreadcrumbs
-          v-if="!inSearchMode"
-          :ancestors="ancestors"
-          :topicsLink="topicsLink"
-          :channelsLink="{}"
-        />
         <ContentCardList
           v-if="bookmarkNodes"
           :contentList="bookmarkNodes"
@@ -41,9 +34,9 @@
       <div v-else>
         <div @click="lessonCardClicked">
           <LessonContentCard
-            title="Bookmarks"
+            :title="$tr('bookmarks')"
             :link="{}"
-            kind="bookmark"
+            :kind="$tr('bookmark')"
             :description="this.bookmarks.length + ' resources'"
             :isLeaf="false"
           />
@@ -492,6 +485,8 @@
       },
     },
     $trs: {
+      bookmark: 'bookmark',
+      bookmarks: 'Bookmarks',
       selectionInformation: {
         message:
           '{count, number, integer} of {total, number, integer} {total, plural, one {resource} other {resources}} selected',

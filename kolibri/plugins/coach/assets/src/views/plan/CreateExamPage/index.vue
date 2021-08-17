@@ -82,16 +82,15 @@
 
       <h2>{{ $tr('chooseExercises') }}</h2>
       <div v-if="!showChannels">
-        <br>
         <ContentCardList 
           :contentList="bookmarkNodes"
           :contentHasCheckbox="contentHasCheckbox"
-          :contentCardMessage="() => {return ''}"
+          :contentCardMessage="() => ''"
           :contentCardLink="contentLink"
-          :contentIsChecked="() => {return false}"
+          :contentIsChecked="() => false"
           :viewMoreButtonState="viewMoreButtonState"
           :showSelectAll="selectAllIsVisible"
-          :contentIsIndeterminate="() => { return false }"
+          :contentIsIndeterminate="() => false"
           :selectAllChecked="selectAllChecked"
           :selectAllIndeterminate="selectAllIndeterminate"
           @changeselectall="toggleTopicInWorkingResources"
@@ -103,9 +102,9 @@
         <p>Select from bookmarks</p>
         <div @click="lessonCardClicked">
           <LessonContentCard
-            title="Bookmarks"
+            :title="$tr('bookmarks')"
             :link="{}"
-            kind="bookmark"
+            :kind="$tr('bookmark')"
             :description="this.bookmarks.length + ' resources'"
             :isLeaf="false"
           />
@@ -186,11 +185,7 @@
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import {
-    BookmarksResource,
-    ContentNodeResource,
-  } from '../../../../../../../core/assets/src/api-resources/index';
-
+  import { BookmarksResource, ContentNodeResource } from 'kolibri.resources';
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
@@ -592,6 +587,8 @@
       },
     },
     $trs: {
+      bookmark: 'bookmark',
+      bookmarks: 'Bookmarks',
       createNewExamLabel: {
         message: 'Create new quiz',
         context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.",

@@ -59,13 +59,6 @@
         style="top:0;"
       />
       <KIcon
-        v-if="is('bookmark')"
-        icon="bookmark"
-        :class="[colorClass]"
-        :color="color"
-        style="top:0;"
-      />
-      <KIcon
         v-if="is(ContentNodeKinds.LESSON)"
         :icon="ContentNodeKinds.LESSON"
         :class="[colorClass]"
@@ -171,7 +164,6 @@
           [ContentNodeKinds.EXAM]: 'exam',
           [ContentNodeKinds.LESSON]: 'lesson',
           [ContentNodeKinds.SLIDESHOW]: 'slideshow',
-          [ContentNodeKinds.BOOKMARK]: 'bookmark',
           [USER]: 'user',
         };
         const label = kindToLabeLMap[this.kind];
