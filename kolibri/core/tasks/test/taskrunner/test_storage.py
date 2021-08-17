@@ -58,7 +58,7 @@ class TestBackend:
         time.sleep(2)
         defaultbackend.enqueue_job(job2, QUEUE)
 
-        assert defaultbackend.get_next_queued_job([QUEUE]).job_id == job1_id
+        assert defaultbackend.get_next_queued_job().job_id == job1_id
 
     def test_can_complete_job(self, defaultbackend, simplejob):
         """
@@ -115,7 +115,7 @@ class TestBackend:
         defaultbackend.enqueue_job(simplejob, QUEUE, "REGULAR")
         defaultbackend.enqueue_job(simplejob, QUEUE, "REGULAR")
 
-        assert defaultbackend.get_next_queued_job([QUEUE]).job_id == job_id
+        assert defaultbackend.get_next_queued_job().job_id == job_id
 
     def test_gets_oldest_high_priority_job_first(self, defaultbackend, simplejob):
         job_id = defaultbackend.enqueue_job(simplejob, QUEUE, "HIGH")
@@ -124,4 +124,4 @@ class TestBackend:
         time.sleep(2)
         defaultbackend.enqueue_job(simplejob, QUEUE, "HIGH")
 
-        assert defaultbackend.get_next_queued_job([QUEUE]).job_id == job_id
+        assert defaultbackend.get_next_queued_job().job_id == job_id
