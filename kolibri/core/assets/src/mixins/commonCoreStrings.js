@@ -53,6 +53,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "Indicates going back to a previous step.\n\nFor example, when a user creates a quiz in Kolibri using the quiz builder they can either 'CONTINUE' to the next phase of the builder or 'GO BACK'.\n\nIf you go back you exit the quiz builder and loose the resource selection.",
   },
+  importAction: {
+    message: 'Import',
+    context:
+      'Indicates importing something into Kolibri, depending on the context can be a list of lessons, a single user, etc.',
+  },
   registerAction: {
     message: 'Register',
     context: 'Register a facility to the Kolibri Data Portal',

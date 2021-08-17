@@ -99,8 +99,9 @@ class Worker(object):
         Returns: None
         """
         job_to_start = self.get_next_job()
-        if job_to_start:
+        while job_to_start:
             self.start_next_job(job_to_start)
+            job_to_start = self.get_next_job()
 
         for job in self.storage.get_canceling_jobs():
             job_id = job.job_id

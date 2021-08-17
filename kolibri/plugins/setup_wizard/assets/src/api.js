@@ -1,4 +1,5 @@
 import { Resource } from 'kolibri.lib.apiResource';
+import pickBy from 'lodash/pickBy';
 
 export const FacilityImportResource = new Resource({
   name: 'facilityimport',
@@ -17,6 +18,11 @@ export const FacilityImportResource = new Resource({
       return response.data;
     });
   },
+  listfacilitylearners(params) {
+    return this.postListEndpoint('listfacilitylearners', params).then(response => {
+      return response.data;
+    });
+  },
 });
 
 export const SetupTasksResource = new Resource({
@@ -28,5 +34,27 @@ export const SetupTasksResource = new Resource({
   },
   cleartasks() {
     return this.postListEndpoint('cleartasks');
+  },
+});
+
+export const SetupSoUDTasksResource = new Resource({
+  name: 'soudtasks',
+  namespace: 'kolibri.plugins.setup_wizard',
+  canceltask(task_id) {
+    return this.postListEndpoint('canceltask', { task_id });
+  },
+  cleartasks() {
+    return this.postListEndpoint('cleartasks');
+  },
+  /**
+   * Params for to create a new task
+   * @param {string} task - name of the task to be created
+   * @param {object} params - should contain the parameters the task needs
+   */
+  createTask(task, params) {
+    const args = { task: task, ...pickBy(params) };
+    return this.postListEndpoint('list', args).then(response => {
+      return response.data;
+    });
   },
 });

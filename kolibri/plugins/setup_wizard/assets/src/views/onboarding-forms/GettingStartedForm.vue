@@ -49,6 +49,7 @@
         Options,
       };
     },
+    inject: ['wizardService'],
     computed: {
       isPersonal() {
         return this.selected === Options.PERSONAL;
@@ -60,9 +61,7 @@
         this.goToNextStep();
       },
       goToNextStep() {
-        this.$router.push({
-          name: this.isPersonal ? 'PERSONAL_SETUP' : 'DEVICE_NAME',
-        });
+        this.wizardService.send({ type: 'CONTINUE', value: this.isPersonal });
       },
     },
     $trs: {

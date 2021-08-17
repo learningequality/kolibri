@@ -30,6 +30,10 @@ const taskStrings = createTranslator('TaskStrings', {
     message: "Started by '{username}'",
     context: 'Displays the user that started a task',
   },
+  taskLODFinishedByLabel: {
+    message: '‘{fullname}’ from ‘{facilityname}’ successfully loaded to this device',
+    context: 'Displays the full name of the user that has been synced in a task',
+  },
   clearCompletedTasksAction: {
     message: 'Clear completed',
     context: 'Label for buttons that clear completed tasks',
