@@ -6,7 +6,7 @@
     :submitText="coreString('confirmAction')"
     :cancelText="coreString('cancelAction')"
     @submit="markResourceAsCompleted"
-    @cancel="id = null"
+    @cancel="$emit('cancel')"
   >
     {{ $tr('markResourceAsCompleteConfirmation') }}
   </KModal>

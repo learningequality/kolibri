@@ -20,10 +20,22 @@ describe('Mark as finished modal', () => {
         contentSessionLogId: testSessionId,
       },
     });
-    wrapper.findComponent(KModal).vm.$emit('submit');
+  });
+
+  describe('When the user cancels the modal', () => {
+    // This describe() should go before subsequent ones
+    // to avoid needing to resourceSpy.mockReset()
+    it('emits a cancel event', () => {
+      wrapper.findComponent(KModal).vm.$emit('cancel');
+      expect(resourceSpy).not.toHaveBeenCalled();
+      expect(wrapper.emitted().cancel).toBeTruthy();
+    });
   });
 
   describe('When the user confirms the modal', () => {
+    beforeEach(() => {
+      wrapper.findComponent(KModal).vm.$emit('submit');
+    });
     it('will make a call to markResourceAsCompleted', () => {
       expect(markSpy).toHaveBeenCalled();
     });
@@ -34,6 +46,7 @@ describe('Mark as finished modal', () => {
 
   describe('markResourceAsCompleted', () => {
     it('makes a PATCH request to /api/logger/contentsessionlog', () => {
+      wrapper.findComponent(KModal).vm.$emit('submit');
       expect(resourceSpy).toHaveBeenCalledWith({
         id: testSessionId,
         data: { progress: 1 },
