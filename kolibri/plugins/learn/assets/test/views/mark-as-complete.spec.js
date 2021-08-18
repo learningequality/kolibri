@@ -1,9 +1,9 @@
 import KModal from 'kolibri-design-system/lib/KModal';
 import { mount } from '@vue/test-utils';
 import { ContentSessionLogResource } from 'kolibri.resources';
-import MarkAsFinishedModal from '../../src/views/MarkAsFinishedModal';
+import MarkAsCompleteModal from '../../src/views/MarkAsCompleteModal';
 
-describe('Mark as finished modal', () => {
+describe('Mark as complete modal', () => {
   let wrapper;
   let markSpy;
   let mockStore;
@@ -13,11 +13,11 @@ describe('Mark as finished modal', () => {
   beforeAll(() => {
     // Mock $store.dispatch to return a Promise
     mockStore = { dispatch: jest.fn().mockImplementation(() => Promise.resolve()) };
-    markSpy = jest.spyOn(MarkAsFinishedModal.methods, 'markResourceAsCompleted');
+    markSpy = jest.spyOn(MarkAsCompleteModal.methods, 'markResourceAsCompleted');
     resourceSpy = jest.spyOn(ContentSessionLogResource, 'saveModel');
     resourceSpy.mockImplementation(() => Promise.resolve());
 
-    wrapper = mount(MarkAsFinishedModal, {
+    wrapper = mount(MarkAsCompleteModal, {
       propsData: {
         contentSessionLogId: testSessionId,
       },
@@ -44,7 +44,7 @@ describe('Mark as finished modal', () => {
     it('will make a call to markResourceAsCompleted', () => {
       expect(markSpy).toHaveBeenCalled();
     });
-    it('emits an event indicating that the resource is marked as finished', () => {
+    it('emits an event indicating that the resource is marked as complete', () => {
       expect(wrapper.emitted().complete).toBeTruthy();
     });
     it('dispatches an createSnackbar message', () => {

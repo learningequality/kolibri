@@ -20,7 +20,7 @@
   import { ContentSessionLogResource } from 'kolibri.resources';
 
   export default {
-    name: 'MarkAsFinishedModal',
+    name: 'MarkAsCompleteModal',
     mixins: [commonCoreStrings],
     props: {
       // When truthy, the modal is shown. It is the implementer's charge
