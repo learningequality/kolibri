@@ -12,7 +12,7 @@
     "test-jest": "kolibri-tools test --config ./jest.conf.js",
     "test-jest-cov": "yarn run test-jest --coverage",
     "coverage": "yarn run test-jest-cov",
-    "build": "kolibri-tools build prod --file ./build_tools/build_plugins.txt && yarn run hashi-build",
+    "build": "yarn run hashi-build && kolibri-tools build prod --file ./build_tools/build_plugins.txt",
     "makemessages": "kolibri-tools i18n-extract-messages --pluginFile ./build_tools/build_plugins.txt",
     "createprofiles": "kolibri-tools i18n-profile --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/strings.csv",
     "transfercontext": "kolibri-tools i18n-transfer-context --pluginFile ./build_tools/build_plugins.txt",
