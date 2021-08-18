@@ -1,4 +1,8 @@
 {
   "CommonLearnStrings.learnLabel": "Jifunze",
-  "CommonLearnStrings.recommendedLabel": "Iliyopendekezwa"
+  "CommonLearnStrings.mostPopularLabel": "Maarufu zaidi",
+  "CommonLearnStrings.nextStepsLabel": "Kipengee kinachofuata",
+  "CommonLearnStrings.popularLabel": "Maarufu",
+  "CommonLearnStrings.recommendedLabel": "Iliyopendekezwa",
+  "CommonLearnStrings.resumeLabel": "Endelea"
 }

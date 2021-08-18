@@ -1,4 +1,8 @@
 {
   "CommonLearnStrings.learnLabel": "学习",
-  "CommonLearnStrings.recommendedLabel": "推荐"
+  "CommonLearnStrings.mostPopularLabel": "最受欢迎",
+  "CommonLearnStrings.nextStepsLabel": "下一步",
+  "CommonLearnStrings.popularLabel": "受欢迎",
+  "CommonLearnStrings.recommendedLabel": "推荐",
+  "CommonLearnStrings.resumeLabel": "继续"
 }
