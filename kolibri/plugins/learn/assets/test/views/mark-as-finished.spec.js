@@ -6,11 +6,13 @@ import MarkAsFinishedModal from '../../src/views/MarkAsFinishedModal';
 describe('Mark as finished modal', () => {
   let wrapper;
   let markSpy;
+  let mockStore;
   let resourceSpy;
   let testSessionId = 'test';
 
   beforeAll(() => {
     // Mock $store.dispatch to return a Promise
+    mockStore = { dispatch: jest.fn().mockImplementation(() => Promise.resolve()) };
     markSpy = jest.spyOn(MarkAsFinishedModal.methods, 'markResourceAsCompleted');
     resourceSpy = jest.spyOn(ContentSessionLogResource, 'saveModel');
     resourceSpy.mockImplementation(() => Promise.resolve());
@@ -18,6 +20,9 @@ describe('Mark as finished modal', () => {
     wrapper = mount(MarkAsFinishedModal, {
       propsData: {
         contentSessionLogId: testSessionId,
+      },
+      mocks: {
+        $store: mockStore,
       },
     });
   });
@@ -41,6 +46,9 @@ describe('Mark as finished modal', () => {
     });
     it('emits an event indicating that the resource is marked as finished', () => {
       expect(wrapper.emitted().complete).toBeTruthy();
+    });
+    it('dispatches an createSnackbar message', () => {
+      expect(mockStore.dispatch).toHaveBeenCalledWith('createSnackbar', 'Resource completed');
     });
   });
 
