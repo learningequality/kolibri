@@ -1,4 +1,8 @@
 {
   "CommonLearnStrings.learnLabel": "शिका",
-  "CommonLearnStrings.recommendedLabel": "शिफारस केलेले"
+  "CommonLearnStrings.mostPopularLabel": "सर्वाधिक लोकप्रिय",
+  "CommonLearnStrings.nextStepsLabel": "पुढील पायऱ्या",
+  "CommonLearnStrings.popularLabel": "लोकप्रिय",
+  "CommonLearnStrings.recommendedLabel": "शिफारस केलेले",
+  "CommonLearnStrings.resumeLabel": "पुन्हा सुरू करा"
 }

@@ -1,4 +1,8 @@
 {
   "CommonLearnStrings.learnLabel": "سیکھئے",
-  "CommonLearnStrings.recommendedLabel": "سِفارش کیا ہوا"
+  "CommonLearnStrings.mostPopularLabel": "مشہور ترین",
+  "CommonLearnStrings.nextStepsLabel": "اگلے مرحلے",
+  "CommonLearnStrings.popularLabel": "مشہور",
+  "CommonLearnStrings.recommendedLabel": "سِفارش کیا ہوا",
+  "CommonLearnStrings.resumeLabel": "دوبارہ شروع کریں"
 }

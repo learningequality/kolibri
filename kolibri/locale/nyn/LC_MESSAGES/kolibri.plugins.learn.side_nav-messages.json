@@ -1,4 +1,8 @@
 {
   "CommonLearnStrings.learnLabel": "Phunzirani",
-  "CommonLearnStrings.recommendedLabel": "Zovomerezeka"
+  "CommonLearnStrings.mostPopularLabel": "Zomwe zatchuka kwambiri",
+  "CommonLearnStrings.nextStepsLabel": "Sitepi yotsatila",
+  "CommonLearnStrings.popularLabel": "Zotchuka",
+  "CommonLearnStrings.recommendedLabel": "Zovomerezeka",
+  "CommonLearnStrings.resumeLabel": "Yambiranso"
 }

@@ -1,4 +1,8 @@
 {
   "CommonLearnStrings.learnLabel": "یادگیری",
-  "CommonLearnStrings.recommendedLabel": "توصیه شده"
+  "CommonLearnStrings.mostPopularLabel": "محبوب‌ترین‌",
+  "CommonLearnStrings.nextStepsLabel": "مراحل بعدی",
+  "CommonLearnStrings.popularLabel": "متداول و محبوب",
+  "CommonLearnStrings.recommendedLabel": "توصیه شده",
+  "CommonLearnStrings.resumeLabel": "خلاصه"
 }

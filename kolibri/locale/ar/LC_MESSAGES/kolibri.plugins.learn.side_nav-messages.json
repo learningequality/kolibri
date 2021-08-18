@@ -1,4 +1,8 @@
 {
   "CommonLearnStrings.learnLabel": "تعلّم",
-  "CommonLearnStrings.recommendedLabel": "يُنصح به"
+  "CommonLearnStrings.mostPopularLabel": "الأكثر استخداماً",
+  "CommonLearnStrings.nextStepsLabel": "الخطوات التالية",
+  "CommonLearnStrings.popularLabel": "الأكثر استخداماً",
+  "CommonLearnStrings.recommendedLabel": "يُنصح به",
+  "CommonLearnStrings.resumeLabel": "الاستمرار بـ"
 }
