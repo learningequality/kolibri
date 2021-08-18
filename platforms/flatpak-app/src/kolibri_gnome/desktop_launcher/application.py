@@ -331,7 +331,14 @@ class KolibriWindow(KolibriView):
             "changed", self.__gtk_webview_back_forward_list_on_changed
         )
 
+        # Set WM_CLASS for improved window management
+        # FIXME: GTK+ strongly discourages doing this:
+        #        <https://docs.gtk.org/gtk3/method.Window.set_wmclass.html>
+        #        However, our WM_CLASS becomes `"main.py", "Main.py"`, which
+        #        causes GNOME Shell to treat unique instances of this
+        #        application (with different application IDs) as the same.
 
+        self.gtk_window.set_wmclass("Kolibri", self.delegate.application_id)
 
     def __gtk_webview_on_create(self, webview, navigation_action):
         # TODO: Implement this behaviour in pyeverywhere, and pass the related
@@ -379,20 +386,14 @@ class KolibriWindow(KolibriView):
         self._forward_menu_item.gio_action.set_enabled(can_go_forward)
 
 
-class KolibriWindow_Generic(KolibriWindow):
+class KolibriGenericWindow(KolibriWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(_("Kolibri"), *args, **kwargs)
 
 
-class KolibriWindow_Standalone(KolibriWindow):
-    def __init__(self, url, *args, **kwargs):
-        url_tuple = urlsplit(url)
-
-        if url_tuple.scheme != "kolibri":
-            raise InvalidBaseURLError()
-
-        self.__channel_id = url_tuple.path.lstrip("/")
-
+class KolibriChannelWindow(KolibriWindow):
+    def __init__(self, channel_id, *args, **kwargs):
+        self.__channel_id = channel_id
         self.__last_good_url = None
         super().__init__(_("Kolibri"), *args, **kwargs)
 
@@ -413,7 +414,7 @@ class KolibriWindow_Standalone(KolibriWindow):
         super().on_url_changed(url)
         if not self.delegate.is_internal_url(url):
             self.load_url(self.__last_good_url)
-            self.delegate.load_url_in_generic_window(url)
+            self.delegate.open_generic_window(url)
         else:
             self.__last_good_url = url
 
@@ -494,11 +495,11 @@ class KolibriWindow_Standalone(KolibriWindow):
 
 
 class Application(pew.ui.PEWApp):
-    application_id = config.FRONTEND_APPLICATION_ID
-
     handles_open_file_uris = True
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, application_id=None):
+        self.__application_id = application_id
+
         self.__did_init = False
         self.__starting_kolibri = False
 
@@ -514,15 +515,23 @@ class Application(pew.ui.PEWApp):
 
         self.__windows = []
 
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
         gtk_application = getattr(self, "gtk_application", None)
         if gtk_application:
             gtk_application.set_inactivity_timeout(INACTIVITY_TIMEOUT_MS)
 
     @property
+    def application_id(self):
+        return self.__application_id
+
+    @property
     def loader_url(self):
         return self.__loader_url
+
+    @property
+    def default_url(self):
+        return "x-kolibri-app:/"
 
     def init_ui(self):
         if len(self.__windows) > 0:
@@ -617,31 +626,30 @@ class Application(pew.ui.PEWApp):
     def __kolibri_daemon_start(self):
         return GLib.SOURCE_REMOVE
 
-    def open_window(self, target_url=None, standalone=False):
-        target_url = target_url or "x-kolibri-app:/"
+    def open_window(self, target_url=None):
+        target_url = target_url or self.default_url
 
         if not self.should_load_url(target_url):
             if not target_url.startswith("about:"):
                 self.open_in_browser(target_url)
                 return None
 
-        if standalone:
-            window = KolibriWindow_Standalone(target_url, delegate=self)
-        else:
-            window = KolibriWindow_Generic(target_url, delegate=self)
-
+        window = self._create_window(target_url)
         self.add_window(window)
         window.kolibri_change_notify()
         window.show()
 
         return window
 
-    def load_url_in_generic_window(self, target_url):
+    def _create_window(self, target_url):
+        raise NotImplementedError()
+
+    def load_url_in_window(self, target_url):
         last_window = next(
             (
                 window
                 for window in reversed(self.__windows)
-                if isinstance(window, KolibriWindow_Generic)
+                if isinstance(window, KolibriGenericWindow)
             ),
             None,
         )
@@ -673,8 +681,6 @@ class Application(pew.ui.PEWApp):
 
         if self.is_internal_url(url, window=window):
             return True
-        elif window and isinstance(window, KolibriWindow_Standalone):
-            self.load_url_in_generic_window(url)
         elif url_tuple.scheme == "about" or url == self.loader_url:
             return True
         else:
@@ -698,12 +704,7 @@ class Application(pew.ui.PEWApp):
             logger.info("Invalid URI scheme: %s", kolibri_scheme_uri)
             return
 
-        standalone = bool("standalone" in url_query)
-
-        if standalone:
-            self.open_window(kolibri_scheme_uri, standalone=True)
-        else:
-            self.load_url_in_generic_window(kolibri_scheme_uri)
+        self.load_url_in_window(kolibri_scheme_uri)
 
     def get_full_url(self, url):
         try:
@@ -801,3 +802,31 @@ class Application(pew.ui.PEWApp):
     def quit(self):
         for window in self.__windows:
             window.close()
+
+
+class GenericApplication(Application):
+    def _create_window(self, target_url=None):
+        return KolibriGenericWindow(target_url, delegate=self)
+
+
+class ChannelApplication(Application):
+    def __init__(self, channel_id, *args, **kwargs):
+        self.__channel_id = channel_id
+        super().__init__(*args, **kwargs)
+
+    @property
+    def channel_id(self):
+        return self.__channel_id
+
+    @property
+    def default_url(self):
+        return "x-kolibri-app:/learn#topics/{channel_id}".format(
+            channel_id=self.channel_id
+        )
+
+    def _create_window(self, target_url=None):
+        return KolibriChannelWindow(self.channel_id, target_url, delegate=self)
+
+    def open_generic_window(self, target_url):
+        # TODO: Translate to a `kolibri:` URL and open that if possible
+        self.open_in_browser(target_url)
