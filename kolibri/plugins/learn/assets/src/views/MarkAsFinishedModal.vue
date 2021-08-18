@@ -1,10 +1,8 @@
 <template>
 
   <KModal
-    v-if="id"
-    data-test="mark-finished-modal"
+    v-if="contentSessionLogId"
     :title="$tr('markResourceAsCompleteLabel')"
-
     :submitText="coreString('confirmAction')"
     :cancelText="coreString('cancelAction')"
     @submit="markResourceAsCompleted"
@@ -19,28 +17,37 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ContentSessionLogResource } from 'kolibri.resources';
 
   export default {
     name: 'MarkAsFinishedModal',
     mixins: [commonCoreStrings],
     props: {
-      /*
-       * The id of the log to set to 1.0 progress
-       * Modal is shown when this value is truthy
-       */
+      // When truthy, the modal is shown. It is the implementer's charge
+      // to decide when this is visible. The `complete` event will be
+      // emitted upon successful API request in markResourceAsCompleted().
       contentSessionLogId: {
         type: String,
         default: null,
       },
     },
-    data() {
-      return { id: this.contentSessionLogId };
-    },
     methods: {
+      /*
+       * Emits "complete" event on success.
+       * Errors handled using the `handleApiError` action.
+       */
       markResourceAsCompleted() {
-        this.$store
-          .dispatch('saveContentSessionLog', { id: this.id, data: { progress: 1 } })
-          .then(() => (this.id = null));
+        ContentSessionLogResource.saveModel({
+          id: this.contentSessionLogId,
+          data: {
+            progress: 1,
+          },
+          exists: true,
+        })
+          .then(() => {
+            this.$emit('complete');
+          })
+          .catch(e => this.$store.dispatch('handleApiError', e));
       },
     },
     $trs: {
