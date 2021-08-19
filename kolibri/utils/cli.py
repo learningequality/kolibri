@@ -12,7 +12,12 @@ import click
 from django.core.management import execute_from_command_line
 
 import kolibri
-from kolibri.plugins import config
+
+try:
+    from kolibri.plugins import config
+except RuntimeError as e:
+    logging.error(str(e))
+    sys.exit(1)
 from kolibri.plugins import DEFAULT_PLUGINS
 from kolibri.plugins.utils import disable_plugin
 from kolibri.plugins.utils import enable_plugin
