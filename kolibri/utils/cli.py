@@ -491,3 +491,11 @@ def _get_env_vars():
 @configure.command(help="List all available environment variables to configure Kolibri")
 def list_env():
     click.echo_via_pager(_get_env_vars())
+
+
+@configure.command(cls=KolibriDjangoCommand, help="Setup Kolibri")
+def setup():
+    """
+    Setup Kolibri.
+    """
+    logger.info("Kolibri has successfully been setup")
