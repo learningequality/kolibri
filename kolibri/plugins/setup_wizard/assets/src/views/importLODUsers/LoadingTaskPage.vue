@@ -61,7 +61,7 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import FacilityTaskPanel from '../../../../../device/assets/src/views/FacilitiesPage/FacilityTaskPanel.vue';
   import WelcomeModal from '../../../../../device/assets/src/views/WelcomeModal.vue';
-  import { TaskStatuses, TaskTypes } from '../../../../../device/assets/src/constants.js';
+  import { TaskStatuses } from '../../../../../device/assets/src/constants.js';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
   import { SetupSoUDTasksResource } from '../../api';
 
@@ -77,7 +77,7 @@
     mixins: [commonCoreStrings, commonSyncElements],
     data() {
       return {
-        loadingTask: {},
+        loadingTask: this.state.value.task,
         isPolling: false,
         welcomeModal: false,
         user: null,
@@ -86,8 +86,11 @@
     inject: ['lodService', 'state'],
     computed: {
       usersDevice() {
-        const users = this.state.value.users.filter(user => user.task === null);
+        const users = this.state.value.users.filter(u => u.task === null);
         return users;
+      },
+      loadingTaskID() {
+        return this.state.value.task.id;
       },
       facility() {
         return this.state.value.facility;
@@ -98,22 +101,25 @@
       this.pollTask();
     },
     methods: {
-      fullName(task_id) {
-        const user = this.state.value.users.filter(u => u.task == task_id)[0];
-        this.user = user;
-        return user.full_name;
+      userForTask() {
+        return this.state.value.users.filter(u => u.task == this.loadingTaskID)[0];
       },
       pollTask() {
         SetupSoUDTasksResource.fetchCollection({ force: true }).then(tasks => {
-          const soudTasks = tasks.filter(t => t.type === TaskTypes.SYNCLOD);
+          const soudTasks = tasks.filter(t => t.id == this.loadingTaskID);
           if (soudTasks.length > 0) {
+            if (this.user === null) this.user = this.userForTask();
             this.loadingTask = {
               ...soudTasks[0],
-              facility_name: this.facility.name,
-              full_name: this.fullName(soudTasks[0].id),
-              device_id: this.state.value.device.id,
+              facility_name: this.loadingTask.facility_name,
+              full_name: this.loadingTask.full_name,
+              device_id: this.loadingTask.device_id,
             };
             if (this.loadingTask.status === TaskStatuses.COMPLETED) this.finishedTask();
+            if (this.loadingTask.status === TaskStatuses.FAILED) {
+              this.state.value.users.pop();
+              this.isPolling = false;
+            }
           } else this.isPolling = false;
         });
         if (this.isPolling) {

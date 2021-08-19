@@ -114,6 +114,8 @@
         };
         SetupSoUDTasksResource.createTask(task_name, params)
           .then(task => {
+            task['device_id'] = this.device.id;
+            task['facility_name'] = this.facility.name;
             this.lodService.send({
               type: 'CONTINUE',
               value: {

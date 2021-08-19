@@ -93,7 +93,9 @@ export function syncFacilityTaskDisplayInfo(task) {
       description: statusDescription,
     });
   } else {
-    statusMsg = statusDescription;
+    if (task.type === TaskTypes.SYNCLOD && task.status === TaskStatuses.FAILED)
+      statusMsg = `${statusDescription}: ${task.exception}`;
+    else statusMsg = statusDescription;
   }
 
   if (task.status === TaskStatuses.COMPLETED) {
