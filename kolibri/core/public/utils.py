@@ -1,6 +1,5 @@
 import datetime
 import hashlib
-import json
 import logging
 import platform
 import random
@@ -192,11 +191,10 @@ def request_soud_sync(server, user, queue_id=None, ttl=10):
     server_url = "{server}{endpoint}".format(server=server, endpoint=endpoint)
 
     try:
+        data = {"user": user}
         if queue_id is None:
-            data = {"user": user}
             response = requests.post(server_url, json=data)
         else:
-            data = {"pk": queue_id}
             response = requests.put(server_url, json=data)
 
     except requests.exceptions.ConnectionError:
@@ -241,12 +239,8 @@ def handle_server_sync_response(response, server, user):
     # Once the sync starts, then this should get cleared and the SyncSession
     # set on the status, so that more info can be garnered.
     JOB_ID = hashlib.md5("{}::{}".format(server, user).encode()).hexdigest()
-    response_content = (
-        response.content.decode()
-        if isinstance(response.content, bytes)
-        else response.content
-    )
-    server_response = json.loads(response_content or "{}")
+    server_response = response.json()
+
     UserSyncStatus.objects.update_or_create(user_id=user, defaults={"queued": True})
 
     if server_response["action"] == SYNC:
