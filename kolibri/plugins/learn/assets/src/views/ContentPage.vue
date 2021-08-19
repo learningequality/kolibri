@@ -84,9 +84,10 @@
       // ...mapState(['pageName']),
       // ...mapState('topicsTree', ['content', 'channel', 'recommended']),
       ...mapState('topicsTree', {
-        // contentId: state => state.content.content_id,
+        contentId: state => state.content.content_id,
         contentNodeId: state => state.content.id,
         channelId: state => state.content.channel_id,
+        contentKind: state => state.content.kind,
       }),
       ...mapState({
         // masteryAttempts: state => state.core.logging.mastery.totalattempts,
@@ -109,11 +110,10 @@
       // },
     },
     created() {
-      console.log(this.content);
       return this.initSessionAction({
-        channelId: this.content.channel_id,
-        contentId: this.content.content_id,
-        contentKind: this.content.kind,
+        channelId: this.channelId,
+        contentId: this.contentId,
+        contentKind: this.contentKind,
       }).then(() => {
         this.sessionReady = true;
         this.setWasIncomplete();

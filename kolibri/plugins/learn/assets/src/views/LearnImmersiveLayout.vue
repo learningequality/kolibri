@@ -8,15 +8,17 @@
 
     <div v-if="blockDoubleClicks" class="click-mask"></div>
     <LearningActivityBar
-      :resourceTitle="content.title"
+      :resourceTitle="resourceTitle"
       :learningActivities="mappedLearningActivities"
       :isLessonContext="true"
       :isBookmarked="true"
       :allowMarkComplete="false"
+      data-test="learningActivityBar"
       @navigateBack="navigateBack"
     />
     <LessonMasteryBar
       v-if="isPracticeActivity"
+      data-test="lessonMasteryBar"
     />
     <KLinearLoader
       v-if="loading"
@@ -44,7 +46,7 @@
     >
       <ContentPage
         class="content"
-        :content="content"
+        data-test="contentPage"
       />
     </div>
   </div>
@@ -139,13 +141,26 @@
         }
         return !this.authorized;
       },
+      resourceTitle() {
+        return this.content ? this.content.title : '';
+      },
       mappedLearningActivities() {
         let learningActivities = [];
-        learningActivities.push(mapOldContentTypesToLearningActivities[this.content.kind]);
+        if (this.content && this.content.kind) {
+          this.content.kind.forEach(kind => {
+            // validate to see the content has updated metadata type
+            if (Object.values(LearningActivities).includes(kind)) {
+              learningActivities.push(kind);
+            } else {
+              // otherwise reassign the old content types to the new metadata
+              learningActivities.push(mapOldContentTypesToLearningActivities[kind]);
+            }
+          });
+        }
         return learningActivities;
       },
       isPracticeActivity() {
-        return this.content.kind === ContentNodeKinds.EXERCISE;
+        return this.content ? this.content.kind === ContentNodeKinds.EXERCISE : false;
       },
     },
     methods: {
