@@ -251,11 +251,13 @@ class SyncQueueViewSet(viewsets.ViewSet):
         else:
             # polling time at least HANDSHAKING_TIME seconds per position in the queue to
             # be greater than the time needed for the handshake part of the ssl protocol
+            # we add one to the zero based position, as if the position is zero and it
+            # got to here, it means the sync queue is currently full, so we need to wait
             # we make sure that it is never less than half of the stale queue time, to
             # prevent a malignant loop whereby very long queues cause clients to lose
             # their place in the queue by only polling again after their queue has
             # already expired!
-            polling = min(HANDSHAKING_TIME * pos, STALE_QUEUE_TIME / 2)
+            polling = min(HANDSHAKING_TIME * (pos + 1), STALE_QUEUE_TIME / 2)
             data = {
                 "action": QUEUED,
                 "keep_alive": polling,

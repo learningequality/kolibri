@@ -3,9 +3,11 @@ import time
 import uuid
 
 import factory
+import mock
 from django.core.urlresolvers import reverse
 from le_utils.constants import content_kinds
 from morango.models import InstanceIDModel
+from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.test import APITransactionTestCase
 from six import iteritems
@@ -291,6 +293,83 @@ class SyncQueueViewSetTestCase(APITestCase):
             facility=self.facility,
         )
 
+    def test_list(self):
+        response = self.client.get(
+            reverse("kolibri:core:syncqueue-list"), format="json"
+        )
+        assert len(response.data) == Facility.objects.count()
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_list_queue_length(self):
+        queue_length = 3
+        for i in range(queue_length):
+            SyncQueue.objects.create(
+                user=FacilityUser.objects.create(
+                    username="test{}".format(i), facility=self.facility
+                )
+            )
+        response = self.client.get(
+            reverse("kolibri:core:syncqueue-list"), format="json"
+        )
+        assert response.data[self.facility.id] == queue_length
+
+    @mock.patch(
+        "kolibri.core.public.api.get_device_setting",
+        return_value=True,
+    )
+    def test_soud(self, mock_device_setting):
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue-list"),
+            {"user": uuid.uuid4()},
+            format="json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "I'm a Subset of users device" in response.data
+
+    def learner_needed(self):
+        response = self.client.post(reverse("kolibri:core:syncqueue-list"))
+        assert response.status_code == status.HTTP_412_PRECONDITION_FAILED
+
+    def test_existing_user(self):
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue-list"),
+            {"user": uuid.uuid4()},
+            format="json",
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_allow_sync(self):
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue-list"),
+            {
+                "user": self.learner.id,
+            },
+            format="json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["action"] == SYNC
+
+    @mock.patch("kolibri.core.public.api.TransferSession.objects.filter")
+    def test_enqueued(self, _filter):
+        _filter().exclude().count.return_value = MAX_CONCURRENT_SYNCS
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue-list"),
+            {"user": self.learner.id},
+            format="json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["action"] == QUEUED
+        assert "id" in response.data
+        assert response.data["keep_alive"] == HANDSHAKING_TIME
+
+    def test_update(self):
+        response = self.client.put(
+            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": uuid.uuid4()}),
+            data={"user": self.learner.id},
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["action"] == SYNC
+
     def test_create_soud(self):
         settings = DeviceSettings.objects.get()
         settings.subset_of_users_device = True
@@ -543,7 +622,7 @@ class SyncQueueViewSetTestCase(APITestCase):
         )
         data = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["keep_alive"], 5 * HANDSHAKING_TIME)
+        self.assertEqual(data["keep_alive"], 6 * HANDSHAKING_TIME)
 
     def test_update_full_queue_should_max_keep_alive(self):
         for i in range(0, 20):
