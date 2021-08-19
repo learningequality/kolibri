@@ -132,7 +132,7 @@ def begin_request_soud_sync(server, user):
     info = get_device_info()
     if not info["subset_of_users_device"]:
         # this does not make sense unless this is a SoUD
-        logger.warn("Only Subsets of Users Devices can do this")
+        logger.warn("Only Subsets of Users Devices can do automated SoUD syncing.")
         return
     users = UserSyncStatus.objects.filter(user_id=user).values(
         "queued", "sync_session__last_activity_timestamp"
@@ -169,7 +169,11 @@ def begin_request_soud_sync(server, user):
             elif queued_jobs:
                 return  # If there are pending and not failed jobs, don't enqueue a new one
 
-    logger.info("Queuing SoUD syncing request for user {}".format(user))
+    logger.info(
+        "Queuing SoUD syncing request against server {} for user {}".format(
+            server, user
+        )
+    )
     queue.enqueue(request_soud_sync, server, user)
 
 
@@ -201,17 +205,28 @@ def request_soud_sync(server, user, queue_id=None, ttl=10):
         # before desisting
         ttl -= 1
         if ttl == 0:
-            logger.error("Give up trying to connect to the server")
+            logger.error(
+                "Give up trying to connect to the server {} for user {}".format(
+                    server, user
+                )
+            )
             return
         interval = random.randint(1, 30 * (10 - ttl))
         job = Job(request_soud_sync, server, user, queue_id, ttl)
         dt = datetime.timedelta(seconds=interval)
         scheduler.enqueue_in(dt, job)
-        logger.warn(
-            "The server has some trouble. Trying to connect in {} seconds".format(
-                interval
+        if queue_id:
+            logger.warn(
+                "Connection error connecting to server {} for user {}, for queue id {}. Trying to connect in {} seconds".format(
+                    server, user, queue_id, interval
+                )
             )
-        )
+        else:
+            logger.warn(
+                "Connection error connecting to server {} for user {}. Trying to connect in {} seconds".format(
+                    server, user, interval
+                )
+            )
         return
 
     if response.status_code == status.HTTP_404_NOT_FOUND:
@@ -239,7 +254,11 @@ def handle_server_sync_response(response, server, user):
             "sync_interval", str(OPTIONS["Deployment"]["SYNC_INTERVAL"])
         )
         job_id = startpeerusersync(server, user, server_sync_interval)
-        logger.info("Enqueuing a sync task for user {} in job {}".format(user, job_id))
+        logger.info(
+            "Enqueuing a sync task for user {} with server {} in job {}".format(
+                user, server, job_id
+            )
+        )
 
     elif server_response["action"] == QUEUED:
         pk = server_response["id"]
@@ -248,8 +267,8 @@ def handle_server_sync_response(response, server, user):
         job = Job(request_soud_sync, server, user, pk, job_id=JOB_ID)
         scheduler.enqueue_in(dt, job)
         logger.info(
-            "Server busy, will try again in {} seconds with pk={}".format(
-                time_alive, pk
+            "Server {} busy for user {}, will try again in {} seconds with pk={}".format(
+                server, user, time_alive, pk
             )
         )
 
