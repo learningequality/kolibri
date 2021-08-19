@@ -500,6 +500,19 @@ def stop():
 
 
 class KolibriProcessBus(ProcessBus):
+    """
+    This class is the state machine that manages the starting, restarting, and shutdown of
+    a running Kolibri instance. It is responsible for starting any WSGI servers that respond
+    to HTTP requests in the Kolibri lifecycle, and also other ancillary services like
+    a ZeroConf server, task runner work pool, scheduler, etc.
+
+    The primary use case for this process bus is for running Kolibri in a consumer server or
+    application context - although it can still be used to run the background services in
+    other contexts. One possible example for the extensibility of this class is if it is used
+    in conjunction with uwsgi, the 'restart' method of this class can be updated in a subclass
+    to run the specific `uwsgi.restart()` function that would otherwise not get invoked.
+    """
+
     def __init__(
         self,
         port=0,
