@@ -153,10 +153,11 @@
               }).then(() => {
                 this.isPolling = false;
                 this.lodService.send('CONTINUE');
+                SetupSoUDTasksResource.cleartasks();
               });
-              SetupSoUDTasksResource.cleartasks();
             }
-          } else this.isPolling = false;
+          }
+          if (tasks.length == 0) this.isPolling = false;
         });
         if (this.isPolling) {
           setTimeout(() => {
