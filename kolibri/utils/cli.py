@@ -335,7 +335,7 @@ def services(port, background):
 
     logger.info("Starting Kolibri background services")
 
-    server.start(port=port, zip_port=None, serve_http=False, background=background)
+    server.start(port=port, zip_port=0, serve_http=False, background=background)
 
 
 @main.command(cls=KolibriCommand, help="Restart the Kolibri process")
