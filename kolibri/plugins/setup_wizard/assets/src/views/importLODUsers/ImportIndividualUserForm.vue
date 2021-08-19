@@ -84,7 +84,7 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
   import { FacilityImportResource, SetupSoUDTasksResource } from '../../api';
@@ -151,7 +151,7 @@
       },
       handleSubmit() {
         const task_name = 'kolibri.plugins.setup_wizard.tasks.startprovisionsoud';
-        const password = this.password === '' ? 'NOT_SPECIFIED' : this.password;
+        const password = this.password === '' ? DemographicConstants.NOT_SPECIFIED : this.password;
         const params = {
           baseurl: this.device.baseurl,
           username: this.username,

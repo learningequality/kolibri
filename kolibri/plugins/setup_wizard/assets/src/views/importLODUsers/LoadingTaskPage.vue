@@ -148,7 +148,7 @@
         this.isPolling = false;
         this.clearTasks();
         // after importing the first user, let's sign him in to continue:
-        if (this.state.value.users.length === 1) {
+        if (this.state.value.users.length === 1 && this.user.password) {
           SessionResource.saveModel({
             data: {
               username: this.user.username,
