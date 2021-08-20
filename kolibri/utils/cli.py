@@ -16,7 +16,7 @@ import kolibri
 try:
     from kolibri.plugins import config
 except RuntimeError as e:
-    logging.error(str(e))
+    logging.error("Loading plugin configuration failed with error '{}'".format(e))
     sys.exit(1)
 from kolibri.plugins import DEFAULT_PLUGINS
 from kolibri.plugins.utils import disable_plugin
