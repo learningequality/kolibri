@@ -106,7 +106,7 @@
 
             <template #footer>
               <!-- Only show this when on a SoUD -->
-              <div v-if="isSubsetOfUsersDevice" class="role" data-test="learnOnlyNotice">
+              <div v-if="showSoudNotice" class="role" data-test="learnOnlyNotice">
                 <LearnOnlyDeviceNotice />
               </div>
             </template>
@@ -189,6 +189,12 @@
       }),
       userIsLearner() {
         return this.getUserKind == UserKinds.LEARNER;
+      },
+      showSoudNotice() {
+        return (
+          this.isSubsetOfUsersDevice &&
+          [UserKinds.ADMIN, UserKinds.COACH].includes(this.getUserKind)
+        );
       },
       menuOptions() {
         return navComponents

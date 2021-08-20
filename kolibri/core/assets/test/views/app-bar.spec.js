@@ -1,4 +1,3 @@
-import Vuex from 'vuex';
 import { mount } from '@vue/test-utils';
 import navComponents from 'kolibri.utils.navComponents';
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
@@ -7,25 +6,13 @@ import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
 import AppBar from '../../src/views/AppBar';
 import logoutSideNavEntry from '../../src/views/LogoutSideNavEntry';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
+import LearnOnlyDeviceNotice from '../../src/views/LearnOnlyDeviceNotice';
+import SyncStatusDisplay from '../../src/views/SyncStatusDisplay';
 
 jest.mock('kolibri.urls');
 
-function createWrapper(
-  { navShown = true, height = 20, title = 'test' } = {},
-  data,
-  isUserLoggedIn = false
-) {
+function createWrapper({ navShown = true, height = 20, title = 'test' } = {}, data) {
   let store = makeStore();
-
-  store.hotUpdate(
-    new Vuex.Store({
-      getters: {
-        isUserLoggedIn() {
-          return jest.fn(() => isUserLoggedIn);
-        },
-      },
-    })
-  );
 
   return mount(AppBar, {
     propsData: {
@@ -83,7 +70,7 @@ describe('app bar component', () => {
     });
     it('should show logout if no components are added and user is logged in', async () => {
       expect(navComponents).toHaveLength(0);
-      const wrapper = createWrapper(undefined, {}, true);
+      const wrapper = createWrapper(undefined, {});
       setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent(logoutSideNavEntry).element).toBeTruthy();
@@ -92,34 +79,47 @@ describe('app bar component', () => {
     describe('SoUD sync status and learn-only device indicators', () => {
       describe('on an SoUD', () => {
         let wrapper;
-        beforeEach(() => {
-          wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true }, true);
+        beforeAll(() => {
+          wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
         });
-
-        it('shows the Learn-only notice', () => {
-          expect(wrapper.find('[data-test="learnOnlyNotice"]').exists()).toBe(true);
-        });
-
-        describe('when signed in as a learner', () => {
-          it('shows sync status indicator', async () => {
+        describe('showing the SyncStatusDisplay', () => {
+          it('shows the SyncStatusDisplay to Learners', async () => {
             setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
             await wrapper.vm.$nextTick();
-            expect(wrapper.find('[data-test="syncStatusInDropdown"]').exists()).toBe(true);
+            expect(wrapper.findComponent(SyncStatusDisplay).exists()).toBe(true);
           });
+
+          it.each([UserKinds.COACH, UserKinds.ADMIN, UserKinds.ANONYMOUS])(
+            'does not show the SyncStatusDisplay to %s',
+            async kind => {
+              setUserKind(wrapper.vm.$store, kind);
+              await wrapper.vm.$nextTick();
+              expect(wrapper.findComponent(SyncStatusDisplay).exists()).toBe(false);
+            }
+          );
         });
 
-        describe('when NOT signed in as a learner', () => {
-          it('does not show the status indicator', async () => {
-            setUserKind(wrapper.vm.$store, UserKinds.COACH);
+        describe('showing the LearnOnlyDeviceNotice', () => {
+          it.each([UserKinds.LEARNER, UserKinds.ANONYMOUS])(
+            'hides the notice from %s',
+            async kind => {
+              setUserKind(wrapper.vm.$store, kind);
+              await wrapper.vm.$nextTick();
+              expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(false);
+            }
+          );
+
+          it.each([UserKinds.ADMIN, UserKinds.COACH])('shows the notice to %s', async kind => {
+            setUserKind(wrapper.vm.$store, kind);
             await wrapper.vm.$nextTick();
-            expect(wrapper.find('[data-test="syncStatusInDropdown"]').exists()).toBe(false);
+            expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
           });
         });
       });
       describe('not on a SoUD', () => {
         let wrapper;
         beforeEach(() => {
-          wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: false }, true);
+          wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: false });
         });
 
         it('no indicator is shown', () => {

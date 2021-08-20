@@ -61,7 +61,7 @@
             </template>
           </CoreMenu>
 
-          <div v-if="isSubsetOfUsersDevice" style="padding: 16px">
+          <div v-if="showSoudNotice" style="padding: 16px">
             <LearnOnlyDeviceNotice />
           </div>
 
@@ -133,6 +133,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -190,10 +191,17 @@
         // __copyrightYear is injected by Webpack DefinePlugin
         copyrightYear: __copyrightYear,
         privacyModalVisible: false,
-        isSubsetOfUsersDevice: plugin_data['isSubsetOfUsersDevice'],
+        isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
       };
     },
     computed: {
+      ...mapGetters(['getUserKind']),
+      showSoudNotice() {
+        return (
+          ![UserKinds.LEARNER, UserKinds.ANONYMOUS].includes(this.getUserKind) &&
+          this.isSubsetOfUsersDevice
+        );
+      },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
       },

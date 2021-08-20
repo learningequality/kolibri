@@ -193,13 +193,24 @@ describe('side nav component', () => {
     describe('on an SoUD', () => {
       /* Note that Facilty & Coach plugins are hackily disabled in their kolibri_plugin
        * definitions - hence no tests to ensure they're hidden here when on SoUD */
-      let wrapper;
-      beforeEach(async () => {
-        wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
+      it('shows the Learn-only notice to non-Learners', async () => {
+        const wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
+        setUserKind(wrapper.vm.$store, UserKinds.COACH);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
+        setUserKind(wrapper.vm.$store, UserKinds.ADMIN);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
       });
 
-      it('shows the Learn-only notice', () => {
-        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
+      it('does not show learn-only notice to Learners or Guests', async () => {
+        const wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
+        setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(false);
+        setUserKind(wrapper.vm.$store, UserKinds.ANONYMOUS);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(false);
       });
     });
     describe('NOT on a SoUD', () => {
