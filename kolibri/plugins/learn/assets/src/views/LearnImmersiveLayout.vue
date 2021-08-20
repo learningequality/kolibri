@@ -102,7 +102,7 @@
     mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {
       content: {
-        type: Function,
+        type: Object,
         required: false,
         default: null,
       },
@@ -147,15 +147,12 @@
       mappedLearningActivities() {
         let learningActivities = [];
         if (this.content && this.content.kind) {
-          this.content.kind.forEach(kind => {
-            // validate to see the content has updated metadata type
-            if (Object.values(LearningActivities).includes(kind)) {
-              learningActivities.push(kind);
-            } else {
-              // otherwise reassign the old content types to the new metadata
-              learningActivities.push(mapOldContentTypesToLearningActivities[kind]);
-            }
-          });
+          if (Object.values(LearningActivities).includes(this.content.kind)) {
+            learningActivities.push(this.content.kind);
+          } else {
+            // otherwise reassign the old content types to the new metadata
+            learningActivities.push(mapOldContentTypesToLearningActivities[this.content.kind]);
+          }
         }
         return learningActivities;
       },

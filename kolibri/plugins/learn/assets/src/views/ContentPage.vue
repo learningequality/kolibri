@@ -67,13 +67,6 @@
       AssessmentWrapper,
     },
     mixins: [commonLearnStrings],
-    props: {
-      content: {
-        type: Object,
-        required: true,
-        default: null,
-      },
-    },
     data() {
       return {
         sessionReady: false,
@@ -82,7 +75,7 @@
     computed: {
       ...mapGetters(['currentUserId']),
       // ...mapState(['pageName']),
-      // ...mapState('topicsTree', ['content', 'channel', 'recommended']),
+      ...mapState('topicsTree', ['content']),
       ...mapState('topicsTree', {
         contentId: state => state.content.content_id,
         contentNodeId: state => state.content.id,
