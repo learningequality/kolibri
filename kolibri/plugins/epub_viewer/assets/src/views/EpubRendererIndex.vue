@@ -485,7 +485,7 @@
             // update progress using number of pages seen out of available pages
             this.$emit(
               'updateProgress',
-              Object.keys(this.savedVisitedPages).length / this.locations.length
+              Object.keys(this.visitedPages).length / this.locations.length
             );
           }
         }
