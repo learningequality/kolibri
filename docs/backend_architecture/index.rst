@@ -8,5 +8,6 @@ Backend architecture
   uap/index
   logger/index
   plugins
+  tasks
   dist_build_pipeline
   upgrade
