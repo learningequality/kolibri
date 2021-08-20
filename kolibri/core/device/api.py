@@ -2,15 +2,16 @@ from datetime import timedelta
 from sys import version_info
 
 from django.conf import settings
-from django.db.models import Exists
 from django.db.models import Max
 from django.db.models import OuterRef
+from django.db.models.expressions import Subquery
 from django.db.models.query import Q
 from django.http.response import HttpResponseBadRequest
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
+from morango.constants import transfer_statuses
 from morango.models import InstanceIDModel
 from morango.models import TransferSession
 from rest_framework import mixins
@@ -40,6 +41,7 @@ from kolibri.core.public.constants.user_sync_statuses import NOT_RECENTLY_SYNCED
 from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import RECENTLY_SYNCED
 from kolibri.core.public.constants.user_sync_statuses import SYNCING
+from kolibri.core.public.constants.user_sync_statuses import UNABLE_TO_SYNC
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
@@ -202,18 +204,31 @@ class SyncStatusFilter(FilterSet):
         fields = ["user", "member_of"]
 
 
+sync_diff = timedelta(seconds=DELAYED_SYNC)
+
+
 def map_status(status):
     """
     Summarize the current state of the sync into a constant for use by
     the frontend.
     """
-    if status["active"]:
+    transfer_status = status.pop("transfer_status", None)
+    queued = status.pop("queued", None)
+    recent = status["last_synced"] and (
+        timezone.now() - status["last_synced"] < sync_diff
+    )
+    if (
+        transfer_status == transfer_statuses.STARTED
+        or transfer_status == transfer_statuses.PENDING
+    ):
         return SYNCING
-    elif status["queued"]:
+    elif transfer_status == transfer_statuses.ERRORED:
+        return UNABLE_TO_SYNC
+    elif recent:
+        return RECENTLY_SYNCED
+    elif queued:
         return QUEUED
-    elif status["last_synced"]:
-        if timezone.now() - status["last_synced"] < timedelta(seconds=DELAYED_SYNC):
-            return RECENTLY_SYNCED
+    elif status["last_synced"] and not recent:
         return NOT_RECENTLY_SYNCED
 
 
@@ -226,7 +241,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
     values = (
         "queued",
         "last_synced",
-        "active",
+        "transfer_status",
         "user",
     )
 
@@ -252,10 +267,16 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             last_synced=Max("sync_session__last_activity_timestamp")
         )
 
-        active_transfer_sessions = TransferSession.objects.filter(
-            sync_session=OuterRef("sync_session"), active=True
+        most_recent_active_transfer_session_status = (
+            TransferSession.objects.filter(
+                sync_session=OuterRef("sync_session"), active=True
+            )
+            .values_list("transfer_stage_status", flat=True)
+            .order_by("-last_activity_timestamp")[:1]
         )
 
-        queryset = queryset.annotate(active=Exists(active_transfer_sessions))
+        queryset = queryset.annotate(
+            transfer_status=Subquery(most_recent_active_transfer_session_status)
+        )
 
         return queryset
