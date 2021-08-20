@@ -704,10 +704,11 @@
         this.currentSection = this.getCurrentSection(currentLocationStart);
       },
       relocatedHandler(location) {
+        console.log(location);
         // Ensures that when we're on the last page, we set the slider value to 100
         // otherwise, we show the slider % using the start
-        if (location.end.percentage === 100) {
-          this.sliderValue = location.end.percentage * 100;
+        if (location.atEnd) {
+          this.sliderValue = 100;
         } else {
           this.sliderValue = location.start.percentage * 100;
         }
