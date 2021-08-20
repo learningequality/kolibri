@@ -7,7 +7,7 @@ Feature: Learner manually marks resource as complete
 
   Scenario: Marking an incomplete resource as complete
     When I click the context menu for the resource
-    Then I should see an option *Mark resource as completed*
+    Then I see an option *Mark resource as completed*
     When I click *Mark resource as completed*
     Then I see a modal window asking me to confirm my choice
     When I click *Confirm*
