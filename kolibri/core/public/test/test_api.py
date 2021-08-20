@@ -444,6 +444,7 @@ class SyncQueueViewSetTestCase(APITestCase):
                 user_id=learner.id,
                 keep_alive=10,
             )
+        time.sleep(1)
         response = self.client.post(
             reverse("kolibri:core:syncqueue-list"),
             data={"user": self.learner.id},
@@ -515,6 +516,7 @@ class SyncQueueViewSetTestCase(APITestCase):
                 keep_alive=10,
                 updated=time.time() - STALE_QUEUE_TIME * 2,
             )
+        time.sleep(1)
         queue = SyncQueue.objects.create(user_id=self.learner.id, keep_alive=10)
         response = self.client.put(
             reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
@@ -539,6 +541,7 @@ class SyncQueueViewSetTestCase(APITestCase):
                 user_id=learner.id,
                 keep_alive=10,
             )
+        time.sleep(1)
         queue = SyncQueue.objects.create(user_id=self.learner.id, keep_alive=10)
         old_updated = queue.updated
         response = self.client.put(
@@ -563,6 +566,7 @@ class SyncQueueViewSetTestCase(APITestCase):
             updated=time.time() - STALE_QUEUE_TIME * 2,
             keep_alive=10,
         )
+        time.sleep(1)
         for i in range(0, MAX_CONCURRENT_SYNCS):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
@@ -614,6 +618,7 @@ class SyncQueueViewSetTestCase(APITestCase):
                 user_id=learner.id,
                 keep_alive=10,
             )
+        time.sleep(1)
         queue = SyncQueue.objects.create(user_id=self.learner.id, keep_alive=10)
         response = self.client.put(
             reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
@@ -635,6 +640,7 @@ class SyncQueueViewSetTestCase(APITestCase):
                 user_id=learner.id,
                 keep_alive=10,
             )
+        time.sleep(1)
         queue = SyncQueue.objects.create(user_id=self.learner.id, keep_alive=10)
         response = self.client.put(
             reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
@@ -647,6 +653,7 @@ class SyncQueueViewSetTestCase(APITestCase):
 
     def test_update_first_full_queue_should_scale_interval(self):
         queue = SyncQueue.objects.create(user_id=self.learner.id, keep_alive=10)
+        time.sleep(1)
         for i in range(0, 5):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
@@ -670,6 +677,7 @@ class SyncQueueViewSetTestCase(APITestCase):
 
     def test_update_first_full_queue_should_max_interval(self):
         queue = SyncQueue.objects.create(user_id=self.learner.id, keep_alive=10)
+        time.sleep(1)
         for i in range(0, 100):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
