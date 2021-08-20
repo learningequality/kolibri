@@ -103,7 +103,7 @@
             :title="$tr('bookmarks')"
             :link="getBookmarksLink()"
             :kind="$tr('bookmark')"
-            :description="this.bookmarks.length + ' resources'"
+            :description="'0 resources'"
             :isLeaf="false"
           />
         </div>
@@ -183,7 +183,6 @@
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { BookmarksResource, ContentNodeResource } from 'kolibri.resources';
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
@@ -218,8 +217,6 @@
         },
         numQuestionsBlurred: false,
         showChannels: true,
-        bookmarks: [],
-        bookmarkNodes: [],
       };
     },
     computed: {
@@ -393,15 +390,6 @@
       },
     },
     watch: {
-      $route() {
-        if (this.$route.params.topicId) {
-          ContentNodeResource.fetchCollection({
-            getParams: { parent: this.$route.params.topicId },
-          }).then(bookmarks => {
-            this.bookmarkNodes = bookmarks;
-          });
-        }
-      },
       filters(newVal) {
         this.$router.push({
           query: { ...this.$route.query, ...pickBy(newVal) },
@@ -414,18 +402,6 @@
         'removeFromSelectedExercises',
         'fetchAdditionalSearchResults',
       ]),
-      getBookmarksData() {
-        this.bookmarks.forEach(bookmark => {
-          ContentNodeResource.fetchModel({ id: bookmark.contentnode_id }).then(data => {
-            this.bookmarkNodes.push(data);
-          });
-        });
-      },
-      getBookmarks() {
-        return BookmarksResource.fetchCollection().then(bookmarks => {
-          this.bookmarks = bookmarks;
-        });
-      },
       lessonCardClicked() {
         this.showChannels = false;
       },
