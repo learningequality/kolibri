@@ -195,12 +195,9 @@
       };
     },
     computed: {
-      ...mapGetters(['getUserKind']),
+      ...mapGetters(['isAdmin', 'isCoach']),
       showSoudNotice() {
-        return (
-          ![UserKinds.LEARNER, UserKinds.ANONYMOUS].includes(this.getUserKind) &&
-          this.isSubsetOfUsersDevice
-        );
+        return this.isSubsetOfUsersDevice && (this.isAdmin || this.isCoach);
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });

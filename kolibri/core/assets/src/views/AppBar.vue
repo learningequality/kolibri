@@ -181,7 +181,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'getUserKind']),
+      ...mapGetters(['isUserLoggedIn', 'getUserKind', 'isAdmin', 'isCoach']),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
@@ -191,10 +191,7 @@
         return this.getUserKind == UserKinds.LEARNER;
       },
       showSoudNotice() {
-        return (
-          this.isSubsetOfUsersDevice &&
-          [UserKinds.ADMIN, UserKinds.COACH].includes(this.getUserKind)
-        );
+        return this.isSubsetOfUsersDevice && (this.isAdmin || this.isCoach);
       },
       menuOptions() {
         return navComponents
