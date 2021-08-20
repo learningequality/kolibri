@@ -7,6 +7,7 @@
   >
 
     <div v-if="blockDoubleClicks" class="click-mask"></div>
+    <SkipNavigationLink />
     <LearningActivityBar
       :resourceTitle="resourceTitle"
       :learningActivities="mappedLearningActivities"
@@ -62,6 +63,7 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import { LearningActivities, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
   import ContentPage from './ContentPage';
   import LessonMasteryBar from './classes/LessonMasteryBar';
@@ -98,6 +100,7 @@
       ContentPage,
       LearningActivityBar,
       LessonMasteryBar,
+      SkipNavigationLink,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {
