@@ -154,10 +154,6 @@ class Storage(StorageMixin):
         Looks for the oldest queued job with priorities provided in `priority_order`. It
         runs through the `priority_oder` list sequentially.
 
-        If `queues` is not None and a list of queue names, we only look in those `queues` else
-        we look irrespective of `queue`.
-
-        :param queues: the queue names we should look into.
         :param priority_order: the order of priority we should follow.
         :return: job if found else None.
         """
