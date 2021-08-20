@@ -83,16 +83,14 @@
       <h2>{{ $tr('chooseExercises') }}</h2>
       <div v-if="!showChannels">
         <ContentCardList 
-          :contentList="bookmarkNodes"
+          :contentList="bookmarksContentList"
           :contentHasCheckbox="contentHasCheckbox"
           :contentCardMessage="() => ''"
-          :contentCardLink="contentLink"
+          :contentCardLink="bookmarksLink"
           :contentIsChecked="() => false"
           :viewMoreButtonState="viewMoreButtonState"
           :showSelectAll="selectAllIsVisible"
           :contentIsIndeterminate="() => false"
-          :selectAllChecked="selectAllChecked"
-          :selectAllIndeterminate="selectAllIndeterminate"
           @changeselectall="toggleTopicInWorkingResources"
           @change_content_card="toggleSelected"
           @moreresults="handleMoreResults"
@@ -103,7 +101,7 @@
         <div @click="lessonCardClicked">
           <LessonContentCard
             :title="$tr('bookmarks')"
-            :link="{}"
+            :link="getBookmarksLink()"
             :kind="$tr('bookmark')"
             :description="this.bookmarks.length + ' resources'"
             :isLeaf="false"
@@ -230,6 +228,7 @@
       ...mapState('examCreation', [
         'numberOfQuestions',
         'contentList',
+        'bookmarksList',
         'selectedExercises',
         'availableQuestions',
         'searchResults',
@@ -280,6 +279,9 @@
             this.$store.dispatch('examCreation/updateSelectedQuestions');
           }
         },
+      },
+      bookmarksContentList() {
+        return this.bookmarksList ? this.bookmarksList : [];
       },
       filteredContentList() {
         const { role } = this.filters || {};
@@ -406,11 +408,6 @@
         });
       },
     },
-    created() {
-      this.getBookmarks().then(() => {
-        this.getBookmarksData();
-      });
-    },
     methods: {
       ...mapActions('examCreation', [
         'addToSelectedExercises',
@@ -431,6 +428,36 @@
       },
       lessonCardClicked() {
         this.showChannels = false;
+      },
+      getBookmarksLink() {
+        return {
+          name: PageNames.EXAM_CREATION_BOOKMARKS_MAIN,
+        };
+      },
+      bookmarksLink(content) {
+        if (!content.is_leaf) {
+          return {
+            name: PageNames.EXAM_CREATION_BOOKMARKS,
+            params: {
+              classId: this.classId,
+              topicId: content.id,
+            },
+          };
+        }
+        const { query } = this.$route;
+        return {
+          name: PageNames.EXAM_CREATION_PREVIEW,
+          params: {
+            classId: this.classId,
+            contentId: content.id,
+          },
+          query: {
+            ...query,
+            ...pickBy({
+              searchTerm: this.$route.params.searchTerm,
+            }),
+          },
+        };
       },
       contentLink(content) {
         if (!content.is_leaf) {

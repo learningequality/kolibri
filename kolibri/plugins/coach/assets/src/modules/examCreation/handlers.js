@@ -1,17 +1,23 @@
 import pickBy from 'lodash/pickBy';
 import uniq from 'lodash/uniq';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import { ContentNodeResource, ContentNodeSearchResource, ChannelResource } from 'kolibri.resources';
+import {
+  ContentNodeResource,
+  BookmarksResource,
+  ContentNodeSearchResource,
+  ChannelResource,
+} from 'kolibri.resources';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
 import { filterAndAnnotateContentList, fetchChannelQuizzes } from './actions';
 
 function showExamCreationPage(store, params) {
-  const { contentList, pageName, ancestors = [], searchResults = null } = params;
+  const { contentList, bookmarksList, pageName, ancestors = [], searchResults = null } = params;
   return store.dispatch('loading').then(() => {
     store.commit('examCreation/SET_ANCESTORS', ancestors);
     store.commit('examCreation/SET_CONTENT_LIST', contentList);
+    store.commit('examCreation/SET_BOOKMARKS_LIST', bookmarksList);
     if (searchResults) {
       store.commit('examCreation/SET_SEARCH_RESULTS', searchResults);
     }
@@ -116,6 +122,56 @@ export function showExamCreationTopicPage(store, params) {
         });
       });
     });
+  });
+}
+export function showExamCreationBookamrksPage(store, params) {
+  return store.dispatch('loading').then(() => {
+    const { topicId } = params;
+    const topicNodePromise = ContentNodeResource.fetchModel({ id: topicId });
+    const childNodesPromise = ContentNodeResource.fetchCollection({
+      getParams: {
+        parent: topicId,
+        kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.VIDEO, ContentNodeKinds.EXERCISE],
+      },
+    });
+    const loadRequirements = [topicNodePromise, childNodesPromise];
+
+    return Promise.all(loadRequirements).then(([topicNode, childNodes]) => {
+      return filterAndAnnotateContentList(childNodes).then(() => {
+        store.commit('SET_TOOLBAR_ROUTE', {
+          name: PageNames.EXAMS,
+        });
+        return showExamCreationPage(store, {
+          classId: params.classId,
+          bookmarksList: childNodes,
+          pageName: PageNames.EXAM_CREATION_BOOKMARKS,
+          ancestors: [...topicNode.ancestors, topicNode],
+        });
+      });
+    });
+  });
+}
+export function showExamCreationAllBookmarks(store) {
+  return store.dispatch('loading').then(() => {
+    let dataArr = [];
+    getBookmarks()
+      .then(bookmarks => {
+        bookmarks.forEach(bookmark => {
+          ContentNodeResource.fetchModel({ id: bookmark.contentnode_id }).then(data => {
+            dataArr.push(data);
+          });
+        });
+      })
+      .then(() => {
+        return showExamCreationPage(store, {
+          bookmarksList: dataArr,
+        });
+      });
+  });
+}
+function getBookmarks() {
+  return BookmarksResource.fetchCollection().then(bookmarks => {
+    return bookmarks;
   });
 }
 

@@ -11,6 +11,7 @@ function defaultState() {
     numberOfQuestions: 10,
     seed: getRandomInt(), // consistent seed is used for question selection
     contentList: [],
+    bookmarksList: [],
     selectedExercises: {},
     availableQuestions: 0,
     searchResults: {
@@ -69,6 +70,9 @@ export default {
     },
     SET_CONTENT_LIST(state, contentList) {
       state.contentList = contentList;
+    },
+    SET_BOOKMARKS_LIST(state, bookmarksList) {
+      state.bookmarksList = bookmarksList;
     },
     ADD_TO_SELECTED_EXERCISES(state, exercises) {
       state.selectedExercises = Object.assign(
