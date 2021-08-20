@@ -332,7 +332,7 @@
   "SyncStatusDisplay.queued": "Esperando para sincronizar",
   "SyncStatusDisplay.recentlySynced": "Sincronizado",
   "SyncStatusDisplay.syncing": "Sincronizando...",
-  "SyncStatusDisplay.unableOrNotSynced": "Dispositivo no sincronizado recientemente o fallo de la sincronización",
+  "SyncStatusDisplay.unableOrNotSynced": "Dispositivo no sincronizado recientemente o incapaz de sincronizar",
   "SyncStatusDisplay.unableToSync": "No se puede sincronizar",
   "TaskStrings.clearCompletedTasksAction": "Eliminar completadas",
   "TaskStrings.establishingConnectionStatus": "Estableciendo conexión",

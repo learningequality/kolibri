@@ -8,7 +8,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Button to cancel an action and return to the previous page. Usually this is the opposite of the save button which saves some piece of information.',
   },
-  cannotUndoActionWarning: 'This action cannot be undone',
+  cannotUndoActionWarning: {
+    message: 'This action cannot be undone',
+    context:
+      'Warning to indicate that a specific procedure that the user is carrying out at that time can not be reversed.',
+  },
   clearAction: {
     message: 'Clear',
     context:
@@ -235,7 +239,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "An 'Identifier' could be a student ID number or an existing user identification number. This is an optional field in the user create/edit screen.",
   },
-  inProgressLabel: 'In progress',
+  inProgressLabel: {
+    message: 'In progress',
+    context: 'Indicates a task such as a sync is in progress.',
+  },
   kolibriLabel: {
     message: 'Kolibri',
     context:
@@ -276,7 +283,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Password',
     context: "'Password' is a required field when you create an account as a user on Kolibri.",
   },
-  profileLabel: 'Profile',
+  profileLabel: {
+    message: 'Profile',
+    context: "Users can access and edit their personal details via the 'profile' option.",
+  },
   progressLabel: {
     message: 'Progress',
     context:
@@ -393,7 +403,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: '{label}: {details}',
     context: 'DO NOT TRANSLATE.',
   },
-  commaSeparatedPair: '{item1}, {item2}',
+  commaSeparatedPair: {
+    message: '{item1}, {item2}',
+    context: 'DO NOT TRANSLATE.',
+  },
 
   // Demographic-specific strings
   genderOptionMale: {
@@ -404,7 +417,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Female',
     context: "Female is an option in the 'Gender' drop down menu on the 'Create new user' page.",
   },
-  genderOptionOther: 'Other',
+  genderOptionOther: {
+    message: 'Other',
+    context: 'CommonCoreStrings.genderOptionOther\n\n-- CONTEXT --',
+  },
   genderOptionNotSpecified: {
     message: 'Not specified',
     context:

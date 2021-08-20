@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "Paso 1 de 2",
   "UserIndex.signUpStep2Title": "Paso 2 de 2",
   "UserIndex.userProfileTitle": "Perfil",
-  "UserPageSnackbars.dismiss": "Descartar",
+  "UserPageSnackbars.dismiss": "Cerrar",
   "UserPageSnackbars.signedOut": "Sesión terminada por inactividad"
 }

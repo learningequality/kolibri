@@ -230,6 +230,12 @@ EXTRA_LANG_INFO = {
         "name": "Gujarati",
         "name_local": "ગુજરાતી",
     },
+    "ha": {
+        "bidi": False,
+        "code": "ha",
+        "name": "Hausa",
+        "name_local": "Hausa",
+    },
     "km": {"bidi": False, "code": "km", "name": "Khmer", "name_local": "ភាសាខ្មែរ"},
     "nyn": {
         "bidi": False,
