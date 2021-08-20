@@ -215,7 +215,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
         # Make sure it is no longer than half the time by which we measure 'recently synced'
         # to make sure we are never letting syncing drift too far.
         sync_interval = min(
-            OPTIONS["Deployment"]["SYNC_INTERVAL"] * total_queue_size, DELAYED_SYNC / 2
+            OPTIONS["Deployment"]["SYNC_INTERVAL"] * (total_queue_size + 1), DELAYED_SYNC / 2
         )
         last_activity = timezone.now() - datetime.timedelta(minutes=5)
         queue_object = SyncQueue.objects.filter(id=pk).first()

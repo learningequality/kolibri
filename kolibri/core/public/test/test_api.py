@@ -672,7 +672,7 @@ class SyncQueueViewSetTestCase(APITestCase):
         data = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            data["sync_interval"], OPTIONS["Deployment"]["SYNC_INTERVAL"] * 6
+            data["sync_interval"], OPTIONS["Deployment"]["SYNC_INTERVAL"] * 7
         )
 
     def test_update_first_full_queue_should_max_interval(self):
