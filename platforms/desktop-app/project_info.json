@@ -19,7 +19,7 @@
     "osx": ["kolibri", "wx"]
   },
   "disk_image": {
-    "background": "assets/disk_image/Layout.png",
+    "background": "src/kolibri_app/assets/disk_image/Layout.png",
     "window_rect": "((20, 100000), (734, 550))",
     "app_icon_pos": "(210, 210)",
     "apps_icon_pos": "(520, 210)",

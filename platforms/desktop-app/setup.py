@@ -18,5 +18,4 @@ setup(
             'kapew = kapew:main'
         ]
     }
-    **extra_options
 )

@@ -9,12 +9,6 @@ import requests
 
 locale_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src/kolibri_app/locales')
 
-py_version = sys.version[:3]
-
-args = {'ver': py_version}
-msgfmt_str = '/Library/Frameworks/Python.framework/Versions/{ver}/share/doc/python{ver}/examples/Tools/i18n/msgfmt.py'
-msgfmt_path = msgfmt_str.format(**args)
-
 if 'update' in sys.argv:
     key = os.environ['CROWDIN_API_KEY']
     crowdin_url = 'https://api.crowdin.com/api/project/kolibri-mac-app/download/all.zip?key={}'.format(key)
@@ -55,6 +49,6 @@ for root, dirs, files in os.walk(locale_dir):
         filename = os.path.join(root, afile)
         basename, ext = os.path.splitext(filename)
         if ext == '.po':
-            subprocess.call([msgfmt_path, filename])
+            subprocess.call(["msgfmt", filename])
 
 print("Compilation complete!")
