@@ -43,7 +43,7 @@ Reflecting these principles, the app codebase is divided into four main parts:
 
 The entry point to the GUI, where the common code (and some platform-specific code) lives.
 
-`src/kolibri_tools`
+`src/kolibri_app`
 
 Module for functionality specific to Kolibri, such as starting and stopping the
 server, initializing the app plugin, or exposing app-specific functionality.

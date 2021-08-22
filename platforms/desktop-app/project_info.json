@@ -5,14 +5,7 @@
   "app_version": "0.1.2",
   "build_number": "${APP_BUILD_NUMBER}",
   "identifier": "org.learningequality.Kolibri",
-  "requirements": {
-    "android": [
-      "python3", "android", "pyjnius", "genericndkbuild", "sqlite3", "cryptography", "twisted", "attrs", "bcrypt", "service_identity", "pyasn1", "pyasn1_modules", "pyopenssl", "openssl", "six", "flask", "plyer"
-    ]
-  },
-  "whitelist_file": {"android": "whitelist.txt"},
-  "icons": {"android": "icons/kolibri-icon.png", "osx": "icons/kolibri.icns", "win": "icons/kolibri.ico"},
-  "launch_images": {"android": "assets/launch-image.png"},
+  "icons": {"osx": "icons/kolibri.icns", "win": "icons/kolibri.ico"},
   "asset_dirs": ["assets", "locale"],
   "build_tool": {
       "win": "pyinstaller"
@@ -32,14 +25,5 @@
     "apps_icon_pos": "(520, 210)",
     "filename": "kolibri-${KOLIBRI_VERSION}-${FULL_VERSION}",
     "volume_name": "Kolibri ${KOLIBRI_VERSION}"
-  },
-  "extra_build_options": {
-    "android": {
-      "services": ["kolibri:platforms/android/service.py"],
-      "extra_permissions": ["FOREGROUND_SERVICE"],
-      "sdk": 29,
-      "minsdk": 21,
-      "fileprovider_paths_filename": "fileprovider_paths.xml"
-    }
   }
 }

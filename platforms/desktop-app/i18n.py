@@ -7,8 +7,7 @@ import zipfile
 
 import requests
 
-this_dir = os.path.dirname(os.path.abspath(__file__))
-locale_dir = os.path.join(this_dir, 'locale')
+locale_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src/kolibri_app/locales')
 
 py_version = sys.version[:3]
 
