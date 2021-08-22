@@ -10,6 +10,7 @@ steps:
     label: ":mac:"
     build:
       message: "${BUILDKITE_MESSAGE}"
+      branch: "v0.2.0"
       env:
         LE_TRIGGERED_FROM_BUILD_ID: "${BUILDKITE_BUILD_ID}"
         LE_TRIGGERED_FROM_JOB_ID: "${BUILDKITE_JOB_ID}"
