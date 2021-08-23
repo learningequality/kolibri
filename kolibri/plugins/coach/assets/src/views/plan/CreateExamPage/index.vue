@@ -103,7 +103,7 @@
             :title="$tr('bookmarks')"
             :link="getBookmarksLink()"
             :kind="$tr('bookmark')"
-            :description="'0 resources'"
+            :description="this.bookmarksCount + $tr('resources')"
             :isLeaf="false"
           />
         </div>
@@ -183,6 +183,7 @@
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { BookmarksResource } from 'kolibri.resources';
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
@@ -217,6 +218,7 @@
         },
         numQuestionsBlurred: false,
         showChannels: true,
+        bookmarksCount: 0
       };
     },
     computed: {
@@ -395,6 +397,11 @@
           query: { ...this.$route.query, ...pickBy(newVal) },
         });
       },
+    },
+    created() {
+      BookmarksResource.fetchCollection().then(bookmarks => {
+        this.bookmarksCount = bookmarks.length
+      });
     },
     methods: {
       ...mapActions('examCreation', [
@@ -590,6 +597,7 @@
       },
     },
     $trs: {
+      resources: ' resources',
       bookmark: 'bookmark',
       bookmarks: 'Bookmarks',
       createNewExamLabel: {
