@@ -477,8 +477,8 @@ class SyncQueueViewSetTestCase(APITestCase):
                 user_id=learner.id,
                 keep_alive=10,
             )
-        queue = SyncQueue.objects.create(user_id=self.learner.id, keep_alive=10)
         time.sleep(1)
+        queue = SyncQueue.objects.create(user_id=self.learner.id, keep_alive=10)
         response = self.client.post(
             reverse("kolibri:core:syncqueue-list"),
             data={"user": self.learner.id},
