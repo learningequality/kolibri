@@ -128,7 +128,9 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             "languageGlobals": self.language_globals(),
             "oidcProviderEnabled": OIDCProviderHook.is_enabled(),
             "kolibriTheme": ThemeHook.get_theme(),
-            "isSubsetOfUsersDevice": get_device_setting("subset_of_users_device"),
+            "isSubsetOfUsersDevice": get_device_setting(
+                "subset_of_users_device", False
+            ),
         }
 
     def language_globals(self):
