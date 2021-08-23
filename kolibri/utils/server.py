@@ -424,13 +424,17 @@ class SignalHandler(BaseSignalHandler):
 
 class ProcessControlPlugin(Monitor):
     def __init__(self, bus):
+        try:
+            os.remove(PROCESS_CONTROL_FLAG)
+        except (IOError, OSError):
+            pass
         self.mtime = self.get_mtime()
         Monitor.__init__(self, bus, self.run, 1)
 
     def get_mtime(self):
         try:
             return os.stat(PROCESS_CONTROL_FLAG).st_mtime
-        except OSError:
+        except (IOError, OSError):
             return 0
 
     def run(self):
