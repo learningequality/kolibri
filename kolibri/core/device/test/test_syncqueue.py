@@ -48,7 +48,23 @@ class SyncQueueTestBase(TestCase):
             item.save()
 
         assert SyncQueue.objects.count() == 5
-        SyncQueue.clean_stale()  # default expiry time = 180 seconds
+        SyncQueue.clean_stale()  # expiry time is 2 * keep_alive value
+        assert SyncQueue.objects.count() == 3
+
+    def test_dynamic_queue_cleaning(self):
+        for i in range(5):
+            item = SyncQueue.objects.create(
+                user=FacilityUser.objects.create(
+                    username="test{}".format(i), facility=self.facility
+                )
+            )
+            item.updated = item.updated - 20
+            if i % 2 == 0:
+                item.keep_alive = 30
+            item.save()
+
+        assert SyncQueue.objects.count() == 5
+        SyncQueue.clean_stale()  # expiry time is 2 * keep_alive value
         assert SyncQueue.objects.count() == 3
 
 

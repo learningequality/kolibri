@@ -177,9 +177,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
             content = {"I'm a Subset of users device": "Nothing to do here"}
             # would love to use HTTP 418, but it's not fully usable in browsers
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        SyncQueue.clean_stale(
-            expire=STALE_QUEUE_TIME
-        )  # first, ensure not expired devices are in the queue
+        SyncQueue.clean_stale()  # first, ensure not expired devices are in the queue
         facilities = Facility.objects.all()
         queue = {}
         for facility in facilities:
@@ -205,7 +203,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
         # first, ensure no expired devices are in the queue
-        SyncQueue.clean_stale(expire=STALE_QUEUE_TIME)
+        SyncQueue.clean_stale()
 
         # Calculate the total size of the queue to scale things
         total_queue_size = SyncQueue.objects.count()
@@ -259,11 +257,12 @@ class SyncQueueViewSet(viewsets.ViewSet):
             # polling time at least HANDSHAKING_TIME seconds per position in the queue to
             # be greater than the time needed for the handshake part of the ssl protocol
             # we add one to the zero based position, as if the position is zero and it
-            # got to here, it means the sync queue is currently full, so we need to wait
-            # we make sure that it is never less than half of the stale queue time, to
-            # prevent a malignant loop whereby very long queues cause clients to lose
-            # their place in the queue by only polling again after their queue has
-            # already expired!
+            # got to here, it means the sync queue is currently full, so we need to wait.
+            # we make sure that it is never less than half of the stale queue time, as the keep alive
+            # that we set here will be used to determine after what interval we should be expiring
+            # the queue item as stale - the keep_alive is doubled in order to achieve this, so
+            # by setting half the STALE_QUEUE_TIME to keep_alive, we are indirectly enforcing
+            # a stale queue time via the keep_alive.
             polling = min(HANDSHAKING_TIME * (pos + 1), STALE_QUEUE_TIME / 2)
             data = {
                 "action": QUEUED,
