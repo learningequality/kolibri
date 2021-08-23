@@ -218,7 +218,6 @@ class SyncQueueViewSet(viewsets.ViewSet):
             OPTIONS["Deployment"]["SYNC_INTERVAL"] * (total_queue_size + 1),
             DELAYED_SYNC / 2,
         )
-        last_activity = timezone.now() - datetime.timedelta(minutes=5)
 
         if pk is not None:
             queue_object = SyncQueue.objects.filter(id=pk).first()
@@ -243,7 +242,11 @@ class SyncQueueViewSet(viewsets.ViewSet):
 
         current_transfers = (
             TransferSession.objects.filter(
-                active=True, last_activity_timestamp__gte=last_activity
+                Q(active=True)
+                | Q(
+                    last_activity_timestamp__gte=timezone.now()
+                    - datetime.timedelta(seconds=HANDSHAKING_TIME)
+                )
             )
             .exclude(transfer_stage_status=transfer_statuses.ERRORED)
             .count()

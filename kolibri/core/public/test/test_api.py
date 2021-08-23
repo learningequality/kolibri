@@ -1,12 +1,17 @@
 import platform
 import time
 import uuid
+from datetime import timedelta
 
 import factory
 import mock
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 from le_utils.constants import content_kinds
+from morango.constants import transfer_statuses
 from morango.models import InstanceIDModel
+from morango.models import SyncSession
+from morango.models import TransferSession
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.test import APITransactionTestCase
@@ -487,6 +492,146 @@ class SyncQueueViewSetTestCase(APITestCase):
         )
         queue_id = data["id"]
         self.assertEqual(queue_id, queue.id)
+
+    def test_create_active_transfer_should_queue(self):
+        syncdata = {
+            "id": uuid.uuid4().hex,
+            "start_timestamp": timezone.now(),
+            "last_activity_timestamp": timezone.now(),
+            "active": False,
+            "is_server": False,
+            "client_instance": True,
+            "server_instance": False,
+            "extra_fields": {},
+        }
+        syncsession1 = SyncSession.objects.create(**syncdata)
+        TransferSession.objects.create(
+            id=uuid.uuid4(),
+            filter="no-filter",
+            push=True,
+            active=True,
+            sync_session=syncsession1,
+            last_activity_timestamp=timezone.now(),
+            transfer_stage_status=transfer_statuses.STARTED,
+        )
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue-list"),
+            data={"user": self.learner.id},
+            format="json",
+        )
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data["action"], QUEUED)
+        self.assertTrue(
+            UserSyncStatus.objects.filter(user=self.learner, queued=True).exists()
+        )
+        queue_id = data["id"]
+        self.assertTrue(
+            SyncQueue.objects.filter(id=queue_id, user_id=self.learner.id).exists()
+        )
+
+    def test_create_recent_transfer_should_queue(self):
+        syncdata = {
+            "id": uuid.uuid4().hex,
+            "start_timestamp": timezone.now(),
+            "last_activity_timestamp": timezone.now(),
+            "active": False,
+            "is_server": False,
+            "client_instance": True,
+            "server_instance": False,
+            "extra_fields": {},
+        }
+        syncsession1 = SyncSession.objects.create(**syncdata)
+        TransferSession.objects.create(
+            id=uuid.uuid4(),
+            filter="no-filter",
+            push=True,
+            active=False,
+            sync_session=syncsession1,
+            last_activity_timestamp=timezone.now(),
+            transfer_stage_status=transfer_statuses.COMPLETED,
+        )
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue-list"),
+            data={"user": self.learner.id},
+            format="json",
+        )
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data["action"], QUEUED)
+        self.assertTrue(
+            UserSyncStatus.objects.filter(user=self.learner, queued=True).exists()
+        )
+        queue_id = data["id"]
+        self.assertTrue(
+            SyncQueue.objects.filter(id=queue_id, user_id=self.learner.id).exists()
+        )
+
+    def test_create_not_recent_transfer_should_queue(self):
+        syncdata = {
+            "id": uuid.uuid4().hex,
+            "start_timestamp": timezone.now(),
+            "last_activity_timestamp": timezone.now(),
+            "active": False,
+            "is_server": False,
+            "client_instance": True,
+            "server_instance": False,
+            "extra_fields": {},
+        }
+        syncsession1 = SyncSession.objects.create(**syncdata)
+        TransferSession.objects.create(
+            id=uuid.uuid4(),
+            filter="no-filter",
+            push=True,
+            active=False,
+            sync_session=syncsession1,
+            last_activity_timestamp=timezone.now() - timedelta(minutes=10),
+            transfer_stage_status=transfer_statuses.COMPLETED,
+        )
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue-list"),
+            data={"user": self.learner.id},
+            format="json",
+        )
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data["action"], SYNC)
+        self.assertTrue(
+            UserSyncStatus.objects.filter(user=self.learner, queued=False).exists()
+        )
+
+    def test_create_active_errored_transfer_should_sync(self):
+        syncdata = {
+            "id": uuid.uuid4().hex,
+            "start_timestamp": timezone.now(),
+            "last_activity_timestamp": timezone.now(),
+            "active": False,
+            "is_server": False,
+            "client_instance": True,
+            "server_instance": False,
+            "extra_fields": {},
+        }
+        syncsession1 = SyncSession.objects.create(**syncdata)
+        TransferSession.objects.create(
+            id=uuid.uuid4(),
+            filter="no-filter",
+            push=True,
+            active=True,
+            sync_session=syncsession1,
+            last_activity_timestamp=timezone.now(),
+            transfer_stage_status=transfer_statuses.ERRORED,
+        )
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue-list"),
+            data={"user": self.learner.id},
+            format="json",
+        )
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data["action"], SYNC)
+        self.assertTrue(
+            UserSyncStatus.objects.filter(user=self.learner, queued=False).exists()
+        )
 
     def test_update_soud(self):
         settings = DeviceSettings.objects.get()
