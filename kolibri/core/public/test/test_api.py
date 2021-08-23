@@ -461,6 +461,33 @@ class SyncQueueViewSetTestCase(APITestCase):
             SyncQueue.objects.filter(id=queue_id, user_id=self.learner.id).exists()
         )
 
+    def test_create_full_queue_user_already_queued_should_resume(self):
+        for i in range(0, MAX_CONCURRENT_SYNCS):
+            learner = FacilityUser.objects.create(
+                username="test{}".format(i),
+                password="***",
+                facility=self.facility,
+            )
+            SyncQueue.objects.create(
+                user_id=learner.id,
+                keep_alive=10,
+            )
+        queue = SyncQueue.objects.create(user_id=self.learner.id, keep_alive=10)
+        time.sleep(1)
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue-list"),
+            data={"user": self.learner.id},
+            format="json",
+        )
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data["action"], QUEUED)
+        self.assertTrue(
+            UserSyncStatus.objects.filter(user=self.learner, queued=True).exists()
+        )
+        queue_id = data["id"]
+        self.assertEqual(queue_id, queue.id)
+
     def test_update_soud(self):
         settings = DeviceSettings.objects.get()
         settings.subset_of_users_device = True

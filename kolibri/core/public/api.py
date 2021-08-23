@@ -219,7 +219,11 @@ class SyncQueueViewSet(viewsets.ViewSet):
             DELAYED_SYNC / 2,
         )
         last_activity = timezone.now() - datetime.timedelta(minutes=5)
-        queue_object = SyncQueue.objects.filter(id=pk).first()
+
+        if pk is not None:
+            queue_object = SyncQueue.objects.filter(id=pk).first()
+        else:
+            queue_object = SyncQueue.objects.filter(user_id=user).first()
 
         # Default the position to the total queue size, so that
         # if the id does not exist, send them to the back of the queue
@@ -234,7 +238,6 @@ class SyncQueueViewSet(viewsets.ViewSet):
             # that were made before this request. If pk is None or the queue
             # has expired (3 minutes), we will set the position to the length of the
             # queue.
-            queue_object = SyncQueue.objects.get(pk=pk)
             before_client = SyncQueue.objects.filter(datetime__lt=queue_object.datetime)
             pos = before_client.count()
 
