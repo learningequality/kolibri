@@ -25,7 +25,6 @@ from kolibri.core.auth.management.utils import run_once
 from kolibri.core.auth.models import dataset_cache
 from kolibri.core.auth.sync_event_hook_utils import register_sync_event_handlers
 from kolibri.core.logger.utils.data import bytes_for_humans
-from kolibri.core.public.utils import schedule_new_sync
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.utils.lock import db_lock
@@ -82,12 +81,6 @@ class Command(AsyncCommand):
             action="store_true",
             help="do not create a facility and temporary superuser",
         )
-        parser.add_argument(
-            "--resync-interval",
-            type=int,
-            default=None,
-            help="Seconds to schedule a new sync",
-        )
         # parser.add_argument("--scope-id", type=str, default=FULL_FACILITY)
 
     def handle_async(self, *args, **options):  # noqa C901
@@ -103,7 +96,6 @@ class Command(AsyncCommand):
             no_pull,
             noninteractive,
             no_provision,
-            resync_interval,
         ) = (
             options["baseurl"],
             options["facility"],
@@ -115,7 +107,6 @@ class Command(AsyncCommand):
             options["no_pull"],
             options["noninteractive"],
             options["no_provision"],
-            options["resync_interval"],
         )
 
         PORTAL_SYNC = baseurl == DATA_PORTAL_SYNCING_BASE_URL
@@ -278,8 +269,6 @@ class Command(AsyncCommand):
             self.job.save_meta()
 
         dataset_cache.deactivate()
-        if user_id and resync_interval:
-            schedule_new_sync(baseurl, user_id, resync_interval)
         logger.info("Syncing has been completed.")
 
     @contextmanager
