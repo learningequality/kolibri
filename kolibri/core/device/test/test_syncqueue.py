@@ -3,7 +3,6 @@ import time
 from uuid import uuid4
 
 import mock
-import pytest
 from django.test import TestCase
 
 from kolibri.core.auth.models import Facility
@@ -22,7 +21,8 @@ class SyncQueueTestBase(TestCase):
     def test_create_queue_element(self):
         previous_time = time.time()
         element, _ = SyncQueue.objects.get_or_create(
-            user=FacilityUser.objects.create(username="test", facility=self.facility)
+            user=FacilityUser.objects.create(username="test", facility=self.facility),
+            instance_id=uuid4(),
         )
         assert element.keep_alive == 5.0
         current_time = time.time()
@@ -36,13 +36,15 @@ class SyncQueueTestBase(TestCase):
             SyncQueue.objects.create(
                 user=FacilityUser.objects.create(
                     username="test{}".format(i), facility=self.facility
-                )
+                ),
+                instance_id=uuid4(),
             )
         for i in range(3, 5):
             item = SyncQueue.objects.create(
                 user=FacilityUser.objects.create(
                     username="test{}".format(i), facility=self.facility
-                )
+                ),
+                instance_id=uuid4(),
             )
             item.updated = item.updated - 200
             item.save()
@@ -56,7 +58,8 @@ class SyncQueueTestBase(TestCase):
             item = SyncQueue.objects.create(
                 user=FacilityUser.objects.create(
                     username="test{}".format(i), facility=self.facility
-                )
+                ),
+                instance_id=uuid4(),
             )
             item.updated = item.updated - 20
             if i % 2 == 0:
@@ -68,9 +71,7 @@ class SyncQueueTestBase(TestCase):
         assert SyncQueue.objects.count() == 3
 
 
-@pytest.mark.django_db
-class TestRequestSoUDSync(object):
-    @pytest.fixture()
+class TestRequestSoUDSync(TestCase):
     def setUp(self):
         self.facility = Facility.objects.create(name="Test")
         self.test_user = FacilityUser.objects.create(
@@ -82,7 +83,7 @@ class TestRequestSoUDSync(object):
         "kolibri.core.public.utils.get_device_setting",
         return_value=True,
     )
-    def test_begin_request_soud_sync(self, mock_device_info, queue, setUp):
+    def test_begin_request_soud_sync(self, mock_device_info, queue):
         begin_request_soud_sync("whatever_server", self.test_user.id)
         queue.enqueue.assert_called_with(
             request_soud_sync, "whatever_server", self.test_user.id
@@ -100,7 +101,6 @@ class TestRequestSoUDSync(object):
         MorangoProfileController,
         requests_mock,
         scheduler,
-        setUp,
     ):
 
         get_client_and_server_certs.return_value = None

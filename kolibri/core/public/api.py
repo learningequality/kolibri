@@ -186,58 +186,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
             ).count()
         return Response(queue)
 
-    def check_queue(self, request, pk=None):
-        is_SoUD = get_device_setting("subset_of_users_device", False)
-        if is_SoUD:
-            content = "I'm a Subset of users device. Nothing to do here"
-            # would love to use HTTP 418, but it's not fully usable in browsers
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-        user = request.data.get("user") or request.query_params.get("user")
-        if user is None:
-            content = "Missing parameter: user is required"
-            return Response(content, status=status.HTTP_412_PRECONDITION_FAILED)
-
-        if not FacilityUser.objects.filter(id=user).exists():
-            content = "This user is not registered in any of this server facilities"
-            return Response(content, status=status.HTTP_404_NOT_FOUND)
-
-        # first, ensure no expired devices are in the queue
-        SyncQueue.clean_stale()
-
-        # Calculate the total size of the queue to scale things
-        total_queue_size = SyncQueue.objects.count()
-
-        # Scale the sync_interval we send to clients based on the total number of
-        # queued single user sync requests.
-        # Make sure it is no longer than half the time by which we measure 'recently synced'
-        # to make sure we are never letting syncing drift too far.
-        sync_interval = min(
-            OPTIONS["Deployment"]["SYNC_INTERVAL"] * (total_queue_size + 1),
-            DELAYED_SYNC / 2,
-        )
-
-        if pk is not None:
-            queue_object = SyncQueue.objects.filter(id=pk).first()
-        else:
-            queue_object = SyncQueue.objects.filter(user_id=user).first()
-
-        # Default the position to the total queue size, so that
-        # if the id does not exist, send them to the back of the queue
-        pos = total_queue_size
-        if queue_object is not None:
-            if queue_object.user_id != user:
-                return Response(
-                    "Queue did not match user in request",
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            # To work out the position in the queue, find all queued sync requests
-            # that were made before this request. If pk is None or the queue
-            # has expired (3 minutes), we will set the position to the length of the
-            # queue.
-            before_client = SyncQueue.objects.filter(datetime__lt=queue_object.datetime)
-            pos = before_client.count()
-
+    def get_response_data(self, user, instance, pos, sync_interval, queue_object):
         current_transfers = (
             TransferSession.objects.filter(
                 Q(active=True)
@@ -278,10 +227,79 @@ class SyncQueueViewSet(viewsets.ViewSet):
                 # or the pk was stale, generate a new object here.
                 queue_object = SyncQueue.objects.create(
                     user_id=user,
+                    instance_id=instance,
                     keep_alive=polling,
                 )
 
             data["id"] = queue_object.id
+        return data
+
+    def check_queue(self, request, pk=None):
+        is_SoUD = get_device_setting("subset_of_users_device", False)
+        if is_SoUD:
+            content = "I'm a Subset of users device. Nothing to do here"
+            # would love to use HTTP 418, but it's not fully usable in browsers
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        user = request.data.get("user") or request.query_params.get("user")
+        if user is None:
+            content = "Missing parameter: user is required"
+            return Response(content, status=status.HTTP_412_PRECONDITION_FAILED)
+
+        instance = request.data.get("instance") or request.query_params.get("instance")
+        if instance is None:
+            content = "Missing parameter: instance is required"
+            return Response(content, status=status.HTTP_412_PRECONDITION_FAILED)
+
+        if not FacilityUser.objects.filter(id=user).exists():
+            content = "This user is not registered in any of this server facilities"
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+        # first, ensure no expired devices are in the queue
+        SyncQueue.clean_stale()
+
+        # Calculate the total size of the queue to scale things
+        total_queue_size = SyncQueue.objects.count()
+
+        # Scale the sync_interval we send to clients based on the total number of
+        # queued single user sync requests.
+        # Make sure it is no longer than half the time by which we measure 'recently synced'
+        # to make sure we are never letting syncing drift too far.
+        sync_interval = min(
+            OPTIONS["Deployment"]["SYNC_INTERVAL"] * (total_queue_size + 1),
+            DELAYED_SYNC / 2,
+        )
+
+        if pk is not None:
+            queue_object = SyncQueue.objects.filter(id=pk).first()
+        else:
+            queue_object = SyncQueue.objects.filter(
+                user_id=user, instance_id=instance
+            ).first()
+
+        # Default the position to the total queue size, so that
+        # if the id does not exist, send them to the back of the queue
+        pos = total_queue_size
+        if queue_object is not None:
+            if queue_object.user_id != user:
+                return Response(
+                    "Queue did not match user in request",
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if queue_object.instance_id != instance:
+                return Response(
+                    "Queue did not match instance in request",
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            # To work out the position in the queue, find all queued sync requests
+            # that were made before this request. If pk is None or the queue
+            # has expired (3 minutes), we will set the position to the length of the
+            # queue.
+            before_client = SyncQueue.objects.filter(datetime__lt=queue_object.datetime)
+            pos = before_client.count()
+
+        data = self.get_response_data(user, instance, pos, sync_interval, queue_object)
+
         UserSyncStatus.objects.update_or_create(
             user_id=user, defaults={"queued": data["action"] == QUEUED}
         )

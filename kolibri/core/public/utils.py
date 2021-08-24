@@ -207,8 +207,10 @@ def request_soud_sync(server, user, queue_id=None, ttl=10):
         endpoint = reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue_id})
     server_url = "{server}{endpoint}".format(server=server, endpoint=endpoint)
 
+    instance_model = InstanceIDModel.get_or_create_current_instance()[0]
+
     try:
-        data = {"user": user}
+        data = {"user": user, "instance": instance_model.id}
         if queue_id is None:
             response = requests.post(server_url, json=data)
         else:
