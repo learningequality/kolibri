@@ -189,10 +189,14 @@ class SyncQueueViewSet(viewsets.ViewSet):
     def get_response_data(self, user, instance, pos, sync_interval, queue_object):
         current_transfers = (
             TransferSession.objects.filter(
-                Q(active=True)
+                Q(
+                    active=True,
+                    last_activity_timestamp__gte=timezone.now()
+                    - datetime.timedelta(minutes=5),
+                )
                 | Q(
                     last_activity_timestamp__gte=timezone.now()
-                    - datetime.timedelta(seconds=HANDSHAKING_TIME)
+                    - datetime.timedelta(seconds=10)
                 )
             )
             .exclude(transfer_stage_status=transfer_statuses.ERRORED)
