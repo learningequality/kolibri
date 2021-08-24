@@ -267,7 +267,9 @@
         // them all, just create two alternative route paths for return/'back' navigation
         let route = {};
         const { searchTerm } = this.$route.query;
-        if (searchTerm) {
+        if (this.$route.query.last == PageNames.RECOMMENDED) {
+          route = this.$router.getRoute(PageNames.RECOMMENDED);
+        } else if (searchTerm) {
           route = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
         } else if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
           route = this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST);

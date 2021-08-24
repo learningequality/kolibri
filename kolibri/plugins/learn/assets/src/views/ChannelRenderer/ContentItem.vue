@@ -157,7 +157,6 @@
       },
     },
     created() {
-      console.log('created');
       return this.$store
         .dispatch('initContentSession', {
           channelId: this.channelId,

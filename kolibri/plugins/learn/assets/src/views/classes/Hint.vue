@@ -21,7 +21,6 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
 
   export default {
@@ -29,7 +28,6 @@
     components: {
       CoreInfoIcon,
     },
-    mixins: [responsiveWindowMixin],
     /** https://github.com/learningequality/kolibri-exercise-perseus-plugin/blob/develop/
      * kolibri_exercise_perseus_plugin/assets/src/views/PerseusRendererIndex.vue
      */
