@@ -126,6 +126,15 @@
           />
         </div>
       </div>
+
+      <BottomBar
+        class="bottom-bar"
+        :locationsAreReady="locations.length > 0"
+        :heading="bottomBarHeading"
+        :sliderValue="sliderValue"
+        :sliderStep="sliderStep"
+        @sliderChanged="handleSliderChanged"
+      />
     </div>
   </CoreFullscreen>
 
@@ -152,6 +161,7 @@
   import TableOfContentsSideBar from './TableOfContentsSideBar.vue';
   import SettingsSideBar from './SettingsSideBar';
   import SearchSideBar from './SearchSideBar';
+  import BottomBar from './BottomBar';
   import PreviousButton from './PreviousButton';
   import NextButton from './NextButton';
   import TocButton from './TocButton';
@@ -183,6 +193,7 @@
       SettingsSideBar,
       SearchSideBar,
       LoadingScreen,
+      BottomBar,
       PreviousButton,
       NextButton,
       FocusLock,
@@ -306,6 +317,18 @@
         return darkThemeNames.some(themeName => isEqual(this.theme.name, themeName))
           ? 'white'
           : 'black';
+      },
+      bottomBarHeading() {
+        if (this.currentSection) {
+          return this.currentSection.label.trim();
+        }
+        return '';
+      },
+      sliderStep() {
+        if (this.locations.length > 0) {
+          return Math.floor(Math.min(Math.max(100 / this.locations.length, 0.1), 100));
+        }
+        return 1;
       },
       decreaseFontSizeDisabled() {
         return this.fontSize === `${FONT_SIZE_MIN}px`;
@@ -687,6 +710,13 @@
         this.storeVisitedPage(this.currentLocation);
         this.updateProgress();
         this.updateContentState();
+      },
+      handleSliderChanged(newSliderValue) {
+        const indexOfLocationToJumpTo = Math.floor(
+          (this.locations.length - 1) * (newSliderValue / 100)
+        );
+        const locationToJumpTo = this.locations[indexOfLocationToJumpTo];
+        this.jumpToLocation(locationToJumpTo);
       },
       updateContentState() {
         let contentState;
