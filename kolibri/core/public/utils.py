@@ -89,6 +89,23 @@ def get_device_info(version=DEVICE_INFO_VERSION):
     return info
 
 
+def peer_sync(**kwargs):
+    try:
+        call_command("sync", **kwargs)
+    except Exception:
+        logger.error(
+            "Error syncing user {} to server {}".format(
+                kwargs["user"], kwargs["baseurl"]
+            )
+        )
+        raise
+    finally:
+        # schedule a new sync
+        schedule_new_sync(
+            kwargs["baseurl"], kwargs["user"], interval=kwargs["resync_interval"]
+        )
+
+
 def startpeerusersync(
     server, user_id, resync_interval=OPTIONS["Deployment"]["SYNC_INTERVAL"]
 ):
@@ -118,7 +135,7 @@ def startpeerusersync(
     job_data["resync_interval"] = resync_interval
     JOB_ID = hashlib.md5("{}::{}".format(server, user).encode()).hexdigest()
     job_data["job_id"] = JOB_ID
-    job = queue.enqueue(call_command, "sync", **job_data)
+    job = queue.enqueue(peer_sync, **job_data)
 
     return job
 
@@ -190,8 +207,10 @@ def request_soud_sync(server, user, queue_id=None, ttl=10):
         endpoint = reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue_id})
     server_url = "{server}{endpoint}".format(server=server, endpoint=endpoint)
 
+    instance_model = InstanceIDModel.get_or_create_current_instance()[0]
+
     try:
-        data = {"user": user}
+        data = {"user": user, "instance": instance_model.id}
         if queue_id is None:
             response = requests.post(server_url, json=data)
         else:
@@ -269,6 +288,11 @@ def handle_server_sync_response(response, server, user):
 
 def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVAL"]):
     # reschedule the process for a new sync
+    logging.info(
+        "Requeueing to sync with server {} for user {} in {} seconds".format(
+            server, user, interval
+        )
+    )
     dt = datetime.timedelta(seconds=interval)
     JOB_ID = hashlib.md5("{}:{}".format(server, user).encode()).hexdigest()
     job = Job(request_soud_sync, server, user, job_id=JOB_ID)
