@@ -17,10 +17,6 @@
       data-test="learningActivityBar"
       @navigateBack="navigateBack"
     />
-    <LessonMasteryBar
-      v-if="isPracticeActivity"
-      data-test="lessonMasteryBar"
-    />
     <KLinearLoader
       v-if="loading"
       class="loader"
@@ -61,12 +57,11 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import { LearningActivities, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
   import ContentPage from './ContentPage';
-  import LessonMasteryBar from './classes/LessonMasteryBar';
   import LearningActivityBar from './LearningActivityBar';
 
   const mapOldContentTypesToLearningActivities = {
@@ -99,7 +94,6 @@
       AuthMessage,
       ContentPage,
       LearningActivityBar,
-      LessonMasteryBar,
       SkipNavigationLink,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
@@ -159,9 +153,6 @@
         }
         return learningActivities;
       },
-      isPracticeActivity() {
-        return this.content ? this.content.kind === ContentNodeKinds.EXERCISE : false;
-      },
     },
     methods: {
       navigateBack() {
@@ -192,6 +183,7 @@
   .main-wrapper {
     display: inline-block;
     width: 100%;
+    background-color: white;
 
     @media print {
       /* Without this, things won't print correctly

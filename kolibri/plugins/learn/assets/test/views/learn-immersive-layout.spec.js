@@ -22,10 +22,6 @@ function makeWrapper({ propsData } = {}) {
         },
         template: '<div></div>',
       },
-      LessonMasteryBar: {
-        name: 'LessonMasteryBar',
-        template: '<div></div>',
-      },
       ContentPage: {
         name: 'ContentPage',
         template: '<div><slot></slot></div>',
@@ -43,11 +39,6 @@ describe('LearnImmersiveLayout', () => {
   it('shows the Learning Activity Bar', () => {
     const wrapper = makeWrapper();
     expect(wrapper.find('[data-test="learningActivityBar"]').exists()).toBeTruthy();
-  });
-
-  it('does not show the Mastery Bar by default', () => {
-    const wrapper = makeWrapper();
-    expect(wrapper.find('[data-test="lessonMasteryBar"]').exists()).toBeFalsy();
   });
 
   it('shows the Content Page', () => {
