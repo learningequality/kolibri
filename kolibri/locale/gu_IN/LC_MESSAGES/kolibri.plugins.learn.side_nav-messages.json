@@ -1,4 +1,8 @@
 {
-  "CommonLearnStrings.learnLabel": "શીખો",
-  "CommonLearnStrings.recommendedLabel": "ભલામણ કરેલ"
+  "CommonLearnStrings.learnLabel": "શીખવું",
+  "CommonLearnStrings.mostPopularLabel": "સૌથી લોકપ્રિય",
+  "CommonLearnStrings.nextStepsLabel": "આગળનાં પગલાં",
+  "CommonLearnStrings.popularLabel": "લોકપ્રિય",
+  "CommonLearnStrings.recommendedLabel": "ભલામણ કરેલ",
+  "CommonLearnStrings.resumeLabel": "ફરી શરુ કરવું"
 }

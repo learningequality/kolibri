@@ -87,6 +87,7 @@ import BirthYearDisplayText from '../views/userAccounts/BirthYearDisplayText';
 import PrivacyLinkAndModal from '../views/userAccounts/PrivacyLinkAndModal.vue';
 import PaginatedListContainer from '../views/PaginatedListContainer';
 import PageStatus from '../views/ExamReport/PageStatus';
+import LearnOnlyDeviceNotice from '../views/LearnOnlyDeviceNotice';
 import branding from '../utils/branding';
 import sortLanguages from '../utils/sortLanguages';
 import * as sync from '../views/sync/syncComponentSet';
@@ -185,6 +186,7 @@ export default {
       PaginatedListContainer,
       PrivacyLinkAndModal,
       PageStatus,
+      LearnOnlyDeviceNotice,
     },
     componentSets: {
       sync,

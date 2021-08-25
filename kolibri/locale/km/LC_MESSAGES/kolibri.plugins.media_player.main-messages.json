@@ -1,5 +1,5 @@
 {
-  "MediaPlayerIndex.captions": "អក្សរពីក្រោមនានា",
+  "MediaPlayerIndex.captions": "អក្សរពីក្រោម",
   "MediaPlayerIndex.captionsOff": "អក្សរពីក្រោមត្រូវបានបិទ",
   "MediaPlayerIndex.corruptionOrSupportError": "ការចាក់ត្រូវបានផ្អាក ដោយសារបញ្ហាខូចឯកសារ ឬដោយសារឯកសារមេឌៀប្រើមុខងារដែលកម្មវិធីរុករករបស់អ្នកគ្មាន",
   "MediaPlayerIndex.currentTime": "ពេលវេលាបច្ចុប្បន្ន",
@@ -9,7 +9,7 @@
   "MediaPlayerIndex.forward": "ទៅមុខ ១០ វិនាទី",
   "MediaPlayerIndex.fullscreen": "ពេញអេក្រង់",
   "MediaPlayerIndex.languages": "ភាសានានា",
-  "MediaPlayerIndex.loaded": "បានផ្ទុក",
+  "MediaPlayerIndex.loaded": "បានទាញ",
   "MediaPlayerIndex.mute": "បិទសម្លេង",
   "MediaPlayerIndex.networkError": "កំហុសបណ្តាញបានធ្វើឲការទាញយកឯកសារមេឌៀបរាជ័យពាក់កណ្តាលផ្លូវ",
   "MediaPlayerIndex.nonFullscreen": "មិនពេញអេក្រង់",

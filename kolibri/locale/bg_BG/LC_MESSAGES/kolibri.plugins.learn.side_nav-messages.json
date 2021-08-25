@@ -1,4 +1,8 @@
 {
   "CommonLearnStrings.learnLabel": "Научи",
-  "CommonLearnStrings.recommendedLabel": "Препоръчани"
+  "CommonLearnStrings.mostPopularLabel": "Най-популярни",
+  "CommonLearnStrings.nextStepsLabel": "Следващи стъпки",
+  "CommonLearnStrings.popularLabel": "Популярни",
+  "CommonLearnStrings.recommendedLabel": "Препоръчани",
+  "CommonLearnStrings.resumeLabel": "Възобнови"
 }

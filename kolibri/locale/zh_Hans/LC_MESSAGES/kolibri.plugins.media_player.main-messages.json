@@ -19,7 +19,7 @@
   "MediaPlayerIndex.progressBar": "进度条",
   "MediaPlayerIndex.replay": "回放10秒",
   "MediaPlayerIndex.sourceError": "找不到此媒体的兼容源。",
-  "MediaPlayerIndex.transcript": "文稿",
+  "MediaPlayerIndex.transcript": "字幕",
   "MediaPlayerIndex.transcriptOff": "隐藏文稿",
   "MediaPlayerIndex.unmute": "取消静音",
   "MediaPlayerIndex.volumeLevel": "音量",

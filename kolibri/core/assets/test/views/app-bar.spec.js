@@ -6,10 +6,14 @@ import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
 import AppBar from '../../src/views/AppBar';
 import logoutSideNavEntry from '../../src/views/LogoutSideNavEntry';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
+import LearnOnlyDeviceNotice from '../../src/views/LearnOnlyDeviceNotice';
+import SyncStatusDisplay from '../../src/views/SyncStatusDisplay';
 
 jest.mock('kolibri.urls');
 
 function createWrapper({ navShown = true, height = 20, title = 'test' } = {}, data) {
+  let store = makeStore();
+
   return mount(AppBar, {
     propsData: {
       navShown,
@@ -19,7 +23,7 @@ function createWrapper({ navShown = true, height = 20, title = 'test' } = {}, da
     data() {
       return { ...data };
     },
-    store: makeStore(),
+    store,
   });
 }
 
@@ -66,11 +70,68 @@ describe('app bar component', () => {
     });
     it('should show logout if no components are added and user is logged in', async () => {
       expect(navComponents).toHaveLength(0);
-      const wrapper = createWrapper();
+      const wrapper = createWrapper(undefined, {});
       setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent(logoutSideNavEntry).element).toBeTruthy();
     });
+
+    describe('SoUD sync status and learn-only device indicators', () => {
+      describe('on an SoUD', () => {
+        let wrapper;
+        beforeAll(() => {
+          wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
+        });
+        describe('showing the SyncStatusDisplay', () => {
+          it('shows the SyncStatusDisplay to Learners', async () => {
+            setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
+            await wrapper.vm.$nextTick();
+            expect(wrapper.findComponent(SyncStatusDisplay).exists()).toBe(true);
+          });
+
+          it.each([UserKinds.COACH, UserKinds.ADMIN, UserKinds.ANONYMOUS])(
+            'does not show the SyncStatusDisplay to %s',
+            async kind => {
+              setUserKind(wrapper.vm.$store, kind);
+              await wrapper.vm.$nextTick();
+              expect(wrapper.findComponent(SyncStatusDisplay).exists()).toBe(false);
+            }
+          );
+        });
+
+        describe('showing the LearnOnlyDeviceNotice', () => {
+          it.each([UserKinds.LEARNER, UserKinds.ANONYMOUS])(
+            'hides the notice from %s',
+            async kind => {
+              setUserKind(wrapper.vm.$store, kind);
+              await wrapper.vm.$nextTick();
+              expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(false);
+            }
+          );
+
+          it.each([UserKinds.ADMIN, UserKinds.COACH])('shows the notice to %s', async kind => {
+            setUserKind(wrapper.vm.$store, kind);
+            await wrapper.vm.$nextTick();
+            expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
+          });
+        });
+      });
+      describe('not on a SoUD', () => {
+        let wrapper;
+        beforeEach(() => {
+          wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: false });
+        });
+
+        it('no indicator is shown', () => {
+          expect(wrapper.find('[data-test="syncStatusInDropdown"]').exists()).toBe(false);
+        });
+
+        it('no notice is shown', () => {
+          expect(wrapper.find('[data-test="learnOnlyNotice"]').exists()).toBe(false);
+        });
+      });
+    });
+
     describe('only non-account components are added', () => {
       afterEach(() => {
         navComponents.pop();

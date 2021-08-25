@@ -57,7 +57,11 @@
       },
     },
     $trs: {
-      yourQuizzesHeader: 'Your quizzes',
+      yourQuizzesHeader: {
+        message: 'Your quizzes',
+        context:
+          "AssignedQuizzesCards.yourQuizzesHeader\n\nHeading on the 'Learn' page for a section where a learner can see the assigned quizzes.",
+      },
       noQuizzesMessage: 'You have no quizzes assigned',
     },
   };

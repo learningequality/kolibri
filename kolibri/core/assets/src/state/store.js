@@ -22,10 +22,13 @@ export function coreStoreFactory(pluginModule) {
       mutations: pluginModule.mutations || {},
     });
 
-    if (typeof pluginModule.state !== 'function') {
-      throw TypeError('pluginModule.state must be a function returning a state object');
+    if (pluginModule.state) {
+      if (typeof pluginModule.state !== 'function') {
+        throw TypeError('pluginModule.state must be a function returning a state object');
+      } else {
+        store.replaceState(pluginModule.state());
+      }
     }
-    store.replaceState(pluginModule.state());
     // Registers any modules defined in `pluginModule`. Their state objects will be organized
     // under `state.submoduleState`. Actions, getters, and mutations can be namespaced.
     forEach(pluginModule.modules, (module, name) => {

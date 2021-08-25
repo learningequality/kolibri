@@ -4,16 +4,20 @@ import navComponents from 'kolibri.utils.navComponents';
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
 import SideNav from '../../src/views/SideNav';
 import logoutSideNavEntry from '../../src/views/LogoutSideNavEntry';
+import LearnOnlyDeviceNotice from '../../src/views/LearnOnlyDeviceNotice';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
 
 jest.mock('kolibri.urls');
 
-function createWrapper({ navShown = true, headerHeight = 20, width = 100 } = {}) {
+function createWrapper({ navShown = true, headerHeight = 20, width = 100 } = {}, data = {}) {
   return mount(SideNav, {
     propsData: {
       navShown,
       headerHeight,
       width,
+    },
+    data() {
+      return { ...data };
     },
     store: makeStore(),
   });
@@ -182,6 +186,42 @@ describe('side nav component', () => {
       const wrapper = createWrapper();
       expect(wrapper.vm.menuOptions[1]).toBe(component1);
       expect(wrapper.vm.menuOptions[0]).toBe(component2);
+    });
+  });
+
+  describe('when on an SoUD or NOT', () => {
+    describe('on an SoUD', () => {
+      /* Note that Facilty & Coach plugins are hackily disabled in their kolibri_plugin
+       * definitions - hence no tests to ensure they're hidden here when on SoUD */
+      it('shows the Learn-only notice to non-Learners', async () => {
+        const wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
+        setUserKind(wrapper.vm.$store, UserKinds.COACH);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
+        setUserKind(wrapper.vm.$store, UserKinds.ADMIN);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
+      });
+
+      it('does not show learn-only notice to Learners or Guests', async () => {
+        const wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
+        setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(false);
+        setUserKind(wrapper.vm.$store, UserKinds.ANONYMOUS);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(false);
+      });
+    });
+    describe('NOT on a SoUD', () => {
+      let wrapper;
+      beforeEach(async () => {
+        wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: false });
+      });
+
+      it('shows no notice', () => {
+        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(false);
+      });
     });
   });
 });

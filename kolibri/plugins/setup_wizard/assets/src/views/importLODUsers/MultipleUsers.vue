@@ -114,6 +114,8 @@
         };
         SetupSoUDTasksResource.createTask(task_name, params)
           .then(task => {
+            task['device_id'] = this.device.id;
+            task['facility_name'] = this.facility.name;
             this.lodService.send({
               type: 'CONTINUE',
               value: {
@@ -151,10 +153,11 @@
               }).then(() => {
                 this.isPolling = false;
                 this.lodService.send('CONTINUE');
+                SetupSoUDTasksResource.cleartasks();
               });
-              SetupSoUDTasksResource.cleartasks();
             }
-          } else this.isPolling = false;
+          }
+          if (tasks.length == 0) this.isPolling = false;
         });
         if (this.isPolling) {
           setTimeout(() => {

@@ -1,4 +1,8 @@
 {
-  "CommonLearnStrings.learnLabel": "학습하기",
-  "CommonLearnStrings.recommendedLabel": "추천"
+  "CommonLearnStrings.learnLabel": "학습",
+  "CommonLearnStrings.mostPopularLabel": "가장 인기있는 컨텐츠",
+  "CommonLearnStrings.nextStepsLabel": "다음 단계",
+  "CommonLearnStrings.popularLabel": "인기 항목",
+  "CommonLearnStrings.recommendedLabel": "추천",
+  "CommonLearnStrings.resumeLabel": "재시작"
 }

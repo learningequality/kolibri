@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-11 09:07-0700\n"
-"PO-Revision-Date: 2020-08-04 22:48\n"
+"POT-Creation-Date: 2021-08-17 16:47-0700\n"
+"PO-Revision-Date: 2021-08-18 00:25\n"
 "Last-Translator: \n"
 "Language-Team: Marathi\n"
 "Language: mr_IN\n"
@@ -14,253 +14,229 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: mr\n"
-"X-Crowdin-File: /release-v0.14.x/django.po\n"
-"X-Crowdin-File-ID: 3806\n"
+"X-Crowdin-File: /release-v0.15.x/django.po\n"
+"X-Crowdin-File-ID: 4105\n"
 
-#: kolibri/core/auth/constants/collection_kinds.py:15
-msgid "Facility"
-msgstr "सुविधा"
-
-#: kolibri/core/auth/constants/collection_kinds.py:16
-msgid "Classroom"
-msgstr "वर्ग"
-
-#: kolibri/core/auth/constants/collection_kinds.py:17
-msgid "Learner group"
-msgstr "विद्यार्थ्यांचा गट"
-
-#: kolibri/core/auth/constants/collection_kinds.py:18
-msgid "Ad hoc learners group"
-msgstr "विद्यार्थ्यांचा तात्पुरता गट"
-
-#: kolibri/core/auth/constants/commands_errors.py:17
+#: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
 msgstr "अनपेक्षित अपवाद [{}]: {}"
 
-#: kolibri/core/auth/constants/commands_errors.py:20
+#: core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
 msgstr "'{}' या रकान्यातील मजकूर खूपच मोठा आहे"
 
-#: kolibri/core/auth/constants/commands_errors.py:24
+#: core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
 msgstr "'{}' या रकान्यातील मजकूर वैध नाही"
 
-#: kolibri/core/auth/constants/commands_errors.py:26
+#: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
 msgstr "डुप्लिकेट युझरनेम"
 
-#: kolibri/core/auth/constants/commands_errors.py:28
-#: kolibri/core/auth/management/commands/bulkimportusers.py:84
+#: core/auth/constants/commands_errors.py:28
+#: core/auth/management/commands/bulkimportusers.py:85
 msgid "Username only can contain characters, numbers and underscores"
 msgstr "युझरनेममध्ये फक्त अक्षरे, अंक आणि अंडरस्कोअर वापरण्याची परवानगी आहे"
 
-#: kolibri/core/auth/constants/commands_errors.py:30
+#: core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
 msgstr "'{}' हा स्तंभ अनिवार्य आहे"
 
-#: kolibri/core/auth/constants/commands_errors.py:31
+#: core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
 msgstr "पहिल्या ओळीमध्ये वैध आणि/किंवा अवैध शीर्षक लेबले मिश्र रुपात आढळली"
 
-#: kolibri/core/auth/constants/commands_errors.py:33
+#: core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
 msgstr "कोणतीही पूर्वनिर्धारित सुविधा अस्तित्वात नाही. ही आज्ञा (कमांड) देण्याआधी आपल्या उपकरणावर सुविधा स्थापित (सेट अप) करा."
 
-#: kolibri/core/auth/constants/commands_errors.py:35
-#: kolibri/core/auth/management/commands/bulkimportusers.py:98
+#: core/auth/constants/commands_errors.py:35
+#: core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to read csv file: {}"
 msgstr "ही csv फाईल वाचताना समस्या आली: {}"
 
-#: kolibri/core/auth/constants/commands_errors.py:36
-#: kolibri/core/auth/management/commands/bulkimportusers.py:99
+#: core/auth/constants/commands_errors.py:36
+#: core/auth/management/commands/bulkimportusers.py:100
 msgid "Error trying to write csv file: {}"
 msgstr "ही csv फाईल लिहिताना समस्या आली: {}"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:43
-#: kolibri/core/auth/management/commands/bulkexportusers.py:125
+#: core/auth/management/commands/bulkexportusers.py:42
+#: core/auth/management/commands/bulkexportusers.py:124
 msgid "Database ID ({})"
 msgstr "डेटाबेस आयडी ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:44
-#: kolibri/core/auth/management/commands/bulkexportusers.py:126
+#: core/auth/management/commands/bulkexportusers.py:43
+#: core/auth/management/commands/bulkexportusers.py:125
 msgid "Username ({})"
 msgstr "युझरनेम ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:45
-#: kolibri/core/auth/management/commands/bulkexportusers.py:127
+#: core/auth/management/commands/bulkexportusers.py:44
+#: core/auth/management/commands/bulkexportusers.py:126
 msgid "Password ({})"
 msgstr "पासवर्ड ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:46
-#: kolibri/core/auth/management/commands/bulkexportusers.py:128
+#: core/auth/management/commands/bulkexportusers.py:45
+#: core/auth/management/commands/bulkexportusers.py:127
 msgid "Full name ({})"
 msgstr "पूर्ण नाव ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:51
+#: core/auth/management/commands/bulkexportusers.py:50
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "युझरचा प्रकार ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:54
-#: kolibri/core/auth/management/commands/bulkexportusers.py:136
+#: core/auth/management/commands/bulkexportusers.py:53
+#: core/auth/management/commands/bulkexportusers.py:135
 msgid "Identifier ({})"
 msgstr "ओळख संकेत ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:55
-#: kolibri/core/auth/management/commands/bulkexportusers.py:137
+#: core/auth/management/commands/bulkexportusers.py:54
+#: core/auth/management/commands/bulkexportusers.py:136
 msgid "Birth year ({})"
 msgstr "जन्म वर्ष ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:56
-#: kolibri/core/auth/management/commands/bulkexportusers.py:138
+#: core/auth/management/commands/bulkexportusers.py:55
+#: core/auth/management/commands/bulkexportusers.py:137
 msgid "Gender ({})"
 msgstr "लिंग ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:61
+#: core/auth/management/commands/bulkexportusers.py:60
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "विद्यार्थ्याची नावनोंदणी ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:68
+#: core/auth/management/commands/bulkexportusers.py:67
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "प्रशिक्षकाची नेमणूक ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:133
+#: core/auth/management/commands/bulkexportusers.py:132
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "युझरचा प्रकार ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:143
+#: core/auth/management/commands/bulkexportusers.py:142
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "विद्यार्थ्याची नावनोंदणी ({})"
 
-#: kolibri/core/auth/management/commands/bulkexportusers.py:150
+#: core/auth/management/commands/bulkexportusers.py:149
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "प्रशिक्षकाची नेमणूक ({})"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:75
+#: core/auth/management/commands/bulkimportusers.py:76
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
 msgstr "अनपेक्षित समस्या [{}]: {}"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:79
+#: core/auth/management/commands/bulkimportusers.py:80
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
 msgstr "'{}' या स्तंभातील मूल्यामध्ये अतिरिक्त वर्ण आहेत"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:81
+#: core/auth/management/commands/bulkimportusers.py:82
 msgid "Invalid value in column '{}'"
 msgstr "'{}' या स्तंभामध्ये अवैध मूल्य आहे"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:82
+#: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
 msgstr "युझरनेम दोनदा आले आहे"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:88
+#: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
 msgstr "'{}' हा स्तंभ अनिवार्य आहे"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:92
+#: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Invalid header label found in the first row"
 msgstr "पहिल्या ओळीमध्ये अवैध शीर्षक लेबल आढळले"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:96
+#: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
 msgstr "कोणतीही पूर्वनिर्धारित सुविधा अस्तित्वात नाही. युझर आणि वर्ग आयात करण्याआधी आपल्या उपकरणावर सुविधा स्थापित (सेट अप) करा."
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:101
+#: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
 msgstr "पासवर्ड देणे अनिवार्य आहे. विद्यमान युझर्सचे पासवर्ड आहे तेच ठेवण्यासाठी, ताराचिन्ह (*) द्या"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:104
+#: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
 msgstr "'{}' या आयडीचा युझर अद्ययावत करू शकत नाही: कारण हा डेटाबेस आयडी असलेला कोणताही युझर या सुविधेमध्ये अस्तित्वात नाही"
 
-#: kolibri/core/auth/management/commands/bulkimportusers.py:106
+#: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
 msgstr "डेटाबेस आयडी वैध नाही"
 
-#: kolibri/core/content/api.py:149
+#: core/content/api.py:152
 msgid "Resource"
 msgstr "संसाधन"
 
-#: kolibri/core/content/api.py:910
+#: core/content/api.py:1268
 msgid "The requested channel does not exist on the content server"
-msgstr "तुम्हाला हवी असलेली वाहिनी मजकुराच्या सर्व्हरवर उपलब्ध नाही"
+msgstr "तुम्हाला हवी असलेली वाहिनी या सर्व्हर वर उपलब्ध नाही"
 
-#: kolibri/core/content/models.py:165
+#: core/content/models.py:220
 msgid "Unknown format"
-msgstr "अज्ञात फॉरमॅट"
+msgstr "अनोळखी फॉरमॅट"
 
-#: kolibri/core/device/serializers.py:42
+#: core/device/serializers.py:41
 msgid "Language is not supported by Kolibri"
 msgstr "कोलिब्री सुविधा या भाषेत उपलब्ध नाही"
 
-#: kolibri/core/logger/csv_export.py:207
+#: core/logger/csv_export.py:204
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
 msgstr "मजकूर_सत्र_लॉग"
 
-#: kolibri/core/logger/csv_export.py:217
+#: core/logger/csv_export.py:214
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
 msgstr "मजकूर_सारांश_लॉग"
 
-#: kolibri/core/tasks/api.py:71
+#: core/tasks/api.py:82
 msgid "There was a network error."
 msgstr "नेटवर्कमध्ये समस्या निर्माण झाली."
 
-#: kolibri/core/tasks/api.py:73
+#: core/tasks/api.py:84
 msgid "There was a disk access error."
 msgstr "डिस्क वापरताना समस्या निर्माण झाली."
 
-#: kolibri/core/tasks/api.py:75
+#: core/tasks/api.py:86
 msgid "There was an unknown error."
 msgstr "समस्येचे कारण माहिती नाही."
 
-#: kolibri/core/templates/kolibri/base.html:13
-#: kolibri/core/templates/kolibri/unsupported_browser.html:13
+#: core/templates/kolibri/base.html:13
+#: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
 msgstr "कोलिब्री"
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:42
+#: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
 msgstr "हा ब्राऊझर वापरता येणार नाही"
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:43
+#: core/templates/kolibri/unsupported_browser.html:43
 msgid "Sorry, your browser version is not supported."
 msgstr "क्षमस्व, तुमच्या ब्राऊझरची आवृत्ती वापरता येणार नाही."
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:44
+#: core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
 msgstr "कोलिब्री वापरण्यासाठी फायरफॉक्स किंवा क्रोम वापरावे."
 
-#: kolibri/core/templates/kolibri/unsupported_browser.html:45
+#: core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
 msgstr "तुम्ही तुमच्या सध्याच्या ब्राऊझरची अद्ययावत आवृत्ती इन्स्टॉ्ल करण्याचाही प्रयत्न करू शकता."
 
-#: kolibri/core/views.py:157
+#: core/views.py:160
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "योग्य रीडायरेक्ट पाने सापडली नाहीत. कदाचित कोलिब्री चुकीच्या पद्धतीने कॉन्फिगर झाले आहे"
 
-#: kolibri/plugins/facility/views.py:46
+#: plugins/facility/views.py:52
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users_{}"
 msgstr "युझर्स_{}"
-
-#: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:7
-msgid "OpenID Provider Authorization"
-msgstr "ओपनआयडी प्रदाता अधिकार"
-
-#: kolibri/plugins/oidc_provider_plugin/templates/oidc_provider/authorize.html:15
-msgid "Request for Permission"
-msgstr "परवानगीसाठी विनंती"
 

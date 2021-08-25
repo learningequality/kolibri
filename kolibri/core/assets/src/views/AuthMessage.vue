@@ -121,7 +121,7 @@
       superuser: {
         message: 'You must have super admin permissions to view this page',
         context:
-          '\nMessage presented to any user *without* super admin permissions who accidentally lands on a Kolibri page that is reserved for super admins. ',
+          'Message presented to any user *without* super admin permissions who accidentally lands on a Kolibri page that is reserved for super admins. ',
       },
       forgetToSignIn: {
         message: 'Did you forget to sign in?',

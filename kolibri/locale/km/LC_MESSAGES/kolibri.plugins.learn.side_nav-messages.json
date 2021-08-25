@@ -1,4 +1,8 @@
 {
   "CommonLearnStrings.learnLabel": "រៀន",
-  "CommonLearnStrings.recommendedLabel": "ត្រូវបានណែនាំ"
+  "CommonLearnStrings.mostPopularLabel": "មានប្រជាប្រិយភាពជាងគេ",
+  "CommonLearnStrings.nextStepsLabel": "ជំហានបន្ទាប់",
+  "CommonLearnStrings.popularLabel": "ពេញនិយម",
+  "CommonLearnStrings.recommendedLabel": "ត្រូវបានណែនាំ",
+  "CommonLearnStrings.resumeLabel": "បន្ត"
 }
