@@ -100,7 +100,12 @@
       this.hashi.on(events.KOLIBRIVERSIONREQUESTED, message => {
         this.sendKolibriVersion.call(this, message);
       });
-      this.hashi.initialize({}, {}, zipFile.storage_url, zipFile.checksum);
+      this.hashi.initialize(
+        {},
+        {},
+        urls.zipContentUrl(zipFile.checksum, zipFile.extension),
+        zipFile.checksum
+      );
     },
     methods: {
       // helper functions for fetching data from kolibri
