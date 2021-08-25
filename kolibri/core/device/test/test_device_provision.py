@@ -109,7 +109,7 @@ class DeviceProvisionCommandTestCase(TestCase):
 
 class DeviceProvisionFileTestCase(TestCase):
     """
-    Tests for provisiondevice command.
+    Tests for provisioning a device from a JSON file.
     """
 
     @classmethod
@@ -176,10 +176,14 @@ class DeviceProvisionFileTestCase(TestCase):
             DeviceSettings.objects.get().default_facility, default_facility
         )
 
+    def test_file_removed(self):
+        self.assertFalse(os.path.exists(self.provision_file))
+
 
 class DeviceProvisionFileUnhappyTestCase(TestCase):
     """
-    Tests for provisiondevice command.
+    Tests for provisioning a device from a JSON file.
+    To ensure that validation errors are appropriately thrown.
     """
 
     def setUp(self):

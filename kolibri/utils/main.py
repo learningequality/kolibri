@@ -15,6 +15,7 @@ from django.core.management.base import handle_default_options
 from django.db.utils import DatabaseError
 
 import kolibri
+from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_from_file
 from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
 from kolibri.core.tasks.main import import_tasks_module_from_django_apps
@@ -162,8 +163,8 @@ def _upgrades_before_django_setup(updated, version):
 
 
 def _upgrades_after_django_setup(updated, version):
-    # On first ever run, attempt automatic provisioning
-    if not version and OPTIONS["Paths"]["AUTOMATIC_PROVISION_FILE"]:
+    # If device is not provisioned, attempt automatic provisioning
+    if not device_provisioned() and OPTIONS["Paths"]["AUTOMATIC_PROVISION_FILE"]:
         try:
             provision_from_file(OPTIONS["Paths"]["AUTOMATIC_PROVISION_FILE"])
         except ValidationError as e:

@@ -258,6 +258,22 @@ def get_facility_by_name(facility_name):
     return facility
 
 
+def remove_provisioning_file(file_path):
+    try:
+        os.unlink(file_path)
+        logger.info(
+            "Removed automatic provisioning file {} after successful provisioning".format(
+                file_path
+            )
+        )
+    except (IOError, OSError):
+        logger.warn(
+            "Unable to remove provisioning file {} after successful provisioning".format(
+                file_path
+            ),
+        )
+
+
 def provision_from_file(file_path):
     """
     Expects a JSON file with the following format (example values supplied):
@@ -336,3 +352,5 @@ def provision_from_file(file_path):
         username,
         password,
     )
+
+    remove_provisioning_file(file_path)
