@@ -9,11 +9,14 @@ from sqlite3 import DatabaseError as SQLite3DatabaseError
 
 import django
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.management.base import handle_default_options
 from django.db.utils import DatabaseError
 
 import kolibri
+from kolibri.core.device.utils import device_provisioned
+from kolibri.core.device.utils import provision_from_file
 from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
 from kolibri.core.tasks.main import import_tasks_module_from_django_apps
 from kolibri.core.upgrade import matches_version
@@ -150,6 +153,27 @@ def _setup_django():
         raise
 
 
+def _upgrades_before_django_setup(updated, version):
+    if updated:
+        check_plugin_config_file_location(version)
+        # Reset the enabled plugins to the defaults
+        # This needs to be run before dbbackup because
+        # dbbackup relies on settings.INSTALLED_APPS
+        enable_new_default_plugins()
+
+
+def _upgrades_after_django_setup(updated, version):
+    # If device is not provisioned, attempt automatic provisioning
+    if not device_provisioned() and OPTIONS["Paths"]["AUTOMATIC_PROVISION_FILE"]:
+        try:
+            provision_from_file(OPTIONS["Paths"]["AUTOMATIC_PROVISION_FILE"])
+        except ValidationError as e:
+            logging.error(
+                "Tried to automatically provision the device but received an error"
+            )
+            logging.error(e)
+
+
 def initialize(
     skip_update=False,
     settings=None,
@@ -181,12 +205,7 @@ def initialize(
 
     updated = version_updated(kolibri.__version__, version)
 
-    if updated:
-        check_plugin_config_file_location(version)
-        # Reset the enabled plugins to the defaults
-        # This needs to be run before dbbackup because
-        # dbbackup relies on settings.INSTALLED_APPS
-        enable_new_default_plugins()
+    _upgrades_before_django_setup(updated, version)
 
     _setup_django()
 
@@ -230,6 +249,8 @@ def initialize(
                 "and an error occurred: {}".format(e)
             )
             raise
+
+        _upgrades_after_django_setup(updated, version)
 
     import_tasks_module_from_django_apps()
 

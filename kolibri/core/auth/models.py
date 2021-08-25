@@ -68,6 +68,7 @@ from .permissions.general import IsFromSameFacility
 from .permissions.general import IsOwn
 from .permissions.general import IsSelf
 from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
+from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
@@ -584,7 +585,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, password, facility=None):
+    def create_superuser(self, username, password, facility=None, full_name=None):
 
         # import here to avoid circularity
         from kolibri.core.device.models import DevicePermissions
@@ -597,8 +598,15 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
             raise ValidationError("An account with that username already exists")
 
         # create the new account in that facility
+        # gender and birth_year are set to DEFERRED, since superusers do not
+        # need to provide this and are not nudged to update profile on Learn page
         superuser = FacilityUser(
-            full_name=username, username=username, password=password, facility=facility
+            full_name=full_name or username,
+            username=username,
+            password=password,
+            facility=facility,
+            gender=DEFERRED,
+            birth_year=DEFERRED,
         )
         superuser.full_clean()
         superuser.set_password(password)
@@ -611,6 +619,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         DevicePermissions.objects.create(
             user=superuser, is_superuser=True, can_manage_content=True
         )
+        return superuser
 
 
 def validate_birth_year(value):

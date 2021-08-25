@@ -13,10 +13,11 @@ from kolibri.utils import main
 
 
 @pytest.mark.django_db
+@patch("kolibri.utils.main._upgrades_after_django_setup")
 @patch("kolibri.utils.main.get_version", return_value="")
 @patch("kolibri.utils.main.update")
 @patch("kolibri.core.deviceadmin.utils.dbbackup")
-def test_first_run(dbbackup, update, get_version):
+def test_first_run(dbbackup, update, get_version, upgrades_after_django_setup):
     """
     Tests that the first_run() function performs as expected
     """
@@ -32,9 +33,10 @@ def test_first_run(dbbackup, update, get_version):
 
 
 @pytest.mark.django_db
+@patch("kolibri.utils.main._upgrades_after_django_setup")
 @patch("kolibri.utils.main.get_version", return_value="0.0.1")
 @patch("kolibri.utils.main.update")
-def test_update(update, get_version):
+def test_update(update, get_version, upgrades_after_django_setup):
     """
     Tests that update() function performs as expected
     """
@@ -70,10 +72,13 @@ def test_version_updated():
 
 
 @pytest.mark.django_db
+@patch("kolibri.utils.main._upgrades_after_django_setup")
 @patch("kolibri.utils.main.get_version", return_value=kolibri.__version__)
 @patch("kolibri.utils.main.update")
 @patch("kolibri.core.deviceadmin.utils.dbbackup")
-def test_update_no_version_change(dbbackup, update, get_version):
+def test_update_no_version_change(
+    dbbackup, update, get_version, upgrades_after_django_setup
+):
     """
     Tests that when the version doesn't change, we are not doing things we
     shouldn't
@@ -83,9 +88,12 @@ def test_update_no_version_change(dbbackup, update, get_version):
     dbbackup.assert_not_called()
 
 
+@patch("kolibri.utils.main._upgrades_after_django_setup")
 @patch("kolibri.utils.main._migrate_databases")
 @patch("kolibri.utils.main.version_updated")
-def test_migrate_if_unmigrated(version_updated, _migrate_databases):
+def test_migrate_if_unmigrated(
+    version_updated, _migrate_databases, _upgrades_after_django_setup
+):
     # No matter what, ensure that version_updated returns False
     version_updated.return_value = False
     from morango.models import InstanceIDModel
