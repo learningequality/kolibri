@@ -26,6 +26,7 @@ from kolibri.core.tasks.api import prepare_peer_sync_job
 from kolibri.core.tasks.api import prepare_sync_job
 from kolibri.core.tasks.api import prepare_sync_task
 from kolibri.core.tasks.api import ResourceGoneError
+from kolibri.core.tasks.api import validate_and_create_sync_credentials
 from kolibri.core.tasks.api import validate_facility
 from kolibri.core.tasks.api import validate_peer_sync_job
 from kolibri.core.tasks.api import validate_sync_task
@@ -684,10 +685,10 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
 
     @patch("kolibri.core.tasks.api.validate_peer_sync_job")
     @patch("kolibri.core.tasks.api.prepare_peer_sync_job")
-    @patch("kolibri.core.tasks.api.get_client_and_server_certs")
+    @patch("kolibri.core.tasks.api.validate_and_create_sync_credentials")
     def test_startpeerfacilityimport(
         self,
-        get_client_and_server_certs,
+        validate_and_create_sync_credentials,
         prepare_peer_sync_job,
         validate_peer_sync_job,
         facility_queue,
@@ -749,10 +750,11 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         prepare_peer_sync_job.assert_has_calls(
             [
                 call(
-                    *request_data.keys(),
+                    "baseurl",
+                    "facility",
                     no_push=True,
                     no_provision=True,
-                    extra_metadata=extra_metadata
+                    extra_metadata=extra_metadata,
                 )
             ]
         )
@@ -760,8 +762,13 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
 
     @patch("kolibri.core.tasks.api.prepare_peer_sync_job")
     @patch("kolibri.core.tasks.api.validate_peer_sync_job")
+    @patch("kolibri.core.tasks.api.validate_and_create_sync_credentials")
     def test_startpeerfacilitysync(
-        self, validate_peer_sync_job, prepare_peer_sync_job, facility_queue
+        self,
+        validate_and_create_sync_credentials,
+        validate_peer_sync_job,
+        prepare_peer_sync_job,
+        facility_queue,
     ):
         user = self.superuser
 
@@ -817,7 +824,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJobResponse(fake_job_data, response)
         prepare_peer_sync_job.assert_has_calls(
-            [call(*request_data.keys(), extra_metadata=extra_metadata)]
+            [call("baseurl", "facility", extra_metadata=extra_metadata)]
         )
         facility_queue.enqueue.assert_called_with(call_command, "sync", **prepared_data)
 
@@ -986,8 +993,10 @@ class FacilityTaskHelperTestCase(TestCase):
             cancellable=False,
             extra_metadata=dict(type="test"),
         )
+        req_params = validate_peer_sync_job(req)
+        validate_and_create_sync_credentials(*req_params)
         actual = prepare_peer_sync_job(
-            *validate_peer_sync_job(req), extra_metadata=dict(type="test")
+            *req_params[:2], extra_metadata=dict(type="test")
         )
         self.assertEqual(expected, actual)
 
@@ -1038,7 +1047,7 @@ class FacilityTaskHelperTestCase(TestCase):
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
     @patch("kolibri.core.tasks.api.get_dataset_id")
-    def test_validate_peer_sync_job__unknown_facility(
+    def test_validate_and_create_sync_credentials__unknown_facility(
         self, get_dataset_id, NetworkClient, MorangoProfileController
     ):
         req = Mock(
@@ -1061,15 +1070,13 @@ class FacilityTaskHelperTestCase(TestCase):
         get_dataset_id.side_effect = CommandError()
 
         with self.assertRaises(AuthenticationFailed):
-            prepare_peer_sync_job(
-                *validate_peer_sync_job(req), extra_metadata=dict(type="test")
-            )
+            validate_and_create_sync_credentials(*validate_peer_sync_job(req))
 
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
     @patch("kolibri.core.tasks.api.get_client_and_server_certs")
     @patch("kolibri.core.tasks.api.get_dataset_id")
-    def test_validate_peer_sync_job__not_authenticated(
+    def test_validate_and_create_sync_credentials__not_authenticated(
         self,
         get_dataset_id,
         get_client_and_server_certs,
@@ -1092,15 +1099,13 @@ class FacilityTaskHelperTestCase(TestCase):
         get_client_and_server_certs.side_effect = CommandError()
 
         with self.assertRaises(PermissionDenied):
-            prepare_peer_sync_job(
-                *validate_peer_sync_job(req), extra_metadata=dict(type="test")
-            )
+            validate_and_create_sync_credentials(*validate_peer_sync_job(req))
 
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
     @patch("kolibri.core.tasks.api.get_client_and_server_certs")
     @patch("kolibri.core.tasks.api.get_dataset_id")
-    def test_validate_peer_sync_job__authentication_failed(
+    def test_validate_and_create_sync_credentials__authentication_failed(
         self,
         get_dataset_id,
         get_client_and_server_certs,
@@ -1128,6 +1133,4 @@ class FacilityTaskHelperTestCase(TestCase):
         get_client_and_server_certs.side_effect = CommandError()
 
         with self.assertRaises(AuthenticationFailed):
-            prepare_peer_sync_job(
-                *validate_peer_sync_job(req), extra_metadata=dict(type="test")
-            )
+            validate_and_create_sync_credentials(*validate_peer_sync_job(req))
