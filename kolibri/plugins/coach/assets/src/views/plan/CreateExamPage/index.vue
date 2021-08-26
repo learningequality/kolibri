@@ -546,8 +546,12 @@
         context:
           'This message displays if the learning resource has less questions than the number selected by the coach initially.',
       },
-      numQuestionsExceedNoExercises:
-        'The max number of questions based on the exercises you selected is 0. Select more exercises to reach {inputNumQuestions} questions.',
+      numQuestionsExceedNoExercises: {
+        message:
+          'The max number of questions based on the exercises you selected is 0. Select more exercises to reach {inputNumQuestions} questions.',
+        context:
+          'This message displays if the learning resource selected by the coach has 0 questions.\n',
+      },
       noneSelected: {
         message: 'No exercises are selected',
         context:

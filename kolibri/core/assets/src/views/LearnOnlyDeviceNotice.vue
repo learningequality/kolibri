@@ -22,7 +22,7 @@
         context: 'Label indicating that the device is only usable by learners',
       },
       learnOnlyDeviceNotice: {
-        message: 'Coach and admin features not avaiable',
+        message: 'Coach and admin features not available',
         context: 'A short sentence explaining the limitations of a learn-only device.',
       },
     },

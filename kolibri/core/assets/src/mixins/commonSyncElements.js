@@ -35,7 +35,7 @@ const syncStrings = createTranslator('CommonSyncStrings', {
   },
   nameWithIdFragment: {
     message: '{name} ({id})',
-    context: 'Template for strings of the form "Name (1234)"',
+    context: 'Template for strings of the form "Name (1234)"\nDO NOT TRANSLATE.',
   },
   importFacilityAction: {
     message: 'Import facility',

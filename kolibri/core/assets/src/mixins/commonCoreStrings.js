@@ -8,11 +8,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Button to cancel an action and return to the previous page. Usually this is the opposite of the save button which saves some piece of information.',
   },
-  cannotUndoActionWarning: 'This action cannot be undone',
+  cannotUndoActionWarning: {
+    message: 'This action cannot be undone',
+    context:
+      'Warning to indicate that a specific procedure that the user is carrying out at that time can not be reversed.',
+  },
   clearAction: {
     message: 'Clear',
-    context:
-      '\nButton that allows to clear a single *task* from the list in the task manager.\n\n\n',
+    context: 'Button that allows to clear a single *task* from the list in the task manager.',
   },
   closeAction: {
     message: 'Close',
@@ -90,7 +93,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   showAction: {
     message: 'Show',
     context:
-      "In the Device > Info tab an admin can view detailed info about the device where Kolibri is running.\n\nThey select the 'Show' link to open the 'Advanced' device info.",
+      "Users have the option to either 'show' or 'hide' coach resources in the 'Manage lesson resources' section.",
   },
   startOverAction: {
     message: 'Start over',
@@ -152,7 +155,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   channelsLabel: {
     message: 'Channels',
     context:
-      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri. A learner will see a set of channels available to them when they first open Kolibri.',
+      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri.\n\nA learner will see a set of channels available to them when they first open Kolibri.',
   },
   classCoachLabel: {
     message: 'Class coach',
@@ -235,7 +238,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "An 'Identifier' could be a student ID number or an existing user identification number. This is an optional field in the user create/edit screen.",
   },
-  inProgressLabel: 'In progress',
+  inProgressLabel: {
+    message: 'In progress',
+    context: 'Indicates a task such as a sync is in progress.',
+  },
   kolibriLabel: {
     message: 'Kolibri',
     context:
@@ -276,7 +282,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Password',
     context: "'Password' is a required field when you create an account as a user on Kolibri.",
   },
-  profileLabel: 'Profile',
+  profileLabel: {
+    message: 'Profile',
+    context: "Users can access and edit their personal details via the 'profile' option.",
+  },
   progressLabel: {
     message: 'Progress',
     context:
@@ -393,7 +402,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: '{label}: {details}',
     context: 'DO NOT TRANSLATE.',
   },
-  commaSeparatedPair: '{item1}, {item2}',
+  commaSeparatedPair: {
+    message: '{item1}, {item2}',
+    context: 'DO NOT TRANSLATE.',
+  },
 
   // Demographic-specific strings
   genderOptionMale: {
@@ -404,7 +416,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Female',
     context: "Female is an option in the 'Gender' drop down menu on the 'Create new user' page.",
   },
-  genderOptionOther: 'Other',
+  genderOptionOther: {
+    message: 'Other',
+    context: 'CommonCoreStrings.genderOptionOther\n\n-- CONTEXT --',
+  },
   genderOptionNotSpecified: {
     message: 'Not specified',
     context:
@@ -430,7 +445,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   identifierAriaLabel: {
     message: 'About providing an identifier or ID number',
     context:
-      "\nCould also be translated as \"View information about providing identifier\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to the user indicating that they can access more information and examples about the 'Identifier' through the 'i' icon.",
+      "Could also be translated as \"View information about providing identifier\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to the user indicating that they can access more information and examples about the 'Identifier' through the 'i' icon.",
   },
 
   // Content activity

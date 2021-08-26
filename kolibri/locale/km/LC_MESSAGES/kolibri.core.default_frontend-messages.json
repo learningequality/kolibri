@@ -199,6 +199,8 @@
   "InteractionList.noInteractions": "មិនទាន់មានការសាកល្បងសម្រាប់សំណួរនេះ",
   "LanguageSwitcherList.showMoreLanguagesSelector": "ភាសាច្រើនទៀត",
   "LanguageSwitcherModal.changeLanguageModalHeader": "ប្ដូរ​ភាសា",
+  "LearnOnlyDeviceNotice.learnOnlyDeviceLabel": "",
+  "LearnOnlyDeviceNotice.learnOnlyDeviceNotice": "",
   "LicenseDescriptionsForConsumers.All Rights Reserved": "អ្នកមិនអាចចែកចាយ យកគំរូរតាម ឬបង្កើតថែមពីលើធនធាននេះដោយគ្មានការអនុញ្ញាតពីម្ចាស់រក្សាសិទ្ធិទេ។",
   "LicenseDescriptionsForConsumers.CC BY": "អ្នកអាចចែកចាយ យកគំរូរតាម នឹងបង្កើតថែមពីលើធនធាននេះ - សូម្បីតែពាណិជ្ជកម្ម - ដរាបណាអ្នកផ្តល់សិទ្ធដល់អ្នកនិពន្ធ។",
   "LicenseDescriptionsForConsumers.CC BY-NC": "អ្នកអាចយកគំរូរតាម នឹងបង្កើតថែមពីលើធនធានដែលមិនមែនជាពាណិជ្ជកម្ម។ ធនធានថ្មីរបស់អ្នកត្រូវតែផ្តល់សិទ្ធដល់អ្នកនិពន្ធ និងមិនមែនជាពាណិជ្ជកម្មផងដែរ។",

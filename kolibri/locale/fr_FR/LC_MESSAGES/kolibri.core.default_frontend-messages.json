@@ -199,6 +199,8 @@
   "InteractionList.noInteractions": "Aucune tentative n'a été faite pour cette question",
   "LanguageSwitcherList.showMoreLanguagesSelector": "Plus de langues",
   "LanguageSwitcherModal.changeLanguageModalHeader": "Changer la langue",
+  "LearnOnlyDeviceNotice.learnOnlyDeviceLabel": "",
+  "LearnOnlyDeviceNotice.learnOnlyDeviceNotice": "",
   "LicenseDescriptionsForConsumers.All Rights Reserved": "Vous ne pouvez pas distribuer, adapter ou développer ce contenu sans l'autorisation du détenteur des droits d'auteur.",
   "LicenseDescriptionsForConsumers.CC BY": "Vous pouvez distribuer, adapter et développer cette ressource, même commercialement, à condition de donner crédit à l'auteur.",
   "LicenseDescriptionsForConsumers.CC BY-NC": "Vous pouvez adapter et développer ce contenu de manière non commerciale. Vos nouveaux contenus doivent créditer l'auteur et être également non commerciales.",

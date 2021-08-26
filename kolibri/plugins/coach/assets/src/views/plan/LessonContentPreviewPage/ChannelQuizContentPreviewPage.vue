@@ -195,12 +195,29 @@
       },
     },
     $trs: {
-      licenseDataHeader: 'License',
+      licenseDataHeader: {
+        message: 'License',
+        context:
+          "Refers to the type of license the learning resource has. For example, 'CC BY-NC' meaning 'Creative Commons: attribution, non-commercial'.",
+      },
       copyrightHolderDataHeader: 'Copyright holder',
-      totalQuestionsHeader: 'Total questions',
-      quizDurationHeader: 'Quiz duration',
-      selectQuiz: 'Select quiz',
-      duplicateTitle: '{ originalTitle } ({ copyNum, number })',
+      totalQuestionsHeader: {
+        message: 'Total questions',
+        context: 'Refers to the total number of questions in a quiz.',
+      },
+      quizDurationHeader: {
+        message: 'Quiz duration',
+        context:
+          'Refers to the recommended time it takes to complete a quiz.\n\nDuration is set by whoever made the quiz originally although coaches have the option to override this.',
+      },
+      selectQuiz: {
+        message: 'Select quiz',
+        context: 'Refers to choosing a quiz.',
+      },
+      duplicateTitle: {
+        message: '{ originalTitle } ({ copyNum, number })',
+        context: 'DO NOT TRANSLATE.',
+      },
     },
   };
 

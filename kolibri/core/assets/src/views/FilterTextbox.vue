@@ -127,7 +127,7 @@
       clear: {
         message: 'clear',
         context:
-          "The 'CLEAR' button clears single tasks in the Kolibri Task Manager.\n\nUsing 'CLEAR COMPLETED' will remove ALL the tasks from the list.",
+          'Clear in this context means clear or remove any previous filter parameters from the filter option.',
       },
     },
   };

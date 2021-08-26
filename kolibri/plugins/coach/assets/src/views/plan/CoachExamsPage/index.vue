@@ -269,9 +269,17 @@
         context: 'CoachExamsPage.noExams\n\n-- CONTEXT --',
       },
       noActiveExams: 'No active quizzes',
-      noInactiveExams: 'No inactive quizzes',
+      noInactiveExams: {
+        message: 'No inactive quizzes',
+        context:
+          "Inactive quizzes are ones that are no longer in progress. When the coach presses the 'End quiz' button, the quiz passes from 'active' to 'inactive'.",
+      },
       newQuiz: 'Create new quiz',
-      selectQuiz: 'Select channel quiz',
+      selectQuiz: {
+        message: 'Select channel quiz',
+        context:
+          "Channel quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a channel quiz refers to importing a ready-to-use quiz.",
+      },
     },
   };
 

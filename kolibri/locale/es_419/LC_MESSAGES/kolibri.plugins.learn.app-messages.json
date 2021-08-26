@@ -1,6 +1,6 @@
 {
   "AllClassesPage.noClasses": "No estás inscrito en ningún grupo",
-  "AllClassesPage.yourClassesHeader": "Tus clases",
+  "AllClassesPage.yourClassesHeader": "Tus grupos",
   "AnswerHistory.question": "Pregunta { num, number, integer}",
   "AnswerIcon.correct": "Correcto",
   "AnswerIcon.hintUsed": "Pista utilizada",

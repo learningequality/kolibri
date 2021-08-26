@@ -262,7 +262,7 @@
       onlyShowingEnrolledLabel: {
         message: 'Only showing learners that are enrolled in this class',
         context:
-          'A piece of text showing beneath selectedIndividualLearners explaining that the table only includes enrolled learners.',
+          "Shows beneath 'Select individual learners' explaining that the table only includes enrolled learners.",
       },
       selectAllLabel: {
         message: 'Select all on page',
