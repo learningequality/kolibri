@@ -2,8 +2,7 @@ import json
 import os
 import webbrowser
 
-from pkg_resources import resource_exists
-from pkg_resources import resource_filename
+from importlib.resources import files
 
 from threading import Thread
 
@@ -23,8 +22,6 @@ from kolibri_app.i18n import locale_info
 from kolibri_app.logger import logging
 from kolibri_app.view import KolibriView
 
-
-LOADER_PAGE_TEMPLATE = "assets/_load-{}.html"
 
 share_file = None
 
@@ -57,20 +54,8 @@ class KolibriApp(wx.App):
         if self._checker.IsAnotherRunning():
             return True
 
-        # Set loading screen
-        lang_id = locale_info['language']
-        loader_page = LOADER_PAGE_TEMPLATE.format(lang_id)
-        if not resource_exists("kolibri_app", loader_page):
-            lang_id = lang_id.split('-')[0]
-            loader_page = LOADER_PAGE_TEMPLATE.format(lang_id)
-        if not resource_exists("kolibri_app", loader_page):
-            # if we can't find anything in the given language, default to the English loading page.
-            loader_page = LOADER_PAGE_TEMPLATE.format('en_US')
-        loader_page = resource_filename("kolibri_app", loader_page)
-        self.loader_url = 'file://{}'.format(loader_page)
-
         self.windows = []
-        self.create_kolibri_window(self.loader_url)
+        self.create_kolibri_window()
 
         # start server
         self.server_thread = None
@@ -110,9 +95,6 @@ class KolibriApp(wx.App):
             self.kolibri_server.transition("EXITED")
 
     def create_kolibri_window(self, url=None):
-        if url is None:
-            url = self.kolibri_origin
-
         window = KolibriView(self, url=url)
 
         self.windows.append(window)

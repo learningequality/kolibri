@@ -3,7 +3,8 @@ import locale
 import logging
 import subprocess
 
-from pkg_resources import resource_filename
+from importlib.resources import is_resource
+from importlib.resources import files
 
 from kolibri_app.constants import MAC
 
@@ -19,7 +20,27 @@ if not languages and MAC:
 if not languages:
     languages = ['en_US']
 
-t = gettext.translation('wxapp', resource_filename("kolibri_app", "locales"), languages=languages, fallback=True)
+nelangs = []
+for lang in languages:
+    for nelang in gettext._expand_lang(lang):
+        if nelang not in nelangs:
+            nelangs.append(nelang)
+
+mo_file = None
+
+locale_dir = files('kolibri_app') / 'locales'
+
+for lang in nelangs:
+    mo_file = locale_dir / lang / 'LC_MESSAGES' / 'wxapp.mo'
+    if mo_file.is_file():
+        break
+
+if mo_file is not None and mo_file.is_file():
+    with mo_file.open("rb") as f:
+        t = gettext.GNUTranslations(f)
+else:
+    t = gettext.NullTranslations()
+
 locale_info = t.info()
 # We have not been able to reproduce, but we have seen this happen in user tracebacks, so
 # trigger the exception handling fallback if locale_info doesn't have a language key.

@@ -1,12 +1,16 @@
 import os
 import subprocess
 import webbrowser
+from io import BytesIO
 
 import wx
 
 from wx import html2
 
+from importlib.resources import files
+
 from kolibri_app.i18n import _
+from kolibri_app.i18n import locale_info
 from kolibri_app.constants import APP_NAME
 from kolibri_app.constants import LINUX
 from kolibri_app.constants import MAC
@@ -14,6 +18,31 @@ from kolibri_app.constants import WINDOWS
 
 
 html2.WebView.MSWSetEmulationLevel(html2.WEBVIEWIE_EMU_IE11)
+
+LOADER_PAGE_TEMPLATE = "_load-{}.html"
+
+
+class LoadingHandler(wx.html2.WebViewHandler):
+    def __init__(self):
+        wx.html2.WebViewHandler.__init__(self, 'loading')
+        lang_id = locale_info['language']
+        asset_files = files('kolibri_app') / "assets"
+        loader_page = asset_files / LOADER_PAGE_TEMPLATE.format(lang_id)
+        if not loader_page.is_file():
+            lang_id = lang_id.split('-')[0]
+            loader_page = asset_files / LOADER_PAGE_TEMPLATE.format(lang_id)
+        if not loader_page.is_file():
+            # if we can't find anything in the given language, default to the English loading page.
+            loader_page = asset_files / LOADER_PAGE_TEMPLATE.format('en_US')
+        with loader_page.open('rb') as f:
+            self.loader_page = f.read()
+
+    def GetFile(self, uri):
+        fsfile = wx.FSFile(BytesIO(self.loader_page), uri, 'text/html', "", wx.DateTime.Now())
+        return fsfile
+
+
+LOADER_URL = "loading://loader.html"
 
 
 class KolibriView(object):
@@ -29,9 +58,17 @@ class KolibriView(object):
         if WINDOWS and html2.WebView.IsBackendAvailable(html2.WebViewBackendEdge):
             backend = html2.WebViewBackendEdge
 
-        self.webview = html2.WebView.New(self.view, backend=backend, url=url)
+        self.webview = html2.WebView.New(self.view, backend=backend)
         self.webview.Bind(html2.EVT_WEBVIEW_NAVIGATING, self.OnBeforeLoad)
         self.webview.Bind(html2.EVT_WEBVIEW_LOADED, self.OnLoadComplete)
+
+        self.webview.RegisterHandler(LoadingHandler())
+        
+        if url is None:
+            # Set loading screen
+            url = LOADER_URL
+
+        self.webview.LoadURL(url)
 
         self.default_zoom = self.current_zoom = 4
         self.max_zoom = 2
@@ -134,7 +171,7 @@ class KolibriView(object):
 
         # Make sure that any attempts to use back functionality don't take us back to the loading screen
         # For more info, see: https://stackoverflow.com/questions/8103532/how-to-clear-webview-history-in-android
-        if self.current_url == self.app.loader_url and url != self.app.loader_url:
+        if self.current_url == LOADER_URL and url != LOADER_URL:
             self.clear_history()
 
         self.current_url = url
@@ -150,7 +187,7 @@ class KolibriView(object):
         webbrowser.open('https://community.learningequality.org/')
 
     def on_new_window(self, event):
-        self.app.create_kolibri_window()
+        self.app.create_kolibri_window(url=self.app.kolibri_origin)
 
     def on_close_window(self, event):
         self.close()

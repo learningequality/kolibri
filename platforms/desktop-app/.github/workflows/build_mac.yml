@@ -13,10 +13,10 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.6
+    - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
-        python-version: 3.6
+        python-version: 3.9
     - name: Download file
       run: |
         mkdir dist
@@ -29,7 +29,7 @@ jobs:
         export PYTHONPATH=$PYTHONPATH:$PWD/src/kolibri/dist
         mkdir -p logs
         export LIBPYTHON_FOLDER="$(python3 -c 'from distutils.sysconfig import get_config_var; print(get_config_var("LIBDIR"))')"
-        ln -s $LIBPYTHON_FOLDER/libpython3.6m.dylib $LIBPYTHON_FOLDER/libpython3.6.dylib
+        ln -s $LIBPYTHON_FOLDER/libpython3.9m.dylib $LIBPYTHON_FOLDER/libpython3.9.dylib
         python3 i18n.py
         python3 kapew.py build
         python3 kapew.py package
