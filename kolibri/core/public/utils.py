@@ -193,7 +193,7 @@ def begin_request_soud_sync(server, user):
     queue.enqueue(request_soud_sync, server, user)
 
 
-def request_soud_sync(server, user, queue_id=None, ttl=10):
+def request_soud_sync(server, user, queue_id=None, ttl=4):
     """
     Make a request to the serverurl endpoint to sync this SoUD (Subset of Users Device)
         - If the server says "sync now" immediately queue a sync task for the server
@@ -212,9 +212,16 @@ def request_soud_sync(server, user, queue_id=None, ttl=10):
     try:
         data = {"user": user, "instance": instance_model.id}
         if queue_id is None:
-            response = requests.post(server_url, json=data)
+            # Set connection timeout to slightly larger than a multiple of 3, as per:
+            # https://docs.python-requests.org/en/master/user/advanced/#timeouts
+            # Use a relatively short connection timeout so that we don't block
+            # waiting for servers that have dropped off the network.
+            response = requests.post(server_url, json=data, timeout=(6.05, 30))
         else:
-            response = requests.put(server_url, json=data)
+            # Use a blanket 30 second timeout for PUT requests, as we have already
+            # got a place in the queue to sync with this server, so we can be
+            # more sure that the server is actually available.
+            response = requests.put(server_url, json=data, timeout=30)
 
     except requests.exceptions.ConnectionError:
         # Algorithm to try several times if the server is not responding
