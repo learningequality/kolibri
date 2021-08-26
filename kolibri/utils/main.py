@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import logging
 import os
+import shutil
 import sys
 from sqlite3 import DatabaseError as SQLite3DatabaseError
 
@@ -154,12 +155,44 @@ def _setup_django():
 
 
 def _upgrades_before_django_setup(updated, version):
-    if updated:
+    if version and updated:
         check_plugin_config_file_location(version)
+
+    if updated:
         # Reset the enabled plugins to the defaults
         # This needs to be run before dbbackup because
         # dbbackup relies on settings.INSTALLED_APPS
         enable_new_default_plugins()
+
+    if not version and OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
+        # If there is no registered version, and we are using sqlite,
+        # we can shortcut migrations by using the preseeded databases
+        # that we bundle in the Kolibri whl file.
+        logger.info("Attempting to setup using pre-migrated databases")
+        try:
+            import kolibri.dist
+
+            main_db_path = os.path.join(kolibri.dist.__file__, "home/db.sqlite3")
+            shutil.copy(main_db_path, KOLIBRI_HOME)
+        except (ImportError, IOError, OSError):
+            logger.warning(
+                "Unable to copy pre-migrated database from {} to {}".format(
+                    main_db_path, KOLIBRI_HOME
+                )
+            )
+        try:
+            import kolibri.dist
+
+            notifications_db_path = os.path.join(
+                kolibri.dist.__file__, "home/notifications.sqlite3"
+            )
+            shutil.copy(notifications_db_path, KOLIBRI_HOME)
+        except (ImportError, IOError, OSError):
+            logger.warning(
+                "Unable to copy pre-migrated database from {} to {}".format(
+                    notifications_db_path, KOLIBRI_HOME
+                )
+            )
 
 
 def _upgrades_after_django_setup(updated, version):

@@ -166,6 +166,15 @@ writeversion:
 	@echo ""
 	@echo "Current version is now `cat kolibri/VERSION`"
 
+preseeddb:
+	$(eval TEMPKHOME := $(shell mktemp -d /tmp/kolibri-preseeddb-XXXXXXXX))
+	PYTHONPATH=".:$$PYTHONPATH" KOLIBRI_HOME=$(TEMPKHOME) python -m kolibri manage migrate
+	yes yes | PYTHONPATH=".:$$PYTHONPATH" KOLIBRI_HOME=$(TEMPKHOME) python -m kolibri manage deprovision
+	mkdir kolibri/dist/home
+	mv $(TEMPKHOME)/db.sqlite3 kolibri/dist/home/db.sqlite3
+	mv $(TEMPKHOME)/notifications.sqlite3 kolibri/dist/home/notifications.sqlite3
+	rm -r $(TEMPKHOME)
+
 setrequirements:
 	rm -r requirements.txt || true # remove requirements.txt
 	git checkout -- requirements.txt # restore requirements.txt
@@ -198,7 +207,7 @@ i18n-transfer-context:
 i18n-django-compilemessages:
 	# Change working directory to kolibri/ such that compilemessages
 	# finds only the .po files nested there.
-	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages
+	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages --skip-update
 
 i18n-upload: i18n-extract
 	python packages/kolibri-tools/lib/i18n/crowdin.py upload-sources ${branch}
