@@ -2,6 +2,7 @@ import logging
 import os
 import signal
 import sys
+import threading
 import time
 import traceback as _traceback
 from functools import partial
@@ -455,6 +456,34 @@ class ProcessControlPlugin(Monitor):
                 self.mtime = mtime
 
 
+class ThreadWait(SimplePlugin):
+    """
+    Vendored from magicbus for Python 3.9 compatibility.
+    The current released version of magicbus is still using isAlive
+    instead of is_alive which is no longer used in Python 3.9.
+    """
+
+    def EXIT(self):
+        # Waiting for ALL child threads to finish is necessary on OS X.
+        # See http://www.cherrypy.org/ticket/581.
+        # It's also good to let them all shut down before allowing
+        # the main thread to call atexit handlers.
+        # See http://www.cherrypy.org/ticket/751.
+        self.bus.log("Waiting for child threads to terminate...")
+        for t in threading.enumerate():
+            if t == threading.current_thread() or not t.is_alive():
+                continue
+
+            # Note that any dummy (external) threads are always daemonic.
+            if t.daemon or isinstance(t, threading._MainThread):
+                continue
+
+            self.bus.log("Waiting for thread %s." % t.getName())
+            t.join()
+
+    EXIT.priority = 100
+
+
 def wait_for_status(target, timeout=10):
     starttime = time.time()
     while time.time() - starttime <= timeout:
@@ -547,6 +576,11 @@ class KolibriProcessBus(ProcessBus):
             sys.exit(1)
 
         super(KolibriProcessBus, self).__init__()
+        # This can be removed when a new version of magicbus is released that
+        # includes their fix for Python 3.9 compatibility.
+        self.thread_wait.unsubscribe()
+        self.thread_wait = ThreadWait(self)
+        self.thread_wait.subscribe()
         # Setup plugin for handling PID file cleanup
         # Do this first to obtain a PID file lock as soon as
         # possible and reduce the risk of competing servers
