@@ -199,6 +199,8 @@
   "InteractionList.noInteractions": "ဒီမေးခွန်းအပေါ်တွင် ကြိုးစားဖြေဆိုမှုမရှိခဲ့ပါ",
   "LanguageSwitcherList.showMoreLanguagesSelector": "အခြားဘာသာစကားများ",
   "LanguageSwitcherModal.changeLanguageModalHeader": "ဘာသာစကားပြောင်းလဲမည်",
+  "LearnOnlyDeviceNotice.learnOnlyDeviceLabel": "",
+  "LearnOnlyDeviceNotice.learnOnlyDeviceNotice": "",
   "LicenseDescriptionsForConsumers.All Rights Reserved": "သင်သည် မူပိုင်ခွင့်ပိုင်ရှင်ထံမှ ခွင့်ပြုချက်မရှိဘဲ ဤရင်းမြစ်ကို ဖြန့်ဝေခြင်း၊ ပြင်ဆင်ညှိနှိုင်းခြင်း သို့မဟုတ် အခြေပြုဆောင်ရွက်ခြင်း ပြုလုပ်၍ မရနိုင်ပါ။",
   "LicenseDescriptionsForConsumers.CC BY": "သင်သည် ဖန်တီးသူကို အသိအမှတ်ပြုမှတ်တမ်းတင်ပြထားလျှင် ဤရင်းမြစ်ကို ဖြန့်ဝေခြင်း၊ ပြင်ဆင်ညှိနှိုင်းခြင်း သို့မဟုတ် အခြေပြုဆောင်ရွက်ခြင်း ပြုလုပ်နိုင်ပြီး စီးပွားရေးအရပင် လုပ်ဆောင်နိုင်ပါသည်။",
   "LicenseDescriptionsForConsumers.CC BY-NC": "သင်သည် စီးပွားရေးအရမဟုတ်ဘဲ ဤရင်းမြစ်ကို ပြင်ဆင်ညှိနှိုင်း၍ အခြေပြုဆောင်ရွက်နိုင်သည်။ သင်၏ ရင်းမြစ်အသစ်များအတွက် ဖန်တီးသူကို အသိအမှတ်ပြုမှတ်တမ်းတင်ပြရမည် ဖြစ်ပြီး စီးပွားရေးအရလည်း မဖြစ်ရပါ။",

@@ -128,10 +128,22 @@
     },
     $trs: {
       createNewExamLabel: 'Create new quiz',
-      selectChannelQuizLabel: 'Select a channel quiz',
-      channelsWithQuizzesLabel: 'The following channels contain pre-made quizzes',
-      selectionInformation:
-        '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
+      selectChannelQuizLabel: {
+        message: 'Select a channel quiz',
+        context:
+          "Channel quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a channel quiz refers to importing a ready-to-use quiz.",
+      },
+      channelsWithQuizzesLabel: {
+        message: 'The following channels contain pre-made quizzes',
+        context:
+          "Pre-made quizzes are also known as channel quizzes. They are ones that don't require the curation work on the part of the coach.\n",
+      },
+      selectionInformation: {
+        message:
+          '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
+        context:
+          'Refers to a number of resources selected out of a total number. For example:\n\n"4 of 10 resources selected"',
+      },
     },
   };
 

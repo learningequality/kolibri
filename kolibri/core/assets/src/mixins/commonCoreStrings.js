@@ -15,8 +15,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   clearAction: {
     message: 'Clear',
-    context:
-      '\nButton that allows to clear a single *task* from the list in the task manager.\n\n\n',
+    context: 'Button that allows to clear a single *task* from the list in the task manager.',
   },
   closeAction: {
     message: 'Close',
@@ -94,7 +93,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   showAction: {
     message: 'Show',
     context:
-      "In the Device > Info tab an admin can view detailed info about the device where Kolibri is running.\n\nThey select the 'Show' link to open the 'Advanced' device info.",
+      "Users have the option to either 'show' or 'hide' coach resources in the 'Manage lesson resources' section.",
   },
   startOverAction: {
     message: 'Start over',
@@ -156,7 +155,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   channelsLabel: {
     message: 'Channels',
     context:
-      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri. A learner will see a set of channels available to them when they first open Kolibri.',
+      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri.\n\nA learner will see a set of channels available to them when they first open Kolibri.',
   },
   classCoachLabel: {
     message: 'Class coach',
@@ -446,7 +445,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   identifierAriaLabel: {
     message: 'About providing an identifier or ID number',
     context:
-      "\nCould also be translated as \"View information about providing identifier\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to the user indicating that they can access more information and examples about the 'Identifier' through the 'i' icon.",
+      "Could also be translated as \"View information about providing identifier\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to the user indicating that they can access more information and examples about the 'Identifier' through the 'i' icon.",
   },
 
   // Content activity

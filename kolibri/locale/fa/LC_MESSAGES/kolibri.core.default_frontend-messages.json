@@ -199,6 +199,8 @@
   "InteractionList.noInteractions": "هیچ تلاش و جستجویی برای این سوال صورت نگرفته است",
   "LanguageSwitcherList.showMoreLanguagesSelector": "زبان‌های بیشتر",
   "LanguageSwitcherModal.changeLanguageModalHeader": "تغییر زبان",
+  "LearnOnlyDeviceNotice.learnOnlyDeviceLabel": "",
+  "LearnOnlyDeviceNotice.learnOnlyDeviceNotice": "",
   "LicenseDescriptionsForConsumers.All Rights Reserved": "شما نمی‌توانید بدون اجازه از صاحب کپی‌رایت، این منبع را پخش کنید، تغییر دهید یا از آن برای ساختن منبع دیگری استفاده کنید.",
   "LicenseDescriptionsForConsumers.CC BY": "شما می‌توانید تا زمانی‌که نام نویسنده را ذکر کنید، این منبع را – حتی بصورت تبلیغاتی – پخش کنید، تغییر دهید یا از آن برای ساختن منبع دیگری استفاده کنید.",
   "LicenseDescriptionsForConsumers.CC BY-NC": "شما می‌توانید این منبع را به منظور غیر تبلیغاتی تغییر دهید یا از آن برای ساختن منبع دیگری استفاده کنید. در منابع جدیدتان نیز نام نویسنده باید ذکر شده باشد و تبلیغاتی نیز نباشد.",

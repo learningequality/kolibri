@@ -199,6 +199,8 @@
   "InteractionList.noInteractions": "لا توجد محاولات للإجابة على هذا السؤال",
   "LanguageSwitcherList.showMoreLanguagesSelector": "مزيد من اللغات",
   "LanguageSwitcherModal.changeLanguageModalHeader": "تغيير اللغة",
+  "LearnOnlyDeviceNotice.learnOnlyDeviceLabel": "",
+  "LearnOnlyDeviceNotice.learnOnlyDeviceNotice": "",
   "LicenseDescriptionsForConsumers.All Rights Reserved": "لا يحق لك توزيع هذا المصدر أو تطويعه أو البناء عليه دون إذن من مالك حقوق التأليف والنشر.",
   "LicenseDescriptionsForConsumers.CC BY": "يحق لك توزيع هذا المصدر أو تطويعه أو البناء عليه - حتى تجارياً - طالما تنسبه للمؤلف.",
   "LicenseDescriptionsForConsumers.CC BY-NC": "يحق لك تطويع هذا المصدر أو البناء عليه بشكل غير تجاري. مصدرك الجديد يجب أن يُنسب للمؤلف وأن يكون غير تجاري.",

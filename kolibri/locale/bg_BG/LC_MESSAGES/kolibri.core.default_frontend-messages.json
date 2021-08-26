@@ -199,6 +199,8 @@
   "InteractionList.noInteractions": "Няма направени опити за този въпрос",
   "LanguageSwitcherList.showMoreLanguagesSelector": "Още езици",
   "LanguageSwitcherModal.changeLanguageModalHeader": "Промяна на езика",
+  "LearnOnlyDeviceNotice.learnOnlyDeviceLabel": "",
+  "LearnOnlyDeviceNotice.learnOnlyDeviceNotice": "",
   "LicenseDescriptionsForConsumers.All Rights Reserved": "Не е позволено разпространението, адаптирането или надграждането на този ресурс без разрешение от собственика на авторските права.",
   "LicenseDescriptionsForConsumers.CC BY": "Позволено е разпространението, адаптирането и надграждането на този ресурс, дори за комерсиални цели, стига да са отдадени заслуги на автора.",
   "LicenseDescriptionsForConsumers.CC BY-NC": "Позволено е адаптирането и надграждането на този ресурс за некомерсиални цели. Новите ресурси трябва да отдават заслуги на автора и също така да са некомерсиални.",

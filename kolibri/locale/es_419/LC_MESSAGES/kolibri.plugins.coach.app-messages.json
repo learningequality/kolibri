@@ -373,7 +373,7 @@
   "StatusElapsedTime.openedSecondsAgo": "Abierta hace {seconds} {seconds, plural, one {segundo} other {segundos}}",
   "SyncStatusDescription.notConnectedDescription": "El dispositivo no está conectado a un servidor con el cual puede sincronizar",
   "SyncStatusDescription.queuedDescription": "Dispositivo en cola para sincronizar",
-  "SyncStatusDescription.syncedDescription": "El dispositivo se ha sincronizado con éxito con el servidor de clase",
+  "SyncStatusDescription.syncedDescription": "El dispositivo se ha sincronizado con éxito con el servidor de grupo",
   "SyncStatusDescription.syncingDescription": "El dispositivo está sincronizando la información",
   "SyncStatusDescription.unableOrNoSyncDescription": "El problema puede ser que el dispositivo está conectado al servidor pero no se ha sincronizado recientemente, o la sincronización se intentó pero falló por alguna razón.",
   "SyncStatusDisplay.notConnected": "No conectado al servidor",

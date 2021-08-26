@@ -85,7 +85,7 @@
   "DeviceSettingsPage.facilitySettings": "También se puede configurar el centro educativo",
   "DeviceSettingsPage.landingPageLabel": "Página de inicio predeterminada",
   "DeviceSettingsPage.learnerAppPageChoice": "Página Aprender",
-  "DeviceSettingsPage.lockedContent": "Los estudiantes que inician su sesión verán solo los recursos que tienen asignados en sus clases",
+  "DeviceSettingsPage.lockedContent": "Los estudiantes que inician su sesión verán solo los recursos que tienen asignados en sus grupos",
   "DeviceSettingsPage.pageDescription": "Los cambios afectarán solo este dispositivo.",
   "DeviceSettingsPage.pageHeader": "Configuración del dispositivo",
   "DeviceSettingsPage.saveFailureNotification": "Cambios de configuración no están guardados",
