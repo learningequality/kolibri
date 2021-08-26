@@ -124,7 +124,7 @@ export function showExamCreationTopicPage(store, params) {
     });
   });
 }
-export function showExamCreationBookamrksPage(store, params) {
+export function showExamCreationBookmarksPage(store, params) {
   return store.dispatch('loading').then(() => {
     const { topicId } = params;
     const topicNodePromise = ContentNodeResource.fetchModel({ id: topicId });
@@ -153,26 +153,23 @@ export function showExamCreationBookamrksPage(store, params) {
 }
 export function showExamCreationAllBookmarks(store) {
   return store.dispatch('loading').then(() => {
-    let dataArr = [];
-    getBookmarks()
-      .then(bookmarks => {
-        bookmarks.forEach(bookmark => {
-          ContentNodeResource.fetchModel({ id: bookmark.contentnode_id }).then(data => {
-            dataArr.push(data);
-          });
-        });
-      })
-      .then(() => {
-        return showExamCreationPage(store, {
-          bookmarksList: dataArr,
-        });
+    getBookmarks().then(bookmarks => {
+      return showExamCreationPage(store, {
+        bookmarksList: bookmarks,
       });
+    });
   });
 }
 function getBookmarks() {
-  return BookmarksResource.fetchCollection().then(bookmarks => {
-    return bookmarks;
-  });
+  return BookmarksResource.fetchCollection()
+    .then(bookmarks => {
+      return bookmarks.map(bookmark => {
+        return ContentNodeResource.fetchModel({ id: bookmark.contentnode_id });
+      });
+    })
+    .then(bookmarkPromises => {
+      return Promise.all(bookmarkPromises);
+    });
 }
 
 export function showExamCreationPreviewPage(store, params, query = {}) {

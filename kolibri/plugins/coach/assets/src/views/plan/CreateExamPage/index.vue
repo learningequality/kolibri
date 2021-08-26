@@ -103,7 +103,7 @@
             :title="$tr('bookmarks')"
             :link="getBookmarksLink()"
             :kind="$tr('bookmark')"
-            :description="this.bookmarksCount + $tr('resources')"
+            :description="$tr('resources', { count: this.bookmarksCount })"
             :isLeaf="false"
           />
         </div>
@@ -218,7 +218,7 @@
         },
         numQuestionsBlurred: false,
         showChannels: true,
-        bookmarksCount: 0
+        bookmarksCount: 0,
       };
     },
     computed: {
@@ -400,7 +400,7 @@
     },
     created() {
       BookmarksResource.fetchCollection().then(bookmarks => {
-        this.bookmarksCount = bookmarks.length
+        this.bookmarksCount = bookmarks.length;
       });
     },
     methods: {
@@ -519,7 +519,8 @@
       },
       toggleSelected({ content, checked }) {
         let exercises;
-        const contentNode = this.contentList.find(item => item.id === content.id);
+        const list = this.contentList ? this.contentList: this.bookmarksList
+        const contentNode = list.find(item => item.id === content.id);
         const isTopic = contentNode.kind === ContentNodeKinds.TOPIC;
         if (checked && isTopic) {
           this.showError = false;
@@ -597,7 +598,7 @@
       },
     },
     $trs: {
-      resources: ' resources',
+      resources: '{count} {count, plural, one {resource} other {resources}}',
       bookmark: 'bookmark',
       bookmarks: 'Bookmarks',
       createNewExamLabel: {

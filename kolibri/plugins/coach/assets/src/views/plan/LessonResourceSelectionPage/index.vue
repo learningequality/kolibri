@@ -17,11 +17,10 @@
       </h1>
       <div v-if="!showChannels">
         <ContentCardList
-          v-if="bookmarkNodes"
-          :contentList="bookmarkNodes"
+          :contentList="bookmarksContentList"
           :showSelectAll="selectAllIsVisible"
           :selectAllChecked="addableContent.length === 0"
-          :contentCardLink="contentLink"
+          :contentCardLink="bookmarkLink"
           :contentIsChecked="contentIsInLesson"
           :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
           :viewMoreButtonState="viewMoreButtonState"
@@ -35,9 +34,9 @@
         <div @click="lessonCardClicked">
           <LessonContentCard
             :title="$tr('bookmarks')"
-            :link="{}"
+            :link="getBookmarksLink()"
             :kind="$tr('bookmark')"
-            :description="this.bookmarks.length + ' resources'"
+            :description="$tr('resources', { count: this.bookmarksCount })"
             :isLeaf="false"
           />
         </div>
@@ -151,8 +150,7 @@
         isExiting: false,
         moreResultsState: null,
         resourcesChanged: false,
-        bookmarks: [],
-        bookmarkNodes: [],
+        bookmarksCount: 0,
         showChannels: true,
       };
     },
@@ -163,6 +161,7 @@
       ...mapState('lessonSummary/resources', [
         'ancestorCounts',
         'contentList',
+        'bookmarksList',
         'searchResults',
         'ancestors',
       ]),
@@ -176,12 +175,16 @@
       pageTitle() {
         return this.$tr('documentTitle', { lessonName: this.currentLesson.title });
       },
+      bookmarksContentList() {
+        return this.bookmarksList ? this.bookmarksList : [];
+      },
       filteredContentList() {
         const { role } = this.filters;
         if (!this.inSearchMode) {
           return this.contentList;
         }
-        return this.contentList.filter(contentNode => {
+        const list = this.contentList ? this.contentList : this.bookmarksList;
+        return list.filter(contentNode => {
           let passesFilters = true;
           if (role === 'nonCoach') {
             passesFilters = passesFilters && contentNode.num_coach_contents === 0;
@@ -202,7 +205,10 @@
         return this.$route.params.searchTerm || '';
       },
       routerParams() {
-        return { classId: this.classId, lessonId: this.lessonId };
+        return {
+          classId: this.classId,
+          lessonId: this.lessonId ? this.lessonId : this.$route.params.lessonId,
+        };
       },
       debouncedSaveResources() {
         return debounce(this.saveResources, 1000);
@@ -231,7 +237,8 @@
       },
       addableContent() {
         // Content in the topic that can be added if 'Select All' is clicked
-        return this.contentList.filter(
+        const list = this.contentList ? this.contentList : this.bookmarksList;
+        return list.filter(
           content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
         );
       },
@@ -274,15 +281,6 @@
       },
     },
     watch: {
-      $route() {
-        if (this.$route.params.topicId) {
-          ContentNodeResource.fetchCollection({
-            getParams: { parent: this.$route.params.topicId },
-          }).then(bookmarks => {
-            this.bookmarkNodes = bookmarks;
-          });
-        }
-      },
       workingResources(newVal, oldVal) {
         this.showResourcesDifferenceMessage(newVal.length - oldVal.length);
         this.debouncedSaveResources();
@@ -334,8 +332,8 @@
       }
     },
     created() {
-      this.getBookmarks().then(() => {
-        this.getBookmarksData();
+      this.getBookmarks().then(count => {
+        this.bookmarksCount = count;
       });
     },
     methods: {
@@ -346,17 +344,15 @@
         addToWorkingResources: 'ADD_TO_WORKING_RESOURCES',
         removeFromSelectedResources: 'REMOVE_FROM_WORKING_RESOURCES',
       }),
-      getBookmarksData() {
-        this.bookmarks.forEach(bookmark => {
-          ContentNodeResource.fetchModel({ id: bookmark.contentnode_id }).then(data => {
-            this.bookmarkNodes.push(data);
-          });
-        });
-      },
       getBookmarks() {
         return BookmarksResource.fetchCollection().then(bookmarks => {
-          this.bookmarks = bookmarks;
+          return bookmarks.length;
         });
+      },
+      getBookmarksLink() {
+        return {
+          name: LessonsPageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
+        };
       },
       lessonCardClicked() {
         this.showChannels = false;
@@ -401,6 +397,32 @@
       },
       topicListingLink({ topicId }) {
         return this.$router.getRoute(LessonsPageNames.SELECTION, { topicId }, this.$route.query);
+      },
+      bookmarkListingLink({ topicId }) {
+        return this.$router.getRoute(
+          LessonsPageNames.LESSON_SELECTION_BOOKMARKS,
+          { topicId },
+          this.$route.query
+        );
+      },
+      bookmarkLink(content) {
+        if (this.contentIsDirectoryKind(content)) {
+          return this.bookmarkListingLink({ ...this.routerParams, topicId: content.id });
+        }
+        const { query } = this.$route;
+        return {
+          name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
+          params: {
+            ...this.routerParams,
+            contentId: content.id,
+          },
+          query: {
+            ...query,
+            ...pickBy({
+              searchTerm: this.$route.params.searchTerm,
+            }),
+          },
+        };
       },
       contentLink(content) {
         if (this.contentIsDirectoryKind(content)) {
@@ -485,6 +507,7 @@
       },
     },
     $trs: {
+      resources: '{count} {count, plural, one {resource} other {resources}}',
       bookmark: 'bookmark',
       bookmarks: 'Bookmarks',
       selectionInformation: {

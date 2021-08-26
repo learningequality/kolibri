@@ -3,7 +3,7 @@ import { PageNames } from '../constants';
 import {
   showExamCreationRootPage,
   showExamCreationTopicPage,
-  showExamCreationBookamrksPage,
+  showExamCreationBookmarksPage,
   showExamCreationAllBookmarks,
   showExamCreationSearchPage,
   showExamCreationQuestionSelectionPage,
@@ -71,7 +71,7 @@ export default [
     path: '/:classId/plan/quizzes/new/bookmark/:topicId',
     component: CreateExamPage,
     handler: toRoute => {
-      showExamCreationBookamrksPage(store, toRoute.params);
+      showExamCreationBookmarksPage(store, toRoute.params);
     },
   },
   {
