@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.db import models
+from django.db.models import F
 from django.db.models import QuerySet
 from morango.models import UUIDField
 from morango.models.core import SyncSession
@@ -211,19 +212,19 @@ class SyncQueue(models.Model):
 
     id = UUIDField(primary_key=True, default=uuid4)
     user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE, null=False)
+    instance_id = UUIDField(blank=False, null=False)
     datetime = models.DateTimeField(auto_now_add=True)
     updated = models.FloatField(default=time.time)
     # polling interval is 5 seconds by default
     keep_alive = models.FloatField(default=5.0)
 
     @classmethod
-    def clean_stale(cls, expire=180.0):
+    def clean_stale(cls):
         """
         This method will delete all the devices from the queue
         with the expire time (in seconds) exhausted
         """
-        staled_time = time.time() - expire
-        cls.objects.filter(updated__lte=staled_time).delete()
+        cls.objects.filter(updated__lte=time.time() - F("keep_alive") * 2).delete()
 
 
 class UserSyncStatus(models.Model):

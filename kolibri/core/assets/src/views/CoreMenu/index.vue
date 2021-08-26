@@ -7,7 +7,7 @@
       :class="classes"
     >
       <!-- if anything in the dropdown menu has an icon, then we are
-      going to add padding to make all the items align -->
+        going to add padding to make all the items align -->
       <div
         v-if="$slots.header"
         class="ui-menu-header"
@@ -24,6 +24,14 @@
       >
         <slot name="options"></slot>
       </FocusTrap>
+
+      <div
+        v-if="$slots.footer"
+        class="ui-menu-footer"
+        :style="{ color: $themeTokens.text }"
+      >
+        <slot name="footer"></slot>
+      </div>
     </ul>
   </div>
 
@@ -109,6 +117,10 @@
     padding: 1rem 1rem 1rem 1.2rem;
     font-size: 0.9375rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+  .ui-menu-footer {
+    padding: 1rem 1rem 0 1.2rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
   }
 
 </style>
