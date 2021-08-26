@@ -40,6 +40,47 @@ export const LearningActivities = {
   TOPIC: 'topic',
 };
 
+export const LibraryCategories = {
+  ALL_CATEGORIES: 'all_categories',
+  SCHOOL: 'school',
+  BASIC_SKILLS: 'basic_skills',
+  WORK: 'work',
+  DAILY_LIFE: 'daily_life',
+  FOR_TEACHERS: 'for_teachers',
+  OTHER: 'other',
+};
+
+export const ResourcesNeededTypes = {
+  FOR_BEGINNERS: 'for_beginners',
+  TEACHERS_AND_PEERS: 'to_use_with_teachers_and_peers',
+  PAPER_AND_PENCIL: 'to_use_with_paper_and_pencil',
+  NEEDS_INTERNET: 'that_need_internet_connection',
+  NEEDS_MATERIALS: 'that_need_other_materials',
+};
+
+export const AccessibilityCategories = {
+  ALL: 'all',
+  SIGN_LANGUAGE: 'has_sign_language_captions',
+  AUDIO_DESCRIPTION: 'has_audio_descriptions',
+  TAGGED_PDF: 'tagged_pdf',
+  ALT_TEXT: 'has_alternative_text_description_for_images',
+  HIGH_CONTRAST: 'has_high_contrast_display_for_low_vision',
+  CAPTIONS_SUBTITLES: 'has_captions_or_subtitles',
+};
+
+// Used to categorize the level or audience of content
+export const ContentLevels = {
+  PRESCHOOL: 'preschool',
+  LOWER_PRIMARY: 'lower_primary',
+  UPPER_PRIMARY: 'upper_primary',
+  LOWER_SECONDARY: 'lower_secondary',
+  UPPER_SECONDARY: 'upper_secondary',
+  TERTIARY: 'tertiary',
+  PROFESSIONAL: 'specialized_professional_training',
+  BASIC_SKILLS: 'all_levels_basic_skills',
+  WORK_SKILLS: 'all_levels_work_skills',
+};
+
 // used internally on the client as a hack to allow content-icons to display users
 export const USER = 'user';
 

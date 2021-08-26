@@ -28,6 +28,43 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Next steps',
     context: 'Label for links that go to post-requisites for content that has been completed',
   },
+  // Learning Activities
+  all: {
+    message: 'All',
+    context: 'A label for everything in the group of activities',
+  },
+  watch: {
+    message: 'Watch',
+    context:
+      'Resource and filter label for the type of learning activity with video. Translate as a VERB',
+  },
+  create: {
+    message: 'Create',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+  read: {
+    message: 'Read',
+    context:
+      'Resource and filter label for the type of learning activity with documents. Translate as a VERB',
+  },
+  practice: {
+    message: 'Practice',
+    context:
+      'Resource and filter label for the type of learning activity with questions and answers. Translate as a VERB',
+  },
+  reflect: {
+    message: 'Reflect',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+  listen: {
+    message: 'Listen',
+    context:
+      'Resource and filter label for the type of learning activity with audio. Translate as a VERB',
+  },
+  interact: {
+    message: 'Explore',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
 });
 
 export default {
