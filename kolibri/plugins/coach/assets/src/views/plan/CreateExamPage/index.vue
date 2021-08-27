@@ -84,7 +84,7 @@
       <div v-if="!showChannels">
         <ContentCardList 
           :contentList="bookmarksContentList"
-          :contentHasCheckbox="contentHasCheckbox"
+          :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
           :contentCardMessage="() => ''"
           :contentCardLink="bookmarksLink"
           :contentIsChecked="() => false"
@@ -517,9 +517,12 @@
           this.removeFromSelectedExercises(this.allExercises);
         }
       },
+      contentIsDirectoryKind({ is_leaf }) {
+        return !is_leaf;
+      },
       toggleSelected({ content, checked }) {
         let exercises;
-        const list = this.contentList ? this.contentList: this.bookmarksList
+        const list = this.contentList?.length ? this.contentList : this.bookmarksList;
         const contentNode = list.find(item => item.id === content.id);
         const isTopic = contentNode.kind === ContentNodeKinds.TOPIC;
         if (checked && isTopic) {

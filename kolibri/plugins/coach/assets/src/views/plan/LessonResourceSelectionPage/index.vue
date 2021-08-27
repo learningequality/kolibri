@@ -112,10 +112,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
-  import {
-    BookmarksResource,
-    ContentNodeResource,
-  } from '../../../../../../../../kolibri/core/assets/src/api-resources/index.js';
+  import { BookmarksResource } from '../../../../../../../../kolibri/core/assets/src/api-resources/index.js';
   import LessonContentCard from './LessonContentCard/index';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
@@ -384,8 +381,9 @@
         }
       },
       addToSelectedResources(content) {
+        const list = this.contentList?.length ? this.contentList : this.bookmarksList;
         this.addToResourceCache({
-          node: this.contentList.find(n => n.id === content.id),
+          node: list.find(n => n.id === content.id),
         });
         this.addToWorkingResources([content]);
       },
