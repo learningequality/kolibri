@@ -121,7 +121,7 @@ class KolibriDaemonProxy(Gio.DBusProxy):
     def is_error(self):
         return self.status in ["ERROR"]
 
-    def is_kolibri_app_url(self, url):
+    def is_kolibri_url(self, url):
         if not url or not self.base_url:
             return False
         elif not url.startswith(self.base_url):

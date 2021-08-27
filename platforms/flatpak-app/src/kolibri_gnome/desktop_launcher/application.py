@@ -113,16 +113,9 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
     def kolibri_change_notify(self):
         if self.__target_url:
             self.load_url(self.__target_url)
-        elif self.delegate.is_internal_url(self.get_url()):
-            self.load_url(self.get_url())
         else:
             # Convert current URL to a new kolibri-app URL for deferred loading
-            kolibri_app_url = (
-                urlsplit(self.get_url())
-                ._replace(scheme="x-kolibri-app", netloc="")
-                .geturl()
-            )
-            self.load_url(kolibri_app_url)
+            self.load_url(self.delegate.url_to_x_kolibri_app(self.get_url()))
 
         is_kolibri_started = self.delegate.is_started()
         if is_kolibri_started and not self.__was_kolibri_started:
@@ -147,12 +140,12 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
                 self.present_window()
 
     def __load_url_loading(self):
-        loading_url = self.delegate.loader_url + "#loading"
+        loading_url = self.delegate.get_loader_url("loading")
         if self.current_url != loading_url:
             super().load_url(loading_url)
 
     def __load_url_error(self):
-        error_url = self.delegate.loader_url + "#error"
+        error_url = self.delegate.get_loader_url("error")
         if self.current_url != error_url:
             super().load_url(error_url)
 
@@ -173,30 +166,8 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
         self.delegate.open_kolibri_home()
 
 
-class KolibriWindowDelegate(object):
-    # Quick hack to make certain application methods called by pew.ui.WebView
-    # available per window, instead. This allows us to have `should_load_url`
-    # behave differently for standalone windows.
-
-    def __init__(self, window, delegate):
-        self.__window = window
-        self.__delegate = delegate
-
-    def __getattr__(self, name):
-        return getattr(self.__delegate, name)
-
-    def is_internal_url(self, url):
-        return self.__delegate.is_internal_url(url, window=self.__window)
-
-    def should_load_url(self, url):
-        return self.__delegate.should_load_url(url, window=self.__window)
-
-
 class KolibriWindow(KolibriView):
-    def __init__(self, *args, delegate=None, **kwargs):
-        if delegate:
-            delegate = KolibriWindowDelegate(self, delegate)
-
+    def __init__(self, *args, **kwargs):
         self._open_in_browser_menu_item = PEWMenuItem(
             _("Open in Browser"), handler=self.on_open_in_browser
         )
@@ -225,7 +196,7 @@ class KolibriWindow(KolibriView):
 
         menu_bar = self.build_menu_bar()
 
-        super().__init__(*args, delegate=delegate, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.set_menubar(menu_bar)
 
@@ -344,8 +315,9 @@ class KolibriWindow(KolibriView):
         # TODO: Implement this behaviour in pyeverywhere, and pass the related
         #       webview to the new window so it can use
         #       `WebKit2.WebView.new_with_related_view`
-        target_uri = navigation_action.get_request().get_uri()
-        window = self.delegate.open_window(target_uri)
+
+        target_url = navigation_action.get_request().get_uri()
+        window = self.delegate.open_window(target_url)
         if window:
             return window.gtk_webview
         else:
@@ -353,29 +325,27 @@ class KolibriWindow(KolibriView):
 
     def __gtk_webview_on_notify_uri(self, webview, pspec):
         # PEWApp.should_load_url is not called when the URL fragment changes.
-        # So, when the uri property changes, we need to check if the URL
-        # fragment refers to content which belongs inside the standalone window.
-        # Changes to other parts of the URL will go through the usual
-        # should_load_url code.
+        # So, when the uri property changes, we may want to check if the URL
+        # (including URL fragment) refers to content which belongs inside the
+        # window.
 
         url = webview.get_uri()
 
         if not url:
             return
 
-        if url == self.delegate.loader_url and self.delegate.is_started():
-            self.load_url(self.initial_url)
-        else:
-            self.on_url_changed(url)
-
-    def on_url_changed(self, url):
         if urlsplit(url).scheme in ("http", "https"):
             self._open_in_browser_menu_item.gio_action.set_enabled(True)
         else:
             self._open_in_browser_menu_item.gio_action.set_enabled(False)
 
-    def accepts_url(self, url):
-        return True
+        # It would be nice if we could replace this history item with the
+        # previous one, but WebKitGtk doesn't allow for much in the way of
+        # history tampering.
+
+        if not self.delegate.should_load_url(url, fallback_to_external=True):
+            self.load_url(self.initial_url)
+
     def __gtk_webview_back_forward_list_on_changed(
         self, back_forward_list, item_added, items_removed
     ):
@@ -398,7 +368,7 @@ class KolibriChannelWindow(KolibriWindow):
         super().__init__(_("Kolibri"), *args, **kwargs)
 
     @property
-    def standalone_channel_id(self):
+    def channel_id(self):
         return self.__channel_id
 
     def _tweak_gtk_ui(self):
@@ -410,79 +380,13 @@ class KolibriChannelWindow(KolibriWindow):
         home_button.set_action_name("win." + self._home_menu_item.gio_action.get_name())
         self._NativeWebView__gtk_header_bar.pack_start(home_button)
 
-    def on_url_changed(self, url):
-        super().on_url_changed(url)
-        if not self.delegate.is_internal_url(url):
-            self.load_url(self.__last_good_url)
-            self.delegate.open_generic_window(url)
-        else:
-            self.__last_good_url = url
-
-    def accepts_url(self, url):
-        url_tuple = urlsplit(url)
-
-        if url == self.initial_url:
-            return True
-        elif re.match(r"^\/(?P<lang>\w+\/)?learn\/?", url_tuple.path):
-            return self.is_learn_fragment_in_channel(url_tuple.fragment.lstrip("/"))
-        elif re.match(r"^\/(?P<lang>\w+\/)?user\/?", url_tuple.path):
-            return True
-        elif re.match(r"^\/zipcontent\/?", url_tuple.path):
-            return True
-        elif re.match(r"^\/static\/?", url_tuple.path):
-            return True
-        elif re.match(r"^\/downloadcontent\/?", url_tuple.path):
-            return True
-        elif re.match(r"^\/content\/storage\/?", url_tuple.path):
-            return True
-        else:
-            return False
-
-    def contentnode_id_for_learn_fragment(self, fragment):
-        patterns = (
-            r"^topics\/c\/(?P<node_id>\w+)",
-            r"^topics\/t\/(?P<node_id>\w+)",
-            r"^topics\/(?P<node_id>\w+)",
-        )
-
-        for pattern in patterns:
-            match = re.match(pattern, fragment)
-            if match:
-                return match.group("node_id")
-
-        return None
-
-    def is_learn_fragment_in_channel(self, fragment):
-        if re.match(r"^content-unavailable", fragment):
-            return True
-
-        contentnode_id = self.contentnode_id_for_learn_fragment(fragment)
-
-        if contentnode_id is None:
-            return False
-
-        response = self.delegate.kolibri_api_get(
-            "/api/content/contentnode/{contentnode_id}".format(
-                contentnode_id=contentnode_id
-            )
-        )
-
-        if response is None:
-            return False
-
-        contentnode_channel = response.get("channel_id")
-
-        return contentnode_channel == self.standalone_channel_id
-
     def on_kolibri_started(self):
         super().on_kolibri_started()
 
         # TODO: Add KolibriView.set_name in pyeverywhere
 
         response = self.delegate.kolibri_api_get(
-            "/api/content/channel/{channel_id}".format(
-                channel_id=self.standalone_channel_id
-            )
+            "/api/content/channel/{channel_id}".format(channel_id=self.channel_id)
         )
 
         if response is None:
@@ -524,10 +428,6 @@ class Application(pew.ui.PEWApp):
     @property
     def application_id(self):
         return self.__application_id
-
-    @property
-    def loader_url(self):
-        return self.__loader_url
 
     @property
     def default_url(self):
@@ -629,10 +529,8 @@ class Application(pew.ui.PEWApp):
     def open_window(self, target_url=None):
         target_url = target_url or self.default_url
 
-        if not self.should_load_url(target_url):
-            if not target_url.startswith("about:"):
-                self.open_in_browser(target_url)
-                return None
+        if not self.should_load_url(target_url, fallback_to_external=True):
+            return None
 
         window = self._create_window(target_url)
         self.add_window(window)
@@ -644,67 +542,62 @@ class Application(pew.ui.PEWApp):
     def _create_window(self, target_url):
         raise NotImplementedError()
 
-    def load_url_in_window(self, target_url):
-        last_window = next(
-            (
-                window
-                for window in reversed(self.__windows)
-                if isinstance(window, KolibriGenericWindow)
-            ),
-            None,
-        )
-
-        if last_window:
-            last_window.load_url(target_url)
-        else:
-            self.open_window(target_url)
-
-    def is_internal_url(self, url, window=None):
-        url_tuple = urlsplit(url)
-
-        if url_tuple.scheme in ("kolibri", "x-kolibri-app"):
-            return True
-        elif self.__kolibri_daemon.is_kolibri_app_url(url):
-            if url_tuple.path.startswith("/app/"):
-                return True
-            elif window:
-                return window.accepts_url(url)
-            else:
-                return True
-        elif url == self.loader_url:
-            return not self.is_started()
-        else:
-            return False
-
-    def should_load_url(self, url, window=None):
-        url_tuple = urlsplit(url)
-
-        if self.is_internal_url(url, window=window):
-            return True
-        elif url_tuple.scheme == "about" or url == self.loader_url:
-            return True
-        else:
-            return False
-
     def add_window(self, window):
         self.__windows.append(window)
 
     def remove_window(self, window):
         self.__windows.remove(window)
 
-    def handle_open_file_uris(self, uris):
-        for uri in uris:
-            self.__open_window_for_kolibri_scheme_uri(uri)
+    def handle_open_file_uris(self, urls):
+        for url in urls:
+            self.open_url_in_window(url)
 
-    def __open_window_for_kolibri_scheme_uri(self, kolibri_scheme_uri):
-        url_tuple = urlsplit(kolibri_scheme_uri)
-        url_query = parse_qs(url_tuple.query, keep_blank_values=True)
+    def open_url_in_window(self, url):
+        valid_url_schemes = ("kolibri", "x-kolibri-app")
 
-        if url_tuple.scheme != "kolibri":
-            logger.info("Invalid URI scheme: %s", kolibri_scheme_uri)
+        url_tuple = urlsplit(url)
+
+        if url_tuple.scheme not in valid_url_schemes:
+            logger.info("Invalid URL scheme: %s", url)
             return
 
-        self.load_url_in_window(kolibri_scheme_uri)
+        last_window = next(reversed(self.__windows), None)
+
+        if last_window:
+            last_window.load_url(url)
+        else:
+            self.open_window(url)
+
+    def open_url_in_external(self, url):
+        self.open_in_browser(url)
+
+    def should_load_url(self, url, fallback_to_external=True):
+        result = self.url_is_valid(url)
+
+        if fallback_to_external and not result and not self.url_is_loader(url):
+            self.open_url_in_external(url)
+
+        return result
+
+    def url_is_valid(self, url):
+        url_tuple = urlsplit(url)
+
+        return (
+            url == self.default_url
+            or url_tuple.scheme in ("kolibri", "x-kolibri-app")
+            or self.is_kolibri_url(url)
+            or (self.url_is_loader(url) and not self.is_started())
+            or url_tuple.scheme == "about"
+        )
+
+    def is_kolibri_url(self, url):
+        return self.__kolibri_daemon.is_kolibri_url(url)
+
+    def get_loader_url(self, state):
+        return self.__loader_url + "#" + state
+
+    def url_is_loader(self, url):
+        return url.startswith(self.__loader_url)
 
     def get_full_url(self, url):
         try:
@@ -756,6 +649,9 @@ class Application(pew.ui.PEWApp):
 
         target_url = "{path}#{fragment}".format(path=item_path, fragment=item_fragment)
         return self.__kolibri_daemon.get_kolibri_initialize_url(target_url)
+
+    def url_to_x_kolibri_app(self, url):
+        return urlsplit(url)._replace(scheme="x-kolibri-app", netloc="").geturl()
 
     def parse_x_kolibri_app_url(self, url):
         """
@@ -827,6 +723,75 @@ class ChannelApplication(Application):
     def _create_window(self, target_url=None):
         return KolibriChannelWindow(self.channel_id, target_url, delegate=self)
 
-    def open_generic_window(self, target_url):
-        # TODO: Translate to a `kolibri:` URL and open that if possible
-        self.open_in_browser(target_url)
+    def url_is_valid(self, url):
+        return super().url_is_valid(url) and self.__is_url_in_channel(url)
+
+    def open_url_in_external(self, url):
+        if self.is_kolibri_url(url):
+            url = self.url_to_x_kolibri_app(url)
+        self.open_in_browser(url)
+
+    def __is_url_in_channel(self, url):
+        url_tuple = urlsplit(url)
+
+        if re.match(r"^\/(?P<lang>\w+\/)?learn\/?", url_tuple.path):
+            return self.__is_learn_fragment_in_channel(url_tuple.fragment)
+        elif re.match(r"^\/(?P<lang>\w+\/)?user\/?", url_tuple.path):
+            return True
+        elif re.match(r"^\/(?P<lang>\w+\/)?logout\/?", url_tuple.path):
+            return True
+        elif re.match(r"^\/(?P<lang>\w+\/)?redirectuser\/?", url_tuple.path):
+            return True
+        elif re.match(r"^\/zipcontent\/?", url_tuple.path):
+            return True
+        elif re.match(r"^\/app\/?", url_tuple.path):
+            return True
+        elif re.match(r"^\/static\/?", url_tuple.path):
+            return True
+        elif re.match(r"^\/downloadcontent\/?", url_tuple.path):
+            return True
+        elif re.match(r"^\/content\/storage\/?", url_tuple.path):
+            return True
+        else:
+            return False
+
+    def __is_learn_fragment_in_channel(self, fragment):
+        fragment = fragment.lstrip("/")
+
+        if re.match(r"^content-unavailable", fragment):
+            return True
+
+        contentnode_id = self.__contentnode_id_for_learn_fragment(fragment)
+
+        if contentnode_id is None:
+            return False
+
+        if contentnode_id == self.channel_id:
+            return True
+
+        response = self.kolibri_api_get(
+            "/api/content/contentnode/{contentnode_id}".format(
+                contentnode_id=contentnode_id
+            )
+        )
+
+        if response is None:
+            return False
+
+        contentnode_channel = response.get("channel_id")
+
+        return contentnode_channel == self.channel_id
+
+    def __contentnode_id_for_learn_fragment(self, fragment):
+        patterns = (
+            r"^topics\/c\/(?P<node_id>\w+)",
+            r"^topics\/t\/(?P<node_id>\w+)",
+            r"^topics\/(?P<node_id>\w+)",
+        )
+
+        for pattern in patterns:
+            match = re.match(pattern, fragment)
+            if match:
+                return match.group("node_id")
+
+        return None

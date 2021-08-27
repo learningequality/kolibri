@@ -14,6 +14,6 @@ DBusActivatable=true
 # TRANSLATORS: This is an icon file name.
 #              Do not translate or transliterate this text!
 Icon=@FRONTEND_APPLICATION_ID@
-MimeType=x-scheme-handler/kolibri;
+MimeType=x-scheme-handler/kolibri;x-scheme-handler/x-kolibri-app;
 X-Endless-LaunchMaximized=true
 
