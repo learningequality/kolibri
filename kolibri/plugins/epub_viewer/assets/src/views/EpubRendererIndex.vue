@@ -382,6 +382,7 @@
     created() {
       // Try to load the appropriate directional CSS for the particular content
       this.cssPromise = this.$options.contentModule.loadDirectionalCSS(this.contentDirection);
+      this.visitedPages = this.savedVisitedPages || {};
     },
     beforeMount() {
       global.ePub = Epub;
@@ -485,7 +486,7 @@
             // update progress using number of pages seen out of available pages
             this.$emit(
               'updateProgress',
-              Object.keys(this.savedVisitedPages).length / this.locations.length
+              Object.keys(this.visitedPages || {}).length / this.locations.length
             );
           }
         }
@@ -704,7 +705,14 @@
         this.currentSection = this.getCurrentSection(currentLocationStart);
       },
       relocatedHandler(location) {
-        this.sliderValue = location.start.percentage * 100;
+        //console.log(location);
+        // Ensures that when we're on the last page, we set the slider value to 100
+        // otherwise, we show the slider % using the start
+        if (location.atEnd) {
+          this.sliderValue = 100;
+        } else {
+          this.sliderValue = location.start.percentage * 100;
+        }
         this.updateCurrentSection(location.start);
         this.currentLocation = location.start.cfi;
         this.storeVisitedPage(this.currentLocation);
