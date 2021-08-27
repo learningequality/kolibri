@@ -15,11 +15,13 @@ from urllib.parse import urlsplit
 import pew
 import pew.ui
 
+from pew.pygobject_gtk.menus import PEWMenuItem
 from pew.ui import PEWShortcut
 
 import gi
 
 from gi.repository import GLib
+from gi.repository import Gtk
 
 from .. import config
 
@@ -57,10 +59,13 @@ class MenuEventHandler:
     def on_open_kolibri_home(self):
         self.open_kolibri_home()
 
-    def on_back(self):
+    def on_navigate_home(self):
+        self.load_url(self.initial_url)
+
+    def on_navigate_back(self):
         self.go_back()
 
-    def on_forward(self):
+    def on_navigate_forward(self):
         self.go_forward()
 
     def on_reload(self):
@@ -191,8 +196,40 @@ class KolibriWindow(KolibriView):
     def __init__(self, *args, delegate=None, **kwargs):
         if delegate:
             delegate = KolibriWindowDelegate(self, delegate)
+
+        self._open_in_browser_menu_item = PEWMenuItem(
+            _("Open in Browser"), handler=self.on_open_in_browser
+        )
+        self._open_in_browser_menu_item.gio_action.set_enabled(False)
+
+        self._back_menu_item = PEWMenuItem(
+            _("Back"),
+            handler=self.on_navigate_back,
+            shortcut=PEWShortcut("[", modifiers=["CTRL"]),
+        )
+        self._back_menu_item.gio_action.set_enabled(False)
+
+        self._forward_menu_item = PEWMenuItem(
+            _("Forward"),
+            handler=self.on_navigate_forward,
+            shortcut=PEWShortcut("]", modifiers=["CTRL"]),
+        )
+        self._forward_menu_item.gio_action.set_enabled(False)
+
+        self._home_menu_item = PEWMenuItem(
+            _("Home"),
+            handler=self.on_navigate_home,
+            shortcut=PEWShortcut("Home", modifiers=["ALT"]),
+        )
+        self._home_menu_item.gio_action.set_enabled(True)
+
+        menu_bar = self.build_menu_bar()
+
         super().__init__(*args, delegate=delegate, **kwargs)
 
+        self.set_menubar(menu_bar)
+
+    def build_menu_bar(self):
         # create menu bar, we do this per-window for cross-platform purposes
         menu_bar = pew.ui.PEWMenuBar()
 
@@ -230,20 +267,13 @@ class KolibriWindow(KolibriView):
             shortcut=PEWShortcut("-", modifiers=["CTRL"]),
         )
         view_menu.add_separator()
-        view_menu.add(_("Open in Browser"), handler=self.on_open_in_browser)
+        view_menu.add_item(self._open_in_browser_menu_item)
         menu_bar.add_menu(view_menu)
 
         history_menu = pew.ui.PEWMenu(_("History"))
-        history_menu.add(
-            _("Back"),
-            handler=self.on_back,
-            shortcut=PEWShortcut("[", modifiers=["CTRL"]),
-        )
-        history_menu.add(
-            _("Forward"),
-            handler=self.on_forward,
-            shortcut=PEWShortcut("]", modifiers=["CTRL"]),
-        )
+        history_menu.add_item(self._back_menu_item)
+        history_menu.add_item(self._forward_menu_item)
+        history_menu.add_item(self._home_menu_item)
         menu_bar.add_menu(history_menu)
 
         help_menu = pew.ui.PEWMenu(_("Help"))
@@ -255,19 +285,53 @@ class KolibriWindow(KolibriView):
         help_menu.add(_("Community Forums"), handler=self.on_forums)
         menu_bar.add_menu(help_menu)
 
-        self.set_menubar(menu_bar)
+        return menu_bar
 
     def show(self):
-        # TODO: Implement this in pyeverywhere
-        if KOLIBRI_APP_DEVELOPER_EXTRAS:
-            self.gtk_webview.get_settings().set_enable_developer_extras(True)
-        self.gtk_webview.connect("create", self.__gtk_webview_on_create)
+        if hasattr(self, "gtk_window"):
+            self._tweak_gtk_ui()
 
         # Maximize windows on Endless OS
         if hasattr(self, "gtk_window") and XDG_CURRENT_DESKTOP == "endless:GNOME":
             self.gtk_window.maximize()
 
         super().show()
+
+    def _tweak_gtk_ui(self):
+        # TODO: Implement this in pyeverywhere
+
+        # Navigation buttons for the header bar
+
+        navigation_box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
+        navigation_box.get_style_context().add_class("linked")
+        self._NativeWebView__gtk_header_bar.pack_start(navigation_box)
+
+        back_button = Gtk.Button.new_from_icon_name(
+            "go-previous-symbolic", Gtk.IconSize.BUTTON
+        )
+        back_button.set_action_name("win." + self._back_menu_item.gio_action.get_name())
+        navigation_box.add(back_button)
+
+        forward_button = Gtk.Button.new_from_icon_name(
+            "go-next-symbolic", Gtk.IconSize.BUTTON
+        )
+        forward_button.set_action_name(
+            "win." + self._forward_menu_item.gio_action.get_name()
+        )
+        navigation_box.add(forward_button)
+
+        # Additional functionality for the webview
+
+        if KOLIBRI_APP_DEVELOPER_EXTRAS:
+            self.gtk_webview.get_settings().set_enable_developer_extras(True)
+
+        self.gtk_webview.connect("create", self.__gtk_webview_on_create)
+        self.gtk_webview.connect("notify::uri", self.__gtk_webview_on_notify_uri)
+        self.gtk_webview.get_back_forward_list().connect(
+            "changed", self.__gtk_webview_back_forward_list_on_changed
+        )
+
+
 
     def __gtk_webview_on_create(self, webview, navigation_action):
         # TODO: Implement this behaviour in pyeverywhere, and pass the related
@@ -299,19 +363,20 @@ class KolibriWindow(KolibriView):
 
     def on_url_changed(self, url):
         if urlsplit(url).scheme in ("http", "https"):
-            self.__open_in_browser_menu_item.gio_action.set_enabled(True)
+            self._open_in_browser_menu_item.gio_action.set_enabled(True)
         else:
-            self.__open_in_browser_menu_item.gio_action.set_enabled(False)
+            self._open_in_browser_menu_item.gio_action.set_enabled(False)
 
     def accepts_url(self, url):
         return True
+    def __gtk_webview_back_forward_list_on_changed(
+        self, back_forward_list, item_added, items_removed
+    ):
+        can_go_back = back_forward_list.get_back_item() is not None
+        can_go_forward = back_forward_list.get_forward_item() is not None
 
-    def __update_history_buttons_source_func(self):
-        can_go_back = self.gtk_webview.can_go_back()
-        can_go_forward = self.gtk_webview.can_go_forward()
-        self.__back_menu_item.gio_action.set_enabled(can_go_back)
-        self.__forward_menu_item.gio_action.set_enabled(can_go_forward)
-        return False
+        self._back_menu_item.gio_action.set_enabled(can_go_back)
+        self._forward_menu_item.gio_action.set_enabled(can_go_forward)
 
 
 class KolibriWindow_Generic(KolibriWindow):
@@ -329,24 +394,20 @@ class KolibriWindow_Standalone(KolibriWindow):
         self.__channel_id = url_tuple.path.lstrip("/")
 
         self.__last_good_url = None
-
-        super().__init__(_("Kolibri"), url, *args, **kwargs)
+        super().__init__(_("Kolibri"), *args, **kwargs)
 
     @property
     def standalone_channel_id(self):
         return self.__channel_id
 
-    def show(self):
-        # Add a Home button to the header bar
-        # TODO: Implement this in pyeverywhere?
+    def _tweak_gtk_ui(self):
+        super()._tweak_gtk_ui()
 
         home_button = Gtk.Button.new_from_icon_name(
             "go-home-symbolic", Gtk.IconSize.BUTTON
         )
-        home_button.connect("clicked", self.__home_button_on_clicked)
+        home_button.set_action_name("win." + self._home_menu_item.gio_action.get_name())
         self._NativeWebView__gtk_header_bar.pack_start(home_button)
-
-        super().show()
 
     def on_url_changed(self, url):
         super().on_url_changed(url)
@@ -430,9 +491,6 @@ class KolibriWindow_Standalone(KolibriWindow):
 
         if channel_name:
             self._NativeWebView__gtk_header_bar.set_title(channel_name)
-
-    def __home_button_on_clicked(self, button):
-        self.load_url(self.initial_url)
 
 
 class Application(pew.ui.PEWApp):
