@@ -1,183 +1,180 @@
 <template>
 
-  <div>
+  <MultiPaneLayout ref="multiPaneLayout">
+    <template #header>
+      <h1 class="visuallyhidden">
+        {{ learnString('recommendedLabel') }}
+      </h1>
+    </template>
 
-    <h1 class="visuallyhidden">
-      {{ learnString('recommendedLabel') }}
-    </h1>
-
-    <KGrid>
-      <KGridItem :layout12="{ span: 3 }">
-        <div
-          class="side-panel"
-          :style="{
-            color: $themeTokens.text,
-            backgroundColor: $themeTokens.surface,
-          }"
-        >
-          <KFixedGrid
-            numCols="4"
-            gutter="30"
-          >
-            <KFixedGridItem class="title">
-              <h2>Keywords</h2>
-            </KFixedGridItem>
-            <SearchBox />
-            <KFixedGridItem class="title">
-              <h2>Categories</h2>
-            </KFixedGridItem>
-            <KFixedGridItem
-              v-for="(value, category) in libraryCategoriesList"
-              :key="category"
-              span="4"
-              class="category-list-item"
-            >
-              <KButton
-                :text="value"
-                appearance="flat-button"
-                :appearanceOverrides="customCategoryStyles"
-                iconAfter="chevronRight"
-              />
-            </KFixedGridItem>
-            <!-- Filter by learning activity, displaying all options -->
-            <KFixedGridItem class="title">
-              <h2>Activities</h2>
-            </KFixedGridItem>
-            <KFixedGridItem
-              span="2"
-              alignment="center"
-            >
-              <KButton
-                appearance="flat-button"
-                :appearanceOverrides="customActivityStyles"
-              >
-                <KIcon icon="allActivities" class="activity-icon" />
-                <p class="activity-button-text">
-                  {{ learnString('all') }}
-                </p>
-              </KButton>
-            </KFixedGridItem>
-            <KFixedGridItem
-              v-for="(value, activity) in learningActivitiesList"
-              :key="activity"
-              span="2"
-              alignment="center"
-            >
-              <KButton
-                appearance="flat-button"
-                :appearanceOverrides="customActivityStyles"
-              >
-                <KIcon :icon="`${value + 'Shaded'}`" class="activity-icon" />
-                <p class="activity-button-text">
-                  {{ learnString(value) }}
-                </p>
-              </KButton>
-            </KFixedGridItem>
-            <KFixedGridItem>
-              <KSelect
-                :options="languageOptionsList"
-                class="selector"
-                :value="selectedLanguage"
-              />
-            </KFixedGridItem>
-            <KFixedGridItem>
-              <KSelect
-                :options="contentLevelsList"
-                class="selector"
-                :value="selectedLevel"
-              />
-            </KFixedGridItem>
-            <KFixedGridItem>
-              <KSelect
-                :options="channelOptionsList"
-                class="selector"
-                :value="selectedChannel"
-              />
-            </KFixedGridItem>
-            <KFixedGridItem>
-              <KSelect
-                :options="accessibilityOptionsList"
-                class="selector"
-                :value="selectedAccessibilityFilter"
-              />
-            </KFixedGridItem>
-            <KFixedGridItem
-              v-for="(value, activity) in resourcesNeededList"
-              :key="activity"
-              span="4"
-              alignment="center"
-            >
-              <KCheckbox
-                key="adHocLearners"
-                :checked="isSelected"
-                :label="value"
-                @change="$emit('toggleSelected', $event)"
-              />
-            </KFixedGridItem>
-          </KFixedGrid>
-        </div>
-
-      </KGridItem>
-      <KGridItem
-        :layout12="{ span: 9 }"
+    <template #aside>
+      <div
+        class="side-panel"
+        :style="{
+          color: $themeTokens.text,
+          backgroundColor: $themeTokens.surface,
+        }"
       >
-        <template v-if="popular.length">
-          <ContentCardGroupHeader
-            :header="learnString('mostPopularLabel')"
-            :viewMorePageLink="popularPageLink"
-            :showViewMore="popular.length > trimmedPopular.length"
-          />
-          <ContentCardGroupGrid
-            v-if="windowIsSmall"
-            :genContentLink="genContentLink"
-            :contents="trimmedPopular"
-          />
-          <ContentCardGroupCarousel
-            v-else
-            :genContentLink="genContentLink"
-            :contents="trimmedPopular"
-          />
-        </template>
+        <KFixedGrid
+          numCols="4"
+          gutter="30"
+        >
+          <KFixedGridItem class="title">
+            <h2>Keywords</h2>
+          </KFixedGridItem>
+          <SearchBox />
+          <KFixedGridItem class="title">
+            <h2>Categories</h2>
+          </KFixedGridItem>
+          <KFixedGridItem
+            v-for="(value, category) in libraryCategoriesList"
+            :key="category"
+            span="4"
+            class="category-list-item"
+          >
+            <KButton
+              :text="value"
+              appearance="flat-button"
+              :appearanceOverrides="customCategoryStyles"
+              iconAfter="chevronRight"
+            />
+          </KFixedGridItem>
+          <!-- Filter by learning activity, displaying all options -->
+          <KFixedGridItem class="title">
+            <h2>Activities</h2>
+          </KFixedGridItem>
+          <KFixedGridItem
+            span="2"
+            alignment="center"
+          >
+            <KButton
+              appearance="flat-button"
+              :appearanceOverrides="customActivityStyles"
+            >
+              <KIcon icon="allActivities" class="activity-icon" />
+              <p class="activity-button-text">
+                {{ learnString('all') }}
+              </p>
+            </KButton>
+          </KFixedGridItem>
+          <KFixedGridItem
+            v-for="(value, activity) in learningActivitiesList"
+            :key="activity"
+            span="2"
+            alignment="center"
+          >
+            <KButton
+              appearance="flat-button"
+              :appearanceOverrides="customActivityStyles"
+            >
+              <KIcon :icon="`${value + 'Shaded'}`" class="activity-icon" />
+              <p class="activity-button-text">
+                {{ learnString(value) }}
+              </p>
+            </KButton>
+          </KFixedGridItem>
+          <KFixedGridItem>
+            <KSelect
+              :options="languageOptionsList"
+              class="selector"
+              :value="selectedLanguage"
+            />
+          </KFixedGridItem>
+          <KFixedGridItem>
+            <KSelect
+              :options="contentLevelsList"
+              class="selector"
+              :value="selectedLevel"
+            />
+          </KFixedGridItem>
+          <KFixedGridItem>
+            <KSelect
+              :options="channelOptionsList"
+              class="selector"
+              :value="selectedChannel"
+            />
+          </KFixedGridItem>
+          <KFixedGridItem>
+            <KSelect
+              :options="accessibilityOptionsList"
+              class="selector"
+              :value="selectedAccessibilityFilter"
+            />
+          </KFixedGridItem>
+          <KFixedGridItem
+            v-for="(value, activity) in resourcesNeededList"
+            :key="activity"
+            span="4"
+            alignment="center"
+          >
+            <KCheckbox
+              key="adHocLearners"
+              :checked="isSelected"
+              :label="value"
+              @change="$emit('toggleSelected', $event)"
+            />
+          </KFixedGridItem>
+        </KFixedGrid>
+      </div>
+    </template>
 
-        <template v-if="nextSteps.length">
-          <ContentCardGroupHeader
-            :header="learnString('nextStepsLabel')"
-            :viewMorePageLink="nextStepsPageLink"
-            :showViewMore="nextSteps.length > trimmedNextSteps.length"
-          />
-          <ContentCardGroupGrid
-            v-if="windowIsSmall"
-            :genContentLink="genContentLink"
-            :contents="trimmedNextSteps"
-          />
-          <ContentCardGroupCarousel
-            v-else
-            :genContentLink="genContentLink"
-            :contents="trimmedNextSteps"
-          />
-        </template>
+    <template #main>
+      <template v-if="popular.length">
+        <ContentCardGroupHeader
+          :header="learnString('mostPopularLabel')"
+          :viewMorePageLink="popularPageLink"
+          :showViewMore="popular.length > trimmedPopular.length"
+        />
+        <ContentCardGroupGrid
+          v-if="windowIsSmall"
+          :genContentLink="genContentLink"
+          :contents="trimmedPopular"
+        />
+        <ContentCardGroupCarousel
+          v-else
+          :genContentLink="genContentLink"
+          :contents="trimmedPopular"
+        />
+      </template>
 
-        <template v-if="resume.length">
-          <ContentCardGroupHeader
-            :header="learnString('resumeLabel')"
-            :viewMorePageLink="resumePageLink"
-            :showViewMore="resume.length > trimmedResume.length"
-          />
-          <ContentCardGroupGrid
-            v-if="windowIsSmall"
-            :genContentLink="genContentLink"
-            :contents="trimmedResume"
-          />
-          <ContentCardGroupCarousel
-            v-else
-            :genContentLink="genContentLink"
-            :contents="trimmedResume"
-          />
-        </template>
-      </KGridItem>
-    </KGrid>
+      <template v-if="nextSteps.length">
+        <ContentCardGroupHeader
+          :header="learnString('nextStepsLabel')"
+          :viewMorePageLink="nextStepsPageLink"
+          :showViewMore="nextSteps.length > trimmedNextSteps.length"
+        />
+        <ContentCardGroupGrid
+          v-if="windowIsSmall"
+          :genContentLink="genContentLink"
+          :contents="trimmedNextSteps"
+        />
+        <ContentCardGroupCarousel
+          v-else
+          :genContentLink="genContentLink"
+          :contents="trimmedNextSteps"
+        />
+      </template>
 
-  </div>
+      <template v-if="resume.length">
+        <ContentCardGroupHeader
+          :header="learnString('resumeLabel')"
+          :viewMorePageLink="resumePageLink"
+          :showViewMore="resume.length > trimmedResume.length"
+        />
+        <ContentCardGroupGrid
+          v-if="windowIsSmall"
+          :genContentLink="genContentLink"
+          :contents="trimmedResume"
+        />
+        <ContentCardGroupCarousel
+          v-else
+          :genContentLink="genContentLink"
+          :contents="trimmedResume"
+        />
+      </template>
+
+    </template>
+  </MultiPaneLayout>
 
 </template>
 
@@ -196,6 +193,7 @@
     AccessibilityCategories,
   } from 'kolibri.coreVue.vuex.constants';
   import { ContentNodeProgressResource } from 'kolibri.resources';
+  import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import languageSwitcherMixin from '../../../../../../kolibri/core/assets/src/views/language-switcher/mixin.js';
   import { PageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
@@ -203,6 +201,7 @@
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import ContentCardGroupHeader from './ContentCardGroupHeader';
   import SearchBox from './SearchBox';
+
   // import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const mobileCarouselLimit = 3;
@@ -220,6 +219,7 @@
       ContentCardGroupGrid,
       ContentCardGroupHeader,
       SearchBox,
+      MultiPaneLayout,
     },
     mixins: [commonLearnStrings, languageSwitcherMixin, responsiveWindowMixin],
     computed: {
@@ -411,9 +411,9 @@
 <style lang="scss" scoped>
 
   .side-panel {
-    position: fixed;
-    left: 0;
-    z-index: 4;
+    // position: fixed;
+    // left: 0;
+    // z-index: 4;
     width: 354px;
     height: 100%;
     padding: 30px 40px;
