@@ -104,9 +104,14 @@ export default [
   {
     name: PageNames.TOPICS_TOPIC,
     path: '/topics/t/:id',
-    handler: toRoute => {
+    handler: (toRoute, fromRoute) => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
+      }
+      // If navigation is triggered by a custom navigation updating the
+      // context query param, do not run the handler
+      if (toRoute.params.id === fromRoute.params.id) {
+        return;
       }
       showTopicsTopic(store, { id: toRoute.params.id });
     },

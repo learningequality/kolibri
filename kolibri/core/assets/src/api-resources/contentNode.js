@@ -161,22 +161,13 @@ export default new Resource({
    * may be both pagination and non-pagination specific parameters
    * @return {Promise<ContentNode>} Promise that resolves with the model data
    */
-  fetchTree(id, params) {
+  fetchTree({ id, params }) {
+    const promise = new ConditionalPromise();
     const url = urls['kolibri:core:contentnode_tree_detail'](id);
-    return this.client({ url, params }).then(response => {
+    promise._promise = this.client({ url, params }).then(response => {
       this.cacheData(response.data);
       return response.data;
     });
-  },
-  /**
-   * A method to simplify requesting more items from a previously paginated response from fetchTree
-   * @param {Object} more - the 'more' property of the 'children' pagination object from a response.
-   * @param {string} more.id - the id of the parent node for this request
-   * @param {Object} more.params - the GET parameters to return more results,
-   * may be both pagination and non-pagination specific parameters
-   * @return {Promise<ContentNode>} Promise that resolves with the model data
-   */
-  fetchMoreTree({ id, params }) {
-    return this.fetchTree(id, params);
+    return promise;
   },
 });
