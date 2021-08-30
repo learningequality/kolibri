@@ -144,18 +144,10 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
           use: sassLoaders,
         },
         {
-          test: /\.(png|jpe?g|gif|svg)$/,
+          test: /\.(png|jpe?g|gif|svg|eot|woff|ttf|woff2)$/,
           use: {
             loader: 'url-loader',
             options: { limit: 10000, name: '[name]-[contenthash].[ext]' },
-          },
-        },
-        // Use url loader to load font files.
-        {
-          test: /\.(eot|woff|ttf|woff2)$/,
-          use: {
-            loader: 'url-loader',
-            options: { name: '[name]-[contenthash].[ext]' },
           },
         },
       ],
