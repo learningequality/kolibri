@@ -12,7 +12,7 @@
   >
 
     <KPageContainer>
-      <h1>
+      <h1 v-if="showChannels">
         {{ $tr('documentTitle', { lessonName: currentLesson.title }) }}
       </h1>
       <div v-if="!showChannels">
@@ -32,13 +32,19 @@
       </div>
       <div v-else>
         <div @click="lessonCardClicked">
-          <LessonContentCard
-            :title="$tr('bookmarks')"
-            :link="getBookmarksLink()"
-            :kind="$tr('bookmark')"
-            :description="$tr('resources', { count: this.bookmarksCount })"
-            :isLeaf="false"
-          />
+          <KRouterLink
+            v-if="this.bookmarksCount"
+            :style="{width: '100%'}"
+            :to="getBookmarksLink()"
+          >
+            <div class="bookmark-container">
+              <BookmarkIcon/>
+              <div class="text">
+                <h3>{{$tr('bookmarks')}}</h3>
+                <p>{{ $tr('resources', { count: this.bookmarksCount })}}</p>
+              </div>
+            </div>
+          </KRouterLink>
         </div>
         <KGrid>
           <KGridItem :layout12="{ span: 6 }">
@@ -118,6 +124,7 @@
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from './SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from './ContentCardList';
+  import BookmarkIcon from './LessonContentCard/BookmarkIcon';
 
   export default {
     // this is inaccurately named because it applies to exams also
@@ -134,6 +141,7 @@
       ResourceSelectionBreadcrumbs,
       BottomAppBar,
       LessonContentCard,
+      BookmarkIcon,
     },
     mixins: [commonCoach, commonCoreStrings],
     data() {
@@ -553,6 +561,23 @@
 
   .search-filters {
     margin-top: 24px;
+  }
+
+  .bookmark-container {
+    display: flex;
+    min-height: 141px;
+    margin-bottom: 24px;
+    border-radius: 2px;
+    box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
+    transition: box-shadow 0.25s ease;
+  }
+
+  .bookmark-container:hover {
+    box-shadow: 0 5px 5px -3px #a1a1a1, 0 8px 10px 1px #d1d1d1, 0 3px 14px 2px #d4d4d4;
+  }
+
+  .text {
+    margin-left: 15rem;
   }
 
 </style>

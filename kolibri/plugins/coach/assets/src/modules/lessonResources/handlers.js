@@ -7,6 +7,7 @@ import {
 } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
+import chunk from 'lodash/chunk';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
 function showResourceSelectionPage(store, params) {
@@ -166,22 +167,26 @@ export function showLessonResourceBookmarks(store, params) {
 export function showLessonResourceBookmarksMain(store) {
   return store.dispatch('loading').then(() => {
     getBookmarks().then(bookmarks => {
-      console.log(111111, bookmarks);
       return showResourceSelectionPage(store, {
-        bookmarksList: bookmarks,
+        bookmarksList: bookmarks[0],
       });
     });
   });
 }
 function getBookmarks() {
   return BookmarksResource.fetchCollection()
-    .then(bookmarks => {
-      return bookmarks.map(bookmark => {
-        return ContentNodeResource.fetchModel({ id: bookmark.contentnode_id });
+    .then(bookmarks => bookmarks.map(bookmark => bookmark.contentnode_id))
+    .then(contentNodeIds => {
+      const chunkedContentNodeIds = chunk(contentNodeIds, 50); // Breaking contentNodeIds into lists no more than 50 in length
+      // Now we will create an array of promises, each of which queries for the 50-id chunk
+      const fetchPromises = chunkedContentNodeIds.map(idsChunk => {
+        return ContentNodeResource.fetchCollection({
+          getParams: {
+            ids: idsChunk, // This filters only the ids we want
+          },
+        });
       });
-    })
-    .then(bookmarkPromises => {
-      return Promise.all(bookmarkPromises);
+      return Promise.all(fetchPromises);
     });
 }
 export function showLessonResourceContentPreview(store, params) {

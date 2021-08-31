@@ -9,6 +9,7 @@ import {
 } from 'kolibri.resources';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import router from 'kolibri.coreVue.router';
+import chunk from 'lodash/chunk';
 import { PageNames } from '../../constants';
 import { filterAndAnnotateContentList, fetchChannelQuizzes } from './actions';
 
@@ -155,20 +156,25 @@ export function showExamCreationAllBookmarks(store) {
   return store.dispatch('loading').then(() => {
     getBookmarks().then(bookmarks => {
       return showExamCreationPage(store, {
-        bookmarksList: bookmarks,
+        bookmarksList: bookmarks[0],
       });
     });
   });
 }
 function getBookmarks() {
   return BookmarksResource.fetchCollection()
-    .then(bookmarks => {
-      return bookmarks.map(bookmark => {
-        return ContentNodeResource.fetchModel({ id: bookmark.contentnode_id });
+    .then(bookmarks => bookmarks.map(bookmark => bookmark.contentnode_id))
+    .then(contentNodeIds => {
+      const chunkedContentNodeIds = chunk(contentNodeIds, 50); // Breaking contentNodeIds into lists no more than 50 in length
+      // Now we will create an array of promises, each of which queries for the 50-id chunk
+      const fetchPromises = chunkedContentNodeIds.map(idsChunk => {
+        return ContentNodeResource.fetchCollection({
+          getParams: {
+            ids: idsChunk, // This filters only the ids we want
+          },
+        });
       });
-    })
-    .then(bookmarkPromises => {
-      return Promise.all(bookmarkPromises);
+      return Promise.all(fetchPromises);
     });
 }
 

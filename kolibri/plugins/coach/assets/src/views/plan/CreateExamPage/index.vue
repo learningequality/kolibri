@@ -99,13 +99,19 @@
       <div v-if="showChannels">
         <p>Select from bookmarks</p>
         <div @click="lessonCardClicked">
-          <LessonContentCard
-            :title="$tr('bookmarks')"
-            :link="getBookmarksLink()"
-            :kind="$tr('bookmark')"
-            :description="$tr('resources', { count: this.bookmarksCount })"
-            :isLeaf="false"
-          />
+        <KRouterLink
+          v-if="this.bookmarksCount"
+          :style="{width: '100%'}"
+          :to="getBookmarksLink()"
+          >
+            <div class="bookmark-container">
+              <BookmarkIcon/>
+              <div class="text">
+                <h3>{{$tr('bookmarks')}}</h3>
+                <p>{{ $tr('resources', { count: this.bookmarksCount })}}</p>
+              </div>
+            </div>
+          </KRouterLink>
         </div>
         <LessonsSearchBox
           class="search-box"
@@ -192,6 +198,7 @@
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
   import commonCoach from '../../common';
   import LessonContentCard from '../LessonResourceSelectionPage/LessonContentCard/index';
+  import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon';
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -204,6 +211,7 @@
       ContentCardList,
       BottomAppBar,
       LessonContentCard,
+      BookmarkIcon,
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     data() {
@@ -663,6 +671,23 @@
 
   .lesson-content-card {
     width: 100%;
+  }
+
+  .bookmark-container {
+    display: flex;
+    min-height: 141px;
+    margin-bottom: 24px;
+    border-radius: 2px;
+    box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
+    transition: box-shadow 0.25s ease;
+  }
+
+  .bookmark-container:hover {
+    box-shadow: 0 5px 5px -3px #a1a1a1, 0 8px 10px 1px #d1d1d1, 0 3px 14px 2px #d4d4d4;
+  }
+
+  .text {
+    margin-left: 15rem;
   }
 
 </style>
