@@ -57,6 +57,7 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { ContentNodeResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
   import AssessmentWrapper from './AssessmentWrapper';
   import commonLearnStrings from './commonLearnStrings';
@@ -91,16 +92,16 @@
         fullName: state => state.core.session.full_name,
       }),
 
-      // progress() {
-      //   if (this.isUserLoggedIn) {
-      //     // if there no attempts for this exercise, there is no progress
-      //     if (this.content.kind === ContentNodeKinds.EXERCISE && this.masteryAttempts === 0) {
-      //       return undefined;
-      //     }
-      //     return this.summaryProgress;
-      //   }
-      //   return this.sessionProgress;
-      // },
+      progress() {
+        if (this.isUserLoggedIn) {
+          // if there no attempts for this exercise, there is no progress
+          if (this.content.kind === ContentNodeKinds.EXERCISE && this.masteryAttempts === 0) {
+            return undefined;
+          }
+          return this.summaryProgress;
+        }
+        return this.sessionProgress;
+      },
     },
     created() {
       return this.initSessionAction({
@@ -155,6 +156,7 @@
             this.$store.dispatch('handleApiError', error);
           });
       },
+      // TODO: markAsComplete not used but may be re-added for upcoming progress/status work
       // markAsComplete() {
       //   this.wasIncomplete = false;
       // },
@@ -171,6 +173,7 @@
 
   .content {
     z-index: 0;
+    max-height: 100vh;
   }
 
 </style>
