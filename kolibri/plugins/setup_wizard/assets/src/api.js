@@ -61,7 +61,7 @@ export const SetupSoUDTasksResource = new Resource({
   },
 });
 
-export const FinishSouDSyncingResource = new Resource({
+export const FinishSoUDSyncingResource = new Resource({
   name: 'restartzeroconf',
   namespace: 'kolibri.plugins.setup_wizard',
   finish(store, admin) {

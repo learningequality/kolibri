@@ -54,7 +54,7 @@
   import FacilityTaskPanel from '../../../../../device/assets/src/views/FacilitiesPage/FacilityTaskPanel.vue';
   import { TaskStatuses } from '../../../../../device/assets/src/constants.js';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
-  import { FinishSouDSyncingResource, SetupSoUDTasksResource } from '../../api';
+  import { FinishSoUDSyncingResource, SetupSoUDTasksResource } from '../../api';
 
   export default {
     name: 'LoadingTaskPage',
@@ -146,7 +146,8 @@
         }
       },
       redirectToChannels() {
-        FinishSouDSyncingResource.finish(this.$store);
+        const admin = !this.lodService.state.matches('importingUser');
+        FinishSoUDSyncingResource.finish(this.$store, admin);
       },
     },
     $trs: {

@@ -37,7 +37,7 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { lodImportMachine } from '../machines/lodImportMachine';
-  import { FinishSouDSyncingResource } from '../api';
+  import { FinishSoUDSyncingResource } from '../api';
   import ProgressToolbar from './ProgressToolbar';
 
   export default {
@@ -133,7 +133,7 @@
         else this.service.send('BACK');
       },
       redirectToChannels() {
-        FinishSouDSyncingResource.finish(this.$store, false);
+        FinishSoUDSyncingResource.finish(this.$store, false);
       },
     },
     $trs: {
