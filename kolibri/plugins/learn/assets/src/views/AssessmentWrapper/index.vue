@@ -10,92 +10,98 @@ oriented data synchronization.
 <template v-if="ready">
 
   <div>
-    <UiAlert v-if="itemError" :dismissible="false" type="error">
-      {{ $tr('itemError') }}
-      <KButton
-        appearance="basic-link"
-        :text="$tr('tryDifferentQuestion')"
-        @click="nextQuestion"
-      />
-    </UiAlert>
+    <LessonMasteryBar
+      data-test="lessonMasteryBar"
+    />
     <div>
-      <KContentRenderer
-        ref="contentRenderer"
-        :kind="kind"
-        :lang="lang"
-        :files="files"
-        :available="available"
-        :extraFields="extraFields"
-        :assessment="true"
-        :itemId="itemId"
-        :progress="progress"
-        :userId="userId"
-        :userFullName="userFullName"
-        :timeSpent="timeSpent"
-        @answerGiven="answerGiven"
-        @hintTaken="hintTaken"
-        @itemError="handleItemError"
-        @startTracking="startTracking"
-        @stopTracking="stopTracking"
-        @updateProgress="updateProgress"
-        @updateContentState="updateContentState"
-      />
+      <UiAlert v-if="itemError" :dismissible="false" type="error">
+        {{ $tr('itemError') }}
+        <KButton
+          appearance="basic-link"
+          :text="$tr('tryDifferentQuestion')"
+          @click="nextQuestion"
+        />
+      </UiAlert>
+      <div class="content-wrapper">
+        <KContentRenderer
+          ref="contentRenderer"
+          :kind="kind"
+          :lang="lang"
+          :files="files"
+          :available="available"
+          :extraFields="extraFields"
+          :assessment="true"
+          :itemId="itemId"
+          :progress="progress"
+          :userId="userId"
+          :userFullName="userFullName"
+          :timeSpent="timeSpent"
+          @answerGiven="answerGiven"
+          @hintTaken="hintTaken"
+          @itemError="handleItemError"
+          @startTracking="startTracking"
+          @stopTracking="stopTracking"
+          @updateProgress="updateProgress"
+          @updateContentState="updateContentState"
+        />
+      </div>
+
+      <BottomAppBar
+        class="attempts-container"
+        :class="{ 'mobile': windowIsSmall }"
+      >
+        <div class="overall-status" :style="{ color: $themeTokens.text }">
+          <KIcon
+            icon="mastered"
+            :color="success ? $themeTokens.mastered : $themePalette.grey.v_200"
+          />
+          <div class="overall-status-text">
+            <span v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
+              {{ coreString('completedLabel') }}
+            </span>
+            <span>
+              {{ $tr('goal', { count: totalCorrectRequiredM }) }}
+            </span>
+          </div>
+        </div>
+        <div class="table">
+          <div class="row">
+            <div class="left">
+              <transition mode="out-in">
+                <KButton
+                  v-if="!complete"
+                  appearance="raised-button"
+                  :text="$tr('check')"
+                  :primary="true"
+                  :class="{ shaking: shake }"
+                  :disabled="checkingAnswer"
+                  @click="checkAnswer"
+                />
+                <KButton
+                  v-else
+                  appearance="raised-button"
+                  :text="$tr('next')"
+                  :primary="true"
+                  @click="nextQuestion"
+                />
+              </transition>
+            </div>
+
+            <div class="right">
+              <ExerciseAttempts
+                :waitingForAttempt="firstAttemptAtQuestion || itemError"
+                :numSpaces="attemptsWindowN"
+                :log="recentAttempts"
+              />
+              <p class="current-status">
+                {{ currentStatus }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </BottomAppBar>
     </div>
 
-    <BottomAppBar
-      class="attempts-container"
-      :class="{ 'mobile': windowIsSmall }"
-    >
-      <div class="overall-status" :style="{ color: $themeTokens.text }">
-        <KIcon
-          icon="mastered"
-          :color="success ? $themeTokens.mastered : $themePalette.grey.v_200"
-        />
-        <div class="overall-status-text">
-          <span v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
-            {{ coreString('completedLabel') }}
-          </span>
-          <span>
-            {{ $tr('goal', { count: totalCorrectRequiredM }) }}
-          </span>
-        </div>
-      </div>
-      <div class="table">
-        <div class="row">
-          <div class="left">
-            <transition mode="out-in">
-              <KButton
-                v-if="!complete"
-                appearance="raised-button"
-                :text="$tr('check')"
-                :primary="true"
-                :class="{ shaking: shake }"
-                :disabled="checkingAnswer"
-                @click="checkAnswer"
-              />
-              <KButton
-                v-else
-                appearance="raised-button"
-                :text="$tr('next')"
-                :primary="true"
-                @click="nextQuestion"
-              />
-            </transition>
-          </div>
-
-          <div class="right">
-            <ExerciseAttempts
-              :waitingForAttempt="firstAttemptAtQuestion || itemError"
-              :numSpaces="attemptsWindowN"
-              :log="recentAttempts"
-            />
-            <p class="current-status">
-              {{ currentStatus }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </BottomAppBar>
   </div>
 
 </template>
@@ -112,6 +118,7 @@ oriented data synchronization.
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
+  import LessonMasteryBar from '../classes/LessonMasteryBar';
   import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
   import ExerciseAttempts from './ExerciseAttempts';
 
@@ -121,6 +128,7 @@ oriented data synchronization.
       ExerciseAttempts,
       UiAlert,
       BottomAppBar,
+      LessonMasteryBar,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
@@ -577,6 +585,11 @@ oriented data synchronization.
   .attempts-container {
     height: 111px;
     text-align: left;
+  }
+
+  .content-wrapper {
+    padding: 50px;
+    background-color: white;
   }
 
   .mobile {

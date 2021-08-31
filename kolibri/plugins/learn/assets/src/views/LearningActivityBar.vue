@@ -291,6 +291,7 @@
     position: absolute;
     top: 50%;
     right: 10px; // right-align to the menu icon
+    z-index: 2; // set the z-index higher than epub renderer
     min-width: 270px;
     transform: translateY(16px);
   }

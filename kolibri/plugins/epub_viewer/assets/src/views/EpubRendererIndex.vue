@@ -761,15 +761,11 @@
   .epub-renderer {
     position: relative;
     max-height: 100%;
-    padding-top: calc(100% * 8.5 / 11);
+    padding-top: calc(100vh - #{$bottom-bar-height});
     overflow: hidden;
     font-size: smaller;
     border: solid 1px;
     border-radius: $radius;
-  }
-
-  .epub-renderer.small {
-    padding-top: calc(100% * 11 / 8.5);
   }
 
   .epub-renderer:fullscreen,
@@ -831,6 +827,7 @@
     right: 0;
     bottom: 0;
     left: 0;
+    padding: 0 40px;
   }
 
   .d-t {
