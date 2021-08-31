@@ -17,6 +17,8 @@
 
   import { mapGetters } from 'vuex';
   import urls from 'kolibri.urls';
+  import redirectBrowser from 'kolibri.utils.redirectBrowser';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'ContentUnavailablePage',
@@ -25,6 +27,7 @@
         title: this.$tr('documentTitle'),
       };
     },
+
     computed: {
       ...mapGetters(['canManageContent', 'isLearner']),
       deviceContentUrl() {
@@ -38,6 +41,12 @@
       showLearnerText() {
         return this.isLearner && !this.canManageContent;
       },
+    },
+    beforeMount() {
+      if (plugin_data.isSubsetOfUsersDevice) {
+        const deviceContentUrl = urls['kolibri:kolibri.plugins.device:device_management'];
+        redirectBrowser(deviceContentUrl());
+      }
     },
     $trs: {
       header: {

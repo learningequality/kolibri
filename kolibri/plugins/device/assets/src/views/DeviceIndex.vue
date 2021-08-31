@@ -72,7 +72,10 @@
       ...mapState({ welcomeModalVisibleState: 'welcomeModalVisible' }),
       ...mapState('coreBase', ['appBarTitle']),
       welcomeModalVisible() {
-        return this.welcomeModalVisibleState && !window.sessionStorage.getItem(welcomeDimissalKey);
+        return (
+          this.welcomeModalVisibleState &&
+          window.sessionStorage.getItem(welcomeDimissalKey) !== 'true'
+        );
       },
       pageName() {
         return this.$route.name;

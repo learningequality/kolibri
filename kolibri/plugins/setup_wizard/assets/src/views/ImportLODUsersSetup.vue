@@ -19,16 +19,9 @@
         primary
         :text="coreString('finishAction')"
         :disabled="users.length === 0"
-        @click="welcomeModal = true"
+        @click="redirectToChannels"
       />
     </BottomAppBar>
-
-    <WelcomeModal
-      v-if="welcomeModal"
-      :importedFacility="facility"
-      :isLOD="true"
-      @submit="redirectToChannels"
-    />
   </div>
 
 </template>
@@ -42,7 +35,6 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { lodImportMachine } from '../machines/lodImportMachine';
-  import WelcomeModal from '../../../../device/assets/src/views/WelcomeModal.vue';
   import ProgressToolbar from './ProgressToolbar';
 
   const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
@@ -52,7 +44,6 @@
     components: {
       BottomAppBar,
       ProgressToolbar,
-      WelcomeModal,
     },
     mixins: [commonSyncElements, commonCoreStrings],
 
@@ -63,7 +54,6 @@
         state: lodImportMachine.initialState,
         total_steps: 4,
         stateID: null,
-        welcomeModal: false,
       };
     },
     provide() {
@@ -89,9 +79,6 @@
       removeNavIcon() {
         // TODO disable backwards navigation at the router level
         return this.currentStep > 1;
-      },
-      facility() {
-        return this.state.context.facility;
       },
       users() {
         return this.state.context.users;
@@ -145,8 +132,7 @@
         else this.service.send('BACK');
       },
       redirectToChannels() {
-        window.sessionStorage.setItem(welcomeDimissalKey, true);
-        this.welcomeModal = false;
+        window.sessionStorage.setItem(welcomeDimissalKey, false);
         this.$store.dispatch('kolibriLogout');
       },
     },

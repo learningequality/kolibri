@@ -20,6 +20,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'WelcomeModal',
@@ -31,16 +32,20 @@
       },
       isLOD: {
         type: Boolean,
-        default: false,
+        default: plugin_data.isSubsetOfUsersDevice,
       },
     },
     computed: {
       paragraphs() {
         if (this.isLOD) {
+          const facility =
+            this.importedFacility === null
+              ? this.$store.getters.facilities[0]
+              : this.importedFacility;
           return [
             this.$tr('learnOnlyDeviceWelcomeMessage1'),
             this.$tr('learnOnlyDeviceWelcomeMessage2', {
-              facilityName: this.importedFacility.name,
+              facilityName: facility.name,
             }),
           ];
         }
@@ -56,6 +61,9 @@
           ];
         }
       },
+    },
+    beforeCreate() {
+      if (this.$store.state.core.facilities.length === 0) this.$store.dispatch('getFacilities');
     },
     render: createElement => window.setTimeout(createElement, 750),
     $trs: {
