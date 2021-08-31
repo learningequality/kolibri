@@ -75,7 +75,6 @@
     },
     computed: {
       ...mapGetters(['currentUserId']),
-      // ...mapState(['pageName']),
       ...mapState('topicsTree', ['content']),
       ...mapState('topicsTree', {
         contentId: state => state.content.content_id,
@@ -84,10 +83,10 @@
         contentKind: state => state.content.kind,
       }),
       ...mapState({
-        // masteryAttempts: state => state.core.logging.mastery.totalattempts,
+        masteryAttempts: state => state.core.logging.mastery.totalattempts,
         summaryProgress: state => state.core.logging.summary.progress,
         summaryTimeSpent: state => state.core.logging.summary.time_spent,
-        // sessionProgress: state => state.core.logging.session.progress,
+        sessionProgress: state => state.core.logging.session.progress,
         extraFields: state => state.core.logging.summary.extra_fields,
         fullName: state => state.core.session.full_name,
       }),

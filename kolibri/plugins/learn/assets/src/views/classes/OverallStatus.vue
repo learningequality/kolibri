@@ -37,7 +37,6 @@
       ...mapState('topicsTree', ['content']),
       ...mapState({
         mastered: state => state.core.logging.mastery.complete,
-        // userid: state => state.core.session.user_id,
       }),
       masteryModel() {
         return this.content.masteryModel;
