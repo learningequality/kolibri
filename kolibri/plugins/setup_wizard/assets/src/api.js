@@ -1,5 +1,7 @@
 import { Resource } from 'kolibri.lib.apiResource';
 import pickBy from 'lodash/pickBy';
+import urls from 'kolibri.urls';
+import redirectBrowser from 'kolibri.utils.redirectBrowser';
 
 export const FacilityImportResource = new Resource({
   name: 'facilityimport',
@@ -56,5 +58,21 @@ export const SetupSoUDTasksResource = new Resource({
     return this.postListEndpoint('list', args).then(response => {
       return response.data;
     });
+  },
+});
+
+export const FinishSouDSyncingResource = new Resource({
+  name: 'restartzeroconf',
+  namespace: 'kolibri.plugins.setup_wizard',
+  finish(store, admin) {
+    const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+    const device_url = urls['kolibri:kolibri.plugins.device:device_management'];
+    window.sessionStorage.setItem(welcomeDimissalKey, false);
+    this.postListEndpoint('restart');
+    if (admin) store.dispatch('kolibriLogout');
+    else {
+      redirectBrowser(device_url());
+    }
+    return '';
   },
 });

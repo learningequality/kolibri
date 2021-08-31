@@ -37,9 +37,8 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { lodImportMachine } from '../machines/lodImportMachine';
+  import { FinishSouDSyncingResource } from '../api';
   import ProgressToolbar from './ProgressToolbar';
-
-  const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
   export default {
     name: 'ImportLODUsersSetup',
@@ -134,9 +133,7 @@
         else this.service.send('BACK');
       },
       redirectToChannels() {
-        window.sessionStorage.setItem(welcomeDimissalKey, false);
-        const device_url = urls['kolibri:kolibri.plugins.device:device_management']();
-        redirectBrowser(device_url);
+        FinishSouDSyncingResource.finish(this.$store, false);
       },
     },
     $trs: {
