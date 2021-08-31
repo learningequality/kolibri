@@ -98,6 +98,7 @@
 
   import JSZip from 'jszip';
   import client from 'kolibri.client';
+  import urls from 'kolibri.urls';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import scriptLoader from 'kolibri.utils.scriptLoader';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
@@ -116,7 +117,7 @@
   // because MathJax isn't compatible with webpack, we are loading it this way.
   const mathJaxConfigFileName = require('../constants').ConfigFileName;
   // the config is fragile, Khan may change it and we need to update the following hardcoded path.
-  const mathJaxUrl = `/static/mathjax/2.1/MathJax.js?config=${mathJaxConfigFileName}`;
+  const mathJaxUrl = urls.static(`mathjax/2.1/MathJax.js?config=${mathJaxConfigFileName}`);
 
   const mathJaxPromise = scriptLoader(mathJaxUrl);
 
