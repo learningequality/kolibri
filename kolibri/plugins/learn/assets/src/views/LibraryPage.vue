@@ -1,13 +1,12 @@
 <template>
 
-  <MultiPaneLayout ref="multiPaneLayout">
-    <template #header>
-      <h1 class="visuallyhidden">
-        {{ learnString('recommendedLabel') }}
-      </h1>
-    </template>
-
-    <template #aside>
+  <MultiPaneLayout
+    ref="multiPaneLayout"
+    :style="layoutStyles"
+  >
+    <template
+      #aside
+    >
       <div
         class="side-panel"
         :style="{
@@ -15,18 +14,18 @@
           backgroundColor: $themeTokens.surface,
         }"
       >
-        <KFixedGrid
+        <KGrid
           numCols="4"
           gutter="30"
         >
-          <KFixedGridItem class="title">
+          <KGridItem class="title">
             <h2>Keywords</h2>
-          </KFixedGridItem>
+          </KGridItem>
           <SearchBox />
-          <KFixedGridItem class="title">
+          <KGridItem class="title">
             <h2>Categories</h2>
-          </KFixedGridItem>
-          <KFixedGridItem
+          </KGridItem>
+          <KGridItem
             v-for="(value, category) in libraryCategoriesList"
             :key="category"
             span="4"
@@ -38,12 +37,12 @@
               :appearanceOverrides="customCategoryStyles"
               iconAfter="chevronRight"
             />
-          </KFixedGridItem>
+          </KGridItem>
           <!-- Filter by learning activity, displaying all options -->
-          <KFixedGridItem class="title">
+          <KGridItem class="title">
             <h2>Activities</h2>
-          </KFixedGridItem>
-          <KFixedGridItem
+          </KGridItem>
+          <KGridItem
             span="2"
             alignment="center"
           >
@@ -56,8 +55,8 @@
                 {{ learnString('all') }}
               </p>
             </KButton>
-          </KFixedGridItem>
-          <KFixedGridItem
+          </KGridItem>
+          <KGridItem
             v-for="(value, activity) in learningActivitiesList"
             :key="activity"
             span="2"
@@ -72,36 +71,36 @@
                 {{ learnString(value) }}
               </p>
             </KButton>
-          </KFixedGridItem>
-          <KFixedGridItem>
+          </KGridItem>
+          <KGridItem>
             <KSelect
               :options="languageOptionsList"
               class="selector"
               :value="selectedLanguage"
             />
-          </KFixedGridItem>
-          <KFixedGridItem>
+          </KGridItem>
+          <KGridItem>
             <KSelect
               :options="contentLevelsList"
               class="selector"
               :value="selectedLevel"
             />
-          </KFixedGridItem>
-          <KFixedGridItem>
+          </KGridItem>
+          <KGridItem>
             <KSelect
               :options="channelOptionsList"
               class="selector"
               :value="selectedChannel"
             />
-          </KFixedGridItem>
-          <KFixedGridItem>
+          </KGridItem>
+          <KGridItem>
             <KSelect
               :options="accessibilityOptionsList"
               class="selector"
               :value="selectedAccessibilityFilter"
             />
-          </KFixedGridItem>
-          <KFixedGridItem
+          </KGridItem>
+          <KGridItem
             v-for="(value, activity) in resourcesNeededList"
             :key="activity"
             span="4"
@@ -113,8 +112,8 @@
               :label="value"
               @change="$emit('toggleSelected', $event)"
             />
-          </KFixedGridItem>
-        </KFixedGrid>
+          </KGridItem>
+        </KGrid>
       </div>
     </template>
 
@@ -194,7 +193,7 @@
   } from 'kolibri.coreVue.vuex.constants';
   import { ContentNodeProgressResource } from 'kolibri.resources';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
-  import languageSwitcherMixin from '../../../../../../kolibri/core/assets/src/views/language-switcher/mixin.js';
+  import languageSwitcherMixin from '../../../../../core/assets/src/views/language-switcher/mixin.js';
   import { PageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
   import ContentCardGroupCarousel from './ContentCardGroupCarousel';
@@ -208,7 +207,7 @@
   const desktopCarouselLimit = 15;
 
   export default {
-    name: 'RecommendedPage',
+    name: 'LibraryPage',
     metaInfo() {
       return {
         title: this.learnString('learnLabel'),
@@ -374,6 +373,13 @@
           },
         };
       },
+      layoutStyles() {
+        return {
+          aside: {
+            paddingLeft: 0,
+          },
+        };
+      },
     },
     created() {
       if (this.$store.getters.isUserLoggedIn) {
@@ -413,7 +419,7 @@
   .side-panel {
     // position: fixed;
     // left: 0;
-    // z-index: 4;
+    z-index: 4;
     width: 354px;
     height: 100%;
     padding: 30px 40px;

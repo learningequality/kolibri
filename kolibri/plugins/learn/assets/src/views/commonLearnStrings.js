@@ -7,10 +7,10 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context:
       "Each time a learner signs in to Kolibri, the first thing they see is the  'Learn' page with the list of all the classes they are enrolled to.",
   },
-  recommendedLabel: {
-    message: 'Recommended',
+  libraryLabel: {
+    message: 'Library',
     context:
-      "The 'Recommended' section shows learning topics and materials that are either related to what the learner was doing the last time they used Kolibri, or recommended by their coaches.",
+      "The 'Library' section shows learning topics and materials that are either related to what the learner was doing the last time they used Kolibri, or recommended by their coaches. It also allows learners to browse and explore content on their own.",
   },
   resumeLabel: {
     message: 'Resume',

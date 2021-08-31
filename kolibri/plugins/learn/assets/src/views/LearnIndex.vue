@@ -208,7 +208,51 @@
             immersivePageIcon: 'back',
           };
         }
+        if (this.pageName === PageNames.TOPICS_CONTENT) {
+          let immersivePageRoute = {};
+          let appBarTitle;
+          const { searchTerm, last } = this.$route.query;
+          if (searchTerm) {
+            appBarTitle = this.coreString('searchLabel');
+            immersivePageRoute = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
+          } else if (last) {
+            // 'last' should only be route names for Recommended Page and its subpages
+            immersivePageRoute = this.$router.getRoute(last);
+            appBarTitle = {
+              [PageNames.RECOMMENDED_POPULAR]: this.learnString('popularLabel'),
+              [PageNames.RECOMMENDED_RESUME]: this.learnString('resumeLabel'),
+              [PageNames.RECOMMENDED_NEXT_STEPS]: this.learnString('nextStepsLabel'),
+              [PageNames.LIBRARY]: this.learnString('libraryLabel'),
+            }[last];
+          } else if (this.topicsTreeContent.parent) {
+            // Need to guard for parent being non-empty to avoid console errors
+            immersivePageRoute = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
+              id: this.topicsTreeContent.parent,
+            });
 
+            if (this.topicsTreeContent.breadcrumbs.length > 0) {
+              appBarTitle = lastItem(this.topicsTreeContent.breadcrumbs).title;
+            } else {
+              // `breadcrumbs` is empty if the direct parent is the channel, so pull
+              // channel info from state.topicsTree.channel
+              appBarTitle = this.topicsTreeChannel.title;
+            }
+          }
+          return {
+            appBarTitle,
+            immersivePage: true,
+            immersivePageRoute,
+            immersivePagePrimary: false,
+            immersivePageIcon: 'close',
+          };
+        }
+        if (this.pageName === PageNames.LIBRARY) {
+          return {
+            appBarTitle: this.topicsTreeChannel.title || '',
+            immersivePage: false,
+            hasSidebar: true,
+          };
+        }
         return {
           appBarTitle: this.learnString('learnLabel'),
           immersivePage: false,

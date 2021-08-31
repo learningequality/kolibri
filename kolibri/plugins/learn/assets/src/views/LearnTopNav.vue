@@ -26,11 +26,10 @@
     </NavbarLink>
     <NavbarLink
       v-if="canAccessUnassignedContent"
-      :title="learnString('recommendedLabel')"
-      :link="recommendedLink"
+      :title="learnString('libraryLabel')"
+      :link="libraryLink"
     >
       <KIcon
-        icon="recommended"
         style="top: 0; width: 24px; height: 24px;"
         :color="$themeTokens.textInverted"
       />
@@ -64,8 +63,8 @@
         channelsLink: {
           name: PageNames.TOPICS_ROOT,
         },
-        recommendedLink: {
-          name: PageNames.RECOMMENDED,
+        libraryLink: {
+          name: PageNames.LIBRARY,
         },
       };
     },
