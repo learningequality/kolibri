@@ -29,6 +29,10 @@ from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.hooks import LogoutRedirectHook
 from kolibri.core.hooks import RoleBasedRedirectHook
+from kolibri.core.theme_hook import BRAND_COLORS
+from kolibri.core.theme_hook import COLOR_V400
+from kolibri.core.theme_hook import PRIMARY
+from kolibri.core.theme_hook import ThemeHook
 
 
 # Modified from django.views.i18n
@@ -165,6 +169,16 @@ class RootURLRedirectView(View):
 @method_decorator(cache_no_user_data, name="dispatch")
 class UnsupportedBrowserView(TemplateView):
     template_name = "kolibri/unsupported_browser.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(UnsupportedBrowserView, self).get_context_data(**kwargs)
+        context["brand_primary_v400"] = (
+            ThemeHook.get_theme()
+            .get(BRAND_COLORS, {})
+            .get(PRIMARY, {})
+            .get(COLOR_V400, "purple")
+        )
+        return context
 
 
 class StatusCheckView(View):
