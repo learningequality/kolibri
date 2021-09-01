@@ -152,8 +152,7 @@
       redirectToChannels() {
         window.sessionStorage.setItem(welcomeDimissalKey, false);
         const device_url = urls['kolibri:kolibri.plugins.device:device_management']();
-        if (this.lodService.state.matches('importingUser')) redirectBrowser(device_url);
-        else this.$store.dispatch('kolibriLogout');
+        redirectBrowser(device_url);
       },
     },
     $trs: {
