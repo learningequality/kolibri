@@ -345,6 +345,16 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'This button appears in Kolibri to indicate to users that there are more results available when they search for resources, for example.',
   },
 
+  // Learning activities
+  createActivity: 'Create',
+  listenActivity: 'Listen',
+  reflectActivity: 'Reflect',
+  practiceActivity: 'Practice',
+  readActivity: 'Read',
+  watchActivity: 'Watch',
+  exploreActivity: 'Explore',
+  topicLabel: 'Topic',
+
   // Notifications
   changesSavedNotification: {
     message: 'Changes saved',
