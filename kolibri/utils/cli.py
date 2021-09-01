@@ -2,11 +2,11 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import importlib
 import logging
 import signal
 import sys
 import traceback
+from pkgutil import find_loader
 
 import click
 from django.core.management import execute_from_command_line
@@ -43,7 +43,8 @@ click.disable_unicode_literals_warning = True
 def validate_module(ctx, param, value):
     if value:
         try:
-            importlib.import_module(value)
+            if not find_loader(value):
+                raise ImportError
         except ImportError:
             raise click.BadParameter(
                 "{param} must be a valid python module import path"
