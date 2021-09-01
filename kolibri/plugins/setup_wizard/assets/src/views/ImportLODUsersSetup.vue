@@ -29,8 +29,6 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
-  import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import { computed } from 'kolibri.lib.vueCompositionApi';
   import { interpret } from 'xstate';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
