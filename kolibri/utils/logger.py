@@ -208,6 +208,12 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
+            "django.template": {
+                "handlers": DEFAULT_HANDLERS,
+                # Django template debug is very noisy, only log INFO and above.
+                "level": "INFO",
+                "propagate": False,
+            },
         },
     }
 
