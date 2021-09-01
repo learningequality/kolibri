@@ -54,7 +54,7 @@
         context: 'Description text on demo sign in page.',
       },
       demoServerL1: {
-        message: 'Learner ({user}/{pass} or access as a guest)',
+        message: 'Learner ({user}/{pass} or explore without an account)',
         context:
           "Provides a username and password for a user to sign in to the demo facility as a Learner. Also indicates that there's an option to sign in as a guest without the need for a username or password.",
       },

@@ -318,7 +318,7 @@
       forgetAddressButtonLabel: {
         message: 'Remove',
         context:
-          "Removes a network address from the list of network addresses which have been registered in the Device > Facilities section.",
+          'Removes a network address from the list of network addresses which have been registered in the Device > Facilities section.',
       },
       header: {
         message: 'Select network address',

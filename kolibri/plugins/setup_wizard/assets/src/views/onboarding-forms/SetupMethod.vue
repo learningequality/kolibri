@@ -133,10 +133,12 @@
       },
       lod: {
         message: 'Learn-only device',
-        context: 'Device that has Kolibri features for learners, but not those for coaches and admins',
+        context:
+          'Device that has Kolibri features for learners, but not those for coaches and admins',
       },
       lodTooltip: {
-        message: 'Device will have Kolibri features for learners, but not those for coaches and admins',
+        message:
+          'Device will have Kolibri features for learners, but not those for coaches and admins',
         context: 'Tooltip for Learn-only device',
       },
       descriptionParagraph1: {
