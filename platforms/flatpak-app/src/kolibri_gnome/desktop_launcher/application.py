@@ -736,21 +736,10 @@ class ChannelApplication(Application):
 
         if re.match(r"^\/(?P<lang>\w+\/)?learn\/?", url_tuple.path):
             return self.__is_learn_fragment_in_channel(url_tuple.fragment)
-        elif re.match(r"^\/(?P<lang>\w+\/)?user\/?", url_tuple.path):
+        elif re.match(r"^\/(?P<lang>\w+\/)?(user|logout|redirectuser)\/?", url_tuple.path):
             return True
-        elif re.match(r"^\/(?P<lang>\w+\/)?logout\/?", url_tuple.path):
+        elif re.match(r"^\/(zipcontent|app|static|downloadcontent|content\/storage)\/?", url_tuple.path):
             return True
-        elif re.match(r"^\/(?P<lang>\w+\/)?redirectuser\/?", url_tuple.path):
-            return True
-        elif re.match(r"^\/zipcontent\/?", url_tuple.path):
-            return True
-        elif re.match(r"^\/app\/?", url_tuple.path):
-            return True
-        elif re.match(r"^\/static\/?", url_tuple.path):
-            return True
-        elif re.match(r"^\/downloadcontent\/?", url_tuple.path):
-            return True
-        elif re.match(r"^\/content\/storage\/?", url_tuple.path):
             return True
         else:
             return False
@@ -783,15 +772,9 @@ class ChannelApplication(Application):
         return contentnode_channel == self.channel_id
 
     def __contentnode_id_for_learn_fragment(self, fragment):
-        patterns = (
-            r"^topics\/c\/(?P<node_id>\w+)",
-            r"^topics\/t\/(?P<node_id>\w+)",
-            r"^topics\/(?P<node_id>\w+)",
-        )
-
-        for pattern in patterns:
-            match = re.match(pattern, fragment)
-            if match:
-                return match.group("node_id")
+        pattern = r"^topics\/([ct]\/)?(?P<node_id>\w+)"
+        match = re.match(pattern, fragment)
+        if match:
+            return match.group("node_id")
 
         return None
