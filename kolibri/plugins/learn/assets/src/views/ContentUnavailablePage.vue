@@ -25,6 +25,7 @@
         title: this.$tr('documentTitle'),
       };
     },
+
     computed: {
       ...mapGetters(['canManageContent', 'isLearner']),
       deviceContentUrl() {
