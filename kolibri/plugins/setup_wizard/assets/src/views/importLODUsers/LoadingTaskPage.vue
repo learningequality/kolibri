@@ -146,8 +146,7 @@
         }
       },
       redirectToChannels() {
-        const admin = !this.lodService.state.matches('importingUser');
-        FinishSoUDSyncingResource.finish(this.$store, admin);
+        FinishSoUDSyncingResource.finish();
       },
     },
     $trs: {

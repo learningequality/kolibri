@@ -133,7 +133,7 @@
         else this.service.send('BACK');
       },
       redirectToChannels() {
-        FinishSoUDSyncingResource.finish(this.$store, false);
+        FinishSoUDSyncingResource.finish();
       },
     },
     $trs: {

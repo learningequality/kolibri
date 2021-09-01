@@ -64,15 +64,12 @@ export const SetupSoUDTasksResource = new Resource({
 export const FinishSoUDSyncingResource = new Resource({
   name: 'restartzeroconf',
   namespace: 'kolibri.plugins.setup_wizard',
-  finish(store, admin) {
+  finish() {
     const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
     const device_url = urls['kolibri:kolibri.plugins.device:device_management'];
     window.sessionStorage.setItem(welcomeDimissalKey, false);
     this.postListEndpoint('restart');
-    if (admin) store.dispatch('kolibriLogout');
-    else {
-      redirectBrowser(device_url());
-    }
+    redirectBrowser(device_url());
     return '';
   },
 });
