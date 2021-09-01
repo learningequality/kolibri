@@ -213,7 +213,7 @@
       },
       description: {
         message:
-          'This account allows you to manage all facilities, content, and user accounts on this device.',
+          'This account allows you to manage all facilities, resources, and user accounts on this device.',
 
         context: 'Explanation of what the super admin account is used for on device',
       },

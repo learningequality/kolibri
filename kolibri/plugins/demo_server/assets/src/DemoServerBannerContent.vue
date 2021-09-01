@@ -50,7 +50,7 @@
         context: 'Title on Kolibri demo site sign in page.',
       },
       demoServerP1: {
-        message: 'Explore any of the three primary user types:',
+        message: 'Explore any of these user types:',
         context: 'Description text on demo sign in page.',
       },
       demoServerL1: {

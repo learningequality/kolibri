@@ -124,19 +124,19 @@
       fullDevice: {
         message: 'Full device',
         context:
-          'Create or import a device that will be a server to be used by coaches and learners',
+          'Device that will be fully featured Kolibri server used by admins, coaches and learners',
       },
       fullDeviceTooltip: {
         message:
-          'Create or import a device that will be a server to be used by coaches and learners',
+          'Device will be fully featured Kolibri server used by admins, coaches and learners',
         context: 'Tooltip for full device',
       },
       lod: {
         message: 'Learn-only device',
-        context: 'Import one more learners from an existing Kolibri server',
+        context: 'Device that has Kolibri features for learners, but not those for coaches and admins',
       },
       lodTooltip: {
-        message: 'Import one more learners from an existing Kolibri server',
+        message: 'Device will have Kolibri features for learners, but not those for coaches and admins',
         context: 'Tooltip for Learn-only device',
       },
       descriptionParagraph1: {

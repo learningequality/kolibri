@@ -485,12 +485,12 @@
           'Describes the time tracker indicator bar in the bottom of the media player which allows a learner to view the progress through a media file and skip to specific times.',
       },
       fullscreen: {
-        message: 'Fullscreen',
+        message: 'Enter fullscreen',
         context:
           'Learners can use the full screen button in the bottom right corner to open the media player in fullscreen view.\n',
       },
       nonFullscreen: {
-        message: 'Non-fullscreen',
+        message: 'Exit fullscreen',
         context:
           'Learners can use the full screen button in the bottom right corner to exit the media player from fullscreen view. This text appears upon mouse over of the button.\n',
       },

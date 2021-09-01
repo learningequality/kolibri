@@ -316,9 +316,9 @@
           'Error message that displays when an admin attempts to find a network address, but the address is not found.',
       },
       forgetAddressButtonLabel: {
-        message: 'Forget',
+        message: 'Remove',
         context:
-          "Selecting 'Forget' removes a network address from the list of network addresses which have been registered in the Device > Facilities section.",
+          "Removes a network address from the list of network addresses which have been registered in the Device > Facilities section.",
       },
       header: {
         message: 'Select network address',

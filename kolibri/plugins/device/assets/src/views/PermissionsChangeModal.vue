@@ -57,7 +57,7 @@
           "Description of permission. This window displays if a user's permissions are changed.",
       },
       manageContentMessage1: {
-        message: 'You have been given permissions to manage content on this device.',
+        message: 'You have been given permissions to manage channels and resources on this device.',
         context:
           "Description of permission. This window displays if a user's permissions are changed.",
       },

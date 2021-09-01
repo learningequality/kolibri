@@ -57,7 +57,7 @@
     },
     $trs: {
       adminAccountCreationDescriptionPersonal: {
-        message: 'This account allows you to manage all content and user accounts on this device',
+        message: 'This account allows you to manage all resource channels and user accounts on this device',
         context: 'Alternative description for SuperuserCredentialsForm when doing a personal setup',
       },
     },

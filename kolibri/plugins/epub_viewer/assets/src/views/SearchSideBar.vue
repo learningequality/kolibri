@@ -238,12 +238,12 @@
         context: 'Refers to number of search results. Only translate "result" and "results".',
       },
       enterSearchQuery: {
-        message: 'Enter search query',
-        context: 'Refers to the to the search field in the EPUB reader.',
+        message: 'Enter a word to search',
+        context: 'Label for the search field in the EPUB reader.',
       },
       submitSearchQuery: {
-        message: 'Submit search query',
-        context: 'Refers to initialing a search query in an EPUB book.',
+        message: 'Start the search',
+        context: 'Label for a button to initiate a search in an EPUB book.',
       },
     },
   };

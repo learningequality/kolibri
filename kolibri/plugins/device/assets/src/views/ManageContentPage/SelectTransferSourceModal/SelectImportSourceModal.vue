@@ -107,13 +107,13 @@
       },
       networkDescription: {
         message:
-          'Import resources from another instance of Kolibri running on another device, either in the same local network or on the internet',
+          'Import resources from another Kolibri server running on a device in your local network, or on the internet',
         context:
           'Description referring to importing channels from a local network or the internet.',
       },
       localDescription: {
         message:
-          'Import resources from a drive. Channels must have first been exported onto the drive from another instance of Kolibri',
+          'Import resources from a drive. Channels must have first been exported onto the drive from another Kolibri server',
         context:
           'Description referring to importing channels from an attached drive or memory card.',
       },
