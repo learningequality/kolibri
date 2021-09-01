@@ -1,6 +1,6 @@
 {
   "name": "kolibri",
-  "version": "0.13.0-dev.10",
+  "version": "0.15.0-dev.1",
   "description": "The Kolibri core API",
   "repository": "github.com/learningequality/kolibri",
   "author": "Learning Equality",
@@ -34,6 +34,6 @@
     "vuex-router-sync": "^5.0.0"
   },
   "devDependencies": {
-    "kolibri-tools": "0.13.0-dev.10"
+    "kolibri-tools": "0.15.0-dev.1"
   }
 }
