@@ -1,6 +1,9 @@
 <template>
 
-  <Thumbnail :thumbnailUrl="thumbnailUrl">
+  <Thumbnail
+    :thumbnailUrl="thumbnailUrl"
+    :rounded="rounded"
+  >
     <template #icon>
       <LearningActivityIcon
         v-if="contentNode.is_leaf"
@@ -40,6 +43,11 @@
       contentNode: {
         type: Object,
         required: true,
+      },
+      rounded: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
     computed: {

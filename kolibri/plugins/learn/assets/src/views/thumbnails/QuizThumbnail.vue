@@ -1,6 +1,6 @@
 <template>
 
-  <Thumbnail>
+  <Thumbnail :rounded="rounded">
     <template #icon>
       <KIcon
         icon="exercise"
@@ -24,6 +24,13 @@
     name: 'QuizThumbnail',
     components: {
       Thumbnail,
+    },
+    props: {
+      rounded: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
   };
 

@@ -2,7 +2,7 @@
 
   <span
     class="thumbnail"
-    :style="{ backgroundColor: $themePalette.grey.v_200 }"
+    :class="thumbnailComputedClass"
   >
     <span class="icon">
       <slot name="icon"></slot>
@@ -40,6 +40,23 @@
         type: String,
         required: false,
         default: '',
+      },
+      rounded: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+    },
+    computed: {
+      thumbnailComputedClass() {
+        const styles = {
+          backgroundColor: this.$themePalette.grey.v_200,
+        };
+        if (this.rounded) {
+          styles.borderRadius = '4px';
+          styles.overflow = 'hidden';
+        }
+        return this.$computedClass(styles);
       },
     },
   };
