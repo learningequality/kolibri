@@ -16,6 +16,16 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
     serializer_class = NetworkLocationSerializer
     queryset = NetworkLocation.objects.all()
 
+    def filter_queryset(self, queryset):
+        if (
+            self.request.method == "GET"
+            and self.request.resolver_match.url_name.endswith("-list")
+        ):
+            # only filter down the queryset in the case of the list view being requested
+            if self.request.query_params.get("filterSoUD", False):
+                return queryset.filter(subset_of_users_device=False)
+        return queryset
+
 
 class DynamicNetworkLocationViewSet(NetworkLocationViewSet):
     queryset = DynamicNetworkLocation.objects.all()

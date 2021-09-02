@@ -48,26 +48,28 @@ function fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
 }
 
 function fetchAddressesWithChannel(withChannelId = '', LocationResource = NetworkLocationResource) {
-  return LocationResource.fetchCollection({ force: true }).then(locations => {
-    // If channelId is provided, then we are in an 'import-more' workflow and disable
-    // locations that do not have the channel we are importing from.
-    if (withChannelId !== '') {
-      const locationsWithAvailabilityPromises = locations.map(location => {
-        // Need to wrap in normal promise, otherwise Promise.all will cause some of these
-        // to resolve as undefined
-        return new Promise(resolve => {
-          return channelIsAvailableAtLocation(withChannelId, location).then(isAvailable => {
-            resolve({ ...location, hasContent: isAvailable });
+  return LocationResource.fetchCollection({ force: true, getParams: { filterSoUD: true } }).then(
+    locations => {
+      // If channelId is provided, then we are in an 'import-more' workflow and disable
+      // locations that do not have the channel we are importing from.
+      if (withChannelId !== '') {
+        const locationsWithAvailabilityPromises = locations.map(location => {
+          // Need to wrap in normal promise, otherwise Promise.all will cause some of these
+          // to resolve as undefined
+          return new Promise(resolve => {
+            return channelIsAvailableAtLocation(withChannelId, location).then(isAvailable => {
+              resolve({ ...location, hasContent: isAvailable });
+            });
           });
         });
-      });
-      return Promise.all(locationsWithAvailabilityPromises);
-    }
+        return Promise.all(locationsWithAvailabilityPromises);
+      }
 
-    // If channelId is not provided, then we are at top-level import workflow and do not
-    // disable any locations unless it is unavailable
-    return locations.map(location => ({ ...location, hasContent: location.available }));
-  });
+      // If channelId is not provided, then we are at top-level import workflow and do not
+      // disable any locations unless it is unavailable
+      return locations.map(location => ({ ...location, hasContent: location.available }));
+    }
+  );
 }
 
 function facilityIsAvailableAtLocation(facilityId, location) {
@@ -83,25 +85,27 @@ function facilityIsAvailableAtLocation(facilityId, location) {
 }
 
 function fetchAddressesWithFacility(facilityId = '', LocationResource = NetworkLocationResource) {
-  return LocationResource.fetchCollection({ force: true }).then(locations => {
-    if (facilityId !== '') {
-      const locationsWithAvailabilityPromises = locations.map(location => {
-        // Need to wrap in normal promise, otherwise Promise.all will cause some of these
-        // to resolve as undefined
-        return new Promise(resolve => {
-          return facilityIsAvailableAtLocation(facilityId, location).then(isAvailable => {
-            // NOTE: we're reusing 'hasContent' for both the facility/content cases for now
-            resolve({ ...location, hasContent: isAvailable });
+  return LocationResource.fetchCollection({ force: true, getParams: { filterSoUD: true } }).then(
+    locations => {
+      if (facilityId !== '') {
+        const locationsWithAvailabilityPromises = locations.map(location => {
+          // Need to wrap in normal promise, otherwise Promise.all will cause some of these
+          // to resolve as undefined
+          return new Promise(resolve => {
+            return facilityIsAvailableAtLocation(facilityId, location).then(isAvailable => {
+              // NOTE: we're reusing 'hasContent' for both the facility/content cases for now
+              resolve({ ...location, hasContent: isAvailable });
+            });
           });
         });
-      });
-      return Promise.all(locationsWithAvailabilityPromises);
-    }
+        return Promise.all(locationsWithAvailabilityPromises);
+      }
 
-    // If facilityId is not provided, then we are at the initial Facility Import workflow
-    // disable any locations unless it is unavailable/offline
-    return locations.map(location => ({ ...location, hasContent: location.available }));
-  });
+      // If facilityId is not provided, then we are at the initial Facility Import workflow
+      // disable any locations unless it is unavailable/offline
+      return locations.map(location => ({ ...location, hasContent: location.available }));
+    }
+  );
 }
 
 export function fetchStaticAddresses(args) {
