@@ -69,7 +69,7 @@ export const FinishSoUDSyncingResource = new Resource({
     const device_url = urls['kolibri:kolibri.plugins.device:device_management'];
     window.sessionStorage.setItem(welcomeDimissalKey, false);
     this.postListEndpoint('restart');
-    redirectBrowser(device_url());
+    redirectBrowser(device_url ? device_url() : null);
     return '';
   },
 });
