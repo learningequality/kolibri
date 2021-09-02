@@ -266,7 +266,7 @@
       topics: {
         message: 'Folders',
         context:
-          'Learners can also search for comlplete folders.\n\nA folder is a collection of resources and other subfolders within a channel.',
+          'Learners can also search for complete folders.\n\nA folder is a collection of resources and other subfolders within a channel.',
       },
       exercises: {
         message: 'Exercises',
