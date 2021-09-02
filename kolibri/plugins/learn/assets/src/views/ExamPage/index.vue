@@ -341,7 +341,7 @@
       },
       questionsAnswered: {
         message:
-          '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
+          '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question answered} other {questions answered}}',
         context:
           'Indicates the number of questions a learner has answered. Only translate "of" and "question/questions answered".',
       },
@@ -360,7 +360,7 @@
       },
       unanswered: {
         message:
-          'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
+          'You have {numLeft, number} {numLeft, plural, one {question unanswered} other {questions unanswered}}',
         context: 'Indicates how many unanswered questions the learner has.',
       },
       noItemId: {

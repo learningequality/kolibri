@@ -115,7 +115,7 @@
           "String appears on the 'Quiz report' that a learner can access after they submit the quiz. Value is expressed as a percentage of correctly answered questions. Can be translated as 'Score'.  ",
       },
       questionsCorrectLabel: {
-        message: 'Questions correct',
+        message: 'Questions answered correctly',
         context:
           "When reviewing a learner's report, a coach can see how many questions the learner has got correct in a quiz. The 'Questions correct' label will indicate something like 4 out of 5, or 8 out of 10, for example.",
       },

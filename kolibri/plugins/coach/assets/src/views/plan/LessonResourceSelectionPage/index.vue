@@ -424,7 +424,7 @@
     $trs: {
       selectionInformation: {
         message:
-          '{count, number, integer} of {total, number, integer} {total, plural, one {resource} other {resources}} selected',
+          '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
         context:
           "Indicates the amount of resources selected for a lesson in the 'Manage lesson resources' section.",
       },

@@ -531,9 +531,9 @@
         context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.",
       },
       chooseExercises: {
-        message: 'Select topics or exercises',
+        message: 'Select folders or exercises from these channels',
         context:
-          'When creating a new quiz, coaches can choose which topics or excercises they want to include in the quiz from the list of resources available.',
+          'When creating a new quiz, coaches can choose which folders or excercises they want to include in the quiz from the channels that contain exercise resources.',
       },
       numQuestions: {
         message: 'Number of questions',

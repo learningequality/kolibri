@@ -55,7 +55,7 @@
         context: "Description on the 'No resources available' page.",
       },
       documentTitle: {
-        message: 'Content Unavailable',
+        message: 'Resource unavailable',
         context: '\nThis string should actually say "Resource unavailable"',
       },
     },

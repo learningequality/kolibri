@@ -354,7 +354,7 @@
       keepUpTheGreatProgress: 'Keep up the great progress!',
       close: 'Close',
       moveOnTitle: 'Keep going',
-      moveOnDescription: 'Move on to the next resource in the topic',
+      moveOnDescription: 'Move on to the next resource in the folder',
       moveOnButtonLabel: 'Move on',
       stayTitle: 'Stay and practice',
       stayDescription: 'Stay on this resource to keep practicing',
