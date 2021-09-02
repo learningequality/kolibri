@@ -91,7 +91,7 @@
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
-  import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
+  import { validateLearningActivity } from 'kolibri.utils.validators';
   import LearningActivityIcon from './LearningActivityIcon.vue';
 
   export default {
@@ -124,10 +124,7 @@
       learningActivities: {
         type: Array,
         required: true,
-        validator(arr) {
-          const isValidLearningActivity = v => Object.values(LearningActivities).includes(v);
-          return arr.length > 0 && arr.every(isValidLearningActivity);
-        },
+        validator: validateLearningActivity,
       },
       /**
        * Is the bar used in the context of a lesson?

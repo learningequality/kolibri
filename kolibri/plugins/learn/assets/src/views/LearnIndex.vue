@@ -65,6 +65,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import urls from 'kolibri.urls';
+  import lastItem from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
@@ -248,7 +249,7 @@
         }
         if (this.pageName === PageNames.LIBRARY) {
           return {
-            appBarTitle: this.topicsTreeChannel.title || '',
+            appBarTitle: this.learnString('learnLabel'),
             immersivePage: false,
             hasSidebar: true,
           };

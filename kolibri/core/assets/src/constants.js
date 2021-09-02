@@ -40,6 +40,14 @@ export const LearningActivities = {
   TOPIC: 'topic',
 };
 
+export const ContentKindsToLearningActivitiesMap = {
+  audio: LearningActivities.LISTEN,
+  document: LearningActivities.READ,
+  exercise: LearningActivities.PRACTICE,
+  html5: LearningActivities.EXPLORE,
+  video: LearningActivities.WATCH,
+};
+
 export const LibraryCategories = {
   ALL_CATEGORIES: 'all_categories',
   SCHOOL: 'school',

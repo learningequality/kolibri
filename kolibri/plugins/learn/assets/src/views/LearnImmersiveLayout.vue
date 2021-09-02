@@ -57,19 +57,16 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
+  import {
+    LearningActivities,
+    ContentKindsToLearningActivitiesMap,
+  } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
 
-  const mapOldContentTypesToLearningActivities = {
-    audio: LearningActivities.LISTEN,
-    document: LearningActivities.READ,
-    html5: LearningActivities.EXPLORE,
-    video: LearningActivities.WATCH,
-  };
   export default {
     name: 'LearnImmersiveLayout',
     metaInfo() {
@@ -148,7 +145,7 @@
             learningActivities.push(this.content.kind);
           } else {
             // otherwise reassign the old content types to the new metadata
-            learningActivities.push(mapOldContentTypesToLearningActivities[this.content.kind]);
+            learningActivities.push(ContentKindsToLearningActivitiesMap[this.content.kind]);
           }
         }
         return learningActivities;
