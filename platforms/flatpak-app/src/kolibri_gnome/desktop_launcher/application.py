@@ -336,6 +336,9 @@ class Application(pew.ui.PEWApp):
 
     def __kolibri_daemon_null_result_handler(self, proxy, result, user_data):
         if isinstance(result, Exception):
+            logging.warning(
+                "Error communicating with KolibriDaemonProxy: {}".format(result)
+            )
             self.__kolibri_daemon_has_error = True
         else:
             self.__kolibri_daemon_has_error = False

@@ -10,8 +10,23 @@ from pathlib import Path
 
 from . import config
 
-KOLIBRI_APP_DEVELOPER_EXTRAS = os.environ.get("KOLIBRI_APP_DEVELOPER_EXTRAS")
-KOLIBRI_USE_SYSTEM_INSTANCE = bool(os.environ.get("KOLIBRI_USE_SYSTEM_INSTANCE"))
+if config.BUILD_PROFILE == "development":
+    profile_environ_prefix = "KOLIBRI_DEVEL_"
+else:
+    profile_environ_prefix = "KOLIBRI_"
+
+KOLIBRI_APP_DEVELOPER_EXTRAS = os.environ.get(
+    profile_environ_prefix + "APP_DEVELOPER_EXTRAS"
+)
+
+KOLIBRI_USE_SYSTEM_INSTANCE = bool(
+    os.environ.get(profile_environ_prefix + "USE_SYSTEM_INSTANCE")
+)
+
+KOLIBRI_FORCE_USE_SYSTEM_INSTANCE = bool(
+    os.environ.get(profile_environ_prefix + "FORCE_USE_SYSTEM_INSTANCE")
+)
+
 XDG_CURRENT_DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")
 
 # Logic for KOLIBRI_HOME is from kolibri.utils.conf. We avoid importing it from

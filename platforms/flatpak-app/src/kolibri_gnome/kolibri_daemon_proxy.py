@@ -13,6 +13,7 @@ from gi.repository import GObject
 
 from . import config
 
+from .globals import KOLIBRI_FORCE_USE_SYSTEM_INSTANCE
 from .globals import KOLIBRI_USE_SYSTEM_INSTANCE
 from .globals import local_kolibri_exists
 
@@ -36,16 +37,22 @@ class KolibriDaemonProxy(Gio.DBusProxy):
 
     @classmethod
     def create_default(cls):
-        if not KOLIBRI_USE_SYSTEM_INSTANCE:
-            bus_type = Gio.BusType.SESSION
-        elif local_kolibri_exists():
+        bus_type = cls.get_default_bus_type()
+        return cls(bus_type)
+
+    @staticmethod
+    def get_default_bus_type():
+        if KOLIBRI_FORCE_USE_SYSTEM_INSTANCE:
+            return Gio.BusType.SYSTEM
+        elif KOLIBRI_USE_SYSTEM_INSTANCE and local_kolibri_exists():
             logger.info(
                 "Local Kolibri data already exists, so ignoring KOLIBRI_USE_SYSTEM_INSTANCE"
             )
-            bus_type = Gio.BusType.SESSION
+            return Gio.BusType.SESSION
+        elif KOLIBRI_USE_SYSTEM_INSTANCE:
+            return Gio.BusType.SYSTEM
         else:
-            bus_type = Gio.BusType.SYSTEM
-        return cls(bus_type)
+            return Gio.BusType.SESSION
 
     def do_g_properties_changed(self, changed_properties, invalidated_properties):
         dbus_properties = itertools.chain(
