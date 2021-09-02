@@ -85,7 +85,7 @@
       },
       localNetworkDescription: {
         message:
-          'Sync facility data with another Kolibri server in your local network or the internet',
+          'Sync facility data with another Kolibri server on your local network or the internet',
 
         context: 'Description of the sync option',
       },

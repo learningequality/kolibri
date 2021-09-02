@@ -168,9 +168,9 @@
     },
     $trs: {
       documentTitleForChannel: {
-        message: 'Topics - { channelTitle }',
+        message: 'Folders - { channelTitle }',
         context:
-          'A topic is a collection of resources and other topics within a channel. This string indicates the topics grouped under a specific channel.',
+          'A folder is a collection of resources and other subfolders within a channel. This string indicates the folders grouped under a specific channel.',
       },
       documentTitleForTopic: {
         message: '{ topicTitle } - { channelTitle }',

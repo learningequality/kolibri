@@ -107,7 +107,7 @@
       },
       networkDescription: {
         message:
-          'Import resources from another Kolibri server running on a device in your local network, or on the internet',
+          'Import resources from another Kolibri server running on a device on your local network or the internet',
         context:
           'Description referring to importing channels from a local network or the internet.',
       },

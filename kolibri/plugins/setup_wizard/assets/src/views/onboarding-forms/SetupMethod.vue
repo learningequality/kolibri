@@ -124,11 +124,11 @@
       fullDevice: {
         message: 'Full device',
         context:
-          'Device that will be fully featured Kolibri server used by admins, coaches and learners',
+          'Device that will be a fully featured Kolibri server used by admins, coaches and learners',
       },
       fullDeviceTooltip: {
         message:
-          'Device will be fully featured Kolibri server used by admins, coaches and learners',
+          'Device will be a fully featured Kolibri server used by admins, coaches and learners',
         context: 'Tooltip for full device',
       },
       lod: {
