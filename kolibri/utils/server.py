@@ -467,6 +467,15 @@ def wait_for_status(target, timeout=10):
     return False
 
 
+# The SIGKILL signal does not exist on windows
+# We use CTRL_C_EVENT instead, as it is intended
+# to be passed to the os.kill command.
+if sys.platform == "win32":
+    SIGKILL = signal.CTRL_C_EVENT
+else:
+    SIGKILL = signal.SIGKILL
+
+
 def stop():
     """
     Stops the kolibri server
@@ -483,7 +492,7 @@ def stop():
     if pid_exists(pid):
         logger.debug("Process wth pid %s still exists; attempting a SIGKILL." % pid)
         try:
-            os.kill(pid, signal.SIGKILL)
+            os.kill(pid, SIGKILL)
         except SystemError as e:
             logger.debug(
                 "Received an error while trying to kill the Kolibri process: %s" % e
