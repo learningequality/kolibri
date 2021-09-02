@@ -1,31 +1,26 @@
 <template>
 
-  <MultiPaneLayout
-    ref="multiPaneLayout"
-    :style="layoutStyles"
-  >
-    <template
-      #aside
+  <div>
+    <KGrid
+      class="main-content-grid"
     >
-      <div
-        class="side-panel"
+      <KGridItem
+        :layout="{ span: 3 }"
         :style="{
           color: $themeTokens.text,
           backgroundColor: $themeTokens.surface,
         }"
+        class="side-panel"
       >
-        <KGrid
-          numCols="4"
-          gutter="30"
-        >
-          <KGridItem class="title">
-            <h2>Keywords</h2>
-          </KGridItem>
+        <div>
+          <h2 class="title">
+            Keywords
+          </h2>
           <SearchBox />
-          <KGridItem class="title">
-            <h2>Categories</h2>
-          </KGridItem>
-          <KGridItem
+          <h2 class="title">
+            Categories
+          </h2>
+          <div
             v-for="(value, category) in libraryCategoriesList"
             :key="category"
             span="4"
@@ -37,29 +32,23 @@
               :appearanceOverrides="customCategoryStyles"
               iconAfter="chevronRight"
             />
-          </KGridItem>
+          </div>
           <!-- Filter by learning activity, displaying all options -->
-          <KGridItem class="title">
-            <h2>Activities</h2>
-          </KGridItem>
-          <KGridItem
-            span="2"
-            alignment="center"
+          <h2 class="title">
+            Activities
+          </h2>
+          <KButton
+            appearance="flat-button"
+            :appearanceOverrides="customActivityStyles"
           >
-            <KButton
-              appearance="flat-button"
-              :appearanceOverrides="customActivityStyles"
-            >
-              <KIcon icon="allActivities" class="activity-icon" />
-              <p class="activity-button-text">
-                {{ learnString('all') }}
-              </p>
-            </KButton>
-          </KGridItem>
-          <KGridItem
+            <KIcon icon="allActivities" class="activity-icon" />
+            <p class="activity-button-text">
+              {{ learnString('all') }}
+            </p>
+          </KButton>
+          <span
             v-for="(value, activity) in learningActivitiesList"
             :key="activity"
-            span="2"
             alignment="center"
           >
             <KButton
@@ -71,36 +60,28 @@
                 {{ learnString(value) }}
               </p>
             </KButton>
-          </KGridItem>
-          <KGridItem>
-            <KSelect
-              :options="languageOptionsList"
-              class="selector"
-              :value="selectedLanguage"
-            />
-          </KGridItem>
-          <KGridItem>
-            <KSelect
-              :options="contentLevelsList"
-              class="selector"
-              :value="selectedLevel"
-            />
-          </KGridItem>
-          <KGridItem>
-            <KSelect
-              :options="channelOptionsList"
-              class="selector"
-              :value="selectedChannel"
-            />
-          </KGridItem>
-          <KGridItem>
-            <KSelect
-              :options="accessibilityOptionsList"
-              class="selector"
-              :value="selectedAccessibilityFilter"
-            />
-          </KGridItem>
-          <KGridItem
+          </span>
+          <KSelect
+            :options="languageOptionsList"
+            class="selector"
+            :value="selectedLanguage"
+          />
+          <KSelect
+            :options="contentLevelsList"
+            class="selector"
+            :value="selectedLevel"
+          />
+          <KSelect
+            :options="channelOptionsList"
+            class="selector"
+            :value="selectedChannel"
+          />
+          <KSelect
+            :options="accessibilityOptionsList"
+            class="selector"
+            :value="selectedAccessibilityFilter"
+          />
+          <div
             v-for="(value, activity) in resourcesNeededList"
             :key="activity"
             span="4"
@@ -112,68 +93,42 @@
               :label="value"
               @change="$emit('toggleSelected', $event)"
             />
-          </KGridItem>
-        </KGrid>
-      </div>
-    </template>
-
-    <template #main>
-      <template v-if="popular.length">
-        <ContentCardGroupHeader
-          :header="learnString('mostPopularLabel')"
-          :viewMorePageLink="popularPageLink"
-          :showViewMore="popular.length > trimmedPopular.length"
+          </div>
+        </div>
+      </KGridItem>
+      <KGridItem
+        class="card-grid"
+        :layout="{ span: 8 }"
+      >
+        <ChannelCardGroupGrid
+          v-if="channels.length"
+          class="grid"
+          :contents="channels"
+          :genContentLink="genChannelLink"
         />
+        <h2>Recent</h2>
         <ContentCardGroupGrid
-          v-if="windowIsSmall"
+          v-if="popular.length"
           :genContentLink="genContentLink"
           :contents="trimmedPopular"
         />
-        <ContentCardGroupCarousel
-          v-else
-          :genContentLink="genContentLink"
-          :contents="trimmedPopular"
-        />
-      </template>
 
-      <template v-if="nextSteps.length">
-        <ContentCardGroupHeader
-          :header="learnString('nextStepsLabel')"
-          :viewMorePageLink="nextStepsPageLink"
-          :showViewMore="nextSteps.length > trimmedNextSteps.length"
-        />
-        <ContentCardGroupGrid
-          v-if="windowIsSmall"
-          :genContentLink="genContentLink"
-          :contents="trimmedNextSteps"
-        />
-        <ContentCardGroupCarousel
-          v-else
-          :genContentLink="genContentLink"
-          :contents="trimmedNextSteps"
-        />
-      </template>
+        <template v-if="nextSteps.length">
+          <ContentCardGroupGrid
+            :genContentLink="genContentLink"
+            :contents="trimmedNextSteps"
+          />
+        </template>
 
-      <template v-if="resume.length">
-        <ContentCardGroupHeader
-          :header="learnString('resumeLabel')"
-          :viewMorePageLink="resumePageLink"
-          :showViewMore="resume.length > trimmedResume.length"
-        />
-        <ContentCardGroupGrid
-          v-if="windowIsSmall"
-          :genContentLink="genContentLink"
-          :contents="trimmedResume"
-        />
-        <ContentCardGroupCarousel
-          v-else
-          :genContentLink="genContentLink"
-          :contents="trimmedResume"
-        />
-      </template>
-
-    </template>
-  </MultiPaneLayout>
+        <template v-if="resume.length">
+          <ContentCardGroupGrid
+            :genContentLink="genContentLink"
+            :contents="trimmedResume"
+          />
+        </template>
+      </KGridItem>
+    </KGrid>
+  </div>
 
 </template>
 
@@ -192,13 +147,11 @@
     AccessibilityCategories,
   } from 'kolibri.coreVue.vuex.constants';
   import { ContentNodeProgressResource } from 'kolibri.resources';
-  import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import languageSwitcherMixin from '../../../../../core/assets/src/views/language-switcher/mixin.js';
   import { PageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
-  import ContentCardGroupCarousel from './ContentCardGroupCarousel';
+  import ChannelCardGroupGrid from './ChannelCardGroupGrid';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
-  import ContentCardGroupHeader from './ContentCardGroupHeader';
   import SearchBox from './SearchBox';
 
   // import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -214,11 +167,9 @@
       };
     },
     components: {
-      ContentCardGroupCarousel,
       ContentCardGroupGrid,
-      ContentCardGroupHeader,
+      ChannelCardGroupGrid,
       SearchBox,
-      MultiPaneLayout,
     },
     mixins: [commonLearnStrings, languageSwitcherMixin, responsiveWindowMixin],
     computed: {
@@ -226,21 +177,6 @@
       ...mapState('topicsRoot', { channels: 'rootNodes' }),
       carouselLimit() {
         return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
-      },
-      popularPageLink() {
-        return {
-          name: PageNames.RECOMMENDED_POPULAR,
-        };
-      },
-      nextStepsPageLink() {
-        return {
-          name: PageNames.RECOMMENDED_NEXT_STEPS,
-        };
-      },
-      resumePageLink() {
-        return {
-          name: PageNames.RECOMMENDED_RESUME,
-        };
       },
       trimmedPopular() {
         return this.popular.slice(0, this.carouselLimit);
@@ -356,7 +292,7 @@
       customActivityStyles() {
         return {
           color: this.$themeTokens.text,
-          width: '150px',
+          width: '140px',
           height: '100px',
           border: '2px solid transparent',
           'text-transform': 'capitalize',
@@ -370,13 +306,6 @@
             'border-style': 'solid',
             'border-radius': '4px',
             'line-spacing': '0',
-          },
-        };
-      },
-      layoutStyles() {
-        return {
-          aside: {
-            paddingLeft: 0,
           },
         };
       },
@@ -408,6 +337,12 @@
           },
         };
       },
+      genChannelLink(channel_id) {
+        return {
+          name: PageNames.TOPICS_CHANNEL,
+          params: { channel_id },
+        };
+      },
     },
   };
 
@@ -417,21 +352,12 @@
 <style lang="scss" scoped>
 
   .side-panel {
-    // position: fixed;
-    // left: 0;
-    z-index: 4;
-    width: 354px;
     height: 100%;
-    padding: 30px 40px;
-    padding-bottom: 200px;
-    margin-top: -32px;
+    padding: 30px 40px !important;
+    padding-bottom: 120px !important;
     overflow: scroll;
     font-size: 14px;
     box-shadow: 0 3px 3px 0 #00000040;
-
-    @media (min-width: 436px) {
-      width: 436px;
-    }
   }
 
   .activity-icon {
@@ -456,6 +382,11 @@
     /deep/ .ui-icon {
       margin-right: 10px;
     }
+  }
+
+  .card-grid {
+    margin-top: 40px;
+    margin-left: 20px;
   }
 
 </style>

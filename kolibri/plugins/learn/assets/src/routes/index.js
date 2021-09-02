@@ -63,6 +63,7 @@ export default [
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
       }
+      showChannels(store);
       showLibrary(store);
     },
     component: LibraryPage,
