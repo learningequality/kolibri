@@ -5,6 +5,7 @@ import uuid
 from threading import Thread
 
 from django.utils.functional import SimpleLazyObject
+from six import string_types
 
 from kolibri.core.tasks import compat
 
@@ -24,7 +25,7 @@ def stringify_func(func):
         funcstring = "{module}.{funcname}".format(
             module=func.__module__, funcname=func.__name__
         )
-    elif isinstance(func, str):
+    elif isinstance(func, string_types):
         funcstring = func
     else:
         raise TypeError("Can't handle a function of type {}".format(type(func)))
@@ -40,7 +41,7 @@ def import_stringified_func(funcstring):
     :param funcstring: String to try to import
     :return: callable
     """
-    if not isinstance(funcstring, str):
+    if not isinstance(funcstring, string_types):
         raise TypeError("Argument must be a string")
 
     modulestring, funcname = funcstring.rsplit(".", 1)
