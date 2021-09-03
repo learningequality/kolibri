@@ -15,7 +15,6 @@ from sqlalchemy.orm import sessionmaker
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
-from kolibri.utils.conf import OPTIONS
 
 Base = declarative_base()
 
@@ -44,7 +43,7 @@ class ORMJob(Base):
     queue = Column(String, index=True)
 
     # The original Job object, pickled here for so we can easily access it.
-    obj = Column(PickleType(protocol=OPTIONS["Python"]["PICKLE_PROTOCOL"]))
+    obj = Column(PickleType(protocol=2))
 
     time_created = Column(DateTime(timezone=True), server_default=func.now())
     time_updated = Column(DateTime(timezone=True), server_onupdate=func.now())

@@ -121,8 +121,8 @@ def setup_logging(debug=False, debug_database=False):
     """
     # Sets the global DEBUG flag to be picked up in other contexts
     # (Django settings)
-    OPTIONS["Server"]["DEBUG"] = debug
-    OPTIONS["Server"]["DEBUG_LOG_DATABASE"] = debug_database
+    os.environ["KOLIBRI_DEBUG"] = str(debug)
+    os.environ["KOLIBRI_DEBUG_LOG_DATABASE"] = str(debug_database)
 
     # Would be ideal to use the upgrade logic for this, but that is currently
     # only designed for post-Django initialization tasks. If there are more cases
