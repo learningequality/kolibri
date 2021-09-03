@@ -82,7 +82,7 @@
 
       <h2>{{ $tr('chooseExercises') }}</h2>
       <div v-if="!showChannels">
-        <ContentCardList 
+        <ContentCardList
           :contentList="bookmarksContentList"
           :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
           :contentCardMessage="() => ''"

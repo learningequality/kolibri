@@ -34,14 +34,14 @@
         <div @click="lessonCardClicked">
           <KRouterLink
             v-if="this.bookmarksCount"
-            :style="{width: '100%'}"
+            :style="{ width: '100%' }"
             :to="getBookmarksLink()"
           >
             <div class="bookmark-container">
-              <BookmarkIcon/>
+              <BookmarkIcon />
               <div class="text">
-                <h3>{{$tr('bookmarks')}}</h3>
-                <p>{{ $tr('resources', { count: this.bookmarksCount })}}</p>
+                <h3>{{ $tr('bookmarks') }}</h3>
+                <p>{{ $tr('resources', { count: this.bookmarksCount }) }}</p>
               </div>
             </div>
           </KRouterLink>
