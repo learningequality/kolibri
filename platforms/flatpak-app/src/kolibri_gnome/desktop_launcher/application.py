@@ -734,9 +734,9 @@ class ChannelApplication(Application):
     def __is_url_in_channel(self, url):
         url_tuple = urlsplit(url)
 
-        if re.match(r"^\/(?P<lang>\w+\/)?learn\/?", url_tuple.path):
+        if re.match(r"^\/(?P<lang>[\w\-]+\/)?learn\/?", url_tuple.path):
             return self.__is_learn_fragment_in_channel(url_tuple.fragment)
-        elif re.match(r"^\/(?P<lang>\w+\/)?(user|logout|redirectuser)\/?", url_tuple.path):
+        elif re.match(r"^\/(?P<lang>[\w\-]+\/)?(user|logout|redirectuser)\/?", url_tuple.path):
             return True
         elif re.match(r"^\/(zipcontent|app|static|downloadcontent|content\/storage)\/?", url_tuple.path):
             return True
