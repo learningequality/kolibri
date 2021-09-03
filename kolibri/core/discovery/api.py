@@ -1,4 +1,5 @@
 import requests
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
@@ -15,16 +16,10 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
     permission_classes = [NetworkLocationPermissions | NotProvisionedHasPermission]
     serializer_class = NetworkLocationSerializer
     queryset = NetworkLocation.objects.all()
-
-    def filter_queryset(self, queryset):
-        if (
-            self.request.method == "GET"
-            and self.request.resolver_match.url_name.endswith("-list")
-        ):
-            # only filter down the queryset in the case of the list view being requested
-            if self.request.query_params.get("filterSoUD", False):
-                return queryset.filter(subset_of_users_device=False)
-        return queryset
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = [
+        "subset_of_users_device",
+    ]
 
 
 class DynamicNetworkLocationViewSet(NetworkLocationViewSet):
