@@ -1,22 +1,24 @@
 <template>
 
   <div class="content-grid">
-    <ContentCard
-      v-for="content in contents"
-      :key="content.id"
-      class="grid-item"
-      :isMobile="windowIsSmall"
-      :title="content.title"
-      :thumbnail="content.thumbnail"
-      :kind="content.kind"
-      :isLeaf="content.is_leaf"
-      :progress="content.progress || 0"
-      :numCoachContents="content.num_coach_contents"
-      :link="genContentLink(content.id, content.is_leaf)"
-      :contentId="content.content_id"
-      :copiesCount="content.copies_count"
-      @openCopiesModal="openCopiesModal"
-    />
+    <KFixedGrid numCols="3" gutter="24">
+      <KFixedGridItem v-for="content in contents" :key="content.id" span="1">
+        <ContentCard
+          class="grid-item"
+          :isMobile="windowIsSmall"
+          :title="content.title"
+          :thumbnail="content.thumbnail"
+          :kind="content.kind"
+          :isLeaf="content.is_leaf"
+          :progress="content.progress || 0"
+          :numCoachContents="content.num_coach_contents"
+          :link="genContentLink(content.id, content.is_leaf)"
+          :contentId="content.content_id"
+          :copiesCount="content.copies_count"
+          @openCopiesModal="openCopiesModal"
+        />
+      </KFixedGridItem>
+    </KFixedGrid>
     <CopiesModal
       v-if="modalIsOpen"
       :uniqueId="uniqueId"
@@ -78,7 +80,6 @@
   $gutters: 16px;
 
   .grid-item {
-    margin-right: $gutters;
     margin-bottom: $gutters;
   }
 

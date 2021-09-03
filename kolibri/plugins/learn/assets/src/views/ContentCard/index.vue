@@ -9,9 +9,15 @@
     ]"
     :style="{ backgroundColor: $themeTokens.surface }"
   >
+    <div class="header-bar">
+      <KLabeledIcon
+        :icon="`${kindToLearningActivity}Solid`"
+        :label="learnString(kindToLearningActivity)"
+      />
+    </div>
     <CardThumbnail
       class="thumbnail"
-      v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
+      v-bind="{ thumbnail, kind, isMobile }"
     />
     <div class="text" :style="{ color: $themeTokens.text }">
       <h3 class="title" dir="auto">
@@ -24,11 +30,35 @@
         v-if="subtitle"
         dir="auto"
         class="subtitle"
-        :class="{ 'no-footer': !hasFooter }"
       >
         {{ subtitle }}
       </p>
       <div class="footer">
+        <KLinearLoader
+          class="k-linear-loader"
+          :delay="false"
+          :progress="progress"
+          type="determinate"
+          :style="{ backgroundColor: $themeTokens.fineLine }"
+        />
+        <KIconButton
+          icon="optionsVertical"
+          class="info-icon"
+          size="mini"
+          :color="$themePalette.grey.v_400"
+          :ariaLabel="$tr('moreOptions')"
+          :tooltip="$tr('moreOptions')"
+          @click="$emit('toggleOptions')"
+        />
+        <KIconButton
+          icon="infoPrimary"
+          class="info-icon"
+          size="mini"
+          :color="$themePalette.grey.v_400"
+          :ariaLabel="$tr('viewInformation')"
+          :tooltip="$tr('viewInformation')"
+          @click="$emit('toggleInfoPanel')"
+        />
         <CoachContentLabel
           v-if="isUserLoggedIn && !isLearner"
           class="coach-content-label"
@@ -53,8 +83,13 @@
 
   import { mapGetters } from 'vuex';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import {
+    LearningActivities,
+    ContentKindsToLearningActivitiesMap,
+  } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import commonLearnStrings from '../commonLearnStrings';
   import CardThumbnail from './CardThumbnail.vue';
 
   export default {
@@ -64,6 +99,7 @@
       CoachContentLabel,
       TextTruncator,
     },
+    mixins: [commonLearnStrings],
     props: {
       title: {
         type: String,
@@ -85,10 +121,6 @@
       isLeaf: {
         type: Boolean,
         required: true,
-      },
-      showContentIcon: {
-        type: Boolean,
-        default: true,
       },
       // ContentNode.coach_content will be `0` if not a coach content leaf node,
       // or a topic without coach content. It will be a positive integer if a topic
@@ -129,15 +161,17 @@
         return !this.isLeaf;
       },
       maxTitleHeight() {
-        if (this.hasFooter && this.subtitle) {
-          return 20;
-        } else if (this.hasFooter || this.subtitle) {
-          return 40;
-        }
-        return 60;
+        return 66;
       },
-      hasFooter() {
-        return this.numCoachContents > 0 || this.copiesCount > 1;
+      kindToLearningActivity() {
+        let activity = '';
+        if (Object.values(LearningActivities).includes(this.kind)) {
+          activity = this.kind;
+        } else {
+          // otherwise reassign the old content types to the new metadata
+          activity = ContentKindsToLearningActivitiesMap[this.kind];
+        }
+        return activity;
       },
     },
     $trs: {
@@ -145,6 +179,12 @@
         message: '{ num, number} locations',
         context:
           'Some Kolibri resources may be duplicated in different topics or channels.\n\nSearch results will indicate when a resource is duplicated, and learners can click on the "...locations" link to discover the details for each location.',
+      },
+      viewInformation: {
+        message: 'View information',
+      },
+      moreOptions: {
+        message: 'More options',
       },
     },
   };
@@ -166,11 +206,12 @@
   .card {
     @extend %dropshadow-1dp;
 
+    position: relative;
     display: inline-block;
-    width: $thumb-width-desktop;
+    width: 100%;
     text-decoration: none;
     vertical-align: top;
-    border-radius: 2px;
+    border-radius: 8px;
     transition: box-shadow $core-time ease;
     &:hover {
       @extend %dropshadow-8dp;
@@ -181,9 +222,14 @@
     }
   }
 
+  .header-bar {
+    padding: 13px 18px 9px;
+    font-size: 13px;
+  }
+
   .text {
     position: relative;
-    height: 92px;
+    height: 190px;
     padding: $margin;
   }
 
@@ -208,14 +254,19 @@
     right: $margin;
     bottom: $margin;
     left: $margin;
+    min-height: 30px;
     font-size: 12px;
   }
 
-  .subtitle.no-footer {
-    top: unset;
-    bottom: $margin;
+  .k-linear-loader {
+    display: inline-block;
+    max-width: 70%;
   }
 
+  .info-icon {
+    display: block;
+    float: right;
+  }
   .copies {
     display: inline-block;
     float: right;
