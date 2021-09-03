@@ -187,12 +187,10 @@ class SetupWizardRestartZeroconf(ViewSet):
     def restart(self, request):
         import logging
         from kolibri.core.discovery.utils.network.search import (
-            unregister_zeroconf_service,
-            initialize_zeroconf_listener,
+            register_zeroconf_service,
         )
 
         logger = logging.getLogger(__name__)
-        unregister_zeroconf_service()
-        initialize_zeroconf_listener()
+        register_zeroconf_service()
         logger.info("Zeroconf has reinitialized")
         return Response({})

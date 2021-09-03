@@ -277,7 +277,7 @@ class ZeroConfPlugin(Monitor):
     def __init__(self, bus, port):
         self.addresses = set()
         self.port = port
-        Monitor.__init__(self, bus, self.run, 1)
+        Monitor.__init__(self, bus, self.run, 5)
         self.bus.subscribe("SERVING", self.SERVING)
 
     def SERVING(self, port):
@@ -297,13 +297,21 @@ class ZeroConfPlugin(Monitor):
         unregister_zeroconf_service()
 
     def run(self):
-        from kolibri.core.discovery.utils.network.search import ZEROCONF_STATE
         from kolibri.core.discovery.utils.network.search import (
-            reinitialize_zeroconf_if_network_has_changed,
+            ZEROCONF_STATE,
+            register_zeroconf_service,
         )
 
-        if ZEROCONF_STATE["service"] is not None:
-            reinitialize_zeroconf_if_network_has_changed()
+        if (
+            ZEROCONF_STATE["addresses"] == set(get_all_addresses())
+            or ZEROCONF_STATE["port"] is None
+        ):
+            return
+        logger.info(
+            "New addresses detected since zeroconf was initialized, re-initializing now"
+        )
+        register_zeroconf_service()
+        logger.info("Zeroconf has reinitialized")
 
 
 status_map = {

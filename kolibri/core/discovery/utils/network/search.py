@@ -32,6 +32,7 @@ ZEROCONF_STATE = {
     "listener": None,
     "service": None,
     "addresses": None,
+    "port": None,
 }
 
 
@@ -241,7 +242,8 @@ class KolibriZeroconfListener(object):
         connection.close()
 
 
-def register_zeroconf_service(port):
+def register_zeroconf_service(port=None):
+    port = port or ZEROCONF_STATE["port"]
     device_info = get_device_info()
     DynamicNetworkLocation.objects.all().delete()
     connection.close()
@@ -257,6 +259,7 @@ def register_zeroconf_service(port):
         )
     )
     data = device_info
+    ZEROCONF_STATE["port"] = port
     ZEROCONF_STATE["service"] = KolibriZeroconfService(id=id, port=port, data=data)
     ZEROCONF_STATE["service"].register()
 
@@ -267,6 +270,7 @@ def unregister_zeroconf_service():
     ZEROCONF_STATE["service"] = None
     if ZEROCONF_STATE["zeroconf"] is not None:
         ZEROCONF_STATE["zeroconf"].close()
+    ZEROCONF_STATE["zeroconf"] = None
 
 
 def initialize_zeroconf_listener():
@@ -276,25 +280,6 @@ def initialize_zeroconf_listener():
         SERVICE_TYPE, ZEROCONF_STATE["listener"]
     )
     ZEROCONF_STATE["addresses"] = set(get_all_addresses())
-
-
-def reinitialize_zeroconf_if_network_has_changed():
-    if ZEROCONF_STATE["addresses"] == set(get_all_addresses()):
-        return
-    if ZEROCONF_STATE["listener"] is None:
-        initialize_zeroconf_listener()
-        return
-    logger.info(
-        "New addresses detected since zeroconf was initialized, re-initializing now"
-    )
-    if ZEROCONF_STATE["zeroconf"] is not None:
-        ZEROCONF_STATE["zeroconf"].close()
-    ZEROCONF_STATE["zeroconf"] = Zeroconf()
-    ZEROCONF_STATE["zeroconf"].add_service_listener(
-        SERVICE_TYPE, ZEROCONF_STATE["listener"]
-    )
-    ZEROCONF_STATE["addresses"] = set(get_all_addresses())
-    logger.info("Zeroconf has reinitialized")
 
 
 def get_peer_instances():
