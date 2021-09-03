@@ -63,6 +63,22 @@
     </template>
     <KCircularLoader v-else />
 
+    <p v-if="estimatedTime">
+      <!--
+        TODO This icon should be updated ot an alarm clock style
+        clock per the figma linked in #8111
+      -->
+      <KLabeledIcon
+        ref="estimatedTime"
+        class="estimated-time"
+        icon="schedule"
+        :label="$tr('estimatedTime', { estimatedTime })"
+      />
+      <KTooltip reference="estimatedTime" :refs="$refs">
+        {{ $tr("estimatedTimeTooltip") }}
+      </KTooltip>
+    </p>
+
     <!-- TODO consolidate this metadata table with coach/lessons -->
     <!-- eslint-disable-next-line vue/no-v-html -->
     <p dir="auto" v-html="description"></p>
@@ -213,6 +229,17 @@
         extraFields: state => state.core.logging.summary.extra_fields,
         fullName: state => state.core.session.full_name,
       }),
+      estimatedTime() {
+        /*
+          TODO: This should return something like `this.content.estimatedTime`
+          once the metadata is made available
+        */
+        if (process.env.NODE_ENV !== 'production') {
+          return 100;
+        } else {
+          return null;
+        }
+      },
       isTopic() {
         return this.content.kind === ContentNodeKinds.TOPIC;
       },
@@ -396,6 +423,15 @@
         message: 'Share',
         context: 'Option to share a specific file from a learning resource.',
       },
+      estimatedTime: {
+        message: '{ estimatedTime } minutes',
+        context: 'A label indicating the estimated time that the content will take to complete',
+      },
+      estimatedTimeTooltip: {
+        message: 'Suggested time to complete',
+        context:
+          'When a user hovers the estimatedTime string, this message shows in a small tooltip popup to clarify',
+      },
     },
   };
 
@@ -430,6 +466,13 @@
 
   .license-details-name {
     font-weight: bold;
+  }
+
+  .estimated-time {
+    width: auto; // override KLabeledIcon default to 100%
+    font-size: 14px;
+    font-weight: 700;
+    cursor: default; // arrow instead of text cursor
   }
 
 </style>
