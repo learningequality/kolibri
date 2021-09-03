@@ -26,6 +26,7 @@ from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
 from rest_framework import mixins
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.decorators import list_route
@@ -1330,9 +1331,14 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         baseurl = request.GET.get("baseurl", None)
         keyword = request.GET.get("keyword", None)
         language = request.GET.get("language", None)
-        channels = self._make_channel_endpoint_request(
-            baseurl=baseurl, keyword=keyword, language=language
-        )
+        try:
+            channels = self._make_channel_endpoint_request(
+                baseurl=baseurl, keyword=keyword, language=language
+            )
+        except requests.exceptions.ConnectionError:
+            return Response(
+                {"status": "offline"}, status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         return Response(channels)
 
     def retrieve(self, request, pk=None):
@@ -1342,9 +1348,14 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         baseurl = request.GET.get("baseurl", None)
         keyword = request.GET.get("keyword", None)
         language = request.GET.get("language", None)
-        channels = self._make_channel_endpoint_request(
-            identifier=pk, baseurl=baseurl, keyword=keyword, language=language
-        )
+        try:
+            channels = self._make_channel_endpoint_request(
+                identifier=pk, baseurl=baseurl, keyword=keyword, language=language
+            )
+        except requests.exceptions.ConnectionError:
+            return Response(
+                {"status": "offline"}, status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         if not channels:
             raise Http404
         return Response(channels[0])
@@ -1365,8 +1376,13 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         baseurl = request.GET.get("baseurl", None)
         keyword = request.GET.get("keyword", None)
         language = request.GET.get("language", None)
-        return Response(
-            self._make_channel_endpoint_request(
-                identifier=pk, baseurl=baseurl, keyword=keyword, language=language
+        try:
+            return Response(
+                self._make_channel_endpoint_request(
+                    identifier=pk, baseurl=baseurl, keyword=keyword, language=language
+                )
             )
-        )
+        except requests.exceptions.ConnectionError:
+            return Response(
+                {"status": "offline"}, status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
