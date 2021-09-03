@@ -34,7 +34,10 @@ class FacilityRedirect(RoleBasedRedirectHook):
 
     @property
     def url(self):
-        return self.plugin_url(FacilityManagementPlugin, "facility_management")
+        # Also disable attempting to redirect to the facility management page
+        # if we are on a subset of users device.
+        if not get_device_setting("subset_of_users_device", False):
+            return self.plugin_url(FacilityManagementPlugin, "facility_management")
 
 
 @register_hook
