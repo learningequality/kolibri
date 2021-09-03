@@ -69,12 +69,18 @@
         clock per the figma linked in #8111
       -->
       <KLabeledIcon
-        ref="estimatedTime"
         class="estimated-time"
         icon="schedule"
-        :label="$tr('estimatedTime', { estimatedTime })"
-      />
-      <KTooltip reference="estimatedTime" :refs="$refs">
+      >
+        <span ref="estimatedTime">
+          {{ $tr('estimatedTime', { estimatedTime }) }}
+        </span>
+      </KLabeledIcon>
+      <KTooltip
+        placement="bottom-start"
+        reference="estimatedTime"
+        :refs="$refs"
+      >
         {{ $tr("estimatedTimeTooltip") }}
       </KTooltip>
     </p>
