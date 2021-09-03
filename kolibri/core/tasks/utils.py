@@ -4,6 +4,7 @@ import time
 import uuid
 from threading import Thread
 
+from django.utils.functional import SimpleLazyObject
 from six import string_types
 
 from kolibri.core.tasks import compat
@@ -12,7 +13,7 @@ from kolibri.core.tasks import compat
 # An object on which to store data about the current job
 # So far the only use is to track the job, but other metadata
 # could be added.
-current_state_tracker = compat.local()
+current_state_tracker = SimpleLazyObject(compat.local)
 
 
 def get_current_job():
