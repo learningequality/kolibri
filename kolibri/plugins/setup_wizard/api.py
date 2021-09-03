@@ -173,3 +173,26 @@ class SetupWizardSoUDTaskView(TasksViewSet):
     """
 
     permission_classes = [HasPermissionDuringSetup | HasPermissionDuringLODSetup]
+
+
+class SetupWizardRestartZeroconf(ViewSet):
+    """
+    An utility endpoint to restart zeroconf after setup is finished
+    in case this is a SoUD
+    """
+
+    permission_classes = [HasPermissionDuringSetup | HasPermissionDuringLODSetup]
+
+    @decorators.action(methods=["post"], detail=False)
+    def restart(self, request):
+        import logging
+        from kolibri.core.discovery.utils.network.search import (
+            unregister_zeroconf_service,
+            initialize_zeroconf_listener,
+        )
+
+        logger = logging.getLogger(__name__)
+        unregister_zeroconf_service()
+        initialize_zeroconf_listener()
+        logger.info("Zeroconf has reinitialized")
+        return Response({})

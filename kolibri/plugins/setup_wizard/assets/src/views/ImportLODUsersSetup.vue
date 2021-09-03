@@ -29,17 +29,14 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
-  import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import { computed } from 'kolibri.lib.vueCompositionApi';
   import { interpret } from 'xstate';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { lodImportMachine } from '../machines/lodImportMachine';
+  import { FinishSoUDSyncingResource } from '../api';
   import ProgressToolbar from './ProgressToolbar';
-
-  const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
   export default {
     name: 'ImportLODUsersSetup',
@@ -134,9 +131,7 @@
         else this.service.send('BACK');
       },
       redirectToChannels() {
-        window.sessionStorage.setItem(welcomeDimissalKey, false);
-        const device_url = urls['kolibri:kolibri.plugins.device:device_management']();
-        redirectBrowser(device_url);
+        FinishSoUDSyncingResource.finish();
       },
     },
     $trs: {

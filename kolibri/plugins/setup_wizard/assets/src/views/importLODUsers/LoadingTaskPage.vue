@@ -48,17 +48,13 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
-  import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import { SessionResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import FacilityTaskPanel from '../../../../../device/assets/src/views/FacilitiesPage/FacilityTaskPanel.vue';
   import { TaskStatuses } from '../../../../../device/assets/src/constants.js';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
-  import { SetupSoUDTasksResource } from '../../api';
-
-  const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+  import { FinishSoUDSyncingResource, SetupSoUDTasksResource } from '../../api';
 
   export default {
     name: 'LoadingTaskPage',
@@ -150,9 +146,7 @@
         }
       },
       redirectToChannels() {
-        window.sessionStorage.setItem(welcomeDimissalKey, false);
-        const device_url = urls['kolibri:kolibri.plugins.device:device_management']();
-        redirectBrowser(device_url);
+        FinishSoUDSyncingResource.finish();
       },
     },
     $trs: {
