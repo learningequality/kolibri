@@ -303,7 +303,15 @@ class ZeroConfPlugin(Monitor):
         )
 
         if (
+            # If the current addresses that zeroconf is listening on does not
+            # match the current set of all addresses for this device, then
+            # we should reinitialize zeroconf, the listener, and the broadcasted
+            # kolibri service.
             ZEROCONF_STATE["addresses"] == set(get_all_addresses())
+            # The only time we shouldn't do this is if we haven't actually finished
+            # registering the zeroconf service yet, and the port hasn't been defined.
+            # Without the port being defined here, we cannot make the call to register_zeroconf_service
+            # below that we do without invoking the port.
             or ZEROCONF_STATE["port"] is None
         ):
             return

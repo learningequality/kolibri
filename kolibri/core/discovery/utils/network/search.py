@@ -259,9 +259,9 @@ def register_zeroconf_service(port=None):
         )
     )
     data = device_info
-    ZEROCONF_STATE["port"] = port
     ZEROCONF_STATE["service"] = KolibriZeroconfService(id=id, port=port, data=data)
     ZEROCONF_STATE["service"].register()
+    ZEROCONF_STATE["port"] = port
 
 
 def unregister_zeroconf_service():
@@ -271,6 +271,9 @@ def unregister_zeroconf_service():
     if ZEROCONF_STATE["zeroconf"] is not None:
         ZEROCONF_STATE["zeroconf"].close()
     ZEROCONF_STATE["zeroconf"] = None
+    ZEROCONF_STATE["listener"] = None
+    ZEROCONF_STATE["addresses"] = None
+    ZEROCONF_STATE["port"] = None
 
 
 def initialize_zeroconf_listener():
