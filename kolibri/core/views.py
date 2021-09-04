@@ -100,7 +100,11 @@ def get_urls_by_role(role):
 
 def get_url_by_role(role):
     obj = next(
-        (hook for hook in RoleBasedRedirectHook.registered_hooks if role in hook.roles),
+        (
+            hook
+            for hook in RoleBasedRedirectHook.registered_hooks
+            if role in hook.roles and hook.url
+        ),
         None,
     )
 
