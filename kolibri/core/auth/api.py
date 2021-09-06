@@ -755,7 +755,7 @@ class SessionViewSet(viewsets.ViewSet):
         logout(request)
         return Response([])
 
-    def retrieve(self, request, pk=None):
+    def update(self, request, pk=None):
         return self.get_session_response(request)
 
     def get_session_response(self, request):
@@ -791,12 +791,15 @@ class SessionViewSet(viewsets.ViewSet):
         # Only do this for logged in users, as anonymous users cannot get logged out!
         request.session["last_session_request"] = int(time.time())
         # Default to active, only assume not active when explicitly set.
-        active = True if request.GET.get("active", "true") == "true" else False
+        active = request.data.get("active", False)
 
         # Can only record user session log data for FacilityUsers.
         if active and isinstance(user, FacilityUser):
-            user_agent = request.META.get("HTTP_USER_AGENT", "")
-            UserSessionLog.update_log(user, user_agent)
+            UserSessionLog.update_log(
+                user,
+                os_info=request.data.get("os"),
+                browser_info=request.data.get("browser"),
+            )
 
         response = Response(session)
         return response
