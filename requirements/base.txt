@@ -29,3 +29,4 @@ ifcfg==0.21
 Click==7.0
 whitenoise==4.1.4
 idna==2.8
+importlib_resources==3.3.1

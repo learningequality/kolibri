@@ -1,7 +1,7 @@
-import io
 import os
 import re
 
+import importlib_resources
 from django.conf import settings
 from django.utils.http import urlencode
 from six.moves.urllib.parse import urljoin
@@ -293,12 +293,12 @@ HASHI_FILENAME = None
 def get_hashi_html_filename():
     global HASHI_FILENAME
     if HASHI_FILENAME is None or getattr(settings, "DEVELOPER_MODE", None):
-        with io.open(
-            os.path.join(os.path.dirname(__file__), "../build/hashi_filename"),
-            mode="r",
-            encoding="utf-8",
-        ) as f:
-            HASHI_FILENAME = f.read().strip()
+        ref = (
+            importlib_resources.files("kolibri.core.content")
+            / "build"
+            / "hashi_filename"
+        )
+        HASHI_FILENAME = ref.read_text().strip()
     return HASHI_FILENAME
 
 

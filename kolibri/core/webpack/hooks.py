@@ -19,6 +19,7 @@ import time
 from abc import abstractproperty
 from functools import partial
 
+import importlib_resources
 from django.conf import settings
 from django.contrib.staticfiles.finders import find as find_staticfiles
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -29,7 +30,6 @@ from django.utils.six.moves.urllib.request import url2pathname
 from django.utils.translation import get_language
 from django.utils.translation import get_language_info
 from django.utils.translation import to_locale
-from pkg_resources import resource_filename
 from six import text_type
 
 from kolibri.plugins import hooks
@@ -96,11 +96,16 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         STATS_ERR = "Error accessing stats file '{}': {}"
 
+        ref = (
+            importlib_resources.files(self._module_path)
+            / "build"
+            / "{plugin}_stats.json".format(plugin=self.unique_id)
+        )
+
         try:
-            with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
-                stats = json.load(f)
+            stats = json.loads(ref.read_text())
         except IOError as e:
-            raise WebpackError(STATS_ERR.format(self._stats_file, e))
+            raise WebpackError(STATS_ERR.format(ref, e))
 
         if getattr(settings, "DEVELOPER_MODE", False):
             timeout = 0
@@ -110,10 +115,9 @@ class WebpackBundleHook(hooks.KolibriHook):
                 timeout += 0.1
 
                 try:
-                    with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
-                        stats = json.load(f)
+                    stats = json.loads(ref.read_text())
                 except IOError as e:
-                    raise WebpackError(STATS_ERR.format(self._stats_file, e))
+                    raise WebpackError(STATS_ERR.format(ref, e))
 
                 if timeout >= 5:
                     raise WebpackError("Compilation still in progress")
@@ -158,31 +162,6 @@ class WebpackBundleHook(hooks.KolibriHook):
         and prevent accidental or malicious collisions.
         """
         return "{}.{}".format(self._module_path, self.bundle_id)
-
-    @property
-    def _build_path(self):
-        """
-        An auto-generated path to where the build-time files are stored,
-        containing information about the built bundles.
-        """
-        return resource_filename(self._module_path, "build")
-
-    @property
-    def _stats_file(self):
-        """
-        An auto-generated path to where the build-time files are stored,
-        containing information about the built bundles.
-        """
-        return os.path.join(
-            self._build_path, "{plugin}_stats.json".format(plugin=self.unique_id)
-        )
-
-    @property
-    def _module_file_path(self):
-        """
-        Returns the path of the class inheriting this classmethod.
-        """
-        return os.path.dirname(self._build_path)
 
     def frontend_message_file(self, lang_code):
         message_file_name = "{name}-messages.json".format(name=self.unique_id)

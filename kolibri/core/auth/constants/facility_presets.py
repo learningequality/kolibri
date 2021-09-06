@@ -1,14 +1,13 @@
 from __future__ import unicode_literals
 
-import io
 import json
-import os
 
-presets_file = os.path.join(
-    os.path.dirname(__file__), "./facility_configuration_presets.json"
+from importlib_resources import files
+
+ref = files("kolibri.core.auth.constants").joinpath(
+    "facility_configuration_presets.json"
 )
-with io.open(presets_file, mode="r", encoding="utf-8") as f:
-    presets = json.load(f)
+presets = json.loads(ref.read_text())
 
 choices = [(key, key) for key in presets]
 

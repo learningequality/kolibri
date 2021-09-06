@@ -1,13 +1,10 @@
-import io
 import json
-import os
 
-# load stopwords file
-stopwords_path = os.path.join(
-    os.path.dirname(__file__), os.path.pardir, "constants", "stopwords-all.json"
-)
-with io.open(stopwords_path, mode="r", encoding="utf-8") as f:
-    stopwords = json.load(f)
+from importlib_resources import files
+
+# stopwords file
+ref = files("kolibri.core.content.constants").joinpath("stopwords-all.json")
+stopwords = json.loads(ref.read_text())
 
 # load into a set
 stopwords_set = set()
