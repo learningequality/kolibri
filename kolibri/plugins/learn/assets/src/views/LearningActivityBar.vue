@@ -270,10 +270,10 @@
       goBack: 'Go back',
       moreOptions: 'More options',
       viewLessonPlan: 'View lesson plan',
-      viewTopicResources: 'View topic resources',
+      viewTopicResources: 'View folder resources',
       removeFromBookmarks: 'Remove from bookmarks',
       saveToBookmarks: 'Save to bookmarks',
-      markResourceAsFinished: 'Mark resource as finished',
+      markResourceAsFinished: 'Mark resource as completed',
       viewInformation: 'View information',
     },
   };

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-08-17 16:47-0700\n"
-"PO-Revision-Date: 2021-08-18 00:24\n"
+"PO-Revision-Date: 2021-08-26 00:54\n"
 "Last-Translator: \n"
 "Language-Team: Fulfulde Mbororoore\n"
 "Language: ff_fuv\n"
@@ -70,17 +70,17 @@ msgstr ""
 #: core/auth/management/commands/bulkexportusers.py:43
 #: core/auth/management/commands/bulkexportusers.py:125
 msgid "Username ({})"
-msgstr ""
+msgstr "Innde kuutiniroowo ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:44
 #: core/auth/management/commands/bulkexportusers.py:126
 msgid "Password ({})"
-msgstr ""
+msgstr "Paltirgel ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:45
 #: core/auth/management/commands/bulkexportusers.py:127
 msgid "Full name ({})"
-msgstr ""
+msgstr "Inɗe fuu ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:50
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
@@ -95,7 +95,7 @@ msgstr ""
 #: core/auth/management/commands/bulkexportusers.py:54
 #: core/auth/management/commands/bulkexportusers.py:136
 msgid "Birth year ({})"
-msgstr ""
+msgstr "Hitaande danyarde ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:55
 #: core/auth/management/commands/bulkexportusers.py:137
@@ -115,7 +115,7 @@ msgstr ""
 #: core/auth/management/commands/bulkexportusers.py:132
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr ""
+msgstr "Iri moye kuutiniroowo ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:142
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
@@ -238,5 +238,5 @@ msgstr "Ɗum tawaayi ɗereeji kuwaaɗi. Hakkilaayi Kolibri e woodi fitina"
 #: plugins/facility/views.py:52
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users_{}"
-msgstr ""
+msgstr "kuutinirooɓe_{}"
 

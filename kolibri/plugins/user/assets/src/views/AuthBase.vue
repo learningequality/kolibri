@@ -209,7 +209,7 @@
         return urls['kolibri:core:guest']();
       },
       canSignUp() {
-        return this.facilityConfig.learner_can_sign_up;
+        return !plugin_data.isSubsetOfUsersDevice && this.facilityConfig.learner_can_sign_up;
       },
       nextParam() {
         // query is after hash

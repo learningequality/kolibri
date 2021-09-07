@@ -106,7 +106,7 @@
       birthyearAriaLabel: {
         message: 'About providing your birth year.',
         context:
-          "\nCould also be translated as \"View information about providing your birth year\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to indicate that the 'i' icon for the 'Birth year' field offers suggestions how to include that information when creating the user.",
+          "Could also be translated as \"View information about providing your birth year\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to indicate that the 'i' icon for the 'Birth year' field offers suggestions how to include that information when creating the user.",
       },
     },
   };

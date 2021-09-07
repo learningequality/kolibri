@@ -543,7 +543,7 @@ oriented data synchronization.
         context: 'Button that takes user to next question.',
       },
       itemError: {
-        message: 'There was an error showing this item',
+        message: 'There was an error showing this question',
         context:
           'Error message a user sees if there was a problem accessing a learning resource. This may be because the resource has been removed, for example.',
       },

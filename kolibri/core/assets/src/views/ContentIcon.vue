@@ -177,9 +177,9 @@
     },
     $trs: {
       topic: {
-        message: 'Topic',
+        message: 'Folder',
         context:
-          'A topic is a collection of learning resources and other topics within a channel. Nested topics are like folders, and allow a channel to be organized as a tree or hierarchy.',
+          'A folder contains a set of learning resources and other subfolders within a channel. Nested folders allow a channel to be organized as a tree or hierarchy.',
       },
       channel: {
         message: 'Channel',

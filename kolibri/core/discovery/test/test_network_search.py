@@ -12,6 +12,7 @@ from zeroconf import Zeroconf
 from ..utils.network.search import _id_from_name
 from ..utils.network.search import get_peer_instances
 from ..utils.network.search import initialize_zeroconf_listener
+from ..utils.network.search import KolibriZeroconfListener
 from ..utils.network.search import KolibriZeroconfService
 from ..utils.network.search import LOCAL_DOMAIN
 from ..utils.network.search import NonUniqueNameException
@@ -137,7 +138,6 @@ class TestNetworkSearch(TransactionTestCase):
 
     def test_register_zeroconf_service(self, mock_db, get_device_mock):
         assert len(get_peer_instances()) == 0
-        initialize_zeroconf_listener()
         register_zeroconf_service(MOCK_PORT)
         assert [x for x in get_peer_instances()] == [
             {
@@ -158,7 +158,9 @@ class TestNetworkSearch(TransactionTestCase):
                 ),
             }
         ]
-        register_zeroconf_service(MOCK_PORT)
+        listener = KolibriZeroconfListener()
+        mock_zeroconf = MockZeroconf()
+        listener.add_service(mock_zeroconf, SERVICE_TYPE, "mock." + SERVICE_TYPE)
         unregister_zeroconf_service()
         assert len(get_peer_instances()) == 0
 

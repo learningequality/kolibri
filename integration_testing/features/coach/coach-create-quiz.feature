@@ -221,7 +221,7 @@ Feature: Coach creates quizzes
       But I did not save the quiz
     When I click the *back arrow* button
     Then I am redirected to the *Coach - '<class>' > Plan > Quizzes* page
-    And I loose all quiz creation progress
+    And I lose all quiz creation progress
 
 	Scenario: Create channel-based quiz
 		When I click the *New quiz* button

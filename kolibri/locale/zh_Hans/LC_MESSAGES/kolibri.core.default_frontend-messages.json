@@ -199,6 +199,8 @@
   "InteractionList.noInteractions": "此题尚未尝试",
   "LanguageSwitcherList.showMoreLanguagesSelector": "更多语言",
   "LanguageSwitcherModal.changeLanguageModalHeader": "更改语言",
+  "LearnOnlyDeviceNotice.learnOnlyDeviceLabel": "",
+  "LearnOnlyDeviceNotice.learnOnlyDeviceNotice": "",
   "LicenseDescriptionsForConsumers.All Rights Reserved": "您不可以在未经过版权作者允许的情况下散布，使用或改编这条资源。",
   "LicenseDescriptionsForConsumers.CC BY": "您可以在标明原作者的情况下散布，使用或改编这条资源，包括商业用途。",
   "LicenseDescriptionsForConsumers.CC BY-NC": "您可以在非商业用途下使用并改编这条资源。新的资源必须标明原作者且用于非商业用途。",

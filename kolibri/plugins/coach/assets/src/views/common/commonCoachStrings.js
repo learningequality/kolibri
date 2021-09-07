@@ -54,7 +54,10 @@ const coachStrings = createTranslator('CommonCoachStrings', {
 
   // labels, phrases, titles, headers...
   activeLabel: 'Active',
-  activeQuizzesLabel: 'Active quizzes',
+  activeQuizzesLabel: {
+    message: 'Active quizzes',
+    context: 'An active quiz is one that is in progress.',
+  },
   activityLabel: {
     message: 'Activity',
     context:
@@ -77,7 +80,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   avgQuizScoreLabel: {
     message: 'Average quiz score',
     context:
-      "The average score of a class's quiz results. This is calculated only from quizzes that were completed by learners.\n",
+      "The average score of a class's quiz results. This is calculated only from quizzes that were completed by learners.",
   },
   backToLessonLabel: {
     message: "Back to '{lesson}'",
@@ -482,7 +485,7 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
   },
   resourcesUnavailableP2: {
     message:
-      'Consult your administrator for guidance, or use an account with device permissions to manage content channels.',
+      'Consult your administrator for guidance, or use an account with device permissions to manage channels and resources.',
 
     context: 'Second paragraph of the "Resources Unavailable - Learn More" modal',
   },
