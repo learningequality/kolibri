@@ -41,6 +41,19 @@ def default_backup_folder():
     return os.path.join(KOLIBRI_HOME, "backups")
 
 
+def get_backup_files(kolibri_version):
+    """
+    Returns all backups from current kolibri version.
+    """
+    default_path = default_backup_folder()
+    backups = os.listdir(default_path)
+    prefix = "db-v{}".format(kolibri_version)
+    backups = filter(lambda f: f.endswith(".dump"), backups)
+    backups = filter(lambda f: f.startswith(prefix), backups)
+    backups = list(backups)
+    backups.sort()
+    return backups
+
 def get_dtm_from_backup_name(fname):
     """
     Returns the date time string from our automated backup filenames

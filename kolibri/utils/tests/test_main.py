@@ -70,6 +70,35 @@ def test_version_updated():
     assert not main.should_back_up("0.10.0", "0.10.0-dev0")
     assert not main.should_back_up("0.10.0-dev0", "0.10.0-dev0")
 
+@pytest.mark.django_db
+def test_conditional_backup():
+    import os
+    """
+    Tests our db backup logic: conditional_backup, remove all backups
+    """
+    from kolibri.core.deviceadmin.utils import default_backup_folder
+    from kolibri.core.deviceadmin.utils import get_backup_files
+
+    default_path = default_backup_folder()
+    fallback_version = ".".join(map(str, kolibri.VERSION[:2]))
+    if not os.path.exists(default_path):
+        os.mkdir(default_path)
+
+    main.conditional_backup("0.14.0","0.15.1")
+    main.conditional_backup("0.14.0","0.15.2")
+    main.conditional_backup("0.10.1","0.15.3")
+    main.conditional_backup("0.10.2","0.15.4")
+    backups = get_backup_files(fallback_version)
+
+    for backup in backups[1:]:
+        os.remove(os.path.join(default_path,backup))
+
+    backups_after = os.listdir(default_path)
+    prefix = "db-v{}".format(fallback_version)
+    backups_after = filter(lambda f: f.endswith(".dump"), backups_after)
+    backups_after = filter(lambda f: f.startswith(prefix), backups_after)
+    backups_after = list(backups_after)
+    assert len(backups_after) == 1
 
 @pytest.mark.django_db
 @patch("kolibri.utils.main._upgrades_after_django_setup")

@@ -40,7 +40,7 @@ from kolibri.utils.sanity_checks import DatabaseInaccessible
 from kolibri.utils.sanity_checks import DatabaseNotMigrated
 from kolibri.utils.server import get_status
 from kolibri.utils.server import NotRunning
-
+from kolibri.core.deviceadmin.utils import get_backup_files
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +78,10 @@ def conditional_backup(kolibri_version, version_file_contents):
 
         try:
             backup = dbbackup(version_file_contents)
+            backups = get_backup_files(kolibri_version)
+            if len(backups) > 2:
+                for backup in backups[2:]:
+                    os.remove(backup)
             logger.info("Backed up database to: {path}".format(path=backup))
         except IncompatibleDatabase:
             logger.warning(
