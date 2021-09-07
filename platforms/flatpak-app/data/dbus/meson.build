@@ -15,6 +15,13 @@ configure_file(
 )
 
 configure_file(
+    input: 'org.learningequality.Kolibri.Launcher.service.in',
+    output: launcher_application_id + '.service',
+    configuration: kolibri_gnome_config,
+    install_dir: dbus_session_bus_services_dir
+)
+
+configure_file(
     input: 'org.learningequality.Kolibri.SearchProvider.service.in',
     output: search_provider_application_id + '.service',
     configuration: kolibri_gnome_config,

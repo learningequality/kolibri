@@ -1,0 +1,3 @@
+#!/bin/sh
+
+@PYTHON@ -m "kolibri_gnome.desktop_launcher.channel" $@

@@ -26,6 +26,8 @@ frontend_object_path = base_object_path
 
 frontend_channel_application_id_prefix = base_application_id + '.channel_'
 
+launcher_application_id = base_application_id + '.Launcher'
+
 daemon_application_id = base_application_id + '.Daemon'
 daemon_object_path = base_object_path + '/Daemon'
 
@@ -49,6 +51,7 @@ kolibri_gnome_config.set('KOLIBRI_HOME_TEMPLATE_DIR', kolibri_home_template_dir)
 kolibri_gnome_config.set('BASE_APPLICATION_ID', base_application_id)
 kolibri_gnome_config.set('BASE_OBJECT_PATH', base_object_path)
 kolibri_gnome_config.set('FRONTEND_APPLICATION_ID', frontend_application_id)
+kolibri_gnome_config.set('LAUNCHER_APPLICATION_ID', launcher_application_id)
 kolibri_gnome_config.set('FRONTEND_OBJECT_PATH', frontend_object_path)
 kolibri_gnome_config.set('FRONTEND_CHANNEL_APPLICATION_ID_PREFIX', frontend_channel_application_id_prefix)
 kolibri_gnome_config.set('DAEMON_APPLICATION_ID', daemon_application_id)

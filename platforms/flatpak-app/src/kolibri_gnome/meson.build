@@ -18,6 +18,7 @@ desktop_launcher_sources = [
     'desktop_launcher/application.py',
     'desktop_launcher/__init__.py',
     'desktop_launcher/main.py',
+    'desktop_launcher/channel.py',
     'desktop_launcher/utils.py',
 ]
 
