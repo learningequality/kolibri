@@ -139,8 +139,10 @@ def startprovisionsoud(
     baseurl=None,
     facility_id=None,
     user_id=None,
-    extra_metadata={},
+    extra_metadata=None,
 ):
+    if extra_metadata is None:
+        extra_metadata = {}
     job_data = prepare_soud_sync_job(
         baseurl, facility_id, user_id, extra_metadata=extra_metadata
     )
