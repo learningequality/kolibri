@@ -28,6 +28,5 @@ html5lib==1.0.1
 zeroconf-py2compat==0.19.11
 ifcfg==0.21
 Click==7.0
-ua-parser==0.10.0
 whitenoise==4.1.4
 idna==2.8

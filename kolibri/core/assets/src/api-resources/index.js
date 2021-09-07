@@ -23,7 +23,6 @@ export { default as MembershipResource } from './membership';
 export { default as RoleResource } from './role';
 export { default as ContentSessionLogResource } from './contentSessionLog';
 export { default as ContentSummaryLogResource } from './contentSummaryLog';
-export { default as SessionResource } from './session';
 export { default as FacilityResource } from './facility';
 export { default as TaskResource } from './task';
 export { default as FacilityTaskResource } from './facilityTask';

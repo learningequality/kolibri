@@ -3,7 +3,6 @@ import pick from 'lodash/pick';
 import client from 'kolibri.client';
 import logger from 'kolibri.lib.logging';
 import {
-  SessionResource,
   FacilityResource,
   FacilityDatasetResource,
   ContentSessionLogResource,
@@ -34,6 +33,7 @@ import {
   UPDATE_MODAL_DISMISSED,
 } from '../../../constants';
 import samePageCheckGenerator from '../../../utils/samePageCheckGenerator';
+import { browser, os } from '../../../utils/browserInfo';
 import errorCodes from './../../../disconnectionErrorCodes.js';
 
 const logging = logger.getLogger(__filename);
@@ -248,7 +248,16 @@ export function kolibriSetUnspecifiedPassword(store, { username, password, facil
  */
 export function kolibriLogin(store, sessionPayload) {
   Lockr.set(UPDATE_MODAL_DISMISSED, false);
-  return SessionResource.saveModel({ data: sessionPayload })
+  return client({
+    data: {
+      ...sessionPayload,
+      active: true,
+      browser,
+      os,
+    },
+    url: urls['kolibri:core:session-list'](),
+    method: 'post',
+  })
     .then(() => {
       // OIDC redirect
       if (sessionPayload.next) {
