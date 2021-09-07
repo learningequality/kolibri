@@ -90,7 +90,7 @@ def validate_soud_credentials(request, task_description):
     # syncing as a normal user, not using an admin account:
     if user_id is None:
         not_syncable = (SUPERUSER, COACH, ASSIGNABLE_COACH, ADMIN)
-        if any([role in roles for role in not_syncable]):
+        if any(role in roles for role in not_syncable):
             raise ValidationError(
                 detail={
                     "id": DEVICE_LIMITATIONS,
