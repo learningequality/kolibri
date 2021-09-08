@@ -583,12 +583,33 @@
     },
 
     $trs: {
-      showScratch: 'Show scratchpad',
-      notAvailable: 'The scratchpad is not available',
-      hint: 'Use a hint ({hintsLeft, number} left)',
-      hintExplanation: 'If you use a hint, this question will not be added to your progress',
-      hintLabel: 'Hint:',
-      noMoreHint: 'No more hints',
+      showScratch: {
+        message: 'Show scratchpad',
+        context:
+          'The scratchpad refers to the interactive area in an exercise where the learner responds to a question.',
+      },
+      notAvailable: {
+        message: 'The scratchpad is not available',
+        context:
+          'The scratchpad refers to the interactive area in an exercise where the learner responds to a question. On some devices the scratchpad may not be available. If this is the case, this message is displayed to the learner.',
+      },
+      hint: {
+        message: 'Use a hint ({hintsLeft, number} left)',
+        context:
+          'A hint is a suggestion to help learners solve a problem. This phrase tells the learner how many hints they have left to use.',
+      },
+      hintExplanation: {
+        message: 'If you use a hint, this question will not be added to your progress',
+        context: 'A hint is a suggestion to help learners solve a problem.',
+      },
+      hintLabel: {
+        message: 'Hint:',
+        context: 'A hint is a suggestion to help learners solve a problem.',
+      },
+      noMoreHint: {
+        message: 'No more hints',
+        context: 'A hint is a suggestion to help learners solve a problem.',
+      },
     },
   };
 

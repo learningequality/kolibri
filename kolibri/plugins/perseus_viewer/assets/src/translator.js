@@ -1,7 +1,10 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 
 const translator = createTranslator('PerseusInternalMessages', {
-  Hints: 'Hints',
+  Hints: {
+    message: 'Hints',
+    context: 'A hint is a suggestion to help learners solve a problem.\n',
+  },
   'Get another hint': 'Get another hint',
   'Hint #{ pos }': 'Hint #{ pos }',
   'an integer, like $6$': 'an integer, like $6$',
@@ -20,7 +23,11 @@ const translator = createTranslator('PerseusInternalMessages', {
   'Finite solutions': 'Finite solutions',
   "Sorry, I don't understand that!": "Sorry, I don't understand that!",
   'Make sure you select something for every row.': 'Make sure you select something for every row.',
-  Check: 'Check',
+  Check: {
+    message: 'Check',
+    context:
+      "Learners use the 'Check' button when doing an exercise to check if they have answered a question correctly or not.\n",
+  },
   'Next question': 'Next question',
   'Hide explanation': 'Hide explanation',
   Explain: 'Explain',
@@ -47,23 +54,66 @@ const translator = createTranslator('PerseusInternalMessages', {
   'line { lineNumber }': 'line { lineNumber }',
   'lines { lineRange }': 'lines { lineRange }',
   'Run simulation': 'Run simulation',
-  Translate: 'Translate',
-  Translation: 'Translation',
-  translation: 'translation',
+  Translate: {
+    message: 'Translate',
+    context:
+      'In geometry, a translation is a geometric transformation that moves every point of a figure or a space by the same distance in a given direction.\n\nSee https://en.wikipedia.org/wiki/Translation_(geometry)',
+  },
+  Translation: {
+    message: 'Translation',
+    context:
+      'In geometry, a translation is a geometric transformation that moves every point of a figure or a space by the same distance in a given direction.\n\nSee https://en.wikipedia.org/wiki/Translation_(geometry)',
+  },
+  translation: {
+    message: 'translation',
+    context:
+      'In geometry, a translation is a geometric transformation that moves every point of a figure or a space by the same distance in a given direction.\n\nSee https://en.wikipedia.org/wiki/Translation_(geometry)',
+  },
   'Translation by { vector }': 'Translation by { vector }',
-  Rotate: 'Rotate',
-  Rotation: 'Rotation',
-  rotation: 'rotation',
+  Rotate: {
+    message: 'Rotate',
+    context: 'A mathematical term.\n\nSee https://en.wikipedia.org/wiki/Rotation_(mathematics)',
+  },
+  Rotation: {
+    message: 'Rotation',
+    context: 'A mathematical term.\n\nSee https://en.wikipedia.org/wiki/Rotation_(mathematics)',
+  },
+  rotation: {
+    message: 'rotation',
+    context:
+      'Rotation in mathematics is a concept originating in geometry. Any rotation is a motion of a certain space that preserves at least one point.\n\nSee https://en.wikipedia.org/wiki/Rotation_(mathematics)',
+  },
   'Rotation by { degrees } about { point }': 'Rotation by { degrees } about { point }',
   'Rotation about { point } by { degrees }': 'Rotation about { point } by { degrees }',
-  Reflect: 'Reflect',
-  Reflection: 'Reflection',
-  reflection: 'reflection',
+  Reflect: {
+    message: 'Reflect',
+    context:
+      'In mathematics, a reflection is a mapping from a Euclidean space to itself that is an isometry with a hyperplane as a set of fixed points.\n\nSee https://en.wikipedia.org/wiki/Reflection_(mathematics).',
+  },
+  Reflection: {
+    message: 'Reflection',
+    context:
+      'In mathematics, a reflection is a mapping from a Euclidean space to itself that is an isometry with a hyperplane as a set of fixed points. \n\nSee https://en.wikipedia.org/wiki/Reflection_(mathematics).',
+  },
+  reflection: {
+    message: 'reflection',
+    context:
+      'In mathematics, a reflection is a mapping from a Euclidean space to itself that is an isometry with a hyperplane as a set of fixed points. \n\nSee https://en.wikipedia.org/wiki/Reflection_(mathematics).',
+  },
   'Reflection over the line from { point1 } to { point2 }':
     'Reflection over the line from { point1 } to { point2 }',
-  Dilate: 'Dilate',
-  Dilation: 'Dilation',
-  dilation: 'dilation',
+  Dilate: {
+    message: 'Dilate',
+    context: 'A mathematical term.\n\nSee https://en.wikipedia.org/wiki/Dilation_(metric_space)',
+  },
+  Dilation: {
+    message: 'Dilation',
+    context: 'A mathematical term.\n\nSee https://en.wikipedia.org/wiki/Dilation_(metric_space)',
+  },
+  dilation: {
+    message: 'dilation',
+    context: 'A mathematical term.\n\nSee https://en.wikipedia.org/wiki/Dilation_(metric_space)',
+  },
   'Dilation of scale { scale } about { point }': 'Dilation of scale { scale } about { point }',
   'Dilation about { point } by { scale }': 'Dilation about { point } by { scale }',
   Undo: 'Undo',
@@ -102,13 +152,41 @@ const translator = createTranslator('PerseusInternalMessages', {
   'Choose all answers that apply:': 'Choose all answers that apply:',
   'Choose 1 answer:': 'Choose 1 answer:',
   'Add highlight': 'Add highlight',
-  Plus: 'Plus',
-  Minus: 'Minus',
-  Negative: 'Negative',
-  Multiply: 'Multiply',
-  Divide: 'Divide',
-  Decimal: 'Decimal',
-  Percent: 'Percent',
+  Plus: {
+    message: 'Plus',
+    context:
+      "The plus sign '+' is a mathematical symbol representing the operation of addition, which results in a sum.\n\nSee https://en.wikipedia.org/wiki/Plus_and_minus_signs",
+  },
+  Minus: {
+    message: 'Minus',
+    context:
+      "The minus sign '-' is a mathematical symbol representing subtraction, resulting in a difference.\n\nSee https://en.wikipedia.org/wiki/Plus_and_minus_signs",
+  },
+  Negative: {
+    message: 'Negative',
+    context:
+      'In mathematics, a negative number is a number that is less than zero.\n\nSee https://en.wikipedia.org/wiki/Negative_number',
+  },
+  Multiply: {
+    message: 'Multiply',
+    context:
+      "A multiplication is a mathematical operation denoted by the cross symbol 'x'.\n\nSee https://en.wikipedia.org/wiki/Multiplication",
+  },
+  Divide: {
+    message: 'Divide',
+    context:
+      "Division is one of the four basic operations of arithmetic. It's represented with the division sign '÷'.\n\nSee https://en.wikipedia.org/wiki/Division_(mathematics).",
+  },
+  Decimal: {
+    message: 'Decimal',
+    context:
+      'The decimal system is the standard base-ten numeral system. Decimal fractions (sometimes called decimal numbers) are the rational numbers that may be expressed as a fraction whose denominator is a power of ten.\n\nSee https://en.wikipedia.org/wiki/Decimal',
+  },
+  Percent: {
+    message: 'Percent',
+    context:
+      'In mathematics, percent is a number or ratio expressed as a fraction of 100.\n\nSee https://en.wikipedia.org/wiki/Percentage',
+  },
   'Equals sign': 'Equals sign',
   'Not-equals sign': 'Not-equals sign',
   'Greater than sign': 'Greater than sign',
@@ -119,8 +197,16 @@ const translator = createTranslator('PerseusInternalMessages', {
     'Fraction, with current expression in numerator',
   'Fraction, excluding the current expression': 'Fraction, excluding the current expression',
   'Custom exponent': 'Custom exponent',
-  Square: 'Square',
-  Cube: 'Cube',
+  Square: {
+    message: 'Square',
+    context:
+      'In mathematics, a square is the result of multiplying a number by itself.\n\nSee https://en.wikipedia.org/wiki/Square_(algebra)',
+  },
+  Cube: {
+    message: 'Cube',
+    context:
+      "In arithmetic and algebra, the cube of a number 'n' is its third power, that is, the result of multiplying three instances of 'n' together. Also used 'to the power of three'.\n\nSee https://en.wikipedia.org/wiki/Cube_(algebra)",
+  },
   'Square root': 'Square root',
   'Cube root': 'Cube root',
   'Radical with custom root': 'Radical with custom root',
@@ -129,11 +215,30 @@ const translator = createTranslator('PerseusInternalMessages', {
   'Natural logarithm': 'Natural logarithm',
   'Logarithm with base 10': 'Logarithm with base 10',
   'Logarithm with custom base': 'Logarithm with custom base',
-  Sine: 'Sine',
-  Cosine: 'Cosine',
-  Tangent: 'Tangent',
-  Pi: 'Pi',
-  Theta: 'Theta',
+  Sine: {
+    message: 'Sine',
+    context:
+      'In mathematics, the sine is a trigonometric function of an angle.\n\nSee https://en.wikipedia.org/wiki/Sine',
+  },
+  Cosine: {
+    message: 'Cosine',
+    context:
+      'In mathematics a cosine is a trigonometric function. The trigonometric functions most widely used in modern mathematics are the sine, the cosine, and the tangent.\n\nSee https://en.wikipedia.org/wiki/Trigonometric_functions',
+  },
+  Tangent: {
+    message: 'Tangent',
+    context: 'A mathematical term.\n\nSee https://en.wikipedia.org/wiki/Tangent',
+  },
+  Pi: {
+    message: 'Pi',
+    context:
+      "The number Pi (or 'π') is a mathematical constant. It is defined as the ratio of a circle's circumference to its diameter.\n\nSee https://en.wikipedia.org/wiki/Pi",
+  },
+  Theta: {
+    message: 'Theta',
+    context:
+      'Theta is the eighth letter of the Greek alphabet denoted by θ.\n\nSee https://en.wikipedia.org/wiki/Theta',
+  },
   'Up arrow': 'Up arrow',
   'Right arrow': 'Right arrow',
   'Down arrow': 'Down arrow',
@@ -147,8 +252,14 @@ const translator = createTranslator('PerseusInternalMessages', {
     'Navigate right out of the numerator and into the denominator',
   'Navigate right out of the denominator of a fraction':
     'Navigate right out of the denominator of a fraction',
-  Delete: 'Delete',
-  Dismiss: 'Dismiss',
+  Delete: {
+    message: 'Delete',
+    context: 'To delete means to eliminate or erase.',
+  },
+  Dismiss: {
+    message: 'Dismiss',
+    context: 'Dismiss here means to either cancel or close some option.',
+  },
   'Remove highlight': 'Remove highlight',
   '(Choice { letter }, Checked, Correct)': '(Choice { letter }, Checked, Correct)',
   '(Choice { letter }, Checked, Incorrect)': '(Choice { letter }, Checked, Incorrect)',

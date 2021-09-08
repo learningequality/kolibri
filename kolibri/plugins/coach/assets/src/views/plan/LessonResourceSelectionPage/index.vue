@@ -425,8 +425,9 @@
       selectionInformation: {
         message:
           '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
+
         context:
-          "Indicates the amount of resources selected for a lesson in the 'Manage lesson resources' section.",
+          "Indicates the amount of resources selected for a lesson in the 'Manage lesson resources' section.\n\nFor example: '7 of 10 resources selected'.",
       },
       totalResourcesSelected: {
         message:

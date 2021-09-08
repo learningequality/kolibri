@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "ترمیم کریں",
   "ProfilePage.isSuperuser": "سپر متنظم کی اجزت",
   "ProfilePage.limitedPermissions": "محدود اختیارات",
-  "ProfilePage.manageContent": "مواد کو نظم کریں",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "ڈوائیس کی اجزتوں کی دیکھ بھال کریں",
   "ProfilePage.points": "نقاط",
   "ProfilePage.youCan": "اپ کر سکتے ہیں:",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "دو میں سے پہلہ مرحلہ",
   "UserIndex.signUpStep2Title": "دو میں سے دوسرا مرحلہ",
   "UserIndex.userProfileTitle": "پروفائل",
-  "UserPageSnackbars.dismiss": "رخصت کریں",
+  "UserPageSnackbars.dismiss": "",
   "UserPageSnackbars.signedOut": "غیر فعال ہونے کی وجہ سے آپ خود بخود سائن آؤٹ ہوگئے تھے"
 }

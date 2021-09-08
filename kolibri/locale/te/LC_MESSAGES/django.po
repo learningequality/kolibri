@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-17 16:47-0700\n"
-"PO-Revision-Date: 2021-08-26 00:54\n"
+"POT-Creation-Date: 2021-09-02 20:02-0700\n"
+"PO-Revision-Date: 2021-09-08 04:10\n"
 "Last-Translator: \n"
 "Language-Team: Telugu\n"
 "Language: te_IN\n"
@@ -138,8 +138,8 @@ msgid "Value in column '{}' has too many characters"
 msgstr "{} నిలువు వరుసలో విలువ చాలా ఎక్కువ అక్షరాలను కలిగి ఉంది"
 
 #: core/auth/management/commands/bulkimportusers.py:82
-msgid "Invalid value in column '{}'"
-msgstr "{} నిలువు వరుసలో చెల్లుబాటుకాని విలువ ఉంది"
+msgid "Value in column '{}' not valid"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -152,8 +152,8 @@ msgstr "'{}' నిలువు వరుస ఆవశ్యకం"
 
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
-msgid "Invalid header label found in the first row"
-msgstr "మొదటి వరుసలో చెల్లుబాటుకాని హెడర్ లేబుల్ కనుగొనబడింది"
+msgid "Incorrect header label found in the first row"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"

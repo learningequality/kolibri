@@ -449,7 +449,7 @@
     $trs: {
       replay: {
         message: 'Go back 10 seconds',
-        context: 'Option to rewind a video or audio file by 10 seconds.\n',
+        context: 'Option to rewind a video or audio file by 10 seconds.',
       },
       // Pulled from https://github.com/videojs/video.js/blob/master/lang/en.json
       forward: {
@@ -519,7 +519,7 @@
       transcript: {
         message: 'Transcript',
         context:
-          '\nRefers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
+          'Refers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
       },
       transcriptOff: {
         message: 'Transcript off',

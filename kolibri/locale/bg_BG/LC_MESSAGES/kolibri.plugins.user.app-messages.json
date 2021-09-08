@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "Редактирай",
   "ProfilePage.isSuperuser": "Суперадминистраторски разрешения ",
   "ProfilePage.limitedPermissions": "Ограничени разрешения",
-  "ProfilePage.manageContent": "Управление на съдържанието",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "Управление на правата за достъп до устройството",
   "ProfilePage.points": "Точки",
   "ProfilePage.youCan": "Можеш:",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "Стъпка 1 от 2",
   "UserIndex.signUpStep2Title": "Стъпка 2 от 2",
   "UserIndex.userProfileTitle": "Профил",
-  "UserPageSnackbars.dismiss": "Отхвърляне",
+  "UserPageSnackbars.dismiss": "",
   "UserPageSnackbars.signedOut": "Автоматичен изход от профила поради липса на активност"
 }

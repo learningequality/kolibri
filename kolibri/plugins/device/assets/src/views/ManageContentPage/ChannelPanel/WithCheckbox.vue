@@ -67,7 +67,7 @@
       resourcesOnDevice: {
         message: 'Resources on device',
         context:
-          'Indicates that the learning resources are on the device being used at that moment.\n',
+          'Indicates that the learning resources are on the device being used at that moment.',
       },
     },
   };

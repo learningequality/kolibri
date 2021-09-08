@@ -105,6 +105,13 @@
     "default_font": "NotoSans"
   },
   {
+    "crowdin_code": "ka",
+    "intl_code": "ka",
+    "language_name": "ქართული",
+    "english_name": "Georgian",
+    "default_font": "NotoSansGeorgian"
+  },
+  {
     "crowdin_code": "km",
     "intl_code": "km",
     "language_name": "ភាសាខ្មែរ",

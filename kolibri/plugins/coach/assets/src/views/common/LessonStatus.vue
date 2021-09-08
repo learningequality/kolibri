@@ -133,7 +133,7 @@
       visibleToLearnersLabel: {
         message: 'Visible to learners',
         context:
-          'Label for the switch that toggles whether a lesson is visible to leareners or not.',
+          'Label for the switch that toggles whether a lesson is visible to learners or not.',
       },
     },
   };

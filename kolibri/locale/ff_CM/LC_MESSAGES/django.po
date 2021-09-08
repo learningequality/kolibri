@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-17 16:47-0700\n"
-"PO-Revision-Date: 2021-08-26 00:54\n"
+"POT-Creation-Date: 2021-09-02 20:02-0700\n"
+"PO-Revision-Date: 2021-09-08 04:09\n"
 "Last-Translator: \n"
 "Language-Team: Fulfulde Mbororoore\n"
 "Language: ff_fuv\n"
@@ -19,34 +19,34 @@ msgstr ""
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr ""
+msgstr "Aybe jey numaaka [{}]: {}"
 
 #: core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
-msgstr ""
+msgstr "Nastoojum suudu '{}' ɓuri ndu"
 
 #: core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr ""
+msgstr "Na ɗum ko '{}' nastata suudu"
 
 #: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr ""
+msgstr "Innde kuutiniroowo windaanoma"
 
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
 msgid "Username only can contain characters, numbers and underscores"
-msgstr ""
+msgstr "Innde kuutiniroowo winndirteema bee ɓaleeri, lammbaaji e diidi les tan"
 
 #: core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
-msgstr ""
+msgstr "Ɗum doole '{}' windugo ɗo'o"
 
 #: core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr ""
+msgstr "Hawtaade innɗe hoorewol jaɓaaɗe bee ko ɗe jaɓaaka e lanwol artugol"
 
 #: core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
@@ -55,17 +55,17 @@ msgstr ""
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to read csv file: {}"
-msgstr ""
+msgstr "Aybe dow jangugo ɗereeji csv"
 
 #: core/auth/constants/commands_errors.py:36
 #: core/auth/management/commands/bulkimportusers.py:100
 msgid "Error trying to write csv file: {}"
-msgstr ""
+msgstr "Aybe nder windugo ɗereeji csv"
 
 #: core/auth/management/commands/bulkexportusers.py:42
 #: core/auth/management/commands/bulkexportusers.py:124
 msgid "Database ID ({})"
-msgstr ""
+msgstr "Nastirgel suudu defte ()"
 
 #: core/auth/management/commands/bulkexportusers.py:43
 #: core/auth/management/commands/bulkexportusers.py:125
@@ -85,12 +85,12 @@ msgstr "Inɗe fuu ({})"
 #: core/auth/management/commands/bulkexportusers.py:50
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr ""
+msgstr "Iri moye kuutiniroowo ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:53
 #: core/auth/management/commands/bulkexportusers.py:135
 msgid "Identifier ({})"
-msgstr ""
+msgstr "Heftiroojum ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:54
 #: core/auth/management/commands/bulkexportusers.py:136
@@ -100,17 +100,17 @@ msgstr "Hitaande danyarde ({})"
 #: core/auth/management/commands/bulkexportusers.py:55
 #: core/auth/management/commands/bulkexportusers.py:137
 msgid "Gender ({})"
-msgstr ""
+msgstr "Gorko ko debbo ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:60
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr ""
+msgstr "Nastirde janngoowo ()"
 
 #: core/auth/management/commands/bulkexportusers.py:67
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr ""
+msgstr "Ko fukaraaɓe njanngata e wuro ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:132
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
@@ -120,40 +120,40 @@ msgstr "Iri moye kuutiniroowo ({})"
 #: core/auth/management/commands/bulkexportusers.py:142
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr ""
+msgstr "Nastirde janngoowo ()"
 
 #: core/auth/management/commands/bulkexportusers.py:149
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr ""
+msgstr "Ko fukaraaɓe njanngata e wuro ({})"
 
 #: core/auth/management/commands/bulkimportusers.py:76
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
-msgstr ""
+msgstr "Aybe jey numaaka [{}]: {}"
 
 #: core/auth/management/commands/bulkimportusers.py:80
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
-msgstr ""
+msgstr "Gonɗum nder satol '{}' e mari ɓaleeri waanee"
 
 #: core/auth/management/commands/bulkimportusers.py:82
-msgid "Invalid value in column '{}'"
-msgstr ""
+msgid "Value in column '{}' not valid"
+msgstr "Gonɗum nder satol '{}' jaɓataake"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
-msgstr ""
+msgstr "Innde kuutiniroowo windaama nde ɗiɗi"
 
 #: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
-msgstr ""
+msgstr "Ɗum doole '{}' windugo ɗo'o"
 
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
-msgid "Invalid header label found in the first row"
-msgstr ""
+msgid "Incorrect header label found in the first row"
+msgstr "Innde hoorewol lanwol artugol windaaka sosey"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
@@ -162,15 +162,15 @@ msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr ""
+msgstr "Ɗum doole windugo paltirgel. To ngam haccugo paltirgel no woniri e kuutinirooɓe hidɓe, sey a nasta hoosere (*)"
 
 #: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr ""
+msgstr "Wala no yamɗinirta kuutiniroowo bee nastirgel: '{}' ngam wala kuutiniroowo nastirgel defte nder tayre nde'e"
 
 #: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
-msgstr ""
+msgstr "Nastirgel defte jaɓaaka"
 
 #: core/content/api.py:152
 msgid "Resource"

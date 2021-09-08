@@ -215,7 +215,7 @@
       singleResourceRemovalConfirmationMessage: {
         message: `Removed '{resourceTitle}'`,
         context:
-          'Confirmation message that displays when use removes a learning resource from a lesson.',
+          'Confirmation message that displays when user removes a learning resource from a lesson.',
       },
       multipleResourceRemovalsConfirmationMessage: {
         message: 'Removed { numberOfRemovals } resources',

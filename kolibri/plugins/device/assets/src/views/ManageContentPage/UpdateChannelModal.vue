@@ -44,7 +44,7 @@
       title: {
         message: 'Update channel',
         context:
-          'Public channels on Kolibri Studio are periodically updated from their original sources. Private and unlisted channels on a local Kolibri device may also have changed since they were first imported. This section is where the user would update these channels.',
+          'Public channels on Kolibri Studio are periodically updated from their original sources. Private and unlisted channels on a local Kolibri device may also have changed since they were first imported.\n\nThis section is where the user would update these channels.',
       },
       updateChannelExplanation: {
         message:

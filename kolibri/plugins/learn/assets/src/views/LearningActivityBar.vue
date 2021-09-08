@@ -268,13 +268,34 @@
     },
     $trs: {
       goBack: 'Go back',
-      moreOptions: 'More options',
-      viewLessonPlan: 'View lesson plan',
-      viewTopicResources: 'View folder resources',
-      removeFromBookmarks: 'Remove from bookmarks',
-      saveToBookmarks: 'Save to bookmarks',
-      markResourceAsFinished: 'Mark resource as completed',
-      viewInformation: 'View information',
+      moreOptions: {
+        message: 'More options',
+        context: 'Tooltip text.',
+      },
+      viewLessonPlan: {
+        message: 'View lesson plan',
+        context: 'Tooltip text.',
+      },
+      viewTopicResources: {
+        message: 'View folder resources',
+        context: 'Tooltip text.',
+      },
+      removeFromBookmarks: {
+        message: 'Remove from bookmarks',
+        context: 'Tooltip text.',
+      },
+      saveToBookmarks: {
+        message: 'Save to bookmarks',
+        context: 'Tooltip text.',
+      },
+      markResourceAsFinished: {
+        message: 'Mark resource as completed',
+        context: 'Title for the confirmation window when marking a resource as completed.',
+      },
+      viewInformation: {
+        message: 'View information',
+        context: 'Tooltip text.',
+      },
     },
   };
 

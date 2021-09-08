@@ -96,7 +96,10 @@
           "This text displays in the learner's 'Lessons' section if the coach has not added any resources to the lesson.",
       },
       teacherNote: 'Coach note',
-      documentTitle: 'Lesson contents',
+      documentTitle: {
+        message: 'Lesson contents',
+        context: 'Indicates the learning resources that make up a lesson.',
+      },
     },
   };
 

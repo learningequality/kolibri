@@ -2,9 +2,9 @@
   "DemoServerBannerContent.demoServerA1": "စာတမ်းပြုစုထားသည်များကိုဖတ်ခြင်း",
   "DemoServerBannerContent.demoServerA2": "Downloadလုပ်ခြင်းနှင့်နောက်ဆုံးထွက်ထားသည်ကို Install လုပ်ခြင်း",
   "DemoServerBannerContent.demoServerHeader": "Kolibri စမ်းသပ်သည့်ဆိုဒ်မှ ကြိုဆိုပါသည် ",
-  "DemoServerBannerContent.demoServerL1": "သင်ယူသူ({user}/{pass} သို့မဟုတ် ဧည့်သည်အဖြစ် သုံးမလား)",
+  "DemoServerBannerContent.demoServerL1": "",
   "DemoServerBannerContent.demoServerL2": "နည်းပြ ({user}/{pass})",
-  "DemoServerBannerContent.demoServerP1": "အဓိက အသုံးပြုသူအမျိုးအစား သုံးခုထဲမှတစ်ခုကိုရွေးချယ်နိုင်ပါသည်",
+  "DemoServerBannerContent.demoServerP1": "",
   "DemoServerBannerContent.demoServerP2": "ဒီ Kolibri အွန်လိုင်းဗားရှင်းကို နမူနာပြရန်အတွက်သာရည်ရွယ်ထားပါသည်။ အသုံးပြုသူနှင့် အချက်အလက်များသည် လိုအပ်သလိုဖျက်သွားမည်ဖြစ်သည်။ ဒီစမ်းသပ်ထားသည့်ဆိုဒ်သည် Kolibri ၏ နောက်ဆုံးဗားရှင်းဖြစ်ပြီး တွေ့ရှိသည့် ရင်းမြစ်များသည် နမူနာများသာဖြစ်သည်",
   "DemoServerBannerContent.demoServerP3": "Kolibri ၏အကြောင်းကို Offline ဖြင့်ပိုမိုလေ့လာရန်နှင့် နယ်ပယ်အကြောင်းကိုပိုမိုသိရှိရန်:"
 }

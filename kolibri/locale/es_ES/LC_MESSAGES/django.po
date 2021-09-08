@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-17 16:47-0700\n"
-"PO-Revision-Date: 2021-08-26 00:54\n"
+"POT-Creation-Date: 2021-09-02 20:02-0700\n"
+"PO-Revision-Date: 2021-09-08 04:10\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
@@ -138,8 +138,8 @@ msgid "Value in column '{}' has too many characters"
 msgstr "El valor de la columna '{}' tiene demasiados caracteres"
 
 #: core/auth/management/commands/bulkimportusers.py:82
-msgid "Invalid value in column '{}'"
-msgstr "Valor incorrecto en la columna '{}'"
+msgid "Value in column '{}' not valid"
+msgstr "El valor en la columna '{}' no es válido"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -152,7 +152,7 @@ msgstr "Falta la columna '{}'"
 
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
-msgid "Invalid header label found in the first row"
+msgid "Incorrect header label found in the first row"
 msgstr "Etiqueta de encabezado incorrecta en la primera fila"
 
 #: core/auth/management/commands/bulkimportusers.py:97
