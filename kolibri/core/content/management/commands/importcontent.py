@@ -275,9 +275,16 @@ class Command(AsyncCommand):
             node_ids, exclude_node_ids, total_bytes_to_transfer
         )
 
-        with self.start_progress(
-            total=total_bytes_to_transfer + dummy_bytes_for_annotation
-        ) as overall_progress_update:
+        if paths.using_remote_storage():
+            overall_progress_update = self.start_progress(
+                total=dummy_bytes_for_annotation
+            ).update_progress
+            file_checksums_to_annotate.extend(f["id"] for f in files_to_download)
+            transferred_file_size = total_bytes_to_transfer
+        else:
+            overall_progress_update = self.start_progress(
+                total=total_bytes_to_transfer + dummy_bytes_for_annotation
+            ).update_progress
             if method == DOWNLOAD_METHOD:
                 session = requests.Session()
 
@@ -295,10 +302,8 @@ class Command(AsyncCommand):
                     overall_progress_update(f["file_size"])
                     continue
 
-                # if the file already exists, or we are using remote storage, add its size to our overall progress, and skip
-                if paths.using_remote_storage() or (
-                    os.path.isfile(dest) and os.path.getsize(dest) == f["file_size"]
-                ):
+                # if the file already exists add its size to our overall progress, and skip
+                if os.path.isfile(dest) and os.path.getsize(dest) == f["file_size"]:
                     overall_progress_update(f["file_size"])
                     file_checksums_to_annotate.append(f["id"])
                     transferred_file_size += f["file_size"]
@@ -376,43 +381,43 @@ class Command(AsyncCommand):
                                 self.exception = e
                                 break
 
-            annotation.set_content_visibility(
-                channel_id,
-                file_checksums_to_annotate,
-                node_ids=node_ids,
-                exclude_node_ids=exclude_node_ids,
-                public=public,
+        annotation.set_content_visibility(
+            channel_id,
+            file_checksums_to_annotate,
+            node_ids=node_ids,
+            exclude_node_ids=exclude_node_ids,
+            public=public,
+        )
+
+        resources_after_transfer = (
+            ContentNode.objects.filter(channel_id=channel_id, available=True)
+            .exclude(kind=content_kinds.TOPIC)
+            .values("content_id")
+            .distinct()
+            .count()
+        )
+
+        if job:
+            job.extra_metadata["transferred_file_size"] = transferred_file_size
+            job.extra_metadata["transferred_resources"] = (
+                resources_after_transfer - resources_before_transfer
+            )
+            job.save_meta()
+
+        if number_of_skipped_files > 0:
+            logger.warning(
+                "{} files are skipped, because errors occurred during the import.".format(
+                    number_of_skipped_files
+                )
             )
 
-            resources_after_transfer = (
-                ContentNode.objects.filter(channel_id=channel_id, available=True)
-                .exclude(kind=content_kinds.TOPIC)
-                .values("content_id")
-                .distinct()
-                .count()
-            )
+        overall_progress_update(dummy_bytes_for_annotation)
 
-            if job:
-                job.extra_metadata["transferred_file_size"] = transferred_file_size
-                job.extra_metadata["transferred_resources"] = (
-                    resources_after_transfer - resources_before_transfer
-                )
-                job.save_meta()
+        if self.exception:
+            raise self.exception
 
-            if number_of_skipped_files > 0:
-                logger.warning(
-                    "{} files are skipped, because errors occurred during the import.".format(
-                        number_of_skipped_files
-                    )
-                )
-
-            overall_progress_update(dummy_bytes_for_annotation)
-
-            if self.exception:
-                raise self.exception
-
-            if self.is_cancelled():
-                self.cancel()
+        if self.is_cancelled():
+            self.cancel()
 
     def _start_file_transfer(self, f, filetransfer):
         """
