@@ -15,6 +15,7 @@ from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.import_export_content import compare_checksums
 from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.paths import get_channel_lookup_url
+from kolibri.core.content.utils.paths import get_content_file_name
 from kolibri.core.content.utils.upgrade import get_import_data_for_update
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
@@ -286,21 +287,21 @@ class Command(AsyncCommand):
                 if self.is_cancelled():
                     break
 
-                filename = f.get_filename()
+                filename = get_content_file_name(f)
                 try:
                     dest = paths.get_content_storage_file_path(filename)
                 except InvalidStorageFilenameError:
                     # If the destination file name is malformed, just stop now.
-                    overall_progress_update(f.file_size)
+                    overall_progress_update(f["file_size"])
                     continue
 
                 # if the file already exists, or we are using remote storage, add its size to our overall progress, and skip
                 if paths.using_remote_storage() or (
-                    os.path.isfile(dest) and os.path.getsize(dest) == f.file_size
+                    os.path.isfile(dest) and os.path.getsize(dest) == f["file_size"]
                 ):
-                    overall_progress_update(f.file_size)
-                    file_checksums_to_annotate.append(f.id)
-                    transferred_file_size += f.file_size
+                    overall_progress_update(f["file_size"])
+                    file_checksums_to_annotate.append(f["id"])
+                    transferred_file_size += f["file_size"]
                     continue
 
                 # determine where we're downloading/copying from, and create appropriate transfer object
@@ -319,13 +320,12 @@ class Command(AsyncCommand):
                         )
                     except InvalidStorageFilenameError:
                         # If the source file name is malformed, just stop now.
-                        overall_progress_update(f.file_size)
+                        overall_progress_update(f["file_size"])
                         continue
                     filetransfer = transfer.FileCopy(
                         srcpath, dest, cancel_check=self.is_cancelled
                     )
                     file_transfers.append((f, filetransfer))
-
             with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
                 batch_size = 100
                 # ThreadPoolExecutor allows us to download files concurrently,
@@ -333,10 +333,10 @@ class Command(AsyncCommand):
                 # all the downloads into the pool requires considerable memory,
                 # so we divide the downloads into batches to keep memory usage down.
                 # In batches of 100, total RAM usage doesn't exceed 250MB in testing.
-                while len(file_transfers) > 0:
+                while file_transfers:
                     future_file_transfers = {}
                     for i in range(batch_size):
-                        if len(file_transfers) > 0:
+                        if file_transfers:
                             f, filetransfer = file_transfers.pop()
                             future = executor.submit(
                                 self._start_file_transfer, f, filetransfer
@@ -356,8 +356,8 @@ class Command(AsyncCommand):
                             if status == FILE_SKIPPED:
                                 number_of_skipped_files += 1
                             else:
-                                file_checksums_to_annotate.append(f.id)
-                                transferred_file_size += f.file_size
+                                file_checksums_to_annotate.append(f["id"])
+                                transferred_file_size += f["file_size"]
                         except transfer.TransferCanceled:
                             break
                         except Exception as e:
@@ -369,7 +369,7 @@ class Command(AsyncCommand):
                                 and e.response.status_code == 404
                             ) or (isinstance(e, OSError) and e.errno == 2):
                                 # Continue file import when the current file is not found from the source and is skipped.
-                                overall_progress_update(f.file_size)
+                                overall_progress_update(f["file_size"])
                                 number_of_skipped_files += 1
                                 continue
                             else:
@@ -432,13 +432,13 @@ class Command(AsyncCommand):
             # the difference so that the overall progress is never incorrect.
             # This could happen, for example for a local transfer if a file
             # has been replaced or corrupted (which we catch below)
-            data_transferred += f.file_size - filetransfer.total_size
+            data_transferred += f["file_size"] - filetransfer.total_size
 
             # If checksum of the destination file is different from the localfile
             # id indicated in the database, it means that the destination file
             # is corrupted, either from origin or during import. Skip importing
             # this file.
-            checksum_correctness = compare_checksums(filetransfer.dest, f.id)
+            checksum_correctness = compare_checksums(filetransfer.dest, f["id"])
             if not checksum_correctness:
                 e = "File {} is corrupted.".format(filetransfer.source)
                 logger.error("An error occurred during content import: {}".format(e))
