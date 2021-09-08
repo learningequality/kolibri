@@ -261,7 +261,6 @@
         message: 'Allow learners to create accounts',
         context: "Option on 'Facility settings' page.",
       },
-      learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
       learnerNeedPasswordToLogin: {
         message: 'Require password for learners',
         context: "Option on 'Facility settings' page.",
@@ -270,7 +269,6 @@
         message: "Show 'download' button with resources",
         context: "Option on 'Facility settings' page.\n",
       },
-      allowGuestAccess: 'Allow users to access resources without signing in',
       /* eslint-enable kolibri/vue-no-unused-translations */
       saveFailure: 'There was a problem saving your settings',
       saveSuccess: 'Facility settings updated',
@@ -291,7 +289,7 @@
         context: 'Button that resets the facility to its default settings.',
       },
       documentTitle: {
-        message: 'Configure Facility',
+        message: 'Facility Settings',
         context: 'Title of page.',
       },
     },

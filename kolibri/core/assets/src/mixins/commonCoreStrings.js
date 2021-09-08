@@ -353,6 +353,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'This button appears in Kolibri to indicate to users that there are more results available when they search for resources, for example.',
   },
+  userActionsColumnHeader: {
+    message: 'Actions',
+    context:
+      'Column header for the table with class users. The column "Actions" contains buttons that allow admins to remove users from class.',
+  },
 
   // Learning activities
   createActivity: 'Create',

@@ -385,7 +385,7 @@
       },
       forceLogoutWarning: {
         message:
-          'Warning: By making your self a non-admin, you will be logged out after clicking "Save".',
+          'Warning: By making yourself a non-admin, you will be logged out after clicking "Save".',
         context:
           'Warning provoked if a user with admin permissions changes their user type to become a non-admin. This avoids dangerous deletions.',
       },

@@ -52,13 +52,14 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
   import ContentCard from '../ContentCard';
+  import { coachStringsMixin } from '../../../../../coach/assets/src/views/common/commonCoachStrings';
   import { lessonResourceViewerLink } from './classPageLinks';
 
   export default {
     name: 'LessonPlaylistPage',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.coachString('lessonLabel') + ' ' + this.currentLesson.title,
       };
     },
     components: {
@@ -66,6 +67,7 @@
       ContentIcon,
       ProgressIcon,
     },
+    mixins: [coachStringsMixin],
     computed: {
       ...mapState('lessonPlaylist', ['contentNodes', 'currentLesson']),
       lessonHasResources() {
@@ -96,7 +98,6 @@
           "This text displays in the learner's 'Lessons' section if the coach has not added any resources to the lesson.",
       },
       teacherNote: 'Coach note',
-      documentTitle: 'Lesson contents',
     },
   };
 
