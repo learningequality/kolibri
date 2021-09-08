@@ -392,6 +392,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
 
   // Quiz activation / closing / etc
+  lessonVisibleLabel: {
+    message: 'Visible to learners',
+    context:
+      'A label indicating that the learners can see the lesson when the switch is turned "on"',
+  },
   reportVisibleLabel: {
     message: 'Report visible',
     context:

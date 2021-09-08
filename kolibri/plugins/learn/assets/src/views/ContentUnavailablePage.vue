@@ -47,11 +47,11 @@
           'Message displayed when there are no learning resources available for the learner to view.',
       },
       adminLink: {
-        message: 'As an administrator, you can import channels',
+        message: 'Import channels to your device',
         context: 'Message for admin indicating the possibility of importing channels into Kolibri.',
       },
       learnerText: {
-        message: 'Please ask your coach or administrator for assistance',
+        message: 'Ask your coach or administrator for assistance',
         context: "Description on the 'No resources available' page.",
       },
       documentTitle: {

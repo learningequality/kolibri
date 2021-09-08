@@ -269,7 +269,7 @@
     $trs: {
       goBack: 'Go back',
       moreOptions: 'More options',
-      viewLessonPlan: 'View lesson plan',
+      viewLessonPlan: 'View lesson resources',
       viewTopicResources: 'View folder resources',
       removeFromBookmarks: 'Remove from bookmarks',
       saveToBookmarks: 'Save to bookmarks',

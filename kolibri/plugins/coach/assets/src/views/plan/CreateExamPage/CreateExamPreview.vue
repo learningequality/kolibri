@@ -103,7 +103,7 @@
         <KButtonGroup>
           <KRouterLink
             appearance="flat-button"
-            :text="coreString('goBackAction')"
+            :text="$tr('previousStep')"
             :to="toolbarRoute"
           />
           <KButton
@@ -286,6 +286,10 @@
       numQuestions: {
         message: 'Number of questions',
         context: 'Indicates the number of questions a quiz has.',
+      },
+      previousStep: {
+        message: 'Previous step',
+        context: 'Label for a button to exit the exam preview and return to resource selection.',
       },
     },
   };
