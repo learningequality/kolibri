@@ -11,6 +11,8 @@ from mock import patch
 import kolibri
 from kolibri.utils import main
 
+import unittest
+from django.conf import settings
 
 @pytest.mark.django_db
 @patch("kolibri.utils.main._upgrades_after_django_setup")
@@ -71,34 +73,49 @@ def test_version_updated():
     assert not main.should_back_up("0.10.0-dev0", "0.10.0-dev0")
 
 @pytest.mark.django_db
+@unittest.skipIf(
+    getattr(settings, "DATABASES")["default"]["ENGINE"]
+    != "django.db.backends.sqlite3",
+    "SQLite only test",
+    )
 def test_conditional_backup():
     import os
     """
     Tests our db backup logic: conditional_backup, remove all backups
     """
     from kolibri.core.deviceadmin.utils import default_backup_folder
-    from kolibri.core.deviceadmin.utils import get_backup_files
 
     default_path = default_backup_folder()
     fallback_version = ".".join(map(str, kolibri.VERSION[:2]))
     if not os.path.exists(default_path):
         os.mkdir(default_path)
 
-    main.conditional_backup("0.14.0","0.15.1")
-    main.conditional_backup("0.14.0","0.15.2")
-    main.conditional_backup("0.10.1","0.15.3")
-    main.conditional_backup("0.10.2","0.15.4")
-    backups = get_backup_files(fallback_version)
+    from kolibri.core.deviceadmin.utils import dbbackup
 
-    for backup in backups[1:]:
-        os.remove(os.path.join(default_path,backup))
+    # Making few backups
+    backup = dbbackup("0.11.0")
+    backup = dbbackup("0.11.1")
+    backup = dbbackup("0.11.2")
+    backup = dbbackup("0.11.3")
+    backup = dbbackup("0.11.4")
+    backup = dbbackup("0.13.1")
+    backup = dbbackup("0.13.2")
+    backup = dbbackup("0.13.3")
+    backup = dbbackup("0.13.4")
+    backup = dbbackup("0.13.5")
+
+    # calling function for conditional backup
+    main.conditional_backup("0.11.1","0.15.3")
 
     backups_after = os.listdir(default_path)
     prefix = "db-v{}".format(fallback_version)
     backups_after = filter(lambda f: f.endswith(".dump"), backups_after)
     backups_after = filter(lambda f: f.startswith(prefix), backups_after)
     backups_after = list(backups_after)
+
+    # checking if delete is working properly in the conditional_backup
     assert len(backups_after) == 1
+    assert ("db-v0.15.3" in backups_after[0]) == True
 
 @pytest.mark.django_db
 @patch("kolibri.utils.main._upgrades_after_django_setup")

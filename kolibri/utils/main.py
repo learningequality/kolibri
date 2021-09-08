@@ -75,13 +75,15 @@ def conditional_backup(kolibri_version, version_file_contents):
     if should_back_up(kolibri_version, version_file_contents):
         # Non-dev version change, make a backup no matter what.
         from kolibri.core.deviceadmin.utils import dbbackup
+        from kolibri.core.deviceadmin.utils import default_backup_folder
 
         try:
             backup = dbbackup(version_file_contents)
-            backups = get_backup_files(kolibri_version)
+            default_path = default_backup_folder()
+            backups = get_backup_files()
             if len(backups) > 2:
-                for backup in backups[2:]:
-                    os.remove(backup)
+                for old_backup in backups[2:]:
+                    os.remove(os.path.join(default_path,old_backup))
             logger.info("Backed up database to: {path}".format(path=backup))
         except IncompatibleDatabase:
             logger.warning(

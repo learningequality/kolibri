@@ -41,13 +41,13 @@ def default_backup_folder():
     return os.path.join(KOLIBRI_HOME, "backups")
 
 
-def get_backup_files(kolibri_version):
+def get_backup_files():
     """
     Returns all backups from current kolibri version.
     """
     default_path = default_backup_folder()
     backups = os.listdir(default_path)
-    prefix = "db-v{}".format(kolibri_version)
+    prefix = "db-v{}"
     backups = filter(lambda f: f.endswith(".dump"), backups)
     backups = filter(lambda f: f.startswith(prefix), backups)
     backups = list(backups)
