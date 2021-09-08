@@ -164,12 +164,14 @@
         context: 'Refers to a button the user uses to delete resources.',
       },
       channelsSelectedNoFileSize: {
-        message: '{count, number} {count, plural, one {channel selected} other {channels selected}}',
+        message:
+          '{count, number} {count, plural, one {channel selected} other {channels selected}}',
         context:
           "Indicates the amount of channels selected to import. For example:\n\n'7 channels selected'",
       },
       channelsSelectedWithFileSize: {
-        message: '{count} {count, plural, one {channel selected} other {channels selected}} ({bytesText})',
+        message:
+          '{count} {count, plural, one {channel selected} other {channels selected}} ({bytesText})',
         context:
           "Indicates the amount of channels selected to import along with the file size. For example:\n\n'7 channels (22 GB)'",
       },
@@ -178,7 +180,8 @@
         context: 'Indicates that the user has selected no resources.',
       },
       someResourcesSelected: {
-        message: '{count} {count, plural, one {resource selected} other {resources selected}} ({bytesText})',
+        message:
+          '{count} {count, plural, one {resource selected} other {resources selected}} ({bytesText})',
         context:
           "Indicates the amount of resources selected to import along with the file size. For example:\n\n'727 resources (22 GB)'\n",
       },
