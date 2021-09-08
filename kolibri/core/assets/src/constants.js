@@ -29,6 +29,20 @@ export const ContentNodeKinds = {
   SLIDESHOW: 'slideshow',
 };
 
+// coach-facing
+export const ContentNodeResourceType = {
+  LESSON: 'Lesson',
+  TUTORIAL: 'Tutorial',
+  ACTIVITY: 'Activity',
+  EXERCISE: 'Exercise',
+  MEDIA: 'Media',
+  BOOK: 'Book',
+  GAME: 'Game',
+  GUIDE: 'Guide',
+  TEXTBOOK: 'Textbook',
+  LESSON_PLAN: 'Lesson plan',
+};
+
 export const LearningActivities = {
   CREATE: 'create',
   LISTEN: 'listen',
@@ -48,14 +62,102 @@ export const ContentKindsToLearningActivitiesMap = {
   video: LearningActivities.WATCH,
 };
 
+// Resource library categories and subcategoriess
 export const LibraryCategories = {
-  ALL_CATEGORIES: 'all_categories',
   SCHOOL: 'school',
   BASIC_SKILLS: 'basic_skills',
   WORK: 'work',
   DAILY_LIFE: 'daily_life',
   FOR_TEACHERS: 'for_teachers',
-  OTHER: 'other',
+};
+
+export const SchoolCategories = {
+  MATHEMATICS: 'Mathematics',
+  SCIENCES: 'Sciences',
+  LITERATURE: 'Literature',
+  SOCIAL_SCIENCES: 'Social Sciences',
+  ARTS: 'Arts',
+  COMPUTER_SCIENCE: 'Computer Science',
+  LANGUAGE_LEARNING: 'Language learning',
+  HISTORY: 'History',
+};
+
+export const MathematicsSubcategories = {
+  ARITHMETIC: 'Arithmetic',
+  ALGEBRA: 'Algebra',
+  GEOMETRY: 'Geometry',
+  CALCULUS: 'Calculus',
+  STATISTICS: 'Statistics',
+};
+
+export const SciencesSubcategories = {
+  BIOLOGY: 'Biology',
+  CHEMISTRY: 'Chemistry',
+  PHYSICS: 'Physics',
+  EARTH_SCIENCE: 'Earth science',
+  ASTRONOMY: 'Astronomy',
+};
+
+export const LiteratureSubcategories = {
+  LITERATURE: 'Literature',
+  READING_COMPREHENSION: 'Reading comprehension',
+  WRITING: 'Writing',
+  LOGIC_AND_CRITICAL_THINKING: 'Logic and critical thinking',
+};
+
+export const SocialSciencesSubcategories = {
+  POLITICAL_SCIENCE: 'Political science',
+  SOCIOLOGY: 'Sociology',
+  ANTHROPOLOGY: 'Anthropology',
+  CIVIC_EDUCATION: 'Civic education',
+};
+
+export const ArtsSubcategories = {
+  VISUAL_ART: 'Visual art',
+  MUSIC: 'Music',
+  DANCE: 'Dance',
+  DRAMA: 'Drama',
+};
+
+export const ComputerScienceSubcategories = {
+  PROGRAMMING: 'Programming',
+  MECHANICAL_ENGINEERING: 'Mechanical engineering',
+  WEB_DESIGN: 'Web design',
+};
+
+export const BasicSkillsCategories = {
+  LITERACY: 'Literacy',
+  NUMERACY: 'Numeracy',
+  DIGITAL_LITERACY: 'Digital literacy',
+  LOGIC_AND_CRITICAL_THINKING: 'Logic and critical thinking',
+  LEARNING_SKILLS: 'Learning skills',
+};
+
+export const WorkCategories = {
+  PROFESSIONAL_SKILLS: 'Professional skills',
+  TECHNICAL_AND_VOCATIONAL_TRAINING: 'Technical and vocational training',
+};
+
+export const VocationalSubcategories = {
+  TOOLS_AND_SOFTWARE_TRAINING: 'Tools and software training',
+  SKILLS_TRAINING: 'Skills training',
+  INDUSTRY_AND_SECTOR_SPECIFIC: 'Industry and sector specific',
+};
+
+export const DailyLifeCategories = {
+  PUBLIC_HEALTH: 'Public health',
+  ENTREPRENEURSHIP: 'Entrepreneurship',
+  FINANCIAL_LITERACY: 'Financial literacy',
+  CURRENT_EVENTS: 'Current events',
+  ENVIRONMENT: 'Environment',
+  MEDIA_LITERACY: 'Media literacy',
+  DIVERSITY: 'Diversity',
+  MENTAL_HEALTH: 'Mental health',
+};
+
+export const TeachersCategories = {
+  GUIDES: 'Guides',
+  LESSON_PLANS: 'Lesson Plans',
 };
 
 export const ResourcesNeededTypes = {

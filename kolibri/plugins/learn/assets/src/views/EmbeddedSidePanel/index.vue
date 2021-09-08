@@ -19,6 +19,17 @@
       </h2>
       <!-- list of category metadata - clicking prompts a filter modal -->
       <div
+        span="4"
+        class="category-list-item"
+      >
+        <KButton
+          text="All Categories"
+          appearance="flat-button"
+          :appearanceOverrides="customCategoryStyles"
+          @click="$emit('filterResults', value)"
+        />
+      </div>
+      <div
         v-for="(value, category) in libraryCategoriesList"
         :key="category"
         span="4"
@@ -29,6 +40,18 @@
           appearance="flat-button"
           :appearanceOverrides="customCategoryStyles"
           iconAfter="chevronRight"
+          @click="$emit('openModal', value)"
+        />
+      </div>
+      <div
+        span="4"
+        class="category-list-item"
+      >
+        <KButton
+          text="Other"
+          appearance="flat-button"
+          :appearanceOverrides="customCategoryStyles"
+          @click="$emit('filterResults', value)"
         />
       </div>
       <ActivityButtonsGroup class="section" />
@@ -43,7 +66,7 @@
         >
           <KCheckbox
             key="adHocLearners"
-            :checked="isSelected"
+            :checked="isSelected(value)"
             :label="value"
             @change="$emit('toggleSelected', $event)"
           />
@@ -80,10 +103,6 @@
       },
     },
     computed: {
-      isSelected() {
-        return false;
-      },
-
       libraryCategoriesList() {
         let libraryCategories = {};
         Object.keys(LibraryCategories).map(key => {
@@ -123,6 +142,12 @@
         };
       },
     },
+    methods: {
+      isSelected(value) {
+        console.log(value);
+        return value === 'For beginners' ? false : true;
+      },
+    },
   };
 
 </script>
@@ -131,6 +156,7 @@
 <style lang="scss" scoped>
 
   .side-panel {
+    position: fixed;
     height: 100%;
     padding: 30px 40px !important;
     padding-bottom: 120px !important;

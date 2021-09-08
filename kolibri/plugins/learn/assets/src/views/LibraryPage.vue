@@ -6,6 +6,11 @@
     >
       <EmbeddedSidePanel
         :channels="channels"
+        @openModal="handleShowSearchModal"
+      />
+      <KGridItem
+        :layout="{ span: 3 }"
+        class="side-panel"
       />
       <KGridItem
         class="card-grid"
@@ -51,6 +56,11 @@
         </div>
       </KGridItem>
     </KGrid>
+    <CategorySearchModal
+      v-if="showSearchModal"
+      :selectedCategory="currentCategory"
+      @cancel="hideSearchModal"
+    />
   </div>
 
 </template>
@@ -69,6 +79,7 @@
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
+  import CategorySearchModal from './CategorySearchModal';
 
   // import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
@@ -86,8 +97,15 @@
       ContentCardGroupGrid,
       ChannelCardGroupGrid,
       EmbeddedSidePanel,
+      CategorySearchModal,
     },
     mixins: [commonLearnStrings, languageSwitcherMixin, responsiveWindowMixin],
+    data: function() {
+      return {
+        showSearchModal: null,
+        currentCategory: '',
+      };
+    },
     computed: {
       ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       ...mapState('topicsRoot', { channels: 'rootNodes' }),
@@ -105,6 +123,9 @@
       },
       results() {
         return 'results';
+      },
+      displayingSearchResults() {
+        return false;
       },
     },
     created() {
@@ -141,6 +162,13 @@
           params: { channel_id },
         };
       },
+      handleShowSearchModal(value) {
+        this.currentCategory = value;
+        this.showSearchModal = true;
+      },
+      hideSearchModal() {
+        this.showSearchModal = false;
+      },
     },
   };
 
@@ -151,6 +179,10 @@
 
   .card-grid {
     margin-top: 40px;
+  }
+
+  .side-panel {
+    margin-right: 8px;
   }
 
   .loader {
