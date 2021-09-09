@@ -456,7 +456,7 @@ base_option_spec = {
         },
         "SYNC_INTERVAL": {
             "type": "integer",
-            "default": 5,
+            "default": 60,
             "description": """
                 In case a SoUD connects to this server, the SoUD should use this interval to resync every user.
             """,
