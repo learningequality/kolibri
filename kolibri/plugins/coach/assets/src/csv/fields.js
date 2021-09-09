@@ -62,7 +62,7 @@ function padTime(interval) {
 export function avgScore(quiz = false) {
   return [
     {
-      name: coachStrings.$tr(quiz ? 'avgQuizScoreLabel' : 'avgScoreLabel'),
+      name: coachStrings.$tr(quiz ? 'avgScoreLabel' : 'avgScoreLabel'),
       key: 'avgScore',
       format(row) {
         if (!row.avgScore && row.avgScore !== 0) {

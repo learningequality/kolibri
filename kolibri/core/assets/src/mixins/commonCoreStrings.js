@@ -358,6 +358,19 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Column header for the table with class users. The column "Actions" contains buttons that allow admins to remove users from class.',
   },
+  classHome: {
+    message: 'Class home',
+    context:
+      'The main section where the coach can see all the information relating to a specific class..',
+  },
+  classCoachDescription: {
+    message: 'Can only instruct classes that they are assigned to',
+    context: 'Description of the "Class coach" user type.',
+  },
+  facilityCoachDescription: {
+    message: 'Can instruct all classes in your facility',
+    context: 'Description of the "Facility coach" user type.',
+  },
 
   // Learning activities
   createActivity: 'Create',
@@ -430,10 +443,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   genderOptionFemale: {
     message: 'Female',
     context: "Female is an option in the 'Gender' drop down menu on the 'Create new user' page.",
-  },
-  genderOptionOther: {
-    message: 'Other',
-    context: 'CommonCoreStrings.genderOptionOther\n\n-- CONTEXT --',
   },
   genderOptionNotSpecified: {
     message: 'Not specified',

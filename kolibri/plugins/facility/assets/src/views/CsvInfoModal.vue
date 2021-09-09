@@ -314,7 +314,6 @@
       },
       /* eslint-disable kolibri/vue-no-unused-translations */
       // stub out some extra strings
-      downloadSample: 'Download a sample CSV file',
       exampleUser: {
         message: 'Example User {number}',
         context:

@@ -34,7 +34,6 @@ describe('UserPage component', () => {
       ['learner', 'There are no learners in this facility'],
       ['coach', 'There are no coaches in this facility'],
       ['superuser', 'There are no super admins in this facility'],
-      ['coach', 'There are no coaches in this facility'],
       ['admin', 'There are no admins in this facility'],
     ];
 

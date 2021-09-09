@@ -310,7 +310,7 @@
         }
       },
       showResourcesChangedError() {
-        this.createSnackbar(this.$tr('resourcesChangedErrorSnackbarText'));
+        this.createSnackbar(this.coachString('saveLessonError'));
       },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {
@@ -438,10 +438,6 @@
         message: `Manage resources in '{lessonName}'`,
         context:
           "Title of window that displays when the user clicks on the 'manage resources' button within an individual lesson.\n\nOn this page the user can add new learning resources to the lesson.",
-      },
-      resourcesChangedErrorSnackbarText: {
-        message: 'There was a problem updating this lesson',
-        context: 'Error message.',
       },
       saveBeforeExitSnackbarText: {
         message: 'Saving your changes…',
