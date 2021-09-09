@@ -259,14 +259,16 @@ export function kolibriLogin(store, sessionPayload) {
     method: 'post',
   })
     .then(() => {
-      // OIDC redirect
-      if (sessionPayload.next) {
-        redirectBrowser(sessionPayload.next);
-      }
-      // Normal redirect on login
-      else {
-        redirectBrowser();
-      }
+      // check redirect is disabled:
+      if (!sessionPayload.disableRedirect)
+        if (sessionPayload.next) {
+          // OIDC redirect
+          redirectBrowser(sessionPayload.next);
+        }
+        // Normal redirect on login
+        else {
+          redirectBrowser();
+        }
     })
     .catch(error => {
       const errorsCaught = CatchErrors(error, [

@@ -49,11 +49,12 @@ export default {
     };
   },
   actions: {
-    logIntoImportedFacility(store, credentials) {
-      store.dispatch('kolibriLogin', {
+    logIntoSyncedFacility(store, credentials) {
+      return store.dispatch('kolibriLogin', {
         username: credentials.username,
         password: credentials.password,
         facility: credentials.facility,
+        disableRedirect: true,
       });
     },
     provisionDeviceAfterImport(store, credentials) {
