@@ -285,7 +285,7 @@
               'Playback Rate': this.$tr('playbackRate'),
               Captions: this.$tr('captions'),
               'captions off': this.$tr('captionsOff'),
-              Transcript: this.$tr('transcript'),
+              Transcript: this.coreString('transcript'),
               'Transcript off': this.$tr('transcriptOff'),
               Languages: this.$tr('languages'),
               'Volume Level': this.$tr('volumeLevel'),
@@ -515,11 +515,6 @@
       captionsOff: {
         message: 'Captions off',
         context: 'Option for the learner to turn off subtitles (captions) in the media player.',
-      },
-      transcript: {
-        message: 'Transcript',
-        context:
-          '\nRefers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
       },
       transcriptOff: {
         message: 'Transcript off',

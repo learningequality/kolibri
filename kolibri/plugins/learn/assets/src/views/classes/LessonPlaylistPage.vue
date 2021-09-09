@@ -59,7 +59,7 @@
     name: 'LessonPlaylistPage',
     metaInfo() {
       return {
-        title: this.coachString('lessonLabel') + ' ' + this.currentLesson.title,
+        title: this.coachString('lessonLabel') + ' - ' + this.currentLesson.title,
       };
     },
     components: {

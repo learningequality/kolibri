@@ -371,6 +371,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Can instruct all classes in your facility',
     context: 'Description of the "Facility coach" user type.',
   },
+  transcript: {
+    message: 'Transcript',
+    context:
+      'Refers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
+  },
 
   // Learning activities
   createActivity: 'Create',
