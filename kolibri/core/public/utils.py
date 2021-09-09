@@ -95,12 +95,17 @@ def get_device_info(version=DEVICE_INFO_VERSION):
     return info
 
 
-def find_soud_sync_sessions(**filters):
+def find_soud_sync_sessions(using=None, **filters):
     """
+    :param using: Database alias string
     :param filters: A dict of queryset filter
     :return: A SyncSession queryset
     """
-    return SyncSession.objects.filter(
+    qs = SyncSession.objects.all()
+    if using is not None:
+        qs = qs.using(using)
+
+    return qs.filter(
         active=True,
         connection_kind="network",
         profile=PROFILE_FACILITY_DATA,
@@ -109,25 +114,28 @@ def find_soud_sync_sessions(**filters):
     ).order_by("-last_activity_timestamp")
 
 
-def find_soud_sync_session_for_resume(user, base_url):
+def find_soud_sync_session_for_resume(user, base_url, using=None):
     """
     Finds the most recently active sync session for a SoUD sync
 
     :type user: FacilityUser
+    :param base_url: The server url
     :type base_url: str
+    :param using: Database alias string
     :rtype: SyncSession|None
     """
     # SoUD requests sync with server, so for resume we filter by client and matching base url
     sync_sessions = find_soud_sync_sessions(
         is_server=False,
-        connection_path__startswith=base_url,
+        connection_path__startswith=base_url.rstrip("/"),
+        using=using,
     )
 
     # ensure the certificate is for the user we're checking for
     for sync_session in sync_sessions:
         scope_params = json.loads(sync_session.client_certificate.scope_params)
         dataset_id = scope_params.get("dataset_id")
-        user_id = scope_params.get("user_id", None)
+        user_id = scope_params.get("user_id")
         if user_id == user.id and user.dataset_id == dataset_id:
             return sync_session
 

@@ -33,6 +33,7 @@ from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
+from kolibri.core.public.utils import find_soud_sync_session_for_resume
 
 
 class FacilityDatasetCertificateTestCase(TestCase):
@@ -653,6 +654,97 @@ class EcosystemSingleUserTestCase(TestCase):
             .filter(channel_id=channel_id, content_id=content_id)
             .count(),
             2,
+        )
+
+    @multiple_kolibri_servers(2)
+    def test_single_user_sync_resumption(self, servers):
+        self.maxDiff = None
+        s0_alias = servers[0].db_alias
+        s0_url = servers[0].baseurl
+        s1_alias = servers[1].db_alias
+        servers[0].manage("loaddata", "content_test")
+        servers[0].manage(
+            "generateuserdata", "--no-onboarding", "--num-content-items", "1"
+        )
+
+        facility_id = Facility.objects.using(s0_alias).get().id
+
+        learner1 = FacilityUser.objects.using(s0_alias).filter(roles__isnull=True)[0]
+
+        learner2 = FacilityUser.objects.using(s0_alias).filter(roles__isnull=True)[1]
+        learner2.set_password("syncing")
+        learner2.save(using=s0_alias)
+
+        # Test that we can single user sync with admin creds
+        servers[1].manage(
+            "sync",
+            "--baseurl",
+            s0_url,
+            "--username",
+            "superuser",
+            "--password",
+            "password",
+            "--facility",
+            facility_id,
+            "--user",
+            learner1.id,
+            "--keep-alive",
+        )
+
+        # Check that learner 1 is on server 1
+        self.assertTrue(
+            FacilityUser.objects.using(s1_alias).filter(id=learner1.id).exists()
+        )
+        # Check that learner 2 is not on server 1
+        self.assertFalse(
+            FacilityUser.objects.using(s1_alias).filter(id=learner2.id).exists()
+        )
+
+        channel_id = "725257a0570044acbd59f8cf6a68b2be"
+        content_id = "9f9438fe6b0d42dd8e913d7d04cfb2b2"
+
+        servers[1].create_model(
+            ContentSessionLog,
+            channel_id=channel_id,
+            content_id=content_id,
+            user_id=learner1.id,
+            start_timestamp=timezone.now(),
+            kind="audio",
+        )
+        servers[1].create_model(
+            ContentSummaryLog,
+            channel_id=channel_id,
+            content_id=content_id,
+            user_id=learner1.id,
+            start_timestamp=timezone.now(),
+            kind="audio",
+        )
+
+        sync_session = find_soud_sync_session_for_resume(
+            learner1, s0_url, using=s1_alias
+        )
+        self.assertIsNotNone(sync_session)
+
+        servers[1].manage(
+            "resumesync",
+            "--id",
+            sync_session.id,
+            "--baseurl",
+            s0_url,
+            "--keep-alive",
+        )
+
+        self.assertEqual(
+            ContentSessionLog.objects.using(s0_alias)
+            .filter(channel_id=channel_id, content_id=content_id)
+            .count(),
+            1,
+        )
+        self.assertEqual(
+            ContentSummaryLog.objects.using(s0_alias)
+            .filter(channel_id=channel_id, content_id=content_id)
+            .count(),
+            1,
         )
 
 
