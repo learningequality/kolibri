@@ -430,6 +430,6 @@ def queue_soud_sync_cleanup(*sync_sessions):
 
     :param sync_sessions: The sync sessions to cleanup
     """
-    ids = ",".join([sync_session.id for sync_session in sync_sessions])
+    ids = [sync_session.id for sync_session in sync_sessions]
     job = Job(call_command, "cleanupsyncs", ids=ids, expiration=0)
     return queue.enqueue(job)
