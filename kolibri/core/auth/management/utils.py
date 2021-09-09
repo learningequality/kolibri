@@ -472,8 +472,8 @@ class MorangoSyncCommand(AsyncCommand):
     TRANSFER_MESSAGE = "{records_transferred}/{records_total}, {transfer_total}"
 
     def _sync(self, sync_session_client, **options):  # noqa: C901
-        (username, no_push, no_pull, noninteractive, no_provision, keep_alive,) = (
-            options["username"],
+        username = options.get("username")
+        (no_push, no_pull, noninteractive, no_provision, keep_alive,) = (
             options["no_push"],
             options["no_pull"],
             options["noninteractive"],

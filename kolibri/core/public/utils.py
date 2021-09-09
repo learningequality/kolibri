@@ -106,7 +106,7 @@ def find_soud_sync_sessions(**filters):
         profile=PROFILE_FACILITY_DATA,
         client_certificate__scope_definition_id=ScopeDefinitions.SINGLE_USER,
         **filters
-    ).order("-last_activity_timestamp")
+    ).order_by("-last_activity_timestamp")
 
 
 def find_soud_sync_session_for_resume(user, base_url):
@@ -134,9 +134,9 @@ def find_soud_sync_session_for_resume(user, base_url):
     return None
 
 
-def peer_sync(**kwargs):
+def peer_sync(command, **kwargs):
     try:
-        call_command("sync", **kwargs)
+        call_command(command, **kwargs)
     except Exception:
         logger.error(
             "Error syncing user {} to server {}".format(
@@ -165,6 +165,7 @@ def startpeerusersync(
     command = "sync"
     common_job_args = dict(
         keep_alive=True,
+        resync_interval=resync_interval,
         job_id=hashlib.md5("{}::{}".format(server, user).encode()).hexdigest(),
         extra_metadata=prepare_sync_task(
             facility_id,
@@ -184,7 +185,11 @@ def startpeerusersync(
         command = "resumesync"
         # if resuming encounters an error, it should close the session to avoid a loop
         job_data = prepare_soud_resume_sync_job(
-            server, sync_session.id, close_on_error=True, **common_job_args
+            server,
+            sync_session.id,
+            user=user_id,
+            close_on_error=True,
+            **common_job_args
         )
 
     # if not resuming, prepare normal job
@@ -193,7 +198,7 @@ def startpeerusersync(
             server, facility_id, user_id, **common_job_args
         )
 
-    job_id = queue.enqueue(call_command, command, **job_data)
+    job_id = queue.enqueue(peer_sync, command, **job_data)
     return job_id
 
 
