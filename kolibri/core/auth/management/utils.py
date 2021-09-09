@@ -472,6 +472,11 @@ class MorangoSyncCommand(AsyncCommand):
     TRANSFER_MESSAGE = "{records_transferred}/{records_total}, {transfer_total}"
 
     def _sync(self, sync_session_client, **options):  # noqa: C901
+        """
+        :type sync_session_client: morango.sync.syncsession.SyncSessionClient
+        :param options: Command arguments
+        :return:
+        """
         username = options.get("username")
         (no_push, no_pull, noninteractive, no_provision, keep_alive,) = (
             options["no_push"],
@@ -529,8 +534,14 @@ class MorangoSyncCommand(AsyncCommand):
             logger.info("Syncing has been cancelled.")
             return
 
+        conn = sync_session_client.sync_connection
+
+        # if not keeping the sync session alive, close it!
         if not keep_alive:
-            sync_session_client.sync_connection.close()
+            conn.close_sync_session(sync_session_client.sync_session)
+
+        # close network connection
+        conn.close()
 
         if self.job:
             self.job.extra_metadata.update(sync_state=State.COMPLETED)

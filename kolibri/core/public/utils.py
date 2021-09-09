@@ -187,8 +187,7 @@ def startpeerusersync(
         job_data = prepare_soud_resume_sync_job(
             server,
             sync_session.id,
-            user=user_id,
-            close_on_error=True,
+            user=user_id,  # `peer_sync` needs user for logging and scheduling, but not `resumesync`
             **common_job_args
         )
 
@@ -213,17 +212,7 @@ def stoppeerusersync(server, user_id):
     if sync_session is None:
         return
 
-    # hack: queue the resume job, without push or pull, and without keep_alive, so it should close
-    # the sync session any which way
-    job_data = prepare_soud_resume_sync_job(
-        server,
-        sync_session.id,
-        close_on_error=True,
-        no_push=True,
-        no_pull=True,
-    )
-    job_id = queue.enqueue(call_command, "resumesync", **job_data)
-    return job_id
+    return queue_soud_sync_cleanup(sync_session)
 
 
 def begin_request_soud_sync(server, user):
