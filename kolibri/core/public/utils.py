@@ -166,7 +166,7 @@ def peer_sync(command, **kwargs):
         # cleanup session on error if we tried to resume it
         if cleanup and command == "resumesync":
             # for resume we should have id kwarg
-            queue_soud_sync_cleanup(SyncSession.objects.get(kwargs["id"]))
+            queue_soud_sync_cleanup(SyncSession.objects.get(pk=kwargs["id"]))
         # schedule a new sync
         schedule_new_sync(
             kwargs["baseurl"], kwargs["user"], interval=kwargs["resync_interval"]
