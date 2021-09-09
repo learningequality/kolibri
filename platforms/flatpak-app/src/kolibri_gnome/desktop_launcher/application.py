@@ -740,7 +740,6 @@ class ChannelApplication(Application):
             return True
         elif re.match(r"^\/(zipcontent|app|static|downloadcontent|content\/storage)\/?", url_tuple.path):
             return True
-            return True
         else:
             return False
 
