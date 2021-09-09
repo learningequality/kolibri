@@ -976,7 +976,7 @@ class FacilityTasksViewSet(BaseViewSet):
         facility_id = validate_facility(request)
         sync_args = validate_sync_task(request)
         job_data = prepare_sync_job(
-            facility_id=facility_id,
+            facility=facility_id,
             extra_metadata=prepare_sync_task(*sync_args, type="SYNCDATAPORTAL"),
         )
         job_id = facility_queue.enqueue(call_command, "sync", **job_data)
@@ -1259,7 +1259,7 @@ def prepare_peer_sync_job(baseurl, facility_id, **kwargs):
     Initializes and validates connection to peer with username and password for the sync command. If
     already initialized, the username and password do not need to be supplied
     """
-    return prepare_sync_job(facility_id, baseurl=baseurl, **kwargs)
+    return prepare_sync_job(facility=facility_id, baseurl=baseurl, **kwargs)
 
 
 def prepare_soud_sync_job(baseurl, facility_id, user_id, **kwargs):
@@ -1270,7 +1270,7 @@ def prepare_soud_sync_job(baseurl, facility_id, user_id, **kwargs):
     for a SoUD, use `prepare_peer_sync_job` with `user` keyword argument
     """
     return prepare_sync_job(
-        baseurl=baseurl, facility_id=facility_id, user=user_id, **kwargs
+        baseurl=baseurl, facility=facility_id, user=user_id, **kwargs
     )
 
 
