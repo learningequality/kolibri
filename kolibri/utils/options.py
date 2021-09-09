@@ -498,6 +498,19 @@ base_option_spec = {
             """,
         }
     },
+    "Search": {
+        "SEARCH_BACKEND": {
+            "type": "option",
+            "options": ("file", "postgres", "redis", "ram"),
+            "default": "file",
+            "description": """
+                Which backend to use for search indexes. File can generally be used when there is a persistent file system,
+                but a postgres backend is available for cases where the local file system cannot be shared between processes.
+                Selecting postgres requires that the main database backend is also postgres - the configuration from there will
+                be used for this.
+            """,
+        },
+    },
 }
 
 

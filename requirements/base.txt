@@ -30,3 +30,4 @@ Click==7.0
 ua-parser==0.10.0
 whitenoise==4.1.4
 idna==2.8
+Whoosh==2.7.4
