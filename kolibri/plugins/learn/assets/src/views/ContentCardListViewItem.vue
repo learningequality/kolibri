@@ -9,76 +9,73 @@
     ]"
     :style="{ backgroundColor: $themeTokens.surface }"
   >
-    <div class="header-bar">
-      <KLabeledIcon
-        :icon="`${kindToLearningActivity}Solid`"
-        :label="learnString(kindToLearningActivity)"
-        class="k-labeled-icon"
+
+    <div class="thumbnail">
+      <CardThumbnail
+        v-bind="{ thumbnail, kind, isMobile }"
       />
-      <img
-        :src="channelThumbnail"
-        :alt="$tr('logo', { channelTitle: channelTitle })"
-        class="channel-logo"
-      >
+      <KLinearLoader
+        class="k-linear-loader"
+        :delay="false"
+        :progress="progress"
+        type="determinate"
+        :style="{ backgroundColor: $themeTokens.fineLine }"
+      />
     </div>
-    <CardThumbnail
-      class="thumbnail"
-      v-bind="{ thumbnail, kind, isMobile }"
-    />
-    <div class="text" :style="{ color: $themeTokens.text }">
+    <span class="details" :style="{ color: $themeTokens.text }">
+      <div class="metadata-info">
+        <KLabeledIcon
+          :icon="`${kindToLearningActivity}Solid`"
+          size="mini"
+          :label="learnString(kindToLearningActivity)"
+        />
+      </div>
       <h3 class="title" dir="auto">
         <TextTruncator
           :text="title"
           :maxHeight="maxTitleHeight"
         />
       </h3>
-      <p
-        v-if="subtitle"
-        dir="auto"
-        class="subtitle"
-      >
-        {{ subtitle }}
+      <p class="text">
+        <TextTruncator
+          :text="description"
+          :maxHeight="maxDescriptionHeight"
+        />
       </p>
-      <div class="footer">
-        <KLinearLoader
-          class="k-linear-loader"
-          :delay="false"
-          :progress="progress"
-          type="determinate"
-          :style="{ backgroundColor: $themeTokens.fineLine }"
-        />
-        <KIconButton
-          icon="optionsVertical"
-          class="info-icon"
-          size="mini"
-          :color="$themePalette.grey.v_400"
-          :ariaLabel="$tr('moreOptions')"
-          :tooltip="$tr('moreOptions')"
-          @click="$emit('toggleOptions')"
-        />
-        <KIconButton
-          icon="infoPrimary"
-          class="info-icon"
-          size="mini"
-          :color="$themePalette.grey.v_400"
-          :ariaLabel="$tr('viewInformation')"
-          :tooltip="$tr('viewInformation')"
-          @click="$emit('toggleInfoPanel')"
-        />
-        <CoachContentLabel
-          v-if="isUserLoggedIn && !isLearner"
-          class="coach-content-label"
-          :value="numCoachContents"
-          :isTopic="isTopic"
-        />
-        <KButton
-          v-if="copiesCount > 1"
-          appearance="basic-link"
-          class="copies"
-          :text="$tr('copies', { num: copiesCount })"
-          @click.prevent="$emit('openCopiesModal', contentId)"
-        />
+      <div class="metadata-info">
+        <p> {{ displayCategoryAndLevelMetadata }}</p>
       </div>
+      <img
+        :src="channelThumbnail"
+        :alt="$tr('logo', { channelTitle: channelTitle })"
+        class="channel-logo"
+      >
+      <KButton
+        appearance="basic-link"
+        class="copies"
+        :text="$tr('copies', { num: copiesCount })"
+        @click.prevent="$emit('openCopiesModal', contentId)"
+      />
+    </span>
+    <div class="footer">
+      <KIconButton
+        icon="optionsVertical"
+        class="footer-icon"
+        size="mini"
+        :color="$themePalette.grey.v_400"
+        :ariaLabel="$tr('moreOptions')"
+        :tooltip="$tr('moreOptions')"
+        @click="$emit('toggleOptions')"
+      />
+      <KIconButton
+        icon="infoPrimary"
+        class="footer-icon"
+        size="mini"
+        :color="$themePalette.grey.v_400"
+        :ariaLabel="$tr('viewInformation')"
+        :tooltip="$tr('viewInformation')"
+        @click="$emit('toggleInfoPanel')"
+      />
     </div>
   </router-link>
 
@@ -87,22 +84,19 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import {
     LearningActivities,
     ContentKindsToLearningActivitiesMap,
   } from 'kolibri.coreVue.vuex.constants';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
-  import commonLearnStrings from '../commonLearnStrings';
-  import CardThumbnail from './CardThumbnail.vue';
+  import commonLearnStrings from './commonLearnStrings';
+  import CardThumbnail from './ContentCard/CardThumbnail';
 
   export default {
-    name: 'ContentCard',
+    name: 'ContentCardListViewItem',
     components: {
       CardThumbnail,
-      CoachContentLabel,
       TextTruncator,
     },
     mixins: [commonLearnStrings],
@@ -111,7 +105,7 @@
         type: String,
         required: true,
       },
-      subtitle: {
+      description: {
         type: String,
         default: null,
       },
@@ -132,16 +126,13 @@
         required: true,
         validator: validateContentNodeKind,
       },
-      isLeaf: {
-        type: Boolean,
-        required: true,
+      level: {
+        type: String,
+        default: '2',
       },
-      // ContentNode.coach_content will be `0` if not a coach content leaf node,
-      // or a topic without coach content. It will be a positive integer if a topic
-      // with coach content, and `1` if a coach content leaf node.
-      numCoachContents: {
-        type: Number,
-        default: 0,
+      category: {
+        type: String,
+        default: 'math',
       },
       progress: {
         type: Number,
@@ -170,12 +161,22 @@
       },
     },
     computed: {
-      ...mapGetters(['isLearner', 'isUserLoggedIn']),
-      isTopic() {
-        return !this.isLeaf;
-      },
       maxTitleHeight() {
         return 66;
+      },
+      maxDescriptionHeight() {
+        return 40;
+      },
+      displayCategoryAndLevelMetadata() {
+        if (this.category && this.level) {
+          return `${this.category} | ${this.level} `;
+        } else if (this.category) {
+          return this.category;
+        } else if (this.level) {
+          return this.level;
+        } else {
+          return null;
+        }
       },
       kindToLearningActivity() {
         let activity = '';
@@ -214,13 +215,9 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-  @import './card';
+  @import './ContentCard/card';
 
   $margin: 16px;
-
-  .coach-content-label {
-    display: inline-block;
-  }
 
   .card {
     @extend %dropshadow-1dp;
@@ -228,6 +225,7 @@
     position: relative;
     display: inline-block;
     width: 100%;
+    height: 256px;
     text-decoration: none;
     vertical-align: top;
     border-radius: 8px;
@@ -241,31 +239,35 @@
     }
   }
 
-  .header-bar {
-    padding: 13px 18px 0;
-    margin-bottom: 0;
-    font-size: 13px;
+  .details {
+    display: inline-block;
+    max-width: calc(100% - 320px);
+    margin: 24px;
+    vertical-align: top;
   }
 
-  .k-labeled-icon {
-    display: inline-block;
-    max-width: calc(100% - 50px);
-    height: 24px;
-    margin-bottom: 0;
-    vertical-align: top;
+  .text {
+    padding-bottom: 6px;
+    font-size: 14px;
+  }
+
+  .metadata-info {
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: #616161;
   }
 
   .channel-logo {
     display: inline-block;
-    float: right;
     height: 24px;
-    margin-bottom: 0;
+    margin: 4px;
   }
 
-  .text {
-    position: relative;
-    height: 190px;
-    padding: $margin;
+  .copies {
+    display: inline-block;
+    padding: 6px 8px;
+    font-size: 13px;
+    vertical-align: top;
   }
 
   .footer {
@@ -273,20 +275,25 @@
     right: $margin;
     bottom: $margin;
     left: $margin;
+    min-height: 30px;
     font-size: 12px;
   }
 
   .k-linear-loader {
-    display: inline-block;
-    max-width: 70%;
+    display: block;
+    width: 240px;
+    margin-top: -4px;
   }
 
-  .info-icon {
-    display: block;
-    float: right;
-  }
-  .copies {
+  .thumbnail {
     display: inline-block;
+    width: 240px;
+    height: 130px;
+    margin-left: 24px;
+  }
+
+  .footer-icon {
+    display: block;
     float: right;
   }
 

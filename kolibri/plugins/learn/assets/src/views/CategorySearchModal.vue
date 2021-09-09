@@ -107,7 +107,7 @@
         },
       };
     },
-    methods: {
+    computed: {
       displaySelectedCategories() {
         let categoryGroup = filterToCategoryNameMap[this.selectedCategory];
         if (this.selectedCategory === 'school' || this.selectedCategory === 'work') {
@@ -116,11 +116,16 @@
             let key = categoryGroup[category];
             nestedCategoryObject[key] = schoolSubcategoriesMap[category];
           });
-          this.categoryGroupIsNested = true;
+          this.updateNestedGroup(true);
           return nestedCategoryObject;
         }
-        this.categoryGroupIsNested = false;
+        this.updateNestedGroup(false);
         return categoryGroup;
+      },
+    },
+    methods: {
+      updateNestedGroup(value) {
+        this.categoryGroupIsNested = value;
       },
     },
     $trs: {

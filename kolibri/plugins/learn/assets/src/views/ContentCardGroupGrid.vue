@@ -1,7 +1,7 @@
 <template>
 
   <div class="content-grid">
-    <KFixedGrid numCols="3" gutter="24">
+    <KFixedGrid v-if="cardViewStyle === 'cards'" numCols="3" gutter="24">
       <KFixedGridItem v-for="content in contents" :key="content.id" span="1">
         <ContentCard
           class="grid-item"
@@ -15,10 +15,32 @@
           :link="genContentLink(content.id, content.is_leaf)"
           :contentId="content.content_id"
           :copiesCount="content.copies_count"
+          :channelThumbnail="channelThumbnail(content)"
+          :channelTitle="channelTitle(content)"
           @openCopiesModal="openCopiesModal"
         />
       </KFixedGridItem>
     </KFixedGrid>
+    <ContentCardListViewItem
+      v-for="content in contents"
+      v-else
+      :key="content.id"
+      :channelThumbnail="channelThumbnail(content)"
+      :channelTitle="channelTitle(content)"
+      :description="content.description"
+      class="grid-item"
+      :isMobile="windowIsSmall"
+      :title="content.title"
+      :thumbnail="content.thumbnail"
+      :kind="content.kind"
+      :isLeaf="content.is_leaf"
+      :progress="content.progress || 0"
+      :numCoachContents="content.num_coach_contents"
+      :link="genContentLink(content.id, content.is_leaf)"
+      :contentId="content.content_id"
+      :copiesCount="content.copies_count"
+      @openCopiesModal="openCopiesModal"
+    />
     <CopiesModal
       v-if="modalIsOpen"
       :uniqueId="uniqueId"
@@ -32,9 +54,11 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import ContentCard from './ContentCard';
+  import ContentCardListViewItem from './ContentCardListViewItem';
   import CopiesModal from './CopiesModal';
 
   export default {
@@ -42,12 +66,21 @@
     components: {
       ContentCard,
       CopiesModal,
+      ContentCardListViewItem,
     },
     mixins: [responsiveWindowMixin],
     props: {
       contents: {
         type: Array,
         required: true,
+      },
+      cardViewStyle: {
+        type: String,
+        require: true,
+        default: 'cards',
+        validator(value) {
+          return ['cards', 'list'].includes(value);
+        },
       },
       genContentLink: {
         type: Function,
@@ -63,11 +96,22 @@
       sharedContentId: null,
       uniqueId: null,
     }),
+    computed: {
+      ...mapState('topicsRoot', { channels: 'rootNodes' }),
+    },
     methods: {
       openCopiesModal(contentId) {
         this.sharedContentId = contentId;
         this.uniqueId = this.contents.find(content => content.content_id === contentId).id;
         this.modalIsOpen = true;
+      },
+      channelThumbnail(content) {
+        let match = this.channels.find(channel => channel.id === content.channel_id);
+        return match.thumbnail;
+      },
+      channelTitle(content) {
+        let match = this.channels.find(channel => channel.id === content.channel_id);
+        return match.title;
       },
     },
   };

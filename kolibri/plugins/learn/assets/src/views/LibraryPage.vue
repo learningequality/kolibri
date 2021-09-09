@@ -24,26 +24,28 @@
             :contents="channels"
             :genContentLink="genChannelLink"
           />
+          <div class="toggle-view-buttons">
+            <KIconButton
+              icon="menu"
+              ariaLabel="Toggle to list view"
+              :color="$themeTokens.text"
+              @click="toggleCardView('list')"
+            />
+            <KIconButton
+              icon="channel"
+              value="cards"
+              ariaLabel="Toggle to grid view"
+              :color="$themeTokens.text"
+              @click="toggleCardView('cards')"
+            />
+          </div>
           <h2>Recent</h2>
           <ContentCardGroupGrid
             v-if="popular.length"
+            :cardViewStyle="currentViewStyle"
             :genContentLink="genContentLink"
             :contents="trimmedPopular"
           />
-
-          <template v-if="nextSteps.length">
-            <ContentCardGroupGrid
-              :genContentLink="genContentLink"
-              :contents="trimmedNextSteps"
-            />
-          </template>
-
-          <template v-if="resume.length">
-            <ContentCardGroupGrid
-              :genContentLink="genContentLink"
-              :contents="trimmedResume"
-            />
-          </template>
         </div>
         <div v-else>
           <h2>{{ results }}</h2>
@@ -104,6 +106,7 @@
       return {
         showSearchModal: null,
         currentCategory: '',
+        currentViewStyle: 'card',
       };
     },
     computed: {
@@ -169,6 +172,10 @@
       hideSearchModal() {
         this.showSearchModal = false;
       },
+
+      toggleCardView(value) {
+        this.currentViewStyle = value;
+      },
     },
   };
 
@@ -187,6 +194,10 @@
 
   .loader {
     margin-top: 60px;
+  }
+
+  .toggle-view-buttons {
+    float: right;
   }
 
 </style>
