@@ -146,7 +146,7 @@
             .then(() => {
               this.loginFinished = true;
             });
-        }
+        } else this.loginFinished = true; // when importing from the admin account
       },
       redirectToChannels() {
         FinishSoUDSyncingResource.finish();
