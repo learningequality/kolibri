@@ -10,7 +10,6 @@ from ..utils import get_dataset_id
 from kolibri.core.auth.constants.morango_sync import DATA_PORTAL_SYNCING_BASE_URL
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.management.utils import get_facility
-
 from kolibri.core.auth.management.utils import get_network_connection
 from kolibri.core.auth.management.utils import is_portal_sync
 from kolibri.core.auth.management.utils import MorangoSyncCommand

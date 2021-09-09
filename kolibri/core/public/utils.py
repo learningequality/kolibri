@@ -405,13 +405,31 @@ def cleanup_server_soud_sync(device_info):
     """
     :param device_info: Client's device info
     """
-    sync_sessions = find_soud_sync_sessions(is_server=True)
+    sync_sessions = find_soud_sync_sessions(is_server=True, client_ip=device_info["ip"])
+    clean_up_sessions = []
+
     for sync_session in sync_sessions:
-        if (
-            TransferSession.objects.filter(
-                sync_session=sync_session, active=True
-            ).count()
-            == 0
-        ):
+        active_transfers = TransferSession.objects.filter(
+            sync_session=sync_session, active=True
+        )
+        # if there's still active transfer session, it could require cleanup so we'll defer that
+        # and only mark the session as inactive otherwise
+        if active_transfers.count() == 0:
             sync_session.active = False
             sync_session.save()
+        else:
+            clean_up_sessions.append(sync_session)
+
+    if clean_up_sessions:
+        queue_soud_sync_cleanup(clean_up_sessions)
+
+
+def queue_soud_sync_cleanup(*sync_sessions):
+    """
+    Targeted cleanup of active SoUD sessions
+
+    :param sync_sessions: The sync sessions to cleanup
+    """
+    ids = ",".join([sync_session.id for sync_session in sync_sessions])
+    job = Job(call_command, "cleanupsyncs", ids=ids, expiration=0)
+    return queue.enqueue(job)
