@@ -9,6 +9,7 @@ import requests
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.utils import timezone
+from morango.errors import MorangoResumeSyncError
 from morango.models import InstanceIDModel
 from morango.models import SyncSession
 from morango.models import TransferSession
@@ -143,16 +144,29 @@ def find_soud_sync_session_for_resume(user, base_url, using=None):
 
 
 def peer_sync(command, **kwargs):
+    cleanup = False
     try:
         call_command(command, **kwargs)
-    except Exception:
-        logger.error(
-            "Error syncing user {} to server {}".format(
-                kwargs["user"], kwargs["baseurl"]
+    except Exception as e:
+        cleanup = True
+        if isinstance(e, MorangoResumeSyncError):
+            logger.warning(
+                "Failed to resume sync session for user {} to server {}; queuing its cleanup".format(
+                    kwargs["user"], kwargs["baseurl"]
+                )
             )
-        )
+        else:
+            logger.error(
+                "Error syncing user {} to server {}".format(
+                    kwargs["user"], kwargs["baseurl"]
+                )
+            )
         raise
     finally:
+        # cleanup session on error if we tried to resume it
+        if cleanup and command == "resumesync":
+            # for resume we should have id kwarg
+            queue_soud_sync_cleanup(SyncSession.objects.get(kwargs["id"]))
         # schedule a new sync
         schedule_new_sync(
             kwargs["baseurl"], kwargs["user"], interval=kwargs["resync_interval"]
@@ -403,11 +417,11 @@ def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVA
     scheduler.enqueue_in(dt, job)
 
 
-def cleanup_server_soud_sync(device_info):
+def cleanup_server_soud_sync(client_ip):
     """
-    :param device_info: Client's device info
+    :param client_ip: The IP address of the client
     """
-    sync_sessions = find_soud_sync_sessions(is_server=True, client_ip=device_info["ip"])
+    sync_sessions = find_soud_sync_sessions(is_server=True, client_ip=client_ip)
     clean_up_sessions = []
 
     for sync_session in sync_sessions:

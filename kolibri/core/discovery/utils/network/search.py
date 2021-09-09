@@ -251,7 +251,7 @@ class KolibriZeroconfListener(object):
                                 )
                     elif is_soud:
                         # this means our device is not SoUD, and instance is a SoUD
-                        cleanup_server_soud_sync(instance)
+                        cleanup_server_soud_sync(instance["ip"])
 
                 del self.instances[id]
         except KeyError:
