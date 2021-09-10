@@ -1,20 +1,14 @@
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 import gi
-import sys
 import subprocess
 
 from urllib.parse import urlsplit
-from setproctitle import setproctitle
-from gi.repository import Gio, GLib
+from gi.repository import Gio
 
 from .. import config
-
-
-PROCESS_NAME = "kolibri-launcher"
 
 
 class Launcher(Gio.Application):
@@ -34,6 +28,7 @@ class Launcher(Gio.Application):
 
     def handle_uri(self, uri):
         valid_url_schemes = ("kolibri-channel", )
+
         url_tuple = urlsplit(uri)
         if url_tuple.scheme not in valid_url_schemes:
             logger.info(f"Invalid URL scheme: {uri}")
@@ -41,20 +36,3 @@ class Launcher(Gio.Application):
 
         channel_id = url_tuple.path
         subprocess.Popen(["kolibri-gnome", "--channel-id", channel_id])
-
-
-def main():
-    setproctitle(PROCESS_NAME)
-    app = Launcher()
-
-    logger.info("")
-    logger.info("***********************************")
-    logger.info("*  Kolibri Launcher Initializing  *")
-    logger.info("***********************************")
-    logger.info("")
-
-    return app.run(sys.argv)
-
-if __name__ == "__main__":
-    result = main()
-    sys.exit(result)

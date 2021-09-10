@@ -14,17 +14,27 @@ python_installation.install_sources(
     subdir: 'kolibri_gnome'
 )
 
-desktop_launcher_sources = [
-    'desktop_launcher/application.py',
-    'desktop_launcher/__init__.py',
-    'desktop_launcher/main.py',
-    'desktop_launcher/channel.py',
-    'desktop_launcher/utils.py',
+desktop_sources = [
+    'desktop/application.py',
+    'desktop/__init__.py',
+    'desktop/main.py',
+    'desktop/utils.py',
+]
+
+launcher_sources = [
+    'launcher/__init__.py',
+    'launcher/application.py',
+    'launcher/main.py',
 ]
 
 python_installation.install_sources(
-    desktop_launcher_sources,
-    subdir: 'kolibri_gnome/desktop_launcher'
+    desktop_sources,
+    subdir: 'kolibri_gnome/desktop'
+)
+
+python_installation.install_sources(
+    launcher_sources,
+    subdir: 'kolibri_gnome/launcher'
 )
 
 kolibri_daemon_sources = [
