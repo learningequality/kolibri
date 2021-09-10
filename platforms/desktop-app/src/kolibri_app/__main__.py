@@ -1,5 +1,8 @@
 import datetime
-import multiprocessing
+import os
+import sys
+
+from multiprocessing import freeze_support
 
 from kolibri_app.application import KolibriApp
 from kolibri_app.constants import WINDOWS
@@ -7,9 +10,6 @@ from kolibri_app.logger import logging
 
 
 def main():
-    # This call fixes some issues with using multiprocessing when packaged as an app. (e.g. fork can start the app
-    # multiple times)
-    multiprocessing.freeze_support()
     if WINDOWS:
         import winreg
         root = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
@@ -25,4 +25,7 @@ def main():
 
 
 if __name__ == "__main__":
+    # This call fixes some issues with using multiprocessing when packaged as an app. (e.g. fork can start the app
+    # multiple times)
+    freeze_support()
     main()

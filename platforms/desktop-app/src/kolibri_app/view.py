@@ -55,9 +55,6 @@ class KolibriView(object):
 
         backend = html2.WebViewBackendDefault
 
-        if WINDOWS and html2.WebView.IsBackendAvailable(html2.WebViewBackendEdge):
-            backend = html2.WebViewBackendEdge
-
         self.webview = html2.WebView.New(self.view, backend=backend)
         self.webview.Bind(html2.EVT_WEBVIEW_NAVIGATING, self.OnBeforeLoad)
         self.webview.Bind(html2.EVT_WEBVIEW_LOADED, self.OnLoadComplete)

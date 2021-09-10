@@ -2,8 +2,6 @@ import json
 import os
 import webbrowser
 
-from importlib.resources import files
-
 from threading import Thread
 
 import wx
@@ -17,8 +15,6 @@ from kolibri.utils.server import KolibriProcessBus
 
 
 from kolibri_app.constants import APP_NAME
-from kolibri_app.i18n import _
-from kolibri_app.i18n import locale_info
 from kolibri_app.logger import logging
 from kolibri_app.view import KolibriView
 

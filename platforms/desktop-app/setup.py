@@ -1,6 +1,8 @@
-from setuptools import find_packages, setup
+import sys
+from setuptools import setup
 
-version = '0.1.2'
+
+version = '0.3.0'
 
 setup(
     name='kolibri-app',
@@ -9,13 +11,10 @@ setup(
     author='Learning Equality',
     author_email='dev@learningequality.org',
     packages=[str("kolibri_app")],  # https://github.com/pypa/setuptools/pull/597
-    package_dir={"kolibri_app": 'src/kolibri_app'},
+    package_dir={"": 'src'},
+    include_package_data=True,
+    zip_safe=True,
     license='MIT',
     install_requires=['wxPython==4.1.1'],
-    # test_suite = 'your.module.tests',
-    entry_points={
-        'console_scripts': [
-            'kapew = kapew:main'
-        ]
-    }
+    setup_requires=['PyInstaller==4.5.1'] + ["dmgbuild==1.5.2" if sys.platform == 'darwin' else []],
 )

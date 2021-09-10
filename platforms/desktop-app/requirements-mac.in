@@ -1,3 +1,0 @@
--r requirements.in
-py2app==0.14
-wxPython==4.0.6

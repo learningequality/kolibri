@@ -18,22 +18,13 @@ jobs:
       with:
         python-version: 3.9
     - name: Download file
-      run: |
-        mkdir dist
-        wget -O dist/kolibri.whl "${{ github.event.inputs.whlurl }}"
+      run: make download-whl 
     - name: Run the build
       run: |
-        unzip -q "dist/kolibri*.whl" "kolibri/*" -x "kolibri/dist/cext*" -d src/
-        rm -rf ./src/kolibri/dist/enum
-        pip3 install -r requirements-mac.txt
-        export PYTHONPATH=$PYTHONPATH:$PWD/src/kolibri/dist
-        mkdir -p logs
-        export LIBPYTHON_FOLDER="$(python3 -c 'from distutils.sysconfig import get_config_var; print(get_config_var("LIBDIR"))')"
-        ln -s $LIBPYTHON_FOLDER/libpython3.9m.dylib $LIBPYTHON_FOLDER/libpython3.9.dylib
-        python3 i18n.py
-        python3 kapew.py build
-        python3 kapew.py package
+        make get-whl whl=${{ github.event.inputs.whlurl }}
+        make build-mac-app
+        make build-dmg
     - uses: actions/upload-artifact@v2
       with:
         name: dmg-files
-        path: package/osx/kolibri*.dmg
+        path: dist/*.dmg
