@@ -65,6 +65,7 @@
     data() {
       return {
         showInfoModal: false,
+        exportPage: null,
       };
     },
     computed: {
@@ -75,20 +76,18 @@
     },
     watch: {
       exportUsersStatus(val) {
-        if (val == UsersExportStatuses.FINISHED) {
-          window.open(
-            urls['kolibri:kolibri.plugins.facility:download_csv_file'](
-              this.exportUsersFilename,
-              this.$store.getters.activeFacilityId
-            ),
-            '_blank'
-          );
+        if (val === UsersExportStatuses.FINISHED) {
+          this.exportPage.location.href = urls[
+            'kolibri:kolibri.plugins.facility:download_csv_file'
+          ](this.exportUsersFilename, this.$store.getters.activeFacilityId);
         }
       },
     },
     methods: {
       ...mapActions('manageCSV', ['startExportUsers']),
       exportCsv() {
+        this.exportPage = window.open('', '_blank');
+        this.exportPage.document.write('Loading...');
         this.startExportUsers();
       },
     },
