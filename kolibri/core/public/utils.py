@@ -145,11 +145,14 @@ def find_soud_sync_session_for_resume(user, base_url, using=None):
 
 def peer_sync(command, **kwargs):
     cleanup = False
+    resync_interval = kwargs["resync_interval"]
     try:
         call_command(command, **kwargs)
     except Exception as e:
         cleanup = True
         if isinstance(e, MorangoResumeSyncError):
+            # override to reschedule a sync sooner in this case
+            resync_interval = 5
             logger.warning(
                 "Failed to resume sync session for user {} to server {}; queuing its cleanup".format(
                     kwargs["user"], kwargs["baseurl"]
@@ -161,16 +164,14 @@ def peer_sync(command, **kwargs):
                     kwargs["user"], kwargs["baseurl"]
                 )
             )
-        raise
+            raise
     finally:
         # cleanup session on error if we tried to resume it
         if cleanup and command == "resumesync":
             # for resume we should have id kwarg
             queue_soud_sync_cleanup(SyncSession.objects.get(pk=kwargs["id"]))
         # schedule a new sync
-        schedule_new_sync(
-            kwargs["baseurl"], kwargs["user"], interval=kwargs["resync_interval"]
-        )
+        schedule_new_sync(kwargs["baseurl"], kwargs["user"], interval=resync_interval)
 
 
 def startpeerusersync(
