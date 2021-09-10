@@ -1,16 +1,16 @@
 application = "dist/Kolibri.app"
 appname = "Kolibri"
 
-files = [ application ]
+files = [application]
 
 window_rect = ((20, 100000), (700, 300))
 
 icon_locations = {
-    appname:        (140, 120),
-    'Applications': (500, 120),
+    appname: (140, 120),
+    "Applications": (500, 120),
 }
 
 # Symlinks to create
-symlinks = { 'Applications': '/Applications' }
+symlinks = {"Applications": "/Applications"}
 
 background = "icons/Layout.png"

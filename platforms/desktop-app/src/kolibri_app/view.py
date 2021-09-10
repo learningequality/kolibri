@@ -1,20 +1,17 @@
 import os
 import subprocess
 import webbrowser
+from importlib.resources import files
 from io import BytesIO
 
 import wx
-
-from wx import html2
-
-from importlib.resources import files
-
-from kolibri_app.i18n import _
-from kolibri_app.i18n import locale_info
 from kolibri_app.constants import APP_NAME
 from kolibri_app.constants import LINUX
 from kolibri_app.constants import MAC
 from kolibri_app.constants import WINDOWS
+from kolibri_app.i18n import _
+from kolibri_app.i18n import locale_info
+from wx import html2
 
 
 html2.WebView.MSWSetEmulationLevel(html2.WEBVIEWIE_EMU_IE11)
@@ -24,21 +21,23 @@ LOADER_PAGE_TEMPLATE = "_load-{}.html"
 
 class LoadingHandler(wx.html2.WebViewHandler):
     def __init__(self):
-        wx.html2.WebViewHandler.__init__(self, 'loading')
-        lang_id = locale_info['language']
-        asset_files = files('kolibri_app') / "assets"
+        wx.html2.WebViewHandler.__init__(self, "loading")
+        lang_id = locale_info["language"]
+        asset_files = files("kolibri_app") / "assets"
         loader_page = asset_files / LOADER_PAGE_TEMPLATE.format(lang_id)
         if not loader_page.is_file():
-            lang_id = lang_id.split('-')[0]
+            lang_id = lang_id.split("-")[0]
             loader_page = asset_files / LOADER_PAGE_TEMPLATE.format(lang_id)
         if not loader_page.is_file():
             # if we can't find anything in the given language, default to the English loading page.
-            loader_page = asset_files / LOADER_PAGE_TEMPLATE.format('en_US')
-        with loader_page.open('rb') as f:
+            loader_page = asset_files / LOADER_PAGE_TEMPLATE.format("en_US")
+        with loader_page.open("rb") as f:
             self.loader_page = f.read()
 
     def GetFile(self, uri):
-        fsfile = wx.FSFile(BytesIO(self.loader_page), uri, 'text/html', "", wx.DateTime.Now())
+        fsfile = wx.FSFile(
+            BytesIO(self.loader_page), uri, "text/html", "", wx.DateTime.Now()
+        )
         return fsfile
 
 
@@ -60,7 +59,7 @@ class KolibriView(object):
         self.webview.Bind(html2.EVT_WEBVIEW_LOADED, self.OnLoadComplete)
 
         self.webview.RegisterHandler(LoadingHandler())
-        
+
         if url is None:
             # Set loading screen
             url = LOADER_URL
@@ -76,45 +75,100 @@ class KolibriView(object):
         menu_bar = wx.MenuBar()
 
         file_menu = wx.Menu()
-        self.add_menu_item(file_menu, _('New Window'), handler=self.on_new_window, item_id=wx.ID_NEW)
-        self.add_menu_item(file_menu, _('Close Window'), handler=self.on_close_window, item_id=wx.ID_CLOSE)
+        self.add_menu_item(
+            file_menu, _("New Window"), handler=self.on_new_window, item_id=wx.ID_NEW
+        )
+        self.add_menu_item(
+            file_menu,
+            _("Close Window"),
+            handler=self.on_close_window,
+            item_id=wx.ID_CLOSE,
+        )
         file_menu.AppendSeparator()
-        self.add_menu_item(file_menu, _('Open Kolibri Home Folder'), handler=self.on_open_kolibri_home, item_id=wx.ID_OPEN)
+        self.add_menu_item(
+            file_menu,
+            _("Open Kolibri Home Folder"),
+            handler=self.on_open_kolibri_home,
+            item_id=wx.ID_OPEN,
+        )
 
-        menu_bar.Append(file_menu, _('File'))
+        menu_bar.Append(file_menu, _("File"))
 
         edit_menu = wx.Menu()
         # FIXME: Remove these once the native menu handlers are restored
-        self.add_menu_item(edit_menu, _('Undo\tCtrl+Z'), handler=self.on_undo, item_id=wx.ID_UNDO)
-        self.add_menu_item(edit_menu, _('Redo\tCtrl+Shift+Z'), handler=self.on_redo, item_id=wx.ID_REDO)
+        self.add_menu_item(
+            edit_menu, _("Undo\tCtrl+Z"), handler=self.on_undo, item_id=wx.ID_UNDO
+        )
+        self.add_menu_item(
+            edit_menu, _("Redo\tCtrl+Shift+Z"), handler=self.on_redo, item_id=wx.ID_REDO
+        )
         edit_menu.AppendSeparator()
-        self.add_menu_item(edit_menu, _('Cut\tCtrl+X'), item_id=wx.ID_CUT)
-        self.add_menu_item(edit_menu, _('Copy\tCtrl+C'), item_id=wx.ID_COPY)
-        self.add_menu_item(edit_menu, _('Paste\tCtrl+V'), item_id=wx.ID_PASTE)
-        self.add_menu_item(edit_menu, _('Select All\tCtrl+A'), item_id=wx.ID_SELECTALL)
-        menu_bar.Append(edit_menu, _('Edit'))
+        self.add_menu_item(edit_menu, _("Cut\tCtrl+X"), item_id=wx.ID_CUT)
+        self.add_menu_item(edit_menu, _("Copy\tCtrl+C"), item_id=wx.ID_COPY)
+        self.add_menu_item(edit_menu, _("Paste\tCtrl+V"), item_id=wx.ID_PASTE)
+        self.add_menu_item(edit_menu, _("Select All\tCtrl+A"), item_id=wx.ID_SELECTALL)
+        menu_bar.Append(edit_menu, _("Edit"))
 
         view_menu = wx.Menu()
-        self.add_menu_item(view_menu, _('Reload'), handler=self.on_reload, item_id=wx.ID_REFRESH)
-        self.add_menu_item(view_menu, _('Actual Size\tCtrl+0'), handler=self.on_actual_size, item_id=wx.ID_ZOOM_100)
-        self.add_menu_item(view_menu, _('Zoom In\tCtrl++'), handler=self.on_zoom_in, item_id=wx.ID_ZOOM_IN)
-        self.add_menu_item(view_menu, _('Zoom Out\tCtrl+-'), handler=self.on_zoom_out, item_id=wx.ID_ZOOM_OUT)
+        self.add_menu_item(
+            view_menu, _("Reload"), handler=self.on_reload, item_id=wx.ID_REFRESH
+        )
+        self.add_menu_item(
+            view_menu,
+            _("Actual Size\tCtrl+0"),
+            handler=self.on_actual_size,
+            item_id=wx.ID_ZOOM_100,
+        )
+        self.add_menu_item(
+            view_menu,
+            _("Zoom In\tCtrl++"),
+            handler=self.on_zoom_in,
+            item_id=wx.ID_ZOOM_IN,
+        )
+        self.add_menu_item(
+            view_menu,
+            _("Zoom Out\tCtrl+-"),
+            handler=self.on_zoom_out,
+            item_id=wx.ID_ZOOM_OUT,
+        )
         view_menu.AppendSeparator()
-        self.add_menu_item(view_menu, _('Open in Browser'), handler=self.on_open_in_browser)
-        menu_bar.Append(view_menu, _('View'))
+        self.add_menu_item(
+            view_menu, _("Open in Browser"), handler=self.on_open_in_browser
+        )
+        menu_bar.Append(view_menu, _("View"))
 
         history_menu = wx.Menu()
-        self.add_menu_item(history_menu, _('Back\tCtrl+['), handler=self.on_back, item_id=wx.ID_BACKWARD)
-        self.add_menu_item(history_menu, _('Forward\tCtrl+]'), handler=self.on_forward, item_id=wx.ID_FORWARD)
-        menu_bar.Append(history_menu, _('History'))
+        self.add_menu_item(
+            history_menu,
+            _("Back\tCtrl+["),
+            handler=self.on_back,
+            item_id=wx.ID_BACKWARD,
+        )
+        self.add_menu_item(
+            history_menu,
+            _("Forward\tCtrl+]"),
+            handler=self.on_forward,
+            item_id=wx.ID_FORWARD,
+        )
+        menu_bar.Append(history_menu, _("History"))
 
         help_menu = wx.Menu()
-        self.add_menu_item(help_menu, _('Documentation'), handler=self.on_documentation, item_id=wx.ID_HELP)
-        self.add_menu_item(help_menu, _('Community Forums'), handler=self.on_forums, item_id=wx.ID_HELP_SEARCH)
-        menu_bar.Append(help_menu, _('Help'))
+        self.add_menu_item(
+            help_menu,
+            _("Documentation"),
+            handler=self.on_documentation,
+            item_id=wx.ID_HELP,
+        )
+        self.add_menu_item(
+            help_menu,
+            _("Community Forums"),
+            handler=self.on_forums,
+            item_id=wx.ID_HELP_SEARCH,
+        )
+        menu_bar.Append(help_menu, _("Help"))
 
         self.view.SetMenuBar(menu_bar)
-    
+
     def add_menu_item(self, menu, title, handler=None, item_id=None):
         item_id = item_id or wx.NewId()
         item = menu.Append(item_id, title)
@@ -141,7 +195,9 @@ class KolibriView(object):
         if zoom / 4 < self.min_zoom or zoom / 4 > self.max_zoom:
             return
         self.current_zoom = zoom
-        self.evaluate_javascript('document.documentElement.style.zoom = {}'.format(zoom / 4))
+        self.evaluate_javascript(
+            "document.documentElement.style.zoom = {}".format(zoom / 4)
+        )
 
     def get_url(self):
         return self.webview.GetCurrentURL()
@@ -150,7 +206,7 @@ class KolibriView(object):
         self.webview.ClearHistory()
 
     def evaluate_javascript(self, js):
-        js = js.encode('utf8')
+        js = js.encode("utf8")
         wx.CallAfter(self.webview.RunScript, js)
 
     def OnClose(self, event):
@@ -176,12 +232,12 @@ class KolibriView(object):
     def OnLoadStateChanged(self, event):
         if event.GetState() == wx.webkit.WEBKIT_STATE_STOP:
             return self.OnLoadComplete(event)
-    
+
     def on_documentation(self, event):
-        webbrowser.open('https://kolibri.readthedocs.io/en/latest/')
+        webbrowser.open("https://kolibri.readthedocs.io/en/latest/")
 
     def on_forums(self, event):
-        webbrowser.open('https://community.learningequality.org/')
+        webbrowser.open("https://community.learningequality.org/")
 
     def on_new_window(self, event):
         self.app.create_kolibri_window(url=self.app.kolibri_origin)
@@ -194,11 +250,11 @@ class KolibriView(object):
 
     def on_open_kolibri_home(self, event):
         if WINDOWS:
-            os.startfile(os.environ['KOLIBRI_HOME'])
+            os.startfile(os.environ["KOLIBRI_HOME"])
         elif MAC:
-            subprocess.call(['open', os.environ['KOLIBRI_HOME']])
+            subprocess.call(["open", os.environ["KOLIBRI_HOME"]])
         elif LINUX:
-            subprocess.call(['xdg-open', os.environ['KOLIBRI_HOME']])
+            subprocess.call(["xdg-open", os.environ["KOLIBRI_HOME"]])
 
     def on_back(self, event):
         self.webview.GoBack()
@@ -208,10 +264,10 @@ class KolibriView(object):
 
     def on_reload(self, event):
         self.webview.Reload()
-    
+
     def on_undo(self, event):
         self.webview.Undo()
-    
+
     def on_redo(self, event):
         self.webview.Redo()
 

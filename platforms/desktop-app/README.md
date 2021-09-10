@@ -23,7 +23,7 @@ to install the package. Using pyenv, homebrew, etc. **will not work**. This is
 because they are configured differently from python.org builds.
 
 Run pip to download and install dependencies for the platform you want to target:
- 
+
 `pip install .`
 
 Builds must be run natively on the platform you're targeting.
@@ -50,7 +50,7 @@ Outputs appear in the `dist` folder.
 
 `make codesign-mac`
 
-You will need to set the proper credentials for signing via environment variables. 
+You will need to set the proper credentials for signing via environment variables.
 The script will explain what environment variables you need to set if they aren't set.
 
 On Mac, after this process, you need to wait for an email from Apple explaining that

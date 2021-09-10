@@ -2,8 +2,8 @@ import sys
 
 APP_NAME = "Kolibri"
 
-LINUX = sys.platform.startswith('linux')
+LINUX = sys.platform.startswith("linux")
 
-MAC = sys.platform.startswith('darwin')
+MAC = sys.platform.startswith("darwin")
 
-WINDOWS = sys.platform.startswith('win32')
+WINDOWS = sys.platform.startswith("win32")

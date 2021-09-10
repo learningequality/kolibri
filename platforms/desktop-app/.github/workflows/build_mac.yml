@@ -18,7 +18,7 @@ jobs:
       with:
         python-version: 3.9
     - name: Download file
-      run: make download-whl 
+      run: make download-whl
     - name: Run the build
       run: |
         make get-whl whl=${{ github.event.inputs.whlurl }}

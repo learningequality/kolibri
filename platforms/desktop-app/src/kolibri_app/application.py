@@ -1,22 +1,18 @@
 import json
 import os
 import webbrowser
-
 from threading import Thread
 
 import wx
-
-from magicbus.plugins import SimplePlugin
 from kolibri.main import initialize
 from kolibri.plugins.app.utils import interface
 from kolibri.plugins.app.utils import SHARE_FILE
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.server import KolibriProcessBus
-
-
 from kolibri_app.constants import APP_NAME
 from kolibri_app.logger import logging
 from kolibri_app.view import KolibriView
+from magicbus.plugins import SimplePlugin
 
 
 share_file = None
@@ -60,7 +56,7 @@ class KolibriApp(wx.App):
         self.start_server()
 
         return True
-    
+
     @property
     def view(self):
         if self.windows:
@@ -75,7 +71,7 @@ class KolibriApp(wx.App):
         self.server_thread = Thread(target=self.start_kolibri_server)
         self.server_thread.daemon = True
         self.server_thread.start()
-    
+
     def start_kolibri_server(self):
         initialize()
 
@@ -85,7 +81,7 @@ class KolibriApp(wx.App):
         app_plugin = AppPlugin(self.kolibri_server, self.load_kolibri)
         app_plugin.subscribe()
         self.kolibri_server.run()
-    
+
     def shutdown(self):
         if self.kolibri_server is not None:
             self.kolibri_server.transition("EXITED")
@@ -98,35 +94,44 @@ class KolibriApp(wx.App):
         return window
 
     def should_load_url(self, url):
-        if url is not None and url.startswith('http') and self.kolibri_origin is None and not url.startswith(self.kolibri_origin):
+        if (
+            url is not None
+            and url.startswith("http")
+            and self.kolibri_origin is None
+            and not url.startswith(self.kolibri_origin)
+        ):
             webbrowser.open(url)
             return False
 
         return True
-    
+
     def get_state(self):
         try:
-            with open(os.path.join(KOLIBRI_HOME, STATE_FILE), "r", encoding="utf-8") as f:
+            with open(
+                os.path.join(KOLIBRI_HOME, STATE_FILE), "r", encoding="utf-8"
+            ) as f:
                 return json.load(f)
         except (IOError, PermissionError, ValueError):
             return {}
-    
+
     def save_state(self, view=None):
         try:
             state = {}
             if view:
                 state[URL] = view.get_url()
-            with open(os.path.join(KOLIBRI_HOME, STATE_FILE), "w", encoding="utf-8") as f:
+            with open(
+                os.path.join(KOLIBRI_HOME, STATE_FILE), "w", encoding="utf-8"
+            ) as f:
                 return json.dump(state, f)
         except (IOError, ValueError):
             return {}
 
-    def load_kolibri(self, listen_port):       
+    def load_kolibri(self, listen_port):
         self.kolibri_origin = "http://localhost:{}".format(listen_port)
 
         # Check for saved URL, which exists when the app was put to sleep last time it ran
         saved_state = self.get_state()
-        logging.debug('Persisted State: {}'.format(saved_state))
+        logging.debug("Persisted State: {}".format(saved_state))
 
         # activate app mode
         next_url = None
