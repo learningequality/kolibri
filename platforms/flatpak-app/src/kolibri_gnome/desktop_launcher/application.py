@@ -732,14 +732,28 @@ class ChannelApplication(Application):
         self.open_in_browser(url)
 
     def __is_url_in_channel(self, url):
+        # Allow the user to navigate to login and account management pages, as
+        # well as URLs related to file storage and general-purpose APIs, but not
+        # to other channels or the channel listing page.
+
+        # TODO: This is costly and complicated. Instead, we should be able to
+        #       ask the Kolibri web frontend to avoid showing links outside of
+        #       the channel, and any such links in a new window.
+
         url_tuple = urlsplit(url)
 
-        if re.match(r"^\/(?P<lang>[\w\-]+\/)?learn\/?", url_tuple.path):
+        if re.match(
+            r"^\/(zipcontent|app|static|downloadcontent|content\/storage)\/?",
+            url_tuple.path,
+        ):
+            return True
+        elif re.match(
+            r"^\/(?P<lang>[\w\-]+\/)?(user|logout|redirectuser|learn\/app)\/?",
+            url_tuple.path,
+        ):
+            return True
+        elif re.match(r"^\/(?P<lang>[\w\-]+\/)?learn\/?", url_tuple.path):
             return self.__is_learn_fragment_in_channel(url_tuple.fragment)
-        elif re.match(r"^\/(?P<lang>[\w\-]+\/)?(user|logout|redirectuser)\/?", url_tuple.path):
-            return True
-        elif re.match(r"^\/(zipcontent|app|static|downloadcontent|content\/storage)\/?", url_tuple.path):
-            return True
         else:
             return False
 
