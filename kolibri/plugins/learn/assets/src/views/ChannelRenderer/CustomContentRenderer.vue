@@ -118,15 +118,17 @@
           getParams: {
             ids: options.ids,
             parent: options.parent === 'self' ? this.topic.id : options.parent,
+            max_results: options.maxResults ? options.maxResults : 50,
+            cursor: options.cursor,
           },
         })
           .then(contentNodes => {
             return createReturnMsg({
               message,
               data: {
-                page: options.page ? options.page : 1,
-                pageSize: options.pageSize ? options.pageSize : 50,
-                results: contentNodes,
+                maxResults: options.maxResults ? options.maxResults : 50,
+                more: contentNodes.more,
+                results: contentNodes.results,
               },
             });
           })
@@ -153,20 +155,23 @@
 
       fetchSearchResult(message) {
         let searchPromise;
-        const { keyword } = message.options;
+        const { options } = message;
+        const { keyword } = options;
         if (!keyword) {
           searchPromise = Promise.resolve({
-            page: 0,
-            pageSize: 0,
+            maxResults: 0,
             results: [],
           });
         } else {
           searchPromise = ContentNodeSearchResource.fetchCollection({
-            getParams: { search: keyword },
+            getParams: {
+              search: keyword,
+              max_results: options.maxResults ? options.maxResults : 50,
+            },
           }).then(searchResults => {
             return {
-              page: 0,
-              pageSize: searchResults.total_results,
+              maxResults: options.maxResults ? options.maxResults : 50,
+              more: searchResults.more,
               results: searchResults.results,
             };
           });

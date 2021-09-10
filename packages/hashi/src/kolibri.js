@@ -41,10 +41,16 @@ import { events, nameSpace, DataTypes } from './hashiBase';
  */
 
 /**
+ * Type definition for pagination more object
+ * @typedef {Object} MoreObject
+ * @property {string} cursor - the cursor object to request more
+ */
+
+/**
  * Type definition for pagination object
  * @typedef {Object} PageResult
- * @property {number} page - the page that this pagination object represents
- * @property {number} pageSize - the page size for this pagination object
+ * @property {MoreObject} more - the context object to query more
+ * @property {number} maxResults - the maximum number of nodes per request
  * @property {ContentNode[]} results - the array of ContentNodes for this page
  */
 
@@ -92,8 +98,8 @@ export default class Kolibri extends BaseShim {
        * @param {Object} options - The different options to filter by
        * @param {string=} options.parent - id of the parent node to filter by, or 'self'
        * @param {string[]} options.ids - an array of ids to filter by
-       * @param {number} [options.page=1] - which page to return from the result set
-       * @param {number} [options.pageSize=50] - the page size for pagination
+       * @param {number} [options.maxResults=50] - the maximum number of nodes per request
+       * @param {string} options.cursor - the cursor pagination
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       getContentByFilter(options) {
@@ -121,9 +127,8 @@ export default class Kolibri extends BaseShim {
        * an array of matching metadata
        * @param {Object} options - The different options to search by
        * @param {string=} options.keyword - search term for key word search
-       * @param {string=} options.under - id of topic to search under, or 'self'
-       * @param {number} [options.page=1] - which page to return from the result set
-       * @param {number} [options.pageSize=50] - the page size for pagination
+        @param {string=} options.under - id of topic to search under, or 'self'
+       * @param {number} [options.maxResults=50] - the maximum number of nodes per request
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       searchContent(options) {
