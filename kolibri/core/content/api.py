@@ -157,6 +157,10 @@ class ContentNodeFilter(IdFilter):
     parent__isnull = BooleanFilter(field_name="parent", lookup_expr="isnull")
     include_coach_content = BooleanFilter(method="filter_include_coach_content")
     contains_quiz = CharFilter(method="filter_contains_quiz")
+    # Use a CharFilter instead a BooleanFilter to be able to avoid cache using
+    # different values
+    random = CharFilter(method="filter_random")
+    only_content = BooleanFilter(method="filter_only_content")
 
     class Meta:
         model = models.ContentNode
@@ -175,6 +179,26 @@ class ContentNodeFilter(IdFilter):
             "kind_in",
             "contains_quiz",
         ]
+
+    def filter_only_content(self, queryset, name, value):
+        """
+        Return only content nodes
+
+        :param queryset: all content nodes for this channel
+        :return: content nodes without topics
+        """
+        return queryset.exclude(kind="topic")
+
+    def filter_random(self, queryset, name, value):
+        """
+        Return the content randomly ordered
+
+        :param queryset: all content nodes for this channel
+        :param value: a random value, it's not used in the query but it's used
+                      by the cache system, so same value could return same order
+        :return: content nodes randomly ordered
+        """
+        return queryset.order_by("?")
 
     def filter_kind(self, queryset, name, value):
         """

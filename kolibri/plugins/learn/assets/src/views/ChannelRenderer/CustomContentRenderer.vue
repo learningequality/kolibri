@@ -117,6 +117,11 @@
           getParams: {
             ids: options.ids,
             parent: options.parent === 'self' ? this.topic.id : options.parent,
+            channel_id: this.topic.id,
+            page: options.page ? options.page : 1,
+            page_size: options.pageSize ? options.pageSize : 50,
+            only_content: options.only_content,
+            random: options.random,
           },
         })
           .then(contentNodes => {
@@ -125,7 +130,7 @@
               data: {
                 page: options.page ? options.page : 1,
                 pageSize: options.pageSize ? options.pageSize : 50,
-                results: contentNodes,
+                results: contentNodes.results,
               },
             });
           })

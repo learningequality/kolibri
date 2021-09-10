@@ -94,6 +94,9 @@ export default class Kolibri extends BaseShim {
        * @param {string[]} options.ids - an array of ids to filter by
        * @param {number} [options.page=1] - which page to return from the result set
        * @param {number} [options.pageSize=50] - the page size for pagination
+       * @param {string} options.random - set to a random string to get the result randomly ordered
+       * @param {boolean} options.only_content - set to true to skip topics
+       * @param {number} options.limit - set the maximum number of nodes in the response
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       getContentByFilter(options) {
