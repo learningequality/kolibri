@@ -29,10 +29,15 @@
   import { now } from 'kolibri.utils.serverClock';
   import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { events, MessageStatuses } from 'hashi/src/hashiBase';
   import { validateTheme } from '../../utils/themes';
   import genContentLink from '../../utils/genContentLink';
   import ContentModal from './ContentModal';
+
+  const allButTopicTypes = Object.values(ContentNodeKinds).filter(
+    v => v !== ContentNodeKinds.TOPIC
+  );
 
   function createReturnMsg({ message, data, err }) {
     // Infer status from data or err
@@ -114,6 +119,13 @@
       // called in mainClient.js
       fetchContentCollection(message) {
         const { options } = message;
+        const { onlyContent, onlyTopics } = options;
+
+        if (onlyContent && onlyTopics) {
+          const err = new Error('onlyContent and onlyTopics can not be used at the same time');
+          return createReturnMsg({ message, err });
+        }
+
         return ContentNodeResource.fetchCollection({
           getParams: {
             ids: options.ids,
@@ -121,7 +133,8 @@
             channel_id: this.topic.channel_id,
             max_results: options.maxResults ? options.maxResults : 50,
             cursor: options.cursor,
-            kind: options.onlyTopics ? 'topic' : undefined,
+            kind: onlyTopics ? ContentNodeKinds.TOPIC : undefined,
+            kind_in: onlyContent ? allButTopicTypes : undefined,
           },
         })
           .then(contentNodes => {

@@ -101,6 +101,7 @@ export default class Kolibri extends BaseShim {
        * @param {number} [options.maxResults=50] - the maximum number of nodes per request
        * @param {string} options.cursor - the cursor pagination
        * @param {boolean} options.onlyTopics - set to true to query only topic nodes
+       * @param {boolean} options.onlyContent - set to true to query only content nodes
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       getContentByFilter(options) {
