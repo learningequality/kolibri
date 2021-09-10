@@ -87,7 +87,7 @@
   "SearchPage.noResultsMsg": "Walaa jawaabu ngam '{searchTerm}'",
   "SearchPage.noSearch": "Winndu nder akootiyel dow ngam ɗaɓɓutugo",
   "SearchPage.showingResultsFor": "{totalResults, plural, one {{totalResults} jawaabu} other {{totalResults} jawaabuuji}} ngam '{searchTerm}'",
-  "SkipNavigationLink.skipToMainContentAction": "",
+  "SkipNavigationLink.skipToMainContentAction": "Yahan ko ɓuri nafugo",
   "TechnicalTextBlock.copiedToClipboardConfirmation": "Resii misaalu to alloha kompiita",
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Resu misaalu to alloha kompiita",
   "TopicsPage.documentTitleForChannel": "Cuuɗi ɗereeji - { channelTitle }",

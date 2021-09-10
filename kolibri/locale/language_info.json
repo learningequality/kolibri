@@ -98,6 +98,13 @@
     "default_font": "NotoSansDevanagari"
   },
   {
+    "crowdin_code": "id",
+    "intl_code": "id",
+    "language_name": "Bahasa Indonesia",
+    "english_name": "Indonesian",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "it",
     "intl_code": "it",
     "language_name": "Italiano",
