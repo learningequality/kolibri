@@ -118,6 +118,7 @@
           getParams: {
             ids: options.ids,
             parent: options.parent === 'self' ? this.topic.id : options.parent,
+            channel_id: this.topic.channel_id,
             max_results: options.maxResults ? options.maxResults : 50,
             cursor: options.cursor,
           },
@@ -166,6 +167,7 @@
           searchPromise = ContentNodeSearchResource.fetchCollection({
             getParams: {
               search: keyword,
+              channel_id: this.topic.channel_id,
               max_results: options.maxResults ? options.maxResults : 50,
             },
           }).then(searchResults => {
