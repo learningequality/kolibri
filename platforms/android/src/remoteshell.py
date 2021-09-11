@@ -1,6 +1,5 @@
 # import initialization
 
-import django
 import os
 
 from cryptography.hazmat.primitives import serialization
@@ -12,6 +11,7 @@ from twisted.conch import manhole, manhole_ssh
 from twisted.conch.ssh import keys
 from zope.interface import implementer
 
+from kolibri.main import initialize
 
 def get_key_pair(refresh=False):
 
@@ -83,7 +83,7 @@ class KolibriSuperAdminCredentialsChecker(object):
 def _get_manhole_factory(namespace):
 
     # ensure django has been set up so we can use the ORM etc in the shell
-    django.setup()
+    initialize(skip_update=True)
 
     # set up the twisted manhole with Kolibri-based authentication
     def get_manhole(_):

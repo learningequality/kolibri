@@ -1,12 +1,10 @@
 import json
-import logging
 import os
 import re
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from jnius import autoclass, cast, jnius
 
-logging.basicConfig(level=logging.DEBUG)
 
 AndroidString = autoclass("java.lang.String")
 Context = autoclass("android.content.Context")
@@ -40,7 +38,8 @@ def get_timezone_name():
     return Timezone.getDefault().getDisplayName()
 
 
-def start_service(service_name, service_args):
+def start_service(service_name, service_args=None):
+    service_args = service_args or {}
     service = autoclass("org.learningequality.Kolibri.Service{}".format(service_name.title()))
     service.start(PythonActivity.mActivity, json.dumps(dict(service_args)))
 
@@ -84,7 +83,7 @@ def get_home_folder():
 
 
 def send_whatsapp_message(msg):
-    share_by_intent(msg=msg, app="com.whatsapp")
+    share_by_intent(message=msg, app="com.whatsapp")
 
 
 def share_by_intent(path=None, filename=None, message=None, app=None, mimetype=None):

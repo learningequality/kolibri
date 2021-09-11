@@ -10,7 +10,7 @@
   "asset_dirs": ["assets"],
   "extra_build_options": {
     "android": {
-      "services": ["kolibri:android_service.py"],
+      "services": ["server:server.py", "remoteshell:remoteshell.py"],
       "extra_permissions": ["FOREGROUND_SERVICE"],
       "sdk": 30,
       "minsdk": 21,
