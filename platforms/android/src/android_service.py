@@ -2,7 +2,6 @@ import initialization  # keep this first, to ensure we're set up for other impor
 
 import logging
 import os
-import pew.ui
 import shutil
 
 # initialize logging before loading any third-party modules, as they may cause logging to get configured.
@@ -29,7 +28,5 @@ if not os.path.exists(HOME_PATH) and os.path.exists(HOME_TEMPLATE_PATH):
 # ensure the service stays running by "foregrounding" it with a persistent notification
 make_service_foreground("Kolibri is running...", "Click here to resume.")
 
-# start the kolibri server as a thread
-thread = pew.ui.PEWThread(target=start_kolibri_server)
-thread.daemon = True
-thread.start()
+# start the kolibri server
+start_kolibri_server()
