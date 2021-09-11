@@ -105,22 +105,13 @@ class Application(pew.ui.PEWApp):
             self.view.webview.webview.clearHistory()
 
     def wait_for_server(self):
+        from kolibri.utils.server import wait_for_status
+        from kolibri.utils.server import STATUS_RUNNING
         home_url = "http://localhost:{port}".format(port=KOLIBRI_PORT)
-        # test url to see if server has started
-        def running():
-            try:
-                with urllib.request.urlopen(home_url) as response:
-                   response.read()
-                return True
-            except urllib.error.URLError:
-                return False
 
         # Tie up this thread until the server is running
-        while not running():
-            logging.info(
-                "Kolibri server not yet started, checking again in one second..."
-            )
-            time.sleep(1)
+        while not wait_for_status(STATUS_RUNNING):
+            logging.info("Kolibri server not yet started")
 
         # Check for saved URL, which exists when the app was put to sleep last time it ran
         saved_state = self.view.get_view_state()
