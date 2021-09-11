@@ -2,22 +2,42 @@ import initialization  # keep this first, to ensure we're set up for other impor
 
 import logging
 import os
+import threading
 
 # initialize logging before loading any third-party modules, as they may cause logging to get configured.
 logging.basicConfig(level=logging.DEBUG)
 
-import pew
-import pew.ui
-
 from config import KOLIBRI_PORT
-
-pew.set_app_name("Kolibri")
-logging.info("Entering main.py...")
+from jnius import detach
 
 from android_utils import get_home_folder, get_version_name
+from webview import AndroidWebView
 
 os.environ["KOLIBRI_HOME"] = get_home_folder()
 os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
+
+
+class AndroidThread(threading.Thread):
+    """
+    AndroidThread is a subclass of the Python threading.Thread object that allows it
+    to work with some native platforms that require additional handling when interacting
+    with the GUI. The API for AndroidThread mimics threading.Thread exactly, so please refer
+    to that for API documentation.
+    """
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs={}):
+        super(AndroidThread, self).__init__(group, target, name, args, kwargs)
+
+    def run(self):
+        try:
+            super(AndroidThread, self).run()
+        except Exception as e:
+            import traceback
+            if hasattr(self, "target"):
+                logging.error("Error occurred in %r thread. Error details:" % self.target)
+            logging.error(traceback.format_exc(e))
+        finally:
+            detach()
+
 
 
 def get_init_url(next_url='/'):
@@ -38,57 +58,32 @@ def start_kolibri(port):
     from android_utils import start_service
     start_service("kolibri", dict(os.environ))
 
-class Application(pew.ui.PEWApp):
+class Application(object):
 
-    def setUp(self):
+    def run(self):
         """
         Start your UI and app run loop here.
         """
 
-        # Set loading screen
-        self.loader_url = "file:///android_asset/_load.html"
         self.kolibri_loaded = False
-        self.view = pew.ui.WebUIView("Kolibri", self.loader_url, delegate=self)
+        self.kolibri_origin = "http://localhost:{port}".format(port=KOLIBRI_PORT)
+        self.view = AndroidWebView()
 
         # start kolibri server
         start_kolibri(KOLIBRI_PORT)
 
-        # make sure we show the UI before run completes, as otherwise
-        # it is possible the run can complete before the UI is shown,
-        # causing the app to shut down early
-        self.view.show()
-
         self.wait_for_server()
 
         from remoteshell import launch_remoteshell
-        self.remoteshell_thread = pew.ui.PEWThread(target=launch_remoteshell)
+        self.remoteshell_thread = AndroidThread(target=launch_remoteshell)
         self.remoteshell_thread.daemon = True
         self.remoteshell_thread.start()
 
         return 0
 
-    def page_loaded(self, url):
-        """
-        This is a PyEverywhere delegate method to let us know the WebView is ready to use.
-        """
-
-        # On Android, there is a system back button, that works like the browser back button. Make sure we clear the
-        # history after first load so that the user cannot go back to the loading screen. We cannot clear the history
-        # during load, so we do it here.
-        # For more info, see: https://stackoverflow.com/questions/8103532/how-to-clear-webview-history-in-android
-        if (
-            not self.kolibri_loaded
-            and url != self.loader_url
-        ):
-            # FIXME: Change pew to reference the native webview as webview.native_webview rather than webview.webview
-            # for clarity.
-            self.kolibri_loaded = True
-            self.view.webview.webview.clearHistory()
-
     def wait_for_server(self):
         from kolibri.utils.server import wait_for_status
         from kolibri.utils.server import STATUS_RUNNING
-        home_url = "http://localhost:{port}".format(port=KOLIBRI_PORT)
 
         # Tie up this thread until the server is running
         while not wait_for_status(STATUS_RUNNING):
@@ -99,14 +94,21 @@ class Application(pew.ui.PEWApp):
         logging.debug("Persisted View State: {}".format(self.view.get_view_state()))
 
         next_url = '/'
-        if "URL" in saved_state and saved_state["URL"].startswith(home_url):
-            next_url = saved_state["URL"].replace(home_url, '')
+        if "URL" in saved_state and saved_state["URL"].startswith(self.kolibri_origin):
+            next_url = saved_state["URL"].replace(self.kolibri_origin, '')
 
-        start_url = home_url + get_init_url(next_url)
+        start_url = self.kolibri_origin + get_init_url(next_url)
         self.view.load_url(start_url)
 
-    def get_main_window(self):
-        return self.view
+    def should_load_url(self, url):
+        if (
+            url is not None
+            and url.startswith("http")
+            and not url.startswith(self.kolibri_origin)
+        ):
+            return False
+
+        return True
 
 
 if __name__ == "__main__":
