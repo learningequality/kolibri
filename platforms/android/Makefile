@@ -21,6 +21,8 @@ deepclean: clean
 src/kolibri: clean
 	rm -r src/kolibri 2> /dev/null || true
 	unzip -qo "whl/kolibri*.whl" "kolibri/*" -x "kolibri/dist/cext*" -d src/
+	# patch Django to allow migrations to be pyc files, as p4a compiles and deletes the originals
+	sed -i 's/if name.endswith(".py"):/if name.endswith(".py") or name.endswith(".pyc"):/g' src/kolibri/dist/django/db/migrations/loader.py
 	./delete_kolibri_blacklist.sh
 
 # Generate the project info file
