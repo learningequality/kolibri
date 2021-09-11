@@ -2,7 +2,7 @@ import { shallowMount, mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 
 import { ClassesPageNames } from '../../../constants';
-import YourClasses from '../YourClasses';
+import YourClasses from '../index';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);

@@ -52,8 +52,8 @@
 
   import { ClassesPageNames } from '../../constants';
   import { classAssignmentsLink } from '../classes/classPageLinks';
-  import CardGrid from '../cards/CardGrid.vue';
-  import CardLink from '../cards/CardLink.vue';
+  import CardGrid from '../cards/CardGrid';
+  import CardLink from '../cards/CardLink';
 
   /**
    * Shows learner's classes.

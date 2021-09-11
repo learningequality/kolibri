@@ -23,10 +23,10 @@
 
   import { computed, onBeforeMount } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
+  import YourClasses from '../YourClasses';
   import useDeviceSettings from './useDeviceSettings';
   import useLearnerResources from './useLearnerResources';
   import useUser from './useUser';
-  import YourClasses from './YourClasses';
   import ContinueLearning from './ContinueLearning';
 
   /**
