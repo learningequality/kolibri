@@ -1,5 +1,4 @@
 import os
-import pew.ui
 import re
 import sys
 
@@ -24,21 +23,18 @@ node_id = Secure.getString(
 if node_id and len(node_id) >= 16 and node_id != "9774d56d682e549c":
     os.environ["MORANGO_NODE_ID"] = node_id
 
-if pew.ui.platform == "android":
-    # initialize some system environment variables needed to run smoothly on Android
+from android_utils import get_timezone_name, get_signature_key_issuing_organization
 
-    from android_utils import get_timezone_name, get_signature_key_issuing_organization
+signing_org = get_signature_key_issuing_organization()
+if signing_org == "Learning Equality":
+    runmode = "android-testing"
+elif signing_org == "Android":
+    runmode = "android-debug"
+elif signing_org == "Google Inc.":
+    runmode = ""  # Play Store!
+else:
+    runmode = "android-" + re.sub(r"[^a-z ]", "", signing_org.lower()).replace(" ", "-")
+os.environ["KOLIBRI_RUN_MODE"] = runmode
 
-    signing_org = get_signature_key_issuing_organization()
-    if signing_org == "Learning Equality":
-        runmode = "android-testing"
-    elif signing_org == "Android":
-        runmode = "android-debug"
-    elif signing_org == "Google Inc.":
-        runmode = ""  # Play Store!
-    else:
-        runmode = "android-" + re.sub(r"[^a-z ]", "", signing_org.lower()).replace(" ", "-")
-    os.environ["KOLIBRI_RUN_MODE"] = runmode
-
-    os.environ["TZ"] = get_timezone_name()
-    os.environ["LC_ALL"] = "en_US.UTF-8"
+os.environ["TZ"] = get_timezone_name()
+os.environ["LC_ALL"] = "en_US.UTF-8"

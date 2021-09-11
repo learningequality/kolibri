@@ -14,13 +14,10 @@ from config import KOLIBRI_PORT
 pew.set_app_name("Kolibri")
 logging.info("Entering main.py...")
 
+from android_utils import get_home_folder, get_version_name
 
-if pew.ui.platform == "android":
-
-    from android_utils import get_home_folder, get_version_name
-
-    os.environ["KOLIBRI_HOME"] = get_home_folder()
-    os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
+os.environ["KOLIBRI_HOME"] = get_home_folder()
+os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
 
 
 def get_init_url(next_url='/'):
@@ -36,23 +33,10 @@ def start_kolibri(port):
 
     os.environ["KOLIBRI_HTTP_PORT"] = str(port)
 
-    if pew.ui.platform == "android":
+    logging.info("Starting kolibri server via Android service...")
 
-        logging.info("Starting kolibri server via Android service...")
-
-        from android_utils import start_service
-        start_service("kolibri", dict(os.environ))
-
-    else:
-
-        logging.info("Starting kolibri server directly as thread...")
-
-        from kolibri_utils import start_kolibri_server
-
-        thread = pew.ui.PEWThread(target=start_kolibri_server)
-        thread.daemon = True
-        thread.start()
-
+    from android_utils import start_service
+    start_service("kolibri", dict(os.environ))
 
 class Application(pew.ui.PEWApp):
 
@@ -69,14 +53,18 @@ class Application(pew.ui.PEWApp):
         # start kolibri server
         start_kolibri(KOLIBRI_PORT)
 
-        self.load_thread = pew.ui.PEWThread(target=self.wait_for_server)
-        self.load_thread.daemon = True
-        self.load_thread.start()
-
         # make sure we show the UI before run completes, as otherwise
         # it is possible the run can complete before the UI is shown,
         # causing the app to shut down early
         self.view.show()
+
+        self.wait_for_server()
+
+        from remoteshell import launch_remoteshell
+        self.remoteshell_thread = pew.ui.PEWThread(target=launch_remoteshell)
+        self.remoteshell_thread.daemon = True
+        self.remoteshell_thread.start()
+
         return 0
 
     def page_loaded(self, url):
@@ -89,8 +77,7 @@ class Application(pew.ui.PEWApp):
         # during load, so we do it here.
         # For more info, see: https://stackoverflow.com/questions/8103532/how-to-clear-webview-history-in-android
         if (
-            pew.ui.platform == "android"
-            and not self.kolibri_loaded
+            not self.kolibri_loaded
             and url != self.loader_url
         ):
             # FIXME: Change pew to reference the native webview as webview.native_webview rather than webview.webview
@@ -116,13 +103,7 @@ class Application(pew.ui.PEWApp):
             next_url = saved_state["URL"].replace(home_url, '')
 
         start_url = home_url + get_init_url(next_url)
-        pew.ui.run_on_main_thread(self.view.load_url, start_url)
-
-        if pew.ui.platform == "android":
-            from remoteshell import launch_remoteshell
-            self.remoteshell_thread = pew.ui.PEWThread(target=launch_remoteshell)
-            self.remoteshell_thread.daemon = True
-            self.remoteshell_thread.start()
+        self.view.load_url(start_url)
 
     def get_main_window(self):
         return self.view
