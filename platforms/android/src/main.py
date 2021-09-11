@@ -21,9 +21,6 @@ if pew.ui.platform == "android":
 
     os.environ["KOLIBRI_HOME"] = get_home_folder()
     os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
-    # We can't use symlinks as at least some Android devices have the user storage
-    # and app data directories on different mount points.
-    os.environ['KOLIBRI_STATIC_USE_SYMLINKS'] = "False"
 
 
 def get_init_url(next_url='/'):
