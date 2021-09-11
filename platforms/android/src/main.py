@@ -2,9 +2,6 @@ import initialization  # keep this first, to ensure we're set up for other impor
 
 import logging
 import os
-import time
-import urllib.error
-import urllib.request
 
 # initialize logging before loading any third-party modules, as they may cause logging to get configured.
 logging.basicConfig(level=logging.DEBUG)
