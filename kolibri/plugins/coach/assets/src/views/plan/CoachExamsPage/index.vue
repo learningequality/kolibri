@@ -96,7 +96,7 @@
       <p v-if="!exams.length">
         {{ $tr('noExams') }}
       </p>
-<!--       <p
+      <!--       <p
         v-else-if="statusSelected.value === coachString('activeQuizzesLabel') &&
           !activeExams.length"
       >
@@ -160,10 +160,10 @@
     mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
-        statusSelected: {
-          label: this.coachString('allQuizzesLabel'),
-          value: this.coachString('allQuizzesLabel'),
-        },
+        // statusSelected: {
+        //   label: this.coachString('allQuizzesLabel'),
+        //   value: this.coachString('allQuizzesLabel'),
+        // },
         showOpenConfirmationModal: false,
         showCloseConfirmationModal: false,
       };
@@ -199,7 +199,7 @@
       //   return this.sortedExams.filter(exam => exam.active === false);
       // },
       filteredExams() {
-        const filter = this.statusSelected.label;
+        // const filter = this.statusSelected.label;
         // if (filter === this.coachString('activeQuizzesLabel')) {
         //   return this.activeExams;
         // } else if (filter === this.coachString('inactiveQuizzesLabel')) {
@@ -272,7 +272,9 @@
       // noInactiveExams: {
       //   message: 'No inactive quizzes',
       //   context:
-      //     "Inactive quizzes are ones that are no longer in progress. When the coach presses the 'End quiz' button, the quiz passes from 'active' to 'inactive'.",
+      //     "Inactive quizzes are ones that are no longer in progress.
+      //     When the coach presses the 'End quiz' button, the quiz
+      //passes from 'active' to 'inactive'.",
       // },
       newQuiz: 'Create new quiz',
       selectQuiz: {

@@ -31,7 +31,7 @@
           </template>
         </HeaderTableRow>
         <HeaderTableRow v-show="!$isPrint" :keyText="coachString('statusLabel')">
-<!--           <template #value>
+          <!--           <template #value>
             <LessonActive :active="lesson.active" />
           </template> -->
         </HeaderTableRow>

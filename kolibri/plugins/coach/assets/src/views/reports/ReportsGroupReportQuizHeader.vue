@@ -25,7 +25,7 @@
         <template #key>
           {{ coachString('statusLabel') }}
         </template>
-<!--         <template #value>
+        <!--         <template #value>
           <QuizActive :active="exam.active" />
         </template> -->
       </HeaderTableRow>
