@@ -11,6 +11,7 @@ const {
   resumableNonClassesContentNodes,
   getClass,
   getResumableContentNode,
+  getClassLessonLink,
   getClassQuizLink,
   getClassResourceLink,
   getTopicContentNodeLink,
@@ -262,15 +263,60 @@ describe(`useLearnerResources`, () => {
   });
 
   describe(`getClassQuizLink`, () => {
-    it(`returns a vue-router link to a class quiz page`, () => {
+    it(`returns a vue-router link to a quiz report page when the quiz is closed`, () => {
       expect(
-        getClassQuizLink({ id: 'class-1-active-quiz-in-progress', collection: 'class-1' })
+        getClassQuizLink({
+          id: 'class-1-active-finished-quiz',
+          collection: 'class-1',
+          progress: {
+            started: true,
+            closed: true,
+          },
+        })
+      ).toEqual({
+        name: ClassesPageNames.EXAM_REPORT_VIEWER,
+        params: {
+          classId: 'class-1',
+          examId: 'class-1-active-finished-quiz',
+          questionNumber: 0,
+          questionInteraction: 0,
+        },
+      });
+    });
+
+    it(`returns a vue-router link to a quiz page when the quiz is not closed`, () => {
+      expect(
+        getClassQuizLink({
+          id: 'class-1-active-quiz-in-progress',
+          collection: 'class-1',
+          progress: {
+            started: true,
+            closed: false,
+          },
+        })
       ).toEqual({
         name: ClassesPageNames.EXAM_VIEWER,
         params: {
           classId: 'class-1',
           examId: 'class-1-active-quiz-in-progress',
           questionNumber: 0,
+        },
+      });
+    });
+  });
+
+  describe(`getClassLessonLink`, () => {
+    it(`returns a vue-router link to a class lesson page`, () => {
+      expect(
+        getClassLessonLink({
+          id: 'class-1-active-lesson-1',
+          collection: 'class-1',
+        })
+      ).toEqual({
+        name: ClassesPageNames.LESSON_PLAYLIST,
+        params: {
+          classId: 'class-1',
+          lessonId: 'class-1-active-lesson-1',
         },
       });
     });

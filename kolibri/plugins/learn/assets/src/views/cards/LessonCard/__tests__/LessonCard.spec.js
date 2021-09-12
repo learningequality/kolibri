@@ -1,5 +1,5 @@
 import { mount, RouterLinkStub } from '@vue/test-utils';
-import LessonCard from '../LessonCard';
+import LessonCard from '../index';
 
 const baseProgress = {
   resource_progress: 0,
@@ -12,9 +12,6 @@ function makeWrapper() {
       RouterLink: RouterLinkStub,
     },
     propsData: {
-      classroom: {
-        name: 'Test Classroom 1',
-      },
       lesson: {
         id: '395b68e7be06485cbe65ce159dac6859',
         title: 'Test Lesson 1',
@@ -22,6 +19,8 @@ function makeWrapper() {
           ...baseProgress,
         },
       },
+      collectionTitle: 'Test Classroom 1',
+      to: { path: '/lesson' },
     },
   });
   return { wrapper };
@@ -38,25 +37,20 @@ describe('LessonCard', () => {
   describe('basic labels', () => {
     it('shows the classroom name', () => {
       wrapper = makeWrapper().wrapper;
-      expect(wrapper.find('.classroom-name').text()).toEqual('Test Classroom 1');
+      expect(wrapper.find('[data-test="collectionTitle"]').text()).toEqual('Test Classroom 1');
     });
 
     it('shows the lesson title', () => {
       wrapper = makeWrapper().wrapper;
-      expect(wrapper.find('.assignment-name').text()).toEqual('Test Lesson 1');
+      expect(wrapper.find('.title').text()).toEqual('Test Lesson 1');
     });
   });
 
   describe('links to lesson playlist', () => {
-    it('it shows the right link', async () => {
+    it('it shows the right link', () => {
       wrapper = makeWrapper().wrapper;
       const routerLink = wrapper.findComponent(RouterLinkStub);
-      expect(routerLink.props().to).toEqual({
-        name: 'LESSON_PLAYLIST',
-        params: {
-          lessonId: '395b68e7be06485cbe65ce159dac6859',
-        },
-      });
+      expect(routerLink.props().to).toEqual({ path: '/lesson' });
     });
   });
 

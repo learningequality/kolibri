@@ -166,11 +166,44 @@ export default function useLearnerResources() {
   }
 
   /**
+   * @param {Object} lesson
+   * @returns {Object} vue-router link to a lesson page
+   * @public
+   */
+  function getClassLessonLink(lesson) {
+    if (!lesson) {
+      return undefined;
+    }
+    return {
+      name: ClassesPageNames.LESSON_PLAYLIST,
+      params: {
+        classId: lesson.collection,
+        lessonId: lesson.id,
+      },
+    };
+  }
+
+  /**
    * @param {Object} quiz
-   * @returns {Object} vue-router link
+   * @returns {Object} vue-router link to a quiz report page when the quiz
+   *                   is closed. Otherwise returns a link to a quiz page.
    * @public
    */
   function getClassQuizLink(quiz) {
+    if (!quiz || !quiz.progress) {
+      return undefined;
+    }
+    if (quiz.progress.closed) {
+      return {
+        name: ClassesPageNames.EXAM_REPORT_VIEWER,
+        params: {
+          classId: quiz.collection,
+          examId: quiz.id,
+          questionNumber: 0,
+          questionInteraction: 0,
+        },
+      };
+    }
     return {
       name: ClassesPageNames.EXAM_VIEWER,
       params: {
@@ -183,7 +216,7 @@ export default function useLearnerResources() {
 
   /**
    * @param {Object} resource { contentNodeId, lessonId, classId }
-   * @returns {Object} vue-router link
+   * @returns {Object} vue-router link to a resource page
    * @public
    */
   function getClassResourceLink(resource) {
@@ -240,6 +273,7 @@ export default function useLearnerResources() {
     resumableNonClassesContentNodes,
     getClass,
     getResumableContentNode,
+    getClassLessonLink,
     getClassQuizLink,
     getClassResourceLink,
     getTopicContentNodeLink,

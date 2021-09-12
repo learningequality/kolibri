@@ -14,6 +14,7 @@
           :key="idx"
           class="icon"
           :kind="learningActivity"
+          :style="{ fontSize: '18px' }"
         />
       </template>
     </div>
@@ -40,7 +41,7 @@
   import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
-  import LearningActivityIcon from '../LearningActivityIcon';
+  import LearningActivityIcon from '../../LearningActivityIcon';
 
   /**
    * Shows an icon and a label for a learning activity.

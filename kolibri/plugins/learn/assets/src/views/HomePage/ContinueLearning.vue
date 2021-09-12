@@ -15,14 +15,15 @@
           :key="`resource-${idx}`"
           :contentNode="getResumableContentNode(resource.contentNodeId)"
           :to="getClassResourceLink(resource)"
-          :collectionName="getResourceClassName(resource)"
+          :collectionTitle="getResourceClassName(resource)"
         />
         <QuizCard
           v-for="(quiz, idx) in resumableClassesQuizzes"
           :key="`quiz-${idx}`"
           :quiz="quiz"
           :to="getClassQuizLink(quiz)"
-          :collectionName="getQuizClassName(quiz)"
+          :collectionTitle="getQuizClassName(quiz)"
+          showThumbnail
         />
       </template>
       <template v-else>
@@ -44,9 +45,9 @@
 
   import last from 'lodash/last';
   import CardGrid from '../cards/CardGrid';
+  import QuizCard from '../cards/QuizCard';
+  import ResourceCard from '../cards/ResourceCard';
   import useLearnerResources from './useLearnerResources';
-  import ResourceCard from './ResourceCard';
-  import QuizCard from './QuizCard';
 
   /**
    * Shows learner's resources and quizzes that are in progress.

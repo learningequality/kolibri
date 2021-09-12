@@ -1,41 +1,61 @@
 <template>
 
-  <AssignmentCard
-    v-bind="{ classroomName, assignmentName, completedLabel, inProgressLabel, to: quizLink }"
-  />
+  <BaseCard v-bind="{ to, title, collectionTitle, completedLabel, inProgressLabel }">
+    <template
+      v-if="showThumbnail"
+      #topLeft
+    >
+      <QuizThumbnail rounded />
+    </template>
+  </BaseCard>
 
 </template>
 
 
 <script>
 
-  import { ClassesPageNames } from '../../constants';
-  import AssignmentCard from './AssignmentCard.vue';
+  import QuizThumbnail from '../../thumbnails/QuizThumbnail';
+  import BaseCard from '../BaseCard';
 
   export default {
     name: 'QuizCard',
     components: {
-      AssignmentCard,
+      BaseCard,
+      QuizThumbnail,
     },
     props: {
-      classroom: {
-        type: Object,
-        required: true,
-      },
       quiz: {
         type: Object,
         required: true,
       },
+      /**
+       * vue-router link object
+       */
+      to: {
+        type: Object,
+        required: true,
+      },
+      collectionTitle: {
+        type: String,
+        required: true,
+      },
+      showThumbnail: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     data() {
       return {
-        progress: this.quiz.progress || {},
-        classroomName: this.classroom.name || '',
-        assignmentName: this.quiz.title || '',
+        progress: this.quiz ? this.quiz.progress : undefined,
+        title: this.quiz ? this.quiz.title : '',
       };
     },
     computed: {
       inProgressLabel() {
+        if (!this.progress) {
+          return '';
+        }
         const { started, closed, answer_count } = this.progress;
         const { question_count } = this.quiz;
         if (started && !closed) {
@@ -46,6 +66,9 @@
         return '';
       },
       completedLabel() {
+        if (!this.progress) {
+          return '';
+        }
         const { score, closed } = this.progress;
         const { question_count } = this.quiz;
         if (closed) {
@@ -57,26 +80,6 @@
           return this.$tr('completedPercentLabel', { score: percentage });
         }
         return '';
-      },
-      quizLink() {
-        if (this.progress.closed) {
-          return {
-            name: ClassesPageNames.EXAM_REPORT_VIEWER,
-            params: {
-              examId: this.quiz.id,
-              questionNumber: 0,
-              questionInteraction: 0,
-            },
-          };
-        } else {
-          return {
-            name: ClassesPageNames.EXAM_VIEWER,
-            params: {
-              examId: this.quiz.id,
-              questionNumber: 0,
-            },
-          };
-        }
       },
     },
     $trs: {

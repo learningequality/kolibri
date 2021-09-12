@@ -10,7 +10,8 @@
         v-for="lesson in items"
         :key="lesson.id"
         :lesson="lesson"
-        :classroom="currentClassroom"
+        :collectionTitle="currentClassroomName"
+        :to="getClassLessonLink(lesson)"
       />
     </CardGrid>
 
@@ -24,8 +25,10 @@
 
 <script>
 
-  import LessonCard from '../cards/LessonCard.vue';
-  import CardGrid from '../cards/CardGrid.vue';
+  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import useLearnerResources from '../HomePage/useLearnerResources';
+  import LessonCard from '../cards/LessonCard';
+  import CardGrid from '../cards/CardGrid';
 
   export default {
     name: 'AssignedLessonsCards',
@@ -33,15 +36,23 @@
       CardGrid,
       LessonCard,
     },
+    setup(_, { root }) {
+      const { getClassLessonLink } = useLearnerResources();
+
+      const currentClassroomName = computed(() => {
+        const currentClassroom = root.$store.state.classAssignments.currentClassroom;
+        return currentClassroom ? currentClassroom.name : '';
+      });
+
+      return {
+        getClassLessonLink,
+        currentClassroomName,
+      };
+    },
     props: {
       items: {
         type: Array,
         required: true,
-      },
-    },
-    computed: {
-      currentClassroom() {
-        return this.$store.state.classAssignments.currentClassroom;
       },
     },
     $trs: {
