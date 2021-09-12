@@ -80,12 +80,12 @@
       <p v-if="!lessons.length">
         {{ $tr('noLessons') }}
       </p>
-      <p v-else-if="!activeLessonCounts.true && filterSelection.value === 'activeLessons'">
+      <!--       <p v-else-if="!activeLessonCounts.true && filterSelection.value === 'activeLessons'">
         {{ $tr('noActiveLessons') }}
       </p>
       <p v-else-if="!activeLessonCounts.false && filterSelection.value === 'inactiveLessons'">
         {{ $tr('noInactiveLessons') }}
-      </p>
+      </p> -->
 
       <KModal
         v-if="showModal"
@@ -155,23 +155,23 @@
       sortedLessons() {
         return this._.orderBy(this.lessons, ['date_created'], ['desc']);
       },
-      filterOptions() {
-        const filters = ['allLessons', 'activeLessons', 'inactiveLessons'];
-        return filters.map(filter => ({
-          label: this.$tr(filter),
-          value: filter,
-        }));
-      },
-      activeLessonCounts() {
-        return countBy(this.lessons, 'is_active');
-      },
+      // filterOptions() {
+      //   const filters = ['allLessons', 'activeLessons', 'inactiveLessons'];
+      //   return filters.map(filter => ({
+      //     label: this.$tr(filter),
+      //     value: filter,
+      //   }));
+      // },
+      // activeLessonCounts() {
+      //   return countBy(this.lessons, 'is_active');
+      // },
       newLessonRoute() {
         return { name: LessonsPageNames.LESSON_CREATION_ROOT };
       },
     },
-    beforeMount() {
-      this.filterSelection = this.filterOptions[0];
-    },
+    // beforeMount() {
+    //   this.filterSelection = this.filterOptions[0];
+    // },
     methods: {
       ...mapActions('lessonsRoot', ['createLesson']),
       showLesson(lesson) {
@@ -228,8 +228,8 @@
         context:
           'Indicates a link that takes the user back to the main list of lessons from an individual lesson.',
       },
-      activeLessons: 'Active lessons',
-      inactiveLessons: 'Inactive lessons',
+      // activeLessons: 'Active lessons',
+      // inactiveLessons: 'Inactive lessons',
       size: {
         message: 'Size',
         context:
@@ -240,8 +240,8 @@
         context:
           "Text displayed in the 'Lessons' tab of the 'Plan' section if there are no lessons created",
       },
-      noActiveLessons: 'No active lessons',
-      noInactiveLessons: 'No inactive lessons',
+      // noActiveLessons: 'No active lessons',
+      // noInactiveLessons: 'No inactive lessons',
       visibleToLearnersLabel: {
         message: 'Visible to learners',
         context:

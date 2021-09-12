@@ -7,9 +7,9 @@
 
     <HeaderTable>
       <HeaderTableRow :keyText="coachString('statusLabel')">
-        <template #value>
+<!--         <template #value>
           <LessonActive :active="active" />
-        </template>
+        </template> -->
       </HeaderTableRow>
       <HeaderTableRow :keyText="coachString('recipientsLabel')">
         <template #value>
