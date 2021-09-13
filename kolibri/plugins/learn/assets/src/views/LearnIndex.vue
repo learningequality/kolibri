@@ -71,7 +71,6 @@
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames, ClassesPageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
-  import ChannelsPage from './ChannelsPage';
   import TopicsPage from './TopicsPage';
   import ContentPage from './ContentPage';
   import ContentUnavailablePage from './ContentUnavailablePage';
@@ -92,7 +91,6 @@
   import plugin_data from 'plugin_data';
 
   const pageNameToComponentMap = {
-    [PageNames.TOPICS_ROOT]: ChannelsPage,
     [PageNames.TOPICS_CHANNEL]: TopicsPage,
     [PageNames.TOPICS_TOPIC]: TopicsPage,
     [PageNames.TOPICS_CONTENT]: ContentPage,
@@ -251,6 +249,19 @@
           return {
             appBarTitle: this.learnString('learnLabel'),
             immersivePage: false,
+            hasSidebar: true,
+          };
+        }
+        if (
+          this.pageName === PageNames.TOPICS_TOPIC ||
+          this.pageName === PageNames.TOPICS_CHANNEL
+        ) {
+          return {
+            appBarTitle: this.topicsTreeChannel.title || '',
+            immersivePage: true,
+            immersivePageRoute: this.$router.getRoute(PageNames.LIBRARY),
+            immersivePagePrimary: true,
+            immersivePageIcon: 'close',
             hasSidebar: true,
           };
         }

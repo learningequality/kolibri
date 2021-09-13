@@ -47,16 +47,6 @@ export default [
     },
   },
   {
-    name: PageNames.TOPICS_ROOT,
-    path: '/topics',
-    handler: () => {
-      if (unassignedContentGuard()) {
-        return unassignedContentGuard();
-      }
-      showChannels(store);
-    },
-  },
-  {
     name: PageNames.LIBRARY,
     path: '/library',
     handler: () => {

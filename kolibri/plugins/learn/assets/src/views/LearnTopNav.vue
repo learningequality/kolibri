@@ -15,21 +15,12 @@
     </NavbarLink>
     <NavbarLink
       v-if="canAccessUnassignedContent"
-      :title="coreString('channelsLabel')"
-      :link="channelsLink"
-    >
-      <KIcon
-        icon="channel"
-        style="top: 0; width: 24px; height: 24px;"
-        :color="$themeTokens.textInverted"
-      />
-    </NavbarLink>
-    <NavbarLink
-      v-if="canAccessUnassignedContent"
       :title="learnString('libraryLabel')"
       :link="libraryLink"
     >
+      <!-- todo update icon -->
       <KIcon
+        icon="channel"
         style="top: 0; width: 24px; height: 24px;"
         :color="$themeTokens.textInverted"
       />
@@ -59,9 +50,6 @@
       return {
         allClassesLink: {
           name: ClassesPageNames.ALL_CLASSES,
-        },
-        channelsLink: {
-          name: PageNames.TOPICS_ROOT,
         },
         libraryLink: {
           name: PageNames.LIBRARY,
