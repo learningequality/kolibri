@@ -39,7 +39,7 @@ endif
 
 .PHONY: kolibri.apk
 # Build the debug version of the apk
-kolibri.apk: p4a_android_distro preseeded_kolibri_home
+kolibri.apk: p4a_android_distro
 	echo "--- :android: Build APK"
 	pew build $(pew_release_flag) android ${ARCH}
 
@@ -51,24 +51,6 @@ kolibri.apk: p4a_android_distro preseeded_kolibri_home
 .PHONY: build_docker
 build_docker: Dockerfile
 	docker build -t android_kolibri .
-
-preseeded_kolibri_home: export KOLIBRI_HOME := src/preseeded_kolibri_home
-preseeded_kolibri_home: export PYTHONPATH := tmpenv
-preseeded_kolibri_home:
-	rm -r tmpenv 2> /dev/null || true
-	rm -r src/preseeded_kolibri_home 2> /dev/null || true
-	pip uninstall kolibri 2> /dev/null || true
-	pip install --target tmpenv whl/*.whl
-	tmpenv/bin/kolibri plugin enable kolibri.plugins.app
-	tmpenv/bin/kolibri start --port=0
-	sleep 1
-	tmpenv/bin/kolibri stop
-	sleep 1
-	yes yes | tmpenv/bin/kolibri manage deprovision
-	rm -r src/preseeded_kolibri_home/logs 2> /dev/null || true
-	rm -r src/preseeded_kolibri_home/sessions 2> /dev/null || true
-	rm -r src/preseeded_kolibri_home/process_cache 2> /dev/null || true
-	touch src/preseeded_kolibri_home/was_preseeded
 
 # Run the docker image.
 # TODO Would be better to just specify the file here?
