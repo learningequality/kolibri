@@ -257,7 +257,7 @@
           this.pageName === PageNames.TOPICS_CHANNEL
         ) {
           return {
-            appBarTitle: this.topicsTreeChannel.title || '',
+            appBarTitle: this.coreString('browseChannel'),
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(PageNames.LIBRARY),
             immersivePagePrimary: true,

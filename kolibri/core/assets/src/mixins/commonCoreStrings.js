@@ -467,6 +467,8 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   allLevelsBasicSkills: 'All levels -- basic skills',
   allLevelsWorkSkills: 'All levels -- work skills',
 
+  browseChannel: 'Browse Channel',
+
   // Notifications
   changesSavedNotification: {
     message: 'Changes saved',
