@@ -5,21 +5,26 @@
       :options="languageOptionsList"
       class="selector"
       :value="selectedLanguage"
+      :label="$tr('language')"
     />
     <KSelect
       :options="contentLevelsList"
       class="selector"
       :value="selectedLevel"
+      :label="$tr('contentLevel')"
     />
     <KSelect
+      v-if="channels"
       :options="channelOptionsList"
       class="selector"
       :value="selectedChannel"
+      :label="$tr('channel')"
     />
     <KSelect
       :options="accessibilityOptionsList"
       class="selector"
       :value="selectedAccessibilityFilter"
+      :label="$tr('accessibility')"
     />
   </div>
 
@@ -29,11 +34,12 @@
 <script>
 
   import { ContentLevels, AccessibilityCategories } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import languageSwitcherMixin from '../../../../../../core/assets/src/views/language-switcher/mixin.js';
 
   export default {
     name: 'SelectGroup',
-    mixins: [languageSwitcherMixin],
+    mixins: [languageSwitcherMixin, commonCoreStrings],
     props: {
       channels: {
         type: Array,
@@ -42,22 +48,44 @@
     },
     computed: {
       languageOptionsList() {
-        return this.languageOptions.map(lang => lang.lang_name);
+        let options = [];
+        this.languageOptions.forEach(language => {
+          options.push({
+            value: language.id,
+            label: language.lang_name,
+          });
+        });
+        return options;
       },
       accessibilityOptionsList() {
-        return this.parseList(AccessibilityCategories);
+        let options = [];
+        Object.keys(AccessibilityCategories).map(key => {
+          options.push({
+            value: AccessibilityCategories[key],
+            label: this.coreString(AccessibilityCategories[key]),
+          });
+        });
+        return options;
       },
       contentLevelsList() {
-        return this.parseList(ContentLevels);
+        let options = [];
+        Object.keys(ContentLevels).map(key => {
+          options.push({
+            value: ContentLevels[key],
+            label: this.coreString(ContentLevels[key]),
+          });
+        });
+        return options;
       },
       channelOptionsList() {
-        let channelList = [];
-        if (this.channels) {
-          this.channels.forEach(channel => {
-            channelList.push(channel.title);
+        let options = [];
+        this.channels.forEach(channel => {
+          options.push({
+            value: channel.id,
+            label: channel.title,
           });
-        }
-        return channelList;
+        });
+        return options;
       },
       selectedLanguage() {
         return this.languageOptionsList.find(o => o.value === this.value) || {};
@@ -72,19 +100,11 @@
         return this.channelOptionsList.find(o => o.value === this.value) || {};
       },
     },
-    methods: {
-      parseList(data) {
-        let newList = [];
-        Object.keys(data).map(key => {
-          let newValue;
-          if (data[key].charAt(0)) {
-            newValue = data[key].charAt(0).toUpperCase() + data[key].slice(1);
-          }
-          newValue = newValue.split('_').join(' ');
-          newList.push(newValue);
-        });
-        return newList;
-      },
+    $trs: {
+      accessibility: 'Accessibility',
+      channel: 'Channel',
+      contentLevel: 'Content Level',
+      language: 'Language',
     },
   };
 
@@ -100,6 +120,14 @@
 
     /deep/ .ui-select-display-value {
       margin-left: 10px;
+    }
+
+    /deep/ .ui-select-label-text {
+      position: static;
+      top: 0;
+      margin-left: 10px;
+      font-size: 12px;
+      color: black;
     }
 
     /deep/ .ui-icon {

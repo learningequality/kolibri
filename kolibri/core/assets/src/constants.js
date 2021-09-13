@@ -65,130 +65,130 @@ export const ContentKindsToLearningActivitiesMap = {
 // Resource library categories and subcategoriess
 export const LibraryCategories = {
   SCHOOL: 'school',
-  BASIC_SKILLS: 'basic_skills',
+  BASIC_SKILLS: 'basicSkills',
   WORK: 'work',
-  DAILY_LIFE: 'daily_life',
-  FOR_TEACHERS: 'for_teachers',
+  DAILY_LIFE: 'dailyLife',
+  FOR_TEACHERS: 'forTeachers',
 };
 
 export const SchoolCategories = {
-  MATHEMATICS: 'Mathematics',
-  SCIENCES: 'Sciences',
-  LITERATURE: 'Literature',
-  SOCIAL_SCIENCES: 'Social Sciences',
-  ARTS: 'Arts',
-  COMPUTER_SCIENCE: 'Computer Science',
-  LANGUAGE_LEARNING: 'Language learning',
-  HISTORY: 'History',
+  MATHEMATICS: 'mathematics',
+  SCIENCES: 'sciences',
+  LITERATURE: 'literature',
+  SOCIAL_SCIENCES: 'socialSciences',
+  ARTS: 'arts',
+  COMPUTER_SCIENCE: 'computerScience',
+  LANGUAGE_LEARNING: 'languageLearning',
+  HISTORY: 'history',
 };
 
 export const MathematicsSubcategories = {
-  ARITHMETIC: 'Arithmetic',
-  ALGEBRA: 'Algebra',
-  GEOMETRY: 'Geometry',
-  CALCULUS: 'Calculus',
-  STATISTICS: 'Statistics',
+  ARITHMETIC: 'arithmetic',
+  ALGEBRA: 'algebra',
+  GEOMETRY: 'geometry',
+  CALCULUS: 'calculus',
+  STATISTICS: 'statistics',
 };
 
 export const SciencesSubcategories = {
-  BIOLOGY: 'Biology',
-  CHEMISTRY: 'Chemistry',
-  PHYSICS: 'Physics',
-  EARTH_SCIENCE: 'Earth science',
-  ASTRONOMY: 'Astronomy',
+  BIOLOGY: 'biology',
+  CHEMISTRY: 'chemistry',
+  PHYSICS: 'physics',
+  EARTH_SCIENCE: 'earthScience',
+  ASTRONOMY: 'astronomy',
 };
 
 export const LiteratureSubcategories = {
-  LITERATURE: 'Literature',
-  READING_COMPREHENSION: 'Reading comprehension',
-  WRITING: 'Writing',
-  LOGIC_AND_CRITICAL_THINKING: 'Logic and critical thinking',
+  LITERATURE: 'literature',
+  READING_COMPREHENSION: 'readingComprehension',
+  WRITING: 'writing',
+  LOGIC_AND_CRITICAL_THINKING: 'logicAndCriticalThinking',
 };
 
 export const SocialSciencesSubcategories = {
-  POLITICAL_SCIENCE: 'Political science',
-  SOCIOLOGY: 'Sociology',
-  ANTHROPOLOGY: 'Anthropology',
-  CIVIC_EDUCATION: 'Civic education',
+  POLITICAL_SCIENCE: 'politicalScience',
+  SOCIOLOGY: 'sociology',
+  ANTHROPOLOGY: 'anthropology',
+  CIVIC_EDUCATION: 'civicEducation',
 };
 
 export const ArtsSubcategories = {
-  VISUAL_ART: 'Visual art',
-  MUSIC: 'Music',
-  DANCE: 'Dance',
-  DRAMA: 'Drama',
+  VISUAL_ART: 'visualArt',
+  MUSIC: 'music',
+  DANCE: 'dance',
+  DRAMA: 'drama',
 };
 
 export const ComputerScienceSubcategories = {
-  PROGRAMMING: 'Programming',
-  MECHANICAL_ENGINEERING: 'Mechanical engineering',
-  WEB_DESIGN: 'Web design',
+  PROGRAMMING: 'programming',
+  MECHANICAL_ENGINEERING: 'mechanicalEngineering',
+  WEB_DESIGN: 'webDesign',
 };
 
 export const BasicSkillsCategories = {
-  LITERACY: 'Literacy',
-  NUMERACY: 'Numeracy',
-  DIGITAL_LITERACY: 'Digital literacy',
-  LOGIC_AND_CRITICAL_THINKING: 'Logic and critical thinking',
-  LEARNING_SKILLS: 'Learning skills',
+  LITERACY: 'literacy',
+  NUMERACY: 'numeracy',
+  DIGITAL_LITERACY: 'digitalLiteracy',
+  LOGIC_AND_CRITICAL_THINKING: 'logicAndCriticalThinking',
+  LEARNING_SKILLS: 'learningSkills',
 };
 
 export const WorkCategories = {
-  PROFESSIONAL_SKILLS: 'Professional skills',
-  TECHNICAL_AND_VOCATIONAL_TRAINING: 'Technical and vocational training',
+  PROFESSIONAL_SKILLS: 'professionalSkills',
+  TECHNICAL_AND_VOCATIONAL_TRAINING: 'technicalAndVocationalTraining',
 };
 
 export const VocationalSubcategories = {
-  TOOLS_AND_SOFTWARE_TRAINING: 'Tools and software training',
-  SKILLS_TRAINING: 'Skills training',
-  INDUSTRY_AND_SECTOR_SPECIFIC: 'Industry and sector specific',
+  TOOLS_AND_SOFTWARE_TRAINING: 'toolsAndSoftwareTraining',
+  SKILLS_TRAINING: 'skillsTraining',
+  INDUSTRY_AND_SECTOR_SPECIFIC: 'industryAndSectorSpecific',
 };
 
 export const DailyLifeCategories = {
-  PUBLIC_HEALTH: 'Public health',
-  ENTREPRENEURSHIP: 'Entrepreneurship',
-  FINANCIAL_LITERACY: 'Financial literacy',
-  CURRENT_EVENTS: 'Current events',
-  ENVIRONMENT: 'Environment',
-  MEDIA_LITERACY: 'Media literacy',
-  DIVERSITY: 'Diversity',
-  MENTAL_HEALTH: 'Mental health',
+  PUBLIC_HEALTH: 'publicHealth',
+  ENTREPRENEURSHIP: 'entrepreneurship',
+  FINANCIAL_LITERACY: 'financialLiteracy',
+  CURRENT_EVENTS: 'currentEvents',
+  ENVIRONMENT: 'environment',
+  MEDIA_LITERACY: 'mediaLiteracy',
+  DIVERSITY: 'diversity',
+  MENTAL_HEALTH: 'mentalHealth',
 };
 
 export const TeachersCategories = {
-  GUIDES: 'Guides',
-  LESSON_PLANS: 'Lesson Plans',
+  GUIDES: 'guides',
+  LESSON_PLANS: 'lessonPlans',
 };
 
 export const ResourcesNeededTypes = {
-  FOR_BEGINNERS: 'for_beginners',
-  TEACHERS_AND_PEERS: 'to_use_with_teachers_and_peers',
-  PAPER_AND_PENCIL: 'to_use_with_paper_and_pencil',
-  NEEDS_INTERNET: 'that_need_internet_connection',
-  NEEDS_MATERIALS: 'that_need_other_materials',
+  FOR_BEGINNERS: 'forBeginners',
+  TEACHERS_AND_PEERS: 'toUseWithteachersAndPeers',
+  PAPER_AND_PENCIL: 'toUseWithpaperAndPencil',
+  NEEDS_INTERNET: 'needsInternet',
+  NEEDS_MATERIALS: 'needsMaterials',
 };
 
 export const AccessibilityCategories = {
   ALL: 'all',
-  SIGN_LANGUAGE: 'has_sign_language_captions',
-  AUDIO_DESCRIPTION: 'has_audio_descriptions',
-  TAGGED_PDF: 'tagged_pdf',
-  ALT_TEXT: 'has_alternative_text_description_for_images',
-  HIGH_CONTRAST: 'has_high_contrast_display_for_low_vision',
-  CAPTIONS_SUBTITLES: 'has_captions_or_subtitles',
+  SIGN_LANGUAGE: 'signLanguage',
+  AUDIO_DESCRIPTION: 'audioDescription',
+  TAGGED_PDF: 'taggedPdf',
+  ALT_TEXT: 'altText',
+  HIGH_CONTRAST: 'highContrast',
+  CAPTIONS_SUBTITLES: 'captionsSubtitles',
 };
 
 // Used to categorize the level or audience of content
 export const ContentLevels = {
   PRESCHOOL: 'preschool',
-  LOWER_PRIMARY: 'lower_primary',
-  UPPER_PRIMARY: 'upper_primary',
-  LOWER_SECONDARY: 'lower_secondary',
-  UPPER_SECONDARY: 'upper_secondary',
+  LOWER_PRIMARY: 'lowerPrimary',
+  UPPER_PRIMARY: 'upperPrimary',
+  LOWER_SECONDARY: 'lowerSecondary',
+  UPPER_SECONDARY: 'upperSecondary',
   TERTIARY: 'tertiary',
-  PROFESSIONAL: 'specialized_professional_training',
-  BASIC_SKILLS: 'all_levels_basic_skills',
-  WORK_SKILLS: 'all_levels_work_skills',
+  PROFESSIONAL: 'specializedProfessionalTraining',
+  BASIC_SKILLS: 'basicSkills',
+  WORK_SKILLS: 'workSkills',
 };
 
 // used internally on the client as a hack to allow content-icons to display users

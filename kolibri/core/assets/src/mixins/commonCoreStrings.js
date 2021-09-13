@@ -355,6 +355,117 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   exploreActivity: 'Explore',
   topicLabel: 'Topic',
 
+  // Library Categories
+  school: 'School',
+  basicSkills: 'Basic skills',
+  work: 'Work',
+  dailyLife: 'Daily life',
+  forTeachers: 'For teachers',
+
+  // School Categories
+  mathematics: 'Mathematics',
+  sciences: 'Sciences',
+  literature: 'Literature',
+  socialSciences: 'Social Sciences',
+  arts: 'Arts',
+  computerScience: 'Computer Science',
+  languageLearning: 'Language learning',
+  history: 'History',
+
+  // Mathematics Subcategories
+  arithmetic: 'Arithmetic',
+  algebra: 'Algebra',
+  geometry: 'Geometry',
+  calculus: 'Calculus',
+  statistics: 'Statistics',
+
+  // Sciences Subcategories
+  biology: 'Biology',
+  chemistry: 'Chemistry',
+  physics: 'Physics',
+  earthScience: 'Earth science',
+  astronomy: 'Astronomy',
+
+  //  Literature Subcategories
+  readingComprehension: 'Reading comprehension',
+  writing: 'Writing',
+  logicAndCritialThinking: 'Logic and critical thinking',
+
+  // Social Sciences Subcategories
+  politicalScience: 'Political science',
+  sociology: 'Sociology',
+  anthropology: 'Anthropology',
+  civicEducation: 'Civic education',
+
+  // Arts Subcategories = {
+  visualArt: 'Visual art',
+  music: 'Music',
+  dance: 'Dance',
+  drama: 'Drama',
+
+  //  Computer Science Subcategories
+  programming: 'Programming',
+  mechanicalEngineering: 'Mechanical engineering',
+  webDesign: 'Web design',
+
+  // Basic Skills
+  literacy: 'Literacy',
+  numeracy: 'Numeracy',
+  digitialLiteracy: 'Digital literacy',
+  logicalAndCriticalThinking: 'Logic and critical thinking',
+  learningSkills: 'Learning skills',
+
+  // Work Categories
+  professionalSkills: 'Professional skills',
+  technicalAndVocationalTraining: 'Technical and vocational training',
+
+  //  VocationalSubcategories
+  toolsAndSoftwareTraining: 'Tools and software training',
+  skillsTraining: 'Skills training',
+  industryAndSectorSpecific: 'Industry and sector specific',
+
+  // Daily Life Categories
+  publicHealth: 'Public health',
+  entrepreneurship: 'Entrepreneurship',
+  financialLiteracy: 'Financial literacy',
+  currentEvents: 'Current events',
+  environment: 'Environment',
+  mediaLiteracy: 'Media literacy',
+  diversity: 'Diversity',
+  mentalHealth: 'Mental health',
+
+  // Teacher-Specific Categories
+  guides: 'Guides',
+  lessonPlans: 'Lesson Plans',
+
+  // Resources Needed Categories = {
+  ForBeginners: 'For beginners',
+  ToUseWithteachersAndPeers: 'To use with teachers and peers',
+  ToUseWithpaperAndPencil: 'To use with paper and pencil',
+  NeedsInternet: 'That need internet connection',
+  NeedsMaterials: 'That need other materials',
+
+  // Accessibility Categories
+  all: 'All',
+  signLanguage: 'Has sign language captions',
+  audioDescription: 'Has audio description',
+  taggedPdf: 'Tagged PDF',
+  altText: 'Has alternative text description for images',
+  highContrast: 'Has high contrast display for low vision',
+  captionsSubtitles: 'Has captions or subtitles',
+
+  // Used to categorize the level or audience of content
+  // ContentLevels
+  preschool: 'Preschool',
+  lowerPrimary: 'Lower primary',
+  upperPrimary: 'Upper pprimary',
+  lowerSecondary: 'Lower secondary',
+  upperSecondary: 'Upper secondary',
+  tertiary: 'Tertiary',
+  specializedProfessionalTraining: 'Specialized professional training',
+  allLevelsBasicSkills: 'All levels -- basic skills',
+  allLevelsWorkSkills: 'All levels -- work skills',
+
   // Notifications
   changesSavedNotification: {
     message: 'Changes saved',
