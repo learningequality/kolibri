@@ -1,13 +1,13 @@
 <template>
 
   <div class="content-grid">
-    <KFixedGrid v-if="cardViewStyle === 'cards'" numCols="3" gutter="24">
+    <KFixedGrid v-if="cardViewStyle === 'card'" numCols="3" gutter="24">
       <KFixedGridItem v-for="content in contents" :key="content.id" span="1">
         <ContentCard
           class="grid-item"
           :isMobile="windowIsSmall"
           :title="content.title"
-          :thumbnail="content.thumbnail"
+          :thumbnail="setContentThumbnail(content)"
           :kind="content.kind"
           :isLeaf="content.is_leaf"
           :progress="content.progress || 0"
@@ -15,7 +15,7 @@
           :link="genContentLink(content.id, content.is_leaf)"
           :contentId="content.content_id"
           :copiesCount="content.copies_count"
-          :channelThumbnail="channelThumbnail(content)"
+          :channelThumbnail="setChannelThumbnail(content)"
           :channelTitle="channelTitle(content)"
           @openCopiesModal="openCopiesModal"
         />
@@ -25,7 +25,7 @@
       v-for="content in contents"
       v-else
       :key="content.id"
-      :channelThumbnail="channelThumbnail(content)"
+      :channelThumbnail="setChannelThumbnail(content)"
       :channelTitle="channelTitle(content)"
       :description="content.description"
       class="grid-item"
@@ -75,11 +75,11 @@
         required: true,
       },
       cardViewStyle: {
-        type: String,
-        require: true,
-        default: 'cards',
+        type: Number,
+        required: true,
+        default: 3,
         validator(value) {
-          return ['cards', 'list'].includes(value);
+          return [1, 3, 4].includes(value);
         },
       },
       genContentLink: {
@@ -89,6 +89,10 @@
         },
         default: () => ({}),
         required: false,
+      },
+      channelThumbnail: {
+        type: String,
+        required: true,
       },
     },
     data: () => ({
@@ -105,13 +109,22 @@
         this.uniqueId = this.contents.find(content => content.content_id === contentId).id;
         this.modalIsOpen = true;
       },
-      channelThumbnail(content) {
-        let match = this.channels.find(channel => channel.id === content.channel_id);
-        return match.thumbnail;
+      setChannelThumbnail(content) {
+        if (this.channelThumbnail) {
+          return this.channelThumbnail;
+        } else {
+          let match = this.channels.find(channel => channel.id === content.channel_id);
+          return match ? match.thumbnail : null;
+        }
+      },
+      setContentThumbnail(content) {
+        if (content.thumbnail) {
+          return content.thumbnail;
+        }
       },
       channelTitle(content) {
         let match = this.channels.find(channel => channel.id === content.channel_id);
-        return match.title;
+        return match ? match.title : null;
       },
     },
   };

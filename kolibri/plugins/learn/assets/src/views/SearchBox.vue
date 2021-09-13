@@ -15,7 +15,7 @@
     >
       <label class="visuallyhidden" for="searchfield">{{ coreString('searchLabel') }}</label>
       <input
-        id="searchfield"
+        :id="id"
         ref="searchInput"
         v-model.trim="searchInputValue"
         type="search"
@@ -133,6 +133,10 @@
       filters: {
         type: Boolean,
         default: false,
+      },
+      id: {
+        type: String,
+        default: 'searchfield',
       },
     },
     data() {

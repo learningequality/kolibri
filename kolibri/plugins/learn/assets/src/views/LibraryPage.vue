@@ -5,7 +5,9 @@
       class="main-content-grid"
     >
       <EmbeddedSidePanel
+        v-if="!!windowIsLarge"
         :channels="channels"
+        width="3"
         @openModal="handleShowSearchModal"
       />
       <KGridItem
@@ -33,10 +35,9 @@
             />
             <KIconButton
               icon="channel"
-              value="cards"
               ariaLabel="Toggle to grid view"
               :color="$themeTokens.text"
-              @click="toggleCardView('cards')"
+              @click="toggleCardView('card')"
             />
           </div>
           <h2>Recent</h2>
@@ -112,6 +113,19 @@
     computed: {
       ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       ...mapState('topicsRoot', { channels: 'rootNodes' }),
+      // screenLevel() {
+      //   if (window.innerWidth < 480) {
+      //     return 0;
+      //   } else if (window.innerWidth > 480 && window.innerWidth < 600) {
+      //     return 2;
+      //   } else if (window.innerWidth > 600 && window.innerWidth < 840) {
+      //     return 2;
+      //   } else if (window.innerWidth > 840 && window.innerWidth < 960) {
+      //     return 3;
+      //   } else {
+      //     return 4;
+      //   }
+      // },
       carouselLimit() {
         return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
       },
@@ -148,7 +162,6 @@
         }
       }
     },
-
     methods: {
       genContentLink(id, isLeaf) {
         return {

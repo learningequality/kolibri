@@ -1,19 +1,26 @@
 <template>
 
   <KGridItem
-    :layout="{ span: 3 }"
+    :layout="{ span: width }"
     :style="{
       color: $themeTokens.text,
       backgroundColor: $themeTokens.surface,
     }"
     class="side-panel"
   >
-    <div>
+    <div v-if="topics && topicsListDisplayed">
+      <div v-for="t in topics" :key="t.id">
+        <h3>
+          {{ t.title }}
+        </h3>
+      </div>
+    </div>
+    <div v-else :style="sidePanelStyle">
       <!-- search by keyword -->
       <h2 class="title">
         Keywords
       </h2>
-      <SearchBox />
+      <SearchBox key="channel-search" />
       <h2 class="section title">
         Categories
       </h2>
@@ -67,7 +74,7 @@
           <KCheckbox
             key="adHocLearners"
             :checked="isSelected(value)"
-            :label="value"
+            :label="coreString(value)"
             @change="$emit('toggleSelected', $event)"
           />
         </div>
@@ -81,12 +88,11 @@
 <script>
 
   import { LibraryCategories, ResourcesNeededTypes } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import SearchBox from '../SearchBox';
   import commonLearnStrings from '../commonLearnStrings';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import SelectGroup from './SelectGroup';
-
-  // import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'EmbeddedSidePanel',
@@ -95,11 +101,27 @@
       ActivityButtonsGroup,
       SelectGroup,
     },
-    mixins: [commonLearnStrings],
+    mixins: [commonLearnStrings, commonCoreStrings],
     props: {
       channels: {
         type: Array,
         required: true,
+      },
+      topics: {
+        type: Array,
+        required: true,
+      },
+      width: {
+        type: Number || String,
+        required: true,
+      },
+      topicPage: {
+        type: Boolean,
+        required: false,
+      },
+      topicsListDisplayed: {
+        type: Boolean,
+        required: false,
       },
     },
     computed: {
@@ -141,11 +163,16 @@
           },
         };
       },
+      sidePanelStyle() {
+        if (this.topicPage) {
+          return { position: 'relative' };
+        }
+        return null;
+      },
     },
     methods: {
       isSelected(value) {
-        console.log(value);
-        return value === 'For beginners' ? false : true;
+        return value === 'ForBeginners' ? false : true;
       },
     },
   };

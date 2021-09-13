@@ -11,7 +11,7 @@
   >
     <div class="header-bar">
       <KLabeledIcon
-        :icon="`${kindToLearningActivity}Solid`"
+        :icon="kind === 'topic' ? 'topic' : `${kindToLearningActivity}Solid`"
         :label="learnString(kindToLearningActivity)"
         class="k-labeled-icon"
       />
