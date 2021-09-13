@@ -12,7 +12,7 @@
     <div class="header-bar">
       <KLabeledIcon
         :icon="kind === 'topic' ? 'topic' : `${kindToLearningActivity}Solid`"
-        :label="learnString(kindToLearningActivity)"
+        :label="coreString(kindToLearningActivity)"
         class="k-labeled-icon"
       />
       <img
@@ -95,6 +95,7 @@
   } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonLearnStrings from '../commonLearnStrings';
   import CardThumbnail from './CardThumbnail.vue';
 
@@ -105,7 +106,7 @@
       CoachContentLabel,
       TextTruncator,
     },
-    mixins: [commonLearnStrings],
+    mixins: [commonLearnStrings, commonCoreStrings],
     props: {
       title: {
         type: String,
@@ -179,13 +180,16 @@
       },
       kindToLearningActivity() {
         let activity = '';
-        if (Object.values(LearningActivities).includes(this.kind)) {
+        if (this.kind === 'topic') {
+          return 'folder';
+        } else if (Object.values(LearningActivities).includes(this.kind)) {
           activity = this.kind;
+          return `${activity}Activity`;
         } else {
           // otherwise reassign the old content types to the new metadata
           activity = ContentKindsToLearningActivitiesMap[this.kind];
+          return `${activity}Activity`;
         }
-        return activity;
       },
     },
     $trs: {

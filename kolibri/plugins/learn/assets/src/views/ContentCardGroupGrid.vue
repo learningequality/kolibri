@@ -75,11 +75,11 @@
         required: true,
       },
       cardViewStyle: {
-        type: Number,
+        type: String,
         required: true,
-        default: 3,
+        default: 'card',
         validator(value) {
-          return [1, 3, 4].includes(value);
+          return ['card', 'list'].includes(value);
         },
       },
       genContentLink: {
@@ -92,7 +92,8 @@
       },
       channelThumbnail: {
         type: String,
-        required: true,
+        required: false,
+        default: null,
       },
     },
     data: () => ({

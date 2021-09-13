@@ -353,7 +353,8 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   readActivity: 'Read',
   watchActivity: 'Watch',
   exploreActivity: 'Explore',
-  topicLabel: 'Topic',
+
+  folder: 'Folder',
 
   // Library Categories
   school: 'School',

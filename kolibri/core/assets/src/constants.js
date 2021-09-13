@@ -60,6 +60,7 @@ export const ContentKindsToLearningActivitiesMap = {
   exercise: LearningActivities.PRACTICE,
   html5: LearningActivities.EXPLORE,
   video: LearningActivities.WATCH,
+  topic: 'folder',
 };
 
 // Resource library categories and subcategoriess

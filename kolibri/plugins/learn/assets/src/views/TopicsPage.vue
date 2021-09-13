@@ -77,16 +77,16 @@
             topicPage="True"
             :topics="topics"
             :topicsListDisplayed="activeTab === 'folder'"
-            width="2"
+            width="3"
             @openModal="handleShowSearchModal"
           />
           <KGridItem
-            :layout="{ span: 2 }"
+            :layout="{ span: 3 }"
             class="side-panel"
           />
           <KGridItem
             class="card-grid"
-            :layout="{ span: 9 }"
+            :layout="{ span: 8 }"
           >
             <KGridItem
               class="breadcrumbs"
@@ -106,6 +106,7 @@
                   :contents="t.children.results"
                   :genContentLink="genContentLink"
                   :channelThumbnail="topicOrChannel['thumbnail']"
+                  cardViewStyle="card"
                 />
                 <KButton
                   v-if="t.children && t.children.more"
@@ -267,6 +268,26 @@
         context: 'DO NOT TRANSLATE',
       },
       viewMore: 'View more',
+      folders: {
+        message: 'Folders',
+        context:
+          "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
+      },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      search: {
+        message: 'Search',
+        context:
+          "Tab label in the 'Browse channel' page that allows to use category search within a channel.",
+      },
+      showMore: {
+        message: 'Show more',
+        context: 'Clickable link which allows to load more resources.',
+      },
+      viewAll: {
+        message: 'View all',
+        context: 'Clickable link which allows to display all resources in a topic.',
+      },
+      /* eslint-disable kolibri/vue-no-unused-translations */
     },
   };
 

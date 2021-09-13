@@ -18,11 +18,14 @@
     <div v-else :style="sidePanelStyle">
       <!-- search by keyword -->
       <h2 class="title">
-        Keywords
+        {{ $tr('keywords') }}
       </h2>
-      <SearchBox key="channel-search" />
+      <SearchBox
+        key="channel-search"
+        placeholder="findSomethingToLearn"
+      />
       <h2 class="section title">
-        Categories
+        {{ $tr('categories') }}
       </h2>
       <!-- list of category metadata - clicking prompts a filter modal -->
       <div
@@ -43,7 +46,7 @@
         class="category-list-item"
       >
         <KButton
-          :text="value"
+          :text="coreString(value)"
           appearance="flat-button"
           :appearanceOverrides="customCategoryStyles"
           iconAfter="chevronRight"
@@ -109,7 +112,9 @@
       },
       topics: {
         type: Array,
-        required: true,
+        default() {
+          return [];
+        },
       },
       width: {
         type: Number || String,
@@ -173,6 +178,16 @@
     methods: {
       isSelected(value) {
         return value === 'ForBeginners' ? false : true;
+      },
+    },
+    $trs: {
+      keywords: {
+        message: 'Keywords',
+        context: 'Section header label in the Library page sidebar.',
+      },
+      categories: {
+        message: 'Categories',
+        context: 'Section header label in the Library page sidebar.',
       },
     },
   };

@@ -2,7 +2,7 @@
 
   <div>
     <h2 class="title">
-      Activities
+      {{ $tr('activities') }}
     </h2>
     <KButton
       appearance="flat-button"
@@ -77,6 +77,12 @@
             'line-spacing': '0',
           },
         };
+      },
+    },
+    $trs: {
+      activities: {
+        message: 'Activities',
+        context: 'Section header label in the Library page sidebar.',
       },
     },
   };

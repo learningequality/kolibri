@@ -22,7 +22,7 @@
         class="search-input"
         :class="$computedClass(searchInputStyle)"
         dir="auto"
-        :placeholder="coreString('searchLabel')"
+        :placeholder="$tr(placeholder)"
       >
       <div class="search-buttons-wrapper">
         <KIconButton
@@ -137,6 +137,10 @@
       id: {
         type: String,
         default: 'searchfield',
+      },
+      placeholder: {
+        type: String,
+        default: 'searchLabel',
       },
     },
     data() {
@@ -295,6 +299,17 @@
         message: 'Apps',
         context: 'Learners can filter their searches for resources by type. In this case, apps.',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+
+      searchPlaceholder: {
+        message: 'Search',
+        context: 'Placeholder text within the search field.',
+      },
+      findSomethingToLearn: {
+        message: 'Find something to learn',
+        context: 'Suggestion located inside the the keyword search field.',
+      },
+      /* eslint-disable kolibri/vue-no-unused-translations */
     },
   };
 

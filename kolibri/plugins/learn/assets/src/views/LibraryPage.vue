@@ -19,7 +19,7 @@
         :layout="{ span: 8 }"
       >
         <div v-if="!displayingSearchResults">
-          <h2>Channels</h2>
+          <h2>{{ $tr('channels') }}</h2>
           <ChannelCardGroupGrid
             v-if="channels.length"
             class="grid"
@@ -29,18 +29,20 @@
           <div class="toggle-view-buttons">
             <KIconButton
               icon="menu"
-              ariaLabel="Toggle to list view"
+              :ariaLabel="$tr('viewAsList')"
               :color="$themeTokens.text"
+              :tooltip="$tr('viewAsList')"
               @click="toggleCardView('list')"
             />
             <KIconButton
               icon="channel"
-              ariaLabel="Toggle to grid view"
+              :ariaLabel="$tr('viewAsGrid')"
               :color="$themeTokens.text"
+              :tooltip="$tr('viewAsGrid')"
               @click="toggleCardView('card')"
             />
           </div>
-          <h2>Recent</h2>
+          <h2>{{ $tr('recent') }}</h2>
           <ContentCardGroupGrid
             v-if="popular.length"
             :cardViewStyle="currentViewStyle"
@@ -49,7 +51,8 @@
           />
         </div>
         <div v-else>
-          <h2>{{ results }}</h2>
+          <h2>{{ $tr('moreThanXResults') }}</h2>
+          <p>{{ $tr('clearAll') }}</p>
           <KCircularLoader
             v-if="loading"
             class="loader"
@@ -138,9 +141,6 @@
       trimmedResume() {
         return this.resume.slice(0, this.carouselLimit);
       },
-      results() {
-        return 'results';
-      },
       displayingSearchResults() {
         return false;
       },
@@ -188,6 +188,48 @@
 
       toggleCardView(value) {
         this.currentViewStyle = value;
+      },
+    },
+    $trs: {
+      channels: {
+        message: 'Channels',
+        context: 'Section header for the Library page',
+      },
+      recent: {
+        message: 'Recent',
+        context:
+          'Header for the section in the Library tab with resources that the learner recently engaged with.',
+      },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      accessibility: {
+        message: 'Accessibility',
+        context:
+          'Allows the user to filter for all the resources with accessibility features for learners with disabilities.',
+      },
+      all: {
+        message: 'All',
+        context: 'Refers to all types of resource activities.',
+      },
+      moreThanXResults: {
+        message: 'More than {results} results',
+        context: 'Number of results for a given term after a Library search.',
+      },
+      searchPlaceholder: {
+        message: 'Find something to learn',
+        context: 'Suggestion located inside the the keyword search field.',
+      },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      viewAsList: {
+        message: 'View as list',
+        context: 'Label for a button',
+      },
+      viewAsGrid: {
+        message: 'View as grid',
+        context: 'Label for a button',
+      },
+      clearAll: {
+        message: 'Clear all',
+        context: 'Clickable link which removes all currently applied search filters.',
       },
     },
   };

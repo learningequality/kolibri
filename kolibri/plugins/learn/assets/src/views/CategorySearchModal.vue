@@ -129,7 +129,10 @@
       },
     },
     $trs: {
-      title: 'Choose a category',
+      title: {
+        message: 'Choose a category',
+        context: 'Title of the category selection window',
+      },
     },
   };
 
