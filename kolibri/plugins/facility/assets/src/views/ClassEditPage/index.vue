@@ -199,7 +199,10 @@
           'This text displays in the edit class page if there are no learners enrolled in a class.',
       },
       edit: 'Edit class name',
-      documentTitle: 'Edit Class',
+      documentTitle: {
+        message: 'Edit Class',
+        context: 'Page title.',
+      },
       renameButtonLabel: {
         message: 'Edit',
         context:

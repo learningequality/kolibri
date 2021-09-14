@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "संपादित करें (एडिट)",
   "ProfilePage.isSuperuser": "सुपर एडमिन की अनुमतियाँ ",
   "ProfilePage.limitedPermissions": "सीमित अनुमतियाँ",
-  "ProfilePage.manageContent": "सामग्री प्रबंधित करें",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "उपकरण की अनुमतियाँ प्रबंधित करें",
   "ProfilePage.points": "अंक",
   "ProfilePage.youCan": "आप कर सकते हैं",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "2 में से 1 ला चरण",
   "UserIndex.signUpStep2Title": "2 में से 2 रा चरण",
   "UserIndex.userProfileTitle": "प्रोफ़ाइल",
-  "UserPageSnackbars.dismiss": "ख़ारिज करें",
+  "UserPageSnackbars.dismiss": "",
   "UserPageSnackbars.signedOut": "निष्क्रियता के कारण आप अपने आप साइन आउट हो गए"
 }

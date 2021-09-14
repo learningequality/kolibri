@@ -276,7 +276,7 @@
       saveSuccess: 'Facility settings updated',
       pageDescription: {
         message: 'Configure facility settings here.',
-        context: '\nInterpret as "[You can] configure facility settings here"',
+        context: 'Interpret as "[You can] configure facility settings here"',
       },
       deviceSettings: {
         message: 'You can also configure device settings',

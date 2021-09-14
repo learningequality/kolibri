@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "Bearbeiten",
   "ProfilePage.isSuperuser": "Berechtigungen von Superadministratoren ",
   "ProfilePage.limitedPermissions": "Begrenzte Berechtigungen",
-  "ProfilePage.manageContent": "Inhalte verwalten",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "Geräteberechtigungen verwalten",
   "ProfilePage.points": "Punkte",
   "ProfilePage.youCan": "Sie können:",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "Schritt 1 von 2",
   "UserIndex.signUpStep2Title": "Schritt 2 von 2",
   "UserIndex.userProfileTitle": "Profil",
-  "UserPageSnackbars.dismiss": "Schließen",
+  "UserPageSnackbars.dismiss": "",
   "UserPageSnackbars.signedOut": "Sie wurden aufgrund von Inaktivität automatisch abgemeldet"
 }

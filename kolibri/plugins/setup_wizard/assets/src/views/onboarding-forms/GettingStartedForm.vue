@@ -67,27 +67,27 @@
     $trs: {
       gettingStarted: {
         message: 'How are you using Kolibri?',
-        context: 'Page title for the device setup step',
+        context: 'Page title for the device setup step.',
       },
       quickStartLabel: {
         message: 'Quick start',
-        context: 'Label for the radio button option in the device setup',
+        context: 'Label for the radio button option in the device setup.',
       },
       quickStartDescription: {
         message:
           'For homeschooling, supplementary individual learning, and other self-directed use',
 
-        context: 'Option description text',
+        context: "Option description text for 'Quick start'.",
       },
       advancedSetupLabel: {
         message: 'Advanced setup',
-        context: 'Label for the radio button option in the device setup',
+        context: 'Label for the radio button option in the device setup.',
       },
       advancedSetupDescription: {
         message:
           'For schools, educational programs, organizations, or other group learning settings that will share the use of Kolibri',
 
-        context: 'Option description text',
+        context: "Option description text for 'Advanced setup'.",
       },
     },
   };

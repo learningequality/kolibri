@@ -1,7 +1,7 @@
 {
   "AuthBase.accessAsGuest": "រុករកដោយគ្មានគណនី",
   "AuthBase.oidcGenericExplanation": "Kolibri គឺជាកម្មវិធីការសិក្សាលើបណ្ដាញអនឡាញ។ វាក៏អាចប្រើគណនី Kolibri របស់អ្នកបានដើម្បីចុះឈ្មោះ ឬចូលទៅក្នុងកម្មវិធីរបស់ភាគីទីបី។",
-  "AuthBase.oidcSpecificExplanation": "កម្មវិធីនេះ'{app_name}' បានផ្ញើមកកាន់អ្នកនៅទីនេះ។ Kolibri គឺជាកម្មវិធីការសិក្សាលើបណ្ដាញអនឡាញ និងវាក៏អាចប្រើគណនី Kolibri របស់អ្នកបានដើម្បីចូលមើលក្នុង '{app_name}'។ ",
+  "AuthBase.oidcSpecificExplanation": "កម្មវិធីនេះ'{app_name}' បានផ្ញើមកកាន់អ្នកនៅទីនេះ។ Kolibri គឺជាកម្មវិធីការសិក្សាលើបណ្ដាញអនឡាញ និងវាក៏អាចប្រើគណនី Kolibri របស់អ្នកបានដើម្បីចូលមើលក្នុង '{app_name}'។",
   "AuthBase.photoCreditLabel": "",
   "AuthBase.poweredBy": "Kolibri {version}",
   "AuthBase.poweredByKolibri": "ឧបត្ថម្ភដោយ Kolibri",
@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "កែប្រែ",
   "ProfilePage.isSuperuser": "ការអនុញ្ញាតរបស់អ្នកគ្រប់គ្រងកំពូល ",
   "ProfilePage.limitedPermissions": "ការអនុញ្ញាត​មាន​ដែន​កំណត់",
-  "ProfilePage.manageContent": "គ្រប់គ្រងមាតិកា",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "គ្រប់គ្រងការអនុញ្ញាតក្នុងឧបករណ៍",
   "ProfilePage.points": "ពិន្ទុ",
   "ProfilePage.youCan": "អ្នកអាច៖",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "ជំហ៊ាន១នៃ២",
   "UserIndex.signUpStep2Title": "ជំហ៊ាន២នៃ២",
   "UserIndex.userProfileTitle": "ទម្រង់",
-  "UserPageSnackbars.dismiss": "បោះបង់",
+  "UserPageSnackbars.dismiss": "បិទ",
   "UserPageSnackbars.signedOut": "អ្នកត្រូវបានចុះឈ្មោះចេញដោយស្វ័យប្រវត្តិដោយសារគ្មានសកម្មភាព"
 }

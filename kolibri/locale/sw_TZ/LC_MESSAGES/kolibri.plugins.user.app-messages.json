@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "Hariri",
   "ProfilePage.isSuperuser": "Ruhusa ya msimamizi mkuu ",
   "ProfilePage.limitedPermissions": "Idadi ndogo ya ruhusa",
-  "ProfilePage.manageContent": "Simamia maudhui",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "Simamia ruhusa ya kifaa",
   "ProfilePage.points": "Pointi",
   "ProfilePage.youCan": "Unaweza:",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "Hatua 1 ya 2",
   "UserIndex.signUpStep2Title": "Hatua 2 ya 2",
   "UserIndex.userProfileTitle": "Wasifu",
-  "UserPageSnackbars.dismiss": "Ondoa",
+  "UserPageSnackbars.dismiss": "",
   "UserPageSnackbars.signedOut": "Uliondolewa moja kwa moja kwa sababu ya kutotumia"
 }

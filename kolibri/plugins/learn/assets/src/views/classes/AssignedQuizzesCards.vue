@@ -113,10 +113,13 @@
       yourQuizzesHeader: {
         message: 'Your quizzes',
         context:
-          "AssignedQuizzesCards.yourQuizzesHeader\n\nHeading on the 'Learn' page for a section where a learner can see the assigned quizzes.",
+          "AssignedQuizzesCards.yourQuizzesHeader\n\nHeading on the 'Learn' page for a section where a learner can see which quizzes have been assigned to them.",
+      },
+      noQuizzesMessage: {
+        message: 'You have no quizzes assigned',
+        context: 'Message that a learner sees if a coach has not assigned any quizzes to them.',
       },
       recentQuizzesHeader: 'Recent quizzes',
-      noQuizzesMessage: 'You have no quizzes assigned',
     },
   };
 

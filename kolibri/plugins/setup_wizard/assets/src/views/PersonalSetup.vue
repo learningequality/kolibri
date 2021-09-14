@@ -59,7 +59,9 @@
       adminAccountCreationDescriptionPersonal: {
         message:
           'This account allows you to manage all resource channels and user accounts on this device',
-        context: 'Alternative description for SuperuserCredentialsForm when doing a personal setup',
+
+        context:
+          'Alternative description for SuperuserCredentialsForm when doing a personal setup.',
       },
     },
   };

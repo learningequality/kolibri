@@ -88,10 +88,22 @@ module.exports = function(locale) {
           resolve(() => require('intl/locale-data/jsonp/hi-IN.js'));
         });
       });
+    case 'id':
+      return new Promise(function(resolve) {
+        require.ensure(['intl/locale-data/jsonp/id.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/id.js'));
+        });
+      });
     case 'it':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/it.js'], function(require) {
           resolve(() => require('intl/locale-data/jsonp/it.js'));
+        });
+      });
+    case 'ka':
+      return new Promise(function(resolve) {
+        require.ensure(['intl/locale-data/jsonp/ka.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/ka.js'));
         });
       });
     case 'km':

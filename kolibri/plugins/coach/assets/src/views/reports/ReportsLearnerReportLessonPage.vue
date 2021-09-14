@@ -36,9 +36,9 @@
           <template #key>
             {{ coachString('statusLabel') }}
           </template>
-          <template #value>
+          <!--           <template #value>
             <LessonActive :active="lesson.active" />
-          </template>
+          </template> -->
         </HeaderTableRow>
         <HeaderTableRow v-show="!$isPrint">
           <template #key>

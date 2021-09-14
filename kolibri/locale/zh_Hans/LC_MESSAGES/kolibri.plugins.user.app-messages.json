@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "编辑",
   "ProfilePage.isSuperuser": "超级管理员权限",
   "ProfilePage.limitedPermissions": "有限权限",
-  "ProfilePage.manageContent": "管理内容",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "管理设备权限",
   "ProfilePage.points": "分",
   "ProfilePage.youCan": "您可以：",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "步骤 1 / 2",
   "UserIndex.signUpStep2Title": "步骤 2 / 2",
   "UserIndex.userProfileTitle": "个人资料",
-  "UserPageSnackbars.dismiss": "取消",
+  "UserPageSnackbars.dismiss": "",
   "UserPageSnackbars.signedOut": "由于无活动，您已自动退出登陆了"
 }

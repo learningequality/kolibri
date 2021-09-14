@@ -27,7 +27,7 @@
     "bundle-stats": "kolibri-tools build stats --file ./build_tools/build_plugins.txt",
     "clean": "kolibri-tools build clean --file ./build_tools/build_plugins.txt",
     "preinstall": "node ./packages/kolibri-tools/lib/npm_deprecation_warning.js",
-    "lint-frontend": "kolibri-tools lint --pattern '{kolibri*/**/assets,packages,build_tools}/**/*.{js,vue,scss,less,css}'",
+    "lint-frontend": "kolibri-tools lint --pattern '{kolibri*/**/assets,packages,build_tools}/**/*.{js,vue,scss,less,css}' --ignore '**/dist/**,**/node_modules/**,**/static/**'",
     "lint-frontend:format": "yarn run lint-frontend --write",
     "lint-frontend:watch": "yarn run lint-frontend --monitor",
     "lint-frontend:watch:format": "yarn run lint-frontend --monitor --write",
