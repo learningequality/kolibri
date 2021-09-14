@@ -76,6 +76,24 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Explore',
     context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
   },
+  dontShowThisAgainLabel: {
+    message: 'Don’t show this again',
+    context:
+      'Option that allows the user to prevent this resource from displaying in the future while using category search',
+  },
+  resourceHidden: {
+    message: 'Resource hidden',
+    context:
+      'Notification message indicating the resource has been marked as hidden for future category searches.',
+  },
+  suggestedTimeToComplete: {
+    message: 'Suggested time to complete',
+    context: 'Tooltip label indicating the approximate time needed to complete the resource.',
+  },
+  multipleLearningActivities: {
+    message: 'Multiple learning activities',
+    context: 'Label indicating the resource contains multiple learning activities',
+  },
 });
 
 export default {
