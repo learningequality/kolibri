@@ -28,6 +28,15 @@
       displayClassName
       recent
     />
+    <!--
+      TODO: To be implemented, it's here only to get strings
+      in before the next major release
+      <ExploreChannels
+        v-if="!isUserLoggedIn || !canResumeClasses"
+        class="section"
+      />
+    -->
+    <ExploreChannels v-if="false" />
   </div>
 
 </template>
@@ -44,6 +53,7 @@
   import AssignedQuizzesCards from '../classes/AssignedQuizzesCards';
   import YourClasses from '../YourClasses';
   import ContinueLearning from './ContinueLearning';
+  import ExploreChannels from './ExploreChannels';
 
   /**
    * Home page contains useful suggestions for a learner, e.g. their
@@ -58,6 +68,7 @@
       AssignedQuizzesCards,
       YourClasses,
       ContinueLearning,
+      ExploreChannels,
     },
     setup() {
       const { isUserLoggedIn } = useUser();
@@ -109,6 +120,7 @@
         activeClassesQuizzes,
         hasActiveClassesLessons,
         hasActiveClassesQuizzes,
+        canResumeClasses,
         continueLearningFromClasses,
         continueLearningOnYourOwn,
       };
