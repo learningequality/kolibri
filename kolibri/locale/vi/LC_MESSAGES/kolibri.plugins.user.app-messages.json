@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "Sửa",
   "ProfilePage.isSuperuser": "Quyền siêu quản trị ",
   "ProfilePage.limitedPermissions": "Quyền bị giới hạn",
-  "ProfilePage.manageContent": "Quản lý nội dung",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "Quản lý quyền sử dụng thiết bị",
   "ProfilePage.points": "Điểm",
   "ProfilePage.youCan": "Bạn có thể:",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "Bước 1/2",
   "UserIndex.signUpStep2Title": "Bước 2/2",
   "UserIndex.userProfileTitle": "Hồ sơ",
-  "UserPageSnackbars.dismiss": "Bỏ qua",
+  "UserPageSnackbars.dismiss": "",
   "UserPageSnackbars.signedOut": "Bạn đã được tự động đăng xuất do không hoạt động"
 }

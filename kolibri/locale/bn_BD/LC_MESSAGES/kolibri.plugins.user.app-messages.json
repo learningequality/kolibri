@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "সম্পাদনা করুন",
   "ProfilePage.isSuperuser": "সুপার অ্যাডমিনের অনুমতিগুলি ",
   "ProfilePage.limitedPermissions": "সীমিত অনুমতি",
-  "ProfilePage.manageContent": "বিষয়বস্তুর পরিচালনা",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "ডিভাইসের অনুমতি পরিচালনা",
   "ProfilePage.points": "পয়েন্ট",
   "ProfilePage.youCan": "আপনি পারবেন:",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "২ এর ১ম ধাপ",
   "UserIndex.signUpStep2Title": "২ এর ২য় ধাপ",
   "UserIndex.userProfileTitle": "প্রোফাইল",
-  "UserPageSnackbars.dismiss": "বাতিল করুন",
+  "UserPageSnackbars.dismiss": "",
   "UserPageSnackbars.signedOut": "অনেকক্ষণ ব্যবহার না করায় স্বয়ংক্রিয়ভাবে বের হয়ে গেছে"
 }

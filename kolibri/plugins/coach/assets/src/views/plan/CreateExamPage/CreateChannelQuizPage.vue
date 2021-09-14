@@ -136,7 +136,7 @@
       channelsWithQuizzesLabel: {
         message: 'The following channels contain pre-made quizzes',
         context:
-          "Pre-made quizzes are also known as channel quizzes. They are ones that don't require the curation work on the part of the coach.\n",
+          "Pre-made quizzes are also known as channel quizzes. They are ones that don't require the curation work on the part of the coach.",
       },
       selectionInformation: {
         message:

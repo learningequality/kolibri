@@ -52,11 +52,13 @@
       },
       learnerText: {
         message: 'Ask your coach or administrator for assistance',
-        context: "Description on the 'No resources available' page.",
+        context:
+          "Description on the 'No resources available' page. A learner will see this if no resource have been assigned to them.",
       },
       documentTitle: {
         message: 'Resource unavailable',
-        context: '\nThis string should actually say "Resource unavailable"',
+        context:
+          'Message displays if a resource has been removed or is not available for some other reason.',
       },
     },
   };

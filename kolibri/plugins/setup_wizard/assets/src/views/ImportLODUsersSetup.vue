@@ -137,7 +137,7 @@
     $trs: {
       stepTitle: {
         message: 'Import individual user accounts - {step, number} of {total, number}',
-        context: 'Title that goes on top of the screen to indicate the current step',
+        context: 'Title that goes on top of the screen to indicate the current step.',
       },
     },
   };

@@ -19,11 +19,12 @@
     $trs: {
       learnOnlyDeviceLabel: {
         message: 'Learn-only device',
-        context: 'Label indicating that the device is only usable by learners',
+        context:
+          'Designation for a type of Kolibri device used by learners that will not have options and features used by coaches or admins.',
       },
       learnOnlyDeviceNotice: {
         message: 'Coach and admin features not available',
-        context: 'A short sentence explaining the limitations of a learn-only device.',
+        context: 'A short sentence explaining the limitations of a Learn-only device.',
       },
     },
   };

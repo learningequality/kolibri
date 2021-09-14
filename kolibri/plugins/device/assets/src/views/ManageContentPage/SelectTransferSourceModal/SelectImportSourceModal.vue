@@ -95,7 +95,7 @@
       },
       localNetworkOrInternet: {
         message: 'Local network or internet',
-        context: 'Refers to a source where resources can be imported from.\n',
+        context: 'Refers to a source where resources can be imported from.',
       },
       localDrives: {
         message: 'Attached drive or memory card',

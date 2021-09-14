@@ -449,7 +449,7 @@
     $trs: {
       replay: {
         message: 'Go back 10 seconds',
-        context: 'Option to rewind a video or audio file by 10 seconds.\n',
+        context: 'Option to rewind a video or audio file by 10 seconds.',
       },
       // Pulled from https://github.com/videojs/video.js/blob/master/lang/en.json
       forward: {

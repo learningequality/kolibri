@@ -45,7 +45,11 @@
       },
     },
     $trs: {
-      yourLessonsHeader: 'Your lessons',
+      yourLessonsHeader: {
+        message: 'Your lessons',
+        context:
+          "Heading on the 'Learn' page for a section where a learner can see which lessons have been assigned to them.",
+      },
       noLessonsMessage: {
         message: 'You have no lessons assigned',
         context: 'Message that a learner sees if a coach has not assigned any lessons to them.',

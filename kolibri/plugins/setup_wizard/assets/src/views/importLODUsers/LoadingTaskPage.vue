@@ -152,15 +152,15 @@
     $trs: {
       loadingUserTitle: {
         message: 'Loading user',
-        context: 'Page title',
+        context: 'Status message during user import.',
       },
       importAnother: {
         message: 'Import another user',
-        context: 'give a chance to import more users',
+        context: 'Link to restart the import step for another user. ',
       },
       onThisDevice: {
         message: 'On this device',
-        context: 'To show the list of users on this device',
+        context: 'Heading for a section with the list of users that will be imported.',
       },
     },
   };

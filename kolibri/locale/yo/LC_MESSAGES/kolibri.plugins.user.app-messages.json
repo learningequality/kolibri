@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "Ṣàtúnṣe",
   "ProfilePage.isSuperuser": "Ẹ̀tọ́ alábòójútó tó ga jù ",
   "ProfilePage.limitedPermissions": "Àwọn àṣẹ tí ó nídìnwọ̀n",
-  "ProfilePage.manageContent": "Ṣàkóso àkoonú",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "Ṣàyẹ̀wò ohun èlò tó ò ń lò níbí",
   "ProfilePage.points": "Àwọn kókó",
   "ProfilePage.youCan": "O lè:",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "Ìgbésẹ̀ 1 nínu 2",
   "UserIndex.signUpStep2Title": "Ìgbésẹ̀ 2 nínu 2",
   "UserIndex.userProfileTitle": "Ìrísí olùṣàmúlò",
-  "UserPageSnackbars.dismiss": "Yọ kúrò",
+  "UserPageSnackbars.dismiss": "",
   "UserPageSnackbars.signedOut": "A mú ọ jáde láìrótẹ́lẹ̀ nítorí àìṣedédé"
 }

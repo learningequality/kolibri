@@ -266,7 +266,7 @@
     $trs: {
       noExams: {
         message: 'You do not have any quizzes',
-        context: 'CoachExamsPage.noExams\n\n-- CONTEXT --',
+        context: 'Message displayed when there are no quizzes within a class.',
       },
       // noActiveExams: 'No active quizzes',
       // noInactiveExams: {
