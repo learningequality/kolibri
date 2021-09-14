@@ -71,7 +71,6 @@
     data() {
       return {
         showInfoModal: false,
-        exportPage: null,
       };
     },
     computed: {
