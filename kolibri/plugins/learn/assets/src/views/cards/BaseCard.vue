@@ -24,10 +24,7 @@
       {{ collectionTitle }}
     </div>
 
-    <h3
-      dir="auto"
-      class="title"
-    >
+    <h3 class="title">
       {{ title }}
     </h3>
 
