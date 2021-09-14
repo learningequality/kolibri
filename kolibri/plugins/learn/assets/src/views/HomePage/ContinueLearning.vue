@@ -11,7 +11,7 @@
     <CardGrid :gridType="1">
       <template v-if="fromClasses">
         <ResourceCard
-          v-for="(resource, idx) in resumableClassesResources"
+          v-for="(resource, idx) in uniqueResumableClassesResources"
           :key="`resource-${idx}`"
           :contentNode="getResumableContentNode(resource.contentNodeId)"
           :to="getClassResourceLink(resource)"
@@ -44,6 +44,9 @@
 <script>
 
   import last from 'lodash/last';
+  import uniqBy from 'lodash/uniqBy';
+  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import { get } from '@vueuse/core';
   import CardGrid from '../cards/CardGrid';
   import QuizCard from '../cards/QuizCard';
   import ResourceCard from '../cards/ResourceCard';
@@ -71,6 +74,14 @@
         getTopicContentNodeLink,
       } = useLearnerResources();
 
+      // A single resource can be in more lessons and in more classes
+      // and progress information is shared between all classes and lessons
+      // where it belongs to.
+      // In such case we want to display it only once for its first occurence.
+      const uniqueResumableClassesResources = computed(() => {
+        return uniqBy(get(resumableClassesResources), 'contentNodeId');
+      });
+
       function getResourceClassName(resource) {
         const resourceClass = getClass(resource.classId);
         return resourceClass ? resourceClass.name : '';
@@ -90,8 +101,8 @@
 
       return {
         resumableClassesQuizzes,
-        resumableClassesResources,
         resumableNonClassesContentNodes,
+        uniqueResumableClassesResources,
         getResumableContentNode,
         getClassQuizLink,
         getClassResourceLink,
