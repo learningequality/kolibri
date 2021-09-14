@@ -7,7 +7,7 @@ const deviceStrings = createTranslator('CommonDeviceStrings', {
   },
   newResourceLabel: {
     message: 'New',
-    context: 'Label that is shown with resources that were added after upgrading the channel',
+    context: 'Label that is shown with resources that were added after upgrading the channel.',
   },
   newChannelLabel: {
     message: 'New',

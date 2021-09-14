@@ -118,6 +118,24 @@
 
 @font-face {
   font-family: 'noto-full';
+  src: url('noto-full.NotoSansGeorgian.400.woff') format('woff');
+  font-style: normal;
+  font-weight: normal;
+  unicode-range: U+589,U+10A0-10C5,U+10C7,U+10CD,U+10D0-10FF,U+2D00-2D25,U+2D27,U+2D2D;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
+  src: url('noto-full.NotoSansGeorgian.700.woff') format('woff');
+  font-style: normal;
+  font-weight: bold;
+  unicode-range: U+589,U+10A0-10C5,U+10C7,U+10CD,U+10D0-10FF,U+2D00-2D25,U+2D27,U+2D2D;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
   src: url('noto-full.NotoSansKhmer.400.woff') format('woff');
   font-style: normal;
   font-weight: normal;
@@ -157,7 +175,7 @@
   src: url('noto-full.NotoSansArmenian.400.woff') format('woff');
   font-style: normal;
   font-weight: normal;
-  unicode-range: U+531-556,U+559-55F,U+561-587,U+589-58A,U+58D-58F,U+FB13-FB17;
+  unicode-range: U+531-556,U+559-55F,U+561-587,U+58A,U+58D-58F,U+FB13-FB17;
   font-display: swap;
 }
 
@@ -166,7 +184,7 @@
   src: url('noto-full.NotoSansArmenian.700.woff') format('woff');
   font-style: normal;
   font-weight: bold;
-  unicode-range: U+531-556,U+559-55F,U+561-587,U+589-58A,U+58D-58F,U+FB13-FB17;
+  unicode-range: U+531-556,U+559-55F,U+561-587,U+58A,U+58D-58F,U+FB13-FB17;
   font-display: swap;
 }
 
@@ -239,24 +257,6 @@
   font-style: normal;
   font-weight: bold;
   unicode-range: U+1200-1248,U+124A-124D,U+1250-1256,U+1258,U+125A-125D,U+1260-1288,U+128A-128D,U+1290-12B0,U+12B2-12B5,U+12B8-12BE,U+12C0,U+12C2-12C5,U+12C8-12D6,U+12D8-1310,U+1312-1315,U+1318-135A,U+135D-137C,U+1380-1399,U+22EE,U+2D80-2D96,U+2DA0-2DA6,U+2DA8-2DAE,U+2DB0-2DB6,U+2DB8-2DBE,U+2DC0-2DC6,U+2DC8-2DCE,U+2DD0-2DD6,U+2DD8-2DDE,U+AB01-AB06,U+AB09-AB0E,U+AB11-AB16,U+AB20-AB26,U+AB28-AB2E;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansGeorgian.400.woff') format('woff');
-  font-style: normal;
-  font-weight: normal;
-  unicode-range: U+10A0-10C5,U+10C7,U+10CD,U+10D0-10FF,U+2D00-2D25,U+2D27,U+2D2D;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansGeorgian.700.woff') format('woff');
-  font-style: normal;
-  font-weight: bold;
-  unicode-range: U+10A0-10C5,U+10C7,U+10CD,U+10D0-10FF,U+2D00-2D25,U+2D27,U+2D2D;
   font-display: swap;
 }
 

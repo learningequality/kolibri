@@ -94,7 +94,7 @@
       question: {
         message: 'Question { num, number, integer}',
         context:
-          "In the report section, the 'Answer history' shows the learner if they have answered questions correctly or incorrectly.",
+          "In the report section, the 'Answer history' shows the learner if they have answered questions correctly or incorrectly.\n\nOnly translate 'Question'.",
       },
     },
   };

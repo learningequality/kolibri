@@ -147,7 +147,10 @@
         context:
           'Button which allows user to add learners to a group once the group has been created.',
       },
-      noLearnersInGroup: 'No learners in this group',
+      noLearnersInGroup: {
+        message: 'No learners in this group',
+        context: 'Displays when there are no learners in a group.',
+      },
       groupDoesNotExist: {
         message: 'This group does not exist',
         context: 'This message displays if a group no longer exists.',

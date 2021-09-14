@@ -71,7 +71,10 @@
         context:
           "The 'DOWNLOAD RESOURCE' button allows learners to download learning resources, like a PDF document for example, to their own device.",
       },
-      downloadFilename: '{ resourceTitle } ({ fileId }).{ fileExtension }',
+      downloadFilename: {
+        message: '{ resourceTitle } ({ fileId }).{ fileExtension }',
+        context: 'DO NOT TRANSLATE.',
+      },
     },
   };
 

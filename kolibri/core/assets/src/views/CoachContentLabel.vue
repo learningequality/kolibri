@@ -62,7 +62,7 @@
           'Contains {count, number, integer} {count, plural, one {coach resource} other {coach resources}}',
 
         context:
-          "For example, \"Contains coach resources\".\n\nYou only need to translate the word 'Contains' and 'coach resource/coach resources' here.",
+          "For example, \"Contains 4 coach resources\".\n\nYou only need to translate the word 'Contains' and 'coach resource/coach resources' here.",
       },
     },
   };

@@ -137,7 +137,7 @@
       clearCompletedAction: {
         message: 'Clear completed',
         context:
-          '\nButton on the task manager page.\nWhen pressed it will clear all the completed tasks from the list.\n\n\n',
+          'Button on the task manager page. When pressed it will clear all the completed tasks from the list.',
       },
     },
   };

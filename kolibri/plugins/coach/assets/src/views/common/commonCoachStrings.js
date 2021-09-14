@@ -113,7 +113,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   descriptionLabel: {
     message: 'Description',
-    context: 'Indicates a field where coaches can add a description for their lesson.',
+    context: 'Indicates a field where coaches can add a description to their lesson.',
   },
   descriptionMissingLabel: {
     message: 'No description',
@@ -311,7 +311,10 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
 
   // errors
-  saveLessonError: 'There was a problem saving this lesson',
+  saveLessonError: {
+    message: 'There was a problem saving this lesson',
+    context: 'Error message.',
+  },
   duplicateLessonTitleError: 'A lesson with that name already exists',
 
   // empty states
@@ -428,7 +431,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   openQuizLabel: {
     message: 'Start quiz',
     context:
-      "Label for a button that, when clicked, will 'start' a quiz - making it active so that Learners may take the quiz.",
+      "Label for a button that, when clicked, will 'start' a quiz - making it active so that learners may take the quiz.",
   },
   openQuizModalDetail: {
     message:
@@ -487,7 +490,7 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
     message:
       'Consult your administrator for guidance, or use an account with device permissions to manage channels and resources.',
 
-    context: 'Second paragraph of the "Resources Unavailable - Learn More" modal',
+    context: 'Second paragraph of the "Resources Unavailable - Learn More" modal.',
   },
   upgradeKolibriTitle: {
     message: 'Upgrade Kolibri to view resources',

@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "تعديل",
   "ProfilePage.isSuperuser": "أذونات المشرف المتميّز ",
   "ProfilePage.limitedPermissions": "أذونات محدودة",
-  "ProfilePage.manageContent": "إدارة المحتوى",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "إدارة أذونات الجهاز",
   "ProfilePage.points": "النقاط",
   "ProfilePage.youCan": "بإمكانك ذلك:",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "الخطوة 1 من 2",
   "UserIndex.signUpStep2Title": "الخطوة 2 من 2",
   "UserIndex.userProfileTitle": "الملف الشخصي",
-  "UserPageSnackbars.dismiss": "رفض",
+  "UserPageSnackbars.dismiss": "",
   "UserPageSnackbars.signedOut": "تم نسجيل خروجك تلقائياً بسبب عدم النشاط"
 }

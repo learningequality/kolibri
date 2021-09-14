@@ -83,13 +83,6 @@
   "UserTable.selectAllLabel": "Suɓtu fuu",
   "UserTable.userActionsColumnHeader": "Ko ɗum huwata jooni",
   "UserTable.userCheckboxLabel": "Suɓtu kuutiniroowo",
-  "WelcomeModal.learnOnlyDeviceWelcomeMessage1": "",
-  "WelcomeModal.learnOnlyDeviceWelcomeMessage2": "",
-  "WelcomeModal.postSyncWelcomeMessage1": "",
-  "WelcomeModal.postSyncWelcomeMessage2": "",
-  "WelcomeModal.welcomeModalContentDescription": "",
-  "WelcomeModal.welcomeModalHeader": "Jaɓɓaama to Kolibri!",
-  "WelcomeModal.welcomeModalPermissionsDescription": "Desirɗum mawɗo dawrooɓe, ko ngaɗuɗa wakkati fuɗɗugo kuugal, yerdanaama waɗugoɗum. Yeeso a ɓeyday faamugo haa ɗerewol \"Yerduye\".",
   "YesNoForm.details": "A waaway sannjugoɗum yeeso nder settings wuro bote ma",
   "YesNoForm.yesOptionLabel": "Jaɓii"
 }

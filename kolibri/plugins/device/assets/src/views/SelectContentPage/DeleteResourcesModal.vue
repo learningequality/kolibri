@@ -75,7 +75,7 @@
       deleteEverywhereLabel: {
         message: 'Also delete any copies found in other locations and channels',
         context:
-          '\nWhen some of the resources admin selected are present in multiple channels, Kolibri will provide an option for the admin to delete all instances ',
+          'When some of the resources the admin selected are present in multiple channels, Kolibri will provide an option for the admin to delete all instances ',
       },
       deleteEverywhereExplanationOneResource: {
         message: 'Some copies of this resource may be in other locations on your device',
@@ -85,7 +85,7 @@
       deleteEverywhereExplanationMultipleResources: {
         message: 'Some copies of these resources may be in other locations on your device',
         context:
-          '\nWhen some of the resources admin selected are present in multiple channels, Kolibri will provide an option for the admin to delete all instances ',
+          'When some of the resources the admin selected are present in multiple channels, Kolibri will provide an option for the admin to delete all instances ',
       },
     },
   };

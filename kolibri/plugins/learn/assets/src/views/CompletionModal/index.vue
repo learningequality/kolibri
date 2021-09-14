@@ -348,19 +348,60 @@
       },
     },
     $trs: {
-      signIn: 'Sign in or create an account to begin earning points',
-      resourceCompleted: 'Resource completed',
-      plusPoints: '+ { points, number } points',
-      keepUpTheGreatProgress: 'Keep up the great progress!',
-      close: 'Close',
-      moveOnTitle: 'Keep going',
-      moveOnDescription: 'Move on to the next resource in the folder',
-      moveOnButtonLabel: 'Move on',
-      stayTitle: 'Stay and practice',
-      stayDescription: 'Stay on this resource to keep practicing',
-      stayButtonLabel: 'Stay here',
-      helpfulResourcesTitle: 'You may find helpful',
-      helpfulResourcesDescription: 'Here are some related resources we think you’ll find helpful',
+      signIn: {
+        message: 'Sign in or create an account to begin earning points',
+        context:
+          'Message that a learner will see upon completing a resource if they are not signed in to Kolibri.',
+      },
+      resourceCompleted: {
+        message: 'Resource completed',
+        context: 'Title of window which displays once a learner has completed a resource.',
+      },
+      plusPoints: {
+        message: '+ { points, number } points',
+        context: 'Indicates the amount of points awarded to the learner for completing a resource.',
+      },
+      keepUpTheGreatProgress: {
+        message: 'Keep up the great progress!',
+        context: 'Message of encouragement which displays when learner has completed a resource.',
+      },
+      close: {
+        message: 'Close',
+        context: "Indicates the 'X' button to close the window.",
+      },
+      moveOnTitle: {
+        message: 'Keep going',
+        context: 'Message to the user after completing a resource, to select the next resource.',
+      },
+      moveOnDescription: {
+        message: 'Move on to the next resource in the folder',
+        context: 'Message to the user after completing a resource in a folder.',
+      },
+      moveOnButtonLabel: {
+        message: 'Move on',
+        context:
+          'Label for a button used if learner decides to move forward to the following resource.',
+      },
+      stayTitle: {
+        message: 'Stay and practice',
+        context: 'Message to the user to continue practicing after they completed a resource.',
+      },
+      stayDescription: {
+        message: 'Stay on this resource to keep practicing',
+        context: "Description on 'Resource completed' window.",
+      },
+      stayButtonLabel: {
+        message: 'Stay here',
+        context: 'Label for a button used if learner decides to repeat the completed resource.',
+      },
+      helpfulResourcesTitle: {
+        message: 'You may find helpful',
+        context: 'Message to the user after completing a resource with additional suggestions.',
+      },
+      helpfulResourcesDescription: {
+        message: 'Here are some related resources we think you’ll find helpful',
+        context: "Description on the 'Resource completed' window.",
+      },
     },
   };
 
