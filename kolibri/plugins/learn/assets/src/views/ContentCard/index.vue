@@ -194,9 +194,9 @@
     },
     $trs: {
       logo: {
-        message: '{channelTitle} logo',
+        message: 'From the channel {channelTitle}',
         context:
-          'Added to the title channel to create a complete alt-text description of a logo. For example Khan Academy English Logo.',
+          'Added to create a complete alt-text description of a logo on a content card to indicate to the user what channel the resource belongs to. For example: From the channel Khan Academy - English',
       },
     },
   };
