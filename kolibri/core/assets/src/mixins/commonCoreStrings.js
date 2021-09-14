@@ -120,6 +120,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "In the Kolibri Task Manager dashboard admins can view resource management tasks (import, export, deletion, update, etc.) and observe their progress.\n\nSelecting 'View task' will display more detail about the management task.",
   },
+  removeFromBookmarks: {
+    message: 'Remove from bookmarks',
+    context: "An action that removes a resource or topic from a user's bookmarks",
+  },
+  saveToBookmarks: {
+    message: 'Save to bookmarks',
+    context: "An action that adds a resource or topic to a user's bookmarks",
+  },
 
   // labels, phrases, titles, headers...
   adminLabel: {
@@ -151,6 +159,15 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Birth year',
     context:
       "This label appears in various places and indicates the year in which a user was born. The birth year only displays if this information has been provided when creating or editing the user, as it's an optional field.\n\nA super admin can see the birth year of the users in a facility that they manage, for example, if this information has been provided.",
+  },
+  bookmarksLabel: {
+    message: 'Bookmarks',
+    context:
+      'Bookmarks are used to give all users a way of saving a reference for a specific resource or topic to come back to later.',
+  },
+  bookmarkedTimeAgoLabel: {
+    message: 'Bookmarked { time }',
+    context: 'A message used to show how long ago a user bookmarked a resource or topic',
   },
   channelsLabel: {
     message: 'Channels',

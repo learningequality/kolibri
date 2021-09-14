@@ -15,6 +15,7 @@ export const PageNames = {
   EXAM_LIST: 'EXAM_LIST',
   EXAM: 'EXAM',
   EXAM_ROOT: 'EXAM_ROOT',
+  BOOKMARKS: 'BOOKMARKS',
 };
 
 // switch between modes

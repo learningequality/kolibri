@@ -88,6 +88,7 @@
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
   import UpdateYourProfileModal from './UpdateYourProfileModal';
+  import BookmarkPage from './BookmarkPage.vue';
   import plugin_data from 'plugin_data';
 
   const pageNameToComponentMap = {
@@ -97,6 +98,7 @@
     [PageNames.TOPICS_CONTENT]: ContentPage,
     [PageNames.CONTENT_UNAVAILABLE]: ContentUnavailablePage,
     [PageNames.SEARCH]: SearchPage,
+    [PageNames.BOOKMARKS]: BookmarkPage,
     [ClassesPageNames.EXAM_VIEWER]: ExamPage,
     [ClassesPageNames.EXAM_REPORT_VIEWER]: ExamReportViewer,
     [ClassesPageNames.ALL_CLASSES]: AllClassesPage,

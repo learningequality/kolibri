@@ -34,6 +34,10 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   exploreResourcesSchool: {
     message: 'Explore resources for school',
   },
+  viewInformation: {
+    message: 'View information',
+    context: 'Show more detailed information about a resource',
+  },
 });
 
 export default {
