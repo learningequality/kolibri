@@ -28,6 +28,12 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Next steps',
     context: 'Label for links that go to post-requisites for content that has been completed',
   },
+  exploreResourcesWatch: {
+    message: 'Explore resources to watch',
+  },
+  exploreResourcesSchool: {
+    message: 'Explore resources for school',
+  },
 });
 
 export default {
