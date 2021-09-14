@@ -3,6 +3,8 @@ import { PageNames } from '../constants';
 import {
   showExamCreationRootPage,
   showExamCreationTopicPage,
+  showExamCreationBookmarksPage,
+  showExamCreationAllBookmarks,
   showExamCreationSearchPage,
   showExamCreationQuestionSelectionPage,
   showExamCreationPreviewPage,
@@ -62,6 +64,22 @@ export default [
     component: CreateExamPage,
     handler: toRoute => {
       showExamCreationTopicPage(store, toRoute.params);
+    },
+  },
+  {
+    name: PageNames.EXAM_CREATION_BOOKMARKS,
+    path: '/:classId/plan/quizzes/new/bookmark/:topicId',
+    component: CreateExamPage,
+    handler: toRoute => {
+      showExamCreationBookmarksPage(store, toRoute.params);
+    },
+  },
+  {
+    name: PageNames.EXAM_CREATION_BOOKMARKS_MAIN,
+    path: '/:classId/plan/quizzes/new/bookmarks',
+    component: CreateExamPage,
+    handler: toRoute => {
+      showExamCreationAllBookmarks(store, toRoute.params);
     },
   },
   {

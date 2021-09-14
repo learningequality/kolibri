@@ -81,44 +81,74 @@
       </KGrid>
 
       <h2>{{ $tr('chooseExercises') }}</h2>
+      <div v-if="!showChannels">
+        <ContentCardList
+          :contentList="bookmarksContentList"
+          :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
+          :contentCardMessage="() => ''"
+          :contentCardLink="bookmarksLink"
+          :contentIsChecked="() => false"
+          :viewMoreButtonState="viewMoreButtonState"
+          :showSelectAll="selectAllIsVisible"
+          :contentIsIndeterminate="() => false"
+          @changeselectall="toggleTopicInWorkingResources"
+          @change_content_card="toggleSelected"
+          @moreresults="handleMoreResults"
+        />
+      </div>
+      <div v-if="showChannels">
+        <p>Select from bookmarks</p>
+        <div @click="lessonCardClicked">
+          <KRouterLink
+            v-if="bookmarksCount"
+            :style="{ width: '100%' }"
+            :to="getBookmarksLink()"
+          >
+            <div class="bookmark-container">
+              <BookmarkIcon />
+              <div class="text">
+                <h3>{{ $tr('bookmarks') }}</h3>
+                <p>{{ $tr('resources', { count: bookmarksCount }) }}</p>
+              </div>
+            </div>
+          </KRouterLink>
+        </div>
+        <LessonsSearchBox
+          class="search-box"
+          @searchterm="handleSearchTerm"
+        />
 
-      <LessonsSearchBox
-        class="search-box"
-        @searchterm="handleSearchTerm"
-      />
-
-      <LessonsSearchFilters
-        v-if="inSearchMode"
-        v-model="filters"
-        :searchTerm="searchTerm"
-        :searchResults="searchResults"
-      />
-      <ResourceSelectionBreadcrumbs
-        v-else
-        :ancestors="ancestors"
-        :channelsLink="channelsLink"
-        :topicsLink="topicsLink"
-      />
-
-      <h2>{{ topicTitle }}</h2>
-      <p>{{ topicDescription }}</p>
-
-      <ContentCardList
-        :contentList="filteredContentList"
-        :showSelectAll="selectAllIsVisible"
-        :viewMoreButtonState="viewMoreButtonState"
-        :selectAllChecked="selectAllChecked"
-        :selectAllIndeterminate="selectAllIndeterminate"
-        :contentIsChecked="contentIsSelected"
-        :contentIsIndeterminate="contentIsIndeterminate"
-        :contentHasCheckbox="contentHasCheckbox"
-        :contentCardMessage="selectionMetadata"
-        :contentCardLink="contentLink"
-        @changeselectall="toggleTopicInWorkingResources"
-        @change_content_card="toggleSelected"
-        @moreresults="handleMoreResults"
-      />
-
+        <LessonsSearchFilters
+          v-if="inSearchMode"
+          v-model="filters"
+          :searchTerm="searchTerm"
+          :searchResults="searchResults"
+        />
+        <ResourceSelectionBreadcrumbs
+          v-else
+          :ancestors="ancestors"
+          :channelsLink="channelsLink"
+          :topicsLink="topicsLink"
+        />
+        <h2>{{ topicTitle }}</h2>
+        <p>{{ topicDescription }}</p>
+        <p>Select from channels</p>
+        <ContentCardList
+          :contentList="filteredContentList"
+          :showSelectAll="selectAllIsVisible"
+          :viewMoreButtonState="viewMoreButtonState"
+          :selectAllChecked="selectAllChecked"
+          :selectAllIndeterminate="selectAllIndeterminate"
+          :contentIsChecked="contentIsSelected"
+          :contentIsIndeterminate="contentIsIndeterminate"
+          :contentHasCheckbox="contentHasCheckbox"
+          :contentCardMessage="selectionMetadata"
+          :contentCardLink="contentLink"
+          @changeselectall="toggleTopicInWorkingResources"
+          @change_content_card="toggleSelected"
+          @moreresults="handleMoreResults"
+        />
+      </div>
       <BottomAppBar v-if="inSearchMode">
         <KRouterLink
           appearance="raised-button"
@@ -154,6 +184,7 @@
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { BookmarksResource } from 'kolibri.resources';
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
@@ -161,6 +192,7 @@
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
   import commonCoach from '../../common';
+  import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon';
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -172,6 +204,7 @@
       ResourceSelectionBreadcrumbs,
       ContentCardList,
       BottomAppBar,
+      BookmarkIcon,
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     data() {
@@ -185,6 +218,8 @@
           role: this.$route.query.role || null,
         },
         numQuestionsBlurred: false,
+        showChannels: true,
+        bookmarksCount: 0,
       };
     },
     computed: {
@@ -193,6 +228,7 @@
       ...mapState('examCreation', [
         'numberOfQuestions',
         'contentList',
+        'bookmarksList',
         'selectedExercises',
         'availableQuestions',
         'searchResults',
@@ -243,6 +279,9 @@
             this.$store.dispatch('examCreation/updateSelectedQuestions');
           }
         },
+      },
+      bookmarksContentList() {
+        return this.bookmarksList ? this.bookmarksList : [];
       },
       filteredContentList() {
         const { role } = this.filters || {};
@@ -360,12 +399,50 @@
         });
       },
     },
+    created() {
+      BookmarksResource.fetchCollection().then(bookmarks => {
+        this.bookmarksCount = bookmarks.length;
+      });
+    },
     methods: {
       ...mapActions('examCreation', [
         'addToSelectedExercises',
         'removeFromSelectedExercises',
         'fetchAdditionalSearchResults',
       ]),
+      lessonCardClicked() {
+        this.showChannels = false;
+      },
+      getBookmarksLink() {
+        return {
+          name: PageNames.EXAM_CREATION_BOOKMARKS_MAIN,
+        };
+      },
+      bookmarksLink(content) {
+        if (!content.is_leaf) {
+          return {
+            name: PageNames.EXAM_CREATION_BOOKMARKS,
+            params: {
+              classId: this.classId,
+              topicId: content.id,
+            },
+          };
+        }
+        const { query } = this.$route;
+        return {
+          name: PageNames.EXAM_CREATION_PREVIEW,
+          params: {
+            classId: this.classId,
+            contentId: content.id,
+          },
+          query: {
+            ...query,
+            ...pickBy({
+              searchTerm: this.$route.params.searchTerm,
+            }),
+          },
+        };
+      },
       contentLink(content) {
         if (!content.is_leaf) {
           return {
@@ -441,9 +518,13 @@
           this.removeFromSelectedExercises(this.allExercises);
         }
       },
+      contentIsDirectoryKind({ is_leaf }) {
+        return !is_leaf;
+      },
       toggleSelected({ content, checked }) {
         let exercises;
-        const contentNode = this.contentList.find(item => item.id === content.id);
+        const list = this.contentList.length ? this.contentList : this.bookmarksList;
+        const contentNode = list.find(item => item.id === content.id);
         const isTopic = contentNode.kind === ContentNodeKinds.TOPIC;
         if (checked && isTopic) {
           this.showError = false;
@@ -521,6 +602,8 @@
       },
     },
     $trs: {
+      resources: '{count} {count, plural, one {resource} other {resources}}',
+      bookmarks: 'Bookmarks',
       createNewExamLabel: {
         message: 'Create new quiz',
         context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.",
@@ -575,6 +658,32 @@
   .search-box {
     display: inline-block;
     vertical-align: middle;
+  }
+
+  .bookmarks-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .lesson-content-card {
+    width: 100%;
+  }
+
+  .bookmark-container {
+    display: flex;
+    min-height: 141px;
+    margin-bottom: 24px;
+    border-radius: 2px;
+    box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
+    transition: box-shadow 0.25s ease;
+  }
+
+  .bookmark-container:hover {
+    box-shadow: 0 5px 5px -3px #a1a1a1, 0 8px 10px 1px #d1d1d1, 0 3px 14px 2px #d4d4d4;
+  }
+
+  .text {
+    margin-left: 15rem;
   }
 
 </style>

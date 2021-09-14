@@ -150,12 +150,12 @@
         if (this.filter.value === 'allQuizzes') {
           return this.coachString('quizListEmptyState');
         }
-        if (this.filter.value === 'activeQuizzes') {
-          return this.$tr('noActiveExams');
-        }
-        if (this.filter.value === 'inactiveQuizzes') {
-          return this.$tr('noInactiveExams');
-        }
+        // if (this.filter.value === 'activeQuizzes') {
+        //   return this.$tr('noActiveExams');
+        // }
+        // if (this.filter.value === 'inactiveQuizzes') {
+        //   return this.$tr('noInactiveExams');
+        // }
 
         return '';
       },
@@ -164,17 +164,17 @@
           {
             label: this.coachString('allQuizzesLabel'),
             value: 'allQuizzes',
-            noActiveExams: 'No active quizzes',
-            noInactiveExams: 'No inactive quizzes',
+            // noActiveExams: 'No active quizzes',
+            // noInactiveExams: 'No inactive quizzes',
           },
-          {
-            label: this.coachString('activeQuizzesLabel'),
-            value: 'activeQuizzes',
-          },
-          {
-            label: this.coachString('inactiveQuizzesLabel'),
-            value: 'inactiveQuizzes',
-          },
+          // {
+          //   label: this.coachString('activeQuizzesLabel'),
+          //   value: 'activeQuizzes',
+          // },
+          // {
+          //   label: this.coachString('inactiveQuizzesLabel'),
+          //   value: 'inactiveQuizzes',
+          // },
         ];
       },
       table() {
@@ -260,8 +260,8 @@
       },
     },
     $trs: {
-      noActiveExams: 'No active quizzes',
-      noInactiveExams: 'No inactive quizzes',
+      // noActiveExams: 'No active quizzes',
+      // noInactiveExams: 'No inactive quizzes',
       printLabel: {
         message: '{className} Quizzes',
         context:

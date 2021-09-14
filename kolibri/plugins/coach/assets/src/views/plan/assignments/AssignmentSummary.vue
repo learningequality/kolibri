@@ -7,9 +7,9 @@
 
     <HeaderTable>
       <HeaderTableRow :keyText="coachString('statusLabel')">
-        <template #value>
+        <!--         <template #value>
           <LessonActive :active="active" />
-        </template>
+        </template> -->
       </HeaderTableRow>
       <HeaderTableRow :keyText="coachString('recipientsLabel')">
         <template #value>
@@ -35,7 +35,7 @@
   import HeaderTable from '../../common/HeaderTable';
   import HeaderTableRow from '../../common/HeaderTable/HeaderTableRow';
   import Recipients from '../../common/Recipients';
-  import LessonActive from '../../common/LessonActive';
+  // import LessonActive from '../../common/LessonActive';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   // This is actually only used on the LessonSummaryPage, so Assignment type is
@@ -43,7 +43,7 @@
   export default {
     name: 'AssignmentSummary',
     components: {
-      LessonActive,
+      //      LessonActive,
       HeaderTable,
       HeaderTableRow,
       Recipients,
@@ -54,10 +54,10 @@
         type: String,
         required: true,
       },
-      active: {
-        type: Boolean,
-        required: true,
-      },
+      // active: {
+      //   type: Boolean,
+      //   required: true,
+      // },
       description: {
         type: String,
         required: false,
