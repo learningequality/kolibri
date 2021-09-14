@@ -35,7 +35,16 @@ export default [
     name: PageNames.ROOT,
     path: '/',
     handler: () => {
-      return router.replace({ name: PageNames.HOME });
+      const { memberships } = store.state;
+      const { canAccessUnassignedContent } = store.getters;
+
+      // If a registered user, go to Classes Page, else go to Content
+      return router.replace({
+        name:
+          memberships.length > 0 || !canAccessUnassignedContent
+            ? ClassesPageNames.ALL_CLASSES
+            : PageNames.TOPICS_ROOT,
+      });
     },
   },
   {
