@@ -33,7 +33,7 @@
       <div v-else>
         <div @click="lessonCardClicked">
           <KRouterLink
-            v-if="this.bookmarksCount"
+            v-if="bookmarksCount"
             :style="{ width: '100%' }"
             :to="getBookmarksLink()"
           >
@@ -41,7 +41,7 @@
               <BookmarkIcon />
               <div class="text">
                 <h3>{{ $tr('bookmarks') }}</h3>
-                <p>{{ $tr('resources', { count: this.bookmarksCount }) }}</p>
+                <p>{{ $tr('resources', { count: bookmarksCount }) }}</p>
               </div>
             </div>
           </KRouterLink>
@@ -119,7 +119,6 @@
   import commonCoach from '../../common';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { BookmarksResource } from '../../../../../../../../kolibri/core/assets/src/api-resources/index.js';
-  import LessonContentCard from './LessonContentCard/index';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from './SearchTools/ResourceSelectionBreadcrumbs';
@@ -140,7 +139,6 @@
       LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
       BottomAppBar,
-      LessonContentCard,
       BookmarkIcon,
     },
     mixins: [commonCoach, commonCoreStrings],
@@ -389,7 +387,7 @@
         }
       },
       addToSelectedResources(content) {
-        const list = this.contentList?.length ? this.contentList : this.bookmarksList;
+        const list = this.contentList.length ? this.contentList : this.bookmarksList;
         this.addToResourceCache({
           node: list.find(n => n.id === content.id),
         });
@@ -514,7 +512,6 @@
     },
     $trs: {
       resources: '{count} {count, plural, one {resource} other {resources}}',
-      bookmark: 'bookmark',
       bookmarks: 'Bookmarks',
       selectionInformation: {
         message:

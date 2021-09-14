@@ -99,16 +99,16 @@
       <div v-if="showChannels">
         <p>Select from bookmarks</p>
         <div @click="lessonCardClicked">
-        <KRouterLink
-          v-if="this.bookmarksCount"
-          :style="{width: '100%'}"
-          :to="getBookmarksLink()"
+          <KRouterLink
+            v-if="bookmarksCount"
+            :style="{ width: '100%' }"
+            :to="getBookmarksLink()"
           >
             <div class="bookmark-container">
-              <BookmarkIcon/>
+              <BookmarkIcon />
               <div class="text">
-                <h3>{{$tr('bookmarks')}}</h3>
-                <p>{{ $tr('resources', { count: this.bookmarksCount })}}</p>
+                <h3>{{ $tr('bookmarks') }}</h3>
+                <p>{{ $tr('resources', { count: bookmarksCount }) }}</p>
               </div>
             </div>
           </KRouterLink>
@@ -197,7 +197,6 @@
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
   import commonCoach from '../../common';
-  import LessonContentCard from '../LessonResourceSelectionPage/LessonContentCard/index';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon';
 
   export default {
@@ -210,7 +209,6 @@
       ResourceSelectionBreadcrumbs,
       ContentCardList,
       BottomAppBar,
-      LessonContentCard,
       BookmarkIcon,
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
@@ -530,7 +528,7 @@
       },
       toggleSelected({ content, checked }) {
         let exercises;
-        const list = this.contentList?.length ? this.contentList : this.bookmarksList;
+        const list = this.contentList.length ? this.contentList : this.bookmarksList;
         const contentNode = list.find(item => item.id === content.id);
         const isTopic = contentNode.kind === ContentNodeKinds.TOPIC;
         if (checked && isTopic) {
@@ -610,7 +608,6 @@
     },
     $trs: {
       resources: '{count} {count, plural, one {resource} other {resources}}',
-      bookmark: 'bookmark',
       bookmarks: 'Bookmarks',
       createNewExamLabel: {
         message: 'Create new quiz',
