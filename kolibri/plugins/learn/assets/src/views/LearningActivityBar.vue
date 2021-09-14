@@ -80,7 +80,7 @@
     </template>
     <MarkAsCompleteModal
       v-if="showMarkAsCompleteModal && allowMarkComplete"
-      @completed="showMarkAsCompleteModal = false"
+      @complete="showMarkAsCompleteModal = false"
       @cancel="showMarkAsCompleteModal = false"
     />
   </UiToolbar>
