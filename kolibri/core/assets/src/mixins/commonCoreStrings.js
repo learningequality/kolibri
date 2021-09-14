@@ -152,6 +152,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   channelsLabel: {
     message: 'Channels',
     context:
+      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri. A label for a single channel.',
+  },
+  channelLabel: {
+    message: 'Channel',
+    context:
       'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri. A learner will see a set of channels available to them when they first open Kolibri.',
   },
   classCoachLabel: {
@@ -300,6 +305,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Search',
     context: 'Test used to indicate the Kolibri search field.',
   },
+  findSomethingToLearn: {
+    message: 'Find something to learn',
+    context: 'Suggestion located inside the the keyword search field.',
+  },
   showCorrectAnswerLabel: {
     message: 'Show correct answer',
     context:
@@ -344,6 +353,17 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'This button appears in Kolibri to indicate to users that there are more results available when they search for resources, for example.',
   },
+  copies: {
+    message: '{ num, number} locations',
+    context:
+      'Some Kolibri resources may be duplicated in different topics or channels.\n\nSearch results will indicate when a resource is duplicated, and learners can click on the "...locations" link to discover the details for each location.',
+  },
+  viewInformation: {
+    message: 'View information',
+  },
+  moreOptions: {
+    message: 'More options',
+  },
 
   // Learning activities
   createActivity: 'Create',
@@ -367,9 +387,9 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   mathematics: 'Mathematics',
   sciences: 'Sciences',
   literature: 'Literature',
-  socialSciences: 'Social Sciences',
+  socialSciences: 'Social sciences',
   arts: 'Arts',
-  computerScience: 'Computer Science',
+  computerScience: 'Computer science',
   languageLearning: 'Language learning',
   history: 'History',
 
@@ -390,7 +410,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   //  Literature Subcategories
   readingComprehension: 'Reading comprehension',
   writing: 'Writing',
-  logicAndCritialThinking: 'Logic and critical thinking',
+  logicAndCriticalThinking: 'Logic and critical thinking',
 
   // Social Sciences Subcategories
   politicalScience: 'Political science',
@@ -437,7 +457,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
 
   // Teacher-Specific Categories
   guides: 'Guides',
-  lessonPlans: 'Lesson Plans',
+  lessonPlans: 'Lesson plans',
 
   // Resources Needed Categories = {
   ForBeginners: 'For beginners',
@@ -459,7 +479,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // ContentLevels
   preschool: 'Preschool',
   lowerPrimary: 'Lower primary',
-  upperPrimary: 'Upper pprimary',
+  upperPrimary: 'Upper primary',
   lowerSecondary: 'Lower secondary',
   upperSecondary: 'Upper secondary',
   tertiary: 'Tertiary',

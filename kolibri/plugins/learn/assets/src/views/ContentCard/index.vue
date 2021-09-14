@@ -52,8 +52,8 @@
           class="info-icon"
           size="mini"
           :color="$themePalette.grey.v_400"
-          :ariaLabel="$tr('moreOptions')"
-          :tooltip="$tr('moreOptions')"
+          :ariaLabel="coreString('moreOptions')"
+          :tooltip="coreString('moreOptions')"
           @click="$emit('toggleOptions')"
         />
         <KIconButton
@@ -61,8 +61,8 @@
           class="info-icon"
           size="mini"
           :color="$themePalette.grey.v_400"
-          :ariaLabel="$tr('viewInformation')"
-          :tooltip="$tr('viewInformation')"
+          :ariaLabel="coreString('viewInformation')"
+          :tooltip="coreString('viewInformation')"
           @click="$emit('toggleInfoPanel')"
         />
         <CoachContentLabel
@@ -75,7 +75,7 @@
           v-if="copiesCount > 1"
           appearance="basic-link"
           class="copies"
-          :text="$tr('copies', { num: copiesCount })"
+          :text="coreString('copies', { num: copiesCount })"
           @click.prevent="$emit('openCopiesModal', contentId)"
         />
       </div>
@@ -193,17 +193,6 @@
       },
     },
     $trs: {
-      copies: {
-        message: '{ num, number} locations',
-        context:
-          'Some Kolibri resources may be duplicated in different topics or channels.\n\nSearch results will indicate when a resource is duplicated, and learners can click on the "...locations" link to discover the details for each location.',
-      },
-      viewInformation: {
-        message: 'View information',
-      },
-      moreOptions: {
-        message: 'More options',
-      },
       logo: {
         message: '{channelTitle} logo',
         context:

@@ -21,12 +21,12 @@
           icon="info"
           size="large"
         />
-        <h2>All {{ key }}</h2>
+        <h2>All {{ coreString(key) }}</h2>
         <p
           v-for="item in nestedObject"
           :key="item"
         >
-          {{ item }}
+          {{ coreString(item) }}
         </p>
       </KFixedGridItem>
     </KFixedGrid>
@@ -44,7 +44,7 @@
           icon="info"
           size="large"
         />
-        <h2>{{ value }}</h2>
+        <h2>{{ coreString(value) }}</h2>
       </KFixedGridItem>
     </KFixedGrid>
   </KModal>

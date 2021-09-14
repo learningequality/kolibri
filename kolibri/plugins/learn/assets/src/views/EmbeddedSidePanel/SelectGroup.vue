@@ -11,14 +11,14 @@
       :options="contentLevelsList"
       class="selector"
       :value="selectedLevel"
-      :label="$tr('contentLevel')"
+      :label="$tr('level')"
     />
     <KSelect
       v-if="channels"
       :options="channelOptionsList"
       class="selector"
       :value="selectedChannel"
-      :label="$tr('channel')"
+      :label="coreString('channelLabel')"
     />
     <KSelect
       :options="accessibilityOptionsList"
@@ -102,8 +102,7 @@
     },
     $trs: {
       accessibility: 'Accessibility',
-      channel: 'Channel',
-      contentLevel: 'Content Level',
+      level: 'Level',
       language: 'Language',
     },
   };

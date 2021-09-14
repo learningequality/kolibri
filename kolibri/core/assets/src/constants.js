@@ -163,8 +163,8 @@ export const TeachersCategories = {
 
 export const ResourcesNeededTypes = {
   FOR_BEGINNERS: 'forBeginners',
-  TEACHERS_AND_PEERS: 'toUseWithteachersAndPeers',
-  PAPER_AND_PENCIL: 'toUseWithpaperAndPencil',
+  TEACHERS_AND_PEERS: 'toUseWithTeachersAndPeers',
+  PAPER_AND_PENCIL: 'toUseWithPaperAndPencil',
   NEEDS_INTERNET: 'needsInternet',
   NEEDS_MATERIALS: 'needsMaterials',
 };

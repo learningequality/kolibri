@@ -65,10 +65,13 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Explore',
     context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
   },
-  topic: {
-    message: 'Topic',
-    context:
-      'Resource and filter label for the subject matter of a learning activity. Translate as a NOUN',
+  folder: {
+    message: 'Folder',
+    context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
+  },
+  folders: {
+    message: 'Folders',
+    context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
   },
 });
 

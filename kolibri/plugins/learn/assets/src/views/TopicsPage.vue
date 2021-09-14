@@ -52,7 +52,7 @@
         <div class="tabs">
           <KButton
             ref="tab_button"
-            text="Folders"
+            :text="learnString('folders')"
             appearance="flat-button"
             class="tab-button"
             :appearanceOverrides="customTabButtonOverrides"
@@ -60,7 +60,7 @@
           />
           <KButton
             ref="tab_button"
-            text="Search"
+            :text="coreString('search')"
             appearance="flat-button"
             class="tab-button"
             :appearanceOverrides="customTabButtonOverrides"
@@ -268,17 +268,7 @@
         context: 'DO NOT TRANSLATE',
       },
       viewMore: 'View more',
-      folders: {
-        message: 'Folders',
-        context:
-          "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
-      },
       /* eslint-disable kolibri/vue-no-unused-translations */
-      search: {
-        message: 'Search',
-        context:
-          "Tab label in the 'Browse channel' page that allows to use category search within a channel.",
-      },
       showMore: {
         message: 'Show more',
         context: 'Clickable link which allows to load more resources.',

@@ -43,7 +43,7 @@
         />
       </p>
       <div class="metadata-info">
-        <p> {{ displayCategoryAndLevelMetadata }}</p>
+        <p> {{ coreString(displayCategoryAndLevelMetadata) }}</p>
       </div>
       <img
         :src="channelThumbnail"
@@ -53,7 +53,7 @@
       <KButton
         appearance="basic-link"
         class="copies"
-        :text="$tr('copies', { num: copiesCount })"
+        :text="coreString('copies', { num: copiesCount })"
         @click.prevent="$emit('openCopiesModal', contentId)"
       />
     </span>
@@ -63,8 +63,8 @@
         class="footer-icon"
         size="mini"
         :color="$themePalette.grey.v_400"
-        :ariaLabel="$tr('moreOptions')"
-        :tooltip="$tr('moreOptions')"
+        :ariaLabel="coreString('moreOptions')"
+        :tooltip="coreString('moreOptions')"
         @click="$emit('toggleOptions')"
       />
       <KIconButton
@@ -72,8 +72,8 @@
         class="footer-icon"
         size="mini"
         :color="$themePalette.grey.v_400"
-        :ariaLabel="$tr('viewInformation')"
-        :tooltip="$tr('viewInformation')"
+        :ariaLabel="coreString('viewInformation')"
+        :tooltip="coreString('viewInformation')"
         @click="$emit('toggleInfoPanel')"
       />
     </div>
@@ -90,7 +90,9 @@
     ContentKindsToLearningActivitiesMap,
   } from 'kolibri.coreVue.vuex.constants';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonLearnStrings from './commonLearnStrings';
+
   import CardThumbnail from './ContentCard/CardThumbnail';
 
   export default {
@@ -99,7 +101,7 @@
       CardThumbnail,
       TextTruncator,
     },
-    mixins: [commonLearnStrings],
+    mixins: [commonLearnStrings, commonCoreStrings],
     props: {
       title: {
         type: String,
@@ -190,17 +192,6 @@
       },
     },
     $trs: {
-      copies: {
-        message: '{ num, number} locations',
-        context:
-          'Some Kolibri resources may be duplicated in different topics or channels.\n\nSearch results will indicate when a resource is duplicated, and learners can click on the "...locations" link to discover the details for each location.',
-      },
-      viewInformation: {
-        message: 'View information',
-      },
-      moreOptions: {
-        message: 'More options',
-      },
       logo: {
         message: '{channelTitle} logo',
         context:

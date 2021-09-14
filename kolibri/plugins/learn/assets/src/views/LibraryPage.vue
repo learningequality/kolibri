@@ -19,7 +19,7 @@
         :layout="{ span: 8 }"
       >
         <div v-if="!displayingSearchResults">
-          <h2>{{ $tr('channels') }}</h2>
+          <h2>{{ coreString('channels') }}</h2>
           <ChannelCardGroupGrid
             v-if="channels.length"
             class="grid"
@@ -191,10 +191,6 @@
       },
     },
     $trs: {
-      channels: {
-        message: 'Channels',
-        context: 'Section header for the Library page',
-      },
       recent: {
         message: 'Recent',
         context:
@@ -209,6 +205,10 @@
       all: {
         message: 'All',
         context: 'Refers to all types of resource activities.',
+      },
+      results: {
+        message: '{results} results',
+        context: 'Number of results for a given term after a Library search.',
       },
       moreThanXResults: {
         message: 'More than {results} results',

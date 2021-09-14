@@ -21,7 +21,7 @@
           ref="searchBox"
           :icon="searchBoxIsDropdown ? 'forward' : 'search'"
           :class="searchBoxIsDropdown ? '' : 'search-box-within-action-bar'"
-          placeholder="searchPlaceholder"
+          placeholder="searchLabel"
           @closeDropdownSearchBox="closeDropdownSearchBox"
         />
       </div>

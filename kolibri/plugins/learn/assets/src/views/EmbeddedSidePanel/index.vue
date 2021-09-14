@@ -33,7 +33,7 @@
         class="category-list-item"
       >
         <KButton
-          text="All Categories"
+          :text="$tr('allCategories')"
           appearance="flat-button"
           :appearanceOverrides="customCategoryStyles"
           @click="$emit('filterResults', value)"
@@ -188,6 +188,10 @@
       categories: {
         message: 'Categories',
         context: 'Section header label in the Library page sidebar.',
+      },
+      allCategories: {
+        message: 'All categories',
+        context: 'Button label in the Library page sidebar.',
       },
     },
   };
