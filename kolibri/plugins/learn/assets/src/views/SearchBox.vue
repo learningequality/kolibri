@@ -45,7 +45,7 @@
             :disabled="searchBarDisabled"
             :class="{ 'rtl-icon': icon === 'forward' && isRtl }"
             :style="{ fill: $themeTokens.textInverted }"
-            :ariaLabel="commonString('startSearchButtonLabel')"
+            :ariaLabel="coreString('startSearchButtonLabel')"
             type="submit"
           />
         </div>

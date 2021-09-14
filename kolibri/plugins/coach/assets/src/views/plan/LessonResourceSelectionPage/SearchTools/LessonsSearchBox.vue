@@ -44,7 +44,7 @@
             :color="$themeTokens.textInverted"
             class="submit-button"
             :disabled="!searchTermHasChanged"
-            :ariaLabel="commonString('startSearchButtonLabel')"
+            :ariaLabel="coreString('startSearchButtonLabel')"
             :style="{ fill: $themeTokens.textInverted }"
             @click="search"
           />
