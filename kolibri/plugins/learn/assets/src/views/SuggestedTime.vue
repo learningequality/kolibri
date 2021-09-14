@@ -1,13 +1,10 @@
 <template>
 
   <div class="time-context">
-    <div v-if="time > 0">
-      {{ $tr('shortTime', { time: 120 }) }}
-    </div>
-    <div v-if="time > 0">
-      {{ $tr('suggestedTimeLabel', { time: 120 }) }}
-    </div>
-    {{ $tr('suggestedTimeTooltip') }}
+    <span v-if="seconds > 0">
+      {{ $tr('suggestedTimeLabel') }}
+      <TimeDuration :seconds="seconds" :expand="true" />
+    </span>
   </div>
 
 </template>
@@ -15,29 +12,23 @@
 
 <script>
 
+  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+
   export default {
     name: 'SuggestedTime',
+    components: { TimeDuration },
     props: {
       /* Time in ms */
-      time: {
+      seconds: {
         type: Number,
-        default: 0,
+        default: 8100,
       },
     },
     $trs: {
-      suggestedTimeTooltip: {
+      suggestedTimeLabel: {
         message: 'Suggested time to complete',
         context:
-          'A tooltip explaning what the clock icon and time indicates about the resource  they are viewing',
-      },
-      shortTime: {
-        message: '{time} {time, plural, one {minute} other {minutes}}',
-        context: 'Converts the time given into internationalized time. Nothing to translate here.',
-      },
-      suggestedTimeLabel: {
-        message: 'Suggested time to complete: {time} {time, plural, one {minute} other {minutes}}',
-        context:
-          "Indicates to the user the suggested time the resource should take to complete. The '# minutes' string is internationalized automatically",
+          'A label preceding a number of minutes that the current resource is estimated to take to complete',
       },
     },
   };
