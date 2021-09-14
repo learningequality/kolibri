@@ -6,7 +6,7 @@
     </h1>
 
     <AssignedLessonsCards :items="lessons" />
-    <AssignedQuizzesCards :items="exams" />
+    <AssignedQuizzesCards :items="exams" :style="{ marginTop: '44px' }" />
 
   </div>
 
