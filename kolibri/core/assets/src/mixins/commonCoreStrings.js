@@ -309,6 +309,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Search',
     context: 'Test used to indicate the Kolibri search field.',
   },
+  startSearchButtonLabel: {
+    message: 'Start search',
+    context: 'Refers to the search button used to initiate a search.',
+  },
   showCorrectAnswerLabel: {
     message: 'Show correct answer',
     context:

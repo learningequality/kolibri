@@ -35,7 +35,7 @@
           size="small"
           class="clear-button"
           :class="searchTerm === '' ? '' : 'clear-button-visible'"
-          :ariaLabel="$tr('clearButtonLabel')"
+          :ariaLabel="coreString('clearAction')"
           @click="clearSearchTerm"
         />
         <div class="submit-button-wrapper" :style="{ backgroundColor: $themeTokens.primary }">
@@ -44,7 +44,7 @@
             :color="$themeTokens.textInverted"
             class="submit-button"
             :disabled="!searchTermHasChanged"
-            :ariaLabel="$tr('startSearchButtonLabel')"
+            :ariaLabel="commonString('startSearchButtonLabel')"
             :style="{ fill: $themeTokens.textInverted }"
             @click="search"
           />
@@ -95,16 +95,6 @@
         if (this.searchTerm !== '' && this.searchTermHasChanged) {
           this.$emit('searchterm', this.searchTerm);
         }
-      },
-    },
-    $trs: {
-      clearButtonLabel: {
-        message: 'Clear',
-        context: 'Button used to clear a search query, for example.',
-      },
-      startSearchButtonLabel: {
-        message: 'Start search',
-        context: 'Refers to the search button used to initiate a search.',
       },
     },
   };
