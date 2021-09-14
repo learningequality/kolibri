@@ -59,7 +59,7 @@ function padTime(interval) {
   return pad(interval, 2, '0');
 }
 
-export function avgScore(quiz = false) {
+export function avgScore() {
   return [
     {
       name: coachStrings.$tr('avgScoreLabel'),
