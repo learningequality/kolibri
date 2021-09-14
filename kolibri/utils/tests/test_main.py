@@ -91,7 +91,7 @@ def test_conditional_backup():
     if not os.path.exists(default_path):
         os.mkdir(default_path)
 
-    from kolibri.core.deviceadmin.utils import dbbackup
+    from kolibri.core.deviceadmin.utils import dbbackup, get_backup_files
 
     # Making few backups
     dbbackup("0.11.0")
@@ -108,14 +108,10 @@ def test_conditional_backup():
     # calling function for conditional backup
     main.conditional_backup("0.11.1", "0.15.3")
 
-    backups_after = os.listdir(default_path)
-    prefix = "db-v"
-    backups_after = filter(lambda f: f.endswith(".dump"), backups_after)
-    backups_after = filter(lambda f: f.startswith(prefix), backups_after)
-    backups_after = list(backups_after)
+    backups_after = get_backup_files()
     # checking if delete is working properly in the conditional_backup
     assert len(backups_after) == 2
-    assert "db-v0.15.3" in backups_after[-1]
+    assert "db-v0.15.3" in backups_after[0]
 
 
 @pytest.mark.django_db
