@@ -38,11 +38,11 @@ export default [
       const { memberships } = store.state;
       const { canAccessUnassignedContent } = store.getters;
 
-      // If a registered user, go to Classes Page, else go to Content
+      // If a registered user, go to Home Page, else go to Content
       return router.replace({
         name:
           memberships.length > 0 || !canAccessUnassignedContent
-            ? ClassesPageNames.ALL_CLASSES
+            ? PageNames.HOME
             : PageNames.TOPICS_ROOT,
       });
     },
