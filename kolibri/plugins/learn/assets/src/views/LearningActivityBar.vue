@@ -78,6 +78,11 @@
         </CoreMenu>
       </span>
     </template>
+    <MarkAsCompleteModal
+      v-if="showMarkAsCompleteModal && allowMarkComplete"
+      @complete="showMarkAsCompleteModal = false"
+      @cancel="showMarkAsCompleteModal = false"
+    />
   </UiToolbar>
 
 </template>
@@ -92,7 +97,8 @@
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
-  import LearningActivityIcon from './LearningActivityIcon.vue';
+  import LearningActivityIcon from './LearningActivityIcon';
+  import MarkAsCompleteModal from './MarkAsCompleteModal';
 
   export default {
     name: 'LearningActivityBar',
@@ -102,6 +108,7 @@
       UiToolbar,
       TextTruncator,
       LearningActivityIcon,
+      MarkAsCompleteModal,
     },
     mixins: [KResponsiveWindowMixin],
     /**
@@ -159,6 +166,7 @@
     data() {
       return {
         isMenuOpen: false,
+        showMarkAsCompleteModal: false,
       };
     },
     computed: {
@@ -224,6 +232,7 @@
     },
     created() {
       window.addEventListener('click', this.onWindowClick);
+      this.$on('markComplete', () => (this.showMarkAsCompleteModal = true));
     },
     beforeDestroy() {
       window.removeEventListener('click', this.onWindowClick);

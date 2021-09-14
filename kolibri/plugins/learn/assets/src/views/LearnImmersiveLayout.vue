@@ -13,7 +13,7 @@
       :learningActivities="mappedLearningActivities"
       :isLessonContext="true"
       :isBookmarked="true"
-      :allowMarkComplete="false"
+      :allowMarkComplete="allowMarkComplete"
       data-test="learningActivityBar"
       @navigateBack="navigateBack"
     />
@@ -46,6 +46,7 @@
         data-test="contentPage"
       />
     </div>
+    <GlobalSnackbar />
   </div>
 
 </template>
@@ -59,6 +60,7 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import GlobalSnackbar from '../../../../../../kolibri/core/assets/src/views/GlobalSnackbar';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
   import ContentPage from './ContentPage';
@@ -93,6 +95,7 @@
       AppError,
       AuthMessage,
       ContentPage,
+      GlobalSnackbar,
       LearningActivityBar,
       SkipNavigationLink,
     },
@@ -140,6 +143,11 @@
       },
       resourceTitle() {
         return this.content ? this.content.title : '';
+      },
+      allowMarkComplete() {
+        // TODO: This should be determined by some other means. Content metadata?
+        const DEV_ONLY = process.env.NODE_ENV !== 'production';
+        return DEV_ONLY;
       },
       mappedLearningActivities() {
         let learningActivities = [];
