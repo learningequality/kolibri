@@ -14,6 +14,13 @@
       :fromClasses="continueLearningFromClasses"
       data-test="continueLearning"
     />
+    <AssignedLessonsCards
+      v-if="hasActiveClassesLessons"
+      class="section"
+      :lessons="activeClassesLessons"
+      displayClassName
+      recent
+    />
   </div>
 
 </template>
@@ -26,6 +33,7 @@
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';
   import useUser from '../../composables/useUser';
+  import AssignedLessonsCards from '../classes/AssignedLessonsCards.vue';
   import YourClasses from '../YourClasses';
   import ContinueLearning from './ContinueLearning';
 
@@ -38,6 +46,7 @@
   export default {
     name: 'HomePage',
     components: {
+      AssignedLessonsCards,
       YourClasses,
       ContinueLearning,
     },
@@ -46,6 +55,7 @@
       const { canAccessUnassignedContent } = useDeviceSettings();
       const {
         classes,
+        activeClassesLessons,
         resumableClassesQuizzes,
         resumableClassesResources,
         resumableNonClassesContentNodes,
@@ -66,6 +76,10 @@
           !get(canResumeClasses) &&
           get(resumableNonClassesContentNodes).length > 0
       );
+      const hasActiveClassesLessons = computed(
+        () =>
+          get(isUserLoggedIn) && get(activeClassesLessons) && get(activeClassesLessons).length > 0
+      );
 
       onBeforeMount(() => {
         if (get(isUserLoggedIn)) {
@@ -77,6 +91,8 @@
       return {
         isUserLoggedIn,
         classes,
+        activeClassesLessons,
+        hasActiveClassesLessons,
         continueLearningFromClasses,
         continueLearningOnYourOwn,
       };

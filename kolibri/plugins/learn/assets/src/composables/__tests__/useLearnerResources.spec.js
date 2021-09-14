@@ -6,6 +6,7 @@ import useLearnerResources from '../useLearnerResources';
 
 const {
   classes,
+  activeClassesLessons,
   resumableClassesQuizzes,
   resumableClassesResources,
   resumableNonClassesContentNodes,
@@ -169,6 +170,46 @@ describe(`useLearnerResources`, () => {
   describe(`classes`, () => {
     it(`returns fetched classes`, () => {
       expect(classes.value).toEqual(TEST_CLASSES);
+    });
+  });
+
+  describe(`activeClassesLessons`, () => {
+    it(`returns all active lessons assigned to a learner in all their classes`, () => {
+      expect(activeClassesLessons.value).toEqual([
+        {
+          id: 'class-1-active-lesson-1',
+          title: 'Class 1 - Active Lesson 1',
+          is_active: true,
+          collection: 'class-1',
+          resources: [
+            { contentnode_id: 'resource-1-in-progress' },
+            { contentnode_id: 'resource-2' },
+            { contentnode_id: 'resource-3-in-progress' },
+          ],
+        },
+        {
+          id: 'class-1-active-lesson-2',
+          title: 'Class 1 - Active Lesson 2',
+          is_active: true,
+          collection: 'class-1',
+          resources: [
+            { contentnode_id: 'resource-1-in-progress' },
+            { contentnode_id: 'resource-4' },
+            { contentnode_id: 'resource-5-in-progress' },
+          ],
+        },
+        {
+          id: 'class-2-active-lesson-1',
+          title: 'Class 2 - Active Lesson 1',
+          is_active: true,
+          collection: 'class-2',
+          resources: [
+            { contentnode_id: 'resource-6-in-progress' },
+            { contentnode_id: 'resource-2' },
+            { contentnode_id: 'resource-1-in-progress' },
+          ],
+        },
+      ]);
     });
   });
 

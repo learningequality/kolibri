@@ -115,6 +115,14 @@ export default function useLearnerResources() {
   }
 
   /**
+   * @returns {Array} - All active lessons assigned to a learner in all their classes
+   * @public
+   */
+  const activeClassesLessons = computed(() => {
+    return get(_classesLessons).filter(lesson => lesson.is_active);
+  });
+
+  /**
    * @returns {Array} - Active and in progress quizzes assigned to a learner
    *                    in all their classes
    * @public
@@ -268,6 +276,7 @@ export default function useLearnerResources() {
 
   return {
     classes,
+    activeClassesLessons,
     resumableClassesQuizzes,
     resumableClassesResources,
     resumableNonClassesContentNodes,
