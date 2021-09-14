@@ -28,6 +28,11 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Next steps',
     context: 'Label for links that go to post-requisites for content that has been completed',
   },
+  logo: {
+    message: 'From the channel {channelTitle}',
+    context:
+      'Added to create a complete alt-text description of a logo on a content card to indicate to the user what channel the resource belongs to. For example: From the channel Khan Academy - English',
+  },
   // Learning Activities
   all: {
     message: 'All',
@@ -64,14 +69,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   interact: {
     message: 'Explore',
     context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
-  },
-  folder: {
-    message: 'Folder',
-    context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
-  },
-  folders: {
-    message: 'Folders',
-    context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
   },
 });
 

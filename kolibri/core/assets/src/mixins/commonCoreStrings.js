@@ -374,8 +374,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   watchActivity: 'Watch',
   exploreActivity: 'Explore',
 
-  folder: 'Folder',
-
   // Library Categories
   school: 'School',
   basicSkills: 'Basic skills',
@@ -461,8 +459,8 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
 
   // Resources Needed Categories = {
   ForBeginners: 'For beginners',
-  ToUseWithteachersAndPeers: 'To use with teachers and peers',
-  ToUseWithpaperAndPencil: 'To use with paper and pencil',
+  ToUseWithTeachersAndPeers: 'To use with teachers and peers',
+  ToUseWithPaperAndPencil: 'To use with paper and pencil',
   NeedsInternet: 'That need internet connection',
   NeedsMaterials: 'That need other materials',
 
@@ -581,6 +579,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   notStartedLabel: {
     message: 'Not started',
     context: 'For content that has not been viewed or engaged with yet',
+  },
+  folder: {
+    message: 'Folder',
+    context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
+  },
+  folders: {
+    message: 'Folders',
+    context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
   },
 });
 

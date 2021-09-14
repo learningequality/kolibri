@@ -19,7 +19,7 @@
         :layout="{ span: 8 }"
       >
         <div v-if="!displayingSearchResults">
-          <h2>{{ coreString('channels') }}</h2>
+          <h2>{{ coreString('channelsLabel') }}</h2>
           <ChannelCardGroupGrid
             v-if="channels.length"
             class="grid"
@@ -79,6 +79,7 @@
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeProgressResource } from 'kolibri.resources';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import languageSwitcherMixin from '../../../../../core/assets/src/views/language-switcher/mixin.js';
   import { PageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
@@ -86,8 +87,6 @@
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import CategorySearchModal from './CategorySearchModal';
-
-  // import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   const mobileCarouselLimit = 3;
   const desktopCarouselLimit = 15;
@@ -105,7 +104,7 @@
       EmbeddedSidePanel,
       CategorySearchModal,
     },
-    mixins: [commonLearnStrings, languageSwitcherMixin, responsiveWindowMixin],
+    mixins: [commonLearnStrings, commonCoreStrings, languageSwitcherMixin, responsiveWindowMixin],
     data: function() {
       return {
         showSearchModal: null,

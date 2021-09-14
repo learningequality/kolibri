@@ -47,7 +47,7 @@
       </div>
       <img
         :src="channelThumbnail"
-        :alt="$tr('logo', { channelTitle: channelTitle })"
+        :alt="learnString('logo', { channelTitle: channelTitle })"
         class="channel-logo"
       >
       <KButton
@@ -189,13 +189,6 @@
           activity = ContentKindsToLearningActivitiesMap[this.kind];
         }
         return activity;
-      },
-    },
-    $trs: {
-      logo: {
-        message: '{channelTitle} logo',
-        context:
-          'Added to the title channel to create a complete alt-text description of a logo. For example Khan Academy English Logo.',
       },
     },
   };

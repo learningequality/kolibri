@@ -52,7 +52,7 @@
         <div class="tabs">
           <KButton
             ref="tab_button"
-            :text="learnString('folders')"
+            :text="coreString('folders')"
             appearance="flat-button"
             class="tab-button"
             :appearanceOverrides="customTabButtonOverrides"
@@ -60,7 +60,7 @@
           />
           <KButton
             ref="tab_button"
-            :text="coreString('search')"
+            :text="coreString('searchLabel')"
             appearance="flat-button"
             class="tab-button"
             :appearanceOverrides="customTabButtonOverrides"

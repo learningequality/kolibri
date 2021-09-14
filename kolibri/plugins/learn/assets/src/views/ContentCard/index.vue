@@ -17,7 +17,7 @@
       />
       <img
         :src="channelThumbnail"
-        :alt="$tr('logo', { channelTitle: channelTitle })"
+        :alt="learnString('logo', { channelTitle: channelTitle })"
         class="channel-logo"
       >
     </div>
@@ -190,13 +190,6 @@
           activity = ContentKindsToLearningActivitiesMap[this.kind];
           return `${activity}Activity`;
         }
-      },
-    },
-    $trs: {
-      logo: {
-        message: 'From the channel {channelTitle}',
-        context:
-          'Added to create a complete alt-text description of a logo on a content card to indicate to the user what channel the resource belongs to. For example: From the channel Khan Academy - English',
       },
     },
   };
