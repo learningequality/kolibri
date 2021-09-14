@@ -2,11 +2,12 @@ import copy
 import logging
 import traceback
 import uuid
+import json
 
 from django.db import connection as django_connection
 from six import string_types
 
-from kolibri.core.tasks.exceptions import UserCancelledError
+from kolibri.core.tasks.exceptions import JobSavedWithError, UserCancelledError
 from kolibri.core.tasks.utils import current_state_tracker
 from kolibri.core.tasks.utils import import_stringified_func
 from kolibri.core.tasks.utils import stringify_func
@@ -160,6 +161,61 @@ class Job(object):
         ]
         return {key: self.__dict__[key] for key in keys if key in self.__dict__}
 
+    def to_json(self):
+        """
+        Creates and returns a JSON-serialized string representing this Job.
+        Can be used to recreate it.
+        """
+
+        # Not saving exception object - saving its type name instead. Not saving result at all.
+        keys = [
+            "job_id",
+            "state",
+            "traceback",
+            "track_progress",
+            "cancellable",
+            "extra_metadata",
+            "progress",
+            "total_progress",
+            "args",
+            "kwargs",
+            "func",
+        ]
+        working_dictionary = {key: self.__dict__[key] for key in keys if key in self.__dict__}
+
+        if self.exception is not None:
+            working_dictionary["exception_type"] = type(self.exception).__name__
+
+        if self.state in [State.CANCELING, State.RUNNING]:
+            logger.warning(
+                "A task is currently in action. This is a bad time to save it to the database."
+            )
+        if self.result is not None:
+            logger.warning(
+                "Results of tasks are not saved with jobs. Either this fact needs to be changed, "\
+                "or the function for this job should store its result elsewhere."
+            )
+
+        try:
+            string_result = json.dumps(working_dictionary)
+        except TypeError as e:
+            # The rest of the traceback would go into json.dumps, which is not where the problem is.
+            # The problem is here; one of the keys is not JSON-serializable.
+            raise TypeError("Trying to serialize Job object, but: " + str(e))
+        
+        return string_result
+
+    @classmethod
+    def from_json(cls, json_string):
+        working_dictionary = json.loads(json_string)
+
+        # If func isn't in working_dictionary, this should throw an error here; something wasn't saved right.
+        func = working_dictionary.pop("func")
+        args = working_dictionary.pop("args", ())
+        kwargs = working_dictionary.pop("kwargs", {})
+
+        return Job(func, *args, **working_dictionary, **kwargs)
+
     def __init__(self, func, *args, **kwargs):
         """
         Create a new Job that will run func given the arguments passed to Job(). If the track_progress keyword parameter
@@ -185,15 +241,21 @@ class Job(object):
         if job_id is None:
             job_id = uuid.uuid4().hex
 
+        exception_type = kwargs.pop("exception_type", None)
+        if exception_type is None:
+            exception = None
+        else:
+            exception = JobSavedWithError(exception_type)
+
         self.job_id = job_id
         self.state = kwargs.pop("state", State.PENDING)
-        self.traceback = ""
-        self.exception = None
+        self.traceback = kwargs.pop("traceback", "")
+        self.exception = exception
         self.track_progress = kwargs.pop("track_progress", False)
         self.cancellable = kwargs.pop("cancellable", False)
         self.extra_metadata = kwargs.pop("extra_metadata", {})
-        self.progress = 0
-        self.total_progress = 0
+        self.progress = kwargs.pop("progress", 0)
+        self.total_progress = kwargs.pop("total_progress", 0)
         self.args = args
         self.kwargs = kwargs
         self.result = None
