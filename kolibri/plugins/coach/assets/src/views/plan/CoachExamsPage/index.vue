@@ -96,7 +96,7 @@
       <p v-if="!exams.length">
         {{ $tr('noExams') }}
       </p>
-      <p
+      <!--       <p
         v-else-if="statusSelected.value === coachString('activeQuizzesLabel') &&
           !activeExams.length"
       >
@@ -107,7 +107,7 @@
           !inactiveExams.length"
       >
         {{ $tr('noInactiveExams') }}
-      </p>
+      </p> -->
 
       <!-- Modals for Close & Open of quiz from right-most column -->
       <KModal
@@ -160,10 +160,10 @@
     mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
-        statusSelected: {
-          label: this.coachString('allQuizzesLabel'),
-          value: this.coachString('allQuizzesLabel'),
-        },
+        // statusSelected: {
+        //   label: this.coachString('allQuizzesLabel'),
+        //   value: this.coachString('allQuizzesLabel'),
+        // },
         showOpenConfirmationModal: false,
         showCloseConfirmationModal: false,
       };
@@ -192,19 +192,19 @@
         ];
       },
       */
-      activeExams() {
-        return this.sortedExams.filter(exam => exam.active === true);
-      },
-      inactiveExams() {
-        return this.sortedExams.filter(exam => exam.active === false);
-      },
+      // activeExams() {
+      //   return this.sortedExams.filter(exam => exam.active === true);
+      // },
+      // inactiveExams() {
+      //   return this.sortedExams.filter(exam => exam.active === false);
+      // },
       filteredExams() {
-        const filter = this.statusSelected.label;
-        if (filter === this.coachString('activeQuizzesLabel')) {
-          return this.activeExams;
-        } else if (filter === this.coachString('inactiveQuizzesLabel')) {
-          return this.inactiveExams;
-        }
+        // const filter = this.statusSelected.label;
+        // if (filter === this.coachString('activeQuizzesLabel')) {
+        //   return this.activeExams;
+        // } else if (filter === this.coachString('inactiveQuizzesLabel')) {
+        //   return this.inactiveExams;
+        // }
         return this.sortedExams;
       },
       dropdownOptions() {
@@ -268,12 +268,14 @@
         message: 'You do not have any quizzes',
         context: 'CoachExamsPage.noExams\n\n-- CONTEXT --',
       },
-      noActiveExams: 'No active quizzes',
-      noInactiveExams: {
-        message: 'No inactive quizzes',
-        context:
-          "Inactive quizzes are ones that are no longer in progress. When the coach presses the 'End quiz' button, the quiz passes from 'active' to 'inactive'.",
-      },
+      // noActiveExams: 'No active quizzes',
+      // noInactiveExams: {
+      //   message: 'No inactive quizzes',
+      //   context:
+      //     "Inactive quizzes are ones that are no longer in progress.
+      //     When the coach presses the 'End quiz' button, the quiz
+      //passes from 'active' to 'inactive'.",
+      // },
       newQuiz: 'Create new quiz',
       selectQuiz: {
         message: 'Select channel quiz',

@@ -79,14 +79,14 @@
             label: this.coachString('allQuizzesLabel'),
             value: 'allQuizzes',
           },
-          {
-            label: this.coachString('activeQuizzesLabel'),
-            value: 'activeQuizzes',
-          },
-          {
-            label: this.coachString('inactiveQuizzesLabel'),
-            value: 'inactiveQuizzes',
-          },
+          // {
+          //   label: this.coachString('activeQuizzesLabel'),
+          //   value: 'activeQuizzes',
+          // },
+          // {
+          //   label: this.coachString('inactiveQuizzesLabel'),
+          //   value: 'inactiveQuizzes',
+          // },
         ];
       },
       group() {
