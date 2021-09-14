@@ -1,7 +1,6 @@
+from kolibri.core.tasks.job import DEFAULT_QUEUE
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.storage import Storage
-
-DEFAULT_QUEUE = "ICEQUBE_DEFAULT_QUEUE"
 
 
 class Queue(object):
@@ -52,7 +51,6 @@ class Queue(object):
         :param func: A callable object that will be scheduled for running.
         :return: a string representing the job_id.
         """
-
         # if the func is already a job object, just schedule that directly.
         if isinstance(func, Job):
             job = func

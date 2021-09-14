@@ -198,13 +198,25 @@ class BaseViewSet(viewsets.ViewSet):
             self.permission_classes = []
         return super(BaseViewSet, self).initial(request, *args, **kwargs)
 
-    def check_registered_job_permissions(self, request, registered_job):
+    def check_registered_job_permissions(self, request, registered_job, job=None):
         """
-        Checks whether the `request` is allowed to proceed based on
-        `registered_job.permissions`.
+        Checks whether the `request` is allowed to proceed.
 
-        Raises `PermissionDenied` if `request.user` is not allowed to proceed.
+        If the user is not a superuser we check whether the job's `facility_id` matches
+        that of the user. If it doesn't match we raise `PermissionDenied`.
+
+        Other raises `PermissionDenied` if `request.user` is not allowed to proceed based
+        on registered_job's permissions.
         """
+        if job:
+            job_facility_id = getattr(job, "facility_id", None)
+        else:
+            job_facility_id = None
+
+        if not request.user.is_superuser:
+            if job_facility_id and job_facility_id != request.user.facility_id:
+                raise PermissionDenied
+
         for permission in registered_job.permissions:
             if not permission.has_permission(request, self):
                 raise PermissionDenied
@@ -239,7 +251,7 @@ class BaseViewSet(viewsets.ViewSet):
                     "'{funcstr}' is not registered.".format(funcstr=funcstr)
                 )
 
-            # Check permissions the DRF way
+            # Check permissions
             self.check_registered_job_permissions(request, registered_job)
 
         return request_data_list
@@ -258,7 +270,7 @@ class BaseViewSet(viewsets.ViewSet):
         for job in all_jobs:
             try:
                 registered_job = JobRegistry.REGISTERED_JOBS[job.func]
-                self.check_registered_job_permissions(request, registered_job)
+                self.check_registered_job_permissions(request, registered_job, job)
                 jobs_response.append(_job_to_response(job))
             except KeyError:
                 # Note: Temporarily including unregistered tasks until we complete
@@ -327,7 +339,9 @@ class BaseViewSet(viewsets.ViewSet):
 
                 request_data = validator_result
 
-            job_id = registered_job.enqueue(**request_data)
+            job_id = registered_job.enqueue(
+                facility_id=request.user.facility_id, **request_data
+            )
             enqueued_jobs_response.append(_job_to_response(job_storage.get_job(job_id)))
 
         if len(enqueued_jobs_response) == 1:
@@ -343,7 +357,7 @@ class BaseViewSet(viewsets.ViewSet):
         try:
             job = job_storage.get_job(job_id=pk)
             registered_job = JobRegistry.REGISTERED_JOBS[job.func]
-            self.check_registered_job_permissions(request, registered_job)
+            self.check_registered_job_permissions(request, registered_job, job)
         except JobNotFound:
             raise Http404("Task with {pk} not found".format(pk=pk))
         except KeyError:
@@ -376,7 +390,9 @@ class BaseViewSet(viewsets.ViewSet):
 
         try:
             registered_job = JobRegistry.REGISTERED_JOBS[job_to_restart.func]
-            self.check_registered_job_permissions(request, registered_job)
+            self.check_registered_job_permissions(
+                request, registered_job, job_to_restart
+            )
         except KeyError:
             raise serializers.ValidationError(
                 "'{funcstr}' is not registered.".format(funcstr=job_to_restart.func)

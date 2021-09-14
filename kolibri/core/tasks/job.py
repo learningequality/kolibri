@@ -13,6 +13,9 @@ from kolibri.core.tasks.utils import stringify_func
 logger = logging.getLogger(__name__)
 
 
+DEFAULT_QUEUE = "ICEQUBE_DEFAULT_QUEUE"
+
+
 class JobRegistry(object):
     """
     All jobs that get registered via `register_task` decorator are placed
@@ -144,6 +147,7 @@ class Job(object):
     def __getstate__(self):
         keys = [
             "job_id",
+            "facility_id",
             "state",
             "traceback",
             "exception",
@@ -174,6 +178,7 @@ class Job(object):
             kwargs["track_progress"] = func.track_progress
             kwargs["cancellable"] = func.cancellable
             kwargs["extra_metadata"] = func.extra_metadata.copy()
+            kwargs["facility_id"] = func.facility_id
             func = func.func
         elif not callable(func) and not isinstance(func, str):
             raise TypeError(
@@ -185,6 +190,7 @@ class Job(object):
             job_id = uuid.uuid4().hex
 
         self.job_id = job_id
+        self.facility_id = kwargs.pop("facility_id", None)
         self.state = kwargs.pop("state", State.PENDING)
         self.traceback = ""
         self.exception = None
@@ -276,8 +282,6 @@ class RegisteredJob(object):
 
         Look at each method's docstring for more info.
     """
-
-    from kolibri.core.tasks.queue import DEFAULT_QUEUE
 
     def __init__(
         self,

@@ -4,7 +4,6 @@ import uuid
 import pytest
 
 from kolibri.core.tasks.compat import Event
-from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.queue import Queue
@@ -178,19 +177,6 @@ def update_progress_cancelable_job():
             return
 
 
-def wait_for_state_change(inmem_queue, job_id, state):
-    interval = 0.1
-    time_spent = 0
-
-    job = inmem_queue.fetch_job(job_id)
-
-    while job.state != state:
-        time.sleep(interval)
-        time_spent += interval
-        job = inmem_queue.fetch_job(job_id)
-        assert time_spent < 5
-
-
 @pytest.mark.django_db
 class TestQueue(object):
     def test_enqueues_a_function(self, inmem_queue):
@@ -314,92 +300,3 @@ class TestQueue(object):
             assert time_spent < 5
         # and hopefully it's canceled by this point
         assert job.state == State.CANCELED
-
-    def test_failed_job_can_restart(self, inmem_queue):
-        # Start a failng function and check for failure and
-        # the case of it being present in jobs as a failed state job
-        old_job_id = inmem_queue.enqueue(failing_func)
-
-        wait_for_state_change(inmem_queue, old_job_id, State.FAILED)
-
-        job = inmem_queue.fetch_job(old_job_id)
-        assert len(inmem_queue.jobs) == 1
-        assert job.state == State.FAILED
-
-        # Restart the function and assert the same case as above along with
-        # the new created job should have the same id.
-        new_job_id = inmem_queue.restart_job(old_job_id)
-
-        assert new_job_id == old_job_id
-
-        wait_for_state_change(inmem_queue, new_job_id, State.FAILED)
-
-        job = inmem_queue.fetch_job(new_job_id)
-
-        assert len(inmem_queue.jobs) == 1
-        assert job.state == State.FAILED
-
-    def test_cancelled_job_can_restart(self, inmem_queue):
-        # Start a function waiting to be cancelled. Once cancelled check
-        # the case of it being present in jobs as a cancelled state job
-        old_job_id = inmem_queue.enqueue(cancelable_job, cancellable=True)
-
-        # The job should go from Queued to Running. At that point we mark it for
-        # cancellation. Then the state should go from Cancelling to Cancelled.
-        wait_for_state_change(inmem_queue, old_job_id, State.RUNNING)
-
-        inmem_queue.cancel(old_job_id)
-        job = inmem_queue.fetch_job(old_job_id)
-        assert job.state == State.CANCELING
-
-        wait_for_state_change(inmem_queue, old_job_id, State.CANCELED)
-        job = inmem_queue.fetch_job(old_job_id)
-        assert job.state == State.CANCELED
-
-        # Restart the job, check that the new created job should have the
-        # same id.
-        new_job_id = inmem_queue.restart_job(old_job_id)
-        assert new_job_id == old_job_id
-
-        # Test the remaing cases same as above.
-        wait_for_state_change(inmem_queue, new_job_id, State.RUNNING)
-
-        inmem_queue.cancel(new_job_id)
-        job = inmem_queue.fetch_job(new_job_id)
-        assert job.state == State.CANCELING
-
-        wait_for_state_change(inmem_queue, new_job_id, State.CANCELED)
-        job = inmem_queue.fetch_job(new_job_id)
-        assert job.state == State.CANCELED
-
-    def test_queued_job_cannot_restart(self, queue_no_worker):
-        # Start a failing function task, but do not wait for it to change it's
-        # state from QUEUED. Initating an immediate restart raises the
-        # JobNotRestartable Exception
-        old_job_id = queue_no_worker.enqueue(failing_func)
-
-        job = queue_no_worker.fetch_job(old_job_id)
-        assert job.state == State.QUEUED
-
-        with pytest.raises(JobNotRestartable) as excinfo:
-            queue_no_worker.restart_job(old_job_id)
-
-        assert str(excinfo.value) == "Cannot restart job with state=QUEUED"
-
-    def test_successful_job_cannot_restart(self, inmem_queue, flag):
-        # Start a function and wait for it to be completed. Initiate a restart
-        # request for the task which should raise a JobNotRestartable Exception
-        old_job_id = inmem_queue.enqueue(set_flag, flag)
-
-        flag.wait(timeout=5)
-        assert flag.is_set()
-
-        time.sleep(0.5)
-
-        job = inmem_queue.fetch_job(old_job_id)
-        assert job.state == State.COMPLETED
-
-        with pytest.raises(JobNotRestartable) as excinfo:
-            inmem_queue.restart_job(old_job_id)
-
-        assert str(excinfo.value) == "Cannot restart job with state=COMPLETED"
