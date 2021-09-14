@@ -77,11 +77,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "In the selected lesson 'Report' sub-tab, coaches can see the average time that has been spent on a resource by a specific class.",
   },
-  avgQuizScoreLabel: {
-    message: 'Average quiz score',
-    context:
-      "The average score of a class's quiz results. This is calculated only from quizzes that were completed by learners.",
-  },
   backToLessonLabel: {
     message: "Back to '{lesson}'",
     context: 'Link that takes the coach back to the lesson view.',
@@ -217,7 +212,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "Coaches can choose between 'Randomized' and 'Fixed' question order when they create quizzes.\n\nThis text is a description of the 'Randomized' question order.",
   },
-  overallLabel: 'Overall',
   previewLabel: {
     message: 'Preview',
     context:
@@ -395,6 +389,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
 
   // Quiz activation / closing / etc
+  lessonVisibleLabel: {
+    message: 'Visible to learners',
+    context:
+      'A label indicating that the learners can see the lesson when the switch is turned "on"',
+  },
   reportVisibleLabel: {
     message: 'Report visible',
     context:

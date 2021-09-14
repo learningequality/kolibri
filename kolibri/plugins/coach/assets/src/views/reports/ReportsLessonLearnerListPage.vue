@@ -48,10 +48,6 @@
             />
           </HeaderTabs>
 
-          <h2 v-show="!$isPrint">
-            {{ coachString('overallLabel') }}
-          </h2>
-
           <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
             <template #headers>
               <th>{{ coachString('nameLabel') }}</th>

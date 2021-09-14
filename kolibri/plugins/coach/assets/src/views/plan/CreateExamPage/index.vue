@@ -159,11 +159,6 @@
       </BottomAppBar>
       <BottomAppBar v-else>
         <KButtonGroup>
-          <KRouterLink
-            appearance="flat-button"
-            :text="coreString('goBackAction')"
-            :to="toolbarRoute"
-          />
           <KButton
             :text="coreString('continueAction')"
             primary

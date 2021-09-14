@@ -39,7 +39,7 @@
           <th>{{ coachString('titleLabel') }}</th>
           <th>{{ $tr('size') }}</th>
           <th>{{ coachString('recipientsLabel') }}</th>
-          <th>{{ $tr('visibleToLearnersLabel') }}</th>
+          <th>{{ coachString('lessonVisibleLabel') }}</th>
         </template>
         <template #tbody>
           <transition-group tag="tbody" name="list">
@@ -243,11 +243,6 @@
       },
       // noActiveLessons: 'No active lessons',
       // noInactiveLessons: 'No inactive lessons',
-      visibleToLearnersLabel: {
-        message: 'Visible to learners',
-        context:
-          'Column header for table of lessons which will include a toggle switch the user can use to set the visibility status of a lesson.',
-      },
     },
   };
 

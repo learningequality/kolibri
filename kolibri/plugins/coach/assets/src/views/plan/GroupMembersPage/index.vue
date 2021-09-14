@@ -52,7 +52,7 @@
           <template #tbody>
             <tbody>
               <p v-if="currentGroup.users.length === 0">
-                {{ $tr('noLearnersInGroup') }}
+                {{ coachString('learnerListEmptyState') }}
               </p>
               <tr
                 v-for="user in currentGroup.users"
@@ -146,10 +146,6 @@
         message: 'Enroll learners',
         context:
           'Button which allows user to add learners to a group once the group has been created.',
-      },
-      noLearnersInGroup: {
-        message: 'No learners in this group',
-        context: 'Displays when there are no learners in a group.',
       },
       groupDoesNotExist: {
         message: 'This group does not exist',

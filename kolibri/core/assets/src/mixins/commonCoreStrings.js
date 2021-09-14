@@ -309,6 +309,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Search',
     context: 'Test used to indicate the Kolibri search field.',
   },
+  startSearchButtonLabel: {
+    message: 'Start search',
+    context: 'Refers to the search button used to initiate a search.',
+  },
   showCorrectAnswerLabel: {
     message: 'Show correct answer',
     context:
@@ -352,6 +356,29 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'View more',
     context:
       'This button appears in Kolibri to indicate to users that there are more results available when they search for resources, for example.',
+  },
+  userActionsColumnHeader: {
+    message: 'Actions',
+    context:
+      'Column header for the table with class users. The column "Actions" contains buttons that allow admins to remove users from class.',
+  },
+  classHome: {
+    message: 'Class home',
+    context:
+      'The main section where the coach can see all the information relating to a specific class..',
+  },
+  classCoachDescription: {
+    message: 'Can only instruct classes that they are assigned to',
+    context: 'Description of the "Class coach" user type.',
+  },
+  facilityCoachDescription: {
+    message: 'Can instruct all classes in your facility',
+    context: 'Description of the "Facility coach" user type.',
+  },
+  transcript: {
+    message: 'Transcript',
+    context:
+      'Refers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
   },
 
   // Learning activities
@@ -425,10 +452,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   genderOptionFemale: {
     message: 'Female',
     context: "Female is an option in the 'Gender' drop down menu on the 'Create new user' page.",
-  },
-  genderOptionOther: {
-    message: 'Other',
-    context: 'CommonCoreStrings.genderOptionOther\n\n-- CONTEXT --',
   },
   genderOptionNotSpecified: {
     message: 'Not specified',

@@ -17,7 +17,6 @@
         :text="$tr('renameButtonLabel')"
         appearance="basic-link"
         :primary="true"
-        :ariaLabel="$tr('edit')"
         @click="displayModal(Modals.EDIT_CLASS_NAME)"
       />
     </div>
@@ -198,15 +197,14 @@
         context:
           'This text displays in the edit class page if there are no learners enrolled in a class.',
       },
-      edit: 'Edit class name',
       documentTitle: {
         message: 'Edit Class',
         context: 'Page title.',
       },
       renameButtonLabel: {
-        message: 'Edit',
+        message: 'Rename',
         context:
-          "Users can change the name of a class using the 'Edit' button beside the class name.",
+          "Users can change the name of a class using the 'Rename' button beside the class name.",
       },
     },
   };

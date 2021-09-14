@@ -48,14 +48,14 @@
             v-model="classCoachIsSelected"
             :disabled="busy"
             :label="coreString('classCoachLabel')"
-            :description="$tr('classCoachDescription')"
+            :description="coreString('classCoachDescription')"
             :value="true"
           />
           <KRadioButton
             v-model="classCoachIsSelected"
             :disabled="busy"
             :label="coreString('facilityCoachLabel')"
-            :description="$tr('facilityCoachDescription')"
+            :description="coreString('facilityCoachDescription')"
             :value="false"
           />
         </fieldset>
@@ -275,14 +275,6 @@
         message: 'Create new user',
         context:
           "Refers to the window accessed via the 'New user' button in the Facility > Users section.",
-      },
-      classCoachDescription: {
-        message: "Can only instruct classes that they're assigned to",
-        context: "Description of the 'Class coach' user type.",
-      },
-      facilityCoachDescription: {
-        message: 'Can instruct all classes in your facility',
-        context: "Refers to a description of the 'Facility coach' user type.",
       },
     },
   };
