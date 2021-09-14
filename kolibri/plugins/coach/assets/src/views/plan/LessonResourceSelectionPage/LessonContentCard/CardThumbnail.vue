@@ -4,7 +4,7 @@
     class="card-thumbnail-wrapper"
     :style="thumbnailBackground"
   >
-    <BookmarkIcon v-if="kind === $tr('bookmark')" />
+    <BookmarkIcon v-if="kind === 'bookmark'" />
     <ContentIcon
       v-if="!thumbnail"
       :kind="kind"
@@ -47,9 +47,6 @@
           backgroundImage: this.thumbnail ? `url('${this.thumbnail}')` : '',
         };
       },
-    },
-    $trs: {
-      bookmark: 'bookmark',
     },
   };
 

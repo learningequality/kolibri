@@ -40,7 +40,7 @@
             <div class="bookmark-container">
               <BookmarkIcon />
               <div class="text">
-                <h3>{{ $tr('bookmarks') }}</h3>
+                <h3>{{ coreString('bookmarksLabel') }}</h3>
                 <p>{{ $tr('resources', { count: bookmarksCount }) }}</p>
               </div>
             </div>
@@ -512,7 +512,6 @@
     },
     $trs: {
       resources: '{count} {count, plural, one {resource} other {resources}}',
-      bookmarks: 'Bookmarks',
       selectionInformation: {
         message:
           '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',

@@ -128,6 +128,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Save to bookmarks',
     context: "An action that adds a resource or topic to a user's bookmarks",
   },
+  viewInformation: {
+    message: 'View information',
+    context: 'Show more detailed information about a resource',
+  },
 
   // labels, phrases, titles, headers...
   adminLabel: {

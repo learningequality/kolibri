@@ -118,7 +118,7 @@
      * Emits the following events:
      * - `navigateBack` on back button click
      * - `viewResourceList` on 'View lesson plan'/'View topic resources' click
-     * - `toogleBookmark` on 'Save to bookmarks'/ 'Remove from bookmarks' click
+     * - `toggleBookmark` on 'Save to bookmarks'/ 'Remove from bookmarks' click
      * - `markComplete` on 'Mark resource as finished' click. Only when
      *                  a resource can be marked as complete.
      * - `viewInfo` on 'View information' click

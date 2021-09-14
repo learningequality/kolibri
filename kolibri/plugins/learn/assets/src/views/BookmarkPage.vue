@@ -66,7 +66,6 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import { now } from 'kolibri.utils.serverClock';
   import { PageNames } from '../constants';
-  import commonLearnStrings from './commonLearnStrings';
   import ContentCard from './ContentCard';
 
   export default {
@@ -79,7 +78,7 @@
     components: {
       ContentCard,
     },
-    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
         loading: true,
@@ -91,7 +90,7 @@
     },
     computed: {
       infoText() {
-        return this.learnString('viewInformation');
+        return this.coreString('viewInformation');
       },
       removeText() {
         return this.coreString('removeFromBookmarks');
