@@ -7,6 +7,7 @@ import useLearnerResources from '../useLearnerResources';
 const {
   classes,
   activeClassesLessons,
+  activeClassesQuizzes,
   resumableClassesQuizzes,
   resumableClassesResources,
   resumableNonClassesContentNodes,
@@ -208,6 +209,53 @@ describe(`useLearnerResources`, () => {
             { contentnode_id: 'resource-2' },
             { contentnode_id: 'resource-1-in-progress' },
           ],
+        },
+      ]);
+    });
+  });
+
+  describe(`activeClassesQuizzes`, () => {
+    it(`returns all active quizzes assigned to a learner in all their classes`, () => {
+      expect(activeClassesQuizzes.value).toEqual([
+        {
+          id: 'class-1-active-quiz-in-progress',
+          title: 'Class 1 - Active Quiz In Progress',
+          active: true,
+          collection: 'class-1',
+          progress: {
+            started: true,
+            closed: false,
+          },
+        },
+        {
+          id: 'class-1-active-finished-quiz',
+          title: 'Class 1 - Active Finished Quiz',
+          active: true,
+          collection: 'class-1',
+          progress: {
+            started: true,
+            closed: true,
+          },
+        },
+        {
+          id: 'class-2-active-quiz-in-progress',
+          title: 'Class 2 - Active Quiz In Progress',
+          active: true,
+          collection: 'class-2',
+          progress: {
+            started: true,
+            closed: false,
+          },
+        },
+        {
+          id: 'class-2-active-quiz-not-started',
+          title: 'Class 2 - Active Quiz Not Started',
+          active: true,
+          collection: 'class-2',
+          progress: {
+            closed: false,
+            started: false,
+          },
         },
       ]);
     });

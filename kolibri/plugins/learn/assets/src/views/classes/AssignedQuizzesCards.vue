@@ -2,15 +2,22 @@
 
   <div>
     <h2>
-      <KLabeledIcon icon="quiz" :label="$tr('yourQuizzesHeader')" />
+      <KLabeledIcon
+        icon="quiz"
+        :label="header"
+      />
     </h2>
 
-    <CardGrid v-if="visibleItems.length > 0" :gridType="1">
+    <CardGrid
+      v-if="visibleQuizzes.length > 0"
+      :gridType="1"
+    >
       <QuizCard
-        v-for="quiz in visibleItems"
+        v-for="quiz in visibleQuizzes"
         :key="quiz.id"
         :quiz="quiz"
         :to="getClassQuizLink(quiz)"
+        :collectionTitle="displayClassName ? getQuizClassName(quiz) : ''"
       />
     </CardGrid>
     <p v-else>
@@ -36,13 +43,13 @@
       QuizCard,
     },
     setup(props) {
-      const { getClassQuizLink } = useLearnerResources();
+      const { getClass, getClassQuizLink } = useLearnerResources();
 
-      const visibleItems = computed(() => {
-        if (!props.items) {
+      const visibleQuizzes = computed(() => {
+        if (!props.quizzes) {
           return [];
         }
-        return props.items.filter(quiz => {
+        return props.quizzes.filter(quiz => {
           if (!quiz.active) {
             return false;
           } else if (quiz.archive) {
@@ -54,17 +61,52 @@
         });
       });
 
+      // TODO: We only display class name for quizzes on the home page
+      // that fetches classes data to `useLearnerResources`. To save some
+      // API calls, it's not fetched here again. However that creates a hidden
+      // dependency to `HomePage`. Make sure to check that classes are available
+      // when initializing the composable and if not, fetch them, or update
+      // `ClassAssignmentsPage` to use the composable too instead of Vuex.
+      function getQuizClassName(quiz) {
+        const quizClass = getClass(quiz.collection);
+        return quizClass ? quizClass.name : '';
+      }
+
       return {
+        visibleQuizzes,
+        getQuizClassName,
         getClassQuizLink,
-        visibleItems,
       };
     },
     props: {
-      // `items` prop is used in `setup`
+      // `quizzes` prop is used in `setup`
       // eslint-disable-next-line kolibri/vue-no-unused-properties
-      items: {
+      quizzes: {
         type: Array,
         required: true,
+      },
+      /**
+       * If `true` 'Recent quizzes' header will be displayed.
+       * Otherwise 'Your quizzes' will be displayed.
+       */
+      recent: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+       * A quiz's class name will be displayed above
+       * the quiz title if `true`
+       */
+      displayClassName: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    computed: {
+      // TODO: Would be more consistent to have this computed property in `setup`,
+      // however haven't found a way to work with translations there yet
+      header() {
+        return this.recent ? this.$tr('recentQuizzesHeader') : this.$tr('yourQuizzesHeader');
       },
     },
     $trs: {
@@ -73,6 +115,7 @@
         context:
           "AssignedQuizzesCards.yourQuizzesHeader\n\nHeading on the 'Learn' page for a section where a learner can see the assigned quizzes.",
       },
+      recentQuizzesHeader: 'Recent quizzes',
       noQuizzesMessage: 'You have no quizzes assigned',
     },
   };

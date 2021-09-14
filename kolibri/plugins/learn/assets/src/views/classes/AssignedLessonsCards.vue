@@ -72,7 +72,7 @@
       },
       /**
        * A lesson's class name will be displayed above
-       * the lesson lesson title if `true`
+       * the lesson title if `true`
        */
       displayClassName: {
         type: Boolean,
@@ -80,7 +80,7 @@
       },
     },
     computed: {
-      // Would be more consistent to have this computed property in `setup`,
+      // TODO: Would be more consistent to have this computed property in `setup`,
       // however haven't found a way to work with translations there yet
       header() {
         return this.recent ? this.$tr('recentLessonsHeader') : this.$tr('yourLessonsHeader');

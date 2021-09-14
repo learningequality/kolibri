@@ -35,14 +35,6 @@ export default function useLearnerResources() {
   });
 
   /**
-   * @returns {Array} - All active quizzes assigned to a learner in all their classes
-   * @private
-   */
-  const _activeClassesQuizzes = computed(() => {
-    return get(_classesQuizzes).filter(quiz => quiz.active);
-  });
-
-  /**
    * @returns {Array} - An array of { contentNodeId, lessonId, classId, active } objects
    *                    of all resources from all learner's classes
    * @private
@@ -123,14 +115,20 @@ export default function useLearnerResources() {
   });
 
   /**
+   * @returns {Array} - All active quizzes assigned to a learner in all their classes
+   * @public
+   */
+  const activeClassesQuizzes = computed(() => {
+    return get(_classesQuizzes).filter(quiz => quiz.active);
+  });
+
+  /**
    * @returns {Array} - Active and in progress quizzes assigned to a learner
    *                    in all their classes
    * @public
    */
   const resumableClassesQuizzes = computed(() => {
-    return get(_activeClassesQuizzes).filter(
-      quiz => quiz.progress.started && !quiz.progress.closed
-    );
+    return get(activeClassesQuizzes).filter(quiz => quiz.progress.started && !quiz.progress.closed);
   });
 
   /**
@@ -277,6 +275,7 @@ export default function useLearnerResources() {
   return {
     classes,
     activeClassesLessons,
+    activeClassesQuizzes,
     resumableClassesQuizzes,
     resumableClassesResources,
     resumableNonClassesContentNodes,
