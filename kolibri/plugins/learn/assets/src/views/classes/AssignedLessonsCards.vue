@@ -26,7 +26,7 @@
 <script>
 
   import { computed } from 'kolibri.lib.vueCompositionApi';
-  import useLearnerResources from '../HomePage/useLearnerResources';
+  import useLearnerResources from '../../composables/useLearnerResources';
   import LessonCard from '../cards/LessonCard';
   import CardGrid from '../cards/CardGrid';
 

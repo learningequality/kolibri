@@ -26,9 +26,9 @@
 <script>
 
   import { computed } from 'kolibri.lib.vueCompositionApi';
+  import useLearnerResources from '../../composables/useLearnerResources';
   import QuizCard from '../cards/QuizCard';
   import CardGrid from '../cards/CardGrid';
-  import useLearnerResources from '../HomePage/useLearnerResources';
 
   export default {
     name: 'AssignedQuizzesCards',

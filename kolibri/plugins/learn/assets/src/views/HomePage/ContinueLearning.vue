@@ -47,7 +47,7 @@
   import CardGrid from '../cards/CardGrid';
   import QuizCard from '../cards/QuizCard';
   import ResourceCard from '../cards/ResourceCard';
-  import useLearnerResources from './useLearnerResources';
+  import useLearnerResources from '../../composables/useLearnerResources';
 
   /**
    * Shows learner's resources and quizzes that are in progress.

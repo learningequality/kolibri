@@ -4,14 +4,16 @@ import VueRouter from 'vue-router';
 import { ClassesPageNames } from '../../../constants';
 import HomePage from '../index';
 /* eslint-disable import/named */
-import useUser, { useUserMock } from '../useUser';
-import useDeviceSettings, { useDeviceSettingsMock } from '../useDeviceSettings';
-import useLearnerResources, { useLearnerResourcesMock } from '../useLearnerResources';
+import useUser, { useUserMock } from '../../../composables/useUser';
+import useDeviceSettings, { useDeviceSettingsMock } from '../../../composables/useDeviceSettings';
+import useLearnerResources, {
+  useLearnerResourcesMock,
+} from '../../../composables/useLearnerResources';
 /* eslint-enable import/named */
 
-jest.mock('../useUser');
-jest.mock('../useDeviceSettings');
-jest.mock('../useLearnerResources');
+jest.mock('../../../composables/useUser');
+jest.mock('../../../composables/useDeviceSettings');
+jest.mock('../../../composables/useLearnerResources');
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);

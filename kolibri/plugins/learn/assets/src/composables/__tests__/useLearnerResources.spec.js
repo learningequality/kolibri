@@ -1,7 +1,7 @@
 import { ContentNodeResource } from 'kolibri.resources';
 
-import { PageNames, ClassesPageNames } from '../../../constants';
-import { LearnerClassroomResource } from '../../../apiResources';
+import { PageNames, ClassesPageNames } from '../../constants';
+import { LearnerClassroomResource } from '../../apiResources';
 import useLearnerResources from '../useLearnerResources';
 
 const {
@@ -20,7 +20,7 @@ const {
 } = useLearnerResources();
 
 jest.mock('kolibri.resources');
-jest.mock('../../../apiResources');
+jest.mock('../../apiResources');
 
 const TEST_RESUMABLE_CONTENT_NODES = [
   // the following resources are used in classess

@@ -10,8 +10,8 @@ import { get, set } from '@vueuse/core';
 import flatMap from 'lodash/flatMap';
 
 import { ContentNodeResource } from 'kolibri.resources';
-import { LearnerClassroomResource } from '../../apiResources';
-import { PageNames, ClassesPageNames } from '../../constants';
+import { LearnerClassroomResource } from '../apiResources';
+import { PageNames, ClassesPageNames } from '../constants';
 
 // The refs are defined in the outer scope so they can be use as a store
 const _resumableContentNodes = ref([]);
