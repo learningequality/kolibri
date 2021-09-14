@@ -153,7 +153,15 @@ class ValuesViewsetLimitOffsetPagination(LimitOffsetPagination):
 
         if self.count == 0 or self.offset > self.count:
             return queryset.none()
-        return queryset[self.offset : self.offset + self.limit]
+        # Ensure we evaluate the sliced queryset and do an explicit filter by the subsequent PKs
+        # to avoid issues when we later try to annotate this queryset.
+        return queryset.filter(
+            id__in=list(
+                queryset.values_list("pk", flat=True).distinct()[
+                    self.offset : self.offset + self.limit
+                ]
+            )
+        )
 
     def get_more(self):
         if self.offset + self.limit >= self.count:
