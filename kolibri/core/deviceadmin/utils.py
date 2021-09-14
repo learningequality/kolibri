@@ -47,11 +47,11 @@ def get_backup_files():
     """
     default_path = default_backup_folder()
     backups = os.listdir(default_path)
-    prefix = "db-v{}"
+    prefix = "db-v"
     backups = filter(lambda f: f.endswith(".dump"), backups)
     backups = filter(lambda f: f.startswith(prefix), backups)
     backups = list(backups)
-    backups.sort()
+    backups.sort(reverse=True)
     return backups
 
 def get_dtm_from_backup_name(fname):

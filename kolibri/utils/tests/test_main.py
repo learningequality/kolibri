@@ -86,36 +86,34 @@ def test_conditional_backup():
     from kolibri.core.deviceadmin.utils import default_backup_folder
 
     default_path = default_backup_folder()
-    fallback_version = ".".join(map(str, kolibri.VERSION[:2]))
     if not os.path.exists(default_path):
         os.mkdir(default_path)
 
     from kolibri.core.deviceadmin.utils import dbbackup
 
     # Making few backups
-    backup = dbbackup("0.11.0")
-    backup = dbbackup("0.11.1")
-    backup = dbbackup("0.11.2")
-    backup = dbbackup("0.11.3")
-    backup = dbbackup("0.11.4")
-    backup = dbbackup("0.13.1")
-    backup = dbbackup("0.13.2")
-    backup = dbbackup("0.13.3")
-    backup = dbbackup("0.13.4")
-    backup = dbbackup("0.13.5")
+    dbbackup("0.11.0")
+    dbbackup("0.11.1")
+    dbbackup("0.11.2")
+    dbbackup("0.11.3")
+    dbbackup("0.11.4")
+    dbbackup("0.13.1")
+    dbbackup("0.13.2")
+    dbbackup("0.13.3")
+    dbbackup("0.13.4")
+    dbbackup("0.13.5")
 
     # calling function for conditional backup
     main.conditional_backup("0.11.1","0.15.3")
 
     backups_after = os.listdir(default_path)
-    prefix = "db-v{}".format(fallback_version)
+    prefix = "db-v"
     backups_after = filter(lambda f: f.endswith(".dump"), backups_after)
     backups_after = filter(lambda f: f.startswith(prefix), backups_after)
     backups_after = list(backups_after)
-
     # checking if delete is working properly in the conditional_backup
-    assert len(backups_after) == 1
-    assert ("db-v0.15.3" in backups_after[0]) == True
+    assert len(backups_after) == 2
+    assert ("db-v0.15.3" in backups_after[-1])
 
 @pytest.mark.django_db
 @patch("kolibri.utils.main._upgrades_after_django_setup")
