@@ -107,7 +107,7 @@ describe('learn plugin index page', () => {
       expect(classesLink().element.tagName).toBe('A');
     });
 
-    it('the classes tab is not available if user is not logged in', () => {
+    it('the classes tab and bookmarks tabs are not available if user is not logged in', () => {
       // in current implementation, anonymous user implies empty memberships
       setSessionUserKind('anonymous');
       setMemberships([]);

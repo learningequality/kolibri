@@ -35,7 +35,7 @@
       />
     </NavbarLink>
     <NavbarLink
-      v-if="canAccessUnassignedContent"
+      v-if="isUserLoggedIn && canAccessUnassignedContent"
       :title="coreString('bookmarksLabel')"
       :link="bookmarksLink"
     >
