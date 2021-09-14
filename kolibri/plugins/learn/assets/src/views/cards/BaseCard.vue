@@ -83,7 +83,8 @@
       },
       collectionTitle: {
         type: String,
-        required: true,
+        required: false,
+        default: '',
       },
       /**
        * Provide when using the default content of `progress` slot.

@@ -37,7 +37,8 @@
       },
       collectionTitle: {
         type: String,
-        required: true,
+        required: false,
+        default: '',
       },
       showThumbnail: {
         type: Boolean,

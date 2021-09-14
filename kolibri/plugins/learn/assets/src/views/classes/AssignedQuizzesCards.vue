@@ -11,7 +11,6 @@
         :key="quiz.id"
         :quiz="quiz"
         :to="getClassQuizLink(quiz)"
-        :collectionTitle="currentClassroomName"
       />
     </CardGrid>
     <p v-else>
@@ -36,13 +35,8 @@
       CardGrid,
       QuizCard,
     },
-    setup(props, { root }) {
+    setup(props) {
       const { getClassQuizLink } = useLearnerResources();
-
-      const currentClassroomName = computed(() => {
-        const currentClassroom = root.$store.state.classAssignments.currentClassroom;
-        return currentClassroom ? currentClassroom.name : '';
-      });
 
       const visibleItems = computed(() => {
         if (!props.items) {
@@ -62,7 +56,6 @@
 
       return {
         getClassQuizLink,
-        currentClassroomName,
         visibleItems,
       };
     },
