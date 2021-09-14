@@ -4,15 +4,16 @@ Tests for `kolibri.utils.main` module.
 from __future__ import absolute_import
 from __future__ import print_function
 
+import unittest
+
 import pytest
+from django.conf import settings
 from django.db.utils import OperationalError
 from mock import patch
 
 import kolibri
 from kolibri.utils import main
 
-import unittest
-from django.conf import settings
 
 @pytest.mark.django_db
 @patch("kolibri.utils.main._upgrades_after_django_setup")
@@ -72,14 +73,15 @@ def test_version_updated():
     assert not main.should_back_up("0.10.0", "0.10.0-dev0")
     assert not main.should_back_up("0.10.0-dev0", "0.10.0-dev0")
 
+
 @pytest.mark.django_db
 @unittest.skipIf(
-    getattr(settings, "DATABASES")["default"]["ENGINE"]
-    != "django.db.backends.sqlite3",
+    getattr(settings, "DATABASES")["default"]["ENGINE"] != "django.db.backends.sqlite3",
     "SQLite only test",
-    )
+)
 def test_conditional_backup():
     import os
+
     """
     Tests our db backup logic: conditional_backup, remove all backups
     """
@@ -104,7 +106,7 @@ def test_conditional_backup():
     dbbackup("0.13.5")
 
     # calling function for conditional backup
-    main.conditional_backup("0.11.1","0.15.3")
+    main.conditional_backup("0.11.1", "0.15.3")
 
     backups_after = os.listdir(default_path)
     prefix = "db-v"
@@ -113,7 +115,8 @@ def test_conditional_backup():
     backups_after = list(backups_after)
     # checking if delete is working properly in the conditional_backup
     assert len(backups_after) == 2
-    assert ("db-v0.15.3" in backups_after[-1])
+    assert "db-v0.15.3" in backups_after[-1]
+
 
 @pytest.mark.django_db
 @patch("kolibri.utils.main._upgrades_after_django_setup")

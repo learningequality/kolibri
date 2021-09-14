@@ -54,6 +54,7 @@ def get_backup_files():
     backups.sort(reverse=True)
     return backups
 
+
 def get_dtm_from_backup_name(fname):
     """
     Returns the date time string from our automated backup filenames
