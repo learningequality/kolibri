@@ -29,7 +29,7 @@
       class="k-filter-clear-button"
       icon="clear"
       :class="model === '' ? '' : 'k-filter-clear-button-visible'"
-      :ariaLabel="commonString('clearAction')"
+      :ariaLabel="coreString('clearAction')"
       @click="handleClickClear"
     />
   </div>
