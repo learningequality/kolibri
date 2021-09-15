@@ -197,7 +197,7 @@
             id: 'mark-complete',
             icon: 'star',
             iconColor: this.$themePalette.yellow.v_700,
-            label: this.$tr('markResourceAsFinished'),
+            label: this.learnString('markResourceAsCompleteLabel'),
             event: 'markComplete',
             dataTest: 'markCompleteButton',
           });
@@ -289,10 +289,6 @@
       viewTopicResources: {
         message: 'View folder resources',
         context: 'Tooltip text.',
-      },
-      markResourceAsFinished: {
-        message: 'Mark resource as completed',
-        context: 'Title for the confirmation window when marking a resource as completed.',
       },
     },
   };

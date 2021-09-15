@@ -28,11 +28,12 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Next steps',
     context: 'Label for links that go to post-requisites for content that has been completed.',
   },
-  exploreResourcesWatch: {
-    message: 'Explore resources to watch',
+  multipleLearningActivitiesLabel: {
+    message: 'Multiple learning activities',
+    context: '',
   },
-  exploreResourcesSchool: {
-    message: 'Explore resources for school',
+  exploreResources: {
+    message: 'Explore resources',
   },
   logo: {
     message: 'From the channel {channelTitle}',
@@ -80,6 +81,11 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Don’t show this again',
     context:
       'Option that allows the user to prevent this resource from displaying in the future while using category search',
+  },
+  markResourceAsCompleteLabel: {
+    message: 'Mark resource as complete',
+    context:
+      'Title of the modal window where a user will confirm or cancel marking a resource as complete manually',
   },
   resourceHidden: {
     message: 'Resource hidden',

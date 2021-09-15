@@ -447,7 +447,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // School Categories
   mathematics: 'Mathematics',
   sciences: 'Sciences',
-  literature: 'Literature',
+  readingAndWriting: 'Reading and writing',
   socialSciences: 'Social sciences',
   arts: 'Arts',
   computerScience: 'Computer science',
@@ -469,6 +469,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   astronomy: 'Astronomy',
 
   //  Literature Subcategories
+  literature: 'Literature',
   readingComprehension: 'Reading comprehension',
   writing: 'Writing',
   logicAndCriticalThinking: 'Logic and critical thinking',
@@ -502,7 +503,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   technicalAndVocationalTraining: 'Technical and vocational training',
 
   //  VocationalSubcategories
-  toolsAndSoftwareTraining: 'Tools and software training',
+  softwareToolsAndTraining: 'Software tools and training',
   skillsTraining: 'Skills training',
   industryAndSectorSpecific: 'Industry and sector specific',
 
@@ -536,7 +537,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // Accessibility Categories
   all: 'All',
   signLanguage: 'Has sign language captions',
-  audioDescription: 'Has audio description',
+  audioDescription: 'Has audio descriptions',
   taggedPdf: 'Tagged PDF',
   altText: 'Has alternative text description for images',
   highContrast: 'Has high contrast display for low vision',
@@ -572,6 +573,61 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'This is what we display as time estimation for some types of learning activities that take more than 30 minutes',
   },
 
+  // assigning bookmarked resources
+
+  availableClasses: {
+    message: 'Available classes',
+    context: 'Heading for the window where coaches make class selection.',
+  },
+
+  assignToClass: {
+    message: 'Assign this resource to which class?',
+    context: 'Message for coaches to select a class.',
+  },
+  assignToLesson: {
+    message: 'Assign this resource to which lesson?',
+    context: 'Message for coaches to select lessons',
+  },
+  lessonsInClass: {
+    message: 'Lessons in {class name}',
+    context: 'Heading for the window where coaches make lesson selections.',
+  },
+  addedToClassLesson: {
+    message: 'Added to class lesson',
+    context:
+      'Notification that a bookmarked resource has been added to a lesson in a selected class.',
+  },
+  selectFromBookmarks: {
+    message: 'Select from bookmarks',
+    context: "Option on the 'Manage lesson resources' page.",
+  },
+  savedFromBookmarks: {
+    message: 'Saved from bookmarks',
+    context:
+      'Notification message after user clicked the bookmark icon button, indicating the resource has been  saved.',
+  },
+  related: {
+    message: 'Related',
+    context: 'Section header for the list of resources that are related to the current resource',
+  },
+  doNotShowAgain: {
+    message: "Don't show this again",
+    context:
+      'Option that allows the user to prevent this resource from displaying in the future while using category search',
+  },
+  resourceHidden: {
+    message: 'Resource hidden',
+    context:
+      'Notification message indicating the resource has been marked as hidden for future category searches.',
+  },
+  allLevels: {
+    message: 'All levels',
+    context: 'Filter label to include resources for all available levels.',
+  },
+  showResources: {
+    message: 'Show resources',
+    context: '',
+  },
   // Notifications
   changesSavedNotification: {
     message: 'Changes saved',

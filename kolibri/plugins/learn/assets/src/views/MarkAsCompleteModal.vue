@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="$tr('markResourceAsCompleteLabel')"
+    :title="learnString('markResourceAsCompleteLabel')"
     :submitText="coreString('confirmAction')"
     :cancelText="coreString('cancelAction')"
     @submit="markResourceAsCompleted"
@@ -16,10 +16,11 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonLearnStrings from './commonLearnStrings';
 
   export default {
     name: 'MarkAsCompleteModal',
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonLearnStrings],
     methods: {
       /*
        * Emits "complete" event on success.
@@ -36,11 +37,6 @@
       },
     },
     $trs: {
-      markResourceAsCompleteLabel: {
-        message: 'Mark resource as complete',
-        context:
-          'Title of the modal window where a user will confirm or cancel marking a resource as complete manually',
-      },
       markResourceAsCompleteConfirmation: {
         message: 'Are you sure you want to mark this resource as finished?',
         context:
