@@ -34,7 +34,7 @@
       />
       <KButton
         appearance="basic-link"
-        :text="$tr('generateCSV')"
+        :text="exported ? $tr('regenerateCSV') : $tr('generateCSV')"
         style="margin: 0px 8px 10px 0px"
         @click="exportCsv"
       />
@@ -97,7 +97,10 @@
     },
     $trs: {
       generateCSV: {
-        message: 'Generate CSV file',
+        message: 'Generate user CSV file',
+      },
+      regenerateCSV: {
+        message: 'Generate new user CSV file',
       },
       sectionTitle: {
         message: 'Import and export users',
