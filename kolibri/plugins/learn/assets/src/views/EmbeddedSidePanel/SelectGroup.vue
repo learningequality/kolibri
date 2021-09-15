@@ -5,13 +5,13 @@
       :options="languageOptionsList"
       class="selector"
       :value="selectedLanguage"
-      :label="$tr('language')"
+      :label="coreString('language')"
     />
     <KSelect
       :options="contentLevelsList"
       class="selector"
       :value="selectedLevel"
-      :label="$tr('level')"
+      :label="coreString('level')"
     />
     <KSelect
       v-if="channels"
@@ -24,7 +24,7 @@
       :options="accessibilityOptionsList"
       class="selector"
       :value="selectedAccessibilityFilter"
-      :label="$tr('accessibility')"
+      :label="coreString('accessibility')"
     />
   </div>
 
@@ -99,11 +99,6 @@
       selectedChannel() {
         return this.channelOptionsList.find(o => o.value === this.value) || {};
       },
-    },
-    $trs: {
-      accessibility: 'Accessibility',
-      level: 'Level',
-      language: 'Language',
     },
   };
 

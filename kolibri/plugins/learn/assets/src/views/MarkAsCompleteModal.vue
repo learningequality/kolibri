@@ -31,21 +31,16 @@
           .dispatch('updateProgress', { progressPercent: 1 })
           .then(() => {
             this.$emit('complete');
-            this.$store.dispatch('createSnackbar', this.$tr('resourceCompletedSnackbar'));
+            this.$store.dispatch('createSnackbar', this.learnString('resourceCompletedLabel'));
           })
           .catch(e => this.$store.dispatch('handleApiError', e));
       },
     },
     $trs: {
       markResourceAsCompleteConfirmation: {
-        message: 'Are you sure you want to mark this resource as finished?',
+        message: 'Are you sure you want to mark this resource as completed?',
         context:
           "The text asking the user to confirm that they want to manually mark the resource as complete, regardless of whether they've hit the 'completion criteria'",
-      },
-      resourceCompletedSnackbar: {
-        message: 'Resource completed',
-        context:
-          'When the user successfully marks a resource as complete, they will see a small snackbar pop up showing this message.',
       },
     },
   };

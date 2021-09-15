@@ -274,6 +274,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'This proper noun is the name of the learning platform, and is pronounced ko-lee-bree (/kolibɹi/). For languages with non-latin scripts, the word should be transcribed phonetically into the target language, similar to a person\'s name. It should not be translated as "hummingbird".',
   },
+  languageLabel: {
+    message: 'Language',
+    context: 'Refers to the language that is used in a resource or in Kolibri',
+  },
   learnerLabel: {
     message: 'Learner',
     context:
@@ -282,6 +286,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   learnersLabel: {
     message: 'Learners',
     context: 'Plural of learner.',
+  },
+  levelLabel: {
+    lessage: 'Level',
+    context: 'Filter label used to limit the search to a specific levels.',
   },
   lessonsLabel: {
     message: 'Lessons',
@@ -298,7 +306,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   noUsersExistLabel: {
     message: 'No users exist',
-    context: 'Message used to indicate when there are no users in a class, for example.',
+    context: 'There are no users in this facility',
   },
   optionsLabel: {
     message: 'Options',
@@ -424,18 +432,43 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Refers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
   },
 
-  // Learning activities
-  allActivities: {
+  // Learning Activities
+  all: {
     message: 'All',
-    context: 'Refers to all types of learning activities.',
+    context: 'A label for everything in the group of activities',
   },
-  createActivity: 'Create',
-  listenActivity: 'Listen',
-  reflectActivity: 'Reflect',
-  practiceActivity: 'Practice',
-  readActivity: 'Read',
-  watchActivity: 'Watch',
-  exploreActivity: 'Explore',
+  watch: {
+    message: 'Watch',
+    context:
+      'Resource and filter label for the type of learning activity with video. Translate as a VERB',
+  },
+  create: {
+    message: 'Create',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+  read: {
+    message: 'Read',
+    context:
+      'Resource and filter label for the type of learning activity with documents. Translate as a VERB',
+  },
+  practice: {
+    message: 'Practice',
+    context:
+      'Resource and filter label for the type of learning activity with questions and answers. Translate as a VERB',
+  },
+  reflect: {
+    message: 'Reflect',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+  listen: {
+    message: 'Listen',
+    context:
+      'Resource and filter label for the type of learning activity with audio. Translate as a VERB',
+  },
+  explore: {
+    message: 'Explore',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
 
   // Library Categories
   school: 'School',
@@ -495,7 +528,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   literacy: 'Literacy',
   numeracy: 'Numeracy',
   digitialLiteracy: 'Digital literacy',
-  logicalAndCriticalThinking: 'Logic and critical thinking',
   learningSkills: 'Learning skills',
 
   // Work Categories
@@ -535,7 +567,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Allows the user to filter for all the resources with accessibility features for learners with disabilities.',
   },
   // Accessibility Categories
-  all: 'All',
   signLanguage: 'Has sign language captions',
   audioDescription: 'Has audio descriptions',
   taggedPdf: 'Tagged PDF',
@@ -555,7 +586,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   allLevelsBasicSkills: 'All levels -- basic skills',
   allLevelsWorkSkills: 'All levels -- work skills',
 
-  browseChannel: 'Browse Channel',
+  browseChannel: 'Browse channel',
   topicLabel: 'Folder',
   readReference: {
     message: 'Reference',

@@ -40,42 +40,10 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context:
       'Added to create a complete alt-text description of a logo on a content card to indicate to the user what channel the resource belongs to. For example: From the channel Khan Academy - English',
   },
-  // Learning Activities
-  all: {
-    message: 'All',
-    context: 'A label for everything in the group of activities',
-  },
-  watch: {
-    message: 'Watch',
+  resourceCompletedLabel: {
+    message: 'Resource completed',
     context:
-      'Resource and filter label for the type of learning activity with video. Translate as a VERB',
-  },
-  create: {
-    message: 'Create',
-    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
-  },
-  read: {
-    message: 'Read',
-    context:
-      'Resource and filter label for the type of learning activity with documents. Translate as a VERB',
-  },
-  practice: {
-    message: 'Practice',
-    context:
-      'Resource and filter label for the type of learning activity with questions and answers. Translate as a VERB',
-  },
-  reflect: {
-    message: 'Reflect',
-    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
-  },
-  listen: {
-    message: 'Listen',
-    context:
-      'Resource and filter label for the type of learning activity with audio. Translate as a VERB',
-  },
-  interact: {
-    message: 'Explore',
-    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+      'Message when the user successfully finishes a resource or marks a resource as complete',
   },
   dontShowThisAgainLabel: {
     message: 'Don’t show this again',

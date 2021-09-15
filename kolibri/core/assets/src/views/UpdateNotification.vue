@@ -114,7 +114,7 @@
       },
       upgradeMessage_0_15_0: {
         message:
-          'Kolibri version 0.15.0 is available! It includes a redesigned home page for learners, data syncing, new quiz options, full support of H5P, and much more!',
+          'Kolibri version 0.15.0 is available! It includes a redesigned home page for learners, support for learner data syncing, full support for H5P, and much more.',
         context: 'Notification indicating a new version of Kolibri is available.',
       },
       upgradeDownload: {
