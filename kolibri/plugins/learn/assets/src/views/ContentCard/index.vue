@@ -199,11 +199,11 @@
           return 'folder';
         } else if (Object.values(LearningActivities).includes(this.kind)) {
           activity = this.kind;
-          return `${activity}Activity`;
+          return `${activity}`;
         } else {
           // otherwise reassign the old content types to the new metadata
           activity = ContentKindsToLearningActivitiesMap[this.kind];
-          return `${activity}Activity`;
+          return `${activity}`;
         }
       },
     },

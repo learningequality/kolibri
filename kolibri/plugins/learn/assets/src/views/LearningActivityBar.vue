@@ -176,7 +176,7 @@
             id: 'view-resource-list',
             icon: 'resourceList',
             label: this.isLessonContext
-              ? this.$tr('viewLessonPlan')
+              ? this.$tr('viewLessonResources')
               : this.$tr('viewTopicResources'),
             event: 'viewResourceList',
             dataTest: this.isLessonContext ? 'viewLessonPlanButton' : 'viewTopicResourcesButton',
@@ -282,8 +282,8 @@
         message: 'More options',
         context: 'Tooltip text.',
       },
-      viewLessonPlan: {
-        message: 'View lesson plan',
+      viewLessonResources: {
+        message: 'View lesson resources',
         context: 'Tooltip text.',
       },
       viewTopicResources: {

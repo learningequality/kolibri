@@ -5,13 +5,13 @@
       :options="languageOptionsList"
       class="selector"
       :value="selectedLanguage"
-      :label="coreString('language')"
+      :label="coreString('languageLabel')"
     />
     <KSelect
       :options="contentLevelsList"
       class="selector"
       :value="selectedLevel"
-      :label="coreString('level')"
+      :label="coreString('levelLabel')"
     />
     <KSelect
       v-if="channels"
