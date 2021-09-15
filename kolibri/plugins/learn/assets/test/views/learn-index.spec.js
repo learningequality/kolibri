@@ -103,7 +103,7 @@ describe('learn plugin index page', () => {
       setMemberships([{ id: 'membership_1' }]);
       const wrapper = makeWrapper({ store });
       const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(4);
+      expect(tabLinks().length).toEqual(5);
       expect(classesLink().element.tagName).toBe('A');
     });
 
@@ -122,7 +122,7 @@ describe('learn plugin index page', () => {
       setMemberships([]);
       const wrapper = makeWrapper({ store });
       const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(3);
+      expect(tabLinks().length).toEqual(4);
       expect(!classesLink().exists()).toEqual(true);
     });
   });
