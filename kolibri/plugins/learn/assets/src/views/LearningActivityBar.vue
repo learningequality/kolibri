@@ -205,7 +205,7 @@
         actions.push({
           id: 'view-info',
           icon: 'info',
-          label: this.learnString('viewInformation'),
+          label: this.coreString('viewInformation'),
           event: 'viewInfo',
           dataTest: 'viewInfoButton',
         });
