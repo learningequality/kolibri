@@ -22,7 +22,6 @@ from django.db import models
 from django.utils import timezone
 from morango.models import SyncableModelQuerySet
 from morango.models import UUIDField
-from ua_parser import user_agent_parser
 
 from .permissions import AnyoneCanWriteAnonymousLogs
 from kolibri.core.auth.constants import role_kinds
@@ -180,7 +179,7 @@ class UserSessionLog(BaseLogModel):
     device_info = models.CharField(null=True, blank=True, max_length=100)
 
     @classmethod
-    def update_log(cls, user, user_agent):
+    def update_log(cls, user, os_info=None, browser_info=None):
         """
         Update the current UserSessionLog for a particular user.
 
@@ -188,6 +187,10 @@ class UserSessionLog(BaseLogModel):
         It uses the value 'other' whenever the values are not recognized or the parsing
         fails. The code depends on this behaviour.
         """
+        if os_info is None:
+            os_info = {}
+        if browser_info is None:
+            browser_info = {}
         if user and isinstance(user, FacilityUser):
             try:
                 user_session_log = cls.objects.filter(user=user).latest(
@@ -201,13 +204,12 @@ class UserSessionLog(BaseLogModel):
                 or timezone.now() - user_session_log.last_interaction_timestamp
                 > timedelta(minutes=5)
             ):
-                parsed_string = user_agent_parser.Parse(user_agent)
                 device_info = (
-                    "{os_family},{os_major}/{browser_family},{browser_major}".format(
-                        os_family=parsed_string["os"].get("family", ""),
-                        os_major=parsed_string["os"].get("major", ""),
-                        browser_family=parsed_string["user_agent"].get("family", ""),
-                        browser_major=parsed_string["user_agent"].get("major", ""),
+                    "{os_name},{os_major}/{browser_name},{browser_major}".format(
+                        os_name=os_info.get("name", ""),
+                        os_major=os_info.get("major", ""),
+                        browser_name=browser_info.get("name", ""),
+                        browser_major=browser_info.get("major", ""),
                     )
                 )
                 user_session_log = cls(user=user, device_info=device_info)

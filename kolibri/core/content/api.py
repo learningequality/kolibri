@@ -1243,13 +1243,21 @@ class ContentNodeProgressViewset(ReadOnlyValuesViewset):
         progress_lookup = {}
 
         if not self.request.user.is_anonymous():
+            # if there are too many leaf_content_ids we'll have a
+            # 'too many SQL variables' errors in sqlite
+            # so we batch the leaf ids here:
+            total = len(leaf_content_ids)
+            i = 0
+            batch_size = 998
+            while i < total:
+                leaf_content_ids_batch = leaf_content_ids[i : i + batch_size]
+                logs = ContentSummaryLog.objects.filter(
+                    user=self.request.user, content_id__in=leaf_content_ids_batch
+                )
+                for log in logs.values("content_id", "progress"):
+                    progress_lookup[log["content_id"]] = round(log["progress"], 4)
 
-            logs = ContentSummaryLog.objects.filter(
-                user=self.request.user, content_id__in=leaf_content_ids
-            )
-
-            for log in logs.values("content_id", "progress"):
-                progress_lookup[log["content_id"]] = round(log["progress"], 4)
+                i += batch_size
 
         output = []
 
