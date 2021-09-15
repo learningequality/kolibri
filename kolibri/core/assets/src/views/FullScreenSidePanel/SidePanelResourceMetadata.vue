@@ -21,23 +21,33 @@
       :primary="true"
       @click="toggleShowMoreOrLess"
     />
-    <p v-if="content.level">
-      {{ $tr('level', { level: content.level }) }}
-    </p>
-    <p v-if="content.estimatedTime">
-      {{ $tr('estimatedTime', { estimatedTime: content.estimatedTime }) }}
-    </p>
-    <p v-if="content.lang">
-      {{ $tr('language', { language: content.lang.lang_name }) }}
-    </p>
-    <p v-if="content.author">
-      {{ $tr('author', { author: content.author }) }}
-    </p>
-    <p v-if="content.license_owner">
-      {{ $tr('copyrightHolder', { copyrightHolder: content.license_owner }) }}
-    </p>
+    <dl>
+      <dt v-if="content.level">
+        {{ $tr('level') }}
+      </dt>
+      <dd>{{ content.level }}</dd>
+
+      <dt v-if="content.estimatedTime">
+        {{ $tr('estimatedTime') }}
+      </dt>
+      <dd>content.estimatedTime</dd>
+
+      <dt v-if="content.lang">
+        {{ $tr('language') }}
+      </dt>
+      <dd>{{ content.author }}</dd>
+      <dt v-if="content.author">
+        {{ $tr('author') }}
+      </dt>
+      <dd>{{ content.author }}</dd>
+      <dd>{{ content.license_owner }}</dd>
+      <dt v-if="content.license_owner">
+        {{ $tr('copyrightHolder') }}
+      </dt>
+      <dd>{{ content.license_owner }}</dd>
+    </dl>
     <p v-if="licenseShortName">
-      {{ $tr('license', { license: licenseShortName }) }}
+      {{ $tr('license') }}
 
       <template v-if="licenseDescription">
         <KIconButton
@@ -144,14 +154,38 @@
       },
     },
     $trs: {
-      author: 'Author: {author}',
-      language: 'Language: {language}',
-      license: 'License: {license}',
-      level: 'Level: {level}',
-      estimatedTime: 'Estimated time: {estimatedTime}',
-      toggleLicenseDescription: 'Toggle license description',
-      copyrightHolder: 'Copyright holder: {copyrightHolder}',
+      author: {
+        message: 'Author',
+        context:
+          'Indicates who is the author of that specific learning resource. For example, "Author: Learning Equality".',
+      },
+      license: {
+        message: 'License',
+        context:
+          'Indicates the type of license of that specific learning resource. For example, "License: CC BY-NC-ND".\n',
+      },
+      toggleLicenseDescription: {
+        message: 'Toggle license description',
+        context:
+          'Describes the arrow which a learner can select to view more information about the type of license that a resource has.',
+      },
+      copyrightHolder: {
+        message: 'Copyright holder',
+        context:
+          'Indicates who holds the copyright of that specific learning resource. For example, "Copyright holder: Ubongo Media".',
+      },
+      language: 'Language',
+      level: 'Level',
+      estimatedTime: 'Estimated time',
       /* eslint-disable kolibri/vue-no-unused-translations */
+      documentTitle: {
+        message: '{ contentTitle } - { channelTitle }',
+        context: 'DO NOT TRANSLATE.',
+      },
+      shareFile: {
+        message: 'Share',
+        context: 'Option to share a specific file from a learning resource.',
+      },
       locationsInChannel: {
         message: 'Location in {channelname}',
         context: '',
