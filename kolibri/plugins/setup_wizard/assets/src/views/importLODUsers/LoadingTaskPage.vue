@@ -23,6 +23,7 @@
       <div v-if="loadingTask.status === 'COMPLETED'">
         <KButton
           primary
+          :disabled="!loginFinished"
           :text="coreString('finishAction')"
           @click="redirectToChannels"
         />
@@ -48,7 +49,6 @@
 
 <script>
 
-  import { SessionResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import FacilityTaskPanel from '../../../../../device/assets/src/views/FacilitiesPage/FacilityTaskPanel.vue';
@@ -68,6 +68,7 @@
         loadingTask: this.state.value.task,
         isPolling: false,
         user: null,
+        loginFinished: false,
       };
     },
     inject: ['lodService', 'state'],
@@ -136,14 +137,16 @@
         this.clearTasks();
         // after importing the first user, let's sign him in to continue:
         if (this.state.value.users.length === 1 && this.user.password) {
-          SessionResource.saveModel({
-            data: {
+          this.$store
+            .dispatch('logIntoSyncedFacility', {
               username: this.user.username,
               password: this.user.password,
               facility: this.facility.id,
-            },
-          });
-        }
+            })
+            .then(() => {
+              this.loginFinished = true;
+            });
+        } else this.loginFinished = true; // when importing from the admin account
       },
       redirectToChannels() {
         FinishSoUDSyncingResource.finish();

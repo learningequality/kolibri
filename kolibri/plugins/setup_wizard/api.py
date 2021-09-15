@@ -146,7 +146,7 @@ class FacilityImportViewSet(ViewSet):
         user_info = facility_info["user"]
         roles = user_info["roles"]
         admin_roles = (user_kinds.ADMIN, user_kinds.SUPERUSER)
-        if not any([role in roles for role in admin_roles]):
+        if not any(role in roles for role in admin_roles):
             raise PermissionDenied()
         students = [u for u in facility_info["users"] if not u["roles"]]
         return Response({"students": students, "admin": facility_info["user"]})
