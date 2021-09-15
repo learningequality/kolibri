@@ -34,6 +34,7 @@
         :color="action.iconColor"
         :tooltip="action.label"
         :ariaLabel="action.label"
+        :disabled="action.disabled"
         @click="onActionClick(action.event)"
       />
 
@@ -97,8 +98,10 @@
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import LearningActivityIcon from './LearningActivityIcon';
   import MarkAsCompleteModal from './MarkAsCompleteModal';
+  import commonLearnStrings from './commonLearnStrings';
 
   export default {
     name: 'LearningActivityBar',
@@ -110,12 +113,12 @@
       LearningActivityIcon,
       MarkAsCompleteModal,
     },
-    mixins: [KResponsiveWindowMixin],
+    mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
     /**
      * Emits the following events:
      * - `navigateBack` on back button click
      * - `viewResourceList` on 'View lesson plan'/'View topic resources' click
-     * - `toogleBookmark` on 'Save to bookmarks'/ 'Remove from bookmarks' click
+     * - `toggleBookmark` on 'Save to bookmarks'/ 'Remove from bookmarks' click
      * - `markComplete` on 'Mark resource as finished' click. Only when
      *                  a resource can be marked as complete.
      * - `viewInfo` on 'View information' click
@@ -185,9 +188,10 @@
             id: 'bookmark',
             icon: this.isBookmarked ? 'bookmark' : 'bookmarkEmpty',
             label: this.isBookmarked
-              ? this.$tr('removeFromBookmarks')
-              : this.$tr('saveToBookmarks'),
-            event: 'toogleBookmark',
+              ? this.coreString('removeFromBookmarks')
+              : this.coreString('saveToBookmarks'),
+            event: 'toggleBookmark',
+            disabled: this.isBookmarked === null,
             dataTest: this.isBookmarked ? 'removeBookmarkButton' : 'addBookmarkButton',
           },
         ];
@@ -204,7 +208,7 @@
         actions.push({
           id: 'view-info',
           icon: 'info',
-          label: this.$tr('viewInformation'),
+          label: this.learnString('viewInformation'),
           event: 'viewInfo',
           dataTest: 'viewInfoButton',
         });
@@ -289,21 +293,9 @@
         message: 'View folder resources',
         context: 'Tooltip text.',
       },
-      removeFromBookmarks: {
-        message: 'Remove from bookmarks',
-        context: 'Tooltip text.',
-      },
-      saveToBookmarks: {
-        message: 'Save to bookmarks',
-        context: 'Tooltip text.',
-      },
       markResourceAsFinished: {
         message: 'Mark resource as completed',
         context: 'Title for the confirmation window when marking a resource as completed.',
-      },
-      viewInformation: {
-        message: 'View information',
-        context: 'Tooltip text.',
       },
     },
   };

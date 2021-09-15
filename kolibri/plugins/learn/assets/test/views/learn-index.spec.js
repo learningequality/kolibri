@@ -103,11 +103,11 @@ describe('learn plugin index page', () => {
       setMemberships([{ id: 'membership_1' }]);
       const wrapper = makeWrapper({ store });
       const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(4);
+      expect(tabLinks().length).toEqual(5);
       expect(classesLink().element.tagName).toBe('A');
     });
 
-    it('the classes tab is not available if user is not logged in', () => {
+    it('the classes tab and bookmarks tabs are not available if user is not logged in', () => {
       // in current implementation, anonymous user implies empty memberships
       setSessionUserKind('anonymous');
       setMemberships([]);
@@ -122,7 +122,7 @@ describe('learn plugin index page', () => {
       setMemberships([]);
       const wrapper = makeWrapper({ store });
       const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(3);
+      expect(tabLinks().length).toEqual(4);
       expect(!classesLink().exists()).toEqual(true);
     });
   });

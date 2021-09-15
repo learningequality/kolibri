@@ -1,7 +1,6 @@
 <template>
 
-  <router-link
-    :to="link"
+  <div
     class="card"
     :class="[
       { 'mobile-card': isMobile },
@@ -9,42 +8,50 @@
     ]"
     :style="{ backgroundColor: $themeTokens.surface }"
   >
-    <CardThumbnail
-      class="thumbnail"
-      v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
-    />
-    <div class="text" :style="{ color: $themeTokens.text }">
-      <h3 class="title" dir="auto">
-        <TextTruncator
-          :text="title"
-          :maxHeight="maxTitleHeight"
-        />
-      </h3>
-      <p
-        v-if="subtitle"
-        dir="auto"
-        class="subtitle"
-        :class="{ 'no-footer': !hasFooter }"
-      >
-        {{ subtitle }}
-      </p>
-      <div class="footer">
+    <router-link
+      :to="link"
+    >
+      <CardThumbnail
+        class="thumbnail"
+        v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
+      />
+      <div class="text" :style="{ color: $themeTokens.text }">
+        <h3 class="title" dir="auto">
+          <TextTruncator
+            :text="title"
+            :maxHeight="maxTitleHeight"
+          />
+        </h3>
+        <p
+          v-if="subtitle"
+          dir="auto"
+          class="subtitle"
+          :class="{ 'no-footer': !hasFooter }"
+        >
+          {{ subtitle }}
+        </p>
+      </div>
+    </router-link>
+    <div class="footer">
+      <div class="left">
         <CoachContentLabel
           v-if="isUserLoggedIn && !isLearner"
           class="coach-content-label"
           :value="numCoachContents"
           :isTopic="isTopic"
         />
+      </div>
+      <div class="right">
         <KButton
           v-if="copiesCount > 1"
           appearance="basic-link"
-          class="copies"
           :text="$tr('copies', { num: copiesCount })"
           @click.prevent="$emit('openCopiesModal', contentId)"
         />
+        <slot name="actions"></slot>
       </div>
     </div>
-  </router-link>
+  </div>
 
 </template>
 
@@ -137,7 +144,7 @@
         return 60;
       },
       hasFooter() {
-        return this.numCoachContents > 0 || this.copiesCount > 1;
+        return this.numCoachContents > 0 || this.copiesCount > 1 || this.$slots.actions;
       },
     },
     $trs: {
@@ -161,11 +168,13 @@
 
   .coach-content-label {
     display: inline-block;
+    padding-top: $margin;
   }
 
   .card {
     @extend %dropshadow-1dp;
 
+    position: relative;
     display: inline-block;
     width: $thumb-width-desktop;
     text-decoration: none;
@@ -208,6 +217,7 @@
     right: $margin;
     bottom: $margin;
     left: $margin;
+    display: inline-block;
     font-size: 12px;
   }
 
@@ -216,8 +226,11 @@
     bottom: $margin;
   }
 
-  .copies {
-    display: inline-block;
+  .left {
+    float: left;
+  }
+
+  .right {
     float: right;
   }
 

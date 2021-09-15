@@ -170,6 +170,17 @@ export default [
     component: RecommendedSubpage,
   },
   {
+    name: PageNames.BOOKMARKS,
+    path: '/bookmarks',
+    handler: () => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
+      store.commit('SET_PAGE_NAME', PageNames.BOOKMARKS);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+    },
+  },
+  {
     path: '*',
     redirect: '/',
   },

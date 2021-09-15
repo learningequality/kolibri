@@ -35,6 +35,17 @@
       />
     </NavbarLink>
     <NavbarLink
+      v-if="isUserLoggedIn && canAccessUnassignedContent"
+      :title="coreString('bookmarksLabel')"
+      :link="bookmarksLink"
+    >
+      <KIcon
+        icon="bookmark"
+        style="top: 0; width: 24px; height: 24px;"
+        :color="$themeTokens.textInverted"
+      />
+    </NavbarLink>
+    <NavbarLink
       v-if="canAccessUnassignedContent"
       :title="learnString('recommendedLabel')"
       :link="recommendedLink"
@@ -79,6 +90,9 @@
         },
         recommendedLink: {
           name: PageNames.RECOMMENDED,
+        },
+        bookmarksLink: {
+          name: PageNames.BOOKMARKS,
         },
       };
     },
