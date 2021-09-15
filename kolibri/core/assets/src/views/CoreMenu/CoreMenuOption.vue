@@ -37,7 +37,8 @@
     props: {
       label: {
         type: String,
-        required: true,
+        required: false,
+        default: '',
       },
       link: {
         type: String,
@@ -49,7 +50,8 @@
       },
       icon: {
         type: String,
-        required: true,
+        required: false,
+        default: '',
       },
     },
     inject: ['showActive'],
