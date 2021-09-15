@@ -586,7 +586,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   allLevelsBasicSkills: 'All levels -- basic skills',
   allLevelsWorkSkills: 'All levels -- work skills',
 
-  browseChannel: 'Browse channel',
+  browseChannel: {
+    message: 'Browse channel',
+    context: 'Heading on page where a user can browse the content within a channel',
+  },
   topicLabel: 'Folder',
   readReference: {
     message: 'Reference',
