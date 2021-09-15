@@ -67,13 +67,13 @@
     computed: {
       LearningActivityToLabelMap() {
         return {
-          [LearningActivities.CREATE]: this.coreString('createActivity'),
-          [LearningActivities.LISTEN]: this.coreString('listenActivity'),
-          [LearningActivities.REFLECT]: this.coreString('reflectActivity'),
-          [LearningActivities.PRACTICE]: this.coreString('practiceActivity'),
-          [LearningActivities.READ]: this.coreString('readActivity'),
-          [LearningActivities.WATCH]: this.coreString('watchActivity'),
-          [LearningActivities.EXPLORE]: this.coreString('exploreActivity'),
+          [LearningActivities.CREATE]: this.coreString('create'),
+          [LearningActivities.LISTEN]: this.coreString('listen'),
+          [LearningActivities.REFLECT]: this.coreString('reflect'),
+          [LearningActivities.PRACTICE]: this.coreString('practice'),
+          [LearningActivities.READ]: this.coreString('read'),
+          [LearningActivities.WATCH]: this.coreString('watch'),
+          [LearningActivities.EXPLORE]: this.coreString('explore'),
         };
       },
       hasSomeActivities() {

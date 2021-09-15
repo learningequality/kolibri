@@ -28,53 +28,45 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Next steps',
     context: 'Label for links that go to post-requisites for content that has been completed.',
   },
-  exploreResourcesWatch: {
-    message: 'Explore resources to watch',
+  multipleLearningActivitiesLabel: {
+    message: 'Multiple learning activities',
+    context: '',
   },
-  exploreResourcesSchool: {
-    message: 'Explore resources for school',
+  exploreResources: {
+    message: 'Explore resources',
   },
   logo: {
     message: 'From the channel {channelTitle}',
     context:
       'Added to create a complete alt-text description of a logo on a content card to indicate to the user what channel the resource belongs to. For example: From the channel Khan Academy - English',
   },
-  // Learning Activities
-  all: {
-    message: 'All',
-    context: 'A label for everything in the group of activities',
-  },
-  watch: {
-    message: 'Watch',
+  resourceCompletedLabel: {
+    message: 'Resource completed',
     context:
-      'Resource and filter label for the type of learning activity with video. Translate as a VERB',
+      'Message when the user successfully finishes a resource or marks a resource as complete',
   },
-  create: {
-    message: 'Create',
-    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
-  },
-  read: {
-    message: 'Read',
+  dontShowThisAgainLabel: {
+    message: 'Don’t show this again',
     context:
-      'Resource and filter label for the type of learning activity with documents. Translate as a VERB',
+      'Option that allows the user to prevent this resource from displaying in the future while using category search',
   },
-  practice: {
-    message: 'Practice',
+  markResourceAsCompleteLabel: {
+    message: 'Mark resource as complete',
     context:
-      'Resource and filter label for the type of learning activity with questions and answers. Translate as a VERB',
+      'Title of the modal window where a user will confirm or cancel marking a resource as complete manually',
   },
-  reflect: {
-    message: 'Reflect',
-    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
-  },
-  listen: {
-    message: 'Listen',
+  resourceHidden: {
+    message: 'Resource hidden',
     context:
-      'Resource and filter label for the type of learning activity with audio. Translate as a VERB',
+      'Notification message indicating the resource has been marked as hidden for future category searches.',
   },
-  interact: {
-    message: 'Explore',
-    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  suggestedTimeToComplete: {
+    message: 'Suggested time to complete',
+    context: 'Tooltip label indicating the approximate time needed to complete the resource.',
+  },
+  multipleLearningActivities: {
+    message: 'Multiple learning activities',
+    context: 'Label indicating the resource contains multiple learning activities',
   },
 });
 

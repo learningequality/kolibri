@@ -396,7 +396,7 @@
     },
     $trs: {
       examReportTitle: {
-        message: '{examTitle} report',
+        message: 'Report for { examTitle }',
         context: 'Indicates the title of the quiz that the report corresponds to.',
       },
     },

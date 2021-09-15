@@ -197,7 +197,7 @@
       },
       /* eslint-disable kolibri/vue-no-unused-translations */
       results: {
-        message: '{results} results',
+        message: '{results, number, integer} {results, plural, one {result} other {results}}',
         context: 'Number of results for a given term after a Library search.',
       },
       moreThanXResults: {

@@ -274,6 +274,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'This proper noun is the name of the learning platform, and is pronounced ko-lee-bree (/kolibɹi/). For languages with non-latin scripts, the word should be transcribed phonetically into the target language, similar to a person\'s name. It should not be translated as "hummingbird".',
   },
+  languageLabel: {
+    message: 'Language',
+    context: 'Refers to the language that is used in a resource or in Kolibri',
+  },
   learnerLabel: {
     message: 'Learner',
     context:
@@ -282,6 +286,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   learnersLabel: {
     message: 'Learners',
     context: 'Plural of learner.',
+  },
+  levelLabel: {
+    message: 'Level',
+    context: 'Filter label used to limit the search to a specific levels.',
   },
   lessonsLabel: {
     message: 'Lessons',
@@ -298,7 +306,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   noUsersExistLabel: {
     message: 'No users exist',
-    context: 'Message used to indicate when there are no users in a class, for example.',
+    context: 'There are no users in this facility',
   },
   optionsLabel: {
     message: 'Options',
@@ -424,18 +432,43 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Refers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
   },
 
-  // Learning activities
-  allActivities: {
+  // Learning Activities
+  all: {
     message: 'All',
-    context: 'Refers to all types of learning activities.',
+    context: 'A label for everything in the group of activities',
   },
-  createActivity: 'Create',
-  listenActivity: 'Listen',
-  reflectActivity: 'Reflect',
-  practiceActivity: 'Practice',
-  readActivity: 'Read',
-  watchActivity: 'Watch',
-  exploreActivity: 'Explore',
+  watch: {
+    message: 'Watch',
+    context:
+      'Resource and filter label for the type of learning activity with video. Translate as a VERB',
+  },
+  create: {
+    message: 'Create',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+  read: {
+    message: 'Read',
+    context:
+      'Resource and filter label for the type of learning activity with documents. Translate as a VERB',
+  },
+  practice: {
+    message: 'Practice',
+    context:
+      'Resource and filter label for the type of learning activity with questions and answers. Translate as a VERB',
+  },
+  reflect: {
+    message: 'Reflect',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+  listen: {
+    message: 'Listen',
+    context:
+      'Resource and filter label for the type of learning activity with audio. Translate as a VERB',
+  },
+  explore: {
+    message: 'Explore',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
 
   // Library Categories
   school: 'School',
@@ -447,12 +480,15 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // School Categories
   mathematics: 'Mathematics',
   sciences: 'Sciences',
-  literature: 'Literature',
   socialSciences: 'Social sciences',
   arts: 'Arts',
   computerScience: 'Computer science',
   languageLearning: 'Language learning',
   history: 'History',
+  readingAndWriting: {
+    message: 'Reading and writing',
+    context: 'School subject category',
+  },
 
   // Mathematics Subcategories
   arithmetic: 'Arithmetic',
@@ -469,6 +505,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   astronomy: 'Astronomy',
 
   //  Literature Subcategories
+  literature: 'Literature',
   readingComprehension: 'Reading comprehension',
   writing: 'Writing',
   logicAndCriticalThinking: 'Logic and critical thinking',
@@ -494,7 +531,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   literacy: 'Literacy',
   numeracy: 'Numeracy',
   digitialLiteracy: 'Digital literacy',
-  logicalAndCriticalThinking: 'Logic and critical thinking',
   learningSkills: 'Learning skills',
 
   // Work Categories
@@ -502,7 +538,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   technicalAndVocationalTraining: 'Technical and vocational training',
 
   //  VocationalSubcategories
-  toolsAndSoftwareTraining: 'Tools and software training',
+  softwareToolsAndTraining: {
+    message: 'Software tools and training',
+    context: 'Vocation skills subcategory',
+  },
   skillsTraining: 'Skills training',
   industryAndSectorSpecific: 'Industry and sector specific',
 
@@ -534,9 +573,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Allows the user to filter for all the resources with accessibility features for learners with disabilities.',
   },
   // Accessibility Categories
-  all: 'All',
   signLanguage: 'Has sign language captions',
-  audioDescription: 'Has audio description',
+  audioDescription: {
+    message: 'Has audio descriptions',
+    context: 'Content has descriptive audio that is used for accessibility.',
+  },
   taggedPdf: 'Tagged PDF',
   altText: 'Has alternative text description for images',
   highContrast: 'Has high contrast display for low vision',
@@ -554,7 +595,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   allLevelsBasicSkills: 'All levels -- basic skills',
   allLevelsWorkSkills: 'All levels -- work skills',
 
-  browseChannel: 'Browse Channel',
+  browseChannel: {
+    message: 'Browse channel',
+    context: 'Heading on page where a user can browse the content within a channel',
+  },
   topicLabel: 'Folder',
   readReference: {
     message: 'Reference',
@@ -572,6 +616,61 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'This is what we display as time estimation for some types of learning activities that take more than 30 minutes',
   },
 
+  // assigning bookmarked resources
+
+  availableClasses: {
+    message: 'Available classes',
+    context: 'Heading for the window where coaches make class selection.',
+  },
+
+  assignToClass: {
+    message: 'Assign this resource to which class?',
+    context: 'Message for coaches to select a class.',
+  },
+  assignToLesson: {
+    message: 'Assign this resource to which lesson?',
+    context: 'Message for coaches to select lessons',
+  },
+  lessonsInClass: {
+    message: 'Lessons in {class name}',
+    context: 'Heading for the window where coaches make lesson selections.',
+  },
+  addedToClassLesson: {
+    message: 'Added to class lesson',
+    context:
+      'Notification that a bookmarked resource has been added to a lesson in a selected class.',
+  },
+  selectFromBookmarks: {
+    message: 'Select from bookmarks',
+    context: "Option on the 'Manage lesson resources' page.",
+  },
+  savedFromBookmarks: {
+    message: 'Saved from bookmarks',
+    context:
+      'Notification message after user clicked the bookmark icon button, indicating the resource has been  saved.',
+  },
+  related: {
+    message: 'Related',
+    context: 'Section header for the list of resources that are related to the current resource',
+  },
+  doNotShowAgain: {
+    message: "Don't show this again",
+    context:
+      'Option that allows the user to prevent this resource from displaying in the future while using category search',
+  },
+  resourceHidden: {
+    message: 'Resource hidden',
+    context:
+      'Notification message indicating the resource has been marked as hidden for future category searches.',
+  },
+  allLevels: {
+    message: 'All levels',
+    context: 'Filter label to include resources for all available levels.',
+  },
+  showResources: {
+    message: 'Show resources',
+    context: '',
+  },
   // Notifications
   changesSavedNotification: {
     message: 'Changes saved',

@@ -27,7 +27,7 @@
                 id="modal-title"
                 class="title"
               >
-                {{ $tr('resourceCompleted') }}
+                {{ learnString('resourceCompletedLabel') }}
               </h1>
             </KFixedGridItem>
             <KFixedGridItem
@@ -144,6 +144,7 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
+  import commonLearnStrings from '../commonLearnStrings';
   import CompletionModalSection from './CompletionModalSection';
   import ResourceItem from './ResourceItem';
 
@@ -166,7 +167,7 @@
       ResourceItem,
       UiAlert,
     },
-    mixins: [KResponsiveWindowMixin],
+    mixins: [KResponsiveWindowMixin, commonLearnStrings],
     props: {
       /**
        * A sign-in prompt is displayed if a user
@@ -352,10 +353,6 @@
         message: 'Sign in or create an account to begin earning points',
         context:
           'Message that a learner will see upon completing a resource if they are not signed in to Kolibri.',
-      },
-      resourceCompleted: {
-        message: 'Resource completed',
-        context: 'Title of window which displays once a learner has completed a resource.',
       },
       plusPoints: {
         message: '+ { points, number } points',
