@@ -425,6 +425,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
 
   // Learning activities
+  allActivities: {
+    message: 'All',
+    context: 'Refers to all types of learning activities.',
+  },
   createActivity: 'Create',
   listenActivity: 'Listen',
   reflectActivity: 'Reflect',
@@ -523,6 +527,12 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   NeedsInternet: 'That need internet connection',
   NeedsMaterials: 'That need other materials',
 
+  // Accessibility category name
+  accessibility: {
+    message: 'Accessibility',
+    context:
+      'Allows the user to filter for all the resources with accessibility features for learners with disabilities.',
+  },
   // Accessibility Categories
   all: 'All',
   signLanguage: 'Has sign language captions',

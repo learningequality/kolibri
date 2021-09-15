@@ -196,15 +196,6 @@
           'Header for the section in the Library tab with resources that the learner recently engaged with.',
       },
       /* eslint-disable kolibri/vue-no-unused-translations */
-      accessibility: {
-        message: 'Accessibility',
-        context:
-          'Allows the user to filter for all the resources with accessibility features for learners with disabilities.',
-      },
-      all: {
-        message: 'All',
-        context: 'Refers to all types of resource activities.',
-      },
       results: {
         message: '{results} results',
         context: 'Number of results for a given term after a Library search.',
@@ -212,10 +203,6 @@
       moreThanXResults: {
         message: 'More than {results} results',
         context: 'Number of results for a given term after a Library search.',
-      },
-      searchPlaceholder: {
-        message: 'Find something to learn',
-        context: 'Suggestion located inside the the keyword search field.',
       },
       /* eslint-disable kolibri/vue-no-unused-translations */
       viewAsList: {
