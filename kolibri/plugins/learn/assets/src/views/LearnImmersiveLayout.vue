@@ -12,10 +12,11 @@
       :resourceTitle="resourceTitle"
       :learningActivities="mappedLearningActivities"
       :isLessonContext="true"
-      :isBookmarked="true"
-      :allowMarkComplete="false"
+      :isBookmarked="bookmark ? true : bookmark"
+      :allowMarkComplete="allowMarkComplete"
       data-test="learningActivityBar"
       @navigateBack="navigateBack"
+      @toggleBookmark="toggleBookmark"
     />
     <KLinearLoader
       v-if="loading"
@@ -46,6 +47,7 @@
         data-test="contentPage"
       />
     </div>
+    <GlobalSnackbar />
   </div>
 
 </template>
@@ -53,7 +55,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
@@ -62,6 +64,9 @@
     ContentKindsToLearningActivitiesMap,
   } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import client from 'kolibri.client';
+  import urls from 'kolibri.urls';
+  import GlobalSnackbar from '../../../../../../kolibri/core/assets/src/views/GlobalSnackbar';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
   import ContentPage from './ContentPage';
@@ -90,6 +95,7 @@
       AppError,
       AuthMessage,
       ContentPage,
+      GlobalSnackbar,
       LearningActivityBar,
       SkipNavigationLink,
     },
@@ -117,7 +123,13 @@
         default: null,
       },
     },
+    data() {
+      return {
+        bookmark: null,
+      };
+    },
     computed: {
+      ...mapGetters(['currentUserId']),
       ...mapState({
         error: state => state.core.error,
         loading: state => state.core.loading,
@@ -138,6 +150,11 @@
       resourceTitle() {
         return this.content ? this.content.title : '';
       },
+      allowMarkComplete() {
+        // TODO: This should be determined by some other means. Content metadata?
+        const DEV_ONLY = process.env.NODE_ENV !== 'production';
+        return DEV_ONLY;
+      },
       mappedLearningActivities() {
         let learningActivities = [];
         if (this.content && this.content.kind) {
@@ -151,10 +168,40 @@
         return learningActivities;
       },
     },
+    created() {
+      client({
+        method: 'get',
+        url: urls['kolibri:core:bookmarks-list'](),
+        params: { contentnode_id: this.content.id },
+      }).then(response => {
+        this.bookmark = response.data[0] || false;
+      });
+    },
     methods: {
       navigateBack() {
         // return to previous page using the route object set through props
         this.$router.push(this.back);
+      },
+      toggleBookmark() {
+        if (this.bookmark) {
+          client({
+            method: 'delete',
+            url: urls['kolibri:core:bookmarks_detail'](this.bookmark.id),
+          }).then(() => {
+            this.bookmark = false;
+          });
+        } else if (this.bookmark === false) {
+          client({
+            method: 'post',
+            url: urls['kolibri:core:bookmarks-list'](),
+            data: {
+              contentnode_id: this.content.id,
+              user: this.currentUserId,
+            },
+          }).then(response => {
+            this.bookmark = response.data;
+          });
+        }
       },
     },
     $trs: {

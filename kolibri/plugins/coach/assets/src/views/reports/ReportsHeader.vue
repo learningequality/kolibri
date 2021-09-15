@@ -5,7 +5,7 @@
       <BackLink
         v-if="classListPageEnabled"
         :to="$router.getRoute('HomePage')"
-        :text="$tr('home')"
+        :text="coreString('classHome')"
       />
     </p>
     <h1>{{ reportTitle }}</h1>
@@ -58,11 +58,6 @@
       },
     },
     $trs: {
-      home: {
-        message: 'Class Home',
-        context:
-          "Tab name of the main 'Class' section where the coach can see all the information relating to a specific class.\n",
-      },
       description: {
         message: 'View reports for your learners and class materials',
         context: "Description for the 'Reports' section.",

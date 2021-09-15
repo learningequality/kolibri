@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "Mengunakan sebuah petunjuk ({hintsLeft, number} kiri)",
+  "PerseusRendererIndex.hintExplanation": "Jika anda menggunakan petunjuk, pertanyaan ini tidak akan ditambahkan ke perkembangan pekerjaan anda",
+  "PerseusRendererIndex.hintLabel": "Petunjuk:",
+  "PerseusRendererIndex.noMoreHint": "Tidak ada lagi petunjuk",
+  "PerseusRendererIndex.notAvailable": "Papan pengaris tidak tersedia",
+  "PerseusRendererIndex.showScratch": "Tampilkan papan pengaris"
+}

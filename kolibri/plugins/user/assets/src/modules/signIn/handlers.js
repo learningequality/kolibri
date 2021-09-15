@@ -4,7 +4,7 @@ import { createTranslator } from 'kolibri.utils.i18n';
 
 const snackbarTranslator = createTranslator('UserPageSnackbars', {
   dismiss: {
-    message: 'Dismiss',
+    message: 'Close',
     context:
       'Button which upon selecting will hide the notification that has appeared on the screen at that moment.',
   },

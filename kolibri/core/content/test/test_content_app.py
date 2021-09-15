@@ -1813,5 +1813,22 @@ class KolibriStudioAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    @mock.patch.object(requests, "get", side_effect=requests.exceptions.ConnectionError)
+    def test_channel_info_offline(self, mock_get):
+        response = self.client.get(
+            reverse("kolibri:core:remotechannel-detail", kwargs={"pk": "abc"}),
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.json()["status"], "offline")
+
+    @mock.patch.object(requests, "get", side_effect=requests.exceptions.ConnectionError)
+    def test_channel_list_offline(self, mock_get):
+        response = self.client.get(
+            reverse("kolibri:core:remotechannel-list"), format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.json()["status"], "offline")
+
     def tearDown(self):
         cache.clear()

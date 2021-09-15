@@ -15,11 +15,7 @@
 
       <ReportsGroupReportQuizHeader />
 
-      <ReportsControls @export="exportCSV">
-        <h2>
-          {{ coachString('overallLabel') }}
-        </h2>
-      </ReportsControls>
+      <ReportsControls @export="exportCSV" />
 
       <CoreTable :emptyMessage="coachString('questionListEmptyState')">
         <template #headers>

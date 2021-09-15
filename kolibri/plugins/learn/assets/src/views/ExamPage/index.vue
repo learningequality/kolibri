@@ -341,7 +341,7 @@
       },
       questionsAnswered: {
         message:
-          '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
+          '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question answered} other {questions answered}}',
         context:
           'Indicates the number of questions a learner has answered. Only translate "of" and "question/questions answered".',
       },
@@ -360,8 +360,9 @@
       },
       unanswered: {
         message:
-          'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
-        context: 'Indicates how many unanswered questions the learner has.',
+          'You have {numLeft, number} {numLeft, plural, one {question unanswered} other {questions unanswered}}',
+
+        context: 'Indicates how many questions the learner has not answered.',
       },
       noItemId: {
         message: 'This question has an error, please move on to the next question',
@@ -371,7 +372,7 @@
       question: {
         message: 'Question {num, number, integer} of {total, number, integer}',
         context:
-          'Indicates which question the user is working on currently and the total number of questions in a quiz.',
+          'Indicates which question the user is working on currently and the total number of questions in a quiz.\n\nFor example: "Question 2 of 10".',
       },
     },
   };

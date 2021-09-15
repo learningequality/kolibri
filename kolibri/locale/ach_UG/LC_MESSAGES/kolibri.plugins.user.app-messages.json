@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "crwdns316889:0crwdne316889:0",
   "ProfilePage.isSuperuser": "crwdns316891:0crwdne316891:0",
   "ProfilePage.limitedPermissions": "crwdns316893:0crwdne316893:0",
-  "ProfilePage.manageContent": "crwdns316895:0crwdne316895:0",
+  "ProfilePage.manageContent": "crwdns323209:0crwdne323209:0",
   "ProfilePage.manageDevicePermissions": "crwdns316897:0crwdne316897:0",
   "ProfilePage.points": "crwdns316899:0crwdne316899:0",
   "ProfilePage.youCan": "crwdns316901:0crwdne316901:0",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "crwdns316927:0crwdne316927:0",
   "UserIndex.signUpStep2Title": "crwdns316929:0crwdne316929:0",
   "UserIndex.userProfileTitle": "crwdns316931:0crwdne316931:0",
-  "UserPageSnackbars.dismiss": "crwdns316933:0crwdne316933:0",
+  "UserPageSnackbars.dismiss": "crwdns323211:0crwdne323211:0",
   "UserPageSnackbars.signedOut": "crwdns316935:0crwdne316935:0"
 }

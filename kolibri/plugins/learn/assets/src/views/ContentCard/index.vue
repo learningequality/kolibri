@@ -1,7 +1,6 @@
 <template>
 
-  <router-link
-    :to="link"
+  <div
     class="card"
     :class="[
       { 'mobile-card': isMobile },
@@ -9,43 +8,55 @@
     ]"
     :style="{ backgroundColor: $themeTokens.surface }"
   >
-    <div class="header-bar">
-      <KLabeledIcon
-        :icon="kind === 'topic' ? 'topic' : `${kindToLearningActivity}Solid`"
-        :label="coreString(kindToLearningActivity)"
-        class="k-labeled-icon"
-      />
-      <img
-        :src="channelThumbnail"
-        :alt="learnString('logo', { channelTitle: channelTitle })"
-        class="channel-logo"
-      >
-    </div>
-    <CardThumbnail
-      class="thumbnail"
-      v-bind="{ thumbnail, kind, isMobile }"
-    />
-    <div class="text" :style="{ color: $themeTokens.text }">
-      <h3 class="title" dir="auto">
-        <TextTruncator
-          :text="title"
-          :maxHeight="maxTitleHeight"
+    <router-link
+      :to="link"
+    >
+      <div class="header-bar">
+        <KLabeledIcon
+          :icon="kind === 'topic' ? 'topic' : `${kindToLearningActivity}Solid`"
+          :label="coreString(kindToLearningActivity)"
+          class="k-labeled-icon"
         />
-      </h3>
-      <p
-        v-if="subtitle"
-        dir="auto"
-        class="subtitle"
-      >
-        {{ subtitle }}
-      </p>
-      <div class="footer">
-        <KLinearLoader
-          class="k-linear-loader"
-          :delay="false"
-          :progress="progress"
-          type="determinate"
-          :style="{ backgroundColor: $themeTokens.fineLine }"
+        <img
+          :src="channelThumbnail"
+          :alt="learnString('logo', { channelTitle: channelTitle })"
+          class="channel-logo"
+        >
+      </div>
+      <CardThumbnail
+        class="thumbnail"
+        v-bind="{ thumbnail, kind, isMobile }"
+      />
+      <div class="text" :style="{ color: $themeTokens.text }">
+        <h3 class="title" dir="auto">
+          <TextTruncator
+            :text="title"
+            :maxHeight="maxTitleHeight"
+          />
+        </h3>
+        <p
+          v-if="subtitle"
+          dir="auto"
+          class="subtitle"
+        >
+          {{ subtitle }}
+        </p>
+      </div>
+    </router-link>
+    <div class="footer">
+      <KLinearLoader
+        class="k-linear-loader"
+        :delay="false"
+        :progress="progress"
+        type="determinate"
+        :style="{ backgroundColor: $themeTokens.fineLine }"
+      />
+      <div class="left">
+        <CoachContentLabel
+          v-if="isUserLoggedIn && !isLearner"
+          class="coach-content-label"
+          :value="numCoachContents"
+          :isTopic="isTopic"
         />
         <KIconButton
           icon="optionsVertical"
@@ -56,20 +67,15 @@
           :tooltip="coreString('moreOptions')"
           @click="$emit('toggleOptions')"
         />
+      </div>
+      <div class="right">
         <KIconButton
           icon="infoPrimary"
-          class="info-icon"
           size="mini"
           :color="$themePalette.grey.v_400"
           :ariaLabel="coreString('viewInformation')"
           :tooltip="coreString('viewInformation')"
           @click="$emit('toggleInfoPanel')"
-        />
-        <CoachContentLabel
-          v-if="isUserLoggedIn && !isLearner"
-          class="coach-content-label"
-          :value="numCoachContents"
-          :isTopic="isTopic"
         />
         <KButton
           v-if="copiesCount > 1"
@@ -78,9 +84,10 @@
           :text="coreString('copies', { num: copiesCount })"
           @click.prevent="$emit('openCopiesModal', contentId)"
         />
+        <slot name="actions"></slot>
       </div>
     </div>
-  </router-link>
+  </div>
 
 </template>
 
@@ -176,7 +183,15 @@
         return !this.isLeaf;
       },
       maxTitleHeight() {
+        if (this.hasFooter && this.subtitle) {
+          return 20;
+        } else if (this.hasFooter || this.subtitle) {
+          return 40;
+        }
         return 66;
+      },
+      hasFooter() {
+        return this.numCoachContents > 0 || this.copiesCount > 1 || this.$slots.actions;
       },
       kindToLearningActivity() {
         let activity = '';
@@ -206,6 +221,7 @@
 
   .coach-content-label {
     display: inline-block;
+    padding-top: $margin;
   }
 
   .card {
@@ -259,6 +275,7 @@
     right: $margin;
     bottom: $margin;
     left: $margin;
+    display: inline-block;
     font-size: 12px;
   }
 
@@ -267,12 +284,11 @@
     max-width: 70%;
   }
 
-  .info-icon {
-    display: block;
-    float: right;
+  .left {
+    float: left;
   }
-  .copies {
-    display: inline-block;
+
+  .right {
     float: right;
   }
 

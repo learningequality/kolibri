@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "Editar",
   "ProfilePage.isSuperuser": "Permisos de super administrador ",
   "ProfilePage.limitedPermissions": "Permisos limitados",
-  "ProfilePage.manageContent": "Gestionar contenido",
+  "ProfilePage.manageContent": "Gestionar canales y recursos",
   "ProfilePage.manageDevicePermissions": "Gestionar permisos del dispositivo",
   "ProfilePage.points": "Puntos",
   "ProfilePage.youCan": "Puedes:",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "Paso 1 de 2",
   "UserIndex.signUpStep2Title": "Paso 2 de 2",
   "UserIndex.userProfileTitle": "Perfil",
-  "UserPageSnackbars.dismiss": "Descartar",
+  "UserPageSnackbars.dismiss": "Cerrar",
   "UserPageSnackbars.signedOut": "Sesión terminada por inactividad"
 }

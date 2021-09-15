@@ -138,7 +138,7 @@
       },
       contentManager: {
         message:
-          'You must be signed in as a superuser or have resource management permissions to view this page',
+          'You must be signed in as a super admin or have resource management permissions to view this page',
         context:
           'Message presented to any user *without* super admin or resource management permissions who accidentally lands on a Kolibri page that is reserved for super admins.',
       },

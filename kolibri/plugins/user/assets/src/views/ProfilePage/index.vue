@@ -242,7 +242,7 @@
           'A super admin is an account type that can manage the device. Super admin accounts also have permission to do everything that admins, coaches, and learners can do.',
       },
       manageContent: {
-        message: 'Manage content',
+        message: 'Manage channels and resources',
         context: 'A type of device permission.',
       },
       manageDevicePermissions: {

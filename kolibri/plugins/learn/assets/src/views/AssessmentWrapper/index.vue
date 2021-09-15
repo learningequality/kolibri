@@ -522,7 +522,7 @@ oriented data synchronization.
       goal: {
         message: 'Get {count, number, integer} {count, plural, other {correct}}',
         context:
-          '\nMessage that indicates to the learner how many correct answers they need to give in order to master the given topic, and for the exercise to be considered completed.',
+          'Message that indicates to the learner how many correct answers they need to give in order to master the given topic, and for the exercise to be considered completed.',
       },
       tryAgain: {
         message: 'Try again',
@@ -543,7 +543,7 @@ oriented data synchronization.
         context: 'Button that takes user to next question.',
       },
       itemError: {
-        message: 'There was an error showing this item',
+        message: 'There was an error showing this question',
         context:
           'Error message a user sees if there was a problem accessing a learning resource. This may be because the resource has been removed, for example.',
       },

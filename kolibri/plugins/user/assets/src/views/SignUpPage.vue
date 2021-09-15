@@ -308,18 +308,18 @@
       },
       demographicInfoOptional: {
         message: 'Providing this information is optional.',
-        context: '\nClarifying information that providing the demographic information is optional.',
+        context: 'Clarifying information that providing the demographic information is optional.',
       },
       demographicInfoExplanation: {
         message:
           'It will be visible to administrators. It will also be used to help improve the software and resources for different learner types and needs.',
 
-        context: '\nDetails on how the demographic information requested in the form will be used.',
+        context: 'Details on how the demographic information requested in the form will be used.',
       },
       privacyLinkText: {
         message: 'Learn more about usage and privacy',
         context:
-          '\nLink to open the Kolibri usage and privacy modal. It will be displayed alongside the text describing collection of demographic user information.',
+          'Link to open the Kolibri usage and privacy modal. It will be displayed alongside the text describing collection of demographic user information.',
       },
     },
   };

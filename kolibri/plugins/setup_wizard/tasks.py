@@ -19,9 +19,9 @@ from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.permissions import LODUserHasSyncPermissions
 from kolibri.core.device.permissions import NotProvisionedCanPost
 from kolibri.core.error_constants import DEVICE_LIMITATIONS
-from kolibri.core.tasks.api import prepare_peer_sync_job
 from kolibri.core.tasks.api import prepare_soud_sync_job
 from kolibri.core.tasks.api import prepare_sync_task
+from kolibri.core.tasks.api import validate_and_create_sync_credentials
 from kolibri.core.tasks.decorators import register_task
 
 
@@ -102,6 +102,9 @@ def validate_soud_credentials(request, task_description):
 
     instance_model = InstanceIDModel.get_or_create_current_instance()[0]
 
+    validate_and_create_sync_credentials(
+        baseurl, facility_id, username, password, user_id=user_id
+    )
     extra_metadata = prepare_sync_task(
         facility_id,
         user_id,
@@ -117,8 +120,6 @@ def validate_soud_credentials(request, task_description):
     extra_metadata["full_name"] = full_name
 
     return {
-        "username": username,
-        "password": password,
         "user_id": user_id,
         "extra_metadata": extra_metadata,
         "baseurl": baseurl,
@@ -135,14 +136,11 @@ def validate_soud_credentials(request, task_description):
     ],
 )
 def startprovisionsoud(
-    username=None,
-    password=None,
     baseurl=None,
     facility_id=None,
     user_id=None,
     extra_metadata={},
 ):
-    prepare_peer_sync_job(baseurl, facility_id, username, password, user=user_id)
     job_data = prepare_soud_sync_job(
         baseurl, facility_id, user_id, extra_metadata=extra_metadata
     )

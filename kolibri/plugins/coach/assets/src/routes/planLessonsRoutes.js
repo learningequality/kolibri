@@ -5,6 +5,8 @@ import {
   showLessonResourceSelectionTopicPage,
   showLessonSelectionContentPreview,
   showLessonResourceSearchPage,
+  showLessonResourceBookmarks,
+  showLessonResourceBookmarksMain,
 } from '../modules/lessonResources/handlers';
 import { showLessonsRootPage } from '../modules/lessonsRoot/handlers';
 import { showLessonSummaryPage } from '../modules/lessonSummary/handlers';
@@ -99,6 +101,33 @@ export default [
     component: LessonResourceSelectionPage,
     handler(toRoute) {
       showLessonResourceSearchPage(store, toRoute.params, toRoute.query);
+    },
+  },
+  {
+    name: LessonsPageNames.LESSON_SELECTION_BOOKMARKS,
+    path: path(CLASS, LESSON, SELECTION, TOPIC),
+    component: LessonResourceSelectionPage,
+    handler(toRoute, fromRoute) {
+      let preHandlerPromise;
+      if (fromRoute.name === LessonsPageNames.SELECTION_CONTENT_PREVIEW) {
+        preHandlerPromise = store.dispatch('lessonSummary/saveLessonResources', {
+          lessonId: toRoute.params.lessonId,
+          resources: store.state.lessonSummary.workingResources,
+        });
+      } else {
+        preHandlerPromise = Promise.resolve();
+      }
+      preHandlerPromise.then(() => {
+        showLessonResourceBookmarks(store, toRoute.params, toRoute.query);
+      });
+    },
+  },
+  {
+    name: LessonsPageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
+    path: path(CLASS, LESSON, SELECTION),
+    component: LessonResourceSelectionPage,
+    handler(toRoute) {
+      showLessonResourceBookmarksMain(store, toRoute.params, toRoute.query);
     },
   },
   {

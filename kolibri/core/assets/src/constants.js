@@ -27,6 +27,7 @@ export const ContentNodeKinds = {
   CLASSROOM: 'CLASSROOM',
   ACTIVITY: 'ACTIVITY',
   SLIDESHOW: 'slideshow',
+  BOOKMARK: 'bookmark',
 };
 
 // coach-facing

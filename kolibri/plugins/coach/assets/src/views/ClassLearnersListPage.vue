@@ -171,11 +171,27 @@
       },
     },
     $trs: {
-      pageHeader: "Learners in '{className}'",
-      deviceStatus: 'Device status',
-      lastSyncedStatus: 'Last synced',
-      howToTroubleshootModalHeader: 'Information about sync statuses',
-      close: 'Close',
+      pageHeader: {
+        message: "Learners in '{className}'",
+        context: 'Main page heading. Refers to a list of learners in a specific class.',
+      },
+      deviceStatus: {
+        message: 'Device status',
+        context: "Indicates the status of an individual learner's device.",
+      },
+      lastSyncedStatus: {
+        message: 'Last synced',
+        context:
+          "Header for the table column in the 'Class learners' page that displays the last time each device synced with the server.",
+      },
+      howToTroubleshootModalHeader: {
+        message: 'Information about sync statuses',
+        context: 'Link to open additional information about statuses.',
+      },
+      close: {
+        message: 'Close',
+        context: 'ClassLearnersListPage.close\n\n-- CONTEXT --',
+      },
     },
   };
 

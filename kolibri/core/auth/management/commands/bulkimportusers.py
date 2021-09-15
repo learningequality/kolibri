@@ -79,7 +79,7 @@ MESSAGES = {
         "Error when the command is executed in the Terminal (command prompt)",
         "Value in column '{}' has too many characters",
     ),
-    INVALID: _("Invalid value in column '{}'"),
+    INVALID: _("Value in column '{}' not valid"),
     DUPLICATED_USERNAME: _("Username is duplicated"),
     INVALID_USERNAME: _(
         "Username only can contain characters, numbers and underscores"
@@ -90,7 +90,7 @@ MESSAGES = {
     ),
     INVALID_HEADER: pgettext_lazy(
         "Error message indicating that one column header in the CSV file selected for import is missing or incorrect",
-        "Invalid header label found in the first row",
+        "Incorrect header label found in the first row",
     ),
     NO_FACILITY: pgettext_lazy(
         "Error when the command is executed in the Terminal (command prompt)",

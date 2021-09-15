@@ -1,7 +1,6 @@
 <template>
 
   <KModal
-    v-if="contentSessionLogId"
     :title="$tr('markResourceAsCompleteLabel')"
     :submitText="coreString('confirmAction')"
     :cancelText="coreString('cancelAction')"
@@ -17,33 +16,18 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ContentSessionLogResource } from 'kolibri.resources';
 
   export default {
     name: 'MarkAsCompleteModal',
     mixins: [commonCoreStrings],
-    props: {
-      // When truthy, the modal is shown. It is the implementer's charge
-      // to decide when this is visible. The `complete` event will be
-      // emitted upon successful API request in markResourceAsCompleted().
-      contentSessionLogId: {
-        type: String,
-        default: null,
-      },
-    },
     methods: {
       /*
        * Emits "complete" event on success.
        * Errors handled using the `handleApiError` action.
        */
       markResourceAsCompleted() {
-        ContentSessionLogResource.saveModel({
-          id: this.contentSessionLogId,
-          data: {
-            progress: 1,
-          },
-          exists: true,
-        })
+        this.$store
+          .dispatch('updateProgress', { progressPercent: 1 })
           .then(() => {
             this.$emit('complete');
             this.$store.dispatch('createSnackbar', this.$tr('resourceCompletedSnackbar'));

@@ -249,7 +249,7 @@
         context: 'Refers to the Device > Permissions page.',
       },
       canManageContentLabel: {
-        message: 'Can manage content',
+        message: 'Can manage resources',
         context: 'Type of permission that can be given to a user.',
       },
       superAdminLabel: {

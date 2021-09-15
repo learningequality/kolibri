@@ -2,6 +2,16 @@
 
   <Navbar>
     <NavbarLink
+      :title="coreString('homeLabel')"
+      :link="homePageLink"
+    >
+      <KIcon
+        icon="dashboard"
+        style="top: 0; width: 24px; height: 24px;"
+        :color="$themeTokens.textInverted"
+      />
+    </NavbarLink>
+    <NavbarLink
       v-if="showClassesLink"
       name="classes-link"
       :title="coreString('classesLabel')"
@@ -21,6 +31,17 @@
       <!-- todo update icon -->
       <KIcon
         icon="channel"
+        style="top: 0; width: 24px; height: 24px;"
+        :color="$themeTokens.textInverted"
+      />
+    </NavbarLink>
+    <NavbarLink
+      v-if="isUserLoggedIn && canAccessUnassignedContent"
+      :title="coreString('bookmarksLabel')"
+      :link="bookmarksLink"
+    >
+      <KIcon
+        icon="bookmark"
         style="top: 0; width: 24px; height: 24px;"
         :color="$themeTokens.textInverted"
       />
@@ -48,11 +69,17 @@
     mixins: [commonCoreStrings, commonLearnStrings],
     data() {
       return {
+        homePageLink: {
+          name: PageNames.HOME,
+        },
         allClassesLink: {
           name: ClassesPageNames.ALL_CLASSES,
         },
         libraryLink: {
           name: PageNames.LIBRARY,
+        },
+        bookmarksLink: {
+          name: PageNames.BOOKMARKS,
         },
       };
     },

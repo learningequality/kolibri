@@ -9,7 +9,7 @@ const translator = createTranslator('UserPermissionToolbarTitles', {
     context: 'Link to go back to the list of users.',
   },
   invalidUserTitle: {
-    message: 'Invalid user ID',
+    message: 'User ID not valid',
     context: 'Error message.',
   },
 });

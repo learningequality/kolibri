@@ -34,6 +34,7 @@
         :color="action.iconColor"
         :tooltip="action.label"
         :ariaLabel="action.label"
+        :disabled="action.disabled"
         @click="onActionClick(action.event)"
       />
 
@@ -78,6 +79,11 @@
         </CoreMenu>
       </span>
     </template>
+    <MarkAsCompleteModal
+      v-if="showMarkAsCompleteModal && allowMarkComplete"
+      @complete="showMarkAsCompleteModal = false"
+      @cancel="showMarkAsCompleteModal = false"
+    />
   </UiToolbar>
 
 </template>
@@ -92,7 +98,11 @@
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import { validateLearningActivity } from 'kolibri.utils.validators';
+  import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import LearningActivityIcon from './LearningActivityIcon.vue';
+  import MarkAsCompleteModal from './MarkAsCompleteModal';
+  import commonLearnStrings from './commonLearnStrings';
 
   export default {
     name: 'LearningActivityBar',
@@ -102,13 +112,14 @@
       UiToolbar,
       TextTruncator,
       LearningActivityIcon,
+      MarkAsCompleteModal,
     },
-    mixins: [KResponsiveWindowMixin],
+    mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
     /**
      * Emits the following events:
      * - `navigateBack` on back button click
      * - `viewResourceList` on 'View lesson plan'/'View topic resources' click
-     * - `toogleBookmark` on 'Save to bookmarks'/ 'Remove from bookmarks' click
+     * - `toggleBookmark` on 'Save to bookmarks'/ 'Remove from bookmarks' click
      * - `markComplete` on 'Mark resource as finished' click. Only when
      *                  a resource can be marked as complete.
      * - `viewInfo` on 'View information' click
@@ -156,6 +167,7 @@
     data() {
       return {
         isMenuOpen: false,
+        showMarkAsCompleteModal: false,
       };
     },
     computed: {
@@ -174,9 +186,10 @@
             id: 'bookmark',
             icon: this.isBookmarked ? 'bookmark' : 'bookmarkEmpty',
             label: this.isBookmarked
-              ? this.$tr('removeFromBookmarks')
-              : this.$tr('saveToBookmarks'),
-            event: 'toogleBookmark',
+              ? this.coreString('removeFromBookmarks')
+              : this.coreString('saveToBookmarks'),
+            event: 'toggleBookmark',
+            disabled: this.isBookmarked === null,
             dataTest: this.isBookmarked ? 'removeBookmarkButton' : 'addBookmarkButton',
           },
         ];
@@ -193,7 +206,7 @@
         actions.push({
           id: 'view-info',
           icon: 'info',
-          label: this.$tr('viewInformation'),
+          label: this.learnString('viewInformation'),
           event: 'viewInfo',
           dataTest: 'viewInfoButton',
         });
@@ -221,6 +234,7 @@
     },
     created() {
       window.addEventListener('click', this.onWindowClick);
+      this.$on('markComplete', () => (this.showMarkAsCompleteModal = true));
     },
     beforeDestroy() {
       window.removeEventListener('click', this.onWindowClick);
@@ -265,13 +279,22 @@
     },
     $trs: {
       goBack: 'Go back',
-      moreOptions: 'More options',
-      viewLessonPlan: 'View lesson plan',
-      viewTopicResources: 'View topic resources',
-      removeFromBookmarks: 'Remove from bookmarks',
-      saveToBookmarks: 'Save to bookmarks',
-      markResourceAsFinished: 'Mark resource as finished',
-      viewInformation: 'View information',
+      moreOptions: {
+        message: 'More options',
+        context: 'Tooltip text.',
+      },
+      viewLessonPlan: {
+        message: 'View lesson plan',
+        context: 'Tooltip text.',
+      },
+      viewTopicResources: {
+        message: 'View folder resources',
+        context: 'Tooltip text.',
+      },
+      markResourceAsFinished: {
+        message: 'Mark resource as completed',
+        context: 'Title for the confirmation window when marking a resource as completed.',
+      },
     },
   };
 

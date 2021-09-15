@@ -8,11 +8,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Button to cancel an action and return to the previous page. Usually this is the opposite of the save button which saves some piece of information.',
   },
-  cannotUndoActionWarning: 'This action cannot be undone',
+  cannotUndoActionWarning: {
+    message: 'This action cannot be undone',
+    context:
+      'Warning to indicate that a specific procedure that the user is carrying out at that time can not be reversed.',
+  },
   clearAction: {
     message: 'Clear',
-    context:
-      '\nButton that allows to clear a single *task* from the list in the task manager.\n\n\n',
+    context: 'Button that allows to clear a single *task* from the list in the task manager.',
   },
   closeAction: {
     message: 'Close',
@@ -90,7 +93,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   showAction: {
     message: 'Show',
     context:
-      "In the Device > Info tab an admin can view detailed info about the device where Kolibri is running.\n\nThey select the 'Show' link to open the 'Advanced' device info.",
+      "Users have the option to either 'show' or 'hide' coach resources in the 'Manage lesson resources' section.",
   },
   startOverAction: {
     message: 'Start over',
@@ -116,6 +119,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'View tasks',
     context:
       "In the Kolibri Task Manager dashboard admins can view resource management tasks (import, export, deletion, update, etc.) and observe their progress.\n\nSelecting 'View task' will display more detail about the management task.",
+  },
+  removeFromBookmarks: {
+    message: 'Remove from bookmarks',
+    context: "An action that removes a resource or topic from a user's bookmarks",
+  },
+  saveToBookmarks: {
+    message: 'Save to bookmarks',
+    context: "An action that adds a resource or topic to a user's bookmarks",
   },
 
   // labels, phrases, titles, headers...
@@ -149,15 +160,24 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "This label appears in various places and indicates the year in which a user was born. The birth year only displays if this information has been provided when creating or editing the user, as it's an optional field.\n\nA super admin can see the birth year of the users in a facility that they manage, for example, if this information has been provided.",
   },
+  bookmarksLabel: {
+    message: 'Bookmarks',
+    context:
+      'Bookmarks are used to give all users a way of saving a reference for a specific resource or topic to come back to later.',
+  },
+  bookmarkedTimeAgoLabel: {
+    message: 'Bookmarked { time }',
+    context: 'A message used to show how long ago a user bookmarked a resource or topic',
+  },
   channelsLabel: {
     message: 'Channels',
     context:
-      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri. A label for a single channel.',
+      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri.\n\nA learner will see a set of channels available to them when they first open Kolibri.',
   },
   channelLabel: {
     message: 'Channel',
     context:
-      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri. A learner will see a set of channels available to them when they first open Kolibri.',
+      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri. A label for a single channel.',
   },
   classCoachLabel: {
     message: 'Class coach',
@@ -235,12 +255,20 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "Gender is an option which a user can select in Kolibri when they create another user.\n\nGender can be either 'Female', 'Male' or 'Not specified'.",
   },
+  homeLabel: {
+    message: 'Home',
+    context:
+      "Home page is a place for learners containing summary of their activities and suggestions for what to do next. For example, they can see a list of classess they're enrolled in, their recent lessons and quizess, and they can directly navigate to resources to continue learning from.",
+  },
   identifierLabel: {
     message: 'Identifier',
     context:
       "An 'Identifier' could be a student ID number or an existing user identification number. This is an optional field in the user create/edit screen.",
   },
-  inProgressLabel: 'In progress',
+  inProgressLabel: {
+    message: 'In progress',
+    context: 'Indicates a task such as a sync is in progress.',
+  },
   kolibriLabel: {
     message: 'Kolibri',
     context:
@@ -281,7 +309,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Password',
     context: "'Password' is a required field when you create an account as a user on Kolibri.",
   },
-  profileLabel: 'Profile',
+  profileLabel: {
+    message: 'Profile',
+    context: "Users can access and edit their personal details via the 'profile' option.",
+  },
   progressLabel: {
     message: 'Progress',
     context:
@@ -308,6 +339,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   findSomethingToLearn: {
     message: 'Find something to learn',
     context: 'Suggestion located inside the the keyword search field.',
+  },
+  startSearchButtonLabel: {
+    message: 'Start search',
+    context: 'Refers to the search button used to initiate a search.',
   },
   showCorrectAnswerLabel: {
     message: 'Show correct answer',
@@ -360,9 +395,33 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   viewInformation: {
     message: 'View information',
+    context: 'Show more detailed information about a resource',
   },
   moreOptions: {
     message: 'More options',
+  },
+  userActionsColumnHeader: {
+    message: 'Actions',
+    context:
+      'Column header for the table with class users. The column "Actions" contains buttons that allow admins to remove users from class.',
+  },
+  classHome: {
+    message: 'Class home',
+    context:
+      'The main section where the coach can see all the information relating to a specific class..',
+  },
+  classCoachDescription: {
+    message: 'Can only instruct classes that they are assigned to',
+    context: 'Description of the "Class coach" user type.',
+  },
+  facilityCoachDescription: {
+    message: 'Can instruct all classes in your facility',
+    context: 'Description of the "Facility coach" user type.',
+  },
+  transcript: {
+    message: 'Transcript',
+    context:
+      'Refers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
   },
 
   // Learning activities
@@ -486,6 +545,22 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   allLevelsWorkSkills: 'All levels -- work skills',
 
   browseChannel: 'Browse Channel',
+  topicLabel: 'Folder',
+  readReference: {
+    message: 'Reference',
+    context:
+      'We display time duration for most of learning activities. However, for read activity, we display this label instead of time duration information.',
+  },
+  shortActivity: {
+    message: 'Short activity',
+    context:
+      'This is what we display as time estimation for some types of learning activities that take less than 30 minutes',
+  },
+  longActivity: {
+    message: 'Long activity',
+    context:
+      'This is what we display as time estimation for some types of learning activities that take more than 30 minutes',
+  },
 
   // Notifications
   changesSavedNotification: {
@@ -535,7 +610,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: '{label}: {details}',
     context: 'DO NOT TRANSLATE.',
   },
-  commaSeparatedPair: '{item1}, {item2}',
+  commaSeparatedPair: {
+    message: '{item1}, {item2}',
+    context: 'DO NOT TRANSLATE.',
+  },
 
   // Demographic-specific strings
   genderOptionMale: {
@@ -546,7 +624,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Female',
     context: "Female is an option in the 'Gender' drop down menu on the 'Create new user' page.",
   },
-  genderOptionOther: 'Other',
   genderOptionNotSpecified: {
     message: 'Not specified',
     context:
@@ -572,7 +649,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   identifierAriaLabel: {
     message: 'About providing an identifier or ID number',
     context:
-      "\nCould also be translated as \"View information about providing identifier\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to the user indicating that they can access more information and examples about the 'Identifier' through the 'i' icon.",
+      "Could also be translated as \"View information about providing identifier\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to the user indicating that they can access more information and examples about the 'Identifier' through the 'i' icon.",
   },
 
   // Content activity

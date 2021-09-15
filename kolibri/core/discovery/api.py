@@ -1,4 +1,5 @@
 import requests
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
@@ -15,6 +16,10 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
     permission_classes = [NetworkLocationPermissions | NotProvisionedHasPermission]
     serializer_class = NetworkLocationSerializer
     queryset = NetworkLocation.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = [
+        "subset_of_users_device",
+    ]
 
 
 class DynamicNetworkLocationViewSet(NetworkLocationViewSet):

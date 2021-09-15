@@ -1,6 +1,7 @@
 // a name for every URL pattern
 export const PageNames = {
   ROOT: 'ROOT',
+  HOME: 'HOME',
   TOPICS_ROOT: 'TOPICS_ROOT',
   TOPICS_CHANNEL: 'TOPICS_CHANNEL',
   TOPICS_TOPIC: 'TOPICS_TOPIC',
@@ -14,6 +15,7 @@ export const PageNames = {
   EXAM_LIST: 'EXAM_LIST',
   EXAM: 'EXAM',
   EXAM_ROOT: 'EXAM_ROOT',
+  BOOKMARKS: 'BOOKMARKS',
 };
 
 // switch between modes

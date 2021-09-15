@@ -69,13 +69,34 @@
       },
     },
     $trs: {
-      recentlySynced: 'Synced',
-      syncing: 'Syncing...',
-      queued: 'Waiting to sync...',
-      unableToSync: 'Unable to sync',
-      notRecentlySynced: 'Not recently synced',
-      unableOrNotSynced: 'Not recently synced or unable to sync',
-      notConnected: 'Not connected to server',
+      recentlySynced: {
+        message: 'Synced',
+        context: 'Status label for a device that has been synced.',
+      },
+      syncing: {
+        message: 'Syncing...',
+        context: 'Status label for a device where syncing is in progress.',
+      },
+      queued: {
+        message: 'Waiting to sync...',
+        context: 'Status label for a device awaiting to sync with server.',
+      },
+      unableToSync: {
+        message: 'Unable to sync',
+        context: 'Status label for a device not synced with server.',
+      },
+      notRecentlySynced: {
+        message: 'Not recently synced',
+        context: 'Status label for a device not synced with server.',
+      },
+      unableOrNotSynced: {
+        message: 'Not recently synced or unable to sync',
+        context: 'Status label for a device not synced with server.',
+      },
+      notConnected: {
+        message: 'Not connected to server',
+        context: 'Status label for a disconnected device.',
+      },
     },
   };
 

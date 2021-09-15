@@ -91,14 +91,14 @@
             label: this.coachString('allQuizzesLabel'),
             value: 'allQuizzes',
           },
-          {
-            label: this.coachString('activeQuizzesLabel'),
-            value: 'activeQuizzes',
-          },
-          {
-            label: this.coachString('inactiveQuizzesLabel'),
-            value: 'inactiveQuizzes',
-          },
+          // {
+          //   label: this.coachString('activeQuizzesLabel'),
+          //   value: 'activeQuizzes',
+          // },
+          // {
+          //   label: this.coachString('inactiveQuizzesLabel'),
+          //   value: 'inactiveQuizzes',
+          // },
         ];
       },
     },
@@ -127,8 +127,8 @@
         context:
           "Link that takes user back to the list of quizzes on the 'Reports' tab, from the individual learner's information page.",
       },
-      activeQuizzes: 'Active quizzes',
-      inactiveQuizzes: 'Inactive quizzes',
+      // activeQuizzes: 'Active quizzes',
+      // inactiveQuizzes: 'Inactive quizzes',
     },
   };
 

@@ -294,7 +294,10 @@
         context:
           'The user menu is located in the upper right corner of the interface. \n\nUsers can use it to adjust their settings like the language used in Kolibri or their name.',
       },
-      deviceStatus: 'Device status',
+      deviceStatus: {
+        message: 'Device status',
+        context: "Table column header in the 'Class learners' page.",
+      },
     },
   };
 

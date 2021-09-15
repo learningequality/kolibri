@@ -83,7 +83,10 @@ function facilityIsAvailableAtLocation(facilityId, location) {
 }
 
 function fetchAddressesWithFacility(facilityId = '', LocationResource = NetworkLocationResource) {
-  return LocationResource.fetchCollection({ force: true }).then(locations => {
+  return LocationResource.fetchCollection({
+    force: true,
+    getParams: { subset_of_users_device: false },
+  }).then(locations => {
     if (facilityId !== '') {
       const locationsWithAvailabilityPromises = locations.map(location => {
         // Need to wrap in normal promise, otherwise Promise.all will cause some of these

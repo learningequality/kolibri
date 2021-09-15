@@ -19,6 +19,7 @@ import kolibri
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_from_file
 from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
+from kolibri.core.deviceadmin.utils import get_backup_files
 from kolibri.core.tasks.main import import_tasks_module_from_django_apps
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
@@ -40,7 +41,6 @@ from kolibri.utils.sanity_checks import DatabaseInaccessible
 from kolibri.utils.sanity_checks import DatabaseNotMigrated
 from kolibri.utils.server import get_status
 from kolibri.utils.server import NotRunning
-
 
 logger = logging.getLogger(__name__)
 
@@ -75,9 +75,15 @@ def conditional_backup(kolibri_version, version_file_contents):
     if should_back_up(kolibri_version, version_file_contents):
         # Non-dev version change, make a backup no matter what.
         from kolibri.core.deviceadmin.utils import dbbackup
+        from kolibri.core.deviceadmin.utils import default_backup_folder
 
         try:
             backup = dbbackup(version_file_contents)
+            default_path = default_backup_folder()
+            backups = get_backup_files()
+            if len(backups) > 2:
+                for old_backup in backups[2:]:
+                    os.remove(os.path.join(default_path, old_backup))
             logger.info("Backed up database to: {path}".format(path=backup))
         except IncompatibleDatabase:
             logger.warning(
@@ -121,8 +127,8 @@ def setup_logging(debug=False, debug_database=False):
     """
     # Sets the global DEBUG flag to be picked up in other contexts
     # (Django settings)
-    OPTIONS["Server"]["DEBUG"] = debug
-    OPTIONS["Server"]["DEBUG_LOG_DATABASE"] = debug_database
+    os.environ["KOLIBRI_DEBUG"] = str(debug)
+    os.environ["KOLIBRI_DEBUG_LOG_DATABASE"] = str(debug_database)
 
     # Would be ideal to use the upgrade logic for this, but that is currently
     # only designed for post-Django initialization tasks. If there are more cases

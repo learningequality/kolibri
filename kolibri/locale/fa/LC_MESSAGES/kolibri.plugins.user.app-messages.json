@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "ویرایش",
   "ProfilePage.isSuperuser": "دسترسی مدیر یا ادمین حرفه‌ای ",
   "ProfilePage.limitedPermissions": "دسترسی محدود",
-  "ProfilePage.manageContent": "مدیریت محتوا",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "مدیریت اجازه دسترسیِ دستگاه",
   "ProfilePage.points": "امتیازها",
   "ProfilePage.youCan": "شما می‌توانید:",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "مرحله ۱ از ۲",
   "UserIndex.signUpStep2Title": "مرحله ۲ از ۲",
   "UserIndex.userProfileTitle": "پروفایل",
-  "UserPageSnackbars.dismiss": "رَد کردن",
+  "UserPageSnackbars.dismiss": "",
   "UserPageSnackbars.signedOut": "شما به طور خودکار و بدلیل عدم فعالیت از سیستم خارج شدید"
 }

@@ -29,7 +29,10 @@ class CoachRedirect(RoleBasedRedirectHook):
 
     @property
     def url(self):
-        return self.plugin_url(Coach, "coach")
+        # Also disable attempting to redirect to the coach page
+        # if we are on a subset of users device.
+        if not get_device_setting("subset_of_users_device", False):
+            return self.plugin_url(Coach, "coach")
 
 
 @register_hook

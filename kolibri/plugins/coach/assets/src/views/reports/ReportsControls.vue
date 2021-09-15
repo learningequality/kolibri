@@ -84,7 +84,10 @@
       },
     },
     $trs: {
-      viewLearners: 'View learner devices',
+      viewLearners: {
+        message: 'View learner devices',
+        context: "Button which allows coach to view a list of the learners' devices.",
+      },
     },
   };
 

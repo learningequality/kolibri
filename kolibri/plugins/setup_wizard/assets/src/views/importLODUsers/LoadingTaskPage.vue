@@ -24,7 +24,7 @@
         <KButton
           primary
           :text="coreString('finishAction')"
-          @click="welcomeModal = true"
+          @click="redirectToChannels"
         />
         <KButton
           class="another-user"
@@ -41,12 +41,6 @@
       />
       <span v-else></span>
     </template>
-    <WelcomeModal
-      v-if="welcomeModal"
-      :importedFacility="facility"
-      :isLOD="true"
-      @submit="redirectToChannels"
-    />
   </OnboardingForm>
 
 </template>
@@ -54,32 +48,25 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
-  import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import { SessionResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import FacilityTaskPanel from '../../../../../device/assets/src/views/FacilitiesPage/FacilityTaskPanel.vue';
-  import WelcomeModal from '../../../../../device/assets/src/views/WelcomeModal.vue';
   import { TaskStatuses } from '../../../../../device/assets/src/constants.js';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
-  import { SetupSoUDTasksResource } from '../../api';
-
-  const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+  import { FinishSoUDSyncingResource, SetupSoUDTasksResource } from '../../api';
 
   export default {
     name: 'LoadingTaskPage',
     components: {
       FacilityTaskPanel,
       OnboardingForm,
-      WelcomeModal,
     },
     mixins: [commonCoreStrings, commonSyncElements],
     data() {
       return {
         loadingTask: this.state.value.task,
         isPolling: false,
-        welcomeModal: false,
         user: null,
       };
     },
@@ -159,25 +146,21 @@
         }
       },
       redirectToChannels() {
-        this.welcomeModal = false;
-        window.sessionStorage.setItem(welcomeDimissalKey, true);
-        const device_url = urls['kolibri:kolibri.plugins.device:device_management']();
-        if (this.lodService.state.matches('importingUser')) redirectBrowser(device_url);
-        else this.$store.dispatch('kolibriLogout');
+        FinishSoUDSyncingResource.finish();
       },
     },
     $trs: {
       loadingUserTitle: {
         message: 'Loading user',
-        context: 'Page title',
+        context: 'Status message during user import.',
       },
       importAnother: {
         message: 'Import another user',
-        context: 'give a chance to import more users',
+        context: 'Link to restart the import step for another user. ',
       },
       onThisDevice: {
         message: 'On this device',
-        context: 'To show the list of users on this device',
+        context: 'Heading for a section with the list of users that will be imported.',
       },
     },
   };

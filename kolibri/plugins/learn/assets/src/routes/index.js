@@ -15,6 +15,7 @@ import {
 import { showChannels } from '../modules/topicsRoot/handlers';
 import { PageNames, ClassesPageNames } from '../constants';
 import LibraryPage from '../views/LibraryPage';
+import HomePage from '../views/HomePage';
 import RecommendedSubpage from '../views/RecommendedSubpage';
 import classesRoutes from './classesRoutes';
 
@@ -37,13 +38,22 @@ export default [
       const { memberships } = store.state;
       const { canAccessUnassignedContent } = store.getters;
 
-      // If a registered user, go to Classes Page, else go to Content
+      // If a registered user, go to Home Page, else go to Content
       return router.replace({
         name:
           memberships.length > 0 || !canAccessUnassignedContent
-            ? ClassesPageNames.ALL_CLASSES
+            ? PageNames.HOME
             : PageNames.TOPICS_ROOT,
       });
+    },
+  },
+  {
+    name: PageNames.HOME,
+    path: '/home',
+    component: HomePage,
+    handler() {
+      store.commit('SET_PAGE_NAME', PageNames.HOME);
+      store.commit('CORE_SET_PAGE_LOADING', false);
     },
   },
   {
@@ -149,6 +159,17 @@ export default [
       showNextStepsPage(store);
     },
     component: RecommendedSubpage,
+  },
+  {
+    name: PageNames.BOOKMARKS,
+    path: '/bookmarks',
+    handler: () => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
+      store.commit('SET_PAGE_NAME', PageNames.BOOKMARKS);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+    },
   },
   {
     path: '*',

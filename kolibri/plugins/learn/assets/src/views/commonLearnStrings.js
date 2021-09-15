@@ -22,11 +22,17 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   },
   popularLabel: {
     message: 'Popular',
-    context: 'Label for links that go to the most popular content',
+    context: 'Label for links that go to the most popular content.',
   },
   nextStepsLabel: {
     message: 'Next steps',
-    context: 'Label for links that go to post-requisites for content that has been completed',
+    context: 'Label for links that go to post-requisites for content that has been completed.',
+  },
+  exploreResourcesWatch: {
+    message: 'Explore resources to watch',
+  },
+  exploreResourcesSchool: {
+    message: 'Explore resources for school',
   },
   logo: {
     message: 'From the channel {channelTitle}',

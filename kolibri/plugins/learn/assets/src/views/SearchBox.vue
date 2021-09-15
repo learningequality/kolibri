@@ -31,7 +31,7 @@
           size="small"
           class="search-clear-button"
           :class="searchInputValue === '' ? '' : 'search-clear-button-visible'"
-          :ariaLabel="$tr('clearButtonLabel')"
+          :ariaLabel="coreString('clearAction')"
           @click="handleClickClear"
         />
         <div
@@ -45,7 +45,7 @@
             :disabled="searchBarDisabled"
             :class="{ 'rtl-icon': icon === 'forward' && isRtl }"
             :style="{ fill: $themeTokens.textInverted }"
-            :ariaLabel="$tr('startSearchButtonLabel')"
+            :ariaLabel="coreString('startSearchButtonLabel')"
             type="submit"
           />
         </div>
@@ -256,25 +256,15 @@
       },
     },
     $trs: {
-      clearButtonLabel: {
-        message: 'Clear',
-        context:
-          "Used any time to clear some information. Also can describe the icon 'X' used to clear the search field.",
-      },
-      startSearchButtonLabel: {
-        message: 'Start search',
-        context:
-          'Describes the functionality of the search icon. By selecting it the user starts a search for the term in the search field.',
-      },
       resourceType: {
         message: 'Type',
         context:
           'Learners can filter their searches for resources by type. For example, audio files, video files etc.',
       },
       topics: {
-        message: 'Topics',
+        message: 'Folders',
         context:
-          'Learners can filter their searches for resources by type. In this case, topics.\n\nA topic is a collection of resources and other topics within a channel.',
+          'Learners can also search for complete folders.\n\nA folder is a collection of resources and other subfolders within a channel.',
       },
       exercises: {
         message: 'Exercises',
