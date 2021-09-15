@@ -11,9 +11,21 @@
     <router-link
       :to="link"
     >
+      <div class="header-bar">
+        <KLabeledIcon
+          :icon="kind === 'topic' ? 'topic' : `${kindToLearningActivity}Solid`"
+          :label="coreString(kindToLearningActivity)"
+          class="k-labeled-icon"
+        />
+        <img
+          :src="channelThumbnail"
+          :alt="learnString('logo', { channelTitle: channelTitle })"
+          class="channel-logo"
+        >
+      </div>
       <CardThumbnail
         class="thumbnail"
-        v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
+        v-bind="{ thumbnail, kind, isMobile }"
       />
       <div class="text" :style="{ color: $themeTokens.text }">
         <h3 class="title" dir="auto">
@@ -26,13 +38,19 @@
           v-if="subtitle"
           dir="auto"
           class="subtitle"
-          :class="{ 'no-footer': !hasFooter }"
         >
           {{ subtitle }}
         </p>
       </div>
     </router-link>
     <div class="footer">
+      <KLinearLoader
+        class="k-linear-loader"
+        :delay="false"
+        :progress="progress"
+        type="determinate"
+        :style="{ backgroundColor: $themeTokens.fineLine }"
+      />
       <div class="left">
         <CoachContentLabel
           v-if="isUserLoggedIn && !isLearner"
@@ -40,12 +58,30 @@
           :value="numCoachContents"
           :isTopic="isTopic"
         />
+        <KIconButton
+          icon="optionsVertical"
+          class="info-icon"
+          size="mini"
+          :color="$themePalette.grey.v_400"
+          :ariaLabel="coreString('moreOptions')"
+          :tooltip="coreString('moreOptions')"
+          @click="$emit('toggleOptions')"
+        />
       </div>
       <div class="right">
+        <KIconButton
+          icon="infoPrimary"
+          size="mini"
+          :color="$themePalette.grey.v_400"
+          :ariaLabel="coreString('viewInformation')"
+          :tooltip="coreString('viewInformation')"
+          @click="$emit('toggleInfoPanel')"
+        />
         <KButton
           v-if="copiesCount > 1"
           appearance="basic-link"
-          :text="$tr('copies', { num: copiesCount })"
+          class="copies"
+          :text="coreString('copies', { num: copiesCount })"
           @click.prevent="$emit('openCopiesModal', contentId)"
         />
         <slot name="actions"></slot>
@@ -60,8 +96,14 @@
 
   import { mapGetters } from 'vuex';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import {
+    LearningActivities,
+    ContentKindsToLearningActivitiesMap,
+  } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonLearnStrings from '../commonLearnStrings';
   import CardThumbnail from './CardThumbnail.vue';
 
   export default {
@@ -71,6 +113,7 @@
       CoachContentLabel,
       TextTruncator,
     },
+    mixins: [commonLearnStrings, commonCoreStrings],
     props: {
       title: {
         type: String,
@@ -84,6 +127,14 @@
         type: String,
         default: null,
       },
+      channelThumbnail: {
+        type: String,
+        default: null,
+      },
+      channelTitle: {
+        type: String,
+        default: null,
+      },
       kind: {
         type: String,
         required: true,
@@ -92,10 +143,6 @@
       isLeaf: {
         type: Boolean,
         required: true,
-      },
-      showContentIcon: {
-        type: Boolean,
-        default: true,
       },
       // ContentNode.coach_content will be `0` if not a coach content leaf node,
       // or a topic without coach content. It will be a positive integer if a topic
@@ -141,17 +188,23 @@
         } else if (this.hasFooter || this.subtitle) {
           return 40;
         }
-        return 60;
+        return 66;
       },
       hasFooter() {
         return this.numCoachContents > 0 || this.copiesCount > 1 || this.$slots.actions;
       },
-    },
-    $trs: {
-      copies: {
-        message: '{ num, number} locations',
-        context:
-          'Some Kolibri resources may be duplicated in different topics or channels.\n\nSearch results will indicate when a resource is duplicated, and learners can click on the "...locations" link to discover the details for each location.',
+      kindToLearningActivity() {
+        let activity = '';
+        if (this.kind === 'topic') {
+          return 'folder';
+        } else if (Object.values(LearningActivities).includes(this.kind)) {
+          activity = this.kind;
+          return `${activity}Activity`;
+        } else {
+          // otherwise reassign the old content types to the new metadata
+          activity = ContentKindsToLearningActivitiesMap[this.kind];
+          return `${activity}Activity`;
+        }
       },
     },
   };
@@ -176,10 +229,10 @@
 
     position: relative;
     display: inline-block;
-    width: $thumb-width-desktop;
+    width: 100%;
     text-decoration: none;
     vertical-align: top;
-    border-radius: 2px;
+    border-radius: 8px;
     transition: box-shadow $core-time ease;
     &:hover {
       @extend %dropshadow-8dp;
@@ -190,26 +243,31 @@
     }
   }
 
+  .header-bar {
+    padding: 13px 18px 0;
+    margin-bottom: 0;
+    font-size: 13px;
+  }
+
+  .k-labeled-icon {
+    display: inline-block;
+    max-width: calc(100% - 50px);
+    height: 24px;
+    margin-bottom: 0;
+    vertical-align: top;
+  }
+
+  .channel-logo {
+    display: inline-block;
+    float: right;
+    height: 24px;
+    margin-bottom: 0;
+  }
+
   .text {
     position: relative;
-    height: 92px;
+    height: 190px;
     padding: $margin;
-  }
-
-  .title,
-  .subtitle {
-    margin: 0;
-  }
-
-  .subtitle {
-    position: absolute;
-    top: 38px;
-    right: $margin;
-    left: $margin;
-    overflow: hidden;
-    font-size: 14px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   .footer {
@@ -221,9 +279,9 @@
     font-size: 12px;
   }
 
-  .subtitle.no-footer {
-    top: unset;
-    bottom: $margin;
+  .k-linear-loader {
+    display: inline-block;
+    max-width: 70%;
   }
 
   .left {

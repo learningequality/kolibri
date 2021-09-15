@@ -25,9 +25,10 @@
     </NavbarLink>
     <NavbarLink
       v-if="canAccessUnassignedContent"
-      :title="coreString('channelsLabel')"
-      :link="channelsLink"
+      :title="learnString('libraryLabel')"
+      :link="libraryLink"
     >
+      <!-- todo update icon -->
       <KIcon
         icon="channel"
         style="top: 0; width: 24px; height: 24px;"
@@ -41,17 +42,6 @@
     >
       <KIcon
         icon="bookmark"
-        style="top: 0; width: 24px; height: 24px;"
-        :color="$themeTokens.textInverted"
-      />
-    </NavbarLink>
-    <NavbarLink
-      v-if="canAccessUnassignedContent"
-      :title="learnString('recommendedLabel')"
-      :link="recommendedLink"
-    >
-      <KIcon
-        icon="recommended"
         style="top: 0; width: 24px; height: 24px;"
         :color="$themeTokens.textInverted"
       />
@@ -85,11 +75,8 @@
         allClassesLink: {
           name: ClassesPageNames.ALL_CLASSES,
         },
-        channelsLink: {
-          name: PageNames.TOPICS_ROOT,
-        },
-        recommendedLink: {
-          name: PageNames.RECOMMENDED,
+        libraryLink: {
+          name: PageNames.LIBRARY,
         },
         bookmarksLink: {
           name: PageNames.BOOKMARKS,

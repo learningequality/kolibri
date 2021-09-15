@@ -15,14 +15,14 @@
     >
       <label class="visuallyhidden" for="searchfield">{{ coreString('searchLabel') }}</label>
       <input
-        id="searchfield"
+        :id="id"
         ref="searchInput"
         v-model.trim="searchInputValue"
         type="search"
         class="search-input"
         :class="$computedClass(searchInputStyle)"
         dir="auto"
-        :placeholder="coreString('searchLabel')"
+        :placeholder="coreString(placeholder)"
       >
       <div class="search-buttons-wrapper">
         <KIconButton
@@ -133,6 +133,14 @@
       filters: {
         type: Boolean,
         default: false,
+      },
+      id: {
+        type: String,
+        default: 'searchfield',
+      },
+      placeholder: {
+        type: String,
+        default: 'searchLabel',
       },
     },
     data() {

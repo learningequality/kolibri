@@ -11,8 +11,7 @@ localVue.use(VueRouter);
 const router = new VueRouter({
   routes: [
     { path: '/home', name: 'HOME' },
-    { path: '/recommended', name: 'RECOMMENDED' },
-    { path: '/topics', name: 'TOPICS_ROOT' },
+    { path: '/library', name: 'LIBRARY' },
     { path: '/classes', name: 'ALL_CLASSES' },
   ],
 });
@@ -46,8 +45,7 @@ function getElements(wrapper) {
     // hrefs need to match the routes in the mock router above
     homeLink: () => wrapper.find('[href="#/home"]'),
     classesLink: () => wrapper.find('[href="#/classes"]'),
-    recommendedLink: () => wrapper.find('[href="#/recommended"]'),
-    topicsLink: () => wrapper.find('[href="#/topics"]'),
+    libraryLink: () => wrapper.find('[href="#/library"]'),
     tabLinks: () => wrapper.findAllComponents({ name: 'NavbarLink' }),
     CoreBase: () => wrapper.findComponent({ name: 'CoreBase' }),
   };
@@ -86,15 +84,14 @@ describe('learn plugin index page', () => {
       setCanAccessUnassignedContent(true);
     });
 
-    it('the home, channels, and recommended links are always available to everybody', () => {
+    it('the home and channels links are always available to everybody', () => {
       setSessionUserKind('anonymous');
       setMemberships([]);
       const wrapper = makeWrapper({ store });
-      const { tabLinks, homeLink, recommendedLink, topicsLink } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(3);
+      const { tabLinks, homeLink, libraryLink } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(2);
       expect(homeLink().element.tagName).toBe('A');
-      expect(recommendedLink().element.tagName).toBe('A');
-      expect(topicsLink().element.tagName).toBe('A');
+      expect(libraryLink().element.tagName).toBe('A');
     });
 
     it('the classes tab is available if user is logged in and has memberships', () => {
@@ -103,7 +100,7 @@ describe('learn plugin index page', () => {
       setMemberships([{ id: 'membership_1' }]);
       const wrapper = makeWrapper({ store });
       const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(5);
+      expect(tabLinks().length).toEqual(4);
       expect(classesLink().element.tagName).toBe('A');
     });
 
@@ -113,7 +110,7 @@ describe('learn plugin index page', () => {
       setMemberships([]);
       const wrapper = makeWrapper({ store });
       const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(3);
+      expect(tabLinks().length).toEqual(2);
       expect(!classesLink().exists()).toEqual(true);
     });
 
@@ -122,7 +119,7 @@ describe('learn plugin index page', () => {
       setMemberships([]);
       const wrapper = makeWrapper({ store });
       const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(4);
+      expect(tabLinks().length).toEqual(3);
       expect(!classesLink().exists()).toEqual(true);
     });
   });

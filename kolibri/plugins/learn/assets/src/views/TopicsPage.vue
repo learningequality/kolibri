@@ -6,20 +6,11 @@
     </div>
 
 
-    <div v-else>
+    <div v-else class="page">
 
       <div class="header">
 
         <KGrid>
-          <KGridItem
-            class="breadcrumbs"
-            :layout4="{ span: 4 }"
-            :layout8="{ span: 8 }"
-            :layout12="{ span: 12 }"
-          >
-            <slot name="breadcrumbs"></slot>
-          </KGridItem>
-
           <KGridItem
             :layout4="{ span: 4 }"
             :layout8="{ span: 8 }"
@@ -57,45 +48,98 @@
           >
             {{ getTagline }}
           </KGridItem>
-
+        </KGrid>
+        <div class="tabs">
+          <KButton
+            ref="tab_button"
+            :text="coreString('folders')"
+            appearance="flat-button"
+            class="tab-button"
+            :appearanceOverrides="customTabButtonOverrides"
+            @click="toggleSidebarView('folder')"
+          />
+          <KButton
+            ref="tab_button"
+            :text="coreString('searchLabel')"
+            appearance="flat-button"
+            class="tab-button"
+            :appearanceOverrides="customTabButtonOverrides"
+            @click="toggleSidebarView('search')"
+          />
+        </div>
+      </div>
+      <div>
+        <KGrid
+          class="main-content-grid"
+        >
+          <EmbeddedSidePanel
+            v-if="!windowIsSmall"
+            topicPage="True"
+            :topics="topics"
+            :topicsListDisplayed="activeTab === 'folder'"
+            width="3"
+            @openModal="handleShowSearchModal"
+          />
           <KGridItem
-            class="footer"
-            :layout4="{ span: 4 }"
-            :layout8="{ span: 8 }"
-            :layout12="{ span: 12 }"
+            :layout="{ span: 3 }"
+            class="side-panel"
+          />
+          <KGridItem
+            class="card-grid"
+            :layout="{ span: 8 }"
           >
-            <ProgressIcon
-              v-if="calculateProgress !== undefined"
-              class="progress-icon"
-              :progress="calculateProgress"
-            />
+            <KGridItem
+              class="breadcrumbs"
+              :layout4="{ span: 4 }"
+              :layout8="{ span: 8 }"
+              :layout12="{ span: 12 }"
+            >
+              <slot name="breadcrumbs"></slot>
+            </KGridItem>
+            <div v-if="!displayingSearchResults">
+              <div v-for="t in topics" :key="t.id">
+                <h3>
+                  {{ t.title }}
+                </h3>
+                <ContentCardGroupGrid
+                  v-if="t.children.results && t.children.results.length"
+                  :contents="t.children.results"
+                  :genContentLink="genContentLink"
+                  :channelThumbnail="topicOrChannel['thumbnail']"
+                  cardViewStyle="card"
+                />
+                <KButton
+                  v-if="t.children && t.children.more"
+                  @click="childLoadMore(t.children.more)"
+                >
+                  {{ $tr('viewMore') }}
+                </KButton>
+              </div>
+              <ContentCardGroupGrid
+                v-if="resources.length"
+                :contents="resources"
+                :genContentLink="genContentLink"
+                :channelThumbnail="topicOrChannel['thumbnail']"
+              />
+              <KButton v-if="topic.children && topic.children.more" @click="loadMore()">
+                {{ $tr('viewMore') }}
+              </KButton>
+            </div>
+            <div v-else>
+              <h2>{{ results }}</h2>
+              <KCircularLoader
+                v-if="loading"
+                class="loader"
+                type="indeterminate"
+                :delay="false"
+              />
+            </div>
           </KGridItem>
         </KGrid>
 
       </div>
-      <div v-for="t in topics" :key="t.id">
-        <h3>
-          {{ t.title }}
-        </h3>
-        <ContentCardGroupGrid
-          v-if="t.children.results && t.children.results.length"
-          :contents="t.children.results"
-          :genContentLink="genContentLink"
-        />
-        <KButton v-if="t.children && t.children.more" @click="childLoadMore(t.children.more)">
-          {{ $tr('viewMore') }}
-        </KButton>
-      </div>
-      <ContentCardGroupGrid
-        v-if="resources.length"
-        :contents="resources"
-        :genContentLink="genContentLink"
-      />
-      <KButton v-if="topic.children && topic.children.more" @click="loadMore()">
-        {{ $tr('viewMore') }}
-      </KButton>
-    </div>
 
+    </div>
   </div>
 
 </template>
@@ -105,11 +149,13 @@
 
   import { mapMutations, mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { ContentNodeResource } from 'kolibri.resources';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
+  import commonCoach from '../../../../../plugins/coach/assets/src/views/common';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
+  import EmbeddedSidePanel from './EmbeddedSidePanel';
   import CustomContentRenderer from './ChannelRenderer/CustomContentRenderer';
   import CardThumbnail from './ContentCard/CardThumbnail';
   import plugin_data from 'plugin_data';
@@ -134,9 +180,14 @@
       CardThumbnail,
       ContentCardGroupGrid,
       CustomContentRenderer,
-      ProgressIcon,
+      EmbeddedSidePanel,
     },
-    mixins: [responsiveWindowMixin],
+    mixins: [commonCoach, responsiveWindowMixin, commonCoreStrings],
+    data: function() {
+      return {
+        activeTab: 'folders',
+      };
+    },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
       channelTitle() {
@@ -165,17 +216,17 @@
       getTagline() {
         return this.topicOrChannel['tagline'] || this.topicOrChannel['description'] || null;
       },
-      calculateProgress() {
-        // calculate progress across all topics
-        const contentsLength = this.contents.length;
-        if (contentsLength !== 0) {
-          const computedSum =
-            this.contents.map(content => content.progress).reduce((acc, val) => acc + val) /
-            contentsLength;
-          return computedSum !== 0 ? computedSum : undefined;
-        }
-
-        return undefined;
+      customTabButtonOverrides() {
+        return {
+          textTransform: 'capitalize',
+          paddingBottom: '10px',
+          fontWeight: 'normal',
+          ':hover': {
+            color: this.$themeTokens.primary,
+            'background-color': this.$themeTokens.surface,
+            borderBottom: `2px solid ${this.$themeTokens.primary}`,
+          },
+        };
       },
     },
     methods: {
@@ -198,6 +249,13 @@
           this.ADD_MORE_CHILD_CONTENTS({ index, ...data.children });
         });
       },
+      handleShowSearchModal(value) {
+        this.currentCategory = value;
+        this.showSearchModal = true;
+      },
+      toggleSidebarView(value) {
+        this.activeTab = value;
+      },
     },
     $trs: {
       documentTitleForChannel: {
@@ -210,6 +268,16 @@
         context: 'DO NOT TRANSLATE',
       },
       viewMore: 'View more',
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      showMore: {
+        message: 'Show more',
+        context: 'Clickable link which allows to load more resources.',
+      },
+      viewAll: {
+        message: 'View all',
+        context: 'Clickable link which allows to display all resources in a topic.',
+      },
+      /* eslint-disable kolibri/vue-no-unused-translations */
     },
   };
 
@@ -219,23 +287,44 @@
 <style lang="scss" scoped>
 
   .header {
-    margin-bottom: 40px;
+    position: fixed;
+    z-index: 4;
+    width: 100%;
+    height: 300px;
+    padding-top: 32px;
+    padding-bottom: 0;
+    padding-left: 32px;
+    background-color: white;
+    border: 1px solid #dedede;
   }
 
-  .title {
-    margin-top: 0;
-    margin-bottom: 16px;
-    font-size: 2rem;
+  .tabs {
+    position: absolute;
+    bottom: 0;
+  }
+
+  .tab-button {
+    padding: 18px;
+    border-bottom: 2px solid transparent;
+  }
+
+  .main-content-grid {
+    position: relative;
+    top: 300px;
   }
 
   .text {
-    padding-left: 16px;
-    margin-bottom: 16px;
-    line-height: 1.5em;
+    max-width: 920px;
+  }
+
+  /deep/.side-panel {
+    padding-bottom: 450px !important;
   }
 
   /deep/.card-thumbnail-wrapper {
     max-width: 100%;
+    height: 110px;
+    border: 1px solid #dedede;
   }
 
 </style>

@@ -11,8 +11,8 @@ export function pageMode(state) {
   const pageNameMatches = page => page === state.pageName;
   if (topicsPages.some(pageNameMatches)) {
     return PageModes.TOPICS;
-  } else if (PageNames.RECOMMENDED === state.pageName) {
-    return PageModes.RECOMMENDED;
+  } else if (PageNames.LIBRARY === state.pageName) {
+    return PageModes.LIBRARY;
   } else if (PageNames.SEARCH === state.pageName) {
     return PageModes.SEARCH;
   } else if (examPages.some(pageNameMatches)) {

@@ -1,9 +1,33 @@
 <template>
 
   <div class="content-grid">
-    <ContentCard
+    <KFixedGrid v-if="cardViewStyle === 'card'" numCols="3" gutter="24">
+      <KFixedGridItem v-for="content in contents" :key="content.id" span="1">
+        <ContentCard
+          class="grid-item"
+          :isMobile="windowIsSmall"
+          :title="content.title"
+          :thumbnail="setContentThumbnail(content)"
+          :kind="content.kind"
+          :isLeaf="content.is_leaf"
+          :progress="content.progress || 0"
+          :numCoachContents="content.num_coach_contents"
+          :link="genContentLink(content.id, content.is_leaf)"
+          :contentId="content.content_id"
+          :copiesCount="content.copies_count"
+          :channelThumbnail="setChannelThumbnail(content)"
+          :channelTitle="channelTitle(content)"
+          @openCopiesModal="openCopiesModal"
+        />
+      </KFixedGridItem>
+    </KFixedGrid>
+    <ContentCardListViewItem
       v-for="content in contents"
+      v-else
       :key="content.id"
+      :channelThumbnail="setChannelThumbnail(content)"
+      :channelTitle="channelTitle(content)"
+      :description="content.description"
       class="grid-item"
       :isMobile="windowIsSmall"
       :title="content.title"
@@ -30,9 +54,11 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import ContentCard from './ContentCard';
+  import ContentCardListViewItem from './ContentCardListViewItem';
   import CopiesModal from './CopiesModal';
 
   export default {
@@ -40,12 +66,21 @@
     components: {
       ContentCard,
       CopiesModal,
+      ContentCardListViewItem,
     },
     mixins: [responsiveWindowMixin],
     props: {
       contents: {
         type: Array,
         required: true,
+      },
+      cardViewStyle: {
+        type: String,
+        required: true,
+        default: 'card',
+        validator(value) {
+          return ['card', 'list'].includes(value);
+        },
       },
       genContentLink: {
         type: Function,
@@ -55,17 +90,42 @@
         default: () => ({}),
         required: false,
       },
+      channelThumbnail: {
+        type: String,
+        required: false,
+        default: null,
+      },
     },
     data: () => ({
       modalIsOpen: false,
       sharedContentId: null,
       uniqueId: null,
     }),
+    computed: {
+      ...mapState('topicsRoot', { channels: 'rootNodes' }),
+    },
     methods: {
       openCopiesModal(contentId) {
         this.sharedContentId = contentId;
         this.uniqueId = this.contents.find(content => content.content_id === contentId).id;
         this.modalIsOpen = true;
+      },
+      setChannelThumbnail(content) {
+        if (this.channelThumbnail) {
+          return this.channelThumbnail;
+        } else {
+          let match = this.channels.find(channel => channel.id === content.channel_id);
+          return match ? match.thumbnail : null;
+        }
+      },
+      setContentThumbnail(content) {
+        if (content.thumbnail) {
+          return content.thumbnail;
+        }
+      },
+      channelTitle(content) {
+        let match = this.channels.find(channel => channel.id === content.channel_id);
+        return match ? match.title : null;
       },
     },
   };
@@ -78,7 +138,6 @@
   $gutters: 16px;
 
   .grid-item {
-    margin-right: $gutters;
     margin-bottom: $gutters;
   }
 

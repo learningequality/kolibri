@@ -7,10 +7,10 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context:
       "Each time a learner signs in to Kolibri, the first thing they see is the  'Learn' page with the list of all the classes they are enrolled to.",
   },
-  recommendedLabel: {
-    message: 'Recommended',
+  libraryLabel: {
+    message: 'Library',
     context:
-      "The 'Recommended' section shows learning topics and materials that are either related to what the learner was doing the last time they used Kolibri, or recommended by their coaches.",
+      "The 'Library' section shows learning topics and materials that are either related to what the learner was doing the last time they used Kolibri, or recommended by their coaches. It also allows learners to browse and explore content on their own.",
   },
   resumeLabel: {
     message: 'Resume',
@@ -33,6 +33,48 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   },
   exploreResourcesSchool: {
     message: 'Explore resources for school',
+  },
+  logo: {
+    message: 'From the channel {channelTitle}',
+    context:
+      'Added to create a complete alt-text description of a logo on a content card to indicate to the user what channel the resource belongs to. For example: From the channel Khan Academy - English',
+  },
+  // Learning Activities
+  all: {
+    message: 'All',
+    context: 'A label for everything in the group of activities',
+  },
+  watch: {
+    message: 'Watch',
+    context:
+      'Resource and filter label for the type of learning activity with video. Translate as a VERB',
+  },
+  create: {
+    message: 'Create',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+  read: {
+    message: 'Read',
+    context:
+      'Resource and filter label for the type of learning activity with documents. Translate as a VERB',
+  },
+  practice: {
+    message: 'Practice',
+    context:
+      'Resource and filter label for the type of learning activity with questions and answers. Translate as a VERB',
+  },
+  reflect: {
+    message: 'Reflect',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+  listen: {
+    message: 'Listen',
+    context:
+      'Resource and filter label for the type of learning activity with audio. Translate as a VERB',
+  },
+  interact: {
+    message: 'Explore',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
   },
 });
 

@@ -128,10 +128,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Save to bookmarks',
     context: "An action that adds a resource or topic to a user's bookmarks",
   },
-  viewInformation: {
-    message: 'View information',
-    context: 'Show more detailed information about a resource',
-  },
 
   // labels, phrases, titles, headers...
   adminLabel: {
@@ -177,6 +173,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Channels',
     context:
       'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri.\n\nA learner will see a set of channels available to them when they first open Kolibri.',
+  },
+  channelLabel: {
+    message: 'Channel',
+    context:
+      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri. A label for a single channel.',
   },
   classCoachLabel: {
     message: 'Class coach',
@@ -335,6 +336,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Search',
     context: 'Test used to indicate the Kolibri search field.',
   },
+  findSomethingToLearn: {
+    message: 'Find something to learn',
+    context: 'Suggestion located inside the the keyword search field.',
+  },
   startSearchButtonLabel: {
     message: 'Start search',
     context: 'Refers to the search button used to initiate a search.',
@@ -383,6 +388,18 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'This button appears in Kolibri to indicate to users that there are more results available when they search for resources, for example.',
   },
+  copies: {
+    message: '{ num, number} locations',
+    context:
+      'Some Kolibri resources may be duplicated in different topics or channels.\n\nSearch results will indicate when a resource is duplicated, and learners can click on the "...locations" link to discover the details for each location.',
+  },
+  viewInformation: {
+    message: 'View information',
+    context: 'Show more detailed information about a resource',
+  },
+  moreOptions: {
+    message: 'More options',
+  },
   userActionsColumnHeader: {
     message: 'Actions',
     context:
@@ -408,6 +425,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
 
   // Learning activities
+  allActivities: {
+    message: 'All',
+    context: 'Refers to all types of learning activities.',
+  },
   createActivity: 'Create',
   listenActivity: 'Listen',
   reflectActivity: 'Reflect',
@@ -415,7 +436,126 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   readActivity: 'Read',
   watchActivity: 'Watch',
   exploreActivity: 'Explore',
-  topicLabel: 'Topic',
+
+  // Library Categories
+  school: 'School',
+  basicSkills: 'Basic skills',
+  work: 'Work',
+  dailyLife: 'Daily life',
+  forTeachers: 'For teachers',
+
+  // School Categories
+  mathematics: 'Mathematics',
+  sciences: 'Sciences',
+  literature: 'Literature',
+  socialSciences: 'Social sciences',
+  arts: 'Arts',
+  computerScience: 'Computer science',
+  languageLearning: 'Language learning',
+  history: 'History',
+
+  // Mathematics Subcategories
+  arithmetic: 'Arithmetic',
+  algebra: 'Algebra',
+  geometry: 'Geometry',
+  calculus: 'Calculus',
+  statistics: 'Statistics',
+
+  // Sciences Subcategories
+  biology: 'Biology',
+  chemistry: 'Chemistry',
+  physics: 'Physics',
+  earthScience: 'Earth science',
+  astronomy: 'Astronomy',
+
+  //  Literature Subcategories
+  readingComprehension: 'Reading comprehension',
+  writing: 'Writing',
+  logicAndCriticalThinking: 'Logic and critical thinking',
+
+  // Social Sciences Subcategories
+  politicalScience: 'Political science',
+  sociology: 'Sociology',
+  anthropology: 'Anthropology',
+  civicEducation: 'Civic education',
+
+  // Arts Subcategories = {
+  visualArt: 'Visual art',
+  music: 'Music',
+  dance: 'Dance',
+  drama: 'Drama',
+
+  //  Computer Science Subcategories
+  programming: 'Programming',
+  mechanicalEngineering: 'Mechanical engineering',
+  webDesign: 'Web design',
+
+  // Basic Skills
+  literacy: 'Literacy',
+  numeracy: 'Numeracy',
+  digitialLiteracy: 'Digital literacy',
+  logicalAndCriticalThinking: 'Logic and critical thinking',
+  learningSkills: 'Learning skills',
+
+  // Work Categories
+  professionalSkills: 'Professional skills',
+  technicalAndVocationalTraining: 'Technical and vocational training',
+
+  //  VocationalSubcategories
+  toolsAndSoftwareTraining: 'Tools and software training',
+  skillsTraining: 'Skills training',
+  industryAndSectorSpecific: 'Industry and sector specific',
+
+  // Daily Life Categories
+  publicHealth: 'Public health',
+  entrepreneurship: 'Entrepreneurship',
+  financialLiteracy: 'Financial literacy',
+  currentEvents: 'Current events',
+  environment: 'Environment',
+  mediaLiteracy: 'Media literacy',
+  diversity: 'Diversity',
+  mentalHealth: 'Mental health',
+
+  // Teacher-Specific Categories
+  guides: 'Guides',
+  lessonPlans: 'Lesson plans',
+
+  // Resources Needed Categories = {
+  ForBeginners: 'For beginners',
+  ToUseWithTeachersAndPeers: 'To use with teachers and peers',
+  ToUseWithPaperAndPencil: 'To use with paper and pencil',
+  NeedsInternet: 'That need internet connection',
+  NeedsMaterials: 'That need other materials',
+
+  // Accessibility category name
+  accessibility: {
+    message: 'Accessibility',
+    context:
+      'Allows the user to filter for all the resources with accessibility features for learners with disabilities.',
+  },
+  // Accessibility Categories
+  all: 'All',
+  signLanguage: 'Has sign language captions',
+  audioDescription: 'Has audio description',
+  taggedPdf: 'Tagged PDF',
+  altText: 'Has alternative text description for images',
+  highContrast: 'Has high contrast display for low vision',
+  captionsSubtitles: 'Has captions or subtitles',
+
+  // Used to categorize the level or audience of content
+  // ContentLevels
+  preschool: 'Preschool',
+  lowerPrimary: 'Lower primary',
+  upperPrimary: 'Upper primary',
+  lowerSecondary: 'Lower secondary',
+  upperSecondary: 'Upper secondary',
+  tertiary: 'Tertiary',
+  specializedProfessionalTraining: 'Specialized professional training',
+  allLevelsBasicSkills: 'All levels -- basic skills',
+  allLevelsWorkSkills: 'All levels -- work skills',
+
+  browseChannel: 'Browse Channel',
+  topicLabel: 'Folder',
   readReference: {
     message: 'Reference',
     context:
@@ -526,6 +666,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   notStartedLabel: {
     message: 'Not started',
     context: 'For content that has not been viewed or engaged with yet',
+  },
+  folder: {
+    message: 'Folder',
+    context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
+  },
+  folders: {
+    message: 'Folders',
+    context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
   },
 });
 

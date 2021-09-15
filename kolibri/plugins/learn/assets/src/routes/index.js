@@ -7,15 +7,15 @@ import {
   showTopicsContent,
 } from '../modules/topicsTree/handlers';
 import {
-  showRecommended,
+  showLibrary,
   showPopularPage,
   showNextStepsPage,
   showResumePage,
 } from '../modules/recommended/handlers';
 import { showChannels } from '../modules/topicsRoot/handlers';
 import { PageNames, ClassesPageNames } from '../constants';
+import LibraryPage from '../views/LibraryPage';
 import HomePage from '../views/HomePage';
-import RecommendedPage from '../views/RecommendedPage';
 import RecommendedSubpage from '../views/RecommendedSubpage';
 import classesRoutes from './classesRoutes';
 
@@ -57,25 +57,16 @@ export default [
     },
   },
   {
-    name: PageNames.TOPICS_ROOT,
-    path: '/topics',
+    name: PageNames.LIBRARY,
+    path: '/library',
     handler: () => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
       }
       showChannels(store);
+      showLibrary(store);
     },
-  },
-  {
-    name: PageNames.RECOMMENDED,
-    path: '/recommended',
-    handler: () => {
-      if (unassignedContentGuard()) {
-        return unassignedContentGuard();
-      }
-      showRecommended(store);
-    },
-    component: RecommendedPage,
+    component: LibraryPage,
   },
   {
     name: PageNames.SEARCH,
