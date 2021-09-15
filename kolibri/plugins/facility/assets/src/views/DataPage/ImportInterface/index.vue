@@ -18,18 +18,24 @@
         @click="showInfoModal = true"
       />
     </p>
-    <p style="margin-top: 24px;">
+    <p style="margin-top: 24px; display:flex; flex-direction: column">
       <KRouterLink
         :text="$tr('import')"
         appearance="raised-button"
-        style="margin: 0 16px 0 0;"
+        style="width: max-content; margin: 0 16px 20px 0;"
         :to="$store.getters.facilityPageLinks.ImportCsvPage"
       />
       <KButton
-        :text="$tr('export')"
+        :text="$tr('downloadCSV')"
         appearance="raised-button"
-        style="margin: 0 16px 0 0;"
-        :disabled="isExporting"
+        style="width: max-content; margin: 0 16px 20px 0;"
+        :disabled="!exported"
+        @click="downloadCsv"
+      />
+      <KButton
+        appearance="basic-link"
+        :text="$tr('generateCSV')"
+        style="margin: 0px 8px 10px 0px"
         @click="exportCsv"
       />
       <DataPageTaskProgress v-if="isExporting">
@@ -51,7 +57,7 @@
 <script>
 
   import urls from 'kolibri.urls';
-  import { mapState, mapActions } from 'vuex';
+  import { mapState, mapActions, mapGetters } from 'vuex';
   import { UsersExportStatuses } from '../../../constants';
   import DataPageTaskProgress from '../DataPageTaskProgress';
   import CsvInfoModal from '../../CsvInfoModal';
@@ -68,22 +74,10 @@
       };
     },
     computed: {
+      ...mapGetters('manageCSV', ['exported']),
       ...mapState('manageCSV', ['exportUsersStatus', 'exportUsersFilename']),
       isExporting() {
         return this.exportUsersStatus === UsersExportStatuses.EXPORTING;
-      },
-    },
-    watch: {
-      exportUsersStatus(val) {
-        if (val == UsersExportStatuses.FINISHED) {
-          window.open(
-            urls['kolibri:kolibri.plugins.facility:download_csv_file'](
-              this.exportUsersFilename,
-              this.$store.getters.activeFacilityId
-            ),
-            '_blank'
-          );
-        }
       },
     },
     methods: {
@@ -91,8 +85,20 @@
       exportCsv() {
         this.startExportUsers();
       },
+      downloadCsv() {
+        window.open(
+          urls['kolibri:kolibri.plugins.facility:download_csv_file'](
+            this.exportUsersFilename,
+            this.$store.getters.activeFacilityId
+          ),
+          '_blank'
+        );
+      },
     },
     $trs: {
+      generateCSV: {
+        message: 'Generate CSV file',
+      },
       sectionTitle: {
         message: 'Import and export users',
         context: 'Title for section about managing external spreadsheets.\n',
@@ -114,8 +120,8 @@
         message: 'Import a CSV file to create and update users',
         context: 'Additional information about importing external spreadsheets.\n',
       },
-      export: {
-        message: 'Export',
+      downloadCSV: {
+        message: 'Download CSV',
         context: 'Button used to export spreadsheets from Kolibri.',
       },
       import: {
