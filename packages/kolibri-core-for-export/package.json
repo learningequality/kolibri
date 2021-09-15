@@ -1,6 +1,6 @@
 {
   "name": "kolibri",
-  "version": "0.13.0-dev.10",
+  "version": "0.15.0-dev.4",
   "description": "The Kolibri core API",
   "repository": "github.com/learningequality/kolibri",
   "author": "Learning Equality",
@@ -40,6 +40,6 @@
     "xstate": "^4.20.2"
   },
   "devDependencies": {
-    "kolibri-tools": "0.13.0-dev.10"
+    "kolibri-tools": "0.15.0-dev.4"
   }
 }
