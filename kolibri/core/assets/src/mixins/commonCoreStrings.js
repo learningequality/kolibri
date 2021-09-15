@@ -233,6 +233,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "Gender is an option which a user can select in Kolibri when they create another user.\n\nGender can be either 'Female', 'Male' or 'Not specified'.",
   },
+  homeLabel: {
+    message: 'Home',
+    context:
+      "Home page is a place for learners containing summary of their activities and suggestions for what to do next. For example, they can see a list of classess they're enrolled in, their recent lessons and quizess, and they can directly navigate to resources to continue learning from.",
+  },
   identifierLabel: {
     message: 'Identifier',
     context:
@@ -390,6 +395,21 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   watchActivity: 'Watch',
   exploreActivity: 'Explore',
   topicLabel: 'Topic',
+  readReference: {
+    message: 'Reference',
+    context:
+      'We display time duration for most of learning activities. However, for read activity, we display this label instead of time duration information.',
+  },
+  shortActivity: {
+    message: 'Short activity',
+    context:
+      'This is what we display as time estimation for some types of learning activities that take less than 30 minutes',
+  },
+  longActivity: {
+    message: 'Long activity',
+    context:
+      'This is what we display as time estimation for some types of learning activities that take more than 30 minutes',
+  },
 
   // Notifications
   changesSavedNotification: {

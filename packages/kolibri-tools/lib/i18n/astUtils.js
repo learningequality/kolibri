@@ -133,7 +133,11 @@ function getObjectifiedValue(nodePropertyValue) {
     const messageNode = nodePropertyValue.properties.find(n => n.key.name === 'message');
 
     message = stringFromAnyLiteral(messageNode.value);
-    context = stringFromAnyLiteral(contextNode.value);
+    try {
+      context = stringFromAnyLiteral(contextNode.value);
+    } catch (e) {
+      context = '';
+    }
 
     if (!message) {
       // This is mostly for dev debugging. If this happens then somethings wrong enough that

@@ -29,3 +29,7 @@ export function canAccessUnassignedContent(state, getters) {
     getters.isSuperUser
   );
 }
+
+export function allowGuestAccess(state) {
+  return state.allowGuestAccess;
+}

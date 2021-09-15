@@ -2,6 +2,16 @@
 
   <Navbar>
     <NavbarLink
+      :title="coreString('homeLabel')"
+      :link="homePageLink"
+    >
+      <KIcon
+        icon="dashboard"
+        style="top: 0; width: 24px; height: 24px;"
+        :color="$themeTokens.textInverted"
+      />
+    </NavbarLink>
+    <NavbarLink
       v-if="showClassesLink"
       name="classes-link"
       :title="coreString('classesLabel')"
@@ -58,6 +68,9 @@
     mixins: [commonCoreStrings, commonLearnStrings],
     data() {
       return {
+        homePageLink: {
+          name: PageNames.HOME,
+        },
         allClassesLink: {
           name: ClassesPageNames.ALL_CLASSES,
         },
