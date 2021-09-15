@@ -480,12 +480,15 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // School Categories
   mathematics: 'Mathematics',
   sciences: 'Sciences',
-  readingAndWriting: 'Reading and writing',
   socialSciences: 'Social sciences',
   arts: 'Arts',
   computerScience: 'Computer science',
   languageLearning: 'Language learning',
   history: 'History',
+  readingAndWriting: {
+    message: 'Reading and writing',
+    context: 'School subject category',
+  },
 
   // Mathematics Subcategories
   arithmetic: 'Arithmetic',
@@ -535,7 +538,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   technicalAndVocationalTraining: 'Technical and vocational training',
 
   //  VocationalSubcategories
-  softwareToolsAndTraining: 'Software tools and training',
+  softwareToolsAndTraining: {
+    message: 'Software tools and training',
+    context: 'Vocation skills subcategory',
+  },
   skillsTraining: 'Skills training',
   industryAndSectorSpecific: 'Industry and sector specific',
 
@@ -568,7 +574,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   // Accessibility Categories
   signLanguage: 'Has sign language captions',
-  audioDescription: 'Has audio descriptions',
+  audioDescription: {
+    message: 'Has audio descriptions',
+    context: 'Content has descriptive audio that is used for accessibility.',
+  },
   taggedPdf: 'Tagged PDF',
   altText: 'Has alternative text description for images',
   highContrast: 'Has high contrast display for low vision',
