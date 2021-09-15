@@ -1,53 +1,73 @@
 <template>
 
-  <div v-if="sessionReady" class="content">
+  <div>
 
-    <KContentRenderer
-      v-if="!content.assessment"
-      :kind="content.kind"
-      :lang="content.lang"
-      :files="content.files"
-      :options="content.options"
-      :available="content.available"
-      :duration="content.duration"
-      :extraFields="extraFields"
-      :progress="summaryProgress"
-      :userId="currentUserId"
-      :userFullName="fullName"
-      :timeSpent="summaryTimeSpent"
-      @startTracking="startTracking"
-      @stopTracking="stopTracking"
-      @updateProgress="updateProgress"
-      @addProgress="addProgress"
-      @updateContentState="updateContentState"
-      @navigateTo="navigateTo"
-      @error="onError"
+    <CoachContentLabel
+      class="coach-content-label"
+      :value="content.coach_content ? 1 : 0"
+      :isTopic="isTopic"
     />
+    <template v-if="sessionReady">
+      <KContentRenderer
+        v-if="!content.assessment"
+        class="content-renderer"
+        :kind="content.kind"
+        :lang="content.lang"
+        :files="content.files"
+        :options="content.options"
+        :available="content.available"
+        :duration="content.duration"
+        :extraFields="extraFields"
+        :progress="summaryProgress"
+        :userId="currentUserId"
+        :userFullName="fullName"
+        :timeSpent="summaryTimeSpent"
+        @startTracking="startTracking"
+        @stopTracking="stopTracking"
+        @updateProgress="updateProgress"
+        @addProgress="addProgress"
+        @updateContentState="updateContentState"
+        @navigateTo="navigateTo"
+        @error="onError"
+      />
 
-    <AssessmentWrapper
-      v-else
-      :id="content.id"
-      class="content-renderer"
-      :kind="content.kind"
-      :files="content.files"
-      :lang="content.lang"
-      :randomize="content.randomize"
-      :masteryModel="content.masteryModel"
-      :assessmentIds="content.assessmentIds"
-      :channelId="channelId"
-      :available="content.available"
-      :extraFields="extraFields"
-      :progress="summaryProgress"
-      :userId="currentUserId"
-      :userFullName="fullName"
-      :timeSpent="summaryTimeSpent"
-      @startTracking="startTracking"
-      @stopTracking="stopTracking"
-      @updateProgress="updateExerciseProgress"
-      @updateContentState="updateContentState"
+      <AssessmentWrapper
+        v-else
+        :id="content.id"
+        class="content-renderer"
+        :kind="content.kind"
+        :files="content.files"
+        :lang="content.lang"
+        :randomize="content.randomize"
+        :masteryModel="content.masteryModel"
+        :assessmentIds="content.assessmentIds"
+        :channelId="channelId"
+        :available="content.available"
+        :extraFields="extraFields"
+        :progress="summaryProgress"
+        :userId="currentUserId"
+        :userFullName="fullName"
+        :timeSpent="summaryTimeSpent"
+        @startTracking="startTracking"
+        @stopTracking="stopTracking"
+        @updateProgress="updateExerciseProgress"
+        @updateContentState="updateContentState"
+      />
+      <SidePanel />
+    </template>
+    <KCircularLoader v-else />
+
+    <CompletionModal
+      v-if="progress >= 1 && wasIncomplete"
+      :isUserLoggedIn="isUserLoggedIn"
+      :nextContentNode="content.next_content"
+      :nextContentNodeRoute="nextContentNodeRoute"
+      :recommendedContentNodes="recommended"
+      :genContentLink="genContentLink"
+      @close="markAsComplete"
     />
+    <KCircularLoader v-else />
   </div>
-  <KCircularLoader v-else />
 
 </template>
 
@@ -58,24 +78,41 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import { PageNames, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
   import AssessmentWrapper from './AssessmentWrapper';
+  import { lessonResourceViewerLink } from './classes/classPageLinks';
   import commonLearnStrings from './commonLearnStrings';
 
   export default {
     name: 'ContentPage',
+    metaInfo() {
+      // Do not overwrite metaInfo of LessonResourceViewer
+      if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+        return {};
+      }
+      return {
+        title: this.$tr('documentTitle', {
+          contentTitle: this.content.title,
+          channelTitle: this.channel.title,
+        }),
+      };
+    },
     components: {
+      CoachContentLabel,
       AssessmentWrapper,
     },
     mixins: [commonLearnStrings],
     data() {
       return {
+        wasIncomplete: false,
         sessionReady: false,
       };
     },
     computed: {
-      ...mapGetters(['currentUserId']),
-      ...mapState('topicsTree', ['content']),
+      ...mapGetters(['isUserLoggedIn', 'currentUserId']),
+      ...mapState(['pageName']),
       ...mapState('topicsTree', {
         contentId: state => state.content.content_id,
         contentNodeId: state => state.content.id,
@@ -100,6 +137,20 @@
           return this.summaryProgress;
         }
         return this.sessionProgress;
+      },
+
+      nextContentNodeRoute() {
+        // HACK Use a the Resource Viewer Link instead
+        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);
+        }
+        return {
+          name:
+            this.content.next_content.kind === ContentNodeKinds.TOPIC
+              ? PageNames.TOPICS_TOPIC
+              : PageNames.TOPICS_CONTENT,
+          params: { id: this.content.next_content.id },
+        };
       },
     },
     created() {
@@ -161,6 +212,12 @@
       // },
       onError(error) {
         this.$store.dispatch('handleApiError', error);
+      },
+    },
+    $trs: {
+      documentTitle: {
+        message: '{ contentTitle } - { channelTitle }',
+        context: 'DO NOT TRANSLATE.',
       },
     },
   };
