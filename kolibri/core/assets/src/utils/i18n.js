@@ -188,17 +188,6 @@ function _setUpVueIntl() {
     return $trWrapper(nameSpace, this.$options.$trs, this.$formatMessage, messageId, args);
   };
 
-  // This handles the special 'ach-ug' locale on the Crowdin translation server at
-  // https://kolibri-translate.learningequality.org/ach-ug/
-  // The Crowdin jipt.js script will inject the real language's code at this localStorage key.
-  if (currentLanguage === 'ach-ug' && localStorage.jipt_language_code_kolibri) {
-    // After making this substitution and calling Vue.setLocale, the messages injected
-    // under 'ach-ug' will be remapped to the real locale within vue-intl's methods.
-    // Thus, Vue.prototype.$formatMessage should still work as expected, while also fixing
-    // #7330 and similar issues related to the Intl API.
-    currentLanguage = localStorage.jipt_language_code_kolibri;
-  }
-
   Vue.setLocale(currentLanguage);
   if (languageGlobals.coreLanguageMessages) {
     Vue.registerMessages(currentLanguage, languageGlobals.coreLanguageMessages);
