@@ -10,7 +10,7 @@
     >
       <KIcon icon="allActivities" class="activity-icon" />
       <p class="activity-button-text">
-        {{ learnString('all') }}
+        {{ coreString('all') }}
       </p>
     </KButton>
     <span
@@ -24,7 +24,7 @@
       >
         <KIcon :icon="`${value + 'Shaded'}`" class="activity-icon" />
         <p class="activity-button-text">
-          {{ learnString(value) }}
+          {{ coreString(value) }}
         </p>
       </KButton>
     </span>
@@ -37,11 +37,11 @@
 
   import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 
-  import commonLearnStrings from '../commonLearnStrings';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ActivityButtonsGroup',
-    mixins: [commonLearnStrings],
+    mixins: [commonCoreStrings],
 
     computed: {
       learningActivitiesList() {
@@ -51,9 +51,6 @@
           .filter(key => key !== 'TOPIC')
           .map(key => {
             // map 'interact' KDS icon to new 'explore' wording
-            if (LearningActivities[key] === 'explore') {
-              LearningActivities[key] = 'interact';
-            }
             learningActivites[key] = LearningActivities[key];
           });
         return learningActivites;
