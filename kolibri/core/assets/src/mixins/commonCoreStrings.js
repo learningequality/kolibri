@@ -288,7 +288,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'Plural of learner.',
   },
   levelLabel: {
-    lessage: 'Level',
+    message: 'Level',
     context: 'Filter label used to limit the search to a specific levels.',
   },
   lessonsLabel: {
