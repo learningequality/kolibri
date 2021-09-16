@@ -1,6 +1,7 @@
 """
 Tests related specifically to integration with Morango.
 """
+import datetime
 import os
 import unittest
 import uuid
@@ -855,6 +856,57 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
         assert (
             Lesson.objects.using(self.alias_t).filter(_morango_dirty_bit=True).count()
             == 0
+        )
+
+    @multiple_kolibri_servers(2)
+    def test_facility_user_conflict_syncing_from_tablet(self, servers):
+        self._test_facility_user_conflict(servers, True)
+
+    @multiple_kolibri_servers(2)
+    def test_facility_user_conflict_syncing_from_laptop(self, servers):
+        self._test_facility_user_conflict(servers, False)
+
+    def _test_facility_user_conflict(self, servers, tablet_is_client):
+        """
+        This is a regression test to handle the case of a FacilityUser being changed
+        on a SoUD as a backend side effect, e.g. by Django updating the `last_login`
+        field, leading to a merge conflict when the user is updated on another device.
+        """
+
+        self.servers = servers
+        self.laptop = 0
+        self.tablet = 1
+
+        self.alias_laptop = servers[self.laptop].db_alias
+        self.alias_tablet = servers[self.tablet].db_alias
+
+        # create the original facility on the Laptop
+        servers[self.laptop].manage("loaddata", "content_test")
+        servers[self.laptop].manage(
+            "generateuserdata", "--no-onboarding", "--num-content-items", "1"
+        )
+        self.facility_id = Facility.objects.using(self.alias_laptop).get().id
+        self.learner = FacilityUser.objects.using(self.alias_laptop).filter(
+            roles__isnull=True
+        )[0]
+
+        self.sync_single_user(self.laptop)
+
+        servers[self.laptop].update_model(
+            FacilityUser, self.learner.id, full_name="NEW"
+        )
+
+        servers[self.tablet].update_model(
+            FacilityUser, self.learner.id, last_login=datetime.datetime.now()
+        )
+
+        self.sync_single_user(self.laptop, tablet_is_client=tablet_is_client)
+
+        assert (
+            FacilityUser.objects.using(self.alias_tablet)
+            .get(id=self.learner.id)
+            .full_name
+            == "NEW"
         )
 
     def sync_full_facility_servers(self):

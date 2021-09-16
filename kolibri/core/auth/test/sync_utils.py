@@ -71,6 +71,17 @@ class KolibriServer(object):
             )
         )
 
+    def update_model(self, model, pk, **kwargs):
+        kwarg_text = json.dumps(kwargs, default=str)
+        self.pipe_shell(
+            'import json; from {module_path} import {model_nm}; kwargs = json.loads("""{}"""); {model_nm}.objects.filter(pk="{pk}").update(**kwargs)'.format(
+                kwarg_text,
+                module_path=model.__module__,
+                model_nm=model.__name__,
+                pk=pk,
+            )
+        )
+
     def delete_model(self, model, **kwargs):
         kwarg_text = json.dumps(kwargs, default=str)
         self.pipe_shell(
