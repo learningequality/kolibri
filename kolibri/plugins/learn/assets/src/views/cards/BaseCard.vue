@@ -35,13 +35,15 @@
       >
         <KLabeledIcon
           v-if="inProgressLabel"
-          icon="inProgress"
+          :color="$themeTokens.progress"
           :label="inProgressLabel"
+          icon="inProgress"
         />
         <KLabeledIcon
           v-else-if="completedLabel"
-          icon="mastered"
+          :color="$themeTokens.mastered"
           :label="completedLabel"
+          icon="mastered"
         />
       </div>
     </slot>
