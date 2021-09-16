@@ -235,13 +235,13 @@ class SyncQueueRouter(object):
     """
 
     def db_for_read(self, model, **hints):
-        """Send all read operations on the SyncQueue model to `syncqueue_db`."""
+        """Send all read operations on the SyncQueue model to SYNC_QUEUE."""
         if model is SyncQueue:
             return SYNC_QUEUE
         return None
 
     def db_for_write(self, model, **hints):
-        """Send all write operations on the SyncQueue model to `syncqueue_db`."""
+        """Send all write operations on the SyncQueue model to SYNC_QUEUE."""
         if model is SyncQueue:
             return SYNC_QUEUE
         return None
@@ -269,10 +269,10 @@ class SyncQueueRouter(object):
             app_label == SyncQueue._meta.app_label
             and model_name == SyncQueue._meta.model_name
         ):
-            # The SyncQueue model should be migrated only on the syncqueue_db database.
+            # The SyncQueue model should be migrated only on the SYNC_QUEUE database.
             return db == SYNC_QUEUE
         elif db == SYNC_QUEUE:
-            # Ensure that all other apps don't get migrated on the syncqueue_db database.
+            # Ensure that all other apps don't get migrated on the SYNC_QUEUE database.
             return False
 
         # No opinion for all other scenarios

@@ -23,8 +23,7 @@ from tzlocal import get_localzone
 
 import kolibri
 from kolibri.deployment.default.cache import CACHES
-from kolibri.deployment.default.sqlite_db_names import NETWORK_LOCATION
-from kolibri.deployment.default.sqlite_db_names import SYNC_QUEUE
+from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
 from kolibri.plugins.utils.settings import apply_settings
 from kolibri.utils import conf
 from kolibri.utils import i18n
@@ -150,22 +149,15 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
             ),
             "OPTIONS": {"timeout": 100},
         },
-        "notifications_db": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(conf.KOLIBRI_HOME, "notifications.sqlite3"),
-            "OPTIONS": {"timeout": 100},
-        },
-        SYNC_QUEUE: {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(conf.KOLIBRI_HOME, "sync_queue.sqlite3"),
-            "OPTIONS": {"timeout": 100},
-        },
-        NETWORK_LOCATION: {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(conf.KOLIBRI_HOME, "network_location.sqlite3"),
-            "OPTIONS": {"timeout": 100},
-        },
     }
+
+    for additional_db in ADDITIONAL_SQLITE_DATABASES:
+        DATABASES[additional_db] = {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(conf.KOLIBRI_HOME, "{}.sqlite3".format(additional_db)),
+            "OPTIONS": {"timeout": 100},
+        }
+
     DATABASE_ROUTERS = (
         "kolibri.core.notifications.models.NotificationsRouter",
         "kolibri.core.device.models.SyncQueueRouter",
