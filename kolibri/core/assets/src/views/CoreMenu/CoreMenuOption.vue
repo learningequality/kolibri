@@ -12,13 +12,13 @@
     >
       <slot>
         <KLabeledIcon>
-          <template #icon>
+          <template v-if="icon" #icon>
             <KIcon
               :icon="icon"
               :class="$computedClass(optionIconStyle)"
             />
           </template>
-          <div>{{ label }}</div>
+          <div v-if="label">{{ label }}</div>
         </KLabeledIcon>
         <div
           v-if="secondaryText"
