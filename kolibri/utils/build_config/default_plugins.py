@@ -11,5 +11,6 @@ DEFAULT_PLUGINS = [
     "kolibri.plugins.perseus_viewer",
     "kolibri.plugins.setup_wizard",
     "kolibri.plugins.slideshow_viewer",
-    "kolibri.plugins.user",
+    "kolibri.plugins.user_auth",
+    "kolibri.plugins.user_profile",
 ]

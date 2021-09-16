@@ -87,12 +87,12 @@ describe('auth message component', () => {
   describe('tests for sign-in page link when user plugin exists', () => {
     beforeAll(() => {
       const userUrl = jest.fn();
-      urls['kolibri:kolibri.plugins.user:user'] = userUrl;
-      userUrl.mockReturnValue('http://localhost:8000/en/user/');
+      urls['kolibri:kolibri.plugins.user_auth:user_auth'] = userUrl;
+      userUrl.mockReturnValue('http://localhost:8000/en/auth/');
     });
 
     afterAll(() => {
-      delete urls['kolibri:kolibri.plugins.user:user'];
+      delete urls['kolibri:kolibri.plugins.user_auth:user_auth'];
     });
 
     it('shows correct link text if there is a user plugin', () => {
@@ -100,7 +100,7 @@ describe('auth message component', () => {
       const link = wrapper.find('kexternallink-stub');
       expect(link.attributes()).toMatchObject({
         href:
-          'http://localhost:8000/en/user/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Ftest_url',
+          'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Ftest_url',
         text: 'Sign in to Kolibri',
       });
     });
@@ -111,7 +111,7 @@ describe('auth message component', () => {
       const link = wrapper.find('kexternallink-stub');
       expect(link.attributes()).toMatchObject({
         href:
-          'http://localhost:8000/en/user/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Fsome_other_url',
+          'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Fsome_other_url',
         text: 'Sign in to Kolibri',
       });
     });
