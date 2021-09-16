@@ -144,7 +144,6 @@ class Command(AsyncCommand):
         # Get orphan files that are being deleted
         total_file_deletion_operations = unused_files.count()
         job = get_current_job()
-        print("total_bytes_to_transfer",total_bytes_to_transfer)
         if job:
             total_file_deletion_size = unused_files.aggregate(Sum("file_size")).get(
                 "file_size__sum", 0
