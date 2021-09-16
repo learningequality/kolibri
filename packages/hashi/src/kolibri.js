@@ -127,7 +127,6 @@ export default class Kolibri extends BaseShim {
        * an array of matching metadata
        * @param {Object} options - The different options to search by
        * @param {string=} options.keyword - search term for key word search
-        @param {string=} options.under - id of topic to search under, or 'self'
        * @param {number} [options.maxResults=50] - the maximum number of nodes per request
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
