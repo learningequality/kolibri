@@ -20,6 +20,7 @@
       :lessons="activeClassesLessons"
       displayClassName
       recent
+      data-test="recentLessons"
     />
     <AssignedQuizzesCards
       v-if="hasActiveClassesQuizzes"
@@ -27,6 +28,7 @@
       :quizzes="activeClassesQuizzes"
       displayClassName
       recent
+      data-test="recentQuizzes"
     />
     <!--
       TODO: To be implemented, it's here only to get strings

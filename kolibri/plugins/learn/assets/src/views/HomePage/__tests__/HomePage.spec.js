@@ -47,6 +47,14 @@ function getContinueLearningSection(wrapper) {
   return wrapper.find('[data-test="continueLearning"]');
 }
 
+function getRecentLessonsSection(wrapper) {
+  return wrapper.find('[data-test="recentLessons"]');
+}
+
+function getRecentQuizzesSection(wrapper) {
+  return wrapper.find('[data-test="recentQuizzes"]');
+}
+
 describe(`HomePage`, () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -264,6 +272,76 @@ describe(`HomePage`, () => {
           expect(wrapper.vm.$route.path).toBe('/topic-resource');
         });
       });
+    });
+  });
+
+  describe(`"Recent lessons" section`, () => {
+    it(`the section is not displayed for a guest user`, () => {
+      const wrapper = makeWrapper();
+      expect(getRecentLessonsSection(wrapper).exists()).toBe(false);
+    });
+
+    it(`the section is not displayed for a signed in user
+      who has no active lessons`, () => {
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+      const wrapper = makeWrapper();
+      expect(getRecentLessonsSection(wrapper).exists()).toBe(false);
+    });
+
+    it(`active lessons are displayed for a signed in user who has some`, () => {
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+      useLearnerResources.mockImplementation(() =>
+        useLearnerResourcesMock({
+          activeClassesLessons: [
+            { id: 'lesson-1', title: 'Lesson 1', is_active: true },
+            { id: 'lesson-2', title: 'Lesson 2', is_active: true },
+          ],
+          getClassLessonLink() {
+            return { path: '/class-lesson' };
+          },
+        })
+      );
+      const wrapper = makeWrapper();
+      expect(getRecentLessonsSection(wrapper).exists()).toBe(true);
+      const links = getRecentLessonsSection(wrapper).findAll('a');
+      expect(links.length).toBe(2);
+      expect(links.at(0).text()).toBe('Lesson 1');
+      expect(links.at(1).text()).toBe('Lesson 2');
+    });
+  });
+
+  describe(`"Recent quizzes" section`, () => {
+    it(`the section is not displayed for a guest user`, () => {
+      const wrapper = makeWrapper();
+      expect(getRecentQuizzesSection(wrapper).exists()).toBe(false);
+    });
+
+    it(`the section is not displayed for a signed in user
+      who has no active quizzes`, () => {
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+      const wrapper = makeWrapper();
+      expect(getRecentQuizzesSection(wrapper).exists()).toBe(false);
+    });
+
+    it(`active quizzes are displayed for a signed in user who has some`, () => {
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+      useLearnerResources.mockImplementation(() =>
+        useLearnerResourcesMock({
+          activeClassesQuizzes: [
+            { id: 'quiz-1', title: 'Quiz 1', active: true },
+            { id: 'quiz-2', title: 'Quiz 2', active: true },
+          ],
+          getClassQuizLink() {
+            return { path: '/class-quiz' };
+          },
+        })
+      );
+      const wrapper = makeWrapper();
+      expect(getRecentQuizzesSection(wrapper).exists()).toBe(true);
+      const links = getRecentQuizzesSection(wrapper).findAll('a');
+      expect(links.length).toBe(2);
+      expect(links.at(0).text()).toBe('Quiz 1');
+      expect(links.at(1).text()).toBe('Quiz 2');
     });
   });
 });
