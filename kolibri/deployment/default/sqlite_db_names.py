@@ -5,3 +5,5 @@ and our default settings.
 """
 
 SYNC_QUEUE = "syncqueue_db"
+
+NETWORK_LOCATION = "networklocation_db"
