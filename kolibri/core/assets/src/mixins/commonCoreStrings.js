@@ -120,6 +120,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "In the Kolibri Task Manager dashboard admins can view resource management tasks (import, export, deletion, update, etc.) and observe their progress.\n\nSelecting 'View task' will display more detail about the management task.",
   },
+  removeFromBookmarks: {
+    message: 'Remove from bookmarks',
+    context: "An action that removes a resource or topic from a user's bookmarks",
+  },
+  saveToBookmarks: {
+    message: 'Save to bookmarks',
+    context: "An action that adds a resource or topic to a user's bookmarks",
+  },
 
   // labels, phrases, titles, headers...
   adminLabel: {
@@ -152,10 +160,24 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "This label appears in various places and indicates the year in which a user was born. The birth year only displays if this information has been provided when creating or editing the user, as it's an optional field.\n\nA super admin can see the birth year of the users in a facility that they manage, for example, if this information has been provided.",
   },
+  bookmarksLabel: {
+    message: 'Bookmarks',
+    context:
+      'Bookmarks are used to give all users a way of saving a reference for a specific resource or topic to come back to later.',
+  },
+  bookmarkedTimeAgoLabel: {
+    message: 'Bookmarked { time }',
+    context: 'A message used to show how long ago a user bookmarked a resource or topic',
+  },
   channelsLabel: {
     message: 'Channels',
     context:
       'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri.\n\nA learner will see a set of channels available to them when they first open Kolibri.',
+  },
+  channelLabel: {
+    message: 'Channel',
+    context:
+      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri. A label for a single channel.',
   },
   classCoachLabel: {
     message: 'Class coach',
@@ -233,6 +255,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "Gender is an option which a user can select in Kolibri when they create another user.\n\nGender can be either 'Female', 'Male' or 'Not specified'.",
   },
+  homeLabel: {
+    message: 'Home',
+    context:
+      "Home page is a place for learners containing summary of their activities and suggestions for what to do next. For example, they can see a list of classess they're enrolled in, their recent lessons and quizess, and they can directly navigate to resources to continue learning from.",
+  },
   identifierLabel: {
     message: 'Identifier',
     context:
@@ -247,6 +274,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'This proper noun is the name of the learning platform, and is pronounced ko-lee-bree (/kolibɹi/). For languages with non-latin scripts, the word should be transcribed phonetically into the target language, similar to a person\'s name. It should not be translated as "hummingbird".',
   },
+  languageLabel: {
+    message: 'Language',
+    context: 'Refers to the language that is used in a resource or in Kolibri',
+  },
   learnerLabel: {
     message: 'Learner',
     context:
@@ -255,6 +286,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   learnersLabel: {
     message: 'Learners',
     context: 'Plural of learner.',
+  },
+  levelLabel: {
+    message: 'Level',
+    context: 'Filter label used to limit the search to a specific levels.',
   },
   lessonsLabel: {
     message: 'Lessons',
@@ -271,7 +306,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   noUsersExistLabel: {
     message: 'No users exist',
-    context: 'Message used to indicate when there are no users in a class, for example.',
+    context: 'There are no users in this facility',
   },
   optionsLabel: {
     message: 'Options',
@@ -308,6 +343,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   searchLabel: {
     message: 'Search',
     context: 'Test used to indicate the Kolibri search field.',
+  },
+  findSomethingToLearn: {
+    message: 'Find something to learn',
+    context: 'Suggestion located inside the the keyword search field.',
+  },
+  startSearchButtonLabel: {
+    message: 'Start search',
+    context: 'Refers to the search button used to initiate a search.',
   },
   showCorrectAnswerLabel: {
     message: 'Show correct answer',
@@ -353,17 +396,281 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'This button appears in Kolibri to indicate to users that there are more results available when they search for resources, for example.',
   },
+  copies: {
+    message: '{ num, number} locations',
+    context:
+      'Some Kolibri resources may be duplicated in different topics or channels.\n\nSearch results will indicate when a resource is duplicated, and learners can click on the "...locations" link to discover the details for each location.',
+  },
+  viewInformation: {
+    message: 'View information',
+    context: 'Show more detailed information about a resource',
+  },
+  moreOptions: {
+    message: 'More options',
+  },
+  userActionsColumnHeader: {
+    message: 'Actions',
+    context:
+      'Column header for the table with class users. The column "Actions" contains buttons that allow admins to remove users from class.',
+  },
+  classHome: {
+    message: 'Class home',
+    context:
+      'The main section where the coach can see all the information relating to a specific class..',
+  },
+  classCoachDescription: {
+    message: 'Can only instruct classes that they are assigned to',
+    context: 'Description of the "Class coach" user type.',
+  },
+  facilityCoachDescription: {
+    message: 'Can instruct all classes in your facility',
+    context: 'Description of the "Facility coach" user type.',
+  },
+  transcript: {
+    message: 'Transcript',
+    context:
+      'Refers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
+  },
 
-  // Learning activities
-  createActivity: 'Create',
-  listenActivity: 'Listen',
-  reflectActivity: 'Reflect',
-  practiceActivity: 'Practice',
-  readActivity: 'Read',
-  watchActivity: 'Watch',
-  exploreActivity: 'Explore',
-  topicLabel: 'Topic',
+  // Learning Activities
+  all: {
+    message: 'All',
+    context: 'A label for everything in the group of activities',
+  },
+  watch: {
+    message: 'Watch',
+    context:
+      'Resource and filter label for the type of learning activity with video. Translate as a VERB',
+  },
+  create: {
+    message: 'Create',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+  read: {
+    message: 'Read',
+    context:
+      'Resource and filter label for the type of learning activity with documents. Translate as a VERB',
+  },
+  practice: {
+    message: 'Practice',
+    context:
+      'Resource and filter label for the type of learning activity with questions and answers. Translate as a VERB',
+  },
+  reflect: {
+    message: 'Reflect',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+  listen: {
+    message: 'Listen',
+    context:
+      'Resource and filter label for the type of learning activity with audio. Translate as a VERB',
+  },
+  explore: {
+    message: 'Explore',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
 
+  // Library Categories
+  school: 'School',
+  basicSkills: 'Basic skills',
+  work: 'Work',
+  dailyLife: 'Daily life',
+  forTeachers: 'For teachers',
+
+  // School Categories
+  mathematics: 'Mathematics',
+  sciences: 'Sciences',
+  socialSciences: 'Social sciences',
+  arts: 'Arts',
+  computerScience: 'Computer science',
+  languageLearning: 'Language learning',
+  history: 'History',
+  readingAndWriting: {
+    message: 'Reading and writing',
+    context: 'School subject category',
+  },
+
+  // Mathematics Subcategories
+  arithmetic: 'Arithmetic',
+  algebra: 'Algebra',
+  geometry: 'Geometry',
+  calculus: 'Calculus',
+  statistics: 'Statistics',
+
+  // Sciences Subcategories
+  biology: 'Biology',
+  chemistry: 'Chemistry',
+  physics: 'Physics',
+  earthScience: 'Earth science',
+  astronomy: 'Astronomy',
+
+  //  Literature Subcategories
+  literature: 'Literature',
+  readingComprehension: 'Reading comprehension',
+  writing: 'Writing',
+  logicAndCriticalThinking: 'Logic and critical thinking',
+
+  // Social Sciences Subcategories
+  politicalScience: 'Political science',
+  sociology: 'Sociology',
+  anthropology: 'Anthropology',
+  civicEducation: 'Civic education',
+
+  // Arts Subcategories = {
+  visualArt: 'Visual art',
+  music: 'Music',
+  dance: 'Dance',
+  drama: 'Drama',
+
+  //  Computer Science Subcategories
+  programming: 'Programming',
+  mechanicalEngineering: 'Mechanical engineering',
+  webDesign: 'Web design',
+
+  // Basic Skills
+  literacy: 'Literacy',
+  numeracy: 'Numeracy',
+  digitialLiteracy: 'Digital literacy',
+  learningSkills: 'Learning skills',
+
+  // Work Categories
+  professionalSkills: 'Professional skills',
+  technicalAndVocationalTraining: 'Technical and vocational training',
+
+  //  VocationalSubcategories
+  softwareToolsAndTraining: {
+    message: 'Software tools and training',
+    context: 'Vocation skills subcategory',
+  },
+  skillsTraining: 'Skills training',
+  industryAndSectorSpecific: 'Industry and sector specific',
+
+  // Daily Life Categories
+  publicHealth: 'Public health',
+  entrepreneurship: 'Entrepreneurship',
+  financialLiteracy: 'Financial literacy',
+  currentEvents: 'Current events',
+  environment: 'Environment',
+  mediaLiteracy: 'Media literacy',
+  diversity: 'Diversity',
+  mentalHealth: 'Mental health',
+
+  // Teacher-Specific Categories
+  guides: 'Guides',
+  lessonPlans: 'Lesson plans',
+
+  // Resources Needed Categories = {
+  ForBeginners: 'For beginners',
+  ToUseWithTeachersAndPeers: 'To use with teachers and peers',
+  ToUseWithPaperAndPencil: 'To use with paper and pencil',
+  NeedsInternet: 'That need internet connection',
+  NeedsMaterials: 'That need other materials',
+
+  // Accessibility category name
+  accessibility: {
+    message: 'Accessibility',
+    context:
+      'Allows the user to filter for all the resources with accessibility features for learners with disabilities.',
+  },
+  // Accessibility Categories
+  signLanguage: 'Has sign language captions',
+  audioDescription: {
+    message: 'Has audio descriptions',
+    context: 'Content has descriptive audio that is used for accessibility.',
+  },
+  taggedPdf: 'Tagged PDF',
+  altText: 'Has alternative text description for images',
+  highContrast: 'Has high contrast display for low vision',
+  captionsSubtitles: 'Has captions or subtitles',
+
+  // Used to categorize the level or audience of content
+  // ContentLevels
+  preschool: 'Preschool',
+  lowerPrimary: 'Lower primary',
+  upperPrimary: 'Upper primary',
+  lowerSecondary: 'Lower secondary',
+  upperSecondary: 'Upper secondary',
+  tertiary: 'Tertiary',
+  specializedProfessionalTraining: 'Specialized professional training',
+  allLevelsBasicSkills: 'All levels -- basic skills',
+  allLevelsWorkSkills: 'All levels -- work skills',
+
+  browseChannel: {
+    message: 'Browse channel',
+    context: 'Heading on page where a user can browse the content within a channel',
+  },
+  topicLabel: 'Folder',
+  readReference: {
+    message: 'Reference',
+    context:
+      'We display time duration for most of learning activities. However, for read activity, we display this label instead of time duration information.',
+  },
+  shortActivity: {
+    message: 'Short activity',
+    context:
+      'This is what we display as time estimation for some types of learning activities that take less than 30 minutes',
+  },
+  longActivity: {
+    message: 'Long activity',
+    context:
+      'This is what we display as time estimation for some types of learning activities that take more than 30 minutes',
+  },
+
+  // assigning bookmarked resources
+
+  availableClasses: {
+    message: 'Available classes',
+    context: 'Heading for the window where coaches make class selection.',
+  },
+
+  assignToClass: {
+    message: 'Assign this resource to which class?',
+    context: 'Message for coaches to select a class.',
+  },
+  assignToLesson: {
+    message: 'Assign this resource to which lesson?',
+    context: 'Message for coaches to select lessons',
+  },
+  lessonsInClass: {
+    message: 'Lessons in {class name}',
+    context: 'Heading for the window where coaches make lesson selections.',
+  },
+  addedToClassLesson: {
+    message: 'Added to class lesson',
+    context:
+      'Notification that a bookmarked resource has been added to a lesson in a selected class.',
+  },
+  selectFromBookmarks: {
+    message: 'Select from bookmarks',
+    context: "Option on the 'Manage lesson resources' page.",
+  },
+  savedFromBookmarks: {
+    message: 'Saved from bookmarks',
+    context:
+      'Notification message after user clicked the bookmark icon button, indicating the resource has been  saved.',
+  },
+  related: {
+    message: 'Related',
+    context: 'Section header for the list of resources that are related to the current resource',
+  },
+  doNotShowAgain: {
+    message: "Don't show this again",
+    context:
+      'Option that allows the user to prevent this resource from displaying in the future while using category search',
+  },
+  resourceHidden: {
+    message: 'Resource hidden',
+    context:
+      'Notification message indicating the resource has been marked as hidden for future category searches.',
+  },
+  allLevels: {
+    message: 'All levels',
+    context: 'Filter label to include resources for all available levels.',
+  },
+  showResources: {
+    message: 'Show resources',
+    context: '',
+  },
   // Notifications
   changesSavedNotification: {
     message: 'Changes saved',
@@ -426,10 +733,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Female',
     context: "Female is an option in the 'Gender' drop down menu on the 'Create new user' page.",
   },
-  genderOptionOther: {
-    message: 'Other',
-    context: 'CommonCoreStrings.genderOptionOther\n\n-- CONTEXT --',
-  },
   genderOptionNotSpecified: {
     message: 'Not specified',
     context:
@@ -462,6 +765,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   notStartedLabel: {
     message: 'Not started',
     context: 'For content that has not been viewed or engaged with yet',
+  },
+  folder: {
+    message: 'Folder',
+    context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
+  },
+  folders: {
+    message: 'Folders',
+    context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
   },
 });
 

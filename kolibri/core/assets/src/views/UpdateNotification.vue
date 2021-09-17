@@ -112,9 +112,9 @@
         message: 'We have released an important update with fixes to this version of Kolibri.',
         context: 'Notification indicating an important new version of Kolibri is available.',
       },
-      // TODO(i18n): Write a final version of this copy
       upgradeMessage_0_15_0: {
-        message: 'Kolibri version 0.15.0 is available! It has a lot of new features!',
+        message:
+          'Kolibri version 0.15.0 is available! It includes a redesigned home page for learners, support for learner data syncing, full support for H5P, and much more.',
         context: 'Notification indicating a new version of Kolibri is available.',
       },
       upgradeDownload: {

@@ -119,36 +119,41 @@
     $trs: {
       initializeDevice: {
         message: 'Select a facility setup for this device',
-        context: 'Page title',
+        context: 'Heading for the window to select facility type.',
       },
       fullDevice: {
         message: 'Full device',
         context:
-          'Device that will be a fully featured Kolibri server used by admins, coaches and learners',
+          'Device that will be a fully featured Kolibri server used by admins, coaches and learners.',
       },
       fullDeviceTooltip: {
         message:
           'Device will be a fully featured Kolibri server used by admins, coaches and learners',
-        context: 'Tooltip for full device',
+
+        context:
+          'Tooltip for Full device. A Full device is a type of Kolibri device that has all features available.',
       },
       lod: {
         message: 'Learn-only device',
         context:
-          'Device that has Kolibri features for learners, but not those for coaches and admins',
+          'Device that has Kolibri features for learners, but not those for coaches and admins.',
       },
       lodTooltip: {
         message:
           'Device will have Kolibri features for learners, but not those for coaches and admins',
-        context: 'Tooltip for Learn-only device',
+
+        context:
+          'Tooltip for Learn-only device. A Learn-only device is a type of Kolibri device that has only the features for learners.',
       },
       descriptionParagraph1: {
         message:
           'A facility represents the location where you are installing Kolibri, such as a school, training center, or a home.',
-        context: 'First paragraph of description',
+
+        context: 'First paragraph of description of a facility.',
       },
       createNewFacilityAction: {
         message: 'Create a new facility',
-        context: 'Option that takes the user to a workflow to create a new facility from scratch',
+        context: 'Option that takes the user to a workflow to create a new facility from scratch.',
       },
       importFacilityAction: {
         message: 'Import all data from an existing facility',
@@ -162,7 +167,7 @@
       },
       descriptionImportLOD: {
         message: 'This device supports auto-syncing with a full device that has the same facility',
-        context: 'Description of the import a Learn-only device option',
+        context: 'Description of the import a Learn-only device option.',
       },
     },
   };

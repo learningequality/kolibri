@@ -28,15 +28,15 @@
         required: true,
       },
     },
-    computed: {
-      label() {
-        return this.active ? this.$tr('lessonActiveLabel') : this.$tr('lessonInactiveLabel');
-      },
-    },
-    $trs: {
-      lessonActiveLabel: 'Active',
-      lessonInactiveLabel: 'Inactive',
-    },
+    // computed: {
+    //   label() {
+    //     return this.active ? this.$tr('lessonActiveLabel') : this.$tr('lessonInactiveLabel');
+    //   },
+    // },
+    // $trs: {
+    //   lessonActiveLabel: 'Active',
+    //   lessonInactiveLabel: 'Inactive',
+    // },
   };
 
 </script>

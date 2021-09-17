@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.utils import timezone
 from morango.models import UUIDField
 
 from kolibri.core.auth.models import AbstractFacilityDataModel
@@ -16,6 +17,7 @@ class Bookmark(AbstractFacilityDataModel):
     channel_id = UUIDField(blank=True, null=True)
     contentnode_id = UUIDField()
     user = models.ForeignKey(FacilityUser, blank=False)
+    created = models.DateTimeField(default=timezone.now, db_index=True)
 
     morango_model_name = "bookmark"
 

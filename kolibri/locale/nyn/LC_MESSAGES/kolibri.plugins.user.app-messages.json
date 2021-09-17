@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "Sinthani",
   "ProfilePage.isSuperuser": "Zilolezo za supa adimini ",
   "ProfilePage.limitedPermissions": "Chilolezo chochepa",
-  "ProfilePage.manageContent": "Konzani zinthu",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "Konzani zilolezo za chipangizo",
   "ProfilePage.points": "Mapointi",
   "ProfilePage.youCan": "Mungathe:",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "Ndime yoyamba",
   "UserIndex.signUpStep2Title": "Ndime yachiwiri",
   "UserIndex.userProfileTitle": "Pulofailo",
-  "UserPageSnackbars.dismiss": "Zikaneni",
+  "UserPageSnackbars.dismiss": "",
   "UserPageSnackbars.signedOut": "Munachotsedwapo chifukwa munakhala musakugwiritsa ntchito kwa nthawi yaitali"
 }

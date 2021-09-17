@@ -107,7 +107,7 @@
             <div class="bookmark-container">
               <BookmarkIcon />
               <div class="text">
-                <h3>{{ $tr('bookmarks') }}</h3>
+                <h3>{{ coreString('bookmarksLabel') }}</h3>
                 <p>{{ $tr('resources', { count: bookmarksCount }) }}</p>
               </div>
             </div>
@@ -159,11 +159,6 @@
       </BottomAppBar>
       <BottomAppBar v-else>
         <KButtonGroup>
-          <KRouterLink
-            appearance="flat-button"
-            :text="coreString('goBackAction')"
-            :to="toolbarRoute"
-          />
           <KButton
             :text="coreString('continueAction')"
             primary
@@ -608,7 +603,6 @@
     },
     $trs: {
       resources: '{count} {count, plural, one {resource} other {resources}}',
-      bookmarks: 'Bookmarks',
       createNewExamLabel: {
         message: 'Create new quiz',
         context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.",

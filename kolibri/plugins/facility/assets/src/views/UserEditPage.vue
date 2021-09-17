@@ -59,14 +59,14 @@
               v-model="classCoachIsSelected"
               :disabled="formDisabled"
               :label="coreString('classCoachLabel')"
-              :description="$tr('classCoachDescription')"
+              :description="coreString('classCoachDescription')"
               :value="true"
             />
             <KRadioButton
               v-model="classCoachIsSelected"
               :disabled="formDisabled"
               :label="coreString('facilityCoachLabel')"
-              :description="$tr('facilityCoachDescription')"
+              :description="coreString('facilityCoachDescription')"
               :value="false"
             />
           </fieldset>
@@ -371,21 +371,13 @@
         context: 'Refers to admin permissions.',
       },
       viewInDeviceTabPrompt: 'View details in Device permissions',
-      classCoachDescription: {
-        message: "Can only instruct classes that they're assigned to",
-        context: "Description of the 'Class coach' user type.",
-      },
-      facilityCoachDescription: {
-        message: 'Can instruct all classes in your facility',
-        context: "Refers to a description of the 'Facility coach' user type.\n",
-      },
       userUpdateNotification: {
         message: 'Changes saved',
         context: 'Notification.',
       },
       forceLogoutWarning: {
         message:
-          'Warning: By making your self a non-admin, you will be logged out after clicking "Save".',
+          'Warning: By making yourself a non-admin, you will be logged out after clicking "Save".',
         context:
           'Warning provoked if a user with admin permissions changes their user type to become a non-admin. This avoids dangerous deletions.',
       },

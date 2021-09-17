@@ -1,5 +1,5 @@
 import { mount, RouterLinkStub } from '@vue/test-utils';
-import QuizCard from '../QuizCard';
+import QuizCard from '../index';
 
 const baseProgress = {
   started: false,
@@ -14,9 +14,6 @@ function makeWrapper() {
       RouterLink: RouterLinkStub,
     },
     propsData: {
-      classroom: {
-        name: 'Test Classroom 1',
-      },
       quiz: {
         id: '395b68e7be06485cbe65ce159dac6859',
         title: 'Test Quiz 1',
@@ -26,6 +23,8 @@ function makeWrapper() {
           ...baseProgress,
         },
       },
+      to: { path: '/quiz' },
+      collectionTitle: 'Test Classroom 1',
     },
   });
   return { wrapper };
@@ -42,41 +41,20 @@ describe('QuizCard', () => {
   describe('basic labels', () => {
     it('shows the classroom name', () => {
       wrapper = makeWrapper().wrapper;
-      expect(wrapper.find('.classroom-name').text()).toEqual('Test Classroom 1');
+      expect(wrapper.find('[data-test="collectionTitle"]').text()).toEqual('Test Classroom 1');
     });
 
     it('shows the quiz title', () => {
       wrapper = makeWrapper().wrapper;
-      expect(wrapper.find('.assignment-name').text()).toEqual('Test Quiz 1');
+      expect(wrapper.find('.title').text()).toEqual('Test Quiz 1');
     });
   });
 
   describe('links to exam report or viewer', () => {
-    it('shows the quiz viewer if the quiz is still in progress', async () => {
+    it('shows the right link', () => {
       wrapper = makeWrapper().wrapper;
-      await setProgress({ started: true });
       const routerLink = wrapper.findComponent(RouterLinkStub);
-      expect(routerLink.props().to).toEqual({
-        name: 'EXAM_VIEWER',
-        params: {
-          examId: '395b68e7be06485cbe65ce159dac6859',
-          questionNumber: 0,
-        },
-      });
-    });
-
-    it('shows the quiz report if the quiz is submitted', async () => {
-      wrapper = makeWrapper().wrapper;
-      await setProgress({ started: true, closed: true });
-      const routerLink = wrapper.findComponent(RouterLinkStub);
-      expect(routerLink.props().to).toEqual({
-        name: 'EXAM_REPORT_VIEWER',
-        params: {
-          examId: '395b68e7be06485cbe65ce159dac6859',
-          questionNumber: 0,
-          questionInteraction: 0,
-        },
-      });
+      expect(routerLink.props().to).toEqual({ path: '/quiz' });
     });
   });
 

@@ -7,14 +7,15 @@ import {
   showTopicsContent,
 } from '../modules/topicsTree/handlers';
 import {
-  showRecommended,
+  showLibrary,
   showPopularPage,
   showNextStepsPage,
   showResumePage,
 } from '../modules/recommended/handlers';
 import { showChannels } from '../modules/topicsRoot/handlers';
 import { PageNames, ClassesPageNames } from '../constants';
-import RecommendedPage from '../views/RecommendedPage';
+import LibraryPage from '../views/LibraryPage';
+import HomePage from '../views/HomePage';
 import RecommendedSubpage from '../views/RecommendedSubpage';
 import classesRoutes from './classesRoutes';
 
@@ -37,35 +38,35 @@ export default [
       const { memberships } = store.state;
       const { canAccessUnassignedContent } = store.getters;
 
-      // If a registered user, go to Classes Page, else go to Content
+      // If a registered user, go to Home Page, else go to Content
       return router.replace({
         name:
           memberships.length > 0 || !canAccessUnassignedContent
-            ? ClassesPageNames.ALL_CLASSES
+            ? PageNames.HOME
             : PageNames.TOPICS_ROOT,
       });
     },
   },
   {
-    name: PageNames.TOPICS_ROOT,
-    path: '/topics',
+    name: PageNames.HOME,
+    path: '/home',
+    component: HomePage,
+    handler() {
+      store.commit('SET_PAGE_NAME', PageNames.HOME);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+    },
+  },
+  {
+    name: PageNames.LIBRARY,
+    path: '/library',
     handler: () => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
       }
       showChannels(store);
+      showLibrary(store);
     },
-  },
-  {
-    name: PageNames.RECOMMENDED,
-    path: '/recommended',
-    handler: () => {
-      if (unassignedContentGuard()) {
-        return unassignedContentGuard();
-      }
-      showRecommended(store);
-    },
-    component: RecommendedPage,
+    component: LibraryPage,
   },
   {
     name: PageNames.SEARCH,
@@ -158,6 +159,17 @@ export default [
       showNextStepsPage(store);
     },
     component: RecommendedSubpage,
+  },
+  {
+    name: PageNames.BOOKMARKS,
+    path: '/bookmarks',
+    handler: () => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
+      store.commit('SET_PAGE_NAME', PageNames.BOOKMARKS);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+    },
   },
   {
     path: '*',

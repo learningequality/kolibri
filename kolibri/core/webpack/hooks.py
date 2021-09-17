@@ -136,7 +136,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         for f in self._stats_file_content["files"]:
             filename = f["name"]
             if not getattr(settings, "DEVELOPER_MODE", False):
-                if any([regex.match(filename) for regex in IGNORE_PATTERNS]):
+                if any(regex.match(filename) for regex in IGNORE_PATTERNS):
                     continue
             relpath = "{0}/{1}".format(self.unique_id, filename)
             if getattr(settings, "DEVELOPER_MODE", False):

@@ -20,12 +20,19 @@ export function showTopicsContent(store, id) {
   const promises = [
     ContentNodeResource.fetchModel({ id }),
     ContentNodeResource.fetchNextContent(id),
-    ContentNodeResource.fetchRecommendationsFor(id),
+    ContentNodeResource.fetchCollection({
+      getParams: {
+        parent: id.parent,
+        include_coach_content:
+          store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
+      },
+    }), // the topic's children
     store.dispatch('setChannelInfo'),
   ];
+  console.log('id', id);
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
-    ([content, nextContent, recommended]) => {
+    ([content, nextContent, children]) => {
       const currentChannel = store.getters.getChannelObject(content.channel_id);
       if (!currentChannel) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
@@ -34,7 +41,7 @@ export function showTopicsContent(store, id) {
       store.commit('topicsTree/SET_STATE', {
         content: contentState(content, nextContent),
         channel: currentChannel,
-        recommended: recommended,
+        contents: _collectionState(children),
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);

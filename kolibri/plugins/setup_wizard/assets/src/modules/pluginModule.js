@@ -7,7 +7,7 @@ import { FacilityImportResource } from '../api';
 const SetupStrings = createTranslator('SetupStrings', {
   personalFacilityName: {
     message: 'Home Facility for {name}',
-    context: 'Template for a facility name for personal setups',
+    context: 'Template for a facility name for personal setups.',
   },
 });
 
@@ -49,11 +49,12 @@ export default {
     };
   },
   actions: {
-    logIntoImportedFacility(store, credentials) {
-      store.dispatch('kolibriLogin', {
+    logIntoSyncedFacility(store, credentials) {
+      return store.dispatch('kolibriLogin', {
         username: credentials.username,
         password: credentials.password,
         facility: credentials.facility,
+        disableRedirect: true,
       });
     },
     provisionDeviceAfterImport(store, credentials) {

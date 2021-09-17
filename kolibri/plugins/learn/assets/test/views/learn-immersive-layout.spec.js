@@ -2,6 +2,8 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import makeStore from '../makeStore';
 import LearnImmersiveLayout from '../../src/views/LearnImmersiveLayout';
 
+jest.mock('kolibri.urls');
+
 const localVue = createLocalVue();
 
 const store = makeStore();
@@ -31,18 +33,20 @@ function makeWrapper({ propsData } = {}) {
 }
 
 describe('LearnImmersiveLayout', () => {
-  const wrapper = makeWrapper();
+  const wrapper = makeWrapper({
+    propsData: {
+      content: { id: 'test' },
+    },
+  });
   it('smoke test', () => {
     expect(wrapper.exists()).toBe(true);
   });
 
   it('shows the Learning Activity Bar', () => {
-    const wrapper = makeWrapper();
     expect(wrapper.find('[data-test="learningActivityBar"]').exists()).toBeTruthy();
   });
 
   it('shows the Content Page', () => {
-    const wrapper = makeWrapper();
     expect(wrapper.find('[data-test="contentPage"]').exists()).toBeTruthy();
   });
 });

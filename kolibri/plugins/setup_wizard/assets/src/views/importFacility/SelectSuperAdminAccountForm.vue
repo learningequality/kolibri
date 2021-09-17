@@ -215,7 +215,7 @@
         message:
           'This account allows you to manage all facilities, resources, and user accounts on this device.',
 
-        context: 'Explanation of what the super admin account is used for on device',
+        context: 'Explanation of what the super admin account is used for on device.',
       },
       chooseAdminPrompt: {
         message: "Choose an admin from '{facility}' or create a new super admin.",
@@ -223,11 +223,11 @@
       },
       enterPasswordPrompt: {
         message: "Enter the password for '{username}'",
-        context: 'Prompt that goes above the password input',
+        context: 'Prompt that goes above the password input.',
       },
       createSuperAdminOption: {
         message: 'Create new super admin',
-        context: 'Option in a select input',
+        context: 'Option in a select input.',
       },
       accountFacilityExplanation: {
         message: "This account will be associated with the facility '{facility}'",

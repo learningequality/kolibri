@@ -34,6 +34,7 @@ import ContentIcon from '../views/ContentIcon';
 import ProgressIcon from '../views/ProgressIcon';
 import PermissionsIcon from '../views/PermissionsIcon';
 import CoreBase from '../views/CoreBase';
+import FullScreenSidePanel from '../views/FullScreenSidePanel';
 import SideNav from '../views/SideNav';
 import Navbar from '../views/Navbar';
 import NavbarLink from '../views/Navbar/NavbarLink';
@@ -141,6 +142,7 @@ export default {
       ProgressIcon,
       PermissionsIcon,
       CoreBase,
+      FullScreenSidePanel,
       SideNav,
       Navbar,
       NavbarLink,

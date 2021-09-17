@@ -42,7 +42,7 @@
         <th>{{ coreString('learnersLabel') }}</th>
         <th>
           <span class="visuallyhidden">
-            {{ $tr('actions') }}
+            {{ coreString('userActionsColumnHeader') }}
           </span>
         </th>
       </template>
@@ -234,7 +234,6 @@
         context:
           'Refers to the names of the coaches that have been assigned to a class.\n\nDO NOT TRANSLATE.',
       },
-      actions: 'Actions',
       noClassesExist: {
         message: 'No classes exist',
         context:

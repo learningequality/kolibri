@@ -50,7 +50,7 @@ export default {
       return state.status === UsersExportStatuses.EXPORTING;
     },
     exported(state) {
-      return state.status === UsersExportStatuses.FINISHED;
+      return state.exportUsersStatus === UsersExportStatuses.FINISHED;
     },
   },
   mutations: {

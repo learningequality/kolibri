@@ -2,19 +2,11 @@
 
   <span
     class="thumbnail"
-    :style="{ backgroundColor: $themePalette.grey.v_200 }"
+    :class="thumbnailComputedClass"
   >
-    <LearningActivityIcon
-      v-if="contentNode.is_leaf"
-      class="icon"
-      :kind="contentNode.learning_activities"
-    />
-    <KIcon
-      v-else
-      class="icon"
-      icon="topic"
-      :color="$themePalette.grey.v_500"
-    />
+    <span class="icon">
+      <slot name="icon"></slot>
+    </span>
 
     <!--
       we consider thumbnails decorative - empty `alt`
@@ -33,31 +25,38 @@
 
 <script>
 
-  import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
-  import LearningActivityIcon from './LearningActivityIcon';
-
   /**
    * Displays a thumbnail in 16:9 ratio. A thumbnail image with
    * a different aspect ratio will be letterboxed to fit 16:9.
-   * If a thumbnail image is not available, a generic learning
-   * activity/multiple learning activities/topic icon will be
-   * displayed (this icon also acts as a placeholder before
-   * the image is loaded when it's available).
+   * If a thumbnail image is not available, an icon from
+   * `icon` slot will be displayed when provided (the icon can
+   * also acts as a placeholder before the image is loaded)
+   * on top of gray placeholder background.
    */
   export default {
     name: 'Thumbnail',
-    components: {
-      LearningActivityIcon,
-    },
     props: {
-      contentNode: {
-        type: Object,
-        required: true,
+      thumbnailUrl: {
+        type: String,
+        required: false,
+        default: '',
+      },
+      rounded: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
     computed: {
-      thumbnailUrl() {
-        return getContentNodeThumbnail(this.contentNode);
+      thumbnailComputedClass() {
+        const styles = {
+          backgroundColor: this.$themePalette.grey.v_200,
+        };
+        if (this.rounded) {
+          styles.borderRadius = '4px';
+          styles.overflow = 'hidden';
+        }
+        return this.$computedClass(styles);
       },
     },
   };
@@ -90,7 +89,7 @@
       margin: auto;
     }
 
-    .icon {
+    .icon > * {
       position: absolute;
       top: 0;
       right: 0;

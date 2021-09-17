@@ -59,7 +59,7 @@
     $trs: {
       questionListHeader: {
         message: '{numOfQuestions, number} Questions',
-        context: 'Indicates the questions in a quiz.',
+        context: 'Header for the list of questions in a quiz or a lesson. Translate as a plural.',
       },
     },
   };

@@ -170,4 +170,13 @@ export default new Resource({
     });
     return promise;
   },
+  fetchBookmarks({ params }) {
+    const promise = new ConditionalPromise();
+    const url = urls['kolibri:core:contentnode_bookmarks_list']();
+    promise._promise = this.client({ url, params }).then(response => {
+      this.cacheData(response.data);
+      return response.data;
+    });
+    return promise;
+  },
 });

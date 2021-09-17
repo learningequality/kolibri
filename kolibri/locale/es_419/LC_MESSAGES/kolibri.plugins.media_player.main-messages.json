@@ -12,7 +12,7 @@
   "MediaPlayerIndex.loaded": "Cargado",
   "MediaPlayerIndex.mute": "Silencio",
   "MediaPlayerIndex.networkError": "Un error en la red hizo que fallase el proceso de descarga de elementos multimedia",
-  "MediaPlayerIndex.nonFullscreen": "Sin pantalla completa",
+  "MediaPlayerIndex.nonFullscreen": "Salir de la pantalla completa",
   "MediaPlayerIndex.pause": "Pausar",
   "MediaPlayerIndex.play": "Reproducir",
   "MediaPlayerIndex.playbackRate": "Velocidad de reproducción",

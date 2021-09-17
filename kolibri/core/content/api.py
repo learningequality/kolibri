@@ -34,8 +34,12 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from kolibri.core.api import BaseValuesViewset
+from kolibri.core.api import ListModelMixin
 from kolibri.core.api import ReadOnlyValuesViewset
+from kolibri.core.auth.api import KolibriAuthPermissions
+from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.middleware import session_exempt
+from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.content import models
 from kolibri.core.content import serializers
 from kolibri.core.content.permissions import CanManageContent
@@ -62,6 +66,7 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.query import SQSum
+from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 
 
@@ -383,11 +388,6 @@ class BaseContentNodeMixin(object):
             output.append(item)
         return output
 
-
-@method_decorator(cache_forever, name="dispatch")
-class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
-    pagination_class = OptionalPageNumberPagination
-
     def consolidate(self, items, queryset):
         if items:
 
@@ -442,6 +442,11 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
             return self.process_items(items, queryset, ancestor_lookup)
 
         return []
+
+
+@method_decorator(cache_forever, name="dispatch")
+class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
+    pagination_class = OptionalPageNumberPagination
 
     @list_route(methods=["get"])
     def descendants(self, request):
@@ -1082,6 +1087,40 @@ class ContentNodeSearchViewset(ContentNodeViewset):
         )
 
 
+class ContentNodeBookmarksViewset(
+    BaseContentNodeMixin, BaseValuesViewset, ListModelMixin
+):
+    permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (
+        KolibriAuthPermissionsFilter,
+        DjangoFilterBackend,
+    )
+    filter_class = None
+    pagination_class = ValuesViewsetLimitOffsetPagination
+
+    def get_queryset(self):
+        return Bookmark.objects.all().order_by("-created")
+
+    def serialize(self, queryset):
+        self.bookmark_queryset = queryset
+        queryset = models.ContentNode.objects.filter(
+            id__in=queryset.values_list("contentnode_id", flat=True)
+        )
+        return super(ContentNodeBookmarksViewset, self).serialize(queryset)
+
+    def consolidate(self, items, queryset):
+        items = super(ContentNodeBookmarksViewset, self).consolidate(items, queryset)
+        if items:
+            bookmark_lookup = {}
+            for bookmark in self.bookmark_queryset.values(
+                "id", "contentnode_id", "created"
+            ):
+                bookmark_lookup[bookmark["contentnode_id"]] = bookmark
+            for item in items:
+                item["bookmark"] = bookmark_lookup[item["id"]]
+        return items
+
+
 def get_cache_key(*args, **kwargs):
     return str(ContentCacheKey.get_cache_key())
 
@@ -1204,13 +1243,21 @@ class ContentNodeProgressViewset(ReadOnlyValuesViewset):
         progress_lookup = {}
 
         if not self.request.user.is_anonymous():
+            # if there are too many leaf_content_ids we'll have a
+            # 'too many SQL variables' errors in sqlite
+            # so we batch the leaf ids here:
+            total = len(leaf_content_ids)
+            i = 0
+            batch_size = 998
+            while i < total:
+                leaf_content_ids_batch = leaf_content_ids[i : i + batch_size]
+                logs = ContentSummaryLog.objects.filter(
+                    user=self.request.user, content_id__in=leaf_content_ids_batch
+                )
+                for log in logs.values("content_id", "progress"):
+                    progress_lookup[log["content_id"]] = round(log["progress"], 4)
 
-            logs = ContentSummaryLog.objects.filter(
-                user=self.request.user, content_id__in=leaf_content_ids
-            )
-
-            for log in logs.values("content_id", "progress"):
-                progress_lookup[log["content_id"]] = round(log["progress"], 4)
+                i += batch_size
 
         output = []
 

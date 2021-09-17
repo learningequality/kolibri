@@ -1,7 +1,7 @@
 <template>
 
   <KIcon
-    :icon="$tr('bookmark')"
+    icon="bookmark"
     style="top:50;left:75; width: 34px; height: 34px;"
   />
 
@@ -12,9 +12,6 @@
 
   export default {
     name: 'BookmarkIcon',
-    $trs: {
-      bookmark: 'bookmark',
-    },
   };
 
 </script>

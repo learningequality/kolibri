@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "Modifier",
   "ProfilePage.isSuperuser": "Autorisations du super admin ",
   "ProfilePage.limitedPermissions": "Autorisations limitées",
-  "ProfilePage.manageContent": "Gérer le contenu",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "Gérer les permissions sur l'appareil",
   "ProfilePage.points": "Points",
   "ProfilePage.youCan": "Vous pouvez:",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "Étape 1 sur 2",
   "UserIndex.signUpStep2Title": "Étape 2 sur 2",
   "UserIndex.userProfileTitle": "Profil",
-  "UserPageSnackbars.dismiss": "Rejeter",
+  "UserPageSnackbars.dismiss": "",
   "UserPageSnackbars.signedOut": "Vous avez été automatiquement déconnecté pour cause d’inactivité"
 }

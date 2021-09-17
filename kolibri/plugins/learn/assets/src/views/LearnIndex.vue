@@ -65,12 +65,12 @@
 
   import { mapGetters, mapState } from 'vuex';
   import urls from 'kolibri.urls';
+  import lastItem from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames, ClassesPageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
-  import ChannelsPage from './ChannelsPage';
   import TopicsPage from './TopicsPage';
   import ContentPage from './ContentPage';
   import ContentUnavailablePage from './ContentUnavailablePage';
@@ -88,15 +88,16 @@
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
   import UpdateYourProfileModal from './UpdateYourProfileModal';
+  import BookmarkPage from './BookmarkPage.vue';
   import plugin_data from 'plugin_data';
 
   const pageNameToComponentMap = {
-    [PageNames.TOPICS_ROOT]: ChannelsPage,
     [PageNames.TOPICS_CHANNEL]: TopicsPage,
     [PageNames.TOPICS_TOPIC]: TopicsPage,
     [PageNames.TOPICS_CONTENT]: ContentPage,
     [PageNames.CONTENT_UNAVAILABLE]: ContentUnavailablePage,
     [PageNames.SEARCH]: SearchPage,
+    [PageNames.BOOKMARKS]: BookmarkPage,
     [ClassesPageNames.EXAM_VIEWER]: ExamPage,
     [ClassesPageNames.EXAM_REPORT_VIEWER]: ExamReportViewer,
     [ClassesPageNames.ALL_CLASSES]: AllClassesPage,
@@ -208,7 +209,64 @@
             immersivePageIcon: 'back',
           };
         }
+        if (this.pageName === PageNames.TOPICS_CONTENT) {
+          let immersivePageRoute = {};
+          let appBarTitle;
+          const { searchTerm, last } = this.$route.query;
+          if (searchTerm) {
+            appBarTitle = this.coreString('searchLabel');
+            immersivePageRoute = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
+          } else if (last) {
+            // 'last' should only be route names for Recommended Page and its subpages
+            immersivePageRoute = this.$router.getRoute(last);
+            appBarTitle = {
+              [PageNames.RECOMMENDED_POPULAR]: this.learnString('popularLabel'),
+              [PageNames.RECOMMENDED_RESUME]: this.learnString('resumeLabel'),
+              [PageNames.RECOMMENDED_NEXT_STEPS]: this.learnString('nextStepsLabel'),
+              [PageNames.LIBRARY]: this.learnString('libraryLabel'),
+            }[last];
+          } else if (this.topicsTreeContent.parent) {
+            // Need to guard for parent being non-empty to avoid console errors
+            immersivePageRoute = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
+              id: this.topicsTreeContent.parent,
+            });
 
+            if (this.topicsTreeContent.breadcrumbs.length > 0) {
+              appBarTitle = lastItem(this.topicsTreeContent.breadcrumbs).title;
+            } else {
+              // `breadcrumbs` is empty if the direct parent is the channel, so pull
+              // channel info from state.topicsTree.channel
+              appBarTitle = this.topicsTreeChannel.title;
+            }
+          }
+          return {
+            appBarTitle,
+            immersivePage: true,
+            immersivePageRoute,
+            immersivePagePrimary: false,
+            immersivePageIcon: 'close',
+          };
+        }
+        if (this.pageName === PageNames.LIBRARY) {
+          return {
+            appBarTitle: this.learnString('learnLabel'),
+            immersivePage: false,
+            hasSidebar: true,
+          };
+        }
+        if (
+          this.pageName === PageNames.TOPICS_TOPIC ||
+          this.pageName === PageNames.TOPICS_CHANNEL
+        ) {
+          return {
+            appBarTitle: this.coreString('browseChannel'),
+            immersivePage: true,
+            immersivePageRoute: this.$router.getRoute(PageNames.LIBRARY),
+            immersivePagePrimary: true,
+            immersivePageIcon: 'close',
+            hasSidebar: true,
+          };
+        }
         return {
           appBarTitle: this.learnString('learnLabel'),
           immersivePage: false,
@@ -338,7 +396,7 @@
     },
     $trs: {
       examReportTitle: {
-        message: '{examTitle} report',
+        message: 'Report for { examTitle }',
         context: 'Indicates the title of the quiz that the report corresponds to.',
       },
     },

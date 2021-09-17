@@ -1,8 +1,6 @@
 <template>
 
-  <AssignmentCard
-    v-bind="{ classroomName, assignmentName, completedLabel, inProgressLabel, to: lessonLink }"
-  />
+  <BaseCard v-bind="{ to, title, collectionTitle, completedLabel, inProgressLabel }" />
 
 </template>
 
@@ -10,34 +8,43 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ClassesPageNames } from '../../constants';
-  import AssignmentCard from './AssignmentCard.vue';
+  import BaseCard from '../BaseCard';
 
   export default {
     name: 'LessonCard',
     components: {
-      AssignmentCard,
+      BaseCard,
     },
     mixins: [commonCoreStrings],
     props: {
-      classroom: {
-        type: Object,
-        required: true,
-      },
       lesson: {
         type: Object,
         required: true,
       },
+      /**
+       * vue-router link object
+       */
+      to: {
+        type: Object,
+        required: true,
+      },
+      collectionTitle: {
+        type: String,
+        required: false,
+        default: '',
+      },
     },
     data() {
       return {
-        progress: this.lesson.progress || {},
-        classroomName: this.classroom.name || '',
-        assignmentName: this.lesson.title || '',
+        progress: this.lesson ? this.lesson.progress : undefined,
+        title: this.lesson ? this.lesson.title : '',
       };
     },
     computed: {
       lessonProgress() {
+        if (!this.progress) {
+          return NaN;
+        }
         const { resource_progress, total_resources } = this.progress;
         if (resource_progress * total_resources === 0) {
           return NaN;
@@ -50,14 +57,6 @@
       },
       completedLabel() {
         return this.lessonProgress >= 0 ? this.coreString('completedLabel') : '';
-      },
-      lessonLink() {
-        return {
-          name: ClassesPageNames.LESSON_PLAYLIST,
-          params: {
-            lessonId: this.lesson.id,
-          },
-        };
       },
     },
   };

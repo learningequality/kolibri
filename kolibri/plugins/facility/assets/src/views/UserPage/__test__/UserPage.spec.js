@@ -31,11 +31,10 @@ describe('UserPage component', () => {
     });
 
     const testCases = [
-      ['learner', 'No learners exist'],
-      ['coach', 'No coaches exist'],
-      ['superuser', 'No super admins exist'],
-      ['coach', 'No coaches exist'],
-      ['admin', 'No admins exist'],
+      ['learner', 'There are no learners in this facility'],
+      ['coach', 'There are no coaches in this facility'],
+      ['superuser', 'There are no super admins in this facility'],
+      ['admin', 'There are no admins in this facility'],
     ];
 
     test.each(testCases)('when filter is %s', async (kind, expected) => {

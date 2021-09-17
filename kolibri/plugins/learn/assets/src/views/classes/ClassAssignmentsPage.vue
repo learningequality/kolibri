@@ -5,8 +5,8 @@
       <KLabeledIcon icon="classes" :label="classroomName" />
     </h1>
 
-    <AssignedLessonsCards :items="lessons" />
-    <AssignedQuizzesCards :items="exams" />
+    <AssignedLessonsCards :lessons="lessons" />
+    <AssignedQuizzesCards :quizzes="exams" :style="{ marginTop: '44px' }" />
 
   </div>
 

@@ -68,11 +68,11 @@ function _showRecSubpage(store, getContentPromise, pageName, channelId = null) {
   );
 }
 
-export function showRecommended(store) {
+export function showLibrary(store) {
   store.commit('SET_EMPTY_LOGGING_STATE');
   // Special case for when only the page number changes:
   // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
-  if (store.state.pageName !== PageNames.RECOMMENDED) {
+  if (store.state.pageName !== PageNames.LIBRARY) {
     store.commit('CORE_SET_PAGE_LOADING', true);
   }
 
@@ -98,7 +98,7 @@ export function showRecommended(store) {
 
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
-      store.commit('SET_PAGE_NAME', PageNames.RECOMMENDED);
+      store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
     },
     error => {
       store.dispatch('handleApiError', error);

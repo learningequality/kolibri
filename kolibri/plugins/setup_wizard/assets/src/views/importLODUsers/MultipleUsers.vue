@@ -46,7 +46,6 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { SessionResource } from 'kolibri.resources';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import UserTable from '../../../../../facility/assets/src/views/UserTable.vue';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
@@ -144,17 +143,17 @@
             };
             if (this.loadingTask.status === TaskStatuses.COMPLETED) {
               // after importing the admin, let's sign him in to continue:
-              SessionResource.saveModel({
-                data: {
+              this.$store
+                .dispatch('logIntoSyncedFacility', {
                   username: this.facility.adminUser,
                   password: this.facility.adminPassword,
                   facility: this.facility.id,
-                },
-              }).then(() => {
-                this.isPolling = false;
-                this.lodService.send('CONTINUE');
-                SetupSoUDTasksResource.cleartasks();
-              });
+                })
+                .then(() => {
+                  this.isPolling = false;
+                  this.lodService.send('CONTINUE');
+                  SetupSoUDTasksResource.cleartasks();
+                });
             }
           }
           if (tasks.length == 0) this.isPolling = false;
@@ -167,11 +166,13 @@
       },
     },
     $trs: {
-      commaSeparatedPair: '{first}, {second}',
+      commaSeparatedPair: {
+        message: '{first}, {second}',
+        context: 'DO NOT TRANSLATE.',
+      },
       imported: {
         message: 'Imported',
-        context:
-          'Descriptive text appearing to indicate an user has already been imported into the facility',
+        context: 'Label indicating that a learner user account has already been imported.',
       },
       searchForUser: {
         message: 'Search for a user',

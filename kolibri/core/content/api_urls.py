@@ -3,6 +3,7 @@ from django.conf.urls import url
 from rest_framework import routers
 
 from .api import ChannelMetadataViewSet
+from .api import ContentNodeBookmarksViewset
 from .api import ContentNodeGranularViewset
 from .api import ContentNodeProgressViewset
 from .api import ContentNodeSearchViewset
@@ -20,6 +21,11 @@ router.register(
 )
 router.register(
     r"contentnode_search", ContentNodeSearchViewset, base_name="contentnode_search"
+)
+router.register(
+    r"contentnode_bookmarks",
+    ContentNodeBookmarksViewset,
+    base_name="contentnode_bookmarks",
 )
 router.register(r"file", FileViewset, base_name="file")
 router.register(

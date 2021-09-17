@@ -1,11 +1,12 @@
 // a name for every URL pattern
 export const PageNames = {
   ROOT: 'ROOT',
+  HOME: 'HOME',
   TOPICS_ROOT: 'TOPICS_ROOT',
   TOPICS_CHANNEL: 'TOPICS_CHANNEL',
   TOPICS_TOPIC: 'TOPICS_TOPIC',
   TOPICS_CONTENT: 'TOPICS_CONTENT',
-  RECOMMENDED: 'RECOMMENDED',
+  LIBRARY: 'LIBRARY',
   RECOMMENDED_POPULAR: 'RECOMMENDED_POPULAR',
   RECOMMENDED_RESUME: 'RECOMMENDED_RESUME',
   RECOMMENDED_NEXT_STEPS: 'RECOMMENDED_NEXT_STEPS',
@@ -14,6 +15,7 @@ export const PageNames = {
   EXAM_LIST: 'EXAM_LIST',
   EXAM: 'EXAM',
   EXAM_ROOT: 'EXAM_ROOT',
+  BOOKMARKS: 'BOOKMARKS',
 };
 
 // switch between modes
@@ -42,7 +44,7 @@ export const pageNameToModuleMap = {
   [ClassesPageNames.LESSON_PLAYLIST]: 'lessonPlaylist',
   [ClassesPageNames.LESSON_RESOURCE_VIEWER]: 'lessonPlaylist/resource',
   [PageNames.TOPICS_ROOT]: 'topicsRoot',
-  [PageNames.RECOMMENDED]: 'recommended',
+  [PageNames.LIBRARY]: 'library',
   [PageNames.TOPICS_CHANNEL]: 'topicsTree',
   [PageNames.TOPICS_CONTENT]: 'topicsTree',
   [PageNames.TOPICS_TOPIC]: 'topicsTree',

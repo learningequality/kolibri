@@ -869,14 +869,14 @@ class LoginLogoutTestCase(APITestCase):
             },
             format="json",
         )
-        response = self.client.get(
+        response = self.client.put(
             reverse("kolibri:core:session-detail", kwargs={"pk": "current"})
         )
         self.assertIn(role_kinds.ADMIN, response.data["kind"])
         self.assertIn(role_kinds.COACH, response.data["kind"])
 
     def test_session_return_anon_kind(self):
-        response = self.client.get(
+        response = self.client.put(
             reverse("kolibri:core:session-detail", kwargs={"pk": "current"})
         )
         self.assertTrue(response.data["kind"][0], "anonymous")
