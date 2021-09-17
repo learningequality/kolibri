@@ -43,6 +43,7 @@ class ScheduledJob(Base):
     queue = Column(String, index=True)
 
     saved_job = Column(String)
+
     # See ORMJob in storage.py
     # Should probably find a way to consolodate these because it's the same exact code.
     @hybrid_property

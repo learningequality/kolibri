@@ -24,6 +24,5 @@ class ErrorSavedWithJob(Exception):
         self.prior_type = prior_type
         super().__init__(message)
 
-
     def __str__(self):
         return "{} Exception type: {}".format(self.message, self.prior_type)
