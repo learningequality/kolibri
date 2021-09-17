@@ -202,8 +202,9 @@ class Job(object):
         func = working_dictionary.pop("func")
         args = working_dictionary.pop("args", ())
         kwargs = working_dictionary.pop("kwargs", {})
+        working_dictionary.update(kwargs)
 
-        return Job(func, *args, **working_dictionary, **kwargs)
+        return Job(func, *args, **working_dictionary)
 
     def __init__(self, func, *args, **kwargs):
         """
