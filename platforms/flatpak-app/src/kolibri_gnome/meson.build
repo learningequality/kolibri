@@ -1,6 +1,3 @@
-python = import('python')
-python_installation = python.find_installation('python3')
-
 kolibri_gnome_sources = [
     'dbus_utils.py',
     'globals.py',
@@ -53,17 +50,6 @@ kolibri_daemon_sources = [
 python_installation.install_sources(
     kolibri_daemon_sources,
     subdir: 'kolibri_gnome/kolibri_daemon'
-)
-
-search_provider_sources = [
-    'search_provider/application.py',
-    'search_provider/__init__.py',
-    'search_provider/main.py',
-]
-
-python_installation.install_sources(
-    search_provider_sources,
-    subdir: 'kolibri_gnome/search_provider'
 )
 
 configure_file(
