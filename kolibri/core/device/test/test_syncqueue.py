@@ -22,12 +22,14 @@ class SyncQueueTestBase(TestCase):
 
     def test_create_queue_element(self):
         previous_time = time.time()
+        time.sleep(0.1)
         element, _ = SyncQueue.objects.get_or_create(
             user_id=FacilityUser.objects.create(
                 username="test", facility=self.facility
             ).id,
             instance_id=uuid4(),
         )
+        time.sleep(0.1)
         assert element.keep_alive == 5.0
         current_time = time.time()
         assert (
