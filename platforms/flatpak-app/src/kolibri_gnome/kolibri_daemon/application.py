@@ -65,9 +65,9 @@ class KolibriDaemon(DBusServer):
         self.__update_cached_properties()
         self.__begin_watch_changes_timeout()
 
-    def unregister(self):
+    def unregister_on_connection(self, *args):
         self.__cancel_watch_changes_timeout()
-        super().unregister()
+        super().unregister_on_connection(*args)
 
     @property
     def clients_count(self):
@@ -250,7 +250,7 @@ class Application(Gio.Application):
 
     def do_dbus_unregister(self, connection, object_path):
         if self.__session_kolibri_daemon:
-            self.__session_kolibri_daemon.unregister()
+            self.__session_kolibri_daemon.unregister_on_connection(connection)
             self.__session_kolibri_daemon = None
         return True
 
@@ -317,7 +317,7 @@ class Application(Gio.Application):
 
     def __on_system_name_lost(self, connection, name):
         if self.__system_kolibri_daemon:
-            self.__system_kolibri_daemon.unregister()
+            self.__system_kolibri_daemon.unregister_on_connection(connection)
             self.__system_kolibri_daemon = None
 
     def __create_kolibri_daemon(self):
