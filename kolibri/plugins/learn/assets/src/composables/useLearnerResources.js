@@ -9,12 +9,13 @@ import { computed, ref } from 'kolibri.lib.vueCompositionApi';
 import { get, set } from '@vueuse/core';
 import flatMap from 'lodash/flatMap';
 
-import { ContentNodeResource } from 'kolibri.resources';
+import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
 import { LearnerClassroomResource } from '../apiResources';
 import { PageNames, ClassesPageNames } from '../constants';
 
 // The refs are defined in the outer scope so they can be use as a store
 const _resumableContentNodes = ref([]);
+const _resumableContentNodesProgresses = ref([]);
 const classes = ref([]);
 
 export default function useLearnerResources() {
@@ -172,6 +173,21 @@ export default function useLearnerResources() {
   }
 
   /**
+   * @param {String} contentNodeId
+   * @returns {Number} A content node progress as a fraction between 0 and 1
+   * @public
+   */
+  function getResumableContentNodeProgress(contentNodeId) {
+    const progressData = get(_resumableContentNodesProgresses).find(
+      item => item.id === contentNodeId
+    );
+    if (!progressData) {
+      return undefined;
+    }
+    return progressData.progress_fraction;
+  }
+
+  /**
    * @param {Object} lesson
    * @returns {Object} vue-router link to a lesson page
    * @public
@@ -253,22 +269,40 @@ export default function useLearnerResources() {
   }
 
   /**
+   * Fetches current learner's classes
+   * and saves data to this composable store
+   *
    * @returns {Promise}
    * @public
    */
   function fetchClasses() {
-    LearnerClassroomResource.fetchCollection().then(collection => {
+    return LearnerClassroomResource.fetchCollection().then(collection => {
       set(classes, collection);
     });
   }
 
   /**
+   * Fetches resumable content nodes with their progress data
+   * and saves data to this composable store
+   *
    * @returns {Promise}
    * @public
    */
   function fetchResumableContentNodes() {
-    ContentNodeResource.fetchResume().then(collection => {
-      set(_resumableContentNodes, collection);
+    return ContentNodeResource.fetchResume().then(contentNodes => {
+      if (!contentNodes) {
+        return [];
+      }
+      set(_resumableContentNodes, contentNodes);
+      const contentNodesIds = contentNodes.map(contentNode => contentNode.id);
+      return ContentNodeProgressResource.fetchCollection({
+        getParams: { ids: contentNodesIds },
+      }).then(progresses => {
+        if (progresses) {
+          set(_resumableContentNodesProgresses, progresses);
+        }
+        return contentNodes;
+      });
     });
   }
 
@@ -281,6 +315,7 @@ export default function useLearnerResources() {
     resumableNonClassesContentNodes,
     getClass,
     getResumableContentNode,
+    getResumableContentNodeProgress,
     getClassLessonLink,
     getClassQuizLink,
     getClassResourceLink,

@@ -4,35 +4,37 @@
     :to="to"
     class="base-card"
   >
-    <KFixedGrid
-      v-if="$slots.topLeft || $slots.topRight"
-      numCols="2"
-      :style="{ marginBottom: '12px' }"
-    >
-      <KFixedGridItem span="1">
-        <slot name="topLeft"></slot>
-      </KFixedGridItem>
-      <KFixedGridItem span="1">
-        <slot name="topRight"></slot>
-      </KFixedGridItem>
-    </KFixedGrid>
+    <div>
+      <KFixedGrid
+        v-if="$slots.topLeft || $slots.topRight"
+        numCols="2"
+        :style="{ marginBottom: '12px' }"
+      >
+        <KFixedGridItem span="1">
+          <slot name="topLeft"></slot>
+        </KFixedGridItem>
+        <KFixedGridItem span="1">
+          <slot name="topRight"></slot>
+        </KFixedGridItem>
+      </KFixedGrid>
 
-    <div
-      v-if="collectionTitle"
-      data-test="collectionTitle"
-    >
-      {{ collectionTitle }}
+      <div
+        v-if="collectionTitle"
+        data-test="collectionTitle"
+      >
+        {{ collectionTitle }}
+      </div>
+
+      <h3 class="title">
+        {{ title }}
+      </h3>
     </div>
 
-    <h3 class="title">
-      {{ title }}
-    </h3>
-
-    <slot name="progress">
-      <div
-        class="progress"
-        :class="themeClasses.progress"
-      >
+    <div
+      class="progress"
+      :class="themeClasses.progress"
+    >
+      <slot name="progress">
         <KLabeledIcon
           v-if="inProgressLabel"
           :color="$themeTokens.progress"
@@ -45,8 +47,8 @@
           :label="completedLabel"
           icon="mastered"
         />
-      </div>
-    </slot>
+      </slot>
+    </div>
   </CardLink>
 
 </template>
@@ -123,6 +125,9 @@
   $font-size-annotation: 14px;
 
   .base-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     font-size: $font-size-annotation;
   }
 
@@ -132,7 +137,9 @@
   }
 
   .progress {
-    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    height: 18px;
   }
 
 </style>

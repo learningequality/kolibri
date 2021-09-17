@@ -1,4 +1,4 @@
-import { ContentNodeResource } from 'kolibri.resources';
+import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
 
 import { PageNames, ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
@@ -13,6 +13,7 @@ const {
   resumableNonClassesContentNodes,
   getClass,
   getResumableContentNode,
+  getResumableContentNodeProgress,
   getClassLessonLink,
   getClassQuizLink,
   getClassResourceLink,
@@ -34,6 +35,37 @@ const TEST_RESUMABLE_CONTENT_NODES = [
   // the following resources are not used in classses
   { id: 'resource-9-in-progress', title: 'Resource 9 (In Progress)' },
   { id: 'resource-10-in-progress', title: 'Resource 10 (In Progress)' },
+];
+
+const TEST_CONTENT_NODES_PROGRESSES = [
+  {
+    id: 'resource-1-in-progress',
+    progress_fraction: 0.2,
+  },
+  {
+    id: 'resource-3-in-progress',
+    progress_fraction: 0.74,
+  },
+  {
+    id: 'resource-5-in-progress',
+    progress_fraction: 0.04,
+  },
+  {
+    id: 'resource-6-in-progress',
+    progress_fraction: 0.1,
+  },
+  {
+    id: 'resource-8-in-progress',
+    progress_fraction: 0.9,
+  },
+  {
+    id: 'resource-9-in-progress',
+    progress_fraction: 0.87,
+  },
+  {
+    id: 'resource-10-in-progress',
+    progress_fraction: 0.02,
+  },
 ];
 
 const TEST_CLASSES = [
@@ -162,6 +194,7 @@ const TEST_CLASSES = [
 describe(`useLearnerResources`, () => {
   beforeAll(() => {
     ContentNodeResource.fetchResume.mockResolvedValue(TEST_RESUMABLE_CONTENT_NODES);
+    ContentNodeProgressResource.fetchCollection.mockResolvedValue(TEST_CONTENT_NODES_PROGRESSES);
     fetchResumableContentNodes();
 
     LearnerClassroomResource.fetchCollection.mockResolvedValue(TEST_CLASSES);
@@ -348,6 +381,12 @@ describe(`useLearnerResources`, () => {
         id: 'resource-6-in-progress',
         title: 'Resource 6 (In Progress)',
       });
+    });
+  });
+
+  describe(`getResumableContentNodeProgress`, () => {
+    it(`returns a resumable content node progress`, () => {
+      expect(getResumableContentNodeProgress('resource-3-in-progress')).toBe(0.74);
     });
   });
 
