@@ -1,6 +1,5 @@
 from django.db.utils import OperationalError
 from django.test import TestCase
-from mock import Mock
 from mock import patch
 
 from kolibri.core.discovery.models import NetworkLocation
@@ -12,19 +11,22 @@ class TestNetworkLocationUpgrade(TestCase):
     multi_db = True
 
     def test_successful_move_locations(self):
-        delete_mock = Mock()
 
-        class ListWithDelete(list):
-            delete = delete_mock
-
-        locations = ListWithDelete([NetworkLocation(base_url="example.com")])
-        with patch("kolibri.core.discovery.upgrade.NetworkLocation") as mock_model:
+        locations = [NetworkLocation(base_url="example.com")]
+        with patch(
+            "kolibri.core.discovery.upgrade.NetworkLocation"
+        ) as mock_model, patch(
+            "kolibri.core.discovery.upgrade.connection"
+        ) as mock_connection:
             mock_model.objects.using().all.return_value = locations
+            mock_model._meta = NetworkLocation._meta
             move_network_location_entries()
             mock_model.objects.using(NETWORK_LOCATION).bulk_create.assert_called_with(
                 locations
             )
-        delete_mock.assert_called()
+            mock_connection.cursor().execute.assert_called_with(
+                "DROP TABLE {}".format(NetworkLocation._meta.db_table)
+            )
 
     def test_default_db_no_migration(self):
         try:
