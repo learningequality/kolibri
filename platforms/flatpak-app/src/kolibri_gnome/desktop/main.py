@@ -15,6 +15,7 @@ import sys
 from functools import partial
 from setproctitle import setproctitle
 
+from gi.repository import Gio
 from gi.repository import GLib
 
 from .. import config
@@ -37,7 +38,8 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--channel-id", type=str, default=None)
-    args = parser.parse_args()
+    parser.add_argument("uri_list", type=str, default=None, nargs="*")
+    args, extra_argv = parser.parse_known_args()
 
     logger = logging.getLogger(__name__)
 
@@ -53,6 +55,8 @@ def main():
     import pew
     from .application import ChannelApplication
     from .application import GenericApplication
+
+    uri_files = [Gio.File.new_for_uri(uri) for uri in args.uri_list]
 
     if args.channel_id:
         pew.set_app_name("Kolibri")
@@ -70,7 +74,13 @@ def main():
         application = GenericApplication(application_id=application_id)
 
     signal.signal(signal.SIGTERM, partial(application_signal_handler, application))
-    application.run()
+
+    application.gtk_application.register()
+
+    if uri_files:
+        application.gtk_application.open(uri_files, "")
+
+    application.run([sys.argv[0], *extra_argv])
 
     logger.info("Stopped at: {}".format(datetime.datetime.today()))
 
