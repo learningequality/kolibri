@@ -23,6 +23,7 @@ from tzlocal import get_localzone
 
 import kolibri
 from kolibri.deployment.default.cache import CACHES
+from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
 from kolibri.plugins.utils.settings import apply_settings
 from kolibri.utils import conf
 from kolibri.utils import i18n
@@ -148,13 +149,20 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
             ),
             "OPTIONS": {"timeout": 100},
         },
-        "notifications_db": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(conf.KOLIBRI_HOME, "notifications.sqlite3"),
-            "OPTIONS": {"timeout": 100},
-        },
     }
-    DATABASE_ROUTERS = ("kolibri.core.notifications.models.NotificationsRouter",)
+
+    for additional_db in ADDITIONAL_SQLITE_DATABASES:
+        DATABASES[additional_db] = {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(conf.KOLIBRI_HOME, "{}.sqlite3".format(additional_db)),
+            "OPTIONS": {"timeout": 100},
+        }
+
+    DATABASE_ROUTERS = (
+        "kolibri.core.notifications.models.NotificationsRouter",
+        "kolibri.core.device.models.SyncQueueRouter",
+        "kolibri.core.discovery.models.NetworkLocationRouter",
+    )
 
 elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
     DATABASES = {

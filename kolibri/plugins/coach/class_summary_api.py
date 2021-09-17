@@ -26,6 +26,7 @@ from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
 from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.sqlite.utils import repair_sqlite_db
+from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
 
 
 # Intended to match  NotificationEventType
@@ -91,7 +92,7 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
         }
     except OperationalError:
         notifications = []
-        repair_sqlite_db(connections["notifications_db"])
+        repair_sqlite_db(connections[NOTIFICATIONS])
 
     # In case a previously flagged learner has since completed an exercise, check all the completed
     # notifications also

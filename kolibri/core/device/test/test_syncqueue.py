@@ -15,15 +15,21 @@ from kolibri.core.public.utils import request_soud_sync
 
 
 class SyncQueueTestBase(TestCase):
+    multi_db = True
+
     def setUp(self):
         self.facility = Facility.objects.create(name="Test")
 
     def test_create_queue_element(self):
         previous_time = time.time()
+        time.sleep(0.1)
         element, _ = SyncQueue.objects.get_or_create(
-            user=FacilityUser.objects.create(username="test", facility=self.facility),
+            user_id=FacilityUser.objects.create(
+                username="test", facility=self.facility
+            ).id,
             instance_id=uuid4(),
         )
+        time.sleep(0.1)
         assert element.keep_alive == 5.0
         current_time = time.time()
         assert (
@@ -34,16 +40,16 @@ class SyncQueueTestBase(TestCase):
     def test_queue_cleaning(self):
         for i in range(3):
             SyncQueue.objects.create(
-                user=FacilityUser.objects.create(
+                user_id=FacilityUser.objects.create(
                     username="test{}".format(i), facility=self.facility
-                ),
+                ).id,
                 instance_id=uuid4(),
             )
         for i in range(3, 5):
             item = SyncQueue.objects.create(
-                user=FacilityUser.objects.create(
+                user_id=FacilityUser.objects.create(
                     username="test{}".format(i), facility=self.facility
-                ),
+                ).id,
                 instance_id=uuid4(),
             )
             item.updated = item.updated - 200
@@ -56,9 +62,9 @@ class SyncQueueTestBase(TestCase):
     def test_dynamic_queue_cleaning(self):
         for i in range(5):
             item = SyncQueue.objects.create(
-                user=FacilityUser.objects.create(
+                user_id=FacilityUser.objects.create(
                     username="test{}".format(i), facility=self.facility
-                ),
+                ).id,
                 instance_id=uuid4(),
             )
             item.updated = item.updated - 20
