@@ -12,13 +12,13 @@
     >
       <slot>
         <KLabeledIcon>
-          <template #icon>
+          <template v-if="icon" #icon>
             <KIcon
               :icon="icon"
               :class="$computedClass(optionIconStyle)"
             />
           </template>
-          <div>{{ label }}</div>
+          <div v-if="label">{{ label }}</div>
         </KLabeledIcon>
         <div
           v-if="secondaryText"
@@ -37,7 +37,8 @@
     props: {
       label: {
         type: String,
-        required: true,
+        required: false,
+        default: '',
       },
       link: {
         type: String,
@@ -49,7 +50,8 @@
       },
       icon: {
         type: String,
-        required: true,
+        required: false,
+        default: '',
       },
     },
     inject: ['showActive'],
