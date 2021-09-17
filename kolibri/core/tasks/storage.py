@@ -6,15 +6,14 @@ from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import func
 from sqlalchemy import or_
-from sqlalchemy import PickleType
 from sqlalchemy import String
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import sessionmaker
 
 from kolibri.core.tasks.exceptions import JobNotFound
-from kolibri.core.tasks.job import Priority
-from kolibri.core.tasks.job import State
+from kolibri.core.tasks.job import Job, Priority, State
 
 Base = declarative_base()
 
@@ -42,8 +41,37 @@ class ORMJob(Base):
     # The queue name passed to the client when the job is scheduled.
     queue = Column(String, index=True)
 
-    # The original Job object, pickled here for so we can easily access it.
-    obj = Column(PickleType(protocol=2))
+    saved_job = Column(String)
+
+    # The original Job object, as a property that can be accessed via deserailizing JSON
+    # *Tries* to persist through usage in the ORM session
+    @hybrid_property
+    def obj(self):
+        self._job_object = getattr(self, "_job_object", None)
+        if self._job_object is not None:
+            return self._job_object
+        if self.saved_job is None:
+            return None
+        self._job_object = Job.from_json(self.saved_job)
+        return self._job_object
+
+    @obj.setter
+    def obj(self, value):
+        if not isinstance(value, Job):
+            raise TypeError("Cannot set non-Job as Job object for ORMJob")
+        # Try to save the job. Don't worry much if it can't be.
+        # (it will send a message with logger.info)
+        json_return = value.to_json()
+        if json_return is not None:
+            self.saved_job = json_return
+        self._job_object = value
+
+    @obj.expression
+    def obj(cls):
+        # Should have no function on the class level - if you're looking at more than one Job, you're better
+        # off adding any columns that don't already exist than trying to compare JSON with database operations.
+        #return cls.one_or_none()
+        return
 
     time_created = Column(DateTime(timezone=True), server_default=func.now())
     time_updated = Column(DateTime(timezone=True), server_onupdate=func.now())
@@ -121,8 +149,8 @@ class Storage(StorageMixin):
                 state=j.state,
                 priority=priority.upper(),
                 queue=queue,
-                obj=j,
             )
+            orm_job.obj = j
             session.merge(orm_job)
             try:
                 session.commit()

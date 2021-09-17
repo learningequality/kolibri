@@ -6,9 +6,9 @@ from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import Index
 from sqlalchemy import Integer
-from sqlalchemy import PickleType
 from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.job import Job
@@ -42,8 +42,30 @@ class ScheduledJob(Base):
     # The app name passed to the client when the job is scheduled.
     queue = Column(String, index=True)
 
-    # The original Job object, pickled here for so we can easily access it.
-    obj = Column(PickleType(protocol=2))
+    # See ORMJob in storage.py
+    # Should probably find a way to consolodate these because it's the same exact code.
+    @hybrid_property
+    def obj(self):
+        self._job_object = getattr(self, "_job_object", None)
+        if self._job_object is not None:
+            return self._job_object
+        if self.saved_job is None:
+            return None
+        self._job_object = Job.from_json(self.saved_job)
+        return self._job_object
+
+    @obj.setter
+    def obj(self, value):
+        if not isinstance(value, Job):
+            raise TypeError("Cannot set non-Job as Job object for ScheduledJob")
+        json_return = value.to_json()
+        if json_return is not None:
+            self.saved_job = json_return
+        self._job_object = value
+
+    @obj.expression
+    def obj(cls):
+        return
 
     scheduled_time = Column(DateTime())
 
@@ -172,8 +194,8 @@ class Scheduler(StorageMixin):
                 interval=interval,
                 repeat=repeat,
                 scheduled_time=naive_utc_datetime(dt),
-                obj=job,
             )
+            scheduled_job.obj = job
             session.merge(scheduled_job)
 
             return job.job_id

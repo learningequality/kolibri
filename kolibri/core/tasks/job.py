@@ -7,7 +7,7 @@ import json
 from django.db import connection as django_connection
 from six import string_types
 
-from kolibri.core.tasks.exceptions import JobSavedWithError, UserCancelledError
+from kolibri.core.tasks.exceptions import ErrorSavedWithJob, UserCancelledError
 from kolibri.core.tasks.utils import current_state_tracker
 from kolibri.core.tasks.utils import import_stringified_func
 from kolibri.core.tasks.utils import stringify_func
@@ -143,31 +143,19 @@ class Job(object):
     to the workers.
     """
 
-    def __getstate__(self):
-        keys = [
-            "job_id",
-            "state",
-            "traceback",
-            "exception",
-            "track_progress",
-            "cancellable",
-            "extra_metadata",
-            "progress",
-            "total_progress",
-            "args",
-            "kwargs",
-            "func",
-            "result",
-        ]
-        return {key: self.__dict__[key] for key in keys if key in self.__dict__}
-
     def to_json(self):
         """
         Creates and returns a JSON-serialized string representing this Job.
-        Can be used to recreate it.
+        This is how Job objects are persisted through restarts.
+
+        Information not saved:
+        - Results of the function, if it finished
+        - Type of the exception object (The type is saved as a string and
+          along with its message are converted to an ErrorSavedWithJob)
+        - Any entire Job, if any of its attributes are not JSON-serializable
+          according to python's json library
         """
 
-        # Not saving exception object - saving its type name instead. Not saving result at all.
         keys = [
             "job_id",
             "state",
@@ -185,23 +173,24 @@ class Job(object):
 
         if self.exception is not None:
             working_dictionary["exception_type"] = type(self.exception).__name__
+            if self.exception.args[0] and isinstance(self.exception.args[0], str):
+                working_dictionary["exception_message"] = self.exception.args[0]
 
         if self.state in [State.CANCELING, State.RUNNING]:
-            logger.warning(
+            logger.debug(
                 "A task is currently in action. This is a bad time to save it to the database."
             )
         if self.result is not None:
-            logger.warning(
-                "Results of tasks are not saved with jobs. Either this fact needs to be changed, "\
-                "or the function for this job should store its result elsewhere."
+            logger.info(
+                "Please know that results of tasks are currently not saved with jobs."
             )
 
         try:
             string_result = json.dumps(working_dictionary)
         except TypeError as e:
-            # The rest of the traceback would go into json.dumps, which is not where the problem is.
-            # The problem is here; one of the keys is not JSON-serializable.
-            raise TypeError("Trying to serialize Job object, but: " + str(e))
+            # One or more of the keys is not JSON-serializable.
+            logger.debug("Job '{}' is not be saved: {}".format(self.job_id, str(e)))
+            string_result = None
         
         return string_result
 
@@ -209,7 +198,7 @@ class Job(object):
     def from_json(cls, json_string):
         working_dictionary = json.loads(json_string)
 
-        # If func isn't in working_dictionary, this should throw an error here; something wasn't saved right.
+        # func is required for a Job so it will always be in working_dictionary
         func = working_dictionary.pop("func")
         args = working_dictionary.pop("args", ())
         kwargs = working_dictionary.pop("kwargs", {})
@@ -245,7 +234,8 @@ class Job(object):
         if exception_type is None:
             exception = None
         else:
-            exception = JobSavedWithError(exception_type)
+            exception_message = kwargs.pop("exception_message", None)
+            exception = ErrorSavedWithJob(exception_message, exception_type)
 
         self.job_id = job_id
         self.state = kwargs.pop("state", State.PENDING)
