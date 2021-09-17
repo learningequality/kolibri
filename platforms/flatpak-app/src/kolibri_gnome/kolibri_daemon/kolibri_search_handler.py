@@ -39,24 +39,36 @@ class SearchHandler(object):
     @staticmethod
     def _node_data_to_item_id(node_data):
         """
-        Converts a Kolibri node ID to an item ID for a search result. This
-        encodes the node type and node ID and matches the format Kolibri uses
-        for URLs.
+        Converts a Kolibri node ID to an item ID for a search result. An item
+        ID consists of a node type and node ID, as well as the channel ID
+        corresponding to the node. For example:
+
+        - t/TOPIC_NODE_ID?CHANNEL_ID
+        - c/CONTENT_NODE_ID?CHANNEL_ID
         """
 
+        node_id = node_data.get("id")
+        channel_id = node_data.get("channel_id")
+
         if node_data.get("kind") == "topic":
-            return "t/{}".format(node_data.get("id"))
+            return "t/{node_id}?{channel_id}".format(
+                node_id=node_id, channel_id=channel_id
+            )
         else:
-            return "c/{}".format(node_data.get("id"))
+            return "c/{node_id}?{channel_id}".format(
+                node_id=node_id, channel_id=channel_id
+            )
 
     @staticmethod
     def _item_id_to_node_id(item_id):
         """
         Converts an item ID from a search result back to a Kolibri node ID.
-        Raises ValueError if item_id is an invalid format.
+        Raises ValueError if item_id is an invalid format. The channel part
+        of the item ID is unused here.
         """
 
-        _kind_code, node_id = item_id.split("/", 1)
+        _kind_code, _sep, node_id_and_channel = item_id.partition("/")
+        node_id, _sep, _channel = node_id_and_channel.partition("?")
         return node_id
 
     @staticmethod
