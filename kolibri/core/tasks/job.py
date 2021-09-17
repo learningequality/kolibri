@@ -191,7 +191,7 @@ class Job(object):
             # One or more of the keys is not JSON-serializable.
             logger.debug("Job '{}' is not be saved: {}".format(self.job_id, str(e)))
             string_result = None
-        
+
         return string_result
 
     @classmethod

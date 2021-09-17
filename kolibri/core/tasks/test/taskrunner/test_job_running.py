@@ -114,7 +114,7 @@ class EventProxy(object):
     creation.
     """
 
-    def __init__(self, *args, event_id = uuid.uuid4().hex, **kwargs):
+    def __init__(self, event_id=uuid.uuid4().hex, *args, **kwargs):
         self.event_id = event_id
         if event_id not in EVENT_PROXY_MAPPINGS:
             EVENT_PROXY_MAPPINGS[event_id] = Event(*args, **kwargs)

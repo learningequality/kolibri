@@ -1,6 +1,5 @@
 import logging
 from contextlib import contextmanager
-from copy import copy
 
 from sqlalchemy import Column
 from sqlalchemy import DateTime
@@ -70,7 +69,6 @@ class ORMJob(Base):
     def obj(cls):
         # Should have no function on the class level - if you're looking at more than one Job, you're better
         # off adding any columns that don't already exist than trying to compare JSON with database operations.
-        #return cls.one_or_none()
         return
 
     time_created = Column(DateTime(timezone=True), server_default=func.now())
