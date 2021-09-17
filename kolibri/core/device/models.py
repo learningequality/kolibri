@@ -212,7 +212,7 @@ class SyncQueue(models.Model):
     """
 
     id = UUIDField(primary_key=True, default=uuid4)
-    user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE, null=False)
+    user_id = UUIDField(blank=False, null=False)
     instance_id = UUIDField(blank=False, null=False)
     datetime = models.DateTimeField(auto_now_add=True)
     updated = models.FloatField(default=time.time)
@@ -249,12 +249,8 @@ class SyncQueueRouter(object):
     def allow_relation(self, obj1, obj2, **hints):
         """Determine if relationship is allowed between two objects."""
 
-        # Allow any relation between SyncQueue and FacilityUser.
-        # This router is only used in SQLite so we are not bound by
-        # FK referential integrity!
-        if (obj1._meta.model is SyncQueue and obj2._meta.model is FacilityUser) or (
-            obj2._meta.model is SyncQueue and obj1._meta.model is FacilityUser
-        ):
+        # Allow any relation between SyncQueue and SyncQueue.
+        if obj1._meta.model is SyncQueue and obj2._meta.model is SyncQueue:
             return True
         # No opinion if neither object is a SyncQueue.
         elif SyncQueue not in [obj1._meta.model, obj2._meta.model]:
