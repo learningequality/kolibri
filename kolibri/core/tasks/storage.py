@@ -318,15 +318,6 @@ class Storage(StorageMixin):
         with self.session_scope() as session:
             try:
                 job, orm_job = self._get_job_and_orm_job(job_id, session)
-                # Note (aron): looks like SQLAlchemy doesn't automatically
-                # save any pickletype fields even if we re-set (orm_job.obj = job) that
-                # field. My hunch is that it's tracking the id of the object,
-                # and if that doesn't change, then SQLAlchemy doesn't repickle the object
-                # and save to the DB.
-                # Our hack here is to just copy the job object, and then set thespecific
-                # field we want to edit, in this case the job.state. That forces
-                # SQLAlchemy to re-pickle the object, thus setting it to the correct state.
-                job = copy(job)
                 if state is not None:
                     orm_job.state = job.state = state
                 for kwarg in kwargs:

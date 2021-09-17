@@ -45,8 +45,8 @@ class Queue(object):
         "check_for_cancel" parameter is passed in. When called, it raises an error when the user has requested a job
         to be cancelled.
 
-        The caller can also pass in any pickleable object into the "extra_metadata" parameter. This data is stored
-        within the job and can be retrieved when the job status is queried.
+        The caller can also pass in any json-serializable object into the "extra_metadata" parameter. This data is
+        stored within the job and can be retrieved when the job status is queried.
 
         All other parameters are directly passed to the function when it starts running.
 
