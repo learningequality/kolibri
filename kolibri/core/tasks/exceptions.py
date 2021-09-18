@@ -22,7 +22,7 @@ class ErrorSavedWithJob(Exception):
         if message is None or message == "":
             message = "This job had an error before it was saved to the database."
         self.prior_type = prior_type
-        super().__init__(message)
+        super(ErrorSavedWithJob, self).__init__(message)
 
     def __str__(self):
         return "{} Exception type: {}".format(self.message, self.prior_type)
