@@ -4,6 +4,7 @@ import traceback
 import uuid
 import json
 
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection as django_connection
 from six import string_types
 
@@ -148,6 +149,9 @@ class Job(object):
         Creates and returns a JSON-serialized string representing this Job.
         This is how Job objects are persisted through restarts.
 
+        Note: Uses DjangoJSONEncoder to encode things. When using a type that's
+        covered by it, the job's .func method needs to deal with that.
+
         Information not saved:
         - Results of the function, if it finished
         - Type of the exception object (The type is saved as a string and
@@ -186,7 +190,7 @@ class Job(object):
             )
 
         try:
-            string_result = json.dumps(working_dictionary)
+            string_result = json.dumps(working_dictionary, cls=DjangoJSONEncoder)
         except TypeError as e:
             # One or more of the keys is not JSON-serializable.
             logger.debug("Job '{}' is not be saved: {}".format(self.job_id, str(e)))

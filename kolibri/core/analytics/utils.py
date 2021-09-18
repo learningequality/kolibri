@@ -423,6 +423,9 @@ def perform_ping(started, server=DEFAULT_SERVER_URL):
 
     language = get_device_setting("language_id", "")
 
+    if not isinstance(started, datetime):
+        started = datetime.datetime.strptime(started)
+
     try:
         timezone = get_current_timezone().zone
     except Exception:
