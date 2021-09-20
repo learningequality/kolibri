@@ -1,7 +1,7 @@
 <template>
 
   <CoreBase
-    :immersivePage="false"
+    :immersivePage="getUserPermissions.can_manage_content"
     immersivePageIcon="close"
     :immersivePagePrimary="false"
     :immersivePageRoute="exitButtonRoute"
@@ -133,6 +133,7 @@
         'ancestors',
       ]),
       ...mapGetters('lessonSummary/resources', ['numRemainingSearchResults']),
+      ...mapGetters(['getUserPermissions']),
       toolbarRoute() {
         if (this.$route.query.last) {
           return this.$router.getRoute(this.$route.query.last);
