@@ -66,7 +66,6 @@
       :genContentLink="genContentLink"
       @close="markAsComplete"
     />
-    <KCircularLoader v-else />
   </div>
 
 </template>
@@ -114,8 +113,10 @@
       ...mapGetters(['isUserLoggedIn', 'currentUserId']),
       ...mapState(['pageName']),
       ...mapState('topicsTree', {
+        content: state => state.content,
         contentId: state => state.content.content_id,
         contentNodeId: state => state.content.id,
+        channel: state => state.channel,
         channelId: state => state.content.channel_id,
         contentKind: state => state.content.kind,
       }),
@@ -127,7 +128,9 @@
         extraFields: state => state.core.logging.summary.extra_fields,
         fullName: state => state.core.session.full_name,
       }),
-
+      isTopic() {
+        return this.content.kind === ContentNodeKinds.TOPIC;
+      },
       progress() {
         if (this.isUserLoggedIn) {
           // if there no attempts for this exercise, there is no progress
@@ -138,7 +141,6 @@
         }
         return this.sessionProgress;
       },
-
       nextContentNodeRoute() {
         // HACK Use a the Resource Viewer Link instead
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
