@@ -432,6 +432,7 @@ def perform_ping(started, server=DEFAULT_SERVER_URL):
         "instance_id": instance.id,
         "version": kolibri.__version__,
         "mode": conf.OPTIONS["Deployment"]["RUN_MODE"],
+        "project": conf.OPTIONS["Deployment"]["PROJECT"],
         "platform": instance.platform,
         "sysversion": instance.sysversion,
         "database_id": instance.database.id,

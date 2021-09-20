@@ -28,7 +28,7 @@
           <th>{{ coreString('progressLabel') }}</th>
           <th>{{ coachString('recipientsLabel') }}</th>
           <th v-show="!$isPrint">
-            {{ $tr('visibleToLearnersLabel') }}
+            {{ coachString('lessonVisibleLabel') }}
           </th>
         </template>
         <template #tbody>
@@ -99,12 +99,12 @@
         if (this.filter.value === 'allLessons') {
           return this.coachString('lessonListEmptyState');
         }
-        if (this.filter.value === 'activeLessons') {
-          return this.$tr('noActiveLessons');
-        }
-        if (this.filter.value === 'inactiveLessons') {
-          return this.$tr('noInactiveLessons');
-        }
+        // if (this.filter.value === 'activeLessons') {
+        //   return this.$tr('noActiveLessons');
+        // }
+        // if (this.filter.value === 'inactiveLessons') {
+        //   return this.$tr('noInactiveLessons');
+        // }
 
         return '';
       },
@@ -114,14 +114,14 @@
             label: this.coreString('allLessonsLabel'),
             value: 'allLessons',
           },
-          {
-            label: this.$tr('activeLessons'),
-            value: 'activeLessons',
-          },
-          {
-            label: this.$tr('inactiveLessons'),
-            value: 'inactiveLessons',
-          },
+          // {
+          //   label: this.$tr('activeLessons'),
+          //   value: 'activeLessons',
+          // },
+          // {
+          //   label: this.$tr('inactiveLessons'),
+          //   value: 'inactiveLessons',
+          // },
         ];
       },
       table() {
@@ -184,15 +184,10 @@
       },
     },
     $trs: {
-      activeLessons: 'Active lessons',
-      inactiveLessons: 'Inactive lessons',
-      noActiveLessons: 'No active lessons',
-      noInactiveLessons: 'No inactive lessons',
-      visibleToLearnersLabel: {
-        message: 'Visible to learners',
-        context:
-          'Column header for table of lessons which will include a toggle switch the user can use to set the visibility status of a lesson.',
-      },
+      // activeLessons: 'Active lessons',
+      // inactiveLessons: 'Inactive lessons',
+      // noActiveLessons: 'No active lessons',
+      // noInactiveLessons: 'No inactive lessons',
       printLabel: {
         message: '{className} Lessons',
         context:

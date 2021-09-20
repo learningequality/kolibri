@@ -285,7 +285,7 @@
               'Playback Rate': this.$tr('playbackRate'),
               Captions: this.$tr('captions'),
               'captions off': this.$tr('captionsOff'),
-              Transcript: this.$tr('transcript'),
+              Transcript: this.coreString('transcript'),
               'Transcript off': this.$tr('transcriptOff'),
               Languages: this.$tr('languages'),
               'Volume Level': this.$tr('volumeLevel'),
@@ -449,7 +449,7 @@
     $trs: {
       replay: {
         message: 'Go back 10 seconds',
-        context: 'Option to rewind a video or audio file by 10 seconds.\n',
+        context: 'Option to rewind a video or audio file by 10 seconds.',
       },
       // Pulled from https://github.com/videojs/video.js/blob/master/lang/en.json
       forward: {
@@ -485,12 +485,12 @@
           'Describes the time tracker indicator bar in the bottom of the media player which allows a learner to view the progress through a media file and skip to specific times.',
       },
       fullscreen: {
-        message: 'Fullscreen',
+        message: 'Enter fullscreen',
         context:
           'Learners can use the full screen button in the bottom right corner to open the media player in fullscreen view.\n',
       },
       nonFullscreen: {
-        message: 'Non-fullscreen',
+        message: 'Exit fullscreen',
         context:
           'Learners can use the full screen button in the bottom right corner to exit the media player from fullscreen view. This text appears upon mouse over of the button.\n',
       },
@@ -515,11 +515,6 @@
       captionsOff: {
         message: 'Captions off',
         context: 'Option for the learner to turn off subtitles (captions) in the media player.',
-      },
-      transcript: {
-        message: 'Transcript',
-        context:
-          '\nRefers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
       },
       transcriptOff: {
         message: 'Transcript off',

@@ -60,7 +60,9 @@
       topicTitle: {
         message:
           'Contains {count, number, integer} {count, plural, one {coach resource} other {coach resources}}',
-        context: "You only need to translate the word 'Contains' here.",
+
+        context:
+          "For example, \"Contains 4 coach resources\".\n\nYou only need to translate the word 'Contains' and 'coach resource/coach resources' here.",
       },
     },
   };

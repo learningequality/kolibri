@@ -7,13 +7,13 @@
   "NextButton.goToNextPage": "Đến trang tiếp theo",
   "PreviousButton.goToPreviousPage": "Trở về trang trước",
   "SearchButton.toggleSearchSideBar": "Bật/tắt thanh bên tìm kiếm",
-  "SearchSideBar.enterSearchQuery": "Nhập nội dung cần tìm",
+  "SearchSideBar.enterSearchQuery": "",
   "SearchSideBar.loadingResults": "Đang tải kết quả",
   "SearchSideBar.noSearchResults": "Không có kết quả",
   "SearchSideBar.numberOfSearchResults": "{num, number, integer} {num, plural, one {kết quả} other {các kết quả}}",
   "SearchSideBar.overCertainNumberOfSearchResults": "Hơn {num, number, integer} {num, plural, one {kết quả} other {các kết quả}}",
   "SearchSideBar.searchThroughBook": "Tìm trong sách",
-  "SearchSideBar.submitSearchQuery": "Gửi nội dung cần tìm",
+  "SearchSideBar.submitSearchQuery": "",
   "SettingsButton.toggleSettingsSideBar": "Bật/tắt thanh bên cài đặt",
   "SettingsSideBar.decrease": "Giảm",
   "SettingsSideBar.increase": "Tăng",
@@ -24,5 +24,5 @@
   "SettingsSideBar.textSize": "Cỡ chữ",
   "SettingsSideBar.theme": "Giao diện",
   "TocButton.toggleTocSideBar": "Bật/tắt thanh bên mục lục",
-  "TopBar.toggleFullscreen": "Bật/tắt Toàn màn hình"
+  "TopBar.toggleFullscreen": "Bật/tắt trọn màn hình"
 }

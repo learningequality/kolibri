@@ -61,6 +61,10 @@
             </template>
           </CoreMenu>
 
+          <div v-if="showSoudNotice" style="padding: 16px">
+            <LearnOnlyDeviceNotice />
+          </div>
+
           <div class="side-nav-scrollable-area-footer" :style="{ color: $themeTokens.annotation }">
             <!-- custom branded footer logo + text -->
             <template v-if="$kolibriBranding.sideNav.brandedFooter">
@@ -129,12 +133,14 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
+  import LearnOnlyDeviceNotice from 'kolibri.coreVue.components.LearnOnlyDeviceNotice';
   import navComponents from 'kolibri.utils.navComponents';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import branding from 'kolibri.utils.branding';
@@ -142,6 +148,7 @@
   import navComponentsMixin from '../mixins/nav-components';
   import logout from './LogoutSideNavEntry';
   import SideNavDivider from './SideNavDivider';
+  import plugin_data from 'plugin_data';
 
   // Explicit ordered list of roles for nav item sorting
   const navComponentRoleOrder = [
@@ -159,6 +166,7 @@
       Backdrop,
       CoreMenu,
       CoreLogo,
+      LearnOnlyDeviceNotice,
       SideNavDivider,
       PrivacyInfoModal,
     },
@@ -183,9 +191,14 @@
         // __copyrightYear is injected by Webpack DefinePlugin
         copyrightYear: __copyrightYear,
         privacyModalVisible: false,
+        isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
       };
     },
     computed: {
+      ...mapGetters(['isAdmin', 'isCoach']),
+      showSoudNotice() {
+        return this.isSubsetOfUsersDevice && (this.isAdmin || this.isCoach);
+      },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
       },
@@ -213,7 +226,7 @@
           if (isShown) {
             window.addEventListener('focus', this.containFocus, true);
             this.previouslyFocusedElement = document.activeElement;
-            this.$refs.sideNav.focus();
+            this.$refs.sideNav && this.$refs.sideNav.focus();
           } else {
             window.removeEventListener('focus', this.containFocus, true);
             this.previouslyFocusedElement.focus();

@@ -1,4 +1,8 @@
 {
   "CommonLearnStrings.learnLabel": "শিখুন",
-  "CommonLearnStrings.recommendedLabel": "আপনার জন্য বাছাই করা"
+  "CommonLearnStrings.mostPopularLabel": "সবচেয়ে জনপ্রিয়",
+  "CommonLearnStrings.nextStepsLabel": "পরবর্তী ধাপ",
+  "CommonLearnStrings.popularLabel": "জনপ্রিয়",
+  "CommonLearnStrings.recommendedLabel": "সুপারিশ করা হয়েছে",
+  "CommonLearnStrings.resumeLabel": "আবার শুরু কর"
 }

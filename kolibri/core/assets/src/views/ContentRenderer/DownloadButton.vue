@@ -27,7 +27,7 @@
     },
     computed: {
       fileOptions() {
-        return this.files.map(file => {
+        let options = this.files.map(file => {
           const label = getFilePresetString(file);
           return {
             label,
@@ -39,6 +39,8 @@
             }),
           };
         });
+        console.log(options);
+        return options;
       },
     },
     methods: {
@@ -71,7 +73,10 @@
         context:
           "The 'DOWNLOAD RESOURCE' button allows learners to download learning resources, like a PDF document for example, to their own device.",
       },
-      downloadFilename: '{ resourceTitle } ({ fileId }).{ fileExtension }',
+      downloadFilename: {
+        message: '{ resourceTitle } ({ fileId }).{ fileExtension }',
+        context: 'DO NOT TRANSLATE.',
+      },
     },
   };
 

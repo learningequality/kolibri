@@ -147,7 +147,10 @@ def run_upgrades(old_version, new_version, app_configs=None):
             and matches_version(new_version, upgrade.NEW_VERSION)
         )
 
-    for version_upgrade in sorted(
-        filter(filter_upgrade, get_upgrades(app_configs=app_configs))
-    ):
-        version_upgrade()
+    # Only run upgrades if we had a previous version, otherwise
+    # we're just upgrading from a blank slate, so no need to run anything
+    if old_version:
+        for version_upgrade in sorted(
+            filter(filter_upgrade, get_upgrades(app_configs=app_configs))
+        ):
+            version_upgrade()

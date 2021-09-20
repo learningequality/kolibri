@@ -1,5 +1,5 @@
 {
-  "BottomBar.jumpToPositionInBook": "Navegar entre las páginas",
+  "BottomBar.jumpToPositionInBook": "Usar teclas de flechas para navegar entre las páginas",
   "BottomBar.preparingSlider": "Preparando la barra de navegación",
   "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "No se pudo cargar este libro",
@@ -7,14 +7,14 @@
   "NextButton.goToNextPage": "Ir a página siguiente",
   "PreviousButton.goToPreviousPage": "Ir a página anterior",
   "SearchButton.toggleSearchSideBar": "Abre/Cierra la barra lateral de búsqueda",
-  "SearchSideBar.enterSearchQuery": "Escribe palabra a buscar",
+  "SearchSideBar.enterSearchQuery": "Escriba una palabra para buscar",
   "SearchSideBar.loadingResults": "Cargando resultados",
   "SearchSideBar.noSearchResults": "No hay resultados",
   "SearchSideBar.numberOfSearchResults": "{num, number, integer} {num, plural, one {resultado} other {resultados}}",
   "SearchSideBar.overCertainNumberOfSearchResults": "Más de {num, number, integer} {num, plural, one {resultado} other {resultados}}",
   "SearchSideBar.searchThroughBook": "Buscar en el libro",
-  "SearchSideBar.submitSearchQuery": "Iniciar búsqueda",
-  "SettingsButton.toggleSettingsSideBar": "Abrir/Cerrar la barra lateral de configuración",
+  "SearchSideBar.submitSearchQuery": "Iniciar la búsqueda",
+  "SettingsButton.toggleSettingsSideBar": "Abre/Cierra la barra lateral de configuración",
   "SettingsSideBar.decrease": "Reducir",
   "SettingsSideBar.increase": "Aumentar",
   "SettingsSideBar.setBeigeTheme": "Activar tema beige",
@@ -23,6 +23,6 @@
   "SettingsSideBar.setWhiteTheme": "Activar tema blanco",
   "SettingsSideBar.textSize": "Tamaño del texto",
   "SettingsSideBar.theme": "Tema",
-  "TocButton.toggleTocSideBar": "Abre/Cierra la barra lateral con el índice de contenidos",
+  "TocButton.toggleTocSideBar": "Abre/Cierra la barra lateral de contenido",
   "TopBar.toggleFullscreen": "Activar/Desactivar pantalla completa"
 }

@@ -82,7 +82,7 @@
                   :userType="getUserKind"
                 />
               </div>
-              <div v-if="getUserKind === 'learner'">
+              <div v-if="isSubsetOfUsersDevice && userIsLearner" data-test="syncStatusInDropdown">
                 <div class="sync-status">
                   {{ $tr('deviceStatus') }}
                 </div>
@@ -104,6 +104,12 @@
               <LogoutSideNavEntry v-if="isUserLoggedIn" />
             </template>
 
+            <template #footer>
+              <!-- Only show this when on a SoUD -->
+              <div v-if="showSoudNotice" class="role" data-test="learnOnlyNotice">
+                <LearnOnlyDeviceNotice />
+              </div>
+            </template>
           </CoreMenu>
 
         </div>
@@ -122,18 +128,20 @@
   import { mapGetters, mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
+  import LearnOnlyDeviceNotice from 'kolibri.coreVue.components.LearnOnlyDeviceNotice';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import UiButton from 'kolibri-design-system/lib/keen/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
-  import { NavComponentSections, SyncStatus } from 'kolibri.coreVue.vuex.constants';
+  import { NavComponentSections, SyncStatus, UserKinds } from 'kolibri.coreVue.vuex.constants';
   import branding from 'kolibri.utils.branding';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
   import SkipNavigationLink from './SkipNavigationLink';
   import SyncStatusDisplay from './SyncStatusDisplay';
+  import plugin_data from 'plugin_data';
 
   const hashedValuePattern = /^[a-f0-9]{30}$/;
 
@@ -145,6 +153,7 @@
       CoreMenu,
       UiButton,
       CoreMenuOption,
+      LearnOnlyDeviceNotice,
       LogoutSideNavEntry,
       UserTypeDisplay,
       SkipNavigationLink,
@@ -168,15 +177,22 @@
         isPolling: false,
         // poll every 10 seconds
         pollingInterval: 10000,
+        isSubsetOfUsersDevice: plugin_data['isSubsetOfUsersDevice'],
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'getUserKind']),
+      ...mapGetters(['isUserLoggedIn', 'getUserKind', 'isAdmin', 'isCoach']),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
         userId: state => state.core.session.user_id,
       }),
+      userIsLearner() {
+        return this.getUserKind == UserKinds.LEARNER;
+      },
+      showSoudNotice() {
+        return this.isSubsetOfUsersDevice && (this.isAdmin || this.isCoach);
+      },
       menuOptions() {
         return navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
@@ -210,7 +226,7 @@
             this.setPollingInterval(this.userSyncStatus.status);
           }
         });
-        if (this.isPolling) {
+        if (this.isPolling && this.isSubsetOfUsersDevice) {
           setTimeout(() => {
             this.pollUserSyncStatusTask();
           }, this.pollingInterval);
@@ -278,7 +294,10 @@
         context:
           'The user menu is located in the upper right corner of the interface. \n\nUsers can use it to adjust their settings like the language used in Kolibri or their name.',
       },
-      deviceStatus: 'Device status',
+      deviceStatus: {
+        message: 'Device status',
+        context: "Table column header in the 'Class learners' page.",
+      },
     },
   };
 
@@ -350,7 +369,8 @@
     font-weight: bold;
   }
 
-  .sync-status {
+  .sync-status,
+  .notice-label {
     margin-top: 16px;
     margin-bottom: 8px;
     font-size: small;

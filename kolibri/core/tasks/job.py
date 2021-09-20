@@ -4,6 +4,7 @@ import traceback
 import uuid
 
 from django.db import connection as django_connection
+from six import string_types
 
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import current_state_tracker
@@ -180,7 +181,7 @@ class Job(object):
             kwargs["extra_metadata"] = func.extra_metadata.copy()
             kwargs["facility_id"] = func.facility_id
             func = func.func
-        elif not callable(func) and not isinstance(func, str):
+        elif not callable(func) and not isinstance(func, string_types):
             raise TypeError(
                 "Cannot create Job for object of type {}".format(type(func))
             )
@@ -302,7 +303,7 @@ class RegisteredJob(object):
             raise ValueError("priority must be one of 'regular' or 'high' (string).")
         if not isinstance(permission_classes, list):
             raise TypeError("permission_classes must be of list type.")
-        if queue is not None and not isinstance(queue, str):
+        elif not isinstance(queue, string_types):
             raise TypeError("queue must be of string type.")
 
         self.func = func

@@ -15,7 +15,7 @@
       <!-- Visibility status/switch -->
       <div v-show="!$isPrint" class="status-item visibility-item">
         <KGridItem class="status-label" :layout12="{ span: 8 }">
-          {{ $tr('visibleToLearnersLabel') }}
+          {{ coachString('lessonVisibleLabel') }}
         </KGridItem>
         <KGridItem :layout12="{ span: 4 }">
           <KSwitch
@@ -127,13 +127,6 @@
           this.$store.dispatch('classSummary/refreshClassSummary');
           this.$store.dispatch('createSnackbar', snackbarMessage);
         });
-      },
-    },
-    $trs: {
-      visibleToLearnersLabel: {
-        message: 'Visible to learners',
-        context:
-          'Label for the switch that toggles whether a lesson is visible to leareners or not.',
       },
     },
   };

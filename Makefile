@@ -141,9 +141,6 @@ staticdeps: clean-staticdeps
 	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	rm -rf kolibri/dist/*.egg-info
 	rm -r kolibri/dist/man kolibri/dist/bin || true # remove the two folders introduced by pip 10
-	# Remove unnecessary python2-syntax'ed file
-	# https://github.com/learningequality/kolibri/issues/3152
-	rm -f kolibri/dist/kolibri_exercise_perseus_plugin/static/mathjax/kathjax.py
 	python2 build_tools/py2only.py # move `future` and `futures` packages to `kolibri/dist/py2only`
 	make test-namespaced-packages
 
@@ -165,6 +162,15 @@ writeversion:
 	python -c "import kolibri; print(kolibri.__version__)" > kolibri/VERSION
 	@echo ""
 	@echo "Current version is now `cat kolibri/VERSION`"
+
+preseeddb:
+	$(eval TEMPKHOME := $(shell mktemp -d /tmp/kolibri-preseeddb-XXXXXXXX))
+	PYTHONPATH=".:$$PYTHONPATH" KOLIBRI_HOME=$(TEMPKHOME) python -m kolibri manage migrate
+	yes yes | PYTHONPATH=".:$$PYTHONPATH" KOLIBRI_HOME=$(TEMPKHOME) python -m kolibri manage deprovision
+	mkdir kolibri/dist/home
+	mv $(TEMPKHOME)/db.sqlite3 kolibri/dist/home/db.sqlite3
+	mv $(TEMPKHOME)/notifications.sqlite3 kolibri/dist/home/notifications.sqlite3
+	rm -r $(TEMPKHOME)
 
 setrequirements:
 	rm -r requirements.txt || true # remove requirements.txt
@@ -198,7 +204,7 @@ i18n-transfer-context:
 i18n-django-compilemessages:
 	# Change working directory to kolibri/ such that compilemessages
 	# finds only the .po files nested there.
-	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages
+	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages --skip-update
 
 i18n-upload: i18n-extract
 	python packages/kolibri-tools/lib/i18n/crowdin.py upload-sources ${branch}

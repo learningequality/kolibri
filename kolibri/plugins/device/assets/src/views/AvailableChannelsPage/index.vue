@@ -437,12 +437,12 @@
       selectEntireChannels: {
         message: 'Select entire channels instead',
         context:
-          '\nAllow the user to select entire channels instead of individual topics/resources within a channel',
+          'Allow the user to select entire channels instead of individual topics/resources within a channel.',
       },
       selectTopicsAndResources: {
-        message: 'Select topics and resources instead',
+        message: 'Select folders and resources instead',
         context:
-          '\nAllow the user to select individual topics/resources within a channel instead of entire channels',
+          'Option to allow the user to select individual folders/resources within a channel instead of entire channels.',
       },
       notEnoughSpaceForChannelsWarning: {
         message:

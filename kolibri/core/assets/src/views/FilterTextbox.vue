@@ -29,7 +29,7 @@
       class="k-filter-clear-button"
       icon="clear"
       :class="model === '' ? '' : 'k-filter-clear-button-visible'"
-      :ariaLabel="$tr('clear')"
+      :ariaLabel="coreString('clearAction')"
       @click="handleClickClear"
     />
   </div>
@@ -41,6 +41,7 @@
 
   import throttle from 'lodash/throttle';
   import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   /**
    * Used to filter items via text input
    */
@@ -49,6 +50,7 @@
     components: {
       UiIcon,
     },
+    mixins: [commonCoreStrings],
     props: {
       /**
        * v-model
@@ -123,11 +125,6 @@
         message: 'filter',
         context:
           'The filter functionality allows users to find elements in Kolibri more efficiently. For example, in a list of users the filter can be used to view users by permissions, user type or facility.',
-      },
-      clear: {
-        message: 'clear',
-        context:
-          "The 'CLEAR' button clears single tasks in the Kolibri Task Manager.\n\nUsing 'CLEAR COMPLETED' will remove ALL the tasks from the list.",
       },
     },
   };

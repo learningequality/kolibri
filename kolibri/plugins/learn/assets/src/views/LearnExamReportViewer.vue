@@ -100,7 +100,7 @@
     },
     $trs: {
       documentTitle: {
-        message: '{ examTitle } report',
+        message: 'Report for { examTitle }',
         context:
           "Title indicating for a learner's report page that also indicates the name of the quiz.",
       },

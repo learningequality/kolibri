@@ -10,6 +10,7 @@ import ProfileEditPage from './views/ProfileEditPage';
 import SignInPage from './views/SignInPage';
 import SignUpPage from './views/SignUpPage';
 import NewPasswordPage from './views/SignInPage/NewPasswordPage';
+import plugin_data from 'plugin_data';
 
 router.beforeEach((to, from, next) => {
   const profileRoutes = [ComponentMap.PROFILE, ComponentMap.PROFILE_EDIT];
@@ -75,7 +76,7 @@ export default [
     path: '/create_account',
     component: SignUpPage,
     beforeEnter(to, from, next) {
-      if (store.getters.isUserLoggedIn) {
+      if (plugin_data.isSubsetOfUsersDevice || store.getters.isUserLoggedIn) {
         next(router.getRoute(ComponentMap.PROFILE));
         return Promise.resolve();
       } else {

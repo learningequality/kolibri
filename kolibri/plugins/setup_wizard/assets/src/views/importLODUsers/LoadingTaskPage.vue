@@ -23,8 +23,9 @@
       <div v-if="loadingTask.status === 'COMPLETED'">
         <KButton
           primary
+          :disabled="!loginFinished"
           :text="coreString('finishAction')"
-          @click="welcomeModal = true"
+          @click="redirectToChannels"
         />
         <KButton
           class="another-user"
@@ -41,12 +42,6 @@
       />
       <span v-else></span>
     </template>
-    <WelcomeModal
-      v-if="welcomeModal"
-      :importedFacility="facility"
-      :isLOD="true"
-      @submit="redirectToChannels"
-    />
   </OnboardingForm>
 
 </template>
@@ -54,40 +49,36 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
-  import redirectBrowser from 'kolibri.utils.redirectBrowser';
-  import { SessionResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import FacilityTaskPanel from '../../../../../device/assets/src/views/FacilitiesPage/FacilityTaskPanel.vue';
-  import WelcomeModal from '../../../../../device/assets/src/views/WelcomeModal.vue';
-  import { TaskStatuses, TaskTypes } from '../../../../../device/assets/src/constants.js';
+  import { TaskStatuses } from '../../../../../device/assets/src/constants.js';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
-  import { SetupSoUDTasksResource } from '../../api';
-
-  const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+  import { FinishSoUDSyncingResource, SetupSoUDTasksResource } from '../../api';
 
   export default {
     name: 'LoadingTaskPage',
     components: {
       FacilityTaskPanel,
       OnboardingForm,
-      WelcomeModal,
     },
     mixins: [commonCoreStrings, commonSyncElements],
     data() {
       return {
-        loadingTask: {},
+        loadingTask: this.state.value.task,
         isPolling: false,
-        welcomeModal: false,
         user: null,
+        loginFinished: false,
       };
     },
     inject: ['lodService', 'state'],
     computed: {
       usersDevice() {
-        const users = this.state.value.users.filter(user => user.task === null);
+        const users = this.state.value.users.filter(u => u.task === null);
         return users;
+      },
+      loadingTaskID() {
+        return this.state.value.task.id;
       },
       facility() {
         return this.state.value.facility;
@@ -98,22 +89,25 @@
       this.pollTask();
     },
     methods: {
-      fullName(task_id) {
-        const user = this.state.value.users.filter(u => u.task == task_id)[0];
-        this.user = user;
-        return user.full_name;
+      userForTask() {
+        return this.state.value.users.filter(u => u.task == this.loadingTaskID)[0];
       },
       pollTask() {
         SetupSoUDTasksResource.fetchCollection({ force: true }).then(tasks => {
-          const soudTasks = tasks.filter(t => t.type === TaskTypes.SYNCLOD);
+          const soudTasks = tasks.filter(t => t.id == this.loadingTaskID);
           if (soudTasks.length > 0) {
+            if (this.user === null) this.user = this.userForTask();
             this.loadingTask = {
               ...soudTasks[0],
-              facility_name: this.facility.name,
-              full_name: this.fullName(soudTasks[0].id),
-              device_id: this.state.value.device.id,
+              facility_name: this.loadingTask.facility_name,
+              full_name: this.loadingTask.full_name,
+              device_id: this.loadingTask.device_id,
             };
             if (this.loadingTask.status === TaskStatuses.COMPLETED) this.finishedTask();
+            if (this.loadingTask.status === TaskStatuses.FAILED) {
+              this.state.value.users.pop();
+              this.isPolling = false;
+            }
           } else this.isPolling = false;
         });
         if (this.isPolling) {
@@ -143,35 +137,33 @@
         this.clearTasks();
         // after importing the first user, let's sign him in to continue:
         if (this.state.value.users.length === 1 && this.user.password) {
-          SessionResource.saveModel({
-            data: {
+          this.$store
+            .dispatch('logIntoSyncedFacility', {
               username: this.user.username,
               password: this.user.password,
               facility: this.facility.id,
-            },
-          });
-        }
+            })
+            .then(() => {
+              this.loginFinished = true;
+            });
+        } else this.loginFinished = true; // when importing from the admin account
       },
       redirectToChannels() {
-        this.welcomeModal = false;
-        window.sessionStorage.setItem(welcomeDimissalKey, true);
-        const device_url = urls['kolibri:kolibri.plugins.device:device_management']();
-        if (this.lodService.state.matches('importingUser')) redirectBrowser(device_url);
-        else this.$store.dispatch('kolibriLogout');
+        FinishSoUDSyncingResource.finish();
       },
     },
     $trs: {
       loadingUserTitle: {
         message: 'Loading user',
-        context: 'Page title',
+        context: 'Status message during user import.',
       },
       importAnother: {
         message: 'Import another user',
-        context: 'give a chance to import more users',
+        context: 'Link to restart the import step for another user. ',
       },
       onThisDevice: {
         message: 'On this device',
-        context: 'To show the list of users on this device',
+        context: 'Heading for a section with the list of users that will be imported.',
       },
     },
   };

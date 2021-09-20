@@ -1,0 +1,10 @@
+{
+  "DemoServerBannerContent.demoServerA1": "წაიკითხეთ დოკუმენტაცია",
+  "DemoServerBannerContent.demoServerA2": "გადმოწერეთ და დააყენეთ უახლესი ვერსია",
+  "DemoServerBannerContent.demoServerHeader": "მოგესალმებით კოლიბრის დემო საიტზე",
+  "DemoServerBannerContent.demoServerL1": "მოსწავლე ({user}/{pass}, ან დაათვალიერეთ ანგარიშის გარეშე)",
+  "DemoServerBannerContent.demoServerL2": "მწვრთნელი ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "გაეცანით მომხმარებლის ნებისმიერ ტიპს:",
+  "DemoServerBannerContent.demoServerP2": "კოლიბრის ეს ონლაინ ვერსია განკუთვნილია მხოლოდ დემონსტრაციისთვის. მომხმარებლები და მონაცემები წაიშლება. ამ დემონსტრაციაში ნახავთ კოლიბრის უახლეს ვერსიას და ყველა რესურსი არის მხოლოდ ნიმუში.",
+  "DemoServerBannerContent.demoServerP3": "რომ ისწავლოთ, როგორ გამოიყენოთ კოლიბრი ოფლაინ და უკეთ გაიცნოთ პლატფორმა:"
+}

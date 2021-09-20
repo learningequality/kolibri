@@ -1,5 +1,5 @@
 import values from 'lodash/values';
-import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+import { ContentNodeKinds, LearningActivities } from 'kolibri.coreVue.vuex.constants';
 import every from 'lodash/every';
 import keys from 'lodash/keys';
 
@@ -19,4 +19,9 @@ export function validateUsername(username) {
 
 export function validateContentNodeKind(value, others = []) {
   return [...values(ContentNodeKinds), ...others].includes(value);
+}
+
+export function validateLearningActivity(arr) {
+  const isValidLearningActivity = v => Object.values(LearningActivities).includes(v);
+  return arr.length > 0 && arr.every(isValidLearningActivity);
 }

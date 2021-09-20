@@ -12,6 +12,10 @@ export const DynamicNetworkLocationResource = new Resource({
   name: 'dynamicnetworklocation',
 });
 
+export const BookmarksResource = new Resource({
+  name: 'bookmarks',
+});
+
 export { default as ClassroomResource } from './classroom';
 export { default as ContentNodeResource } from './contentNode';
 export { default as ContentNodeGranularResource } from './contentNodeGranular';
@@ -23,7 +27,6 @@ export { default as MembershipResource } from './membership';
 export { default as RoleResource } from './role';
 export { default as ContentSessionLogResource } from './contentSessionLog';
 export { default as ContentSummaryLogResource } from './contentSummaryLog';
-export { default as SessionResource } from './session';
 export { default as FacilityResource } from './facility';
 export { default as TaskResource } from './task';
 export { default as FacilityTaskResource } from './facilityTask';

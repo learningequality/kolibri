@@ -7,12 +7,12 @@
   "MediaPlayerIndex.encryptionError": "Mídíà ni a pàrokò a kòsì ní àwọn kọ́kọ́rọ́ láti ṣínà rẹ̀",
   "MediaPlayerIndex.formatError": "Mídíà kòle gbàsílȩ̣̀, bóyá nítorí àpèsè tàbí nétiwọkì kùnà tàbí nítorí a kò gba irúfẹ́ fọ́mátì",
   "MediaPlayerIndex.forward": "Lọ iwájú bíi ìṣẹjú àayá mẹ́wà",
-  "MediaPlayerIndex.fullscreen": "Ẹ̀kúnjú",
+  "MediaPlayerIndex.fullscreen": "",
   "MediaPlayerIndex.languages": "Àwọn Èdè",
   "MediaPlayerIndex.loaded": "Ti gbàsílẹ̀",
   "MediaPlayerIndex.mute": "Dákẹ́ díẹ̀",
   "MediaPlayerIndex.networkError": "Àṣìṣe nẹ́tíwọ́kì fa ìgbàsílẹ̀ mídíà láti kùnà",
-  "MediaPlayerIndex.nonFullscreen": "Àìkúnjú",
+  "MediaPlayerIndex.nonFullscreen": "",
   "MediaPlayerIndex.pause": "Dúró díẹ̀",
   "MediaPlayerIndex.play": "Ṣeré",
   "MediaPlayerIndex.playbackRate": "Ìgbà ìṣerépadà",
@@ -30,5 +30,5 @@
   "TranscriptCue.textLabel": "Àkọsílẹ àkọ́lé tí ò ń wò lọ́wọ̀",
   "TranscriptCue.timeLabel": "Ìgbà tí àtòkalè Ágbékalè ìtumò bìí ìwé ìfọ̀rọ̀wérọ̀ yóò bèrè",
   "TranscriptCue.title": "Fò sí {ìbèrè}",
-  "TranscriptMenuItem.transcript": "Ágbékalè ìtumò bìí ìwé ìfọ̀rọ̀wérọ̀"
+  "TranscriptMenuItem.transcript": "Ágbékalè ìtumò bìí ìwé ìfọ̀rọ̀wérọ̀ "
 }

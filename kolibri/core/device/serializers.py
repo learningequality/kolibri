@@ -7,10 +7,8 @@ from kolibri.core.auth.constants.facility_presets import choices
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import FacilitySerializer
-from kolibri.core.auth.serializers import FacilityUserSerializer
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
-from kolibri.core.device.utils import create_superuser
 from kolibri.core.device.utils import provision_device
 
 
@@ -23,13 +21,10 @@ class DevicePermissionsSerializer(serializers.ModelSerializer):
         fields = ("user", "is_superuser", "can_manage_content")
 
 
-class NoFacilityFacilityUserSerializer(FacilityUserSerializer):
+class NoFacilityFacilityUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = FacilityUser
-        fields = ("id", "username", "full_name", "password", "birth_year", "gender")
-
-    def validate(self, attrs):
-        return attrs
+        fields = ("username", "full_name", "password")
 
 
 class DeviceSerializerMixin(object):
@@ -83,7 +78,12 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             facility.dataset.save()
 
             # Create superuser
-            superuser = create_superuser(validated_data["superuser"], facility=facility)
+            superuser = FacilityUser.objects.create_superuser(
+                validated_data["superuser"]["username"],
+                validated_data["superuser"]["password"],
+                facility=facility,
+                full_name=validated_data["superuser"].get("full_name"),
+            )
 
             # Create device settings
             language_id = validated_data.pop("language_id")

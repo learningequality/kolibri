@@ -1,12 +1,14 @@
 import Vue from 'vue';
-import { SessionResource, AttemptLogResource } from 'kolibri.resources';
+import { AttemptLogResource } from 'kolibri.resources';
 import * as redirectBrowser from 'kolibri.utils.redirectBrowser';
+import client from 'kolibri.client';
 import * as constants from '../../src/constants';
 import ConditionalPromise from '../../src/conditionalPromise';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri.urls');
+jest.mock('kolibri.client');
 
 describe('Vuex store/actions for core module', () => {
   describe('error handling', () => {
@@ -48,16 +50,11 @@ describe('Vuex store/actions for core module', () => {
     });
 
     it('successful login', async () => {
-      Object.assign(SessionResource, {
-        createModel: () => ({
-          save: () =>
-            Promise.resolve({
-              // just sending subset of sessionPayload
-              id: '123',
-              username: 'e_fermi',
-              kind: ['cool-guy-user'],
-            }),
-        }),
+      client.__setPayload({
+        // just sending subset of sessionPayload
+        id: '123',
+        username: 'e_fermi',
+        kind: ['cool-guy-user'],
       });
 
       await store.dispatch('kolibriLogin', {});
@@ -65,20 +62,17 @@ describe('Vuex store/actions for core module', () => {
     });
 
     it('failed login (401)', async () => {
-      Object.assign(SessionResource, {
-        createModel: () => ({
-          save: () =>
-            Promise.reject({
-              response: {
-                data: [
-                  {
-                    id: constants.LoginErrors.INVALID_CREDENTIALS,
-                  },
-                ],
-                status: 401,
+      client.mockImplementation(() => {
+        return Promise.reject({
+          response: {
+            data: [
+              {
+                id: constants.LoginErrors.INVALID_CREDENTIALS,
               },
-            }),
-        }),
+            ],
+            status: 401,
+          },
+        });
       });
 
       const error = await store.dispatch('kolibriLogin', {});

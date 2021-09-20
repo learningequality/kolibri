@@ -34,6 +34,7 @@ import ContentIcon from '../views/ContentIcon';
 import ProgressIcon from '../views/ProgressIcon';
 import PermissionsIcon from '../views/PermissionsIcon';
 import CoreBase from '../views/CoreBase';
+import FullScreenSidePanel from '../views/FullScreenSidePanel';
 import SideNav from '../views/SideNav';
 import Navbar from '../views/Navbar';
 import NavbarLink from '../views/Navbar/NavbarLink';
@@ -87,6 +88,7 @@ import BirthYearDisplayText from '../views/userAccounts/BirthYearDisplayText';
 import PrivacyLinkAndModal from '../views/userAccounts/PrivacyLinkAndModal.vue';
 import PaginatedListContainer from '../views/PaginatedListContainer';
 import PageStatus from '../views/ExamReport/PageStatus';
+import LearnOnlyDeviceNotice from '../views/LearnOnlyDeviceNotice';
 import branding from '../utils/branding';
 import sortLanguages from '../utils/sortLanguages';
 import * as sync from '../views/sync/syncComponentSet';
@@ -140,6 +142,7 @@ export default {
       ProgressIcon,
       PermissionsIcon,
       CoreBase,
+      FullScreenSidePanel,
       SideNav,
       Navbar,
       NavbarLink,
@@ -185,6 +188,7 @@ export default {
       PaginatedListContainer,
       PrivacyLinkAndModal,
       PageStatus,
+      LearnOnlyDeviceNotice,
     },
     componentSets: {
       sync,

@@ -513,11 +513,11 @@
     $trs: {
       incorrectPasswordError: {
         message: 'Incorrect password',
-        context: 'Error that is shown if the user provides the wrong password',
+        context: 'Error that is shown if the user provides the wrong password.',
       },
       incorrectUsernameError: {
         message: 'Incorrect username',
-        context: 'Error that is shown when a user provides a username that is not in the facility',
+        context: 'Error that is shown when a user provides a username that is not in the facility.',
       },
       requiredForCoachesAdmins: {
         message: 'Password is required for coaches and admins',

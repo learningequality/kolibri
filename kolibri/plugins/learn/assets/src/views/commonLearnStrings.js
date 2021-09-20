@@ -7,10 +7,10 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context:
       "Each time a learner signs in to Kolibri, the first thing they see is the  'Learn' page with the list of all the classes they are enrolled to.",
   },
-  recommendedLabel: {
-    message: 'Recommended',
+  libraryLabel: {
+    message: 'Library',
     context:
-      "The 'Recommended' section shows learning topics and materials that are either related to what the learner was doing the last time they used Kolibri, or recommended by their coaches.",
+      "The 'Library' section shows learning topics and materials that are either related to what the learner was doing the last time they used Kolibri, or recommended by their coaches. It also allows learners to browse and explore content on their own.",
   },
   resumeLabel: {
     message: 'Resume',
@@ -22,11 +22,51 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   },
   popularLabel: {
     message: 'Popular',
-    context: 'Label for links that go to the most popular content',
+    context: 'Label for links that go to the most popular content.',
   },
   nextStepsLabel: {
     message: 'Next steps',
-    context: 'Label for links that go to post-requisites for content that has been completed',
+    context: 'Label for links that go to post-requisites for content that has been completed.',
+  },
+  multipleLearningActivitiesLabel: {
+    message: 'Multiple learning activities',
+    context: '',
+  },
+  exploreResources: {
+    message: 'Explore resources',
+  },
+  logo: {
+    message: 'From the channel {channelTitle}',
+    context:
+      'Added to create a complete alt-text description of a logo on a content card to indicate to the user what channel the resource belongs to. For example: From the channel Khan Academy - English',
+  },
+  resourceCompletedLabel: {
+    message: 'Resource completed',
+    context:
+      'Message when the user successfully finishes a resource or marks a resource as complete',
+  },
+  dontShowThisAgainLabel: {
+    message: 'Don’t show this again',
+    context:
+      'Option that allows the user to prevent this resource from displaying in the future while using category search',
+  },
+  markResourceAsCompleteLabel: {
+    message: 'Mark resource as complete',
+    context:
+      'Title of the modal window where a user will confirm or cancel marking a resource as complete manually',
+  },
+  resourceHidden: {
+    message: 'Resource hidden',
+    context:
+      'Notification message indicating the resource has been marked as hidden for future category searches.',
+  },
+  suggestedTimeToComplete: {
+    message: 'Suggested time to complete',
+    context: 'Tooltip label indicating the approximate time needed to complete the resource.',
+  },
+  multipleLearningActivities: {
+    message: 'Multiple learning activities',
+    context: 'Label indicating the resource contains multiple learning activities',
   },
 });
 

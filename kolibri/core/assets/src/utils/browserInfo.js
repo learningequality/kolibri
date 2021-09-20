@@ -1,144 +1,4 @@
-/*
- * userAgent regex is imported from here:
- * https://github.com/faisalman/ua-parser-js/blob/master/src/ua-parser.js
- * The subsequent code is then written from scratch as it was easier than vendoring
- * the more general purpose code therein.
- */
-
-const NAME = 'name';
-const VERSION = 'version';
-const browserTests = [
-  {
-    test: /\s(opr)\/([\w.]+)/i,
-    map: [[NAME, 'Opera'], VERSION],
-  },
-  {
-    tests: [/(?:ms|\()(ie)\s([\w.]+)/i, /(trident).+rv[:\s]([\w.]+).+like\sgecko/i],
-    map: [[NAME, 'IE'], VERSION],
-  },
-
-  {
-    test: /(edge|edgios|edga)\/((\d+)?[\w.]+)/i,
-    map: [[NAME, 'Edge'], VERSION],
-  },
-  {
-    test: /\swv\).+(chrome)\/([\w.]+)/i,
-    map: [[NAME, /(.+)/, '$1 WebView'], VERSION],
-  },
-  {
-    test: /android.+version\/([\w.]+)\s+(?:mobile\s?safari|safari)*/i,
-    map: [VERSION, [NAME, 'Android Browser']],
-  },
-  {
-    test: /(chrome)\/v?([\w.]+)/i,
-    map: [NAME, VERSION],
-  },
-  {
-    test: /((?:android.+)crmo|crios)\/([\w.]+)/i,
-    map: [[NAME, 'Chrome'], VERSION],
-  },
-  {
-    test: /fxios\/([\w.-]+)/i,
-    map: [VERSION, [NAME, 'Firefox']],
-  },
-  {
-    test: /version\/([\w.]+).+?mobile\/\w+\s(safari)/i,
-    map: [VERSION, [NAME, 'Mobile Safari']],
-  },
-  {
-    test: /version\/([\w.]+).+?(mobile\s?safari|safari)/i,
-    map: [VERSION, NAME],
-  },
-  {
-    test: /(firefox)\/([\w.-]+)$/i,
-    map: [NAME, VERSION],
-  },
-];
-
-/**
- * A browser specification object.
- * All version numbers are actually strings to allow for non-final version numbers.
- * @typedef {Object} Browser.
- * @property {?string} name - A nullable string that gives the name of the recognized browser.
- * @property {?string} major - Major version number.
- * @property {?string} minor - Minor version number.
- * @property {?string} patch - Patch version number.
- */
-
-/**
- * This function parses the browser user agent string and returns an object with two values
- * one for the recognized browser name, and one for the recognized browser version.
- * It relies on the regexes above to infer the browser and version from user agent string.
- * As such, its ability to recognizes browsers is limited, as it will only return non-null
- * values for browser and version in the case that the user agent matches those above.
- * @param  {string} userAgent a user agent string from a browser's window.navigator.userAgent.
- * @return {Browser} - a browser specification object.
- */
-export function getBrowser(userAgent) {
-  // Use to track the parsed name and version.
-  const browser = {
-    [NAME]: null,
-    [VERSION]: null,
-  };
-  // Setup the output object which will be returned.
-  const outputBrowser = {
-    name: null,
-    major: null,
-    minor: null,
-    patch: null,
-  };
-
-  if (userAgent) {
-    let val;
-    for (let i = 0; i < browserTests.length; i++) {
-      val = browserTests[i];
-      let regex;
-      if (val.test) {
-        if (val.test.test(userAgent)) {
-          regex = val.test;
-        }
-      } else if (val.tests) {
-        for (let j = 0; j < val.tests.length; j++) {
-          if (val.tests[j].test(userAgent)) {
-            regex = val.tests[j];
-            break;
-          }
-        }
-      }
-      if (regex) {
-        const result = regex.exec(userAgent);
-        for (let k = 0; k < val.map.length; k++) {
-          if (val.map[k] === NAME || val.map[k] === VERSION) {
-            browser[val.map[k]] = result[k + 1];
-            // If it is not one of those two options it must be a map of some sort
-          } else if (val.map[k].length === 2) {
-            browser[val.map[k][0]] = val.map[k][1];
-          } else if (val.map[k].length === 3) {
-            browser[val.map[k][0]] = result[k + 1].replace(val.map[k][1], val.map[k][2]);
-          }
-        }
-        break;
-      }
-    }
-  }
-  if (browser[NAME]) {
-    outputBrowser.name = browser[NAME];
-  }
-
-  if (browser[VERSION]) {
-    const version = browser[VERSION].split('.');
-    if (version[0]) {
-      outputBrowser.major = version[0];
-      if (version[1]) {
-        outputBrowser.minor = version[1];
-        if (version[2]) {
-          outputBrowser.patch = version[2];
-        }
-      }
-    }
-  }
-  return outputBrowser;
-}
+import UAParser from 'ua-parser-js';
 
 /**
  * A requirements specification object.
@@ -178,20 +38,48 @@ export function passesRequirements(browser, requirements) {
 export const userAgent =
   window && window.navigator && window.navigator.userAgent ? window.navigator.userAgent : '';
 
+const parser = new UAParser(userAgent);
+
+/**
+ * General browser info
+ */
+
+const info = parser.getResult();
+
+const browserVersion = (info.browser.version || '').split('.');
+
+export const browser = {
+  name: info.browser.name,
+  major: browserVersion[0],
+  minor: browserVersion[1],
+  patch: browserVersion[2],
+};
+
+const osVersion = (info.os.version || '').split('.');
+
+export const os = {
+  name: info.os.name,
+  major: osVersion[0],
+  minor: osVersion[1],
+  patch: osVersion[2],
+};
+
 /**
  * Detection of whether an Android device is using WebView based on
  * https://developer.chrome.com/multidevice/user-agent#webview_user_agent
  * First checks for 'wv' (Lolipop+), then for 'Version/x.x'
  */
-const isAndroid = /Android/.test(userAgent);
+const isAndroid = os.name === 'Android';
 export const isAndroidWebView =
-  isAndroid && (/wv/.test(userAgent) || /Version\/\d+\.\d+/.test(userAgent));
+  isAndroid &&
+  (browser.name === 'Chrome Webview' ||
+    (browser.name === 'Chrome' && /Version\/\d+\.\d+/.test(userAgent)));
 
 /**
  * Embedded WebViews on Mac have no app identifier, while all the major browsers do, so check
  * for browser app strings and mark as embedded if none are found.
  */
-const isMac = /Macintosh/.test(userAgent);
+const isMac = os.name === 'Mac OS';
 export const isMacWebView =
   isMac && !(/Safari/.test(userAgent) || /Chrome/.test(userAgent) || /Firefox/.test(userAgent));
 
@@ -199,8 +87,3 @@ export const isMacWebView =
  * All web views
  */
 export const isEmbeddedWebView = isAndroidWebView || isMacWebView;
-
-/**
- * General browser info
- */
-export const browser = getBrowser(userAgent);

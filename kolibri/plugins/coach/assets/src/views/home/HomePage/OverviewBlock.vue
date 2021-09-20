@@ -108,7 +108,10 @@
         message: '{count, plural, one {Learner} other {Learners}}',
         context: 'Refers to the learner or learners who are in a class.',
       },
-      viewLearners: 'View learners',
+      viewLearners: {
+        message: 'View learners',
+        context: 'Button which allows coach to view a list of learners in a class.',
+      },
     },
   };
 

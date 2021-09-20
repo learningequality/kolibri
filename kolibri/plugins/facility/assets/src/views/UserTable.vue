@@ -49,7 +49,7 @@
         </template>
         <th v-if="$scopedSlots.action" class="user-action-button">
           <span class="visuallyhidden">
-            {{ $tr('userActionsColumnHeader') }}
+            {{ coreString('userActionsColumnHeader') }}
           </span>
         </th>
       </template>
@@ -229,7 +229,6 @@
         message: 'Role',
         context: "Indicates the user's role (coach, learner etc.)",
       },
-      userActionsColumnHeader: 'Actions',
       selectAllLabel: {
         message: 'Select all',
         context: 'Generic checkbox label used to select all elements in a list.',

@@ -17,7 +17,7 @@
       <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
         <template #headers>
           <th>{{ coachString('nameLabel') }}</th>
-          <th>{{ coachString('avgQuizScoreLabel') }}</th>
+          <th>{{ coachString('avgScoreLabel') }}</th>
           <th>{{ coachString('exercisesCompletedLabel') }}</th>
           <th>{{ coachString('resourcesViewedLabel') }}</th>
           <th>{{ coachString('lastActivityLabel') }}</th>

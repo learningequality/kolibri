@@ -207,6 +207,11 @@
         type: Boolean,
         default: false,
       },
+      // Prop that determines if the page contains an embedded sidebar
+      hasSidebar: {
+        type: Boolean,
+        default: false,
+      },
       // reserve space at the bottom for floating widgets
       marginBottom: {
         type: Number,
@@ -343,7 +348,7 @@
         };
       },
       contentStyles() {
-        if (this.fullScreen || this.$isPrint) {
+        if (this.fullScreen || this.$isPrint || this.hasSidebar) {
           return {
             marginTop: '0px',
             marginBottom: '0px',
@@ -362,6 +367,12 @@
         };
         if (!this.fullScreen) {
           styles['maxWidth'] = this.maxMainWidth + 'px';
+        }
+        if (this.hasSidebar) {
+          styles = {
+            marginLeft: '0',
+            marginRight: '0',
+          };
         }
         return styles;
       },
@@ -533,9 +544,9 @@
 
     @media print {
       /* Without this, things won't print correctly
-       *  - Firefox: Tables will get cutoff
-       *  - Chrome: Table header won't repeat correctly on each page
-       */
+         *  - Firefox: Tables will get cutoff
+         *  - Chrome: Table header won't repeat correctly on each page
+         */
       display: block;
     }
   }
