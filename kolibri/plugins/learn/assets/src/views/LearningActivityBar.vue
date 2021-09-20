@@ -1,7 +1,7 @@
 <template>
 
   <UiToolbar>
-    <KLabeledIcon :style="{ 'margin-top': '8px' }">
+    <KLabeledIcon :style="{ 'margin-top': '8px', 'width': 'auto' }">
       <template #icon>
         <LearningActivityIcon
           data-test="learningActivityIcon"
@@ -13,6 +13,9 @@
         :text="resourceTitle"
         :maxHeight="26"
       />
+      <template #iconAfter>
+        <ProgressIcon :progress="contentProgress" class="progress-icon" />
+      </template>
     </KLabeledIcon>
 
     <template #icon>
@@ -91,10 +94,12 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import difference from 'lodash/difference';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
+  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import { validateLearningActivity } from 'kolibri.utils.validators';
@@ -108,10 +113,11 @@
     components: {
       CoreMenu,
       CoreMenuOption,
-      UiToolbar,
       TextTruncator,
       LearningActivityIcon,
       MarkAsCompleteModal,
+      ProgressIcon,
+      UiToolbar,
     },
     mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
     /**
@@ -170,6 +176,9 @@
       };
     },
     computed: {
+      ...mapState({
+        contentProgress: state => state.core.logging.summary.progress,
+      }),
       allActions() {
         const actions = [
           {
@@ -300,12 +309,13 @@
 
   .menu-wrapper {
     position: relative;
+    padding-right: 16px;
   }
 
   .menu {
     position: absolute;
     top: 50%;
-    right: 10px; // right-align to the menu icon
+    right: 24px; // right-align to the menu icon
     z-index: 2; // set the z-index higher than epub renderer
     min-width: 270px;
     transform: translateY(16px);
@@ -323,6 +333,15 @@
   // and the action buttons on the right
   /deep/ .ui-toolbar__right {
     margin-left: 16px;
+  }
+
+  /deep/ .progress-icon .ui-icon {
+    margin-top: -2px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
   }
 
 </style>
