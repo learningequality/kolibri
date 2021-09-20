@@ -119,6 +119,7 @@ export default class Kolibri extends BaseShim {
        * @param {string} options.cursor - the cursor pagination
        * @param {string[]} options.kinds - an array of kinds to filer by, this
        * option is ignored when "onlyContent" is used
+       * @param {string[]} options.authors - an array of authors to filter by
        * @param {boolean} options.onlyTopics - set to true to query only topic nodes
        * @param {boolean} options.onlyContent - set to true to query only
        * content nodes. This option overrides the "kinds" option, so if

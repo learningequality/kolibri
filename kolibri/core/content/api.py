@@ -247,10 +247,22 @@ class ContentNodeFilter(IdFilter):
     categories__isnull = BooleanFilter(field_name="categories", lookup_expr="isnull")
     lft__gt = NumberFilter(field_name="lft", lookup_expr="gt")
     rght__lt = NumberFilter(field_name="rght", lookup_expr="lt")
+    authors = CharFilter(method="filter_by_authors")
 
     class Meta:
         model = models.ContentNode
         fields = contentnode_filter_fields
+
+    def filter_by_authors(self, queryset, name, value):
+        """
+        Show content filtered by author
+
+        :param queryset: all content nodes for this channel
+        :param value: an array of authors to filter by
+        :return: content nodes that match the authors
+        """
+        authors = value.split(",")
+        return queryset.filter(author__in=authors).order_by("lft")
 
     def filter_kind(self, queryset, name, value):
         """

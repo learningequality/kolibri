@@ -139,6 +139,7 @@
         return ContentNodeResource.fetchCollection({
           getParams: {
             ids: options.ids,
+            authors: options.authors,
             parent: options.parent === 'self' ? this.topic.id : options.parent,
             channel_id: this.topic.channel_id,
             max_results: options.maxResults ? options.maxResults : 50,
