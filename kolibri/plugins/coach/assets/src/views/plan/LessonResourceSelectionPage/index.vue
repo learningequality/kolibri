@@ -1,7 +1,7 @@
 <template>
 
   <CoreBase
-    :immersivePage="true"
+    :immersivePage="false"
     immersivePageIcon="close"
     :immersivePagePrimary="false"
     :immersivePageRoute="exitButtonRoute"
