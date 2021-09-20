@@ -117,8 +117,12 @@ export default class Kolibri extends BaseShim {
        * @param {string[]} options.ids - an array of ids to filter by
        * @param {number} [options.maxResults=50] - the maximum number of nodes per request
        * @param {string} options.cursor - the cursor pagination
+       * @param {string[]} options.kinds - an array of kinds to filer by, this
+       * option is ignored when "onlyContent" is used
        * @param {boolean} options.onlyTopics - set to true to query only topic nodes
-       * @param {boolean} options.onlyContent - set to true to query only content nodes
+       * @param {boolean} options.onlyContent - set to true to query only
+       * content nodes. This option overrides the "kinds" option, so if
+       * onlyContent is used at the same time as "kinds", the "kinds" will be ignored
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       getContentByFilter(options) {

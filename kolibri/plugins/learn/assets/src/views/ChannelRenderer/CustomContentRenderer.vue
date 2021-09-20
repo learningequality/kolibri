@@ -129,7 +129,7 @@
       // called in mainClient.js
       fetchContentCollection(message) {
         const { options } = message;
-        const { onlyContent, onlyTopics } = options;
+        const { kinds, onlyContent, onlyTopics } = options;
 
         if (onlyContent && onlyTopics) {
           const err = new Error('onlyContent and onlyTopics can not be used at the same time');
@@ -144,7 +144,7 @@
             max_results: options.maxResults ? options.maxResults : 50,
             cursor: options.cursor,
             kind: onlyTopics ? ContentNodeKinds.TOPIC : undefined,
-            kind_in: onlyContent ? allButTopicTypes : undefined,
+            kind_in: onlyContent ? allButTopicTypes : kinds,
           },
         })
           .then(contentNodes => {
