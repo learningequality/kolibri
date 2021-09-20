@@ -89,7 +89,7 @@ class BaseAPITestCase(APITestCase):
 @patch("kolibri.core.tasks.api.queue")
 class TaskAPITestCase(BaseAPITestCase):
     def setUp(self):
-        self.client.login(username=self.superuser, password=DUMMY_PASSWORD)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
 
     def test_task_cancel(self, queue_mock, priority_queue_mock):
         queue_mock.fetch_job.return_value = fake_job(state=State.CANCELED)
@@ -110,7 +110,7 @@ class TaskAPITestCase(BaseAPITestCase):
 @patch("kolibri.core.tasks.job.RegisteredJob.enqueue")
 class CreateTaskAPITestCase(BaseAPITestCase):
     def setUp(self):
-        self.client.login(username=self.superuser, password=DUMMY_PASSWORD)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
 
     def tearDown(self):
         JobRegistry.REGISTERED_JOBS.clear()
@@ -528,27 +528,27 @@ class TaskManagementAPITestCase(BaseAPITestCase):
     def test_superuser_can_list_all_facility_jobs(self, mock_job_storage):
         mock_job_storage.get_all_jobs.return_value = self.jobs
 
-        self.client.login(username=self.superuser, password=DUMMY_PASSWORD)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse("kolibri:core:task-list"))
         self.assertEqual(response.data, self.jobs_response)
 
     def test_non_superuser_can_list_only_own_facility_jobs(self, mock_job_storage):
         mock_job_storage.get_all_jobs.return_value = self.jobs
 
-        self.client.login(username=self.facility2user, password=DUMMY_PASSWORD)
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse("kolibri:core:task-list"))
         self.assertEqual(response.data, self.jobs_response[1])
 
     def test_do_list_api_respects_registered_job_permissions(self, mock_job_storage):
         mock_job_storage.get_all_jobs.return_value = self.jobs
-        self.client.login(username=self.facility2user, password=DUMMY_PASSWORD)
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
 
         response = self.client.get(reverse("kolibri:core:task-list"))
         self.assertEqual(response.data, self.jobs_response[1])
 
     def test_can_list_queue_specific_jobs(self, mock_job_storage):
         mock_job_storage.get_all_jobs(queue="kolibri").return_value = self.jobs[0]
-        self.client.login(username=self.superuser, password=DUMMY_PASSWORD)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
 
         response = self.client.get(
             reverse("kolibri:core:task-list"), {"queue": "kolibri"}
@@ -582,7 +582,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
             assert_clearable(i, True)
 
     def test_can_superuser_retrieve_any_facility_job(self, mock_job_storage):
-        self.client.login(username=self.superuser, password=DUMMY_PASSWORD)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
         mock_job_storage.get_job("0").return_value = self.jobs[0]
         mock_job_storage.get_job("1").return_value = self.jobs[1]
 
@@ -597,7 +597,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
         self.assertEqual(response.data, self.jobs_response[1])
 
     def test_non_superuser_can_retrieve_only_own_facility_job(self, mock_job_storage):
-        self.client.login(username=self.facility2user, password=DUMMY_PASSWORD)
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
         mock_job_storage.get_job("0").return_value = self.jobs[0]
         mock_job_storage.get_job("1").return_value = self.jobs[1]
 
@@ -612,7 +612,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
         self.assertEqual(response.data, self.jobs_response[1])
 
     def test_retrieval_respects_registered_job_permissions(self, mock_job_storage):
-        self.client.login(username=self.facility2user, password=DUMMY_PASSWORD)
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
         mock_job_storage.get_job("0").return_value = self.jobs[0]
 
         response = self.client.get(
@@ -621,7 +621,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_retrieval_404(self, mock_job_storage):
-        self.client.login(username=self.facility2user, password=DUMMY_PASSWORD)
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
         mock_job_storage.get_job.return_value = JobNotFound
 
         response = self.client.get(
@@ -630,7 +630,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_restart_task(self, mock_job_storage):
-        self.client.login(username=self.facility2user, password=DUMMY_PASSWORD)
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
         mock_job_storage.restart_job("1").return_value = self.jobs[1].job_id
         mock_job_storage.get_job("1").return_value = self.jobs[1]
 
@@ -641,7 +641,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
         self.assertEqual(response.data, self.jobs_response[1])
 
     def test_restart_task_respect_permissions(self, mock_job_storage):
-        self.client.login(username=self.facility2user, password=DUMMY_PASSWORD)
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
         mock_job_storage.restart_job("0").return_value = self.jobs[0].job_id
         mock_job_storage.get_job("0").return_value = self.jobs[0]
 
@@ -680,7 +680,7 @@ class TaskAPIPermissionsTestCase(APITestCase):
 @patch("kolibri.core.tasks.api.facility_queue")
 class FacilityTaskAPITestCase(BaseAPITestCase):
     def setUp(self):
-        self.client.login(username=self.superuser, password=DUMMY_PASSWORD)
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
 
     def assertJobResponse(self, job_data, response):
         id = job_data.get("job_id", fake_job_defaults.get("job_id"))
