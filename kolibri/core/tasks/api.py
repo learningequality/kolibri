@@ -208,14 +208,16 @@ class BaseViewSet(viewsets.ViewSet):
         Other raises `PermissionDenied` if `request.user` is not allowed to proceed based
         on registered_job's permissions.
         """
+        job_facility_id = None
         if job:
             job_facility_id = getattr(job, "facility_id", None)
-        else:
-            job_facility_id = None
 
-        if not request.user.is_superuser:
-            if job_facility_id and job_facility_id != request.user.facility_id:
-                raise PermissionDenied
+        try:
+            if not request.user.is_superuser and request.user.is_facility_user:
+                if job_facility_id and job_facility_id != request.user.facility_id:
+                    raise PermissionDenied
+        except AttributeError:
+            pass
 
         for permission in registered_job.permissions:
             if not permission.has_permission(request, self):
@@ -290,8 +292,8 @@ class BaseViewSet(viewsets.ViewSet):
         Enqueues a registered task for async processing.
 
         If the registered task has a validator then that validator is run with the
-        `request` object as its argument. The dict returned by the validator is passed
-        as keyword arguments to the task function.
+        `request` object and the corresponding `request.data` as its argument. The dict
+        returned by the validator is passed as keyword arguments to the task function.
 
         If the registered task has no validator then `request.data` is passed as keyword
         arguments to the task function.
@@ -321,10 +323,10 @@ class BaseViewSet(viewsets.ViewSet):
             funcstr = request_data.pop("task")
             registered_job = JobRegistry.REGISTERED_JOBS[funcstr]
 
-            # Run validator with `request` as its argument.
+            # Run validator with `request` and `request_data` as its argument.
             if registered_job.validator is not None:
                 try:
-                    validator_result = registered_job.validator(request)
+                    validator_result = registered_job.validator(request, request_data)
                 except Exception as e:
                     raise e
 
