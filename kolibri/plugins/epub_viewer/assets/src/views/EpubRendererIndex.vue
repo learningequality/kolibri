@@ -136,6 +136,7 @@
         @sliderChanged="handleSliderChanged"
       />
     </div>
+
   </CoreFullscreen>
 
 </template>
@@ -760,25 +761,35 @@
 
   .epub-renderer {
     position: relative;
-    max-height: 100%;
-    padding-top: calc(100vh - #{$bottom-bar-height});
+    // Counter-balance the padding to avoid unnecessary scroll
+    height: calc(100vh - 64px);
+    padding: 32px 24px;
     overflow: hidden;
     font-size: smaller;
     border: solid 1px;
     border-radius: $radius;
+
+    /deep/ .time-context {
+      font-size: medium;
+    }
   }
 
   .epub-renderer:fullscreen,
   .epub-renderer.small:fullscreen {
-    padding-top: 0;
+    padding: 0;
+
+    .epub-renderer-content {
+      height: 100%;
+    }
+    /deep/ .time-context {
+      // Hides suggested time in full screen
+      display: none;
+    }
   }
 
   .epub-renderer-content {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    position: relative;
+    height: calc(100% - #{$bottom-bar-height});
   }
 
   .top-bar-component {
