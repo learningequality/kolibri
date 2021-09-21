@@ -407,15 +407,14 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
   $controls-height: 40px;
+  $top-bar-height: 32px;
+
   .pdf-renderer {
     @extend %momentum-scroll;
     @extend %dropshadow-2dp;
 
     position: relative;
-    height: 500px;
-    // This ensures that showing vs hiding the controls
-    // will not cover visible content below (ie, author name)
-    margin-bottom: $controls-height;
+    height: calc(100vh - #{$top-bar-height} - #{$controls-height});
     overflow-y: hidden;
   }
   .controls {
