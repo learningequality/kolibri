@@ -16,6 +16,9 @@ from django.utils.functional import wraps
 from morango.models.core import DatabaseIDModel
 from requests.exceptions import RequestException
 
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
+
 
 def get_free_tcp_port():
     tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -90,6 +93,14 @@ class KolibriServer(object):
             )
         )
 
+    def change_password(self, user, password):
+        self.pipe_shell(
+            'from kolibri.core.auth.models import *; user = FacilityUser.objects.get(id="{user}"); user.set_password("{password}"); user.save()'.format(
+                user=user.id if isinstance(user, FacilityUser) else user,
+                password=password,
+            )
+        )
+
     def pipe_shell(self, text):
         subprocess.call(
             "echo '{}' | kolibri shell".format(text), env=self.env, shell=True
@@ -114,6 +125,54 @@ class KolibriServer(object):
             shutil.rmtree(self.env["KOLIBRI_HOME"])
         except OSError:
             pass
+
+    def sync(
+        self, server, facility, user=None, username="superuser", password="password"
+    ):
+        """
+        Perform a sync from this device to another server. If `user` is provided, perform
+        a single-user sync. If credentials are needed, include `username` and `password`.
+        """
+
+        extra_args = []
+
+        if user:
+            extra_args += [
+                "--user",
+                user.id if isinstance(user, FacilityUser) else user,
+            ]
+
+        if username and password:
+            extra_args += [
+                "--username",
+                username,
+                "--password",
+                password,
+            ]
+
+        self.manage(
+            "sync",
+            "--baseurl",
+            server.baseurl,
+            "--facility",
+            facility.id if isinstance(facility, Facility) else facility,
+            *extra_args
+        )
+
+    def generate_base_data(self):
+
+        self.manage("loaddata", "content_test")
+        self.manage("generateuserdata", "--no-onboarding", "--num-content-items", "1")
+
+        facility = Facility.objects.using(self.db_alias).get()
+        learner = FacilityUser.objects.using(self.db_alias).filter(
+            roles__isnull=True, devicepermissions=None
+        )[0]
+        staff = FacilityUser.objects.using(self.db_alias).filter(
+            roles__isnull=True, devicepermissions=None
+        )[0]
+
+        return facility, learner, staff
 
 
 class multiple_kolibri_servers(object):
