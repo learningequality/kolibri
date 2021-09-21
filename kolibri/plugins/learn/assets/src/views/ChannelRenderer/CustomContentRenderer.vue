@@ -121,6 +121,7 @@
             channel_id: this.topic.channel_id,
             max_results: options.maxResults ? options.maxResults : 50,
             cursor: options.cursor,
+            kind: options.onlyTopics ? 'topic' : undefined,
           },
         })
           .then(contentNodes => {
