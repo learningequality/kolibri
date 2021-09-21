@@ -1,22 +1,16 @@
 <template>
 
-  <div v-if="itemId || itemData" class="bibliotron-exercise perseus-root">
-    <div class="framework-perseus" :class="{ 'perseus-mobile': isMobile }">
-      <div id="perseus" ref="perseus" style="background-color: white;">
-        <div class="loader-container">
-          <KLinearLoader
-            v-show="loading"
-            :delay="false"
-            type="indeterminate"
-          />
-        </div>
-        <div
-          id="problem-area"
-          :dir="contentDirection"
-        >
-          <div id="workarea" style="margin-left: 0px"></div>
-        </div>
-
+  <div
+    v-if="itemId || itemData"
+    class="bibliotron-exercise perseus-root"
+    :class="{ 'perseus-mobile': isMobile }"
+  >
+    <LessonMasteryBar
+      data-test="lessonMasteryBar"
+      :availableHintsMessage="$tr('hint', { hintsLeft: availableHints })"
+      @takeHint="takeHint"
+    >
+      <template #hint>
         <div
           v-if="anyHints"
           class="hint-btn-container"
@@ -44,12 +38,30 @@
             :tooltipText="$tr('hintExplanation')"
           />
         </div>
+      </template>
+    </LessonMasteryBar>
+    <div class="framework-perseus">
+      <div id="perseus" ref="perseus" class="perseus">
+        <div class="loader-container">
+          <KLinearLoader
+            v-show="loading"
+            :delay="false"
+            type="indeterminate"
+          />
+        </div>
+        <div
+          id="problem-area"
+          class="problem-area"
+          :dir="contentDirection"
+        >
+          <div id="workarea" style="margin-left: 0px"></div>
+        </div>
 
 
-        <div v-if="hinted" id="hintlabel" :dir="contentDirection">
+        <div v-if="hinted" id="hintlabel" class="hintlabel" :dir="contentDirection">
           {{ $tr("hintLabel") }}
         </div>
-        <div id="hintsarea" :dir="contentDirection" style="margin-left: 0px"></div>
+        <div id="hintsarea" class="hintsarea" :dir="contentDirection"></div>
 
         <div style="clear: both;"></div>
 
@@ -61,7 +73,7 @@
         </div>
       </transition>
 
-      <div id="answer-area-wrap" :dir="contentDirection" style="background-color: white;">
+      <div id="answer-area-wrap" :dir="contentDirection">
         <div id="answer-area">
           <div class="info-box">
             <div id="solutionarea" class="solutionarea"></div>
@@ -110,6 +122,7 @@
   // referenced via WebpackProvidePlugin
   import '../i18n';
   import widgetSolver from '../widgetSolver';
+  import LessonMasteryBar from '../../../../learn/assets/src/views/classes/LessonMasteryBar';
   import imageMissing from './image_missing.svg';
 
   // A handy convenience mapping to what is essentially a constructor for Item Renderer
@@ -135,6 +148,7 @@
     name: 'PerseusRendererIndex',
     components: {
       CoreInfoIcon,
+      LessonMasteryBar,
     },
     mixins: [responsiveWindowMixin],
     data: () => ({
@@ -627,16 +641,31 @@
   @import '~../../dist/perseus.css';
   @import '~../../dist/mathquill.css';
 
-  .solutionarea {
-    border: 0;
+  /deep/ .perseus-hint-renderer {
+    padding-left: 16px;
+    border-left-style: none;
   }
 
-  .bibliotron-exercise {
-    margin-bottom: 8px;
+  /deep/ .perseus-hint-label {
+    margin-left: 16px;
+  }
+
+  .solutionarea {
+    padding: 0 !important;
+    border-bottom-style: none !important;
+  }
+
+  .hintlabel {
+    margin-left: 16px;
+  }
+
+  .hintsarea {
+    padding-right: 16px;
   }
 
   .hint-btn-container {
-    margin-top: 32px;
+    margin-right: 24px;
+    font-size: medium;
     text-align: right;
   }
 
@@ -653,8 +682,12 @@
     height: 4px;
   }
 
-  .framework-perseus.perseus-mobile {
-    margin-top: 0;
+  .problem-area {
+    padding: 0 16px 16px;
+  }
+
+  .framework-perseus {
+    margin: 32px 24px 0;
   }
 
 </style>
@@ -665,6 +698,9 @@
   // Reset global styles so that we don't interfere with perseus styling
 
   .perseus-root {
+    position: relative;
+    z-index: 0;
+
     div,
     span,
     applet,
@@ -813,6 +849,15 @@
   // try to prevent nested scroll bars
   .perseus-widget-container > div {
     overflow: visible !important;
+  }
+
+  .perseus {
+    padding: 24px;
+    background: white;
+  }
+
+  /deep/ .perseus-renderer {
+    padding: 16px;
   }
 
 </style>
