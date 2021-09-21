@@ -10,9 +10,6 @@ oriented data synchronization.
 <template v-if="ready">
 
   <div>
-    <LessonMasteryBar
-      data-test="lessonMasteryBar"
-    />
     <div>
       <UiAlert v-if="itemError" :dismissible="false" type="error">
         {{ $tr('itemError') }}
@@ -22,7 +19,7 @@ oriented data synchronization.
           @click="nextQuestion"
         />
       </UiAlert>
-      <div class="content-wrapper">
+      <div class="content-wrapper" :style="{ backgroundColor: this.$themePalette.grey.v_100 }">
         <KContentRenderer
           ref="contentRenderer"
           :kind="kind"
@@ -118,7 +115,6 @@ oriented data synchronization.
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
-  import LessonMasteryBar from '../classes/LessonMasteryBar';
   import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
   import ExerciseAttempts from './ExerciseAttempts';
 
@@ -128,7 +124,6 @@ oriented data synchronization.
       ExerciseAttempts,
       UiAlert,
       BottomAppBar,
-      LessonMasteryBar,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
@@ -585,11 +580,6 @@ oriented data synchronization.
   .attempts-container {
     height: 111px;
     text-align: left;
-  }
-
-  .content-wrapper {
-    padding: 50px;
-    background-color: white;
   }
 
   .mobile {
