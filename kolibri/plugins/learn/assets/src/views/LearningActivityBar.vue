@@ -1,6 +1,10 @@
 <template>
 
-  <UiToolbar>
+  <UiToolbar style="z-index: 8;">
+    <CoachContentLabel
+      :value="isCoachContent"
+      style="margin-top: 8px; width: auto;"
+    />
     <KLabeledIcon :style="{ 'margin-top': '8px', 'width': 'auto' }">
       <template #icon>
         <LearningActivityIcon
@@ -97,6 +101,7 @@
   import { mapState } from 'vuex';
   import difference from 'lodash/difference';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
@@ -111,6 +116,7 @@
   export default {
     name: 'LearningActivityBar',
     components: {
+      CoachContentLabel,
       CoreMenu,
       CoreMenuOption,
       TextTruncator,
@@ -178,6 +184,9 @@
     computed: {
       ...mapState({
         contentProgress: state => state.core.logging.summary.progress,
+      }),
+      ...mapState('topicsTree', {
+        isCoachContent: state => (state.content.coach_content ? 1 : 0),
       }),
       allActions() {
         const actions = [
@@ -316,7 +325,7 @@
     position: absolute;
     top: 50%;
     right: 24px; // right-align to the menu icon
-    z-index: 2; // set the z-index higher than epub renderer
+    z-index: 8;
     min-width: 270px;
     transform: translateY(16px);
   }
