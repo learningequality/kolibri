@@ -1,14 +1,13 @@
 import copy
+import json
 import logging
 import traceback
 import uuid
-import json
 
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection as django_connection
 from six import string_types
 
-from kolibri.core.tasks.exceptions import ErrorSavedWithJob, UserCancelledError
+from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import current_state_tracker
 from kolibri.core.tasks.utils import import_stringified_func
 from kolibri.core.tasks.utils import stringify_func
@@ -154,15 +153,15 @@ class Job(object):
 
         Information not saved:
         - Results of the function, if it finished
-        - Type of the exception object (The type is saved as a string and
-          along with its message are converted to an ErrorSavedWithJob)
+        - Exception object (The type name and traceback are saved instead)
         - Any entire Job, if any of its attributes are not JSON-serializable
-          according to python's json library
+          according to Django's JSON encoder
         """
 
         keys = [
             "job_id",
             "state",
+            "exception",
             "traceback",
             "track_progress",
             "cancellable",
@@ -173,24 +172,21 @@ class Job(object):
             "kwargs",
             "func",
         ]
-        working_dictionary = {key: self.__dict__[key] for key in keys if key in self.__dict__}
 
-        if self.exception is not None:
-            working_dictionary["exception_type"] = type(self.exception).__name__
-            if self.exception.args[0] and isinstance(self.exception.args[0], str):
-                working_dictionary["exception_message"] = self.exception.args[0]
+        if isinstance(self.exception, Exception):
+            self.exception = type(self.exception).__name__
 
-        if self.state in [State.CANCELING, State.RUNNING]:
-            logger.debug(
-                "A task is currently in action. This is a bad time to save it to the database."
-            )
         if self.result is not None:
             logger.info(
                 "Please know that results of tasks are currently not saved with jobs."
             )
 
+        working_dictionary = {
+            key: self.__dict__[key] for key in keys if key in self.__dict__
+        }
+
         try:
-            string_result = json.dumps(working_dictionary, cls=DjangoJSONEncoder)
+            string_result = json.dumps(working_dictionary)
         except TypeError as e:
             # One or more of the keys is not JSON-serializable.
             logger.debug("Job '{}' is not be saved: {}".format(self.job_id, str(e)))
@@ -235,17 +231,14 @@ class Job(object):
         if job_id is None:
             job_id = uuid.uuid4().hex
 
-        exception_type = kwargs.pop("exception_type", None)
-        if exception_type is None:
-            exception = None
-        else:
-            exception_message = kwargs.pop("exception_message", None)
-            exception = ErrorSavedWithJob(exception_message, exception_type)
+        exc = kwargs.pop("exception", None)
+        if isinstance(exc, Exception):
+            exc = type(exc).__name__
 
         self.job_id = job_id
         self.state = kwargs.pop("state", State.PENDING)
-        self.traceback = kwargs.pop("traceback", "")
-        self.exception = exception
+        self.exception = exc
+        self.traceback = kwargs.pop("traceback", None)
         self.track_progress = kwargs.pop("track_progress", False)
         self.cancellable = kwargs.pop("cancellable", False)
         self.extra_metadata = kwargs.pop("extra_metadata", {})

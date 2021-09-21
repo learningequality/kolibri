@@ -59,6 +59,8 @@ DEFAULT_PING_CHECKRATE = 15
 DEFAULT_PING_JOB_ID = "0"
 DEFAULT_SERVER_URL = "https://telemetry.learningequality.org"
 
+ISO_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
+
 USER_THRESHOLD = 10
 
 facility_settings = [
@@ -423,8 +425,7 @@ def perform_ping(started, server=DEFAULT_SERVER_URL):
 
     language = get_device_setting("language_id", "")
 
-    if not isinstance(started, datetime.datetime):
-        started = datetime.datetime.strptime(started)
+    started = datetime.datetime.strptime(started, ISO_DATETIME_FORMAT)
 
     try:
         timezone = get_current_timezone().zone
@@ -513,7 +514,7 @@ def schedule_ping(
 ):
     # If pinging is not disabled by the environment
     if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
-        started = local_now()
+        started = local_now().strftime(ISO_DATETIME_FORMAT)
         _ping.enqueue_at(
             started,
             interval=interval * 60,

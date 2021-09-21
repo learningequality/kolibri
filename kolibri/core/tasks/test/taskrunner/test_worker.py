@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from kolibri.core.tasks.exceptions import ErrorSavedWithJob
 import time
 
 import pytest
@@ -68,10 +67,8 @@ class TestWorker:
 
         returned_job = worker.storage.get_job(job_id)
         assert returned_job.state == "FAILED"
-        assert isinstance(returned_job.exception, (TypeError, ErrorSavedWithJob))
-        if isinstance(returned_job.exception, ErrorSavedWithJob):
-            assert returned_job.exception.prior_type == "TypeError"
-        assert returned_job.exception.args[0] == error_text
+        assert returned_job.exception == "TypeError"
+        assert error_text in returned_job.traceback
 
     def test_enqueue_job_writes_to_storage_on_success(self, worker):
         with patch.object(
