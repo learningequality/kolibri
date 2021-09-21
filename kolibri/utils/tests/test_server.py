@@ -72,7 +72,7 @@ class TestServerServices(object):
     @mock.patch("kolibri.core.deviceadmin.utils.schedule_vacuum")
     @mock.patch("kolibri.core.analytics.utils.schedule_ping")
     @mock.patch("kolibri.core.tasks.main.initialize_workers")
-    @mock.patch("kolibri.core.discovery.utils.network.search.register_zeroconf_service")
+    @mock.patch("kolibri.core.discovery.utils.network.search.start_zeroconf_broadcast")
     def test_required_services_initiate_on_start(
         self,
         register_zeroconf_service,
@@ -95,7 +95,7 @@ class TestServerServices(object):
             register_zeroconf_service.assert_not_called()
 
     @mock.patch("kolibri.core.tasks.main.initialize_workers")
-    @mock.patch("kolibri.core.discovery.utils.network.search.register_zeroconf_service")
+    @mock.patch("kolibri.core.discovery.utils.network.search.start_zeroconf_broadcast")
     def test_scheduled_jobs_persist_on_restart(
         self,
         register_zeroconf_service,
@@ -170,7 +170,7 @@ class TestServerServices(object):
 
 
 class TestZeroConfPlugin(object):
-    @mock.patch("kolibri.core.discovery.utils.network.search.register_zeroconf_service")
+    @mock.patch("kolibri.core.discovery.utils.network.search.start_zeroconf_broadcast")
     def test_required_services_initiate_on_start(
         self,
         register_zeroconf_service,
@@ -189,9 +189,7 @@ class TestZeroConfPlugin(object):
 
         zeroconf_plugin.STOP()
 
-    @mock.patch(
-        "kolibri.core.discovery.utils.network.search.unregister_zeroconf_service"
-    )
+    @mock.patch("kolibri.core.discovery.utils.network.search.stop_zeroconf_broadcast")
     def test_services_shutdown_on_stop(self, unregister_zeroconf_service):
         zeroconf_plugin = server.ZeroConfPlugin(mock.MagicMock(name="bus"), 1234)
         # Now, let us stop services plugin

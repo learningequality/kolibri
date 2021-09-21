@@ -282,44 +282,32 @@ class ZeroConfPlugin(Monitor):
 
     def SERVING(self, port):
         # Register the Kolibri zeroconf service so it will be discoverable on the network
-        from kolibri.core.discovery.utils.network.search import (
-            register_zeroconf_service,
-        )
+        from kolibri.core.discovery.utils.network.search import start_zeroconf_broadcast
 
-        register_zeroconf_service(port=port or self.port)
+        start_zeroconf_broadcast(port or self.port)
 
     def STOP(self):
         super(ZeroConfPlugin, self).STOP()
-        from kolibri.core.discovery.utils.network.search import (
-            unregister_zeroconf_service,
-        )
+        from kolibri.core.discovery.utils.network.search import stop_zeroconf_broadcast
 
-        unregister_zeroconf_service()
+        stop_zeroconf_broadcast()
 
     def run(self):
         from kolibri.core.discovery.utils.network.search import (
-            ZEROCONF_STATE,
-            register_zeroconf_service,
+            get_zeroconf_broadcast_addresses,
+            update_zeroconf_broadcast_interfaces,
         )
 
-        if (
-            # If the current addresses that zeroconf is listening on does not
-            # match the current set of all addresses for this device, then
-            # we should reinitialize zeroconf, the listener, and the broadcasted
-            # kolibri service.
-            ZEROCONF_STATE["addresses"] == set(get_all_addresses())
-            # The only time we shouldn't do this is if we haven't actually finished
-            # registering the zeroconf service yet, and the port hasn't been defined.
-            # Without the port being defined here, we cannot make the call to register_zeroconf_service
-            # below that we do without invoking the port.
-            or ZEROCONF_STATE["port"] is None
-        ):
-            return
-        logger.info(
-            "New addresses detected since zeroconf was initialized, re-initializing now"
-        )
-        register_zeroconf_service()
-        logger.info("Zeroconf has reinitialized")
+        # If the current addresses that zeroconf is listening on does not
+        # match the current set of all addresses for this device, then
+        # we should reinitialize zeroconf, the listener, and the broadcasted
+        # kolibri service.
+        if get_zeroconf_broadcast_addresses() != set(get_all_addresses()):
+            logger.info(
+                "New addresses detected since zeroconf was initialized, updating now"
+            )
+            update_zeroconf_broadcast_interfaces()
+            logger.info("Zeroconf has updated")
 
 
 status_map = {
