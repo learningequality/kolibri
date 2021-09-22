@@ -231,7 +231,9 @@ class TestQueue(object):
             assert e.wait(timeout=2)
 
     def test_enqueued_job_can_receive_job_updates(self, inmem_queue, flag):
-        job_id = inmem_queue.enqueue(make_job_updates, flag.event_id, track_progress=True)
+        job_id = inmem_queue.enqueue(
+            make_job_updates, flag.event_id, track_progress=True
+        )
 
         # sleep for half a second to make us switch to another thread
         time.sleep(0.5)
