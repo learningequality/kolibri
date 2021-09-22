@@ -140,6 +140,7 @@
           getParams: {
             ids: options.ids,
             authors: options.authors,
+            tags: options.tags,
             parent: options.parent === 'self' ? this.topic.id : options.parent,
             channel_id: this.topic.channel_id,
             max_results: options.maxResults ? options.maxResults : 50,

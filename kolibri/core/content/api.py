@@ -248,6 +248,7 @@ class ContentNodeFilter(IdFilter):
     lft__gt = NumberFilter(field_name="lft", lookup_expr="gt")
     rght__lt = NumberFilter(field_name="rght", lookup_expr="lt")
     authors = CharFilter(method="filter_by_authors")
+    tags = CharFilter(method="filter_by_tags")
 
     class Meta:
         model = models.ContentNode
@@ -263,6 +264,17 @@ class ContentNodeFilter(IdFilter):
         """
         authors = value.split(",")
         return queryset.filter(author__in=authors).order_by("lft")
+
+    def filter_by_tags(self, queryset, name, value):
+        """
+        Show content filtered by tag
+
+        :param queryset: all content nodes for this channel
+        :param value: an array of tags to filter by
+        :return: content nodes that match the tags
+        """
+        tags = value.split(",")
+        return queryset.filter(tags__tag_name__in=tags).order_by("lft")
 
     def filter_kind(self, queryset, name, value):
         """
