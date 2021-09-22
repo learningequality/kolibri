@@ -5,7 +5,8 @@ from django.core.management.base import CommandError
 from django.db.models import Sum
 
 from kolibri.core.content.models import ChannelMetadata
-from kolibri.core.content.models import LocalFile, ContentNode
+from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import propagate_forced_localfile_removal
 from kolibri.core.content.utils.annotation import reannotate_all_channels
 from kolibri.core.content.utils.annotation import set_content_invisible
@@ -127,10 +128,12 @@ class Command(AsyncCommand):
         delete_all_metadata = delete_metadata(
             channel, node_ids, exclude_node_ids, force_delete
         )
-        nodes = ContentNode.objects.filter(id__in=node_ids).all()
-        lst_nodes = list(nodes)
         unused_files = LocalFile.objects.get_unused_files()
-        total_resource_number, unused_files_, total_bytes_to_transfer = get_import_export_data(
+        (
+            total_resource_number,
+            unused_files_,
+            total_bytes_to_transfer,
+        ) = get_import_export_data(
             channel.id,
             node_ids,
             exclude_node_ids,

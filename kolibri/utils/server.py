@@ -657,8 +657,8 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
     service_plugin.subscribe()
 
     # Setup zeroconf plugin
-    # zeroconf_plugin = ZeroConfPlugin(bus, port)
-    # zeroconf_plugin.subscribe()
+    zeroconf_plugin = ZeroConfPlugin(bus, port)
+    zeroconf_plugin.subscribe()
 
     signal_handler = SignalHandler(bus)
 
