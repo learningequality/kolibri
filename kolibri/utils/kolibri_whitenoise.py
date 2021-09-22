@@ -7,10 +7,27 @@ from django.contrib.staticfiles import finders
 from django.core.files.storage import FileSystemStorage
 from django.utils._os import safe_join
 from whitenoise import WhiteNoise
+from whitenoise.httpstatus_backport import HTTPStatus
+from whitenoise.responders import Response
 from whitenoise.string_utils import decode_path_info
 
 
 compressed_file_extensions = ("gz",)
+
+not_found_status = HTTPStatus(404, "Not Found")
+
+
+class NotFoundStaticFile(object):
+    """
+    A special static file class to give a not found response,
+    rather than letting it be further handled by the wrapped WSGI server.
+    """
+
+    def get_response(self, method, request_headers):
+        return Response(not_found_status, [], None)
+
+
+NOT_FOUND = NotFoundStaticFile()
 
 
 class FileFinder(finders.FileSystemFinder):
@@ -62,7 +79,9 @@ class FileFinder(finders.FileSystemFinder):
 class DynamicWhiteNoise(WhiteNoise):
     index_file = "index.html"
 
-    def __init__(self, application, dynamic_locations=None, **kwargs):
+    def __init__(
+        self, application, dynamic_locations=None, static_prefix=None, **kwargs
+    ):
         whitenoise_settings = {
             # Use 1 day as the default cache time for static assets
             "max_age": 24 * 60 * 60,
@@ -82,6 +101,9 @@ class DynamicWhiteNoise(WhiteNoise):
             if self.dynamic_finder.prefixes
             else None
         )
+        if static_prefix is not None and not static_prefix.endswith("/"):
+            raise ValueError("Static prefix must end in '/'")
+        self.static_prefix = static_prefix
 
     def __call__(self, environ, start_response):
         path = decode_path_info(environ.get("PATH_INFO", ""))
@@ -109,9 +131,17 @@ class DynamicWhiteNoise(WhiteNoise):
                     except (IOError, OSError):
                         pass
                 self.add_file_to_dictionary(url, path, stat_cache=stat_cache)
-                return self.files.get(url)
+        elif (
+            path is None
+            and self.static_prefix is not None
+            and url.startswith(self.static_prefix)
+        ):
+            self.files[url] = NOT_FOUND
+        return self.files.get(url)
 
     def get_dynamic_path(self, url):
+        if self.static_prefix is not None and url.startswith(self.static_prefix):
+            return finders.find(url[len(self.static_prefix) :])
         if self.dynamic_check is not None and self.dynamic_check.match(url):
             return self.dynamic_finder.find(url)
 
@@ -122,16 +152,3 @@ class DynamicWhiteNoise(WhiteNoise):
         path = self.get_dynamic_path(url)
         if path:
             yield path
-
-
-class DjangoWhiteNoise(DynamicWhiteNoise):
-    def __init__(self, application, static_prefix=None, **kwargs):
-        super(DjangoWhiteNoise, self).__init__(application, **kwargs)
-        self.static_prefix = static_prefix
-
-    def get_dynamic_path(self, url):
-        dynamic_path = super(DjangoWhiteNoise, self).get_dynamic_path(url)
-        if dynamic_path is not None:
-            return dynamic_path
-        if url.startswith(self.static_prefix):
-            return finders.find(url[len(self.static_prefix) :])
