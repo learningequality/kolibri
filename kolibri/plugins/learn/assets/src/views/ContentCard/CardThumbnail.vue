@@ -4,15 +4,26 @@
     class="card-thumbnail-wrapper"
     :class="{ 'mobile-thumbnail': isMobile }"
     :style="thumbnailBackground"
-  ></div>
+  >
+    <div
+      v-if="activityLength"
+      :class="isRtl ? 'chip-right' : 'chip-left' "
+      :style="{ color: $themeTokens.textInverted }"
+    >
+      {{ coreString(activityLength) }}
+    </div>
+  </div>
 
 </template>
 
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+
   export default {
     name: 'CardThumbnail',
+    mixins: [commonCoreStrings],
     props: {
       thumbnail: {
         type: String,
@@ -21,6 +32,10 @@
       isMobile: {
         type: Boolean,
         default: false,
+      },
+      activityLength: {
+        type: String,
+        default: null,
       },
     },
     computed: {
@@ -55,6 +70,28 @@
     height: 56px;
   }
 
+  .chip-right {
+    position: absolute;
+    right: 10px;
+    bottom: 20px;
+    height: 34px;
+    padding: 8px;
+    font-size: 13px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 4px;
+  }
+
+  .chip-left {
+    position: absolute;
+    bottom: 20px;
+    left: 10px;
+    height: 34px;
+    padding: 8px;
+    font-size: 13px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 4px;
+  }
+
   /* MOBILE OVERRIDES */
   .mobile-thumbnail.card-thumbnail-wrapper {
     width: 100%;
@@ -73,6 +110,9 @@
 
     .content-icon {
       font-size: 18px;
+    }
+    .activity-length-chip {
+      bottom: 20px;
     }
   }
 
