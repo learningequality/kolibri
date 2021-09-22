@@ -42,9 +42,12 @@
   import genContentLink from '../utils/genContentLink';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
-  import { PageNames } from '../constants';
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { ContentNodeResource } from 'kolibri.resources';
+  import { normalizeContentNode } from '../modules/coreLearn/utils.js';
 
   export default {
     name: 'BookmarkPage',
@@ -107,10 +110,10 @@
         context:
           "Header on the 'Bookmarks' page with the list of the resources user previously saved.",
       },
-      removedNotification: {
-        message: 'Removed from bookmarks',
-        context: 'Message indicating that a resource has been removed from the Bookmarks page.',
-      },
+      // removedNotification: {
+      //   message: 'Removed from bookmarks',
+      //   context: 'Message indicating that a resource has been removed from the Bookmarks page.',
+      // },
       noBookmarks: {
         message: 'You have no bookmarked resources',
         context: "Status message in the 'Bookmarks' page when user did not bookmark any resources.",

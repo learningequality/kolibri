@@ -30,6 +30,10 @@
     <ContentCardListViewItem
       v-for="content in contents"
       :key="content.id"
+      :channelThumbnail="setChannelThumbnail(content)"
+      :channelTitle="channelTitle(content)"
+      :description="content.description"
+      activityLength="shortActivity"
       class="grid-item"
       :isMobile="windowIsSmall"
       :title="content.title"
@@ -41,6 +45,8 @@
       :link="genContentLink(content.id, content.is_leaf)"
       :contentId="content.content_id"
       :copiesCount="content.copies_count"
+      :footerIcons="footerIcons"
+      :createdDate="content.bookmark ? content.bookmark.created : null"
       @openCopiesModal="openCopiesModal"
       @toggleInfoPanel="$emit('toggleInfoPanel', content)"
       @removeFromBookmarks="removeFromBookmarks(content, contents)"
@@ -60,13 +66,12 @@
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import genContentLink from '../utils/genContentLink';
-  import ContentCard from './ContentCard';
   import CopiesModal from './CopiesModal';
 
   export default {
     name: 'ContentCardGroupGrid',
     components: {
-      ContentCard,
+      // ContentCard,
       CopiesModal,
     },
     mixins: [responsiveWindowMixin],

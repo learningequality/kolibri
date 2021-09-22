@@ -105,6 +105,9 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonLearnStrings from '../commonLearnStrings';
   import CardThumbnail from './CardThumbnail.vue';
+  import { now } from 'kolibri.utils.serverClock';
+  import commonLearnStrings from './commonLearnStrings';
+  import CardThumbnail from './ContentCard/CardThumbnail';
 
   export default {
     name: 'HybridLearningContentCard',
@@ -120,6 +123,10 @@
         required: true,
       },
       subtitle: {
+        type: String,
+        default: null,
+      },
+      createdDate: {
         type: String,
         default: null,
       },
@@ -150,6 +157,13 @@
       numCoachContents: {
         type: Number,
         default: 0,
+      level: {
+        type: String,
+        default: null,
+      },
+      category: {
+        type: String,
+        default: null,
       },
       progress: {
         type: Number,
@@ -164,6 +178,10 @@
         required: true,
         validator: validateLinkObject,
       },
+      isLeaf: {
+        type: Boolean,
+        default: false,
+      },
       isMobile: {
         type: Boolean,
         default: false,
@@ -176,7 +194,18 @@
         type: Number,
         default: null,
       },
+      activityLength: {
+        type: String,
+        default: null,
+      },
+      footerIcons: {
+        type: Object,
+        default: null,
+      },
     },
+    data: () => ({
+      now: now(),
+    }),
     computed: {
       ...mapGetters(['isLearner', 'isUserLoggedIn']),
       isTopic() {
@@ -192,6 +221,21 @@
       },
       hasFooter() {
         return this.numCoachContents > 0 || this.copiesCount > 1 || this.$slots.actions;
+        return 40;
+      },
+      maxDescriptionHeight() {
+        return 100;
+      },
+      displayCategoryAndLevelMetadata() {
+        if (this.category && this.level) {
+          return this.category`| ${this.level} `;
+        } else if (this.category) {
+          return this.category;
+        } else if (this.level) {
+          return this.level;
+        } else {
+          return null;
+        }
       },
       kindToLearningActivity() {
         let activity = '';
@@ -206,6 +250,20 @@
           return `${activity}`;
         }
       },
+      isLibraryPage() {
+        return this.pageName === PageNames.LIBRARY;
+      },
+      ceilingDate() {
+        if (this.createdDate > this.now) {
+          return this.now;
+        }
+        return this.createdDate;
+      },
+      bookmarkCreated() {
+        const time = this.$formatRelative(this.ceilingDate, { now: this.now });
+        return this.coreString('bookmarkedTimeAgoLabel', { time });
+      },
+    },
     },
   };
 
@@ -230,6 +288,7 @@
     position: relative;
     display: inline-block;
     width: 100%;
+    height: 246px;
     text-decoration: none;
     vertical-align: top;
     border-radius: 8px;
@@ -248,6 +307,20 @@
     margin-bottom: 0;
     font-size: 13px;
   }
+  .details {
+    display: inline-block;
+    max-width: calc(100% - 350px);
+    margin: 24px;
+    vertical-align: top;
+  }
+
+  .title {
+    margin: 0;
+  }
+
+  .text {
+    font-size: 14px;
+  }
 
   .k-labeled-icon {
     display: inline-block;
@@ -255,6 +328,13 @@
     height: 24px;
     margin-bottom: 0;
     vertical-align: top;
+  }
+
+  .metadata-info-footer {
+    display: inline-block;
+    margin: 0;
+    font-size: 13px;
+    color: #616161;
   }
 
   .channel-logo {
@@ -268,6 +348,20 @@
     position: relative;
     height: 190px;
     padding: $margin;
+  }
+  .copies {
+    display: inline-block;
+    padding: 6px 8px;
+    font-size: 13px;
+    color: black;
+    text-decoration: none;
+    vertical-align: top;
+  }
+
+  .folder-header {
+    width: 100%;
+    height: 15px;
+    border-radius: 8px 8px 0 0;
   }
 
   .footer {
@@ -284,29 +378,38 @@
     max-width: 70%;
   }
 
-  .left {
-    float: left;
+  .thumbnail {
+    display: inline-block;
+    width: 240px;
+    height: 100px;
+    margin-right: 24px;
+    margin-left: 24px;
   }
 
-  .right {
+  .footer-left {
+    display: block;
     float: right;
+  }
+  .footer-right {
+    display: block;
+    float: left;
   }
 
   .mobile-card.card {
     width: 100%;
-    height: $thumb-height-mobile;
+    height: 490px;
   }
 
   .mobile-card {
     .thumbnail {
       position: absolute;
+      width: 100%;
+      margin: 0;
     }
-    .text {
-      height: 84px;
-      margin-left: $thumb-width-mobile;
-    }
-    .subtitle {
-      top: 36px;
+    .details {
+      max-width: 100%;
+      padding: 8px;
+      margin-top: $thumb-height-mobile;
     }
   }
 
