@@ -1,10 +1,36 @@
-import { shallowMount, mount } from '@vue/test-utils';
+import { createLocalVue, shallowMount, mount } from '@vue/test-utils';
+import Vuex from 'vuex';
 
 import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 import LearningActivityBar from '../../src/views/LearningActivityBar';
 
+const localVue = createLocalVue();
+
+localVue.use(Vuex);
+
+const defaultStore = {
+  state: {
+    core: {
+      logging: {
+        summary: {
+          progress: 0,
+        },
+      },
+    },
+    topicsTree: {
+      content: {
+        coach_content: 0,
+      },
+    },
+  },
+};
+
+function makeStore(customStore = {}) {
+  return new Vuex.Store(Object.assign(defaultStore, customStore));
+}
+
 function makeWrapper({ propsData } = {}) {
-  return mount(LearningActivityBar, { propsData });
+  return mount(LearningActivityBar, { propsData, store: makeStore() });
 }
 
 describe('LearningActivityBar', () => {
@@ -13,6 +39,7 @@ describe('LearningActivityBar', () => {
       propsData: {
         learningActivities: [LearningActivities.WATCH],
       },
+      store: makeStore(),
     });
     expect(wrapper.exists()).toBe(true);
   });
@@ -213,6 +240,7 @@ describe('LearningActivityBar', () => {
             allowMarkComplete: false,
             learningActivities: [LearningActivities.WATCH],
           },
+          store: makeStore(),
         });
       });
 
