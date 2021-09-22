@@ -147,15 +147,7 @@ class Job(object):
         """
         Creates and returns a JSON-serialized string representing this Job.
         This is how Job objects are persisted through restarts.
-
-        Note: Uses DjangoJSONEncoder to encode things. When using a type that's
-        covered by it, the job's .func method needs to deal with that.
-
-        Information not saved:
-        - Results of the function, if it finished
-        - Exception object (The type name and traceback are saved instead)
-        - Any entire Job, if any of its attributes are not JSON-serializable
-          according to Django's JSON encoder
+        This storage method is why task exceptions are stored as strings.
         """
 
         keys = [
@@ -171,15 +163,8 @@ class Job(object):
             "args",
             "kwargs",
             "func",
+            "result",
         ]
-
-        if isinstance(self.exception, Exception):
-            self.exception = type(self.exception).__name__
-
-        if self.result is not None:
-            logger.info(
-                "Please know that results of tasks are currently not saved with jobs."
-            )
 
         working_dictionary = {
             key: self.__dict__[key] for key in keys if key in self.__dict__
@@ -188,10 +173,11 @@ class Job(object):
         try:
             string_result = json.dumps(working_dictionary)
         except TypeError as e:
-            # One or more of the keys is not JSON-serializable.
-            logger.debug("Job '{}' is not be saved: {}".format(self.job_id, str(e)))
-            string_result = None
-
+            # If you get this error, make sure your function's arguments and
+            # results are both JSON-serializable.
+            raise TypeError(
+                "Job objects need to be JSON-serializable: {}".format(str(e))
+            )
         return string_result
 
     @classmethod

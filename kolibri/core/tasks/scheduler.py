@@ -171,8 +171,8 @@ class Scheduler(StorageMixin):
                 interval=interval,
                 repeat=repeat,
                 scheduled_time=naive_utc_datetime(dt),
+                saved_job=job.to_json(),
             )
-            scheduled_job.saved_job = job.to_json()
             session.merge(scheduled_job)
 
             return job.job_id

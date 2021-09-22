@@ -123,8 +123,8 @@ class Storage(StorageMixin):
                 state=j.state,
                 priority=priority.upper(),
                 queue=queue,
+                saved_job=j.to_json(),
             )
-            orm_job.saved_job = j.to_json()
             session.merge(orm_job)
             try:
                 session.commit()
@@ -274,6 +274,7 @@ class Storage(StorageMixin):
         Returns: None
 
         """
+        exception = type(exception).__name__
         self._update_job(job_id, State.FAILED, exception=exception, traceback=traceback)
 
     def mark_job_as_running(self, job_id):
