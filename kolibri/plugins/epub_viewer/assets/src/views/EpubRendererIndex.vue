@@ -768,10 +768,6 @@
     font-size: smaller;
     border: solid 1px;
     border-radius: $radius;
-
-    /deep/ .time-context {
-      font-size: medium;
-    }
   }
 
   .epub-renderer:fullscreen,
@@ -780,10 +776,6 @@
 
     .epub-renderer-content {
       height: 100%;
-    }
-    /deep/ .time-context {
-      // Hides suggested time in full screen
-      display: none;
     }
   }
 

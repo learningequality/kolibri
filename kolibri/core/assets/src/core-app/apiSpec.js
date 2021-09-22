@@ -101,6 +101,9 @@ import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
 import TextTruncator from '../views/TextTruncator';
 import TimeDuration from '../views/TimeDuration';
+// TODO Migrate SuggestedTime into ../views/SuggestedTime. This is not to be done
+// because the strings for SuggestedTime are namespaced in the Learn plugin
+import SuggestedTime from '../../../../plugins/learn/assets/src/views/SuggestedTime';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import filterUsersByNames from '../utils/filterUsersByNames';
@@ -189,6 +192,7 @@ export default {
       PrivacyLinkAndModal,
       PageStatus,
       LearnOnlyDeviceNotice,
+      SuggestedTime,
     },
     componentSets: {
       sync,

@@ -12,14 +12,6 @@
 
 <style lang="scss" scoped>
 
-  /deep/ .ui-toolbar__right {
-    //margin-right: 16px;
-  }
-
-  /deep/ .ui-toolbar__left {
-    //margin-left: 30px;
-  }
-
   /deep/ .ui-toolbar__title {
     overflow: hidden;
     white-space: nowrap;
