@@ -33,7 +33,7 @@
           />
           <CoreInfoIcon
             class="info-icon"
-            tooltipPosition="bottom right"
+            tooltipPlacement="bottom left"
             :iconAriaLabel="$tr('hintExplanation')"
             :tooltipText="$tr('hintExplanation')"
           />
@@ -664,7 +664,6 @@
   }
 
   .hint-btn-container {
-    margin-right: 24px;
     font-size: medium;
     text-align: right;
   }
@@ -674,7 +673,7 @@
   }
 
   .info-icon {
-    margin-left: 8px;
+    margin: 0 8px;
   }
 
   .loader-container {

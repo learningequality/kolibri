@@ -3,7 +3,7 @@
   <!-- z-index 7 - one beneath top menu bar for nested elevations -->
   <UiToolbar style="z-index: 7;">
     <template #icon>
-      <OverallStatus :style="{ 'margin-left': '16px' }" />
+      <OverallStatus />
     </template>
 
     <template #actions>

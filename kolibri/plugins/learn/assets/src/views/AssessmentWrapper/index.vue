@@ -582,10 +582,6 @@ oriented data synchronization.
     text-align: left;
   }
 
-  .mobile {
-    padding: 8px;
-  }
-
   .overall-status {
     margin-bottom: 8px;
   }

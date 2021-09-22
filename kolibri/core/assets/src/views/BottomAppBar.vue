@@ -5,7 +5,7 @@
     :style="{ backgroundColor: $themeTokens.surface }"
     :class="{ 'bottom-sm': windowIsSmall }"
   >
-    <div class="inner-bottom" :style="innerStyle">
+    <div class="inner-bottom">
       <slot></slot>
     </div>
   </div>

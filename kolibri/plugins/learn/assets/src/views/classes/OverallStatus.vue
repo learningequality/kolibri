@@ -79,7 +79,8 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .overall-container {
-    margin-bottom: auto;
+    // Aligns icon itself to others on its side ltr & rtl
+    margin: 0 -16px !important;
   }
 
   .overall-status {

@@ -11,6 +11,7 @@
     </UiIcon>
     <KTooltip
       reference="icon"
+      :class="{ 'ltr': !isRtl }"
       :refs="$refs"
       :placement="tooltipPlacement"
     >
@@ -67,6 +68,15 @@
 
   .pos-rel {
     position: relative;
+  }
+
+  /* Styles to keep the tooltip on screen */
+
+  /* The default style aligns perfectly in RTL */
+  .ltr {
+    /deep/ .k-tooltip {
+      left: -175px !important;
+    }
   }
 
 </style>

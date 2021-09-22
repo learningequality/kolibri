@@ -2,11 +2,6 @@
 
   <div>
 
-    <CoachContentLabel
-      class="coach-content-label"
-      :value="content.coach_content ? 1 : 0"
-      :isTopic="isTopic"
-    />
     <template v-if="sessionReady">
       <KContentRenderer
         v-if="!content.assessment"
@@ -53,7 +48,7 @@
         @updateProgress="updateExerciseProgress"
         @updateContentState="updateContentState"
       />
-      <SidePanel />
+      <!--<SidePanel /> -->
     </template>
     <KCircularLoader v-else />
 
@@ -77,7 +72,6 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { PageNames, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
   import AssessmentWrapper from './AssessmentWrapper';
@@ -99,7 +93,6 @@
       };
     },
     components: {
-      CoachContentLabel,
       AssessmentWrapper,
     },
     mixins: [commonLearnStrings],
@@ -128,9 +121,6 @@
         extraFields: state => state.core.logging.summary.extra_fields,
         fullName: state => state.core.session.full_name,
       }),
-      isTopic() {
-        return this.content.kind === ContentNodeKinds.TOPIC;
-      },
       progress() {
         if (this.isUserLoggedIn) {
           // if there no attempts for this exercise, there is no progress

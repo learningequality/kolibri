@@ -59,6 +59,7 @@
           v-show="isMenuOpen"
           ref="menu"
           class="menu"
+          :style="{ left: isRtl ? '16px' : 'auto', right: isRtl ? 'auto' : '16px' }"
           :raised="true"
           :isOpen="isMenuOpen"
           :containFocus="true"
@@ -318,13 +319,11 @@
 
   .menu-wrapper {
     position: relative;
-    padding-right: 16px;
   }
 
   .menu {
     position: absolute;
     top: 50%;
-    right: 24px; // right-align to the menu icon
     z-index: 8;
     min-width: 270px;
     transform: translateY(16px);
