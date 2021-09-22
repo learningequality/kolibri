@@ -442,6 +442,14 @@ class BaseContentNodeMixin(object):
                 item["assessmentmetadata"] = assessmentmetadata.get(item["id"])
                 item["tags"] = tags.get(item["id"], [])
                 item["files"] = files_map.get(item["id"], [])
+                thumb_file = next(
+                    iter(filter(lambda f: f["thumbnail"] is True, item["files"])),
+                    None,
+                )
+                if thumb_file:
+                    item["thumbnail"] = thumb_file["storage_url"]
+                else:
+                    item["thumbnail"] = None
                 lang_id = item.pop("lang_id")
                 item["lang"] = languages_map.get(lang_id)
                 item["is_leaf"] = item.get("kind") != content_kinds.TOPIC
