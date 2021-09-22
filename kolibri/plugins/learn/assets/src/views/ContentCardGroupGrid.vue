@@ -1,34 +1,39 @@
 <template>
 
   <div class="content-grid">
-    <KFixedGrid v-if="cardViewStyle === 'card'" numCols="3" gutter="24">
+    <!-- <KFixedGrid
+      v-if="cardViewStyle === 'card'"
+      :numCols="this.windowIsSmall ? 1
+      : numCols" gutter="24">
       <KFixedGridItem v-for="content in contents" :key="content.id" span="1">
         <ContentCard
           class="grid-item"
           :isMobile="windowIsSmall"
           :title="content.title"
-          :thumbnail="setContentThumbnail(content)"
+          :thumbnail="content.thumbnail"
           :kind="content.kind"
+          activityLength="shortActivity"
           :isLeaf="content.is_leaf"
           :progress="content.progress || 0"
           :numCoachContents="content.num_coach_contents"
           :link="genContentLink(content.id, content.is_leaf)"
           :contentId="content.content_id"
           :copiesCount="content.copies_count"
+          :description="content.description"
           :channelThumbnail="setChannelThumbnail(content)"
           :channelTitle="channelTitle(content)"
           @openCopiesModal="openCopiesModal"
           @toggleInfoPanel="$emit('toggleInfoPanel', content)"
         />
       </KFixedGridItem>
-    </KFixedGrid>
+    </KFixedGrid> -->
     <ContentCardListViewItem
       v-for="content in contents"
-      v-else
       :key="content.id"
       :channelThumbnail="setChannelThumbnail(content)"
       :channelTitle="channelTitle(content)"
       :description="content.description"
+      activityLength="shortActivity"
       class="grid-item"
       :isMobile="windowIsSmall"
       :title="content.title"
@@ -40,6 +45,8 @@
       :link="genContentLink(content.id, content.is_leaf)"
       :contentId="content.content_id"
       :copiesCount="content.copies_count"
+      :footerIcons="footerIcons"
+      :createdDate="content.bookmark ? content.bookmark.created : null"
       @openCopiesModal="openCopiesModal"
       @toggleInfoPanel="$emit('toggleInfoPanel', content)"
     />
@@ -59,14 +66,13 @@
   import { mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import genContentLink from '../utils/genContentLink';
-  import ContentCard from './ContentCard';
   import ContentCardListViewItem from './ContentCardListViewItem';
   import CopiesModal from './CopiesModal';
 
   export default {
     name: 'ContentCardGroupGrid',
     components: {
-      ContentCard,
+      // ContentCard,
       CopiesModal,
       ContentCardListViewItem,
     },
@@ -86,6 +92,11 @@
       },
       channelThumbnail: {
         type: String,
+        required: false,
+        default: null,
+      },
+      footerIcons: {
+        type: Object,
         required: false,
         default: null,
       },
@@ -111,11 +122,6 @@
         } else {
           let match = this.channels.find(channel => channel.id === content.channel_id);
           return match ? match.thumbnail : null;
-        }
-      },
-      setContentThumbnail(content) {
-        if (content.thumbnail) {
-          return content.thumbnail;
         }
       },
       channelTitle(content) {

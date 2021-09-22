@@ -43,7 +43,7 @@
     </div>
 
     <div v-else>
-      <Breadcrumbs v-if="pageName !== 'TOPICS_CONTENT'" />
+      <Breadcrumbs v-if="(pageName !== 'TOPICS_CONTENT') && (pageName !== 'BOOKMARKS')" />
       <component :is="currentPage" v-if="currentPage" />
       <router-view />
     </div>
