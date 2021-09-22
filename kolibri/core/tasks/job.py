@@ -173,8 +173,8 @@ class Job(object):
         try:
             string_result = json.dumps(working_dictionary)
         except TypeError as e:
-            # If you get this error, make sure your function's arguments and
-            # results are both JSON-serializable.
+            # A Job's arguments, results, or metadata are prime suspects for
+            # what might cause this error.
             raise TypeError(
                 "Job objects need to be JSON-serializable: {}".format(str(e))
             )
@@ -230,9 +230,9 @@ class Job(object):
         self.extra_metadata = kwargs.pop("extra_metadata", {})
         self.progress = kwargs.pop("progress", 0)
         self.total_progress = kwargs.pop("total_progress", 0)
+        self.result = kwargs.pop("result", None)
         self.args = args
         self.kwargs = kwargs
-        self.result = None
         self.storage = None
         self.func = stringify_func(func)
 
