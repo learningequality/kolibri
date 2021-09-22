@@ -7,6 +7,7 @@ import math
 import sys
 
 import requests
+from dateutil import parser
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection
 from django.db import transaction
@@ -58,9 +59,6 @@ DEFAULT_PING_INTERVAL = 24 * 60
 DEFAULT_PING_CHECKRATE = 15
 DEFAULT_PING_JOB_ID = "0"
 DEFAULT_SERVER_URL = "https://telemetry.learningequality.org"
-
-# Basically ISO format, but has timezone
-DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 
 USER_THRESHOLD = 10
 
@@ -426,7 +424,7 @@ def perform_ping(started, server=DEFAULT_SERVER_URL):
 
     language = get_device_setting("language_id", "")
 
-    started = datetime.datetime.strptime(started, DATETIME_FORMAT)
+    started = parser.isoparse(started)
 
     try:
         timezone = get_current_timezone().zone
@@ -517,7 +515,7 @@ def schedule_ping(
     if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
         # Scheduler needs datetime object, but job needs (serializable) string
         now = local_now()
-        started = now.strftime(DATETIME_FORMAT)
+        started = now.isoformat()
         _ping.enqueue_at(
             now,
             interval=interval * 60,
