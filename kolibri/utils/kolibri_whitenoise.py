@@ -10,6 +10,9 @@ from whitenoise import WhiteNoise
 from whitenoise.string_utils import decode_path_info
 
 
+compressed_file_extensions = ("gz",)
+
+
 class FileFinder(finders.FileSystemFinder):
     """
     A modified version of the Django FileSystemFinder class
@@ -99,6 +102,12 @@ class DynamicWhiteNoise(WhiteNoise):
             # Only try to do matches for regular files.
             if stat.S_ISREG(file_stat.st_mode):
                 stat_cache = {path: os.stat(path)}
+                for ext in compressed_file_extensions:
+                    try:
+                        comp_path = "{}.{}".format(path, ext)
+                        stat_cache[comp_path] = os.stat(comp_path)
+                    except (IOError, OSError):
+                        pass
                 self.add_file_to_dictionary(url, path, stat_cache=stat_cache)
                 return self.files.get(url)
 
@@ -119,33 +128,10 @@ class DjangoWhiteNoise(DynamicWhiteNoise):
     def __init__(self, application, static_prefix=None, **kwargs):
         super(DjangoWhiteNoise, self).__init__(application, **kwargs)
         self.static_prefix = static_prefix
-        if not self.autorefresh and self.static_prefix:
-            self.add_files_from_finders()
 
-    def add_files_from_finders(self):
-        files = {}
-        for finder in finders.get_finders():
-            for path, storage in finder.list(None):
-                prefix = (getattr(storage, "prefix", None) or "").strip("/")
-                url = u"".join(
-                    (
-                        self.static_prefix,
-                        prefix,
-                        "/" if prefix else "",
-                        path.replace("\\", "/"),
-                    )
-                )
-                # Use setdefault as only first matching file should be used
-                files.setdefault(url, storage.path(path))
-        stat_cache = {path: os.stat(path) for path in files.values()}
-        for url, path in files.items():
-            self.add_file_to_dictionary(url, path, stat_cache=stat_cache)
-
-    def candidate_paths_for_url(self, url):
-        paths = super(DjangoWhiteNoise, self).candidate_paths_for_url(url)
-        for path in paths:
-            yield path
-        if self.autorefresh and url.startswith(self.static_prefix):
-            path = finders.find(url[len(self.static_prefix) :])
-            if path:
-                yield path
+    def get_dynamic_path(self, url):
+        dynamic_path = super(DjangoWhiteNoise, self).get_dynamic_path(url)
+        if dynamic_path is not None:
+            return dynamic_path
+        if url.startswith(self.static_prefix):
+            return finders.find(url[len(self.static_prefix) :])
