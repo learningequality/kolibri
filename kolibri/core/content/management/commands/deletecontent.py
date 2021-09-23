@@ -24,6 +24,22 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
     # Only delete all metadata if we are not doing selective deletion
     delete_all_metadata = not (node_ids or exclude_node_ids)
 
+    (
+        total_resource_number,
+        unused_files,
+        total_bytes_to_transfer,
+    ) = get_import_export_data(
+        channel.id,
+        node_ids,
+        exclude_node_ids,
+        # Don't filter by availability as we have set nodes invisible
+        # above, but the localfiles we are trying to delete are still
+        # available
+        None,
+        renderable_only=False,
+        topic_thumbnails=False,
+    )
+
     if node_ids or exclude_node_ids:
         # If we have been passed node ids do not do a full deletion pass
         set_content_invisible(channel.id, node_ids, exclude_node_ids)
@@ -34,17 +50,6 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
         # Do this before we delete all the metadata, as otherwise we lose
         # track of which local files were associated with the channel we
         # just deleted.
-        _, unused_files, _ = get_import_export_data(
-            channel.id,
-            node_ids,
-            exclude_node_ids,
-            # Don't filter by availability as we have set nodes invisible
-            # above, but the localfiles we are trying to delete are still
-            # available
-            None,
-            renderable_only=False,
-            topic_thumbnails=False,
-        )
 
         with db_lock():
             propagate_forced_localfile_removal(unused_files)
@@ -62,7 +67,7 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
     # Clear any previously set channel availability stats for this channel
     clear_channel_stats(channel.id)
 
-    return delete_all_metadata
+    return total_resource_number, delete_all_metadata, total_bytes_to_transfer
 
 
 class Command(AsyncCommand):
@@ -125,33 +130,17 @@ class Command(AsyncCommand):
                 "Channel matching id {id} does not exist".format(id=channel_id)
             )
 
-        delete_all_metadata = delete_metadata(
-            channel, node_ids, exclude_node_ids, force_delete
-        )
-        unused_files = LocalFile.objects.get_unused_files()
         (
             total_resource_number,
-            unused_files_,
+            delete_all_metadata,
             total_bytes_to_transfer,
-        ) = get_import_export_data(
-            channel.id,
-            node_ids,
-            exclude_node_ids,
-            # Don't filter by availability as we have set nodes invisible
-            # above, but the localfiles we are trying to delete are still
-            # available
-            None,
-            renderable_only=False,
-            topic_thumbnails=False,
-        )
+        ) = delete_metadata(channel, node_ids, exclude_node_ids, force_delete)
+        unused_files = LocalFile.objects.get_unused_files()
         # Get orphan files that are being deleted
         total_file_deletion_operations = unused_files.count()
         job = get_current_job()
         if job:
-            total_file_deletion_size = unused_files.aggregate(Sum("file_size")).get(
-                "file_size__sum", 0
-            )
-            job.extra_metadata["file_size"] = total_file_deletion_size
+            job.extra_metadata["file_size"] = total_bytes_to_transfer
             job.extra_metadata["total_resources"] = total_resource_number
             job.save_meta()
         progress_extra_data = {"channel_id": channel_id}
