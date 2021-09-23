@@ -86,7 +86,7 @@
     "vue-jest": "2.6.0",
     "vue-loader": "^15.7.0",
     "vue-style-loader": "^3.0.3",
-    "vue-template-compiler": "^2.6.11",
+    "vue-template-compiler": "^2.6.14",
     "webpack": "^4.6.0",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-bundle-tracker": "https://github.com/learningequality/webpack-bundle-tracker",
