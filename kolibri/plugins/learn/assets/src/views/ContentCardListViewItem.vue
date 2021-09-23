@@ -20,7 +20,11 @@
           v-bind="{ thumbnail, kind, isMobile }"
           :activityLength="activityLength"
         />
-        <p v-if="!isMobile" class="metadata-info">
+        <p
+          v-if="!isMobile"
+          class="metadata-info"
+          :style="{ color: $themePalette.grey.v_700 }"
+        >
           {{ bookmarkCreated }}
         </p>
         <KLinearLoader
@@ -33,15 +37,14 @@
         />
       </div>
       <span class="details" :style="{ color: $themeTokens.text }">
-        <div class="metadata-info">
+        <div
+          class="metadata-info"
+          :style="{ color: $themePalette.grey.v_700 }"
+        >
           <KLabeledIcon
             :icon="kind === 'topic' ? 'topic' : `${kindToLearningActivity}Solid`"
             size="mini"
-            :label="
-              `${coreString(kindToLearningActivity)}
-              ${isMobile ? ' | ' : '' }
-              ${isMobile ? coreString(activityLength) : ''}`
-            "
+            :label="iconLabel"
           />
         </div>
         <h3 class="title">
@@ -56,7 +59,7 @@
             :maxHeight="maxDescriptionHeight"
           />
         </p>
-        <div v-if="displayCategoryAndLevelMetadata" class="metadata-info">
+        <div v-if="displayCategoryAndLevelMetadata && !isMobile" class="metadata-info">
           <p> {{ coreString(displayCategoryAndLevelMetadata) }}</p>
         </div>
         <img
@@ -75,7 +78,11 @@
       </span>
     </router-link>
     <div class="footer">
-      <p v-if="isMobile" class="metadata-info-footer">
+      <p
+        v-if="isMobile"
+        class="metadata-info-footer"
+        :style="{ color: $themePalette.grey.v_700 }"
+      >
         {{ bookmarkCreated }}
       </p>
       <KIconButton
@@ -212,7 +219,7 @@
       },
       displayCategoryAndLevelMetadata() {
         if (this.category && this.level) {
-          return this.category`| ${this.level} `;
+          return `${this.category}| ${this.level} `;
         } else if (this.category) {
           return this.category;
         } else if (this.level) {
@@ -233,6 +240,16 @@
           activity = ContentKindsToLearningActivitiesMap[this.kind];
           return `${activity}`;
         }
+      },
+      iconLabel() {
+        const kindToLearningActivity = this.coreString(this.kindToLearningActivity);
+        let addedMobileDisplay = '';
+        // append the | and the activity length on mobile views only
+        // make all part of the same string for correct RTL display
+        if (this.isMobile) {
+          addedMobileDisplay = ` | ${this.coreString(this.activityLength)}`;
+        }
+        return `${kindToLearningActivity} ${addedMobileDisplay}`;
       },
       isLibraryPage() {
         return this.pageName === PageNames.LIBRARY;
@@ -298,14 +315,12 @@
   .metadata-info {
     margin-bottom: 6px;
     font-size: 13px;
-    color: #616161;
   }
 
   .metadata-info-footer {
     display: inline-block;
     margin: 0;
     font-size: 13px;
-    color: #616161;
   }
 
   .channel-logo {
@@ -370,12 +385,12 @@
     .thumbnail {
       position: absolute;
       width: 100%;
-      margin: 0;
+      margin: auto;
+      margin-top: 10px;
     }
     .details {
       max-width: 100%;
-      padding: 8px;
-      margin-top: $thumb-height-mobile;
+      margin-top: ($thumb-height-mobile + 20px);
     }
   }
 
