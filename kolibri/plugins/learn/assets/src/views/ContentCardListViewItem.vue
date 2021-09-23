@@ -72,6 +72,7 @@
           v-if="!isMobile && isLibraryPage"
           appearance="basic-link"
           class="copies"
+          :style="{ color: $themeTokens.text }"
           :text="coreString('copies', { num: copiesCount })"
           @click.prevent="$emit('openCopiesModal', contentId)"
         />
@@ -333,7 +334,6 @@
     display: inline-block;
     padding: 6px 8px;
     font-size: 13px;
-    color: black;
     text-decoration: none;
     vertical-align: top;
   }
