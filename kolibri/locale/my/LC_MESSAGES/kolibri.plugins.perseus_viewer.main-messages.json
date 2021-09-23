@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "အရိပ်အမြွက်ကိုသုံးမည်({hintsLeft, number} ခုကျန်သေးသည်)",
+  "PerseusRendererIndex.hintExplanation": "သင်သည် အရိပ်အမြွက်ကိုသုံးခဲ့ပါက ဒီမေးခွန်းကိုသင့်တိုးတက်မှုမှတ်တမ်းတွင် ပေါင်းထည့်မည်မဟုတ်ပါ",
+  "PerseusRendererIndex.hintLabel": "သဲလွန်စ -",
+  "PerseusRendererIndex.noMoreHint": "အရိပ်အမြွက်မရှိတော့ပါ",
+  "PerseusRendererIndex.notAvailable": "အကြမ်းတွက်ဖို့ နေရာ မရနိုင်ပါ။",
+  "PerseusRendererIndex.showScratch": "အကြမ်းတွက်ဖို့ တစ်နေရာ ပေးပါ။"
+}

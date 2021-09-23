@@ -211,7 +211,7 @@
       },
       viewAsGrid: {
         message: 'View as grid',
-        context: 'Label for a button',
+        context: 'Label for a button. See also https://en.wikipedia.org/wiki/Grid_view',
       },
       clearAll: {
         message: 'Clear all',

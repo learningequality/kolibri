@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "Usar una pista (tienes {hintsLeft, number})",
+  "PerseusRendererIndex.hintExplanation": "Si utilizas una pista, la respuesta no cuenta para tu progreso",
+  "PerseusRendererIndex.hintLabel": "Pista:",
+  "PerseusRendererIndex.noMoreHint": "No quedan pistas",
+  "PerseusRendererIndex.notAvailable": "Pizarra no disponible",
+  "PerseusRendererIndex.showScratch": "Ver pizarra"
+}

@@ -82,7 +82,7 @@
       limitedPermissionsTooltip: {
         message: 'Limited permissions',
         context:
-          "This string appears on the user 'Details' screen if the user has limited device permissions.",
+          "It's a tooltip for the 'black key' icon that indicates that the user has permissions to manage content, but not other users or facility settings.",
       },
     },
   };

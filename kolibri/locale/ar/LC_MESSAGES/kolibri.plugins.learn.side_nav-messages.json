@@ -1,8 +1,17 @@
 {
+  "CommonLearnStrings.dontShowThisAgainLabel": "لا تظهر هذا مجدداً",
+  "CommonLearnStrings.exploreResources": "تصفح المصادر",
   "CommonLearnStrings.learnLabel": "تعلّم",
+  "CommonLearnStrings.libraryLabel": "المكتبة",
+  "CommonLearnStrings.logo": "من القناة {channelTitle}",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "حدد المصدر كمصدر مكتمل",
   "CommonLearnStrings.mostPopularLabel": "الأكثر استخداماً",
+  "CommonLearnStrings.multipleLearningActivities": "أنشطة تعلم متعددة",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
   "CommonLearnStrings.nextStepsLabel": "الخطوات التالية",
   "CommonLearnStrings.popularLabel": "الأكثر استخداماً",
-  "CommonLearnStrings.recommendedLabel": "يُنصح به",
-  "CommonLearnStrings.resumeLabel": "الاستمرار بـ"
+  "CommonLearnStrings.resourceCompletedLabel": "اكتمل المصدر",
+  "CommonLearnStrings.resourceHidden": "تم إخفاء المصدر",
+  "CommonLearnStrings.resumeLabel": "الاستمرار بـ",
+  "CommonLearnStrings.suggestedTimeToComplete": "الوقت المقترح للاكمال"
 }

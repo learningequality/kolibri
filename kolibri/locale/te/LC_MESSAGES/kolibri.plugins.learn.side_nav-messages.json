@@ -1,8 +1,17 @@
 {
+  "CommonLearnStrings.dontShowThisAgainLabel": "దీనిని మళ్లీ చూపవద్దు",
+  "CommonLearnStrings.exploreResources": "వనరులని విశ్లేషిస్తోంది",
   "CommonLearnStrings.learnLabel": "నేర్చుకొను",
+  "CommonLearnStrings.libraryLabel": "లైబ్రరీ",
+  "CommonLearnStrings.logo": "{channelTitle} ఛానెల్ నుండి",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "వనరుని పూర్తి చేసినట్లుగా గుర్తు పెట్టు",
   "CommonLearnStrings.mostPopularLabel": "అత్యంత ప్రజాదరణ",
+  "CommonLearnStrings.multipleLearningActivities": "బహుళ అభ్యాస కార్యకలాపాలు",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
   "CommonLearnStrings.nextStepsLabel": "తర్వాత స్టెప్",
   "CommonLearnStrings.popularLabel": "ప్రముఖమైన",
-  "CommonLearnStrings.recommendedLabel": "సిఫార్సు",
-  "CommonLearnStrings.resumeLabel": "ప్రాణంభించండి"
+  "CommonLearnStrings.resourceCompletedLabel": "వనరు పూర్తయింది",
+  "CommonLearnStrings.resourceHidden": "వనరు దాచబడింది",
+  "CommonLearnStrings.resumeLabel": "ప్రాణంభించండి",
+  "CommonLearnStrings.suggestedTimeToComplete": "పూర్తి చేసేందుకు సూచించబడిన సమయం"
 }

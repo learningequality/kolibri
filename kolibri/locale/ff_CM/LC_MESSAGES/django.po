@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-02 20:02-0700\n"
-"PO-Revision-Date: 2021-09-10 01:20\n"
+"POT-Creation-Date: 2021-09-15 16:05-0700\n"
+"PO-Revision-Date: 2021-09-23 20:20\n"
 "Last-Translator: \n"
 "Language-Team: Fulfulde Mbororoore\n"
 "Language: ff_fuv\n"
@@ -172,11 +172,11 @@ msgstr "Wala no yamɗinirta kuutiniroowo bee nastirgel: '{}' ngam wala kuutiniro
 msgid "Database ID is not valid"
 msgstr "Nastirgel defte jaɓaaka"
 
-#: core/content/api.py:152
+#: core/content/api.py:158
 msgid "Resource"
 msgstr "Jannginillum"
 
-#: core/content/api.py:1268
+#: core/content/api.py:1316
 msgid "The requested channel does not exist on the content server"
 msgstr "Wuro janngugo ngo ngiɗɗa walaa nder senndirɗum jannginillum"
 
@@ -184,7 +184,7 @@ msgstr "Wuro janngugo ngo ngiɗɗa walaa nder senndirɗum jannginillum"
 msgid "Unknown format"
 msgstr "Kompiita anndaaɗum"
 
-#: core/device/serializers.py:41
+#: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
 msgstr "Ɗemngal nga'al tawaaka nder Kolibri"
 
@@ -231,7 +231,7 @@ msgstr "Kolibri e huwa boɗɗum bee labangal Firefox koo Chrome."
 msgid "You can also try updating your current browser."
 msgstr "Haɓdu hesɗitingo labangal ngal kuutinirta jooni."
 
-#: core/views.py:160
+#: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Ɗum tawaayi ɗereeji kuwaaɗi. Hakkilaayi Kolibri e woodi fitina"
 

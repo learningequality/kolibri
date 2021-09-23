@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "ប្រើតម្រុយ (នៅសល់ {hintsLeft, number})",
+  "PerseusRendererIndex.hintExplanation": "ប្រសិនបើអ្នកប្រើតម្រុយ សំណួរនេះនឹងមិនត្រូវបានបន្ថែមទៅដំណើរការរបស់អ្នកទេ",
+  "PerseusRendererIndex.hintLabel": "ព័ត៌មានជំនួយ:",
+  "PerseusRendererIndex.noMoreHint": "អស់តម្រុយ",
+  "PerseusRendererIndex.notAvailable": "មិនមានក្រដាសព្រាង",
+  "PerseusRendererIndex.showScratch": "បង្ហាញក្រដាសព្រាង"
+}

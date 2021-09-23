@@ -19,16 +19,13 @@
   "MediaPlayerIndex.progressBar": "crwdns319581:0crwdne319581:0",
   "MediaPlayerIndex.replay": "crwdns319583:0crwdne319583:0",
   "MediaPlayerIndex.sourceError": "crwdns319585:0crwdne319585:0",
-  "MediaPlayerIndex.transcript": "crwdns319587:0crwdne319587:0",
   "MediaPlayerIndex.transcriptOff": "crwdns319589:0crwdne319589:0",
   "MediaPlayerIndex.unmute": "crwdns319591:0crwdne319591:0",
   "MediaPlayerIndex.volumeLevel": "crwdns319593:0crwdne319593:0",
-  "MediaPlayerTranscript.label": "crwdns319595:0crwdne319595:0",
   "MediaPlayerTranscript.transcriptBeginning": "crwdns319597:0crwdne319597:0",
   "MediaPlayerTranscript.transcriptEnd": "crwdns319599:0crwdne319599:0",
   "SubtitlesMenuItem.subtitles": "crwdns319601:0crwdne319601:0",
   "TranscriptCue.textLabel": "crwdns319603:0crwdne319603:0",
   "TranscriptCue.timeLabel": "crwdns319605:0crwdne319605:0",
-  "TranscriptCue.title": "crwdns319607:0{startTime}crwdne319607:0",
-  "TranscriptMenuItem.transcript": "crwdns319609:0crwdne319609:0"
+  "TranscriptCue.title": "crwdns319607:0{startTime}crwdne319607:0"
 }

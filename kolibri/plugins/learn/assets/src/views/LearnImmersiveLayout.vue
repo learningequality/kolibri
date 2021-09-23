@@ -207,7 +207,7 @@
     $trs: {
       kolibriTitleMessage: {
         message: '{ title } - Kolibri',
-        context: 'DO NOT TRANSLATE.',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
       errorPageTitle: {
         message: 'Error',

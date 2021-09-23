@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-02 20:02-0700\n"
-"PO-Revision-Date: 2021-09-10 01:20\n"
+"POT-Creation-Date: 2021-09-15 16:05-0700\n"
+"PO-Revision-Date: 2021-09-23 20:20\n"
 "Last-Translator: \n"
 "Language-Team: Marathi\n"
 "Language: mr_IN\n"
@@ -139,7 +139,7 @@ msgstr "'{}' या स्तंभातील मूल्यामध्य�
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr ""
+msgstr "'{}' रकान्यातील मूल्य वैध नाही"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -153,7 +153,7 @@ msgstr "'{}' हा स्तंभ अनिवार्य आहे"
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr ""
+msgstr "पहिल्या ओळीमध्ये चुकीचे शीर्षक लेबल आढळले"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
@@ -172,11 +172,11 @@ msgstr "'{}' या आयडीचा युझर अद्ययावत क
 msgid "Database ID is not valid"
 msgstr "डेटाबेस आयडी वैध नाही"
 
-#: core/content/api.py:152
+#: core/content/api.py:158
 msgid "Resource"
 msgstr "संसाधन"
 
-#: core/content/api.py:1268
+#: core/content/api.py:1316
 msgid "The requested channel does not exist on the content server"
 msgstr "तुम्हाला हवी असलेली वाहिनी या सर्व्हर वर उपलब्ध नाही"
 
@@ -184,7 +184,7 @@ msgstr "तुम्हाला हवी असलेली वाहिनी
 msgid "Unknown format"
 msgstr "अनोळखी फॉरमॅट"
 
-#: core/device/serializers.py:41
+#: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
 msgstr "कोलिब्री सुविधा या भाषेत उपलब्ध नाही"
 
@@ -231,7 +231,7 @@ msgstr "कोलिब्री वापरण्यासाठी फाय�
 msgid "You can also try updating your current browser."
 msgstr "तुम्ही तुमच्या सध्याच्या ब्राऊझरची अद्ययावत आवृत्ती इन्स्टॉ्ल करण्याचाही प्रयत्न करू शकता."
 
-#: core/views.py:160
+#: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "योग्य रीडायरेक्ट पाने सापडली नाहीत. कदाचित कोलिब्री चुकीच्या पद्धतीने कॉन्फिगर झाले आहे"
 

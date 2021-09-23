@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "Utiliser un indice ({hintsLeft, number} restants)",
+  "PerseusRendererIndex.hintExplanation": "Si vous utilisez un indice, cette question ne sera pas ajoutée à vos progrès",
+  "PerseusRendererIndex.hintLabel": "Indice :",
+  "PerseusRendererIndex.noMoreHint": "Indices épuisés",
+  "PerseusRendererIndex.notAvailable": "Bloc-notes indisponible",
+  "PerseusRendererIndex.showScratch": "Afficher le bloc-notes"
+}

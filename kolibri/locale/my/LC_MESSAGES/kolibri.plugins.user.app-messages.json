@@ -2,8 +2,8 @@
   "AuthBase.accessAsGuest": "အကောင့်မလုပ်ဘဲရှာဖွေမည်",
   "AuthBase.oidcGenericExplanation": "Kolibri သည် အီလက်ထရောနစ်သင်ကြားမှုဆိုင်ရာအစီအစဉ်တစ်ခုဖြစ်ပါသည်။ တခြား တတိယ application များကိုဝင်ရောက်ရန်အတွက်လည်း သင်၏ Kolibri အကောင့်ကိုအသုံးပြုနိုင်ပါသည်။",
   "AuthBase.oidcSpecificExplanation": "{app_name} အက်ပလီကေးရှင်းမှ သင့်ကို ဤနေရာသို့ ပို့ဆောင်ခဲ့ပါသည်။ Kolibri သည် အီလက်ထရွန်းနစ် သင်ယူမှုပလက်ဖောင်းနှင့် {app_name} ကို အသုံးပြုနိုင်ရန် သင်၏လည်း Kolibri အကောင့်ကို အသုံးပြုနိုင်သည်။",
-  "AuthBase.photoCreditLabel": "",
-  "AuthBase.poweredBy": "Kolibri {version}",
+  "AuthBase.photoCreditLabel": "ဓါတ်ပုံကိုးကား {photoCredit}",
+  "AuthBase.poweredBy": "တေးဆိုငှက်{version}",
   "AuthBase.poweredByKolibri": "Kolibri မှ ထောက်ပံ့ထားသည်",
   "AuthBase.restrictedAccess": "ပြင်ပပစ္စည်းများအတွက် Kolibri ကိုရယူအသုံးပြုမှု ကန့်သတ်ထားသည်",
   "AuthBase.restrictedAccessDescription": "ဒါကိုပြောင်းလဲရန် လုပ်ပိုင်ခွင့်ရစီမံသူတစ်ဦးအဖြစ်ဝင်ပြီး စက်ပစ္စည်း၏ကွန်ရက်ရရှိမှုချိန်ညှိချက်များကို အဆင့်မြှင့်ပါ",
@@ -26,7 +26,7 @@
   "ProfilePage.detailsHeader": "အေသးစိတ္အခ်က္မ်ား",
   "ProfilePage.documentTitle": "အသုံပြုသူစာမျက်နှာ",
   "ProfilePage.editAction": "တည်းဖြတ်မည်။",
-  "ProfilePage.isSuperuser": "အဆင့်မြှင့်အက်ဒမင်ခွင့်ပြုချက်များ",
+  "ProfilePage.isSuperuser": "အဆင့်မြှင့်အက်ဒမင်ခွင့်ပြုချက်များ ",
   "ProfilePage.limitedPermissions": "ကန့်သတ်ထားသောခွင့်ပြုချက်များ",
   "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "ကိရိယာခွင့့်ပြု ချက်များကို စီမံခြင်း",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "အဆင့် 2 ခုထဲမှ 1 ခု",
   "UserIndex.signUpStep2Title": "အဆင့် 2 ခုထဲမှ နံပါတ် 2",
   "UserIndex.userProfileTitle": "မိမိစာမျက်နှာ",
-  "UserPageSnackbars.dismiss": "",
+  "UserPageSnackbars.dismiss": "ပိတ်မည်",
   "UserPageSnackbars.signedOut": "အသုံးပြု့ခြင်းမရှိသည့်အတွက်သင်၏အကောင့်မှအလိုအလျှောက်ထွက်သွားပြီ။"
 }

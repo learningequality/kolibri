@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-02 20:02-0700\n"
-"PO-Revision-Date: 2021-09-10 01:20\n"
+"POT-Creation-Date: 2021-09-15 16:05-0700\n"
+"PO-Revision-Date: 2021-09-23 20:20\n"
 "Last-Translator: \n"
 "Language-Team: Urdu (Pakistan)\n"
 "Language: ur_PK\n"
@@ -139,7 +139,7 @@ msgstr "کالم '{}' کی قدرمیں بہت زیادہ حرف ہیں"
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr ""
+msgstr "کالم '{}' میں ویلیو درست نہیں ہے"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -153,7 +153,7 @@ msgstr "کالم '{}' ضروری ہے"
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr ""
+msgstr "پہلی صف میں غلط ہیڈر لیبل ملا ہے"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
@@ -172,11 +172,11 @@ msgstr "ID کے ساتھ صارف کو اپ ڈیٹ نہیں کیا جاسکتا:
 msgid "Database ID is not valid"
 msgstr "ڈیٹا بیس آئی ڈی درست نہیں ہے"
 
-#: core/content/api.py:152
+#: core/content/api.py:158
 msgid "Resource"
 msgstr "وسائل"
 
-#: core/content/api.py:1268
+#: core/content/api.py:1316
 msgid "The requested channel does not exist on the content server"
 msgstr "مواد کے سرور میں التجا ہوا چینل موجود نہیں ہیں"
 
@@ -184,7 +184,7 @@ msgstr "مواد کے سرور میں التجا ہوا چینل موجود نہ
 msgid "Unknown format"
 msgstr "نا معلوم فورمیٹ"
 
-#: core/device/serializers.py:41
+#: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
 msgstr "کولیبری کی طرف سے زبان کی معاونت نہیں"
 
@@ -231,7 +231,7 @@ msgstr "کولیبری استعمیل کرنے کے لیے ہم فائر فکس 
 msgid "You can also try updating your current browser."
 msgstr "آپ اپنے موجودہ براؤزر کو اپ ڈیٹ کرنے کی بھی کوشش کر سکتے ہیں."
 
-#: core/views.py:160
+#: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "کوئی مناسب صفحات نہیں ملے۔ ممکن ہے کہ یہ کولیبری بری طرح تشکیل کیا گیا ہے"
 

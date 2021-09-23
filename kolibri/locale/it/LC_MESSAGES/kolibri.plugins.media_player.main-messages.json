@@ -11,7 +11,7 @@
   "MediaPlayerIndex.languages": "Lingue",
   "MediaPlayerIndex.loaded": "Caricato",
   "MediaPlayerIndex.mute": "Silenzio",
-  "MediaPlayerIndex.networkError": "Un errore di rete ha causato il fallimento del download dei media a metà ",
+  "MediaPlayerIndex.networkError": "Un errore di rete ha causato il fallimento del download dei media a metà",
   "MediaPlayerIndex.nonFullscreen": "Esci da schermo intero",
   "MediaPlayerIndex.pause": "Metti in pausa",
   "MediaPlayerIndex.play": "Riproduci",
@@ -19,16 +19,13 @@
   "MediaPlayerIndex.progressBar": "Barra di avanzamento",
   "MediaPlayerIndex.replay": "Torna indietro di 10 secondi",
   "MediaPlayerIndex.sourceError": "Non è stata trovata alcuna fonte compatibile per questo supporto",
-  "MediaPlayerIndex.transcript": "Trascrizione",
   "MediaPlayerIndex.transcriptOff": "Trascrizione disattivata",
   "MediaPlayerIndex.unmute": "Riattiva microfono",
   "MediaPlayerIndex.volumeLevel": "Livello del volume",
-  "MediaPlayerTranscript.label": "Trascrizione",
   "MediaPlayerTranscript.transcriptBeginning": "Inizio della trascrizione",
   "MediaPlayerTranscript.transcriptEnd": "Fine della trascrizione",
   "SubtitlesMenuItem.subtitles": "Sottotitoli",
   "TranscriptCue.textLabel": "Testo del sottotitolo attuale",
   "TranscriptCue.timeLabel": "Tempo di inizio sottotitolo",
-  "TranscriptCue.title": "Cerca in {startTime}",
-  "TranscriptMenuItem.transcript": "Trascrizione"
+  "TranscriptCue.title": "Cerca in {startTime}"
 }

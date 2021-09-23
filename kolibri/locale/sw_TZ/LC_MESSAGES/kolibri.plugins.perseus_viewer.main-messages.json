@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "Tumia dokezo ({hintsLeft, number} iliyobaki)",
+  "PerseusRendererIndex.hintExplanation": "Ikiwa unatumia kidokezo, swali hili halitaongezwa kwa maendeleo yako",
+  "PerseusRendererIndex.hintLabel": "Dokezo:",
+  "PerseusRendererIndex.noMoreHint": "Hakuna vidokezo vingine",
+  "PerseusRendererIndex.notAvailable": "Hakuna karatasi ya kuandikia",
+  "PerseusRendererIndex.showScratch": "Onyesha karatasi ya kuandikia"
+}

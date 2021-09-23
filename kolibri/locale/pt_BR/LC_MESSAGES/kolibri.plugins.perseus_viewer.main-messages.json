@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "Usar uma dica ({hintsLeft, number} sobrando)",
+  "PerseusRendererIndex.hintExplanation": "Ao usar uma dica, a pergunta não conta como progresso",
+  "PerseusRendererIndex.hintLabel": "Dica:",
+  "PerseusRendererIndex.noMoreHint": "Não há mais dicas",
+  "PerseusRendererIndex.notAvailable": "O bloco de notas não está disponível",
+  "PerseusRendererIndex.showScratch": "Mostrar bloco de notas"
+}

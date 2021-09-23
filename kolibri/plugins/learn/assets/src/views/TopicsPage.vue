@@ -265,7 +265,7 @@
       },
       documentTitleForTopic: {
         message: '{ topicTitle } - { channelTitle }',
-        context: 'DO NOT TRANSLATE',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
       viewMore: 'View more',
       /* eslint-disable kolibri/vue-no-unused-translations */

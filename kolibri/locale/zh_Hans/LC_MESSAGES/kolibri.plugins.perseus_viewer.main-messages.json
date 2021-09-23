@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "使用提示 (还剩 {hintsLeft, number} 个提示)",
+  "PerseusRendererIndex.hintExplanation": "如果您使用提示，这个问题将不会添加到您的进展",
+  "PerseusRendererIndex.hintLabel": "提示：",
+  "PerseusRendererIndex.noMoreHint": "没有更多提示",
+  "PerseusRendererIndex.notAvailable": "草稿纸不可用",
+  "PerseusRendererIndex.showScratch": "显示草稿纸"
+}

@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "کنایہ استعمال کریں ({hintsLeft, number} باقی)",
+  "PerseusRendererIndex.hintExplanation": "اگر آپ ایک اشارہ استعمال کرتے ہیں، تو یہ سوال آپ کی ترقی میں شامل نہیں ہوگا",
+  "PerseusRendererIndex.hintLabel": "کنایہ:",
+  "PerseusRendererIndex.noMoreHint": "کوئی مزید کنایتہ نہیں",
+  "PerseusRendererIndex.notAvailable": "سکریچ پیٹ موجود نہیں",
+  "PerseusRendererIndex.showScratch": "سکریچ پیٹ دکھائیں"
+}

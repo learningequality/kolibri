@@ -442,14 +442,14 @@
       selectTopicsAndResources: {
         message: 'Select folders and resources instead',
         context:
-          'Option to allow the user to select individual folders/resources within a channel instead of entire channels.',
+          'Option to allow the user to select individual folders/resources within a channel instead of importing entire channels.',
       },
       notEnoughSpaceForChannelsWarning: {
         message:
           'Not enough space available on your device. Free up disk space or select fewer resources',
 
         context:
-          '\nWarning that appears when there is not enough space on the user’s device for the selected resources',
+          'Warning that appears when there is not enough space on the user’s device for the selected resources',
       },
     },
   };

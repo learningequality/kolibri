@@ -132,7 +132,10 @@
     },
     $trs: {
       continueLearningOnYourOwnHeader: 'Continue learning on your own',
-      continueLearningFromClassesHeader: 'Continue learning from your classes',
+      continueLearningFromClassesHeader: {
+        message: 'Continue learning from your classes',
+        context: 'Option to complete resources that the learner has already started.',
+      },
     },
   };
 

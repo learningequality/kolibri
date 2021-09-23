@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "أظهر تلميحاً ({hintsLeft, number} يسار)",
+  "PerseusRendererIndex.hintExplanation": "إذا استخدمت تلميحاً، فلن يتمّ إضافة هذه المسألة للتقدم المحرز الخاص بك",
+  "PerseusRendererIndex.hintLabel": "تلميح:",
+  "PerseusRendererIndex.noMoreHint": "لا توجد تلميحات أخرى",
+  "PerseusRendererIndex.notAvailable": "صفحة البرمجة غير متاحة",
+  "PerseusRendererIndex.showScratch": "إظهار صفحة البرمجة"
+}

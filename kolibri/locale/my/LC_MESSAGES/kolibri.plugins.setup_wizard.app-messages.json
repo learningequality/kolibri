@@ -1,6 +1,6 @@
 {
   "CreateFacilitySetup.newFacilityStepTitle": "ထောက်ပံ့မှုအသစ် - အဆင့် {total, number} မှ {step, number} ",
-  "CreateLearnerAccountForm.header": " သင်ယူသူအဖြစ် ဖန်တီးနိုင်ခွင့်အား မည်သူမဆိုကို ခွင့်ပြုသည်။",
+  "CreateLearnerAccountForm.header": "သင်ယူသူအဖြစ် ဖန်တီးနိုင်ခွင့်အား မည်သူမဆိုကို ခွင့်ပြုသည်။",
   "CreateLearnerAccountForm.noOptionLabel": "မလုပ်ပါ။ ကြီးကြပ်သူမှ account များကိုပြုလုပ်ပါမည်။",
   "DefaultLanguageForm.languageFormHeader": "Kolibri တွင်အသုံးပြုမည့် ဘာသာစကားရွေးချယ်ပါ။",
   "DeviceNameForm.deviceNameExplanation": "ဒီစက်ပစ္စည်းကိုအဓိပ္ပာယ်ရှိသည့်အမည်ပေးခြင်းက ဒီစက်ပစ္စည်းကိုချိတ်ဆက်မှုတွင် သင်ကိုယ်တိုင်နှင့်တခြားသူများကိုပါ အကူအညီဖြစ်စေသည်",
@@ -81,7 +81,6 @@
   "SuperuserCredentialsForm.rememberThisAccountInformation": "အရေးကြီးတာကအကောင့်အချက်အလက်များကိုကျေးဇူးပြုပြီးမှတ်မိရပါသည်။လိုအပ်လျှင်ချရေးထားပါ။",
   "UserTable.role": "အခန်းကဏ္ဍ",
   "UserTable.selectAllLabel": "အားလုံးကိုရွေးချယ်မည်",
-  "UserTable.userActionsColumnHeader": "လှုပ်ဆောင်မှုများ",
   "UserTable.userCheckboxLabel": "အသုံးပြုသူကိုဖျက်မည်အသုံးပြုသူကိုရွေးချယ်ပါ",
   "YesNoForm.details": "နောက်ပိုင်းမှာသင်သည်ထိုအရာကိုသင်ရဲ့သင်ယူတဲ့နေရာတည်ဆောက်မှုတွင်ပြောင်းလဲနိုင်ပါသည်။",
   "YesNoForm.yesOptionLabel": "ဟုတ်"

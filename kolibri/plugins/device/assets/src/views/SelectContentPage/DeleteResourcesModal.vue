@@ -80,7 +80,7 @@
       deleteEverywhereExplanationOneResource: {
         message: 'Some copies of this resource may be in other locations on your device',
         context:
-          '\nWhen some of the resources admin selected are present in multiple channels, Kolibri will provide an option for the admin to delete all instances ',
+          'When some of the resources admin selected are present in multiple channels, Kolibri will provide an option for the admin to delete all instances ',
       },
       deleteEverywhereExplanationMultipleResources: {
         message: 'Some copies of these resources may be in other locations on your device',

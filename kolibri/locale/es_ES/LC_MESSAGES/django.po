@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-02 20:02-0700\n"
-"PO-Revision-Date: 2021-09-08 04:10\n"
+"POT-Creation-Date: 2021-09-15 16:05-0700\n"
+"PO-Revision-Date: 2021-09-23 20:20\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
@@ -172,11 +172,11 @@ msgstr "No se puede actualizar el usuario con ID: '{}' porque no existe ningún 
 msgid "Database ID is not valid"
 msgstr "El ID de la base de datos no es válido"
 
-#: core/content/api.py:152
+#: core/content/api.py:158
 msgid "Resource"
 msgstr "Recurso"
 
-#: core/content/api.py:1268
+#: core/content/api.py:1316
 msgid "The requested channel does not exist on the content server"
 msgstr "El canal solicitado no existe en el servidor"
 
@@ -184,7 +184,7 @@ msgstr "El canal solicitado no existe en el servidor"
 msgid "Unknown format"
 msgstr "Formato desconocido"
 
-#: core/device/serializers.py:41
+#: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri todavía no está disponible en este idioma"
 
@@ -231,7 +231,7 @@ msgstr "Para utilizar el Kolibri, recomendamos usar Firefox o Chrome."
 msgid "You can also try updating your current browser."
 msgstr "También puedes actualizar tu navegador actual."
 
-#: core/views.py:160
+#: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Fue imposible redirigir página correctamente. Es probable que Kolibri está mal configurado"
 

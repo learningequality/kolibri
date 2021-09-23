@@ -220,7 +220,7 @@
       },
       duplicateTitle: {
         message: '{ originalTitle } ({ copyNum, number })',
-        context: 'DO NOT TRANSLATE.',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
     },
   };

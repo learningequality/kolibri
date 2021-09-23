@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "इशारा वापरा ({hintsLeft, number} उरले)",
+  "PerseusRendererIndex.hintExplanation": "तुम्ही इशारा वापरल्यास, हा प्रश्न तुमच्या प्रगतीमध्ये समाविष्ट केला जाणार नाही",
+  "PerseusRendererIndex.hintLabel": "इशारा:",
+  "PerseusRendererIndex.noMoreHint": "आणखी इशारे उपलब्ध नाहीत",
+  "PerseusRendererIndex.notAvailable": "स्क्रॅचपॅड उपलब्ध नाही",
+  "PerseusRendererIndex.showScratch": "स्क्रॅचपॅड दाखवा"
+}
