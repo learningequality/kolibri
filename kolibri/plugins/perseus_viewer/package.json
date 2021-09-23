@@ -42,7 +42,6 @@
     "espree": "^4.1.0",
     "exports-loader": "^0.7.0",
     "imports-loader": "^0.8.0",
-    "kolibri-tools": "0.13.0-dev.10",
     "mkdirp": "^0.5.1",
     "pofile": "^1.0.8",
     "progress": "^2.0.0",
