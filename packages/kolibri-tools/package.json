@@ -101,9 +101,6 @@
     "node": "10.x",
     "npm": ">= 3"
   },
-  "optionalDependencies": {
-    "kolibri": "0.13.0-dev.10"
-  },
   "devDependencies": {
     "recast": "^0.20.4"
   }
