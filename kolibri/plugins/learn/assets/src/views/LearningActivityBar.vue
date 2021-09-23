@@ -99,7 +99,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import difference from 'lodash/difference';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
@@ -175,6 +174,24 @@
         required: false,
         default: false,
       },
+      /**
+      The progress of the currently viewed content to determine
+      if and which progress icon should be shown (none/started/complete)
+      */
+      contentProgress: {
+        type: Number,
+        required: false,
+        default: 0,
+      },
+      /**
+      A 1/0 Boolean check whether we should show the Coach Content icon
+      to be passed to the CoachContentLabel component
+      */
+      isCoachContent: {
+        type: Number,
+        required: false,
+        default: 0,
+      },
     },
     data() {
       return {
@@ -183,12 +200,6 @@
       };
     },
     computed: {
-      ...mapState({
-        contentProgress: state => state.core.logging.summary.progress,
-      }),
-      ...mapState('topicsTree', {
-        isCoachContent: state => (state.content.coach_content ? 1 : 0),
-      }),
       allActions() {
         const actions = [
           {
