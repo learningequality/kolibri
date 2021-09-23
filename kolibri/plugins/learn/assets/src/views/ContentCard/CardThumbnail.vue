@@ -6,7 +6,7 @@
     :style="thumbnailBackground"
   >
     <div
-      v-if="activityLength"
+      v-if="activityLength && !isMobile"
       :class="isRtl ? 'chip-right' : 'chip-left' "
       :style="{ color: $themeTokens.textInverted }"
     >
