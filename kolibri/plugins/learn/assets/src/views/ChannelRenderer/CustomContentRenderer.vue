@@ -27,7 +27,11 @@
   import urls from 'kolibri.urls';
   import Hashi from 'hashi';
   import { now } from 'kolibri.utils.serverClock';
-  import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
+  import {
+    ChannelResource,
+    ContentNodeResource,
+    ContentNodeSearchResource,
+  } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { events, MessageStatuses } from 'hashi/src/hashiBase';
@@ -104,6 +108,9 @@
       });
       this.hashi.on(events.KOLIBRIVERSIONREQUESTED, message => {
         this.sendKolibriVersion.call(this, message);
+      });
+      this.hashi.on(events.CHANNELMETADATAREQUESTED, message => {
+        this.sendChannelMetadata.call(this, message);
       });
       this.hashi.initialize(
         {},
@@ -265,6 +272,26 @@
       sendKolibriVersion(message) {
         const newMsg = createReturnMsg({ message, data: __version });
         return this.hashi.mediator.sendMessage(newMsg);
+      },
+      sendChannelMetadata(message) {
+        return ChannelResource.fetchModel({ id: this.topic.channel_id })
+          .then(channel => {
+            return createReturnMsg({
+              message,
+              data: {
+                id: channel.id,
+                name: channel.name,
+                description: channel.description,
+                thumbnail: channel.thumbnail,
+              },
+            });
+          })
+          .catch(err => {
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendMessage(newMsg);
+          });
       },
     },
   };

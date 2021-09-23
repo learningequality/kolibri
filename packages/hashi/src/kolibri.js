@@ -55,6 +55,14 @@ import { events, nameSpace, DataTypes } from './hashiBase';
  */
 
 /**
+ * Type definition for channel metadata object
+ * @typedef {Object} ChannelMetadata
+ * @property {string} title - the channel title
+ * @property {string} description - the channel description
+ * @property {string} thumbnail - the channel thumbnail
+ */
+
+/**
  * Type definition for Theme options
  * properties TBD
  * @typedef {Object} Theme
@@ -212,6 +220,18 @@ export default class Kolibri extends BaseShim {
         return self.mediator.sendMessageAwaitReply({
           event: events.DATAREQUESTED,
           data: { dataType: DataTypes.KOLIBRIVERSION },
+          nameSpace,
+        });
+      }
+
+      /*
+       * Method to query channel metadata from Kolibri
+       * @return {Promise<ChannelMetadata>} - a Promise that resolves to ChannelMetadata
+       */
+      getChannelMetadata() {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.DATAREQUESTED,
+          data: { dataType: DataTypes.CHANNELMETADATA },
           nameSpace,
         });
       }

@@ -14,6 +14,7 @@ export const events = {
   CONTEXT: 'context',
   THEMECHANGED: 'themechanged',
   KOLIBRIVERSIONREQUESTED: 'kolibriversionrequested',
+  CHANNELMETADATAREQUESTED: 'channelmetadatarequested',
   NOW: 'now',
   RESIZE: 'resize',
   LOADING: 'loading',
@@ -25,6 +26,7 @@ export const DataTypes = {
   SEARCHRESULT: 'SearchResult',
   COLLECTION: 'Collection',
   KOLIBRIVERSION: 'KolibriVersion',
+  CHANNELMETADATA: 'ChannelMetadata',
 };
 
 export const MessageStatuses = {
