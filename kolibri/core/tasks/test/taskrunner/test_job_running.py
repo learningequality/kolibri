@@ -99,10 +99,9 @@ class EventProxy(object):
     objects to synchronize test and job function execution, and verify that
     things work across threads easily.
 
-    With the move to ORMJob and pickling arguments, that means we can't
-    pass in vanilla events anymore. The pickle module would either error out,
-    or (with the dill extension to pickle), unpickle an event that's totally
-    different from the previous event.
+    With the move to ORMJob, which is now serializing any arguments, that means we
+    can't pass in vanilla events anymore, since non-primitive types aren't
+    serializable.
 
     To solve this, we use the EventProxy object. Whenever we instantiate this,
     we generate an id, and a corresponding event, and then store that event
@@ -115,9 +114,12 @@ class EventProxy(object):
     creation.
     """
 
-    def __init__(self, *args, **kwargs):
-        self.event_id = uuid.uuid4().hex
-        EVENT_PROXY_MAPPINGS[self.event_id] = Event(*args, **kwargs)
+    def __init__(self, event_id=None, *args, **kwargs):
+        if event_id is None:
+            event_id = uuid.uuid4().hex
+        self.event_id = event_id
+        if event_id not in EVENT_PROXY_MAPPINGS:
+            EVENT_PROXY_MAPPINGS[event_id] = Event(*args, **kwargs)
 
     @_underlying_event
     def wait(self, event, timeout=None):
@@ -143,15 +145,16 @@ def flag():
     e.clear()
 
 
-def set_flag(threading_flag):
-    threading_flag.set()
+def set_flag(flag_id):
+    evt = EventProxy(event_id=flag_id)
+    evt.set()
 
 
-def make_job_updates(flag):
+def make_job_updates(flag_id):
     job = get_current_job()
     for i in range(3):
         job.update_progress(i, 2)
-    set_flag(flag)
+    set_flag(flag_id)
 
 
 def failing_func():
@@ -207,7 +210,7 @@ class TestQueue(object):
         assert inmem_queue.fetch_job(job_id).extra_metadata == metadata
 
     def test_enqueue_runs_function(self, inmem_queue, flag):
-        job_id = inmem_queue.enqueue(set_flag, flag)
+        job_id = inmem_queue.enqueue(set_flag, flag.event_id)
 
         flag.wait(timeout=5)
         assert flag.is_set()
@@ -222,13 +225,15 @@ class TestQueue(object):
         n = 10
         events = [EventProxy() for _ in range(n)]
         for e in events:
-            inmem_queue.enqueue(set_flag, e)
+            inmem_queue.enqueue(set_flag, e.event_id)
 
         for e in events:
             assert e.wait(timeout=2)
 
     def test_enqueued_job_can_receive_job_updates(self, inmem_queue, flag):
-        job_id = inmem_queue.enqueue(make_job_updates, flag, track_progress=True)
+        job_id = inmem_queue.enqueue(
+            make_job_updates, flag.event_id, track_progress=True
+        )
 
         # sleep for half a second to make us switch to another thread
         time.sleep(0.5)
@@ -389,7 +394,7 @@ class TestQueue(object):
     def test_successful_job_cannot_restart(self, inmem_queue, flag):
         # Start a function and wait for it to be completed. Initiate a restart
         # request for the task which should raise a JobNotRestartable Exception
-        old_job_id = inmem_queue.enqueue(set_flag, flag)
+        old_job_id = inmem_queue.enqueue(set_flag, flag.event_id)
 
         flag.wait(timeout=5)
         assert flag.is_set()
