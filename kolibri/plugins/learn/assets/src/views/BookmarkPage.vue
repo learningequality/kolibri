@@ -23,6 +23,7 @@
 
       <KButton
         v-if="more && !loading"
+        data-test="load-more-button"
         :text="coreString('viewMoreAction')"
         @click="loadMore"
       />
