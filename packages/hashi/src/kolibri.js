@@ -57,9 +57,18 @@ import { events, nameSpace, DataTypes } from './hashiBase';
 /**
  * Type definition for channel metadata object
  * @typedef {Object} ChannelMetadata
+ * @property {string} id - the channel id
  * @property {string} title - the channel title
  * @property {string} description - the channel description
  * @property {string} thumbnail - the channel thumbnail
+ */
+
+/**
+ * Type definition for channel filter options object
+ * @typedef {Object} ChannelFilterOptions
+ * @property {string[]} availableAuthors - list of authors on this channel
+ * @property {string[]} availableTags - list of tags in this channel
+ * @property {string[]} availableKinds - list of kinds in this channel
  */
 
 /**
@@ -232,6 +241,18 @@ export default class Kolibri extends BaseShim {
         return self.mediator.sendMessageAwaitReply({
           event: events.DATAREQUESTED,
           data: { dataType: DataTypes.CHANNELMETADATA },
+          nameSpace,
+        });
+      }
+
+      /*
+       * Method to query channel filter options from Kolibri
+       * @return {Promise<ChannelFilterOptions>} - a Promise that resolves to ChannelFilterOptions
+       */
+      getChannelFilterOptions() {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.DATAREQUESTED,
+          data: { dataType: DataTypes.CHANNELFILTEROPTIONS },
           nameSpace,
         });
       }

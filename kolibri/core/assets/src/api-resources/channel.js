@@ -10,4 +10,7 @@ import { Resource } from 'kolibri.lib.apiResource';
 export default new Resource({
   name: 'channel',
   useContentCacheKey: true,
+  fetchFilterOptions(id) {
+    return this.getListEndpoint('filter_options', { id });
+  },
 });

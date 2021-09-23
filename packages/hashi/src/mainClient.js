@@ -87,6 +87,8 @@ export default class MainClient {
         event = events.KOLIBRIVERSIONREQUESTED;
       } else if (message.dataType === DataTypes.CHANNELMETADATA) {
         event = events.CHANNELMETADATAREQUESTED;
+      } else if (message.dataType === DataTypes.CHANNELFILTEROPTIONS) {
+        event = events.CHANNELFILTEROPTIONSREQUESTED;
       }
 
       if (event) {

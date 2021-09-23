@@ -112,6 +112,9 @@
       this.hashi.on(events.CHANNELMETADATAREQUESTED, message => {
         this.sendChannelMetadata.call(this, message);
       });
+      this.hashi.on(events.CHANNELFILTEROPTIONSREQUESTED, message => {
+        this.sendChannelFilterOptions.call(this, message);
+      });
       this.hashi.initialize(
         {},
         {},
@@ -283,6 +286,25 @@
                 name: channel.name,
                 description: channel.description,
                 thumbnail: channel.thumbnail,
+              },
+            });
+          })
+          .catch(err => {
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendMessage(newMsg);
+          });
+      },
+      sendChannelFilterOptions(message) {
+        return ChannelResource.fetchFilterOptions(this.topic.channel_id)
+          .then(response => {
+            return createReturnMsg({
+              message,
+              data: {
+                availableAuthors: response.data.available_authors,
+                availableTags: response.data.available_tags,
+                availableKinds: response.data.available_kinds,
               },
             });
           })

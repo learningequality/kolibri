@@ -143,6 +143,36 @@ class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return models.ChannelMetadata.objects.all().select_related("root__lang")
 
+    @list_route(methods=["get"])
+    def filter_options(self, request, **kwargs):
+        channel_id = self.request.query_params.get("id")
+
+        nodes = models.ContentNode.objects.filter(channel_id=channel_id)
+        authors = (
+            nodes.exclude(author="")
+            .order_by("author")
+            .values_list("author")
+            .annotate(Count("author"))
+        )
+        kinds = nodes.order_by("kind").values_list("kind").annotate(Count("kind"))
+
+        tag_nodes = models.ContentTag.objects.filter(
+            tagged_content__channel_id=channel_id
+        )
+        tags = (
+            tag_nodes.order_by("tag_name")
+            .values_list("tag_name")
+            .annotate(Count("tag_name"))
+        )
+
+        data = {
+            "available_authors": dict(authors),
+            "available_kinds": dict(kinds),
+            "available_tags": dict(tags),
+        }
+
+        return Response(data)
+
 
 class IdFilter(FilterSet):
     ids = CharFilter(method="filter_ids")
