@@ -1,8 +1,17 @@
 {
+  "CommonLearnStrings.dontShowThisAgainLabel": "crwdns327813:0crwdne327813:0",
+  "CommonLearnStrings.exploreResources": "crwdns327815:0crwdne327815:0",
   "CommonLearnStrings.learnLabel": "crwdns319659:0crwdne319659:0",
+  "CommonLearnStrings.libraryLabel": "crwdns327817:0crwdne327817:0",
+  "CommonLearnStrings.logo": "crwdns327819:0{channelTitle}crwdne327819:0",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "crwdns327821:0crwdne327821:0",
   "CommonLearnStrings.mostPopularLabel": "crwdns319661:0crwdne319661:0",
+  "CommonLearnStrings.multipleLearningActivities": "crwdns327823:0crwdne327823:0",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "crwdns327825:0crwdne327825:0",
   "CommonLearnStrings.nextStepsLabel": "crwdns319663:0crwdne319663:0",
   "CommonLearnStrings.popularLabel": "crwdns319665:0crwdne319665:0",
-  "CommonLearnStrings.recommendedLabel": "crwdns319667:0crwdne319667:0",
-  "CommonLearnStrings.resumeLabel": "crwdns319669:0crwdne319669:0"
+  "CommonLearnStrings.resourceCompletedLabel": "crwdns327827:0crwdne327827:0",
+  "CommonLearnStrings.resourceHidden": "crwdns327829:0crwdne327829:0",
+  "CommonLearnStrings.resumeLabel": "crwdns319669:0crwdne319669:0",
+  "CommonLearnStrings.suggestedTimeToComplete": "crwdns327831:0crwdne327831:0"
 }

@@ -49,7 +49,7 @@
   "LoadingTaskPage.onThisDevice": "",
   "MultipleUsers.commaSeparatedPair": "",
   "MultipleUsers.imported": "",
-  "MultipleUsers.searchForUser": "",
+  "MultipleUsers.searchForUser": "વપરાશકર્તા શોધો",
   "MultipleUsers.selectAUser": "",
   "PersonalDataConsentForm.description": "જો તમે અન્ય વપરાશકર્તાઓ દ્વારા ઉપયોગમાં લેવા માટે કોલિબ્રી સેટ કરી રહ્યાં છો, તો તમે અથવા તમે જે વ્યક્તિને પ્રતિનિધિત્વ કરો છો તે વપરાશકર્તા એકાઉન્ટ્સની સુરક્ષા અને સંચાલન અને આ ઉપકરણની વ્યક્તિગત માહિતી સંગ્રહિત કરવા માટે જવાબદાર રહેશે.",
   "PersonalDataConsentForm.header": "એડમિનિસ્ટ્રેટર તરીકે જવાબદારી",
@@ -81,7 +81,6 @@
   "SuperuserCredentialsForm.rememberThisAccountInformation": "મહત્વપૂર્ણ: કૃપા કરીને આ એકાઉન્ટની માહિતી યાદ રાખો. જો તમને તેની જરૂર હોય તો લખો",
   "UserTable.role": "ભૂમિકા",
   "UserTable.selectAllLabel": "બધું પસંદ કરો",
-  "UserTable.userActionsColumnHeader": "ક્રિયા",
   "UserTable.userCheckboxLabel": "વપરાશકર્તા પસંદ કરો",
   "YesNoForm.details": "તમે તેને પછી તમારી સુવિધા સેટિંગ્સમાં બદલી શકો છો",
   "YesNoForm.yesOptionLabel": "હા"

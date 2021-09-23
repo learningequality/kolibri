@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "힌트 사용하기 ({hintsLeft, number} 남음)",
+  "PerseusRendererIndex.hintExplanation": "힌트를 사용할 경우, 이 질문은 내가 푼 질문에 반영되지 않습니다.",
+  "PerseusRendererIndex.hintLabel": "힌트:",
+  "PerseusRendererIndex.noMoreHint": "더 이상 힌트가 없습니다.",
+  "PerseusRendererIndex.notAvailable": "스크래치패드가 사용가능하지 않습니다.",
+  "PerseusRendererIndex.showScratch": "스크래치패드 보이기"
+}

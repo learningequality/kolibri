@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "استفاده از راهنما ({hintsLeft, number} باقیمانده)",
+  "PerseusRendererIndex.hintExplanation": "اگر از یک راهنما برای پاسخ به این سوال استفاده کنید، این سوال به پیشرفت‌تان اضافه نخواهد شد",
+  "PerseusRendererIndex.hintLabel": "نکته:",
+  "PerseusRendererIndex.noMoreHint": "هیچ نکته بیشتری وجود ندارد",
+  "PerseusRendererIndex.notAvailable": "چرک‌نویس در دسترس نمی‌باشد",
+  "PerseusRendererIndex.showScratch": "نمایش چرک‌نویس"
+}

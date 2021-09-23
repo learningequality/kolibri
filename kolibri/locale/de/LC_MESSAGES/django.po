@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-02 20:02-0700\n"
-"PO-Revision-Date: 2021-09-10 01:20\n"
+"POT-Creation-Date: 2021-09-15 16:05-0700\n"
+"PO-Revision-Date: 2021-09-23 20:20\n"
 "Last-Translator: \n"
 "Language-Team: German\n"
 "Language: de_DE\n"
@@ -139,7 +139,7 @@ msgstr "Wert in Spalte '{}' hat zu viele Zeichen"
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr ""
+msgstr "Wert in Spalte '{}' ungültig"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -153,7 +153,7 @@ msgstr "Die Spalte '{}' ist erforderlich"
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr ""
+msgstr "Falsche Spaltenüberschrift in der ersten Zeile gefunden"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
@@ -172,11 +172,11 @@ msgstr "Benutzer mit der ID '{}' kann nicht aktualisiert werden, da kein Benutze
 msgid "Database ID is not valid"
 msgstr "Datenbank-ID ist ungültig"
 
-#: core/content/api.py:152
+#: core/content/api.py:158
 msgid "Resource"
 msgstr "Material"
 
-#: core/content/api.py:1268
+#: core/content/api.py:1316
 msgid "The requested channel does not exist on the content server"
 msgstr "Der gewünschte Kanal existiert nicht auf dem Content server"
 
@@ -184,7 +184,7 @@ msgstr "Der gewünschte Kanal existiert nicht auf dem Content server"
 msgid "Unknown format"
 msgstr "Unbekanntes format"
 
-#: core/device/serializers.py:41
+#: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
 msgstr "Diese Sprache wird von Kolibri nicht unterstützt"
 
@@ -231,7 +231,7 @@ msgstr "Wir empfehlen Firefox oder Chrome für die Nutzung von Kolibri."
 msgid "You can also try updating your current browser."
 msgstr "Möglicherweise können Sie den Fehler beheben, indem Sie Ihre Browserversion aktualisieren."
 
-#: core/views.py:160
+#: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Es wurden keine entsprechenden Weiterleitungsseiten gefunden. Möglicherweise wurde Kolibri nicht ordnungsgemäß konfiguriert."
 

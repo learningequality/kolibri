@@ -124,7 +124,7 @@
       fullDevice: {
         message: 'Full device',
         context:
-          'Device that will be a fully featured Kolibri server used by admins, coaches and learners.',
+          "Device that will be a fully featured Kolibri server used by admins, coaches and learners (in this context 'Full' does not refer to storage capacity).",
       },
       fullDeviceTooltip: {
         message:
@@ -167,7 +167,8 @@
       },
       descriptionImportLOD: {
         message: 'This device supports auto-syncing with a full device that has the same facility',
-        context: 'Description of the import a Learn-only device option.',
+        context:
+          "Description of the Learn-only device option. \nLearner account is imported from a facility on a Full device. In this context 'Full' does not refer to storage capacity, but indicates a 'fully featured' device, capable of supporting all users (admins, coaches and learners).",
       },
     },
   };

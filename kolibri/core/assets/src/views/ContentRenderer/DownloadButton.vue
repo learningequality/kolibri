@@ -75,7 +75,7 @@
       },
       downloadFilename: {
         message: '{ resourceTitle } ({ fileId }).{ fileExtension }',
-        context: 'DO NOT TRANSLATE.',
+        context: 'DO NOT TRANSLATE\nCopy the source string.\n',
       },
     },
   };

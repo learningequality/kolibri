@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-02 20:02-0700\n"
-"PO-Revision-Date: 2021-09-10 01:20\n"
+"POT-Creation-Date: 2021-09-15 16:05-0700\n"
+"PO-Revision-Date: 2021-09-23 20:20\n"
 "Last-Translator: \n"
 "Language-Team: Telugu\n"
 "Language: te_IN\n"
@@ -139,7 +139,7 @@ msgstr "{} నిలువు వరుసలో విలువ చాలా �
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr ""
+msgstr "'{}' నిలువు వరుసలోని విలువ చెల్లదు"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -153,7 +153,7 @@ msgstr "'{}' నిలువు వరుస ఆవశ్యకం"
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr ""
+msgstr "మొదటి వరుసలో సరికాని హెడర్ లేబుల్ కనుగొనబడింది"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
@@ -172,11 +172,11 @@ msgstr "'{}' ఐడీ ఉన్న వినియోగదారును అ�
 msgid "Database ID is not valid"
 msgstr "డేటాబేస్ ID చెల్లదు"
 
-#: core/content/api.py:152
+#: core/content/api.py:158
 msgid "Resource"
 msgstr "వనరులు"
 
-#: core/content/api.py:1268
+#: core/content/api.py:1316
 msgid "The requested channel does not exist on the content server"
 msgstr "కావలసిన ఛానల్ కంటెంట్ సర్వర్ ఫై లేదు"
 
@@ -184,7 +184,7 @@ msgstr "కావలసిన ఛానల్ కంటెంట్ సర్వ
 msgid "Unknown format"
 msgstr "తెలియని రకం"
 
-#: core/device/serializers.py:41
+#: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri భాషకి మద్దతు ఇవ్వదు"
 
@@ -231,7 +231,7 @@ msgstr "Kolibriని ఉపయోగించేందుకు, Firefox లే
 msgid "You can also try updating your current browser."
 msgstr "మీరు మీ ప్రస్తుత బ్రౌజర్‌ని నవీకరించి కూడా ప్రయత్నించవచ్చు."
 
-#: core/views.py:160
+#: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "సరైన దారి మళ్లింపు పేజీలు కనుగొనబడలేదు. Kolibri సరిగ్గా కాన్ఫిగర్ చేసి ఉండకపోవచ్చు"
 

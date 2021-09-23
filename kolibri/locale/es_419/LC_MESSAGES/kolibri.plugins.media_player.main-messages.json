@@ -19,16 +19,13 @@
   "MediaPlayerIndex.progressBar": "Barra de progreso",
   "MediaPlayerIndex.replay": "Retroceder 10 segundos",
   "MediaPlayerIndex.sourceError": "No se encontró una fuente compatible para este elemento multimedia",
-  "MediaPlayerIndex.transcript": "Transcripción",
   "MediaPlayerIndex.transcriptOff": "Cerrar la transcripción",
   "MediaPlayerIndex.unmute": "Activar sonido",
   "MediaPlayerIndex.volumeLevel": "Nivel de volumen",
-  "MediaPlayerTranscript.label": "Transcripción",
   "MediaPlayerTranscript.transcriptBeginning": "Inicio de la transcripción",
   "MediaPlayerTranscript.transcriptEnd": "Final de la transcripción",
   "SubtitlesMenuItem.subtitles": "Subtítulos",
   "TranscriptCue.textLabel": "Texto del subtítulo actual",
   "TranscriptCue.timeLabel": "Inicio del subtítulo actual",
-  "TranscriptCue.title": "Reproducir desde {startTime}",
-  "TranscriptMenuItem.transcript": "Transcripción"
+  "TranscriptCue.title": "Reproducir desde {startTime}"
 }

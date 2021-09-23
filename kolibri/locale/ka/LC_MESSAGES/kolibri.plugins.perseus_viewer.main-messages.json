@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "მინიშნების გამოყენება (დარჩენილია {hintsLeft, number})",
+  "PerseusRendererIndex.hintExplanation": "მინიშნებას თუ გამოიყენებთ, ამ კითხვაზე პასუხი არ ჩაგეთვლებათ პროგრესში",
+  "PerseusRendererIndex.hintLabel": "მინიშნება:",
+  "PerseusRendererIndex.noMoreHint": "მინიშნება მეტი აღარ არის",
+  "PerseusRendererIndex.notAvailable": "ჩასაწერი წიგნაკი არ არის ხელმისაწვდომი",
+  "PerseusRendererIndex.showScratch": "ჩასაწერი წიგნაკის ჩვენება"
+}

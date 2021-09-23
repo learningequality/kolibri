@@ -81,7 +81,6 @@
   "SuperuserCredentialsForm.rememberThisAccountInformation": "Estos datos de acceso a la cuenta son importantes. Se recomienda apuntarlos si necesario",
   "UserTable.role": "Rol",
   "UserTable.selectAllLabel": "Seleccionar todo",
-  "UserTable.userActionsColumnHeader": "Acciones",
   "UserTable.userCheckboxLabel": "Seleccionar usuario",
   "YesNoForm.details": "Se puede cambiar más tarde en la configuración del centro educativo",
   "YesNoForm.yesOptionLabel": "Sí"

@@ -87,7 +87,11 @@
       },
     },
     $trs: {
-      recentLessonsHeader: 'Recent lessons',
+      recentLessonsHeader: {
+        message: 'Recent lessons',
+        context:
+          "Section header on the learner's Home page, displaying the most recent lessons that the coaches assigned to them.",
+      },
       yourLessonsHeader: {
         message: 'Your lessons',
         context:

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-02 20:02-0700\n"
-"PO-Revision-Date: 2021-09-08 04:10\n"
+"POT-Creation-Date: 2021-09-15 16:05-0700\n"
+"PO-Revision-Date: 2021-09-23 20:20\n"
 "Last-Translator: \n"
 "Language-Team: Italian\n"
 "Language: it_IT\n"
@@ -38,7 +38,7 @@ msgstr "Nome utente duplicato"
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
 msgid "Username only can contain characters, numbers and underscores"
-msgstr "Solo il nome utente può contenere caratteri, numeri e caratteri di sottolineatura"
+msgstr "Il nome utente può contenere solo caratteri, numeri e trattini bassi"
 
 #: core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
@@ -172,11 +172,11 @@ msgstr "Impossibile aggiornare l'utente con ID: '{}' perché non esiste nessun u
 msgid "Database ID is not valid"
 msgstr "L'ID del database non è valido"
 
-#: core/content/api.py:152
+#: core/content/api.py:158
 msgid "Resource"
 msgstr "Risorsa"
 
-#: core/content/api.py:1268
+#: core/content/api.py:1316
 msgid "The requested channel does not exist on the content server"
 msgstr "Il canale richiesto non esiste sul server dei contenuti"
 
@@ -184,7 +184,7 @@ msgstr "Il canale richiesto non esiste sul server dei contenuti"
 msgid "Unknown format"
 msgstr "Formato sconosciuto"
 
-#: core/device/serializers.py:41
+#: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
 msgstr "La lingua non è supportata da Kolibri"
 
@@ -231,7 +231,7 @@ msgstr "Per utilizzare Kolibri, si consiglia di utilizzare Firefox o Chrome."
 msgid "You can also try updating your current browser."
 msgstr "Puoi anche provare ad aggiornare il tuo browser attuale."
 
-#: core/views.py:160
+#: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Non sono state trovate pagine di reindirizzamento appropriate. È probabile che Kolibri non sia configurato correttamente"
 

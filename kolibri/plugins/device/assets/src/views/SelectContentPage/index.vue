@@ -307,11 +307,11 @@
       },
       problemFetchingChannel: {
         message: 'There was a problem getting the resources of this channel',
-        context: '\nError during channel import.',
+        context: 'Error during channel import.',
       },
       problemTransferringContents: {
         message: 'There was a problem transferring the selected resources',
-        context: '\nError during channel import.',
+        context: 'Error during channel import.',
       },
       selectContent: {
         message: "Select resources from '{channelName}'",

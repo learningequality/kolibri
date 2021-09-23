@@ -60,7 +60,7 @@
     $trs: {
       pct: {
         message: '{0, number, percent}',
-        context: 'DO NOT TRANSLATE.',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
     },
   };

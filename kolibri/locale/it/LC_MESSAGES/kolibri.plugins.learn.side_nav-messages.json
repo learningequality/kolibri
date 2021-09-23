@@ -1,8 +1,17 @@
 {
-  "CommonLearnStrings.learnLabel": "Scopri",
+  "CommonLearnStrings.dontShowThisAgainLabel": "Non mostrare più",
+  "CommonLearnStrings.exploreResources": "Esplora risorse",
+  "CommonLearnStrings.learnLabel": "Impara",
+  "CommonLearnStrings.libraryLabel": "Libreria",
+  "CommonLearnStrings.logo": "Dal canale {channelTitle}",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "Contrassegna risorsa come completata",
   "CommonLearnStrings.mostPopularLabel": "Più popolare",
+  "CommonLearnStrings.multipleLearningActivities": "Attività di apprendimento multiplo",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "Attività di apprendimento multiplo",
   "CommonLearnStrings.nextStepsLabel": "Prossimi passi",
   "CommonLearnStrings.popularLabel": "Popolare",
-  "CommonLearnStrings.recommendedLabel": "Consigliato",
-  "CommonLearnStrings.resumeLabel": "Riprendi"
+  "CommonLearnStrings.resourceCompletedLabel": "Risorsa completata",
+  "CommonLearnStrings.resourceHidden": "Risorsa nascosta",
+  "CommonLearnStrings.resumeLabel": "Riprendi",
+  "CommonLearnStrings.suggestedTimeToComplete": "Tempo suggerito per completare"
 }

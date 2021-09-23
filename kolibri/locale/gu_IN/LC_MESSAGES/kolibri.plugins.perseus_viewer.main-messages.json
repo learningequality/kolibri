@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "સંકેતનો ઉપયોગ કરો ({hintsLeft, number} બાકી)",
+  "PerseusRendererIndex.hintExplanation": "જો તમે સંકેતનો ઉપયોગ કરો છો, તો આ પ્રશ્ન તમારી પ્રગતિમાં ઉમેરાશે નહીં",
+  "PerseusRendererIndex.hintLabel": "સંકેત:",
+  "PerseusRendererIndex.noMoreHint": "વધુ સંકેતો નથી",
+  "PerseusRendererIndex.notAvailable": "સ્ક્રેચપેડ ઉપલબ્ધ નથી",
+  "PerseusRendererIndex.showScratch": "સ્ક્રેચપેડ બતાવો"
+}

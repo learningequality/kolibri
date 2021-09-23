@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "Hinweis verwenden (noch {hintsLeft, number} übrig)",
+  "PerseusRendererIndex.hintExplanation": "Wenn Sie einen Hinweis verwenden, wird die Frage nicht zu Ihrem Fortschritt gezählt.",
+  "PerseusRendererIndex.hintLabel": "Hinweis:",
+  "PerseusRendererIndex.noMoreHint": "Keine weiteren Hinweise",
+  "PerseusRendererIndex.notAvailable": "Das Schmierblatt ist nicht verfügbar",
+  "PerseusRendererIndex.showScratch": "Schmierblatt anzeigen"
+}

@@ -162,7 +162,7 @@
     $trs: {
       commaSeparatedPair: {
         message: '{first}, {second}',
-        context: 'DO NOT TRANSLATE.',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
     },
   };

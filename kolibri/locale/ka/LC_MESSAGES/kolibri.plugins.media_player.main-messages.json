@@ -19,16 +19,13 @@
   "MediaPlayerIndex.progressBar": "პროგრესის ზოლი",
   "MediaPlayerIndex.replay": "უკან 10 წამით",
   "MediaPlayerIndex.sourceError": "ამ მედიასთან თავსებადი წყარო არ მოიძებნა",
-  "MediaPlayerIndex.transcript": "ტრანსკრიპტი",
   "MediaPlayerIndex.transcriptOff": "ტრანსკრიპტის გათიშვა",
   "MediaPlayerIndex.unmute": "ხმის ჩართვა",
   "MediaPlayerIndex.volumeLevel": "ხმის დონე",
-  "MediaPlayerTranscript.label": "ტრანსკრიპტი",
   "MediaPlayerTranscript.transcriptBeginning": "ტრანსკრიპტის დასაწყისი",
   "MediaPlayerTranscript.transcriptEnd": "ტრანსკრიპტის დასასრული",
   "SubtitlesMenuItem.subtitles": "სუბტიტრები",
   "TranscriptCue.textLabel": "მიმდინარე სუბტიტრის ტექსტი",
   "TranscriptCue.timeLabel": "მიმდინარე სუბტიტრის დრო",
-  "TranscriptCue.title": "{startTime}-ზე გადასვლა",
-  "TranscriptMenuItem.transcript": "ტრანსკრიპტი"
+  "TranscriptCue.title": "{startTime}-ზე გადასვლა"
 }

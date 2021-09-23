@@ -217,7 +217,7 @@
     $trs: {
       documentTitle: {
         message: '{ contentTitle } - { channelTitle }',
-        context: 'DO NOT TRANSLATE.',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
     },
   };

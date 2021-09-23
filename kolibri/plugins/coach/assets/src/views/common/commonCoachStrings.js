@@ -349,7 +349,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   // formatted values
   nthExerciseName: {
     message: '{name} ({number, number, integer})',
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   numberOfLearners: {
     message: '{value, number, integer} {value, plural, one {learner} other {learners}}',
@@ -368,7 +368,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   percentage: {
     message: '{value, number, percent}',
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   ratioShort: {
     message: '{value, number, integer} of {total, number, integer}',

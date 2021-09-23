@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-02 20:02-0700\n"
-"PO-Revision-Date: 2021-09-10 01:20\n"
+"POT-Creation-Date: 2021-09-15 16:05-0700\n"
+"PO-Revision-Date: 2021-09-23 20:20\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Language: vi_VN\n"
@@ -139,7 +139,7 @@ msgstr "Giá trị trong cột '{}' có quá nhiều ký tự"
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr ""
+msgstr "Giá trị trong cột '{}' không hợp lệ"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -153,7 +153,7 @@ msgstr "Cần có cột '{}'"
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr ""
+msgstr "Hàng đầu tiên có chứa nhãn đầu đề không đúng"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
@@ -172,11 +172,11 @@ msgstr "Không thể cập nhật thông tin cho người dùng mang mã số: '
 msgid "Database ID is not valid"
 msgstr "Mã cơ sở dữ liệu không hợp lệ"
 
-#: core/content/api.py:152
+#: core/content/api.py:158
 msgid "Resource"
 msgstr "Nguồn tài liệu"
 
-#: core/content/api.py:1268
+#: core/content/api.py:1316
 msgid "The requested channel does not exist on the content server"
 msgstr "Kênh được yêu cầu không tồn tại trên máy chủ nội dung"
 
@@ -184,7 +184,7 @@ msgstr "Kênh được yêu cầu không tồn tại trên máy chủ nội dung
 msgid "Unknown format"
 msgstr "Không xác định được định dạng"
 
-#: core/device/serializers.py:41
+#: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri không hỗ trợ ngôn ngữ này"
 
@@ -231,7 +231,7 @@ msgstr "Chúng tôi đề nghị dùng Firefox hoặc Chrome để truy cập Ko
 msgid "You can also try updating your current browser."
 msgstr "Bạn cũng có thể thử cập nhật trình duyệt hiện tại."
 
-#: core/views.py:160
+#: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Không tìm thấy trang chuyển hướng phù hợp. Có thể Kolibri đặt cấu hình không tốt"
 

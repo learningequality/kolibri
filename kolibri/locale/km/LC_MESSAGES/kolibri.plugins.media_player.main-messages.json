@@ -19,16 +19,13 @@
   "MediaPlayerIndex.progressBar": "របារដំណើរការ",
   "MediaPlayerIndex.replay": "ទៅក្រោយ ១០ វិនាទី",
   "MediaPlayerIndex.sourceError": "រកមិនឃើញប្រភពសមស្របសម្រាប់ឯកសារមេឌៀនេះ",
-  "MediaPlayerIndex.transcript": "ប្រតិចារិក",
   "MediaPlayerIndex.transcriptOff": "បិទប្រតិចារិក",
   "MediaPlayerIndex.unmute": "បើកសម្លេង",
   "MediaPlayerIndex.volumeLevel": "កម្រិតសម្លេង",
-  "MediaPlayerTranscript.label": "ប្រតិចារិក",
   "MediaPlayerTranscript.transcriptBeginning": "ការផ្ដើមប្រតិចារិក",
   "MediaPlayerTranscript.transcriptEnd": "បញ្ចប់ប្រតិចារិក",
   "SubtitlesMenuItem.subtitles": "ចំណងជើងរងនានា",
   "TranscriptCue.textLabel": "ប្រតិចារិកចំណងជើងអត្ថបទ",
   "TranscriptCue.timeLabel": "ប្រតិចារិកពេលវេលាចាប់ផ្ដើម",
-  "TranscriptCue.title": "ស្វែងរក {startTime}",
-  "TranscriptMenuItem.transcript": "ប្រតិចារិក"
+  "TranscriptCue.title": "ស្វែងរក {startTime}"
 }

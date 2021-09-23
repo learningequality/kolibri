@@ -1,0 +1,8 @@
+{
+  "PerseusRendererIndex.hint": "Sử dụng gợi ý ({hintsLeft, number} còn lại)",
+  "PerseusRendererIndex.hintExplanation": "Nếu bạn sử dụng một gợi ý, câu hỏi này sẽ không được tính vào tiến bộ của bạn",
+  "PerseusRendererIndex.hintLabel": "Gợi ý:",
+  "PerseusRendererIndex.noMoreHint": "Không còn gợi ý",
+  "PerseusRendererIndex.notAvailable": "Bộ nhớ lưu tạm không khả dụng",
+  "PerseusRendererIndex.showScratch": "Hiển thị bộ nhớ lưu tạm"
+}
