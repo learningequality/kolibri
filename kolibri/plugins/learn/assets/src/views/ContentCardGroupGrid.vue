@@ -30,8 +30,8 @@
     <ContentCardListViewItem
       v-for="content in contents"
       :key="content.id"
-      :channelThumbnail="setChannelThumbnail(content)"
-      :channelTitle="channelTitle(content)"
+      :channelThumbnail="content.channel_thumbnail"
+      :channelTitle="content.channel_thumbnail"
       :description="content.description"
       activityLength="shortActivity"
       class="grid-item"
@@ -87,6 +87,13 @@
         validator(value) {
           return ['card', 'list'].includes(value);
         },
+        default: () => ({}),
+        required: false,
+      },
+      footerIcons: {
+        type: Object,
+        required: false,
+        default: null,
       },
     },
     data: () => ({
@@ -100,6 +107,9 @@
         this.sharedContentId = contentId;
         this.uniqueId = this.contents.find(content => content.content_id === contentId).id;
         this.modalIsOpen = true;
+      },
+      removeFromBookmarks(content, contents) {
+        return this.$emit('removeFromBookmarks', content.bookmark, contents.indexOf(content));
       },
     },
   };

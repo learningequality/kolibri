@@ -317,8 +317,14 @@
   }
 
   .metadata-info {
-    margin-top: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+
+  .metadata-info-footer {
+    display: inline-block;
+    margin: 0;
+    font-size: 13px;
   }
 
   .channel-logo {
