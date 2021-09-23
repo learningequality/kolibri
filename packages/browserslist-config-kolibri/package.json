@@ -6,5 +6,5 @@
   "repository": "github.com/learningequality/kolibri",
   "author": "Learning Equality",
   "license": "MIT",
-  "private": true
+  "private": false
 }
