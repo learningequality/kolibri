@@ -33,7 +33,7 @@
 
 #include "kolibri-utils.h"
 
-#include <gio/gio.h>
+#include "kolibri-task-multiplexer.h"
 
 /**
  * expanduser:
@@ -92,6 +92,7 @@ kolibri_file_exists(const gchar *kolibri_home,
                     const gchar *check_file_name)
 {
   g_autofree gchar *check_file_path = g_build_path("/", kolibri_home, check_file_name, NULL);
+
   g_autoptr(GFile) check_file = g_file_new_for_path(check_file_path);
 
   return g_file_query_exists(check_file, NULL);
@@ -110,4 +111,29 @@ local_kolibri_exists(void)
   g_autofree gchar *kolibri_home = kolibri_home_dir();
 
   return kolibri_file_exists(kolibri_home, "content") && kolibri_file_exists(kolibri_home, "db.sqlite3");
+}
+
+/**
+ * multiplex_dbus_proxy_call_async_ready_cb:
+ *
+ * Helper GAsyncReadyCallback which passes the async result of a dbus proxy call
+ * to a KolibriTaskMultiplexer so it will be propagated to different invocation
+ * tasks.
+ */
+void
+multiplex_dbus_proxy_call_async_ready_cb(GObject      *source_object,
+                                         GAsyncResult *res,
+                                         gpointer user_data)
+{
+  KolibriTaskMultiplexer *task_multiplexer = KOLIBRI_TASK_MULTIPLEXER(user_data);
+
+  g_autoptr(GError) error = NULL;
+  g_autoptr(GVariant) result_variant = NULL;
+
+  result_variant = g_dbus_proxy_call_finish(G_DBUS_PROXY(source_object), res, &error);
+
+  if (result_variant == NULL)
+    kolibri_task_multiplexer_push_error(task_multiplexer, error);
+  else
+    kolibri_task_multiplexer_push_variant(task_multiplexer, result_variant);
 }

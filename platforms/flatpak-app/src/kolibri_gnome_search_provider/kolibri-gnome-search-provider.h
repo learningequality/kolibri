@@ -42,6 +42,7 @@ G_BEGIN_DECLS
 
 #define KOLIBRI_GNOME_TYPE_SEARCH_PROVIDER kolibri_gnome_search_provider_get_type()
 G_DECLARE_FINAL_TYPE(KolibriGnomeSearchProvider, kolibri_gnome_search_provider, KOLIBRI_GNOME, SEARCH_PROVIDER, GObject)
+
 KolibriGnomeSearchProvider *kolibri_gnome_search_provider_new(void);
 
 gboolean kolibri_gnome_search_provider_register_on_connection(KolibriGnomeSearchProvider  *self,
