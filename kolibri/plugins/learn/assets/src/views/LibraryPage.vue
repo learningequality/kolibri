@@ -26,6 +26,7 @@
             class="grid"
             :contents="channels"
             :genContentLink="genChannelLink"
+            @toggleInfoPanel="toggleInfoPanel"
           />
           <div class="toggle-view-buttons">
             <KIconButton
@@ -49,6 +50,7 @@
             :cardViewStyle="currentViewStyle"
             :genContentLink="genContentLink"
             :contents="trimmedPopular"
+            @toggleInfoPanel="toggleInfoPanel"
           />
         </div>
         <div v-else>
@@ -91,6 +93,13 @@
       @cancel="currentCategory = null"
       @input="handleCategory"
     />
+
+    <FullScreenSidePanel
+      v-if="sidePanelContent"
+      @closePanel="sidePanelContent = null"
+    >
+      <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
+    </FullScreenSidePanel>
   </div>
 
 </template>
@@ -101,10 +110,13 @@
   import { mapState } from 'vuex';
   import uniq from 'lodash/uniq';
 
+  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
+  import BrowseResourceMetadata from '../../../../../core/assets/src/views/FullScreenSidePanel/BrowseResourceMetadata';
+  import languageSwitcherMixin from '../../../../../core/assets/src/views/language-switcher/mixin.js';
   import { PageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
@@ -133,10 +145,12 @@
       };
     },
     components: {
-      ContentCardGroupGrid,
-      ChannelCardGroupGrid,
-      EmbeddedSidePanel,
+      BrowseResourceMetadata,
       CategorySearchModal,
+      ChannelCardGroupGrid,
+      ContentCardGroupGrid,
+      EmbeddedSidePanel,
+      FullScreenSidePanel,
     },
     mixins: [commonLearnStrings, commonCoreStrings, responsiveWindowMixin],
     data: function() {
@@ -148,6 +162,7 @@
         results: [],
         more: null,
         labels: null,
+        sidePanelContent: null,
       };
     },
     computed: {
@@ -308,6 +323,9 @@
             this.moreLoading = false;
           });
         }
+      },
+      toggleInfoPanel(content) {
+        this.sidePanelContent = content;
       },
     },
     $trs: {

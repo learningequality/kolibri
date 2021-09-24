@@ -1,219 +1,28 @@
 <template>
 
-  <section class="metadata">
-    <!-- placeholder for learning activity type chips TODO update with chip component -->
-
-
-    <!-- Whatever data will come in this place may be an array? -->
-    <div class="section">
-      <LearningActivityChip v-if="content.activityKind" :kind="content.activityKind" />
-    </div>
-
-    <!-- The key here is not set in stone -->
-    <div class="section">
-      <!-- For Beginners Chip Here -->
-      <div v-if="content.forBeginners" class="beginners-chip">
-        {{ coreString("ForBeginners") }}
-      </div>
-    </div>
-
-    <div v-if="content.title" class="section title">
-      {{ content.title }}
-    </div>
-
-    <div v-if="content.description" ref="description" class="content" :class="truncate">
-      {{ content.description }}
-    </div>
-
-    <KButton
-      v-if="descriptionOverflow"
-      :text="showMoreOrLess"
-      appearance="flat-button"
-      class="show-more-button"
-      :primary="true"
-      @click="toggleShowMoreOrLess"
-    />
-
-    <!-- No "Subject" string available - but it is noted in Figma as a possible metadata
-    <div v-if="content.subject" class="section">
-      <span class="label">
-      </span>
-      <span>
-      </span>
-    </div>
-    -->
-
-    <div v-if="content.level" class="section">
-      <span class="label">
-        {{ $tr('level') }}:
-      </span>
-      <span>
-        {{ content.level }}
-      </span>
-    </div>
-
-    <div v-if="content.duration" class="section">
-      <span class="label">
-        {{ $tr('estimatedTime') }}:
-      </span>
-      <span>
-        <TimeDuration :seconds="content.duration" />
-      </span>
-    </div>
-
-    <div v-if="content.lang" class="section">
-      <span class="label">
-        {{ $tr('language') }}:
-      </span>
-      <span>
-        {{ content.lang.lang_name }}
-      </span>
-    </div>
-
-    <div v-if="content.author" class="section">
-      <span class="label">
-        {{ $tr('author') }}:
-      </span>
-      <span>
-        {{ content.author }}
-      </span>
-    </div>
-
-    <div v-if="content.license_owner" class="section">
-      <span class="label">
-        {{ $tr('copyrightHolder') }}:
-      </span>
-      <span>
-        {{ content.license_owner }}
-      </span>
-    </div>
-
-    <div v-if="licenseDescription" class="section">
-      <span class="label">
-        {{ $tr('license') }}:
-      </span>
-      <span>
-        {{ licenseShortName || '' }}
-        <KIconButton
-          :icon="licenseDescriptionIsVisible ? 'chevronUp' : 'chevronDown'"
-          :ariaLabel="$tr('toggleLicenseDescription')"
-          size="small"
-          type="secondary"
-          class="license-toggle"
-          @click="licenseDescriptionIsVisible = !licenseDescriptionIsVisible"
-        />
-        <div v-if="licenseDescriptionIsVisible" dir="auto" class="license-details">
-          <p class="license-details-name">
-            {{ licenseLongName }}
-          </p>
-          <p>{{ licenseDescription }}</p>
-        </div>
-      </span>
-    </div>
-
-    <DownloadButton
-      v-if="canDownload"
-      :files="downloadableFiles"
-      :nodeTitle="content.title"
-      class="download-button"
-    />
-
-  </section>
+  <div>
+    <!-- TODO Delete this component, the strings should live in different
+    namespaces in the next release - this is here to be crossComponentTranslated
+    until the next batch of translations -->
+  </div>
 
 </template>
 
 
 <script>
 
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
-  import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import {
-    licenseShortName,
-    licenseLongName,
-    licenseDescriptionForConsumer,
-  } from 'kolibri.utils.licenseTranslations';
-  import LearningActivityChip from '../../../../../plugins/learn/assets/src/views/LearningActivityChip';
+  /* I really wanted to rename this component to differentiate the UI cases
+    between when viewing the resource or browsing them and did not have enough
+    of the data structure to reliably build a solution that would render both
+    views.
+
+    So now this component just supplies strings until the next go round.
+  */
 
   export default {
     name: 'SidePanelResourceMetadata',
-    components: {
-      DownloadButton,
-      LearningActivityChip,
-      TimeDuration,
-    },
-    mixins: [commonCoreStrings],
-    props: {
-      canDownloadContent: {
-        type: Boolean,
-        required: false,
-        default: false,
-      },
-      content: {
-        type: Object,
-        required: true,
-      },
-    },
-    data() {
-      return {
-        licenseDescriptionIsVisible: false,
-        showMoreOrLess: 'Show More',
-        truncate: 'truncate-description',
-        descriptionOverflow: false,
-      };
-    },
-    computed: {
-      licenseShortName() {
-        return licenseShortName(this.content.license_name);
-      },
-      licenseLongName() {
-        return licenseLongName(this.content.license_name);
-      },
-      licenseDescription() {
-        return licenseDescriptionForConsumer(
-          this.content.license_name,
-          this.content.license_description
-        );
-      },
-      downloadableFiles() {
-        return this.content.files.filter(file => !file.preset.endsWith('thumbnail'));
-      },
-      canDownload() {
-        if (this.canDownloadContent) {
-          return (
-            this.downloadableFiles.length &&
-            this.content.kind !== ContentNodeKinds.EXERCISE &&
-            !isEmbeddedWebView
-          );
-        }
-        return false;
-      },
-    },
-    mounted() {
-      this.calculateDescriptionOverflow();
-    },
-    methods: {
-      toggleShowMoreOrLess() {
-        if (this.showMoreOrLess === 'Show More') {
-          this.showMoreOrLess = 'Show Less';
-          this.truncate = 'show-description';
-          return this.$tr('showLess');
-        } else {
-          this.showMoreOrLess = 'Show More';
-          this.truncate = 'truncate-description';
-          return this.$tr('showMore');
-        }
-      },
-      calculateDescriptionOverflow() {
-        if (this.$refs.description.scrollHeight > 175) {
-          console.log(this.$refs.description.scrollHeight);
-          this.descriptionOverflow = true;
-        }
-      },
-    },
     $trs: {
+      /* eslint-disable kolibri/vue-no-unused-translations */
       author: {
         message: 'Author',
         context:
@@ -280,80 +89,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  @import '~kolibri-design-system/lib/styles/definitions';
-
-  .truncate-description {
-    width: 372px;
-    max-height: 170px;
-    margin-right: 32px;
-    overflow-y: hidden;
-    @media (max-width: 426px) {
-      width: 300px;
-    }
-    @media (max-width: 320px) {
-      width: 270px;
-    }
-  }
-
-  .show-description {
-    width: 372px;
-    margin-right: 32px;
-    @media (max-width: 426px) {
-      width: 300px;
-    }
-    @media (max-width: 320px) {
-      width: 270px;
-    }
-  }
-
-  .show-more-button {
-    margin-bottom: 16px;
-    // -margin to align text vertically
-    margin-left: -16px;
-    text-decoration: underline;
-  }
-
-  .license-details-name {
-    font-weight: bold;
-  }
-
-  .license-toggle {
-    padding-top: 8px;
-  }
-
-  .download-button {
-    margin-top: 16px;
-  }
-
-  .beginners-chip {
-    display: inline-block;
-    padding: 12px;
-    font-weight: bold;
-    color: white;
-    background: #328168; // brand.secondary.v_600
-    border-radius: 4px;
-  }
-
-  .section {
-    // hack to make margin-bottom apply to empty sections
-    min-height: 1px;
-    margin-bottom: 16px;
-
-    &.title {
-      font-size: 1.25em;
-      font-weight: bold;
-    }
-
-    .label {
-      font-weight: bold;
-    }
-  }
-
-  .content {
-    font-size: 16px;
-    line-height: 24px;
-  }
-
-</style>
+<style lang="scss" scoped></style>

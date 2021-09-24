@@ -18,6 +18,7 @@
           :channelThumbnail="setChannelThumbnail(content)"
           :channelTitle="channelTitle(content)"
           @openCopiesModal="openCopiesModal"
+          @toggleInfoPanel="$emit('toggleInfoPanel', content)"
         />
       </KFixedGridItem>
     </KFixedGrid>
@@ -40,6 +41,7 @@
       :contentId="content.content_id"
       :copiesCount="content.copies_count"
       @openCopiesModal="openCopiesModal"
+      @toggleInfoPanel="$emit('toggleInfoPanel', content)"
     />
     <CopiesModal
       v-if="modalIsOpen"

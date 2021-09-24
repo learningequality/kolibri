@@ -58,7 +58,7 @@
       v-if="sidePanelContent"
       @closePanel="sidePanelContent = null"
     >
-      <SidePanelResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
+      <CurrentlyViewedResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
     </FullScreenSidePanel>
   </div>
 
@@ -82,7 +82,7 @@
   import GlobalSnackbar from '../../../../../../kolibri/core/assets/src/views/GlobalSnackbar';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
-  import SidePanelResourceMetadata from '../../../../../core/assets/src/views/FullScreenSidePanel/SidePanelResourceMetadata';
+  import CurrentlyViewedResourceMetadata from '../../../../../core/assets/src/views/FullScreenSidePanel/CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
 
@@ -112,7 +112,7 @@
       FullScreenSidePanel,
       GlobalSnackbar,
       LearningActivityBar,
-      SidePanelResourceMetadata,
+      CurrentlyViewedResourceMetadata,
       SkipNavigationLink,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],

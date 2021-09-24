@@ -107,6 +107,7 @@
                   :genContentLink="genContentLink"
                   :channelThumbnail="topicOrChannel['thumbnail']"
                   cardViewStyle="card"
+                  @toggleInfoPanel="toggleInfoPanel"
                 />
                 <KButton
                   v-if="t.children && t.children.more"
@@ -120,6 +121,7 @@
                 :contents="resources"
                 :genContentLink="genContentLink"
                 :channelThumbnail="topicOrChannel['thumbnail']"
+                @toggleInfoPanel="toggleInfoPanel"
               />
               <KButton v-if="topic.children && topic.children.more" @click="loadMore()">
                 {{ $tr('viewMore') }}
@@ -140,6 +142,12 @@
       </div>
 
     </div>
+    <FullScreenSidePanel
+      v-if="sidePanelContent"
+      @closePanel="sidePanelContent = null"
+    >
+      <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
+    </FullScreenSidePanel>
   </div>
 
 </template>
@@ -152,8 +160,10 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import { PageNames } from '../constants';
   import commonCoach from '../../../../../plugins/coach/assets/src/views/common';
+  import BrowseResourceMetadata from '../../../../../core/assets/src/views/FullScreenSidePanel/BrowseResourceMetadata';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import CustomContentRenderer from './ChannelRenderer/CustomContentRenderer';
@@ -177,15 +187,18 @@
       return { title };
     },
     components: {
+      BrowseResourceMetadata,
       CardThumbnail,
       ContentCardGroupGrid,
       CustomContentRenderer,
       EmbeddedSidePanel,
+      FullScreenSidePanel,
     },
     mixins: [commonCoach, responsiveWindowMixin, commonCoreStrings],
     data: function() {
       return {
         activeTab: 'folders',
+        sidePanelContent: null,
       };
     },
     computed: {
@@ -255,6 +268,9 @@
       },
       toggleSidebarView(value) {
         this.activeTab = value;
+      },
+      toggleInfoPanel(content) {
+        this.sidePanelContent = content;
       },
     },
     $trs: {
