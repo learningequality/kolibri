@@ -189,7 +189,7 @@
         },
       },
       width: {
-        type: Number || String,
+        type: [Number, String],
         required: true,
       },
       topicPage: {

@@ -2,17 +2,29 @@
 
   <section class="metadata">
     <!-- placeholder for learning activity type chips TODO update with chip component -->
-    <div v-if="content.activityType">
-      <!-- Activity Type Chip(s) Here -->
+
+
+    <!-- Whatever data will come in this place may be an array? -->
+    <div class="section">
+      <LearningActivityChip v-if="content.activityKind" :kind="content.activityKind" />
     </div>
-    <!-- placeholder for learning activity "for beginniners"
-    new metadata TODO update with chip component  -->
-    <div v-if="content.forBeginners">
+
+    <!-- The key here is not set in stone -->
+    <div class="section">
       <!-- For Beginners Chip Here -->
+      <div v-if="content.forBeginners" class="beginners-chip">
+        {{ coreString("ForBeginners") }}
+      </div>
     </div>
-    <div v-if="content.description" ref="description" :class="truncate">
+
+    <div v-if="content.title" class="section title">
+      {{ content.title }}
+    </div>
+
+    <div v-if="content.description" ref="description" class="content" :class="truncate">
       {{ content.description }}
     </div>
+
     <KButton
       v-if="descriptionOverflow"
       :text="showMoreOrLess"
@@ -21,57 +33,91 @@
       :primary="true"
       @click="toggleShowMoreOrLess"
     />
-    <dl>
-      <dt v-if="content.level">
-        {{ $tr('level') }}
-      </dt>
-      <dd>{{ content.level }}</dd>
 
-      <dt v-if="content.estimatedTime">
-        {{ $tr('estimatedTime') }}
-      </dt>
-      <dd>content.estimatedTime</dd>
+    <!-- No "Subject" string available - but it is noted in Figma as a possible metadata
+    <div v-if="content.subject" class="section">
+      <span class="label">
+      </span>
+      <span>
+      </span>
+    </div>
+    -->
 
-      <dt v-if="content.lang">
-        {{ $tr('language') }}
-      </dt>
-      <dd>{{ content.author }}</dd>
-      <dt v-if="content.author">
-        {{ $tr('author') }}
-      </dt>
-      <dd>{{ content.author }}</dd>
-      <dd>{{ content.license_owner }}</dd>
-      <dt v-if="content.license_owner">
-        {{ $tr('copyrightHolder') }}
-      </dt>
-      <dd>{{ content.license_owner }}</dd>
-    </dl>
-    <p v-if="licenseShortName">
-      {{ $tr('license') }}
+    <div v-if="content.level" class="section">
+      <span class="label">
+        {{ $tr('level') }}:
+      </span>
+      <span>
+        {{ content.level }}
+      </span>
+    </div>
 
-      <template v-if="licenseDescription">
+    <div v-if="content.duration" class="section">
+      <span class="label">
+        {{ $tr('estimatedTime') }}:
+      </span>
+      <span>
+        <TimeDuration :seconds="content.duration" />
+      </span>
+    </div>
+
+    <div v-if="content.lang" class="section">
+      <span class="label">
+        {{ $tr('language') }}:
+      </span>
+      <span>
+        {{ content.lang.lang_name }}
+      </span>
+    </div>
+
+    <div v-if="content.author" class="section">
+      <span class="label">
+        {{ $tr('author') }}:
+      </span>
+      <span>
+        {{ content.author }}
+      </span>
+    </div>
+
+    <div v-if="content.license_owner" class="section">
+      <span class="label">
+        {{ $tr('copyrightHolder') }}:
+      </span>
+      <span>
+        {{ content.license_owner }}
+      </span>
+    </div>
+
+    <div v-if="licenseDescription" class="section">
+      <span class="label">
+        {{ $tr('license') }}:
+      </span>
+      <span>
+        {{ licenseShortName || '' }}
         <KIconButton
-          :icon="licenceDescriptionIsVisible ? 'chevronUp' : 'chevronDown'"
+          :icon="licenseDescriptionIsVisible ? 'chevronUp' : 'chevronDown'"
           :ariaLabel="$tr('toggleLicenseDescription')"
           size="small"
           type="secondary"
           class="license-toggle"
-          @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
+          @click="licenseDescriptionIsVisible = !licenseDescriptionIsVisible"
         />
-        <div v-if="licenceDescriptionIsVisible" dir="auto" class="license-details">
+        <div v-if="licenseDescriptionIsVisible" dir="auto" class="license-details">
           <p class="license-details-name">
             {{ licenseLongName }}
           </p>
           <p>{{ licenseDescription }}</p>
         </div>
-      </template>
-    </p>
+      </span>
+    </div>
+
     <DownloadButton
       v-if="canDownload"
       :files="downloadableFiles"
       :nodeTitle="content.title"
       class="download-button"
     />
+
   </section>
 
 </template>
@@ -79,32 +125,46 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
+  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import {
     licenseShortName,
     licenseLongName,
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
+  import LearningActivityChip from '../../../../../plugins/learn/assets/src/views/LearningActivityChip';
 
   export default {
     name: 'SidePanelResourceMetadata',
     components: {
       DownloadButton,
+      LearningActivityChip,
+      TimeDuration,
+    },
+    mixins: [commonCoreStrings],
+    props: {
+      canDownloadContent: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      content: {
+        type: Object,
+        required: true,
+      },
     },
     data() {
       return {
-        licenceDescriptionIsVisible: false,
+        licenseDescriptionIsVisible: false,
         showMoreOrLess: 'Show More',
         truncate: 'truncate-description',
         descriptionOverflow: false,
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig']),
-      ...mapState('topicsTree', ['content']),
       licenseShortName() {
         return licenseShortName(this.content.license_name);
       },
@@ -121,7 +181,7 @@
         return this.content.files.filter(file => !file.preset.endsWith('thumbnail'));
       },
       canDownload() {
-        if (this.facilityConfig.show_download_button_in_learn && this.content) {
+        if (this.canDownloadContent) {
           return (
             this.downloadableFiles.length &&
             this.content.kind !== ContentNodeKinds.EXERCISE &&
@@ -224,10 +284,6 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .metadata {
-    margin: 32px;
-  }
-
   .truncate-description {
     width: 372px;
     max-height: 170px;
@@ -253,7 +309,9 @@
   }
 
   .show-more-button {
-    padding: 0;
+    margin-bottom: 16px;
+    // -margin to align text vertically
+    margin-left: -16px;
     text-decoration: underline;
   }
 
@@ -267,6 +325,35 @@
 
   .download-button {
     margin-top: 16px;
+  }
+
+  .beginners-chip {
+    display: inline-block;
+    padding: 12px;
+    font-weight: bold;
+    color: white;
+    background: #328168; // brand.secondary.v_600
+    border-radius: 4px;
+  }
+
+  .section {
+    // hack to make margin-bottom apply to empty sections
+    min-height: 1px;
+    margin-bottom: 16px;
+
+    &.title {
+      font-size: 1.25em;
+      font-weight: bold;
+    }
+
+    .label {
+      font-weight: bold;
+    }
+  }
+
+  .content {
+    font-size: 16px;
+    line-height: 24px;
   }
 
 </style>

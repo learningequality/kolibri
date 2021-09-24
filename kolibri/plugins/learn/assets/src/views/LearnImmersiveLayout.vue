@@ -20,6 +20,7 @@
       data-test="learningActivityBar"
       @navigateBack="navigateBack"
       @toggleBookmark="toggleBookmark"
+      @viewInfo="openSidePanel"
     />
     <KLinearLoader
       v-if="loading"
@@ -53,6 +54,12 @@
       />
     </div>
     <GlobalSnackbar />
+    <FullScreenSidePanel
+      v-if="sidePanelContent"
+      @closePanel="sidePanelContent = null"
+    >
+      <SidePanelResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
+    </FullScreenSidePanel>
   </div>
 
 </template>
@@ -64,6 +71,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import {
     LearningActivities,
     ContentKindsToLearningActivitiesMap,
@@ -74,6 +82,7 @@
   import GlobalSnackbar from '../../../../../../kolibri/core/assets/src/views/GlobalSnackbar';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
+  import SidePanelResourceMetadata from '../../../../../core/assets/src/views/FullScreenSidePanel/SidePanelResourceMetadata';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
 
@@ -100,8 +109,10 @@
       AppError,
       AuthMessage,
       ContentPage,
+      FullScreenSidePanel,
       GlobalSnackbar,
       LearningActivityBar,
+      SidePanelResourceMetadata,
       SkipNavigationLink,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
@@ -131,6 +142,7 @@
     data() {
       return {
         bookmark: null,
+        sidePanelContent: null,
       };
     },
     computed: {
@@ -190,6 +202,9 @@
       navigateBack() {
         // return to previous page using the route object set through props
         this.$router.push(this.back);
+      },
+      openSidePanel() {
+        this.sidePanelContent = this.content;
       },
       toggleBookmark() {
         if (this.bookmark) {
