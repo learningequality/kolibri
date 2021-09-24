@@ -387,6 +387,7 @@
   "PasswordTextbox.confirmPasswordLabel": "비밀번호 확인",
   "PasswordTextbox.errorNotMatching": "비밀번호가 일치하지 않습니다",
   "PermissionsIcon.limitedPermissionsTooltip": "제한된 권한",
+  "PerseusInternalMessages.None of the above": "해당 사항 없음.",
   "PrivacyInfoModal.kolibriAboutP1": "Kolibri는 Learning Equality 재단에서 구축한 소프트웨어로, Kolibri의 사용약관 및 개인정보보호 방침 관련 상세 내용이 궁금하시면 아래 사이트를 접속해 주시기 바랍니다.",
   "PrivacyInfoModal.kolibriAboutP2": "Kolibri는 인터넷 연결 없이도 다양한 기기에 설치하여 사용할 수 있는 소프트웨어 어플리케이션입니다.",
   "PrivacyInfoModal.kolibriAboutP3": "웹 브라우저를 통해 접속이 가능한 유사 온라인 서비스와는 달리, Kolibri는 수천 건의 개별 설치를 통해 전세계에서 운영되고 있으며, 각각의 Kolibri는 설치된 기기의 소유자에 의해 운영, 관리 됩니다.",

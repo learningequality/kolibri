@@ -387,6 +387,7 @@
   "PasswordTextbox.confirmPasswordLabel": "Redigite a senha",
   "PasswordTextbox.errorNotMatching": "As senhas não coincidem",
   "PermissionsIcon.limitedPermissionsTooltip": "Permissões limitadas",
+  "PerseusInternalMessages.None of the above": "Nenhuma das anteriores",
   "PrivacyInfoModal.kolibriAboutP1": "O software Kolibri é construído pela Foundation for Learning Equality, Inc. Mais informações, incluindo os Termos de Serviço e a Política de Privacidade de Kolibri podem ser encontradas em:",
   "PrivacyInfoModal.kolibriAboutP2": "Kolibri é um aplicativo de software para uso offline, sem a necessidade de Internet. Ele é leve e compatível com a grande maioria dos computadores, tablets e celulares, novos e antigos.",
   "PrivacyInfoModal.kolibriAboutP3": "Ao contrário de muitos aplicativos online que também são acessados por meio de um navegador web, cada instalação do Kolibri é única, ou seja, gerenciada e controlada pelos proprietários dos respectivos dispositivos em que o Kolibri está instalado.",

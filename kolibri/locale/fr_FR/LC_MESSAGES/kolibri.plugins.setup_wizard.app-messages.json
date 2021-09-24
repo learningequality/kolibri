@@ -67,7 +67,7 @@
   "SetupMethod.createNewFacilityAction": "Créer un nouvel établissement",
   "SetupMethod.descriptionImportLOD": "Cet appareil prend en charge la synchronisation automatique avec un appareil complet qui possède le même établissement",
   "SetupMethod.descriptionParagraph1": "Un établissement est l’endroit où vous installez Kolibri, comme une école, un centre de formation ou une maison.",
-  "SetupMethod.fullDevice": "Appareil en mode complet",
+  "SetupMethod.fullDevice": "Appareil complet",
   "SetupMethod.fullDeviceTooltip": "L'appareil sera un serveur Kolibri aux caractéristiques complètes utilisé par des administrateurs, des éducateurs et des apprenants",
   "SetupMethod.importFacilityAction": "Importer toutes les données d'un établissement existant",
   "SetupMethod.importLOD": "Importer un ou plusieurs comptes utilisateurs depuis un établissement existant",

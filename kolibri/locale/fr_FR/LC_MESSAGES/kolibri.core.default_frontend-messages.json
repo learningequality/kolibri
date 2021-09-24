@@ -387,6 +387,7 @@
   "PasswordTextbox.confirmPasswordLabel": "Ressaisir le mot de passe",
   "PasswordTextbox.errorNotMatching": "Les mots de passe ne sont pas identiques",
   "PermissionsIcon.limitedPermissionsTooltip": "Autorisations limitées",
+  "PerseusInternalMessages.None of the above": "Aucune de ces propositions.",
   "PrivacyInfoModal.kolibriAboutP1": "Le logiciel Kolibri est construit par Foundation for Learning Equality, Inc. Plus d’informations, y compris sur les conditions d’utilisation et la politique de confidentialité de Kolibri sont disponibles ici :",
   "PrivacyInfoModal.kolibriAboutP2": "Kolibri est un logiciel qui peut être installé sur des appareils variés sans avoir besoin d’une connexion à internet.",
   "PrivacyInfoModal.kolibriAboutP3": "Contrairement à de nombreux services web en ligne qui sont accessibles de la même manière via un navigateur web, il y a des milliers d’installations de Kolibri indépendantes dans le monde entier – y compris celle-ci. Chaque installation de Kolibri est gérée et contrôlée par le propriétaire de l’appareil.",
