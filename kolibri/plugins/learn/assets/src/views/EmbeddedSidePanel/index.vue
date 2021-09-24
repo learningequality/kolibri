@@ -327,6 +327,7 @@
 
   .side-panel {
     position: fixed;
+    z-index: 10;
     height: 100%;
     padding: 30px 40px !important;
     padding-bottom: 120px !important;
