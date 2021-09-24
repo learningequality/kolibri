@@ -1021,9 +1021,19 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
 });
 
+// We forgot a string, so we are using one from the PerseusInternalMessages namespace
+// do not do this, do as I say, not as I do, etc. etc.
+// TODO: 0.16 - remove this and put a proper string in place
+const noneOfTheAboveTranslator = createTranslator('PerseusInternalMessages', {
+  'None of the above': 'None of the above',
+});
+
 export default {
   methods: {
     coreString(key, args) {
+      if (key === 'None of the above') {
+        return noneOfTheAboveTranslator.$tr(key, args);
+      }
       return coreStrings.$tr(key, args);
     },
     showSnackbarNotification(key, args, coreCreateSnackbarArgs) {
