@@ -163,7 +163,7 @@
   "ExamPage.question": "问题 {num, number, integer} of {total, number, integer}",
   "ExamPage.questionsAnswered": "{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question answered} other {questions answered}}",
   "ExamPage.submitExam": "提交测验",
-  "ExamPage.unanswered": "",
+  "ExamPage.unanswered": "你还有 {numLeft, number} {numLeft, plural, other {道题}} 没有回答",
   "ExploreChannels.header": "探索频道",
   "Hint.hint": "使用提示 (还剩 {hintsLeft, number} 个提示)",
   "Hint.hintExplanation": "如果您使用提示，这个问题将不会添加到您的进展",

@@ -34,7 +34,7 @@
   "CommonCoachStrings.classesLabel": "Clases",
   "CommonCoachStrings.closeQuizLabel": "Cerrar prueba",
   "CommonCoachStrings.closeQuizModalDetail": "Estudiantes recibirán el resultado final y el informe de la prueba. Las preguntas no contestadas se contarán como incorrectas.",
-  "CommonCoachStrings.coachLabel": "Tutor",
+  "CommonCoachStrings.coachLabel": "Tutorizar",
   "CommonCoachStrings.coachLabelWithOneName": "Tutor - {name}",
   "CommonCoachStrings.coachLabelWithOneTwoNames": "Tutor - {name1} -  {name2}",
   "CommonCoachStrings.copyAction": "Copiar",

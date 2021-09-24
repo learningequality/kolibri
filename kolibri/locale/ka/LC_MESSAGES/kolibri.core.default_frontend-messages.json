@@ -387,6 +387,7 @@
   "PasswordTextbox.confirmPasswordLabel": "გაიმეორეთ პაროლი",
   "PasswordTextbox.errorNotMatching": "პაროლები არ ემთხვევა",
   "PermissionsIcon.limitedPermissionsTooltip": "შეზღუდული უფლებები",
+  "PerseusInternalMessages.None of the above": "არც ერთი ჩამოთვლილთაგან",
   "PrivacyInfoModal.kolibriAboutP1": "კოლიბრი შექმნილია Foundation for Learning Equality, Inc.-ის მიერ. დამატებითი ინფორმაცია, მათ შორის კოლიბრის გამოყენების პირობები და კონფიდენციალურობის პოლიტიკა შეგიძლიათ აქ ნახოთ:",
   "PrivacyInfoModal.kolibriAboutP2": "კოლიბრი არის აპლიკაცია, რომელიც ბევრ სხვადასხვა მოწყობილობაზე შეგიძლია დააყენოთ ინტერნეტის გარეშე.",
   "PrivacyInfoModal.kolibriAboutP3": "სხვა მსგავსი ონლაინ სერვისებისგან განსხვავებით, რომლებიც შეგიძლიათ ბრაუზერით გამოიყენოთ, კოლიბრის ათასობით დამოუკიდებელი ინსტალაცია არსებობს დედამიწის გარშემო — მათ შორის ეს. კოლიბრის თითოეული ინსტალაცია იმართება და კონტროლდება მოწყობილობის მფლობელის მიერ სადაც ის დაყენებულია.",

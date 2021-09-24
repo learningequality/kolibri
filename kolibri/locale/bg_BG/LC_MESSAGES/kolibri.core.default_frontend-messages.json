@@ -387,6 +387,7 @@
   "PasswordTextbox.confirmPasswordLabel": "Въведи пак паролата",
   "PasswordTextbox.errorNotMatching": "Паролите не съвпадат",
   "PermissionsIcon.limitedPermissionsTooltip": "Ограничени разрешения",
+  "PerseusInternalMessages.None of the above": "Никое от изброените",
   "PrivacyInfoModal.kolibriAboutP1": "Софтуерът на Колибри е дело на Foundation for Learning Equality, Inc. Повече информация, включително условията за ползване и поверителност на Колибри, можете да прочетете на:",
   "PrivacyInfoModal.kolibriAboutP2": "Колибри е софтуерно приложение, което може да бъде инсталирано на най-различни устройства без нужда от връзка с Интернет.",
   "PrivacyInfoModal.kolibriAboutP3": "За разлика от много онлайн уеб услуги, които се достъпват чрез уеб браузър, има хиляди независими инсталации на Колибри по света – включително тази тук. Всяка инсталация на Колибри се управлява и контролира от собственика на устройството, на което приложението е инсталирано.",
