@@ -8,16 +8,28 @@
         v-if="!!windowIsLarge"
         v-model="searchTerms"
         :availableLabels="labels"
+        :channels="channels"
         width="3"
         @currentCategory="handleShowSearchModal"
       />
+      <div v-else>
+        <KIconButton
+          icon="channel"
+          :ariaLabel="coreString('search')"
+          :color="$themeTokens.text"
+          :tooltip="coreString('search')"
+          @click="toggleSidePanelVisibility"
+        />
+      </div>
       <KGridItem
         :layout="{ span: 3 }"
         class="side-panel"
       />
       <KGridItem
         class="card-grid"
+        :style="{ padding: windowIsSmall ? '24px' : 0 }"
         :layout="{ span: 8 }"
+        :layout4="{ span: 4 }"
       >
         <div v-if="!displayingSearchResults">
           <h2>{{ coreString('channelsLabel') }}</h2>
@@ -47,6 +59,8 @@
           <HybridLearningCardGrid
             v-if="popular.length"
             :cardViewStyle="currentViewStyle"
+            :numCols="(currentViewStyle === 'list') ? 1 : 3"
+            :genContentLink="genContentLink"
             :contents="trimmedPopular"
             @toggleInfoPanel="toggleInfoPanel"
           />

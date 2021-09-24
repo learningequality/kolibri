@@ -62,16 +62,11 @@
     components: {
       CardThumbnail,
       CoachContentLabel,
-      TextTruncator,
     },
     props: {
       title: {
         type: String,
         required: true,
-      },
-      subtitle: {
-        type: String,
-        default: null,
       },
       thumbnail: {
         type: String,
@@ -219,19 +214,20 @@
 
   .mobile-card.card {
     width: 100%;
-    height: $thumb-height-mobile;
+    height: 450px;
   }
 
   .mobile-card {
     .thumbnail {
       position: absolute;
     }
-    .text {
-      height: 84px;
-      margin-left: $thumb-width-mobile;
+    .description {
+      padding: 8px;
+      margin-top: $thumb-height-mobile;
     }
-    .subtitle {
-      top: 36px;
+    .title {
+      margin-left: 16px;
+      text-decoration: none;
     }
   }
 
