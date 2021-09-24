@@ -40,6 +40,16 @@ MODELS_TO_DELETE = [
 class Command(AsyncCommand):
     help = "Delete all facility user data from the local database, and put it back to a clean state (but leaving content as-is)."
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--noinput",
+            "--no-input",
+            action="store_false",
+            dest="interactive",
+            default=True,
+            help="Tells Django to NOT prompt the user for input of any kind.",
+        )
+
     def deprovision(self):
         with DisablePostDeleteSignal(), self.start_progress(
             total=len(MODELS_TO_DELETE)
@@ -60,13 +70,14 @@ class Command(AsyncCommand):
         except server.NotRunning:
             pass
 
-        # ensure the user REALLY wants to do this!
-        confirm_or_exit(
-            "Are you sure you wish to deprovision your database? This will DELETE ALL USER DATA!"
-        )
-        confirm_or_exit(
-            "ARE YOU SURE? If you do this, there is no way to recover the user data on this device."
-        )
+        if options["interactive"]:
+            # ensure the user REALLY wants to do this!
+            confirm_or_exit(
+                "Are you sure you wish to deprovision your database? This will DELETE ALL USER DATA!"
+            )
+            confirm_or_exit(
+                "ARE YOU SURE? If you do this, there is no way to recover the user data on this device."
+            )
 
         print("Proceeding with deprovisioning. Deleting all user data.")
         self.deprovision()
