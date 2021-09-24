@@ -25,6 +25,7 @@ from kolibri.core.logger.models import ExamLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationsLog
 from kolibri.core.sqlite.utils import repair_sqlite_db
+from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
 
 collection_kind_choices = tuple(
     [choice[0] for choice in collection_kinds.choices] + ["user"]
@@ -200,7 +201,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
             except (LearnerProgressNotification.DoesNotExist):
                 return LearnerProgressNotification.objects.none()
             except DatabaseError:
-                repair_sqlite_db(connections["notifications_db"])
+                repair_sqlite_db(connections[NOTIFICATIONS])
                 return LearnerProgressNotification.objects.none()
 
         limit = self.check_limit()
@@ -226,7 +227,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
         try:
             queryset = self.filter_queryset(self.get_queryset())
         except (OperationalError, DatabaseError):
-            repair_sqlite_db(connections["notifications_db"])
+            repair_sqlite_db(connections[NOTIFICATIONS])
 
         # L
         logging_interval = datetime.datetime.now() - datetime.timedelta(minutes=5)
@@ -239,7 +240,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
             )
         except (OperationalError, DatabaseError):
             logged_notifications = 0
-            repair_sqlite_db(connections["notifications_db"])
+            repair_sqlite_db(connections[NOTIFICATIONS])
         # if there are more than 10 notifications we limit the answer to 10
         if logged_notifications < 10:
             notification_info = NotificationsLog()

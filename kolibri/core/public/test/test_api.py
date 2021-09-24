@@ -288,6 +288,8 @@ class SyncQueueViewSetTestCase(APITestCase):
     to be changed, and not the tests themselves.
     """
 
+    multi_db = True
+
     def setUp(self):
         provision_device()
         setup_device()
@@ -298,27 +300,6 @@ class SyncQueueViewSetTestCase(APITestCase):
             facility=self.facility,
         )
         self.instance_id = uuid.uuid4().hex
-
-    def test_list(self):
-        response = self.client.get(
-            reverse("kolibri:core:syncqueue-list"), format="json"
-        )
-        assert len(response.data) == Facility.objects.count()
-        assert response.status_code == status.HTTP_200_OK
-
-    def test_list_queue_length(self):
-        queue_length = 3
-        for i in range(queue_length):
-            SyncQueue.objects.create(
-                user=FacilityUser.objects.create(
-                    username="test{}".format(i), facility=self.facility
-                ),
-                instance_id=uuid.uuid4().hex,
-            )
-        response = self.client.get(
-            reverse("kolibri:core:syncqueue-list"), format="json"
-        )
-        assert response.data[self.facility.id] == queue_length
 
     @mock.patch(
         "kolibri.core.public.api.get_device_setting",
