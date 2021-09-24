@@ -42,12 +42,16 @@ class Command(AsyncCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--noinput",
-            "--no-input",
-            action="store_false",
-            dest="interactive",
-            default=True,
-            help="Tells Django to NOT prompt the user for input of any kind.",
+            "--destroy-all-user-data",
+            action="store_true",
+            dest="confirmation1",
+            default=False,
+        )
+        parser.add_argument(
+            "--permanent-irrevocable-data-loss",
+            action="store_true",
+            dest="confirmation2",
+            default=False,
         )
 
     def deprovision(self):
@@ -70,11 +74,14 @@ class Command(AsyncCommand):
         except server.NotRunning:
             pass
 
-        if options["interactive"]:
+        if not options["confirmation1"]:
             # ensure the user REALLY wants to do this!
             confirm_or_exit(
                 "Are you sure you wish to deprovision your database? This will DELETE ALL USER DATA!"
             )
+
+        if not options["confirmation2"]:
+            # ensure the user REALLY REALLY wants to do this!
             confirm_or_exit(
                 "ARE YOU SURE? If you do this, there is no way to recover the user data on this device."
             )

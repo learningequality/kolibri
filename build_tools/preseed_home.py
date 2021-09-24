@@ -18,7 +18,9 @@ os.mkdir(move_to)
 print("Generating preseeded home data in {}".format(temphome))
 
 initialize()
-call_command("deprovision", "--no-input")
+call_command(
+    "deprovision", "--destroy-all-user-data", "--permanent-irrevocable-data-loss"
+)
 
 shutil.move(os.path.join(temphome, "db.sqlite3"), move_to)
 
