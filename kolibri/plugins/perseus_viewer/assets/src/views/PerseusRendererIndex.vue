@@ -105,6 +105,10 @@
   import perseus from '../../dist/perseus';
   import icu from '../KAGlobals/icu';
   import Khan from '../KAGlobals/Khan';
+  // Import this here so that our string translation machinery
+  // is aware of the dependency, as otherwise the functions in here are only
+  // referenced via WebpackProvidePlugin
+  import '../i18n';
   import widgetSolver from '../widgetSolver';
   import imageMissing from './image_missing.svg';
 
