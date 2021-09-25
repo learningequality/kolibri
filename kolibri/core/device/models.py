@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.db import models
+from django.db.models import F
 from django.db.models import QuerySet
 from morango.models import UUIDField
 from morango.models.core import SyncSession
@@ -16,6 +17,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.permissions.general import IsOwn
 from kolibri.core.utils.cache import process_cache as cache
+from kolibri.deployment.default.sqlite_db_names import SYNC_QUEUE
 from kolibri.plugins.app.utils import interface
 
 device_permissions_fields = ["is_superuser", "can_manage_content"]
@@ -210,20 +212,67 @@ class SyncQueue(models.Model):
     """
 
     id = UUIDField(primary_key=True, default=uuid4)
-    user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE, null=False)
+    user_id = UUIDField(blank=False, null=False)
+    instance_id = UUIDField(blank=False, null=False)
     datetime = models.DateTimeField(auto_now_add=True)
     updated = models.FloatField(default=time.time)
     # polling interval is 5 seconds by default
     keep_alive = models.FloatField(default=5.0)
 
     @classmethod
-    def clean_stale(cls, expire=180.0):
+    def clean_stale(cls):
         """
         This method will delete all the devices from the queue
         with the expire time (in seconds) exhausted
         """
-        staled_time = time.time() - expire
-        cls.objects.filter(updated__lte=staled_time).delete()
+        cls.objects.filter(updated__lte=time.time() - F("keep_alive") * 2).delete()
+
+
+class SyncQueueRouter(object):
+    """
+    Determine how to route database calls for the SyncQueue model.
+    All other models will be routed to the default database.
+    """
+
+    def db_for_read(self, model, **hints):
+        """Send all read operations on the SyncQueue model to SYNC_QUEUE."""
+        if model is SyncQueue:
+            return SYNC_QUEUE
+        return None
+
+    def db_for_write(self, model, **hints):
+        """Send all write operations on the SyncQueue model to SYNC_QUEUE."""
+        if model is SyncQueue:
+            return SYNC_QUEUE
+        return None
+
+    def allow_relation(self, obj1, obj2, **hints):
+        """Determine if relationship is allowed between two objects."""
+
+        # Allow any relation between SyncQueue and SyncQueue.
+        if obj1._meta.model is SyncQueue and obj2._meta.model is SyncQueue:
+            return True
+        # No opinion if neither object is a SyncQueue.
+        elif SyncQueue not in [obj1._meta.model, obj2._meta.model]:
+            return None
+
+        # Block relationship if one object is a SyncQueue model and the other isn't.
+        return False
+
+    def allow_migrate(self, db, app_label, model_name=None, **hints):
+        """Ensure that the SyncQueue models get created on the right database."""
+        if (
+            app_label == SyncQueue._meta.app_label
+            and model_name == SyncQueue._meta.model_name
+        ):
+            # The SyncQueue model should be migrated only on the SYNC_QUEUE database.
+            return db == SYNC_QUEUE
+        elif db == SYNC_QUEUE:
+            # Ensure that all other apps don't get migrated on the SYNC_QUEUE database.
+            return False
+
+        # No opinion for all other scenarios
+        return None
 
 
 class UserSyncStatus(models.Model):

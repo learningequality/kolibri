@@ -14,7 +14,7 @@ jobs:
         uses: fkirc/skip-duplicate-actions@master
         with:
           github_token: ${{ github.token }}
-          paths: '["requirements/*.txt"]'
+          paths: '["requirements/*.txt", "package.json", "**/package.json", "yarn.lock", "test/conditional/test_licenses.sh"]'
   licenses:
     name: Licenses check
     needs: pre_job
@@ -22,8 +22,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '10.x'
+    - name: Cache Node.js modules
+      uses: actions/cache@v2
+      with:
+        path: '**/node_modules'
+        key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.OS }}-node-
     - uses: actions/setup-python@v2
     - name: Install dependencies
-      run: python -m pip install --upgrade pip
+      run: |
+        python -m pip install --upgrade pip
+        yarn --frozen-lockfile
+        npm rebuild node-sass
     - name: Check Licenses
       run: ./test/conditional/test_licenses.sh

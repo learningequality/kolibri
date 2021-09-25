@@ -2,17 +2,22 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import importlib
 import logging
 import signal
 import sys
 import traceback
+from pkgutil import find_loader
 
 import click
 from django.core.management import execute_from_command_line
 
 import kolibri
-from kolibri.plugins import config
+
+try:
+    from kolibri.plugins import config
+except RuntimeError as e:
+    logging.error("Loading plugin configuration failed with error '{}'".format(e))
+    sys.exit(1)
 from kolibri.plugins import DEFAULT_PLUGINS
 from kolibri.plugins.utils import disable_plugin
 from kolibri.plugins.utils import enable_plugin
@@ -38,7 +43,8 @@ click.disable_unicode_literals_warning = True
 def validate_module(ctx, param, value):
     if value:
         try:
-            importlib.import_module(value)
+            if not find_loader(value):
+                raise ImportError
         except ImportError:
             raise click.BadParameter(
                 "{param} must be a valid python module import path"
@@ -335,7 +341,7 @@ def services(port, background):
 
     logger.info("Starting Kolibri background services")
 
-    server.start(port=port, zip_port=None, serve_http=False, background=background)
+    server.start(port=port, zip_port=0, serve_http=False, background=background)
 
 
 @main.command(cls=KolibriCommand, help="Restart the Kolibri process")

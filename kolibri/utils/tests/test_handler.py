@@ -5,13 +5,16 @@ from time import sleep
 
 from django.conf import settings
 from django.test import TestCase
+from mock import patch
 
 from kolibri.utils import cli
 from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 
 
 class KolibriTimedRotatingFileHandlerTestCase(TestCase):
-    def test_do_rollover(self):
+    # Mock this function to avoid calling the logger in a way that prevents the archive
+    @patch("kolibri.utils.main._upgrades_before_django_setup")
+    def test_do_rollover(self, upgrades_mock):
         archive_dir = os.path.join(os.environ["KOLIBRI_HOME"], "logs", "archive")
         orig_value = settings.LOGGING["handlers"]["file"]["when"]
 

@@ -927,7 +927,7 @@ class TasksViewSet(BaseViewSet):
             channel_metadata = read_channel_metadata_from_db_file(
                 get_content_database_file_path(channel_id, drive.datafolder)
             )
-            job_metadata["new_channel_version"] = channel_metadata.version
+            job_metadata["new_channel_version"] = channel_metadata["version"]
         else:
             raise serializers.ValidationError(
                 "'method' field should either be 'network' or 'disk'."
@@ -1012,12 +1012,11 @@ class FacilityTasksViewSet(BaseViewSet):
         """
 
         baseurl, facility_id, username, password = validate_peer_sync_job(request)
+        validate_and_create_sync_credentials(baseurl, facility_id, username, password)
         sync_args = validate_sync_task(request)
         job_data = prepare_peer_sync_job(
             baseurl,
             facility_id,
-            username,
-            password,
             no_push=True,
             no_provision=True,
             extra_metadata=prepare_sync_task(*sync_args, type="SYNCPEER/PULL"),
@@ -1036,12 +1035,11 @@ class FacilityTasksViewSet(BaseViewSet):
         Initiate a SYNC (PULL + PUSH) of a specific facility from another device.
         """
         baseurl, facility_id, username, password = validate_peer_sync_job(request)
+        validate_and_create_sync_credentials(baseurl, facility_id, username, password)
         sync_args = validate_sync_task(request)
         job_data = prepare_peer_sync_job(
             baseurl,
             facility_id,
-            username,
-            password,
             extra_metadata=prepare_sync_task(*sync_args, type="SYNCPEER/FULL"),
         )
         job_id = facility_queue.enqueue(call_command, "sync", **job_data)
@@ -1218,15 +1216,15 @@ def validate_peer_sync_job(request):
     return (baseurl, facility_id, username, password)
 
 
-def prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs):
+def validate_and_create_sync_credentials(
+    baseurl, facility_id, username, password, user_id=None
+):
     """
-    Initializes and validates connection to peer with username and password for the sync command. If
-    already initialized, the username and password do not need to be supplied
-    """
-    # get the `user` for the sync command if present for provisioning
-    user_id = kwargs.get("user", None)
-    job_data = prepare_sync_job(facility_id, baseurl=baseurl, **kwargs)
+    Validates user credentials for syncing by performing certificate verification, which will also
+    save any certificates after successful authentication
 
+    :param user_id: Optional user ID for SoUD use case
+    """
     # call this in case user directly syncs without migrating database
     if not ScopeDefinition.objects.filter():
         call_command("loaddata", "scopedefinitions")
@@ -1257,7 +1255,13 @@ def prepare_peer_sync_job(baseurl, facility_id, username, password, **kwargs):
         else:
             raise AuthenticationFailed(e)
 
-    return job_data
+
+def prepare_peer_sync_job(baseurl, facility_id, **kwargs):
+    """
+    Initializes and validates connection to peer with username and password for the sync command. If
+    already initialized, the username and password do not need to be supplied
+    """
+    return prepare_sync_job(facility_id, baseurl=baseurl, **kwargs)
 
 
 def prepare_soud_sync_job(baseurl, facility_id, user_id, **kwargs):

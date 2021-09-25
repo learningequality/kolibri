@@ -249,8 +249,9 @@
         context: 'Refers to the Device > Permissions page.',
       },
       canManageContentLabel: {
-        message: 'Can manage content',
-        context: 'Type of permission that can be given to a user.',
+        message: 'Can manage resources',
+        context:
+          "One of the options in the 'Permissions' filter on the Device permissions page. Type of permission that allows users to import, export and manage channels and resources in Kolibri.",
       },
       superAdminLabel: {
         message: 'Super admin',

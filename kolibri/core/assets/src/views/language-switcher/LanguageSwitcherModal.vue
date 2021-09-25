@@ -72,7 +72,7 @@
       changeLanguageModalHeader: {
         message: 'Change language',
         context:
-          "Option to change the Kolibri interface language on the  'Change language' screen.\n\n",
+          "Option to change the Kolibri interface language on the  'Change language' screen.",
       },
     },
   };

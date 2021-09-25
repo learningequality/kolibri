@@ -29,7 +29,7 @@
       </HeaderTableRow>
       <HeaderTableRow>
         <template #key>
-          {{ coachString('avgQuizScoreLabel') }}
+          {{ coachString('avgScoreLabel') }}
         </template>
         <template #value>
           {{ coachString('percentage', { value: avgScore }) }}

@@ -35,8 +35,6 @@ def set_sqlite_connection_pragma(dbapi_connection, connection_record):
 
 logger = logging.getLogger(__name__)
 
-BASES = {}
-
 
 class ClassNotFoundError(Exception):
     pass
@@ -195,18 +193,30 @@ def load_metadata(name):
     return module.Base.metadata
 
 
-def prepare_bases():
+class LazyBases(object):
+    _valid_bases = set(CONTENT_DB_SCHEMA_VERSIONS + [CURRENT_SCHEMA_VERSION])
+    _loaded_bases = {}
 
-    for name in CONTENT_DB_SCHEMA_VERSIONS + [CURRENT_SCHEMA_VERSION]:
-        try:
-            metadata = load_metadata(name)
-            BASES[name] = prepare_base(metadata, name=name)
-        except ImportError:
-            logger.error(
-                "Tried to load content schema version {} but valid schema import was not found".format(
-                    name
+    def __getitem__(self, name):
+        if name not in self._valid_bases:
+            raise AttributeError
+        if name not in self._loaded_bases:
+            try:
+                metadata = load_metadata(name)
+                self._loaded_bases[name] = prepare_base(metadata, name=name)
+            except ImportError:
+                logger.error(
+                    "Tried to load content schema version {} but valid schema import was not found".format(
+                        name
+                    )
                 )
-            )
+                self._loaded_bases[name] = None
+        if self._loaded_bases[name] is None:
+            raise AttributeError
+        return self._loaded_bases[name]
+
+
+BASES = LazyBases()
 
 
 def get_model_from_cls(cls):

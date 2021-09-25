@@ -53,8 +53,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
 
   // labels, phrases, titles, headers...
-  activeLabel: 'Active',
-  activeQuizzesLabel: 'Active quizzes',
+  // activeLabel: 'Active',
+  // activeQuizzesLabel: {
+  //   message: 'Active quizzes',
+  //   context: 'An active quiz is one that is in progress.',
+  // },
   activityLabel: {
     message: 'Activity',
     context:
@@ -73,11 +76,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     message: 'Average time spent',
     context:
       "In the selected lesson 'Report' sub-tab, coaches can see the average time that has been spent on a resource by a specific class.",
-  },
-  avgQuizScoreLabel: {
-    message: 'Average quiz score',
-    context:
-      "The average score of a class's quiz results. This is calculated only from quizzes that were completed by learners.\n",
   },
   backToLessonLabel: {
     message: "Back to '{lesson}'",
@@ -110,7 +108,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   descriptionLabel: {
     message: 'Description',
-    context: 'Indicates a field where coaches can add a description for their lesson.',
+    context: 'Indicates a field where coaches can add a description to their lesson.',
   },
   descriptionMissingLabel: {
     message: 'No description',
@@ -150,12 +148,12 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "In the 'Difficult questions' sub-tab within the 'Reports' section, there's a column called 'Help needed' which shows the coach which learners need help on what questions.\n\nCoaches can also filter class activity by 'Help needed'",
   },
-  inactiveQuizzesLabel: 'Inactive quizzes',
+  // inactiveQuizzesLabel: 'Inactive quizzes',
   lastActivityLabel: {
     message: 'Last activity',
     context: 'Indicates when a learner was last active on a particular resource.',
   },
-  inactiveLabel: 'Inactive',
+  // inactiveLabel: 'Inactive',
   learnersLabel: {
     message: 'Learners',
     context:
@@ -214,7 +212,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "Coaches can choose between 'Randomized' and 'Fixed' question order when they create quizzes.\n\nThis text is a description of the 'Randomized' question order.",
   },
-  overallLabel: 'Overall',
   previewLabel: {
     message: 'Preview',
     context:
@@ -308,7 +305,10 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
 
   // errors
-  saveLessonError: 'There was a problem saving this lesson',
+  saveLessonError: {
+    message: 'There was a problem saving this lesson',
+    context: 'Error message.',
+  },
   duplicateLessonTitleError: 'A lesson with that name already exists',
 
   // empty states
@@ -349,7 +349,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   // formatted values
   nthExerciseName: {
     message: '{name} ({number, number, integer})',
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   numberOfLearners: {
     message: '{value, number, integer} {value, plural, one {learner} other {learners}}',
@@ -368,7 +368,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   percentage: {
     message: '{value, number, percent}',
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   ratioShort: {
     message: '{value, number, integer} of {total, number, integer}',
@@ -389,6 +389,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
 
   // Quiz activation / closing / etc
+  lessonVisibleLabel: {
+    message: 'Visible to learners',
+    context:
+      'A label indicating that the learners can see the lesson when the switch is turned "on"',
+  },
   reportVisibleLabel: {
     message: 'Report visible',
     context:
@@ -425,7 +430,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   openQuizLabel: {
     message: 'Start quiz',
     context:
-      "Label for a button that, when clicked, will 'start' a quiz - making it active so that Learners may take the quiz.",
+      "Label for a button that, when clicked, will 'start' a quiz - making it active so that learners may take the quiz.",
   },
   openQuizModalDetail: {
     message:
@@ -482,9 +487,9 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
   },
   resourcesUnavailableP2: {
     message:
-      'Consult your administrator for guidance, or use an account with device permissions to manage content channels.',
+      'Consult your administrator for guidance, or use an account with device permissions to manage channels and resources.',
 
-    context: 'Second paragraph of the "Resources Unavailable - Learn More" modal',
+    context: 'Second paragraph of the "Resources Unavailable - Learn More" modal.',
   },
   upgradeKolibriTitle: {
     message: 'Upgrade Kolibri to view resources',

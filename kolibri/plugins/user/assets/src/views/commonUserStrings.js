@@ -24,7 +24,7 @@ const commonUserStrings = createTranslator('CommonUserPageStrings', {
   },
   goBackToHomeAction: {
     message: 'Go to home page',
-    context: 'For links that go to beginning of the authentication flow',
+    context: 'Links to the beginning of the authentication flow.',
   },
 });
 

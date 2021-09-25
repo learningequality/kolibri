@@ -1,0 +1,17 @@
+{
+  "CommonLearnStrings.dontShowThisAgainLabel": "აღარ მაჩვენოთ ეს",
+  "CommonLearnStrings.exploreResources": "დაათვალიერეთ რესურსები",
+  "CommonLearnStrings.learnLabel": "ისწავლე",
+  "CommonLearnStrings.libraryLabel": "ბიბლიოთეკა",
+  "CommonLearnStrings.logo": "{channelTitle} არხიდან",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "რესურსების დასრულებულად მონიშვნა",
+  "CommonLearnStrings.mostPopularLabel": "ყველაზე პოპულარული",
+  "CommonLearnStrings.multipleLearningActivities": "სხვადასხვა სასწავლო აქტივობა",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.nextStepsLabel": "შემდეგი ნაბიჯები",
+  "CommonLearnStrings.popularLabel": "პოპულარული",
+  "CommonLearnStrings.resourceCompletedLabel": "რესურსი დასრულებულია",
+  "CommonLearnStrings.resourceHidden": "რესურსი დამალულია",
+  "CommonLearnStrings.resumeLabel": "გაგრძელება",
+  "CommonLearnStrings.suggestedTimeToComplete": "დასრულებისთვის საჭირო სავარაუდო დრო"
+}

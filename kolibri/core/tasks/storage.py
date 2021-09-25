@@ -1,21 +1,19 @@
 import logging
 from contextlib import contextmanager
-from copy import copy
 
 from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import func
 from sqlalchemy import or_
-from sqlalchemy import PickleType
 from sqlalchemy import String
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from kolibri.core.tasks.exceptions import JobNotFound
+from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
-from kolibri.utils.conf import OPTIONS
 
 Base = declarative_base()
 
@@ -43,8 +41,8 @@ class ORMJob(Base):
     # The queue name passed to the client when the job is scheduled.
     queue = Column(String, index=True)
 
-    # The original Job object, pickled here for so we can easily access it.
-    obj = Column(PickleType(protocol=OPTIONS["Python"]["PICKLE_PROTOCOL"]))
+    # The JSON string that represents the job
+    saved_job = Column(String)
 
     time_created = Column(DateTime(timezone=True), server_default=func.now())
     time_updated = Column(DateTime(timezone=True), server_onupdate=func.now())
@@ -91,11 +89,14 @@ class StorageMixin(object):
 
 
 class Storage(StorageMixin):
-    def _add_storage(self, job):
+    def _orm_to_job(self, orm_job):
         """
-        Adds a save_meta method to a job object so that a job
+        Extracts a Job object from the saved_job string column of ORMJob
+
+        Also adds a save_meta method to a job object so that a job
         can update itself.
         """
+        job = Job.from_json(orm_job.saved_job)
 
         job.storage = self
         return job
@@ -122,7 +123,7 @@ class Storage(StorageMixin):
                 state=j.state,
                 priority=priority.upper(),
                 queue=queue,
-                obj=j,
+                saved_job=j.to_json(),
             )
             session.merge(orm_job)
             try:
@@ -173,7 +174,7 @@ class Storage(StorageMixin):
                     break
 
             if orm_job:
-                job = self._add_storage(orm_job.obj)
+                job = self._orm_to_job(orm_job)
             else:
                 job = None
 
@@ -188,7 +189,7 @@ class Storage(StorageMixin):
 
             jobs = q.order_by(ORMJob.time_created).all()
 
-            return [self._add_storage(job.obj) for job in jobs]
+            return [self._orm_to_job(job) for job in jobs]
 
     def get_all_jobs(self, queue=None):
         with self.session_scope() as s:
@@ -199,7 +200,7 @@ class Storage(StorageMixin):
 
             orm_jobs = q.all()
 
-            return [self._add_storage(o.obj) for o in orm_jobs]
+            return [self._orm_to_job(o) for o in orm_jobs]
 
     def count_all_jobs(self, queue=None):
         with self.session_scope() as s:
@@ -273,6 +274,7 @@ class Storage(StorageMixin):
         Returns: None
 
         """
+        exception = type(exception).__name__
         self._update_job(job_id, State.FAILED, exception=exception, traceback=traceback)
 
     def mark_job_as_running(self, job_id):
@@ -291,20 +293,11 @@ class Storage(StorageMixin):
         with self.session_scope() as session:
             try:
                 job, orm_job = self._get_job_and_orm_job(job_id, session)
-                # Note (aron): looks like SQLAlchemy doesn't automatically
-                # save any pickletype fields even if we re-set (orm_job.obj = job) that
-                # field. My hunch is that it's tracking the id of the object,
-                # and if that doesn't change, then SQLAlchemy doesn't repickle the object
-                # and save to the DB.
-                # Our hack here is to just copy the job object, and then set thespecific
-                # field we want to edit, in this case the job.state. That forces
-                # SQLAlchemy to re-pickle the object, thus setting it to the correct state.
-                job = copy(job)
                 if state is not None:
                     orm_job.state = job.state = state
                 for kwarg in kwargs:
                     setattr(job, kwarg, kwargs[kwarg])
-                orm_job.obj = job
+                orm_job.saved_job = job.to_json()
                 session.add(orm_job)
                 return job, orm_job
             except JobNotFound:
@@ -325,5 +318,5 @@ class Storage(StorageMixin):
         orm_job = session.query(ORMJob).filter_by(id=job_id).one_or_none()
         if orm_job is None:
             raise JobNotFound()
-        job = self._add_storage(orm_job.obj)
+        job = self._orm_to_job(orm_job)
         return job, orm_job

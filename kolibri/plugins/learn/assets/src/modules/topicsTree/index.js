@@ -25,6 +25,15 @@ export default {
       state.topic = payload.topic || {};
       state.recommended = payload.recommended || [];
     },
+    ADD_MORE_CONTENTS(state, payload) {
+      state.contents = state.contents.concat(payload.results);
+      state.topic.children.more = payload.more;
+    },
+    ADD_MORE_CHILD_CONTENTS(state, payload) {
+      const child = state.contents[payload.index];
+      child.children.results = child.children.results.concat(payload.results);
+      child.children.more = payload.more;
+    },
     RESET_STATE(state) {
       Object.assign(state, defaultState());
     },

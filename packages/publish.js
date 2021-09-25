@@ -32,29 +32,7 @@ versionTools.setVersion(
 );
 
 /*
- * Step 5 - Set version of the kolibri-tools dev dependency
- */
-
-versionTools.setDependencyVersion(
-  'kolibri-tools',
-  path.resolve(__dirname, 'kolibri-core-for-export/package.json'),
-  version
-);
-
-versionTools.setDependencyVersion(
-  'kolibri-tools',
-  path.resolve(__dirname, '../package.json'),
-  version
-);
-
-versionTools.setDependencyVersion(
-  'kolibri-tools',
-  path.resolve(__dirname, '../kolibri/core/package.json'),
-  version
-);
-
-/*
- * Step 6 - Set version of kolibri-tools' kolibri dependency, eslint-plugin-kolibri dependency,
+ * Step 5 - Set version of kolibri-tools' kolibri dependency, eslint-plugin-kolibri dependency,
  * and browserslist-config-kolibri dependency
  */
 
@@ -76,7 +54,7 @@ versionTools.setDependencyVersion(
 );
 
 /*
- * Step 7 - Set the version of hashi's browserslist-config-kolibri dependency
+ * Step 6 - Set the version of hashi's browserslist-config-kolibri dependency
  */
 versionTools.setDependencyVersion(
   'browserslist-config-kolibri',

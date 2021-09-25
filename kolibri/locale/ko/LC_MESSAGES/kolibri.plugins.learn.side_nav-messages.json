@@ -1,4 +1,17 @@
 {
-  "CommonLearnStrings.learnLabel": "학습하기",
-  "CommonLearnStrings.recommendedLabel": "추천"
+  "CommonLearnStrings.dontShowThisAgainLabel": "",
+  "CommonLearnStrings.exploreResources": "",
+  "CommonLearnStrings.learnLabel": "학습",
+  "CommonLearnStrings.libraryLabel": "",
+  "CommonLearnStrings.logo": "",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "",
+  "CommonLearnStrings.mostPopularLabel": "가장 인기있는 컨텐츠",
+  "CommonLearnStrings.multipleLearningActivities": "",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.nextStepsLabel": "다음 단계",
+  "CommonLearnStrings.popularLabel": "인기 항목",
+  "CommonLearnStrings.resourceCompletedLabel": "",
+  "CommonLearnStrings.resourceHidden": "",
+  "CommonLearnStrings.resumeLabel": "재시작",
+  "CommonLearnStrings.suggestedTimeToComplete": ""
 }

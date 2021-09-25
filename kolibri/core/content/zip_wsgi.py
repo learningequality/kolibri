@@ -23,6 +23,7 @@ from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
 from django.utils.http import http_date
 
+from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.utils.paths import get_zip_content_base_path
 
@@ -169,7 +170,7 @@ path_regex = re.compile("/(?P<zipped_filename>[^/]+)/(?P<embedded_filepath>.*)")
 YEAR_IN_SECONDS = 60 * 60 * 24 * 365
 
 
-def _zip_content_from_request(request):
+def _zip_content_from_request(request):  # noqa: C901
     if request.method not in allowed_methods:
         return HttpResponseNotAllowed(allowed_methods)
 
@@ -182,8 +183,14 @@ def _zip_content_from_request(request):
 
     zipped_filename, embedded_filepath = match.groups()
 
-    # calculate the local file path to the zip file
-    zipped_path = get_content_storage_file_path(zipped_filename)
+    try:
+        # calculate the local file path to the zip file
+        zipped_path = get_content_storage_file_path(zipped_filename)
+    except InvalidStorageFilenameError:
+        return HttpResponseNotFound(
+            '"%(filename)s" is not a valid file name' % {"filename": zipped_filename}
+        )
+
     # if the zipfile does not exist on disk, return a 404
     if not os.path.exists(zipped_path):
         return HttpResponseNotFound(

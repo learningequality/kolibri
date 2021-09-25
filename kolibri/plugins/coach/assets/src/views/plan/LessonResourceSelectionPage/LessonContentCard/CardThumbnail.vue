@@ -4,7 +4,7 @@
     class="card-thumbnail-wrapper"
     :style="thumbnailBackground"
   >
-
+    <BookmarkIcon v-if="kind === 'bookmark'" />
     <ContentIcon
       v-if="!thumbnail"
       :kind="kind"
@@ -21,11 +21,13 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateContentNodeKind } from 'kolibri.utils.validators';
+  import BookmarkIcon from './BookmarkIcon';
 
   export default {
     name: 'CardThumbnail',
     components: {
       ContentIcon,
+      BookmarkIcon,
     },
     props: {
       thumbnail: {

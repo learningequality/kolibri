@@ -15,14 +15,14 @@
     >
       <label class="visuallyhidden" for="searchfield">{{ coreString('searchLabel') }}</label>
       <input
-        id="searchfield"
+        :id="id"
         ref="searchInput"
         v-model.trim="searchInputValue"
         type="search"
         class="search-input"
         :class="$computedClass(searchInputStyle)"
         dir="auto"
-        :placeholder="coreString('searchLabel')"
+        :placeholder="coreString(placeholder)"
       >
       <div class="search-buttons-wrapper">
         <KIconButton
@@ -31,7 +31,7 @@
           size="small"
           class="search-clear-button"
           :class="searchInputValue === '' ? '' : 'search-clear-button-visible'"
-          :ariaLabel="$tr('clearButtonLabel')"
+          :ariaLabel="coreString('clearAction')"
           @click="handleClickClear"
         />
         <div
@@ -45,7 +45,7 @@
             :disabled="searchBarDisabled"
             :class="{ 'rtl-icon': icon === 'forward' && isRtl }"
             :style="{ fill: $themeTokens.textInverted }"
-            :ariaLabel="$tr('startSearchButtonLabel')"
+            :ariaLabel="coreString('startSearchButtonLabel')"
             type="submit"
           />
         </div>
@@ -133,6 +133,14 @@
       filters: {
         type: Boolean,
         default: false,
+      },
+      id: {
+        type: String,
+        default: 'searchfield',
+      },
+      placeholder: {
+        type: String,
+        default: 'searchLabel',
       },
     },
     data() {
@@ -248,25 +256,15 @@
       },
     },
     $trs: {
-      clearButtonLabel: {
-        message: 'Clear',
-        context:
-          "Used any time to clear some information. Also can describe the icon 'X' used to clear the search field.",
-      },
-      startSearchButtonLabel: {
-        message: 'Start search',
-        context:
-          'Describes the functionality of the search icon. By selecting it the user starts a search for the term in the search field.',
-      },
       resourceType: {
         message: 'Type',
         context:
           'Learners can filter their searches for resources by type. For example, audio files, video files etc.',
       },
       topics: {
-        message: 'Topics',
+        message: 'Folders',
         context:
-          'Learners can filter their searches for resources by type. In this case, topics.\n\nA topic is a collection of resources and other topics within a channel.',
+          'Learners can also search for complete folders.\n\nA folder is a collection of resources and other subfolders within a channel.',
       },
       exercises: {
         message: 'Exercises',

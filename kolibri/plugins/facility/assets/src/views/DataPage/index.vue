@@ -229,7 +229,11 @@
           'A user may visit the same resource multiple times. This file records the total time and progress each user has achieved for each resource, summarized across possibly more than one visit. Anonymous usage is not included.',
         context: "Detailed explanation of 'Summary logs'.\n",
       },
-      generateLog: 'Generate log file',
+      generateLog: {
+        message: 'Generate log file',
+        context:
+          "Option to generate a log file which can then be downloaded in CSV format.\n\nWhen there are no logs, this string is displayed, after the user generates logs, the string is replaced with 'Generate a new log file'.",
+      },
       regenerateLog: {
         message: 'Generate a new log file',
         context: 'Option to generate a log file which can then be downloaded in CSV format.',

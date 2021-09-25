@@ -1,4 +1,5 @@
 import hashlib
+from collections import OrderedDict
 
 from django.core.cache import cache
 from django.core.exceptions import EmptyResultSet
@@ -7,6 +8,7 @@ from django.core.paginator import Page
 from django.core.paginator import Paginator
 from django.db.models import QuerySet
 from django.utils.functional import cached_property
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.pagination import NotFound
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -128,3 +130,71 @@ class ValuesViewsetPageNumberPagination(PageNumberPagination):
 
 class CachedListPagination(ValuesViewsetPageNumberPagination):
     django_paginator_class = CachedValuesViewsetPaginator
+
+
+class ValuesViewsetLimitOffsetPagination(LimitOffsetPagination):
+    def paginate_queryset(self, queryset, request, view=None):
+        """
+        Paginate a queryset if required, either returning a
+        the queryset of a page object so that it can be further annotated for serialization,
+        or `None` if pagination is not configured for this view.
+        This is vendored and modified from:
+        https://github.com/encode/django-rest-framework/blob/master/rest_framework/pagination.py#L382
+        """
+        self.limit = self.get_limit(request)
+        if self.limit is None:
+            return None
+
+        self.count = self.get_count(queryset)
+        self.offset = self.get_offset(request)
+        self.request = request
+        if self.count > self.limit and self.template is not None:
+            self.display_page_controls = True
+
+        if self.count == 0 or self.offset > self.count:
+            return queryset.none()
+        # Ensure we evaluate the sliced queryset and do an explicit filter by the subsequent PKs
+        # to avoid issues when we later try to annotate this queryset.
+        return queryset.filter(
+            id__in=list(
+                queryset.values_list("pk", flat=True).distinct()[
+                    self.offset : self.offset + self.limit
+                ]
+            )
+        )
+
+    def get_more(self):
+        if self.offset + self.limit >= self.count:
+            return None
+
+        return {
+            "limit": self.limit,
+            "offset": self.offset + self.limit,
+        }
+
+    def get_paginated_response(self, data):
+        return Response(
+            OrderedDict(
+                [("count", self.count), ("more", self.get_more()), ("results", data)]
+            )
+        )
+
+    def get_paginated_response_schema(self, schema):
+        return {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "example": 123,
+                },
+                "more": {
+                    "type": "object",
+                    "nullable": True,
+                    "example": {
+                        "limit": 25,
+                        "offset": 25,
+                    },
+                },
+                "results": schema,
+            },
+        }

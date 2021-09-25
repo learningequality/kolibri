@@ -89,7 +89,11 @@ class ProvisioningErrorHandler(object):
         self.get_response = get_response
 
     def process_exception(self, request, exception):
-        if isinstance(exception, DeviceNotProvisioned) and SetupHook.provision_url():
+        if (
+            isinstance(exception, DeviceNotProvisioned)
+            and SetupHook.provision_url()
+            and not request.path.startswith(SetupHook.provision_url())
+        ):
             return redirect(SetupHook.provision_url())
         return None
 

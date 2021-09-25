@@ -95,14 +95,10 @@ class TestServerServices(object):
             register_zeroconf_service.assert_not_called()
 
     @mock.patch("kolibri.core.tasks.main.initialize_workers")
-    @mock.patch(
-        "kolibri.core.discovery.utils.network.search.unregister_zeroconf_service"
-    )
     @mock.patch("kolibri.core.discovery.utils.network.search.register_zeroconf_service")
     def test_scheduled_jobs_persist_on_restart(
         self,
         register_zeroconf_service,
-        unregister_zeroconf_service,
         initialize_workers,
         scheduler,
     ):
@@ -175,12 +171,8 @@ class TestServerServices(object):
 
 class TestZeroConfPlugin(object):
     @mock.patch("kolibri.core.discovery.utils.network.search.register_zeroconf_service")
-    @mock.patch(
-        "kolibri.core.discovery.utils.network.search.reinitialize_zeroconf_if_network_has_changed"
-    )
     def test_required_services_initiate_on_start(
         self,
-        reinitialize_zeroconf_if_network_has_changed,
         register_zeroconf_service,
     ):
 
@@ -189,8 +181,6 @@ class TestZeroConfPlugin(object):
         zeroconf_plugin.START()
 
         register_zeroconf_service.assert_not_called()
-
-        reinitialize_zeroconf_if_network_has_changed.assert_not_called()
 
         zeroconf_plugin.SERVING(1234)
 

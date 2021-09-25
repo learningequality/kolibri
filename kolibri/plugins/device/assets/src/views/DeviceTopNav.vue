@@ -81,7 +81,7 @@
     $trs: {
       permissionsLabel: {
         message: 'Permissions',
-        context: 'Refers to the Device > Permissions tab.\n',
+        context: 'Refers to the Device > Permissions tab.',
       },
       infoLabel: {
         message: 'Info',

@@ -28,15 +28,15 @@
         required: true,
       },
     },
-    computed: {
-      label() {
-        return this.active ? this.$tr('activeQuizLabel') : this.$tr('inactiveQuizLabel');
-      },
-    },
-    $trs: {
-      activeQuizLabel: 'Active',
-      inactiveQuizLabel: 'Inactive',
-    },
+    // computed: {
+    //   label() {
+    //     return this.active ? this.$tr('activeQuizLabel') : this.$tr('inactiveQuizLabel');
+    //   },
+    // },
+    // $trs: {
+    //   activeQuizLabel: 'Active',
+    //   inactiveQuizLabel: 'Inactive',
+    // },
   };
 
 </script>

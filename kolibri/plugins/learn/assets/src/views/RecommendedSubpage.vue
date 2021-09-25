@@ -61,8 +61,8 @@
       breadcrumbItems() {
         return [
           {
-            text: this.learnString('recommendedLabel'),
-            link: this.$router.getRoute(PageNames.RECOMMENDED),
+            text: this.learnString('libraryLabel'),
+            link: this.$router.getRoute(PageNames.LIBRARY),
           },
           {
             text: this.header,

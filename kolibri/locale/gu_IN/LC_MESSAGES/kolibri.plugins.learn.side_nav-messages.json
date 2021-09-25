@@ -1,4 +1,17 @@
 {
-  "CommonLearnStrings.learnLabel": "શીખો",
-  "CommonLearnStrings.recommendedLabel": "ભલામણ કરેલ"
+  "CommonLearnStrings.dontShowThisAgainLabel": "",
+  "CommonLearnStrings.exploreResources": "",
+  "CommonLearnStrings.learnLabel": "શીખવું",
+  "CommonLearnStrings.libraryLabel": "",
+  "CommonLearnStrings.logo": "",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "",
+  "CommonLearnStrings.mostPopularLabel": "સૌથી લોકપ્રિય",
+  "CommonLearnStrings.multipleLearningActivities": "",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.nextStepsLabel": "આગળનાં પગલાં",
+  "CommonLearnStrings.popularLabel": "લોકપ્રિય",
+  "CommonLearnStrings.resourceCompletedLabel": "",
+  "CommonLearnStrings.resourceHidden": "",
+  "CommonLearnStrings.resumeLabel": "ફરી શરુ કરવું",
+  "CommonLearnStrings.suggestedTimeToComplete": ""
 }

@@ -6,9 +6,10 @@ from django.db import models
 from django.utils import timezone
 
 from .utils.network.connections import check_connection_info
+from kolibri.deployment.default.sqlite_db_names import NETWORK_LOCATION
 
 
-def _filter_out_unsuported_fields(fields):
+def _filter_out_unsupported_fields(fields):
     return {k: v for (k, v) in fields.items() if NetworkLocation.has_field(k)}
 
 
@@ -86,11 +87,11 @@ class DynamicNetworkLocationManager(models.Manager):
         return queryset.filter(dynamic=True).all()
 
     def create(self, *args, **kwargs):
-        kwargs = _filter_out_unsuported_fields(kwargs)
+        kwargs = _filter_out_unsupported_fields(kwargs)
         return super(DynamicNetworkLocationManager, self).create(*args, **kwargs)
 
     def update_or_create(self, defaults, **kwargs):
-        defaults = _filter_out_unsuported_fields(defaults)
+        defaults = _filter_out_unsupported_fields(defaults)
 
         return super(DynamicNetworkLocationManager, self).update_or_create(
             defaults, **kwargs
@@ -119,3 +120,50 @@ class DynamicNetworkLocation(NetworkLocation):
                     "instance_id": "DynamicNetworkLocations must be be created with an instance ID!"
                 }
             )
+
+
+class NetworkLocationRouter(object):
+    """
+    Determine how to route database calls for the Network Location models.
+    All other models will be routed to the default database.
+    """
+
+    def db_for_read(self, model, **hints):
+        """Send all read operations on Notifications app models to NETWORK_LOCATION."""
+        if issubclass(model, NetworkLocation):
+            return NETWORK_LOCATION
+        return None
+
+    def db_for_write(self, model, **hints):
+        """Send all write operations on Notifications app models to NETWORK_LOCATION."""
+        if issubclass(model, NetworkLocation):
+            return NETWORK_LOCATION
+        return None
+
+    def allow_relation(self, obj1, obj2, **hints):
+        """Determine if relationship is allowed between two objects."""
+        obj1_instance = isinstance(obj1, NetworkLocation)
+        obj2_instance = isinstance(obj2, NetworkLocation)
+        # Allow any relation between two models that are both in the Network Location models.
+        if obj1_instance and obj2_instance:
+            return True
+        # No opinion if neither object is in the Network Location models (defer to default or other routers).
+        elif not obj1_instance and not obj2_instance:
+            return None
+
+        # Block relationship if one object is in the Network Location models and the other isn't.
+        return False
+
+    def allow_migrate(self, db, app_label, model_name=None, **hints):
+        """Ensure that the Network Location models's models get created on the right database."""
+        if app_label == NetworkLocation._meta.app_label and any(
+            model_name == m._meta.model_name
+            for m in (NetworkLocation, StaticNetworkLocation, DynamicNetworkLocation)
+        ):
+            # The Network Location models should be migrated only on the NETWORK_LOCATION database.
+            return db == NETWORK_LOCATION
+        elif db == NETWORK_LOCATION:
+            # Ensure that all other apps don't get migrated on the NETWORK_LOCATION database.
+            return False
+        # No opinion for all other scenarios
+        return None

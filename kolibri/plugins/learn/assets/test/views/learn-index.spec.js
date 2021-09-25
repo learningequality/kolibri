@@ -10,8 +10,8 @@ localVue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
-    { path: '/recommended', name: 'RECOMMENDED' },
-    { path: '/topics', name: 'TOPICS_ROOT' },
+    { path: '/home', name: 'HOME' },
+    { path: '/library', name: 'LIBRARY' },
     { path: '/classes', name: 'ALL_CLASSES' },
   ],
 });
@@ -43,9 +43,9 @@ function makeWrapper(options) {
 function getElements(wrapper) {
   return {
     // hrefs need to match the routes in the mock router above
+    homeLink: () => wrapper.find('[href="#/home"]'),
     classesLink: () => wrapper.find('[href="#/classes"]'),
-    recommendedLink: () => wrapper.find('[href="#/recommended"]'),
-    topicsLink: () => wrapper.find('[href="#/topics"]'),
+    libraryLink: () => wrapper.find('[href="#/library"]'),
     tabLinks: () => wrapper.findAllComponents({ name: 'NavbarLink' }),
     CoreBase: () => wrapper.findComponent({ name: 'CoreBase' }),
   };
@@ -84,14 +84,14 @@ describe('learn plugin index page', () => {
       setCanAccessUnassignedContent(true);
     });
 
-    it('the recommended and channel links are always available to everybody', () => {
+    it('the home and channels links are always available to everybody', () => {
       setSessionUserKind('anonymous');
       setMemberships([]);
       const wrapper = makeWrapper({ store });
-      const { tabLinks, recommendedLink, topicsLink } = getElements(wrapper);
+      const { tabLinks, homeLink, libraryLink } = getElements(wrapper);
       expect(tabLinks().length).toEqual(2);
-      expect(recommendedLink().element.tagName).toBe('A');
-      expect(topicsLink().element.tagName).toBe('A');
+      expect(homeLink().element.tagName).toBe('A');
+      expect(libraryLink().element.tagName).toBe('A');
     });
 
     it('the classes tab is available if user is logged in and has memberships', () => {
@@ -100,11 +100,11 @@ describe('learn plugin index page', () => {
       setMemberships([{ id: 'membership_1' }]);
       const wrapper = makeWrapper({ store });
       const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(3);
+      expect(tabLinks().length).toEqual(4);
       expect(classesLink().element.tagName).toBe('A');
     });
 
-    it('the classes tab is not available if user is not logged in', () => {
+    it('the classes tab and bookmarks tabs are not available if user is not logged in', () => {
       // in current implementation, anonymous user implies empty memberships
       setSessionUserKind('anonymous');
       setMemberships([]);
@@ -119,7 +119,7 @@ describe('learn plugin index page', () => {
       setMemberships([]);
       const wrapper = makeWrapper({ store });
       const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(2);
+      expect(tabLinks().length).toEqual(3);
       expect(!classesLink().exists()).toEqual(true);
     });
   });
@@ -129,21 +129,23 @@ describe('learn plugin index page', () => {
       setCanAccessUnassignedContent(false);
     });
 
-    it('no tabs are available', () => {
+    it('only the home tab is available when not signed-in', () => {
       setSessionUserKind('anonymous');
       setMemberships([]);
       const wrapper = makeWrapper({ store });
-      const { tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(0);
+      const { tabLinks, homeLink } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(1);
+      expect(homeLink().element.tagName).toBe('A');
     });
 
-    it('only classes tab is available if signed in', () => {
+    it('the home and classes tab is available if signed in', () => {
       // should work for any user 'kind' except for 'anonymous'
       setSessionUserKind('learner');
       setMemberships([{ id: 'membership_1' }]);
       const wrapper = makeWrapper({ store });
-      const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(1);
+      const { tabLinks, homeLink, classesLink } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(2);
+      expect(homeLink().element.tagName).toBe('A');
       expect(classesLink().element.tagName).toBe('A');
     });
   });

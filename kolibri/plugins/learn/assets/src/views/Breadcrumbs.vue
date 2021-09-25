@@ -34,7 +34,7 @@
         contentCrumbs: state => (state.content || {}).breadcrumbs || [],
       }),
       inLearn() {
-        return this.pageMode === PageModes.RECOMMENDED && this.pageName !== PageNames.RECOMMENDED;
+        return this.pageMode === PageModes.LIBRARY && this.pageName !== PageNames.LIBRARY;
       },
       inTopics() {
         return this.pageMode === PageModes.TOPICS && this.pageName !== PageNames.TOPICS_ROOT;
@@ -42,8 +42,8 @@
       learnBreadcrumbs() {
         return [
           {
-            text: this.learnString('recommendedLabel'),
-            link: { name: PageNames.RECOMMENDED },
+            text: this.learnString('libraryLabel'),
+            link: { name: PageNames.LIBRARY },
           },
           { text: this.contentTitle },
         ];

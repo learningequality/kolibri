@@ -97,14 +97,14 @@
             label: this.coachString('allQuizzesLabel'),
             value: 'allQuizzes',
           },
-          {
-            label: this.coachString('activeQuizzesLabel'),
-            value: 'activeQuizzes',
-          },
-          {
-            label: this.coachString('inactiveQuizzesLabel'),
-            value: 'inactiveQuizzes',
-          },
+          // {
+          //   label: this.coachString('activeQuizzesLabel'),
+          //   value: 'activeQuizzes',
+          // },
+          // {
+          //   label: this.coachString('inactiveQuizzesLabel'),
+          //   value: 'inactiveQuizzes',
+          // },
         ];
       },
       exam() {
@@ -165,8 +165,8 @@
         context:
           "Link that takes user back to the list of quizzes on the 'Reports' tab, from the individual learner's information page.\n",
       },
-      activeQuizzes: 'Active quizzes',
-      inactiveQuizzes: 'Inactive quizzes',
+      // activeQuizzes: 'Active quizzes',
+      // inactiveQuizzes: 'Inactive quizzes',
       allQuestionsAnswered: {
         message: 'All questions answered',
         context: 'Indicates that a learner has answered all the questions in an exercise.',

@@ -1,14 +1,7 @@
 <template>
 
-  <KPageContainer>
-    <!-- isUserLoggedIn is used here to check if user is logged in or not.-->
-    <!-- If in guest mode, do not show progress icon at all-->
-    <PageHeader
-      :title="content.title"
-      :progress="isUserLoggedIn ? progress : null"
-      dir="auto"
-      :contentType="content.kind"
-    />
+  <div>
+
     <CoachContentLabel
       class="coach-content-label"
       :value="content.coach_content ? 1 : 0"
@@ -60,71 +53,9 @@
         @updateProgress="updateExerciseProgress"
         @updateContentState="updateContentState"
       />
+      <SidePanel />
     </template>
     <KCircularLoader v-else />
-
-    <!-- TODO consolidate this metadata table with coach/lessons -->
-    <!-- eslint-disable-next-line vue/no-v-html -->
-    <p dir="auto" v-html="description"></p>
-
-
-    <section class="metadata">
-      <!-- TODO: RTL - Do not interpolate strings -->
-      <p v-if="content.author">
-        {{ $tr('author', { author: content.author }) }}
-      </p>
-      <p v-if="licenseShortName">
-        {{ $tr('license', { license: licenseShortName }) }}
-
-        <template v-if="licenseDescription">
-          <KIconButton
-            :icon="licenceDescriptionIsVisible ? 'chevronUp' : 'chevronDown'"
-            :ariaLabel="$tr('toggleLicenseDescription')"
-            size="small"
-            type="secondary"
-            @click="licenceDescriptionIsVisible = !licenceDescriptionIsVisible"
-          />
-          <div v-if="licenceDescriptionIsVisible" dir="auto" class="license-details">
-            <p class="license-details-name">
-              {{ licenseLongName }}
-            </p>
-            <p>{{ licenseDescription }}</p>
-          </div>
-        </template>
-      </p>
-
-      <p v-if="content.license_owner">
-        {{ $tr('copyrightHolder', { copyrightHolder: content.license_owner }) }}
-      </p>
-    </section>
-
-    <div>
-
-      <DownloadButton
-        v-if="canDownload"
-        :files="downloadableFiles"
-        :nodeTitle="content.title"
-        class="download-button"
-      />
-
-      <KButton
-        v-if="canShare"
-        :text="$tr('shareFile')"
-        class="share-button"
-        @click="launchIntent()"
-      />
-
-    </div>
-
-    <slot name="below_content">
-      <template v-if="content.next_content">
-        <h2>{{ $tr('nextResource') }}</h2>
-        <ContentCardGroupCarousel
-          :genContentLink="genContentLink"
-          :contents="[content.next_content]"
-        />
-      </template>
-    </slot>
 
     <CompletionModal
       v-if="progress >= 1 && wasIncomplete"
@@ -135,8 +66,8 @@
       :genContentLink="genContentLink"
       @close="markAsComplete"
     />
-
-  </KPageContainer>
+    <KCircularLoader v-else />
+  </div>
 
 </template>
 
@@ -144,25 +75,13 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { ContentNodeResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
-  import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
-  import { shareFile } from 'kolibri.utils.appCapabilities';
-  import markdownIt from 'markdown-it';
-  import {
-    licenseShortName,
-    licenseLongName,
-    licenseDescriptionForConsumer,
-  } from 'kolibri.utils.licenseTranslations';
   import { PageNames, ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
-  import PageHeader from './PageHeader';
-  import ContentCardGroupCarousel from './ContentCardGroupCarousel';
   import AssessmentWrapper from './AssessmentWrapper';
-  import CompletionModal from './CompletionModal';
   import { lessonResourceViewerLink } from './classes/classPageLinks';
   import commonLearnStrings from './commonLearnStrings';
 
@@ -182,28 +101,23 @@
     },
     components: {
       CoachContentLabel,
-      PageHeader,
-      ContentCardGroupCarousel,
-      DownloadButton,
       AssessmentWrapper,
-      CompletionModal,
     },
     mixins: [commonLearnStrings],
     data() {
       return {
         wasIncomplete: false,
-        licenceDescriptionIsVisible: false,
         sessionReady: false,
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'facilityConfig', 'currentUserId']),
+      ...mapGetters(['isUserLoggedIn', 'currentUserId']),
       ...mapState(['pageName']),
-      ...mapState('topicsTree', ['content', 'channel', 'recommended']),
       ...mapState('topicsTree', {
         contentId: state => state.content.content_id,
         contentNodeId: state => state.content.id,
         channelId: state => state.content.channel_id,
+        contentKind: state => state.content.kind,
       }),
       ...mapState({
         masteryAttempts: state => state.core.logging.mastery.totalattempts,
@@ -213,30 +127,7 @@
         extraFields: state => state.core.logging.summary.extra_fields,
         fullName: state => state.core.session.full_name,
       }),
-      isTopic() {
-        return this.content.kind === ContentNodeKinds.TOPIC;
-      },
-      canDownload() {
-        if (this.facilityConfig.show_download_button_in_learn && this.content) {
-          return (
-            this.downloadableFiles.length &&
-            this.content.kind !== ContentNodeKinds.EXERCISE &&
-            !isEmbeddedWebView
-          );
-        }
-        return false;
-      },
-      canShare() {
-        let supported_types = ['mp4', 'mp3', 'pdf', 'epub'];
-        return shareFile && supported_types.includes(this.primaryFile.extension);
-      },
-      description() {
-        if (this.content && this.content.description) {
-          const md = new markdownIt({ breaks: true });
-          return md.render(this.content.description);
-        }
-        return '';
-      },
+
       progress() {
         if (this.isUserLoggedIn) {
           // if there no attempts for this exercise, there is no progress
@@ -247,15 +138,7 @@
         }
         return this.sessionProgress;
       },
-      downloadableFiles() {
-        return this.content.files.filter(file => !file.preset.endsWith('thumbnail'));
-      },
-      primaryFile() {
-        return this.content.files.filter(file => !file.preset.supplementary)[0];
-      },
-      primaryFilename() {
-        return `${this.primaryFile.checksum}.${this.primaryFile.extension}`;
-      },
+
       nextContentNodeRoute() {
         // HACK Use a the Resource Viewer Link instead
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
@@ -269,24 +152,12 @@
           params: { id: this.content.next_content.id },
         };
       },
-      licenseShortName() {
-        return licenseShortName(this.content.license_name);
-      },
-      licenseLongName() {
-        return licenseLongName(this.content.license_name);
-      },
-      licenseDescription() {
-        return licenseDescriptionForConsumer(
-          this.content.license_name,
-          this.content.license_description
-        );
-      },
     },
     created() {
       return this.initSessionAction({
         channelId: this.channelId,
         contentId: this.contentId,
-        contentKind: this.content.kind,
+        contentKind: this.contentKind,
       }).then(() => {
         this.sessionReady = true;
         this.setWasIncomplete();
@@ -335,66 +206,18 @@
             this.$store.dispatch('handleApiError', error);
           });
       },
-      markAsComplete() {
-        this.wasIncomplete = false;
-      },
-      genContentLink(id, isLeaf) {
-        return {
-          name: isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
-          params: { id },
-        };
-      },
-      launchIntent() {
-        return shareFile({
-          filename: this.primaryFilename,
-          message: this.$tr('shareMessage', {
-            title: this.content.title,
-            topic: this.content.breadcrumbs.slice(-1)[0].title,
-            copyrightHolder: this.content.license_owner,
-          }),
-        }).catch(() => {});
-      },
+      // TODO: markAsComplete not used but may be re-added for upcoming progress/status work
+      // markAsComplete() {
+      //   this.wasIncomplete = false;
+      // },
       onError(error) {
         this.$store.dispatch('handleApiError', error);
       },
     },
     $trs: {
-      author: {
-        message: 'Author: {author}',
-        context:
-          'Indicates who is the author of that specific learning resource. For example, "Author: Learning Equality".',
-      },
-      license: {
-        message: 'License: {license}',
-        context:
-          'Indicates the type of license of that specific learning resource. For example, "License: CC BY-NC-ND".\n',
-      },
-      toggleLicenseDescription: {
-        message: 'Toggle license description',
-        context:
-          'Describes the arrow which a learner can select to view more information about the type of license that a resource has.',
-      },
-      copyrightHolder: {
-        message: 'Copyright holder: {copyrightHolder}',
-        context:
-          'Indicates who holds the copyright of that specific learning resource. For example, "Copyright holder: Ubongo Media".',
-      },
-      shareMessage: {
-        message: '"{title}" (in "{topic}"), from {copyrightHolder}',
-        context: 'Refers to a specific learning resource. Only translate "in" and "from".',
-      },
-      nextResource: {
-        message: 'Next resource',
-        context:
-          "Indicates the next learning resource that the learner should go to once they've finished the current one.",
-      },
       documentTitle: {
         message: '{ contentTitle } - { channelTitle }',
-        context: 'DO NOT TRANSLATE.',
-      },
-      shareFile: {
-        message: 'Share',
-        context: 'Option to share a specific file from a learning resource.',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
     },
   };
@@ -404,32 +227,9 @@
 
 <style lang="scss" scoped>
 
-  .content-renderer {
-    // Needs to be one less than the ScrollingHeader's z-index of 4
-    z-index: 3;
-  }
-
-  .coach-content-label {
-    margin: 8px 0;
-  }
-
-  .metadata {
-    font-size: smaller;
-  }
-
-  .download-button,
-  .share-button {
-    display: inline-block;
-    margin: 16px 16px 0 0;
-  }
-
-  .license-details {
-    margin-bottom: 24px;
-    margin-left: 16px;
-  }
-
-  .license-details-name {
-    font-weight: bold;
+  .content {
+    z-index: 0;
+    max-height: 100vh;
   }
 
 </style>

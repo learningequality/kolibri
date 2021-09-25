@@ -6,7 +6,6 @@ from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import Index
 from sqlalchemy import Integer
-from sqlalchemy import PickleType
 from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -16,7 +15,6 @@ from kolibri.core.tasks.job import State
 from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.storage import StorageMixin
 from kolibri.core.tasks.utils import InfiniteLoopThread
-from kolibri.utils.conf import OPTIONS
 from kolibri.utils.time_utils import local_now
 from kolibri.utils.time_utils import naive_utc_datetime
 
@@ -43,8 +41,8 @@ class ScheduledJob(Base):
     # The app name passed to the client when the job is scheduled.
     queue = Column(String, index=True)
 
-    # The original Job object, pickled here for so we can easily access it.
-    obj = Column(PickleType(protocol=OPTIONS["Python"]["PICKLE_PROTOCOL"]))
+    # The JSON string that represents the job
+    saved_job = Column(String)
 
     scheduled_time = Column(DateTime())
 
@@ -173,7 +171,7 @@ class Scheduler(StorageMixin):
                 interval=interval,
                 repeat=repeat,
                 scheduled_time=naive_utc_datetime(dt),
-                obj=job,
+                saved_job=job.to_json(),
             )
             session.merge(scheduled_job)
 
@@ -182,7 +180,7 @@ class Scheduler(StorageMixin):
     def get_jobs(self):
         with self.session_scope() as s:
             scheduled_jobs = self._ns_query(s).all()
-            return [o.obj for o in scheduled_jobs]
+            return [Job.from_json(o.saved_job) for o in scheduled_jobs]
 
     def count(self):
         with self.session_scope() as s:
@@ -193,7 +191,7 @@ class Scheduler(StorageMixin):
             scheduled_job = session.query(ScheduledJob).get(job_id)
             if scheduled_job is None:
                 raise JobNotFound()
-            return scheduled_job.obj
+            return Job.from_json(scheduled_job.saved_job)
 
     def cancel(self, job_id):
         """
@@ -230,7 +228,7 @@ class Scheduler(StorageMixin):
                 elif scheduled_job.repeat > 0:
                     new_repeat = scheduled_job.repeat - 1
                     repeat = True
-                job_for_queue = scheduled_job.obj
+                job_for_queue = Job.from_json(scheduled_job.saved_job)
                 self.queue.enqueue(job_for_queue)
                 if repeat:
                     # Update this scheduled job to repeat this

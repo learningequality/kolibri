@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from kolibri.core.auth.constants.user_kinds import SUPERUSER
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
@@ -18,6 +19,14 @@ class DeviceManagementPlugin(KolibriPluginBase):
 @register_hook
 class DeviceManagementAsset(WebpackBundleHook):
     bundle_id = "app"
+
+    @property
+    def plugin_data(self):
+        return {
+            "isSubsetOfUsersDevice": get_device_setting(
+                "subset_of_users_device", False
+            ),
+        }
 
 
 @register_hook

@@ -20,6 +20,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'WelcomeModal',
@@ -31,18 +32,20 @@
       },
       isLOD: {
         type: Boolean,
-        default: false,
+        default: plugin_data.isSubsetOfUsersDevice,
       },
     },
     computed: {
       paragraphs() {
         if (this.isLOD) {
-          return [
-            this.$tr('learnOnlyDeviceWelcomeMessage1'),
-            this.$tr('learnOnlyDeviceWelcomeMessage2', {
-              facilityName: this.importedFacility.name,
-            }),
-          ];
+          let facility = this.importedFacility;
+          if (this.$store.getters.facilities.length > 0 && facility === null)
+            facility = this.$store.getters.facilities[0];
+          const sndParagraph =
+            facility === null
+              ? this.$tr('learnOnlyDeviceWelcomeMessage2')
+              : this.$tr('postSyncWelcomeMessage2', { facilityName: facility.name });
+          return [this.$tr('learnOnlyDeviceWelcomeMessage1'), sndParagraph];
         }
         if (this.importedFacility) {
           return [
@@ -57,6 +60,7 @@
         }
       },
     },
+
     render: createElement => window.setTimeout(createElement, 750),
     $trs: {
       welcomeModalHeader: {
@@ -87,7 +91,7 @@
         context: 'Welcome message for user which appears after provisioning a Learner Only Device.',
       },
       learnOnlyDeviceWelcomeMessage2: {
-        message: `The user reports, lessons, and quizzes in  '{facilityName}' will not display properly until you import the resources associated with them.`,
+        message: `The user reports, lessons, and quizzes will not display properly until you import the resources associated with them.`,
         context: 'Welcome message for user indicating that they need to import resources.',
       },
     },

@@ -209,7 +209,7 @@
         return urls['kolibri:core:guest']();
       },
       canSignUp() {
-        return this.facilityConfig.learner_can_sign_up;
+        return !plugin_data.isSubsetOfUsersDevice && this.facilityConfig.learner_can_sign_up;
       },
       nextParam() {
         // query is after hash
@@ -278,7 +278,7 @@
       whatsThis: "What's this?",
       restrictedAccess: {
         message: 'Access to Kolibri has been restricted for external devices',
-        context: 'Error message description',
+        context: 'Error message description.',
       },
       restrictedAccessDescription: {
         message:
@@ -288,7 +288,7 @@
       },
       photoCreditLabel: {
         message: 'Photo credit: {photoCredit}',
-        context: 'Gives credit to the photographer of the background image',
+        context: 'Gives credit to the photographer of the background image.',
       },
     },
   };

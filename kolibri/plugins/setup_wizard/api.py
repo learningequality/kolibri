@@ -88,16 +88,19 @@ class FacilityImportViewSet(ViewSet):
         Given a username, full name and password, create a superuser attached
         to the facility that was imported
         """
-        from kolibri.core.device.utils import create_superuser
-
         # Get the imported facility (assuming its the only one at this point)
         the_facility = Facility.objects.get()
 
         try:
-            superuser = create_superuser(request.data, facility=the_facility)
+            superuser = FacilityUser.objects.create_superuser(
+                request.data.get("username"),
+                request.data.get("password"),
+                facility=the_facility,
+                full_name=request.data.get("full_name"),
+            )
             return Response({"username": superuser.username})
 
-        except (Exception,):
+        except ValidationError:
             raise ValidationError(detail="duplicate", code="duplicate_username")
 
     @decorators.action(methods=["post"], detail=False)
@@ -143,7 +146,7 @@ class FacilityImportViewSet(ViewSet):
         user_info = facility_info["user"]
         roles = user_info["roles"]
         admin_roles = (user_kinds.ADMIN, user_kinds.SUPERUSER)
-        if not any([role in roles for role in admin_roles]):
+        if not any(role in roles for role in admin_roles):
             raise PermissionDenied()
         students = [u for u in facility_info["users"] if not u["roles"]]
         return Response({"students": students, "admin": facility_info["user"]})
@@ -173,3 +176,24 @@ class SetupWizardSoUDTaskView(TasksViewSet):
     """
 
     permission_classes = [HasPermissionDuringSetup | HasPermissionDuringLODSetup]
+
+
+class SetupWizardRestartZeroconf(ViewSet):
+    """
+    An utility endpoint to restart zeroconf after setup is finished
+    in case this is a SoUD
+    """
+
+    permission_classes = [HasPermissionDuringSetup | HasPermissionDuringLODSetup]
+
+    @decorators.action(methods=["post"], detail=False)
+    def restart(self, request):
+        import logging
+        from kolibri.core.discovery.utils.network.search import (
+            register_zeroconf_service,
+        )
+
+        logger = logging.getLogger(__name__)
+        register_zeroconf_service()
+        logger.info("Zeroconf has reinitialized")
+        return Response({})

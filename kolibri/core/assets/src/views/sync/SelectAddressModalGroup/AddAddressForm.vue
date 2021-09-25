@@ -171,7 +171,7 @@
       },
       nameLabel: {
         message: 'Name',
-        context: "\nThis should be just 'Name', not 'Network name'",
+        context: "This should be just 'Name', not 'Network name'",
       },
       namePlaceholder: {
         message: 'e.g. House network',

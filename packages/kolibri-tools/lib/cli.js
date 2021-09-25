@@ -18,10 +18,19 @@ function list(val) {
 }
 
 function filePath(val) {
-  return path.resolve(process.cwd(), val);
+  if (val) {
+    return path.resolve(process.cwd(), val);
+  }
 }
 
-const config = ini.parse(fs.readFileSync(path.join(process.cwd(), './setup.cfg'), 'utf-8'));
+let configFile;
+try {
+  configFile = fs.readFileSync(path.join(process.cwd(), './setup.cfg'), 'utf-8');
+} catch (e) {
+  // do nothing
+}
+
+const config = ini.parse(configFile || '');
 
 program.version(version).description('Tools for Kolibri frontend plugins');
 

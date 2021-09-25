@@ -103,7 +103,7 @@
       },
       resourceCount: {
         message: '{count, number, useGrouping}',
-        context: 'DO NOT TRANSLATE.',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
       sizeCol: {
         message: 'Size',

@@ -165,7 +165,7 @@
       },
       deviceNameWithId: {
         message: '{deviceName} ({deviceId})',
-        context: 'DO NOT TRANSLATE.',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
     },
   };

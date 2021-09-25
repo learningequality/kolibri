@@ -1,4 +1,17 @@
 {
+  "CommonLearnStrings.dontShowThisAgainLabel": "اسے دوبارہ نہ دکھائیں",
+  "CommonLearnStrings.exploreResources": "حوالہ جات دیکھیں",
   "CommonLearnStrings.learnLabel": "سیکھئے",
-  "CommonLearnStrings.recommendedLabel": "سِفارش کیا ہوا"
+  "CommonLearnStrings.libraryLabel": "لائبریری",
+  "CommonLearnStrings.logo": "{channelTitle} چینل سے",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "حوالہ جات کو مکمل کے بطور نشان زد کریں",
+  "CommonLearnStrings.mostPopularLabel": "مشہور ترین",
+  "CommonLearnStrings.multipleLearningActivities": "متعدد سیکھنے والی سرگرمیاں",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.nextStepsLabel": "اگلے مرحلے",
+  "CommonLearnStrings.popularLabel": "مشہور",
+  "CommonLearnStrings.resourceCompletedLabel": "مکمل حوالہ جات",
+  "CommonLearnStrings.resourceHidden": "پوشیدہ حوالہ جات",
+  "CommonLearnStrings.resumeLabel": "دوبارہ شروع کریں",
+  "CommonLearnStrings.suggestedTimeToComplete": "مکمل کرنے کے لیے تجویز کردہ وقت"
 }

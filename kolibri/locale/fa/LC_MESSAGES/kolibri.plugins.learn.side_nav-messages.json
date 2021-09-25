@@ -1,4 +1,17 @@
 {
+  "CommonLearnStrings.dontShowThisAgainLabel": "این دوباره نشان داده نشود",
+  "CommonLearnStrings.exploreResources": "کاوش در منابع",
   "CommonLearnStrings.learnLabel": "یادگیری",
-  "CommonLearnStrings.recommendedLabel": "توصیه شده"
+  "CommonLearnStrings.libraryLabel": "کتابخانه",
+  "CommonLearnStrings.logo": "از کانال {channelTitle}",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "منبع را به عنوان کامل‌شده نشانه‌گذاری کنید",
+  "CommonLearnStrings.mostPopularLabel": "محبوب‌ترین‌",
+  "CommonLearnStrings.multipleLearningActivities": "فعالیت‌های یادگیری چندگانه",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.nextStepsLabel": "مراحل بعدی",
+  "CommonLearnStrings.popularLabel": "متداول و محبوب",
+  "CommonLearnStrings.resourceCompletedLabel": "منبع کامل‌شده",
+  "CommonLearnStrings.resourceHidden": "منبع پنهان",
+  "CommonLearnStrings.resumeLabel": "خلاصه",
+  "CommonLearnStrings.suggestedTimeToComplete": "زمان پیشنهادی برای تکمیل کردن"
 }

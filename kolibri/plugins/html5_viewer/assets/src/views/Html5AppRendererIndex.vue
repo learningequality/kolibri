@@ -188,12 +188,12 @@
     },
     $trs: {
       exitFullscreen: {
-        message: 'Exit Fullscreen',
+        message: 'Exit fullscreen',
         context:
           "Learners can use the Esc key or the 'exit fullscreen' button to close the fullscreen view on an html5 app.",
       },
       enterFullscreen: {
-        message: 'View Fullscreen',
+        message: 'Enter fullscreen',
         context:
           'Learners can use the full screen button in the upper right corner to open an html5 app in fullscreen view.\n',
       },

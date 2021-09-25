@@ -22,7 +22,11 @@
       CoreMenuOption,
     },
     $trs: {
-      device: 'Device',
+      device: {
+        message: 'Device',
+        context:
+          'The device is the physical or virtual machine that has the Kolibri server installed on it.',
+      },
     },
     computed: {
       url() {

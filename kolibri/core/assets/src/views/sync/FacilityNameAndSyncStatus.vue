@@ -98,7 +98,7 @@
       neverSynced: {
         message: 'Never synced',
         context:
-          '\nThis is associated with the label "Last successful sync:", and the subject is the Facility',
+          'This is associated with the label "Last successful sync:", and the subject is the Facility.',
       },
       lastSync: {
         message: 'Last successful sync: {relativeTime}',
@@ -108,7 +108,7 @@
       justNow: {
         message: 'Just now',
         context:
-          '\nThis is used to indicate when an event occurred. It\'s associated with the label "Last successful sync:"',
+          'This is used to indicate when an event occurred. It\'s associated with the label "Last successful sync:"',
       },
       syncFailed: {
         message: 'Most recent sync failed',
