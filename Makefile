@@ -164,13 +164,7 @@ writeversion:
 	@echo "Current version is now `cat kolibri/VERSION`"
 
 preseeddb:
-	$(eval TEMPKHOME := $(shell mktemp -d /tmp/kolibri-preseeddb-XXXXXXXX))
-	PYTHONPATH=".:$$PYTHONPATH" KOLIBRI_HOME=$(TEMPKHOME) python -m kolibri manage migrate
-	yes yes | PYTHONPATH=".:$$PYTHONPATH" KOLIBRI_HOME=$(TEMPKHOME) python -m kolibri manage deprovision
-	mkdir kolibri/dist/home
-	mv $(TEMPKHOME)/db.sqlite3 kolibri/dist/home/db.sqlite3
-	mv $(TEMPKHOME)/notifications.sqlite3 kolibri/dist/home/notifications.sqlite3
-	rm -r $(TEMPKHOME)
+	PYTHONPATH=".:$PYTHONPATH" python build_tools/preseed_home.py
 
 setrequirements:
 	rm -r requirements.txt || true # remove requirements.txt
@@ -182,7 +176,7 @@ buildconfig:
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: setrequirements writeversion staticdeps staticdeps-cext buildconfig i18n-extract-frontend assets i18n-django-compilemessages
+dist: setrequirements writeversion staticdeps staticdeps-cext buildconfig i18n-extract-frontend assets i18n-django-compilemessages preseeddb
 	python setup.py sdist --format=gztar > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel
 	ls -l dist

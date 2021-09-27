@@ -23,6 +23,7 @@ from kolibri.core.deviceadmin.utils import get_backup_files
 from kolibri.core.tasks.main import import_tasks_module_from_django_apps
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
+from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
 from kolibri.plugins.utils import autoremove_unavailable_plugins
 from kolibri.plugins.utils import check_plugin_config_file_location
 from kolibri.plugins.utils import enable_new_default_plugins
@@ -160,6 +161,29 @@ def _setup_django():
         raise
 
 
+def _copy_preseeded_db(db_name, target=None):
+    target = target or "{}.sqlite3".format(db_name)
+    target = os.path.join(KOLIBRI_HOME, target)
+    if not os.path.exists(target):
+        try:
+            import kolibri.dist
+
+            db_path = os.path.join(
+                os.path.dirname(kolibri.dist.__file__),
+                "home/{}.sqlite3".format(db_name),
+            )
+            shutil.copy(db_path, target)
+            logger.info(
+                "Copied preseeded database from {} to {}".format(db_path, target)
+            )
+        except (ImportError, IOError, OSError):
+            logger.warning(
+                "Unable to copy pre-migrated database from {} to {}".format(
+                    db_path, target
+                )
+            )
+
+
 def _upgrades_before_django_setup(updated, version):
     if version and updated:
         check_plugin_config_file_location(version)
@@ -170,35 +194,17 @@ def _upgrades_before_django_setup(updated, version):
         # dbbackup relies on settings.INSTALLED_APPS
         enable_new_default_plugins()
 
-    if not version and OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
-        # If there is no registered version, and we are using sqlite,
+    if OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
+        # If we are using sqlite,
         # we can shortcut migrations by using the preseeded databases
         # that we bundle in the Kolibri whl file.
-        logger.info("Attempting to setup using pre-migrated databases")
-        try:
-            import kolibri.dist
+        if not version:
+            logger.info("Attempting to setup using pre-migrated databases")
 
-            main_db_path = os.path.join(kolibri.dist.__file__, "home/db.sqlite3")
-            shutil.copy(main_db_path, KOLIBRI_HOME)
-        except (ImportError, IOError, OSError):
-            logger.warning(
-                "Unable to copy pre-migrated database from {} to {}".format(
-                    main_db_path, KOLIBRI_HOME
-                )
-            )
-        try:
-            import kolibri.dist
+        _copy_preseeded_db("db", target=OPTIONS["Database"]["DATABASE_NAME"])
 
-            notifications_db_path = os.path.join(
-                kolibri.dist.__file__, "home/notifications.sqlite3"
-            )
-            shutil.copy(notifications_db_path, KOLIBRI_HOME)
-        except (ImportError, IOError, OSError):
-            logger.warning(
-                "Unable to copy pre-migrated database from {} to {}".format(
-                    notifications_db_path, KOLIBRI_HOME
-                )
-            )
+        for db_name in ADDITIONAL_SQLITE_DATABASES:
+            _copy_preseeded_db(db_name)
 
 
 def _upgrades_after_django_setup(updated, version):
