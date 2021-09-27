@@ -12,7 +12,7 @@ from kolibri.deployment.default.sqlite_db_names import (  # noqa E402
 from django.core.management import call_command  # noqa E402
 
 move_to = os.path.join(os.path.dirname(__file__), "..", "kolibri", "dist", "home")
-shutil.rmtree(move_to)
+shutil.rmtree(move_to, ignore_errors=True)
 os.mkdir(move_to)
 
 print("Generating preseeded home data in {}".format(temphome))
