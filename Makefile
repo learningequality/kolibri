@@ -176,7 +176,7 @@ buildconfig:
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: setrequirements writeversion staticdeps staticdeps-cext buildconfig i18n-extract-frontend assets i18n-django-compilemessages
+dist: setrequirements writeversion staticdeps staticdeps-cext buildconfig i18n-extract-frontend assets i18n-django-compilemessages preseeddb
 	python setup.py sdist --format=gztar > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel
 	ls -l dist
