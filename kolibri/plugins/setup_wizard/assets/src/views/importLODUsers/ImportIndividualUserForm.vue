@@ -23,6 +23,7 @@
       @blur="blurred = true"
     />
     <PasswordTextbox
+      v-if="!facility.learner_can_login_with_no_password"
       ref="passwordTextbox"
       :value.sync="password"
       :showConfirmationInput="false"
