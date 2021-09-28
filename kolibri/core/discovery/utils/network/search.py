@@ -10,7 +10,7 @@ from kolibri.core.discovery.models import DynamicNetworkLocation
 from kolibri.core.discovery.utils.network.broadcast import KolibriInstanceListener
 from kolibri.core.discovery.utils.network.broadcast import NETWORK_EVENTS
 from kolibri.core.public.utils import begin_request_soud_sync
-from kolibri.core.public.utils import cleanup_server_soud_sync
+from kolibri.core.public.utils import queue_soud_server_sync_cleanup
 from kolibri.core.public.utils import stop_request_soud_sync
 
 logger = logging.getLogger(__name__)
@@ -182,4 +182,4 @@ class SoUDServerListener(KolibriInstanceListener):
         """
         if instance.device_info.get("subset_of_users_device", False):
             logger.debug("SoUD listener: triggering cleanup of SoUD sync")
-            cleanup_server_soud_sync(instance.ip)
+            queue_soud_server_sync_cleanup(instance.ip)

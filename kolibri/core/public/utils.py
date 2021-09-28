@@ -12,7 +12,6 @@ from django.utils import timezone
 from morango.errors import MorangoResumeSyncError
 from morango.models import InstanceIDModel
 from morango.models import SyncSession
-from morango.models import TransferSession
 from rest_framework import status
 
 import kolibri
@@ -169,7 +168,7 @@ def peer_sync(command, **kwargs):
         # cleanup session on error if we tried to resume it
         if cleanup and command == "resumesync":
             # for resume we should have id kwarg
-            queue_soud_sync_cleanup(SyncSession.objects.get(pk=kwargs["id"]))
+            queue_soud_sync_cleanup(kwargs["id"])
         # schedule a new sync
         schedule_new_sync(kwargs["baseurl"], kwargs["user"], interval=resync_interval)
 
@@ -235,7 +234,7 @@ def stoppeerusersync(server, user_id):
     if sync_session is None:
         return
 
-    return queue_soud_sync_cleanup(sync_session)
+    return queue_soud_sync_cleanup(sync_session.id)
 
 
 def begin_request_soud_sync(server, user):
@@ -418,35 +417,35 @@ def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVA
     scheduler.enqueue_in(dt, job)
 
 
-def cleanup_server_soud_sync(client_ip):
+def queue_soud_sync_cleanup(*sync_session_ids):
     """
+    Queue targeted cleanup of active SoUD sessions
+
+    :param sync_session_ids: ID's of sync sessions we should cleanup
+    """
+    job = Job(soud_sync_cleanup, pk__in=sync_session_ids)
+    return queue.enqueue(job)
+
+
+def queue_soud_server_sync_cleanup(client_ip):
+    """
+    A server oriented cleanup of active SoUD sessions
+
     :param client_ip: The IP address of the client
     """
-    sync_sessions = find_soud_sync_sessions(is_server=True, client_ip=client_ip)
-    clean_up_sessions = []
-
-    for sync_session in sync_sessions:
-        active_transfers = TransferSession.objects.filter(
-            sync_session=sync_session, active=True
-        )
-        # if there's still active transfer session, it could require cleanup so we'll defer that
-        # and only mark the session as inactive otherwise
-        if active_transfers.count() == 0:
-            sync_session.active = False
-            sync_session.save()
-        else:
-            clean_up_sessions.append(sync_session)
-
-    if clean_up_sessions:
-        queue_soud_sync_cleanup(clean_up_sessions)
+    job = Job(soud_sync_cleanup, client_ip=client_ip)
+    return queue.enqueue(job)
 
 
-def queue_soud_sync_cleanup(*sync_sessions):
+def soud_sync_cleanup(**filters):
     """
     Targeted cleanup of active SoUD sessions
 
-    :param sync_sessions: The sync sessions to cleanup
+    :param filters: A dict of queryset filters for SyncSession model
     """
-    ids = [sync_session.id for sync_session in sync_sessions]
-    job = Job(call_command, "cleanupsyncs", ids=ids, expiration=0)
-    return queue.enqueue(job)
+
+    sync_sessions = find_soud_sync_sessions(**filters)
+    clean_up_ids = sync_sessions.values_list("id", flat=True)
+
+    if clean_up_ids:
+        call_command("cleanupsyncs", ids=clean_up_ids, expiration=0)
