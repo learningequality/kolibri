@@ -4,29 +4,21 @@ import time
 from django.core.exceptions import ValidationError
 from django.db import connection
 from django.db.utils import OperationalError
-from zeroconf import USE_IP_OF_OUTGOING_INTERFACE
 
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.discovery.models import DynamicNetworkLocation
-from kolibri.core.discovery.utils.network.broadcast import InterfaceChoice
-from kolibri.core.discovery.utils.network.broadcast import KolibriBroadcast
-from kolibri.core.discovery.utils.network.broadcast import KolibriInstance
 from kolibri.core.discovery.utils.network.broadcast import KolibriInstanceListener
+from kolibri.core.discovery.utils.network.broadcast import NETWORK_EVENTS
 from kolibri.core.public.utils import begin_request_soud_sync
 from kolibri.core.public.utils import cleanup_server_soud_sync
-from kolibri.core.public.utils import get_device_info
 from kolibri.core.public.utils import stop_request_soud_sync
 
 logger = logging.getLogger(__name__)
 
 
-_ZEROCONF_BROADCAST = None
-""":type: KolibriBroadcast|None"""
-
-
 class DynamicNetworkLocationListener(KolibriInstanceListener):
     """
-    Zeroconf listener that manages corresponding `DynamicNetworkLocation` models
+    Listener that subscribes to events to manage corresponding `DynamicNetworkLocation` models
     """
 
     def register_instance(self, instance):
@@ -58,6 +50,9 @@ class DynamicNetworkLocationListener(KolibriInstanceListener):
 
     def _store_instance(self, instance):
         db_locked = False
+        logger.debug(
+            "Creating `DynamicNetworkLocation` for instance {}".format(instance.id)
+        )
         try:
             DynamicNetworkLocation.objects.update_or_create(
                 dict(base_url=instance.base_url, **instance.device_info),
@@ -84,144 +79,107 @@ class DynamicNetworkLocationListener(KolibriInstanceListener):
         except OperationalError as e:
             if "database is locked" not in str(e):
                 raise
+            logger.debug(
+                "Encountered locked database while creating `DynamicNetworkLocation`"
+            )
             db_locked = True
         finally:
             connection.close()
         return db_locked
 
 
-class SoUDListener(KolibriInstanceListener):
+class SoUDClientListener(KolibriInstanceListener):
     """
-    Zeroconf listener that handles SoUD sync requests for non-SoUD instances that appear on the
-    network.
+    Listener that subscribes to events when our instance is a SoUD
     """
-
-    __slots__ = ("is_soud",)
-
-    def __init__(self, broadcast):
-        super(SoUDListener, self).__init__(broadcast)
-        self.is_soud = None
 
     def _get_user_ids(self):
         return FacilityUser.objects.all().values_list("id", flat=True)
 
+    def partial_subscribe(self, events):
+        super(SoUDClientListener, self).partial_subscribe(events)
+        # when we weren't a SoUD but we are now, start requesting sync from all cached instances
+        for other_instance in self.broadcast.other_instances.values():
+            if other_instance.is_broadcasting:
+                self.add_instance(other_instance)
+
+    def partial_unsubscribe(self, events):
+        super(SoUDClientListener, self).partial_unsubscribe(events)
+        # this case shouldn't happen in practice but in the event we are no longer SoUD,
+        # stop requesting sync for all instances
+        for other_instance in self.broadcast.other_instances.values():
+            self.remove_instance(other_instance)
+
     def register_instance(self, instance):
         # when our instance is registered, we can pull out device information about ourselves
-        self.is_soud = instance.device_info.get("subset_of_users_device", False)
+        if not instance.device_info.get("subset_of_users_device", False):
+            self.partial_unsubscribe(NETWORK_EVENTS)
 
     def renew_instance(self, instance):
         # when our instance is renewed, it means we're updating the network with new information
         # which could include a change in our SoUD status
-        was_soud = self.is_soud
-        is_soud = instance.device_info.get("subset_of_users_device", False)
-
-        if was_soud and was_soud != is_soud:
-            # this case shouldn't happen in practice but in the event we are no longer SoUD,
-            # stop requesting sync for all instances
-            for other_instance in self.broadcast.other_instances.values():
-                self.remove_instance(other_instance)
-
-        self.is_soud = is_soud
-
-        if is_soud and was_soud != is_soud:
-            # when we weren't a SoUD but we are now, start requesting sync from all cached instances
-            for other_instance in self.broadcast.other_instances.values():
-                if other_instance.is_broadcasting:
-                    self.add_instance(other_instance)
+        if instance.device_info.get("subset_of_users_device", False):
+            self.partial_subscribe(NETWORK_EVENTS)
+        else:
+            self.partial_unsubscribe(NETWORK_EVENTS)
 
     def unregister_instance(self, instance):
-        # when we stop broadcasting, we should stop requesting a sync
-        for other_instance in self.broadcast.other_instances.values():
-            self.remove_instance(other_instance)
-        self.is_soud = None
+        """
+        When our local instance has been unregistered from the network, we can stop listening
+        """
+        self.partial_unsubscribe(NETWORK_EVENTS)
 
     def add_instance(self, instance):
-        if self.is_soud and not instance.device_info.get(
-            "subset_of_users_device", False
-        ):
+        """
+        When a network instance is removed, if it wasn't a SoUD, we stop sync requests for it
+        """
+        if not instance.device_info.get("subset_of_users_device", False):
             for user_id in self._get_user_ids():
                 begin_request_soud_sync(server=instance.base_url, user=user_id)
 
     def update_instance(self, instance):
+        """
+        When a network instance is updated, triggering removal and addition
+        """
         self.remove_instance(instance)
         self.add_instance(instance)
 
     def remove_instance(self, instance):
-        if self.is_soud:
-            if not instance.device_info.get("subset_of_users_device", False):
-                for user_id in self._get_user_ids():
-                    stop_request_soud_sync(server=instance.base_url, user=user_id)
-        elif self.is_soud is not None:
+        """
+        When a network instance is removed, if it wasn't a SoUD, we stop sync requests for it
+        """
+        if not instance.device_info.get("subset_of_users_device", False):
+            for user_id in self._get_user_ids():
+                stop_request_soud_sync(server=instance.base_url, user=user_id)
+
+
+class SoUDServerListener(KolibriInstanceListener):
+    """
+    Listener that subscribes to events when our instance is NOT a SoUD
+    """
+
+    def register_instance(self, instance):
+        """
+        Upon registering ourselves, we can decide what events we really need to listen to
+        """
+        if instance.device_info.get("subset_of_users_device", False):
+            self.partial_unsubscribe(NETWORK_EVENTS)
+
+    def renew_instance(self, instance):
+        """
+        When the instance is renewed, device info may have changed, so we make sure our event
+        subscription aligns with device state
+        """
+        if instance.device_info.get("subset_of_users_device", False):
+            # if we're a SoUD, then we can unsubscribe
+            self.partial_unsubscribe(NETWORK_EVENTS)
+        else:
+            self.partial_subscribe(NETWORK_EVENTS)
+
+    def remove_instance(self, instance):
+        """
+        When a network instance is removed, if it was a SoUD, we trigger cleanup
+        """
+        if instance.device_info.get("subset_of_users_device", False):
+            logger.debug("SoUD listener: triggering cleanup of SoUD sync")
             cleanup_server_soud_sync(instance.ip)
-
-
-def _build_instance(port):
-    """
-    Builds our instance for broadcasting on the network with current device information
-    """
-    device_info = get_device_info()
-    return KolibriInstance(
-        device_info.get("instance_id"),
-        port=port,
-        device_info=device_info,
-        ip=USE_IP_OF_OUTGOING_INTERFACE,
-    )
-
-
-def start_zeroconf_broadcast(port):
-    """
-    Instantiates the Zeroconf broadcast object, adds our listeners and starts broadcasting
-    """
-    global _ZEROCONF_BROADCAST
-
-    if _ZEROCONF_BROADCAST is not None:
-        return
-
-    instance = _build_instance(port)
-    _ZEROCONF_BROADCAST = KolibriBroadcast(instance)
-    _ZEROCONF_BROADCAST.add_listener(DynamicNetworkLocationListener)
-    _ZEROCONF_BROADCAST.add_listener(SoUDListener)
-    _ZEROCONF_BROADCAST.start_broadcast()
-
-
-def update_zeroconf_broadcast_instance():
-    """
-    Updates the Zeroconf broadcast with new information about our instance, suitable for when
-    information in instance.device_info changes
-    """
-    global _ZEROCONF_BROADCAST
-    if _ZEROCONF_BROADCAST is None:
-        return
-
-    instance = _build_instance(_ZEROCONF_BROADCAST.instance.port)
-    _ZEROCONF_BROADCAST.update_broadcast(instance=instance)
-
-
-def update_zeroconf_broadcast_interfaces():
-    """
-    Updates the Zeroconf broadcast by sending the all-interface choice which will ensure we're
-    broadcasting on any new addresses if something has changed
-    """
-    global _ZEROCONF_BROADCAST
-    if _ZEROCONF_BROADCAST is not None:
-        _ZEROCONF_BROADCAST.update_broadcast(interfaces=InterfaceChoice.All)
-
-
-def stop_zeroconf_broadcast():
-    """
-    Stops the Zeroconf broadcast and destroys the KolibriBroadcast instance
-    """
-    global _ZEROCONF_BROADCAST
-    if _ZEROCONF_BROADCAST is not None:
-        _ZEROCONF_BROADCAST.stop_broadcast()
-    _ZEROCONF_BROADCAST = None
-
-
-def get_zeroconf_broadcast_addresses():
-    """
-    :rtype: str[]
-    """
-    global _ZEROCONF_BROADCAST
-    if _ZEROCONF_BROADCAST is not None:
-        return _ZEROCONF_BROADCAST.addresses
-    return []

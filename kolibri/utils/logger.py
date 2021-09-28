@@ -143,7 +143,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "()": "colorlog.ColoredFormatter",
                 "format": "%(log_color)s%(levelname)-8s %(message)s",
                 "log_colors": {
-                    "DEBUG": "bold_black",
+                    "DEBUG": "blue",
                     "INFO": "white",
                     "WARNING": "yellow",
                     "ERROR": "red",

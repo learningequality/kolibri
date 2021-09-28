@@ -4,14 +4,18 @@ import socket
 import mock
 import pytest
 from django.test import SimpleTestCase
+from magicbus import Bus
 from zeroconf import NonUniqueNameException
 from zeroconf import ServiceInfo
 from zeroconf import Zeroconf
 
+from ..utils.network.broadcast import EVENT_UPDATE_INSTANCE
 from ..utils.network.broadcast import KolibriBroadcast
 from ..utils.network.broadcast import KolibriInstance
 from ..utils.network.broadcast import KolibriInstanceListener
 from ..utils.network.broadcast import LOCAL_DOMAIN
+from ..utils.network.broadcast import LOCAL_EVENTS
+from ..utils.network.broadcast import NETWORK_EVENTS
 from ..utils.network.broadcast import SERVICE_TYPE
 
 MOCK_INTERFACE_IP = "111.222.111.222"
@@ -26,6 +30,7 @@ MOCK_PROPERTIES = {
 }
 BROADCAST_MODULE = "kolibri.core.discovery.utils.network.broadcast."
 ZEROCONF_NEEDS_UPDATE = getattr(Zeroconf, "update_interfaces", None) is None
+ALL_EVENTS = NETWORK_EVENTS.union(LOCAL_EVENTS)
 
 
 class KolibriInstanceTestCase(SimpleTestCase):
@@ -166,85 +171,81 @@ class KolibriInstanceTestCase(SimpleTestCase):
             instance.to_service_info()
 
 
+class KolibriTestInstanceListener(KolibriInstanceListener):
+    def __init__(self, *args, **kwargs):
+        super(KolibriTestInstanceListener, self).__init__(*args, **kwargs)
+        self.mock = mock.Mock()
+
+    def register_instance(self, instance):
+        self.mock.register_instance(instance)
+
+    def renew_instance(self, instance):
+        self.mock.renew_instance(instance)
+
+    def unregister_instance(self, instance):
+        self.mock.unregister_instance(instance)
+
+    def add_instance(self, instance):
+        self.mock.add_instance(instance)
+
+    def update_instance(self, instance):
+        self.mock.update_instance(instance)
+
+    def remove_instance(self, instance):
+        self.mock.remove_instance(instance)
+
+
+@pytest.mark.parametrize(
+    "event_name",
+    [event for event in ALL_EVENTS if hasattr(KolibriTestInstanceListener, event)],
+)
+def test_instance_listener_events(event_name):
+    events = Bus(extra_channels=ALL_EVENTS)
+    broadcast = mock.Mock(spec_set=KolibriBroadcast)(KolibriInstance(MOCK_ID))
+    broadcast.events = events
+    listener = KolibriTestInstanceListener(broadcast)
+    listener.subscribe()
+
+    new_instance = KolibriInstance("abc")
+    events.publish(event_name, new_instance)
+    getattr(listener.mock, event_name).assert_called_once_with(new_instance)
+
+
 class KolibriInstanceListenerTestCase(SimpleTestCase):
     def setUp(self):
         super(KolibriInstanceListenerTestCase, self).setUp()
         self.instance = KolibriInstance(MOCK_ID)
         self.broadcast = mock.Mock(spec_set=KolibriBroadcast)(self.instance)
-        self.listener = KolibriInstanceListener(self.broadcast)
-        self.zeroconf = mock.Mock()
+        self.events = Bus(extra_channels=ALL_EVENTS)
+        self.broadcast.events = self.events
+        self.listener = KolibriTestInstanceListener(self.broadcast)
 
-    @mock.patch(BROADCAST_MODULE + "KolibriInstanceListener.add_instance")
-    def test_add_service(self, mock_add_instance):
-        new_instance = KolibriInstance("abc")
-        self.broadcast.add_instance.return_value = new_instance
-        self.listener.add_service(self.zeroconf, SERVICE_TYPE, new_instance.name)
-        self.broadcast.add_instance.assert_called_once_with(new_instance.name)
-        mock_add_instance.assert_called_once_with(new_instance)
+    def assertHasListener(self, event):
+        self.assertGreaterEqual(len(self.events.listeners.get(event)), 0)
 
-    @mock.patch(BROADCAST_MODULE + "KolibriInstanceListener.add_instance")
-    def test_add_service__invalid_type(self, mock_add_instance):
-        new_instance = KolibriInstance("abc")
-        self.broadcast.add_instance.return_value = new_instance
-        self.listener.add_service(self.zeroconf, "IoT", new_instance.name)
-        self.broadcast.add_instance.assert_not_called()
-        mock_add_instance.assert_not_called()
+    def assertHasNoListener(self, event):
+        self.assertEqual(len(self.events.listeners.get(event)), 0)
 
-    @mock.patch(BROADCAST_MODULE + "KolibriInstanceListener.add_instance")
-    def test_add_service__broadcast_none(self, mock_add_instance):
-        new_instance = KolibriInstance("abc")
-        self.broadcast.add_instance.return_value = None
-        self.listener.add_service(self.zeroconf, SERVICE_TYPE, new_instance.name)
-        self.broadcast.add_instance.assert_called_once_with(new_instance.name)
-        mock_add_instance.assert_not_called()
+    def test_partial_unsubscribe(self):
+        self.listener.subscribe()
+        for event in ALL_EVENTS:
+            self.assertHasListener(event)
+        self.listener.partial_unsubscribe([EVENT_UPDATE_INSTANCE])
+        for event in ALL_EVENTS:
+            if event == EVENT_UPDATE_INSTANCE:
+                self.assertHasNoListener(event)
+            else:
+                self.assertHasListener(event)
 
-    @mock.patch(BROADCAST_MODULE + "KolibriInstanceListener.update_instance")
-    def test_update_service(self, mock_update_instance):
-        updated_instance = KolibriInstance("abc")
-        self.broadcast.update_instance.return_value = updated_instance
-        self.listener.update_service(self.zeroconf, SERVICE_TYPE, updated_instance.name)
-        self.broadcast.update_instance.assert_called_once_with(updated_instance.name)
-        mock_update_instance.assert_called_once_with(updated_instance)
-
-    @mock.patch(BROADCAST_MODULE + "KolibriInstanceListener.update_instance")
-    def test_update_service__invalid_type(self, mock_update_instance):
-        updated_instance = KolibriInstance("abc")
-        self.broadcast.update_instance.return_value = updated_instance
-        self.listener.update_service(self.zeroconf, "IoT", updated_instance.name)
-        self.broadcast.update_instance.assert_not_called()
-        mock_update_instance.assert_not_called()
-
-    @mock.patch(BROADCAST_MODULE + "KolibriInstanceListener.update_instance")
-    def test_update_service__broadcast_none(self, mock_update_instance):
-        updated_instance = KolibriInstance("abc")
-        self.broadcast.update_instance.return_value = None
-        self.listener.update_service(self.zeroconf, SERVICE_TYPE, updated_instance.name)
-        self.broadcast.update_instance.assert_called_once_with(updated_instance.name)
-        mock_update_instance.assert_not_called()
-
-    @mock.patch(BROADCAST_MODULE + "KolibriInstanceListener.remove_instance")
-    def test_remove_service(self, mock_remove_instance):
-        removed_instance = KolibriInstance("abc")
-        self.broadcast.remove_instance.return_value = removed_instance
-        self.listener.remove_service(self.zeroconf, SERVICE_TYPE, removed_instance.name)
-        self.broadcast.remove_instance.assert_called_once_with(removed_instance.name)
-        mock_remove_instance.assert_called_once_with(removed_instance)
-
-    @mock.patch(BROADCAST_MODULE + "KolibriInstanceListener.remove_instance")
-    def test_remove_service__invalid_type(self, mock_remove_instance):
-        removed_instance = KolibriInstance("abc")
-        self.broadcast.remove_instance.return_value = removed_instance
-        self.listener.remove_service(self.zeroconf, "IoT", removed_instance.name)
-        self.broadcast.remove_instance.assert_not_called()
-        mock_remove_instance.assert_not_called()
-
-    @mock.patch(BROADCAST_MODULE + "KolibriInstanceListener.remove_instance")
-    def test_remove_service__broadcast_none(self, mock_remove_instance):
-        removed_instance = KolibriInstance("abc")
-        self.broadcast.remove_instance.return_value = None
-        self.listener.remove_service(self.zeroconf, SERVICE_TYPE, removed_instance.name)
-        self.broadcast.remove_instance.assert_called_once_with(removed_instance.name)
-        mock_remove_instance.assert_not_called()
+    def test_partial_subscribe(self):
+        for event in ALL_EVENTS:
+            self.assertHasNoListener(event)
+        self.listener.partial_subscribe([EVENT_UPDATE_INSTANCE])
+        for event in ALL_EVENTS:
+            if event == EVENT_UPDATE_INSTANCE:
+                self.assertHasListener(event)
+            else:
+                self.assertHasNoListener(event)
 
 
 class KolibriBroadcastTestCase(SimpleTestCase):
@@ -255,7 +256,7 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         )
         self.zeroconf = mock.MagicMock(spec_set=Zeroconf)()
         self.broadcast = KolibriBroadcast(self.instance)
-        self.listener = mock.MagicMock(spec_set=KolibriInstanceListener)(self.broadcast)
+        self.listener = self.broadcast.add_listener(KolibriTestInstanceListener)
 
     def test_is_broadcasting(self):
         self.assertFalse(self.broadcast.is_broadcasting)
@@ -273,12 +274,8 @@ class KolibriBroadcastTestCase(SimpleTestCase):
     @mock.patch(BROADCAST_MODULE + "Zeroconf")
     def test_start_broadcast(self, mock_zeroconf, mock_register):
         mock_zeroconf.return_value = self.zeroconf
-        self.broadcast.listeners = [self.listener]
         self.broadcast.start_broadcast()
         mock_zeroconf.assert_called_once_with(interfaces=self.broadcast.interfaces)
-        self.zeroconf.add_service_listener.assert_called_once_with(
-            SERVICE_TYPE, self.listener
-        )
         mock_register.assert_called_once()
 
     @mock.patch(BROADCAST_MODULE + "logger.error")
@@ -337,7 +334,6 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         self.broadcast.zeroconf = self.zeroconf
         service_info = mock.Mock(spec_set=ServiceInfo)("test")
         self.instance.to_service_info.return_value = service_info
-        self.broadcast.listeners = [self.listener]
         self.broadcast.register()
         mock_logger.assert_called_once()
         self.instance.to_service_info.assert_called_once_with(self.instance.zeroconf_id)
@@ -346,7 +342,7 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         self.instance.set_broadcasting.assert_called_once_with(
             service_info, is_self=True
         )
-        self.listener.register_instance.assert_called_once_with(self.instance)
+        self.listener.mock.register_instance.assert_called_once_with(self.instance)
 
     @mock.patch(BROADCAST_MODULE + "logger.info")
     def test_register__rename(self, mock_logger):
@@ -399,7 +395,6 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         self.broadcast.zeroconf = self.zeroconf
         service_info = mock.Mock(spec_set=ServiceInfo)("test")
         self.instance.to_service_info.return_value = service_info
-        self.broadcast.listeners = [self.listener]
         self.broadcast.renew()
         mock_logger.assert_called_once()
         self.instance.to_service_info.assert_called_once_with()
@@ -407,7 +402,7 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         self.instance.set_broadcasting.assert_called_once_with(
             service_info, is_self=True
         )
-        self.listener.renew_instance.assert_called_once_with(self.instance)
+        self.listener.mock.renew_instance.assert_called_once_with(self.instance)
 
     @mock.patch(BROADCAST_MODULE + "logger.info")
     def test_renew__not_broadcasting(self, mock_logger):
@@ -417,56 +412,43 @@ class KolibriBroadcastTestCase(SimpleTestCase):
     def test_unregister(self):
         self.broadcast.zeroconf = self.zeroconf
         self.instance.service_info = mock.Mock(spec_set=ServiceInfo)("test")
-        self.broadcast.listeners = [self.listener]
         self.broadcast.unregister()
         self.zeroconf.unregister_service.assert_called_once_with(
             self.instance.service_info
         )
         self.instance.reset_broadcasting.assert_called_once_with()
-        self.listener.unregister_instance.assert_called_once_with(self.instance)
+        self.listener.mock.unregister_instance.assert_called_once_with(self.instance)
 
     def test_unregister__not_broadcasting(self):
         self.broadcast.unregister()
         self.zeroconf.unregister_service.assert_not_called()
 
-    def test_add_listener(self):
-        self.broadcast.zeroconf = self.zeroconf
-        self.broadcast.add_listener(KolibriInstanceListener)
-        self.assertIsInstance(self.broadcast.listeners[0], KolibriInstanceListener)
-        self.assertEqual(self.broadcast.listeners[0].broadcast, self.broadcast)
-        self.zeroconf.add_service_listener.assert_called_once_with(
-            SERVICE_TYPE, self.broadcast.listeners[0]
-        )
-
-    def test_add_listener__not_broadcasting(self):
-        self.broadcast.add_listener(KolibriInstanceListener)
-        self.assertIsInstance(self.broadcast.listeners[0], KolibriInstanceListener)
-        self.assertEqual(self.broadcast.listeners[0].broadcast, self.broadcast)
-        self.zeroconf.add_service_listener.assert_not_called()
+    @mock.patch(__name__ + ".KolibriTestInstanceListener.subscribe")
+    def test_add_listener(self, mock_subscribe):
+        self.broadcast.add_listener(KolibriTestInstanceListener)
+        mock_subscribe.assert_called_once_with()
 
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._build_instance")
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._get_service_info")
     @mock.patch(BROADCAST_MODULE + "logger.info")
-    def test_add_instance(
-        self, mock_logger, mock_get_service_info, mock_build_instance
-    ):
+    def test_add_service(self, mock_logger, mock_get_service_info, mock_build_instance):
         service_info = mock.Mock(spec_set=ServiceInfo)("test")
         mock_get_service_info.return_value = service_info
         expected_instance = KolibriInstance(
             MOCK_ID, ip=MOCK_INTERFACE_IP, port=MOCK_PORT
         )
         mock_build_instance.return_value = expected_instance
-        actual_instance = self.broadcast.add_instance("test")
-        self.assertEqual(expected_instance, actual_instance)
+        self.broadcast.add_service("test")
         self.assertEqual(expected_instance, self.broadcast.other_instances["test"])
         mock_get_service_info.assert_called_once_with("test")
         mock_build_instance.assert_called_once_with(service_info)
         mock_logger.assert_called_once()
+        self.listener.mock.add_instance.assert_called_once_with(expected_instance)
 
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._build_instance")
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._get_service_info")
     @mock.patch(BROADCAST_MODULE + "logger.info")
-    def test_add_instance__cached(
+    def test_add_service__cached(
         self, mock_logger, mock_get_service_info, mock_build_instance
     ):
         expected_instance = KolibriInstance(
@@ -474,16 +456,16 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         )
         expected_instance.service_info = True
         self.broadcast.other_instances["test"] = expected_instance
-        actual_instance = self.broadcast.add_instance("test")
-        self.assertEqual(expected_instance, actual_instance)
+        self.broadcast.add_service("test")
         mock_get_service_info.assert_not_called()
         mock_build_instance.assert_not_called()
         mock_logger.assert_not_called()
+        self.listener.mock.add_instance.assert_not_called()
 
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._build_instance")
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._get_service_info")
     @mock.patch(BROADCAST_MODULE + "logger.info")
-    def test_add_instance__cached__not_broadcasting(
+    def test_add_service__cached__not_broadcasting(
         self, mock_logger, mock_get_service_info, mock_build_instance
     ):
         service_info = mock.Mock(spec_set=ServiceInfo)("test")
@@ -496,31 +478,31 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         )
         self.broadcast.other_instances["test"] = existing_instance
         mock_build_instance.return_value = expected_instance
-        actual_instance = self.broadcast.add_instance("test")
-        self.assertEqual(expected_instance, actual_instance)
+        self.broadcast.add_service("test")
         self.assertEqual(expected_instance, self.broadcast.other_instances["test"])
         mock_get_service_info.assert_called_once_with("test")
         mock_build_instance.assert_called_once_with(service_info)
         mock_logger.assert_called_once()
+        self.listener.mock.add_instance.assert_called_once_with(expected_instance)
 
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._build_instance")
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._get_service_info")
     @mock.patch(BROADCAST_MODULE + "logger.info")
-    def test_add_instance__not_found(
+    def test_add_service__not_found(
         self, mock_logger, mock_get_service_info, mock_build_instance
     ):
         mock_get_service_info.return_value = None
-        actual_instance = self.broadcast.add_instance("test")
-        self.assertIsNone(actual_instance)
+        self.broadcast.add_service("test")
         self.assertIsNone(self.broadcast.other_instances.get("test"))
         mock_get_service_info.assert_called_once_with("test")
         mock_build_instance.assert_not_called()
         mock_logger.assert_not_called()
+        self.listener.mock.add_instance.assert_not_called()
 
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._build_instance")
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._get_service_info")
     @mock.patch(BROADCAST_MODULE + "logger.info")
-    def test_add_instance__is_self(
+    def test_add_service__is_self(
         self, mock_logger, mock_get_service_info, mock_build_instance
     ):
         service_info = mock.Mock(spec_set=ServiceInfo)("test")
@@ -528,17 +510,17 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         instance = KolibriInstance(MOCK_ID, ip=MOCK_INTERFACE_IP, port=MOCK_PORT)
         instance.is_self = True
         mock_build_instance.return_value = instance
-        actual_instance = self.broadcast.add_instance("test")
-        self.assertIsNone(actual_instance)
+        self.broadcast.add_service("test")
         self.assertIsNone(self.broadcast.other_instances.get("test"))
         mock_get_service_info.assert_called_once_with("test")
         mock_build_instance.assert_called_once_with(service_info)
         mock_logger.assert_not_called()
+        self.listener.mock.add_instance.assert_not_called()
 
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._build_instance")
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._get_service_info")
     @mock.patch(BROADCAST_MODULE + "logger.info")
-    def test_update_instance(
+    def test_update_service(
         self, mock_logger, mock_get_service_info, mock_build_instance
     ):
         service_info = mock.Mock(spec_set=ServiceInfo)("test")
@@ -547,38 +529,38 @@ class KolibriBroadcastTestCase(SimpleTestCase):
             MOCK_ID, ip=MOCK_INTERFACE_IP, port=MOCK_PORT
         )
         mock_build_instance.return_value = expected_instance
-        actual_instance = self.broadcast.update_instance("test")
-        self.assertEqual(expected_instance, actual_instance)
+        self.broadcast.update_service("test")
         self.assertEqual(expected_instance, self.broadcast.other_instances["test"])
         mock_get_service_info.assert_called_once_with("test")
         mock_build_instance.assert_called_once_with(service_info)
         mock_logger.assert_called_once()
+        self.listener.mock.update_instance.assert_called_once_with(expected_instance)
 
-    @mock.patch(BROADCAST_MODULE + "KolibriBroadcast.remove_instance")
+    @mock.patch(BROADCAST_MODULE + "KolibriBroadcast.remove_service")
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._build_instance")
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._get_service_info")
     @mock.patch(BROADCAST_MODULE + "logger.info")
-    def test_update_instance__not_found(
+    def test_update_service__not_found(
         self,
         mock_logger,
         mock_get_service_info,
         mock_build_instance,
-        mock_remove_instance,
+        mock_remove_service,
     ):
         mock_get_service_info.return_value = None
-        mock_remove_instance.return_value = None
-        actual_instance = self.broadcast.update_instance("test")
-        self.assertIsNone(actual_instance)
+        mock_remove_service.return_value = None
+        self.broadcast.update_service("test")
         self.assertIsNone(self.broadcast.other_instances.get("test"))
         mock_get_service_info.assert_called_once_with("test")
-        mock_remove_instance.assert_called_once_with("test", lock=False)
+        mock_remove_service.assert_called_once_with("test")
         mock_build_instance.assert_not_called()
         mock_logger.assert_not_called()
+        self.listener.mock.update_instance.assert_not_called()
 
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._build_instance")
     @mock.patch(BROADCAST_MODULE + "KolibriBroadcast._get_service_info")
     @mock.patch(BROADCAST_MODULE + "logger.info")
-    def test_update_instance__is_self(
+    def test_update_service__is_self(
         self, mock_logger, mock_get_service_info, mock_build_instance
     ):
         service_info = mock.Mock(spec_set=ServiceInfo)("test")
@@ -586,44 +568,44 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         instance = KolibriInstance(MOCK_ID, ip=MOCK_INTERFACE_IP, port=MOCK_PORT)
         instance.is_self = True
         mock_build_instance.return_value = instance
-        actual_instance = self.broadcast.update_instance("test")
-        self.assertIsNone(actual_instance)
+        self.broadcast.update_service("test")
         self.assertIsNone(self.broadcast.other_instances.get("test"))
         mock_get_service_info.assert_called_once_with("test")
         mock_build_instance.assert_called_once_with(service_info)
         mock_logger.assert_not_called()
+        self.listener.mock.update_instance.assert_not_called()
 
     @mock.patch(BROADCAST_MODULE + "logger.info")
-    def test_remove_instance(self, mock_logger):
+    def test_remove_service(self, mock_logger):
         expected_instance = mock.Mock(spec_set=KolibriInstance)(
             MOCK_ID, ip=MOCK_INTERFACE_IP, port=MOCK_PORT
         )
         expected_instance.service_info = True
         expected_instance.is_self = False
         self.broadcast.other_instances["test"] = expected_instance
-        actual_instance = self.broadcast.remove_instance("test")
-        self.assertEqual(expected_instance, actual_instance)
+        self.broadcast.remove_service("test")
         mock_logger.assert_called_once()
         expected_instance.reset_broadcasting.assert_called_once()
+        self.listener.mock.remove_instance.assert_called_once_with(expected_instance)
 
     @mock.patch(BROADCAST_MODULE + "logger.info")
-    def test_remove_instance__is_self(self, mock_logger):
+    def test_remove_service__is_self(self, mock_logger):
         expected_instance = mock.Mock(spec_set=KolibriInstance)(
             MOCK_ID, ip=MOCK_INTERFACE_IP, port=MOCK_PORT
         )
         expected_instance.service_info = True
         expected_instance.is_self = True
         self.broadcast.other_instances["test"] = expected_instance
-        actual_instance = self.broadcast.remove_instance("test")
-        self.assertIsNone(actual_instance)
+        self.broadcast.remove_service("test")
         mock_logger.assert_not_called()
         expected_instance.reset_broadcasting.assert_not_called()
+        self.listener.mock.remove_instance.assert_not_called()
 
     @mock.patch(BROADCAST_MODULE + "logger.info")
-    def test_remove_instance__not_found(self, mock_logger):
-        actual_instance = self.broadcast.remove_instance("test")
-        self.assertIsNone(actual_instance)
+    def test_remove_service__not_found(self, mock_logger):
+        self.broadcast.remove_service("test")
         mock_logger.assert_not_called()
+        self.listener.mock.remove_instance.assert_not_called()
 
     @mock.patch(BROADCAST_MODULE + "KolibriInstance.from_service_info")
     def test_build_instance(self, mock_from_service_info):

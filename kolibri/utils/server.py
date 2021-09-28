@@ -21,6 +21,7 @@ from magicbus.plugins.signalhandler import SignalHandler as BaseSignalHandler
 from magicbus.plugins.tasks import Autoreloader
 from magicbus.plugins.tasks import Monitor
 from zeroconf import get_all_addresses
+from zeroconf import InterfaceChoice
 
 import kolibri
 from .system import become_daemon
@@ -88,6 +89,7 @@ status_messages = {
 
 RESTART = "restart"
 STOP = "stop"
+UPDATE_ZEROCONF = "update_zeroconf"
 
 
 class NotRunning(Exception):
@@ -277,37 +279,54 @@ class ZeroConfPlugin(Monitor):
     def __init__(self, bus, port):
         self.addresses = set()
         self.port = port
-        Monitor.__init__(self, bus, self.run, 5)
+        Monitor.__init__(self, bus, self.run, frequency=5)
         self.bus.subscribe("SERVING", self.SERVING)
+        self.bus.subscribe("ZEROCONF_UPDATE", self.SERVING)
+        self.broadcast = None
 
     def SERVING(self, port):
         # Register the Kolibri zeroconf service so it will be discoverable on the network
-        from kolibri.core.discovery.utils.network.search import start_zeroconf_broadcast
+        from kolibri.core.discovery.utils.network.broadcast import (
+            build_broadcast_instance,
+            KolibriBroadcast,
+        )
+        from kolibri.core.discovery.utils.network.search import (
+            DynamicNetworkLocationListener,
+            SoUDClientListener,
+            SoUDServerListener,
+        )
 
-        start_zeroconf_broadcast(port or self.port)
+        self.port = port or self.port
+        instance = build_broadcast_instance(port)
+
+        if self.broadcast is None:
+            self.broadcast = KolibriBroadcast(instance)
+            self.broadcast.add_listener(DynamicNetworkLocationListener)
+            self.broadcast.add_listener(SoUDClientListener)
+            self.broadcast.add_listener(SoUDServerListener)
+            self.broadcast.start_broadcast()
+        else:
+            self.broadcast.update_broadcast(instance=instance)
 
     def STOP(self):
         super(ZeroConfPlugin, self).STOP()
-        from kolibri.core.discovery.utils.network.search import stop_zeroconf_broadcast
 
-        stop_zeroconf_broadcast()
+        if self.broadcast is not None:
+            self.broadcast.stop_broadcast()
+            self.broadcast = None
 
     def run(self):
-        from kolibri.core.discovery.utils.network.search import (
-            get_zeroconf_broadcast_addresses,
-            update_zeroconf_broadcast_interfaces,
-        )
-
         # If the current addresses that zeroconf is listening on does not
         # match the current set of all addresses for this device, then
         # we should reinitialize zeroconf, the listener, and the broadcasted
         # kolibri service.
-        if get_zeroconf_broadcast_addresses() != set(get_all_addresses()):
+        if self.broadcast is not None and self.broadcast.addresses != set(
+            get_all_addresses()
+        ):
             logger.info(
                 "New addresses detected since zeroconf was initialized, updating now"
             )
-            update_zeroconf_broadcast_interfaces()
-            logger.info("Zeroconf has updated")
+            self.broadcast.update_broadcast(interfaces=InterfaceChoice.All)
 
 
 status_map = {
@@ -456,6 +475,8 @@ class ProcessControlPlugin(Monitor):
                 self.bus.log("Stopping server.")
                 self.thread.cancel()
                 self.bus.transition("EXITED")
+            elif command == UPDATE_ZEROCONF:
+                self.bus.publish("UPDATE_ZEROCONF")
             else:
                 self.mtime = mtime
 
@@ -672,6 +693,14 @@ def restart():
     if not wait_for_status(STATUS_STOPPED):
         return False
     return wait_for_status(STATUS_RUNNING)
+
+
+def update_zeroconf_broadcast():
+    """
+    Updates the instance registered on the Zeroconf network
+    """
+    with open(PROCESS_CONTROL_FLAG, "w") as f:
+        f.write(UPDATE_ZEROCONF)
 
 
 def _read_pid_file(filename):
