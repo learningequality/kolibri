@@ -1,5 +1,5 @@
 # To reinstate the original functionality, please remove this header comment
-# and uncomment the code below
+# and uncomment the code below (and re-enable exams in test_single_user_assignment_sync, search for "TODO")
 # from .single_user_assignment_utils import (
 #     update_assignments_from_individual_syncable_exams,
 # )

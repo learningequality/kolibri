@@ -19,9 +19,14 @@ def check_if_port_open(base_url, timeout=1):
     if not port:
         port = 80 if scheme == "http" else 443
 
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
-        sock.settimeout(timeout)
-        return sock.connect_ex((host, port)) == 0
+    try:
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+            sock.settimeout(timeout)
+            return sock.connect_ex((host, port)) == 0
+    except (OSError, IOError):
+        # Catch any errors in trying to connect with the socket
+        # In Python 2 all socket errors are subclasses of IOError, in Python 3 of OSError
+        return False
 
 
 def check_device_info(base_url):

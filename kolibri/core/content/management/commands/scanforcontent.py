@@ -113,7 +113,7 @@ class Command(BaseCommand):
             disk_channel = read_channel_metadata_from_db_file(disk_path)
             db_channel = ChannelMetadata.objects.get(id=channel_id)
             # the version in the primary database is older than the one on disk
-            return disk_channel.version > db_channel.version
+            return disk_channel["version"] > db_channel.version
         except DatabaseError:
             # problem with the database on disk; it can't be considered newer
             return False

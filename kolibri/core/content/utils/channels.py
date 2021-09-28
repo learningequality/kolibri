@@ -121,17 +121,17 @@ def get_channels_for_data_folder(datafolder):
             continue
         channel_data = {
             "path": path,
-            "id": channel.id,
-            "name": channel.name,
-            "description": channel.description,
-            "tagline": getattr(channel, "tagline", ""),
-            "thumbnail": channel.thumbnail,
-            "version": channel.version,
-            "root": channel.root_id,
-            "author": channel.author,
-            "last_updated": getattr(channel, "last_updated", None),
-            "lang_code": getattr(channel, "lang_code", None),
-            "lang_name": getattr(channel, "lang_name", None),
+            "id": channel["id"],
+            "name": channel["name"],
+            "description": channel["description"],
+            "tagline": channel.get("tagline", ""),
+            "thumbnail": channel["thumbnail"],
+            "version": channel["version"],
+            "root": channel["root_id"],
+            "author": channel["author"],
+            "last_updated": channel.get("last_updated"),
+            "lang_code": channel.get("lang_code"),
+            "lang_name": channel.get("lang_name"),
         }
         channels.append(channel_data)
     return channels

@@ -1,9 +1,9 @@
-import json
 import time
 from uuid import uuid4
 
 import mock
 from django.test import TestCase
+from requests.exceptions import ConnectionError
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -15,15 +15,21 @@ from kolibri.core.public.utils import request_soud_sync
 
 
 class SyncQueueTestBase(TestCase):
+    multi_db = True
+
     def setUp(self):
         self.facility = Facility.objects.create(name="Test")
 
     def test_create_queue_element(self):
         previous_time = time.time()
+        time.sleep(0.1)
         element, _ = SyncQueue.objects.get_or_create(
-            user=FacilityUser.objects.create(username="test", facility=self.facility),
+            user_id=FacilityUser.objects.create(
+                username="test", facility=self.facility
+            ).id,
             instance_id=uuid4(),
         )
+        time.sleep(0.1)
         assert element.keep_alive == 5.0
         current_time = time.time()
         assert (
@@ -34,16 +40,16 @@ class SyncQueueTestBase(TestCase):
     def test_queue_cleaning(self):
         for i in range(3):
             SyncQueue.objects.create(
-                user=FacilityUser.objects.create(
+                user_id=FacilityUser.objects.create(
                     username="test{}".format(i), facility=self.facility
-                ),
+                ).id,
                 instance_id=uuid4(),
             )
         for i in range(3, 5):
             item = SyncQueue.objects.create(
-                user=FacilityUser.objects.create(
+                user_id=FacilityUser.objects.create(
                     username="test{}".format(i), facility=self.facility
-                ),
+                ).id,
                 instance_id=uuid4(),
             )
             item.updated = item.updated - 200
@@ -56,9 +62,9 @@ class SyncQueueTestBase(TestCase):
     def test_dynamic_queue_cleaning(self):
         for i in range(5):
             item = SyncQueue.objects.create(
-                user=FacilityUser.objects.create(
+                user_id=FacilityUser.objects.create(
                     username="test{}".format(i), facility=self.facility
-                ),
+                ).id,
                 instance_id=uuid4(),
             )
             item.updated = item.updated - 20
@@ -107,18 +113,74 @@ class TestRequestSoUDSync(TestCase):
         get_dataset_id.return_value = self.facility.dataset_id
 
         requests_mock.post.return_value.status_code = 200
-        requests_mock.post.return_value.content = json.dumps({"action": SYNC})
+        requests_mock.post.return_value.json.return_value = {"action": SYNC}
 
         network_connection = mock.Mock()
         controller = MorangoProfileController.return_value
         controller.create_network_connection.return_value = network_connection
 
         request_soud_sync("http://whatever:8000", self.test_user.id)
-        scheduler.enqueue_in.call_count == 0
+        self.assertEqual(scheduler.enqueue_in.call_count, 0)
 
         requests_mock.post.return_value.status_code = 200
-        requests_mock.post.return_value.content = json.dumps(
-            {"action": QUEUED, "keep_alive": "5", "id": str(uuid4())}
-        )
+        requests_mock.post.return_value.json.return_value = {
+            "action": QUEUED,
+            "keep_alive": "5",
+            "id": str(uuid4()),
+        }
         request_soud_sync("whatever_server", self.test_user.id)
-        scheduler.enqueue_in.call_count == 1
+        self.assertEqual(scheduler.enqueue_in.call_count, 1)
+
+    @mock.patch("kolibri.core.public.utils.scheduler")
+    @mock.patch("kolibri.core.public.utils.requests")
+    @mock.patch("kolibri.core.tasks.api.MorangoProfileController")
+    @mock.patch("kolibri.core.tasks.api.get_client_and_server_certs")
+    @mock.patch("kolibri.core.tasks.api.get_dataset_id")
+    def test_request_soud_sync_server_error(
+        self,
+        get_dataset_id,
+        get_client_and_server_certs,
+        MorangoProfileController,
+        requests_mock,
+        scheduler,
+    ):
+
+        get_client_and_server_certs.return_value = None
+        get_dataset_id.return_value = self.facility.dataset_id
+
+        requests_mock.post.return_value.status_code = 500
+
+        network_connection = mock.Mock()
+        controller = MorangoProfileController.return_value
+        controller.create_network_connection.return_value = network_connection
+
+        request_soud_sync("http://whatever:8000", self.test_user.id)
+
+        self.assertEqual(scheduler.enqueue_in.call_count, 1)
+
+    @mock.patch("kolibri.core.public.utils.scheduler")
+    @mock.patch("kolibri.core.public.utils.requests")
+    @mock.patch("kolibri.core.tasks.api.MorangoProfileController")
+    @mock.patch("kolibri.core.tasks.api.get_client_and_server_certs")
+    @mock.patch("kolibri.core.tasks.api.get_dataset_id")
+    def test_request_soud_sync_connection_error(
+        self,
+        get_dataset_id,
+        get_client_and_server_certs,
+        MorangoProfileController,
+        requests_mock,
+        scheduler,
+    ):
+
+        get_client_and_server_certs.return_value = None
+        get_dataset_id.return_value = self.facility.dataset_id
+
+        requests_mock.post.side_effect = ConnectionError
+
+        network_connection = mock.Mock()
+        controller = MorangoProfileController.return_value
+        controller.create_network_connection.return_value = network_connection
+
+        request_soud_sync("http://whatever:8000", self.test_user.id)
+
+        self.assertEqual(scheduler.enqueue_in.call_count, 1)

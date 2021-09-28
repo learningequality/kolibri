@@ -8,6 +8,7 @@ from django.db import transaction
 from django.db.utils import OperationalError
 
 from kolibri.core.sqlite.utils import repair_sqlite_db
+from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
 
 logging = logger.getLogger(__name__)
 
@@ -64,7 +65,7 @@ class AsyncNotificationQueue:
                     try:
                         fn()
                     except OperationalError:
-                        repair_sqlite_db(connections["notifications_db"])
+                        repair_sqlite_db(connections[NOTIFICATIONS])
                     except Exception as e:
                         # Catch all exceptions and log, otherwise the background process will end
                         # and no more logs will be saved!

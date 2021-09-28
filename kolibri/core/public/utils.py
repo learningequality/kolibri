@@ -12,6 +12,7 @@ from django.utils import timezone
 from morango.errors import MorangoResumeSyncError
 from morango.models import InstanceIDModel
 from morango.models import SyncSession
+from requests.exceptions import ConnectionError
 from rest_framework import status
 
 import kolibri
@@ -333,8 +334,9 @@ def request_soud_sync(server, user, queue_id=None, ttl=4):
             # got a place in the queue to sync with this server, so we can be
             # more sure that the server is actually available.
             response = requests.put(server_url, json=data, timeout=30)
-
-    except requests.exceptions.ConnectionError:
+        if response.status_code >= status.HTTP_500_INTERNAL_SERVER_ERROR:
+            raise ConnectionError()
+    except ConnectionError:
         # Algorithm to try several times if the server is not responding
         # Randomly it can be trying it up to 1560 seconds (26 minutes)
         # before desisting

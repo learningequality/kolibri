@@ -927,7 +927,7 @@ class TasksViewSet(BaseViewSet):
             channel_metadata = read_channel_metadata_from_db_file(
                 get_content_database_file_path(channel_id, drive.datafolder)
             )
-            job_metadata["new_channel_version"] = channel_metadata.version
+            job_metadata["new_channel_version"] = channel_metadata["version"]
         else:
             raise serializers.ValidationError(
                 "'method' field should either be 'network' or 'disk'."
