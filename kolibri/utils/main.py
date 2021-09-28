@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 import logging
 import os
-import shutil
 import sys
 from sqlite3 import DatabaseError as SQLite3DatabaseError
 
@@ -15,6 +14,7 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.management.base import handle_default_options
 from django.db.utils import DatabaseError
+from importlib_resources import files
 
 import kolibri
 from kolibri.core.device.utils import device_provisioned
@@ -168,20 +168,17 @@ def _copy_preseeded_db(db_name, target=None):
     target = os.path.join(KOLIBRI_HOME, target)
     if not os.path.exists(target):
         try:
-            import kolibri.dist
+            db_file = files("kolibri.dist") / "home" / "{}.sqlite3".format(db_name)
+            with open(target, "wb") as f:
+                f.write(db_file.read_bytes())
 
-            db_path = os.path.join(
-                os.path.dirname(kolibri.dist.__file__),
-                "home/{}.sqlite3".format(db_name),
-            )
-            shutil.copy(db_path, target)
             logger.info(
-                "Copied preseeded database from {} to {}".format(db_path, target)
+                "Copied preseeded database from {} to {}".format(db_name, target)
             )
         except (ImportError, IOError, OSError):
             logger.warning(
                 "Unable to copy pre-migrated database from {} to {}".format(
-                    db_path, target
+                    db_name, target
                 )
             )
 

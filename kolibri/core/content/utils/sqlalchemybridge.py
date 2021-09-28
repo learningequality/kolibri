@@ -165,12 +165,6 @@ __SQLALCHEMY_CLASSES_PATH = ("contentschema", "versions")
 
 __SQLALCHEMY_CLASSES_MODULE_NAME = "content_schema_{name}"
 
-SQLALCHEMY_CLASSES_PATH_TEMPLATE = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    *(__SQLALCHEMY_CLASSES_PATH + (__SQLALCHEMY_CLASSES_MODULE_NAME + ".py",))
-)
-
 SQLALCHEMY_CLASSES_MODULE_PATH_TEMPLATE = ".".join(
     tuple(__name__.split(".")[:-2])
     + __SQLALCHEMY_CLASSES_PATH

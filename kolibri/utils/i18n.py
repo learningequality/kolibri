@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-import importlib
-import io
 import json
-import os
 
-import kolibri
+from importlib_resources import files
 
 
 def get_installed_app_locale_path(appname):
@@ -14,11 +11,10 @@ def get_installed_app_locale_path(appname):
     Note that the module is imported to determine its location.
     """
     try:
-        m = importlib.import_module(appname)
-        module_path = os.path.dirname(m.__file__)
-        module_locale_path = os.path.join(module_path, "locale")
+        m = files(appname)
+        module_locale_path = m / "locale"
 
-        if os.path.isdir(module_locale_path):
+        if module_locale_path.is_dir():
             return module_locale_path
     except ImportError:
         pass
@@ -26,15 +22,12 @@ def get_installed_app_locale_path(appname):
 
 
 def _get_language_info():
-    file_path = os.path.join(
-        os.path.dirname(kolibri.__file__), "locale", "language_info.json"
-    )
-    with io.open(file_path, encoding="utf-8") as f:
-        languages = json.load(f)
-        output = {}
-        for language in languages:
-            output[language["intl_code"]] = language
-        return output
+    ref = files("kolibri") / "locale" / "language_info.json"
+    languages = json.loads(ref.read_text())
+    output = {}
+    for language in languages:
+        output[language["intl_code"]] = language
+    return output
 
 
 # Kolibri format

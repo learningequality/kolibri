@@ -19,16 +19,24 @@ from sqlalchemy.orm import sessionmaker
 from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
+from kolibri.core.content.utils.sqlalchemybridge import __SQLALCHEMY_CLASSES_MODULE_NAME
+from kolibri.core.content.utils.sqlalchemybridge import __SQLALCHEMY_CLASSES_PATH
 from kolibri.core.content.utils.sqlalchemybridge import (
     coerce_version_name_to_valid_module_path,
 )
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 from kolibri.core.content.utils.sqlalchemybridge import prepare_base
 from kolibri.core.content.utils.sqlalchemybridge import SharingPool
-from kolibri.core.content.utils.sqlalchemybridge import SQLALCHEMY_CLASSES_PATH_TEMPLATE
 
 DATA_PATH_TEMPLATE = os.path.join(
     os.path.dirname(__file__), "../../fixtures/{name}_content_data.json"
+)
+
+SQLALCHEMY_CLASSES_PATH_TEMPLATE = os.path.join(
+    os.path.dirname(__file__),
+    "..",
+    "..",
+    *(__SQLALCHEMY_CLASSES_PATH + (__SQLALCHEMY_CLASSES_MODULE_NAME + ".py",))
 )
 
 
