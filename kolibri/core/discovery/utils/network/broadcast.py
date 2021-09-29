@@ -332,6 +332,8 @@ class KolibriBroadcast(object):
             return
 
         self.zeroconf = Zeroconf(interfaces=self.interfaces)
+
+        # manually add our service browser to Zeroconf so its automatically cleaned up on close
         self.zeroconf.browsers["bus"] = ServiceBrowser(
             self.zeroconf, SERVICE_TYPE, handlers=[self.events.publish_zeroconf_change]
         )
