@@ -10,6 +10,15 @@ configure_file(
 )
 
 configure_file(
+    input: 'kolibri-launcher.in',
+    output: 'kolibri-launcher',
+    configuration: kolibri_gnome_config,
+    install: true,
+    install_dir: bindir,
+    install_mode: 'rwxr-xr-x'
+)
+
+configure_file(
     input: 'kolibri-daemon.in',
     output: 'kolibri-daemon',
     configuration: kolibri_gnome_config,

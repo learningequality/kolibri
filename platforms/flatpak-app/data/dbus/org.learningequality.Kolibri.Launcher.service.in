@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=@LAUNCHER_APPLICATION_ID@
+Exec=kolibri-launcher
