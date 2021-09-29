@@ -107,73 +107,81 @@ class DBusMethodCallJob(object):
         self.run(cancellable=cancellable)
 
 
+class DBusServerObject(NamedTuple):
+    connection: Gio.DBusConnection
+    object_path: str
+    registration_id: str
+
+
 class DBusServer(object):
     INTERFACE_XML = ""
 
     def __init__(self, application):
         self.__application = application
-        self.__registration_ids = []
         self.__methods = dict()
         self.__properties = dict()
         self.__method_calls = dict()
-        self.__connection = None
-        self.__object_path = None
+        self.__interfaces = set()
+        self.__registered_objects = set()
+
+        node_info = Gio.DBusNodeInfo.new_for_xml(self.INTERFACE_XML)
+        for interface in node_info.interfaces:
+            self.__add_interface(interface)
 
     @property
     def application(self):
         return self.__application
 
+    def __add_interface(self, interface):
+        self.__interfaces.add(interface)
+
+        for method in interface.methods:
+            method_fname = self.__fname(interface.name, method.name)
+            method_fn = getattr(self, method.name)
+            self.__methods[method_fname] = DBusMethodInfo(
+                interface_name=interface.name,
+                method_name=method.name,
+                method_outargs=self.__args_as_tuple(method.out_args),
+                method_fn=method_fn,
+            )
+
+        for signal in interface.signals:
+            signal_info = DBusSignalInfo(
+                interface_name=interface.name,
+                signal_name=signal.name,
+                signal_args=self.__args_as_tuple(signal.out_args),
+            )
+            signal_fn = partial(self.__emit_signal, signal_info)
+            setattr(self, signal.name, signal_fn)
+
+        for property in interface.properties:
+            property_fname = self.__fname(interface.name, property.name)
+            property_type = property.signature
+            get_fn = getattr(self, "Get" + property.name, None)
+            self.__properties[property_fname] = DBusPropertyInfo(
+                interface_name=interface.name,
+                property_name=property.name,
+                property_type=property_type,
+                get_fn=get_fn,
+            )
+
     def register_on_connection(self, connection, object_path):
-        if self.__connection or self.__object_path:
-            raise RuntimeError()
-
-        self.__connection = connection
-        self.__object_path = object_path
-
-        info = Gio.DBusNodeInfo.new_for_xml(self.INTERFACE_XML)
-        for interface in info.interfaces:
-            for method in interface.methods:
-                method_fname = self.__fname(interface.name, method.name)
-                method_fn = getattr(self, method.name)
-                self.__methods[method_fname] = DBusMethodInfo(
-                    interface_name=interface.name,
-                    method_name=method.name,
-                    method_outargs=self.__args_as_tuple(method.out_args),
-                    method_fn=method_fn,
-                )
-
-            for signal in interface.signals:
-                signal_info = DBusSignalInfo(
-                    interface_name=interface.name,
-                    signal_name=signal.name,
-                    signal_args=self.__args_as_tuple(signal.out_args),
-                )
-                signal_fn = partial(self.__emit_signal, signal_info, object_path)
-                setattr(self, signal.name, signal_fn)
-
-            for property in interface.properties:
-                property_fname = self.__fname(interface.name, property.name)
-                property_type = property.signature
-                get_fn = getattr(self, "Get" + property.name, None)
-                self.__properties[property_fname] = DBusPropertyInfo(
-                    interface_name=interface.name,
-                    property_name=property.name,
-                    property_type=property_type,
-                    get_fn=get_fn,
-                )
-
-            object_id = connection.register_object(
+        for interface in self.__interfaces:
+            registration_id = connection.register_object(
                 object_path=object_path,
                 interface_info=interface,
                 method_call_closure=self.__on_method_call,
                 get_property_closure=self.__on_get_property,
                 set_property_closure=None,
             )
-            self.__registration_ids.append(object_id)
+            self.__registered_objects.add(
+                DBusServerObject(connection, object_path, registration_id)
+            )
 
-    def unregister(self):
-        for registration_id in self.__registration_ids:
-            self.__connection.unregister_object(registration_id)
+    def unregister_on_connection(self, connection):
+        for registered_object in self.__registered_objects:
+            assert connection == registered_object.connection
+            connection.unregister_object(registered_object.registration_id)
 
     def notify_properties_changed(self, interface_name, properties={}):
         changed_properties = {}
@@ -186,9 +194,7 @@ class DBusServer(object):
                 property_value
             )
 
-        self.PropertiesChanged(
-            self.__object_path, interface_name, changed_properties, []
-        )
+        self.PropertiesChanged(interface_name, changed_properties, [])
 
     def PropertiesChanged(self, *args):
         signal_info = DBusSignalInfo(
@@ -196,22 +202,26 @@ class DBusServer(object):
         )
         return self.__emit_signal(signal_info, *args)
 
-    def __emit_signal(self, signal_info, object_path, *args, destination_bus_name=None):
-        if not self.__connection or self.__connection.is_closed():
-            return
-
+    def __emit_signal(self, signal_info, *args, destination_bus_name=None):
         parameters = signal_info.get_variant_for_args(args)
 
-        try:
-            self.__connection.emit_signal(
-                destination_bus_name,
-                object_path,
-                signal_info.interface_name,
-                signal_info.signal_name,
-                parameters,
-            )
-        except GLib.Error:
-            pass
+        registered_objects = (
+            registered_object
+            for registered_object in self.__registered_objects
+            if not registered_object.connection.is_closed()
+        )
+
+        for registered_object in registered_objects:
+            try:
+                registered_object.connection.emit_signal(
+                    destination_bus_name,
+                    registered_object.object_path,
+                    signal_info.interface_name,
+                    signal_info.signal_name,
+                    parameters,
+                )
+            except GLib.Error:
+                pass
 
     def __fname(self, interface_name, method_name):
         return ".".join((interface_name, method_name))

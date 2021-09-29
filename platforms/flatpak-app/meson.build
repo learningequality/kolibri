@@ -1,8 +1,14 @@
-project('kolibri-gnome',
+project('kolibri-gnome', ['c'],
     meson_version: '>= 0.50.0',
 )
 
+package_string = '@0@-@1@'.format(meson.project_name(), meson.project_version())
+
+gnome = import('gnome')
+python = import('python')
 i18n = import('i18n')
+
+python_installation = python.find_installation('python3')
 
 bindir = join_paths(get_option('prefix'), get_option('bindir'))
 libexecdir = join_paths(get_option('prefix'), get_option('libexecdir'))
@@ -42,6 +48,7 @@ kolibri_gnome_datadir = join_paths(datadir, 'kolibri-gnome')
 kolibri_gnome_config = configuration_data()
 kolibri_gnome_config.set('BINDIR', bindir)
 kolibri_gnome_config.set('PYTHON', 'python3')
+kolibri_gnome_config.set('PACKAGE_STRING', package_string)
 kolibri_gnome_config.set('GETTEXT_PACKAGE', meson.project_name())
 kolibri_gnome_config.set('LOCALE_DIR', locale_dir)
 kolibri_gnome_config.set('BUILD_PROFILE', build_profile)

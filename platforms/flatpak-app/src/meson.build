@@ -1,4 +1,5 @@
 subdir('kolibri_gnome')
+subdir('kolibri_gnome_search_provider')
 
 configure_file(
     input: 'kolibri-gnome.in',

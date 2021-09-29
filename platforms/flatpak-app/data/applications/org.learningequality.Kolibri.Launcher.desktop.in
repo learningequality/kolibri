@@ -6,4 +6,4 @@ Exec=kolibri-launcher %U
 NoDisplay=true
 StartupNotify=false
 DBusActivatable=true
-MimeType=x-scheme-handler/kolibri-channel;
+MimeType=x-scheme-handler/kolibri-channel;x-scheme-handler/x-kolibri-dispatch;

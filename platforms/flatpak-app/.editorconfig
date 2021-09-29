@@ -1,9 +1,22 @@
 root = true
 
 [*]
-indent_style = space
-indent_size = 4
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+[meson.build]
+indent_style = spaces
+indent_size = 4
+
+[*.py]
+indent_style = spaces
+indent_size = 4
+
+[*.c, *.h]
+indent_style = spaces
+indent_size = 2
+
+[*.xml, *.xml.in, *.xml.in.in, *.doap]
+indent_style = spaces
+indent_size = 2
