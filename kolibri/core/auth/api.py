@@ -32,6 +32,7 @@ from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
+from django_filters.rest_framework import ChoiceFilter #added
 from morango.api.permissions import BasicMultiArgumentAuthentication
 from morango.models import TransferSession
 from rest_framework import decorators
@@ -67,6 +68,7 @@ from kolibri.core import error_constants
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
+from kolibri.core.auth.constants import role_kinds #added
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import valid_app_key_on_request
@@ -75,8 +77,18 @@ from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
 from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
+from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination #added
 from kolibri.plugins.app.utils import interface
 
+class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination): #added
+    """
+    Pagination class that allows for page number-style pagination, when requested.
+    To activate, the `page_size` argument must be set. For example, to request the first 20 records:
+    `?page_size=20&page=1`
+    """
+
+    page_size = None
+    page_size_query_param = "page_size" 
 
 class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
     """
@@ -186,16 +198,29 @@ class FacilityDatasetViewSet(ValuesViewset):
 
 class FacilityUserFilter(FilterSet):
 
+    CHOICES = (
+        (('learner' , 'learner') , ) + role_kinds.choices
+    )
+
     member_of = ModelChoiceFilter(
         method="filter_member_of", queryset=Collection.objects.all()
     )
+    user_type = ChoiceFilter(
+        choices = CHOICES,
+        method = "filter_user_type",
+    )
 
-    def filter_member_of(self, queryset, name, value):
+    def filter_member_of(self, queryset, name, value):        
         return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
+
+    def filter_user_type(self, queryset, name, value):
+        if value == 'learner':
+            value = None
+        return queryset.filter(roles__kind=value)
 
     class Meta:
         model = FacilityUser
-        fields = ["member_of"]
+        fields = ["member_of" ,"user_type"]
 
 
 class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
@@ -246,10 +271,12 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
 
 class FacilityUserViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
+    pagination_class = OptionalPageNumberPagination #added
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend , filters.SearchFilter)
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
     filter_class = FacilityUserFilter
+    search_fields = ("username","full_name")
 
     values = (
         "id",

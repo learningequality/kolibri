@@ -9,7 +9,7 @@ from django.db.models import Sum
 from django.db.utils import OperationalError
 from django.shortcuts import get_object_or_404
 from le_utils.constants import content_kinds
-from rest_framework import permissions
+from rest_framework import pagination, permissions
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -19,6 +19,7 @@ from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.api import OptionalPageNumberPagination #added
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger import models as logger_models
@@ -280,6 +281,7 @@ class ClassSummaryPermissions(permissions.BasePermission):
 
 class ClassSummaryViewSet(viewsets.ViewSet):
     permission_classes = (permissions.IsAuthenticated, ClassSummaryPermissions)
+    pagination_class = OptionalPageNumberPagination
 
     def retrieve(self, request, pk):
         classroom = get_object_or_404(auth_models.Classroom, id=pk)
@@ -349,6 +351,22 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             lesson["node_ids"] = node_ids
 
         learners_data = serialize_users(query_learners)
+        # learners_data = {
+        #     "results":[]
+        # }
+        # print(request.query_params)
+        # #added
+        # paginate = OptionalPageNumberPagination()
+        # page = paginate.paginate_queryset(query_learners ,  request)
+        # if page is not None:
+        #     serializer = serialize_users(page)
+        #     paginated_data = {
+        #         "page": paginate.page.number,
+        #         "count": paginate.page.paginator.count,
+        #         "total_pages": paginate.page.paginator.num_pages,
+        #         "results": serializer,
+        #     }
+        #     learners_data = paginated_data
 
         output = {
             "id": pk,

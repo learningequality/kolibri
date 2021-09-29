@@ -8,13 +8,14 @@ export function showUserPage(store, toRoute) {
   const facilityId = toRoute.params.facility_id || store.getters.activeFacilityId;
 
   return FacilityUserResource.fetchCollection({
-    getParams: { member_of: facilityId },
+    getParams: { member_of: facilityId, page_size: 30 },
     force: true,
   }).only(
     samePageCheckGenerator(store),
     users => {
       store.commit('userManagement/SET_STATE', {
-        facilityUsers: users.map(_userState),
+        // facilityUsers: users.results.map(_userState),
+        facilityUsers: users,
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
     },

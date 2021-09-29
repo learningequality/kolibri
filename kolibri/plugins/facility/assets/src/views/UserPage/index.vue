@@ -26,6 +26,8 @@
     <PaginatedListContainer
       :items="usersFilteredByRow"
       :filterPlaceholder="$tr('searchText')"
+      :totalPageNumber="getTotalPages"
+      :currentPageNumber="getCurrentPage"
     >
       <template #otherFilter>
         <KSelect
@@ -126,7 +128,16 @@
         ];
       },
       usersFilteredByRow() {
-        return this.facilityUsers.filter(user => this.userMatchesRole(user, this.roleFilter));
+        console.log(this.facilityUsers.total_pages);
+        return this.facilityUsers.results.filter(user =>
+          this.userMatchesRole(user, this.roleFilter)
+        );
+      },
+      getTotalPages() {
+        return this.facilityUsers.total_pages;
+      },
+      getCurrentPage() {
+        return this.facilityUsers.page;
       },
     },
     beforeMount() {

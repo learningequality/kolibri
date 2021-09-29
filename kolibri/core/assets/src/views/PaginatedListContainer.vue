@@ -53,6 +53,9 @@
   import clamp from 'lodash/clamp';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
+  import { FacilityUserResource, searchFacilityUsers } from 'kolibri.resources';
+
+  import store from 'kolibri.coreVue.vuex.store';
 
   export default {
     name: 'PaginatedListContainer',
@@ -74,6 +77,14 @@
         required: false,
         default: 30,
       },
+      totalPageNumber: {
+        type: Number,
+        required: true,
+      },
+      currentPageNumber: {
+        type: Number,
+        required: true,
+      },
     },
     data() {
       return {
@@ -83,18 +94,21 @@
     },
     computed: {
       filteredItems() {
+        console.log(this.filterInput);
         return filterUsersByNames(this.items, this.filterInput);
       },
       numFilteredItems() {
-        return this.filteredItems.length;
+        return this.totalPageNumber;
       },
       totalPages() {
+        return this.total_pages;
         return Math.ceil(this.numFilteredItems / this.itemsPerPage);
       },
       startRange() {
         return (this.currentPage - 1) * this.itemsPerPage;
       },
       visibleStartRange() {
+        return this.currentPageNumber;
         return Math.min(this.startRange + 1, this.numFilteredItems);
       },
       endRange() {
@@ -104,15 +118,16 @@
         return Math.min(this.endRange, this.numFilteredItems);
       },
       visibleFilteredItems() {
+        console.log(1);
         return this.filteredItems.slice(this.startRange, this.endRange);
       },
       previousButtonDisabled() {
-        return this.currentPage === 1 || this.numFilteredItems === 0;
+        return this.currentPageNumber === 1 || this.numFilteredItems === 0;
       },
       nextButtonDisabled() {
         return (
           this.totalPages === 1 ||
-          this.currentPage === this.totalPages ||
+          this.currentPageNumber === this.totalPageNumber ||
           this.numFilteredItems === 0
         );
       },
@@ -120,6 +135,7 @@
     watch: {
       visibleFilteredItems: {
         handler(newVal) {
+          console.log(newVal);
           this.$emit('pageChanged', {
             page: this.currentPage,
             items: newVal,
@@ -130,9 +146,51 @@
     },
     methods: {
       changePage(change) {
+        const facilityId = store.getters.activeFacilityId;
+        FacilityUserResource.fetchCollection({
+          getParams: {
+            member_of: facilityId,
+            page_size: 30,
+            page: this.currentPageNumber + change,
+          },
+          force: true,
+        }).then(
+          users => {
+            this.currentPageNumber = users.page;
+            this.items = users.results;
+          },
+          error => {
+            store.dispatch('handleApiError', error);
+          }
+        );
+
+        // this.items = [
+        //   {
+        //     id: '00015fd69777c038d748eb294c362bd4',
+        //     username: 'checktest',
+        //     full_name: 'user19962',
+        //     facility: '78415936a1cb642db556db8a59371619',
+        //     id_number: '',
+        //     gender: '',
+        //     birth_year: '',
+        //     is_superuser: false,
+        //     roles: [],
+        //   },
+        //   {
+        //     id: '0005d91ebec0af167a080e9b577a2e6a',
+        //     username: 'kkdfjkasld',
+        //     full_name: 'user23425',
+        //     facility: '78415936a1cb642db556db8a59371619',
+        //     id_number: '',
+        //     gender: '',
+        //     birth_year: '',
+        //     is_superuser: false,
+        //     roles: [],
+        //   },
+        // ];
         // Clamp the newPage number between the bounds if browser doesn't correctly
         // disable buttons (see #6454 issue with old versions of MS Edge)
-        this.currentPage = clamp(this.currentPage + change, 1, this.totalPages);
+        // this.currentPageNumber = clamp(this.currentPageNumber + change, 1, this.totalPageNumber);
       },
     },
     $trs: {
@@ -147,7 +205,9 @@
       },
       pagination: {
         message:
-          '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredItems, number }',
+          //   '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredItems, number }',
+          // context: "Refers to pagination. Only translate the word \"of''.",
+          'Page { visibleStartRange, number } of { numFilteredItems, number }',
         context: "Refers to pagination. Only translate the word \"of''.",
       },
     },
