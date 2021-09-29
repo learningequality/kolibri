@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-02 20:02-0700\n"
-"PO-Revision-Date: 2021-09-10 01:20\n"
+"POT-Creation-Date: 2021-09-15 16:05-0700\n"
+"PO-Revision-Date: 2021-09-23 20:20\n"
 "Last-Translator: \n"
 "Language-Team: Bengali\n"
 "Language: bn_BD\n"
@@ -139,7 +139,7 @@ msgstr "'{}' কলামের মানে অনেক বেশী অক্
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr ""
+msgstr "'{}' কলামের তথ্য বৈধ নয়"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -153,7 +153,7 @@ msgstr "'{}' কলামটি প্রয়োজন"
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr ""
+msgstr "প্রথম সারিতে কলামের নামে ভুল আছে"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
@@ -172,11 +172,11 @@ msgstr "এই আইডি সহ ব্যবহারকারী আপড�
 msgid "Database ID is not valid"
 msgstr "ডেটাবেস আই.ডি বৈধ নয়"
 
-#: core/content/api.py:152
+#: core/content/api.py:158
 msgid "Resource"
 msgstr "উপকরণ"
 
-#: core/content/api.py:1268
+#: core/content/api.py:1316
 msgid "The requested channel does not exist on the content server"
 msgstr "এই চ্যানেলের বিষয়বস্তু সার্ভারে বিদ্যমান নয়"
 
@@ -184,7 +184,7 @@ msgstr "এই চ্যানেলের বিষয়বস্তু সা
 msgid "Unknown format"
 msgstr "ভুল হয়েছে"
 
-#: core/device/serializers.py:41
+#: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
 msgstr "ভাষাটি কলিব্রিতে ব্যবহারযোগ্য নয়"
 
@@ -231,7 +231,7 @@ msgstr "কলিব্রি ব্যবহারের জন্য আমর
 msgid "You can also try updating your current browser."
 msgstr "আপনার বর্তমান ব্রাউজারটি আপডেট করার চেষ্টাও করতে পারেন।"
 
-#: core/views.py:160
+#: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "কোনও উপযুক্ত পুনর্নির্দেশ পাতা খুঁজে পাওয়া যায়নি। সম্ভবত কলিব্রি ঠিকভাবে কনফিগার করা হয়নি।"
 

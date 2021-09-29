@@ -256,7 +256,8 @@
       },
       limitedPermissions: {
         message: 'Limited permissions',
-        context: 'A type of device permission.',
+        context:
+          'A type of device permission that indicates that the user has permissions to manage content, but not other users or facility settings.',
       },
       youCan: {
         message: 'You can:',

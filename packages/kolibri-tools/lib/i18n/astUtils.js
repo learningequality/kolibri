@@ -157,7 +157,10 @@ function getFileNameForImport(importPath, filePath) {
   const extensions = ['.js', '.vue'];
   const resolveAttempt = resolve(importPath, filePath, { extensions });
 
-  if (!resolveAttempt.found || !extensions.some(ext => resolveAttempt.path.endsWith(ext))) {
+  if (
+    !resolveAttempt.found ||
+    !extensions.some(ext => resolveAttempt.path && resolveAttempt.path.endsWith(ext))
+  ) {
     throw new ReferenceError(
       `Attempted to resolve an import in ${filePath} for module ${importPath} but could not be resolved as a Javascript or Vue file`
     );

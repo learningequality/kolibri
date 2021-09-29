@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-02 20:02-0700\n"
-"PO-Revision-Date: 2021-09-10 01:20\n"
+"POT-Creation-Date: 2021-09-15 16:05-0700\n"
+"PO-Revision-Date: 2021-09-23 20:20\n"
 "Last-Translator: \n"
 "Language-Team: Persian\n"
 "Language: fa_IR\n"
@@ -33,7 +33,7 @@ msgstr "محتوای سلول '{}' صحیح نیست"
 
 #: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr "کپی نام کاربری"
+msgstr "نام کاربری تکراری"
 
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
@@ -139,7 +139,7 @@ msgstr "مقدار یا ارزشی که در ستون '{}' وجود دارد، �
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr ""
+msgstr "مقداری که در ستون '{}' نوشته شده، معتبر نمی‌باشد"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -153,7 +153,7 @@ msgstr "این منحنی '{}' لازم است"
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr ""
+msgstr "برچسب سرتیترِ اشتباه در سطر اول"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
@@ -172,11 +172,11 @@ msgstr "امکان به‌روز رسانی کاربر با شناسه‌ی '{}'
 msgid "Database ID is not valid"
 msgstr "شناسه‌ی پایگاه داده درست نیست"
 
-#: core/content/api.py:152
+#: core/content/api.py:158
 msgid "Resource"
 msgstr "منبع"
 
-#: core/content/api.py:1268
+#: core/content/api.py:1316
 msgid "The requested channel does not exist on the content server"
 msgstr "کانال درخواست شده در سِرور محتوا و مطالب وجود ندارد"
 
@@ -184,7 +184,7 @@ msgstr "کانال درخواست شده در سِرور محتوا و مطال�
 msgid "Unknown format"
 msgstr "فرمت ناشناخته"
 
-#: core/device/serializers.py:41
+#: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
 msgstr "زبان توسط Kolibri پشتیبانی نمی‌شود"
 
@@ -231,7 +231,7 @@ msgstr "برای استفاده از Kolibri توصیه می‌کنیم که ا�
 msgid "You can also try updating your current browser."
 msgstr "شما همچنین می‌توانید مرورگر فعلی خود را به‌روزرسانی کنید."
 
-#: core/views.py:160
+#: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "هیچ صفحه‌ی مسیریابی مناسبی پیدا نشد. به نظر می‌رسد که Kolibri به درستی پیکربندی نشده است"
 

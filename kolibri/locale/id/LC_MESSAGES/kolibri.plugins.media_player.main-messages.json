@@ -19,16 +19,13 @@
   "MediaPlayerIndex.progressBar": "Kemajuan bar",
   "MediaPlayerIndex.replay": "Mundur 10 detik",
   "MediaPlayerIndex.sourceError": "Tidak ada sumber yang kompatibel ditemukan untuk media ini",
-  "MediaPlayerIndex.transcript": "Transkip",
   "MediaPlayerIndex.transcriptOff": "Transkip tidak aktif",
   "MediaPlayerIndex.unmute": "Bersuara",
   "MediaPlayerIndex.volumeLevel": "Tingkat Volume",
-  "MediaPlayerTranscript.label": "Transkip",
   "MediaPlayerTranscript.transcriptBeginning": "Awal transkip",
   "MediaPlayerTranscript.transcriptEnd": "Akhir transkip",
   "SubtitlesMenuItem.subtitles": "Sub judul",
   "TranscriptCue.textLabel": "Transkip bertanda pada teks keterangan",
   "TranscriptCue.timeLabel": "Transkip bertanda pada waktu memulai",
-  "TranscriptCue.title": "Mencari {startTime}",
-  "TranscriptMenuItem.transcript": "Transkrip"
+  "TranscriptCue.title": "Mencari {startTime}"
 }

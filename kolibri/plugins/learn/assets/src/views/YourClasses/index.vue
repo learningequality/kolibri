@@ -99,7 +99,10 @@
       },
     },
     $trs: {
-      yourClassesHeader: 'Your classes',
+      yourClassesHeader: {
+        message: 'Your classes',
+        context: 'Refers to the classes the learner is enrolled in.',
+      },
       noClasses: {
         message: 'You are not enrolled in any classes',
         context:

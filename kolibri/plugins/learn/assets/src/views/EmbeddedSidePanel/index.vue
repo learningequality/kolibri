@@ -58,7 +58,7 @@
         class="category-list-item"
       >
         <KButton
-          text="Other"
+          :text="coreString('None of the above')"
           appearance="flat-button"
           :appearanceOverrides="customCategoryStyles"
           @click="$emit('filterResults', value)"

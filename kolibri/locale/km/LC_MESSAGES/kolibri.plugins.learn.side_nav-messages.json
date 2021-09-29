@@ -1,8 +1,17 @@
 {
+  "CommonLearnStrings.dontShowThisAgainLabel": "កុំបង្ហាញនេះម្តងទៀត",
+  "CommonLearnStrings.exploreResources": "ស្វែងរកធនធាន",
   "CommonLearnStrings.learnLabel": "រៀន",
+  "CommonLearnStrings.libraryLabel": "បណ្ណាល័យ",
+  "CommonLearnStrings.logo": "មកពីឆានែល {channelTitle}",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "សម្គាល់ធនធានថាបានបំពេញ",
   "CommonLearnStrings.mostPopularLabel": "មានប្រជាប្រិយភាពជាងគេ",
+  "CommonLearnStrings.multipleLearningActivities": "សកម្មភាពសិក្សាជាច្រើន",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
   "CommonLearnStrings.nextStepsLabel": "ជំហានបន្ទាប់",
   "CommonLearnStrings.popularLabel": "ពេញនិយម",
-  "CommonLearnStrings.recommendedLabel": "ត្រូវបានណែនាំ",
-  "CommonLearnStrings.resumeLabel": "បន្ត"
+  "CommonLearnStrings.resourceCompletedLabel": "ធនធានបានបំពេញ",
+  "CommonLearnStrings.resourceHidden": "ធនធានត្រូវបានលាក់",
+  "CommonLearnStrings.resumeLabel": "បន្ត",
+  "CommonLearnStrings.suggestedTimeToComplete": "បានស្នើពេលវេលាដើម្បីបំពេញ"
 }

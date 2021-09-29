@@ -49,7 +49,6 @@
   "private": true,
   "devDependencies": {
     "@types/jest": "^24.0.12",
-    "kolibri-tools": "0.13.0-dev.10",
     "xhr-mock": "^2.5.1",
     "yarn-run-all": "^3.1.1"
   },

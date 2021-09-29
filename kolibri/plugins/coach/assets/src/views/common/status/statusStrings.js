@@ -46,8 +46,9 @@ export const learnerProgressTranslators = {
     ratio: {
       message:
         '{count, plural, other {Completed by}} {count, number, integer} of {total, number, integer} {total, plural, one {learner} other {learners}}',
+
       context:
-        "Refers to an activity being completed by a number of learners out of the total number of learners doing that activity. For example:\n\n'Completed by 5 out of 8 learners'",
+        "Refers to an activity being completed by a number of learners out of the total number of learners doing that activity. For example:\n\n'Completed by 5 of 8 learners'",
     },
     ratioShort: {
       message:

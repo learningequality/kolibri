@@ -1,8 +1,17 @@
 {
+  "CommonLearnStrings.dontShowThisAgainLabel": "Usionyeshe hili tena",
+  "CommonLearnStrings.exploreResources": "Tafuta rasilimali",
   "CommonLearnStrings.learnLabel": "Jifunze",
+  "CommonLearnStrings.libraryLabel": "Maktaba",
+  "CommonLearnStrings.logo": "Kutoka kwa kituo {channelTitle}",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "Tia alama kuwa rasilimali imekamilika",
   "CommonLearnStrings.mostPopularLabel": "Maarufu zaidi",
+  "CommonLearnStrings.multipleLearningActivities": "Shughuli kadhaa za kujifunza",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
   "CommonLearnStrings.nextStepsLabel": "Kipengee kinachofuata",
   "CommonLearnStrings.popularLabel": "Maarufu",
-  "CommonLearnStrings.recommendedLabel": "Iliyopendekezwa",
-  "CommonLearnStrings.resumeLabel": "Endelea"
+  "CommonLearnStrings.resourceCompletedLabel": "Rasilimali imekamilika",
+  "CommonLearnStrings.resourceHidden": "Rasilimali imefichwa",
+  "CommonLearnStrings.resumeLabel": "Endelea",
+  "CommonLearnStrings.suggestedTimeToComplete": "Muda uliopendekezwa ili kukamilika"
 }

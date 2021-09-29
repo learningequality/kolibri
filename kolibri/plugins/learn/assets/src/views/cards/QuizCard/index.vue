@@ -84,8 +84,11 @@
       },
     },
     $trs: {
-      questionsLeft:
-        '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',
+      questionsLeft: {
+        message:
+          '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',
+        context: 'Indicates how many questions the learner has left to complete.',
+      },
       completedPercentLabel: {
         message: 'Score: {score, number, integer}%',
         context: 'A label shown to learners on a quiz card when the quiz is completed',

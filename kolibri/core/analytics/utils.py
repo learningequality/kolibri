@@ -7,6 +7,7 @@ import math
 import sys
 
 import requests
+from dateutil import parser
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection
 from django.db import transaction
@@ -423,6 +424,8 @@ def perform_ping(started, server=DEFAULT_SERVER_URL):
 
     language = get_device_setting("language_id", "")
 
+    started = parser.isoparse(started)
+
     try:
         timezone = get_current_timezone().zone
     except Exception:
@@ -510,9 +513,11 @@ def schedule_ping(
 ):
     # If pinging is not disabled by the environment
     if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
-        started = local_now()
+        # Scheduler needs datetime object, but job needs (serializable) string
+        now = local_now()
+        started = now.isoformat()
         _ping.enqueue_at(
-            started,
+            now,
             interval=interval * 60,
             repeat=None,
             kwargs=dict(started=started, server=server, checkrate=checkrate),

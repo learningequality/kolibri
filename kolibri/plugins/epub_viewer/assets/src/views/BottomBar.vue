@@ -77,7 +77,7 @@
     $trs: {
       progress: {
         message: `{progress, number, percent}`,
-        context: 'DO NOT TRANSLATE.',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
       jumpToPositionInBook: {
         message: 'Jump to position in book',

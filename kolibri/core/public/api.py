@@ -23,7 +23,6 @@ from .constants.user_sync_statuses import QUEUED
 from .constants.user_sync_statuses import SYNC
 from .utils import get_device_info
 from .utils import get_device_setting
-from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -170,22 +169,6 @@ def get_public_file_checksums(request, version):
 
 
 class SyncQueueViewSet(viewsets.ViewSet):
-    def list(self, request):
-        """Returns length of the queue for each of the available facilities"""
-        is_SoUD = get_device_setting("subset_of_users_device", False)
-        if is_SoUD:
-            content = {"I'm a Subset of users device": "Nothing to do here"}
-            # would love to use HTTP 418, but it's not fully usable in browsers
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        SyncQueue.clean_stale()  # first, ensure not expired devices are in the queue
-        facilities = Facility.objects.all()
-        queue = {}
-        for facility in facilities:
-            queue[facility.id] = SyncQueue.objects.filter(
-                user__facility=facility
-            ).count()
-        return Response(queue)
-
     def get_response_data(self, user, instance, pos, sync_interval, queue_object):
         current_transfers = (
             TransferSession.objects.filter(

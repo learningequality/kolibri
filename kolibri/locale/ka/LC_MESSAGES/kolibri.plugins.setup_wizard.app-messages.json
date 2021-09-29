@@ -81,7 +81,6 @@
   "SuperuserCredentialsForm.rememberThisAccountInformation": "მნიშვნელოვანია: გთხოვთ, დაიმახსოვრეთ ამ ანგარიშის ინფორმაცია. თუ საჭიროა ჩაინიშნეთ",
   "UserTable.role": "როლი",
   "UserTable.selectAllLabel": "ყველას მონიშვნა",
-  "UserTable.userActionsColumnHeader": "მოქმედებები",
   "UserTable.userCheckboxLabel": "მომხმარებლის არჩევა",
   "YesNoForm.details": "ამის შეცვლა მოგვიანებით შეგიძლიათ დაწესებულების პარამეტრებში",
   "YesNoForm.yesOptionLabel": "დიახ"

@@ -167,7 +167,8 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   bookmarkedTimeAgoLabel: {
     message: 'Bookmarked { time }',
-    context: 'A message used to show how long ago a user bookmarked a resource or topic',
+    context:
+      "Label indicating how long ago user bookmarked a resource or topic. Variable '{time}' uses the API that enables language-sensitive relative time formatting\nhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/RelativeTimeFormat\n\nExamples (output is localized in the target language):\n- Bookmarked {3 months ago}\n- Bookmarked {5 minutes ago}\n- Bookmarked {6 days ago}",
   },
   channelsLabel: {
     message: 'Channels',
@@ -238,7 +239,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   facilityNameWithId: {
     message: '{facilityName} ({id})',
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   facilityDuplicated: {
     message: 'There is already a facility with this name on this device',
@@ -289,7 +290,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   levelLabel: {
     message: 'Level',
-    context: 'Filter label used to limit the search to a specific levels.',
+    context: 'Filter label used to limit the search to a specific educational level.',
   },
   lessonsLabel: {
     message: 'Lessons',
@@ -471,100 +472,289 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
 
   // Library Categories
-  school: 'School',
-  basicSkills: 'Basic skills',
-  work: 'Work',
-  dailyLife: 'Daily life',
-  forTeachers: 'For teachers',
+  school: {
+    message: 'School',
+    context: 'Category type.',
+  },
+  basicSkills: {
+    message: 'Basic skills',
+    context:
+      'Category type. Basic skills refer to learning resources focused on aspects like literacy, numeracy and digital literacy.',
+  },
+  work: {
+    message: 'Work',
+    context:
+      'Top level category group that contains resources for acquisition of professional skills.',
+  },
+  dailyLife: {
+    message: 'Daily life',
+    context: 'Category type.',
+  },
+  forTeachers: {
+    message: 'For teachers',
+    context: 'Category type',
+  },
 
   // School Categories
-  mathematics: 'Mathematics',
-  sciences: 'Sciences',
-  socialSciences: 'Social sciences',
-  arts: 'Arts',
-  computerScience: 'Computer science',
-  languageLearning: 'Language learning',
-  history: 'History',
+  mathematics: {
+    message: 'Mathematics',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Mathematics',
+  },
+  sciences: {
+    message: 'Sciences',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Science',
+  },
+  socialSciences: {
+    message: 'Social sciences',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Social_science',
+  },
+  arts: {
+    message: 'Arts',
+    context: 'Refers to a category group type. See https://en.wikipedia.org/wiki/The_arts',
+  },
+  computerScience: {
+    message: 'Computer science',
+    context: 'Category type.',
+  },
+  languageLearning: {
+    message: 'Language learning',
+    context: 'Category type.',
+  },
+  history: {
+    message: 'History',
+    context: 'Category type.',
+  },
   readingAndWriting: {
     message: 'Reading and writing',
     context: 'School subject category',
   },
 
   // Mathematics Subcategories
-  arithmetic: 'Arithmetic',
-  algebra: 'Algebra',
-  geometry: 'Geometry',
-  calculus: 'Calculus',
-  statistics: 'Statistics',
+  arithmetic: {
+    message: 'Arithmetic',
+    context: 'Math category type. See https://en.wikipedia.org/wiki/Arithmetic',
+  },
+  algebra: {
+    message: 'Algebra',
+    context: 'A type of math category. See https://en.wikipedia.org/wiki/Algebra',
+  },
+  geometry: {
+    message: 'Geometry',
+    context: 'Category type.',
+  },
+  calculus: {
+    message: 'Calculus',
+    context: 'Math category type. https://en.wikipedia.org/wiki/Calculus',
+  },
+  statistics: {
+    message: 'Statistics',
+    context: 'A math category. See https://en.wikipedia.org/wiki/Statistics',
+  },
 
   // Sciences Subcategories
-  biology: 'Biology',
-  chemistry: 'Chemistry',
-  physics: 'Physics',
-  earthScience: 'Earth science',
-  astronomy: 'Astronomy',
+  biology: {
+    message: 'Biology',
+    context: 'Science category type. See https://en.wikipedia.org/wiki/Biology',
+  },
+  chemistry: {
+    message: 'Chemistry',
+    context: 'Science category type. See https://en.wikipedia.org/wiki/Chemistry',
+  },
+  physics: {
+    message: 'Physics',
+    context: 'Category type.',
+  },
+  earthScience: {
+    message: 'Earth science',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Earth_science',
+  },
+  astronomy: {
+    message: 'Astronomy',
+    context: 'Science category type. See https://en.wikipedia.org/wiki/Astronomy',
+  },
 
   //  Literature Subcategories
-  literature: 'Literature',
-  readingComprehension: 'Reading comprehension',
-  writing: 'Writing',
-  logicAndCriticalThinking: 'Logic and critical thinking',
+  literature: {
+    message: 'Literature',
+    context: 'Category type.',
+  },
+  readingComprehension: {
+    message: 'Reading comprehension',
+    context: 'Category type.',
+  },
+  writing: {
+    message: 'Writing',
+    context: 'Category type.',
+  },
+  logicAndCriticalThinking: {
+    message: 'Logic and critical thinking',
+    context: 'Category type.',
+  },
 
   // Social Sciences Subcategories
-  politicalScience: 'Political science',
-  sociology: 'Sociology',
-  anthropology: 'Anthropology',
-  civicEducation: 'Civic education',
+  politicalScience: {
+    message: 'Political science',
+    context: 'Category type.',
+  },
+  sociology: {
+    message: 'Sociology',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Sociology',
+  },
+  anthropology: {
+    message: 'Anthropology',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Anthropology',
+  },
+  civicEducation: {
+    message: 'Civic education',
+    context:
+      'Category type. Civic education is the study of the rights and obligations of citizens in society. See https://en.wikipedia.org/wiki/Civics',
+  },
 
   // Arts Subcategories = {
-  visualArt: 'Visual art',
-  music: 'Music',
-  dance: 'Dance',
-  drama: 'Drama',
+  visualArt: {
+    message: 'Visual art',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Visual_arts',
+  },
+  music: {
+    message: 'Music',
+    context: 'Category type.',
+  },
+  dance: {
+    message: 'Dance',
+    context: 'Category type.',
+  },
+  drama: {
+    message: 'Drama',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Drama',
+  },
 
   //  Computer Science Subcategories
-  programming: 'Programming',
-  mechanicalEngineering: 'Mechanical engineering',
-  webDesign: 'Web design',
+  programming: {
+    message: 'Programming',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Computer_programming',
+  },
+  mechanicalEngineering: {
+    message: 'Mechanical engineering',
+    context: 'Category type.',
+  },
+  webDesign: {
+    message: 'Web design',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Web_design',
+  },
 
   // Basic Skills
-  literacy: 'Literacy',
-  numeracy: 'Numeracy',
-  digitialLiteracy: 'Digital literacy',
-  learningSkills: 'Learning skills',
+  literacy: {
+    message: 'Literacy',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Literacy',
+  },
+  numeracy: {
+    message: 'Numeracy',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Numeracy',
+  },
+  digitialLiteracy: {
+    message: 'Digital literacy',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Digital_literacy',
+  },
+  learningSkills: {
+    message: 'Learning skills',
+    context:
+      'A category label and type of basic skill.\nhttps://en.wikipedia.org/wiki/Study_skills',
+  },
 
   // Work Categories
-  professionalSkills: 'Professional skills',
-  technicalAndVocationalTraining: 'Technical and vocational training',
+  professionalSkills: {
+    message: 'Professional skills',
+    context: 'Category type.',
+  },
+  technicalAndVocationalTraining: {
+    message: 'Technical and vocational training',
+    context:
+      'A level of education. See https://en.wikipedia.org/wiki/TVET_(Technical_and_Vocational_Education_and_Training)',
+  },
 
   //  VocationalSubcategories
   softwareToolsAndTraining: {
     message: 'Software tools and training',
-    context: 'Vocation skills subcategory',
+    context: 'Subcategory type for technical and vocational training.',
   },
-  skillsTraining: 'Skills training',
-  industryAndSectorSpecific: 'Industry and sector specific',
+  skillsTraining: {
+    message: 'Skills training',
+    context: 'Subcategory type for technical and vocational training.',
+  },
+  industryAndSectorSpecific: {
+    message: 'Industry and sector specific',
+    context: 'Subcategory type for technical and vocational training.',
+  },
 
   // Daily Life Categories
-  publicHealth: 'Public health',
-  entrepreneurship: 'Entrepreneurship',
-  financialLiteracy: 'Financial literacy',
-  currentEvents: 'Current events',
-  environment: 'Environment',
-  mediaLiteracy: 'Media literacy',
-  diversity: 'Diversity',
-  mentalHealth: 'Mental health',
+  publicHealth: {
+    message: 'Public health',
+    context: 'Category type.',
+  },
+  entrepreneurship: {
+    message: 'Entrepreneurship',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Entrepreneurship',
+  },
+  financialLiteracy: {
+    message: 'Financial literacy',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Financial_literacy',
+  },
+  currentEvents: {
+    message: 'Current events',
+    context:
+      "Category type. Could also be translated as 'News'. See https://en.wikipedia.org/wiki/News",
+  },
+  environment: {
+    message: 'Environment',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Environmental_studies',
+  },
+  mediaLiteracy: {
+    message: 'Media literacy',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Media_literacy',
+  },
+  diversity: {
+    message: 'Diversity',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Diversity_(politics)',
+  },
+  mentalHealth: {
+    message: 'Mental health',
+    context: 'Category type.',
+  },
 
   // Teacher-Specific Categories
-  guides: 'Guides',
-  lessonPlans: 'Lesson plans',
+  guides: {
+    message: 'Guides',
+    context:
+      'Category label in the Kolibri resources library; refers to any guide-type material for teacher professional development.',
+  },
+  lessonPlans: {
+    message: 'Lesson plans',
+    context:
+      'Category label in the Kolibri resources library; refers to lesson planning materials for teachers.',
+  },
 
   // Resources Needed Categories = {
-  ForBeginners: 'For beginners',
-  ToUseWithTeachersAndPeers: 'To use with teachers and peers',
-  ToUseWithPaperAndPencil: 'To use with paper and pencil',
-  NeedsInternet: 'That need internet connection',
-  NeedsMaterials: 'That need other materials',
+  ForBeginners: {
+    message: 'For beginners',
+    context: 'Filter option and a label for the resources in the Kolibri Library.',
+  },
+  ToUseWithTeachersAndPeers: {
+    message: 'To use with teachers and peers',
+    context:
+      "'Peers' in this context refers to classmates or other learners who are interacting with Kolibri.",
+  },
+  ToUseWithPaperAndPencil: {
+    message: 'To use with paper and pencil',
+    context: 'Refers to a filter for resources.\n',
+  },
+  NeedsInternet: {
+    message: 'That need internet connection',
+    context: 'Refers to a filter for resources.',
+  },
+  NeedsMaterials: {
+    message: 'That need other materials',
+    context: 'Refers to a filter for resources.\n',
+  },
 
   // Accessibility category name
   accessibility: {
@@ -573,47 +763,102 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Allows the user to filter for all the resources with accessibility features for learners with disabilities.',
   },
   // Accessibility Categories
-  signLanguage: 'Has sign language captions',
+  signLanguage: {
+    message: 'Has sign language captions',
+    context:
+      'https://en.wikipedia.org/wiki/Sign_language\nhttps://en.wikipedia.org/wiki/List_of_sign_languages\nWherever communities of deaf people exist, sign languages have developed as useful means of communication, and they form the core of local Deaf cultures. Although signing is used primarily by the deaf and hard of hearing, it is also used by hearing individuals, such as those unable to physically speak, those who have trouble with spoken language due to a disability or condition (augmentative and alternative communication), or those with deaf family members, such as children of deaf adults. ',
+  },
   audioDescription: {
     message: 'Has audio descriptions',
-    context: 'Content has descriptive audio that is used for accessibility.',
+    context:
+      'Content has narration used to provide information surrounding key visual elements for the benefit of blind and visually impaired users.\nhttps://en.wikipedia.org/wiki/Audio_description',
   },
-  taggedPdf: 'Tagged PDF',
-  altText: 'Has alternative text description for images',
-  highContrast: 'Has high contrast display for low vision',
-  captionsSubtitles: 'Has captions or subtitles',
+  taggedPdf: {
+    message: 'Tagged PDF',
+    context:
+      'A tagged PDF includes hidden accessibility markups (tags) that help to optimize the reading experience of those who use screen readers and other assistive technology (AT).\n\nhttps://taggedpdf.com/what-is-a-tagged-pdf/',
+  },
+  altText: {
+    message: 'Has alternative text description for images',
+    context:
+      'Alternative text, or alt text, is a written substitute for an image. It is used to describe information being provided by an image, graph, or any other visual element on a web page. It provides information about the context and function of an image for people with varying degrees of visual and cognitive impairments. When a screen reader encounters an image, it will read aloud the alternative text.\nhttps://www.med.unc.edu/webguide/accessibility/alt-text/',
+  },
+  highContrast: {
+    message: 'Has high contrast display for low vision',
+    context:
+      "Accessibility filter used to search for resources that have high contrast color themes for users with low vision ('display' refers to digital content, not the hardware like screens or monitors).\nhttps://veroniiiica.com/2019/10/25/high-contrast-color-schemes-low-vision/",
+  },
+  captionsSubtitles: {
+    message: 'Has captions or subtitles',
+    context:
+      'Accessibility filter to search for video and audio resources that have text captions for users who are deaf or hard of hearing.\nhttps://www.w3.org/WAI/media/av/captions/',
+  },
 
   // Used to categorize the level or audience of content
   // ContentLevels
-  preschool: 'Preschool',
-  lowerPrimary: 'Lower primary',
-  upperPrimary: 'Upper primary',
-  lowerSecondary: 'Lower secondary',
-  upperSecondary: 'Upper secondary',
-  tertiary: 'Tertiary',
-  specializedProfessionalTraining: 'Specialized professional training',
-  allLevelsBasicSkills: 'All levels -- basic skills',
-  allLevelsWorkSkills: 'All levels -- work skills',
+  preschool: {
+    message: 'Preschool',
+    context:
+      'Refers to a level of education offered to children before they begin compulsory education at primary school.\n\nSee https://en.wikipedia.org/wiki/Preschool',
+  },
+  lowerPrimary: {
+    message: 'Lower primary',
+    context:
+      'Refers to a level of learning. Approximately corresponds to the first half of primary school.',
+  },
+  upperPrimary: {
+    message: 'Upper primary',
+    context:
+      'Refers to a level of education. Approximately corresponds to the second half of primary school.\n',
+  },
+  lowerSecondary: {
+    message: 'Lower secondary',
+    context:
+      'Refers to a level of learning. Approximately corresponds to the first half of secondary school (high school).',
+  },
+  upperSecondary: {
+    message: 'Upper secondary',
+    context:
+      'Refers to a level of education. Approximately corresponds to the second half of secondary school.',
+  },
+  tertiary: {
+    message: 'Tertiary',
+    context: 'A level of education. See https://en.wikipedia.org/wiki/Tertiary_education',
+  },
+  specializedProfessionalTraining: {
+    message: 'Specialized professional training',
+    context: 'Level of education.',
+  },
+  allLevelsBasicSkills: {
+    message: 'All levels -- basic skills',
+    context: 'Refers to a type of educational level.',
+  },
+  allLevelsWorkSkills: {
+    message: 'All levels -- work skills',
+    context: 'Refers to a type of educational level.',
+  },
 
   browseChannel: {
     message: 'Browse channel',
     context: 'Heading on page where a user can browse the content within a channel',
   },
-  topicLabel: 'Folder',
+  topicLabel: {
+    message: 'Folder',
+    context:
+      'A collection of resources and other subfolders within a channel. Nested folders allow a channel to be organized as a tree or hierarchy.',
+  },
   readReference: {
     message: 'Reference',
     context:
-      'We display time duration for most of learning activities. However, for read activity, we display this label instead of time duration information.',
+      "Label displayed for the 'Read' learning activity, used instead of the time duration information, to indicate a resource that may not need sequential reading from the beginning to the end. Similar concept as the 'reference' books in the traditional library, that the user just  'consults', and does not read from cover to cover.",
   },
   shortActivity: {
     message: 'Short activity',
-    context:
-      'This is what we display as time estimation for some types of learning activities that take less than 30 minutes',
+    context: 'Label with time estimation for learning activities that take less than 30 minutes.',
   },
   longActivity: {
     message: 'Long activity',
-    context:
-      'This is what we display as time estimation for some types of learning activities that take more than 30 minutes',
+    context: 'Label with time estimation for learning activities that take more than 30 minutes.',
   },
 
   // assigning bookmarked resources
@@ -665,11 +910,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   allLevels: {
     message: 'All levels',
-    context: 'Filter label to include resources for all available levels.',
+    context: 'Filter label to include resources for all available educational levels.',
   },
   showResources: {
     message: 'Show resources',
-    context: '',
+    context: 'Subheader to filter resources with the options listed below (see the screenshot).',
   },
   // Notifications
   changesSavedNotification: {
@@ -701,27 +946,27 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // Formatting
   nameWithIdInParens: {
     message: `'{name}' ({id})`,
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   quotedPhrase: {
     message: `'{phrase}'`,
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   dashSeparatedPair: {
     message: '{item1} - {item2}',
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   dashSeparatedTriple: {
     message: '{item1} - {item2} - {item3}',
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   labelColonThenDetails: {
     message: '{label}: {details}',
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   commaSeparatedPair: {
     message: '{item1}, {item2}',
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
 
   // Demographic-specific strings
@@ -776,9 +1021,19 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
 });
 
+// We forgot a string, so we are using one from the PerseusInternalMessages namespace
+// do not do this, do as I say, not as I do, etc. etc.
+// TODO: 0.16 - remove this and put a proper string in place
+const noneOfTheAboveTranslator = createTranslator('PerseusInternalMessages', {
+  'None of the above': 'None of the above',
+});
+
 export default {
   methods: {
     coreString(key, args) {
+      if (key === 'None of the above') {
+        return noneOfTheAboveTranslator.$tr(key, args);
+      }
       return coreStrings.$tr(key, args);
     },
     showSnackbarNotification(key, args, coreCreateSnackbarArgs) {

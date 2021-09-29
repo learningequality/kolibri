@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "Gyara",
   "ProfilePage.isSuperuser": "Izinin Babban Mai Jagora ",
   "ProfilePage.limitedPermissions": "Izini masu iyaka",
-  "ProfilePage.manageContent": "",
+  "ProfilePage.manageContent": "Sarrafa tashoshi da albarkatu",
   "ProfilePage.manageDevicePermissions": "Sarrafa izinin na'ura",
   "ProfilePage.points": "Maki",
   "ProfilePage.youCan": "Kuna iya:",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "Mataki 1 na 2",
   "UserIndex.signUpStep2Title": "Mataki 2 na 2",
   "UserIndex.userProfileTitle": "Bayanan Mai Amfani",
-  "UserPageSnackbars.dismiss": "",
+  "UserPageSnackbars.dismiss": "Rufe",
   "UserPageSnackbars.signedOut": "An fitar da ku ta hanyar mai sarrafa kanta saboda rashin motsi"
 }

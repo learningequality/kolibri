@@ -19,16 +19,13 @@
   "MediaPlayerIndex.progressBar": "Barra de progresso",
   "MediaPlayerIndex.replay": "Voltar 10 segundos",
   "MediaPlayerIndex.sourceError": "Nenhuma fonte compatível foi encontrada para este conteúdo",
-  "MediaPlayerIndex.transcript": "Transcrição",
   "MediaPlayerIndex.transcriptOff": "Desativar transcrição",
   "MediaPlayerIndex.unmute": "Ativar som",
   "MediaPlayerIndex.volumeLevel": "Volume",
-  "MediaPlayerTranscript.label": "Transcrição",
   "MediaPlayerTranscript.transcriptBeginning": "Início da transcrição",
   "MediaPlayerTranscript.transcriptEnd": "Fim da transcrição",
   "SubtitlesMenuItem.subtitles": "Legendas",
   "TranscriptCue.textLabel": "Texto da legenda atual na transcrição",
   "TranscriptCue.timeLabel": "Timecode atual da transcrição",
-  "TranscriptCue.title": "Avançar o vídeo até {startTime}",
-  "TranscriptMenuItem.transcript": "Transcrição"
+  "TranscriptCue.title": "Avançar o vídeo até {startTime}"
 }

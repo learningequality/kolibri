@@ -175,12 +175,18 @@
           'Indicates who holds the copyright of that specific learning resource. For example, "Copyright holder: Ubongo Media".',
       },
       language: 'Language',
-      level: 'Level',
-      estimatedTime: 'Estimated time',
+      level: {
+        message: 'Level',
+        context: 'Refers to the level of education to which the resource is directed at.',
+      },
+      estimatedTime: {
+        message: 'Estimated time',
+        context: 'Refers to the expected time it will take the learner to complete a resource.',
+      },
       /* eslint-disable kolibri/vue-no-unused-translations */
       documentTitle: {
         message: '{ contentTitle } - { channelTitle }',
-        context: 'DO NOT TRANSLATE.',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
       shareFile: {
         message: 'Share',
@@ -188,11 +194,12 @@
       },
       locationsInChannel: {
         message: 'Location in {channelname}',
-        context: '',
+        context:
+          "When there are multiple instances of the same resource, learner can see their 'locations' (positions in the respective folders of the channel) at the bottom of the sidebar with all the metadata, when they select the resource in the Kolibri Library.",
       },
       viewResource: {
         message: 'View resource',
-        context: '',
+        context: 'Refers to a button where the user can view all the details for a resource.',
       },
       showMore: {
         message: 'Show more',

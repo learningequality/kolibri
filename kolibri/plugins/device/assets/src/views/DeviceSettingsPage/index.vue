@@ -356,7 +356,8 @@
       },
       configureFacilitySettingsHeader: {
         message: 'Configure facility settings',
-        context: "Option on 'Device settings' page to switch to the 'Facility settings' page.",
+        context:
+          "Option on 'Device settings' page to switch to the 'Facility settings' page. Will display a list of facilities if user manages more than one facility.",
       },
       allowExternalConnectionsApp: {
         message: 'Allow others in the network to access Kolibri on this device using a browser',

@@ -119,7 +119,11 @@
         message: 'You have no quizzes assigned',
         context: 'Message that a learner sees if a coach has not assigned any quizzes to them.',
       },
-      recentQuizzesHeader: 'Recent quizzes',
+      recentQuizzesHeader: {
+        message: 'Recent quizzes',
+        context:
+          "Section header on the learner's Home page, displaying the most recent quizzes that the coaches assigned to them.",
+      },
     },
   };
 

@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "1/2 단계",
   "UserIndex.signUpStep2Title": "2/2 단계",
   "UserIndex.userProfileTitle": "프로필",
-  "UserPageSnackbars.dismiss": "",
+  "UserPageSnackbars.dismiss": "닫기",
   "UserPageSnackbars.signedOut": "일정시간 사용하지 않아 자동 로그아웃됩니다."
 }
