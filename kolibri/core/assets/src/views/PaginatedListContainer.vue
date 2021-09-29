@@ -53,7 +53,7 @@
   import clamp from 'lodash/clamp';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
-  import { FacilityUserResource, searchFacilityUsers } from 'kolibri.resources';
+  import { FacilityUserResource } from 'kolibri.resources';
 
   import store from 'kolibri.coreVue.vuex.store';
 
@@ -94,7 +94,24 @@
     },
     computed: {
       filteredItems() {
-        console.log(this.filterInput);
+        const facilityId = store.getters.activeFacilityId;
+        FacilityUserResource.fetchCollection({
+          getParams: {
+            member_of: facilityId,
+            page_size: 30,
+            search: this.filterInput,
+          },
+          force: true,
+        }).then(
+          users => {
+            this.currentPageNumber = users.page;
+            this.items = users.results;
+            this.totalPageNumber = users.total_pages;
+          },
+          error => {
+            store.dispatch('handleApiError', error);
+          }
+        );
         return filterUsersByNames(this.items, this.filterInput);
       },
       numFilteredItems() {
@@ -132,18 +149,18 @@
         );
       },
     },
-    watch: {
-      visibleFilteredItems: {
-        handler(newVal) {
-          console.log(newVal);
-          this.$emit('pageChanged', {
-            page: this.currentPage,
-            items: newVal,
-          });
-        },
-        immediate: true,
-      },
-    },
+    // watch: {
+    //   visibleFilteredItems: {
+    //     handler(newVal) {
+    //       console.log(newVal);
+    //       this.$emit('pageChanged', {
+    //         page: this.currentPage,
+    //         items: newVal,
+    //       });
+    //     },
+    //     immediate: true,
+    //   },
+    // },
     methods: {
       changePage(change) {
         const facilityId = store.getters.activeFacilityId;
