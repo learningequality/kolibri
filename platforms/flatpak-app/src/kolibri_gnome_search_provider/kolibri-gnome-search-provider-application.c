@@ -31,9 +31,10 @@
  * Author: Dylan McCall <dylan@endlessos.org>
  */
 
+#include "kolibri-gnome-search-provider-application.h"
+
 #include "config.h"
 #include "kolibri-gnome-search-provider.h"
-#include "kolibri-gnome-search-provider-application.h"
 
 #define DEFAULT_INACTIVITY_TIMEOUT 20000
 

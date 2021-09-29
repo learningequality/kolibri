@@ -62,6 +62,7 @@ executable(
         'kolibri-gnome-search-provider.c',
         'kolibri-gnome-search-provider-application.c',
         'kolibri-gnome-search-provider-main.c',
+        'kolibri-task-multiplexer.c',
         'kolibri-utils.c'
     ],
     dependencies: search_provider_dependencies,

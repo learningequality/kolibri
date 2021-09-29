@@ -31,9 +31,11 @@
  * Author: Dylan McCall <dylan@endlessos.org>
  */
 
+#include "kolibri-gnome-search-provider.h"
+
 #include "config.h"
 #include "kolibri-daemon-dbus.h"
-#include "kolibri-gnome-search-provider.h"
+#include "kolibri-task-multiplexer.h"
 #include "kolibri-utils.h"
 #include "shell-search-provider-dbus.h"
 
@@ -46,6 +48,9 @@ struct _KolibriGnomeSearchProvider {
   KolibriDaemon *kolibri_daemon;
   guint base_registration_id;
   guint subtree_registration_id;
+
+  KolibriTaskMultiplexer *search_multiplexer;
+  gchar *search_multiplexer_query;
 };
 
 G_DEFINE_TYPE(KolibriGnomeSearchProvider, kolibri_gnome_search_provider, G_TYPE_OBJECT)
@@ -59,10 +64,11 @@ static guint search_provider_signals[_SEARCH_PROVIDER_LAST_SIGNAL];
 
 typedef enum {
   KOLIBRI_GNOME_SEARCH_PROVIDER_ERROR_INVALID_ITEM_ID,
+  KOLIBRI_GNOME_SEARCH_PROVIDER_ERROR_INVALID_NODE_PATH,
   KOLIBRI_GNOME_SEARCH_PROVIDER_ERROR_WRONG_CHANNEL,
 } KolibriGnomeSearchProviderError;
 
-G_DEFINE_QUARK(kolibri - gnome - search - provider - error - quark, kolibri_gnome_search_provider_error)
+G_DEFINE_QUARK(kolibri-gnome-search-provider-error-quark, kolibri_gnome_search_provider_error)
 #define KOLIBRI_GNOME_SEARCH_PROVIDER_ERROR (kolibri_gnome_search_provider_error_quark())
 
 #define SEARCH_PROVIDER_CHANNEL_NODE_PREFIX "channel_"
@@ -75,6 +81,7 @@ kolibri_gnome_search_provider_dispose(GObject *gobject)
 
   g_clear_pointer(&self->search_provider_skeleton, g_object_unref);
   g_clear_pointer(&self->kolibri_daemon, g_object_unref);
+  g_clear_pointer(&self->search_multiplexer, g_object_unref);
 
   G_OBJECT_CLASS(kolibri_gnome_search_provider_parent_class)->dispose(gobject);
 }
@@ -82,6 +89,10 @@ kolibri_gnome_search_provider_dispose(GObject *gobject)
 static void
 kolibri_gnome_search_provider_finalize(GObject *gobject)
 {
+  KolibriGnomeSearchProvider *self = KOLIBRI_GNOME_SEARCH_PROVIDER(gobject);
+
+  g_free(self->search_multiplexer_query);
+
   G_OBJECT_CLASS(kolibri_gnome_search_provider_parent_class)->finalize(gobject);
 }
 
@@ -112,6 +123,8 @@ kolibri_gnome_search_provider_init(KolibriGnomeSearchProvider *self)
   self->kolibri_daemon = NULL;
   self->base_registration_id = 0;
   self->subtree_registration_id = 0;
+  self->search_multiplexer = NULL;
+  self->search_multiplexer_query = NULL;
 }
 
 static gchar *
@@ -160,48 +173,37 @@ parse_item_id(const gchar  *item_id,
   return TRUE;
 }
 
-static void
-kolibri_daemon_get_item_ids_for_search_async_ready_cb(GObject      *source_object,
-                                                      GAsyncResult *res,
-                                                      gpointer      user_data)
+static gboolean
+parse_node_path(const gchar  *node_path,
+                gchar       **out_node_kind,
+                gchar       **out_node_id,
+                GError      **error)
 {
-  KolibriDaemon *kolibri_daemon = KOLIBRI_DAEMON(source_object);
-  GDBusMethodInvocation *invocation = G_DBUS_METHOD_INVOCATION(user_data);
+  g_auto(GStrv) node_path_split = NULL;
 
-  g_autofree gchar *channel_id = get_channel_id_for_invocation(invocation);
-
-  g_autoptr(GError) error = NULL;
-  g_auto(GVariantBuilder) builder;
-  g_auto(GStrv) item_ids = NULL;
-
-  g_variant_builder_init(&builder, G_VARIANT_TYPE("as"));
-
-  kolibri_daemon_call_get_item_ids_for_search_finish(kolibri_daemon,
-                                                     &item_ids,
-                                                     res,
-                                                     &error);
-
-  if (error)
+  if (node_path == NULL)
     {
-      g_dbus_method_invocation_return_gerror(invocation, error);
-      return;
+      *out_node_kind = NULL;
+      *out_node_id = NULL;
+      return TRUE;
     }
 
-  for (guint n = 0; n < g_strv_length(item_ids); n++)
+  node_path_split = g_strsplit(node_path, "/", 2);
+
+  if (g_strv_length(node_path_split) != 2)
     {
-      const gchar *item_id = item_ids[n];
-      g_autofree gchar *node_path = NULL;
-      g_autofree gchar *node_context = NULL;
-
-      parse_item_id(item_id, &node_path, &node_context, NULL);
-
-      if (channel_id == NULL || g_strcmp0(node_context, channel_id) == 0)
-        {
-          g_variant_builder_add(&builder, "s", item_id);
-        }
+      g_set_error(error,
+                  KOLIBRI_GNOME_SEARCH_PROVIDER_ERROR,
+                  KOLIBRI_GNOME_SEARCH_PROVIDER_ERROR_INVALID_NODE_PATH,
+                  "%s is not a valid node path",
+                  node_path);
+      return FALSE;
     }
 
-  g_dbus_method_invocation_return_value(invocation, g_variant_new("(as)", &builder));
+  *out_node_kind = g_strdup(node_path_split[0]);
+  *out_node_id = g_strdup(node_path_split[1]);
+
+  return TRUE;
 }
 
 static void
@@ -232,7 +234,7 @@ kolibri_daemon_get_metadata_for_item_ids_async_ready_cb(GObject      *source_obj
 static gboolean
 build_kolibri_dispatch_uri(const gchar  *channel_id,
                            const gchar  *item_id,
-                           const gchar  *search,
+                           const gchar  *query,
                            GUri        **out_kolibri_uri,
                            GError      **error)
 {
@@ -256,8 +258,8 @@ build_kolibri_dispatch_uri(const gchar  *channel_id,
       return FALSE;
     }
 
-  if (search != NULL)
-    uri_query = g_strdup_printf("searchTerm=%s", search);
+  if (query != NULL)
+    uri_query = g_strdup_printf("searchTerm=%s", query);
 
   if (node_path != NULL)
     uri_path = g_strconcat("/", node_path, NULL);
@@ -280,7 +282,7 @@ build_kolibri_dispatch_uri(const gchar  *channel_id,
 static gboolean
 activate_kolibri(const gchar  *channel_id,
                  const gchar  *item_id,
-                 const gchar  *search,
+                 const gchar  *query,
                  GError      **error)
 {
   g_autoptr(GDesktopAppInfo) app_info = NULL;
@@ -292,7 +294,7 @@ activate_kolibri(const gchar  *channel_id,
   // a kolibri URI to either the default Kolibri application instance or a
   // channel specific one.
 
-  if (!build_kolibri_dispatch_uri(channel_id, item_id, search, &kolibri_uri, error))
+  if (!build_kolibri_dispatch_uri(channel_id, item_id, query, &kolibri_uri, error))
     return FALSE;
 
   kolibri_uri_string = g_uri_to_string(kolibri_uri);
@@ -308,28 +310,199 @@ activate_kolibri(const gchar  *channel_id,
 }
 
 static gboolean
+kolibri_gnome_search_provider_can_attach_search(KolibriGnomeSearchProvider *self,
+                                                const gchar *query)
+{
+  return !kolibri_task_multiplexer_get_completed(self->search_multiplexer) && g_strcmp0(self->search_multiplexer_query, query) == 0;
+}
+
+static gboolean
+kolibri_gnome_search_provider_get_search_multiplexer(KolibriGnomeSearchProvider  *self,
+                                                     const gchar                 *query,
+                                                     KolibriTaskMultiplexer     **out_search_multiplexer)
+{
+  /* KolibriGnomeSearchProvider has only one search multiplexer at a given time,
+   * and it is associated with a particular search query. If this function is
+   * run with the same search query, that instance can be reused. If the query
+   * has changed, the multiplexer is destroyed and a new one is created.
+   */
+
+  if (self->search_multiplexer == NULL)
+    {
+      self->search_multiplexer = kolibri_task_multiplexer_new();
+      self->search_multiplexer_query = g_strdup(query);
+    }
+  else if (!kolibri_gnome_search_provider_can_attach_search(self, query))
+    {
+      kolibri_task_multiplexer_cancel(self->search_multiplexer);
+      g_clear_pointer(&self->search_multiplexer, g_object_unref);
+      g_clear_pointer(&self->search_multiplexer_query, g_free);
+      self->search_multiplexer = kolibri_task_multiplexer_new();
+      self->search_multiplexer_query = g_strdup(query);
+    }
+  else
+    {
+      *out_search_multiplexer = self->search_multiplexer;
+      return FALSE;
+    }
+
+  *out_search_multiplexer = self->search_multiplexer;
+  return TRUE;
+}
+
+static gboolean
+item_id_is_in_channel(const gchar *item_id,
+                      const gchar *channel_id)
+{
+  g_autofree gchar *node_path = NULL;
+  g_autofree gchar *node_kind = NULL;
+  g_autofree gchar *node_id = NULL;
+  g_autofree gchar *node_context = NULL;
+  g_autofree gchar *channel_root_path = NULL;
+
+  parse_item_id(item_id, &node_path, &node_context, NULL);
+  parse_node_path(node_path, &node_kind, &node_id, NULL);
+
+  // Channel root nodes should not appear as inside a channel.
+  if (node_id == NULL || g_strcmp0(node_id, channel_id) == 0)
+    return FALSE;
+
+  return node_context != NULL && g_strcmp0(node_context, channel_id) == 0;
+}
+
+static gsize
+filter_item_ids(const GStrv  all_item_ids,
+                const gchar *channel_id,
+                GStrv       *out_item_ids)
+{
+  g_autoptr(GStrvBuilder) strv_builder = g_strv_builder_new();
+
+  gsize all_item_ids_count = g_strv_length(all_item_ids);
+
+  for (guint n = 0; n < all_item_ids_count; n++)
+    {
+      const gchar *item_id = all_item_ids[n];
+
+      if (channel_id == NULL || item_id_is_in_channel(item_id, channel_id))
+        g_strv_builder_add(strv_builder, item_id);
+    }
+
+  *out_item_ids = g_strv_builder_end(strv_builder);
+
+  return g_strv_length(*out_item_ids);
+}
+
+static gboolean
+process_search_invocation_task_result(GDBusMethodInvocation  *invocation,
+                                      GTask                  *task,
+                                      GStrv                  *out_item_ids,
+                                      GError                **error)
+{
+  g_autoptr(GVariant) result_variant = NULL;
+  g_autofree gchar *channel_id = NULL;
+
+  g_auto(GStrv) all_item_ids = NULL;
+
+  result_variant = g_task_propagate_pointer(task, error);
+
+  if (result_variant == NULL)
+    return FALSE;
+
+  channel_id = get_channel_id_for_invocation(invocation);
+
+  g_variant_get(result_variant, "(^as)", &all_item_ids);
+  filter_item_ids(all_item_ids, channel_id, out_item_ids);
+
+  return TRUE;
+}
+
+static void
+search_multiplexer_to_get_item_ids_invocation_async_ready_cb(GObject      *source_object,
+                                                             GAsyncResult *res,
+                                                             gpointer user_data)
+{
+  GDBusMethodInvocation *invocation = G_DBUS_METHOD_INVOCATION(source_object);
+  GTask *task = G_TASK(res);
+  ShellSearchProvider2 *search_provider = SHELL_SEARCH_PROVIDER2(user_data);
+
+  g_autoptr(GError) error = NULL;
+  g_auto(GStrv) filtered_item_ids = NULL;
+
+  if (!process_search_invocation_task_result(invocation, task, &filtered_item_ids, &error))
+    {
+      g_dbus_method_invocation_return_gerror(invocation, error);
+      return;
+    }
+
+  shell_search_provider2_complete_get_initial_result_set(search_provider,
+                                                         invocation,
+                                                         (const gchar *const *)filtered_item_ids);
+}
+
+static void
+search_multiplexer_to_get_subsearch_result_set_invocation_async_ready_cb(GObject      *source_object,
+                                                                         GAsyncResult *res,
+                                                                         gpointer user_data)
+{
+  GDBusMethodInvocation *invocation = G_DBUS_METHOD_INVOCATION(source_object);
+  GTask *task = G_TASK(res);
+  ShellSearchProvider2 *search_provider = SHELL_SEARCH_PROVIDER2(user_data);
+
+  g_autoptr(GError) error = NULL;
+  g_auto(GStrv) filtered_item_ids = NULL;
+
+  if (!process_search_invocation_task_result(invocation, task, &filtered_item_ids, &error))
+    {
+      g_dbus_method_invocation_return_gerror(invocation, error);
+      return;
+    }
+
+  shell_search_provider2_complete_get_subsearch_result_set(search_provider,
+                                                           invocation,
+                                                           (const gchar *const *)filtered_item_ids);
+}
+
+static gboolean
+create_search_task(KolibriGnomeSearchProvider *self,
+                   GDBusMethodInvocation  *invocation,
+                   gchar **terms,
+                   GAsyncReadyCallback ready_cb)
+{
+  KolibriTaskMultiplexer* search_multiplexer = NULL;
+  g_autoptr(GTask) task = NULL;
+  g_autofree gchar *query = g_strjoinv(" ", terms);
+
+  gboolean search_multiplexer_is_new = kolibri_gnome_search_provider_get_search_multiplexer(self,
+                                                                                            query,
+                                                                                            &search_multiplexer);
+
+  task = kolibri_task_multiplexer_add_next(search_multiplexer,
+                                           G_OBJECT(invocation),
+                                           ready_cb,
+                                           self->search_provider_skeleton);
+
+  if (search_multiplexer_is_new)
+    kolibri_daemon_call_get_item_ids_for_search(self->kolibri_daemon,
+                                                query,
+                                                kolibri_task_multiplexer_get_cancellable(search_multiplexer),
+                                                multiplex_dbus_proxy_call_async_ready_cb,
+                                                search_multiplexer);
+
+  return TRUE;
+}
+
+static gboolean
 handle_get_initial_result_set(ShellSearchProvider2   *skeleton,
                               GDBusMethodInvocation  *invocation,
                               gchar                 **terms,
-                              gpointer                user_data)
+                              gpointer user_data)
 {
   KolibriGnomeSearchProvider *self = KOLIBRI_GNOME_SEARCH_PROVIDER(user_data);
 
-  g_autofree gchar *search = g_strjoinv(" ", terms);
-  GCancellable *cancellable = g_cancellable_new();
-
-  // TODO: This is very expensive because we call this same method for each
-  //       search provider object, but the results are filtered by channel ID in
-  //       kolibri_daemon_get_item_ids_for_search_async_ready_cb. Instead, we
-  //       should only call kolibri_daemon_call_get_item_ids_for_search once,
-  //       and after that returns we can group the results into channels for
-  //       each invocation.
-
-  kolibri_daemon_call_get_item_ids_for_search(self->kolibri_daemon,
-                                              search,
-                                              cancellable,
-                                              kolibri_daemon_get_item_ids_for_search_async_ready_cb,
-                                              invocation);
+  create_search_task(self,
+                     invocation,
+                     terms,
+                     search_multiplexer_to_get_item_ids_invocation_async_ready_cb);
 
   g_signal_emit(self, search_provider_signals[SEARCH_PROVIDER_METHOD_CALLED], 0);
 
@@ -341,20 +514,14 @@ handle_get_subsearch_result_set(ShellSearchProvider2   *skeleton,
                                 GDBusMethodInvocation  *invocation,
                                 gchar                 **previous_results,
                                 gchar                 **terms,
-                                gpointer                user_data)
+                                gpointer user_data)
 {
   KolibriGnomeSearchProvider *self = KOLIBRI_GNOME_SEARCH_PROVIDER(user_data);
 
-  g_autofree gchar *search = g_strjoinv(" ", terms);
-  GCancellable *cancellable = g_cancellable_new();
-
-  kolibri_daemon_call_get_item_ids_for_search(self->kolibri_daemon,
-                                              search,
-                                              cancellable,
-                                              kolibri_daemon_get_item_ids_for_search_async_ready_cb,
-                                              invocation);
-
-  g_signal_emit(self, search_provider_signals[SEARCH_PROVIDER_METHOD_CALLED], 0);
+  create_search_task(self,
+                     invocation,
+                     terms,
+                     search_multiplexer_to_get_subsearch_result_set_invocation_async_ready_cb);
 
   return TRUE;
 }
@@ -363,15 +530,13 @@ static gboolean
 handle_get_result_metas(ShellSearchProvider2   *skeleton,
                         GDBusMethodInvocation  *invocation,
                         gchar                 **results,
-                        gpointer                user_data)
+                        gpointer user_data)
 {
   KolibriGnomeSearchProvider *self = KOLIBRI_GNOME_SEARCH_PROVIDER(user_data);
 
-  GCancellable *cancellable = g_cancellable_new();
-
   kolibri_daemon_call_get_metadata_for_item_ids(self->kolibri_daemon,
                                                 (const gchar *const *)results,
-                                                cancellable,
+                                                NULL,
                                                 kolibri_daemon_get_metadata_for_item_ids_async_ready_cb,
                                                 invocation);
 
@@ -384,17 +549,16 @@ static gboolean
 handle_launch_search(ShellSearchProvider2   *skeleton,
                      GDBusMethodInvocation  *invocation,
                      gchar                 **terms,
-                     guint32                 timestamp,
-                     gpointer                user_data)
+                     guint32 timestamp,
+                     gpointer user_data)
 {
   KolibriGnomeSearchProvider *self = KOLIBRI_GNOME_SEARCH_PROVIDER(user_data);
 
-  g_autofree gchar *search = g_strjoinv(" ", terms);
+  g_autoptr(GError) error = NULL;
+  g_autofree gchar *query = g_strjoinv(" ", terms);
   g_autofree gchar *channel_id = get_channel_id_for_invocation(invocation);
 
-  g_autoptr(GError) error = NULL;
-
-  if (!activate_kolibri(channel_id, NULL, search, &error))
+  if (!activate_kolibri(channel_id, NULL, query, &error))
     {
       g_dbus_method_invocation_return_gerror(invocation, error);
     }
@@ -413,17 +577,16 @@ handle_activate_result(ShellSearchProvider2   *skeleton,
                        GDBusMethodInvocation  *invocation,
                        gchar                  *result,
                        gchar                 **terms,
-                       guint32                 timestamp,
-                       gpointer                user_data)
+                       guint32 timestamp,
+                       gpointer user_data)
 {
   KolibriGnomeSearchProvider *self = KOLIBRI_GNOME_SEARCH_PROVIDER(user_data);
 
-  g_autofree gchar *search = g_strjoinv(" ", terms);
+  g_autoptr(GError) error = NULL;
+  g_autofree gchar *query = g_strjoinv(" ", terms);
   g_autofree gchar *channel_id = get_channel_id_for_invocation(invocation);
 
-  g_autoptr(GError) error = NULL;
-
-  if (!activate_kolibri(channel_id, result, search, &error))
+  if (!activate_kolibri(channel_id, result, query, &error))
     {
       g_dbus_method_invocation_return_gerror(invocation, error);
     }
@@ -510,7 +673,7 @@ static gchar **
 subtree_enumerate(GDBusConnection *connection,
                   const gchar     *sender,
                   const gchar     *object_path,
-                  gpointer         user_data)
+                  gpointer user_data)
 {
   return NULL;
 }
@@ -520,7 +683,7 @@ subtree_introspect(GDBusConnection *connection,
                    const gchar     *sender,
                    const gchar     *object_path,
                    const gchar     *node,
-                   gpointer         user_data)
+                   gpointer user_data)
 {
   GPtrArray *interface_info_array;
 
@@ -545,7 +708,7 @@ subtree_dispatch(GDBusConnection *connection,
                  const gchar     *interface_name,
                  const gchar     *node,
                  gpointer        *out_user_data,
-                 gpointer         user_data)
+                 gpointer user_data)
 {
   KolibriGnomeSearchProvider *self = KOLIBRI_GNOME_SEARCH_PROVIDER(user_data);
 
@@ -577,9 +740,10 @@ kolibri_gnome_search_provider_register_on_connection(KolibriGnomeSearchProvider 
                                                      const gchar                 *object_path,
                                                      GError                     **error)
 {
-  // We use a subtree to provide objects for names like object_path/channel_123,
-  // and also register an object at object_path through the usual mechanism to
-  // avoid trampling on the existing interfaces exported by GApplication.
+  /* We use a subtree to provide objects for names like object_path/channel_123,
+   * and separately register an object at object_path to avoid trampling on the
+   * existing interfaces exported by GApplication.
+   */
 
   g_assert(self->base_registration_id == 0);
   g_assert(self->subtree_registration_id == 0);

@@ -1,4 +1,4 @@
-/* kolibri-gnome-search-provider-application.h
+/* kolibri-task-multiplexer.h
  *
  * Copyright 2021 Endless OS Foundation
  *
@@ -31,20 +31,34 @@
  * Author: Dylan McCall <dylan@endlessos.org>
  */
 
-#ifndef KOLIBRI_GNOME_SEARCH_PROVIDER_APPLICATION_H
-#define KOLIBRI_GNOME_SEARCH_PROVIDER_APPLICATION_H
+#ifndef KOLIBRI_TASK_MULTIPLEXER_H
+#define KOLIBRI_TASK_MULTIPLEXER_H
 
 #include <glib-object.h>
+
 #include <gio/gio.h>
 
 G_BEGIN_DECLS
 
-#define KOLIBRI_GNOME_TYPE_SEARCH_PROVIDER_APPLICATION kolibri_gnome_search_provider_application_get_type()
-G_DECLARE_FINAL_TYPE(KolibriGnomeSearchProviderApplication, kolibri_gnome_search_provider_application, KOLIBRI_GNOME, SEARCH_PROVIDER_APPLICATION, GApplication)
+#define KOLIBRI_TYPE_TASK_MULTIPLEXER kolibri_task_multiplexer_get_type()
+G_DECLARE_FINAL_TYPE(KolibriTaskMultiplexer, kolibri_task_multiplexer, KOLIBRI, TASK_MULTIPLEXER, GObject)
 
-KolibriGnomeSearchProviderApplication *kolibri_gnome_search_provider_application_new(const gchar * application_id, GApplicationFlags flags);
+KolibriTaskMultiplexer *kolibri_task_multiplexer_new(void);
 
-void kolibri_gnome_search_provider_application_reset_inactivity_timeout(KolibriGnomeSearchProviderApplication *self);
+GCancellable *kolibri_task_multiplexer_get_cancellable(KolibriTaskMultiplexer *self);
+
+void kolibri_task_multiplexer_cancel(KolibriTaskMultiplexer *self);
+gboolean kolibri_task_multiplexer_get_completed(KolibriTaskMultiplexer *self);
+
+void kolibri_task_multiplexer_push_error(KolibriTaskMultiplexer *self,
+                                         GError                 *error);
+void kolibri_task_multiplexer_push_variant(KolibriTaskMultiplexer *self,
+                                           GVariant               *result_variant);
+
+GTask *kolibri_task_multiplexer_add_next(KolibriTaskMultiplexer *self,
+                                         GObject                *source_object,
+                                         GAsyncReadyCallback callback,
+                                         gpointer callback_data);
 
 G_END_DECLS
 
