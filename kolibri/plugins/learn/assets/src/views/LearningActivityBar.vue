@@ -1,6 +1,6 @@
 <template>
 
-  <UiToolbar style="z-index: 8;">
+  <UiToolbar style="z-index: 8;" :style="contentSpecificStyles" class="toolbar">
     <CoachContentLabel
       :value="isCoachContent"
       style="margin-top: 8px; width: auto;"
@@ -103,6 +103,7 @@
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
@@ -192,6 +193,14 @@
         required: false,
         default: 0,
       },
+      /**
+      The ContentNodeKinds kind of the content being viewed
+      */
+      contentKind: {
+        type: String,
+        required: false,
+        default: null,
+      },
     },
     data() {
       return {
@@ -259,6 +268,15 @@
       },
       menuActions() {
         return difference(this.allActions, this.barActions);
+      },
+      contentSpecificStyles() {
+        // The prime difference is that Exercises won't have shadows under the UiToolbar
+        // because the LessonMasteryBar lives under it and has its own drop shadow.
+        if (this.contentKind === ContentNodeKinds.EXERCISE) {
+          return { border: `1px solid ${this.$themeTokens.fineLine}`, 'box-shadow': 'none' };
+        } else {
+          return {};
+        }
       },
     },
     created() {
@@ -338,20 +356,6 @@
     z-index: 8;
     min-width: 270px;
     transform: translateY(16px);
-  }
-
-  // decrease the gap between the back navigation
-  // icon and a resource icon + title
-  /deep/ .ui-toolbar__left {
-    .ui-toolbar__nav-icon {
-      margin-right: 12px;
-    }
-  }
-
-  // increase the gap between the resource title
-  // and the action buttons on the right
-  /deep/ .ui-toolbar__right {
-    margin-left: 16px;
   }
 
   /deep/ .progress-icon .ui-icon {

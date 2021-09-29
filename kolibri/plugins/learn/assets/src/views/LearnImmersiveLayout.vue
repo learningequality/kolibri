@@ -16,6 +16,7 @@
       :isCoachContent="isCoachContent"
       :contentProgress="contentProgress"
       :allowMarkComplete="allowMarkComplete"
+      :contentKind="content.kind"
       data-test="learningActivityBar"
       @navigateBack="navigateBack"
       @toggleBookmark="toggleBookmark"

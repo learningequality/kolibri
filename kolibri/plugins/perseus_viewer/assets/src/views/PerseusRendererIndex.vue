@@ -686,6 +686,8 @@
   }
 
   .framework-perseus {
+    max-width: 1200px;
+    padding-bottom: 104px;
     margin: 32px 24px 0;
   }
 

@@ -230,7 +230,8 @@
         return this.getPage(firstPageToRender + 1).then(firstPage => {
           this.firstPageHeight = firstPage.view[3];
           this.firstPageWidth = firstPage.view[2];
-          this.scale = this.elementWidth / (this.firstPageWidth + MARGIN);
+          const screenSizeMultiplier = this.windowIsLarge ? 1.25 : this.windowIsSmall ? 1 : 1.125;
+          this.scale = this.elementWidth / (this.firstPageWidth * screenSizeMultiplier);
           // Set the firstPageToRender into the pdfPages object so that we do not refetch the page
           // from PDFJS when we do our initial render
           // splice so changes are detected

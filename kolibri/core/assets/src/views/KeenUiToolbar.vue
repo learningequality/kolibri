@@ -18,7 +18,7 @@
   }
 
   .ui-toolbar {
-    padding: 0 16px 0 30px;
+    padding: 0 32px;
   }
 
 </style>
