@@ -64,6 +64,7 @@ static guint search_provider_signals[_SEARCH_PROVIDER_LAST_SIGNAL];
 
 typedef enum {
   KOLIBRI_GNOME_SEARCH_PROVIDER_ERROR_INVALID_ITEM_ID,
+  KOLIBRI_GNOME_SEARCH_PROVIDER_ERROR_INVALID_NODE_PATH,
   KOLIBRI_GNOME_SEARCH_PROVIDER_ERROR_WRONG_CHANNEL,
 } KolibriGnomeSearchProviderError;
 
@@ -168,6 +169,39 @@ parse_item_id(const gchar  *item_id,
 
   *out_node_path = g_strdup(item_id_split[0]);
   *out_node_context = g_strdup(item_id_split[1]);
+
+  return TRUE;
+}
+
+static gboolean
+parse_node_path(const gchar  *node_path,
+                gchar       **out_node_kind,
+                gchar       **out_node_id,
+                GError      **error)
+{
+  g_auto(GStrv) node_path_split = NULL;
+
+  if (node_path == NULL)
+    {
+      *out_node_kind = NULL;
+      *out_node_id = NULL;
+      return TRUE;
+    }
+
+  node_path_split = g_strsplit(node_path, "/", 2);
+
+  if (g_strv_length(node_path_split) != 2)
+    {
+      g_set_error(error,
+                  KOLIBRI_GNOME_SEARCH_PROVIDER_ERROR,
+                  KOLIBRI_GNOME_SEARCH_PROVIDER_ERROR_INVALID_NODE_PATH,
+                  "%s is not a valid node path",
+                  node_path);
+      return FALSE;
+    }
+
+  *out_node_kind = g_strdup(node_path_split[0]);
+  *out_node_id = g_strdup(node_path_split[1]);
 
   return TRUE;
 }
@@ -316,8 +350,30 @@ kolibri_gnome_search_provider_get_search_multiplexer(KolibriGnomeSearchProvider 
   return TRUE;
 }
 
+static gboolean
+item_id_is_in_channel(const gchar *item_id,
+                      const gchar *channel_id)
+{
+  g_autofree gchar *node_path = NULL;
+  g_autofree gchar *node_kind = NULL;
+  g_autofree gchar *node_id = NULL;
+  g_autofree gchar *node_context = NULL;
+  g_autofree gchar *channel_root_path = NULL;
+
+  parse_item_id(item_id, &node_path, &node_context, NULL);
+  parse_node_path(node_path, &node_kind, &node_id, NULL);
+
+  // Channel root nodes should not appear as inside a channel.
+  if (node_id == NULL || g_strcmp0(node_id, channel_id) == 0)
+    return FALSE;
+
+  return node_context != NULL && g_strcmp0(node_context, channel_id) == 0;
+}
+
 static gsize
-filter_item_ids(const GStrv all_item_ids, const gchar *channel_id, GStrv *out_item_ids)
+filter_item_ids(const GStrv  all_item_ids,
+                const gchar *channel_id,
+                GStrv       *out_item_ids)
 {
   g_autoptr(GStrvBuilder) strv_builder = g_strv_builder_new();
 
@@ -326,12 +382,8 @@ filter_item_ids(const GStrv all_item_ids, const gchar *channel_id, GStrv *out_it
   for (guint n = 0; n < all_item_ids_count; n++)
     {
       const gchar *item_id = all_item_ids[n];
-      g_autofree gchar *node_path = NULL;
-      g_autofree gchar *node_context = NULL;
 
-      parse_item_id(item_id, &node_path, &node_context, NULL);
-
-      if (channel_id == NULL || g_strcmp0(node_context, channel_id) == 0)
+      if (channel_id == NULL || item_id_is_in_channel(item_id, channel_id))
         g_strv_builder_add(strv_builder, item_id);
     }
 
