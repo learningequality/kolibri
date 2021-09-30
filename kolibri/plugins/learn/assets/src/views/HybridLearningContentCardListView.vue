@@ -12,6 +12,7 @@
       :to="link"
     >
       <div
+        v-if="!isMobile"
         class="folder-header"
         :style="{ backgroundColor: (!isLeaf ? $themeTokens.text : null ) }"
       ></div>
@@ -86,17 +87,18 @@
       >
         {{ bookmarkCreated }}
       </p>
-      <KIconButton
-        v-for="(value, key) in footerIcons"
-        :key="key"
-        :icon="key"
-        :class="isRtl ? 'footer-right' : 'footer-left'"
-        size="mini"
-        :color="$themePalette.grey.v_400"
-        :ariaLabel="coreString(value)"
-        :tooltip="coreString(value)"
-        @click="$emit(value)"
-      />
+      <div class="footer-icons">
+        <KIconButton
+          v-for="(value, key) in footerIcons"
+          :key="key"
+          :icon="key"
+          size="mini"
+          :color="$themePalette.grey.v_400"
+          :ariaLabel="coreString(value)"
+          :tooltip="coreString(value)"
+          @click="$emit(value)"
+        />
+      </div>
       <KLinearLoader
         v-if="progress && isMobile"
         class="k-linear-loader"
@@ -123,10 +125,10 @@
   import { now } from 'kolibri.utils.serverClock';
   import { PageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
-  import CardThumbnail from './ContentCard/CardThumbnail';
+  import CardThumbnail from './HybridLearningContentCard/CardThumbnail';
 
   export default {
-    name: 'ContentCardListViewItem',
+    name: 'HybridLearningContentCardListView',
     components: {
       CardThumbnail,
       TextTruncator,
@@ -276,7 +278,7 @@
   @import '~kolibri-design-system/lib/styles/definitions';
   @import './ContentCard/card';
 
-  $margin: 16px;
+  $margin: 24px;
 
   .card {
     @extend %dropshadow-1dp;
@@ -302,6 +304,7 @@
     display: inline-block;
     max-width: calc(100% - 350px);
     margin: 24px;
+    margin-top: 8px;
     vertical-align: top;
   }
 
@@ -314,14 +317,8 @@
   }
 
   .metadata-info {
-    margin-bottom: 6px;
-    font-size: 13px;
-  }
-
-  .metadata-info-footer {
-    display: inline-block;
-    margin: 0;
-    font-size: 13px;
+    margin-top: 8px;
+    margin-bottom: 8px;
   }
 
   .channel-logo {
@@ -332,7 +329,7 @@
 
   .copies {
     display: inline-block;
-    padding: 6px 8px;
+    padding: 8px;
     font-size: 13px;
     text-decoration: none;
     vertical-align: top;
@@ -346,11 +343,24 @@
 
   .footer {
     position: absolute;
-    right: $margin;
-    bottom: $margin;
-    left: $margin;
-    min-height: 30px;
-    font-size: 12px;
+    bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    padding: $margin;
+  }
+
+  .metadata-info-footer {
+    flex: auto;
+    align-self: center;
+    margin: 0;
+  }
+
+  .footer-icons {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    display: inline;
   }
 
   .k-linear-loader {
@@ -363,17 +373,9 @@
     display: inline-block;
     width: 240px;
     height: 100px;
+    margin-top: 8px;
     margin-right: 24px;
     margin-left: 24px;
-  }
-
-  .footer-left {
-    display: block;
-    float: right;
-  }
-  .footer-right {
-    display: block;
-    float: left;
   }
 
   .mobile-card.card {
@@ -384,13 +386,14 @@
   .mobile-card {
     .thumbnail {
       position: absolute;
-      width: 100%;
-      margin: auto;
-      margin-top: 10px;
+      top: 24px;
+      width: calc(100% - 48px);
+      height: calc(100% - 24px);
+      margin-left: 24px;
     }
     .details {
       max-width: 100%;
-      margin-top: ($thumb-height-mobile + 20px);
+      margin-top: 224px;
     }
   }
 
