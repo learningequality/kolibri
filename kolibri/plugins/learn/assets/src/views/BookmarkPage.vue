@@ -52,8 +52,8 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
-  import { PageNames } from '../constants';
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
+  import HybridLearningCardGrid from './HybridLearningCardGrid';
 
   export default {
     name: 'BookmarkPage',
