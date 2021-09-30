@@ -23,13 +23,16 @@
           :channelThumbnail="setChannelThumbnail(content)"
           :channelTitle="channelTitle(content)"
           @openCopiesModal="openCopiesModal"
-          @toggleInfoPanel="$emit('toggleInfoPanel', content)"
         />
       </KFixedGridItem>
     </KFixedGrid> -->
-    <ContentCardListViewItem
+    <HybridLearningContentCardListView
       v-for="content in contents"
       :key="content.id"
+      :channelThumbnail="content.channel_thumbnail"
+      :channelTitle="content.channel_thumbnail"
+      :description="content.description"
+      activityLength="shortActivity"
       class="grid-item"
       :isMobile="windowIsSmall"
       :title="content.title"
@@ -41,8 +44,9 @@
       :link="genContentLink(content.id, content.is_leaf)"
       :contentId="content.content_id"
       :copiesCount="content.copies_count"
+      :footerIcons="footerIcons"
+      :createdDate="content.bookmark ? content.bookmark.created : null"
       @openCopiesModal="openCopiesModal"
-      @toggleInfoPanel="$emit('toggleInfoPanel', content)"
       @removeFromBookmarks="removeFromBookmarks(content, contents)"
     />
     <CopiesModal
@@ -58,16 +62,16 @@
 
 <script>
 
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import genContentLink from '../utils/genContentLink';
-  import ContentCard from './ContentCard';
+  import HybridLearningContentCardListView from './HybridLearningContentCardListView';
   import CopiesModal from './CopiesModal';
 
   export default {
-    name: 'ContentCardGroupGrid',
+    name: 'HybridLearningCardGrid',
     components: {
-      ContentCard,
       CopiesModal,
+      HybridLearningContentCardListView,
     },
     mixins: [responsiveWindowMixin],
     props: {
@@ -75,13 +79,30 @@
         type: Array,
         required: true,
       },
-      cardViewStyle: {
-        type: String,
-        required: true,
-        default: 'card',
+      // cardViewStyle: {
+      //   type: String,
+      //   required: true,
+      //   default: 'card',
+      //   validator(value) {
+      //     return ['card', 'list'].includes(value);
+      //   },
+      // },
+      // numCols: {
+      //   type: String,
+      //   required: true,
+      // },
+      genContentLink: {
+        type: Function,
         validator(value) {
-          return ['card', 'list'].includes(value);
+          return validateLinkObject(value(1, 'exercise'));
         },
+        default: () => ({}),
+        required: false,
+      },
+      footerIcons: {
+        type: Object,
+        required: false,
+        default: null,
       },
     },
     data: () => ({
@@ -90,11 +111,13 @@
       uniqueId: null,
     }),
     methods: {
-      genContentLink,
       openCopiesModal(contentId) {
         this.sharedContentId = contentId;
         this.uniqueId = this.contents.find(content => content.content_id === contentId).id;
         this.modalIsOpen = true;
+      },
+      removeFromBookmarks(content, contents) {
+        return this.$emit('removeFromBookmarks', content.bookmark, contents.indexOf(content));
       },
     },
   };
@@ -105,8 +128,8 @@
 <style lang="scss" scoped>
 
   $gutters: 16px;
+
   .grid-item {
-    margin-right: $gutters;
     margin-bottom: $gutters;
   }
 

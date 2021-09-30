@@ -1,6 +1,7 @@
 <template>
 
-  <div
+  <router-link
+    :to="link"
     class="card"
     :class="[
       { 'mobile-card': isMobile },
@@ -8,86 +9,42 @@
     ]"
     :style="{ backgroundColor: $themeTokens.surface }"
   >
-    <router-link
-      :to="link"
-    >
-      <div class="header-bar">
-        <KLabeledIcon
-          :icon="kind === 'topic' ? 'topic' : `${kindToLearningActivity}Solid`"
-          :label="coreString(kindToLearningActivity)"
-          class="k-labeled-icon"
+    <CardThumbnail
+      class="thumbnail"
+      v-bind="{ thumbnail, progress, kind, isMobile, showContentIcon }"
+    />
+    <div class="text" :style="{ color: $themeTokens.text }">
+      <h3 class="title" dir="auto">
+        <TextTruncator
+          :text="title"
+          :maxHeight="maxTitleHeight"
         />
-        <img
-          :src="channelThumbnail"
-          :alt="learnString('logo', { channelTitle: channelTitle })"
-          class="channel-logo"
-        >
-      </div>
-      <CardThumbnail
-        class="thumbnail"
-        v-bind="{ thumbnail, kind, isMobile }"
-      />
-      <div class="text" :style="{ color: $themeTokens.text }">
-        <h3 class="title" dir="auto">
-          <TextTruncator
-            :text="title"
-            :maxHeight="maxTitleHeight"
-          />
-        </h3>
-        <p
-          v-if="subtitle"
-          dir="auto"
-          class="subtitle"
-        >
-          {{ subtitle }}
-        </p>
-      </div>
-    </router-link>
-    <div class="footer">
-      <KLinearLoader
-        class="k-linear-loader"
-        :delay="false"
-        :progress="progress"
-        type="determinate"
-        :style="{ backgroundColor: $themeTokens.fineLine }"
-      />
-      <div class="left">
+      </h3>
+      <p
+        v-if="subtitle"
+        dir="auto"
+        class="subtitle"
+        :class="{ 'no-footer': !hasFooter }"
+      >
+        {{ subtitle }}
+      </p>
+      <div class="footer">
         <CoachContentLabel
           v-if="isUserLoggedIn && !isLearner"
           class="coach-content-label"
           :value="numCoachContents"
           :isTopic="isTopic"
         />
-        <KIconButton
-          icon="optionsVertical"
-          class="info-icon"
-          size="mini"
-          :color="$themePalette.grey.v_400"
-          :ariaLabel="coreString('moreOptions')"
-          :tooltip="coreString('moreOptions')"
-          @click="$emit('toggleOptions')"
-        />
-      </div>
-      <div class="right">
-        <KIconButton
-          icon="infoPrimary"
-          size="mini"
-          :color="$themePalette.grey.v_400"
-          :ariaLabel="coreString('viewInformation')"
-          :tooltip="coreString('viewInformation')"
-          @click="$emit('toggleInfoPanel')"
-        />
         <KButton
           v-if="copiesCount > 1"
           appearance="basic-link"
           class="copies"
-          :text="coreString('copies', { num: copiesCount })"
+          :text="$tr('copies', { num: copiesCount })"
           @click.prevent="$emit('openCopiesModal', contentId)"
         />
-        <slot name="actions"></slot>
       </div>
     </div>
-  </div>
+  </router-link>
 
 </template>
 
@@ -96,15 +53,9 @@
 
   import { mapGetters } from 'vuex';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
-  import {
-    LearningActivities,
-    ContentKindsToLearningActivitiesMap,
-  } from 'kolibri.coreVue.vuex.constants';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonLearnStrings from '../commonLearnStrings';
-  import CardThumbnail from './CardThumbnail.vue';
+  import CardThumbnail from './CardThumbnail';
 
   export default {
     name: 'ContentCard',
@@ -113,7 +64,6 @@
       CoachContentLabel,
       TextTruncator,
     },
-    mixins: [commonLearnStrings, commonCoreStrings],
     props: {
       title: {
         type: String,
@@ -127,14 +77,6 @@
         type: String,
         default: null,
       },
-      channelThumbnail: {
-        type: String,
-        default: null,
-      },
-      channelTitle: {
-        type: String,
-        default: null,
-      },
       kind: {
         type: String,
         required: true,
@@ -143,6 +85,10 @@
       isLeaf: {
         type: Boolean,
         required: true,
+      },
+      showContentIcon: {
+        type: Boolean,
+        default: true,
       },
       // ContentNode.coach_content will be `0` if not a coach content leaf node,
       // or a topic without coach content. It will be a positive integer if a topic
@@ -188,24 +134,14 @@
         } else if (this.hasFooter || this.subtitle) {
           return 40;
         }
-        return 66;
+        return 60;
       },
       hasFooter() {
-        return this.numCoachContents > 0 || this.copiesCount > 1 || this.$slots.actions;
+        return this.numCoachContents > 0 || this.copiesCount > 1;
       },
-      kindToLearningActivity() {
-        let activity = '';
-        if (this.kind === 'topic') {
-          return 'folder';
-        } else if (Object.values(LearningActivities).includes(this.kind)) {
-          activity = this.kind;
-          return `${activity}`;
-        } else {
-          // otherwise reassign the old content types to the new metadata
-          activity = ContentKindsToLearningActivitiesMap[this.kind];
-          return `${activity}`;
-        }
-      },
+    },
+    $trs: {
+      copies: '{ num, number} locations',
     },
   };
 
@@ -221,18 +157,16 @@
 
   .coach-content-label {
     display: inline-block;
-    padding-top: $margin;
   }
 
   .card {
     @extend %dropshadow-1dp;
 
-    position: relative;
     display: inline-block;
-    width: 100%;
+    width: $thumb-width-desktop;
     text-decoration: none;
     vertical-align: top;
-    border-radius: 8px;
+    border-radius: 2px;
     transition: box-shadow $core-time ease;
     &:hover {
       @extend %dropshadow-8dp;
@@ -243,31 +177,26 @@
     }
   }
 
-  .header-bar {
-    padding: 13px 18px 0;
-    margin-bottom: 0;
-    font-size: 13px;
-  }
-
-  .k-labeled-icon {
-    display: inline-block;
-    max-width: calc(100% - 50px);
-    height: 24px;
-    margin-bottom: 0;
-    vertical-align: top;
-  }
-
-  .channel-logo {
-    display: inline-block;
-    float: right;
-    height: 24px;
-    margin-bottom: 0;
-  }
-
   .text {
     position: relative;
-    height: 190px;
+    height: 92px;
     padding: $margin;
+  }
+
+  .title,
+  .subtitle {
+    margin: 0;
+  }
+
+  .subtitle {
+    position: absolute;
+    top: 38px;
+    right: $margin;
+    left: $margin;
+    overflow: hidden;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .footer {
@@ -275,20 +204,16 @@
     right: $margin;
     bottom: $margin;
     left: $margin;
-    display: inline-block;
     font-size: 12px;
   }
 
-  .k-linear-loader {
+  .subtitle.no-footer {
+    top: unset;
+    bottom: $margin;
+  }
+
+  .copies {
     display: inline-block;
-    max-width: 70%;
-  }
-
-  .left {
-    float: left;
-  }
-
-  .right {
     float: right;
   }
 
