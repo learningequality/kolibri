@@ -104,10 +104,6 @@
         type: Boolean,
         default: false,
       },
-      activityLength: {
-        type: String,
-        default: null,
-      },
     },
     computed: {
       isMastered() {
@@ -233,9 +229,6 @@
 
     .content-icon {
       font-size: 18px;
-    }
-    .activity-length-chip {
-      bottom: 20px;
     }
   }
 
