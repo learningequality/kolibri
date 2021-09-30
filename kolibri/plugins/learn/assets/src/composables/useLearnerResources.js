@@ -164,6 +164,32 @@ export default function useLearnerResources() {
   }
 
   /**
+   * @param {String} classId
+   * @returns {Array} All active lessons of a class
+   * @public
+   */
+  function getClassActiveLessons(classId) {
+    const classroom = getClass(classId);
+    if (!classroom || !classroom.assignments || !classroom.assignments.lessons) {
+      return [];
+    }
+    return classroom.assignments.lessons.filter(lesson => lesson.is_active);
+  }
+
+  /**
+   * @param {String} classId
+   * @returns {Array} All active quizzes of a class
+   * @public
+   */
+  function getClassActiveQuizzes(classId) {
+    const classroom = getClass(classId);
+    if (!classroom || !classroom.assignments || !classroom.assignments.exams) {
+      return [];
+    }
+    return classroom.assignments.exams.filter(exam => exam.active);
+  }
+
+  /**
    * @param {String} contentNodeId
    * @returns {Object}
    * @public
@@ -269,8 +295,25 @@ export default function useLearnerResources() {
   }
 
   /**
+   * Fetches a class by its ID and saves data
+   * to this composable's store
+   *
+   * @param {String} classId
+   * @param {Boolean} force Cache won't be used when `true`
+   * @returns  {Promise}
+   * @public
+   */
+  function fetchClass({ classId, force = false }) {
+    return LearnerClassroomResource.fetchModel({ id: classId, force }).then(classroom => {
+      const updatedClasses = [...get(classes).filter(c => c.id !== classId), classroom];
+      set(classes, updatedClasses);
+      return classroom;
+    });
+  }
+
+  /**
    * Fetches current learner's classes
-   * and saves data to this composable store
+   * and saves data to this composable's store
    *
    * @returns {Promise}
    * @public
@@ -283,7 +326,7 @@ export default function useLearnerResources() {
 
   /**
    * Fetches resumable content nodes with their progress data
-   * and saves data to this composable store
+   * and saves data to this composable's store
    *
    * @returns {Promise}
    * @public
@@ -316,10 +359,13 @@ export default function useLearnerResources() {
     getClass,
     getResumableContentNode,
     getResumableContentNodeProgress,
+    getClassActiveLessons,
+    getClassActiveQuizzes,
     getClassLessonLink,
     getClassQuizLink,
     getClassResourceLink,
     getTopicContentNodeLink,
+    fetchClass,
     fetchClasses,
     fetchResumableContentNodes,
   };

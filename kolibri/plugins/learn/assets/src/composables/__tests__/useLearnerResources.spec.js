@@ -12,6 +12,8 @@ const {
   resumableClassesResources,
   resumableNonClassesContentNodes,
   getClass,
+  getClassActiveLessons,
+  getClassActiveQuizzes,
   getResumableContentNode,
   getResumableContentNodeProgress,
   getClassLessonLink,
@@ -372,6 +374,62 @@ describe(`useLearnerResources`, () => {
   describe(`getClass`, () => {
     it(`returns a class`, () => {
       expect(getClass('class-2')).toEqual(TEST_CLASSES[1]);
+    });
+  });
+
+  describe(`getClassActiveLessons`, () => {
+    it(`returns all active lessons from a class`, () => {
+      expect(getClassActiveLessons('class-1')).toEqual([
+        {
+          id: 'class-1-active-lesson-1',
+          title: 'Class 1 - Active Lesson 1',
+          is_active: true,
+          collection: 'class-1',
+          resources: [
+            { contentnode_id: 'resource-1-in-progress' },
+            { contentnode_id: 'resource-2' },
+            { contentnode_id: 'resource-3-in-progress' },
+          ],
+        },
+        {
+          id: 'class-1-active-lesson-2',
+          title: 'Class 1 - Active Lesson 2',
+          is_active: true,
+          collection: 'class-1',
+          resources: [
+            { contentnode_id: 'resource-1-in-progress' },
+            { contentnode_id: 'resource-4' },
+            { contentnode_id: 'resource-5-in-progress' },
+          ],
+        },
+      ]);
+    });
+  });
+
+  describe(`getClassActiveQuizzes`, () => {
+    it(`returns all active quizzes from a class`, () => {
+      expect(getClassActiveQuizzes('class-1')).toEqual([
+        {
+          id: 'class-1-active-quiz-in-progress',
+          title: 'Class 1 - Active Quiz In Progress',
+          active: true,
+          collection: 'class-1',
+          progress: {
+            started: true,
+            closed: false,
+          },
+        },
+        {
+          id: 'class-1-active-finished-quiz',
+          title: 'Class 1 - Active Finished Quiz',
+          active: true,
+          collection: 'class-1',
+          progress: {
+            started: true,
+            closed: true,
+          },
+        },
+      ]);
     });
   });
 
