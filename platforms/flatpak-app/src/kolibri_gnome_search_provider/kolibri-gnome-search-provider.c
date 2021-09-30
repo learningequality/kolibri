@@ -358,7 +358,6 @@ item_id_is_in_channel(const gchar *item_id,
   g_autofree gchar *node_kind = NULL;
   g_autofree gchar *node_id = NULL;
   g_autofree gchar *node_context = NULL;
-  g_autofree gchar *channel_root_path = NULL;
 
   parse_item_id(item_id, &node_path, &node_context, NULL);
   parse_node_path(node_path, &node_kind, &node_id, NULL);
