@@ -19,19 +19,12 @@
 <script>
 
   /**
-   * Truncates text to a certain number of lines and adds "..."
+   * Truncates text to a certain number of lines
+   * and adds an ellipsis character "…"
    *
-   * This is a pure CSS alternative to `TextTruncator` for simpler
-   * use cases like card titles since `TextTruncator` is causing performance
-   * issues (https://github.com/learningequality/kolibri/issues/8124)
-   * and thus its usage is currently not recommended for larger
-   * amounts of instances on one page.
-   *
-   * Compared to `TextTruncator` there are two disadvantages:
-   * - depending on length of words of the text, there might be a gap
-   *   between the last visible word and "..." in Internet Explorer
-   *   and old versions of some other browsers (see implementation comments)
-   * - it currently doesn't offer "View all"/"View less" functionality
+   * Internet Explorer note:
+   * Depending on length of words of the text, there might
+   * be a gap between the last visible word and "…"
    */
   export default {
     name: 'TextTruncatorCss',
@@ -109,7 +102,7 @@
             paddingRight: ellipsisWidth,
             marginRigth: `-${ellipsisWidth}`,
             '::before': {
-              content: "'...'",
+              content: "'…'",
               position: 'absolute',
               right: 0,
               bottom: 0,
