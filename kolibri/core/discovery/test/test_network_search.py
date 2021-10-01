@@ -19,6 +19,8 @@ SEARCH_MODULE = "kolibri.core.discovery.utils.network.search."
 
 
 class DynamicNetworkLocationListenerTestCase(TransactionTestCase):
+    multi_db = True
+
     def setUp(self):
         super(DynamicNetworkLocationListenerTestCase, self).setUp()
         self.instance = KolibriInstance(
@@ -237,13 +239,13 @@ class SoUDServerListenerTestCase(TransactionTestCase):
         mock_unsubscribe.assert_called_once_with(NETWORK_EVENTS)
         mock_subscribe.assert_not_called()
 
-    @mock.patch(SEARCH_MODULE + "cleanup_server_soud_sync")
+    @mock.patch(SEARCH_MODULE + "queue_soud_server_sync_cleanup")
     def test_remove_instance__not_soud(self, mock_cleanup):
         self.instance.device_info.update(subset_of_users_device=False)
         self.listener.remove_instance(self.instance)
         mock_cleanup.assert_not_called()
 
-    @mock.patch(SEARCH_MODULE + "cleanup_server_soud_sync")
+    @mock.patch(SEARCH_MODULE + "queue_soud_server_sync_cleanup")
     def test_remove_instance__soud(self, mock_cleanup):
         self.instance.device_info.update(subset_of_users_device=True)
         self.listener.remove_instance(self.instance)
