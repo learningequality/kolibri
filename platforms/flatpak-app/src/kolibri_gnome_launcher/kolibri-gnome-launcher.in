@@ -1,0 +1,3 @@
+#!/bin/sh
+
+@PYTHON@ -m "kolibri_gnome_launcher.main" $@

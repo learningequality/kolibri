@@ -67,6 +67,6 @@ executable(
     ],
     dependencies: search_provider_dependencies,
     install: true,
-    install_dir: kolibri_gnome_libexecdir
+    install_dir: kolibri_app_libexecdir
 )
 

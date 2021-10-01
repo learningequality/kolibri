@@ -11,11 +11,11 @@ from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
 
-from . import config
-
-from .globals import KOLIBRI_FORCE_USE_SYSTEM_INSTANCE
-from .globals import KOLIBRI_USE_SYSTEM_INSTANCE
-from .globals import local_kolibri_exists
+from kolibri_app.config import DAEMON_APPLICATION_ID
+from kolibri_app.config import DAEMON_OBJECT_PATH
+from kolibri_app.globals import KOLIBRI_FORCE_USE_SYSTEM_INSTANCE
+from kolibri_app.globals import KOLIBRI_USE_SYSTEM_INSTANCE
+from kolibri_app.globals import local_kolibri_exists
 
 
 class KolibriDaemonProxy(Gio.DBusProxy):
@@ -30,8 +30,8 @@ class KolibriDaemonProxy(Gio.DBusProxy):
     def __init__(self, bus_type):
         super().__init__(
             g_bus_type=bus_type,
-            g_name=config.DAEMON_APPLICATION_ID,
-            g_object_path=config.DAEMON_OBJECT_PATH,
+            g_name=DAEMON_APPLICATION_ID,
+            g_object_path=DAEMON_OBJECT_PATH,
             g_interface_name="org.learningequality.Kolibri.Daemon",
         )
 

@@ -4,7 +4,7 @@ metainfo_file = i18n.merge_file(
     input: configure_file(
         input: 'org.learningequality.Kolibri.metainfo.xml.in.in',
         output: 'org.learningequality.Kolibri.metainfo.xml.in',
-        configuration: kolibri_gnome_config
+        configuration: kolibri_app_config
     ),
     output: base_application_id + '.metainfo.xml',
     type: 'xml',

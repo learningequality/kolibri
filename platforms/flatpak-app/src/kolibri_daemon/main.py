@@ -22,7 +22,7 @@ def application_signal_handler(application, sig, frame):
 
 def main():
     setproctitle(PROCESS_NAME)
-    os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_gnome.kolibri_settings"
+    os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_app.kolibri_settings"
 
     application = Application()
     signal.signal(signal.SIGTERM, partial(application_signal_handler, application))

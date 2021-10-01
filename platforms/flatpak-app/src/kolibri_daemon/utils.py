@@ -7,8 +7,8 @@ import shutil
 
 from pathlib import Path
 
-from ..config import KOLIBRI_HOME_TEMPLATE_DIR
-from ..globals import KOLIBRI_HOME_PATH
+from kolibri_app.config import KOLIBRI_HOME_TEMPLATE_DIR
+from kolibri_app.globals import KOLIBRI_HOME_PATH
 
 
 def kolibri_update_from_home_template():
