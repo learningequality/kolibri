@@ -46,7 +46,7 @@
 
 <script>
 
-  import { computed, onBeforeMount } from 'kolibri.lib.vueCompositionApi';
+  import { computed } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';
@@ -82,8 +82,6 @@
         resumableClassesQuizzes,
         resumableClassesResources,
         resumableNonClassesContentNodes,
-        fetchClasses,
-        fetchResumableContentNodes,
       } = useLearnerResources();
 
       const canResumeClasses = computed(() => {
@@ -107,13 +105,6 @@
         () =>
           get(isUserLoggedIn) && get(activeClassesQuizzes) && get(activeClassesQuizzes).length > 0
       );
-
-      onBeforeMount(() => {
-        if (get(isUserLoggedIn)) {
-          fetchClasses();
-          fetchResumableContentNodes();
-        }
-      });
 
       return {
         isUserLoggedIn,

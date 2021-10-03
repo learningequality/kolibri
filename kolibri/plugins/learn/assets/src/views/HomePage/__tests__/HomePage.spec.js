@@ -69,31 +69,6 @@ describe(`HomePage`, () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  describe(`when loaded`, () => {
-    it(`fetches learner's classes and resumable resources when a user is signed in`, () => {
-      const fetchClasses = jest.fn();
-      const fetchResumableContentNodes = jest.fn();
-      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
-      useLearnerResources.mockImplementation(() =>
-        useLearnerResourcesMock({ fetchClasses, fetchResumableContentNodes })
-      );
-      makeWrapper();
-      expect(fetchClasses).toHaveBeenCalledTimes(1);
-      expect(fetchResumableContentNodes).toHaveBeenCalledTimes(1);
-    });
-
-    it(`doesn't fetch learner's classes and resumable resources when a user is signed out`, () => {
-      const fetchClasses = jest.fn();
-      const fetchResumableContentNodes = jest.fn();
-      useLearnerResources.mockImplementation(() =>
-        useLearnerResourcesMock({ fetchClasses, fetchResumableContentNodes })
-      );
-      makeWrapper();
-      expect(fetchClasses).not.toHaveBeenCalled();
-      expect(fetchResumableContentNodes).not.toHaveBeenCalled();
-    });
-  });
-
   describe(`"Your classes" section`, () => {
     it(`the section is not displayed for a guest user`, () => {
       const wrapper = makeWrapper();

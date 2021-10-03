@@ -1,5 +1,8 @@
+import { get } from '@vueuse/core';
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
+import useUser from '../composables/useUser';
+import useLearnerResources from '../composables/useLearnerResources';
 import {
   showTopicsTopic,
   showTopicsChannel,
@@ -17,6 +20,9 @@ import LibraryPage from '../views/LibraryPage';
 import HomePage from '../views/HomePage';
 import RecommendedSubpage from '../views/RecommendedSubpage';
 import classesRoutes from './classesRoutes';
+
+const { isUserLoggedIn } = useUser();
+const { fetchClasses, fetchResumableContentNodes } = useLearnerResources();
 
 function unassignedContentGuard() {
   const { canAccessUnassignedContent } = store.getters;
@@ -51,8 +57,20 @@ export default [
     path: '/home',
     component: HomePage,
     handler() {
-      store.commit('SET_PAGE_NAME', PageNames.HOME);
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      let promises = [];
+      if (get(isUserLoggedIn)) {
+        promises = [fetchClasses(), fetchResumableContentNodes()];
+      }
+      return store.dispatch('loading').then(() => {
+        return Promise.all(promises)
+          .then(() => {
+            store.commit('SET_PAGE_NAME', PageNames.HOME);
+            store.dispatch('notLoading');
+          })
+          .catch(error => {
+            return store.dispatch('handleApiError', error);
+          });
+      });
     },
   },
   {
