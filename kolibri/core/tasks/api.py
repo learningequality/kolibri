@@ -51,6 +51,7 @@ from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.upgrade import diff_stats
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.permissions import NotProvisionedCanPost
+from kolibri.core.device.permissions import NotProvisionedHasPermission
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
@@ -292,7 +293,7 @@ class BaseViewSet(viewsets.ViewSet):
         Enqueues a registered task for async processing.
 
         If the registered task has a validator then that validator is run with the
-        `request` object and the corresponding `request.data` as its argument. The dict
+        `request` object and the corresponding `request.data` as its arguments. The dict
         returned by the validator is passed as keyword arguments to the task function.
 
         If the registered task has no validator then `request.data` is passed as keyword
@@ -341,8 +342,13 @@ class BaseViewSet(viewsets.ViewSet):
 
                 request_data = validator_result
 
+            try:
+                user_facility_id = request.user.facility_id
+            except AttributeError:
+                user_facility_id = None
+
             job_id = registered_job.enqueue(
-                facility_id=request.user.facility_id, **request_data
+                facility_id=user_facility_id, **request_data
             )
             enqueued_jobs_response.append(_job_to_response(job_storage.get_job(job_id)))
 
@@ -480,7 +486,7 @@ class TasksViewSet(BaseViewSet):
     def default_permission_classes(self):
         # Permission for /api/tasks/tasks/ endpoints.
         if self.action in ["list", "retrieve", "create", "restarttask"]:
-            return [IsAuthenticated]
+            return [IsAuthenticated | NotProvisionedHasPermission]
         elif self.action in ["deletefinishedtasks"]:
             return [CanManageContent | CanExportLogs]
         elif self.action == "startexportlogcsv":

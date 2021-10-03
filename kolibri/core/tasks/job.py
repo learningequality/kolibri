@@ -230,7 +230,7 @@ class Job(object):
         self.facility_id = kwargs.pop("facility_id", None)
         self.state = kwargs.pop("state", State.PENDING)
         self.exception = exc
-        self.traceback = kwargs.pop("traceback", None)
+        self.traceback = kwargs.pop("traceback", "")
         self.track_progress = kwargs.pop("track_progress", False)
         self.cancellable = kwargs.pop("cancellable", False)
         self.extra_metadata = kwargs.pop("extra_metadata", {})
