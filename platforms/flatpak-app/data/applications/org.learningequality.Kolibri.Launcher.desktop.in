@@ -2,8 +2,8 @@
 Type=Application
 Terminal=false
 Name=Kolibri Launcher
-Exec=kolibri-launcher %U
+Exec=@KOLIBRI_APP_LIBEXECDIR@/kolibri-gnome-launcher %U
 NoDisplay=true
 StartupNotify=false
 DBusActivatable=true
-MimeType=x-scheme-handler/kolibri-channel;x-scheme-handler/x-kolibri-dispatch;
+MimeType=x-scheme-handler/x-kolibri-dispatch;

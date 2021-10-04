@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 from urllib.parse import urlunparse
 from gi.repository import Gio
 
-from .. import config
+from kolibri_app.config import LAUNCHER_APPLICATION_ID
 
 
 class Launcher(Gio.Application):
@@ -26,7 +26,7 @@ class Launcher(Gio.Application):
     """
 
     def __init__(self):
-        application_id = config.LAUNCHER_APPLICATION_ID
+        application_id = LAUNCHER_APPLICATION_ID
 
         super().__init__(application_id=application_id,
                          flags=Gio.ApplicationFlags.IS_SERVICE |
@@ -42,11 +42,7 @@ class Launcher(Gio.Application):
     def handle_uri(self, uri):
         url_tuple = urlsplit(uri)
 
-        if url_tuple.scheme == 'kolibri-channel':
-            channel_id = url_tuple.path.strip('/')
-            node_path = None
-            node_query = None
-        elif url_tuple.scheme == 'x-kolibri-dispatch':
+        if url_tuple.scheme == 'x-kolibri-dispatch':
             channel_id = url_tuple.netloc
             node_path = url_tuple.path
             node_query = url_tuple.query

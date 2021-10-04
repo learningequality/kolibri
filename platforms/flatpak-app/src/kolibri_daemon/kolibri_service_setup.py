@@ -10,11 +10,11 @@ import subprocess
 from collections import Mapping
 from pathlib import Path
 
-from .content_extensions import ContentExtensionsList
+from kolibri_app.globals import init_kolibri
+from kolibri_app.globals import init_logging
+from kolibri_app.globals import KOLIBRI_HOME_PATH
 
-from ..globals import init_kolibri
-from ..globals import init_logging
-from ..globals import KOLIBRI_HOME_PATH
+from .content_extensions import ContentExtensionsList
 
 
 KOLIBRI_BIN = "kolibri"

@@ -18,9 +18,10 @@ from setproctitle import setproctitle
 from gi.repository import Gio
 from gi.repository import GLib
 
-from .. import config
-
-from ..globals import init_gettext, init_logging
+from kolibri_app.config import FRONTEND_CHANNEL_APPLICATION_ID_PREFIX
+from kolibri_app.config import FRONTEND_APPLICATION_ID
+from kolibri_app.globals import init_gettext
+from kolibri_app.globals import init_logging
 
 
 PROCESS_NAME = "kolibri-gnome"
@@ -61,7 +62,7 @@ def main():
     if args.channel_id:
         pew.set_app_name("Kolibri")
         application_id = "{prefix}{channel_id}".format(
-            prefix=config.FRONTEND_CHANNEL_APPLICATION_ID_PREFIX,
+            prefix=FRONTEND_CHANNEL_APPLICATION_ID_PREFIX,
             channel_id=args.channel_id,
         )
         GLib.set_prgname(application_id)
@@ -69,7 +70,7 @@ def main():
             application_id=application_id, channel_id=args.channel_id
         )
     else:
-        application_id = config.FRONTEND_APPLICATION_ID
+        application_id = FRONTEND_APPLICATION_ID
         GLib.set_prgname(application_id)
         application = GenericApplication(application_id=application_id)
 

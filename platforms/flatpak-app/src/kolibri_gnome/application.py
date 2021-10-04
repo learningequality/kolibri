@@ -24,13 +24,12 @@ import gi
 from gi.repository import GLib
 from gi.repository import Gtk
 
-from .. import config
+from kolibri_app.config import DATA_DIR
+from kolibri_app.globals import KOLIBRI_APP_DEVELOPER_EXTRAS
+from kolibri_app.globals import KOLIBRI_HOME_PATH
+from kolibri_app.globals import XDG_CURRENT_DESKTOP
 
-from ..globals import KOLIBRI_APP_DEVELOPER_EXTRAS
-from ..globals import KOLIBRI_HOME_PATH
-from ..globals import XDG_CURRENT_DESKTOP
-from ..kolibri_daemon_proxy import KolibriDaemonProxy
-
+from .kolibri_daemon_proxy import KolibriDaemonProxy
 from .utils import get_localized_file
 
 
@@ -409,8 +408,8 @@ class Application(pew.ui.PEWApp):
         self.__starting_kolibri = False
 
         loader_path = get_localized_file(
-            Path(config.DATA_DIR, "assets", "_load-{}.html").as_posix(),
-            Path(config.DATA_DIR, "assets", "_load.html"),
+            Path(DATA_DIR, "assets", "_load-{}.html").as_posix(),
+            Path(DATA_DIR, "assets", "_load.html"),
         )
         self.__loader_url = loader_path.as_uri()
 

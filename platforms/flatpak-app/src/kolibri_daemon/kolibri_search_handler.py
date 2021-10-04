@@ -1,8 +1,8 @@
 import collections
 from concurrent.futures import ProcessPoolExecutor
 
-from ..globals import init_kolibri
-from ..globals import init_logging
+from kolibri_app.globals import init_kolibri
+from kolibri_app.globals import init_logging
 
 
 NODE_ICON_LOOKUP = {

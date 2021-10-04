@@ -3,9 +3,11 @@ from typing import NamedTuple
 from gi.repository import Gio
 from gi.repository import GLib
 
-from .. import config
-from ..dbus_utils import DBusServer
-from ..dbus_utils import dict_to_vardict
+from kolibri_app.config import DAEMON_APPLICATION_ID
+from kolibri_app.config import DAEMON_OBJECT_PATH
+
+from .dbus_utils import DBusServer
+from .dbus_utils import dict_to_vardict
 from .kolibri_search_handler import LocalSearchHandler
 from .kolibri_service import KolibriServiceManager
 
@@ -171,7 +173,7 @@ class Application(Gio.Application):
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,
-            application_id=config.DAEMON_APPLICATION_ID,
+            application_id=DAEMON_APPLICATION_ID,
             flags=(
                 Gio.ApplicationFlags.IS_SERVICE | Gio.ApplicationFlags.ALLOW_REPLACEMENT
             ),
@@ -244,7 +246,7 @@ class Application(Gio.Application):
         if self.use_session_bus:
             self.__session_kolibri_daemon = self.__create_kolibri_daemon()
             self.__session_kolibri_daemon.register_on_connection(
-                connection, config.DAEMON_OBJECT_PATH
+                connection, DAEMON_OBJECT_PATH
             )
         return True
 
@@ -302,11 +304,11 @@ class Application(Gio.Application):
         connection = Gio.bus_get_finish(result)
         self.__system_kolibri_daemon = self.__create_kolibri_daemon()
         self.__system_kolibri_daemon.register_on_connection(
-            connection, config.DAEMON_OBJECT_PATH
+            connection, DAEMON_OBJECT_PATH
         )
         self.__system_name_id = Gio.bus_own_name_on_connection(
             connection,
-            config.DAEMON_APPLICATION_ID,
+            DAEMON_APPLICATION_ID,
             Gio.BusNameOwnerFlags.NONE,
             self.__on_system_name_acquired,
             self.__on_system_name_lost,

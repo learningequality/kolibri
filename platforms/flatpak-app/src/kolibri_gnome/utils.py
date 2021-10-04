@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from ..globals import get_current_language
+from kolibri_app.globals import get_current_language
 
 
 def get_localized_file(file_path_template, file_path_fallback):

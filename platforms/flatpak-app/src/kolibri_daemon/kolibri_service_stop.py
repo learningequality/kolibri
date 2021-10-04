@@ -1,6 +1,6 @@
 import multiprocessing
 
-from ..globals import init_logging
+from kolibri_app.globals import init_logging
 
 
 class KolibriServiceStopProcess(multiprocessing.Process):
