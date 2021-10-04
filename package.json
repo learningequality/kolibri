@@ -62,5 +62,8 @@
   },
   "browserslist": [
     "extends browserslist-config-kolibri"
-  ]
+  ],
+  "dependencies": {
+    "kolibri-constants": "0.1.32-beta2"
+  }
 }
