@@ -4,6 +4,7 @@ import VueRouter from 'vue-router';
 import { ClassesPageNames } from '../../../constants';
 import HomePage from '../index';
 /* eslint-disable import/named */
+import useChannels, { useChannelsMock } from '../../../composables/useChannels';
 import useUser, { useUserMock } from '../../../composables/useUser';
 import useDeviceSettings, { useDeviceSettingsMock } from '../../../composables/useDeviceSettings';
 import useLearnerResources, {
@@ -11,6 +12,7 @@ import useLearnerResources, {
 } from '../../../composables/useLearnerResources';
 /* eslint-enable import/named */
 
+jest.mock('../../../composables/useChannels');
 jest.mock('../../../composables/useUser');
 jest.mock('../../../composables/useDeviceSettings');
 jest.mock('../../../composables/useLearnerResources');
@@ -53,6 +55,10 @@ function getRecentLessonsSection(wrapper) {
 
 function getRecentQuizzesSection(wrapper) {
   return wrapper.find('[data-test="recentQuizzes"]');
+}
+
+function getExploreChannelsSection(wrapper) {
+  return wrapper.find('[data-test="exploreChannels"]');
 }
 
 describe(`HomePage`, () => {
@@ -317,6 +323,83 @@ describe(`HomePage`, () => {
       expect(links.length).toBe(2);
       expect(links.at(0).text()).toBe('Quiz 1');
       expect(links.at(1).text()).toBe('Quiz 2');
+    });
+  });
+
+  describe(`"Explore channels" section`, () => {
+    it(`the section is not displayed when there are no channels available`, () => {
+      const wrapper = makeWrapper();
+      expect(getExploreChannelsSection(wrapper).exists()).toBe(false);
+    });
+
+    describe(`when there are some channels available`, () => {
+      beforeEach(() => {
+        useChannels.mockImplementation(() => useChannelsMock({ channels: [{ id: 'channel-1' }] }));
+      });
+
+      it(`the section is not displayed for a signed in user
+        who has some resumable classes resources`, () => {
+        useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+        useLearnerResources.mockImplementation(() =>
+          useLearnerResourcesMock({
+            resumableClassesResources: [
+              { contentNodeId: 'class-resource-1', lessonId: 'class-1-lesson', classId: 'class-1' },
+              { contentNodeId: 'class-resource-2', lessonId: 'class-2-lesson', classId: 'class-2' },
+            ],
+            getClassResourceLink() {
+              return { path: '/class-resource' };
+            },
+          })
+        );
+
+        const wrapper = makeWrapper();
+        expect(getExploreChannelsSection(wrapper).exists()).toBe(false);
+      });
+
+      it(`the section is not displayed for a signed in user
+        who has some resumable quizzes`, () => {
+        useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+        useLearnerResources.mockImplementation(() =>
+          useLearnerResourcesMock({
+            resumableClassesQuizzes: [
+              { id: 'class-quiz-1', title: 'Class quiz 1' },
+              { id: 'class-quiz-2', title: 'Class quiz 2' },
+            ],
+            getClassQuizLink() {
+              return { path: '/class-quiz' };
+            },
+          })
+        );
+
+        const wrapper = makeWrapper();
+        expect(getExploreChannelsSection(wrapper).exists()).toBe(false);
+      });
+
+      it(`the section is not displayed for a signed in user
+        who has no resumable classes resources or quizzes
+        when access to unassigned content is not allowed`, () => {
+        useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+        const wrapper = makeWrapper();
+        expect(getExploreChannelsSection(wrapper).exists()).toBe(false);
+      });
+
+      it(`the section is displayed for a signed in user
+        who has no resumable classes resources or quizzes
+        when access to unassigned content is allowed`, () => {
+        useDeviceSettings.mockImplementation(() =>
+          useDeviceSettingsMock({
+            canAccessUnassignedContent: true,
+          })
+        );
+        useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+        const wrapper = makeWrapper();
+        expect(getExploreChannelsSection(wrapper).exists()).toBe(true);
+      });
+
+      it(`the section is displayed for a guest user`, () => {
+        const wrapper = makeWrapper();
+        expect(getExploreChannelsSection(wrapper).exists()).toBe(true);
+      });
     });
   });
 });

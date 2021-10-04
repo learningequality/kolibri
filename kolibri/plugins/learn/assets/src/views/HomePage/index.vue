@@ -30,15 +30,13 @@
       recent
       data-test="recentQuizzes"
     />
-    <!--
-      TODO: To be implemented, it's here only to get strings
-      in before the next major release
-      <ExploreChannels
-        v-if="!isUserLoggedIn || !canResumeClasses"
-        class="section"
-      />
-    -->
-    <ExploreChannels v-if="false" />
+    <ExploreChannels
+      v-if="displayExploreChannels"
+      :channels="channels"
+      class="section"
+      data-test="exploreChannels"
+      short
+    />
   </div>
 
 </template>
@@ -48,6 +46,7 @@
 
   import { computed } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
+  import useChannels from '../../composables/useChannels';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';
   import useUser from '../../composables/useUser';
@@ -75,6 +74,7 @@
     setup() {
       const { isUserLoggedIn } = useUser();
       const { canAccessUnassignedContent } = useDeviceSettings();
+      const { channels } = useChannels();
       const {
         classes,
         activeClassesLessons,
@@ -105,9 +105,19 @@
         () =>
           get(isUserLoggedIn) && get(activeClassesQuizzes) && get(activeClassesQuizzes).length > 0
       );
+      const hasChannels = computed(() => {
+        return get(channels) && get(channels).length > 0;
+      });
+      const displayExploreChannels = computed(() => {
+        return (
+          get(hasChannels) &&
+          (!get(isUserLoggedIn) || (!get(canResumeClasses) && get(canAccessUnassignedContent)))
+        );
+      });
 
       return {
         isUserLoggedIn,
+        channels,
         classes,
         activeClassesLessons,
         activeClassesQuizzes,
@@ -116,6 +126,7 @@
         canResumeClasses,
         continueLearningFromClasses,
         continueLearningOnYourOwn,
+        displayExploreChannels,
       };
     },
   };

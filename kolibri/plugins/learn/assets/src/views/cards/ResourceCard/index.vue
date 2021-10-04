@@ -1,6 +1,9 @@
 <template>
 
-  <BaseCard v-bind="{ to, title, collectionTitle }">
+  <BaseCard
+    v-if="contentNode"
+    v-bind="{ to, title, collectionTitle }"
+  >
     <template #topLeft>
       <ContentNodeThumbnail
         :contentNode="contentNode"

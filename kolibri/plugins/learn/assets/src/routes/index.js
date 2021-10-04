@@ -1,6 +1,7 @@
 import { get } from '@vueuse/core';
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
+import useChannels from '../composables/useChannels';
 import useUser from '../composables/useUser';
 import useLearnerResources from '../composables/useLearnerResources';
 import {
@@ -22,6 +23,7 @@ import RecommendedSubpage from '../views/RecommendedSubpage';
 import classesRoutes from './classesRoutes';
 
 const { isUserLoggedIn } = useUser();
+const { fetchChannels } = useChannels();
 const { fetchClasses, fetchResumableContentNodes } = useLearnerResources();
 
 function unassignedContentGuard() {
@@ -57,9 +59,9 @@ export default [
     path: '/home',
     component: HomePage,
     handler() {
-      let promises = [];
+      let promises = [fetchChannels()];
       if (get(isUserLoggedIn)) {
-        promises = [fetchClasses(), fetchResumableContentNodes()];
+        promises = [...promises, fetchClasses(), fetchResumableContentNodes()];
       }
       return store.dispatch('loading').then(() => {
         return Promise.all(promises)
