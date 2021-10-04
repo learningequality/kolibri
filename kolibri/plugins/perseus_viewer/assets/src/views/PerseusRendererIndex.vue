@@ -664,12 +664,17 @@
   }
 
   .hint-btn-container {
+    display: flex;
+    align-items: center;
     font-size: medium;
-    text-align: right;
   }
 
   .hint-btn {
     vertical-align: text-bottom;
+
+    /deep/ .link-text {
+      text-align: right;
+    }
   }
 
   .info-icon {
