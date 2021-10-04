@@ -54,7 +54,7 @@
           class="problem-area"
           :dir="contentDirection"
         >
-          <div id="workarea" style="margin-left: 0px"></div>
+          <div id="workarea" style="margin-left: 0px; margin-right: 0px;"></div>
         </div>
 
 
@@ -689,6 +689,25 @@
     max-width: 1200px;
     padding-bottom: 104px;
     margin: 32px 24px 0;
+
+    /* Perseus Hacks */
+
+    // Draggable box wrapper. Stops it from going off screen right
+    /deep/ .draggy-boxy-thing {
+      display: inline;
+    }
+    // Multiple choice table padding/margin fixes for clean appearance
+    /deep/ .widget-block > div {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    /deep/ .perseus-widget-radio {
+      margin: 0 !important;
+    }
+    /deep/ .perseus-widget-radio-fieldset {
+      padding-right: 0 !important;
+      padding-left: 0 !important;
+    }
   }
 
 </style>

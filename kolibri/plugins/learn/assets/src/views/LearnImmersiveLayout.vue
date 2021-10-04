@@ -11,7 +11,7 @@
     <LearningActivityBar
       :resourceTitle="resourceTitle"
       :learningActivities="mappedLearningActivities"
-      :isLessonContext="true"
+      :isLessonContext="false"
       :isBookmarked="bookmark ? true : bookmark"
       :isCoachContent="isCoachContent"
       :contentProgress="contentProgress"

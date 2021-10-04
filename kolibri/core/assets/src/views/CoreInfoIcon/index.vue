@@ -59,7 +59,7 @@
     cursor: pointer;
   }
 
-  // Overwrite KICon styles to make it compatible with UIIcon
+  // Overwrite KIcon styles to make it compatible with UIIcon
   /deep/ svg {
     top: 0;
     width: 100%;
@@ -68,15 +68,6 @@
 
   .pos-rel {
     position: relative;
-  }
-
-  /* Styles to keep the tooltip on screen */
-
-  /* The default style aligns perfectly in RTL */
-  .ltr {
-    /deep/ .k-tooltip {
-      left: -175px !important;
-    }
   }
 
 </style>

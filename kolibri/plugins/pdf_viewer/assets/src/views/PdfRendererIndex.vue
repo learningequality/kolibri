@@ -205,7 +205,15 @@
         }
       },
     },
+    destroyed() {
+      // Reset the overflow on the HTML tag that we set to hidden in created()
+      window.document.getElementsByTagName('html')[0].style.overflow = 'auto';
+    },
     created() {
+      // Override, only on this component, the overflow style of the HTML tag
+      // so that PDFRenderer can scroll itself.
+      window.document.getElementsByTagName('html')[0].style.overflow = 'hidden';
+
       this.currentLocation = this.savedLocation;
       this.showControls = true; // Ensures it shows on load even if we're scrolled
       const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
@@ -415,7 +423,7 @@
     @extend %dropshadow-2dp;
 
     position: relative;
-    height: calc(100vh - #{$top-bar-height} - #{$controls-height});
+    height: calc(100vh - #{$top-bar-height} - #{$controls-height} + 16px);
     overflow-y: hidden;
   }
   .controls {
