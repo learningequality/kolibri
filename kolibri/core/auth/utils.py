@@ -1,6 +1,8 @@
 import sys
 
+from django.db import connections
 from django.utils.six.moves import input
+from morango.sync.backends.utils import calculate_max_sqlite_variables
 from morango.sync.operations import LocalOperation
 
 from kolibri.core.auth.models import AdHocGroup
@@ -107,7 +109,15 @@ def merge_users(source_user, target_user):
             log_map[log.id] = new_log.id
             if new_log.id not in target_log_ids:
                 new_logs.append(new_log)
-        LogModel.objects.bulk_create(new_logs, batch_size=750)
+
+        vendor = connections[LogModel.objects.db].vendor
+        batch_size = (
+            calculate_max_sqlite_variables() // len(LogModel._meta.fields)
+            if vendor == "sqlite"
+            else 750
+        )
+
+        LogModel.objects.bulk_create(new_logs, batch_size=batch_size)
 
     _merge_log_data(ContentSessionLog)
 
