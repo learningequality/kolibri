@@ -33,6 +33,7 @@
 
 <script>
 
+  import camelCase from 'lodash/camelCase';
   import { ContentLevels, AccessibilityCategories } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import languageSwitcherMixin from '../../../../../../core/assets/src/views/language-switcher/mixin.js';
@@ -62,7 +63,7 @@
         Object.keys(AccessibilityCategories).map(key => {
           options.push({
             value: AccessibilityCategories[key],
-            label: this.coreString(AccessibilityCategories[key]),
+            label: this.coreString(camelCase(key)),
           });
         });
         return options;
@@ -70,9 +71,19 @@
       contentLevelsList() {
         let options = [];
         Object.keys(ContentLevels).map(key => {
+          let translationKey;
+          if (key === 'PROFESSIONAL') {
+            translationKey = 'specializedProfessionalTraining';
+          } else if (key === 'WORK_SKILLS') {
+            translationKey = 'allLevelsWorkSkills';
+          } else if (key === 'BASIC_SKILLS') {
+            translationKey = 'allLevelsBasicSkills';
+          } else {
+            translationKey = camelCase(key);
+          }
           options.push({
             value: ContentLevels[key],
-            label: this.coreString(ContentLevels[key]),
+            label: this.coreString(translationKey),
           });
         });
         return options;

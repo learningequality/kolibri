@@ -46,11 +46,11 @@
         class="category-list-item"
       >
         <KButton
-          :text="coreString(value)"
+          :text="coreString(camelCase(category))"
           appearance="flat-button"
           :appearanceOverrides="customCategoryStyles"
           iconAfter="chevronRight"
-          @click="$emit('openModal', value)"
+          @click="$emit('openModal', category)"
         />
       </div>
       <div
@@ -77,7 +77,7 @@
           <KCheckbox
             key="adHocLearners"
             :checked="isSelected(value)"
-            :label="coreString(value)"
+            :label="coreString(activity)"
             @change="$emit('toggleSelected', $event)"
           />
         </div>
@@ -90,12 +90,33 @@
 
 <script>
 
+  import camelCase from 'lodash/camelCase';
   import { LibraryCategories, ResourcesNeededTypes } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import SearchBox from '../SearchBox';
   import commonLearnStrings from '../commonLearnStrings';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import SelectGroup from './SelectGroup';
+
+  const resourcesNeededShown = [
+    'FOR_BEGINNERS',
+    'PEOPLE',
+    'PAPER_PENCIL',
+    'NEEDS_INTERNET',
+    'NEEDS_MATERIALS',
+  ];
+
+  const resourcesNeeded = {};
+  resourcesNeededShown.map(key => {
+    const value = ResourcesNeededTypes[key];
+    if (key === 'PEOPLE') {
+      key = 'ToUseWithTeachersAndPeers';
+    } else if (key === 'PAPER_PENCIL') {
+      key = 'ToUseWithPaperAndPencil';
+    }
+    // For some reason the string ids for these items are in PascalCase not camelCase
+    resourcesNeeded[key.slice(0, 1).toUpperCase() + camelCase(key).slice(1)] = value;
+  });
 
   export default {
     name: 'EmbeddedSidePanel',
@@ -131,21 +152,9 @@
     },
     computed: {
       libraryCategoriesList() {
-        let libraryCategories = {};
-        Object.keys(LibraryCategories).map(key => {
-          let newValue = LibraryCategories[key].replace('_', ' ');
-          libraryCategories[key] = newValue;
-        });
-        return libraryCategories;
+        return LibraryCategories;
       },
       resourcesNeededList() {
-        let resourcesNeeded = {};
-        Object.keys(ResourcesNeededTypes).map(key => {
-          let newValue =
-            ResourcesNeededTypes[key].charAt(0).toUpperCase() + ResourcesNeededTypes[key].slice(1);
-          newValue = newValue.split('_').join(' ');
-          resourcesNeeded[key] = newValue;
-        });
         return resourcesNeeded;
       },
       customCategoryStyles() {
@@ -178,6 +187,9 @@
     methods: {
       isSelected(value) {
         return value === 'ForBeginners' ? false : true;
+      },
+      camelCase(val) {
+        return camelCase(val);
       },
     },
     $trs: {

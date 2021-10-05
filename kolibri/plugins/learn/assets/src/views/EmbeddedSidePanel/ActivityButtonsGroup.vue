@@ -15,16 +15,16 @@
     </KButton>
     <span
       v-for="(value, activity) in learningActivitiesList"
-      :key="activity"
+      :key="value"
       alignment="center"
     >
       <KButton
         appearance="flat-button"
         :appearanceOverrides="customActivityStyles"
       >
-        <KIcon :icon="`${value + 'Shaded'}`" class="activity-icon" />
+        <KIcon :icon="`${camelCase(activity) + 'Shaded'}`" class="activity-icon" />
         <p class="activity-button-text">
-          {{ coreString(value) }}
+          {{ coreString(camelCase(activity)) }}
         </p>
       </KButton>
     </span>
@@ -35,6 +35,7 @@
 
 <script>
 
+  import camelCase from 'lodash/camelCase';
   import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -45,15 +46,7 @@
 
     computed: {
       learningActivitiesList() {
-        let learningActivites = {};
-        Object.keys(LearningActivities)
-          // remove topic folder, since it is not actually an activity itself
-          .filter(key => key !== 'TOPIC')
-          .map(key => {
-            // map 'interact' KDS icon to new 'explore' wording
-            learningActivites[key] = LearningActivities[key];
-          });
-        return learningActivites;
+        return LearningActivities;
       },
       customActivityStyles() {
         return {
@@ -74,6 +67,11 @@
             'line-spacing': '0',
           },
         };
+      },
+    },
+    methods: {
+      camelCase(id) {
+        return camelCase(id);
       },
     },
     $trs: {

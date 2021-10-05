@@ -21,12 +21,12 @@
           icon="info"
           size="large"
         />
-        <h2>All {{ coreString(key) }}</h2>
+        <h2>{{ coreString(camelCase(key)) }}</h2>
         <p
-          v-for="item in nestedObject"
-          :key="item"
+          v-for="(item, nestedKey) in nestedObject.nested"
+          :key="item.value"
         >
-          {{ coreString(item) }}
+          {{ coreString(camelCase(nestedKey)) }}
         </p>
       </KFixedGridItem>
     </KFixedGrid>
@@ -36,15 +36,15 @@
       :style="{ margin: '24px' }"
     >
       <KFixedGridItem
-        v-for="value in displaySelectedCategories"
-        :key="value"
+        v-for="(value, key) in displaySelectedCategories"
+        :key="value.value"
         :span="4"
       >
         <KIcon
           icon="info"
           size="large"
         />
-        <h2>{{ coreString(value) }}</h2>
+        <h2>{{ coreString(camelCase(key)) }}</h2>
       </KFixedGridItem>
     </KFixedGrid>
   </KModal>
@@ -54,40 +54,9 @@
 
 <script>
 
+  import camelCase from 'lodash/camelCase';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import {
-    SchoolCategories,
-    MathematicsSubcategories,
-    SciencesSubcategories,
-    LiteratureSubcategories,
-    SocialSciencesSubcategories,
-    ArtsSubcategories,
-    ComputerScienceSubcategories,
-    BasicSkillsCategories,
-    WorkCategories,
-    // VocationalSubcategories,
-    DailyLifeCategories,
-    TeachersCategories,
-  } from 'kolibri.coreVue.vuex.constants';
-
-  const filterToCategoryNameMap = {
-    school: SchoolCategories,
-    'basic skills': BasicSkillsCategories,
-    work: WorkCategories,
-    'daily life': DailyLifeCategories,
-    'for teachers': TeachersCategories,
-  };
-
-  const schoolSubcategoriesMap = {
-    MATHEMATICS: MathematicsSubcategories,
-    SCIENCES: SciencesSubcategories,
-    LITERATURE: LiteratureSubcategories,
-    HISTORY: null,
-    SOCIAL_SCIENCES: SocialSciencesSubcategories,
-    ARTS: ArtsSubcategories,
-    COMPUTER_SCIENCE: ComputerScienceSubcategories,
-    // LANGUAGE_LEARNING: LanguageLearningSubcategories,
-  };
+  import { LibraryCategories } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'CategorySearchModal',
@@ -99,33 +68,19 @@
         default: null,
       },
     },
-    data: function() {
-      return {
-        categoryGroupIsNested: {
-          type: Boolean,
-          default: false,
-        },
-      };
-    },
     computed: {
+      categoryGroupIsNested() {
+        return Object.values(this.displaySelectedCategories).some(
+          obj => Object.keys(obj.nested).length
+        );
+      },
       displaySelectedCategories() {
-        let categoryGroup = filterToCategoryNameMap[this.selectedCategory];
-        if (this.selectedCategory === 'school' || this.selectedCategory === 'work') {
-          let nestedCategoryObject = {};
-          Object.keys(categoryGroup).map(category => {
-            let key = categoryGroup[category];
-            nestedCategoryObject[key] = schoolSubcategoriesMap[category];
-          });
-          this.updateNestedGroup(true);
-          return nestedCategoryObject;
-        }
-        this.updateNestedGroup(false);
-        return categoryGroup;
+        return LibraryCategories[this.selectedCategory].nested;
       },
     },
     methods: {
-      updateNestedGroup(value) {
-        this.categoryGroupIsNested = value;
+      camelCase(val) {
+        return camelCase(val);
       },
     },
     $trs: {

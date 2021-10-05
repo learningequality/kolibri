@@ -1034,6 +1034,9 @@ export default {
       if (key === 'None of the above') {
         return noneOfTheAboveTranslator.$tr(key, args);
       }
+      if (key === 'digitalLiteracy') {
+        key = 'digitialLiteracy';
+      }
       return coreStrings.$tr(key, args);
     },
     showSnackbarNotification(key, args, coreCreateSnackbarArgs) {

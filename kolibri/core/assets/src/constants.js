@@ -1,3 +1,14 @@
+import invert from 'lodash/invert';
+import LearningActivities from 'kolibri-constants/labels/LearningActivities';
+import Subjects from 'kolibri-constants/labels/Subjects';
+// coach-facing
+export { default as ContentNodeResourceType } from 'kolibri-constants/labels/ResourceType';
+export { default as LearningActivities } from 'kolibri-constants/labels/LearningActivities';
+export { default as AccessibilityCategories } from 'kolibri-constants/labels/AccessibilityCategories';
+// Used to categorize the level or audience of content
+export { default as ContentLevels } from 'kolibri-constants/labels/Levels';
+export { default as ResourcesNeededTypes } from 'kolibri-constants/labels/Needs';
+
 export const UserKinds = {
   ADMIN: 'admin',
   COACH: 'coach',
@@ -30,31 +41,6 @@ export const ContentNodeKinds = {
   BOOKMARK: 'bookmark',
 };
 
-// coach-facing
-export const ContentNodeResourceType = {
-  LESSON: 'Lesson',
-  TUTORIAL: 'Tutorial',
-  ACTIVITY: 'Activity',
-  EXERCISE: 'Exercise',
-  MEDIA: 'Media',
-  BOOK: 'Book',
-  GAME: 'Game',
-  GUIDE: 'Guide',
-  TEXTBOOK: 'Textbook',
-  LESSON_PLAN: 'Lesson plan',
-};
-
-export const LearningActivities = {
-  CREATE: 'create',
-  LISTEN: 'listen',
-  REFLECT: 'reflect',
-  PRACTICE: 'practice',
-  READ: 'read',
-  WATCH: 'watch',
-  EXPLORE: 'explore',
-  TOPIC: 'topic',
-};
-
 export const ContentKindsToLearningActivitiesMap = {
   audio: LearningActivities.LISTEN,
   document: LearningActivities.READ,
@@ -65,133 +51,29 @@ export const ContentKindsToLearningActivitiesMap = {
 };
 
 // Resource library categories and subcategoriess
-export const LibraryCategories = {
-  SCHOOL: 'school',
-  BASIC_SKILLS: 'basicSkills',
-  WORK: 'work',
-  DAILY_LIFE: 'dailyLife',
-  FOR_TEACHERS: 'forTeachers',
-};
+export const LibraryCategories = {};
 
-export const SchoolCategories = {
-  MATHEMATICS: 'mathematics',
-  SCIENCES: 'sciences',
-  LITERATURE: 'literature',
-  SOCIAL_SCIENCES: 'socialSciences',
-  ARTS: 'arts',
-  COMPUTER_SCIENCE: 'computerScience',
-  LANGUAGE_LEARNING: 'languageLearning',
-  HISTORY: 'history',
-};
+const subjectLookup = invert(Subjects);
 
-export const MathematicsSubcategories = {
-  ARITHMETIC: 'arithmetic',
-  ALGEBRA: 'algebra',
-  GEOMETRY: 'geometry',
-  CALCULUS: 'calculus',
-  STATISTICS: 'statistics',
-};
-
-export const SciencesSubcategories = {
-  BIOLOGY: 'biology',
-  CHEMISTRY: 'chemistry',
-  PHYSICS: 'physics',
-  EARTH_SCIENCE: 'earthScience',
-  ASTRONOMY: 'astronomy',
-};
-
-export const LiteratureSubcategories = {
-  LITERATURE: 'literature',
-  READING_COMPREHENSION: 'readingComprehension',
-  WRITING: 'writing',
-  LOGIC_AND_CRITICAL_THINKING: 'logicAndCriticalThinking',
-};
-
-export const SocialSciencesSubcategories = {
-  POLITICAL_SCIENCE: 'politicalScience',
-  SOCIOLOGY: 'sociology',
-  ANTHROPOLOGY: 'anthropology',
-  CIVIC_EDUCATION: 'civicEducation',
-};
-
-export const ArtsSubcategories = {
-  VISUAL_ART: 'visualArt',
-  MUSIC: 'music',
-  DANCE: 'dance',
-  DRAMA: 'drama',
-};
-
-export const ComputerScienceSubcategories = {
-  PROGRAMMING: 'programming',
-  MECHANICAL_ENGINEERING: 'mechanicalEngineering',
-  WEB_DESIGN: 'webDesign',
-};
-
-export const BasicSkillsCategories = {
-  LITERACY: 'literacy',
-  NUMERACY: 'numeracy',
-  DIGITAL_LITERACY: 'digitalLiteracy',
-  LOGIC_AND_CRITICAL_THINKING: 'logicAndCriticalThinking',
-  LEARNING_SKILLS: 'learningSkills',
-};
-
-export const WorkCategories = {
-  PROFESSIONAL_SKILLS: 'professionalSkills',
-  TECHNICAL_AND_VOCATIONAL_TRAINING: 'technicalAndVocationalTraining',
-};
-
-export const VocationalSubcategories = {
-  TOOLS_AND_SOFTWARE_TRAINING: 'toolsAndSoftwareTraining',
-  SKILLS_TRAINING: 'skillsTraining',
-  INDUSTRY_AND_SECTOR_SPECIFIC: 'industryAndSectorSpecific',
-};
-
-export const DailyLifeCategories = {
-  PUBLIC_HEALTH: 'publicHealth',
-  ENTREPRENEURSHIP: 'entrepreneurship',
-  FINANCIAL_LITERACY: 'financialLiteracy',
-  CURRENT_EVENTS: 'currentEvents',
-  ENVIRONMENT: 'environment',
-  MEDIA_LITERACY: 'mediaLiteracy',
-  DIVERSITY: 'diversity',
-  MENTAL_HEALTH: 'mentalHealth',
-};
-
-export const TeachersCategories = {
-  GUIDES: 'guides',
-  LESSON_PLANS: 'lessonPlans',
-};
-
-export const ResourcesNeededTypes = {
-  FOR_BEGINNERS: 'forBeginners',
-  TEACHERS_AND_PEERS: 'toUseWithTeachersAndPeers',
-  PAPER_AND_PENCIL: 'toUseWithPaperAndPencil',
-  NEEDS_INTERNET: 'needsInternet',
-  NEEDS_MATERIALS: 'needsMaterials',
-};
-
-export const AccessibilityCategories = {
-  ALL: 'all',
-  SIGN_LANGUAGE: 'signLanguage',
-  AUDIO_DESCRIPTION: 'audioDescription',
-  TAGGED_PDF: 'taggedPdf',
-  ALT_TEXT: 'altText',
-  HIGH_CONTRAST: 'highContrast',
-  CAPTIONS_SUBTITLES: 'captionsSubtitles',
-};
-
-// Used to categorize the level or audience of content
-export const ContentLevels = {
-  PRESCHOOL: 'preschool',
-  LOWER_PRIMARY: 'lowerPrimary',
-  UPPER_PRIMARY: 'upperPrimary',
-  LOWER_SECONDARY: 'lowerSecondary',
-  UPPER_SECONDARY: 'upperSecondary',
-  TERTIARY: 'tertiary',
-  PROFESSIONAL: 'specializedProfessionalTraining',
-  BASIC_SKILLS: 'basicSkills',
-  WORK_SKILLS: 'workSkills',
-};
+for (let subjectKey of Object.entries(Subjects)
+  .sort((a, b) => a[0].length - b[0].length)
+  .map(a => a[0])) {
+  const ids = Subjects[subjectKey].split('.');
+  let path = '';
+  let nested = LibraryCategories;
+  for (let fragment of ids) {
+    path += fragment;
+    const nestedKey = subjectLookup[path];
+    if (!nested[nestedKey]) {
+      nested[nestedKey] = {
+        value: path,
+        nested: {},
+      };
+    }
+    nested = nested[nestedKey].nested;
+    path += '.';
+  }
+}
 
 // used internally on the client as a hack to allow content-icons to display users
 export const USER = 'user';
