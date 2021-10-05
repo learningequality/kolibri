@@ -248,20 +248,8 @@ def map_file(file):
     return file
 
 
-kind_activity_map = {
-    content_kinds.EXERCISE: "practice",
-    content_kinds.VIDEO: "watch",
-    content_kinds.AUDIO: "listen",
-    content_kinds.DOCUMENT: "read",
-    content_kinds.HTML5: "explore",
-}
-
-
-def infer_learning_activity(node):
-    activity = kind_activity_map.get(node["kind"])
-    if activity:
-        return [activity]
-    return []
+def _split_text_field(text):
+    return text.split(",") if text else []
 
 
 class BaseContentNodeMixin(object):
@@ -294,11 +282,20 @@ class BaseContentNodeMixin(object):
         "lft",
         "rght",
         "tree_id",
+        "learning_activities",
+        "grade_levels",
+        "resource_types",
+        "accessibility_labels",
+        "categories",
+        "duration",
     )
 
     field_map = {
-        "learning_activities": infer_learning_activity,
-        "duration": lambda x: None,
+        "learning_activities": lambda x: _split_text_field(x["learning_activities"]),
+        "grade_levels": lambda x: _split_text_field(x["grade_levels"]),
+        "resource_types": lambda x: _split_text_field(x["resource_types"]),
+        "accessibility_labels": lambda x: _split_text_field(x["accessibility_labels"]),
+        "categories": lambda x: _split_text_field(x["categories"]),
     }
 
     def get_queryset(self):
@@ -579,30 +576,16 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
         thumbnails = serializers.FileSerializer(
             next_item.files.filter(thumbnail=True), many=True
         ).data
-        if thumbnails:
-            return Response(
-                {
-                    "kind": next_item.kind,
-                    "id": next_item.id,
-                    "title": next_item.title,
-                    "thumbnail": thumbnails[0]["storage_url"],
-                    "is_leaf": next_item.kind != content_kinds.TOPIC,
-                    "learning_activities": infer_learning_activity(
-                        {"kind": next_item.kind}
-                    ),
-                    "duration": None,
-                }
-            )
+        thumbnail = thumbnails[0]["storage_url"] if thumbnails else None
         return Response(
             {
                 "kind": next_item.kind,
                 "id": next_item.id,
                 "title": next_item.title,
+                "thumbnail": thumbnail,
                 "is_leaf": next_item.kind != content_kinds.TOPIC,
-                "learning_activities": infer_learning_activity(
-                    {"kind": next_item.kind}
-                ),
-                "duration": None,
+                "learning_activities": _split_text_field(next_item.learning_activities),
+                "duration": next_item.duration,
             }
         )
 
