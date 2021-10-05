@@ -1,5 +1,4 @@
 # coding: utf-8
-from sqlalchemy import BigInteger
 from sqlalchemy import Boolean
 from sqlalchemy import CHAR
 from sqlalchemy import Column
@@ -37,56 +36,40 @@ class ContentLocalfile(Base):
     __tablename__ = "content_localfile"
 
     id = Column(String(32), primary_key=True)
+    extension = Column(String(40), nullable=False)
     available = Column(Boolean, nullable=False)
     file_size = Column(Integer)
-    extension = Column(String(40), nullable=False)
 
 
 class ContentContentnode(Base):
     __tablename__ = "content_contentnode"
-    __table_args__ = (
-        Index(
-            "content_contentnode_level_channel_id_available_29f0bb18_idx",
-            "level",
-            "channel_id",
-            "available",
-        ),
-        Index(
-            "content_contentnode_level_channel_id_kind_fd732cc4_idx",
-            "level",
-            "channel_id",
-            "kind",
-        ),
-    )
 
     id = Column(CHAR(32), primary_key=True)
+    license_name = Column(String(50))
+    license_description = Column(Text)
     title = Column(String(200), nullable=False)
+    coach_content = Column(Boolean, nullable=False)
     content_id = Column(CHAR(32), nullable=False, index=True)
     channel_id = Column(CHAR(32), nullable=False, index=True)
     description = Column(Text)
     sort_order = Column(Float)
     license_owner = Column(String(200), nullable=False)
     author = Column(String(200), nullable=False)
+    kind = Column(String(200), nullable=False)
     available = Column(Boolean, nullable=False)
+    options = Column(Text)
+    grade_levels = Column(Text)
+    resource_types = Column(Text)
+    learning_activities = Column(Text)
+    accessibility_labels = Column(Text)
+    categories = Column(Text)
+    learner_needs = Column(Text)
+    duration = Column(Integer)
     lft = Column(Integer, nullable=False, index=True)
     rght = Column(Integer, nullable=False, index=True)
     tree_id = Column(Integer, nullable=False, index=True)
     level = Column(Integer, nullable=False, index=True)
     lang_id = Column(ForeignKey("content_language.id"), index=True)
-    license_description = Column(Text)
-    license_name = Column(String(50))
-    coach_content = Column(Boolean, nullable=False)
-    num_coach_contents = Column(Integer)
-    on_device_resources = Column(Integer)
-    options = Column(Text)
-    accessibility_labels = Column(Text)
-    categories = Column(Text)
-    duration = Column(Integer)
-    grade_levels = Column(Text)
-    learner_needs = Column(Text)
-    learning_activities = Column(Text)
-    resource_types = Column(Text)
-    kind = Column(String(200), nullable=False)
     parent_id = Column(ForeignKey("content_contentnode.id"), index=True)
 
     lang = relationship("ContentLanguage")
@@ -115,17 +98,13 @@ class ContentChannelmetadata(Base):
     id = Column(CHAR(32), primary_key=True)
     name = Column(String(200), nullable=False)
     description = Column(String(400), nullable=False)
+    tagline = Column(String(150))
     author = Column(String(400), nullable=False)
     version = Column(Integer, nullable=False)
     thumbnail = Column(Text, nullable=False)
     last_updated = Column(String)
     min_schema_version = Column(String(50), nullable=False)
     root_id = Column(ForeignKey("content_contentnode.id"), nullable=False, index=True)
-    published_size = Column(BigInteger)
-    total_resource_count = Column(Integer)
-    order = Column(Integer)
-    public = Column(Boolean)
-    tagline = Column(String(150))
 
     root = relationship("ContentContentnode")
 
@@ -215,6 +194,7 @@ class ContentFile(Base):
     __tablename__ = "content_file"
 
     id = Column(CHAR(32), primary_key=True)
+    preset = Column(String(150), nullable=False)
     supplementary = Column(Boolean, nullable=False)
     thumbnail = Column(Boolean, nullable=False)
     priority = Column(Integer, index=True)
@@ -225,21 +205,7 @@ class ContentFile(Base):
     local_file_id = Column(
         ForeignKey("content_localfile.id"), nullable=False, index=True
     )
-    preset = Column(String(150), nullable=False)
 
     contentnode = relationship("ContentContentnode")
     lang = relationship("ContentLanguage")
     local_file = relationship("ContentLocalfile")
-
-
-class ContentChannelmetadataIncludedLanguages(Base):
-    __tablename__ = "content_channelmetadata_included_languages"
-
-    id = Column(Integer, primary_key=True)
-    channelmetadata_id = Column(
-        ForeignKey("content_channelmetadata.id"), nullable=False
-    )
-    language_id = Column(ForeignKey("content_language.id"), nullable=False)
-
-    channelmetadata = relationship("ContentChannelmetadata")
-    language = relationship("ContentLanguage")
