@@ -57,7 +57,7 @@
 
   .overall-status {
     display: inline-block;
-    margin-left: 8px;
+    margin: 8px;
   }
 
 </style>

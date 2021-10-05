@@ -454,7 +454,7 @@
     top: 0;
     right: 0;
     left: 0;
-    z-index: 24;
+    z-index: 7;
     display: flex;
     justify-content: flex-end;
     height: $controls-height;

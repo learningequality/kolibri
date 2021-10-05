@@ -14,6 +14,7 @@
         <div
           v-if="anyHints"
           class="hint-btn-container"
+          :class="{ 'rtl': isRtl }"
         >
           <KButton
             v-if=" availableHints > 0"
@@ -667,6 +668,19 @@
     display: flex;
     align-items: center;
     font-size: medium;
+
+    &.rtl {
+      /deep/ .k-tooltip {
+        right: auto !important;
+        left: 0 !important;
+      }
+    }
+
+    /deep/ .k-tooltip {
+      right: 0 !important;
+      left: auto !important;
+      transform: translate3d(0, 23px, 0) !important;
+    }
   }
 
   .hint-btn {
@@ -690,12 +704,15 @@
     padding: 0 16px 16px;
   }
 
+  /* Perseus Hacks */
+
+  /* The rest in this <style> block are mostly styles that
+     help force Perseus exercises to render within the allotted space. */
+
   .framework-perseus {
     max-width: 1200px;
     padding-bottom: 104px;
     margin: 32px 24px 0;
-
-    /* Perseus Hacks */
 
     // Draggable box wrapper. Stops it from going off screen right
     /deep/ .draggy-boxy-thing {
@@ -713,6 +730,20 @@
       padding-right: 0 !important;
       padding-left: 0 !important;
     }
+  }
+
+  // try to prevent nested scroll bars
+  .perseus-widget-container > div {
+    overflow: visible !important;
+  }
+
+  .perseus {
+    padding: 24px;
+    background: white;
+  }
+
+  /deep/ .perseus-renderer {
+    padding: 16px;
   }
 
 </style>
@@ -869,20 +900,6 @@
 
   .keypad-container {
     direction: ltr;
-  }
-
-  // try to prevent nested scroll bars
-  .perseus-widget-container > div {
-    overflow: visible !important;
-  }
-
-  .perseus {
-    padding: 24px;
-    background: white;
-  }
-
-  /deep/ .perseus-renderer {
-    padding: 16px;
   }
 
 </style>
