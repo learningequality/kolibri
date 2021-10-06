@@ -2,7 +2,7 @@ import { Resource } from 'kolibri.lib.apiResource';
 import pickBy from 'lodash/pickBy';
 import urls from 'kolibri.urls';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
-import clientFactory from '../../../../core/assets/src/core-app/baseClient';
+import clientFactory from 'kolibri.utils.clientFactory';
 
 export const FacilityImportResource = new Resource({
   name: 'facilityimport',
