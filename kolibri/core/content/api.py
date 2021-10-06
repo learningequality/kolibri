@@ -66,6 +66,7 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.query import SQSum
+from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 
@@ -163,6 +164,12 @@ class ContentNodeFilter(IdFilter):
     parent__isnull = BooleanFilter(field_name="parent", lookup_expr="isnull")
     include_coach_content = BooleanFilter(method="filter_include_coach_content")
     contains_quiz = CharFilter(method="filter_contains_quiz")
+    grade_levels = CharFilter(lookup_expr="contains")
+    resource_types = CharFilter(lookup_expr="contains")
+    learning_activities = CharFilter(lookup_expr="contains")
+    accessibility_labels = CharFilter(lookup_expr="contains")
+    categories = CharFilter(lookup_expr="contains")
+    learner_needs = CharFilter(lookup_expr="contains")
 
     class Meta:
         model = models.ContentNode
@@ -180,6 +187,12 @@ class ContentNodeFilter(IdFilter):
             "include_coach_content",
             "kind_in",
             "contains_quiz",
+            "grade_levels",
+            "resource_types",
+            "learning_activities",
+            "accessibility_labels",
+            "categories",
+            "learner_needs",
         ]
 
     def filter_kind(self, queryset, name, value):
@@ -441,9 +454,14 @@ class BaseContentNodeMixin(object):
         return []
 
 
+class OptionalContentNodePagination(ValuesViewsetCursorPagination):
+    ordering = "id"
+    page_size_query_param = "page_size"
+
+
 @method_decorator(cache_forever, name="dispatch")
 class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
-    pagination_class = OptionalPageNumberPagination
+    pagination_class = OptionalContentNodePagination
 
     @list_route(methods=["get"])
     def descendants(self, request):
