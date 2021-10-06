@@ -141,7 +141,7 @@
     licenseLongName,
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
-  import { crossComponentTranslator } from '../../utils/i18n.js';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import LearningActivityChip from '../../../../../plugins/learn/assets/src/views/LearningActivityChip';
   import Thumbnail from '../../../../../plugins/learn/assets/src/views/thumbnails/Thumbnail';
   import SidePanelResourceMetadata from './SidePanelResourceMetadata';
