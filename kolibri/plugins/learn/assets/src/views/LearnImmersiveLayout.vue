@@ -58,7 +58,10 @@
       v-if="sidePanelContent"
       @closePanel="sidePanelContent = null"
     >
-      <CurrentlyViewedResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
+      <CurrentlyViewedResourceMetadata
+        :content="sidePanelContent"
+        :canDownloadContent="canDownload"
+      />
     </FullScreenSidePanel>
   </div>
 
@@ -152,6 +155,7 @@
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
+        canDownload: state => state.core.facilityConfig.show_download_button_in_learn,
       }),
       ...mapState('topicsTree', {
         isCoachContent: state => (state.content.coach_content ? 1 : 0),
