@@ -6,16 +6,19 @@
     <!-- placeholder for learning activity type chips TODO update with chip component -->
 
     <!-- Whatever data will come in this place may be an array? -->
-    <div class="section">
+    <div class="chips section">
       <LearningActivityChip v-if="content.activityKind" :kind="content.activityKind" />
     </div>
 
-    <!-- The key here is not set in stone -->
     <div class="section">
       <!-- For Beginners Chip Here -->
       <div v-if="content.forBeginners" class="beginners-chip">
         {{ coreString("ForBeginners") }}
       </div>
+    </div>
+
+    <div class="section">
+      <Thumbnail :thumbnailUrl="content.thumbnail" />
     </div>
 
     <div v-if="content.title" class="section title">
@@ -29,11 +32,13 @@
     <KButton
       v-if="descriptionOverflow"
       :text="showMoreOrLess"
-      appearance="flat-button"
+      appearance="basic-link"
       class="show-more-button"
       :primary="true"
       @click="toggleShowMoreOrLess"
     />
+    <!-- this v-else ensures spacing remains consistent without show more -->
+    <div v-else class="section"></div>
 
     <!-- No "Subject" string available - but it is noted in Figma as a possible metadata
     <div v-if="content.subject" class="section">
@@ -178,6 +183,7 @@
   } from 'kolibri.utils.licenseTranslations';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import LearningActivityChip from '../../../../../plugins/learn/assets/src/views/LearningActivityChip';
+  import Thumbnail from '../../../../../plugins/learn/assets/src/views/thumbnails/Thumbnail';
   import SidePanelResourceMetadata from './SidePanelResourceMetadata';
 
   export default {
@@ -185,6 +191,7 @@
     components: {
       LearningActivityChip,
       TimeDuration,
+      Thumbnail,
     },
     mixins: [commonCoreStrings],
     props: {
@@ -274,10 +281,10 @@
   }
 
   .show-more-button {
+    margin-top: 4px;
     margin-bottom: 16px;
-    // -margin to align text vertically
-    margin-left: -16px;
-    text-decoration: underline;
+    font-weight: bold;
+    text-transform: uppercase;
   }
 
   .license-details-name {
@@ -295,6 +302,7 @@
   .beginners-chip {
     display: inline-block;
     padding: 12px;
+    margin-right: 8px;
     font-weight: bold;
     color: white;
     background: #328168; // brand.secondary.v_600
@@ -302,17 +310,29 @@
   }
 
   .section {
-    // hack to make margin-bottom apply to empty sections
-    min-height: 1px;
-    margin-bottom: 16px;
+    padding-right: 4px;
+    padding-bottom: 16px;
 
     &.title {
       font-size: 1.25em;
       font-weight: bold;
     }
 
+    &.chips {
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 426px;
+      // Ensures space on line w/ closing X icon whether
+      // chips are visible or not
+      min-height: 40px;
+    }
+
     .label {
       font-weight: bold;
+    }
+
+    /deep/ .activity-chip {
+      margin: 4px;
     }
   }
 

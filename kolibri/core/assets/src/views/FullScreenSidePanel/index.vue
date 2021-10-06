@@ -161,6 +161,7 @@
     position: fixed;
     top: 32px;
     right: 32px;
+    z-index: 24; // Always above everything
   }
 
   .next-resource-footer {

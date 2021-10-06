@@ -7,7 +7,7 @@
 
 
     <!-- Whatever data will come in this place may be an array? -->
-    <div class="section">
+    <div class="chips section">
       <LearningActivityChip v-if="content.activityKind" :kind="content.activityKind" />
     </div>
 
@@ -17,6 +17,10 @@
       <div v-if="content.forBeginners" class="beginners-chip">
         {{ coreString("ForBeginners") }}
       </div>
+    </div>
+
+    <div class="section">
+      <Thumbnail :thumbnailUrl="content.thumbnail" />
     </div>
 
     <div v-if="content.title" class="section title">
@@ -139,6 +143,7 @@
   } from 'kolibri.utils.licenseTranslations';
   import { crossComponentTranslator } from '../../utils/i18n.js';
   import LearningActivityChip from '../../../../../plugins/learn/assets/src/views/LearningActivityChip';
+  import Thumbnail from '../../../../../plugins/learn/assets/src/views/thumbnails/Thumbnail';
   import SidePanelResourceMetadata from './SidePanelResourceMetadata';
 
   export default {
@@ -146,6 +151,7 @@
     components: {
       DownloadButton,
       LearningActivityChip,
+      Thumbnail,
       TimeDuration,
     },
     mixins: [commonCoreStrings],
@@ -283,12 +289,21 @@
 
   .section {
     // hack to make margin-bottom apply to empty sections
-    min-height: 1px;
-    margin-bottom: 16px;
+    padding-right: 4px;
+    padding-bottom: 16px;
 
     &.title {
       font-size: 1.25em;
       font-weight: bold;
+    }
+
+    &.chips {
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 426px;
+      // Ensures space on line w/ closing X icon whether
+      // chips are visible or not
+      min-height: 40px;
     }
 
     .label {
