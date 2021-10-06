@@ -435,7 +435,7 @@ def queue_soud_server_sync_cleanup(client_ip):
 
     :param client_ip: The IP address of the client
     """
-    job = Job(soud_sync_cleanup, client_ip=client_ip)
+    job = Job(soud_sync_cleanup, client_ip=client_ip, is_server=True)
     return queue.enqueue(job)
 
 

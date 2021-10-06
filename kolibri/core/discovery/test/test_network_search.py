@@ -119,20 +119,6 @@ class SoUDClientListenerTestCase(TransactionTestCase):
         self.assertIn(user1.pk, user_ids)
         self.assertIn(user2.pk, user_ids)
 
-    @mock.patch(SEARCH_MODULE + "SoUDClientListener.add_instance")
-    @mock.patch(SEARCH_MODULE + "KolibriInstanceListener.partial_subscribe")
-    def test_partial_subscribe(self, mock_parent_subscribe, mock_add_instance):
-        self.listener.partial_subscribe("events")
-        mock_parent_subscribe.assert_called_once_with("events")
-        mock_add_instance.assert_called_once_with(self.other_instance)
-
-    @mock.patch(SEARCH_MODULE + "SoUDClientListener.remove_instance")
-    @mock.patch(SEARCH_MODULE + "KolibriInstanceListener.partial_unsubscribe")
-    def test_partial_unsubscribe(self, mock_parent_unsubscribe, mock_remove_instance):
-        self.listener.partial_unsubscribe("events")
-        mock_parent_unsubscribe.assert_called_once_with("events")
-        mock_remove_instance.assert_any_call(self.other_instance)
-
     @mock.patch(SEARCH_MODULE + "SoUDClientListener.partial_unsubscribe")
     def test_register_instance(self, mock_unsubscribe):
         self.instance.device_info.update(subset_of_users_device=True)
@@ -143,11 +129,13 @@ class SoUDClientListenerTestCase(TransactionTestCase):
         self.listener.register_instance(self.instance)
         mock_unsubscribe.assert_called_once_with(NETWORK_EVENTS)
 
+    @mock.patch(SEARCH_MODULE + "SoUDClientListener.add_instance")
     @mock.patch(SEARCH_MODULE + "SoUDClientListener.partial_subscribe")
-    def test_renew_instance__became_soud(self, mock_subscribe):
+    def test_renew_instance__became_soud(self, mock_subscribe, mock_add_instance):
         self.instance.device_info.update(subset_of_users_device=True)
         self.listener.renew_instance(self.instance)
         mock_subscribe.assert_called_once_with(NETWORK_EVENTS)
+        mock_add_instance.assert_called_once_with(self.other_instance)
 
     @mock.patch(SEARCH_MODULE + "SoUDClientListener.partial_unsubscribe")
     def test_renew_instance__revert_soud(self, mock_unsubscribe):
@@ -155,10 +143,17 @@ class SoUDClientListenerTestCase(TransactionTestCase):
         self.listener.renew_instance(self.instance)
         mock_unsubscribe.assert_called_once_with(NETWORK_EVENTS)
 
-    @mock.patch(SEARCH_MODULE + "SoUDClientListener.partial_unsubscribe")
-    def test_unregister_instance(self, mock_unsubscribe):
+    @mock.patch(SEARCH_MODULE + "SoUDClientListener.remove_instance")
+    def test_unregister_instance(self, mock_remove_instance):
+        self.instance.device_info.update(subset_of_users_device=True)
         self.listener.unregister_instance(self.instance)
-        mock_unsubscribe.assert_called_once_with(NETWORK_EVENTS)
+        mock_remove_instance.assert_any_call(self.other_instance)
+        mock_remove_instance.assert_any_call(self.other_offline_instance)
+
+    @mock.patch(SEARCH_MODULE + "SoUDClientListener.remove_instance")
+    def test_unregister_instance__not_soud(self, mock_remove_instance):
+        self.listener.unregister_instance(self.instance)
+        mock_remove_instance.assert_not_called()
 
     @mock.patch(SEARCH_MODULE + "begin_request_soud_sync")
     @mock.patch(SEARCH_MODULE + "SoUDClientListener._get_user_ids")

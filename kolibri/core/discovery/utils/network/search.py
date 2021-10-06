@@ -96,38 +96,36 @@ class SoUDClientListener(KolibriInstanceListener):
     def _get_user_ids(self):
         return FacilityUser.objects.all().values_list("id", flat=True)
 
-    def partial_subscribe(self, events):
-        super(SoUDClientListener, self).partial_subscribe(events)
-        # when we weren't a SoUD but we are now, start requesting sync from all cached instances
-        for other_instance in self.broadcast.other_instances.values():
-            if other_instance.is_broadcasting:
-                self.add_instance(other_instance)
-
-    def partial_unsubscribe(self, events):
-        super(SoUDClientListener, self).partial_unsubscribe(events)
-        # this case shouldn't happen in practice but in the event we are no longer SoUD,
-        # stop requesting sync for all instances
-        for other_instance in self.broadcast.other_instances.values():
-            self.remove_instance(other_instance)
-
     def register_instance(self, instance):
-        # when our instance is registered, we can pull out device information about ourselves
+        """
+        When our instance is registered, we can pull out device information about ourselves
+        """
         if not instance.device_info.get("subset_of_users_device", False):
+            # if we're not SoUD, just unsubscribe
             self.partial_unsubscribe(NETWORK_EVENTS)
 
     def renew_instance(self, instance):
-        # when our instance is renewed, it means we're updating the network with new information
-        # which could include a change in our SoUD status
+        """
+        When our instance is renewed, it means we're updating the network with new information
+        which could include a change in our SoUD status
+        """
         if instance.device_info.get("subset_of_users_device", False):
+            # when we weren't a SoUD but we are now, start requesting sync from all cached instances
+            for other_instance in self.broadcast.other_instances.values():
+                if other_instance.is_broadcasting:
+                    self.add_instance(other_instance)
             self.partial_subscribe(NETWORK_EVENTS)
         else:
             self.partial_unsubscribe(NETWORK_EVENTS)
 
     def unregister_instance(self, instance):
         """
-        When our local instance has been unregistered from the network, we can stop listening
+        When our local instance has been unregistered from the network, we can stop our requests
+        for sync
         """
-        self.partial_unsubscribe(NETWORK_EVENTS)
+        if instance.device_info.get("subset_of_users_device", False):
+            for other_instance in self.broadcast.other_instances.values():
+                self.remove_instance(other_instance)
 
     def add_instance(self, instance):
         """
