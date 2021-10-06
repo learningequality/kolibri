@@ -27,6 +27,7 @@ from kolibri.core.public.constants.user_sync_statuses import SYNC
 from kolibri.core.tasks.api import prepare_soud_resume_sync_job
 from kolibri.core.tasks.api import prepare_soud_sync_job
 from kolibri.core.tasks.api import prepare_sync_task
+from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import queue
@@ -419,14 +420,27 @@ def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVA
     scheduler.enqueue_in(dt, job)
 
 
+@register_task
+def soud_sync_cleanup(**filters):
+    """
+    Targeted cleanup of active SoUD sessions
+
+    :param filters: A dict of queryset filters for SyncSession model
+    """
+    sync_sessions = find_soud_sync_sessions(**filters)
+    clean_up_ids = sync_sessions.values_list("id", flat=True)
+
+    if clean_up_ids:
+        call_command("cleanupsyncs", ids=clean_up_ids, expiration=0)
+
+
 def queue_soud_sync_cleanup(*sync_session_ids):
     """
     Queue targeted cleanup of active SoUD sessions
 
     :param sync_session_ids: ID's of sync sessions we should cleanup
     """
-    job = Job(soud_sync_cleanup, pk__in=sync_session_ids)
-    return queue.enqueue(job)
+    return soud_sync_cleanup.enqueue(pk__in=sync_session_ids)
 
 
 def queue_soud_server_sync_cleanup(client_ip):
@@ -435,19 +449,4 @@ def queue_soud_server_sync_cleanup(client_ip):
 
     :param client_ip: The IP address of the client
     """
-    job = Job(soud_sync_cleanup, client_ip=client_ip, is_server=True)
-    return queue.enqueue(job)
-
-
-def soud_sync_cleanup(**filters):
-    """
-    Targeted cleanup of active SoUD sessions
-
-    :param filters: A dict of queryset filters for SyncSession model
-    """
-
-    sync_sessions = find_soud_sync_sessions(**filters)
-    clean_up_ids = sync_sessions.values_list("id", flat=True)
-
-    if clean_up_ids:
-        call_command("cleanupsyncs", ids=clean_up_ids, expiration=0)
+    return soud_sync_cleanup.enqueue(client_ip=client_ip, is_server=True)
