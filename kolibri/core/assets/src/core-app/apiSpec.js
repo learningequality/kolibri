@@ -101,6 +101,7 @@ import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
 import TextTruncator from '../views/TextTruncator';
 import TimeDuration from '../views/TimeDuration';
+import SuggestedTime from '../views/SuggestedTime';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import filterUsersByNames from '../utils/filterUsersByNames';
@@ -189,6 +190,7 @@ export default {
       PrivacyLinkAndModal,
       PageStatus,
       LearnOnlyDeviceNotice,
+      SuggestedTime,
     },
     componentSets: {
       sync,

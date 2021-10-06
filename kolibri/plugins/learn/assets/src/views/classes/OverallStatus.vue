@@ -1,21 +1,10 @@
 <template>
 
   <div class="overall-container" :style="{ color: $themeTokens.text }">
-    <KIconButton
-      icon="mastered"
-      :disabled="true"
-      :color="success ? $themeTokens.mastered : $themePalette.grey.v_200"
-    />
     <div class="overall-status">
       <span>
         {{ $tr('goal', { count: totalCorrectRequiredM }) }}
       </span>
-      <KIconButton
-        v-if="success"
-        icon="done"
-        :disabled="true"
-        :color="$themeTokens.mastered"
-      />
     </div>
   </div>
 
@@ -35,20 +24,8 @@
 
     computed: {
       ...mapState('topicsTree', ['content']),
-      ...mapState({
-        mastered: state => state.core.logging.mastery.complete,
-      }),
       masteryModel() {
         return this.content.masteryModel;
-      },
-      success() {
-        return this.exerciseProgress === 1;
-      },
-      exerciseProgress() {
-        if (this.mastered) {
-          return 1;
-        }
-        return 0; //TODO: switch back to 0
       },
       mOfNMasteryModel() {
         return MasteryModelGenerators[this.masteryModel.type](
@@ -78,13 +55,9 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .overall-container {
-    margin-bottom: auto;
-  }
-
   .overall-status {
     display: inline-block;
-    margin-left: 4px;
+    margin: 8px;
   }
 
 </style>

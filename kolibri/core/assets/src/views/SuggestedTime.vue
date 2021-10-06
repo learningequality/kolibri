@@ -1,10 +1,15 @@
 <template>
 
   <div class="time-context">
-    <span v-if="seconds > 0">
+    <div v-if="seconds > 0">
       {{ $tr('suggestedTimeLabel') }}
-      <TimeDuration :seconds="seconds" :expand="true" />
-    </span>
+      <TimeDuration :seconds="seconds" />
+    </div>
+    <div v-if="seconds > 0">
+      <KLabeledIcon icon="schedule">
+        <TimeDuration :seconds="seconds" />
+      </KLabeledIcon>
+    </div>
   </div>
 
 </template>

@@ -14,6 +14,7 @@
 
     <div
       class="epub-renderer-content"
+      :style="{ 'border-color': $themeTokens.fineLine }"
       :dir="contentDirection"
       @mousedown.stop="handleMouseDown"
       @keyup.esc="closeSideBar"
@@ -136,6 +137,7 @@
         @sliderChanged="handleSliderChanged"
       />
     </div>
+
   </CoreFullscreen>
 
 </template>
@@ -310,7 +312,6 @@
       epubRendererStyle() {
         return {
           backgroundColor: this.$themeTokens.surface,
-          borderColor: this.$themePalette.grey.v_300,
         };
       },
       navigationButtonColor() {
@@ -760,25 +761,25 @@
 
   .epub-renderer {
     position: relative;
-    max-height: 100%;
-    padding-top: calc(100vh - #{$bottom-bar-height});
+    // Counter-balance the padding to avoid unnecessary scroll
+    height: calc(100vh - 64px);
+    padding: 32px 24px;
     overflow: hidden;
     font-size: smaller;
-    border: solid 1px;
     border-radius: $radius;
   }
 
   .epub-renderer:fullscreen,
   .epub-renderer.small:fullscreen {
-    padding-top: 0;
+    padding: 0;
   }
 
   .epub-renderer-content {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    border: solid 1px;
+    border-radius: $radius;
   }
 
   .top-bar-component {

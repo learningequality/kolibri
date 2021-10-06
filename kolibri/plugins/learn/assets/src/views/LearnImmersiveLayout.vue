@@ -11,9 +11,12 @@
     <LearningActivityBar
       :resourceTitle="resourceTitle"
       :learningActivities="mappedLearningActivities"
-      :isLessonContext="true"
+      :isLessonContext="false"
       :isBookmarked="bookmark ? true : bookmark"
+      :isCoachContent="isCoachContent"
+      :contentProgress="contentProgress"
       :allowMarkComplete="allowMarkComplete"
+      :contentKind="content.kind"
       data-test="learningActivityBar"
       @navigateBack="navigateBack"
       @toggleBookmark="toggleBookmark"
@@ -131,9 +134,13 @@
     computed: {
       ...mapGetters(['currentUserId']),
       ...mapState({
+        contentProgress: state => state.core.logging.summary.progress,
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
+      }),
+      ...mapState('topicsTree', {
+        isCoachContent: state => (state.content.coach_content ? 1 : 0),
       }),
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage

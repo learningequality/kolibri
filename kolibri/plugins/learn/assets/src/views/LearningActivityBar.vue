@@ -1,7 +1,11 @@
 <template>
 
-  <UiToolbar>
-    <KLabeledIcon :style="{ 'margin-top': '8px' }">
+  <UiToolbar style="z-index: 8;" :style="contentSpecificStyles" class="toolbar">
+    <CoachContentLabel
+      :value="isCoachContent"
+      style="margin-top: 8px; width: auto;"
+    />
+    <KLabeledIcon :style="{ 'margin-top': '8px', 'width': 'auto' }">
       <template #icon>
         <LearningActivityIcon
           data-test="learningActivityIcon"
@@ -13,6 +17,9 @@
         :text="resourceTitle"
         :maxHeight="26"
       />
+      <template #iconAfter>
+        <ProgressIcon :progress="contentProgress" class="progress-icon" />
+      </template>
     </KLabeledIcon>
 
     <template #icon>
@@ -52,6 +59,7 @@
           v-show="isMenuOpen"
           ref="menu"
           class="menu"
+          :style="{ left: isRtl ? '16px' : 'auto', right: isRtl ? 'auto' : '16px' }"
           :raised="true"
           :isOpen="isMenuOpen"
           :containFocus="true"
@@ -93,8 +101,11 @@
 
   import difference from 'lodash/difference';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
+  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import { validateLearningActivity } from 'kolibri.utils.validators';
@@ -106,12 +117,14 @@
   export default {
     name: 'LearningActivityBar',
     components: {
+      CoachContentLabel,
       CoreMenu,
       CoreMenuOption,
-      UiToolbar,
       TextTruncator,
       LearningActivityIcon,
       MarkAsCompleteModal,
+      ProgressIcon,
+      UiToolbar,
     },
     mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
     /**
@@ -161,6 +174,32 @@
         type: Boolean,
         required: false,
         default: false,
+      },
+      /**
+      The progress of the currently viewed content to determine
+      if and which progress icon should be shown (none/started/complete)
+      */
+      contentProgress: {
+        type: Number,
+        required: false,
+        default: 0,
+      },
+      /**
+      A 1/0 Boolean check whether we should show the Coach Content icon
+      to be passed to the CoachContentLabel component
+      */
+      isCoachContent: {
+        type: Number,
+        required: false,
+        default: 0,
+      },
+      /**
+      The ContentNodeKinds kind of the content being viewed
+      */
+      contentKind: {
+        type: String,
+        required: false,
+        default: null,
       },
     },
     data() {
@@ -229,6 +268,15 @@
       },
       menuActions() {
         return difference(this.allActions, this.barActions);
+      },
+      contentSpecificStyles() {
+        // The prime difference is that Exercises won't have shadows under the UiToolbar
+        // because the LessonMasteryBar lives under it and has its own drop shadow.
+        if (this.contentKind === ContentNodeKinds.EXERCISE) {
+          return { border: `1px solid ${this.$themeTokens.fineLine}`, 'box-shadow': 'none' };
+        } else {
+          return {};
+        }
       },
     },
     created() {
@@ -305,24 +353,18 @@
   .menu {
     position: absolute;
     top: 50%;
-    right: 10px; // right-align to the menu icon
-    z-index: 2; // set the z-index higher than epub renderer
+    z-index: 8;
     min-width: 270px;
     transform: translateY(16px);
   }
 
-  // decrease the gap between the back navigation
-  // icon and a resource icon + title
-  /deep/ .ui-toolbar__left {
-    .ui-toolbar__nav-icon {
-      margin-right: 12px;
-    }
-  }
+  /deep/ .progress-icon .ui-icon {
+    margin-top: -2px;
 
-  // increase the gap between the resource title
-  // and the action buttons on the right
-  /deep/ .ui-toolbar__right {
-    margin-left: 16px;
+    svg {
+      width: 18px;
+      height: 18px;
+    }
   }
 
 </style>

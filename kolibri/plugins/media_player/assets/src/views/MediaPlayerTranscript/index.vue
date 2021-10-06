@@ -4,7 +4,7 @@
     :dir="languageDir"
     :class="['media-player-transcript', { showing }]"
     :aria-hidden="(!showing).toString()"
-    :aria-label="commonString('transcript')"
+    :aria-label="coreString('transcript')"
     @mouseenter="hovering = true"
     @mouseleave="hovering = false"
   >

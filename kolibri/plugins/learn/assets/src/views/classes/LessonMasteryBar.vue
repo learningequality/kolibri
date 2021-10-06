@@ -1,12 +1,13 @@
 <template>
 
-  <UiToolbar>
+  <!-- z-index 7 - one beneath top menu bar for nested elevations -->
+  <UiToolbar style="z-index: 7;">
     <template #icon>
-      <OverallStatus :style="{ 'margin-left': '8px' }" />
+      <OverallStatus />
     </template>
 
     <template #actions>
-      <Hint :style="{ 'margin-right': '32px' }" />
+      <slot name="hint"></slot>
     </template>
   </UiToolbar>
 
@@ -18,14 +19,12 @@
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import OverallStatus from './OverallStatus.vue';
-  import Hint from './Hint.vue';
 
   export default {
     name: 'LessonMasteryBar',
     components: {
       UiToolbar,
       OverallStatus,
-      Hint,
     },
     mixins: [KResponsiveWindowMixin],
   };

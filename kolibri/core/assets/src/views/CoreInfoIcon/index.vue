@@ -11,6 +11,7 @@
     </UiIcon>
     <KTooltip
       reference="icon"
+      :class="{ 'ltr': !isRtl }"
       :refs="$refs"
       :placement="tooltipPlacement"
     >
@@ -58,7 +59,7 @@
     cursor: pointer;
   }
 
-  // Overwrite KICon styles to make it compatible with UIIcon
+  // Overwrite KIcon styles to make it compatible with UIIcon
   /deep/ svg {
     top: 0;
     width: 100%;

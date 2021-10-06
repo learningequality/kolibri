@@ -3,7 +3,7 @@
   <CoreFullscreen
     ref="html5Renderer"
     class="html5-renderer"
-    :style="{ height: contentRendererHeight, width: iframeWidth }"
+    :style="{ width: iframeWidth }"
     @changeFullscreen="isInFullscreen = $event"
   >
 
@@ -59,7 +59,6 @@
 
   const defaultContentHeight = '500px';
   const frameTopbarHeight = '37px';
-  const pxStringAdd = (x, y) => parseInt(x, 10) + parseInt(y, 10) + 'px';
   export default {
     name: 'Html5AppRendererIndex',
     components: {
@@ -93,9 +92,6 @@
       iframeWidth() {
         return (this.options && this.options.width) || 'auto';
       },
-      contentRendererHeight() {
-        return pxStringAdd(this.iframeHeight, frameTopbarHeight);
-      },
       fullscreenText() {
         return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
       },
@@ -117,7 +113,7 @@
             bottom: 0,
           };
         }
-        return { height: this.iframeHeight };
+        return {};
       },
       /* eslint-disable kolibri/vue-no-unused-properties */
       /**
@@ -206,6 +202,9 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
+  $frame-topbar-height: 37px;
+  $ui-toolbar-height: 56px;
+
   .fullscreen-header {
     text-align: right;
   }
@@ -227,7 +226,9 @@
     @extend %momentum-scroll;
 
     width: 100%;
-    overflow: visible;
+    height: calc(100vh - #{$frame-topbar-height} - #{$ui-toolbar-height});
+    margin-bottom: -8px;
+    overflow: hidden;
   }
 
   .loader {

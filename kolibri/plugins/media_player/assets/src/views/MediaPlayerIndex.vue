@@ -5,6 +5,7 @@
     class="fill-space"
     :style="{
       'border-color': $themeTokens.fineLine,
+      padding: '32px 24px',
     }"
     @changeFullscreen="isFullscreen = $event"
   >
