@@ -85,7 +85,7 @@
   import GlobalSnackbar from '../../../../../../kolibri/core/assets/src/views/GlobalSnackbar';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
-  import CurrentlyViewedResourceMetadata from '../../../../../core/assets/src/views/FullScreenSidePanel/CurrentlyViewedResourceMetadata';
+  import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
 

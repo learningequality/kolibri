@@ -160,7 +160,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import commonCoach from '../../../../../plugins/coach/assets/src/views/common';
-  import BrowseResourceMetadata from '../../../../../core/assets/src/views/FullScreenSidePanel/BrowseResourceMetadata';
+  import BrowseResourceMetadata from './BrowseResourceMetadata';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import CustomContentRenderer from './ChannelRenderer/CustomContentRenderer';

@@ -116,6 +116,7 @@
   import BrowseResourceMetadata from '../../../../../core/assets/src/views/FullScreenSidePanel/BrowseResourceMetadata';
   import languageSwitcherMixin from '../../../../../core/assets/src/views/language-switcher/mixin.js';
   import { PageNames } from '../constants';
+  import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
   import ContentCardGroupGrid from './ContentCardGroupGrid';

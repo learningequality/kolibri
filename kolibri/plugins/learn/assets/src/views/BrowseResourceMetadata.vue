@@ -10,10 +10,25 @@
       <LearningActivityChip v-if="content.activityKind" :kind="content.activityKind" />
     </div>
 
-    <div class="section">
-      <!-- For Beginners Chip Here -->
-      <div v-if="content.forBeginners" class="beginners-chip">
-        {{ coreString("ForBeginners") }}
+    <div class="flex section">
+      <!-- Wrapping each flex child content in the plain div keeps them flex-spaced
+        properly even when one isn't there -->
+      <div>
+        <span
+          v-if="content.forBeginners"
+          class="beginners-chip"
+        >
+          {{ coreString("ForBeginners") }}
+        </span>
+      </div>
+
+      <div>
+        <KRouterLink
+          :text="metadataStrings.$tr('viewResource')"
+          appearance="raised-button"
+          :primary="false"
+          :to="genContentLink(content.id, content.is_leaf)"
+        />
       </div>
     </div>
 
@@ -40,7 +55,7 @@
     <!-- this v-else ensures spacing remains consistent without show more -->
     <div v-else class="section"></div>
 
-    <!-- No "Subject" string available - but it is noted in Figma as a possible metadata
+    <!-- TODO No "Subject" string available - but it is noted in Figma as a possible metadata
     <div v-if="content.subject" class="section">
       <span class="label">
       </span>
@@ -182,8 +197,9 @@
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import LearningActivityChip from '../../../../../plugins/learn/assets/src/views/LearningActivityChip';
-  import Thumbnail from '../../../../../plugins/learn/assets/src/views/thumbnails/Thumbnail';
+  import genContentLink from '../utils/genContentLink';
+  import LearningActivityChip from './LearningActivityChip';
+  import Thumbnail from './thumbnails/Thumbnail';
   import SidePanelResourceMetadata from './SidePanelResourceMetadata';
 
   export default {
@@ -228,6 +244,7 @@
       this.calculateDescriptionOverflow();
     },
     methods: {
+      genContentLink,
       toggleShowMoreOrLess() {
         if (this.showMoreOrLess === 'Show More') {
           this.showMoreOrLess = 'Show Less';
@@ -301,8 +318,7 @@
 
   .beginners-chip {
     display: inline-block;
-    padding: 12px;
-    margin-right: 8px;
+    padding: 10px;
     font-weight: bold;
     color: white;
     background: #328168; // brand.secondary.v_600
@@ -325,6 +341,11 @@
       // Ensures space on line w/ closing X icon whether
       // chips are visible or not
       min-height: 40px;
+    }
+
+    &.flex {
+      display: flex;
+      justify-content: space-between;
     }
 
     .label {
