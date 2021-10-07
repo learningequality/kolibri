@@ -100,6 +100,7 @@ import AttemptLogList from '../views/AttemptLogList';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
 import TextTruncator from '../views/TextTruncator';
+import TextTruncatorCss from '../views/TextTruncatorCss';
 import TimeDuration from '../views/TimeDuration';
 import SuggestedTime from '../views/SuggestedTime';
 
@@ -163,6 +164,7 @@ export default {
       InteractionList,
       ExamReport,
       TextTruncator,
+      TextTruncatorCss,
       TimeDuration,
       MultiPaneLayout,
       CoreFullscreen,
