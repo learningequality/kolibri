@@ -104,7 +104,6 @@
                 <ContentCardGroupGrid
                   v-if="t.children.results && t.children.results.length"
                   :contents="t.children.results"
-                  :genContentLink="genContentLink"
                   :channelThumbnail="topicOrChannel['thumbnail']"
                   cardViewStyle="card"
                   @toggleInfoPanel="toggleInfoPanel"
@@ -119,7 +118,6 @@
               <ContentCardGroupGrid
                 v-if="resources.length"
                 :contents="resources"
-                :genContentLink="genContentLink"
                 :channelThumbnail="topicOrChannel['thumbnail']"
                 @toggleInfoPanel="toggleInfoPanel"
               />
@@ -161,7 +159,6 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
-  import { PageNames } from '../constants';
   import commonCoach from '../../../../../plugins/coach/assets/src/views/common';
   import BrowseResourceMetadata from '../../../../../core/assets/src/views/FullScreenSidePanel/BrowseResourceMetadata';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
@@ -244,13 +241,6 @@
     },
     methods: {
       ...mapMutations('topicsTree', ['ADD_MORE_CONTENTS', 'ADD_MORE_CHILD_CONTENTS']),
-      genContentLink(id, isLeaf) {
-        const routeName = isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC;
-        return {
-          name: routeName,
-          params: { id },
-        };
-      },
       loadMore() {
         return ContentNodeResource.fetchTree(this.topic.children.more).then(data => {
           this.ADD_MORE_CONTENTS(data.children);

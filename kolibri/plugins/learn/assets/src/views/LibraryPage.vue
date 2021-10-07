@@ -25,7 +25,6 @@
             v-if="channels.length"
             class="grid"
             :contents="channels"
-            :genContentLink="genChannelLink"
             @toggleInfoPanel="toggleInfoPanel"
           />
           <div class="toggle-view-buttons">
@@ -48,7 +47,6 @@
           <ContentCardGroupGrid
             v-if="popular.length"
             :cardViewStyle="currentViewStyle"
-            :genContentLink="genContentLink"
             :contents="trimmedPopular"
             @toggleInfoPanel="toggleInfoPanel"
           />
@@ -258,15 +256,8 @@
       }
     },
     methods: {
-      genContentLink(id, isLeaf) {
-        return {
-          name: isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
-          params: { id },
-          query: {
-            last: this.$store.state.pageName,
-          },
-        };
-      },
+      /* eslint-disable kolibri/vue-no-unused-methods */
+      // TODO: Remove this if we're close to release and haven't used it
       genChannelLink(channel_id) {
         return {
           name: PageNames.TOPICS_CHANNEL,

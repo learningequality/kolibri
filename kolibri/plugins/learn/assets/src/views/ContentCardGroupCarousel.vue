@@ -69,7 +69,7 @@
 <script>
 
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
-  import { validateLinkObject } from 'kolibri.utils.validators';
+  import genContentLink from '../utils/genContentLink';
   import ContentCard from './ContentCard';
 
   const contentCardWidth = 210;
@@ -86,15 +86,6 @@
       contents: {
         type: Array,
         required: true,
-      },
-      genContentLink: {
-        type: Function,
-        default: () => null,
-        validator(genContentLinkFunc) {
-          const dummyExercise = genContentLinkFunc(1, 'exercise');
-          const isValidLinkGenerator = validateLinkObject(dummyExercise);
-          return isValidLinkGenerator;
-        },
       },
     },
     data() {
@@ -202,6 +193,7 @@
       },
     },
     methods: {
+      genContentLink,
       positionCalc(index) {
         const indexInSet = index - this.contentSetStart;
         const gutterOffset = indexInSet * this.gutterWidth;

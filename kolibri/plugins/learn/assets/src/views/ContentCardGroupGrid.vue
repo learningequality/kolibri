@@ -57,8 +57,8 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import genContentLink from '../utils/genContentLink';
   import ContentCard from './ContentCard';
   import ContentCardListViewItem from './ContentCardListViewItem';
   import CopiesModal from './CopiesModal';
@@ -84,14 +84,6 @@
           return ['card', 'list'].includes(value);
         },
       },
-      genContentLink: {
-        type: Function,
-        validator(value) {
-          return validateLinkObject(value(1, 'exercise'));
-        },
-        default: () => ({}),
-        required: false,
-      },
       channelThumbnail: {
         type: String,
         required: false,
@@ -107,6 +99,7 @@
       ...mapState('topicsRoot', { channels: 'rootNodes' }),
     },
     methods: {
+      genContentLink,
       openCopiesModal(contentId) {
         this.sharedContentId = contentId;
         this.uniqueId = this.contents.find(content => content.content_id === contentId).id;

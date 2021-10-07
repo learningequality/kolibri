@@ -34,8 +34,8 @@
 
 <script>
 
-  import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import genContentLink from '../utils/genContentLink';
   import ChannelCard from './ChannelCard';
   import CopiesModal from './CopiesModal';
 
@@ -50,14 +50,6 @@
       contents: {
         type: Array,
         required: true,
-      },
-      genContentLink: {
-        type: Function,
-        validator(value) {
-          return validateLinkObject(value(1, 'exercise'));
-        },
-        default: () => ({}),
-        required: false,
       },
     },
     data: () => ({
@@ -74,6 +66,7 @@
       },
     },
     methods: {
+      genContentLink,
       openCopiesModal(contentId) {
         this.sharedContentId = contentId;
         this.uniqueId = this.contents.find(content => content.content_id === contentId).id;
