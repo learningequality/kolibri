@@ -22,6 +22,7 @@
       <KButton
         appearance="flat-button"
         :appearanceOverrides="customActivityStyles"
+        :disabled="availableActivities && !availableActivities[value]"
         @click="$emit('input', value)"
       >
         <KIcon :icon="`${camelCase(activity) + 'Shaded'}`" class="activity-icon" />
@@ -48,15 +49,26 @@
 
   const learningActivitiesShown = {};
 
-  plugin_data.learningActivities.map(id => {
-    const key = activitiesLookup[id];
-    learningActivitiesShown[key] = id;
-  });
+  if (process.env.NODE_ENV !== 'production') {
+    // TODO rtibbles: remove this condition
+    Object.assign(learningActivitiesShown, LearningActivities);
+  } else {
+    plugin_data.learningActivities.map(id => {
+      const key = activitiesLookup[id];
+      learningActivitiesShown[key] = id;
+    });
+  }
 
   export default {
     name: 'ActivityButtonsGroup',
     mixins: [commonCoreStrings],
-
+    props: {
+      availableLabels: {
+        type: Object,
+        required: false,
+        default: null,
+      },
+    },
     computed: {
       learningActivitiesList() {
         return learningActivitiesShown;
@@ -80,6 +92,16 @@
             'line-spacing': '0',
           },
         };
+      },
+      availableActivities() {
+        if (this.availableLabels) {
+          const activities = {};
+          for (let key of this.availableLabels.learning_activities) {
+            activities[key] = true;
+          }
+          return activities;
+        }
+        return null;
       },
     },
     methods: {

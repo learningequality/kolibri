@@ -45,6 +45,18 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import plugin_data from 'plugin_data';
 
+  const contentLevelsList = Object.keys(ContentLevels).filter(key => {
+    const value = ContentLevels[key];
+    // TODO rtibbles: remove this condition
+    return plugin_data.gradeLevels.includes(value) || process.env.NODE_ENV !== 'production';
+  });
+
+  const accessibilityOptionsList = Object.keys(AccessibilityCategories).filter(key => {
+    const value = AccessibilityCategories[key];
+    // TODO rtibbles: remove this condition
+    return plugin_data.accessibilityLabels.includes(value) || process.env.NODE_ENV !== 'production';
+  });
+
   export default {
     name: 'SelectGroup',
     mixins: [commonCoreStrings],
@@ -57,57 +69,60 @@
           return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
       },
+      availableLabels: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
     computed: {
       languageOptionsList() {
-        const options = [];
-        plugin_data.languages.forEach(language => {
-          options.push({
+        return plugin_data.languages.map(language => {
+          return {
             value: language.id,
+            disabled:
+              this.availableLabels &&
+              !this.availableLabels.languages.find(l => l.id === language.id),
             label: language.lang_name,
-          });
+          };
         });
-        return options;
       },
       accessibilityOptionsList() {
-        const options = [];
-        Object.keys(AccessibilityCategories).map(key => {
+        return accessibilityOptionsList.map(key => {
           const value = AccessibilityCategories[key];
-          if (plugin_data.accessibilityLabels.includes(value)) {
-            options.push({
-              value,
-              label: this.coreString(camelCase(key)),
-            });
-          }
+          return {
+            value,
+            disabled:
+              this.availableLabels && !this.availableLabels.accessibility_labels.includes(value),
+            label: this.coreString(camelCase(key)),
+          };
         });
-        return options;
       },
       contentLevelsList() {
-        return Object.keys(ContentLevels)
-          .map(key => {
-            const value = ContentLevels[key];
-            if (plugin_data.gradeLevels.includes(value)) {
-              let translationKey;
-              if (key === 'PROFESSIONAL') {
-                translationKey = 'specializedProfessionalTraining';
-              } else if (key === 'WORK_SKILLS') {
-                translationKey = 'allLevelsWorkSkills';
-              } else if (key === 'BASIC_SKILLS') {
-                translationKey = 'allLevelsBasicSkills';
-              } else {
-                translationKey = camelCase(key);
-              }
-              return {
-                value,
-                label: this.coreString(translationKey),
-              };
-            }
-          })
-          .filter(Boolean);
+        return contentLevelsList.map(key => {
+          const value = ContentLevels[key];
+          let translationKey;
+          if (key === 'PROFESSIONAL') {
+            translationKey = 'specializedProfessionalTraining';
+          } else if (key === 'WORK_SKILLS') {
+            translationKey = 'allLevelsWorkSkills';
+          } else if (key === 'BASIC_SKILLS') {
+            translationKey = 'allLevelsBasicSkills';
+          } else {
+            translationKey = camelCase(key);
+          }
+          return {
+            value,
+            disabled: this.availableLabels && !this.availableLabels.grade_levels.includes(value),
+            label: this.coreString(translationKey),
+          };
+        });
       },
       channelOptionsList() {
         return plugin_data.channels.map(channel => ({
           value: channel.id,
+          disabled:
+            this.availableLabels && !this.availableLabels.channels.find(c => c.id === channel.id),
           label: channel.name,
         }));
       },

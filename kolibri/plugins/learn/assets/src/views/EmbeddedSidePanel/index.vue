@@ -43,7 +43,7 @@
           />
         </div>
         <div
-          v-for="(val, category) in libraryCategoriesList"
+          v-for="(category, val) in libraryCategoriesList"
           :key="category"
           span="4"
           class="category-list-item"
@@ -52,6 +52,7 @@
             :text="coreString(camelCase(category))"
             appearance="flat-button"
             :appearanceOverrides="customCategoryStyles"
+            :disabled="availableRootCategories && !availableRootCategories[val]"
             iconAfter="chevronRight"
             @click="$emit('currentCategory', category)"
           />
@@ -68,9 +69,13 @@
           />
         </div>
       </div>
-      <ActivityButtonsGroup class="section" @input="handleActivity" />
+      <ActivityButtonsGroup
+        :availableLabels="availableLabels"
+        class="section"
+        @input="handleActivity"
+      />
       <!-- Filter results by learning activity, displaying all options -->
-      <SelectGroup v-model="inputValue" class="section" />
+      <SelectGroup v-model="inputValue" :availableLabels="availableLabels" class="section" />
       <div class="section">
         <div
           v-for="(val, activity) in resourcesNeededList"
@@ -81,6 +86,7 @@
           <KCheckbox
             :checked="value.learner_needs[val]"
             :label="coreString(activity)"
+            :disabled="availableNeeds && !availableNeeds[val]"
             @change="handleNeed(val)"
           />
         </div>
@@ -94,11 +100,9 @@
 <script>
 
   import camelCase from 'lodash/camelCase';
-  import {
-    LibraryCategories,
-    LibraryCategoriesLookup,
-    ResourcesNeededTypes,
-  } from 'kolibri.coreVue.vuex.constants';
+  import pick from 'lodash/pick';
+  import uniq from 'lodash/uniq';
+  import { CategoriesLookup, ResourcesNeededTypes } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import SearchBox from '../SearchBox';
   import commonLearnStrings from '../commonLearnStrings';
@@ -111,7 +115,8 @@
   const resourcesNeeded = {};
   resourcesNeededShown.map(key => {
     const value = ResourcesNeededTypes[key];
-    if (plugin_data.learnerNeeds.includes(value)) {
+    // TODO rtibbles: remove this condition
+    if (plugin_data.learnerNeeds.includes(value) || process.env.NODE_ENV !== 'production') {
       // For some reason the string ids for these items are in PascalCase not camelCase
       if (key === 'PEOPLE') {
         key = 'ToUseWithTeachersAndPeers';
@@ -128,11 +133,19 @@
     }
   });
 
-  const libraryCategories = {};
-  plugin_data.categories.map(key => {
-    const root = LibraryCategoriesLookup[key.split('.')[0]];
-    libraryCategories[root] = LibraryCategories[root];
-  });
+  let availableIds;
+
+  if (process.env.NODE_ENV !== 'production') {
+    // TODO rtibbles: remove this condition
+    availableIds = Object.keys(CategoriesLookup);
+  } else {
+    availableIds = plugin_data.categories;
+  }
+
+  const libraryCategories = pick(
+    CategoriesLookup,
+    uniq(availableIds.map(key => key.split('.')[0]))
+  );
 
   export default {
     name: 'EmbeddedSidePanel',
@@ -158,6 +171,11 @@
           ];
           return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
+      },
+      availableLabels: {
+        type: Object,
+        required: false,
+        default: null,
       },
       topics: {
         type: Array,
@@ -216,6 +234,29 @@
       sidePanelStyle() {
         if (this.topicPage) {
           return { position: 'relative' };
+        }
+        return null;
+      },
+      availableRootCategories() {
+        if (this.availableLabels) {
+          const roots = {};
+          for (let key of this.availableLabels.categories) {
+            const root = key.split('.')[0];
+            roots[root] = true;
+          }
+          return roots;
+        }
+        return null;
+      },
+      availableNeeds() {
+        if (this.availableLabels) {
+          const needs = {};
+          for (let key of this.availableLabels.learner_needs) {
+            const root = key.split('.')[0];
+            needs[root] = true;
+            needs[key] = true;
+          }
+          return needs;
         }
         return null;
       },

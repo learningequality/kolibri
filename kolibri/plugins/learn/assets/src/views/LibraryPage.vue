@@ -7,6 +7,7 @@
       <EmbeddedSidePanel
         v-if="!!windowIsLarge"
         v-model="searchTerms"
+        :availableLabels="labels"
         width="3"
         @currentCategory="handleShowSearchModal"
       />
