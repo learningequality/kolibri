@@ -1,7 +1,6 @@
 import hashlib
 from base64 import b64encode
 from collections import OrderedDict
-from urllib import parse
 
 from django.core.cache import cache
 from django.core.exceptions import EmptyResultSet
@@ -15,6 +14,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.pagination import NotFound
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from six.moves.urllib.parse import urlencode
 
 
 class ValuesPage(Page):
@@ -282,7 +282,7 @@ class ValuesViewsetCursorPagination(CursorPagination):
         if position is not None:
             tokens["p"] = position
 
-        querystring = parse.urlencode(tokens, doseq=True)
+        querystring = urlencode(tokens, doseq=True)
         encoded = b64encode(querystring.encode("ascii")).decode("ascii")
         params = self.request.query_params.copy()
         params.update(
