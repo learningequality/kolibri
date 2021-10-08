@@ -1,5 +1,6 @@
 import logging
 import re
+from collections import OrderedDict
 from functools import reduce
 from random import sample
 
@@ -60,6 +61,7 @@ from kolibri.core.content.utils.importability_annotation import (
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_info_url
 from kolibri.core.content.utils.paths import get_local_content_storage_file_url
+from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
@@ -492,7 +494,44 @@ class BaseContentNodeMixin(object):
 
 class OptionalContentNodePagination(ValuesViewsetCursorPagination):
     ordering = "id"
-    page_size_query_param = "page_size"
+    page_size_query_param = "max_results"
+
+    def paginate_queryset(self, queryset, request, view=None):
+        # Record the queryset for use in returning available filters
+        self.queryset = queryset
+        return super(OptionalContentNodePagination, self).paginate_queryset(
+            queryset, request, view=view
+        )
+
+    def get_paginated_response(self, data):
+        return Response(
+            OrderedDict(
+                [
+                    ("more", self.get_more()),
+                    ("results", data),
+                    ("labels", get_available_metadata_labels(self.queryset)),
+                ]
+            )
+        )
+
+    def get_paginated_response_schema(self, schema):
+        return {
+            "type": "object",
+            "properties": {
+                "more": {
+                    "type": "object",
+                    "nullable": True,
+                    "example": {
+                        "cursor": "asdadshjashjadh",
+                    },
+                },
+                "results": schema,
+                "labels": {
+                    "type": "object",
+                    "example": {"accessibility_labels": ["id1", "id2"]},
+                },
+            },
+        }
 
 
 @method_decorator(cache_forever, name="dispatch")

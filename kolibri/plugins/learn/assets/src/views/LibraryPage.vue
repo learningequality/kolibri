@@ -146,6 +146,7 @@
         moreLoading: false,
         results: [],
         more: null,
+        labels: null,
       };
     },
     computed: {
@@ -267,7 +268,7 @@
       search() {
         if (this.displayingSearchResults) {
           this.searchLoading = true;
-          const getParams = { page_size: 25 };
+          const getParams = { max_results: 25 };
           for (let key of searchKeys) {
             const keys = Object.keys(this.searchTerms[key]);
             if (keys.length) {
@@ -280,6 +281,7 @@
           ContentNodeResource.fetchCollection({ getParams }).then(data => {
             this.results = data.results;
             this.more = data.more;
+            this.labels = data.labels;
             this.searchLoading = false;
           });
         }
@@ -290,6 +292,7 @@
           ContentNodeResource.fetchCollection({ getParams: this.more }).then(data => {
             this.results.push(...data.results);
             this.more = data.more;
+            this.labels = data.labels;
             this.moreLoading = false;
           });
         }
