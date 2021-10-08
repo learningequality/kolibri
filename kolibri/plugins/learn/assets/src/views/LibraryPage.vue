@@ -206,8 +206,10 @@
               delete query[key];
             }
           }
-          if (value.keywords) {
+          if (value.keywords && value.keywords.length) {
             query.keywords = value.keywords;
+          } else {
+            delete query.keywords;
           }
           this.$router.push({ ...this.$route, query });
         },
