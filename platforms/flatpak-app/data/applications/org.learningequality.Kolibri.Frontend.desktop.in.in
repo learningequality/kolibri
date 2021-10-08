@@ -8,7 +8,7 @@ Comment=Offline education technology platform
 #              This list must end with a semicolon.
 Keywords=education;multimedia;videos;learning;quiz;
 Categories=Education;
-Exec=kolibri-gnome-frontend %U
+Exec=kolibri-gnome %U
 StartupNotify=true
 DBusActivatable=true
 # TRANSLATORS: This is an icon file name.
