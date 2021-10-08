@@ -1,6 +1,6 @@
 import { setChannelInfo } from 'kolibri.coreVue.vuex.actions';
 import router from 'kolibri.coreVue.router';
-import RootVue from './views/CoachIndex';
+import PageRoot from 'kolibri.coreVue.components.PageRoot';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
 import KolibriApp from 'kolibri_app';
@@ -13,7 +13,7 @@ class CoachToolsModule extends KolibriApp {
     return routes;
   }
   get RootVue() {
-    return RootVue;
+    return PageRoot;
   }
   get pluginModule() {
     return pluginModule;

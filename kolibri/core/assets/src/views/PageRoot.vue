@@ -1,5 +1,6 @@
 <template>
 
+  <!-- populated by client-side router -->
   <router-view />
 
 </template>
@@ -8,7 +9,7 @@
 <script>
 
   export default {
-    name: 'CoachIndex',
+    name: 'PageRoot',
   };
 
 </script>
