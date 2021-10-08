@@ -17,6 +17,7 @@ from django.utils.cache import patch_response_headers
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import etag
+from django_filters.rest_framework import BaseInFilter
 from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
@@ -153,6 +154,14 @@ class IdFilter(FilterSet):
 MODALITIES = set(["QUIZ"])
 
 
+class UUIDInFilter(BaseInFilter, UUIDFilter):
+    pass
+
+
+class CharInFilter(BaseInFilter, CharFilter):
+    pass
+
+
 class ContentNodeFilter(IdFilter):
     kind = ChoiceFilter(
         method="filter_kind",
@@ -164,12 +173,15 @@ class ContentNodeFilter(IdFilter):
     parent__isnull = BooleanFilter(field_name="parent", lookup_expr="isnull")
     include_coach_content = BooleanFilter(method="filter_include_coach_content")
     contains_quiz = CharFilter(method="filter_contains_quiz")
-    grade_levels = CharFilter(lookup_expr="contains")
-    resource_types = CharFilter(lookup_expr="contains")
-    learning_activities = CharFilter(lookup_expr="contains")
-    accessibility_labels = CharFilter(lookup_expr="contains")
-    categories = CharFilter(lookup_expr="contains")
-    learner_needs = CharFilter(lookup_expr="contains")
+    grade_levels = CharFilter(method="filter_contains_or")
+    resource_types = CharFilter(method="filter_contains_or")
+    learning_activities = CharFilter(method="filter_contains_or")
+    accessibility_labels = CharFilter(method="filter_contains_or")
+    categories = CharFilter(method="filter_contains_or")
+    learner_needs = CharFilter(method="filter_contains_or")
+    keywords = CharFilter(method="filter_keywords")
+    channels = UUIDInFilter(name="channel_id")
+    languages = CharInFilter(name="lang_id")
 
     class Meta:
         model = models.ContentNode
@@ -193,6 +205,9 @@ class ContentNodeFilter(IdFilter):
             "accessibility_labels",
             "categories",
             "learner_needs",
+            "keywords",
+            "channels",
+            "languages",
         ]
 
     def filter_kind(self, queryset, name, value):
@@ -233,6 +248,27 @@ class ContentNodeFilter(IdFilter):
             ).get_ancestors(include_self=True)
             return queryset.filter(pk__in=quizzes.values_list("pk", flat=True))
         return queryset
+
+    def filter_keywords(self, queryset, name, value):
+        # all words with punctuation removed
+        all_words = [w for w in re.split('[?.,!";: ]', value) if w]
+        # words in all_words that are not stopwords
+        critical_words = [w for w in all_words if w not in stopwords_set]
+        # queries ordered by relevance priority
+        query = union(
+            [
+                # all critical words in title
+                intersection([Q(title__icontains=w) for w in critical_words]),
+                # all critical words in description
+                intersection([Q(description__icontains=w) for w in critical_words]),
+            ]
+        )
+
+        return queryset.filter(query)
+
+    def filter_contains_or(self, queryset, name, value):
+        values = value.split(",")
+        return queryset.filter(union([Q(**{name + "__contains": v}) for v in values]))
 
 
 class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):

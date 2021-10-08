@@ -7,6 +7,7 @@
     <KButton
       appearance="flat-button"
       :appearanceOverrides="customActivityStyles"
+      @click="$emit('input', null)"
     >
       <KIcon icon="allActivities" class="activity-icon" />
       <p class="activity-button-text">
@@ -21,6 +22,7 @@
       <KButton
         appearance="flat-button"
         :appearanceOverrides="customActivityStyles"
+        @click="$emit('input', value)"
       >
         <KIcon :icon="`${camelCase(activity) + 'Shaded'}`" class="activity-icon" />
         <p class="activity-button-text">

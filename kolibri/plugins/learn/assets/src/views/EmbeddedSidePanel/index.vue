@@ -23,6 +23,8 @@
       <SearchBox
         key="channel-search"
         placeholder="findSomethingToLearn"
+        :value="value.keywords || ''"
+        @change="val => $emit('input', { ...value, keywords: val })"
       />
       <h2 class="section title">
         {{ $tr('categories') }}
@@ -36,11 +38,11 @@
           :text="$tr('allCategories')"
           appearance="flat-button"
           :appearanceOverrides="customCategoryStyles"
-          @click="$emit('filterResults', value)"
+          @click="$emit('input', { ...value, categories: [] })"
         />
       </div>
       <div
-        v-for="(value, category) in libraryCategoriesList"
+        v-for="(val, category) in libraryCategoriesList"
         :key="category"
         span="4"
         class="category-list-item"
@@ -50,7 +52,7 @@
           appearance="flat-button"
           :appearanceOverrides="customCategoryStyles"
           iconAfter="chevronRight"
-          @click="$emit('openModal', category)"
+          @click="$emit('currentCategory', category)"
         />
       </div>
       <div
@@ -61,24 +63,23 @@
           :text="coreString('None of the above')"
           appearance="flat-button"
           :appearanceOverrides="customCategoryStyles"
-          @click="$emit('filterResults', value)"
+          @click="$emit('input', { ...value, categories: { null: true } })"
         />
       </div>
-      <ActivityButtonsGroup class="section" />
+      <ActivityButtonsGroup class="section" @input="handleActivity" />
       <!-- Filter results by learning activity, displaying all options -->
-      <SelectGroup :channels="channels" class="section" />
+      <SelectGroup v-model="inputValue" :channels="channels" class="section" />
       <div class="section">
         <div
-          v-for="(value, activity) in resourcesNeededList"
+          v-for="(val, activity) in resourcesNeededList"
           :key="activity"
           span="4"
           alignment="center"
         >
           <KCheckbox
-            key="adHocLearners"
-            :checked="isSelected(value)"
+            :checked="value.learner_needs[val]"
             :label="coreString(activity)"
-            @change="$emit('toggleSelected', $event)"
+            @change="handleNeed(val)"
           />
         </div>
       </div>
@@ -98,24 +99,24 @@
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import SelectGroup from './SelectGroup';
 
-  const resourcesNeededShown = [
-    'FOR_BEGINNERS',
-    'PEOPLE',
-    'PAPER_PENCIL',
-    'NEEDS_INTERNET',
-    'NEEDS_MATERIALS',
-  ];
+  const resourcesNeededShown = ['FOR_BEGINNERS', 'PEOPLE', 'PAPER_PENCIL', 'INTERNET', 'MATERIALS'];
 
   const resourcesNeeded = {};
   resourcesNeededShown.map(key => {
     const value = ResourcesNeededTypes[key];
+    // For some reason the string ids for these items are in PascalCase not camelCase
     if (key === 'PEOPLE') {
       key = 'ToUseWithTeachersAndPeers';
     } else if (key === 'PAPER_PENCIL') {
       key = 'ToUseWithPaperAndPencil';
+    } else if (key === 'INTERNET') {
+      key = 'NeedsInternet';
+    } else if (key === 'MATERIALS') {
+      key = 'NeedsMaterials';
+    } else if (key === 'FOR_BEGINNERS') {
+      key = 'ForBeginners';
     }
-    // For some reason the string ids for these items are in PascalCase not camelCase
-    resourcesNeeded[key.slice(0, 1).toUpperCase() + camelCase(key).slice(1)] = value;
+    resourcesNeeded[key] = value;
   });
 
   export default {
@@ -127,6 +128,22 @@
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
+      value: {
+        type: Object,
+        required: true,
+        validator(value) {
+          const inputKeys = [
+            'learning_activities',
+            'learner_needs',
+            'channels',
+            'accessibility_labels',
+            'languages',
+            'grade_levels',
+            'keywords',
+          ];
+          return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
+        },
+      },
       channels: {
         type: Array,
         required: true,
@@ -151,6 +168,14 @@
       },
     },
     computed: {
+      inputValue: {
+        get() {
+          return this.value;
+        },
+        set(value) {
+          this.$emit('input', value);
+        },
+      },
       libraryCategoriesList() {
         return LibraryCategories;
       },
@@ -185,8 +210,32 @@
       },
     },
     methods: {
-      isSelected(value) {
-        return value === 'ForBeginners' ? false : true;
+      handleActivity(activity) {
+        let learning_activities;
+        if (activity) {
+          learning_activities = {
+            [activity]: true,
+          };
+        } else {
+          learning_activities = {};
+        }
+        this.$emit('input', { ...this.value, learning_activities });
+      },
+      handleNeed(need) {
+        if (this.value.learner_needs[need]) {
+          const learner_needs = {};
+          for (let n in this.value.learner_needs) {
+            if (n !== need) {
+              learner_needs[n] = true;
+            }
+          }
+          this.$emit('input', { ...this.value, learner_needs });
+        } else {
+          this.$emit('input', {
+            ...this.value,
+            learner_needs: { ...this.value.learner_needs, [need]: true },
+          });
+        }
       },
       camelCase(val) {
         return camelCase(val);

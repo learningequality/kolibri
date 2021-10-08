@@ -7,7 +7,6 @@ import examReportViewer from './examReportViewer';
 import examViewer from './examViewer';
 import lessonPlaylist from './lessonPlaylist';
 import recommended from './recommended';
-import search from './search';
 import topicsRoot from './topicsRoot';
 import topicsTree from './topicsTree';
 
@@ -34,7 +33,6 @@ export default {
     examViewer,
     lessonPlaylist,
     recommended,
-    search,
     topicsRoot,
     topicsTree,
   },

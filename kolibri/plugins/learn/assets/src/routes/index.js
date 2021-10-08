@@ -1,6 +1,5 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
-import { showSearch } from '../modules/search/handlers';
 import {
   showTopicsTopic,
   showTopicsChannel,
@@ -67,16 +66,6 @@ export default [
       showLibrary(store);
     },
     component: LibraryPage,
-  },
-  {
-    name: PageNames.SEARCH,
-    path: '/search',
-    handler: toRoute => {
-      if (unassignedContentGuard()) {
-        return unassignedContentGuard();
-      }
-      showSearch(store, { ...toRoute.query });
-    },
   },
   {
     name: PageNames.CONTENT_UNAVAILABLE,

@@ -6,12 +6,14 @@
       class="selector"
       :value="selectedLanguage"
       :label="coreString('languageLabel')"
+      @change="val => handleChange('languages', val)"
     />
     <KSelect
       :options="contentLevelsList"
       class="selector"
       :value="selectedLevel"
       :label="coreString('levelLabel')"
+      @change="val => handleChange('grade_levels', val)"
     />
     <KSelect
       v-if="channels"
@@ -19,12 +21,14 @@
       class="selector"
       :value="selectedChannel"
       :label="coreString('channelLabel')"
+      @change="val => handleChange('channels', val)"
     />
     <KSelect
       :options="accessibilityOptionsList"
       class="selector"
       :value="selectedAccessibilityFilter"
       :label="coreString('accessibility')"
+      @change="val => handleChange('accessibility_labels', val)"
     />
   </div>
 
@@ -45,6 +49,14 @@
       channels: {
         type: Array,
         required: true,
+      },
+      value: {
+        type: Object,
+        required: true,
+        validator(value) {
+          const inputKeys = ['channels', 'accessibility_labels', 'languages', 'grade_levels'];
+          return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
+        },
       },
     },
     computed: {
@@ -99,16 +111,27 @@
         return options;
       },
       selectedLanguage() {
-        return this.languageOptionsList.find(o => o.value === this.value) || {};
+        const langId = Object.keys(this.value.languages)[0];
+        return this.languageOptionsList.find(o => o.value === langId) || {};
       },
       selectedAccessibilityFilter() {
-        return this.accessibilityOptionsList.find(o => o.value === this.value) || {};
+        const accessId = Object.keys(this.value.accessibility_labels)[0];
+        return this.accessibilityOptionsList.find(o => o.value === accessId) || {};
       },
       selectedLevel() {
-        return this.contentLevelsList.find(o => o.value === this.value) || {};
+        const levelId = Object.keys(this.value.grade_levels)[0];
+        return this.contentLevelsList.find(o => o.value === levelId) || {};
       },
       selectedChannel() {
-        return this.channelOptionsList.find(o => o.value === this.value) || {};
+        const channelId = Object.keys(this.value.channels)[0];
+        return this.channelOptionsList.find(o => o.value === channelId) || {};
+      },
+    },
+    methods: {
+      handleChange(field, value) {
+        if (value && value.value) {
+          this.$emit('input', { ...this.value, [field]: { [value.value]: true } });
+        }
       },
     },
   };

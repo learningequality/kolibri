@@ -25,6 +25,7 @@
         <p
           v-for="(item, nestedKey) in nestedObject.nested"
           :key="item.value"
+          @click="$emit('input', item.value)"
         >
           {{ coreString(camelCase(nestedKey)) }}
         </p>
@@ -39,6 +40,7 @@
         v-for="(value, key) in displaySelectedCategories"
         :key="value.value"
         :span="4"
+        @click="$emit('input', value.value)"
       >
         <KIcon
           icon="info"
