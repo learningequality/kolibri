@@ -1,57 +1,66 @@
 <template>
 
-  <KPageContainer class="narrow-container">
-    <form class="form" @submit.prevent="handleSubmit">
-      <h1>{{ $tr('editProfileHeader') }}</h1>
+  <CoreBase
+    :immersivePage="true"
+    immersivePageIcon="close"
+    :appBarTitle="$tr('editProfileHeader')"
+    :pageTitle="$tr('editProfileHeader')"
+    :showSubNav="false"
+    :immersivePageRoute="profileRoute"
+  >
+    <KPageContainer class="narrow-container">
+      <form class="form" @submit.prevent="handleSubmit">
+        <h1>{{ $tr('editProfileHeader') }}</h1>
 
-      <FullNameTextbox
-        ref="fullNameTextbox"
-        :autofocus="true"
-        :disabled="!canEditName || formDisabled"
-        :value.sync="fullName"
-        :isValid.sync="fullNameValid"
-        :shouldValidate="formSubmitted"
-      />
-
-      <UsernameTextbox
-        ref="usernameTextbox"
-        :disabled="!canEditUsername || formDisabled"
-        :value.sync="username"
-        :isValid.sync="usernameValid"
-        :shouldValidate="formSubmitted"
-        :errors.sync="caughtErrors"
-      />
-
-      <GenderSelect
-        class="select"
-        :value.sync="gender"
-        :disabled="formDisabled"
-      />
-
-      <BirthYearSelect
-        class="select"
-        :value.sync="birthYear"
-        :disabled="formDisabled"
-      />
-
-      <KButtonGroup class="buttons">
-        <KButton
-          :text="coreString('saveAction')"
-          :disabled="formDisabled"
-          type="submit"
-
-          primary
+        <FullNameTextbox
+          ref="fullNameTextbox"
+          :autofocus="true"
+          :disabled="!canEditName || formDisabled"
+          :value.sync="fullName"
+          :isValid.sync="fullNameValid"
+          :shouldValidate="formSubmitted"
         />
-        <KButton
-          :text="cancelButtonText"
-          :disabled="formDisabled"
-          appearance="raised-button"
-          :primary="false"
-          @click="handleCancel"
+
+        <UsernameTextbox
+          ref="usernameTextbox"
+          :disabled="!canEditUsername || formDisabled"
+          :value.sync="username"
+          :isValid.sync="usernameValid"
+          :shouldValidate="formSubmitted"
+          :errors.sync="caughtErrors"
         />
-      </KButtonGroup>
-    </form>
-  </KPageContainer>
+
+        <GenderSelect
+          class="select"
+          :value.sync="gender"
+          :disabled="formDisabled"
+        />
+
+        <BirthYearSelect
+          class="select"
+          :value.sync="birthYear"
+          :disabled="formDisabled"
+        />
+
+        <KButtonGroup class="buttons">
+          <KButton
+            :text="coreString('saveAction')"
+            :disabled="formDisabled"
+            type="submit"
+
+            primary
+          />
+          <KButton
+            :text="cancelButtonText"
+            :disabled="formDisabled"
+            appearance="raised-button"
+            :primary="false"
+            @click="handleCancel"
+          />
+        </KButtonGroup>
+      </form>
+    </KPageContainer>
+  </CoreBase>
 
 </template>
 
@@ -70,6 +79,7 @@
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import { FacilityUserResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { ComponentMap } from '../constants';
 
   export default {
@@ -84,6 +94,7 @@
       BirthYearSelect,
       FullNameTextbox,
       UsernameTextbox,
+      CoreBase,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -127,6 +138,9 @@
       isReferredFromLearnPage() {
         return this.$route.query.next_page === 'learn';
       },
+      profileRoute() {
+        return this.$router.getRoute(ComponentMap.PROFILE);
+      },
     },
     mounted() {
       this.setFacilityUser();
@@ -159,7 +173,7 @@
         if (this.isReferredFromLearnPage) {
           this.navigateToLearnPage();
         } else {
-          this.$router.push(this.$router.getRoute(ComponentMap.PROFILE));
+          this.$router.push(this.profileRoute);
         }
       },
       handleSubmit() {
@@ -175,8 +189,7 @@
               if (this.isReferredFromLearnPage) {
                 this.navigateToLearnPage();
               } else {
-                const nextRoute = this.$router.getRoute(ComponentMap.PROFILE);
-                this.$router.push(nextRoute);
+                this.$router.push(this.profileRoute);
               }
             })
             .catch(error => {
