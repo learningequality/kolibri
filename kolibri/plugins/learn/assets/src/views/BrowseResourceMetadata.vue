@@ -17,6 +17,7 @@
         <span
           v-if="content.forBeginners"
           class="beginners-chip"
+          data-test="beginners-chip"
         >
           {{ coreString("ForBeginners") }}
         </span>
@@ -36,11 +37,17 @@
       <Thumbnail :thumbnailUrl="content.thumbnail" />
     </div>
 
-    <div v-if="content.title" class="section title">
+    <div v-if="content.title" class="section title" data-test="content-title">
       {{ content.title }}
     </div>
 
-    <div v-if="content.description" ref="description" class="content" :class="truncate">
+    <div 
+      v-if="content.description" 
+      ref="description" 
+      data-test="content-description"
+      class="content" 
+      :class="truncate"
+    >
       {{ content.description }}
     </div>
 
@@ -49,6 +56,7 @@
       :text="showMoreOrLess"
       appearance="basic-link"
       class="show-more-button"
+      data-test="show-more-or-less"
       :primary="true"
       @click="toggleShowMoreOrLess"
     />
