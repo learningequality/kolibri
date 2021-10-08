@@ -3,6 +3,20 @@ import { mount, createLocalVue } from '@vue/test-utils';
 import LearnIndex from '../../src/views/LearnIndex';
 import makeStore from '../makeStore';
 
+jest.mock('plugin_data', () => {
+  return {
+    __esModule: true,
+    default: {
+      accessibilityLabels: [],
+      categories: [],
+      gradeLevels: [],
+      languages: [],
+      channels: [],
+      learnerNeeds: [],
+    },
+  };
+});
+
 LearnIndex.methods.getDemographicInfo = function() {};
 
 const localVue = createLocalVue();

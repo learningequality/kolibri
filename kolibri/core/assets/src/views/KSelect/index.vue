@@ -16,7 +16,6 @@
     :name="name"
     :placeholder="placeholder"
     @change="handleChange"
-    @input="handleInput"
     @blur="$emit('blur')"
   />
 
@@ -121,21 +120,29 @@
         default: null,
       },
     },
+    data() {
+      return {
+        // workaround for Keen-ui not displaying floating labels for empty objects
+        selection: Object.keys(this.value).length === 0 ? '' : this.value,
+      };
+    },
     computed: {
       name() {
         return `k-select-${this._uid}`;
       },
-      selection() {
-        // workaround for Keen-ui not displaying floating labels for empty objects
-        return Object.keys(this.value).length === 0 ? '' : this.value;
+    },
+    watch: {
+      value(inputValue) {
+        this.selection = inputValue;
+      },
+      selection(newSelection) {
+        /* Emits new selection.*/
+        this.$emit('change', newSelection);
       },
     },
     methods: {
       handleChange(newSelection) {
-        this.$emit('change', newSelection);
-      },
-      handleInput(newSelection) {
-        this.$emit('input', newSelection);
+        this.selection = newSelection;
       },
     },
   };
