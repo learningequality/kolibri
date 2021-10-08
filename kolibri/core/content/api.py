@@ -175,12 +175,12 @@ class ContentNodeFilter(IdFilter):
     parent__isnull = BooleanFilter(field_name="parent", lookup_expr="isnull")
     include_coach_content = BooleanFilter(method="filter_include_coach_content")
     contains_quiz = CharFilter(method="filter_contains_quiz")
-    grade_levels = CharFilter(method="filter_contains_or")
-    resource_types = CharFilter(method="filter_contains_or")
-    learning_activities = CharFilter(method="filter_contains_or")
-    accessibility_labels = CharFilter(method="filter_contains_or")
-    categories = CharFilter(method="filter_contains_or")
-    learner_needs = CharFilter(method="filter_contains_or")
+    grade_levels = CharFilter(method="filter_contains_and")
+    resource_types = CharFilter(method="filter_contains_and")
+    learning_activities = CharFilter(method="filter_contains_and")
+    accessibility_labels = CharFilter(method="filter_contains_and")
+    categories = CharFilter(method="filter_contains_and")
+    learner_needs = CharFilter(method="filter_contains_and")
     keywords = CharFilter(method="filter_keywords")
     channels = UUIDInFilter(name="channel_id")
     languages = CharInFilter(name="lang_id")
@@ -268,9 +268,11 @@ class ContentNodeFilter(IdFilter):
 
         return queryset.filter(query)
 
-    def filter_contains_or(self, queryset, name, value):
+    def filter_contains_and(self, queryset, name, value):
         values = value.split(",")
-        return queryset.filter(union([Q(**{name + "__contains": v}) for v in values]))
+        return queryset.filter(
+            intersection([Q(**{name + "__contains": v}) for v in values])
+        )
 
 
 class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
