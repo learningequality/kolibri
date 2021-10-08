@@ -53,7 +53,7 @@ export const ContentKindsToLearningActivitiesMap = {
 // Resource library categories and subcategoriess
 export const LibraryCategories = {};
 
-const subjectLookup = invert(Subjects);
+export const LibraryCategoriesLookup = invert(Subjects);
 
 for (let subjectKey of Object.entries(Subjects)
   .sort((a, b) => a[0].length - b[0].length)
@@ -63,7 +63,7 @@ for (let subjectKey of Object.entries(Subjects)
   let nested = LibraryCategories;
   for (let fragment of ids) {
     path += fragment;
-    const nestedKey = subjectLookup[path];
+    const nestedKey = LibraryCategoriesLookup[path];
     if (!nested[nestedKey]) {
       nested[nestedKey] = {
         value: path,

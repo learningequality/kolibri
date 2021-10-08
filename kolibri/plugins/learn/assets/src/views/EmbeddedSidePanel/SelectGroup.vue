@@ -2,6 +2,7 @@
 
   <div>
     <KSelect
+      v-if="languageOptionsList.length"
       :options="languageOptionsList"
       class="selector"
       :value="selectedLanguage"
@@ -9,6 +10,7 @@
       @change="val => handleChange('languages', val)"
     />
     <KSelect
+      v-if="contentLevelsList.length"
       :options="contentLevelsList"
       class="selector"
       :value="selectedLevel"
@@ -16,7 +18,7 @@
       @change="val => handleChange('grade_levels', val)"
     />
     <KSelect
-      v-if="channels"
+      v-if="channelOptionsList.length"
       :options="channelOptionsList"
       class="selector"
       :value="selectedChannel"
@@ -24,6 +26,7 @@
       @change="val => handleChange('channels', val)"
     />
     <KSelect
+      v-if="accessibilityOptionsList.length"
       :options="accessibilityOptionsList"
       class="selector"
       :value="selectedAccessibilityFilter"
@@ -40,16 +43,12 @@
   import camelCase from 'lodash/camelCase';
   import { ContentLevels, AccessibilityCategories } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import languageSwitcherMixin from '../../../../../../core/assets/src/views/language-switcher/mixin.js';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'SelectGroup',
-    mixins: [languageSwitcherMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
     props: {
-      channels: {
-        type: Array,
-        required: true,
-      },
       value: {
         type: Object,
         required: true,
@@ -61,8 +60,8 @@
     },
     computed: {
       languageOptionsList() {
-        let options = [];
-        this.languageOptions.forEach(language => {
+        const options = [];
+        plugin_data.languages.forEach(language => {
           options.push({
             value: language.id,
             label: language.lang_name,
@@ -71,44 +70,46 @@
         return options;
       },
       accessibilityOptionsList() {
-        let options = [];
+        const options = [];
         Object.keys(AccessibilityCategories).map(key => {
-          options.push({
-            value: AccessibilityCategories[key],
-            label: this.coreString(camelCase(key)),
-          });
+          const value = AccessibilityCategories[key];
+          if (plugin_data.accessibilityLabels.includes(value)) {
+            options.push({
+              value,
+              label: this.coreString(camelCase(key)),
+            });
+          }
         });
         return options;
       },
       contentLevelsList() {
-        let options = [];
-        Object.keys(ContentLevels).map(key => {
-          let translationKey;
-          if (key === 'PROFESSIONAL') {
-            translationKey = 'specializedProfessionalTraining';
-          } else if (key === 'WORK_SKILLS') {
-            translationKey = 'allLevelsWorkSkills';
-          } else if (key === 'BASIC_SKILLS') {
-            translationKey = 'allLevelsBasicSkills';
-          } else {
-            translationKey = camelCase(key);
-          }
-          options.push({
-            value: ContentLevels[key],
-            label: this.coreString(translationKey),
-          });
-        });
-        return options;
+        return Object.keys(ContentLevels)
+          .map(key => {
+            const value = ContentLevels[key];
+            if (plugin_data.gradeLevels.includes(value)) {
+              let translationKey;
+              if (key === 'PROFESSIONAL') {
+                translationKey = 'specializedProfessionalTraining';
+              } else if (key === 'WORK_SKILLS') {
+                translationKey = 'allLevelsWorkSkills';
+              } else if (key === 'BASIC_SKILLS') {
+                translationKey = 'allLevelsBasicSkills';
+              } else {
+                translationKey = camelCase(key);
+              }
+              return {
+                value,
+                label: this.coreString(translationKey),
+              };
+            }
+          })
+          .filter(Boolean);
       },
       channelOptionsList() {
-        let options = [];
-        this.channels.forEach(channel => {
-          options.push({
-            value: channel.id,
-            label: channel.title,
-          });
-        });
-        return options;
+        return plugin_data.channels.map(channel => ({
+          value: channel.id,
+          label: channel.name,
+        }));
       },
       selectedLanguage() {
         const langId = Object.keys(this.value.languages)[0];

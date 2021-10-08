@@ -38,9 +38,20 @@
 <script>
 
   import camelCase from 'lodash/camelCase';
+  import invert from 'lodash/invert';
   import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import plugin_data from 'plugin_data';
+
+  const activitiesLookup = invert(LearningActivities);
+
+  const learningActivitiesShown = {};
+
+  plugin_data.learningActivities.map(id => {
+    const key = activitiesLookup[id];
+    learningActivitiesShown[key] = id;
+  });
 
   export default {
     name: 'ActivityButtonsGroup',
@@ -48,7 +59,7 @@
 
     computed: {
       learningActivitiesList() {
-        return LearningActivities;
+        return learningActivitiesShown;
       },
       customActivityStyles() {
         return {

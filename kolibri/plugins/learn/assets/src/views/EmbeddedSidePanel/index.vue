@@ -26,49 +26,51 @@
         :value="value.keywords || ''"
         @change="val => $emit('input', { ...value, keywords: val })"
       />
-      <h2 class="section title">
-        {{ $tr('categories') }}
-      </h2>
-      <!-- list of category metadata - clicking prompts a filter modal -->
-      <div
-        span="4"
-        class="category-list-item"
-      >
-        <KButton
-          :text="$tr('allCategories')"
-          appearance="flat-button"
-          :appearanceOverrides="customCategoryStyles"
-          @click="$emit('input', { ...value, categories: [] })"
-        />
-      </div>
-      <div
-        v-for="(val, category) in libraryCategoriesList"
-        :key="category"
-        span="4"
-        class="category-list-item"
-      >
-        <KButton
-          :text="coreString(camelCase(category))"
-          appearance="flat-button"
-          :appearanceOverrides="customCategoryStyles"
-          iconAfter="chevronRight"
-          @click="$emit('currentCategory', category)"
-        />
-      </div>
-      <div
-        span="4"
-        class="category-list-item"
-      >
-        <KButton
-          :text="coreString('None of the above')"
-          appearance="flat-button"
-          :appearanceOverrides="customCategoryStyles"
-          @click="$emit('input', { ...value, categories: { null: true } })"
-        />
+      <div v-if="Object.keys(libraryCategoriesList).length">
+        <h2 class="section title">
+          {{ $tr('categories') }}
+        </h2>
+        <!-- list of category metadata - clicking prompts a filter modal -->
+        <div
+          span="4"
+          class="category-list-item"
+        >
+          <KButton
+            :text="$tr('allCategories')"
+            appearance="flat-button"
+            :appearanceOverrides="customCategoryStyles"
+            @click="$emit('input', { ...value, categories: [] })"
+          />
+        </div>
+        <div
+          v-for="(val, category) in libraryCategoriesList"
+          :key="category"
+          span="4"
+          class="category-list-item"
+        >
+          <KButton
+            :text="coreString(camelCase(category))"
+            appearance="flat-button"
+            :appearanceOverrides="customCategoryStyles"
+            iconAfter="chevronRight"
+            @click="$emit('currentCategory', category)"
+          />
+        </div>
+        <div
+          span="4"
+          class="category-list-item"
+        >
+          <KButton
+            :text="coreString('None of the above')"
+            appearance="flat-button"
+            :appearanceOverrides="customCategoryStyles"
+            @click="$emit('input', { ...value, categories: { null: true } })"
+          />
+        </div>
       </div>
       <ActivityButtonsGroup class="section" @input="handleActivity" />
       <!-- Filter results by learning activity, displaying all options -->
-      <SelectGroup v-model="inputValue" :channels="channels" class="section" />
+      <SelectGroup v-model="inputValue" class="section" />
       <div class="section">
         <div
           v-for="(val, activity) in resourcesNeededList"
@@ -92,31 +94,44 @@
 <script>
 
   import camelCase from 'lodash/camelCase';
-  import { LibraryCategories, ResourcesNeededTypes } from 'kolibri.coreVue.vuex.constants';
+  import {
+    LibraryCategories,
+    LibraryCategoriesLookup,
+    ResourcesNeededTypes,
+  } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import SearchBox from '../SearchBox';
   import commonLearnStrings from '../commonLearnStrings';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import SelectGroup from './SelectGroup';
+  import plugin_data from 'plugin_data';
 
   const resourcesNeededShown = ['FOR_BEGINNERS', 'PEOPLE', 'PAPER_PENCIL', 'INTERNET', 'MATERIALS'];
 
   const resourcesNeeded = {};
   resourcesNeededShown.map(key => {
     const value = ResourcesNeededTypes[key];
-    // For some reason the string ids for these items are in PascalCase not camelCase
-    if (key === 'PEOPLE') {
-      key = 'ToUseWithTeachersAndPeers';
-    } else if (key === 'PAPER_PENCIL') {
-      key = 'ToUseWithPaperAndPencil';
-    } else if (key === 'INTERNET') {
-      key = 'NeedsInternet';
-    } else if (key === 'MATERIALS') {
-      key = 'NeedsMaterials';
-    } else if (key === 'FOR_BEGINNERS') {
-      key = 'ForBeginners';
+    if (plugin_data.learnerNeeds.includes(value)) {
+      // For some reason the string ids for these items are in PascalCase not camelCase
+      if (key === 'PEOPLE') {
+        key = 'ToUseWithTeachersAndPeers';
+      } else if (key === 'PAPER_PENCIL') {
+        key = 'ToUseWithPaperAndPencil';
+      } else if (key === 'INTERNET') {
+        key = 'NeedsInternet';
+      } else if (key === 'MATERIALS') {
+        key = 'NeedsMaterials';
+      } else if (key === 'FOR_BEGINNERS') {
+        key = 'ForBeginners';
+      }
+      resourcesNeeded[key] = value;
     }
-    resourcesNeeded[key] = value;
+  });
+
+  const libraryCategories = {};
+  plugin_data.categories.map(key => {
+    const root = LibraryCategoriesLookup[key.split('.')[0]];
+    libraryCategories[root] = LibraryCategories[root];
   });
 
   export default {
@@ -143,10 +158,6 @@
           ];
           return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
-      },
-      channels: {
-        type: Array,
-        required: true,
       },
       topics: {
         type: Array,
@@ -177,7 +188,7 @@
         },
       },
       libraryCategoriesList() {
-        return LibraryCategories;
+        return libraryCategories;
       },
       resourcesNeededList() {
         return resourcesNeeded;
