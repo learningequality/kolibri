@@ -24,6 +24,7 @@ from kolibri.core.content.utils.channel_import import InvalidSchemaVersionError
 from kolibri.core.content.utils.channels import get_channel_ids_for_content_dirs
 from kolibri.core.content.utils.paths import get_all_content_dir_paths
 from kolibri.core.content.utils.paths import get_content_database_file_path
+from kolibri.core.content.utils.search import update_all_contentnode_label_metadata
 from kolibri.core.content.utils.sqlalchemybridge import Bridge
 from kolibri.core.content.utils.tree import get_channel_node_depth
 from kolibri.core.upgrade import version_upgrade
@@ -295,3 +296,4 @@ def map_kind_to_learning_activities():
         ContentNode.objects.filter(kind=kind).update(
             learning_activities=learning_activity
         )
+    update_all_contentnode_label_metadata()
