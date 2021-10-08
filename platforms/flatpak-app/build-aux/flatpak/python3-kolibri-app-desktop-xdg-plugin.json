@@ -7,13 +7,13 @@
     "sources": [
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/60/f0/dd2eb7911f948bf529f58f0c7931f6f6466f711bd6f1d81a69dc4edd4e2a/Pillow-8.1.2.tar.gz",
-            "sha256": "b07c660e014852d98a00a91adfbe25033898a9d90a8f39beb2437d22a203fc44"
+            "url": "https://files.pythonhosted.org/packages/90/d4/a7c9b6c5d176654aa3dbccbfd0be4fd3a263355dc24122a5f1937bdc2689/Pillow-8.3.2.tar.gz",
+            "sha256": "dde3f3ed8d00c72631bc19cbfff8ad3b6215062a5eed402381ad365f82f0c18c"
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/a7/46/7e743832d74374bcbc8dbf52a1510cbe5e2b3204db39e404b82e4706dfea/kolibri_app_desktop_xdg_plugin-1.0.8-py3-none-any.whl",
-            "sha256": "943526c64e228aeff6c288eccfe27360863e8a72ca837779f7a7d18057e98e44"
+            "url": "https://files.pythonhosted.org/packages/5d/d7/5019ad05bd197ff88a31d86e91aca9436e09e85446fbd9269150f445f3f0/kolibri_app_desktop_xdg_plugin-1.1.1-py2.py3-none-any.whl",
+            "sha256": "d18f77ab1ca9a85084a3488099cefc58148fdf5c49e59d5042ed6eeaf4c93fcb"
         }
     ]
 }
