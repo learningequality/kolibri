@@ -339,6 +339,7 @@ class BaseContentNodeMixin(object):
         "accessibility_labels",
         "categories",
         "duration",
+        "ancestors",
     )
 
     field_map = {
@@ -419,77 +420,24 @@ class BaseContentNodeMixin(object):
 
         return assessmentmetadata_map, files_map, languages_map, tags_map
 
-    def process_items(self, items, queryset, ancestor_lookup_method=None):
-        output = []
-        assessmentmetadata, files_map, languages_map, tags = self.get_related_data_maps(
-            items, queryset
-        )
-        for item in items:
-            item["assessmentmetadata"] = assessmentmetadata.get(item["id"])
-            item["tags"] = tags.get(item["id"], [])
-            item["files"] = files_map.get(item["id"], [])
-            lang_id = item.pop("lang_id")
-            item["lang"] = languages_map.get(lang_id)
-            if ancestor_lookup_method:
-                item["ancestors"] = ancestor_lookup_method(item)
-            item["is_leaf"] = item.get("kind") != content_kinds.TOPIC
-            output.append(item)
-        return output
-
     def consolidate(self, items, queryset):
+        output = []
         if items:
-
-            # We need to batch our queries for ancestors as the size of the expression tree
-            # depends on the number of nodes that we are querying for.
-            # On Windows, the SQL parameter limit is 999, and an ancestors call can produce
-            # 3 parameters per node in the queryset, so this should max out the parameters at 750.
-            ANCESTOR_BATCH_SIZE = 250
-
-            if len(items) > ANCESTOR_BATCH_SIZE:
-
-                ancestors_map = {}
-
-                for i in range(0, len(items), ANCESTOR_BATCH_SIZE):
-
-                    for anc in (
-                        models.ContentNode.objects.filter(
-                            id__in=[
-                                item["id"]
-                                for item in items[i : i + ANCESTOR_BATCH_SIZE]
-                            ]
-                        )
-                        .get_ancestors()
-                        .values("id", "title", "lft", "rght", "tree_id")
-                    ):
-                        ancestors_map[anc["id"]] = anc
-
-                ancestors = sorted(ancestors_map.values(), key=lambda x: x["lft"])
-            else:
-                ancestors = list(
-                    queryset.get_ancestors()
-                    .values("id", "title", "lft", "rght", "tree_id")
-                    .order_by("lft")
-                )
-
-            def ancestor_lookup(item):
-                lft = item.get("lft")
-                rght = item.get("rght")
-                tree_id = item.get("tree_id")
-                return list(
-                    map(
-                        lambda x: {"id": x["id"], "title": x["title"]},
-                        filter(
-                            lambda x: x["lft"] < lft
-                            and x["rght"] > rght
-                            and x["tree_id"] == tree_id,
-                            ancestors,
-                        ),
-                    )
-                )
-
-            return self.process_items(items, queryset, ancestor_lookup)
-
-        return []
+            (
+                assessmentmetadata,
+                files_map,
+                languages_map,
+                tags,
+            ) = self.get_related_data_maps(items, queryset)
+            for item in items:
+                item["assessmentmetadata"] = assessmentmetadata.get(item["id"])
+                item["tags"] = tags.get(item["id"], [])
+                item["files"] = files_map.get(item["id"], [])
+                lang_id = item.pop("lang_id")
+                item["lang"] = languages_map.get(lang_id)
+                item["is_leaf"] = item.get("kind") != content_kinds.TOPIC
+                output.append(item)
+        return output
 
 
 class OptionalContentNodePagination(ValuesViewsetCursorPagination):
@@ -869,11 +817,6 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
     # should not raise it.
     page_size = 25
 
-    def consolidate(self, items, queryset):
-        if items:
-            return self.process_items(items, queryset)
-        return []
-
     def validate_and_return_params(self, request):
         depth = request.query_params.get("depth", 2)
         lft__gt = request.query_params.get("lft__gt")
@@ -971,10 +914,6 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
         # The serialized parent representation is the first node in the lft order
         parent = nodes[0]
 
-        # Do a query to get the parent's ancestors - for all other nodes, we can manually build
-        # the ancestors from the tree topology that we already know!
-        parent["ancestors"] = list(parent_model.get_ancestors().values("id", "title"))
-
         # Use this to keep track of direct children of the parent node
         # this will allow us to do lookups for the grandchildren, in order
         # to insert them into the "children" property
@@ -1010,10 +949,6 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
                 # If the parent of the descendant does not already have its `children` property
                 # initialized, do so here.
                 desc_parent["children"] = {"results": [], "more": None}
-            # The ancestors field for the descendant will be its parents ancestors, plus its parent!
-            desc["ancestors"] = desc_parent["ancestors"] + [
-                {"id": desc_parent["id"], "title": desc_parent["title"]}
-            ]
             # Add this descendant to the results for the children pagination object
             desc_parent["children"]["results"].append(desc)
             # Only bother updating the URL for more if we have hit the page size limit

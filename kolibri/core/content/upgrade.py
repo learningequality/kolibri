@@ -17,6 +17,7 @@ from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.constants.kind_to_learningactivity import kind_activity_map
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.utils.annotation import set_channel_ancestors
 from kolibri.core.content.utils.annotation import set_content_visibility_from_disk
 from kolibri.core.content.utils.channel_import import FutureSchemaError
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
@@ -288,10 +289,14 @@ def update_on_device_resources():
 # This was introduced in 0.15.0, so only annotate
 # when upgrading from versions prior to this.
 @version_upgrade(old_version="<0.15.0")
-def map_kind_to_learning_activities():
+def metadata_annotation_update():
     """
-    Function to set learning_activities on all ContentNodes to account for
+    Function to:
+    - set learning_activities on all ContentNodes to account for
     those that were imported before the content import machinery handled the mapping
+    - annotate bitmasks for labels for any learning activities for efficient lookup
+    - populate the initial cache for available labels
+    - annotate all ancestors onto ContentNodes to avoid costly queries
     """
     for kind, learning_activity in kind_activity_map.items():
         ContentNode.objects.filter(kind=kind).update(
@@ -299,3 +304,6 @@ def map_kind_to_learning_activities():
         )
     annotate_label_bitmasks(ContentNode.objects.all())
     get_all_contentnode_label_metadata()
+
+    for channel_id in ChannelMetadata.objects.values_list("id", flat=True):
+        set_channel_ancestors(channel_id)

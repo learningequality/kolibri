@@ -15,6 +15,7 @@ from sqlalchemy import func
 from sqlalchemy import Integer
 from sqlalchemy import or_
 from sqlalchemy import select
+from sqlalchemy.sql.expression import literal
 
 from .paths import get_content_file_name
 from .paths import get_content_storage_file_path
@@ -787,3 +788,74 @@ def calculate_next_order(channel, model=ChannelMetadata):
         channel.order = max_order + 1
 
     channel.save()
+
+
+def set_channel_ancestors(channel_id):
+    bridge = Bridge(app_name=CONTENT_APP_NAME)
+
+    ContentNodeTable = bridge.get_table(ContentNode)
+
+    connection = bridge.get_connection()
+
+    node_depth = get_channel_node_depth(bridge, channel_id)
+
+    parent = ContentNodeTable.alias()
+
+    # start a transaction
+
+    trans = connection.begin()
+    start = datetime.datetime.now()
+
+    connection.execute(
+        ContentNodeTable.update()
+        .where(
+            and_(
+                ContentNodeTable.c.level == 0,
+                ContentNodeTable.c.channel_id == channel_id,
+            )
+        )
+        .values(ancestors="[]")
+    )
+
+    # Go from the shallowest to deepest
+    for level in range(1, node_depth):
+
+        ancestors = select(
+            [
+                func.substr(
+                    parent.c.ancestors, 1, func.length(parent.c.ancestors) - literal(1)
+                )
+                + (',{"id": "' if level > 1 else '{"id": "')
+                + ContentNodeTable.c.parent_id
+                + '","title": "'
+                + parent.c.title
+                + '"}]'
+            ]
+        ).where(
+            and_(
+                ContentNodeTable.c.parent_id == parent.c.id,
+            )
+        )
+
+        connection.execute(
+            ContentNodeTable.update()
+            .where(
+                and_(
+                    ContentNodeTable.c.level == level,
+                    ContentNodeTable.c.channel_id == channel_id,
+                )
+            )
+            .values(
+                ancestors=ancestors,
+            )
+        )
+
+    # commit the transaction
+    trans.commit()
+
+    elapsed = datetime.datetime.now() - start
+    logger.debug(
+        "Recursive ancestor annotation took {} seconds".format(elapsed.seconds)
+    )
+
+    bridge.end()

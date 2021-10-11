@@ -43,6 +43,7 @@ from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.utils.search import bitmask_fieldnames
 from kolibri.core.content.utils.search import metadata_bitmasks
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.fields import JSONField
 from kolibri.core.mixins import FilterByUUIDQuerysetMixin
 
 PRESET_LOOKUP = dict(format_presets.choices)
@@ -183,6 +184,10 @@ class ContentNode(base_models.ContentNode):
     # Total number of available resources on the device under this topic - if this is not a topic
     # then it is 1 or 0 depending on availability
     on_device_resources = models.IntegerField(default=0, null=True, blank=True)
+
+    # Use this to annotate ancestor information directly onto the ContentNode, as it can be a
+    # costly lookup
+    ancestors = JSONField(default=[], null=True, blank=True)
 
     objects = ContentNodeManager()
 
