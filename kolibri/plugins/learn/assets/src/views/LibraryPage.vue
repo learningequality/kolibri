@@ -104,7 +104,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import languageSwitcherMixin from '../../../../../core/assets/src/views/language-switcher/mixin.js';
+  import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
@@ -138,7 +138,7 @@
       EmbeddedSidePanel,
       CategorySearchModal,
     },
-    mixins: [commonLearnStrings, commonCoreStrings, languageSwitcherMixin, responsiveWindowMixin],
+    mixins: [commonLearnStrings, commonCoreStrings, responsiveWindowMixin],
     data: function() {
       return {
         currentViewStyle: 'card',
@@ -273,6 +273,15 @@
           this.searchLoading = true;
           const getParams = { max_results: 25 };
           for (let key of searchKeys) {
+            if (key === 'categories') {
+              if (this.searchTerms[key][AllCategories]) {
+                getParams['categories__isnull'] = false;
+                break;
+              } else if (this.searchTerms[key][NoCategories]) {
+                getParams['categories__isnull'] = true;
+                break;
+              }
+            }
             const keys = Object.keys(this.searchTerms[key]);
             if (keys.length) {
               getParams[key] = keys;

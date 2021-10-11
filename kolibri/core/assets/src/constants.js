@@ -53,6 +53,10 @@ export const ContentKindsToLearningActivitiesMap = {
 
 export const CategoriesLookup = invert(Subjects);
 
+export const AllCategories = 'all_categories';
+
+export const NoCategories = 'no_categories';
+
 // used internally on the client as a hack to allow content-icons to display users
 export const USER = 'user';
 

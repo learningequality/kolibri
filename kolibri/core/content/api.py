@@ -184,6 +184,7 @@ class ContentNodeFilter(IdFilter):
     keywords = CharFilter(method="filter_keywords")
     channels = UUIDInFilter(name="channel_id")
     languages = CharInFilter(name="lang_id")
+    categories__isnull = BooleanFilter(field_name="categories", lookup_expr="isnull")
 
     class Meta:
         model = models.ContentNode

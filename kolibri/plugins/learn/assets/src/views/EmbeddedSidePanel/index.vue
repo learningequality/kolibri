@@ -39,7 +39,7 @@
             :text="$tr('allCategories')"
             appearance="flat-button"
             :appearanceOverrides="customCategoryStyles"
-            @click="$emit('input', { ...value, categories: [] })"
+            @click="allCategories"
           />
         </div>
         <div
@@ -65,7 +65,7 @@
             :text="coreString('None of the above')"
             appearance="flat-button"
             :appearanceOverrides="customCategoryStyles"
-            @click="$emit('input', { ...value, categories: { null: true } })"
+            @click="noCategories"
           />
         </div>
       </div>
@@ -102,7 +102,12 @@
   import camelCase from 'lodash/camelCase';
   import pick from 'lodash/pick';
   import uniq from 'lodash/uniq';
-  import { CategoriesLookup, ResourcesNeededTypes } from 'kolibri.coreVue.vuex.constants';
+  import {
+    AllCategories,
+    CategoriesLookup,
+    NoCategories,
+    ResourcesNeededTypes,
+  } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import SearchBox from '../SearchBox';
   import commonLearnStrings from '../commonLearnStrings';
@@ -262,6 +267,12 @@
       },
     },
     methods: {
+      allCategories() {
+        this.$emit('input', { ...this.value, categories: { [AllCategories]: true } });
+      },
+      noCategories() {
+        this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
+      },
       handleActivity(activity) {
         let learning_activities;
         if (activity) {
