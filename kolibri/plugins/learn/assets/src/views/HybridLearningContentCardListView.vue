@@ -22,7 +22,7 @@
           :activityLength="activityLength"
         />
         <p
-          v-if="!isMobile"
+          v-if="!isMobile && isBookmarksPage"
           class="metadata-info"
           :style="{ color: $themePalette.grey.v_700 }"
         >
@@ -256,6 +256,9 @@
       },
       isLibraryPage() {
         return this.pageName === PageNames.LIBRARY;
+      },
+      isBookmarksPage() {
+        return this.pageName === PageNames.BOOKMARKS;
       },
       ceilingDate() {
         if (this.createdDate > this.now) {

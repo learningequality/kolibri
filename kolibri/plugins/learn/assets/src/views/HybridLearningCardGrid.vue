@@ -1,18 +1,19 @@
 <template>
 
   <div class="content-grid">
-    <!-- <KFixedGrid
-      v-if="cardViewStyle === 'card'"
-      :numCols="this.windowIsSmall ? 1
-      : numCols" gutter="24">
+    <KFixedGrid
+      v-if="(cardViewStyle === 'card' && !windowIsSmall || numCols === 2)"
+      :numCols="numCols"
+      gutter="24"
+    >
       <KFixedGridItem v-for="content in contents" :key="content.id" span="1">
-        <ContentCard
+        <HybridLearningContentCard
           class="grid-item"
           :isMobile="windowIsSmall"
           :title="content.title"
           :thumbnail="content.thumbnail"
           :kind="content.kind"
-          activityLength="shortActivity"
+          :activityLength="content.activity_length"
           :isLeaf="content.is_leaf"
           :progress="content.progress || 0"
           :numCoachContents="content.num_coach_contents"
@@ -20,19 +21,31 @@
           :contentId="content.content_id"
           :copiesCount="content.copies_count"
           :description="content.description"
-          :channelThumbnail="setChannelThumbnail(content)"
-          :channelTitle="channelTitle(content)"
+          :channelThumbnail="content.channel_thumbnail"
+          :channelTitle="content.channel_title"
           @openCopiesModal="openCopiesModal"
         />
       </KFixedGridItem>
-    </KFixedGrid> -->
+    </KFixedGrid>
+    <CardGrid
+      v-else-if="cardViewStyle === 'card' && windowIsSmall"
+    >
+      <ResourceCard
+        v-for="(content, idx) in contents"
+
+        :key="`resource-${idx}`"
+        :contentNode="content"
+        :to="genContentLink(content.id, content.is_leaf)"
+      />
+    </CardGrid>
     <HybridLearningContentCardListView
       v-for="content in contents"
+      v-else
       :key="content.id"
       :channelThumbnail="content.channel_thumbnail"
       :channelTitle="content.channel_thumbnail"
       :description="content.description"
-      activityLength="shortActivity"
+      :activityLength="content.activity_length"
       class="grid-item"
       :isMobile="windowIsSmall"
       :title="content.title"
@@ -65,6 +78,10 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import HybridLearningContentCardListView from './HybridLearningContentCardListView';
+  import HybridLearningContentCard from './HybridLearningContentCard';
+  import ResourceCard from './cards/ResourceCard';
+  import CardGrid from './cards/CardGrid';
+
   import CopiesModal from './CopiesModal';
 
   export default {
@@ -72,6 +89,9 @@
     components: {
       CopiesModal,
       HybridLearningContentCardListView,
+      HybridLearningContentCard,
+      ResourceCard,
+      CardGrid,
     },
     mixins: [responsiveWindowMixin],
     props: {
@@ -79,18 +99,18 @@
         type: Array,
         required: true,
       },
-      // cardViewStyle: {
-      //   type: String,
-      //   required: true,
-      //   default: 'card',
-      //   validator(value) {
-      //     return ['card', 'list'].includes(value);
-      //   },
-      // },
-      // numCols: {
-      //   type: String,
-      //   required: true,
-      // },
+      cardViewStyle: {
+        type: String,
+        required: true,
+        default: 'card',
+        validator(value) {
+          return ['card', 'list'].includes(value);
+        },
+      },
+      numCols: {
+        type: Number,
+        required: true,
+      },
       genContentLink: {
         type: Function,
         validator(value) {

@@ -34,24 +34,18 @@
             :maxHeight="maxTitleHeight"
           />
         </h3>
-        <p
-          v-if="subtitle"
-          dir="auto"
-          class="subtitle"
-        >
-          {{ subtitle }}
-        </p>
       </div>
     </router-link>
     <div class="footer">
       <KLinearLoader
+        v-if="progress"
         class="k-linear-loader"
         :delay="false"
         :progress="progress"
         type="determinate"
         :style="{ backgroundColor: $themeTokens.fineLine }"
       />
-      <div class="left">
+      <div class="footer-icons">
         <CoachContentLabel
           v-if="isUserLoggedIn && !isLearner"
           class="coach-content-label"
@@ -67,8 +61,6 @@
           :tooltip="coreString('moreOptions')"
           @click="$emit('toggleOptions')"
         />
-      </div>
-      <div class="right">
         <KIconButton
           icon="infoPrimary"
           size="mini"
@@ -275,7 +267,7 @@
   @import '~kolibri-design-system/lib/styles/definitions';
   @import './card';
 
-  $margin: 16px;
+  $margin: 24px;
 
   .coach-content-label {
     display: inline-block;
@@ -366,14 +358,21 @@
 
   .footer {
     position: absolute;
+    bottom: 0;
+    display: flex;
+    width: 100%;
+    padding: $margin;
+  }
+
+  .footer-icons {
+    position: absolute;
     right: $margin;
     bottom: $margin;
-    left: $margin;
-    display: inline-block;
-    font-size: 12px;
+    display: inline;
   }
 
   .k-linear-loader {
+    left: 0;
     display: inline-block;
     max-width: 70%;
   }
