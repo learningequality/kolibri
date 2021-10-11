@@ -27,6 +27,7 @@ from gettext import gettext as _
 
 from django.db import connection
 from django.db import models
+from django.db.models import F
 from django.db.models import Min
 from django.db.models import Q
 from django.db.models import QuerySet
@@ -39,6 +40,8 @@ from mptt.querysets import TreeQuerySet
 from .utils import paths
 from kolibri.core.content import base_models
 from kolibri.core.content.errors import InvalidStorageFilenameError
+from kolibri.core.content.utils.search import bitmask_fieldnames
+from kolibri.core.content.utils.search import metadata_bitmasks
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.mixins import FilterByUUIDQuerysetMixin
 
@@ -81,6 +84,25 @@ class ContentNodeQueryset(TreeQuerySet, FilterByUUIDQuerysetMixin):
 
     def exclude_by_content_ids(self, content_ids, validate=True):
         return self._by_uuids(content_ids, validate, "content_id", False)
+
+    def has_all_labels(self, field_name, labels):
+        bitmasks = metadata_bitmasks[field_name]
+        bits = {}
+        for label in labels:
+            if label in bitmasks:
+                bitmask_fieldname = bitmasks[label]["field_name"]
+                if bitmask_fieldname not in bits:
+                    bits[bitmask_fieldname] = 0
+                bits[bitmask_fieldname] += bitmasks[label]["bits"]
+
+        filters = {}
+        annotations = {}
+        for bitmask_fieldname, bits in bits.items():
+            annotation_fieldname = "{}_{}".format(bitmask_fieldname, "masked")
+            filters[annotation_fieldname + "__gt"] = 0
+            annotations[annotation_fieldname] = F(bitmask_fieldname).bitand(bits)
+
+        return self.annotate(**annotations).filter(**filters)
 
 
 class ContentNodeManager(
@@ -184,6 +206,11 @@ class ContentNode(base_models.ContentNode):
             .exclude(kind=content_kinds.TOPIC)
             .values_list("content_id", flat=True)
         )
+
+
+for field_name in bitmask_fieldnames:
+    field = models.BigIntegerField(default=0, null=True, blank=True)
+    field.contribute_to_class(ContentNode, field_name)
 
 
 @python_2_unicode_compatible

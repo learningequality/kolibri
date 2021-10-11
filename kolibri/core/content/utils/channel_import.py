@@ -35,6 +35,7 @@ from kolibri.core.content.models import ContentTag
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.search import annotate_label_bitmasks
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
@@ -1094,6 +1095,8 @@ def import_channel_from_local_db(channel_id, cancel_check=None):
     import_ran = import_manager.import_channel_data()
 
     import_manager.end()
+
+    annotate_label_bitmasks(ContentNode.objects.filter(channel_id=channel_id))
 
     channel = ChannelMetadata.objects.get(id=channel_id)
     channel.last_updated = local_now()

@@ -175,12 +175,12 @@ class ContentNodeFilter(IdFilter):
     parent__isnull = BooleanFilter(field_name="parent", lookup_expr="isnull")
     include_coach_content = BooleanFilter(method="filter_include_coach_content")
     contains_quiz = CharFilter(method="filter_contains_quiz")
-    grade_levels = CharFilter(method="filter_contains_and")
-    resource_types = CharFilter(method="filter_contains_and")
-    learning_activities = CharFilter(method="filter_contains_and")
-    accessibility_labels = CharFilter(method="filter_contains_and")
-    categories = CharFilter(method="filter_contains_and")
-    learner_needs = CharFilter(method="filter_contains_and")
+    grade_levels = CharFilter(method="bitmask_contains_and")
+    resource_types = CharFilter(method="bitmask_contains_and")
+    learning_activities = CharFilter(method="bitmask_contains_and")
+    accessibility_labels = CharFilter(method="bitmask_contains_and")
+    categories = CharFilter(method="bitmask_contains_and")
+    learner_needs = CharFilter(method="bitmask_contains_and")
     keywords = CharFilter(method="filter_keywords")
     channels = UUIDInFilter(name="channel_id")
     languages = CharInFilter(name="lang_id")
@@ -269,11 +269,8 @@ class ContentNodeFilter(IdFilter):
 
         return queryset.filter(query)
 
-    def filter_contains_and(self, queryset, name, value):
-        values = value.split(",")
-        return queryset.filter(
-            intersection([Q(**{name + "__contains": v}) for v in values])
-        )
+    def bitmask_contains_and(self, queryset, name, value):
+        return queryset.has_all_labels(name, value.split(","))
 
 
 class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):

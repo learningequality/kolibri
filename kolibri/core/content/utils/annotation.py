@@ -27,6 +27,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
 from kolibri.core.content.utils.sqlalchemybridge import filter_by_checksums
 from kolibri.core.content.utils.tree import get_channel_node_depth
 from kolibri.core.device.models import ContentCacheKey
@@ -695,6 +696,9 @@ def update_content_metadata(
     recurse_annotation_up_tree(channel_id)
     set_channel_metadata_fields(channel_id, public=public)
     ContentCacheKey.update_cache_key()
+    # Do this call after refreshing the content cache key
+    # as the caching is dependent on the key.
+    get_all_contentnode_label_metadata()
 
 
 def set_content_visibility(
@@ -716,6 +720,9 @@ def set_content_invisible(channel_id, node_ids, exclude_node_ids):
     recurse_annotation_up_tree(channel_id)
     set_channel_metadata_fields(channel_id)
     ContentCacheKey.update_cache_key()
+    # Do this call after refreshing the content cache key
+    # as the caching is dependent on the key.
+    get_all_contentnode_label_metadata()
 
 
 def set_channel_metadata_fields(channel_id, public=None):
