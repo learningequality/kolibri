@@ -60,9 +60,7 @@
 <script>
 
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
-  //import { mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  //import SidePanelResourcesList from './SidePanelResourcesList';
 
   export default {
     name: 'FullScreenSidePanel',
@@ -121,6 +119,12 @@
       },
       */
     },
+    // $trs: {
+    //   topicHeader: {
+    //     message: 'Also in this folder',
+    //     context: 'Title of the panel with all topic contents. ',
+    //   },
+    // },
   };
 
 </script>

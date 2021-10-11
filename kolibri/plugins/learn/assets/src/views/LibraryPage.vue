@@ -1,18 +1,86 @@
 <template>
 
   <div>
+    <main
+      v-if="!queryingData"
+      class="main-grid"
+      :style="{ marginLeft: `${(sidePanelWidth + 24)}px` }"
+    >
+      <div v-if="!windowIsLarge">
+        <KIconButton
+          icon="channel"
+          :ariaLabel="coreString('search')"
+          :color="$themeTokens.text"
+          :tooltip="coreString('search')"
+          @click="toggleSidePanelVisibility"
+        />
+      </div>
+      <h2>{{ coreString('channelsLabel') }}</h2>
+      <ChannelCardGroupGrid
+        v-if="channels.length"
+        class="grid"
+        :contents="channels"
+        :genContentLink="genChannelLink"
+      />
+      <div class="toggle-view-buttons">
+        <KIconButton
+          icon="menu"
+          :ariaLabel="$tr('viewAsList')"
+          :color="$themeTokens.text"
+          :tooltip="$tr('viewAsList')"
+          @click="toggleCardView('list')"
+        />
+        <KIconButton
+          icon="channel"
+          :ariaLabel="$tr('viewAsGrid')"
+          :color="$themeTokens.text"
+          :tooltip="$tr('viewAsGrid')"
+          @click="toggleCardView('card')"
+        />
+      </div>
+      <h2>{{ $tr('recent') }}</h2>
+      <HybridLearningCardGrid
+        v-if="popular.length"
+        :cardViewStyle="currentViewStyle"
+        :numCols="numCols"
+        :genContentLink="genContentLink"
+        :contents="trimmedPopular"
+      />
+      <div v-else>
+        <h2>{{ $tr('moreThanXResults') }}</h2>
+        <p>{{ $tr('clearAll') }}</p>
+        <KCircularLoader
+          v-if="loading"
+          class="loader"
+          type="indeterminate"
+          :delay="false"
+        />
+      </div>
+    </main>
+    <EmbeddedSidePanel
+      v-if="windowIsLarge"
+      :channels="channels"
+      :width="`${sidePanelWidth}px`"
+      alignment="left"
+    />
+    <FullScreenSidePanel
+      v-if="!windowIsLarge && sidePanelIsOpen"
+      @togglePanel="toggleSidePanelVisibility"
+    />
+    <CategorySearchModal
+      v-if="showSearchModal"
+      :selectedCategory="currentCategory"
+      :numCols="numCols"
+    />
     <KGrid
       class="main-content-grid"
     >
       <EmbeddedSidePanel
-        v-if="!!windowIsLarge"
-        v-model="searchTerms"
-        :availableLabels="labels"
         :channels="channels"
         width="3"
         @currentCategory="handleShowSearchModal"
       />
-      <div v-else>
+      <div>
         <KIconButton
           icon="channel"
           :ariaLabel="coreString('search')"
@@ -59,7 +127,7 @@
           <HybridLearningCardGrid
             v-if="popular.length"
             :cardViewStyle="currentViewStyle"
-            :numCols="(currentViewStyle === 'list') ? 1 : 3"
+            :numCols="numCols"
             :genContentLink="genContentLink"
             :contents="trimmedPopular"
             @toggleInfoPanel="toggleInfoPanel"
@@ -127,13 +195,14 @@
   import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
+  import FullScreenSidePanel from '../../../../../core/assets/src/views/FullScreenSidePanel';
   import { PageNames } from '../constants';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
-  import CategorySearchModal from './CategorySearchModal';
+  import CategorySearchModal from './CategorySearchModal/CategorySearchModal';
 
   const mobileCarouselLimit = 3;
   const desktopCarouselLimit = 15;
@@ -179,19 +248,6 @@
     computed: {
       ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       ...mapState('topicsRoot', { channels: 'rootNodes' }),
-      // screenLevel() {
-      //   if (window.innerWidth < 480) {
-      //     return 0;
-      //   } else if (window.innerWidth > 480 && window.innerWidth < 600) {
-      //     return 2;
-      //   } else if (window.innerWidth > 600 && window.innerWidth < 840) {
-      //     return 2;
-      //   } else if (window.innerWidth > 840 && window.innerWidth < 960) {
-      //     return 3;
-      //   } else {
-      //     return 4;
-      //   }
-      // },
       carouselLimit() {
         return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
       },
@@ -249,6 +305,24 @@
       searchTerms() {
         this.search();
       },
+      numCols() {
+        if (this.currentViewStyle === 'list' || this.windowBreakpoint < 1) {
+          return 1;
+        } else if (this.windowBreakpoint < 2) {
+          return 2;
+        } else {
+          return 3;
+        }
+      },
+      sidePanelWidth() {
+        if (this.windowIsSmall || this.windowIsMedium) {
+          return 0;
+        } else if (this.windowBreakpoint < 4) {
+          return 234;
+        } else {
+          return 346;
+        }
+      },
     },
     created() {
       this.search();
@@ -280,8 +354,19 @@
       toggleCardView(value) {
         this.currentViewStyle = value;
       },
-      handleShowSearchModal(currentCategory) {
-        this.currentCategory = currentCategory;
+      handleShowSearchModal(value) {
+        this.currentCategory = value;
+        this.showSearchModal = true;
+      },
+      hideSearchModal() {
+        this.showSearchModal = false;
+      },
+
+      toggleCardView(value) {
+        this.currentViewStyle = value;
+      },
+      toggleSidePanelVisibility() {
+        this.sidePanelIsOpen = !this.sidePanelIsOpen;
       },
       handleCategory(category) {
         this.searchTerms = { ...this.searchTerms, categories: { [category]: true } };
@@ -368,12 +453,9 @@
 
 <style lang="scss" scoped>
 
-  .card-grid {
+  .main-grid {
     margin-top: 40px;
-  }
-
-  .side-panel {
-    margin-right: 8px;
+    margin-right: 24px;
   }
 
   .loader {

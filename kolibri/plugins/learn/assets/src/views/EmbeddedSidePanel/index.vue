@@ -1,10 +1,10 @@
 <template>
 
-  <KGridItem
-    :layout="{ span: width }"
+  <div
     :style="{
       color: $themeTokens.text,
       backgroundColor: $themeTokens.surface,
+      width: width,
     }"
     class="side-panel"
   >
@@ -92,7 +92,7 @@
         </div>
       </div>
     </div>
-  </KGridItem>
+  </div>
 
 </template>
 
@@ -327,12 +327,12 @@
 
   .side-panel {
     position: fixed;
-    z-index: 10;
+    top: 0;
+    left: 0;
     height: 100%;
-    padding: 30px 40px !important;
-    padding-bottom: 120px !important;
-    margin-right: 16px;
-    overflow: scroll;
+    padding: 16px;
+    padding-top: 140px;
+    overflow-y: scroll;
     font-size: 14px;
     box-shadow: 0 3px 3px 0 #00000040;
   }
