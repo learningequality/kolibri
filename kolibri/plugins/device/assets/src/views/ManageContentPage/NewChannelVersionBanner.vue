@@ -38,7 +38,7 @@
       versionAvailable: {
         message: 'Version {version} is available',
         context:
-          '\nWhen a new version of the channel is available, this message alerts the user that they can update. ',
+          'When a new version of the channel is available, this message alerts the user that they can update. ',
       },
       viewChangesAction: {
         message: 'View changes',

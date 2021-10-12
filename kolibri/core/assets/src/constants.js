@@ -1,3 +1,14 @@
+import invert from 'lodash/invert';
+import LearningActivities from 'kolibri-constants/labels/LearningActivities';
+import Subjects from 'kolibri-constants/labels/Subjects';
+// coach-facing
+export { default as ContentNodeResourceType } from 'kolibri-constants/labels/ResourceType';
+export { default as LearningActivities } from 'kolibri-constants/labels/LearningActivities';
+export { default as AccessibilityCategories } from 'kolibri-constants/labels/AccessibilityCategories';
+// Used to categorize the level or audience of content
+export { default as ContentLevels } from 'kolibri-constants/labels/Levels';
+export { default as ResourcesNeededTypes } from 'kolibri-constants/labels/Needs';
+
 export const UserKinds = {
   ADMIN: 'admin',
   COACH: 'coach',
@@ -27,18 +38,42 @@ export const ContentNodeKinds = {
   CLASSROOM: 'CLASSROOM',
   ACTIVITY: 'ACTIVITY',
   SLIDESHOW: 'slideshow',
+  BOOKMARK: 'bookmark',
 };
 
-export const LearningActivities = {
-  CREATE: 'create',
-  LISTEN: 'listen',
-  REFLECT: 'reflect',
-  PRACTICE: 'practice',
-  READ: 'read',
-  WATCH: 'watch',
-  EXPLORE: 'explore',
-  TOPIC: 'topic',
+export const ContentKindsToLearningActivitiesMap = {
+  audio: LearningActivities.LISTEN,
+  document: LearningActivities.READ,
+  exercise: LearningActivities.PRACTICE,
+  html5: LearningActivities.EXPLORE,
+  video: LearningActivities.WATCH,
+  topic: 'folder',
 };
+
+// Resource library categories and subcategoriess
+export const LibraryCategories = {};
+
+const subjectLookup = invert(Subjects);
+
+for (let subjectKey of Object.entries(Subjects)
+  .sort((a, b) => a[0].length - b[0].length)
+  .map(a => a[0])) {
+  const ids = Subjects[subjectKey].split('.');
+  let path = '';
+  let nested = LibraryCategories;
+  for (let fragment of ids) {
+    path += fragment;
+    const nestedKey = subjectLookup[path];
+    if (!nested[nestedKey]) {
+      nested[nestedKey] = {
+        value: path,
+        nested: {},
+      };
+    }
+    nested = nested[nestedKey].nested;
+    path += '.';
+  }
+}
 
 // used internally on the client as a hack to allow content-icons to display users
 export const USER = 'user';

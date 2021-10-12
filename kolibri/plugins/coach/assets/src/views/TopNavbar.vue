@@ -2,7 +2,7 @@
 
   <Navbar v-if="classId">
     <NavbarLink
-      :title="$tr('home')"
+      :title="coreString('classHome')"
       :link="navRoute('HomePage')"
     >
       <KIcon
@@ -41,6 +41,7 @@
   import { mapState } from 'vuex';
   import Navbar from 'kolibri.coreVue.components.Navbar';
   import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import { coachStringsMixin } from './common/commonCoachStrings';
 
@@ -50,7 +51,7 @@
       Navbar,
       NavbarLink,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     computed: {
       ...mapState('classSummary', { classId: 'id' }),
       PageNames() {
@@ -63,11 +64,6 @@
       },
     },
     $trs: {
-      home: {
-        message: 'Class Home',
-        context:
-          "Tab name of the main 'Class' section where the coach can see all the information relating to a specific class.\n",
-      },
       plan: {
         message: 'Plan',
         context:

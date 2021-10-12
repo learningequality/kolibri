@@ -2,6 +2,16 @@
 
   <Navbar>
     <NavbarLink
+      :title="coreString('homeLabel')"
+      :link="homePageLink"
+    >
+      <KIcon
+        icon="dashboard"
+        style="top: 0; width: 24px; height: 24px;"
+        :color="$themeTokens.textInverted"
+      />
+    </NavbarLink>
+    <NavbarLink
       v-if="showClassesLink"
       name="classes-link"
       :title="coreString('classesLabel')"
@@ -15,9 +25,10 @@
     </NavbarLink>
     <NavbarLink
       v-if="canAccessUnassignedContent"
-      :title="coreString('channelsLabel')"
-      :link="channelsLink"
+      :title="learnString('libraryLabel')"
+      :link="libraryLink"
     >
+      <!-- todo update icon -->
       <KIcon
         icon="channel"
         style="top: 0; width: 24px; height: 24px;"
@@ -25,12 +36,12 @@
       />
     </NavbarLink>
     <NavbarLink
-      v-if="canAccessUnassignedContent"
-      :title="learnString('recommendedLabel')"
-      :link="recommendedLink"
+      v-if="isUserLoggedIn && canAccessUnassignedContent"
+      :title="coreString('bookmarksLabel')"
+      :link="bookmarksLink"
     >
       <KIcon
-        icon="recommended"
+        icon="bookmark"
         style="top: 0; width: 24px; height: 24px;"
         :color="$themeTokens.textInverted"
       />
@@ -58,14 +69,17 @@
     mixins: [commonCoreStrings, commonLearnStrings],
     data() {
       return {
+        homePageLink: {
+          name: PageNames.HOME,
+        },
         allClassesLink: {
           name: ClassesPageNames.ALL_CLASSES,
         },
-        channelsLink: {
-          name: PageNames.TOPICS_ROOT,
+        libraryLink: {
+          name: PageNames.LIBRARY,
         },
-        recommendedLink: {
-          name: PageNames.RECOMMENDED,
+        bookmarksLink: {
+          name: PageNames.BOOKMARKS,
         },
       };
     },

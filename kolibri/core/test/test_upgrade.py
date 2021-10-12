@@ -107,7 +107,7 @@ def test_blank_old_version():
 
     with patch("kolibri.core.upgrade.get_upgrades", return_value=[first]):
         run_upgrades("", "1.1.2")
-        function.assert_called_once()
+        function.assert_not_called()
 
 
 def test_invalid_old_version():

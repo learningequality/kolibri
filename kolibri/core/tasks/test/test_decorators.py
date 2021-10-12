@@ -21,6 +21,7 @@ class TestTaskDecorators(TestCase):
             validator=id,
             permission_classes=[int],
             priority="high",
+            queue="test",
             cancellable=True,
             track_progress=True,
         )
@@ -33,6 +34,7 @@ class TestTaskDecorators(TestCase):
             validator=id,
             permission_classes=[int],
             priority="high",
+            queue="test",
             cancellable=True,
             track_progress=True,
         )
@@ -58,6 +60,7 @@ class TestTaskDecorators(TestCase):
             validator=id,
             permission_classes=[int],
             priority="high",
+            queue="test",
             cancellable=True,
             track_progress=True,
         )

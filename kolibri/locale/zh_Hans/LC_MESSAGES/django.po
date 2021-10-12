@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-17 16:47-0700\n"
-"PO-Revision-Date: 2021-08-26 00:54\n"
+"POT-Creation-Date: 2021-09-15 16:05-0700\n"
+"PO-Revision-Date: 2021-09-24 21:59\n"
 "Last-Translator: \n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
@@ -138,8 +138,8 @@ msgid "Value in column '{}' has too many characters"
 msgstr "“{}”列中的值包含过多字符"
 
 #: core/auth/management/commands/bulkimportusers.py:82
-msgid "Invalid value in column '{}'"
-msgstr "'{}' 列中的值无效"
+msgid "Value in column '{}' not valid"
+msgstr "“{}”列中的值无效"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -152,7 +152,7 @@ msgstr "必须填写列 '{}'"
 
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
-msgid "Invalid header label found in the first row"
+msgid "Incorrect header label found in the first row"
 msgstr "在第一行中发现无效的标题标签"
 
 #: core/auth/management/commands/bulkimportusers.py:97
@@ -172,11 +172,11 @@ msgstr "无法更新用户 ID：'{}'，因为此设施中没有使用该数据�
 msgid "Database ID is not valid"
 msgstr "数据库 ID 无效"
 
-#: core/content/api.py:152
+#: core/content/api.py:158
 msgid "Resource"
 msgstr "资源"
 
-#: core/content/api.py:1268
+#: core/content/api.py:1316
 msgid "The requested channel does not exist on the content server"
 msgstr "请求的频道不在内容服务器上"
 
@@ -184,7 +184,7 @@ msgstr "请求的频道不在内容服务器上"
 msgid "Unknown format"
 msgstr "未知格式"
 
-#: core/device/serializers.py:41
+#: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
 msgstr "课励彼不支持此语言"
 
@@ -231,7 +231,7 @@ msgstr "要使用课励彼，我们建议使用火狐（Firefox）或谷歌Chrom
 msgid "You can also try updating your current browser."
 msgstr "您也可以尝试更新您当前的浏览器。"
 
-#: core/views.py:160
+#: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "没有找到合适的重定向页面。可能是课励彼没有配置好"
 

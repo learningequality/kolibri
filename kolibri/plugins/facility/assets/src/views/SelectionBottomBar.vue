@@ -48,10 +48,16 @@
       },
     },
     $trs: {
-      coachesSelectedMessage:
-        '{count, number} {count, plural, one {coach} other {coaches}} selected',
-      learnersSelectedMessage:
-        '{count, number} {count, plural, one {learner} other {learners}} selected',
+      coachesSelectedMessage: {
+        message: '{count, number} {count, plural, one {coach} other {coaches}} selected',
+        context:
+          "Indicates how many coaches have been selected to be assigned to a class in the 'Assign a coach' page.",
+      },
+      learnersSelectedMessage: {
+        message: '{count, number} {count, plural, one {learner} other {learners}} selected',
+        context:
+          "Indicates how many learners have been selected to be assigned to a class in the 'Assign a coach' page.\n",
+      },
     },
   };
 

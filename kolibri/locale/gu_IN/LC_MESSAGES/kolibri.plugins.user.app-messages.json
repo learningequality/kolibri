@@ -28,7 +28,7 @@
   "ProfilePage.editAction": "સંપાદિત કરો",
   "ProfilePage.isSuperuser": "સુપર સંચાલન પરવાનગીઓ ",
   "ProfilePage.limitedPermissions": "સીમિત પરવાનગીઓ",
-  "ProfilePage.manageContent": "વિષય વસ્તુ મેનેજ કરો",
+  "ProfilePage.manageContent": "",
   "ProfilePage.manageDevicePermissions": "ઉપકરણ ની પરવાનગીઓ મેનેજ કરો",
   "ProfilePage.points": "પોઇન્ટ્સ",
   "ProfilePage.youCan": "તમે આ કરી શકો છો:",
@@ -47,6 +47,6 @@
   "UserIndex.signUpStep1Title": "2 નું 1 પગલું",
   "UserIndex.signUpStep2Title": "પગલું 2 નું 2",
   "UserIndex.userProfileTitle": "પ્રોફાઇલ",
-  "UserPageSnackbars.dismiss": "બરતરફ કરો",
+  "UserPageSnackbars.dismiss": "બંધ",
   "UserPageSnackbars.signedOut": "નિષ્ક્રિયતાને કારણે તમે આપમેળે સાઇન આઉટ થઇ ગયા"
 }

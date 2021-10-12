@@ -12,6 +12,10 @@ class SetupWizardPlugin(KolibriPluginBase):
     untranslated_view_urls = "api_urls"
     translated_view_urls = "urls"
 
+    @property
+    def url_slug(self):
+        return "setup"
+
 
 @register_hook
 class SetupWizardAsset(webpack_hooks.WebpackBundleHook):

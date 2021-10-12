@@ -69,7 +69,7 @@
       noInteractions: {
         message: 'No attempts made on this question',
         context:
-          "When a coach reviews a learner's report, they can see how many times the learner has attempted to answer a question in a quiz.\n\nIf the learner hasn't made any attempts at all to answer the question this message displays beside the question.",
+          "When a learner views their report, they can see how many times they attempted to answer a question in a quiz.\n\nIf the learner hasn't made any attempts at all to answer the question this message displays beside the question.",
       },
     },
   };

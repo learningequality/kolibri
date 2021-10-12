@@ -5,6 +5,7 @@
     class="fill-space"
     :style="{
       'border-color': $themeTokens.fineLine,
+      padding: '32px 24px',
     }"
     @changeFullscreen="isFullscreen = $event"
   >
@@ -285,7 +286,7 @@
               'Playback Rate': this.$tr('playbackRate'),
               Captions: this.$tr('captions'),
               'captions off': this.$tr('captionsOff'),
-              Transcript: this.$tr('transcript'),
+              Transcript: this.coreString('transcript'),
               'Transcript off': this.$tr('transcriptOff'),
               Languages: this.$tr('languages'),
               'Volume Level': this.$tr('volumeLevel'),
@@ -449,7 +450,7 @@
     $trs: {
       replay: {
         message: 'Go back 10 seconds',
-        context: 'Option to rewind a video or audio file by 10 seconds.\n',
+        context: 'Option to rewind a video or audio file by 10 seconds.',
       },
       // Pulled from https://github.com/videojs/video.js/blob/master/lang/en.json
       forward: {
@@ -515,11 +516,6 @@
       captionsOff: {
         message: 'Captions off',
         context: 'Option for the learner to turn off subtitles (captions) in the media player.',
-      },
-      transcript: {
-        message: 'Transcript',
-        context:
-          '\nRefers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
       },
       transcriptOff: {
         message: 'Transcript off',

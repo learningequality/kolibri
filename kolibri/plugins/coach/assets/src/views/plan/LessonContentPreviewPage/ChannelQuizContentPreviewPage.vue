@@ -200,7 +200,11 @@
         context:
           "Refers to the type of license the learning resource has. For example, 'CC BY-NC' meaning 'Creative Commons: attribution, non-commercial'.",
       },
-      copyrightHolderDataHeader: 'Copyright holder',
+      copyrightHolderDataHeader: {
+        message: 'Copyright holder',
+        context:
+          'Refers to the entity that holds the copyright for the specified resource material. For example:\n\nCopyright holder: Khan Academy',
+      },
       totalQuestionsHeader: {
         message: 'Total questions',
         context: 'Refers to the total number of questions in a quiz.',
@@ -216,7 +220,7 @@
       },
       duplicateTitle: {
         message: '{ originalTitle } ({ copyNum, number })',
-        context: 'DO NOT TRANSLATE.',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
     },
   };

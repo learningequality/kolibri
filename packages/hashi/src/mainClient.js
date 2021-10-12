@@ -33,7 +33,6 @@ export default class MainClient {
     this.contentNamespace = null;
     this.startUrl = null;
     this.__setData = this.__setData.bind(this);
-    this.resize = this.resize.bind(this);
   }
   initialize(contentState, userData, startUrl, contentNamespace) {
     /*
@@ -56,8 +55,6 @@ export default class MainClient {
     // Bugfix for Chrome: Force update of iframe width. If this is not done the
     // document size may not be updated before the content resizes.
     this.iframe.getBoundingClientRect();
-
-    this.on(this.events.RESIZE, this.resize);
 
     // Set this here so that any time the inner frame declares it is ready
     // it can reinitialize its SandboxEnvironment.
@@ -186,11 +183,5 @@ export default class MainClient {
 
   onProgressUpdate(callback) {
     this.on(events.PROGRESSUPDATE, callback);
-  }
-
-  resize(scrollHeight) {
-    if (this.iframe.getBoundingClientRect().height !== scrollHeight) {
-      this.iframe.style.height = scrollHeight + 'px';
-    }
   }
 }

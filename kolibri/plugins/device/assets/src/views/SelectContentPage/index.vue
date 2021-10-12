@@ -306,14 +306,12 @@
         context: 'Generic load error which may display if there is a problem retrieving channels.',
       },
       problemFetchingChannel: {
-        message: 'There was a problem getting the contents of this channel',
-        context:
-          '\nThis string should actually say "There was a problem getting the list of resources from this channel"',
+        message: 'There was a problem getting the resources of this channel',
+        context: 'Error during channel import.',
       },
       problemTransferringContents: {
-        message: 'There was a problem transferring the selected contents',
-        context:
-          '\nThis string should actually say "There was a problem transferring the selected resources"',
+        message: 'There was a problem transferring the selected resources',
+        context: 'Error during channel import.',
       },
       selectContent: {
         message: "Select resources from '{channelName}'",

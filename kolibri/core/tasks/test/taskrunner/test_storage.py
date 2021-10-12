@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import unittest
+import time
 
 import pytest
 
@@ -8,7 +8,6 @@ from kolibri.core.tasks.job import State
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.test.base import connection
 from kolibri.core.tasks.utils import stringify_func
-from kolibri.utils.conf import OPTIONS
 
 
 QUEUE = "pytest"
@@ -49,18 +48,17 @@ class TestBackend:
         # is the job marked with the CANCELED state?
         assert defaultbackend.get_job(job_id).state == State.CANCELED
 
-    @unittest.skipIf(
-        OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres",
-        "Intermittently fails on postgresql in CI",
-    )
     def test_can_get_first_job_queued(self, defaultbackend):
         job1 = Job(open)
         job2 = Job(open)
 
         job1_id = defaultbackend.enqueue_job(job1, QUEUE)
+
+        # Sleep to prevent same time_created timestamp.
+        time.sleep(2)
         defaultbackend.enqueue_job(job2, QUEUE)
 
-        assert defaultbackend.get_next_queued_job([QUEUE]).job_id == job1_id
+        assert defaultbackend.get_next_queued_job().job_id == job1_id
 
     def test_can_complete_job(self, defaultbackend, simplejob):
         """
@@ -110,3 +108,20 @@ class TestBackend:
         defaultbackend.save_job_as_cancellable(job_id)
         job = defaultbackend.get_job(job_id)
         assert job.cancellable, "Job is not cancellable default"
+
+    def test_can_get_high_priority_job_first(self, defaultbackend, simplejob):
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, "HIGH")
+
+        defaultbackend.enqueue_job(simplejob, QUEUE, "REGULAR")
+        defaultbackend.enqueue_job(simplejob, QUEUE, "REGULAR")
+
+        assert defaultbackend.get_next_queued_job().job_id == job_id
+
+    def test_gets_oldest_high_priority_job_first(self, defaultbackend, simplejob):
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, "HIGH")
+
+        # Sleep to prevent same time_created timestamp.
+        time.sleep(2)
+        defaultbackend.enqueue_job(simplejob, QUEUE, "HIGH")
+
+        assert defaultbackend.get_next_queued_job().job_id == job_id

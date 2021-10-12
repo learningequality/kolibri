@@ -254,7 +254,7 @@
     $trs: {
       startedByUser: {
         message: "Started by '{user}'",
-        context: '\nRefers to the content management *task*.\n',
+        context: 'Refers to the content management *task*.',
       },
       numResourcesAndSize: {
         message:
@@ -271,11 +271,11 @@
       },
       statusComplete: {
         message: 'Finished',
-        context: '\nLabel indicating that the *task* was completed successfully. \n\n',
+        context: 'Label indicating that the *task* was completed successfully.',
       },
       statusFailed: {
         message: 'Failed',
-        context: 'Label indicating that a task failed, i.e. it has not been completed.\n',
+        context: 'Label indicating that a task failed, i.e. it has not been completed.',
       },
       statusCanceled: {
         message: 'Canceled',

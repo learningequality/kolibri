@@ -12,7 +12,7 @@
     "test-jest": "kolibri-tools test --config ./jest.conf.js",
     "test-jest-cov": "yarn run test-jest --coverage",
     "coverage": "yarn run test-jest-cov",
-    "build": "kolibri-tools build prod --file ./build_tools/build_plugins.txt && yarn run hashi-build",
+    "build": "yarn run hashi-build && kolibri-tools build prod --file ./build_tools/build_plugins.txt",
     "makemessages": "kolibri-tools i18n-extract-messages --pluginFile ./build_tools/build_plugins.txt",
     "createprofiles": "kolibri-tools i18n-profile --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/strings.csv",
     "transfercontext": "kolibri-tools i18n-transfer-context --pluginFile ./build_tools/build_plugins.txt",
@@ -20,6 +20,7 @@
     "watch-hot": "yarn run watch --hot",
     "python-devserver": "kolibri start --debug --foreground --port=8000 --settings=kolibri.deployment.default.settings.dev",
     "python-devserver-no-update": "kolibri start --debug --skip-update --foreground --port=8000 --settings=kolibri.deployment.default.settings.dev",
+    "frontend-devserver": "run-p lint-frontend:watch:format hashi-dev watch",
     "devserver": "run-p python-devserver lint-frontend:watch:format hashi-dev watch ",
     "devserver-warn": "run-p python-devserver lint-frontend:watch hashi-dev watch",
     "devserver-hot": "run-p python-devserver lint-frontend:watch:format hashi-dev watch-hot",
@@ -27,7 +28,7 @@
     "bundle-stats": "kolibri-tools build stats --file ./build_tools/build_plugins.txt",
     "clean": "kolibri-tools build clean --file ./build_tools/build_plugins.txt",
     "preinstall": "node ./packages/kolibri-tools/lib/npm_deprecation_warning.js",
-    "lint-frontend": "kolibri-tools lint --pattern '{kolibri*/**/assets,packages,build_tools}/**/*.{js,vue,scss,less,css}'",
+    "lint-frontend": "kolibri-tools lint --pattern '{kolibri*/**/assets,packages,build_tools}/**/*.{js,vue,scss,less,css}' --ignore '**/dist/**,**/node_modules/**,**/static/**,**/kolibri-core-for-export/**'",
     "lint-frontend:format": "yarn run lint-frontend --write",
     "lint-frontend:watch": "yarn run lint-frontend --monitor",
     "lint-frontend:watch:format": "yarn run lint-frontend --monitor --write",
@@ -49,7 +50,6 @@
   "private": true,
   "devDependencies": {
     "@types/jest": "^24.0.12",
-    "kolibri-tools": "0.13.0-dev.10",
     "xhr-mock": "^2.5.1",
     "yarn-run-all": "^3.1.1"
   },
@@ -63,5 +63,8 @@
   },
   "browserslist": [
     "extends browserslist-config-kolibri"
-  ]
+  ],
+  "dependencies": {
+    "kolibri-constants": "0.1.32"
+  }
 }

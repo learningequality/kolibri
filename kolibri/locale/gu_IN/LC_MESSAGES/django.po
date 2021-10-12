@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-17 16:47-0700\n"
-"PO-Revision-Date: 2021-08-26 00:54\n"
+"POT-Creation-Date: 2021-09-15 16:05-0700\n"
+"PO-Revision-Date: 2021-09-23 20:20\n"
 "Last-Translator: \n"
 "Language-Team: Gujarati\n"
 "Language: gu_IN\n"
@@ -138,7 +138,7 @@ msgid "Value in column '{}' has too many characters"
 msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:82
-msgid "Invalid value in column '{}'"
+msgid "Value in column '{}' not valid"
 msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:83
@@ -152,7 +152,7 @@ msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
-msgid "Invalid header label found in the first row"
+msgid "Incorrect header label found in the first row"
 msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:97
@@ -172,11 +172,11 @@ msgstr ""
 msgid "Database ID is not valid"
 msgstr ""
 
-#: core/content/api.py:152
+#: core/content/api.py:158
 msgid "Resource"
 msgstr "સંસાધનો"
 
-#: core/content/api.py:1268
+#: core/content/api.py:1316
 msgid "The requested channel does not exist on the content server"
 msgstr "વિનંતી કરેલ ચેનલ સામગ્રી સર્વર પર અસ્તિત્વમાં નથી"
 
@@ -184,7 +184,7 @@ msgstr "વિનંતી કરેલ ચેનલ સામગ્રી સ�
 msgid "Unknown format"
 msgstr "અજ્ઞાત ફોર્મેટ"
 
-#: core/device/serializers.py:41
+#: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
 msgstr "કોલિબ્રી દ્વારા ભાષાને સમર્થન નથી"
 
@@ -231,7 +231,7 @@ msgstr "કોલિબ્રી ઉપયોગ કરવા માટે, અ�
 msgid "You can also try updating your current browser."
 msgstr "તમે તમારા વર્તમાન બ્રાઉઝરને અપડેટ કરવાનો પણ પ્રયાસ કરી શકો છો."
 
-#: core/views.py:160
+#: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "કોઈ યોગ્ય રીડાયરેક્ટ પૃષ્ઠ મળ્યું નથી. શક્યતા એ છે કે કોલિબ્રીની ગોઠવણ યોગ્ય રીતે કરવામાં આવી નથી"
 

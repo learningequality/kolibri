@@ -92,7 +92,7 @@
     $trs: {
       manageChannelAction: {
         message: 'Manage',
-        context: '\nOperation that can be performed on a channel',
+        context: "Operation that can be performed on a channel. Refers to the 'Manage' button.",
       },
     },
   };

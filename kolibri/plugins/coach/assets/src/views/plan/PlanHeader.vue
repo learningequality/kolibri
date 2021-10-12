@@ -5,7 +5,7 @@
       <BackLink
         v-if="classListPageEnabled"
         :to="$router.getRoute('HomePage')"
-        :text="$tr('home')"
+        :text="coreString('classHome')"
       />
     </p>
     <h1>{{ $tr('planYourClassLabel') }}</h1>
@@ -53,11 +53,6 @@
       planYourClassDescription: {
         message: 'Create and manage your lessons, quizzes, and groups',
         context: "Description of the 'Plan your class' section.",
-      },
-      home: {
-        message: 'Class Home',
-        context:
-          "Tab name of the main 'Class' section where the coach can see all the information relating to a specific class.",
       },
     },
   };

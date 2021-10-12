@@ -15,7 +15,7 @@ from django.db.utils import OperationalError
 
 from kolibri.core.content.utils import paths
 from kolibri.utils import conf
-from kolibri.utils.kolibri_whitenoise import DjangoWhiteNoise
+from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise
 
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
@@ -30,7 +30,7 @@ def generate_wsgi_application():
     content_dirs = [paths.get_content_dir_path()] + paths.get_content_fallback_paths()
 
     # Mount static files
-    return DjangoWhiteNoise(
+    return DynamicWhiteNoise(
         django_application,
         static_prefix=settings.STATIC_URL,
         dynamic_locations=[

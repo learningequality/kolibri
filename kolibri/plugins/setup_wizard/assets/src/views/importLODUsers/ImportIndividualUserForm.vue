@@ -229,32 +229,47 @@
       },
     },
     $trs: {
-      commaSeparatedPair: '{first}, {second}',
+      commaSeparatedPair: {
+        message: '{first}, {second}',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
+      },
       importIndividualUsersHeader: {
         message: 'Import individual user accounts',
         context: "The title of the 'Import individual user accounts' step in the wizard setup",
       },
       enterCredentials: {
         message: 'Enter the credentials of the user account you want to import',
-        context: 'Asking user and password of the user to be imported',
+        context: 'Asking user and password of the user to be imported.',
       },
       enterAdminCredentials: {
         message:
           "Enter the username and password of a facility admin or a super admin of '{facility}'",
         context: 'Asking user and password of the  admin user of the facility to be imported',
       },
-      deviceLimitationsTitle: 'Device limitations',
+      deviceLimitationsTitle: {
+        message: 'Device limitations',
+        context:
+          'Heading for the window which informs that only learner features will be available on the device. ',
+      },
       deviceLimitationsMessage: {
         message:
           '’{full_name} ({username})’ is a {roles} on ‘{device}’. This device is limited to features for learners only. Features for coaches and admins will not be available.',
-        context: 'Message to warn only learners can do individual sync',
+
+        context:
+          "Appears on 'Device limitations' window which informs that only learner features will be available on the device.",
       },
       headerAdmin: {
         message: 'Use an admin account',
-        context: 'Modal form to introduce admin account credentials',
+        context: 'Modal form to introduce admin account credentials.',
       },
-      doNotHaveUserCredentials: 'Don’t have user’s credentials?',
-      useAdmin: 'Use an admin account',
+      doNotHaveUserCredentials: {
+        message: 'Don’t have user’s credentials?',
+        context: "'Credentials' refers to learner's username and password.",
+      },
+      useAdmin: {
+        message: 'Use an admin account',
+        context: 'Modal form to introduce admin account credentials.',
+      },
     },
   };
 

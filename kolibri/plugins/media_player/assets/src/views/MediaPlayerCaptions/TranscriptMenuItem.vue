@@ -3,7 +3,7 @@
   <li class="vjs-menu-item" role="menuitem">
     <KCheckbox
       ref="kCheckbox"
-      :label="$tr('transcript')"
+      :label="coreString('transcript')"
       :checked="selected"
       role="menuitem"
       @change="toggleTranscript"
@@ -18,9 +18,11 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'TranscriptMenuItem',
+    mixins: [commonCoreStrings],
     computed: {
       ...mapState('mediaPlayer/captions', {
         selected: 'transcript',
@@ -33,13 +35,6 @@
        */
       focus() {
         this.$nextTick(() => this.$refs.kCheckbox.focus());
-      },
-    },
-    $trs: {
-      transcript: {
-        message: 'Transcript',
-        context:
-          'Refers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
       },
     },
   };

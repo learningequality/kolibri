@@ -88,16 +88,19 @@ class FacilityImportViewSet(ViewSet):
         Given a username, full name and password, create a superuser attached
         to the facility that was imported
         """
-        from kolibri.core.device.utils import create_superuser
-
         # Get the imported facility (assuming its the only one at this point)
         the_facility = Facility.objects.get()
 
         try:
-            superuser = create_superuser(request.data, facility=the_facility)
+            superuser = FacilityUser.objects.create_superuser(
+                request.data.get("username"),
+                request.data.get("password"),
+                facility=the_facility,
+                full_name=request.data.get("full_name"),
+            )
             return Response({"username": superuser.username})
 
-        except (Exception,):
+        except ValidationError:
             raise ValidationError(detail="duplicate", code="duplicate_username")
 
     @decorators.action(methods=["post"], detail=False)

@@ -11,7 +11,6 @@ from sqlalchemy import exc
 
 from kolibri.core.sqlite.utils import check_sqlite_integrity
 from kolibri.core.sqlite.utils import repair_sqlite_db
-from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.scheduler import Scheduler
 from kolibri.core.tasks.storage import Storage
@@ -144,18 +143,12 @@ def __job_storage():
 job_storage = SimpleLazyObject(__job_storage)
 
 
-PRIORITY_TO_QUEUE_MAP = {
-    Priority.REGULAR: queue,
-    Priority.HIGH: priority_queue,
-}
-
-
 def initialize_workers():
-    logger.info("Starting scheduler workers.")
-    regular_worker = Worker(task_queue_name, connection=connection, num_workers=1)
-    priority_worker = Worker(priority_queue_name, connection=connection, num_workers=3)
-    facility_worker = Worker(facility_queue_name, connection=connection, num_workers=1)
-    return regular_worker, priority_worker, facility_worker
+    logger.info("Starting async task workers.")
+    single_worker_pool = Worker(
+        connection=connection, regular_workers=4, high_workers=2
+    )
+    return [single_worker_pool]
 
 
 def import_tasks_module_from_django_apps(app_configs=None):

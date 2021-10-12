@@ -5,38 +5,34 @@ from concurrent.futures import CancelledError
 
 from kolibri.core.tasks.compat import PoolExecutor
 from kolibri.core.tasks.job import execute_job
+from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.utils import InfiniteLoopThread
 
 logger = logging.getLogger(__name__)
 
 
-class Empty(Exception):
-    # An exception to raise when there are now queued jobs waiting to be started.
-    pass
-
-
 class Worker(object):
-    def __init__(self, queues, connection=None, num_workers=3):
+    def __init__(self, connection, regular_workers=2, high_workers=1):
         # Internally, we use concurrent.future.Future to run and track
         # job executions. We need to keep track of which future maps to which
         # job they were made from, and we use the job_future_mapping dict to do
         # so.
-        if connection is None:
-            raise ValueError("Connection must be defined")
 
-        # Queues that this worker executes tasks for
-        if type(queues) is not list:
-            queues = [queues]
-        self.queues = queues
         # Key: future object, Value: job object
         self.job_future_mapping = {}
+
         # Key: job_id, Value: future object
         self.future_job_mapping = {}
-        self.storage = Storage(connection)
-        self.num_workers = num_workers
 
-        self.workers = self.start_workers(num_workers=self.num_workers)
+        self.storage = Storage(connection)
+
+        # Regular workers run both 'high' and 'regular' priority jobs.
+        # High workers run only 'high' priority jobs.
+        self.regular_workers = regular_workers
+        self.max_workers = regular_workers + high_workers
+
+        self.workers = self.start_workers()
         self.job_checker = self.start_job_checker()
 
     def shutdown_workers(self, wait=True):
@@ -50,8 +46,8 @@ class Worker(object):
         # Now shutdown the workers
         self.workers.shutdown(wait=wait)
 
-    def start_workers(self, num_workers):
-        pool = PoolExecutor(max_workers=num_workers)
+    def start_workers(self):
+        pool = PoolExecutor(max_workers=self.max_workers)
         return pool
 
     def handle_finished_future(self, future):
@@ -91,23 +87,23 @@ class Worker(object):
         Returns: the Thread object.
         """
         t = InfiniteLoopThread(
-            self.check_jobs, thread_name="JOBCHECKER", wait_between_runs=0.5
+            self.check_jobs, thread_name="JOBCHECKER", wait_between_runs=0.2
         )
         t.start()
         return t
 
     def check_jobs(self):
         """
-        Check how many workers are currently running.
-        If fewer workers are running than there are available workers, start a new job!
+        Checks for the next job to run and also checks for jobs that should be cancelled.
+
         Returns: None
         """
-        try:
-            while len(self.future_job_mapping) < self.num_workers:
-                self.start_next_job()
-        except Empty:
-            logger.debug("No jobs to start.")
-        for job in self.storage.get_canceling_jobs(self.queues):
+        job_to_start = self.get_next_job()
+        while job_to_start:
+            self.start_next_job(job_to_start)
+            job_to_start = self.get_next_job()
+
+        for job in self.storage.get_canceling_jobs():
             job_id = job.job_id
             if job_id in self.future_job_mapping:
                 self.cancel(job_id)
@@ -128,17 +124,40 @@ class Worker(object):
     def update_progress(self, job_id, progress, total_progress, stage=""):
         self.storage.update_job_progress(job_id, progress, total_progress)
 
-    def start_next_job(self):
+    def get_next_job(self):
+        """
+        Fetches the next potential QUEUED job.
+
+        If less workers are running than there are regular workers, we look first for
+        jobs with 'high' priority, if found one we run it else we look for jobs with 'regular'
+        priority, if found we run it.
+
+        If all regular workers are busy, then the remaining workers only look for
+        'high' priority jobs. If found one, we run it.
+
+        This algorithm will make sure 'high' jobs don't wait :)
+
+        Returns the job object if a job is available based on the above algorithm else None.
+        """
+        job = None
+        workers_currently_busy = len(self.future_job_mapping)
+
+        if workers_currently_busy < self.regular_workers:
+            job = self.storage.get_next_queued_job()
+        elif workers_currently_busy < self.max_workers:
+            job = self.storage.get_next_queued_job(priority_order=[Priority.HIGH])
+        else:
+            logger.debug("All workers busy.")
+            return None
+
+        return job
+
+    def start_next_job(self, job):
         """
         start the next scheduled job to the type of workers spawned by self.start_workers.
 
         :return future:
         """
-        job = self.storage.get_next_queued_job(self.queues)
-
-        if not job:
-            raise Empty
-
         self.storage.mark_job_as_running(job.job_id)
 
         db_type_lookup = {
@@ -171,6 +190,7 @@ class Worker(object):
         a special variable inside the future that we can check
         inside a special check_for_cancel function passed to the
         job.
+
         :param job_id:
         :return:
         """

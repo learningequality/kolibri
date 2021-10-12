@@ -26,7 +26,7 @@ def error_func():
 @pytest.fixture
 def worker():
     with connection() as c:
-        b = Worker(QUEUE, c)
+        b = Worker(c, regular_workers=1, high_workers=1)
         b.storage.clear(force=True)
         yield b
         b.storage.clear(force=True)
@@ -67,8 +67,8 @@ class TestWorker:
 
         returned_job = worker.storage.get_job(job_id)
         assert returned_job.state == "FAILED"
-        assert isinstance(returned_job.exception, TypeError)
-        assert returned_job.exception.args[0] == error_text
+        assert returned_job.exception == "TypeError"
+        assert error_text in returned_job.traceback
 
     def test_enqueue_job_writes_to_storage_on_success(self, worker):
         with patch.object(
@@ -98,3 +98,29 @@ class TestWorker:
             job_id = call_args[0][0]
             # verify that we're setting the correct job_id
             assert job_id == job.job_id
+
+    def test_regular_tasks_wait_when_regular_workers_busy(self, worker):
+        # We have one task running right now.
+        worker.future_job_mapping = {"job_id": "future"}
+
+        job = Job(id, 10)
+        worker.storage.enqueue_job(job, QUEUE, "REGULAR")
+
+        job = worker.get_next_job()
+        worker.future_job_mapping.clear()
+
+        # Worker must not get this job since our regular worker is busy.
+        assert job is None
+
+    def test_high_tasks_dont_wait_when_regular_workers_busy(self, worker):
+        # We have one task running right now.
+        worker.future_job_mapping = {"job_id": "future"}
+
+        job = Job(id, 10)
+        worker.storage.enqueue_job(job, QUEUE, "HIGH")
+
+        job = worker.get_next_job()
+        worker.future_job_mapping.clear()
+
+        # Worker must get this job since its a 'high' priority job.
+        assert isinstance(job, Job) is True

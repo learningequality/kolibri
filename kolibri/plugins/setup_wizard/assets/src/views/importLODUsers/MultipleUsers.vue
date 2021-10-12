@@ -166,11 +166,13 @@
       },
     },
     $trs: {
-      commaSeparatedPair: '{first}, {second}',
+      commaSeparatedPair: {
+        message: '{first}, {second}',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
+      },
       imported: {
         message: 'Imported',
-        context:
-          'Descriptive text appearing to indicate an user has already been imported into the facility',
+        context: 'Label indicating that a learner user account has already been imported.',
       },
       searchForUser: {
         message: 'Search for a user',

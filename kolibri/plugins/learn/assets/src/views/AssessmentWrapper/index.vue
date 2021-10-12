@@ -10,92 +10,95 @@ oriented data synchronization.
 <template v-if="ready">
 
   <div>
-    <UiAlert v-if="itemError" :dismissible="false" type="error">
-      {{ $tr('itemError') }}
-      <KButton
-        appearance="basic-link"
-        :text="$tr('tryDifferentQuestion')"
-        @click="nextQuestion"
-      />
-    </UiAlert>
     <div>
-      <KContentRenderer
-        ref="contentRenderer"
-        :kind="kind"
-        :lang="lang"
-        :files="files"
-        :available="available"
-        :extraFields="extraFields"
-        :assessment="true"
-        :itemId="itemId"
-        :progress="progress"
-        :userId="userId"
-        :userFullName="userFullName"
-        :timeSpent="timeSpent"
-        @answerGiven="answerGiven"
-        @hintTaken="hintTaken"
-        @itemError="handleItemError"
-        @startTracking="startTracking"
-        @stopTracking="stopTracking"
-        @updateProgress="updateProgress"
-        @updateContentState="updateContentState"
-      />
+      <UiAlert v-if="itemError" :dismissible="false" type="error">
+        {{ $tr('itemError') }}
+        <KButton
+          appearance="basic-link"
+          :text="$tr('tryDifferentQuestion')"
+          @click="nextQuestion"
+        />
+      </UiAlert>
+      <div class="content-wrapper" :style="{ backgroundColor: this.$themePalette.grey.v_100 }">
+        <KContentRenderer
+          ref="contentRenderer"
+          :kind="kind"
+          :lang="lang"
+          :files="files"
+          :available="available"
+          :extraFields="extraFields"
+          :assessment="true"
+          :itemId="itemId"
+          :progress="progress"
+          :userId="userId"
+          :userFullName="userFullName"
+          :timeSpent="timeSpent"
+          @answerGiven="answerGiven"
+          @hintTaken="hintTaken"
+          @itemError="handleItemError"
+          @startTracking="startTracking"
+          @stopTracking="stopTracking"
+          @updateProgress="updateProgress"
+          @updateContentState="updateContentState"
+        />
+      </div>
+
+      <BottomAppBar
+        class="attempts-container"
+        :class="{ 'mobile': windowIsSmall }"
+      >
+        <div class="overall-status" :style="{ color: $themeTokens.text }">
+          <KIcon
+            icon="mastered"
+            :color="success ? $themeTokens.mastered : $themePalette.grey.v_200"
+          />
+          <div class="overall-status-text">
+            <span v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
+              {{ coreString('completedLabel') }}
+            </span>
+            <span>
+              {{ $tr('goal', { count: totalCorrectRequiredM }) }}
+            </span>
+          </div>
+        </div>
+        <div class="table">
+          <div class="row">
+            <div class="left">
+              <transition mode="out-in">
+                <KButton
+                  v-if="!complete"
+                  appearance="raised-button"
+                  :text="$tr('check')"
+                  :primary="true"
+                  :class="{ shaking: shake }"
+                  :disabled="checkingAnswer"
+                  @click="checkAnswer"
+                />
+                <KButton
+                  v-else
+                  appearance="raised-button"
+                  :text="$tr('next')"
+                  :primary="true"
+                  @click="nextQuestion"
+                />
+              </transition>
+            </div>
+
+            <div class="right">
+              <ExerciseAttempts
+                :waitingForAttempt="firstAttemptAtQuestion || itemError"
+                :numSpaces="attemptsWindowN"
+                :log="recentAttempts"
+              />
+              <p class="current-status">
+                {{ currentStatus }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </BottomAppBar>
     </div>
 
-    <BottomAppBar
-      class="attempts-container"
-      :class="{ 'mobile': windowIsSmall }"
-    >
-      <div class="overall-status" :style="{ color: $themeTokens.text }">
-        <KIcon
-          icon="mastered"
-          :color="success ? $themeTokens.mastered : $themePalette.grey.v_200"
-        />
-        <div class="overall-status-text">
-          <span v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
-            {{ coreString('completedLabel') }}
-          </span>
-          <span>
-            {{ $tr('goal', { count: totalCorrectRequiredM }) }}
-          </span>
-        </div>
-      </div>
-      <div class="table">
-        <div class="row">
-          <div class="left">
-            <transition mode="out-in">
-              <KButton
-                v-if="!complete"
-                appearance="raised-button"
-                :text="$tr('check')"
-                :primary="true"
-                :class="{ shaking: shake }"
-                :disabled="checkingAnswer"
-                @click="checkAnswer"
-              />
-              <KButton
-                v-else
-                appearance="raised-button"
-                :text="$tr('next')"
-                :primary="true"
-                @click="nextQuestion"
-              />
-            </transition>
-          </div>
-
-          <div class="right">
-            <ExerciseAttempts
-              :waitingForAttempt="firstAttemptAtQuestion || itemError"
-              :numSpaces="attemptsWindowN"
-              :log="recentAttempts"
-            />
-            <p class="current-status">
-              {{ currentStatus }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </BottomAppBar>
   </div>
 
 </template>
@@ -514,7 +517,7 @@ oriented data synchronization.
       goal: {
         message: 'Get {count, number, integer} {count, plural, other {correct}}',
         context:
-          '\nMessage that indicates to the learner how many correct answers they need to give in order to master the given topic, and for the exercise to be considered completed.',
+          'Message that indicates to the learner how many correct answers they need to give in order to master the given topic, and for the exercise to be considered completed.',
       },
       tryAgain: {
         message: 'Try again',
@@ -577,10 +580,6 @@ oriented data synchronization.
   .attempts-container {
     height: 111px;
     text-align: left;
-  }
-
-  .mobile {
-    padding: 8px;
   }
 
   .overall-status {

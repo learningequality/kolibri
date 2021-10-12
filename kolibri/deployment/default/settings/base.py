@@ -244,6 +244,18 @@ EXTRA_LANG_INFO = {
         "name": "Hausa",
         "name_local": "Hausa",
     },
+    "id": {
+        "bidi": False,
+        "code": "id",
+        "name": "Indonesian",
+        "name_local": "Bahasa Indonesia",
+    },
+    "ka": {
+        "bidi": False,
+        "code": "ka",
+        "name": "Georgian",
+        "name_local": "ქართული",
+    },
     "km": {"bidi": False, "code": "km", "name": "Khmer", "name_local": "ភាសាខ្មែរ"},
     "nyn": {
         "bidi": False,

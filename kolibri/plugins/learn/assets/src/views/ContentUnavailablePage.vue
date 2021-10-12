@@ -47,16 +47,18 @@
           'Message displayed when there are no learning resources available for the learner to view.',
       },
       adminLink: {
-        message: 'As an administrator, you can import channels',
+        message: 'Import channels to your device',
         context: 'Message for admin indicating the possibility of importing channels into Kolibri.',
       },
       learnerText: {
-        message: 'Please ask your coach or administrator for assistance',
-        context: "Description on the 'No resources available' page.",
+        message: 'Ask your coach or administrator for assistance',
+        context:
+          "Description on the 'No resources available' page. A learner will see this if no resource have been assigned to them.",
       },
       documentTitle: {
         message: 'Resource unavailable',
-        context: '\nThis string should actually say "Resource unavailable"',
+        context:
+          'Message displays if a resource has been removed or is not available for some other reason.',
       },
     },
   };

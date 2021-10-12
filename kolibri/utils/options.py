@@ -125,8 +125,11 @@ def path(value):
 
     if not isinstance(value, string_types):
         raise VdtValueError(repr(value))
-    # ensure all path arguments, e.g. under section "Paths", are fully resolved and expanded, relative to KOLIBRI_HOME
-    return os.path.join(KOLIBRI_HOME, os.path.expanduser(value))
+    # Allow for blank paths
+    if value:
+        # ensure all path arguments, e.g. under section "Paths", are fully resolved and expanded, relative to KOLIBRI_HOME
+        return os.path.join(KOLIBRI_HOME, os.path.expanduser(value))
+    return value
 
 
 def path_list(value):
@@ -360,6 +363,11 @@ base_option_spec = {
             "default": "",
             "description": "Additional directories in which Kolibri will look for content files and content database files.",
         },
+        "AUTOMATIC_PROVISION_FILE": {
+            "type": "path",
+            "default": "",
+            "description": "The file that contains the automatic device provisioning data.",
+        },
     },
     "Urls": {
         "CENTRAL_CONTENT_BASE_URL": {
@@ -459,6 +467,14 @@ base_option_spec = {
             "default": 60,
             "description": """
                 In case a SoUD connects to this server, the SoUD should use this interval to resync every user.
+            """,
+        },
+        "PROJECT": {
+            "type": "string",
+            "skip_blank": True,
+            "description": """
+                The custom identifier for a project. This is used to identify the project in the telemetry
+                data that is returned to our telemetry server.
             """,
         },
     },

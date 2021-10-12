@@ -234,22 +234,22 @@
         context: "Option to reset a user's password.",
       },
       noLearnersExist: {
-        message: 'No learners exist',
+        message: 'There are no learners in this facility',
         context:
           "Displayed when there are no learners in the facility. Seen when using the 'User type' filter on the 'Users' page.",
       },
       noCoachesExist: {
-        message: 'No coaches exist',
+        message: 'There are no coaches in this facility',
         context:
           "Displayed when there are no coaches in the facility. Seen when using the 'User type' filter on the 'Users' page.",
       },
       noSuperAdminsExist: {
-        message: 'No super admins exist',
+        message: 'There are no super admins in this facility',
         context:
           "Displayed when there are no super admins in the facility. Seen when using the 'User type' filter on the 'Users' page.",
       },
       noAdminsExist: {
-        message: 'No admins exist',
+        message: 'There are no admins in this facility',
         context:
           "Displayed when there are no admins in the facility. Seen when using the 'User type' filter on the 'Users' page.",
       },

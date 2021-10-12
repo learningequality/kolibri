@@ -68,7 +68,3 @@ steps:
   - label: Upload Release Artifacts
     command: .buildkite/setup_and_upload_artifact.sh
     if: build.tag != null
-
-  - block: "Create integration testing worksheet?"
-  - label: Create integration testing
-    command: .buildkite/build_worksheet.sh

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-17 16:47-0700\n"
-"PO-Revision-Date: 2021-08-26 00:54\n"
+"POT-Creation-Date: 2021-09-15 16:05-0700\n"
+"PO-Revision-Date: 2021-09-23 20:20\n"
 "Last-Translator: \n"
 "Language-Team: Khmer\n"
 "Language: km_KH\n"
@@ -138,8 +138,8 @@ msgid "Value in column '{}' has too many characters"
 msgstr "មាតិកាក្នុងជួរឈរ '{}' មានអក្សរច្រើនពេក"
 
 #: core/auth/management/commands/bulkimportusers.py:82
-msgid "Invalid value in column '{}'"
-msgstr "មាតិកាក្នុងជួរឈរ '{}' មិនត្រឹមត្រូវ"
+msgid "Value in column '{}' not valid"
+msgstr "មាតិកាក្នុងប្រអប់ '{}' មិនត្រឹមត្រូវ"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -152,7 +152,7 @@ msgstr "ជួរឈរ '{}' ត្រូវការជាចាំបាច់
 
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
-msgid "Invalid header label found in the first row"
+msgid "Incorrect header label found in the first row"
 msgstr "ស្លាកក្បាលមិនត្រឹមត្រូវបានរកឃើញក្នុងជួរដេកទី១"
 
 #: core/auth/management/commands/bulkimportusers.py:97
@@ -172,11 +172,11 @@ msgstr "មិនអាចធ្វើបច្ចុប្បន្នភាព
 msgid "Database ID is not valid"
 msgstr "ID ឃ្លាំងផ្ទុកទិន្នន័យមិនត្រឹមត្រូវ"
 
-#: core/content/api.py:152
+#: core/content/api.py:158
 msgid "Resource"
 msgstr "ធនធាន"
 
-#: core/content/api.py:1268
+#: core/content/api.py:1316
 msgid "The requested channel does not exist on the content server"
 msgstr "ឆានែលដែលបានស្នើមិនមាននៅលើម៉ាស៊ីនមេទេ"
 
@@ -184,7 +184,7 @@ msgstr "ឆានែលដែលបានស្នើមិនមាននៅល
 msgid "Unknown format"
 msgstr "ទម្រង់មិនស្គាល់"
 
-#: core/device/serializers.py:41
+#: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
 msgstr "ភាសាមិនត្រូវបានគាំទ្រដោយ Kolibri ទេ"
 
@@ -231,7 +231,7 @@ msgstr "ដើម្បីប្រើ Kolibri យើងសូមណែនាំ
 msgid "You can also try updating your current browser."
 msgstr "អ្នកក៏អាចព្យាយាមធ្វើបច្ចុប្បន្នភាពកម្មវិធីរុករកបច្ចុប្បន្នរបស់អ្នកផងដែរ។"
 
-#: core/views.py:160
+#: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "រកមិនឃើញទំព័រប្តូរទិសដែលសមស្រប។ ប្រហែលជា Kolibri ត្រូវបានកំណត់មិនត្រឹមត្រូវ"
 

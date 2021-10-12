@@ -1,7 +1,11 @@
 <template>
 
-  <UiToolbar>
-    <KLabeledIcon :style="{ 'margin-top': '8px' }">
+  <UiToolbar style="z-index: 8;" :style="contentSpecificStyles" class="toolbar">
+    <CoachContentLabel
+      :value="isCoachContent"
+      style="margin-top: 8px; width: auto;"
+    />
+    <KLabeledIcon :style="{ 'margin-top': '8px', 'width': 'auto' }">
       <template #icon>
         <LearningActivityIcon
           data-test="learningActivityIcon"
@@ -13,6 +17,9 @@
         :text="resourceTitle"
         :maxHeight="26"
       />
+      <template #iconAfter>
+        <ProgressIcon :progress="contentProgress" class="progress-icon" />
+      </template>
     </KLabeledIcon>
 
     <template #icon>
@@ -34,6 +41,7 @@
         :color="action.iconColor"
         :tooltip="action.label"
         :ariaLabel="action.label"
+        :disabled="action.disabled"
         @click="onActionClick(action.event)"
       />
 
@@ -51,6 +59,7 @@
           v-show="isMenuOpen"
           ref="menu"
           class="menu"
+          :style="{ left: isRtl ? '16px' : 'auto', right: isRtl ? 'auto' : '16px' }"
           :raised="true"
           :isOpen="isMenuOpen"
           :containFocus="true"
@@ -78,6 +87,11 @@
         </CoreMenu>
       </span>
     </template>
+    <MarkAsCompleteModal
+      v-if="showMarkAsCompleteModal && allowMarkComplete"
+      @complete="showMarkAsCompleteModal = false"
+      @cancel="showMarkAsCompleteModal = false"
+    />
   </UiToolbar>
 
 </template>
@@ -87,28 +101,37 @@
 
   import difference from 'lodash/difference';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
+  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
-  import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
+  import { validateLearningActivity } from 'kolibri.utils.validators';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import LearningActivityIcon from './LearningActivityIcon.vue';
+  import MarkAsCompleteModal from './MarkAsCompleteModal';
+  import commonLearnStrings from './commonLearnStrings';
 
   export default {
     name: 'LearningActivityBar',
     components: {
+      CoachContentLabel,
       CoreMenu,
       CoreMenuOption,
-      UiToolbar,
       TextTruncator,
       LearningActivityIcon,
+      MarkAsCompleteModal,
+      ProgressIcon,
+      UiToolbar,
     },
-    mixins: [KResponsiveWindowMixin],
+    mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
     /**
      * Emits the following events:
      * - `navigateBack` on back button click
      * - `viewResourceList` on 'View lesson plan'/'View topic resources' click
-     * - `toogleBookmark` on 'Save to bookmarks'/ 'Remove from bookmarks' click
+     * - `toggleBookmark` on 'Save to bookmarks'/ 'Remove from bookmarks' click
      * - `markComplete` on 'Mark resource as finished' click. Only when
      *                  a resource can be marked as complete.
      * - `viewInfo` on 'View information' click
@@ -124,10 +147,7 @@
       learningActivities: {
         type: Array,
         required: true,
-        validator(arr) {
-          const isValidLearningActivity = v => Object.values(LearningActivities).includes(v);
-          return arr.length > 0 && arr.every(isValidLearningActivity);
-        },
+        validator: validateLearningActivity,
       },
       /**
        * Is the bar used in the context of a lesson?
@@ -155,10 +175,37 @@
         required: false,
         default: false,
       },
+      /**
+      The progress of the currently viewed content to determine
+      if and which progress icon should be shown (none/started/complete)
+      */
+      contentProgress: {
+        type: Number,
+        required: false,
+        default: 0,
+      },
+      /**
+      A 1/0 Boolean check whether we should show the Coach Content icon
+      to be passed to the CoachContentLabel component
+      */
+      isCoachContent: {
+        type: Number,
+        required: false,
+        default: 0,
+      },
+      /**
+      The ContentNodeKinds kind of the content being viewed
+      */
+      contentKind: {
+        type: String,
+        required: false,
+        default: null,
+      },
     },
     data() {
       return {
         isMenuOpen: false,
+        showMarkAsCompleteModal: false,
       };
     },
     computed: {
@@ -168,7 +215,7 @@
             id: 'view-resource-list',
             icon: 'resourceList',
             label: this.isLessonContext
-              ? this.$tr('viewLessonPlan')
+              ? this.$tr('viewLessonResources')
               : this.$tr('viewTopicResources'),
             event: 'viewResourceList',
             dataTest: this.isLessonContext ? 'viewLessonPlanButton' : 'viewTopicResourcesButton',
@@ -177,9 +224,10 @@
             id: 'bookmark',
             icon: this.isBookmarked ? 'bookmark' : 'bookmarkEmpty',
             label: this.isBookmarked
-              ? this.$tr('removeFromBookmarks')
-              : this.$tr('saveToBookmarks'),
-            event: 'toogleBookmark',
+              ? this.coreString('removeFromBookmarks')
+              : this.coreString('saveToBookmarks'),
+            event: 'toggleBookmark',
+            disabled: this.isBookmarked === null,
             dataTest: this.isBookmarked ? 'removeBookmarkButton' : 'addBookmarkButton',
           },
         ];
@@ -188,7 +236,7 @@
             id: 'mark-complete',
             icon: 'star',
             iconColor: this.$themePalette.yellow.v_700,
-            label: this.$tr('markResourceAsFinished'),
+            label: this.learnString('markResourceAsCompleteLabel'),
             event: 'markComplete',
             dataTest: 'markCompleteButton',
           });
@@ -196,7 +244,7 @@
         actions.push({
           id: 'view-info',
           icon: 'info',
-          label: this.$tr('viewInformation'),
+          label: this.coreString('viewInformation'),
           event: 'viewInfo',
           dataTest: 'viewInfoButton',
         });
@@ -221,9 +269,19 @@
       menuActions() {
         return difference(this.allActions, this.barActions);
       },
+      contentSpecificStyles() {
+        // The prime difference is that Exercises won't have shadows under the UiToolbar
+        // because the LessonMasteryBar lives under it and has its own drop shadow.
+        if (this.contentKind === ContentNodeKinds.EXERCISE) {
+          return { border: `1px solid ${this.$themeTokens.fineLine}`, 'box-shadow': 'none' };
+        } else {
+          return {};
+        }
+      },
     },
     created() {
       window.addEventListener('click', this.onWindowClick);
+      this.$on('markComplete', () => (this.showMarkAsCompleteModal = true));
     },
     beforeDestroy() {
       window.removeEventListener('click', this.onWindowClick);
@@ -268,13 +326,18 @@
     },
     $trs: {
       goBack: 'Go back',
-      moreOptions: 'More options',
-      viewLessonPlan: 'View lesson plan',
-      viewTopicResources: 'View folder resources',
-      removeFromBookmarks: 'Remove from bookmarks',
-      saveToBookmarks: 'Save to bookmarks',
-      markResourceAsFinished: 'Mark resource as completed',
-      viewInformation: 'View information',
+      moreOptions: {
+        message: 'More options',
+        context: 'Tooltip text.',
+      },
+      viewLessonResources: {
+        message: 'View lesson resources',
+        context: 'Tooltip text.',
+      },
+      viewTopicResources: {
+        message: 'View folder resources',
+        context: 'Tooltip text.',
+      },
     },
   };
 
@@ -290,23 +353,18 @@
   .menu {
     position: absolute;
     top: 50%;
-    right: 10px; // right-align to the menu icon
+    z-index: 8;
     min-width: 270px;
     transform: translateY(16px);
   }
 
-  // decrease the gap between the back navigation
-  // icon and a resource icon + title
-  /deep/ .ui-toolbar__left {
-    .ui-toolbar__nav-icon {
-      margin-right: 12px;
-    }
-  }
+  /deep/ .progress-icon .ui-icon {
+    margin-top: -2px;
 
-  // increase the gap between the resource title
-  // and the action buttons on the right
-  /deep/ .ui-toolbar__right {
-    margin-left: 16px;
+    svg {
+      width: 18px;
+      height: 18px;
+    }
   }
 
 </style>

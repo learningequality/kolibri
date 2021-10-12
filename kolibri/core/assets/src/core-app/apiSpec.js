@@ -34,6 +34,7 @@ import ContentIcon from '../views/ContentIcon';
 import ProgressIcon from '../views/ProgressIcon';
 import PermissionsIcon from '../views/PermissionsIcon';
 import CoreBase from '../views/CoreBase';
+import FullScreenSidePanel from '../views/FullScreenSidePanel';
 import SideNav from '../views/SideNav';
 import Navbar from '../views/Navbar';
 import NavbarLink from '../views/Navbar/NavbarLink';
@@ -91,6 +92,7 @@ import LearnOnlyDeviceNotice from '../views/LearnOnlyDeviceNotice';
 import branding from '../utils/branding';
 import sortLanguages from '../utils/sortLanguages';
 import * as sync from '../views/sync/syncComponentSet';
+import PageRoot from '../views/PageRoot';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -99,7 +101,9 @@ import AttemptLogList from '../views/AttemptLogList';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
 import TextTruncator from '../views/TextTruncator';
+import TextTruncatorCss from '../views/TextTruncatorCss';
 import TimeDuration from '../views/TimeDuration';
+import SuggestedTime from '../views/SuggestedTime';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import filterUsersByNames from '../utils/filterUsersByNames';
@@ -143,6 +147,7 @@ export default {
       ProgressIcon,
       PermissionsIcon,
       CoreBase,
+      FullScreenSidePanel,
       SideNav,
       Navbar,
       NavbarLink,
@@ -162,6 +167,7 @@ export default {
       InteractionList,
       ExamReport,
       TextTruncator,
+      TextTruncatorCss,
       TimeDuration,
       MultiPaneLayout,
       CoreFullscreen,
@@ -189,6 +195,8 @@ export default {
       PrivacyLinkAndModal,
       PageStatus,
       LearnOnlyDeviceNotice,
+      SuggestedTime,
+      PageRoot,
     },
     componentSets: {
       sync,

@@ -99,7 +99,9 @@
       lessonNameLabel() {
         const ancestorLength = this.ancestors ? this.ancestors.length : 0;
         const label =
-          ancestorLength > 0 ? this.ancestors[ancestorLength - 1].title : this.$tr('lessonLabel');
+          ancestorLength > 0
+            ? this.ancestors[ancestorLength - 1].title
+            : this.coachString('lessonLabel');
         return label;
       },
     },
@@ -124,13 +126,6 @@
         this.$router.push(this.returnBackRoute).then(() => {
           this.showSnackbarNotification('resourcesRemovedWithCount', { count: 1 });
         });
-      },
-    },
-    $trs: {
-      lessonLabel: {
-        message: 'Lesson',
-        context:
-          'A lesson is a linear learning pathway defined by a coach. The coach can select resources from any channel, add them to the lesson, define the ordering, and assign the lesson to learners in their class.',
       },
     },
   };

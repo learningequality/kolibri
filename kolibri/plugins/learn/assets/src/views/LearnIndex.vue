@@ -1,6 +1,15 @@
 <template>
 
+  <LearnImmersiveLayout
+    v-if="currentPageIsContentOrLesson"
+    :authorized="userIsAuthorized"
+    authorizedRole="registeredUser"
+    :back="learnBackPageRoute"
+    :content="content"
+  />
+
   <CoreBase
+    v-else
     :marginBottom="bottomSpaceReserved"
     :showSubNav="topNavIsVisible"
     :authorized="userIsAuthorized"
@@ -41,7 +50,7 @@
 
     <UpdateYourProfileModal
       v-if="profileNeedsUpdate"
-      :disabled="demographicInfo === null || !userPluginUrl"
+      :disabled="demographicInfo === null || !userProfilePluginUrl"
       @cancel="handleCancelUpdateYourProfileModal"
       @submit="handleSubmitUpdateYourProfileModal"
     />
@@ -62,12 +71,12 @@
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames, ClassesPageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
-  import ChannelsPage from './ChannelsPage';
   import TopicsPage from './TopicsPage';
   import ContentPage from './ContentPage';
   import ContentUnavailablePage from './ContentUnavailablePage';
   import Breadcrumbs from './Breadcrumbs';
   import SearchPage from './SearchPage';
+  import LearnImmersiveLayout from './LearnImmersiveLayout';
   import ExamPage from './ExamPage';
   import ExamReportViewer from './LearnExamReportViewer';
   import TotalPoints from './TotalPoints';
@@ -79,15 +88,16 @@
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
   import UpdateYourProfileModal from './UpdateYourProfileModal';
+  import BookmarkPage from './BookmarkPage.vue';
   import plugin_data from 'plugin_data';
 
   const pageNameToComponentMap = {
-    [PageNames.TOPICS_ROOT]: ChannelsPage,
     [PageNames.TOPICS_CHANNEL]: TopicsPage,
     [PageNames.TOPICS_TOPIC]: TopicsPage,
     [PageNames.TOPICS_CONTENT]: ContentPage,
     [PageNames.CONTENT_UNAVAILABLE]: ContentUnavailablePage,
     [PageNames.SEARCH]: SearchPage,
+    [PageNames.BOOKMARKS]: BookmarkPage,
     [ClassesPageNames.EXAM_VIEWER]: ExamPage,
     [ClassesPageNames.EXAM_REPORT_VIEWER]: ExamReportViewer,
     [ClassesPageNames.ALL_CLASSES]: AllClassesPage,
@@ -104,6 +114,7 @@
       CoreBase,
       LearnTopNav,
       TotalPoints,
+      LearnImmersiveLayout,
       UpdateYourProfileModal,
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
@@ -117,7 +128,6 @@
       ...mapGetters(['isUserLoggedIn', 'canAccessUnassignedContent']),
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
-        currentLesson: 'currentLesson',
       }),
       ...mapState('classAssignments', {
         classroomName: state => state.currentClassroom.name,
@@ -143,6 +153,12 @@
           pageNameToComponentMap[PageNames.TOPICS_CHANNEL],
         ].includes(this.currentPage);
       },
+      currentPageIsContentOrLesson() {
+        return (
+          this.pageName === PageNames.TOPICS_CONTENT ||
+          this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER
+        );
+      },
       currentChannelIsCustom() {
         return (
           this.topicsTreeTopic &&
@@ -156,15 +172,6 @@
             appBarTitle: this.classroomName || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(ClassesPageNames.CLASS_ASSIGNMENTS),
-            immersivePagePrimary: true,
-            immersivePageIcon: 'close',
-          };
-        }
-        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-          return {
-            appBarTitle: this.currentLesson.title || '',
-            immersivePage: true,
-            immersivePageRoute: this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST),
             immersivePagePrimary: true,
             immersivePageIcon: 'close',
           };
@@ -216,7 +223,7 @@
               [PageNames.RECOMMENDED_POPULAR]: this.learnString('popularLabel'),
               [PageNames.RECOMMENDED_RESUME]: this.learnString('resumeLabel'),
               [PageNames.RECOMMENDED_NEXT_STEPS]: this.learnString('nextStepsLabel'),
-              [PageNames.RECOMMENDED]: this.learnString('recommendedLabel'),
+              [PageNames.LIBRARY]: this.learnString('libraryLabel'),
             }[last];
           } else if (this.topicsTreeContent.parent) {
             // Need to guard for parent being non-empty to avoid console errors
@@ -240,7 +247,26 @@
             immersivePageIcon: 'close',
           };
         }
-
+        if (this.pageName === PageNames.LIBRARY) {
+          return {
+            appBarTitle: this.learnString('learnLabel'),
+            immersivePage: false,
+            hasSidebar: true,
+          };
+        }
+        if (
+          this.pageName === PageNames.TOPICS_TOPIC ||
+          this.pageName === PageNames.TOPICS_CHANNEL
+        ) {
+          return {
+            appBarTitle: this.coreString('browseChannel'),
+            immersivePage: true,
+            immersivePageRoute: this.$router.getRoute(PageNames.LIBRARY),
+            immersivePagePrimary: true,
+            immersivePageIcon: 'close',
+            hasSidebar: true,
+          };
+        }
         return {
           appBarTitle: this.learnString('learnLabel'),
           immersivePage: false,
@@ -256,15 +282,21 @@
           !this.immersivePageProps.immersivePage
         );
       },
+      content() {
+        let content;
+        if (this.pageName === PageNames.TOPICS_CONTENT) {
+          content = this.topicsTreeContent;
+        } else if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          content = this.lessonContent;
+        }
+        return content;
+      },
       bottomSpaceReserved() {
         if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
           return QUIZ_FOOTER;
         }
         let content;
-        if (
-          this.pageName === PageNames.TOPICS_CONTENT ||
-          this.pageName === PageNames.RECOMMENDED_CONTENT
-        ) {
+        if (this.pageName === PageNames.RECOMMENDED_CONTENT) {
           content = this.topicsTreeContent;
         } else if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
           content = this.lessonContent;
@@ -285,8 +317,27 @@
           (this.demographicInfo.gender === '' || this.demographicInfo.birth_year === '')
         );
       },
-      userPluginUrl() {
-        return urls['kolibri:kolibri.plugins.user:user'];
+      userProfilePluginUrl() {
+        return urls['kolibri:kolibri.plugins.user_profile:user_profile'];
+      },
+      learnBackPageRoute() {
+        // extract the key pieces of routing from immersive page props, but since we don't need
+        // them all, just create two alternative route paths for return/'back' navigation
+        let route = {};
+        const { searchTerm } = this.$route.query;
+        if (this.$route.query.last == PageNames.RECOMMENDED) {
+          route = this.$router.getRoute(PageNames.RECOMMENDED);
+        } else if (searchTerm) {
+          route = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
+        } else if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
+          route = this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST);
+        } else if (this.topicsTreeContent.parent) {
+          // Need to guard for parent being non-empty to avoid console errors
+          route = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
+            id: this.topicsTreeContent.parent,
+          });
+        }
+        return route;
       },
     },
     watch: {
@@ -332,8 +383,8 @@
         this.demographicInfo = null;
       },
       handleSubmitUpdateYourProfileModal() {
-        if (this.userPluginUrl) {
-          const url = `${this.userPluginUrl()}#/profile/edit?next_page=learn`;
+        if (this.userProfilePluginUrl) {
+          const url = `${this.userProfilePluginUrl()}#/profile/edit?next_page=learn`;
           const redirect = () => {
             window.location.href = url;
           };
@@ -345,7 +396,7 @@
     },
     $trs: {
       examReportTitle: {
-        message: '{examTitle} report',
+        message: 'Report for { examTitle }',
         context: 'Indicates the title of the quiz that the report corresponds to.',
       },
     },

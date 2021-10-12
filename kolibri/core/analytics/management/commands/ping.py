@@ -50,7 +50,7 @@ class Command(BaseCommand):
         once = options.get("once") or False
 
         if once:
-            started = local_now()
+            started = local_now().isoformat()
             try:
                 ping_once(started, server)
             except Exception as e:

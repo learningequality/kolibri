@@ -18,7 +18,7 @@
       gutter="16"
     >
       <KFixedGridItem span="1">
-        <Thumbnail :contentNode="contentNode" />
+        <ContentNodeThumbnail :contentNode="contentNode" />
       </KFixedGridItem>
       <KFixedGridItem
         span="1"
@@ -35,7 +35,7 @@
     </KFixedGrid>
 
     <template v-else-if="size === 'large'">
-      <Thumbnail :contentNode="contentNode" />
+      <ContentNodeThumbnail :contentNode="contentNode" />
       <ResourceLabel
         :contentNode="contentNode"
         :contentNodeRoute="contentNodeRoute"
@@ -51,7 +51,7 @@
 
 <script>
 
-  import Thumbnail from '../../Thumbnail';
+  import ContentNodeThumbnail from '../../thumbnails/ContentNodeThumbnail';
   import ResourceLabel from './ResourceLabel';
 
   /**
@@ -64,7 +64,7 @@
     name: 'ResourceItem',
     components: {
       ResourceLabel,
-      Thumbnail,
+      ContentNodeThumbnail,
     },
     props: {
       contentNode: {
