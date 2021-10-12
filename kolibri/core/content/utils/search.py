@@ -119,34 +119,6 @@ def get_all_contentnode_label_metadata():
     )
 
 
-def get_categories():
-    return get_all_contentnode_label_metadata()["categories"]
-
-
-def get_learning_activities():
-    return get_all_contentnode_label_metadata()["learning_activities"]
-
-
-def get_languages():
-    return get_all_contentnode_label_metadata()["languages"]
-
-
-def get_channels():
-    return get_all_contentnode_label_metadata()["channels"]
-
-
-def get_grade_levels():
-    return get_all_contentnode_label_metadata()["grade_levels"]
-
-
-def get_accessiblity_labels():
-    return get_all_contentnode_label_metadata()["accessibility_labels"]
-
-
-def get_learner_needs():
-    return get_all_contentnode_label_metadata()["learner_needs"]
-
-
 def annotate_label_bitmasks(queryset):
     update_statements = {}
     for field_name, label_info in bitmask_fieldnames.items():

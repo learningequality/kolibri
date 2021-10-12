@@ -7,13 +7,7 @@ from django.urls import reverse
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.auth.constants.user_kinds import LEARNER
 from kolibri.core.content.hooks import ContentNodeDisplayHook
-from kolibri.core.content.utils.search import get_accessiblity_labels
-from kolibri.core.content.utils.search import get_categories
-from kolibri.core.content.utils.search import get_channels
-from kolibri.core.content.utils.search import get_grade_levels
-from kolibri.core.content.utils.search import get_languages
-from kolibri.core.content.utils.search import get_learner_needs
-from kolibri.core.content.utils.search import get_learning_activities
+from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
 from kolibri.core.device.utils import allow_learner_unassigned_resource_access
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import is_landing_page
@@ -57,7 +51,7 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
 
     @property
     def plugin_data(self):
-        return {
+        plugin_data = {
             "allowGuestAccess": get_device_setting("allow_guest_access"),
             "allowLearnerUnassignedResourceAccess": allow_learner_unassigned_resource_access(),
             "enableCustomChannelNav": conf.OPTIONS["Learn"][
@@ -66,14 +60,9 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             "isSubsetOfUsersDevice": get_device_setting(
                 "subset_of_users_device", False
             ),
-            "categories": get_categories(),
-            "learningActivities": get_learning_activities(),
-            "languages": get_languages(),
-            "channels": get_channels(),
-            "gradeLevels": get_grade_levels(),
-            "accessibilityLabels": get_accessiblity_labels(),
-            "learnerNeeds": get_learner_needs(),
         }
+        plugin_data.update(get_all_contentnode_label_metadata())
+        return plugin_data
 
 
 @register_hook
