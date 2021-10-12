@@ -554,6 +554,8 @@ class EcosystemSingleUserTestCase(TestCase):
             sync_session.id,
             "--baseurl",
             s0_url,
+            "--user",
+            learner1.id,
             "--keep-alive",
         )
 

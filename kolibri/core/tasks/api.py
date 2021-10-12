@@ -1274,12 +1274,12 @@ def prepare_soud_sync_job(baseurl, facility_id, user_id, **kwargs):
     )
 
 
-def prepare_soud_resume_sync_job(baseurl, sync_session_id, **kwargs):
+def prepare_soud_resume_sync_job(baseurl, sync_session_id, user_id, **kwargs):
     """
     Resuming a SoUD sync requires that a normal sync has occurred and the `SyncSession` is still
     active
     """
-    return prepare_sync_job(baseurl=baseurl, id=sync_session_id, **kwargs)
+    return prepare_sync_job(baseurl=baseurl, id=sync_session_id, user=user_id, **kwargs)
 
 
 def _remoteimport(

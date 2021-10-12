@@ -16,6 +16,7 @@ from django.urls import reverse
 from django.utils.six.moves import input
 from morango.models import Certificate
 from morango.models import InstanceIDModel
+from morango.models import ScopeDefinition
 from morango.sync.controller import MorangoProfileController
 from six.moves.urllib.parse import urljoin
 
@@ -350,17 +351,32 @@ def provision_single_user_device(user_id):
     )
 
 
-def get_sync_filter(client_cert):
+def is_single_user_scoped(cert):
+    """
+    :type cert: Certificate
+    :rtype: bool
+    """
+    return cert.scope_definition_id == ScopeDefinitions.SINGLE_USER
+
+
+def get_sync_filter_scope(client_cert, user_id=None):
     """
     :type client_cert: Certificate
-    :return: Filter
+    :type user_id: str|None
+    :return: (Scope, dict)
     """
     scope = client_cert.get_scope()
+    params = json.loads(client_cert.scope_params)
 
-    if client_cert.scope_definition_id == ScopeDefinitions.SINGLE_USER:
-        return scope.read_filter
+    # when a user_id has been passed in, but the sync cert isn't a single user cert, we want to
+    # use the same filters as a single user cert would, so we manually create a scope and to use
+    # the same filters for the single user scope definition
+    if user_id is not None and not is_single_user_scoped(client_cert):
+        params.update(user_id=user_id)
+        scope_def = ScopeDefinition.objects.get(id=ScopeDefinitions.SINGLE_USER)
+        scope = scope_def.get_scope(params)
 
-    return scope.write_filter
+    return scope, params
 
 
 def run_once(f):
@@ -478,21 +494,29 @@ class MorangoSyncCommand(AsyncCommand):
         :return:
         """
         username = options.get("username")
-        (no_push, no_pull, noninteractive, no_provision, keep_alive,) = (
+        (no_push, no_pull, noninteractive, no_provision, keep_alive, user_id) = (
             options["no_push"],
             options["no_pull"],
             options["noninteractive"],
             options["no_provision"],
             options["keep_alive"],
+            options["user"],
         )
 
         client_cert = sync_session_client.sync_session.client_certificate
         register_sync_event_handlers(sync_session_client.controller)
-        client_cert_scope = client_cert.get_scope()
 
-        scope_params = json.loads(client_cert.scope_params)
+        filter_scope, scope_params = get_sync_filter_scope(client_cert, user_id=user_id)
         dataset_id = scope_params.get("dataset_id")
-        user_id = scope_params.get("user_id", None)
+        pull_filter = filter_scope.read_filter
+        push_filter = filter_scope.write_filter
+
+        # when given a user ID but the cert isn't a single user cert, we'll flip the read and write
+        # filters such that this performs a single user sync with the perspective that the instance
+        # we're syncing with is the SoUD
+        if user_id is not None and not is_single_user_scoped(client_cert):
+            pull_filter = filter_scope.write_filter
+            push_filter = filter_scope.read_filter
 
         dataset_cache.clear()
         dataset_cache.activate()
@@ -508,14 +532,14 @@ class MorangoSyncCommand(AsyncCommand):
                 self._pull(
                     sync_session_client,
                     noninteractive,
-                    client_cert_scope.read_filter,
+                    pull_filter,
                 )
                 # and push our own data to server
             if not no_push:
                 self._push(
                     sync_session_client,
                     noninteractive,
-                    client_cert_scope.write_filter,
+                    push_filter,
                 )
 
             if not no_provision:

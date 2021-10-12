@@ -209,10 +209,7 @@ def startpeerusersync(
         command = "resumesync"
         # if resuming encounters an error, it should close the session to avoid a loop
         job_data = prepare_soud_resume_sync_job(
-            server,
-            sync_session.id,
-            user=user_id,  # `peer_sync` needs user for logging and scheduling, but not `resumesync`
-            **common_job_args
+            server, sync_session.id, user_id, **common_job_args
         )
 
     # if not resuming, prepare normal job

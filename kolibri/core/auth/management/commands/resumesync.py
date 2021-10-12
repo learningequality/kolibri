@@ -32,6 +32,11 @@ class Command(MorangoSyncCommand):
             help="do not create a facility and temporary superuser",
         )
         parser.add_argument(
+            "--user",
+            type=str,
+            help="for single-user syncing, the user ID of the account to be synced",
+        )
+        parser.add_argument(
             "--keep-alive",
             action="store_true",
             help="do not close the sync session",
