@@ -269,3 +269,18 @@ kolibri_task_multiplexer_add_next(KolibriTaskMultiplexer *self,
 
   return g_steal_pointer(&next_task);
 }
+
+/**
+ * kolibri_task_multiplexer_get_next_tasks:
+ * @self: (not nullable): A #KolibriTaskMultiplexer
+ *
+ * Get the list of tasks created by #kolibri_task_multiplexer_add_next.
+ *
+ * Returns: (not nullable) (transfer none): A #GListModel containing #GTask objects.
+ *
+ */
+GListModel *
+kolibri_task_multiplexer_get_next_tasks(KolibriTaskMultiplexer *self)
+{
+  return G_LIST_MODEL(self->next_tasks);
+}

@@ -60,6 +60,8 @@ GTask *kolibri_task_multiplexer_add_next(KolibriTaskMultiplexer *self,
                                          GAsyncReadyCallback callback,
                                          gpointer callback_data);
 
+GListModel *kolibri_task_multiplexer_get_next_tasks(KolibriTaskMultiplexer *self);
+
 G_END_DECLS
 
 #endif
