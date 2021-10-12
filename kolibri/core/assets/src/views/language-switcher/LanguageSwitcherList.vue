@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <KButtonGroup style="margin-top: 8px;">
+    <KButtonGroup style="margin-top: 8px; position: relative; left: -16px;">
       <KIconButton
         icon="language"
         aria-hidden="true"
@@ -23,7 +23,7 @@
       />
 
       <KButton
-        v-if="numSelectableLanguages > numVisibleLanguages + 1"
+        v-if="numSelectableLanguages > numVisibleLanguageBtns + 1"
         :text="$tr('showMoreLanguagesSelector')"
         :primary="false"
         appearance="flat-button"
@@ -68,15 +68,15 @@
       selectedLanguage() {
         return availableLanguages[currentLanguage];
       },
-      numVisibleLanguages() {
+      numVisibleLanguageBtns() {
         // At windowBreakpoint = 0, only the "More languages" button will show
-        return this.windowBreakpoint;
+        return Math.min(4, this.windowBreakpoint);
       },
       numSelectableLanguages() {
         return this.selectableLanguages.length;
       },
       buttonLanguages() {
-        if (this.selectableLanguages.length <= this.numVisibleLanguages + 1) {
+        if (this.selectableLanguages.length <= this.numVisibleLanguageBtns + 1) {
           return this.selectableLanguages.slice().sort(compareLanguages);
         }
         return this.selectableLanguages
@@ -93,7 +93,7 @@
             }
             return compareLanguages(a, b);
           })
-          .slice(0, this.numVisibleLanguages);
+          .slice(0, this.numVisibleLanguageBtns);
       },
     },
     $trs: {

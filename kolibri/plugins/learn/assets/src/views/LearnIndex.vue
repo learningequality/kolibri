@@ -50,7 +50,7 @@
 
     <UpdateYourProfileModal
       v-if="profileNeedsUpdate"
-      :disabled="demographicInfo === null || !userPluginUrl"
+      :disabled="demographicInfo === null || !userProfilePluginUrl"
       @cancel="handleCancelUpdateYourProfileModal"
       @submit="handleSubmitUpdateYourProfileModal"
     />
@@ -317,8 +317,8 @@
           (this.demographicInfo.gender === '' || this.demographicInfo.birth_year === '')
         );
       },
-      userPluginUrl() {
-        return urls['kolibri:kolibri.plugins.user:user'];
+      userProfilePluginUrl() {
+        return urls['kolibri:kolibri.plugins.user_profile:user_profile'];
       },
       learnBackPageRoute() {
         // extract the key pieces of routing from immersive page props, but since we don't need
@@ -383,8 +383,8 @@
         this.demographicInfo = null;
       },
       handleSubmitUpdateYourProfileModal() {
-        if (this.userPluginUrl) {
-          const url = `${this.userPluginUrl()}#/profile/edit?next_page=learn`;
+        if (this.userProfilePluginUrl) {
+          const url = `${this.userProfilePluginUrl()}#/profile/edit?next_page=learn`;
           const redirect = () => {
             window.location.href = url;
           };

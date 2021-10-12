@@ -92,6 +92,7 @@ import LearnOnlyDeviceNotice from '../views/LearnOnlyDeviceNotice';
 import branding from '../utils/branding';
 import sortLanguages from '../utils/sortLanguages';
 import * as sync from '../views/sync/syncComponentSet';
+import PageRoot from '../views/PageRoot';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -193,6 +194,7 @@ export default {
       PageStatus,
       LearnOnlyDeviceNotice,
       SuggestedTime,
+      PageRoot,
     },
     componentSets: {
       sync,
