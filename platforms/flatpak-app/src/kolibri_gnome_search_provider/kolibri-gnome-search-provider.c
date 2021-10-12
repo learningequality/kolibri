@@ -287,7 +287,7 @@ activate_kolibri(const gchar  *channel_id,
 {
   g_autoptr(GDesktopAppInfo) app_info = NULL;
   g_autoptr(GUri) kolibri_uri = NULL;
-  g_autofree gchar *kolibri_uri_string = NULL;
+  g_autolist(gchar) uris_list = NULL;
 
   // We use the x-kolibri-dispatch URI scheme with kolibri-launcher, which is
   // able to launch Kolibri with a particular channel ID. Internally, it passes
@@ -297,16 +297,13 @@ activate_kolibri(const gchar  *channel_id,
   if (!build_kolibri_dispatch_uri(channel_id, item_id, query, &kolibri_uri, error))
     return FALSE;
 
-  kolibri_uri_string = g_uri_to_string(kolibri_uri);
-
   app_info = g_desktop_app_info_new(LAUNCHER_APPLICATION_ID ".desktop");
+  uris_list = g_list_append(uris_list, g_uri_to_string(kolibri_uri));
 
-  GList *uris_list = g_list_append(NULL, kolibri_uri_string);
-  gboolean result = g_app_info_launch_uris(G_APP_INFO(app_info), uris_list, NULL, error);
-
-  g_list_free(g_steal_pointer(&uris_list));
-
-  return result;
+  return g_app_info_launch_uris(G_APP_INFO(app_info),
+                                uris_list,
+                                NULL,
+                                error);
 }
 
 static gboolean

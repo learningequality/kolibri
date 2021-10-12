@@ -38,6 +38,8 @@
 
 #include <gio/gio.h>
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(gchar, g_free)
+
 gchar *kolibri_home_dir(void);
 gboolean local_kolibri_exists(void);
 void multiplex_dbus_proxy_call_async_ready_cb(GObject      *source_object,
