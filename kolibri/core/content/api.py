@@ -257,13 +257,13 @@ class ContentNodeFilter(IdFilter):
         all_words = [w for w in re.split('[?.,!";: ]', value) if w]
         # words in all_words that are not stopwords
         critical_words = [w for w in all_words if w not in stopwords_set]
-        # queries ordered by relevance priority
+        words = critical_words if critical_words else all_words
         query = union(
             [
                 # all critical words in title
-                intersection([Q(title__icontains=w) for w in critical_words]),
+                intersection([Q(title__icontains=w) for w in words]),
                 # all critical words in description
-                intersection([Q(description__icontains=w) for w in critical_words]),
+                intersection([Q(description__icontains=w) for w in words]),
             ]
         )
 
