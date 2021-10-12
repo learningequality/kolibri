@@ -20,6 +20,7 @@
     "watch-hot": "yarn run watch --hot",
     "python-devserver": "kolibri start --debug --foreground --port=8000 --settings=kolibri.deployment.default.settings.dev",
     "python-devserver-no-update": "kolibri start --debug --skip-update --foreground --port=8000 --settings=kolibri.deployment.default.settings.dev",
+    "frontend-devserver": "run-p lint-frontend:watch:format hashi-dev watch",
     "devserver": "run-p python-devserver lint-frontend:watch:format hashi-dev watch ",
     "devserver-warn": "run-p python-devserver lint-frontend:watch hashi-dev watch",
     "devserver-hot": "run-p python-devserver lint-frontend:watch:format hashi-dev watch-hot",
