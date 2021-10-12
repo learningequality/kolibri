@@ -1097,9 +1097,6 @@ def import_channel_from_local_db(channel_id, cancel_check=None):
 
     import_manager.end()
 
-    annotate_label_bitmasks(ContentNode.objects.filter(channel_id=channel_id))
-    set_channel_ancestors(channel_id)
-
     channel = ChannelMetadata.objects.get(id=channel_id)
     channel.last_updated = local_now()
     try:
@@ -1110,6 +1107,10 @@ def import_channel_from_local_db(channel_id, cancel_check=None):
         ContentNode.objects.create(
             id=node_id, title=channel.name, content_id=node_id, channel_id=channel_id
         )
+
+    annotate_label_bitmasks(ContentNode.objects.filter(channel_id=channel_id))
+    set_channel_ancestors(channel_id)
+
     channel.save()
 
     logger.info("Channel {} successfully imported into the database".format(channel_id))

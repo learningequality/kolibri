@@ -818,7 +818,7 @@ def set_channel_ancestors(channel_id):
     )
 
     # Go from the shallowest to deepest
-    for level in range(1, node_depth):
+    for level in range(1, node_depth + 1):
 
         ancestors = select(
             [

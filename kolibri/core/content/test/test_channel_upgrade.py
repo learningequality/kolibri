@@ -10,6 +10,7 @@ from le_utils.constants import format_presets
 from mock import patch
 from sqlalchemy import create_engine
 
+from kolibri.core.content.constants.kind_to_learningactivity import kind_activity_map
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -400,6 +401,8 @@ class ChannelBuilder(object):
     def contentnode_data(
         self, node_id=None, content_id=None, parent_id=None, kind=None, root=False
     ):
+        # First kind in choices is Topic, so exclude it here.
+        kind = kind or random.choice(content_kinds.choices[1:])[0]
         return {
             "options": "{}",
             "content_id": content_id or uuid4_hex(),
@@ -413,8 +416,8 @@ class ChannelBuilder(object):
             "author": "",
             "title": "Test",
             "parent_id": None if root else parent_id or uuid4_hex(),
-            # First kind in choices is Topic, so exclude it here.
-            "kind": kind or random.choice(content_kinds.choices[1:])[0],
+            "kind": kind,
+            "learning_activities": kind_activity_map.get(kind),
             "coach_content": False,
             "available": False,
         }
