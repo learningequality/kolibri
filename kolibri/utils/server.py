@@ -281,7 +281,7 @@ class ZeroConfPlugin(Monitor):
         self.port = port
         Monitor.__init__(self, bus, self.run, frequency=5)
         self.bus.subscribe("SERVING", self.SERVING)
-        self.bus.subscribe("ZEROCONF_UPDATE", self.SERVING)
+        self.bus.subscribe("UPDATE_ZEROCONF", self.UPDATE_ZEROCONF)
         self.broadcast = None
 
     def SERVING(self, port):
@@ -308,6 +308,9 @@ class ZeroConfPlugin(Monitor):
         else:
             self.broadcast.update_broadcast(instance=instance)
 
+    def UPDATE_ZEROCONF(self):
+        self.SERVING(self.port)
+
     def STOP(self):
         super(ZeroConfPlugin, self).STOP()
 
@@ -318,7 +321,7 @@ class ZeroConfPlugin(Monitor):
     def run(self):
         # If the current addresses that zeroconf is listening on does not
         # match the current set of all addresses for this device, then
-        # we should reinitialize zeroconf, the listener, and the broadcasted
+        # we should reinitialize zeroconf, the listener, and the broadcast
         # kolibri service.
         if self.broadcast is not None and self.broadcast.addresses != set(
             get_all_addresses()
@@ -477,6 +480,10 @@ class ProcessControlPlugin(Monitor):
                 self.bus.transition("EXITED")
             elif command == UPDATE_ZEROCONF:
                 self.bus.publish("UPDATE_ZEROCONF")
+                # since publish doesn't modify the bus state like `transition` does, we would keep
+                # triggering this if we didn't set modified time, so setting it means we'll wait
+                # for a new change
+                self.mtime = mtime
             else:
                 self.mtime = mtime
 

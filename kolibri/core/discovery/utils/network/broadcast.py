@@ -424,6 +424,7 @@ class KolibriBroadcast(object):
             )
         )
         service = self.instance.to_service_info()
+        service.ttl = SERVICE_TTL
         # very important to publish the event first, to avoid race conditions
         self.events.publish(EVENT_RENEW_INSTANCE, self.instance)
         self.zeroconf.update_service(service, ttl=SERVICE_TTL)
