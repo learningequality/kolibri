@@ -23,62 +23,71 @@
       <SearchBox
         key="channel-search"
         placeholder="findSomethingToLearn"
+        :value="value.keywords || ''"
+        @change="val => $emit('input', { ...value, keywords: val })"
       />
-      <h2 class="section title">
-        {{ $tr('categories') }}
-      </h2>
-      <!-- list of category metadata - clicking prompts a filter modal -->
-      <div
-        span="4"
-        class="category-list-item"
-      >
-        <KButton
-          :text="$tr('allCategories')"
-          appearance="flat-button"
-          :appearanceOverrides="customCategoryStyles"
-          @click="$emit('filterResults', value)"
-        />
+      <div v-if="Object.keys(libraryCategoriesList).length">
+        <h2 class="section title">
+          {{ $tr('categories') }}
+        </h2>
+        <!-- list of category metadata - clicking prompts a filter modal -->
+        <div
+          span="4"
+          class="category-list-item"
+        >
+          <KButton
+            :text="$tr('allCategories')"
+            appearance="flat-button"
+            :appearanceOverrides="customCategoryStyles"
+            @click="allCategories"
+          />
+        </div>
+        <div
+          v-for="(category, val) in libraryCategoriesList"
+          :key="category"
+          span="4"
+          class="category-list-item"
+        >
+          <KButton
+            :text="coreString(camelCase(category))"
+            appearance="flat-button"
+            :appearanceOverrides="customCategoryStyles"
+            :disabled="availableRootCategories && !availableRootCategories[val]"
+            iconAfter="chevronRight"
+            @click="$emit('currentCategory', category)"
+          />
+        </div>
+        <div
+          span="4"
+          class="category-list-item"
+        >
+          <KButton
+            :text="coreString('None of the above')"
+            appearance="flat-button"
+            :appearanceOverrides="customCategoryStyles"
+            @click="noCategories"
+          />
+        </div>
       </div>
-      <div
-        v-for="(value, category) in libraryCategoriesList"
-        :key="category"
-        span="4"
-        class="category-list-item"
-      >
-        <KButton
-          :text="coreString(camelCase(category))"
-          appearance="flat-button"
-          :appearanceOverrides="customCategoryStyles"
-          iconAfter="chevronRight"
-          @click="$emit('openModal', category)"
-        />
-      </div>
-      <div
-        span="4"
-        class="category-list-item"
-      >
-        <KButton
-          :text="coreString('None of the above')"
-          appearance="flat-button"
-          :appearanceOverrides="customCategoryStyles"
-          @click="$emit('filterResults', value)"
-        />
-      </div>
-      <ActivityButtonsGroup class="section" />
+      <ActivityButtonsGroup
+        :availableLabels="availableLabels"
+        class="section"
+        @input="handleActivity"
+      />
       <!-- Filter results by learning activity, displaying all options -->
-      <SelectGroup :channels="channels" class="section" />
+      <SelectGroup v-model="inputValue" :availableLabels="availableLabels" class="section" />
       <div class="section">
         <div
-          v-for="(value, activity) in resourcesNeededList"
+          v-for="(val, activity) in resourcesNeededList"
           :key="activity"
           span="4"
           alignment="center"
         >
           <KCheckbox
-            key="adHocLearners"
-            :checked="isSelected(value)"
+            :checked="value.learner_needs[val]"
             :label="coreString(activity)"
-            @change="$emit('toggleSelected', $event)"
+            :disabled="availableNeeds && !availableNeeds[val]"
+            @change="handleNeed(val)"
           />
         </div>
       </div>
@@ -91,32 +100,57 @@
 <script>
 
   import camelCase from 'lodash/camelCase';
-  import { LibraryCategories, ResourcesNeededTypes } from 'kolibri.coreVue.vuex.constants';
+  import pick from 'lodash/pick';
+  import uniq from 'lodash/uniq';
+  import {
+    AllCategories,
+    CategoriesLookup,
+    NoCategories,
+    ResourcesNeededTypes,
+  } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import SearchBox from '../SearchBox';
   import commonLearnStrings from '../commonLearnStrings';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import SelectGroup from './SelectGroup';
+  import plugin_data from 'plugin_data';
 
-  const resourcesNeededShown = [
-    'FOR_BEGINNERS',
-    'PEOPLE',
-    'PAPER_PENCIL',
-    'NEEDS_INTERNET',
-    'NEEDS_MATERIALS',
-  ];
+  const resourcesNeededShown = ['FOR_BEGINNERS', 'PEOPLE', 'PAPER_PENCIL', 'INTERNET', 'MATERIALS'];
 
   const resourcesNeeded = {};
   resourcesNeededShown.map(key => {
     const value = ResourcesNeededTypes[key];
-    if (key === 'PEOPLE') {
-      key = 'ToUseWithTeachersAndPeers';
-    } else if (key === 'PAPER_PENCIL') {
-      key = 'ToUseWithPaperAndPencil';
+    // TODO rtibbles: remove this condition
+    if (plugin_data.learnerNeeds.includes(value) || process.env.NODE_ENV !== 'production') {
+      // For some reason the string ids for these items are in PascalCase not camelCase
+      if (key === 'PEOPLE') {
+        key = 'ToUseWithTeachersAndPeers';
+      } else if (key === 'PAPER_PENCIL') {
+        key = 'ToUseWithPaperAndPencil';
+      } else if (key === 'INTERNET') {
+        key = 'NeedsInternet';
+      } else if (key === 'MATERIALS') {
+        key = 'NeedsMaterials';
+      } else if (key === 'FOR_BEGINNERS') {
+        key = 'ForBeginners';
+      }
+      resourcesNeeded[key] = value;
     }
-    // For some reason the string ids for these items are in PascalCase not camelCase
-    resourcesNeeded[key.slice(0, 1).toUpperCase() + camelCase(key).slice(1)] = value;
   });
+
+  let availableIds;
+
+  if (process.env.NODE_ENV !== 'production') {
+    // TODO rtibbles: remove this condition
+    availableIds = Object.keys(CategoriesLookup);
+  } else {
+    availableIds = plugin_data.categories;
+  }
+
+  const libraryCategories = pick(
+    CategoriesLookup,
+    uniq(availableIds.map(key => key.split('.')[0]))
+  );
 
   export default {
     name: 'EmbeddedSidePanel',
@@ -127,9 +161,26 @@
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
-      channels: {
-        type: Array,
+      value: {
+        type: Object,
         required: true,
+        validator(value) {
+          const inputKeys = [
+            'learning_activities',
+            'learner_needs',
+            'channels',
+            'accessibility_labels',
+            'languages',
+            'grade_levels',
+            'keywords',
+          ];
+          return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
+        },
+      },
+      availableLabels: {
+        type: Object,
+        required: false,
+        default: null,
       },
       topics: {
         type: Array,
@@ -151,8 +202,16 @@
       },
     },
     computed: {
+      inputValue: {
+        get() {
+          return this.value;
+        },
+        set(value) {
+          this.$emit('input', value);
+        },
+      },
       libraryCategoriesList() {
-        return LibraryCategories;
+        return libraryCategories;
       },
       resourcesNeededList() {
         return resourcesNeeded;
@@ -183,10 +242,63 @@
         }
         return null;
       },
+      availableRootCategories() {
+        if (this.availableLabels) {
+          const roots = {};
+          for (let key of this.availableLabels.categories) {
+            const root = key.split('.')[0];
+            roots[root] = true;
+          }
+          return roots;
+        }
+        return null;
+      },
+      availableNeeds() {
+        if (this.availableLabels) {
+          const needs = {};
+          for (let key of this.availableLabels.learner_needs) {
+            const root = key.split('.')[0];
+            needs[root] = true;
+            needs[key] = true;
+          }
+          return needs;
+        }
+        return null;
+      },
     },
     methods: {
-      isSelected(value) {
-        return value === 'ForBeginners' ? false : true;
+      allCategories() {
+        this.$emit('input', { ...this.value, categories: { [AllCategories]: true } });
+      },
+      noCategories() {
+        this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
+      },
+      handleActivity(activity) {
+        let learning_activities;
+        if (activity) {
+          learning_activities = {
+            [activity]: true,
+          };
+        } else {
+          learning_activities = {};
+        }
+        this.$emit('input', { ...this.value, learning_activities });
+      },
+      handleNeed(need) {
+        if (this.value.learner_needs[need]) {
+          const learner_needs = {};
+          for (let n in this.value.learner_needs) {
+            if (n !== need) {
+              learner_needs[n] = true;
+            }
+          }
+          this.$emit('input', { ...this.value, learner_needs });
+        } else {
+          this.$emit('input', {
+            ...this.value,
+            learner_needs: { ...this.value.learner_needs, [need]: true },
+          });
+        }
       },
       camelCase(val) {
         return camelCase(val);

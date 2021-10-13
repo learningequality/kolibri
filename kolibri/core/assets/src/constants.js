@@ -8,6 +8,7 @@ export { default as AccessibilityCategories } from 'kolibri-constants/labels/Acc
 // Used to categorize the level or audience of content
 export { default as ContentLevels } from 'kolibri-constants/labels/Levels';
 export { default as ResourcesNeededTypes } from 'kolibri-constants/labels/Needs';
+export { default as Categories } from 'kolibri-constants/labels/Subjects';
 
 export const UserKinds = {
   ADMIN: 'admin',
@@ -50,30 +51,11 @@ export const ContentKindsToLearningActivitiesMap = {
   topic: 'folder',
 };
 
-// Resource library categories and subcategoriess
-export const LibraryCategories = {};
+export const CategoriesLookup = invert(Subjects);
 
-const subjectLookup = invert(Subjects);
+export const AllCategories = 'all_categories';
 
-for (let subjectKey of Object.entries(Subjects)
-  .sort((a, b) => a[0].length - b[0].length)
-  .map(a => a[0])) {
-  const ids = Subjects[subjectKey].split('.');
-  let path = '';
-  let nested = LibraryCategories;
-  for (let fragment of ids) {
-    path += fragment;
-    const nestedKey = subjectLookup[path];
-    if (!nested[nestedKey]) {
-      nested[nestedKey] = {
-        value: path,
-        nested: {},
-      };
-    }
-    nested = nested[nestedKey].nested;
-    path += '.';
-  }
-}
+export const NoCategories = 'no_categories';
 
 // used internally on the client as a hack to allow content-icons to display users
 export const USER = 'user';

@@ -6,9 +6,10 @@
     >
       <EmbeddedSidePanel
         v-if="!!windowIsLarge"
-        :channels="channels"
+        v-model="searchTerms"
+        :availableLabels="labels"
         width="3"
-        @openModal="handleShowSearchModal"
+        @currentCategory="handleShowSearchModal"
       />
       <KGridItem
         :layout="{ span: 3 }"
@@ -51,21 +52,44 @@
           />
         </div>
         <div v-else>
-          <h2>{{ $tr('moreThanXResults') }}</h2>
-          <p>{{ $tr('clearAll') }}</p>
           <KCircularLoader
-            v-if="loading"
+            v-if="searchLoading"
             class="loader"
             type="indeterminate"
             :delay="false"
           />
+          <div v-else>
+            <h2>{{ $tr('results', { results: results.length }) }}</h2>
+            <KButton
+              v-if="more"
+              :text="coreString('viewMoreAction')"
+              :primary="false"
+              :disabled="moreLoading"
+              @click="searchMore"
+            />
+            <p>{{ $tr('clearAll') }}</p>
+            <ContentCardGroupGrid
+              v-if="results.length"
+              :cardViewStyle="currentViewStyle"
+              :genContentLink="genContentLink"
+              :contents="results"
+            />
+            <KButton
+              v-if="more"
+              :text="coreString('viewMoreAction')"
+              :primary="false"
+              :disabled="moreLoading"
+              @click="searchMore"
+            />
+          </div>
         </div>
       </KGridItem>
     </KGrid>
     <CategorySearchModal
-      v-if="showSearchModal"
+      v-if="currentCategory"
       :selectedCategory="currentCategory"
-      @cancel="hideSearchModal"
+      @cancel="currentCategory = null"
+      @input="handleCategory"
     />
   </div>
 
@@ -78,9 +102,9 @@
   import uniq from 'lodash/uniq';
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { ContentNodeProgressResource } from 'kolibri.resources';
+  import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import languageSwitcherMixin from '../../../../../core/assets/src/views/language-switcher/mixin.js';
+  import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
@@ -90,6 +114,16 @@
 
   const mobileCarouselLimit = 3;
   const desktopCarouselLimit = 15;
+
+  const searchKeys = [
+    'learning_activities',
+    'categories',
+    'learner_needs',
+    'channels',
+    'accessibility_labels',
+    'languages',
+    'grade_levels',
+  ];
 
   export default {
     name: 'LibraryPage',
@@ -104,12 +138,16 @@
       EmbeddedSidePanel,
       CategorySearchModal,
     },
-    mixins: [commonLearnStrings, commonCoreStrings, languageSwitcherMixin, responsiveWindowMixin],
+    mixins: [commonLearnStrings, commonCoreStrings, responsiveWindowMixin],
     data: function() {
       return {
-        showSearchModal: null,
-        currentCategory: '',
         currentViewStyle: 'card',
+        currentCategory: null,
+        searchLoading: true,
+        moreLoading: false,
+        results: [],
+        more: null,
+        labels: null,
       };
     },
     computed: {
@@ -140,11 +178,54 @@
       trimmedResume() {
         return this.resume.slice(0, this.carouselLimit);
       },
+      searchTerms: {
+        get() {
+          const searchTerms = {};
+          for (let key of searchKeys) {
+            const obj = {};
+            if (this.$route.query[key]) {
+              for (let value of this.$route.query[key].split(',')) {
+                obj[value] = true;
+              }
+            }
+            searchTerms[key] = obj;
+          }
+          if (this.$route.query.keywords) {
+            searchTerms.keywords = this.$route.query.keywords;
+          }
+          return searchTerms;
+        },
+        set(value) {
+          const query = { ...this.$route.query };
+          for (let key of searchKeys) {
+            const val = Object.keys(value[key])
+              .filter(Boolean)
+              .join(',');
+            if (val.length) {
+              query[key] = Object.keys(value[key]).join(',');
+            } else {
+              delete query[key];
+            }
+          }
+          if (value.keywords && value.keywords.length) {
+            query.keywords = value.keywords;
+          } else {
+            delete query.keywords;
+          }
+          this.$router.push({ ...this.$route, query });
+        },
+      },
       displayingSearchResults() {
-        return false;
+        return Object.values(this.searchTerms).some(v => Object.keys(v).length);
+      },
+    },
+    watch: {
+      searchTerms() {
+        this.search();
       },
     },
     created() {
+      this.search();
       if (this.$store.getters.isUserLoggedIn) {
         const contentNodeIds = uniq(
           [...this.trimmedNextSteps, ...this.trimmedPopular, ...this.trimmedResume].map(
@@ -177,16 +258,56 @@
           params: { channel_id },
         };
       },
-      handleShowSearchModal(value) {
-        this.currentCategory = value;
-        this.showSearchModal = true;
-      },
-      hideSearchModal() {
-        this.showSearchModal = false;
-      },
-
       toggleCardView(value) {
         this.currentViewStyle = value;
+      },
+      handleShowSearchModal(currentCategory) {
+        this.currentCategory = currentCategory;
+      },
+      handleCategory(category) {
+        this.searchTerms = { ...this.searchTerms, categories: { [category]: true } };
+        this.currentCategory = null;
+      },
+      search() {
+        if (this.displayingSearchResults) {
+          this.searchLoading = true;
+          const getParams = { max_results: 25 };
+          for (let key of searchKeys) {
+            if (key === 'categories') {
+              if (this.searchTerms[key][AllCategories]) {
+                getParams['categories__isnull'] = false;
+                break;
+              } else if (this.searchTerms[key][NoCategories]) {
+                getParams['categories__isnull'] = true;
+                break;
+              }
+            }
+            const keys = Object.keys(this.searchTerms[key]);
+            if (keys.length) {
+              getParams[key] = keys;
+            }
+          }
+          if (this.searchTerms.keywords) {
+            getParams.keywords = this.searchTerms.keywords;
+          }
+          ContentNodeResource.fetchCollection({ getParams }).then(data => {
+            this.results = data.results;
+            this.more = data.more;
+            this.labels = data.labels;
+            this.searchLoading = false;
+          });
+        }
+      },
+      searchMore() {
+        if (this.displayingSearchResults && this.more && !this.moreLoading) {
+          this.moreLoading = true;
+          ContentNodeResource.fetchCollection({ getParams: this.more }).then(data => {
+            this.results.push(...data.results);
+            this.more = data.more;
+            this.labels = data.labels;
+            this.moreLoading = false;
+          });
+        }
       },
     },
     $trs: {

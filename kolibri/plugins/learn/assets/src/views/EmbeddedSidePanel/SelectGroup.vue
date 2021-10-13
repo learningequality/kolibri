@@ -2,29 +2,36 @@
 
   <div>
     <KSelect
+      v-if="languageOptionsList.length"
       :options="languageOptionsList"
       class="selector"
       :value="selectedLanguage"
       :label="coreString('languageLabel')"
+      @change="val => handleChange('languages', val)"
     />
     <KSelect
+      v-if="contentLevelsList.length"
       :options="contentLevelsList"
       class="selector"
       :value="selectedLevel"
       :label="coreString('levelLabel')"
+      @change="val => handleChange('grade_levels', val)"
     />
     <KSelect
-      v-if="channels"
+      v-if="channelOptionsList.length"
       :options="channelOptionsList"
       class="selector"
       :value="selectedChannel"
       :label="coreString('channelLabel')"
+      @change="val => handleChange('channels', val)"
     />
     <KSelect
+      v-if="accessibilityOptionsList.length"
       :options="accessibilityOptionsList"
       class="selector"
       :value="selectedAccessibilityFilter"
       :label="coreString('accessibility')"
+      @change="val => handleChange('accessibility_labels', val)"
     />
   </div>
 
@@ -36,41 +43,64 @@
   import camelCase from 'lodash/camelCase';
   import { ContentLevels, AccessibilityCategories } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import languageSwitcherMixin from '../../../../../../core/assets/src/views/language-switcher/mixin.js';
+  import plugin_data from 'plugin_data';
+
+  const contentLevelsList = Object.keys(ContentLevels).filter(key => {
+    const value = ContentLevels[key];
+    // TODO rtibbles: remove this condition
+    return plugin_data.gradeLevels.includes(value) || process.env.NODE_ENV !== 'production';
+  });
+
+  const accessibilityOptionsList = Object.keys(AccessibilityCategories).filter(key => {
+    const value = AccessibilityCategories[key];
+    // TODO rtibbles: remove this condition
+    return plugin_data.accessibilityLabels.includes(value) || process.env.NODE_ENV !== 'production';
+  });
 
   export default {
     name: 'SelectGroup',
-    mixins: [languageSwitcherMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
     props: {
-      channels: {
-        type: Array,
+      value: {
+        type: Object,
         required: true,
+        validator(value) {
+          const inputKeys = ['channels', 'accessibility_labels', 'languages', 'grade_levels'];
+          return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
+        },
+      },
+      availableLabels: {
+        type: Object,
+        required: false,
+        default: null,
       },
     },
     computed: {
       languageOptionsList() {
-        let options = [];
-        this.languageOptions.forEach(language => {
-          options.push({
+        return plugin_data.languages.map(language => {
+          return {
             value: language.id,
+            disabled:
+              this.availableLabels &&
+              !this.availableLabels.languages.find(l => l.id === language.id),
             label: language.lang_name,
-          });
+          };
         });
-        return options;
       },
       accessibilityOptionsList() {
-        let options = [];
-        Object.keys(AccessibilityCategories).map(key => {
-          options.push({
-            value: AccessibilityCategories[key],
+        return accessibilityOptionsList.map(key => {
+          const value = AccessibilityCategories[key];
+          return {
+            value,
+            disabled:
+              this.availableLabels && !this.availableLabels.accessibility_labels.includes(value),
             label: this.coreString(camelCase(key)),
-          });
+          };
         });
-        return options;
       },
       contentLevelsList() {
-        let options = [];
-        Object.keys(ContentLevels).map(key => {
+        return contentLevelsList.map(key => {
+          const value = ContentLevels[key];
           let translationKey;
           if (key === 'PROFESSIONAL') {
             translationKey = 'specializedProfessionalTraining';
@@ -81,34 +111,43 @@
           } else {
             translationKey = camelCase(key);
           }
-          options.push({
-            value: ContentLevels[key],
+          return {
+            value,
+            disabled: this.availableLabels && !this.availableLabels.grade_levels.includes(value),
             label: this.coreString(translationKey),
-          });
+          };
         });
-        return options;
       },
       channelOptionsList() {
-        let options = [];
-        this.channels.forEach(channel => {
-          options.push({
-            value: channel.id,
-            label: channel.title,
-          });
-        });
-        return options;
+        return plugin_data.channels.map(channel => ({
+          value: channel.id,
+          disabled:
+            this.availableLabels && !this.availableLabels.channels.find(c => c.id === channel.id),
+          label: channel.name,
+        }));
       },
       selectedLanguage() {
-        return this.languageOptionsList.find(o => o.value === this.value) || {};
+        const langId = Object.keys(this.value.languages)[0];
+        return this.languageOptionsList.find(o => o.value === langId) || {};
       },
       selectedAccessibilityFilter() {
-        return this.accessibilityOptionsList.find(o => o.value === this.value) || {};
+        const accessId = Object.keys(this.value.accessibility_labels)[0];
+        return this.accessibilityOptionsList.find(o => o.value === accessId) || {};
       },
       selectedLevel() {
-        return this.contentLevelsList.find(o => o.value === this.value) || {};
+        const levelId = Object.keys(this.value.grade_levels)[0];
+        return this.contentLevelsList.find(o => o.value === levelId) || {};
       },
       selectedChannel() {
-        return this.channelOptionsList.find(o => o.value === this.value) || {};
+        const channelId = Object.keys(this.value.channels)[0];
+        return this.channelOptionsList.find(o => o.value === channelId) || {};
+      },
+    },
+    methods: {
+      handleChange(field, value) {
+        if (value && value.value) {
+          this.$emit('input', { ...this.value, [field]: { [value.value]: true } });
+        }
       },
     },
   };

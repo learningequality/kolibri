@@ -14,6 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import DatabaseError
 
 from kolibri.core.content.apps import KolibriContentConfig
+from kolibri.core.content.constants.kind_to_learningactivity import kind_activity_map
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.annotation import set_content_visibility_from_disk
@@ -23,6 +24,7 @@ from kolibri.core.content.utils.channel_import import InvalidSchemaVersionError
 from kolibri.core.content.utils.channels import get_channel_ids_for_content_dirs
 from kolibri.core.content.utils.paths import get_all_content_dir_paths
 from kolibri.core.content.utils.paths import get_content_database_file_path
+from kolibri.core.content.utils.search import update_all_contentnode_label_metadata
 from kolibri.core.content.utils.sqlalchemybridge import Bridge
 from kolibri.core.content.utils.tree import get_channel_node_depth
 from kolibri.core.upgrade import version_upgrade
@@ -280,3 +282,18 @@ def update_on_device_resources():
     trans.commit()
 
     bridge.end()
+
+
+# This was introduced in 0.15.0, so only annotate
+# when upgrading from versions prior to this.
+@version_upgrade(old_version="<0.15.0")
+def map_kind_to_learning_activities():
+    """
+    Function to set learning_activities on all ContentNodes to account for
+    those that were imported before the content import machinery handled the mapping
+    """
+    for kind, learning_activity in kind_activity_map.items():
+        ContentNode.objects.filter(kind=kind).update(
+            learning_activities=learning_activity
+        )
+    update_all_contentnode_label_metadata()

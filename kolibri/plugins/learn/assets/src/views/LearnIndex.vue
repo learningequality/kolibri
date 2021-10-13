@@ -75,7 +75,6 @@
   import ContentPage from './ContentPage';
   import ContentUnavailablePage from './ContentUnavailablePage';
   import Breadcrumbs from './Breadcrumbs';
-  import SearchPage from './SearchPage';
   import LearnImmersiveLayout from './LearnImmersiveLayout';
   import ExamPage from './ExamPage';
   import ExamReportViewer from './LearnExamReportViewer';
@@ -96,7 +95,6 @@
     [PageNames.TOPICS_TOPIC]: TopicsPage,
     [PageNames.TOPICS_CONTENT]: ContentPage,
     [PageNames.CONTENT_UNAVAILABLE]: ContentUnavailablePage,
-    [PageNames.SEARCH]: SearchPage,
     [PageNames.BOOKMARKS]: BookmarkPage,
     [ClassesPageNames.EXAM_VIEWER]: ExamPage,
     [ClassesPageNames.EXAM_REPORT_VIEWER]: ExamReportViewer,
