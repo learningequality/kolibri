@@ -348,28 +348,44 @@ kolibri_gnome_search_provider_get_search_multiplexer(KolibriGnomeSearchProvider 
 }
 
 static gboolean
-item_id_is_in_channel(const gchar *item_id,
-                      const gchar *channel_id)
+filter_item_id_for_channel(const gchar        *item_id,
+                           const gchar        *channel_id,
+                           const gchar* const *exclude_channel_ids)
 {
   g_autofree gchar *node_path = NULL;
   g_autofree gchar *node_kind = NULL;
   g_autofree gchar *node_id = NULL;
   g_autofree gchar *node_context = NULL;
 
-  parse_item_id(item_id, &node_path, &node_context, NULL);
-  parse_node_path(node_path, &node_kind, &node_id, NULL);
-
-  // Channel root nodes should not appear as inside a channel.
-  if (node_id == NULL || g_strcmp0(node_id, channel_id) == 0)
+  if (!parse_item_id(item_id, &node_path, &node_context, NULL))
     return FALSE;
 
-  return node_context != NULL && g_strcmp0(node_context, channel_id) == 0;
+  if (!parse_node_path(node_path, &node_kind, &node_id, NULL))
+    return FALSE;
+
+  gboolean is_channel_root = g_strcmp0(node_id, node_context) == 0;
+
+  if (channel_id != NULL)
+    // In a channel-specific search provider, an item_id matches if its context
+    // string matches channel_id, unless it is the channel root node.
+    return g_strcmp0(node_context, channel_id) == 0 && !is_channel_root;
+  else if (exclude_channel_ids == NULL)
+    // For the default search provider, anything matches...
+    return TRUE;
+  else
+    // Unless its context string is listed in exclude_channel_ids.
+    // Note that this can include root nodes by adding `|| is_channel_root`.
+    // We choose not to because channels in exclude_channel_ids will likely
+    // appear as applications in this situation, so listing them under Kolibri's
+    // search provider would be redundant.
+    return !g_strv_contains(exclude_channel_ids, node_context);
 }
 
 static gsize
-filter_item_ids(const GStrv  all_item_ids,
-                const gchar *channel_id,
-                GStrv       *out_item_ids)
+filter_item_ids(const GStrv all_item_ids,
+                const gchar        *channel_id,
+                const gchar* const *exclude_channel_ids,
+                GStrv              *out_item_ids)
 {
   g_autoptr(GStrvBuilder) strv_builder = g_strv_builder_new();
 
@@ -379,24 +395,43 @@ filter_item_ids(const GStrv  all_item_ids,
     {
       const gchar *item_id = all_item_ids[n];
 
-      if (channel_id == NULL || item_id_is_in_channel(item_id, channel_id))
+      if (filter_item_id_for_channel(item_id, channel_id, exclude_channel_ids))
         g_strv_builder_add(strv_builder, item_id);
     }
 
   *out_item_ids = g_strv_builder_end(strv_builder);
-
   return g_strv_length(*out_item_ids);
 }
 
+static gsize
+get_channel_ids_for_invocation_tasks(GListModel *invocation_tasks, GStrv *out_channel_ids)
+{
+  g_autoptr(GStrvBuilder) strv_builder = g_strv_builder_new();
+
+  for (guint n = 0; n < g_list_model_get_n_items(invocation_tasks); n++)
+    {
+      g_autoptr(GTask) task = g_list_model_get_item(invocation_tasks, n);
+      GDBusMethodInvocation *invocation = G_DBUS_METHOD_INVOCATION(g_task_get_source_object(task));
+      const gchar *channel_id = get_channel_id_for_invocation(invocation);
+      if (channel_id != NULL)
+        g_strv_builder_add(strv_builder, channel_id);
+    }
+
+  *out_channel_ids = g_strv_builder_end(strv_builder);
+  return g_strv_length(*out_channel_ids);
+}
+
 static gboolean
-process_search_invocation_task_result(GDBusMethodInvocation  *invocation,
-                                      GTask                  *task,
-                                      GStrv                  *out_item_ids,
-                                      GError                **error)
+process_search_invocation_task_result(KolibriTaskMultiplexer  *search_multiplexer,
+                                      GDBusMethodInvocation   *invocation,
+                                      GTask                   *task,
+                                      GStrv                   *out_item_ids,
+                                      GError                 **error)
 {
   g_autoptr(GVariant) result_variant = NULL;
   g_autofree gchar *channel_id = NULL;
 
+  g_auto(GStrv) exclude_channel_ids = NULL;
   g_auto(GStrv) all_item_ids = NULL;
 
   result_variant = g_task_propagate_pointer(task, error);
@@ -404,10 +439,20 @@ process_search_invocation_task_result(GDBusMethodInvocation  *invocation,
   if (result_variant == NULL)
     return FALSE;
 
+  g_variant_get(result_variant, "(^as)", &all_item_ids);
+
   channel_id = get_channel_id_for_invocation(invocation);
 
-  g_variant_get(result_variant, "(^as)", &all_item_ids);
-  filter_item_ids(all_item_ids, channel_id, out_item_ids);
+  if (channel_id == NULL)
+    {
+      GListModel *all_tasks = kolibri_task_multiplexer_get_next_tasks(search_multiplexer);
+      get_channel_ids_for_invocation_tasks(all_tasks, &exclude_channel_ids);
+    }
+
+  filter_item_ids(all_item_ids,
+                  channel_id,
+                  (const gchar* const*)exclude_channel_ids,
+                  out_item_ids);
 
   return TRUE;
 }
@@ -419,18 +464,18 @@ search_multiplexer_to_get_item_ids_invocation_async_ready_cb(GObject      *sourc
 {
   GDBusMethodInvocation *invocation = G_DBUS_METHOD_INVOCATION(source_object);
   GTask *task = G_TASK(res);
-  ShellSearchProvider2 *search_provider = SHELL_SEARCH_PROVIDER2(user_data);
+  KolibriGnomeSearchProvider *self = KOLIBRI_GNOME_SEARCH_PROVIDER(user_data);
 
   g_autoptr(GError) error = NULL;
   g_auto(GStrv) filtered_item_ids = NULL;
 
-  if (!process_search_invocation_task_result(invocation, task, &filtered_item_ids, &error))
+  if (!process_search_invocation_task_result(self->search_multiplexer, invocation, task, &filtered_item_ids, &error))
     {
       g_dbus_method_invocation_return_gerror(invocation, error);
       return;
     }
 
-  shell_search_provider2_complete_get_initial_result_set(search_provider,
+  shell_search_provider2_complete_get_initial_result_set(self->search_provider_skeleton,
                                                          invocation,
                                                          (const gchar *const *)filtered_item_ids);
 }
@@ -442,18 +487,18 @@ search_multiplexer_to_get_subsearch_result_set_invocation_async_ready_cb(GObject
 {
   GDBusMethodInvocation *invocation = G_DBUS_METHOD_INVOCATION(source_object);
   GTask *task = G_TASK(res);
-  ShellSearchProvider2 *search_provider = SHELL_SEARCH_PROVIDER2(user_data);
+  KolibriGnomeSearchProvider *self = KOLIBRI_GNOME_SEARCH_PROVIDER(user_data);
 
   g_autoptr(GError) error = NULL;
   g_auto(GStrv) filtered_item_ids = NULL;
 
-  if (!process_search_invocation_task_result(invocation, task, &filtered_item_ids, &error))
+  if (!process_search_invocation_task_result(self->search_multiplexer, invocation, task, &filtered_item_ids, &error))
     {
       g_dbus_method_invocation_return_gerror(invocation, error);
       return;
     }
 
-  shell_search_provider2_complete_get_subsearch_result_set(search_provider,
+  shell_search_provider2_complete_get_subsearch_result_set(self->search_provider_skeleton,
                                                            invocation,
                                                            (const gchar *const *)filtered_item_ids);
 }
@@ -465,6 +510,7 @@ create_search_task(KolibriGnomeSearchProvider *self,
                    GAsyncReadyCallback ready_cb)
 {
   KolibriTaskMultiplexer* search_multiplexer = NULL;
+
   g_autoptr(GTask) task = NULL;
   g_autofree gchar *query = g_strjoinv(" ", terms);
 
@@ -475,7 +521,7 @@ create_search_task(KolibriGnomeSearchProvider *self,
   task = kolibri_task_multiplexer_add_next(search_multiplexer,
                                            G_OBJECT(invocation),
                                            ready_cb,
-                                           self->search_provider_skeleton);
+                                           self);
 
   if (search_multiplexer_is_new)
     kolibri_daemon_call_get_item_ids_for_search(self->kolibri_daemon,
