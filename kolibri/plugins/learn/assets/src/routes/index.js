@@ -56,7 +56,11 @@ export default [
       }
       return store.dispatch('loading').then(() => {
         return Promise.all(promises)
-          .then(() => {
+          .then(([channels]) => {
+            if (!channels || !channels.length) {
+              router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+              return;
+            }
             store.commit('SET_PAGE_NAME', PageNames.HOME);
             store.dispatch('notLoading');
           })
