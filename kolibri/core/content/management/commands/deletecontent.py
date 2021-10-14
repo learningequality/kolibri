@@ -2,10 +2,8 @@ import logging
 import os
 
 from django.core.management.base import CommandError
-from django.db.models import Sum
 
 from kolibri.core.content.models import ChannelMetadata
-from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import propagate_forced_localfile_removal
 from kolibri.core.content.utils.annotation import reannotate_all_channels
