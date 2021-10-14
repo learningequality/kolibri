@@ -94,7 +94,12 @@
       getChannelLink(channel) {
         return {
           name: PageNames.TOPICS_CHANNEL,
-          params: { channel_id: channel.id },
+          params: {
+            channel_id: channel.id,
+          },
+          query: {
+            last: PageNames.HOME,
+          },
         };
       },
     },
