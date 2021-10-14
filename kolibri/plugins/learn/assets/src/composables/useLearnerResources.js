@@ -333,7 +333,7 @@ export default function useLearnerResources() {
    */
   function fetchResumableContentNodes() {
     return ContentNodeResource.fetchResume().then(contentNodes => {
-      if (!contentNodes) {
+      if (!contentNodes || !contentNodes.length) {
         return [];
       }
       set(_resumableContentNodes, contentNodes);
