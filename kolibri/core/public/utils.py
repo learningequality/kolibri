@@ -14,6 +14,7 @@ from morango.models import InstanceIDModel
 from morango.models import SyncSession
 from requests.exceptions import ConnectionError
 from rest_framework import status
+from six.moves.urllib.parse import urljoin
 
 import kolibri
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
@@ -244,7 +245,7 @@ def begin_request_soud_sync(server, user):
     info = get_device_info()
     if not info["subset_of_users_device"]:
         # this does not make sense unless this is a SoUD
-        logger.warn("Only Subsets of Users Devices can do automated SoUD syncing.")
+        logger.warning("Only Subsets of Users Devices can do automated SoUD syncing.")
         return
     users = UserSyncStatus.objects.filter(user_id=user).values(
         "queued", "sync_session__last_activity_timestamp"
@@ -296,7 +297,7 @@ def stop_request_soud_sync(server, user):
     info = get_device_info()
     if not info["subset_of_users_device"]:
         # this does not make sense unless this is a SoUD
-        logger.warn("Only Subsets of Users Devices can do this")
+        logger.warning("Only Subsets of Users Devices can do this")
         return
 
     # close active sync session
@@ -315,10 +316,12 @@ def request_soud_sync(server, user, queue_id=None, ttl=4):
         endpoint = reverse("kolibri:core:syncqueue-list")
     else:
         endpoint = reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue_id})
-    server_url = "{server}{endpoint}".format(server=server, endpoint=endpoint)
+
+    server_url = urljoin(server, endpoint)
 
     instance_model = InstanceIDModel.get_or_create_current_instance()[0]
 
+    logger.debug("Requesting SoUD sync for user {} and server {}".format(user, server))
     try:
         data = {"user": user, "instance": instance_model.id}
         if queue_id is None:
@@ -351,13 +354,13 @@ def request_soud_sync(server, user, queue_id=None, ttl=4):
         dt = datetime.timedelta(seconds=interval)
         scheduler.enqueue_in(dt, job)
         if queue_id:
-            logger.warn(
+            logger.warning(
                 "Connection error connecting to server {} for user {}, for queue id {}. Trying to connect in {} seconds".format(
                     server, user, queue_id, interval
                 )
             )
         else:
-            logger.warn(
+            logger.warning(
                 "Connection error connecting to server {} for user {}. Trying to connect in {} seconds".format(
                     server, user, interval
                 )
@@ -365,10 +368,21 @@ def request_soud_sync(server, user, queue_id=None, ttl=4):
         return
 
     if response.status_code == status.HTTP_404_NOT_FOUND:
+        logger.debug(
+            "User {} was not found requesting SoUD sync from server {}".format(
+                user, server
+            )
+        )
         return  # Request done to a server not owning this user's data
 
     if response.status_code == status.HTTP_200_OK:
         handle_server_sync_response(response, server, user)
+    else:
+        logger.warning(
+            "{} response for user {} SoUD sync request to server {} | {}".format(
+                response.status_code, user, server, response.content
+            )
+        )
 
 
 def handle_server_sync_response(response, server, user):
