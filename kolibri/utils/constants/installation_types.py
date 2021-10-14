@@ -8,6 +8,7 @@ APT = "apt"
 KOLIBRI_SERVER = "kolibri-server"
 MACOS = "Mac"
 PEX = "pex"
+UWSGI = "uwsgi"
 WHL = "whl"
 WINDOWS = "Windows"
 
@@ -17,6 +18,7 @@ install_type_map = {
     KOLIBRI_SERVER: "kolibri(apt) with kolibri_server",
     MACOS: "MacOS Installer",
     PEX: "PEX file",
+    UWSGI: "UWSGI process",
     WHL: "WHL Python package",
     WINDOWS: "Windows Installer",
 }
