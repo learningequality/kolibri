@@ -25,6 +25,7 @@ from zeroconf import get_all_addresses
 from zeroconf import InterfaceChoice
 
 import kolibri
+from .constants.installation_types import install_type_map
 from .system import become_daemon
 from .system import pid_exists
 from kolibri.utils import conf
@@ -919,6 +920,12 @@ def installation_type(cmd_line=None):  # noqa:C901
 
     :returns: install_type is the type of detected installation
     """
+
+    installation_type_env = os.environ.get("KOLIBRI_INSTALLATION_TYPE", None)
+    if installation_type_env is not None:
+        if installation_type_env in install_type_map:
+            return install_type_map[installation_type_env]
+
     if cmd_line is None:
         cmd_line = sys.argv
     install_type = "Unknown"
