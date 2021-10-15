@@ -361,6 +361,13 @@
     right: 16px;
     bottom: 16px;
     display: inline;
+    .button {
+      width: 32px !important;
+      height: 32px !important;
+      /deep/ svg {
+        top: 4px !important;
+      }
+    }
   }
 
   .k-linear-loader {

@@ -89,13 +89,13 @@
           });
         }
       },
-      removeFromBookmarks(bookmark, index) {
+      removeFromBookmarks(bookmark) {
         if (bookmark) {
           client({
             method: 'delete',
             url: urls['kolibri:core:bookmarks_detail'](bookmark.id),
           }).then(() => {
-            this.bookmarks.pop(index);
+            this.bookmarks = this.bookmarks.filter(bm => bm.bookmark.id !== bookmark.id);
             this.createSnackbar(this.$tr('removedNotification'));
           });
         }
