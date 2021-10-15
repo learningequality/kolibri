@@ -1,3 +1,4 @@
+# flake8: noqa: F401
 from kolibri.deployment.default.settings.base import *
 
 # TODO: Load SECRET_KEY from a file in $KOLIBRI_HOME
