@@ -112,7 +112,7 @@ class ContentSessionLog(BaseLogModel):
     user = models.ForeignKey(FacilityUser, blank=True, null=True)
     content_id = UUIDField(db_index=True)
     visitor_id = models.UUIDField(blank=True, null=True)
-    channel_id = UUIDField()
+    channel_id = UUIDField(blank=True, null=True)
     start_timestamp = DateTimeTzField()
     end_timestamp = DateTimeTzField(blank=True, null=True)
     time_spent = models.FloatField(
@@ -140,7 +140,7 @@ class ContentSummaryLog(BaseLogModel):
 
     user = models.ForeignKey(FacilityUser)
     content_id = UUIDField(db_index=True)
-    channel_id = UUIDField()
+    channel_id = UUIDField(blank=True, null=True)
     start_timestamp = DateTimeTzField()
     end_timestamp = DateTimeTzField(blank=True, null=True)
     completion_timestamp = DateTimeTzField(blank=True, null=True)
@@ -236,9 +236,9 @@ class MasteryLog(BaseLogModel):
     end_timestamp = DateTimeTzField(blank=True, null=True)
     completion_timestamp = DateTimeTzField(blank=True, null=True)
     # The integer mastery level that this log is tracking.
-    mastery_level = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
-    )
+    # A random negative integer is used to disambiguate unique quiz attempts
+    # exercise attempts use incrementing integers starting at 1.
+    mastery_level = models.IntegerField()
     # Has this mastery level been completed?
     complete = models.BooleanField(default=False)
 
