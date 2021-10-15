@@ -19,14 +19,6 @@ KOLIBRI_APP_DEVELOPER_EXTRAS = os.environ.get(
     profile_environ_prefix + "APP_DEVELOPER_EXTRAS"
 )
 
-KOLIBRI_USE_SYSTEM_INSTANCE = bool(
-    os.environ.get(profile_environ_prefix + "USE_SYSTEM_INSTANCE")
-)
-
-KOLIBRI_FORCE_USE_SYSTEM_INSTANCE = bool(
-    os.environ.get(profile_environ_prefix + "FORCE_USE_SYSTEM_INSTANCE")
-)
-
 XDG_CURRENT_DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")
 
 # Logic for KOLIBRI_HOME is from kolibri.utils.conf. We avoid importing it from
@@ -36,9 +28,6 @@ if "KOLIBRI_HOME" in os.environ:
     KOLIBRI_HOME_PATH = Path(os.environ["KOLIBRI_HOME"]).expanduser().absolute()
 else:
     KOLIBRI_HOME_PATH = DEFAULT_KOLIBRI_HOME_PATH
-
-# Files that are considered indicative of a working Kolibri install
-_KOLIBRI_DATA_FILES = ("content", "db.sqlite3")
 
 
 def init_gettext():
@@ -100,8 +89,3 @@ def get_current_language():
         language = locale_info.get("language")
 
     return language
-
-
-def local_kolibri_exists():
-    data_file_paths = map(KOLIBRI_HOME_PATH.joinpath, _KOLIBRI_DATA_FILES)
-    return all(path.exists() for path in data_file_paths)

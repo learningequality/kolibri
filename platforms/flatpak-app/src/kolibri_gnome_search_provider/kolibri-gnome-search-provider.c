@@ -35,6 +35,7 @@
 
 #include "config.h"
 #include "kolibri-daemon-dbus.h"
+#include "kolibri-daemon-dbus-utils.h"
 #include "kolibri-task-multiplexer.h"
 #include "kolibri-utils.h"
 #include "shell-search-provider-dbus.h"
@@ -45,7 +46,7 @@ struct _KolibriGnomeSearchProvider {
   GObject parent;
 
   ShellSearchProvider2 *search_provider_skeleton;
-  KolibriDaemon *kolibri_daemon;
+  KolibriDaemonMain *kolibri_daemon;
   guint base_registration_id;
   guint subtree_registration_id;
 
@@ -211,16 +212,16 @@ kolibri_daemon_get_metadata_for_item_ids_async_ready_cb(GObject      *source_obj
                                                         GAsyncResult *res,
                                                         gpointer user_data)
 {
-  KolibriDaemon *kolibri_daemon = KOLIBRI_DAEMON(source_object);
+  KolibriDaemonMain *kolibri_daemon = KOLIBRI_DAEMON_MAIN(source_object);
   GDBusMethodInvocation *invocation = G_DBUS_METHOD_INVOCATION(user_data);
 
   g_autoptr(GError) error = NULL;
   g_autoptr(GVariant) metas = NULL;
 
-  kolibri_daemon_call_get_metadata_for_item_ids_finish(kolibri_daemon,
-                                                       &metas,
-                                                       res,
-                                                       &error);
+  kolibri_daemon_main_call_get_metadata_for_item_ids_finish(kolibri_daemon,
+                                                            &metas,
+                                                            res,
+                                                            &error);
 
   if (error)
     {
@@ -524,11 +525,11 @@ create_search_task(KolibriGnomeSearchProvider *self,
                                            self);
 
   if (search_multiplexer_is_new)
-    kolibri_daemon_call_get_item_ids_for_search(self->kolibri_daemon,
-                                                query,
-                                                kolibri_task_multiplexer_get_cancellable(search_multiplexer),
-                                                multiplex_dbus_proxy_call_async_ready_cb,
-                                                search_multiplexer);
+    kolibri_daemon_main_call_get_item_ids_for_search(self->kolibri_daemon,
+                                                     query,
+                                                     kolibri_task_multiplexer_get_cancellable(search_multiplexer),
+                                                     multiplex_dbus_proxy_call_async_ready_cb,
+                                                     search_multiplexer);
 
   return TRUE;
 }
@@ -576,11 +577,11 @@ handle_get_result_metas(ShellSearchProvider2   *skeleton,
 {
   KolibriGnomeSearchProvider *self = KOLIBRI_GNOME_SEARCH_PROVIDER(user_data);
 
-  kolibri_daemon_call_get_metadata_for_item_ids(self->kolibri_daemon,
-                                                (const gchar *const *)results,
-                                                NULL,
-                                                kolibri_daemon_get_metadata_for_item_ids_async_ready_cb,
-                                                invocation);
+  kolibri_daemon_main_call_get_metadata_for_item_ids(self->kolibri_daemon,
+                                                     (const gchar *const *)results,
+                                                     NULL,
+                                                     kolibri_daemon_get_metadata_for_item_ids_async_ready_cb,
+                                                     invocation);
 
   g_signal_emit(self, search_provider_signals[SEARCH_PROVIDER_METHOD_CALLED], 0);
 
@@ -642,21 +643,17 @@ handle_activate_result(ShellSearchProvider2   *skeleton,
   return TRUE;
 }
 
-static GBusType
-get_bus_type(void)
+static KolibriDaemonMain *
+get_default_kolibri_daemon_main_proxy_sync(GDBusProxyFlags   flags,
+                                           GCancellable     *cancellable,
+                                           GError          **error)
 {
-  const gchar *kolibri_use_system_instance = g_getenv("KOLIBRI_USE_SYSTEM_INSTANCE");
-
-  if (kolibri_use_system_instance == NULL || kolibri_use_system_instance[0] == '\0')
-    return G_BUS_TYPE_SESSION;
-
-  if (local_kolibri_exists())
-    {
-      g_log(G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, "Local Kolibri data already exists, so ignoring KOLIBRI_USE_SYSTEM_INSTANCE");
-      return G_BUS_TYPE_SESSION;
-    }
-
-  return G_BUS_TYPE_SYSTEM;
+  return kolibri_daemon_main_proxy_new_for_bus_sync(kolibri_daemon_get_default_bus_type(),
+                                                    G_DBUS_PROXY_FLAGS_NONE,
+                                                    DAEMON_APPLICATION_ID,
+                                                    DAEMON_MAIN_OBJECT_PATH,
+                                                    cancellable,
+                                                    error);
 }
 
 KolibriGnomeSearchProvider *
@@ -666,12 +663,9 @@ kolibri_gnome_search_provider_new(void)
 
   g_autoptr(GError) error = NULL;
 
-  self->kolibri_daemon = kolibri_daemon_proxy_new_for_bus_sync(get_bus_type(),
-                                                               G_DBUS_PROXY_FLAGS_NONE,
-                                                               DAEMON_APPLICATION_ID,
-                                                               DAEMON_OBJECT_PATH,
-                                                               NULL,
-                                                               &error);
+  self->kolibri_daemon = get_default_kolibri_daemon_main_proxy_sync(G_DBUS_PROXY_FLAGS_NONE,
+                                                                    NULL,
+                                                                    &error);
 
   if (self->kolibri_daemon == NULL)
     g_log(G_LOG_DOMAIN, G_LOG_LEVEL_ERROR, "Error creating Kolibri daemon proxy: %s\n", error->message);

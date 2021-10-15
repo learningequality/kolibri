@@ -1,3 +1,5 @@
+subdir('libkolibri_daemon_dbus')
+
 subdir('kolibri_app')
 subdir('kolibri_daemon')
 subdir('kolibri_gnome')

@@ -2,7 +2,7 @@
  '-//freedesktop//DTD D-BUS Object Introspection 1.0//EN'
  'http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd'>
 <node>
-  <interface name="org.learningequality.Kolibri.Daemon">
+  <interface name="org.learningequality.Kolibri.Daemon.Main">
     <method name="Hold" />
     <method name="Release" />
     <method name="Start" />

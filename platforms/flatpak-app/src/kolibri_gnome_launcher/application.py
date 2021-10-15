@@ -27,10 +27,12 @@ class Launcher(Gio.Application):
     def __init__(self):
         application_id = LAUNCHER_APPLICATION_ID
 
-        super().__init__(application_id=application_id,
-                         flags=Gio.ApplicationFlags.IS_SERVICE |
-                         Gio.ApplicationFlags.HANDLES_COMMAND_LINE |
-                         Gio.ApplicationFlags.HANDLES_OPEN)
+        super().__init__(
+            application_id=application_id,
+            flags=Gio.ApplicationFlags.IS_SERVICE
+            | Gio.ApplicationFlags.HANDLES_COMMAND_LINE
+            | Gio.ApplicationFlags.HANDLES_OPEN,
+        )
 
     def do_open(self, files, n_files, hint):
         file_uris = [f.get_uri() for f in files]
@@ -41,7 +43,7 @@ class Launcher(Gio.Application):
     def handle_uri(self, uri):
         url_tuple = urlsplit(uri)
 
-        if url_tuple.scheme == 'x-kolibri-dispatch':
+        if url_tuple.scheme == "x-kolibri-dispatch":
             channel_id = url_tuple.netloc
             node_path = url_tuple.path
             node_query = url_tuple.query
@@ -67,7 +69,7 @@ class Launcher(Gio.Application):
 
         if node_path or node_query:
             kolibri_node_url = urlunparse(
-                ("kolibri", node_path, '', None, node_query, None)
+                ("kolibri", node_path, "", None, node_query, None)
             )
             kolibri_gnome_args.append(kolibri_node_url)
 

@@ -34,8 +34,6 @@
 #ifndef KOLIBRI_TASK_MULTIPLEXER_H
 #define KOLIBRI_TASK_MULTIPLEXER_H
 
-#include <glib-object.h>
-
 #include <gio/gio.h>
 
 G_BEGIN_DECLS
