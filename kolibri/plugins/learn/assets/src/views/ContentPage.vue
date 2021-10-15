@@ -96,6 +96,28 @@
       AssessmentWrapper,
     },
     mixins: [commonLearnStrings],
+    props: {
+      content: {
+        type: Object,
+        required: true,
+        default: null,
+      },
+      contentId: {
+        type: String,
+        required: true,
+        default: null,
+      },
+      channelId: {
+        type: String,
+        required: true,
+        default: null,
+      },
+      contentKind: {
+        type: String,
+        required: true,
+        default: null,
+      },
+    },
     data() {
       return {
         wasIncomplete: false,
@@ -105,14 +127,6 @@
     computed: {
       ...mapGetters(['isUserLoggedIn', 'currentUserId']),
       ...mapState(['pageName']),
-      ...mapState('topicsTree', {
-        content: state => state.content,
-        contentId: state => state.content.content_id,
-        contentNodeId: state => state.content.id,
-        channel: state => state.channel,
-        channelId: state => state.content.channel_id,
-        contentKind: state => state.content.kind,
-      }),
       ...mapState({
         masteryAttempts: state => state.core.logging.mastery.totalattempts,
         summaryProgress: state => state.core.logging.summary.progress,
