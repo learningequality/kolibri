@@ -8,7 +8,6 @@ import os
 import subprocess
 
 from collections import Mapping
-from pathlib import Path
 
 from kolibri_app.globals import init_kolibri
 from kolibri_app.globals import init_logging

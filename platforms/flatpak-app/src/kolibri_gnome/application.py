@@ -10,7 +10,6 @@ import sys
 from gettext import gettext as _
 from pathlib import Path
 from urllib.parse import parse_qs
-from urllib.parse import urlencode
 from urllib.parse import urlsplit
 
 import pew
@@ -18,8 +17,6 @@ import pew.ui
 
 from pew.pygobject_gtk.menus import PEWMenuItem
 from pew.ui import PEWShortcut
-
-import gi
 
 from gi.repository import GLib
 from gi.repository import Gtk

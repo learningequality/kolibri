@@ -185,7 +185,6 @@ class DBusServer(object):
 
     def notify_properties_changed(self, interface_name, properties={}):
         changed_properties = {}
-        invalidated_properties = []
 
         for property_name, property_value in properties.items():
             property_fname = self.__fname(interface_name, property_name)

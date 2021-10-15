@@ -312,10 +312,6 @@ class KolibriServiceManager(KolibriServiceContext):
         if self.__stop_process and not self.__stop_process.is_alive():
             self.__stop_process = None
 
-    def watch_changes(self, callback):
-        watch_changes_thread = WatchChangesThread(self, callback)
-        watch_changes_thread.start()
-
     def start_kolibri(self):
         if self.__main_process and self.__main_process.is_alive():
             return

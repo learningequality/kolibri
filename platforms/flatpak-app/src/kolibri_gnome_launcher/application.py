@@ -2,7 +2,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-import gi
 import subprocess
 
 from urllib.parse import urlsplit
@@ -73,4 +72,3 @@ class Launcher(Gio.Application):
             kolibri_gnome_args.append(kolibri_node_url)
 
         subprocess.Popen(["kolibri-gnome", *kolibri_gnome_args])
-

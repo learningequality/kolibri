@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from kolibri_app.globals import get_current_language

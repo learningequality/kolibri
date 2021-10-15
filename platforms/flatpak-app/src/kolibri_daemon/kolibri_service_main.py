@@ -1,7 +1,5 @@
 import multiprocessing
 import os
-from contextlib import contextmanager
-from pathlib import Path
 
 from kolibri_app.globals import init_kolibri
 from kolibri_app.globals import init_logging
@@ -34,7 +32,7 @@ class KolibriServiceMainProcess(multiprocessing.Process):
 
         try:
             self.__run_kolibri_start()
-        except Exception as error:
+        except Exception:
             self.__context.start_result = self.__context.StartResult.ERROR
             self.__run_kolibri_cleanup()
         finally:
@@ -68,7 +66,7 @@ class KolibriServiceMainProcess(multiprocessing.Process):
 
         self.__active_extensions.update_kolibri_environ(os.environ)
 
-        from kolibri.utils.cli import start_with_ready_cb, stop
+        from kolibri.utils.cli import start_with_ready_cb
         from kolibri.utils.conf import OPTIONS
 
         init_kolibri()
