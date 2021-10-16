@@ -7,6 +7,9 @@
     <method name="Release" />
     <method name="Start" />
     <method name="Stop" />
+    <method name="GetLoginToken">
+      <arg direction="out" type="s" name="token" />
+    </method>
     <method name="GetItemIdsForSearch">
       <arg direction="in" type="s" name="search" />
       <arg direction="out" type="as" name="item_ids" />
@@ -20,5 +23,11 @@
     <property name="KolibriHome" type="s" access="read" />
     <property name="Status" type="s" access="read" />
     <property name="Version" type="u" access="read" />
+  </interface>
+  <interface name="org.learningequality.Kolibri.Daemon.Private">
+    <method name="CheckLoginToken">
+      <arg direction="in" type="s" name="token" />
+      <arg direction="out" type="a{sv}" name="details" />
+    </method>
   </interface>
 </node>

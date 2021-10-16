@@ -1,6 +1,8 @@
 kolibri_daemon_sources = [
+    'accounts_service.py',
     'application.py',
     'content_extensions.py',
+    'dbus_helpers.py',
     '__init__.py',
     'kolibri_search_handler.py',
     'kolibri_service_main.py',

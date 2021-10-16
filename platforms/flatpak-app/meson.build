@@ -37,6 +37,7 @@ launcher_application_id = base_application_id + '.Launcher'
 daemon_application_id = base_application_id + '.Daemon'
 daemon_object_path = base_object_path + '/Daemon'
 daemon_main_object_path = daemon_object_path + '/Main'
+daemon_private_object_path = daemon_object_path + '/Private'
 
 search_provider_application_id = base_application_id + '.SearchProvider'
 search_provider_object_path = base_object_path + '/SearchProvider'
@@ -65,6 +66,7 @@ kolibri_app_config.set('FRONTEND_CHANNEL_APPLICATION_ID_PREFIX', frontend_channe
 kolibri_app_config.set('DAEMON_APPLICATION_ID', daemon_application_id)
 kolibri_app_config.set('DAEMON_OBJECT_PATH', daemon_object_path)
 kolibri_app_config.set('DAEMON_MAIN_OBJECT_PATH', daemon_main_object_path)
+kolibri_app_config.set('DAEMON_PRIVATE_OBJECT_PATH', daemon_private_object_path)
 kolibri_app_config.set('SEARCH_PROVIDER_APPLICATION_ID', search_provider_application_id)
 kolibri_app_config.set('SEARCH_PROVIDER_OBJECT_PATH', search_provider_object_path)
 

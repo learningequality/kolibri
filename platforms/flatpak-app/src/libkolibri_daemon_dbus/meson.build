@@ -7,6 +7,7 @@ _c_config = configuration_data()
 _c_config.set_quoted('DAEMON_APPLICATION_ID', daemon_application_id)
 _c_config.set_quoted('DAEMON_OBJECT_PATH', daemon_object_path)
 _c_config.set_quoted('DAEMON_MAIN_OBJECT_PATH', daemon_main_object_path)
+_c_config.set_quoted('DAEMON_PRIVATE_OBJECT_PATH', daemon_private_object_path)
 if build_profile == 'development'
     _c_config.set_quoted('PROFILE_ENV_PREFIX', 'KOLIBRI_DEVEL_')
 else
