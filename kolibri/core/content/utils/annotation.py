@@ -8,6 +8,7 @@ from django.db.models import Max
 from django.db.models import Sum
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
+from sqlalchemy import case
 from sqlalchemy import cast
 from sqlalchemy import exists
 from sqlalchemy import false
@@ -820,12 +821,36 @@ def set_channel_ancestors(channel_id):
     # Go from the shallowest to deepest
     for level in range(1, node_depth + 1):
 
+        # Statement to generate the ancestors JSON using SQL, to avoid having to load data
+        # into Python in order to do this.
         ancestors = select(
             [
+                # Get all of the JSON from the parent's ancestors field, but remove the
+                # closing ]
                 func.substr(
                     parent.c.ancestors, 1, func.length(parent.c.ancestors) - literal(1)
                 )
-                + (',{"id": "' if level > 1 else '{"id": "')
+                # Conditionalize how we add new elements depending on whether the parent's
+                # ancestors are empty or not.
+                + case(
+                    [
+                        (
+                            # If the last (and presumably first) character of the parent's
+                            # ancestors field is literal '[' then this is an empty ancestors list
+                            func.substr(
+                                parent.c.ancestors,
+                                func.length(parent.c.ancestors) - literal(1),
+                                1,
+                            )
+                            == literal("["),
+                            # In this case we just open the object without having to prepend a comma.
+                            '{"id": "',
+                        )
+                    ],
+                    # Otherwise we are adding a new element to a JSON list that already has elements in it
+                    # so we prepend with a comma in order to separate.
+                    else_=',{"id": "',
+                )
                 + ContentNodeTable.c.parent_id
                 + '","title": "'
                 + parent.c.title
