@@ -1,6 +1,7 @@
 import logging
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from django.db.models.query import Q
 from django.db.utils import IntegrityError
 from django.http import Http404
@@ -8,7 +9,10 @@ from django_filters import ModelChoiceFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
+from le_utils.constants import content_kinds
+from le_utils.constants import exercises
 from rest_framework import filters
+from rest_framework import serializers
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
@@ -38,9 +42,479 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.content.api import OptionalPageNumberPagination
+from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.exams.models import Exam
+from kolibri.core.logger.constants import interaction_types
+from kolibri.core.logger.constants.exercise_attempts import MAPPING
 
 logger = logging.getLogger(__name__)
+
+
+QUIZ_ITEM_DELIMETER = ":"
+
+
+class ContextSerializer(serializers.Serializer):
+    lesson_id = serializers.UUIDField(format="hex", required=False)
+    classroom_id = serializers.UUIDField(format="hex", required=False)
+    channel_id = serializers.UUIDField(format="hex", required=False)
+    topic_id = serializers.UUIDField(format="hex", required=False)
+    node_id = serializers.UUIDField(format="hex", required=False)
+    # Do this as a special way of handling our coach generated quizzes
+    quiz_id = serializers.UUIDField(format="hex", required=False)
+
+
+class ProgressTrackingBaseSerializer(serializers.Serializer):
+    context = ContextSerializer(required=False, default={})
+
+
+class StartSessionSerializer(ProgressTrackingBaseSerializer):
+    content_id = serializers.UUIDField(format="hex")
+    start_timestamp = serializers.DateTimeField()
+    kind = serializers.CharField()
+    assessment = serializers.BooleanField(required=False, default=False)
+    # A flag to indicate whether to start the session over again
+    repeat = serializers.BooleanField(required=False, default=False)
+
+    def validate(self, data):
+        if "quiz_id" in data["context"] and data["kind"] != content_kinds.QUIZ:
+            raise ValidationError(
+                "If using the quiz_id context, the quiz content kind must be used."
+            )
+        return data
+
+
+class AttemptSerializer(serializers.Serializer):
+    item_id = serializers.CharField(required=False)
+    start_timestamp = serializers.DateTimeField(required=False)
+    attempt_id = serializers.UUIDField(format="hex", required=False)
+    correct = serializers.FloatField(min_value=0, max_value=1)
+    complete = serializers.BooleanField(required=False, default=False)
+    time_spent = serializers.FloatField(min_value=0)
+    mastery_level = serializers.IntegerField(allow_null=True, default=None)
+
+    answer = serializers.DictField(required=False)
+    error = serializers.BooleanField(required=False, default=False)
+    hinted = serializers.BooleanField(required=False, default=False)
+
+    # An additional field that can be set to handle coach assigned quizzes
+    # that are themselves not proper content nodes but refer to content under
+    # the hood.
+    content_id = serializers.UUIDField(format="hex", required=False)
+
+    def validate(self, data):
+        if not data["error"] and "answer" not in data:
+            raise ValidationError("Must provide an answer if not an error")
+        if "attempt_id" not in data and "item_id" not in data:
+            raise ValidationError("Must provide an attempt_id or item_id")
+        if "attempt_id" not in data and "start_timestamp" not in data:
+            raise ValidationError("Must provide a start_timestamp for a new attempt")
+        if (
+            data["mastery_level"] is None
+            and not self.context["request"].user.is_anonymous()
+        ):
+            raise ValidationError(
+                "mastery_level must be not null for non-anonymous attempts"
+            )
+        return data
+
+
+class UpdateSessionSerializer(ProgressTrackingBaseSerializer):
+    end_timestamp = serializers.DateTimeField()
+    progress_delta = serializers.FloatField(min_value=0, max_value=1.0, required=False)
+    progress = serializers.FloatField(min_value=0, max_value=1.0, required=False)
+    time_spent_delta = serializers.FloatField(min_value=0, required=False)
+    extra_fields = serializers.DictField(required=False)
+    attempt = AttemptSerializer(required=False)
+
+
+class ProgressTrackingViewSet(viewsets.GenericViewSet):
+    def create(self, request):
+        serializer = StartSessionSerializer(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        content_id = serializer.validated_data["content_id"].hex
+        assessment = serializer.validated_data["assessment"]
+        start_timestamp = serializer.validated_data["start_timestamp"]
+        kind = serializer.validated_data["kind"]
+        repeat = serializer.validated_data["repeat"]
+        context = serializer.validated_data["context"]
+
+        channel_id = context.get("channel_id")
+        if channel_id:
+            channel_id = channel_id.hex
+
+        output = {
+            "progress": 0,
+            "extra_fields": {},
+        }
+
+        with transaction.atomic():
+
+            user = None
+
+            if not request.user.is_anonymous():
+                user = request.user
+                try:
+                    summarylog = ContentSummaryLog.objects.get(
+                        content_id=content_id,
+                        user=request.user,
+                    )
+                    updated_fields = ("end_timestamp", "channel_id")
+                    if repeat:
+                        summarylog.progress = 0
+                        updated_fields += ("progress",)
+                    summarylog.channel_id = channel_id
+                    summarylog.end_timestamp = start_timestamp
+                    summarylog.save(update_fields=updated_fields)
+                except ContentSummaryLog.DoesNotExist:
+                    summarylog = ContentSummaryLog.objects.create(
+                        content_id=content_id,
+                        user=request.user,
+                        channel_id=channel_id,
+                        kind=kind,
+                        start_timestamp=start_timestamp,
+                        end_timestamp=start_timestamp,
+                    )
+                output.update(
+                    {
+                        "progress": summarylog.progress,
+                        "extra_fields": summarylog.extra_fields,
+                    }
+                )
+                if assessment:
+                    output.update(
+                        self._start_assessment_session(
+                            content_id,
+                            summarylog,
+                            request.user,
+                            start_timestamp,
+                            repeat,
+                            context,
+                        )
+                    )
+
+            # Must ensure there is no user here to maintain user privacy for logging.
+            visitor_id = (
+                request.COOKIES.get("visitor_id")
+                if hasattr(request, "COOKIES") and not user
+                else None
+            )
+            sessionlog = ContentSessionLog.objects.create(
+                content_id=content_id,
+                channel_id=channel_id,
+                start_timestamp=start_timestamp,
+                end_timestamp=start_timestamp,
+                user=user,
+                visitor_id=visitor_id,
+            )
+            output.update({"session_id": sessionlog.id})
+        return Response(output)
+
+    def _get_or_create_masterylog(
+        self,
+        user,
+        summarylog,
+        repeat,
+        coach_assigned_quiz,
+        mastery_model,
+        start_timestamp,
+    ):
+        masterylog = (
+            MasteryLog.objects.filter(
+                summarylog=summarylog,
+                user=user,
+            )
+            .order_by("-complete", "-end_timestamp")
+            .first()
+        )
+
+        if masterylog is None or (masterylog.complete and repeat):
+            # There is no previous masterylog, or there is no incomplete
+            # previous masterylog, and the request is requesting a new attempt.
+            if coach_assigned_quiz:
+                # To prevent coach assigned quiz mastery logs from propagating to older
+                # Kolibri versions, we use negative mastery levels for these.
+                mastery_level = (
+                    masterylog.mastery_level - 1 if masterylog is not None else -1
+                )
+            else:
+                mastery_level = (
+                    masterylog.mastery_level + 1 if masterylog is not None else 1
+                )
+
+            masterylog = MasteryLog.objects.create(
+                summarylog=summarylog,
+                user=user,
+                mastery_criterion=mastery_model,
+                start_timestamp=start_timestamp,
+                end_timestamp=start_timestamp,
+                mastery_level=mastery_level,
+            )
+        return masterylog
+
+    def _start_assessment_session(
+        self, content_id, summarylog, user, start_timestamp, repeat, context
+    ):
+        coach_assigned_quiz = "quiz_id" in context
+
+        if coach_assigned_quiz:
+            mastery_model = {"type": "quiz"}
+        else:
+            mastery_model = (
+                AssessmentMetaData.objects.filter(contentnode__content_id=content_id)
+                .values_list("mastery_model", flat=True)
+                .first()
+            )
+        if mastery_model is None:
+            raise ValidationError(
+                "ContentNode with content_id {} is not an assessment".format(content_id)
+            )
+
+        masterylog = self._get_or_create_masterylog(
+            user,
+            summarylog,
+            repeat,
+            coach_assigned_quiz,
+            mastery_model,
+            start_timestamp,
+        )
+
+        mastery_criterion = masterylog.mastery_criterion
+        exercise_type = mastery_criterion.get("type")
+        attemptlogs = masterylog.attemptlogs.values(
+            "correct", "hinted", "error"
+        ).order_by("-start_timestamp")
+
+        # get the first x logs depending on the exercise type
+        if exercise_type == exercises.M_OF_N:
+            attemptlogs = attemptlogs[: mastery_criterion["n"]]
+        elif exercise_type in MAPPING:
+            attemptlogs = attemptlogs[: MAPPING[exercise_type]]
+        elif exercise_type == "quiz":
+            attemptlogs = attemptlogs.order_by().values(
+                "correct", "hinted", "error", "item", "answer", "time_spent"
+            )
+            if coach_assigned_quiz:
+                for log in attemptlogs:
+                    item_content_id, item = log["item"].split(QUIZ_ITEM_DELIMETER)
+                    log["content_id"] = item_content_id
+                    log["item"] = item
+        else:
+            attemptlogs = attemptlogs[:10]
+
+        return {
+            "mastery_criterion": mastery_criterion,
+            "mastery_level": masterylog.mastery_level,
+            "pastattempts": attemptlogs,
+            "totalattempts": masterylog.attemptlogs.count(),
+        }
+
+    def _generate_interaction(self, validated_data):
+        if validated_data["error"]:
+            return {
+                "type": interaction_types.ERROR,
+            }
+        elif validated_data["hinted"]:
+            return {
+                "type": interaction_types.HINT,
+                "answer": validated_data["answer"],
+            }
+        return {
+            "type": interaction_types.ANSWER,
+            "answer": validated_data["answer"],
+            "correct": validated_data["correct"],
+        }
+
+    def _update_and_return_mastery_log(
+        self, user, complete, summarylog_id, validated_data
+    ):
+        if not user.is_anonymous():
+            masterylog = MasteryLog.objects.get(
+                user=user,
+                mastery_level=validated_data["mastery_level"],
+                summarylog_id=summarylog_id,
+            )
+            if complete and not masterylog.complete:
+                masterylog.complete = True
+                masterylog.completion_timestamp = validated_data["end_timestamp"]
+                masterylog.save(update_fields=("complete", "completion_timestamp"))
+            return masterylog
+
+    def _update_or_create_attempt(
+        self, session_id, summarylog_id, user, item_complete, validated_data
+    ):
+        attempt = validated_data["attempt"]
+        end_timestamp = validated_data["end_timestamp"]
+        attempt_id = attempt.get("attempt_id")
+        item_id = attempt.get("item_id")
+        start_timestamp = attempt.get("start_timestamp")
+
+        correct = attempt["correct"]
+        complete = attempt["complete"]
+
+        answer = attempt.get("answer")
+        error = attempt["error"]
+        hinted = attempt["hinted"]
+        time_spent = attempt["time_spent"]
+
+        masterylog = self._update_and_return_mastery_log(
+            user, item_complete, summarylog_id, attempt
+        )
+
+        interaction = self._generate_interaction(attempt)
+
+        user = None if user.is_anonymous() else user
+
+        if attempt_id:
+            try:
+                attemptlog = AttemptLog.objects.get(
+                    id=attempt_id,
+                    sessionlog_id=session_id,
+                    masterylog=masterylog,
+                    user=user,
+                )
+            except AttemptLog.DoesNotExist:
+                raise ValidationError("Invalid attempt_id specified")
+            attemptlog.interaction_history += [interaction]
+            attemptlog.end_timestamp = end_timestamp
+            attemptlog.time_spent = time_spent
+            update_fields = ("interaction_history", "end_timestamp", "time_spent")
+
+            for field in ("correct", "hinted", "error"):
+                if not getattr(attemptlog, field) and attempt[field]:
+                    setattr(attemptlog, field, True)
+                    update_fields += (field,)
+
+            if answer:
+                attemptlog.answer = answer
+                update_fields += ("answer",)
+
+            if complete and not attemptlog.complete:
+                attemptlog.complete = complete
+                attemptlog.completion_timestamp = end_timestamp
+                update_fields += (
+                    "complete",
+                    "completion_timestamp",
+                )
+
+            attemptlog.save(update_fields=update_fields)
+        else:
+            if "quiz_id" in validated_data["context"] and "content_id" in attempt:
+                # Store the content_id for this specific question and the item
+                # together, to allow coach assigned quizzes to be stored seamlessly.
+                item_id = "{}{}{}".format(
+                    attempt["content_id"].hex, QUIZ_ITEM_DELIMETER, item_id
+                )
+            attemptlog = AttemptLog.objects.create(
+                item=item_id,
+                sessionlog_id=session_id,
+                masterylog=masterylog,
+                correct=correct,
+                answer=answer or {},
+                interaction_history=[interaction],
+                hinted=hinted,
+                error=error,
+                user=user,
+                complete=complete,
+                time_spent=time_spent,
+                start_timestamp=start_timestamp,
+                completion_timestamp=end_timestamp if complete else None,
+                end_timestamp=end_timestamp,
+            )
+
+        return {"attempt_id": attemptlog.id}
+
+    def _update_session(self, session_id, user, validated_data):  # noqa C901
+        end_timestamp = validated_data["end_timestamp"]
+        progress_delta = validated_data.get("progress_delta")
+        progress = validated_data.get("progress")
+        time_spent_delta = validated_data.get("time_spent_delta")
+        extra_fields = validated_data.get("extra_fields")
+        try:
+            if user.is_anonymous():
+                sessionlog = ContentSessionLog.objects.get(
+                    id=session_id, user__isnull=True
+                )
+            else:
+                sessionlog = ContentSessionLog.objects.get(id=session_id, user=user)
+        except ContentSessionLog.DoesNotExist:
+            raise Http404(
+                "ContentSessionLog with id {} does not exist".format(session_id)
+            )
+        update_fields = tuple(
+            filter(
+                lambda x: x,
+                (
+                    "progress"
+                    if progress_delta is not None or progress is not None
+                    else None,
+                    "time_spent" if time_spent_delta is not None else None,
+                    "end_timestamp",
+                ),
+            )
+        )
+        if not user.is_anonymous():
+            summarylog = ContentSummaryLog.objects.get(
+                content_id=sessionlog.content_id, user=user
+            )
+        else:
+            summarylog = None
+        summarylog_update_fields = update_fields
+
+        sessionlog.end_timestamp = end_timestamp
+        if summarylog:
+            summarylog.end_timestamp = end_timestamp
+        if progress_delta:
+            sessionlog.progress = min(1.0, sessionlog.progress + progress_delta)
+            if summarylog:
+                summarylog.progress = min(1.0, summarylog.progress + progress_delta)
+        elif progress is not None:
+            sessionlog.progress = progress
+            if summarylog:
+                summarylog.progress = progress
+        if time_spent_delta:
+            sessionlog.time_spent += time_spent_delta
+            if summarylog:
+                summarylog.time_spent += time_spent_delta
+
+        if summarylog and summarylog.progress >= 1:
+            summarylog.completion_timestamp = end_timestamp
+            summarylog_update_fields = summarylog_update_fields + (
+                "completion_timestamp",
+            )
+        if summarylog and extra_fields:
+            summarylog_update_fields += ("extra_fields",)
+            summarylog.extra_fields = extra_fields
+
+        sessionlog.save(update_fields=update_fields)
+        if summarylog is not None:
+            summarylog.save(update_fields=summarylog_update_fields)
+            complete = summarylog.progress >= 1
+        else:
+            complete = sessionlog.progress >= 1
+
+        return {"complete": complete}, summarylog.id if summarylog else None
+
+    def update(self, request, pk=None):
+        if pk is None:
+            raise Http404
+        serializer = UpdateSessionSerializer(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
+
+        with transaction.atomic():
+            output, summarylog_id = self._update_session(
+                pk, request.user, validated_data
+            )
+            if "attempt" in validated_data:
+                attempt_output = self._update_or_create_attempt(
+                    pk, summarylog_id, request.user, output["complete"], validated_data
+                )
+                output.update(attempt_output)
+            return Response(output)
 
 
 class BaseLogFilter(FilterSet):
