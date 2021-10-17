@@ -7,7 +7,7 @@ import os
 from abc import abstractproperty
 
 from django.conf import settings
-from django.utils.six.moves.urllib import parse
+from six.moves.urllib.parse import urljoin
 
 import kolibri
 from kolibri.plugins import hooks
