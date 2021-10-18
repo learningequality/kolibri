@@ -46,7 +46,6 @@
 
   .activity-chip {
     display: inline-block;
-    padding: 12px; // Aligns with close button
     font-weight: bold;
     background-color: #f5f5f5;
     border-radius: 4px;

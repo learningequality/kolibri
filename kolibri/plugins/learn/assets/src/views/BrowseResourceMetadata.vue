@@ -353,6 +353,7 @@
       // Ensures space on line w/ closing X icon whether
       // chips are visible or not
       min-height: 40px;
+      padding: 12px;
     }
 
     &.flex {
