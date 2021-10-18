@@ -21,6 +21,7 @@
         <span
           v-if="content.forBeginners"
           class="beginners-chip"
+          :style="{ 'background-color': $themeBrand.secondary.v_600 }"
           data-test="beginners-chip"
         >
           {{ coreString("ForBeginners") }}
@@ -333,7 +334,6 @@
     padding: 10px;
     font-weight: bold;
     color: white;
-    background: #328168; // brand.secondary.v_600
     border-radius: 4px;
   }
 

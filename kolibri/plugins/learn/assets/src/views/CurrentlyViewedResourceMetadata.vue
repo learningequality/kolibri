@@ -18,7 +18,11 @@
     <!-- The key here is not set in stone -->
     <div class="section">
       <!-- For Beginners Chip Here -->
-      <div v-if="content.forBeginners" class="beginners-chip">
+      <div
+        v-if="content.forBeginners"
+        class="beginners-chip"
+        :style="{ 'background-color': $themeBrand.secondary.v_600 }"
+      >
         {{ coreString("ForBeginners") }}
       </div>
     </div>
@@ -287,7 +291,6 @@
     padding: 12px;
     font-weight: bold;
     color: white;
-    background: #328168; // brand.secondary.v_600
     border-radius: 4px;
   }
 
