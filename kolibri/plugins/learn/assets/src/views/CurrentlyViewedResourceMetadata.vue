@@ -24,7 +24,7 @@
     </div>
 
     <div class="section">
-      <Thumbnail :thumbnailUrl="content.thumbnail" />
+      <ContentNodeThumbnail :contentNode="content" />
     </div>
 
     <div v-if="content.title" class="section title">
@@ -112,7 +112,7 @@
           class="license-toggle"
           @click="licenseDescriptionIsVisible = !licenseDescriptionIsVisible"
         />
-        <div v-if="licenseDescriptionIsVisible" dir="auto" class="license-details">
+        <div v-if="licenseDescriptionIsVisible" class="license-details">
           <p class="license-details-name">
             {{ licenseLongName }}
           </p>
@@ -147,7 +147,7 @@
   } from 'kolibri.utils.licenseTranslations';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import LearningActivityChip from './LearningActivityChip';
-  import Thumbnail from './thumbnails/Thumbnail';
+  import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
   import SidePanelResourceMetadata from './SidePanelResourceMetadata';
 
   export default {
@@ -155,7 +155,7 @@
     components: {
       DownloadButton,
       LearningActivityChip,
-      Thumbnail,
+      ContentNodeThumbnail,
       TimeDuration,
     },
     mixins: [commonCoreStrings],
