@@ -26,7 +26,14 @@
           class="channel-thumbnail-wrapper"
         />
       </KFixedGridItem>
-      <KFixedGridItem span="3">
+      <!--
+        unset text-align to fix `KFixedGridItem`'s `text-align: right`
+        conflicting with  `dir="auto"`
+      -->
+      <KFixedGridItem
+        span="3"
+        :style="{ textAlign: unset }"
+      >
         <TextTruncatorCss
           v-if="description"
           dir="auto"
