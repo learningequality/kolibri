@@ -24,7 +24,7 @@ describe('genContentLink - generating for a topic (isLeaf == true)', () => {
     expect(validateLinkObject(contentLink)).toBeTruthy();
   });
 
-  it('returns an object with name pointing to PageName.TOPICS_TOPIC', () => {
+  it('returns an object with name pointing to PageName.TOPICS_CONTENT', () => {
     expect(contentLink.name).toEqual(PageNames.TOPICS_CONTENT);
   });
 
