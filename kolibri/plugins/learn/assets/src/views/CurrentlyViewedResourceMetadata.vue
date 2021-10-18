@@ -8,7 +8,11 @@
 
     <!-- Whatever data will come in this place may be an array? -->
     <div class="chips section">
-      <LearningActivityChip v-if="content.activityKind" :kind="content.activityKind" />
+      <div v-for="activity in content.learning_activities" :key="activity">
+        <LearningActivityChip
+          :kind="activity"
+        />
+      </div>
     </div>
 
     <!-- The key here is not set in stone -->

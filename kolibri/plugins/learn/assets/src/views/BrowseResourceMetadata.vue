@@ -7,7 +7,11 @@
 
     <!-- Whatever data will come in this place may be an array? -->
     <div class="chips section">
-      <LearningActivityChip v-if="content.activityKind" :kind="content.activityKind" />
+      <div v-for="activity in content.learning_activities" :key="activity">
+        <LearningActivityChip
+          :kind="activity"
+        />
+      </div>
     </div>
 
     <div class="flex section">
@@ -41,11 +45,11 @@
       {{ content.title }}
     </div>
 
-    <div 
-      v-if="content.description" 
-      ref="description" 
+    <div
+      v-if="content.description"
+      ref="description"
       data-test="content-description"
-      class="content" 
+      class="content"
       :class="truncate"
     >
       {{ content.description }}
