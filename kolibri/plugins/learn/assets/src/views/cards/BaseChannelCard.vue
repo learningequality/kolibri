@@ -7,6 +7,7 @@
   >
     <h3 class="title">
       <TextTruncatorCss
+        dir="auto"
         :text="channel.name"
         :maxLines="1"
       />
@@ -28,6 +29,7 @@
       <KFixedGridItem span="3">
         <TextTruncatorCss
           v-if="description"
+          dir="auto"
           :text="description"
           :maxLines="6"
         />

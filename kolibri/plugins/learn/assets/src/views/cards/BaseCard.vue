@@ -20,6 +20,7 @@
 
       <div
         v-if="collectionTitle"
+        dir="auto"
         data-test="collectionTitle"
       >
         {{ collectionTitle }}
@@ -27,6 +28,7 @@
 
       <h3 class="title">
         <TextTruncatorCss
+          dir="auto"
           :text="title"
           :maxLines="2"
         />
