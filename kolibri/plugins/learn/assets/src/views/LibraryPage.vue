@@ -113,8 +113,6 @@
   import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
-  import BrowseResourceMetadata from '../../../../../core/assets/src/views/FullScreenSidePanel/BrowseResourceMetadata';
-  import languageSwitcherMixin from '../../../../../core/assets/src/views/language-switcher/mixin.js';
   import { PageNames } from '../constants';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
