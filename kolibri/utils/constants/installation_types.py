@@ -4,7 +4,7 @@ This module contains constants representing the type of "installers" used to ins
 from __future__ import unicode_literals
 
 APK = "apk"
-APT = "apt"
+DEB = "deb"
 KOLIBRI_SERVER = "kolibri-server"
 MACOS = "Mac"
 PEX = "pex"
@@ -14,10 +14,10 @@ WINDOWS = "Windows"
 
 install_type_map = {
     APK: "APK",
-    APT: "APT - Debian package",
-    KOLIBRI_SERVER: "kolibri(apt) with kolibri_server",
-    MACOS: "MacOS Installer",
-    PEX: "PEX file",
+    DEB: "Debian package",
+    KOLIBRI_SERVER: "kolibri Debian package with kolibri_server",
+    MACOS: "macOS desktop app",
+    PEX: "PEX executable",
     UWSGI: "UWSGI process",
     WHL: "WHL Python package",
     WINDOWS: "Windows Installer",
