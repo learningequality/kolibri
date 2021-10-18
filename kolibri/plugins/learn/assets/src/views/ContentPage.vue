@@ -100,7 +100,9 @@
       content: {
         type: Object,
         required: true,
-        default: null,
+        validator(val) {
+          return val.kind && val.content_id;
+        },
       },
       channelId: {
         type: String,
