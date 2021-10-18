@@ -96,6 +96,20 @@
       AssessmentWrapper,
     },
     mixins: [commonLearnStrings],
+    props: {
+      content: {
+        type: Object,
+        required: true,
+        validator(val) {
+          return val.kind && val.content_id;
+        },
+      },
+      channelId: {
+        type: String,
+        required: true,
+        default: null,
+      },
+    },
     data() {
       return {
         wasIncomplete: false,
@@ -105,14 +119,6 @@
     computed: {
       ...mapGetters(['isUserLoggedIn', 'currentUserId']),
       ...mapState(['pageName']),
-      ...mapState('topicsTree', {
-        content: state => state.content,
-        contentId: state => state.content.content_id,
-        contentNodeId: state => state.content.id,
-        channel: state => state.channel,
-        channelId: state => state.content.channel_id,
-        contentKind: state => state.content.kind,
-      }),
       ...mapState({
         masteryAttempts: state => state.core.logging.mastery.totalattempts,
         summaryProgress: state => state.core.logging.summary.progress,
@@ -130,6 +136,12 @@
           return this.summaryProgress;
         }
         return this.sessionProgress;
+      },
+      contentKind() {
+        return this.content && this.content.kind ? this.content.kind : null;
+      },
+      contentId() {
+        return this.content && this.content.content_id ? this.content.content_id : null;
       },
       nextContentNodeRoute() {
         // HACK Use a the Resource Viewer Link instead

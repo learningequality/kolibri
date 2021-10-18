@@ -48,6 +48,8 @@
       <ContentPage
         class="content"
         data-test="contentPage"
+        :content="content"
+        :channelId="content.channel_id"
       />
     </div>
     <GlobalSnackbar />
