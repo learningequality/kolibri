@@ -6,9 +6,16 @@
     of what truncating technique is used. Otherwise adding padding directly
     would break when using technique (B) since text that should be truncated
     would show in padding area.
+
+    Attributes are inherited by the inner `div` to emulate the same behavior
+    like if only one element would wrap the text to allow attributes be applied
+    as close as possible to the text element.
   -->
   <div>
-    <div :class="$computedClass(truncate)">
+    <div
+      v-bind="$attrs"
+      :class="$computedClass(truncate)"
+    >
       {{ text }}
     </div>
   </div>
@@ -28,6 +35,7 @@
    */
   export default {
     name: 'TextTruncatorCss',
+    inheritAttrs: false,
     props: {
       text: {
         type: String,
