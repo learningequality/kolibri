@@ -49,9 +49,7 @@
         class="content"
         data-test="contentPage"
         :content="content"
-        :contentId="content.content_id"
         :channelId="content.channel_id"
-        :contentKind="content.kind"
       />
     </div>
     <GlobalSnackbar />

@@ -102,17 +102,7 @@
         required: true,
         default: null,
       },
-      contentId: {
-        type: String,
-        required: true,
-        default: null,
-      },
       channelId: {
-        type: String,
-        required: true,
-        default: null,
-      },
-      contentKind: {
         type: String,
         required: true,
         default: null,
@@ -144,6 +134,12 @@
           return this.summaryProgress;
         }
         return this.sessionProgress;
+      },
+      contentKind() {
+        return this.content && this.content.kind ? this.content.kind : null;
+      },
+      contentId() {
+        return this.content && this.content.content_id ? this.content.content_id : null;
       },
       nextContentNodeRoute() {
         // HACK Use a the Resource Viewer Link instead
