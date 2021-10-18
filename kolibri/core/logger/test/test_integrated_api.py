@@ -864,6 +864,18 @@ class UpdateSessionBase(object):
         self.assertEqual(response.status_code, 200)
         self._assert_logs_value("progress", 0.1)
 
+    def test_update_session_absolute_progress_and_progress_delta_fails(self):
+        timestamp = local_now()
+        response = self._make_request(
+            {
+                "end_timestamp": timestamp,
+                "progress": 0.1,
+                "progress_delta": 0.1,
+            }
+        )
+
+        self.assertEqual(response.status_code, 400)
+
     def test_update_session_time_spent_delta(self):
         timestamp = local_now()
         self._update_logs("time_spent", 30)

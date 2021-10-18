@@ -145,11 +145,42 @@ class UpdateSessionSerializer(ProgressTrackingBaseSerializer):
             raise ValidationError(
                 "mastery_level must be not null for non-anonymous attempts"
             )
+        if "progress_delta" in data and "progress" in data:
+            raise ValidationError(
+                "must not pass progress_delta and progress in the same request"
+            )
         return data
 
 
 class ProgressTrackingViewSet(viewsets.GenericViewSet):
     def create(self, request):
+        """
+        Make a POST request to start a content session. The following parameters are required:
+        content_id - the persistent identifier for the content
+                     in the case of a coach created quiz, this will be the pk for the Exam.
+        start_timestamp - the time that the session started
+        kind - the content kind for the content that is the object of the session
+
+        The parameters are optional:
+        assessment - boolean indicating whether this is an assessment session or not
+        repeat - whether to reset previous progress on this content to zero and start fresh
+        context - an object that contains additional contextual information,
+        such as channel engaged within, the specific node_id, lesson_id, or the id of a quiz.
+
+        returns object with the following parameters:
+        session_id - the id of the session object that was created by this call.
+
+        if the user is logged in, will also include
+        progress - any previous progress on this content resource
+        extra_fields - any previously recorded additional data stored for this resource
+
+        if this is an assessment, will also include
+        mastery_criterion - the mastery criterion that should be applied to determine completion
+        mastery_level - the identifier for this run at the assessment
+        pastattempts - a serialized subset of previous responses within this run, that can be used
+                       to determine completion
+        totalattempts - the total number of previous responses within this run of the assessment resource.
+        """
         serializer = StartSessionSerializer(
             data=request.data, context={"request": request}
         )
@@ -162,8 +193,6 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         context = serializer.validated_data["context"]
 
         channel_id = context.get("channel_id")
-        if channel_id:
-            channel_id = channel_id
 
         output = {
             "progress": 0,
@@ -595,6 +624,35 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             )
 
     def update(self, request, pk=None):
+        """
+        Make a PUT request to update the current session, the following parameters are required:
+        end_timestamp - the timestamp to update the new end of the session to.
+
+        To update progress, two different parameters can be used, but are mutually exclusive.
+        progress_delta - increase the progress by this amount
+        progress - set the progress to this amount
+
+        Can also update time spent recorded with a delta:
+        time_spent_delta - number of seconds to increase time_spent by
+
+        And update the extra_fields value stored
+        extra_fields - the complete representation to set extra_fields to
+
+        If creating or updating an attempt for an assessment must include
+        attempt - a nested object, if creating an attempt, must include item_id
+                  if updating an existing attempt, must include attempt_id
+
+        For an update of any assessment the mastery_level must be included to specify
+        which run of the assessment is being updated - this is returned from the create endpoint,
+        but is not required for anonymous assessment engagement.
+        mastery_level - which run at the assessment this is.
+
+        returns an object with the following properties
+        complete - boolean indicating if the resource is completed
+
+        if an attempt at an assessment was included, then the following parameter will be included
+        attempt_id - the unique identifier for this specific attempt.
+        """
         if pk is None:
             raise Http404
         serializer = UpdateSessionSerializer(
