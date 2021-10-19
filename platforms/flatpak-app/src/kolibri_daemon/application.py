@@ -35,10 +35,6 @@ class PublicDBusInterface(object):
             "handle-stop", self.__on_handle_stop
         )
         self.__skeleton.connect(
-            "handle-get-user-token",
-            self.__on_handle_get_user_token,
-        )
-        self.__skeleton.connect(
             "handle-get-item-ids-for-search",
             self.__on_handle_get_item_ids_for_search,
         )
