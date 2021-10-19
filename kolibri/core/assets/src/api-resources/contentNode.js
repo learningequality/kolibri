@@ -104,8 +104,8 @@ export default new Resource({
   fetchRecommendationsFor(id, getParams) {
     return this.fetchDetailCollection('recommendations_for', id, getParams);
   },
-  fetchResume(getParams) {
-    return this.fetchDetailCollection('resume', Store.getters.currentUserId, getParams);
+  fetchResume(getParams, force) {
+    return this.fetchDetailCollection('resume', Store.getters.currentUserId, getParams, force);
   },
   fetchPopular(getParams) {
     return this.fetchListCollection('popular', getParams);

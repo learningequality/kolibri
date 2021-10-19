@@ -315,11 +315,12 @@ export default function useLearnerResources() {
    * Fetches current learner's classes
    * and saves data to this composable's store
    *
+   * @param {Boolean} force Cache won't be used when `true`
    * @returns {Promise}
    * @public
    */
-  function fetchClasses() {
-    return LearnerClassroomResource.fetchCollection().then(collection => {
+  function fetchClasses({ force = false } = {}) {
+    return LearnerClassroomResource.fetchCollection({ force }).then(collection => {
       set(classes, collection);
     });
   }
@@ -328,11 +329,12 @@ export default function useLearnerResources() {
    * Fetches resumable content nodes with their progress data
    * and saves data to this composable's store
    *
+   * @param {Boolean} force Cache won't be used when `true`
    * @returns {Promise}
    * @public
    */
-  function fetchResumableContentNodes() {
-    return ContentNodeResource.fetchResume().then(contentNodes => {
+  function fetchResumableContentNodes({ force = false } = {}) {
+    return ContentNodeResource.fetchResume({}, force).then(contentNodes => {
       if (!contentNodes || !contentNodes.length) {
         return [];
       }
@@ -340,6 +342,7 @@ export default function useLearnerResources() {
       const contentNodesIds = contentNodes.map(contentNode => contentNode.id);
       return ContentNodeProgressResource.fetchCollection({
         getParams: { ids: contentNodesIds },
+        force,
       }).then(progresses => {
         if (progresses) {
           set(_resumableContentNodesProgresses, progresses);

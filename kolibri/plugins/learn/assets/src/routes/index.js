@@ -51,8 +51,15 @@ export default [
     component: HomePage,
     handler() {
       let promises = [fetchChannels()];
+      // force fetch classes and resumable content nodes to make sure that the home
+      // page is up-to-date when navigating to other 'Learn' pages and then back
+      // to the home page
       if (get(isUserLoggedIn)) {
-        promises = [...promises, fetchClasses(), fetchResumableContentNodes()];
+        promises = [
+          ...promises,
+          fetchClasses({ force: true }),
+          fetchResumableContentNodes({ force: true }),
+        ];
       }
       return store.dispatch('loading').then(() => {
         return Promise.all(promises)
