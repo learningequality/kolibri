@@ -164,18 +164,18 @@
       value: {
         type: Object,
         required: true,
-        validator(value) {
-          const inputKeys = [
-            'learning_activities',
-            'learner_needs',
-            'channels',
-            'accessibility_labels',
-            'languages',
-            'grade_levels',
-            'keywords',
-          ];
-          return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
-        },
+        // validator(value) {
+        //   const inputKeys = [
+        //     'learning_activities',
+        //     'learner_needs',
+        //     'channels',
+        //     'accessibility_labels',
+        //     'languages',
+        //     'grade_levels',
+        //     'keywords',
+        //   ];
+        //   return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
+        // },
       },
       availableLabels: {
         type: Object,
