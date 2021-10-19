@@ -135,6 +135,9 @@
   .truncated {
     overflow: hidden;
     text-overflow: ellipsis;
+    a {
+      text-decoration: none !important;
+    }
   }
 
 </style>
