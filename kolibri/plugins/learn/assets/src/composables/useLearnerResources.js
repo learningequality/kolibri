@@ -104,7 +104,10 @@ export default function useLearnerResources() {
     if (!lesson) {
       return undefined;
     }
-    return lesson.resources.findIndex(r => r.contentnode_id === resource.contentNodeId);
+    const lessonResourceIdx = lesson.resources.findIndex(
+      r => r.contentnode_id === resource.contentNodeId
+    );
+    return lessonResourceIdx === -1 ? undefined : lessonResourceIdx;
   }
 
   /**
@@ -269,7 +272,7 @@ export default function useLearnerResources() {
    */
   function getClassResourceLink(resource) {
     const lessonResourceIdx = _getLessonResourceIdx(resource);
-    if (!lessonResourceIdx) {
+    if (lessonResourceIdx === undefined) {
       return undefined;
     }
     return {
