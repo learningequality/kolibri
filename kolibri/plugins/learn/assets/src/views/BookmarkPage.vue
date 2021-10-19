@@ -65,7 +65,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeResource } from 'kolibri.resources';
   import { now } from 'kolibri.utils.serverClock';
-  import { PageNames } from '../constants';
+  import genContentLink from '../utils/genContentLink';
   import ContentCard from './ContentCard';
 
   export default {
@@ -113,13 +113,7 @@
     },
     methods: {
       ...mapActions(['createSnackbar']),
-      genContentLink(contentId, isLeaf) {
-        const params = { id: contentId };
-        if (!isLeaf) {
-          return this.$router.getRoute(PageNames.TOPICS_TOPIC, params);
-        }
-        return this.$router.getRoute(PageNames.TOPICS_CONTENT, params, this.$route.query);
-      },
+      genContentLink,
       loadMore() {
         if (!this.loading) {
           this.loading = true;

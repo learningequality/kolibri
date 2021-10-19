@@ -37,6 +37,8 @@
     right: 0;
     bottom: 0;
     left: 0;
+    // Overlays everything except the sidepanel and KModals
+    z-index: 11;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.7);

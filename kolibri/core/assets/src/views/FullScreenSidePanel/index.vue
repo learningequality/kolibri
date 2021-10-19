@@ -1,11 +1,11 @@
 <template>
 
   <div
-    v-if="panelOpen"
     ref="sidePanel"
     class="side-panel-wrapper"
+    :class="{ 'is-rtl': isRtl, 'is-mobile': isMobile }"
     tabindex="0"
-    @keyup.esc="togglePanel"
+    @keyup.esc="closePanel"
   >
     <transition name="side-panel">
       <div
@@ -15,6 +15,14 @@
           backgroundColor: $themeTokens.surface,
         }"
       >
+        <KIconButton
+          icon="close"
+          class="close-button"
+          @click="closePanel"
+        />
+        <slot></slot>
+
+      <!--
         <h2 class="title">
           {{ title }}
           <span>
@@ -36,12 +44,13 @@
           :togglePanel="togglePanel"
           :nextTopic="nextTopic"
         />
+      -->
       </div>
     </transition>
     <Backdrop
       :transitions="true"
       class="backdrop"
-      @click="togglePanel"
+      @click="closePanel"
     />
   </div>
 
@@ -51,23 +60,23 @@
 <script>
 
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
-  import { mapState } from 'vuex';
-  import SidePanelResourceMetadata from './SidePanelResourceMetadata';
-  import SidePanelResourcesList from './SidePanelResourcesList';
+  //import { mapState } from 'vuex';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  //import SidePanelResourcesList from './SidePanelResourcesList';
 
   export default {
     name: 'FullScreenSidePanel',
     components: {
       Backdrop,
-      SidePanelResourceMetadata,
-      SidePanelResourcesList,
+      //SidePanelResourcesList,
     },
-    data: function() {
-      return {
-        panelOpen: true,
-      };
-    },
+    mixins: [responsiveWindowMixin],
     computed: {
+      isMobile() {
+        return this.windowBreakpoint == 0;
+      },
+      /**
+      ---- hope to move the responsibility for this to other avenues ----
       ...mapState('topicsTree', ['content', 'contents']),
       panelType() {
         return 'resourceMetadata';
@@ -97,18 +106,20 @@
           return this.$tr('topicHeader');
         }
       },
+      */
     },
     methods: {
-      togglePanel() {
-        this.$emit('togglePanel');
-        this.panelOpen = !this.panelOpen;
+      closePanel() {
+        this.$emit('closePanel');
       },
     },
     $trs: {
+      /*
       topicHeader: {
         message: 'Also in this folder',
         context: 'Title of the panel with all topic contents. ',
       },
+      */
     },
   };
 
@@ -127,15 +138,17 @@
     position: fixed;
     top: 0;
     right: 0;
-    z-index: 16;
-    width: 100vw;
+    bottom: 0;
+    // Must be <= 12 z-index so that KDropdownMenu shows over
+    z-index: 12;
+    width: 472px;
     height: 100vh;
-    padding-top: 18px;
-    overflow: scroll;
+    padding: 32px;
+    overflow: auto;
     font-size: 14px;
 
-    @media (min-width: 436px) {
-      width: 436px;
+    .is-mobile & {
+      width: 100vw;
     }
   }
 
@@ -146,8 +159,9 @@
 
   .close-button {
     position: fixed;
-    top: 22px;
-    right: 36px;
+    top: 32px;
+    right: 32px;
+    z-index: 24; // Always above everything
   }
 
   .next-resource-footer {
@@ -157,8 +171,12 @@
   }
 
   .backdrop {
-    z-index: 4;
     color: rgba(0, 0, 0, 0.7);
+  }
+
+  /** Need to be sure a KDropdownMenu shows up on the Side Panel */
+  /deep/ .tippy-popper {
+    z-index: 24;
   }
 
 </style>

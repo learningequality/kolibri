@@ -25,7 +25,7 @@
             v-if="channels.length"
             class="grid"
             :contents="channels"
-            :genContentLink="genChannelLink"
+            @toggleInfoPanel="toggleInfoPanel"
           />
           <div class="toggle-view-buttons">
             <KIconButton
@@ -47,8 +47,8 @@
           <ContentCardGroupGrid
             v-if="popular.length"
             :cardViewStyle="currentViewStyle"
-            :genContentLink="genContentLink"
             :contents="trimmedPopular"
+            @toggleInfoPanel="toggleInfoPanel"
           />
         </div>
         <div v-else>
@@ -91,6 +91,13 @@
       @cancel="currentCategory = null"
       @input="handleCategory"
     />
+
+    <FullScreenSidePanel
+      v-if="sidePanelContent"
+      @closePanel="sidePanelContent = null"
+    >
+      <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
+    </FullScreenSidePanel>
   </div>
 
 </template>
@@ -101,11 +108,13 @@
   import { mapState } from 'vuex';
   import uniq from 'lodash/uniq';
 
+  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
   import { PageNames } from '../constants';
+  import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
@@ -133,10 +142,12 @@
       };
     },
     components: {
-      ContentCardGroupGrid,
-      ChannelCardGroupGrid,
-      EmbeddedSidePanel,
+      BrowseResourceMetadata,
       CategorySearchModal,
+      ChannelCardGroupGrid,
+      ContentCardGroupGrid,
+      EmbeddedSidePanel,
+      FullScreenSidePanel,
     },
     mixins: [commonLearnStrings, commonCoreStrings, responsiveWindowMixin],
     data: function() {
@@ -148,6 +159,7 @@
         results: [],
         more: null,
         labels: null,
+        sidePanelContent: null,
       };
     },
     computed: {
@@ -243,15 +255,8 @@
       }
     },
     methods: {
-      genContentLink(id, isLeaf) {
-        return {
-          name: isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
-          params: { id },
-          query: {
-            last: this.$store.state.pageName,
-          },
-        };
-      },
+      /* eslint-disable kolibri/vue-no-unused-methods */
+      // TODO: Remove this if we're close to release and haven't used it
       genChannelLink(channel_id) {
         return {
           name: PageNames.TOPICS_CHANNEL,
@@ -308,6 +313,9 @@
             this.moreLoading = false;
           });
         }
+      },
+      toggleInfoPanel(content) {
+        this.sidePanelContent = content;
       },
     },
     $trs: {

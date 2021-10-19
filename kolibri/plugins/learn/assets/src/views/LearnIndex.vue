@@ -55,7 +55,6 @@
       @submit="handleSubmitUpdateYourProfileModal"
     />
 
-
   </CoreBase>
 
 </template>

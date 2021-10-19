@@ -9,7 +9,6 @@
       v-if="channels.length"
       class="grid"
       :contents="channels"
-      :genContentLink="genChannelLink"
     />
   </div>
 
@@ -40,6 +39,8 @@
       ...mapState('topicsRoot', { channels: 'rootNodes' }),
     },
     methods: {
+      /* eslint-disable kolibri/vue-no-unused-methods */
+      // Not sure this is useful later?
       genChannelLink(channel_id) {
         return {
           name: PageNames.TOPICS_CHANNEL,

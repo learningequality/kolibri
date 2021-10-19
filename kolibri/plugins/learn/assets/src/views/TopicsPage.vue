@@ -104,9 +104,9 @@
                 <ContentCardGroupGrid
                   v-if="t.children.results && t.children.results.length"
                   :contents="t.children.results"
-                  :genContentLink="genContentLink"
                   :channelThumbnail="topicOrChannel['thumbnail']"
                   cardViewStyle="card"
+                  @toggleInfoPanel="toggleInfoPanel"
                 />
                 <KButton
                   v-if="t.children && t.children.more"
@@ -118,8 +118,8 @@
               <ContentCardGroupGrid
                 v-if="resources.length"
                 :contents="resources"
-                :genContentLink="genContentLink"
                 :channelThumbnail="topicOrChannel['thumbnail']"
+                @toggleInfoPanel="toggleInfoPanel"
               />
               <KButton v-if="topic.children && topic.children.more" @click="loadMore()">
                 {{ $tr('viewMore') }}
@@ -140,6 +140,12 @@
       </div>
 
     </div>
+    <FullScreenSidePanel
+      v-if="sidePanelContent"
+      @closePanel="sidePanelContent = null"
+    >
+      <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
+    </FullScreenSidePanel>
   </div>
 
 </template>
@@ -152,8 +158,9 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { PageNames } from '../constants';
+  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import commonCoach from '../../../../../plugins/coach/assets/src/views/common';
+  import BrowseResourceMetadata from './BrowseResourceMetadata';
   import ContentCardGroupGrid from './ContentCardGroupGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import CustomContentRenderer from './ChannelRenderer/CustomContentRenderer';
@@ -177,15 +184,18 @@
       return { title };
     },
     components: {
+      BrowseResourceMetadata,
       CardThumbnail,
       ContentCardGroupGrid,
       CustomContentRenderer,
       EmbeddedSidePanel,
+      FullScreenSidePanel,
     },
     mixins: [commonCoach, responsiveWindowMixin, commonCoreStrings],
     data: function() {
       return {
         activeTab: 'folders',
+        sidePanelContent: null,
       };
     },
     computed: {
@@ -231,13 +241,6 @@
     },
     methods: {
       ...mapMutations('topicsTree', ['ADD_MORE_CONTENTS', 'ADD_MORE_CHILD_CONTENTS']),
-      genContentLink(id, isLeaf) {
-        const routeName = isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC;
-        return {
-          name: routeName,
-          params: { id },
-        };
-      },
       loadMore() {
         return ContentNodeResource.fetchTree(this.topic.children.more).then(data => {
           this.ADD_MORE_CONTENTS(data.children);
@@ -255,6 +258,9 @@
       },
       toggleSidebarView(value) {
         this.activeTab = value;
+      },
+      toggleInfoPanel(content) {
+        this.sidePanelContent = content;
       },
     },
     $trs: {

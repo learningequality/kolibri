@@ -48,7 +48,6 @@
         @updateProgress="updateExerciseProgress"
         @updateContentState="updateContentState"
       />
-      <!--<SidePanel /> -->
     </template>
     <KCircularLoader v-else />
 

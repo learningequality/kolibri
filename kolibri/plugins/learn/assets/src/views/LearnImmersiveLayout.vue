@@ -20,6 +20,7 @@
       data-test="learningActivityBar"
       @navigateBack="navigateBack"
       @toggleBookmark="toggleBookmark"
+      @viewInfo="openSidePanel"
     />
     <KLinearLoader
       v-if="loading"
@@ -53,6 +54,15 @@
       />
     </div>
     <GlobalSnackbar />
+    <FullScreenSidePanel
+      v-if="sidePanelContent"
+      @closePanel="sidePanelContent = null"
+    >
+      <CurrentlyViewedResourceMetadata
+        :content="sidePanelContent"
+        :canDownloadContent="canDownload"
+      />
+    </FullScreenSidePanel>
   </div>
 
 </template>
@@ -64,6 +74,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import {
     LearningActivities,
     ContentKindsToLearningActivitiesMap,
@@ -74,6 +85,7 @@
   import GlobalSnackbar from '../../../../../../kolibri/core/assets/src/views/GlobalSnackbar';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
+  import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
 
@@ -100,8 +112,10 @@
       AppError,
       AuthMessage,
       ContentPage,
+      FullScreenSidePanel,
       GlobalSnackbar,
       LearningActivityBar,
+      CurrentlyViewedResourceMetadata,
       SkipNavigationLink,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
@@ -131,6 +145,7 @@
     data() {
       return {
         bookmark: null,
+        sidePanelContent: null,
       };
     },
     computed: {
@@ -140,6 +155,7 @@
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
+        canDownload: state => state.core.facilityConfig.show_download_button_in_learn,
       }),
       ...mapState('topicsTree', {
         isCoachContent: state => (state.content.coach_content ? 1 : 0),
@@ -190,6 +206,9 @@
       navigateBack() {
         // return to previous page using the route object set through props
         this.$router.push(this.back);
+      },
+      openSidePanel() {
+        this.sidePanelContent = this.content;
       },
       toggleBookmark() {
         if (this.bookmark) {
