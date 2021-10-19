@@ -1,7 +1,7 @@
 kolibri_gnome_sources = [
     'application.py',
     '__init__.py',
-    'kolibri_daemon_proxy.py',
+    'kolibri_daemon_manager.py',
     'main.py',
     'utils.py',
 ]

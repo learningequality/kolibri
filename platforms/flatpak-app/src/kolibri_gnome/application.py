@@ -3,7 +3,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import re
-import requests
 import subprocess
 import sys
 
@@ -18,7 +17,6 @@ import pew.ui
 from pew.pygobject_gtk.menus import PEWMenuItem
 from pew.ui import PEWShortcut
 
-from gi.repository import GLib
 from gi.repository import Gtk
 
 from kolibri_app.config import DATA_DIR
@@ -26,7 +24,7 @@ from kolibri_app.globals import KOLIBRI_APP_DEVELOPER_EXTRAS
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 from kolibri_app.globals import XDG_CURRENT_DESKTOP
 
-from .kolibri_daemon_proxy import KolibriDaemonProxy
+from .kolibri_daemon_manager import KolibriDaemonManager
 from .utils import get_localized_file
 
 
@@ -104,17 +102,21 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
     def default_url(self):
         return self.delegate.default_url
 
+    @property
+    def kolibri_daemon(self):
+        return self.delegate.kolibri_daemon
+
     def shutdown(self):
         self.delegate.remove_window(self)
 
     def kolibri_change_notify(self):
         if self.__target_url:
             self.load_url(self.__target_url)
-        elif not self.delegate.is_started():
+        elif not self.kolibri_daemon.is_started():
             # Convert current URL to a new kolibri-app URL for deferred loading
             self.load_url(self.delegate.url_to_x_kolibri_app(self.get_url()))
 
-        is_kolibri_started = self.delegate.is_started()
+        is_kolibri_started = self.kolibri_daemon.is_started()
         if is_kolibri_started and not self.__was_kolibri_started:
             self.on_kolibri_started()
         self.__was_kolibri_started = is_kolibri_started
@@ -123,10 +125,10 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
         pass
 
     def load_url(self, url):
-        if self.delegate.is_error():
+        if self.kolibri_daemon.is_error():
             self.__target_url = url
             self.__load_url_error()
-        elif self.delegate.is_loading():
+        elif self.kolibri_daemon.is_loading():
             self.__target_url = url
             self.__load_url_loading()
         else:
@@ -382,7 +384,7 @@ class KolibriChannelWindow(KolibriWindow):
 
         # TODO: Add KolibriView.set_name in pyeverywhere
 
-        response = self.delegate.kolibri_api_get(
+        response = self.kolibri_daemon.kolibri_api_get(
             "/api/content/channel/{channel_id}".format(channel_id=self.channel_id)
         )
 
@@ -401,18 +403,13 @@ class Application(pew.ui.PEWApp):
     def __init__(self, application_id=None):
         self.__application_id = application_id
 
-        self.__did_init = False
-        self.__starting_kolibri = False
+        self.__kolibri_daemon = KolibriDaemonManager(self.__on_kolibri_daemon_change)
 
         loader_path = get_localized_file(
             Path(DATA_DIR, "assets", "_load-{}.html").as_posix(),
             Path(DATA_DIR, "assets", "_load.html"),
         )
         self.__loader_url = loader_path.as_uri()
-
-        self.__kolibri_daemon = KolibriDaemonProxy.create_default()
-        self.__kolibri_daemon_has_error = None
-        self.__kolibri_daemon_owner = None
 
         self.__windows = []
 
@@ -430,98 +427,22 @@ class Application(pew.ui.PEWApp):
     def default_url(self):
         return "x-kolibri-app:/"
 
-    def init_ui(self):
-        if not self.__did_init:
-            self.__kolibri_daemon.init_async(
-                GLib.PRIORITY_DEFAULT, None, self.__kolibri_daemon_on_init
-            )
-            self.__did_init = True
+    @property
+    def kolibri_daemon(self):
+        return self.__kolibri_daemon
 
+    def init_ui(self):
+        self.kolibri_daemon.init_kolibri_daemon()
         if len(self.__windows) == 0:
             self.open_window()
 
     def shutdown(self):
-        if self.__kolibri_daemon.get_name_owner():
-            try:
-                self.__kolibri_daemon.release()
-            except GLib.Error as error:
-                logger.warning(
-                    "Error calling KolibriDaemonProxy.release: {error}".format(
-                        error=error
-                    )
-                )
+        self.kolibri_daemon.stop_kolibri_daemon()
         super().shutdown()
 
-    def __kolibri_daemon_on_init(self, source, result):
-        try:
-            self.__kolibri_daemon.init_finish(result)
-        except GLib.Error as error:
-            logger.warning(
-                "Error initializing KolibriDaemonProxy: {error}".format(error=error)
-            )
-            self.__kolibri_daemon_has_error = True
-            self.__notify_all_windows()
-        else:
-            self.__kolibri_daemon_has_error = False
-            self.__kolibri_daemon.connect("notify", self.__kolibri_daemon_on_notify)
-            self.__kolibri_daemon_on_notify(self.__kolibri_daemon, None)
-
-    def __kolibri_daemon_on_notify(self, kolibri_daemon, param_spec):
-        if self.__kolibri_daemon_has_error:
-            return
-
-        kolibri_daemon_owner = kolibri_daemon.get_name_owner()
-        kolibri_daemon_owner_changed = bool(
-            self.__kolibri_daemon_owner != kolibri_daemon_owner
-        )
-        self.__kolibri_daemon_owner = kolibri_daemon_owner
-
-        if kolibri_daemon_owner_changed:
-            self.__starting_kolibri = False
-            self.__kolibri_daemon.hold(
-                result_handler=self.__kolibri_daemon_null_result_handler
-            )
-
-        if self.__starting_kolibri and kolibri_daemon.is_started():
-            self.__starting_kolibri = False
-        elif self.__starting_kolibri:
-            pass
-        elif not kolibri_daemon.is_error() or kolibri_daemon_owner_changed:
-            self.__starting_kolibri = True
-            self.__kolibri_daemon.start(
-                result_handler=self.__kolibri_daemon_null_result_handler
-            )
-
-        self.__notify_all_windows()
-
-    def __kolibri_daemon_null_result_handler(self, proxy, result, user_data):
-        if isinstance(result, Exception):
-            logging.warning(
-                "Error communicating with KolibriDaemonProxy: {}".format(result)
-            )
-            self.__kolibri_daemon_has_error = True
-        else:
-            self.__kolibri_daemon_has_error = False
-        self.__notify_all_windows()
-
-    def __notify_all_windows(self):
+    def __on_kolibri_daemon_change(self):
         for window in self.__windows:
             window.kolibri_change_notify()
-
-    def is_started(self):
-        return self.__kolibri_daemon.is_started()
-
-    def is_loading(self):
-        return not self.__kolibri_daemon.is_started()
-
-    def is_error(self):
-        return self.__kolibri_daemon_has_error or self.__kolibri_daemon.is_error()
-
-    def __kolibri_daemon_hold(self):
-        return GLib.SOURCE_REMOVE
-
-    def __kolibri_daemon_start(self):
-        return GLib.SOURCE_REMOVE
 
     def open_window(self, target_url=None):
         target_url = target_url or self.default_url
@@ -574,17 +495,14 @@ class Application(pew.ui.PEWApp):
         should_load = (
             url == self.default_url
             or urlsplit(url).scheme in ("kolibri", "x-kolibri-app", "about")
-            or (is_loader_url and self.is_loading())
-            or self.is_kolibri_url(url)
+            or (is_loader_url and self.kolibri_daemon.is_loading())
+            or self.kolibri_daemon.is_kolibri_url(url)
         )
 
         if fallback_to_external and not (should_load or is_loader_url):
             self.open_url_in_external(url)
 
         return should_load
-
-    def is_kolibri_url(self, url):
-        return self.__kolibri_daemon.is_kolibri_url(url)
 
     def get_loader_url(self, state):
         return self.__loader_url + "#" + state
@@ -638,7 +556,7 @@ class Application(pew.ui.PEWApp):
             )
 
         target_url = "{path}#{fragment}".format(path=item_path, fragment=item_fragment)
-        return self.__kolibri_daemon.get_kolibri_initialize_url(target_url)
+        return self.kolibri_daemon.get_kolibri_initialize_url(target_url)
 
     def url_to_x_kolibri_app(self, url):
         return urlsplit(url)._replace(scheme="x-kolibri-app", netloc="").geturl()
@@ -658,29 +576,13 @@ class Application(pew.ui.PEWApp):
             raise ValueError()
 
         target_url = url_tuple._replace(scheme="", netloc="").geturl()
-        return self.__kolibri_daemon.get_kolibri_initialize_url(target_url)
-
-    def kolibri_api_get(self, path, *args, **kwargs):
-        url = self.__kolibri_daemon.get_kolibri_url(path)
-        if url:
-            request = requests.get(url, *args, **kwargs)
-        else:
-            logger.debug("Skipping Kolibri API request: Kolibri is not ready")
-            return None
-
-        try:
-            return request.json()
-        except ValueError as error:
-            logger.info(
-                "Error reading Kolibri API response: {error}".format(error=error)
-            )
-            return None
+        return self.kolibri_daemon.get_kolibri_initialize_url(target_url)
 
     def open_in_browser(self, url):
         subprocess.call(["xdg-open", url])
 
     def open_kolibri_home(self):
-        # TODO: It would be better to open self.__kolibri_daemon.kolibri_home,
+        # TODO: It would be better to open self.__dbus_proxy.props.kolibri_home,
         #       but the Flatpak's OpenURI portal only allows us to open files
         #       that exist in our sandbox.
         subprocess.call(["xdg-open", KOLIBRI_HOME_PATH.as_uri()])
@@ -717,12 +619,14 @@ class ChannelApplication(Application):
         return KolibriChannelWindow(self.channel_id, target_url, delegate=self)
 
     def open_url_in_external(self, url):
-        if super().is_kolibri_url(url):
+        if super().kolibri_daemon.is_kolibri_url(url):
             url = self.url_to_x_kolibri_app(url)
         self.open_in_browser(url)
 
     def is_kolibri_url(self, url):
-        return super().is_kolibri_url(url) and self.__is_url_in_channel(url)
+        return super().kolibri_daemon.is_kolibri_url(url) and self.__is_url_in_channel(
+            url
+        )
 
     def __is_url_in_channel(self, url):
         # Allow the user to navigate to login and account management pages, as
@@ -764,7 +668,7 @@ class ChannelApplication(Application):
         if contentnode_id == self.channel_id:
             return True
 
-        response = self.kolibri_api_get(
+        response = self.kolibri_daemon.kolibri_api_get(
             "/api/content/contentnode/{contentnode_id}".format(
                 contentnode_id=contentnode_id
             )

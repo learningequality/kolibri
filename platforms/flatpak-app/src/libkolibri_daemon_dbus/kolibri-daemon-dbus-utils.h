@@ -1,4 +1,4 @@
-/* kolibri-utils.c
+/* kolibri-daemon-dbus-utils.h
  *
  * Copyright 2021 Endless OS Foundation
  *
@@ -31,31 +31,11 @@
  * Author: Dylan McCall <dylan@endlessos.org>
  */
 
-#include "kolibri-utils.h"
+#ifndef KOLIBRI_DAEMON_DBUS_UTILS_H
+#define KOLIBRI_DAEMON_DBUS_UTILS_H
 
-#include "kolibri-task-multiplexer.h"
+#include "kolibri-daemon-dbus.h"
 
-/**
- * multiplex_dbus_proxy_call_async_ready_cb:
- *
- * Helper GAsyncReadyCallback which passes the async result of a dbus proxy call
- * to a KolibriTaskMultiplexer so it will be propagated to different invocation
- * tasks.
- */
-void
-multiplex_dbus_proxy_call_async_ready_cb(GObject      *source_object,
-                                         GAsyncResult *res,
-                                         gpointer user_data)
-{
-  KolibriTaskMultiplexer *task_multiplexer = KOLIBRI_TASK_MULTIPLEXER(user_data);
+GBusType kolibri_daemon_get_default_bus_type(void);
 
-  g_autoptr(GError) error = NULL;
-  g_autoptr(GVariant) result_variant = NULL;
-
-  result_variant = g_dbus_proxy_call_finish(G_DBUS_PROXY(source_object), res, &error);
-
-  if (result_variant == NULL)
-    kolibri_task_multiplexer_push_error(task_multiplexer, error);
-  else
-    kolibri_task_multiplexer_push_variant(task_multiplexer, result_variant);
-}
+#endif

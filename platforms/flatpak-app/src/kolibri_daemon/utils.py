@@ -5,6 +5,8 @@ logger = logging.getLogger(__name__)
 import filecmp
 import shutil
 
+from gi.repository import GLib
+
 from pathlib import Path
 
 from kolibri_app.config import KOLIBRI_HOME_TEMPLATE_DIR
@@ -43,3 +45,7 @@ def kolibri_update_from_home_template():
             shutil.copytree(left_file, right_file)
         else:
             shutil.copy2(left_file, right_file)
+
+
+def dict_to_vardict(data):
+    return dict((key, GLib.Variant("s", value)) for key, value in data.items())
