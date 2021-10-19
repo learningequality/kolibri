@@ -45,8 +45,8 @@ function getClassesSection(wrapper) {
   return wrapper.find('[data-test="classes"]');
 }
 
-function getContinueLearningSection(wrapper) {
-  return wrapper.find('[data-test="continueLearning"]');
+function getContinueLearningFromClassesSection(wrapper) {
+  return wrapper.find('[data-test="continueLearningFromClasses"]');
 }
 
 function getRecentLessonsSection(wrapper) {
@@ -55,6 +55,10 @@ function getRecentLessonsSection(wrapper) {
 
 function getRecentQuizzesSection(wrapper) {
   return wrapper.find('[data-test="recentQuizzes"]');
+}
+
+function getContinueLearningOnYourOwnSection(wrapper) {
+  return wrapper.find('[data-test="continueLearningOnYourOwn"]');
 }
 
 function getExploreChannelsSection(wrapper) {
@@ -105,20 +109,20 @@ describe(`HomePage`, () => {
     });
   });
 
-  describe(`"Continue learning from classes/on your own" section`, () => {
+  describe(`"Continue learning from classes" section`, () => {
     it(`the section is not displayed for a guest user`, () => {
       const wrapper = makeWrapper();
-      expect(getContinueLearningSection(wrapper).exists()).toBe(false);
+      expect(getContinueLearningFromClassesSection(wrapper).exists()).toBe(false);
     });
 
     it(`the section is not displayed for a signed in user who has
-      no resources or quizzes in progress`, () => {
+      no classes resources or quizzes in progress`, () => {
       useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
       const wrapper = makeWrapper();
-      expect(getContinueLearningSection(wrapper).exists()).toBe(false);
+      expect(getContinueLearningFromClassesSection(wrapper).exists()).toBe(false);
     });
 
-    describe(`for a signed in user who has some classes resources or quizzes in progress`, () => {
+    describe(`for a signed in user who has some resources or quizzes in progress`, () => {
       beforeEach(() => {
         useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
         useLearnerResources.mockImplementation(() =>
@@ -152,25 +156,9 @@ describe(`HomePage`, () => {
         );
       });
 
-      it(`"Continue learning on your own" section is not displayed`, () => {
+      it(`the section is displayed and contains classes resources and quizzes in progress`, () => {
         const wrapper = makeWrapper();
-        expect(wrapper.text()).not.toContain('Continue learning on your own');
-      });
-
-      it(`"Continue learning from your classes" section is displayed`, () => {
-        const wrapper = makeWrapper();
-        expect(wrapper.text()).toContain('Continue learning from your classes');
-      });
-
-      it(`resources in progress outside of classes are not displayed`, () => {
-        const wrapper = makeWrapper();
-        expect(getContinueLearningSection(wrapper).text()).not.toContain('Non-class resource 1');
-        expect(getContinueLearningSection(wrapper).text()).not.toContain('Non-class resource 2');
-      });
-
-      it(`classes resources and quizzes in progress are displayed`, () => {
-        const wrapper = makeWrapper();
-        const links = getContinueLearningSection(wrapper).findAll('a');
+        const links = getContinueLearningFromClassesSection(wrapper).findAll('a');
         expect(links.length).toBe(4);
         expect(links.at(0).text()).toBe('Class resource 1');
         expect(links.at(1).text()).toBe('Class resource 2');
@@ -178,10 +166,20 @@ describe(`HomePage`, () => {
         expect(links.at(3).text()).toBe('Class quiz 2');
       });
 
+      it(`non-classes resources in progress  are not displayed`, () => {
+        const wrapper = makeWrapper();
+        expect(getContinueLearningFromClassesSection(wrapper).text()).not.toContain(
+          'Non-class resource 1'
+        );
+        expect(getContinueLearningFromClassesSection(wrapper).text()).not.toContain(
+          'Non-class resource 2'
+        );
+      });
+
       it(`clicking a resource navigates to the class resource page`, () => {
         const wrapper = makeWrapper();
         expect(wrapper.vm.$route.path).toBe('/');
-        const links = getContinueLearningSection(wrapper).findAll('a');
+        const links = getContinueLearningFromClassesSection(wrapper).findAll('a');
         links.at(0).trigger('click');
         expect(wrapper.vm.$route.path).toBe('/class-resource');
       });
@@ -189,69 +187,9 @@ describe(`HomePage`, () => {
       it(`clicking a quiz navigates to the class quiz page`, () => {
         const wrapper = makeWrapper();
         expect(wrapper.vm.$route.path).toBe('/');
-        const links = getContinueLearningSection(wrapper).findAll('a');
+        const links = getContinueLearningFromClassesSection(wrapper).findAll('a');
         links.at(2).trigger('click');
         expect(wrapper.vm.$route.path).toBe('/class-quiz');
-      });
-    });
-
-    describe(`for a signed in user who doesn't have any classes resources or quizzes in progress
-      and has some resources in progress outside of classes`, () => {
-      beforeEach(() => {
-        useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
-        useLearnerResources.mockImplementation(() =>
-          useLearnerResourcesMock({
-            resumableNonClassesContentNodes: [
-              { id: 'non-class-resource-1', title: 'Non-class resource 1' },
-              { id: 'non-class-resource-2', title: 'Non-class resource 2' },
-            ],
-            getTopicContentNodeLink() {
-              return { path: '/topic-resource' };
-            },
-          })
-        );
-      });
-
-      it(`"Continue learning from your classes" section is not displayed`, () => {
-        const wrapper = makeWrapper();
-        expect(wrapper.text()).not.toContain('Continue learning from your classes');
-      });
-
-      it(`"Continue learning on your own" section is not displayed
-        when access to unassigned content is not allowed`, () => {
-        const wrapper = makeWrapper();
-        expect(wrapper.text()).not.toContain('Continue learning on your own');
-      });
-
-      describe(`when access to unassigned content is allowed`, () => {
-        beforeEach(() => {
-          useDeviceSettings.mockImplementation(() =>
-            useDeviceSettingsMock({
-              canAccessUnassignedContent: true,
-            })
-          );
-        });
-
-        it(`"Continue learning on your own" section is displayed`, () => {
-          const wrapper = makeWrapper();
-          expect(wrapper.text()).toContain('Continue learning on your own');
-        });
-
-        it(`resources in progress outside of classes are displayed`, () => {
-          const wrapper = makeWrapper();
-          const links = getContinueLearningSection(wrapper).findAll('a');
-          expect(links.length).toBe(2);
-          expect(links.at(0).text()).toBe('Non-class resource 1');
-          expect(links.at(1).text()).toBe('Non-class resource 2');
-        });
-
-        it(`clicking a resource navigates to the topic resource page`, () => {
-          const wrapper = makeWrapper();
-          expect(wrapper.vm.$route.path).toBe('/');
-          const links = getContinueLearningSection(wrapper).findAll('a');
-          links.at(0).trigger('click');
-          expect(wrapper.vm.$route.path).toBe('/topic-resource');
-        });
       });
     });
   });
@@ -326,6 +264,72 @@ describe(`HomePage`, () => {
     });
   });
 
+  describe(`"Continue learning on your own" section`, () => {
+    it(`the section is not displayed for a guest user`, () => {
+      const wrapper = makeWrapper();
+      expect(getContinueLearningOnYourOwnSection(wrapper).exists()).toBe(false);
+    });
+
+    it(`the section is not displayed for a signed in user
+      who hasn't finished all their classes resources and quizzes yet`, () => {
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+      const wrapper = makeWrapper();
+      expect(getContinueLearningOnYourOwnSection(wrapper).exists()).toBe(false);
+    });
+
+    describe(`for a signed in user
+      who has finished all their classes resources and quizzes
+      and has some non-classes resources in progress`, () => {
+      beforeEach(() => {
+        useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+        useLearnerResources.mockImplementation(() =>
+          useLearnerResourcesMock({
+            learnerFinishedAllClasses: true,
+            resumableNonClassesContentNodes: [
+              { id: 'non-class-resource-1', title: 'Non-class resource 1' },
+              { id: 'non-class-resource-2', title: 'Non-class resource 2' },
+            ],
+            getTopicContentNodeLink() {
+              return { path: '/topic-resource' };
+            },
+          })
+        );
+      });
+
+      it(`the section is not displayed when access to unassigned content is not allowed`, () => {
+        const wrapper = makeWrapper();
+        expect(getContinueLearningOnYourOwnSection(wrapper).exists()).toBe(false);
+      });
+
+      describe(`when access to unassigned content is allowed`, () => {
+        beforeEach(() => {
+          useDeviceSettings.mockImplementation(() =>
+            useDeviceSettingsMock({
+              canAccessUnassignedContent: true,
+            })
+          );
+        });
+
+        it(`the section is displayed and contains non-classes resources in progress`, () => {
+          const wrapper = makeWrapper();
+          expect(getContinueLearningOnYourOwnSection(wrapper).exists()).toBe(true);
+          const links = getContinueLearningOnYourOwnSection(wrapper).findAll('a');
+          expect(links.length).toBe(2);
+          expect(links.at(0).text()).toBe('Non-class resource 1');
+          expect(links.at(1).text()).toBe('Non-class resource 2');
+        });
+
+        it(`clicking a resource navigates to the topic resource page`, () => {
+          const wrapper = makeWrapper();
+          expect(wrapper.vm.$route.path).toBe('/');
+          const links = getContinueLearningOnYourOwnSection(wrapper).findAll('a');
+          links.at(0).trigger('click');
+          expect(wrapper.vm.$route.path).toBe('/topic-resource');
+        });
+      });
+    });
+  });
+
   describe(`"Explore channels" section`, () => {
     it(`the section is not displayed when there are no channels available`, () => {
       const wrapper = makeWrapper();
@@ -338,60 +342,39 @@ describe(`HomePage`, () => {
       });
 
       it(`the section is not displayed for a signed in user
-        who has some resumable classes resources`, () => {
+        who hasn't finished all their classes resources and quizzes yet`, () => {
         useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
-        useLearnerResources.mockImplementation(() =>
-          useLearnerResourcesMock({
-            resumableClassesResources: [
-              { contentNodeId: 'class-resource-1', lessonId: 'class-1-lesson', classId: 'class-1' },
-              { contentNodeId: 'class-resource-2', lessonId: 'class-2-lesson', classId: 'class-2' },
-            ],
-            getClassResourceLink() {
-              return { path: '/class-resource' };
-            },
-          })
-        );
-
         const wrapper = makeWrapper();
         expect(getExploreChannelsSection(wrapper).exists()).toBe(false);
       });
 
       it(`the section is not displayed for a signed in user
-        who has some resumable quizzes`, () => {
-        useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
-        useLearnerResources.mockImplementation(() =>
-          useLearnerResourcesMock({
-            resumableClassesQuizzes: [
-              { id: 'class-quiz-1', title: 'Class quiz 1' },
-              { id: 'class-quiz-2', title: 'Class quiz 2' },
-            ],
-            getClassQuizLink() {
-              return { path: '/class-quiz' };
-            },
-          })
-        );
-
-        const wrapper = makeWrapper();
-        expect(getExploreChannelsSection(wrapper).exists()).toBe(false);
-      });
-
-      it(`the section is not displayed for a signed in user
-        who has no resumable classes resources or quizzes
+        who has finished all their classes resources and quizzes
         when access to unassigned content is not allowed`, () => {
         useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+        useLearnerResources.mockImplementation(() =>
+          useLearnerResourcesMock({
+            learnerFinishedAllClasses: true,
+          })
+        );
         const wrapper = makeWrapper();
         expect(getExploreChannelsSection(wrapper).exists()).toBe(false);
       });
 
       it(`the section is displayed for a signed in user
-        who has no resumable classes resources or quizzes
+        who has finished all their classes resources and quizzes
         when access to unassigned content is allowed`, () => {
+        useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+        useLearnerResources.mockImplementation(() =>
+          useLearnerResourcesMock({
+            learnerFinishedAllClasses: true,
+          })
+        );
         useDeviceSettings.mockImplementation(() =>
           useDeviceSettingsMock({
             canAccessUnassignedContent: true,
           })
         );
-        useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
         const wrapper = makeWrapper();
         expect(getExploreChannelsSection(wrapper).exists()).toBe(true);
       });

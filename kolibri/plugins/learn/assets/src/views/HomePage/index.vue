@@ -12,7 +12,9 @@
       v-if="continueLearningFromClasses || continueLearningOnYourOwn"
       class="section"
       :fromClasses="continueLearningFromClasses"
-      data-test="continueLearning"
+      :data-test="continueLearningFromClasses ?
+        'continueLearningFromClasses' :
+        'continueLearningOnYourOwn'"
     />
     <AssignedLessonsCards
       v-if="hasActiveClassesLessons"
@@ -82,19 +84,19 @@
         resumableClassesQuizzes,
         resumableClassesResources,
         resumableNonClassesContentNodes,
+        learnerFinishedAllClasses,
       } = useLearnerResources();
 
-      const canResumeClasses = computed(() => {
-        return get(resumableClassesQuizzes).length > 0 || get(resumableClassesResources).length > 0;
-      });
       const continueLearningFromClasses = computed(
-        () => get(isUserLoggedIn) && get(canResumeClasses)
+        () =>
+          (get(isUserLoggedIn) && get(resumableClassesQuizzes).length > 0) ||
+          get(resumableClassesResources).length > 0
       );
       const continueLearningOnYourOwn = computed(
         () =>
           get(isUserLoggedIn) &&
+          get(learnerFinishedAllClasses) &&
           get(canAccessUnassignedContent) &&
-          !get(canResumeClasses) &&
           get(resumableNonClassesContentNodes).length > 0
       );
       const hasActiveClassesLessons = computed(
@@ -111,7 +113,8 @@
       const displayExploreChannels = computed(() => {
         return (
           get(hasChannels) &&
-          (!get(isUserLoggedIn) || (!get(canResumeClasses) && get(canAccessUnassignedContent)))
+          (!get(isUserLoggedIn) ||
+            (get(learnerFinishedAllClasses) && get(canAccessUnassignedContent)))
         );
       });
 
@@ -123,7 +126,6 @@
         activeClassesQuizzes,
         hasActiveClassesLessons,
         hasActiveClassesQuizzes,
-        canResumeClasses,
         continueLearningFromClasses,
         continueLearningOnYourOwn,
         displayExploreChannels,

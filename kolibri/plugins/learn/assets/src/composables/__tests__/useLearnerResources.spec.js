@@ -1,5 +1,6 @@
-import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
+import cloneDeep from 'lodash/cloneDeep';
 
+import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
 import { PageNames, ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
 import useLearnerResources from '../useLearnerResources';
@@ -11,6 +12,7 @@ const {
   resumableClassesQuizzes,
   resumableClassesResources,
   resumableNonClassesContentNodes,
+  learnerFinishedAllClasses,
   getClass,
   getClassActiveLessons,
   getClassActiveQuizzes,
@@ -118,6 +120,10 @@ const TEST_CLASSES = [
             { contentnode_id: 'resource-2' },
             { contentnode_id: 'resource-3-in-progress' },
           ],
+          progress: {
+            resource_progress: 0,
+            total_resources: 3,
+          },
         },
         {
           id: 'class-1-active-lesson-2',
@@ -129,6 +135,10 @@ const TEST_CLASSES = [
             { contentnode_id: 'resource-4' },
             { contentnode_id: 'resource-5-in-progress' },
           ],
+          progress: {
+            resource_progress: 1,
+            total_resources: 3,
+          },
         },
         {
           id: 'class-1-inactive-lesson',
@@ -136,6 +146,10 @@ const TEST_CLASSES = [
           is_active: false,
           collection: 'class-1',
           resources: [{ contentnode_id: 'resource-5-in-progress' }],
+          progress: {
+            resource_progress: 0,
+            total_resources: 1,
+          },
         },
       ],
     },
@@ -177,6 +191,10 @@ const TEST_CLASSES = [
             { contentnode_id: 'resource-2' },
             { contentnode_id: 'resource-1-in-progress' },
           ],
+          progress: {
+            resource_progress: 1,
+            total_resources: 3,
+          },
         },
         {
           id: 'class-2-inactive-lesson',
@@ -187,14 +205,50 @@ const TEST_CLASSES = [
             { contentnode_id: 'resource-7' },
             { contentnode_id: 'resource-8-in-progress' },
           ],
+          progress: {
+            resource_progress: 0,
+            total_resources: 2,
+          },
         },
       ],
     },
   },
 ];
 
+// A helper that takes an object with test classes
+// and returns its copy with all lessons and quizzes
+// progress changed to complete
+function finishClasses(classes) {
+  const finishedClasses = cloneDeep(classes);
+  return finishedClasses.map(c => {
+    c.assignments.exams.forEach(quiz => {
+      quiz.progress.closed = true;
+    });
+    c.assignments.lessons.forEach(lesson => {
+      lesson.progress.resource_progress = lesson.progress.total_resources;
+    });
+    return c;
+  });
+}
+
+// A helper that takes an object with test classes
+// and returns its copy with all lessons and quizzes
+// changed to inactive
+function inactivateClasses(classes) {
+  const inactiveClasses = cloneDeep(classes);
+  return inactiveClasses.map(c => {
+    c.assignments.exams.forEach(quiz => {
+      quiz.active = false;
+    });
+    c.assignments.lessons.forEach(lesson => {
+      lesson.is_active = false;
+    });
+    return c;
+  });
+}
+
 describe(`useLearnerResources`, () => {
-  beforeAll(() => {
+  beforeEach(() => {
     ContentNodeResource.fetchResume.mockResolvedValue(TEST_RESUMABLE_CONTENT_NODES);
     ContentNodeProgressResource.fetchCollection.mockResolvedValue(TEST_CONTENT_NODES_PROGRESSES);
     fetchResumableContentNodes();
@@ -222,6 +276,10 @@ describe(`useLearnerResources`, () => {
             { contentnode_id: 'resource-2' },
             { contentnode_id: 'resource-3-in-progress' },
           ],
+          progress: {
+            resource_progress: 0,
+            total_resources: 3,
+          },
         },
         {
           id: 'class-1-active-lesson-2',
@@ -233,6 +291,10 @@ describe(`useLearnerResources`, () => {
             { contentnode_id: 'resource-4' },
             { contentnode_id: 'resource-5-in-progress' },
           ],
+          progress: {
+            resource_progress: 1,
+            total_resources: 3,
+          },
         },
         {
           id: 'class-2-active-lesson-1',
@@ -244,6 +306,10 @@ describe(`useLearnerResources`, () => {
             { contentnode_id: 'resource-2' },
             { contentnode_id: 'resource-1-in-progress' },
           ],
+          progress: {
+            resource_progress: 1,
+            total_resources: 3,
+          },
         },
       ]);
     });
@@ -371,6 +437,36 @@ describe(`useLearnerResources`, () => {
     });
   });
 
+  describe(`learnerFinishedAllClasses`, () => {
+    it(`returns 'true' if a learner has no classes`, () => {
+      LearnerClassroomResource.fetchCollection.mockResolvedValue([]);
+      fetchClasses().then(() => {
+        expect(learnerFinishedAllClasses.value).toBe(true);
+      });
+    });
+
+    it(`returns 'true' if a learner has no active lessons and quizzes`, () => {
+      LearnerClassroomResource.fetchCollection.mockResolvedValue(inactivateClasses(TEST_CLASSES));
+      fetchClasses().then(() => {
+        expect(learnerFinishedAllClasses.value).toBe(true);
+      });
+    });
+
+    it(`returns 'false' if a learner hasn't finished all lessons and quizzes yet`, () => {
+      LearnerClassroomResource.fetchCollection.mockResolvedValue(TEST_CLASSES);
+      fetchClasses().then(() => {
+        expect(learnerFinishedAllClasses.value).toBe(false);
+      });
+    });
+
+    it(`returns 'true' if a learner finished all lessons and quizzes`, () => {
+      LearnerClassroomResource.fetchCollection.mockResolvedValue(finishClasses(TEST_CLASSES));
+      fetchClasses().then(() => {
+        expect(learnerFinishedAllClasses.value).toBe(true);
+      });
+    });
+  });
+
   describe(`getClass`, () => {
     it(`returns a class`, () => {
       expect(getClass('class-2')).toEqual(TEST_CLASSES[1]);
@@ -390,6 +486,10 @@ describe(`useLearnerResources`, () => {
             { contentnode_id: 'resource-2' },
             { contentnode_id: 'resource-3-in-progress' },
           ],
+          progress: {
+            resource_progress: 0,
+            total_resources: 3,
+          },
         },
         {
           id: 'class-1-active-lesson-2',
@@ -401,6 +501,10 @@ describe(`useLearnerResources`, () => {
             { contentnode_id: 'resource-4' },
             { contentnode_id: 'resource-5-in-progress' },
           ],
+          progress: {
+            resource_progress: 1,
+            total_resources: 3,
+          },
         },
       ]);
     });

@@ -158,6 +158,21 @@ export default function useLearnerResources() {
   });
 
   /**
+   * @returns {Boolean} - `true` if a learner finished all active
+   *                       classes lessons and quizzes (or when there are none)
+   * @public
+   */
+  const learnerFinishedAllClasses = computed(() => {
+    const hasUnfinishedLesson = get(activeClassesLessons).some(lesson => {
+      return lesson.progress.resource_progress < lesson.progress.total_resources;
+    });
+    const hasUnfinishedQuiz = get(activeClassesQuizzes).some(quiz => {
+      return !quiz.progress.closed;
+    });
+    return !(hasUnfinishedLesson || hasUnfinishedQuiz);
+  });
+
+  /**
    * @param {String} classId
    * @returns {Object} A class
    * @public
@@ -362,6 +377,7 @@ export default function useLearnerResources() {
     resumableClassesQuizzes,
     resumableClassesResources,
     resumableNonClassesContentNodes,
+    learnerFinishedAllClasses,
     getClass,
     getResumableContentNode,
     getResumableContentNodeProgress,
