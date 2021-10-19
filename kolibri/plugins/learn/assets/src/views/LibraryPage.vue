@@ -56,7 +56,11 @@
           :disabled="moreLoading"
           @click="searchMore"
         />
-        <p>{{ $tr('clearAll') }}</p>
+        <KButton
+          :text="$tr('clearAll')"
+          :primary="false"
+          @click="clearSearch"
+        />
         <HybridLearningCardGrid
           v-if="results.length"
           :numCols="numCols"
@@ -399,9 +403,9 @@
         this.currentCategory = null;
       },
       search() {
+        const getParams = { max_results: 25 };
         if (this.displayingSearchResults) {
           this.searchLoading = true;
-          const getParams = { max_results: 25 };
           for (let key of searchKeys) {
             if (key === 'categories') {
               if (this.searchTerms[key][AllCategories]) {
@@ -427,6 +431,11 @@
             this.labels = data.labels;
             this.searchLoading = false;
           });
+        } else {
+          ContentNodeResource.fetchCollection({ getParams }).then(data => {
+            console.log(data.labels);
+            this.labels = data.labels;
+          });
         }
       },
       searchMore() {
@@ -442,6 +451,9 @@
       },
       toggleInfoPanel(content) {
         this.sidePanelContent = content;
+      },
+      clearSearch() {
+        this.$router.push(this.$router.getRoute(PageNames.LIBRARY));
       },
     },
     $trs: {
