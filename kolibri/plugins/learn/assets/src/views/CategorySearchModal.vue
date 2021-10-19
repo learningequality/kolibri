@@ -23,16 +23,25 @@
           icon="info"
           size="large"
         />
-        <h2>{{ coreString(camelCase(key)) }}</h2>
-        <p
-          v-for="(item, nestedKey) in nestedObject.nested"
-          :key="item.value"
-          :disabled="availablePaths && !availablePaths[item.value]"
-          :style="availablePaths && !availablePaths[item.value] ? { textColor: 'grey' } : {}"
-          @click="$emit('input', item.value)"
+        <h2
+          class="filter-list-item"
+          @click="$emit('input', nestedObject.value)"
         >
-          {{ coreString(camelCase(nestedKey)) }}
-        </p>
+          {{ coreString(camelCase(key)) }}
+        </h2>
+        <div class="filter-list-item">
+          <p
+            v-for="(item, nestedKey) in nestedObject.nested"
+            :key="item.value"
+            :disabled="availablePaths && !availablePaths[item.value]"
+            :style="availablePaths && !availablePaths[item.value] ? { textColor: 'grey' } : {}"
+
+            @click="$emit('input', item.value)"
+          >
+            {{ coreString(camelCase(nestedKey)) }}
+          </p>
+
+        </div>
       </KFixedGridItem>
     </KFixedGrid>
     <KFixedGrid
@@ -45,14 +54,20 @@
         :key="value.value"
         :span="4"
         :disabled="availablePaths && !availablePaths[value.value]"
-        :style="availablePaths && !availablePaths[value.value] ? { textColor: 'grey' } : {}"
+        :style="availablePaths && !availablePaths[value.value] ?
+          { color: 'grey' } : { cursor: 'pointer' }"
         @click="$emit('input', value.value)"
       >
         <KIcon
           icon="info"
           size="large"
         />
-        <h2>{{ coreString(camelCase(key)) }}</h2>
+        <h2
+          class="filter-list-item"
+          @click="$emit('input', value.value)"
+        >
+          {{ coreString(camelCase(key)) }}
+        </h2>
       </KFixedGridItem>
     </KFixedGrid>
   </KModal>
@@ -136,8 +151,11 @@
               paths[path] = true;
             }
           }
+          console.log('paths');
+          console.log(paths);
           return paths;
         }
+        console.log('null');
         return null;
       },
       categoryGroupIsNested() {

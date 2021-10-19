@@ -26,7 +26,7 @@
         :value="value.keywords || ''"
         @change="val => $emit('input', { ...value, keywords: val })"
       />
-      <div v-if="Object.keys(libraryCategoriesList).length">
+      <div v-if="value.categories && value.categories.length">
         <h2 class="section title">
           {{ $tr('categories') }}
         </h2>
@@ -75,10 +75,18 @@
         @input="handleActivity"
       />
       <!-- Filter results by learning activity, displaying all options -->
-      <SelectGroup v-model="inputValue" :availableLabels="availableLabels" class="section" />
-      <div class="section">
+      <SelectGroup
+        v-model="inputValue"
+        :availableLabels="availableLabels"
+        class="section"
+      />
+      <div
+        v-if="value.learner_needs && value.learner_needs.length"
+        class="section"
+      >
         <div
           v-for="(val, activity) in resourcesNeededList"
+
           :key="activity"
           span="4"
           alignment="center"
@@ -164,18 +172,18 @@
       value: {
         type: Object,
         required: true,
-        // validator(value) {
-        //   const inputKeys = [
-        //     'learning_activities',
-        //     'learner_needs',
-        //     'channels',
-        //     'accessibility_labels',
-        //     'languages',
-        //     'grade_levels',
-        //     'keywords',
-        //   ];
-        //   return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
-        // },
+        validator(value) {
+          const inputKeys = [
+            'learning_activities',
+            'learner_needs',
+            'channels',
+            'accessibility_labels',
+            'languages',
+            'grade_levels',
+            'keywords',
+          ];
+          return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
+        },
       },
       availableLabels: {
         type: Object,
