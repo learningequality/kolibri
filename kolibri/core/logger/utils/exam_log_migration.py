@@ -162,7 +162,7 @@ def migrate_from_exam_logs(source_logs):  # noqa C901
     source_logs = source_logs.prefetch_related("attemptlogs")
 
     kind = content_kinds.QUIZ
-    mastery_criterion = {"type": content_kinds.QUIZ}
+    mastery_criterion = {"type": content_kinds.QUIZ, "coach_assigned": True}
 
     # ExamAttemptLog properties that we do not want
     # to copy onto the new AttemptLog
