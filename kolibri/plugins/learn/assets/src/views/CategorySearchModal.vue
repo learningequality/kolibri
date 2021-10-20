@@ -1,85 +1,43 @@
 <template>
 
-  <KModal
-    :title="$tr('title')"
-    :cancelText="coreString('closeAction')"
-    size="large"
-    @cancel="$emit('cancel')"
-  >
+  <div>
 
-    <KFixedGrid
-      v-if="categoryGroupIsNested"
-      :numCols="12"
-      :style="{ margin: '24px' }"
+    <KModal
+      v-if="position === 'modal'"
+      :title="$tr('title')"
+      :cancelText="coreString('closeAction')"
+      size="large"
+      @cancel="$emit('cancel')"
     >
-      <KFixedGridItem
-        v-for="(nestedObject, key) in displaySelectedCategories"
-        :key="key"
-        :span="4"
-        :disabled="availablePaths && !availablePaths[nestedObject.value]"
-        :style="availablePaths && !availablePaths[nestedObject.value] ? { textColor: 'grey' } : {}"
-      >
-        <KIcon
-          icon="info"
-          size="large"
-        />
-        <h2
-          class="filter-list-item"
-          @click="$emit('input', nestedObject.value)"
-        >
-          {{ coreString(camelCase(key)) }}
-        </h2>
-        <div class="filter-list-item">
-          <p
-            v-for="(item, nestedKey) in nestedObject.nested"
-            :key="item.value"
-            :disabled="availablePaths && !availablePaths[item.value]"
-            :style="availablePaths && !availablePaths[item.value] ? { textColor: 'grey' } : {}"
+      <CategorySearchModalOptions
+        :selectedCategory="selectedCategory"
+        :availableLabels="availableLabels"
+        :span="windowIsMedium ? 6 : 4"
+        numCols="12"
+        v-on="$listeners"
+      />
+    </KModal>
 
-            @click="$emit('input', item.value)"
-          >
-            {{ coreString(camelCase(nestedKey)) }}
-          </p>
+    <h2>{{ $tr('title') }}</h2>
+    <CategorySearchModalOptions
+      :selectedCategory="selectedCategory"
+      :availableLabels="availableLabels"
+      span="1"
+      numCols="1"
+      v-on="$listeners"
+    />
 
-        </div>
-      </KFixedGridItem>
-    </KFixedGrid>
-    <KFixedGrid
-      v-else
-      :numCols="12"
-      :style="{ margin: '24px' }"
-    >
-      <KFixedGridItem
-        v-for="(value, key) in displaySelectedCategories"
-        :key="value.value"
-        :span="4"
-        :disabled="availablePaths && !availablePaths[value.value]"
-        :style="availablePaths && !availablePaths[value.value] ?
-          { color: 'grey' } : { cursor: 'pointer' }"
-        @click="$emit('input', value.value)"
-      >
-        <KIcon
-          icon="info"
-          size="large"
-        />
-        <h2
-          class="filter-list-item"
-          @click="$emit('input', value.value)"
-        >
-          {{ coreString(camelCase(key)) }}
-        </h2>
-      </KFixedGridItem>
-    </KFixedGrid>
-  </KModal>
+  </div>
 
 </template>
 
 
 <script>
 
-  import camelCase from 'lodash/camelCase';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { Categories, CategoriesLookup } from 'kolibri.coreVue.vuex.constants';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import CategorySearchModalOptions from './CategorySearchModalOptions';
   import plugin_data from 'plugin_data';
 
   const availablePaths = {};
@@ -126,7 +84,10 @@
 
   export default {
     name: 'CategorySearchModal',
-    mixins: [commonCoreStrings],
+    components: {
+      CategorySearchModalOptions,
+    },
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       selectedCategory: {
         type: String,
@@ -138,38 +99,12 @@
         required: false,
         default: null,
       },
-    },
-    computed: {
-      availablePaths() {
-        if (this.availableLabels) {
-          const paths = {};
-          for (let key of this.availableLabels.categories) {
-            const keyPaths = key.split('.');
-            let path = '';
-            for (let keyPath of keyPaths) {
-              path = path === '' ? keyPath : path + '.' + keyPath;
-              paths[path] = true;
-            }
-          }
-          console.log('paths');
-          console.log(paths);
-          return paths;
-        }
-        console.log('null');
-        return null;
-      },
-      categoryGroupIsNested() {
-        return Object.values(this.displaySelectedCategories).some(
-          obj => Object.keys(obj.nested).length
-        );
-      },
-      displaySelectedCategories() {
-        return libraryCategories[this.selectedCategory].nested;
-      },
-    },
-    methods: {
-      camelCase(val) {
-        return camelCase(val);
+      position: {
+        type: String,
+        required: true,
+        validator(val) {
+          return ['modal', 'fullscreen'].includes(val);
+        },
       },
     },
     $trs: {
