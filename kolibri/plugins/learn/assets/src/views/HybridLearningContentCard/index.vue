@@ -70,13 +70,6 @@
           :tooltip="coreString('moreOptions')"
           @click="$emit('toggleOptions')"
         />
-        <UiSelect
-          :value="selection"
-          :options="options"
-          :label="label"
-          :floatingLabel="floatingLabel"
-          @blur="$emit('blur')"
-        />
         <KButton
           v-if="copiesCount > 1"
           appearance="basic-link"
