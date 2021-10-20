@@ -1,4 +1,8 @@
 import { createTranslator } from 'kolibri.utils.i18n';
+import camelCase from 'lodash/camelCase';
+import get from 'lodash/get';
+import invert from 'lodash/invert';
+import * as METADATA from 'kolibri.coreVue.vuex.constants';
 import notificationStrings from './notificationStrings';
 
 export const coreStrings = createTranslator('CommonCoreStrings', {
@@ -1028,17 +1032,76 @@ const noneOfTheAboveTranslator = createTranslator('PerseusInternalMessages', {
   'None of the above': 'None of the above',
 });
 
+/**
+ * An object mapping ad hoc keys (like those to be passed to coreString()) which do not
+ * conform to the expectations. Examples:
+ *
+ * - Misspelling of the key in coreStrings but a kolibri-constant used to access it is
+ *   spelled correctly and will not map.
+ * - Keys were defined and string-froze which are not camelCase.
+ * - Keys which, when _.camelCase()'ed will not result in a valid key, requiring manual mapping
+ */
+const nonconformingKeys = {
+  PEOPLE: 'ToUseWithTeachersAndPeers',
+  PAPER_PENCIL: 'ToUseWithPaperAndPencil',
+  INTERNET: 'NeedsInternet',
+  MATERIALS: 'NeedsMaterials',
+  FOR_BEGINNERS: 'ForBeginners',
+  digitalLiteracy: 'digitialLiteracy',
+};
+
+/**
+ * An object made by taking all metadata namespaces, merging them, then inverting them so that the
+ * ID value (eg, 'rZy41Dc') instead are the keys of an object mapping to the names we use
+ * to find the translation key.
+ */
+const MetadataLookup = invert(
+  Object.assign(
+    {},
+    METADATA.AccessibilityCategories,
+    METADATA.Categories,
+    METADATA.ContentLevels,
+    METADATA.ContentNodeResourceType,
+    METADATA.LearningActivities,
+    METADATA.ResourcesNeededTypes
+  )
+);
+
 export default {
   methods: {
+    /**
+     * Return translated string for key defined in the coreStrings translator. Will map
+     * ID keys generated in the kolibri-constants library to their appropriate translations
+     * if available.
+     *
+     * @param {string} key - A key as defined in the coreStrings translator; also accepts keys
+     * for the object kolibri.coreVue.vuex.constants.MetadataLookup.
+     * @param {object} args - An object with keys matching ICU syntax arguments for the translation
+     * string mapping to the values to be passed for those arguments.
+     */
     coreString(key, args) {
       if (key === 'None of the above') {
         return noneOfTheAboveTranslator.$tr(key, args);
       }
-      if (key === 'digitalLiteracy') {
-        key = 'digitialLiteracy';
+
+      const metadataKey = get(MetadataLookup, key, null);
+      key = metadataKey ? camelCase(metadataKey) : key;
+
+      if (Object.keys(nonconformingKeys).includes(key)) {
+        return coreStrings.$tr(nonconformingKeys[key], args);
       }
-      return coreStrings.$tr(key, args);
+
+      return coreStrings.$tr(camelCase(key), args);
     },
+    /**
+     * Shows a specific snackbar notification from our notificationStrings translator.
+     *
+     * @param {string} key - A key as defined in the notificationsStrings translator.
+     * @param {object} args - An object with keys matching ICU syntax arguments for the translation
+     * string mapping to the values to be passed for those arguments.
+     * @param {object} coreCreateSnackbarArgs - Arguments which will be passed to the
+     * `CORE_CREATE_SNACKBAR` mutation.
+     */
     showSnackbarNotification(key, args, coreCreateSnackbarArgs) {
       let text = notificationStrings.$tr(key, args || {});
       if (coreCreateSnackbarArgs) {
