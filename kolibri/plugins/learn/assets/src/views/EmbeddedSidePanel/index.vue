@@ -6,7 +6,7 @@
       backgroundColor: $themeTokens.surface,
       width: width,
     }"
-    class="side-panel"
+    :class="position === 'embedded' ? 'side-panel' : ''"
   >
     <div v-if="topics && topicsListDisplayed">
       <div v-for="t in topics" :key="t.id">
@@ -15,7 +15,7 @@
         </h3>
       </div>
     </div>
-    <div v-else :style="sidePanelStyle">
+    <div v-else>
       <!-- search by keyword -->
       <h2 class="title">
         {{ $tr('keywords') }}
@@ -26,7 +26,7 @@
         :value="value.keywords || ''"
         @change="val => $emit('input', { ...value, keywords: val })"
       />
-      <div v-if="value.categories && value.categories.length">
+      <div>
         <h2 class="section title">
           {{ $tr('categories') }}
         </h2>
@@ -200,13 +200,16 @@
         type: [Number, String],
         required: true,
       },
-      topicPage: {
-        type: Boolean,
-        required: false,
-      },
       topicsListDisplayed: {
         type: Boolean,
         required: false,
+      },
+      position: {
+        type: String,
+        required: true,
+        validator(val) {
+          return ['embedded', 'overlay'].includes(val);
+        },
       },
     },
     computed: {
@@ -243,12 +246,6 @@
             'line-spacing': '0',
           },
         };
-      },
-      sidePanelStyle() {
-        if (this.topicPage) {
-          return { position: 'relative' };
-        }
-        return null;
       },
       availableRootCategories() {
         if (this.availableLabels) {

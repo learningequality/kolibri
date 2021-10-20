@@ -15,36 +15,7 @@
           backgroundColor: $themeTokens.surface,
         }"
       >
-        <KIconButton
-          icon="close"
-          class="close-button"
-          @click="closePanel"
-        />
         <slot></slot>
-
-      <!--
-        <h2 class="title">
-          {{ title }}
-          <span>
-            <KIconButton
-              icon="close"
-              class="close-button"
-              @click="togglePanel"
-            />
-          </span>
-        </h2>
-        <SidePanelResourceMetadata
-          v-if="panelType === 'resourceMetadata'"
-          :togglePanel="togglePanel"
-        />
-        <SidePanelResourcesList
-          v-if="panelType === 'resourcesList'"
-          :contents="siblingNodes"
-          :currentContent="content"
-          :togglePanel="togglePanel"
-          :nextTopic="nextTopic"
-        />
-      -->
       </div>
     </transition>
     <Backdrop
@@ -147,12 +118,12 @@
     z-index: 12;
     width: 472px;
     height: 100vh;
-    padding: 32px;
-    overflow: auto;
+    padding: 24px;
+    overflow: scroll;
     font-size: 14px;
 
-    .is-mobile & {
-      width: 100vw;
+    @media (min-width: 436px) {
+      width: 346px;
     }
   }
 
