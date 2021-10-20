@@ -48,8 +48,7 @@ class DeviceChannelMetadataSerializer(ChannelMetadataSerializer):
                     # count the total number of renderable non-topic resources in the channel
                     # (note: it's faster to count them all and then subtract the unrenderables, of which there are fewer)
                     value["total_resources"] = (
-                        channel_nodes.dedupe_by_content_id().count()
-                        - unrenderable_nodes.dedupe_by_content_id().count()
+                        channel_nodes.count() - unrenderable_nodes.count()
                     )
 
                 if "total_file_size" in include_fields:

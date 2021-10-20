@@ -388,7 +388,6 @@ class Command(AsyncCommand):
                 ContentNode.objects.filter(channel_id=channel_id, available=True)
                 .exclude(kind=content_kinds.TOPIC)
                 .values("content_id")
-                .distinct()
                 .count()
             )
 

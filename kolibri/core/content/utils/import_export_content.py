@@ -139,7 +139,7 @@ def get_import_export_data(
 
     queried_file_objects = {}
 
-    content_ids = set()
+    content_ids = list()
 
     while min_boundary < max_rght:
 
@@ -170,18 +170,14 @@ def get_import_export_data(
                 )
             )
 
-        included_content_ids = nodes_segment.values_list(
-            "content_id", flat=True
-        ).distinct()
-
-        content_ids.update(included_content_ids)
-
+        included_content_ids = nodes_segment.values_list("content_id", flat=True)
+        content_ids.extend(included_content_ids)
         # Only bother with this query if there were any resources returned above.
         if included_content_ids:
             file_objects = LocalFile.objects.filter(
                 files__contentnode__in=nodes_segment
             )
-            if available is not None:
+            if available:
                 file_objects = file_objects.filter(available=available)
             queried_file_objects.update(file_objects.in_bulk())
 

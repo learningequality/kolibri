@@ -566,7 +566,7 @@ def get_import_data_for_update(
     i = 0
 
     updated_ids_slice = updated_resource_ids[i : i + batch_size]
-
+    print("updated_ids_slice", updated_ids_slice)
     nodes_to_include = ContentNode.objects.filter(channel_id=channel_id)
 
     # if requested, filter out nodes we're not able to render
