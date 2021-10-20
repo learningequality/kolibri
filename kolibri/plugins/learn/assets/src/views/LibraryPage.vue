@@ -114,7 +114,7 @@
       @togglePanel="toggleSidePanelVisibility"
     >
       <KIconButton
-        v-if="windowIsSmall"
+        v-if="windowIsSmall && !currentCategory"
         class="overlay-close-button"
         icon="close"
         :ariaLabel="coreString('close')"
@@ -122,19 +122,38 @@
         :tooltip="coreString('close')"
         @click="toggleSidePanelVisibility"
       />
+      <KIconButton
+        v-if="windowIsSmall && currentCategory"
+        icon="back"
+        :ariaLabel="coreString('back')"
+        :color="$themeTokens.text"
+        :tooltip="coreString('back')"
+        @click="closeCategoryModal"
+      />
       <EmbeddedSidePanel
+        v-if="!currentCategory"
         v-model="searchTerms"
         :width="`${sidePanelOverlayWidth}px`"
         :availableLabels="labels"
         position="overlay"
         @currentCategory="handleShowSearchModal"
       />
+      <CategorySearchModal
+        v-if="currentCategory && windowIsSmall"
+        :selectedCategory="currentCategory"
+        :numCols="numCols"
+        :availableLabels="labels"
+        position="fullscreen"
+        @cancel="currentCategory = null"
+        @input="handleCategory"
+      />
     </FullScreenSidePanel>
     <CategorySearchModal
-      v-if="currentCategory"
+      v-if="(windowIsMedium || windowIsLarge) && currentCategory"
       :selectedCategory="currentCategory"
       :numCols="numCols"
       :availableLabels="labels"
+      position="modal"
       @cancel="currentCategory = null"
       @input="handleCategory"
     />
@@ -413,17 +432,16 @@
       handleShowSearchModal(value) {
         this.currentCategory = value;
         this.showSearchModal = true;
-        this.sidePanelIsOpen = false;
+        !this.windowIsSmall ? (this.sidePanelIsOpen = false) : '';
       },
-      // hideSearchModal() {
-      //   this.showSearchModal = false;
-      // },
-
       toggleCardView(value) {
         this.currentViewStyle = value;
       },
       toggleSidePanelVisibility() {
         this.sidePanelIsOpen = !this.sidePanelIsOpen;
+      },
+      closeCategoryModal() {
+        this.currentCategory = null;
       },
       handleCategory(category) {
         this.searchTerms = { ...this.searchTerms, categories: { [category]: true } };
@@ -458,12 +476,13 @@
             this.labels = data.labels;
             this.searchLoading = false;
           });
-        } else {
-          ContentNodeResource.fetchCollection({ getParams }).then(data => {
-            console.log(data.labels);
-            this.labels = data.labels;
-          });
         }
+        // else {
+        //   ContentNodeResource.fetchCollection({ getParams }).then(data => {
+        //     console.log(data.labels);
+        //     this.labels = data.labels;
+        //   });
+        // }
       },
       searchMore() {
         if (this.displayingSearchResults && this.more && !this.moreLoading) {
