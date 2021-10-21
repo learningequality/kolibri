@@ -26,10 +26,12 @@ the Kolibri launcher in _$PATH_ and Kolibri Python packages available in
 _$PYTHONHOME_. We expect that an installer package will provide these
 dependencies in addition to installing the desktop front-end.
 
-It will also take advantage of having the
-[kolibri-app-desktop-xdg-plugin](https://github.com/endlessm/kolibri-app-desktop-xdg-plugin)
-installed. If so, it will be automatically registered before Kolibri
-is initialized.
+It will also take advantage of having the following Kolibri plugins installed:
+- [kolibri-app-desktop-xdg-plugin](https://github.com/endlessm/kolibri-app-desktop-xdg-plugin)
+- [kolibri-desktop-auth-plugin](https://github.com/endlessm/kolibri-desktop-auth-plugin)
+
+If so, they will be automatically registered before Kolibri is
+initialized.
 
 ### Developer documentation
 
