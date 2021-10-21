@@ -45,6 +45,7 @@
         "python3-kolibri.json",
         "python3-kolibri-pytz.json",
         "python3-kolibri-app-desktop-xdg-plugin.json",
+        "python3-kolibri-desktop-auth-plugin.json",
         {
             "name" : "kolibri-home-template",
             "buildsystem" : "simple",

@@ -29,6 +29,13 @@ if "KOLIBRI_HOME" in os.environ:
 else:
     KOLIBRI_HOME_PATH = DEFAULT_KOLIBRI_HOME_PATH
 
+# These Kolibri plugins will be dynamically enabled if they are
+# available:
+OPTIONAL_PLUGINS = [
+    "kolibri_app_desktop_xdg_plugin",
+    "kolibri_desktop_auth_plugin",
+]
+
 
 def init_gettext():
     gettext.bindtextdomain(config.GETTEXT_PACKAGE, config.LOCALE_DIR)
@@ -69,8 +76,12 @@ def init_kolibri():
 
     registered_plugins.register_plugins(["kolibri.plugins.app"])
 
-    if importlib.util.find_spec("kolibri_app_desktop_xdg_plugin"):
-        registered_plugins.register_plugins(["kolibri_app_desktop_xdg_plugin"])
+    available_plugins = []
+    for optional_plugin in OPTIONAL_PLUGINS:
+        if importlib.util.find_spec(optional_plugin):
+            available_plugins.append(optional_plugin)
+    if available_plugins:
+        registered_plugins.register_plugins(available_plugins)
 
     setup_logging(debug=False)
     initialize()
