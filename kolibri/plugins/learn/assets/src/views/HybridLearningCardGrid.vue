@@ -10,6 +10,7 @@
         <HybridLearningContentCard
           class="grid-item"
           :isMobile="windowIsSmall"
+          :contentNode="content"
           :title="content.title"
           :thumbnail="content.thumbnail"
           :kind="content.kind"
@@ -42,6 +43,7 @@
       v-for="content in contents"
       v-else
       :key="content.id"
+      :contentNode="content"
       :channelThumbnail="content.channel_thumbnail"
       :channelTitle="content.channel_thumbnail"
       :description="content.description"
