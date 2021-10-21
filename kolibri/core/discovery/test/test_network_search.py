@@ -162,8 +162,8 @@ class SoUDClientListenerTestCase(TransactionTestCase):
         self.other_instance.device_info.update(subset_of_users_device=False)
         self.listener.add_instance(self.other_instance)
         mock_get_user_ids.assert_called()
-        mock_start_sync.assert_any_call(server=self.other_instance.base_url, user=123)
-        mock_start_sync.assert_any_call(server=self.other_instance.base_url, user=456)
+        mock_start_sync.assert_any_call(self.other_instance.base_url, 123)
+        mock_start_sync.assert_any_call(self.other_instance.base_url, 456)
 
     @mock.patch(SEARCH_MODULE + "begin_request_soud_sync")
     @mock.patch(SEARCH_MODULE + "SoUDClientListener._get_user_ids")
@@ -187,8 +187,8 @@ class SoUDClientListenerTestCase(TransactionTestCase):
         self.other_instance.device_info.update(subset_of_users_device=False)
         self.listener.remove_instance(self.other_instance)
         mock_get_user_ids.assert_called()
-        mock_stop_sync.assert_any_call(server=self.other_instance.base_url, user=123)
-        mock_stop_sync.assert_any_call(server=self.other_instance.base_url, user=456)
+        mock_stop_sync.assert_any_call(self.other_instance.base_url, 123)
+        mock_stop_sync.assert_any_call(self.other_instance.base_url, 456)
 
     @mock.patch(SEARCH_MODULE + "stop_request_soud_sync")
     @mock.patch(SEARCH_MODULE + "SoUDClientListener._get_user_ids")
