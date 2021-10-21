@@ -109,7 +109,7 @@ def filter_by_file_availability(nodes_to_include, channel_id, drive_id, peer_id)
     return nodes_to_include
 
 
-def get_import_export_data(
+def get_import_export_data(  # noqa: C901
     channel_id,
     node_ids,
     exclude_node_ids,
@@ -174,16 +174,16 @@ def get_import_export_data(
             "content_id", flat=True
         ).distinct()
 
-        content_ids.update(included_content_ids)
-
         # Only bother with this query if there were any resources returned above.
         if included_content_ids:
+            content_ids.update(included_content_ids)
             file_objects = LocalFile.objects.filter(
                 files__contentnode__in=nodes_segment
-            )
+            ).values("id", "file_size", "extension")
             if available is not None:
                 file_objects = file_objects.filter(available=available)
-            queried_file_objects.update(file_objects.in_bulk())
+            for f in file_objects:
+                queried_file_objects[f["id"]] = f
 
             if topic_thumbnails:
                 # Do a query to get all the descendant and ancestor topics for this segment
@@ -196,27 +196,19 @@ def get_import_export_data(
 
                 file_objects = LocalFile.objects.filter(
                     files__contentnode__in=segment_topics,
-                )
+                ).values("id", "file_size", "extension")
                 if available is not None:
                     file_objects = file_objects.filter(available=available)
-                queried_file_objects.update(file_objects.in_bulk())
+                for f in file_objects:
+                    queried_file_objects[f["id"]] = f
 
         min_boundary += dynamic_chunksize
 
     files_to_download = list(queried_file_objects.values())
 
-    total_bytes_to_transfer = sum(map(lambda x: x.file_size or 0, files_to_download))
+    total_bytes_to_transfer = sum(map(lambda x: x["file_size"] or 0, files_to_download))
 
     return len(content_ids), files_to_download, total_bytes_to_transfer
-
-
-def _get_node_ids(node_ids):
-
-    return (
-        ContentNode.objects.filter_by_uuids(node_ids)
-        .get_descendants(include_self=True)
-        .values_list("id", flat=True)
-    )
 
 
 def retry_import(e):

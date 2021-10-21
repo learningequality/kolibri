@@ -125,7 +125,7 @@ class CalculateImportExportSizeView(APIView):
         try:
             (
                 total_resource_count,
-                files_to_download,
+                _,
                 total_bytes_to_transfer,
             ) = get_import_export_data(
                 channel_id,

@@ -661,8 +661,8 @@ def calculate_dummy_progress_for_annotation(node_ids, exclude_node_ids, total_pr
     return int(annotation_proportion * total_progress / (100 - annotation_proportion))
 
 
-def propagate_forced_localfile_removal(localfiles_list):
-    total = len(localfiles_list)
+def propagate_forced_localfile_removal(localfiles_dict_list):
+    total = len(localfiles_dict_list)
     i = 0
     # Even thought we are using the filter_by_uuids method below
     # which prevents too many SQL parameters from being passed in to the query
@@ -670,11 +670,11 @@ def propagate_forced_localfile_removal(localfiles_list):
     # and cause issues - so we batch the ids here.
     batch_size = 10000
     while i < total:
-        file_slice = localfiles_list[i : i + batch_size]
+        file_slice = localfiles_dict_list[i : i + batch_size]
         files = File.objects.filter(
             supplementary=False,
             local_file__in=LocalFile.objects.filter_by_uuids(
-                [f.id for f in file_slice]
+                [f["id"] for f in file_slice]
             ),
         )
         ContentNode.objects.filter(files__in=files).update(available=False)

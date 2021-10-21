@@ -147,7 +147,7 @@ class Command(AsyncCommand):
             total=total_file_deletion_operations + additional_progress
         ) as progress_update:
 
-            for file in LocalFile.objects.delete_unused_files():
+            for _ in LocalFile.objects.delete_unused_files():
                 progress_update(1, progress_extra_data)
 
             with db_lock():
