@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.utils import IntegrityError
 from django.utils import timezone
 
 from .permissions import UserCanReadExamAssignmentData
@@ -75,7 +76,7 @@ class Exam(AbstractFacilityDataModel):
     question_sources = JSONField(default=[], blank=True)
 
     """
-    This field is interpretted differently depending on the 'data_model_version' field.
+    This field is interpreted differently depending on the 'data_model_version' field.
 
     V1:
         Used to help select new questions from exercises at quiz creation time
@@ -101,7 +102,7 @@ class Exam(AbstractFacilityDataModel):
         Collection, related_name="exams", blank=False, null=False
     )
     creator = models.ForeignKey(
-        FacilityUser, related_name="exams", blank=False, null=False
+        FacilityUser, related_name="exams", blank=False, null=True
     )
 
     # To be set True when the quiz is first set to active=True
@@ -119,6 +120,21 @@ class Exam(AbstractFacilityDataModel):
         """
         LearnerProgressNotification.objects.filter(quiz_id=self.id).delete()
         super(Exam, self).delete(using, keep_parents)
+
+    def pre_save(self):
+        super(Exam, self).pre_save()
+
+        # maintain stricter enforcement on when creator is allowed to be null
+        if self._state.adding and self.creator is None:
+            raise IntegrityError("Exam must be saved with an creator")
+
+        # validate that datasets match so this would be syncable
+        if self.creator and self.creator.dataset_id != self.dataset_id:
+            # the only time creator can be null is if it's a superuser
+            # and if we set it to none HERE
+            if not self.creator.is_superuser:
+                raise IntegrityError("Exam must have creator in the same dataset")
+            self.creator = None
 
     def save(self, *args, **kwargs):
         # If archive is True during the save op, but there is no date_archived then
@@ -173,11 +189,41 @@ class ExamAssignment(AbstractFacilityDataModel):
         Collection, related_name="assigned_exams", blank=False, null=False
     )
     assigned_by = models.ForeignKey(
-        FacilityUser, related_name="assigned_exams", blank=False, null=False
+        FacilityUser, related_name="assigned_exams", blank=False, null=True
     )
 
+    def pre_save(self):
+        super(ExamAssignment, self).pre_save()
+
+        # this shouldn't happen
+        if (
+            self.exam
+            and self.collection
+            and self.exam.dataset_id != self.collection.dataset_id
+        ):
+            raise IntegrityError(
+                "Exam assignment foreign models must be in same dataset"
+            )
+
+        # maintain stricter enforcement on when assigned_by is allowed to be null
+        # assignments aren't usually updated, but ensure only during creation
+        if self._state.adding and self.assigned_by is None:
+            raise IntegrityError("Exam assignment must be saved with an assigner")
+
+        # validate that datasets match so this would be syncable
+        if self.assigned_by and self.assigned_by.dataset_id != self.dataset_id:
+            # the only time assigned_by can be null is if it's a superuser
+            # and if we set it to none HERE
+            if not self.assigned_by.is_superuser:
+                # maintain stricter enforcement on when assigned_by is allowed to be null
+                raise IntegrityError(
+                    "Exam assignment must have assigner in the same dataset"
+                )
+            self.assigned_by = None
+
     def infer_dataset(self, *args, **kwargs):
-        return self.cached_related_dataset_lookup("assigned_by")
+        # infer from exam so assignments align with exams
+        return self.cached_related_dataset_lookup("exam")
 
     def calculate_source_id(self):
         return "{exam_id}:{collection_id}".format(
