@@ -91,15 +91,19 @@ class StartSessionSerializer(serializers.Serializer):
 
 
 class AttemptSerializer(serializers.Serializer):
-    item_id = serializers.CharField(required=False)
-    attempt_id = HexStringUUIDField(required=False)
+    id = HexStringUUIDField(required=False)
+    item = serializers.CharField(required=False)
     correct = serializers.FloatField(min_value=0, max_value=1)
     complete = serializers.BooleanField(required=False, default=False)
     time_spent = serializers.FloatField(min_value=0)
 
     answer = serializers.DictField(required=False)
+    simple_answer = serializers.CharField(required=False, allow_blank=True)
     error = serializers.BooleanField(required=False, default=False)
     hinted = serializers.BooleanField(required=False, default=False)
+    # Whether to replace the current answer with the new answer
+    # this is a no-op if the attempt is being created.
+    replace = serializers.BooleanField(required=False, default=False)
 
     # An additional field that can be set to handle coach assigned quizzes
     # that are themselves not proper content nodes but refer to content under
@@ -109,8 +113,8 @@ class AttemptSerializer(serializers.Serializer):
     def validate(self, data):
         if not data["error"] and "answer" not in data:
             raise ValidationError("Must provide an answer if not an error")
-        if "attempt_id" not in data and "item_id" not in data:
-            raise ValidationError("Must provide an attempt_id or item_id")
+        if "id" not in data and "item" not in data:
+            raise ValidationError("Must provide an id or item")
         return data
 
 
@@ -129,8 +133,29 @@ class UpdateSessionSerializer(serializers.Serializer):
         return data
 
 
+attemptlog_fields = [
+    "id",
+    "correct",
+    "complete",
+    "hinted",
+    "error",
+    "item",
+    "answer",
+    "time_spent",
+]
+
+
+def _serialize_quiz_log(log):
+    item_content_id, item = log["item"].split(QUIZ_ITEM_DELIMETER)
+    log["content_id"] = item_content_id
+    log["item"] = item
+    return log
+
+
 class ProgressTrackingViewSet(viewsets.GenericViewSet):
     def _validate_quiz(self, user, quiz_id):
+        if user.is_anonymous():
+            raise PermissionDenied("Cannot access a quiz if not logged in")
         if not Exam.objects.filter(
             active=True,
             assignments__collection_id__in=user.memberships.all().values(
@@ -161,6 +186,10 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 kind = node.kind
                 context["node_id"] = node_id
                 if lesson_id:
+                    if user.is_anonymous():
+                        raise PermissionDenied(
+                            "Cannot access a lesson if not logged in"
+                        )
                     if not Lesson.objects.filter(
                         lesson_assignments__collection_id__in=user.memberships.all().values(
                             "collection_id"
@@ -195,14 +224,15 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
 
         returns object with the following parameters:
         session_id - the id of the session object that was created by this call.
+        context - which contains node_id, quiz_id, lesson_id, and mastery_level as appropriate
 
         if the user is logged in, will also include
         progress - any previous progress on this content resource
+        time_spent - any previous time spent on this content resource
         extra_fields - any previously recorded additional data stored for this resource
 
         if this is an assessment, will also include
         mastery_criterion - the mastery criterion that should be applied to determine completion
-        mastery_level - the identifier for this run at the assessment
         pastattempts - a serialized subset of previous responses within this run, that can be used
                        to determine completion
         totalattempts - the total number of previous responses within this run of the assessment resource.
@@ -255,6 +285,8 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                     {
                         "progress": summarylog.progress,
                         "extra_fields": summarylog.extra_fields,
+                        "time_spent": summarylog.time_spent,
+                        "complete": summarylog.progress >= 1,
                     }
                 )
                 if mastery_model:
@@ -268,7 +300,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                             context,
                         )
                     )
-                    context["mastery_level"] = output["mastery_level"]
+                    context["mastery_level"] = output.pop("mastery_level")
 
             # Must ensure there is no user here to maintain user privacy for logging.
             visitor_id = (
@@ -285,7 +317,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 visitor_id=visitor_id,
                 extra_fields={"context": context},
             )
-            output.update({"session_id": sessionlog.id})
+            output.update({"session_id": sessionlog.id, "context": context})
         return Response(output)
 
     def _process_created_notification(self, summarylog, context):
@@ -377,9 +409,9 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
 
         mastery_criterion = masterylog.mastery_criterion
         exercise_type = mastery_criterion.get("type")
-        attemptlogs = masterylog.attemptlogs.values(
-            "correct", "hinted", "error"
-        ).order_by("-start_timestamp")
+        attemptlogs = masterylog.attemptlogs.values(*attemptlog_fields).order_by(
+            "-start_timestamp"
+        )
 
         # get the first x logs depending on the exercise type
         if exercise_type == exercises.M_OF_N:
@@ -387,14 +419,10 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         elif exercise_type in MAPPING:
             attemptlogs = attemptlogs[: MAPPING[exercise_type]]
         elif exercise_type == "quiz":
-            attemptlogs = attemptlogs.order_by().values(
-                "correct", "hinted", "error", "item", "answer", "time_spent"
-            )
+            attemptlogs = attemptlogs.order_by()
             if mastery_criterion.get("coach_assigned"):
                 for log in attemptlogs:
-                    item_content_id, item = log["item"].split(QUIZ_ITEM_DELIMETER)
-                    log["content_id"] = item_content_id
-                    log["item"] = item
+                    _serialize_quiz_log(log)
         else:
             attemptlogs = attemptlogs[:10]
 
@@ -403,6 +431,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             "mastery_level": masterylog.mastery_level,
             "pastattempts": attemptlogs,
             "totalattempts": masterylog.attemptlogs.count(),
+            "complete": masterylog.complete,
         }
 
     def _generate_interaction(self, validated_data):
@@ -450,19 +479,21 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                     "Invalid mastery_level value, this session has not been started."
                 )
 
-    def _update_or_create_attempt(
+    def _update_or_create_attempt(  # noqa C901
         self, session_id, masterylog_id, user, attempt, end_timestamp, context
     ):
-        attempt_id = attempt.get("attempt_id")
-        item_id = attempt.get("item_id")
+        attempt_id = attempt.get("id")
+        item = attempt.get("item")
 
         correct = attempt["correct"]
         complete = attempt["complete"]
 
         answer = attempt.get("answer")
+        simple_answer = attempt.get("simple_answer")
         error = attempt["error"]
         hinted = attempt["hinted"]
         time_spent = attempt["time_spent"]
+        replace = attempt["replace"]
 
         interaction = self._generate_interaction(attempt)
 
@@ -472,7 +503,6 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             try:
                 attemptlog = AttemptLog.objects.get(
                     id=attempt_id,
-                    sessionlog_id=session_id,
                     masterylog_id=masterylog_id,
                     user=user,
                 )
@@ -483,14 +513,26 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             attemptlog.time_spent = time_spent
             update_fields = ("interaction_history", "end_timestamp", "time_spent")
 
-            for field in ("correct", "hinted", "error"):
-                if not getattr(attemptlog, field) and attempt[field]:
-                    setattr(attemptlog, field, True)
-                    update_fields += (field,)
+            if error and not attemptlog.error:
+                attemptlog.error = error
+                update_fields += ("error",)
 
-            if answer:
-                attemptlog.answer = answer
-                update_fields += ("answer",)
+            # Mark hinted only if it is not already correct, and don't undo previously hinted
+            if hinted and not attemptlog.hinted and not attemptlog.correct:
+                attemptlog.hinted = hinted
+                update_fields += ("hinted",)
+
+            if replace:
+                attemptlog.correct = correct
+                update_fields += ("correct",)
+
+                if answer:
+                    attemptlog.answer = answer
+                    update_fields += ("answer",)
+
+                if simple_answer:
+                    attemptlog.simple_answer = simple_answer
+                    update_fields += ("simple_answer",)
 
             if complete and not attemptlog.complete:
                 attemptlog.complete = complete
@@ -506,18 +548,17 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             if "quiz_id" in context and "content_id" in attempt:
                 # Store the content_id for this specific question and the item
                 # together, to allow coach assigned quizzes to be stored seamlessly.
-                item_id = "{}{}{}".format(
-                    attempt["content_id"], QUIZ_ITEM_DELIMETER, item_id
-                )
+                item = "{}{}{}".format(attempt["content_id"], QUIZ_ITEM_DELIMETER, item)
 
             start_timestamp = end_timestamp - timedelta(seconds=time_spent)
 
             attemptlog = AttemptLog.objects.create(
-                item=item_id,
+                item=item,
                 sessionlog_id=session_id,
                 masterylog_id=masterylog_id,
                 correct=correct,
                 answer=answer or {},
+                simple_answer=simple_answer or "",
                 interaction_history=[interaction],
                 hinted=hinted,
                 error=error,
@@ -530,8 +571,12 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             )
             if user:
                 self._process_attempt_created_notification(attemptlog, context)
-
-        return {"attempt_id": attemptlog.id}
+        output = {}
+        for field in attemptlog_fields:
+            output[field] = getattr(attemptlog, field)
+        if "quiz_id" in context:
+            _serialize_quiz_log(output)
+        return {"attempt": output}
 
     def _process_attempt_created_notification(self, attemptlog, context):
         if "lesson_id" in context:
@@ -657,19 +702,15 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         extra_fields - the complete representation to set extra_fields to
 
         If creating or updating an attempt for an assessment must include
-        attempt - a nested object, if creating an attempt, must include item_id
+        attempt - a nested object, if creating an attempt, must include item
                   if updating an existing attempt, must include attempt_id
-
-        For an update of any assessment the mastery_level must be included to specify
-        which run of the assessment is being updated - this is returned from the create endpoint,
-        but is not required for anonymous assessment engagement.
-        mastery_level - which run at the assessment this is.
 
         returns an object with the following properties
         complete - boolean indicating if the resource is completed
 
         if an attempt at an assessment was included, then the following parameter will be included
-        attempt_id - the unique identifier for this specific attempt.
+        attempt - a serialized form of the attempt, equivalent to that returned in pastattempts from
+                  session initialization.
         """
         if pk is None:
             raise Http404

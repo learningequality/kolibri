@@ -158,6 +158,18 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         self.assertEqual(log.channel_id, self.channel_id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
 
+    def test_start_session_anonymous_lesson_fails(self):
+        lesson = create_assigned_lesson_for_user(self.user)
+        lesson_id = lesson.id
+        node_id = self.node.id
+        response = self._make_request(
+            {
+                "lesson_id": lesson_id,
+                "node_id": node_id,
+            }
+        )
+        self.assertEqual(response.status_code, 403)
+
     def test_start_assessment_session_anonymous_succeeds(self):
         response = self._make_request({})
 
@@ -198,6 +210,24 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
         log = MasteryLog.objects.get()
         self.assertEqual(log.mastery_criterion, mastery_model)
+
+    def test_start_assessment_session_anonymous_coach_assigned_fails(self):
+        coach = FacilityUserFactory.create(facility=self.facility)
+
+        quiz = Exam.objects.create(
+            title="quiz", question_count=5, collection=self.facility, creator=coach
+        )
+
+        post_data = {
+            "quiz_id": quiz.id,
+        }
+        response = self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data=post_data,
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 403)
 
     def test_start_assessment_session_logged_in_coach_assigned_not_assigned_fails(self):
         self.client.login(
@@ -364,10 +394,17 @@ class ProgressTrackingViewSetStartSessionResumeTestCase(APITestCase):
         self.assertEqual(log.content_id, self.content_id)
         self.assertEqual(log.channel_id, new_channel_id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+        session_id = log.id
         self.summary_log.refresh_from_db()
         log = self.summary_log
         self.assertEqual(log.content_id, self.content_id)
         self.assertEqual(log.channel_id, new_channel_id)
+        data = response.json()
+        self.assertEqual(log.time_spent, data["time_spent"])
+        self.assertEqual(log.progress, data["progress"])
+        self.assertEqual(log.extra_fields, data["extra_fields"])
+        self.assertEqual(self.node.id, data["context"]["node_id"])
+        self.assertEqual(session_id, data["session_id"])
 
     def tearDown(self):
         self.client.logout()
@@ -450,12 +487,23 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         self.assertEqual(log.content_id, self.content_id)
         self.assertEqual(log.channel_id, new_channel_id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+        session_id = log.id
         log = ContentSummaryLog.objects.get()
         self.assertEqual(log.content_id, self.content_id)
         self.assertEqual(log.channel_id, new_channel_id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+        data = response.json()
+        self.assertEqual(log.time_spent, data["time_spent"])
+        self.assertEqual(log.progress, data["progress"])
+        self.assertEqual(log.extra_fields, data["extra_fields"])
+        self.assertEqual(self.node.id, data["context"]["node_id"])
+        self.assertEqual(session_id, data["session_id"])
         log = MasteryLog.objects.get()
+        self.assertEqual(log.mastery_level, data["context"]["mastery_level"])
+        self.assertEqual(log.mastery_level, data["context"]["mastery_level"])
         self.assertEqual(log.mastery_criterion, self.mastery_model)
+        self.assertEqual(data["mastery_criterion"], self.mastery_model)
+        self.assertEqual(log.complete, data["complete"])
 
     def test_start_assessment_session_logged_in_changed_mastery_model_succeeds(self):
         self.assessmentmetadata.mastery_model = {
@@ -1064,7 +1112,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         response = self._make_request(
             {
                 "attempt": {
-                    "item_id": self.item_id,
+                    "item": self.item_id,
                     "correct": 1.0,
                     "time_spent": 10,
                 },
@@ -1078,7 +1126,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         response = self._make_request(
             {
                 "attempt": {
-                    "item_id": self.item_id,
+                    "item": self.item_id,
                     "answer": {"response": "test"},
                     "time_spent": 10,
                 },
@@ -1092,7 +1140,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         response = self._make_request(
             {
                 "attempt": {
-                    "item_id": self.item_id,
+                    "item": self.item_id,
                     "answer": {"response": "test"},
                     "correct": 1.0,
                 },
@@ -1106,7 +1154,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         response = self._make_request(
             {
                 "attempt": {
-                    "item_id": self.item_id,
+                    "item": self.item_id,
                     "answer": {"response": "test"},
                     "correct": 1.0,
                     "time_spent": 10,
@@ -1115,7 +1163,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         )
 
         self.assertEqual(response.status_code, 200)
-        attempt_id = response.json().get("attempt_id")
+        attempt_id = response.json().get("attempt", {}).get("id")
         self.assertIsNotNone(attempt_id)
         try:
             attempt = AttemptLog.objects.get(id=attempt_id)
@@ -1131,7 +1179,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         response = self._make_request(
             {
                 "attempt": {
-                    "item_id": self.item_id,
+                    "item": self.item_id,
                     "error": True,
                     "correct": 1.0,
                     "time_spent": 10,
@@ -1140,7 +1188,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         )
 
         self.assertEqual(response.status_code, 200)
-        attempt_id = response.json().get("attempt_id")
+        attempt_id = response.json().get("attempt", {}).get("id")
         self.assertIsNotNone(attempt_id)
         try:
             attempt = AttemptLog.objects.get(id=attempt_id)
@@ -1163,7 +1211,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         response = self._make_request(
             {
                 "attempt": {
-                    "item_id": self.item_id,
+                    "item": self.item_id,
                     "hinted": True,
                     "answer": {"response": "hinty mchintyson"},
                     "correct": 1.0,
@@ -1173,7 +1221,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         )
 
         self.assertEqual(response.status_code, 200)
-        attempt_id = response.json().get("attempt_id")
+        attempt_id = response.json().get("attempt", {}).get("id")
         self.assertIsNotNone(attempt_id)
         try:
             attempt = AttemptLog.objects.get(id=attempt_id)
@@ -1205,14 +1253,64 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
             start_timestamp=timestamp,
             end_timestamp=timestamp,
             correct=0,
-            item="test_item_id",
+            item=self.item,
             user=self.user,
             interaction_history=[hinteraction],
         )
         response = self._make_request(
             {
                 "attempt": {
-                    "attempt_id": attemptlog.id,
+                    "id": attemptlog.id,
+                    "answer": {"response": "test"},
+                    "correct": 1,
+                    "time_spent": 10,
+                    "replace": True,
+                },
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        attempt_id = response.json().get("attempt", {}).get("id")
+        self.assertIsNotNone(attempt_id)
+        try:
+            attempt = AttemptLog.objects.get(id=attempt_id)
+        except AttemptLog.DoesNotExist:
+            self.fail("Nonexistent attempt_id returned")
+        self.assertEqual(attempt.correct, 1.0)
+        self.assertEqual(attempt.answer, {"response": "test"})
+        self.assertEqual(attempt.time_spent, 10)
+        self.assertEqual(attempt.interaction_history[0], hinteraction)
+        self.assertEqual(
+            attempt.interaction_history[1],
+            {
+                "type": interaction_types.ANSWER,
+                "answer": {"response": "test"},
+                "correct": 1.0,
+            },
+        )
+
+    def test_update_assessment_session_update_attempt_no_replace_succeeds(self):
+        timestamp = local_now()
+
+        hinteraction = {
+            "type": interaction_types.HINT,
+            "answer": {"response": "hinty mchintyson"},
+        }
+        attemptlog = AttemptLog.objects.create(
+            masterylog=self.mastery_log,
+            sessionlog=self.session_log,
+            start_timestamp=timestamp,
+            end_timestamp=timestamp,
+            correct=0,
+            answer=hinteraction["answer"],
+            item=self.item,
+            user=self.user,
+            interaction_history=[hinteraction],
+        )
+        response = self._make_request(
+            {
+                "attempt": {
+                    "id": attemptlog.id,
                     "answer": {"response": "test"},
                     "correct": 1,
                     "time_spent": 10,
@@ -1221,14 +1319,14 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         )
 
         self.assertEqual(response.status_code, 200)
-        attempt_id = response.json().get("attempt_id")
+        attempt_id = response.json().get("attempt", {}).get("id")
         self.assertIsNotNone(attempt_id)
         try:
             attempt = AttemptLog.objects.get(id=attempt_id)
         except AttemptLog.DoesNotExist:
             self.fail("Nonexistent attempt_id returned")
-        self.assertEqual(attempt.correct, 1.0)
-        self.assertEqual(attempt.answer, {"response": "test"})
+        self.assertEqual(attempt.correct, 0)
+        self.assertEqual(attempt.answer, hinteraction["answer"])
         self.assertEqual(attempt.time_spent, 10)
         self.assertEqual(attempt.interaction_history[0], hinteraction)
         self.assertEqual(
@@ -1252,24 +1350,25 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
             start_timestamp=timestamp,
             end_timestamp=timestamp,
             correct=0,
-            item="test_item_id",
+            item=self.item,
             user=self.user,
             interaction_history=[hinteraction],
         )
         response = self._make_request(
             {
                 "attempt": {
-                    "attempt_id": attemptlog.id,
+                    "id": attemptlog.id,
                     "answer": {"response": "hinty mchintyson2"},
                     "hinted": True,
                     "correct": 0,
                     "time_spent": 10,
+                    "replace": True,
                 },
             }
         )
 
         self.assertEqual(response.status_code, 200)
-        attempt_id = response.json().get("attempt_id")
+        attempt_id = response.json().get("attempt", {}).get("id")
         self.assertIsNotNone(attempt_id)
         try:
             attempt = AttemptLog.objects.get(id=attempt_id)
@@ -1287,6 +1386,57 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
             },
         )
 
+    def test_update_assessment_session_update_attempt_hinted_previously_correct_succeeds(
+        self,
+    ):
+        timestamp = local_now()
+        interaction = {
+            "type": interaction_types.ANSWER,
+            "answer": {"response": "nohinty"},
+            "correct": 1.0,
+        }
+        attemptlog = AttemptLog.objects.create(
+            masterylog=self.mastery_log,
+            sessionlog=self.session_log,
+            start_timestamp=timestamp,
+            end_timestamp=timestamp,
+            correct=1,
+            item=self.item,
+            answer=interaction["answer"],
+            user=self.user,
+            interaction_history=[interaction],
+        )
+        response = self._make_request(
+            {
+                "attempt": {
+                    "id": attemptlog.id,
+                    "answer": {"response": "hinty mchintyson"},
+                    "hinted": True,
+                    "correct": 0,
+                    "time_spent": 10,
+                },
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        attempt_id = response.json().get("attempt", {}).get("id")
+        self.assertIsNotNone(attempt_id)
+        try:
+            attempt = AttemptLog.objects.get(id=attempt_id)
+        except AttemptLog.DoesNotExist:
+            self.fail("Nonexistent attempt_id returned")
+        self.assertEqual(attempt.correct, 1.0)
+        self.assertEqual(attempt.answer, interaction["answer"])
+        self.assertEqual(attempt.time_spent, 10)
+        self.assertEqual(attempt.interaction_history[0], interaction)
+        self.assertEqual(
+            attempt.interaction_history[1],
+            {
+                "type": interaction_types.HINT,
+                "answer": {"response": "hinty mchintyson"},
+            },
+        )
+
     def test_update_assessment_session_update_attempt_errored_succeeds(self):
         timestamp = local_now()
         hinteraction = {
@@ -1299,7 +1449,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
             start_timestamp=timestamp,
             end_timestamp=timestamp,
             correct=0,
-            item="test_item_id",
+            item=self.item,
             user=self.user,
             interaction_history=[hinteraction],
             answer=hinteraction["answer"],
@@ -1307,16 +1457,17 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         response = self._make_request(
             {
                 "attempt": {
-                    "attempt_id": attemptlog.id,
+                    "id": attemptlog.id,
                     "error": True,
                     "correct": 0,
                     "time_spent": 10,
+                    "replace": True,
                 },
             }
         )
 
         self.assertEqual(response.status_code, 200)
-        attempt_id = response.json().get("attempt_id")
+        attempt_id = response.json().get("attempt", {}).get("id")
         self.assertIsNotNone(attempt_id)
         try:
             attempt = AttemptLog.objects.get(id=attempt_id)
@@ -1452,7 +1603,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
             response = self._make_request(
                 {
                     "attempt": {
-                        "item_id": self.item_id,
+                        "item": self.item_id,
                         "answer": {"response": "test"},
                         "correct": 1.0,
                         "time_spent": 10,
@@ -1468,7 +1619,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
             self.assertEqual(save_queue_mock.mock_calls[0][1][3], lesson_id)
 
         self.assertEqual(response.status_code, 200)
-        attempt_id = response.json().get("attempt_id")
+        attempt_id = response.json().get("attempt", {}).get("id")
         self.assertIsNotNone(attempt_id)
         try:
             attempt = AttemptLog.objects.get(id=attempt_id)
@@ -1509,10 +1660,11 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
             response = self._make_request(
                 {
                     "attempt": {
-                        "attempt_id": attemptlog.id,
+                        "id": attemptlog.id,
                         "answer": {"response": "test"},
                         "correct": 1,
                         "time_spent": 10,
+                        "replace": True,
                     },
                 }
             )
@@ -1525,7 +1677,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
             self.assertEqual(save_queue_mock.mock_calls[0][1][3], lesson_id)
 
         self.assertEqual(response.status_code, 200)
-        attempt_id = response.json().get("attempt_id")
+        attempt_id = response.json().get("attempt", {}).get("id")
         self.assertIsNotNone(attempt_id)
         try:
             attempt = AttemptLog.objects.get(id=attempt_id)
@@ -1701,7 +1853,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
         response = self._make_request(
             {
                 "attempt": {
-                    "attempt_id": attemptlog.id,
+                    "id": attemptlog.id,
                     "answer": {"response": "test"},
                     "correct": 1,
                     "time_spent": 10,
@@ -1733,7 +1885,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
         response = self._make_request(
             {
                 "attempt": {
-                    "attempt_id": attemptlog.id,
+                    "id": attemptlog.id,
                     "answer": {"response": "test"},
                     "correct": 1,
                     "time_spent": 10,
