@@ -388,7 +388,7 @@ class KolibriChannelWindow(KolibriWindow):
             "/api/content/channel/{channel_id}".format(channel_id=self.channel_id)
         )
 
-        if response is None:
+        if not isinstance(response, dict):
             return
 
         channel_name = response.get("name")
@@ -496,7 +496,7 @@ class Application(pew.ui.PEWApp):
             url == self.default_url
             or urlsplit(url).scheme in ("kolibri", "x-kolibri-app", "about")
             or (is_loader_url and self.kolibri_daemon.is_loading())
-            or self.kolibri_daemon.is_kolibri_url(url)
+            or self.is_kolibri_url(url)
         )
 
         if fallback_to_external and not (should_load or is_loader_url):
@@ -504,7 +504,10 @@ class Application(pew.ui.PEWApp):
 
         return should_load
 
-    def get_loader_url(self, state):
+    def is_kolibri_url(self, url):
+        return self.kolibri_daemon.is_kolibri_url(url)
+
+    def get_loader_url(self):
         return self.__loader_url + "#" + state
 
     def get_full_url(self, url):
@@ -624,9 +627,7 @@ class ChannelApplication(Application):
         self.open_in_browser(url)
 
     def is_kolibri_url(self, url):
-        return super().kolibri_daemon.is_kolibri_url(url) and self.__is_url_in_channel(
-            url
-        )
+        return super().is_kolibri_url(url) and self.__is_url_in_channel(url)
 
     def __is_url_in_channel(self, url):
         # Allow the user to navigate to login and account management pages, as
@@ -674,7 +675,7 @@ class ChannelApplication(Application):
             )
         )
 
-        if response is None:
+        if not isinstance(response, dict):
             return False
 
         contentnode_channel = response.get("channel_id")

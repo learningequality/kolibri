@@ -90,7 +90,7 @@ class KolibriDaemonManager(object):
         return self.get_kolibri_url(initialize_url)
 
     def kolibri_api_get(self, path, *args, **kwargs):
-        url = self.kolibri_daemon.get_kolibri_url(path)
+        url = self.get_kolibri_url(path)
         if url:
             request = requests.get(url, *args, **kwargs)
         else:
