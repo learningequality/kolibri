@@ -1,13 +1,10 @@
 import logging
 from datetime import timedelta
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models.query import Q
-from django.db.utils import IntegrityError
+from django.db.models import Sum
 from django.http import Http404
-from django_filters import ModelChoiceFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
@@ -16,7 +13,6 @@ from le_utils.constants import content_kinds
 from le_utils.constants import exercises
 from rest_framework import filters
 from rest_framework import serializers
-from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -26,17 +22,8 @@ from .models import ContentSessionLog
 from .models import ContentSummaryLog
 from .models import MasteryLog
 from kolibri.core.api import ReadOnlyValuesViewset
-from .models import UserSessionLog
-from .serializers import ContentSessionLogSerializer
-from .serializers import ContentSummaryLogSerializer
-from .serializers import TotalContentProgressSerializer
-from .serializers import UserSessionLogSerializer
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
-from kolibri.core.auth.models import Classroom
-from kolibri.core.auth.models import Facility
-from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.content.api import OptionalPageNumberPagination
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
@@ -738,132 +725,21 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             return Response(output)
 
 
-class BaseLogFilter(FilterSet):
-    facility = ModelChoiceFilter(
-        method="filter_facility", queryset=Facility.objects.all()
-    )
-    classroom = ModelChoiceFilter(
-        method="filter_classroom", queryset=Classroom.objects.all()
-    )
-    learner_group = ModelChoiceFilter(
-        method="filter_learner_group", queryset=LearnerGroup.objects.all()
-    )
-
-    # Only a superuser can filter by facilities
-    def filter_facility(self, queryset, name, value):
-        return queryset.filter(user__facility=value)
-
-    def filter_classroom(self, queryset, name, value):
-        return queryset.filter(
-            Q(user__memberships__collection_id=value)
-            | Q(user__memberships__collection__parent_id=value)
+class TotalContentProgressViewSet(viewsets.GenericViewSet):
+    def retrieve(self, request, pk=None):
+        if request.user.is_anonymous() or pk != request.user.id:
+            raise PermissionDenied("Can only access progress data for self")
+        progress = (
+            request.user.contentsummarylog_set.filter(progress=1)
+            .aggregate(Sum("progress"))
+            .get("progress__sum")
         )
-
-    def filter_learner_group(self, queryset, name, value):
-        return queryset.filter(user__memberships__collection_id=value)
-
-
-class LoggerViewSet(viewsets.ModelViewSet):
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop("partial", False)
-        model = self.queryset.model
-        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-        try:
-            instance = model.objects.get(id=self.kwargs[lookup_url_kwarg])
-            self.check_object_permissions(request, instance)
-        except (ValueError, ObjectDoesNotExist):
-            raise Http404
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-
-        if getattr(instance, "_prefetched_objects_cache", None):
-            # If 'prefetch_related' has been applied to a queryset, we need to
-            # forcibly invalidate the prefetch cache on the instance.
-            instance._prefetched_objects_cache = {}
-        default_response = dict(request.data)
-        # First look if the computed fields to be updated are listed:
-        updating_fields = getattr(serializer.root, "update_fields", None)
-        # If not, fetch all the fields that are computed methods:
-        if updating_fields is None:
-            updating_fields = [
-                field
-                for field in serializer.fields
-                if getattr(serializer.fields[field], "method_name", None)
-            ]
-        for field in updating_fields:
-            method_name = getattr(serializer.fields[field], "method_name", None)
-            if method_name:
-                method = getattr(serializer.root, method_name)
-                default_response[field] = method(instance)
-        return Response(default_response)
-
-    def create(self, request, *args, **kwargs):
-        try:
-            return super(LoggerViewSet, self).create(request, *args, **kwargs)
-        except IntegrityError:
-            # The object has been created previously: let's calculate its id and return it
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            obj = serializer.Meta.model(**serializer.validated_data)
-            obj.id = obj.calculate_uuid()
-            final_obj = self.get_serializer(obj)
-            return Response(final_obj.data)
-        except ValidationError as e:
-            logger.error("Failed to validate data: {}".format(e))
-            return Response(request.data, status.HTTP_400_BAD_REQUEST)
-
-
-class ContentSessionLogFilter(BaseLogFilter):
-    class Meta:
-        model = ContentSessionLog
-        fields = ["user_id", "content_id"]
-
-
-class ContentSessionLogViewSet(LoggerViewSet):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
-    queryset = ContentSessionLog.objects.all()
-    serializer_class = ContentSessionLogSerializer
-    pagination_class = OptionalPageNumberPagination
-    filter_class = ContentSessionLogFilter
-
-
-class ContentSummaryLogFilter(BaseLogFilter):
-    class Meta:
-        model = ContentSummaryLog
-        fields = ["user_id", "content_id"]
-
-
-class ContentSummaryLogViewSet(LoggerViewSet):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
-    queryset = ContentSummaryLog.objects.all()
-    serializer_class = ContentSummaryLogSerializer
-    pagination_class = OptionalPageNumberPagination
-    filter_class = ContentSummaryLogFilter
-
-
-class TotalContentProgressViewSet(viewsets.ModelViewSet):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
-    queryset = FacilityUser.objects.all()
-    serializer_class = TotalContentProgressSerializer
-
-
-class UserSessionLogFilter(BaseLogFilter):
-    class Meta:
-        model = UserSessionLog
-        fields = ["user_id"]
-
-
-class UserSessionLogViewSet(LoggerViewSet):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
-    queryset = UserSessionLog.objects.all()
-    serializer_class = UserSessionLogSerializer
-    pagination_class = OptionalPageNumberPagination
-    filter_class = UserSessionLogFilter
+        return Response(
+            {
+                "id": pk,
+                "progress": progress,
+            }
+        )
 
 
 class MasteryFilter(FilterSet):
