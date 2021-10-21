@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -42,7 +44,7 @@ def init_gettext():
     gettext.textdomain(config.GETTEXT_PACKAGE)
 
 
-def init_logging(log_file_name="kolibri-app.txt", level=logging.DEBUG):
+def init_logging(log_file_name: str = "kolibri-app.txt", level: int = logging.DEBUG):
     from kolibri.utils.logger import KolibriTimedRotatingFileHandler
 
     logging.basicConfig(level=level)
@@ -87,7 +89,7 @@ def init_kolibri():
     initialize()
 
 
-def get_current_language():
+def get_current_language() -> str:
     try:
         translations = gettext.translation(
             config.GETTEXT_PACKAGE, localedir=config.LOCALE_DIR

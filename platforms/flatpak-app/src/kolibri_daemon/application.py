@@ -1,23 +1,24 @@
+from __future__ import annotations
+
 import operator
 import os
 import pwd
 import time
-
-from typing import NamedTuple
+import typing
 from uuid import uuid4
 
 from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import KolibriDaemonDBus
-
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
 from kolibri_app.config import DAEMON_PRIVATE_OBJECT_PATH
 
 from .accounts_service import AccountsServiceManager
+from .accounts_service import AccountsServiceUser
 from .dbus_helpers import get_user_id_for_dbus_invocation
 from .kolibri_search_handler import LocalSearchHandler
-from .kolibri_service import KolibriServiceManager
+from .kolibri_service_manager import KolibriServiceManager
 from .utils import dict_to_vardict
 
 
@@ -33,49 +34,66 @@ except KeyError:
     LOCAL_USER_PWD = None
 
 
-class UserDetail(NamedTuple):
+class UserDetail(typing.NamedTuple):
     user_id: int
     user_name: str
     full_name: str
     is_admin: bool
 
     @classmethod
-    def from_accounts_service_user(cls, accounts_service_user, **kwargs):
+    def from_accounts_service_user(
+        cls, user: AccountsServiceUser, **kwargs
+    ) -> UserDetail:
         return cls(
-            user_id=accounts_service_user.user_id,
-            user_name=accounts_service_user.user_name,
-            full_name=accounts_service_user.full_name,
-            is_admin=accounts_service_user.is_admin,
+            user_id=user.user_id,
+            user_name=user.user_name,
+            full_name=user.full_name,
+            is_admin=user.is_admin,
             **kwargs
         )
 
     @classmethod
-    def from_pwd_user(cls, pwd_user, **kwargs):
+    def from_pwd_user(cls, user: pwd.struct_passwd, **kwargs) -> UserDetail:
         return cls(
-            user_id=pwd_user.pw_uid,
-            user_name=pwd_user.pw_name,
-            full_name=pwd_user.pw_gecos,
+            user_id=user.pw_uid,
+            user_name=user.pw_name,
+            full_name=user.pw_gecos,
             **kwargs
         )
 
 
-class LoginToken(NamedTuple):
+class LoginToken(typing.NamedTuple):
     user: UserDetail
     key: str
     expires: int
 
     @classmethod
-    def with_expire_time(cls, expires_in, *args, **kwargs):
+    def with_expire_time(cls, expires_in: int, *args, **kwargs) -> LoginToken:
         return cls(*args, expires=time.monotonic() + expires_in, **kwargs)
 
-    def is_expired(self):
+    def is_expired(self) -> bool:
         return self.expires < time.monotonic()
 
 
 class PublicDBusInterface(object):
     VERSION = 1
 
-    def __init__(self, application, use_accounts_service=False):
+    __application: Application = None
+    __skeleton: KolibriDaemonDBus.MainSkeleton = None
+
+    __service_manager: KolibriServiceManager = None
+    __kolibri_search_handler: LocalSearchHandler = None
+    __accounts_service: AccountsServiceManager = None
+
+    __hold_clients: dict = None
+
+    __watch_changes_timeout_source: int = None
+    __auto_stop_timeout_source: int = None
+    __stop_kolibri_timeout_source: int = None
+
+    __stop_kolibri_timeout_interval: int = DEFAULT_STOP_KOLIBRI_TIMEOUT_SECONDS
+
+    def __init__(self, application: Application, use_accounts_service: bool = False):
         self.__application = application
 
         self.__skeleton = KolibriDaemonDBus.MainSkeleton()
@@ -97,26 +115,19 @@ class PublicDBusInterface(object):
 
         self.__service_manager = KolibriServiceManager()
         self.__kolibri_search_handler = LocalSearchHandler()
-        self.__accounts_service = None
-
-        self.__watch_changes_timeout_source = None
-
-        self.__auto_stop_timeout_source = None
-        self.__stop_kolibri_timeout_source = None
-        self.__stop_kolibri_timeout_interval = DEFAULT_STOP_KOLIBRI_TIMEOUT_SECONDS
 
         self.__hold_clients = dict()
 
     @property
-    def clients_count(self):
+    def clients_count(self) -> int:
         return len(self.__hold_clients)
 
     @property
-    def autostop_timeout(self):
+    def autostop_timeout(self) -> int:
         return self.__stop_kolibri_timeout_interval
 
     @autostop_timeout.setter
-    def autostop_timeout(self, value):
+    def autostop_timeout(self, value: int):
         self.__stop_kolibri_timeout_interval = value
 
     def init(self):
@@ -132,17 +143,17 @@ class PublicDBusInterface(object):
         self.__service_manager.stop_kolibri()
         self.__service_manager.join()
 
-    def set_accounts_service(self, accounts_service):
+    def set_accounts_service(self, accounts_service: AccountsServiceManager):
         self.__accounts_service = accounts_service
 
-    def export(self, connection, object_path):
+    def export(self, connection: Gio.DBusConnection, object_path: str):
         return self.__skeleton.export(connection, object_path)
 
-    def unexport(self, connection):
+    def unexport(self, connection: Gio.DBusConnection):
         if self.__skeleton.has_connection(connection):
             self.__skeleton.unexport_from_connection(connection)
 
-    def __hold_for_client(self, connection, name):
+    def __hold_for_client(self, connection: Gio.DBusConnection, name: str):
         if name in self.__hold_clients.keys():
             return
 
@@ -155,7 +166,7 @@ class PublicDBusInterface(object):
         )
         self.__hold_clients[name] = watch_id
 
-    def __release_for_client(self, name):
+    def __release_for_client(self, name: str):
         try:
             watch_id = self.__hold_clients.pop(name)
         except KeyError:
@@ -163,34 +174,54 @@ class PublicDBusInterface(object):
         else:
             Gio.bus_unwatch_name(watch_id)
 
-    def __on_hold_client_vanished(self, connection, name):
+    def __on_hold_client_vanished(self, connection: Gio.DBusConnection, name: str):
         self.__release_for_client(name)
 
-    def __on_handle_hold(self, interface, invocation):
+    def __on_handle_hold(
+        self,
+        interface: KolibriDaemonDBus.MainSkeleton,
+        invocation: Gio.DBusMethodInvocation,
+    ) -> bool:
         self.__application.reset_inactivity_timeout()
         self.__hold_for_client(invocation.get_connection(), invocation.get_sender())
         interface.complete_hold(invocation)
         return True
 
-    def __on_handle_release(self, interface, invocation):
+    def __on_handle_release(
+        self,
+        interface: KolibriDaemonDBus.MainSkeleton,
+        invocation: Gio.DBusMethodInvocation,
+    ) -> bool:
         self.__application.reset_inactivity_timeout()
         self.__release_for_client(invocation.get_sender())
         interface.complete_release(invocation)
         return True
 
-    def __on_handle_start(self, interface, invocation):
+    def __on_handle_start(
+        self,
+        interface: KolibriDaemonDBus.MainSkeleton,
+        invocation: Gio.DBusMethodInvocation,
+    ) -> bool:
         self.__application.reset_inactivity_timeout()
         self.__service_manager.start_kolibri()
         interface.complete_start(invocation)
         return True
 
-    def __on_handle_stop(self, interface, invocation):
+    def __on_handle_stop(
+        self,
+        interface: KolibriDaemonDBus.MainSkeleton,
+        invocation: Gio.DBusMethodInvocation,
+    ) -> bool:
         self.__application.reset_inactivity_timeout()
         self.__service_manager.stop_kolibri()
         interface.complete_stop(invocation)
         return True
 
-    def __on_handle_get_login_token(self, interface, invocation):
+    def __on_handle_get_login_token(
+        self,
+        interface: KolibriDaemonDBus.MainSkeleton,
+        invocation: Gio.DBusMethodInvocation,
+    ) -> bool:
         self.__application.reset_inactivity_timeout()
         # TODO: Do this asynchronously
         user_id = get_user_id_for_dbus_invocation(invocation)
@@ -204,11 +235,16 @@ class PublicDBusInterface(object):
             )
             return True
 
-        login_token = self.__application.generate_login_token(user_detail)
-        interface.complete_get_login_token(invocation, login_token.key)
+        token_key = self.__application.generate_login_token(user_detail)
+        interface.complete_get_login_token(invocation, token_key)
         return True
 
-    def __on_handle_get_item_ids_for_search(self, interface, invocation, search):
+    def __on_handle_get_item_ids_for_search(
+        self,
+        interface: KolibriDaemonDBus.MainSkeleton,
+        invocation: Gio.DBusMethodInvocation,
+        search: str,
+    ) -> bool:
         self.__application.reset_inactivity_timeout()
         item_ids = self.__kolibri_search_handler.get_item_ids_for_search(search)
         # Using interface.complete_get_item_ids_for_search results in
@@ -218,7 +254,12 @@ class PublicDBusInterface(object):
         invocation.return_value(result_variant)
         return True
 
-    def __on_handle_get_metadata_for_item_ids(self, interface, invocation, item_ids):
+    def __on_handle_get_metadata_for_item_ids(
+        self,
+        interface: KolibriDaemonDBus.MainSkeleton,
+        invocation: Gio.DBusMethodInvocation,
+        item_ids: list,
+    ) -> bool:
         self.__application.reset_inactivity_timeout()
         metadata_list = self.__kolibri_search_handler.get_metadata_for_item_ids(
             item_ids
@@ -229,7 +270,7 @@ class PublicDBusInterface(object):
         interface.complete_get_metadata_for_item_ids(invocation, result_variant)
         return True
 
-    def __get_user_detail(self, user_id):
+    def __get_user_detail(self, user_id: int) -> UserDetail:
         if LOCAL_USER_PWD and user_id == LOCAL_USER_PWD.pw_uid:
             return UserDetail.from_pwd_user(LOCAL_USER_PWD, is_admin=True)
         elif self.__accounts_service:
@@ -277,7 +318,7 @@ class PublicDBusInterface(object):
             GLib.source_remove(self.__auto_stop_timeout_source)
             self.__auto_stop_timeout_source = None
 
-    def __auto_stop_timeout_cb(self):
+    def __auto_stop_timeout_cb(self) -> bool:
         # We manage Kolibri separately from GApplication's built in lifecycle
         # code. This allows us to stop the Kolibri service while providing the
         # KolibriDaemon dbus interface, instead of stopping Kolibri after the
@@ -311,7 +352,7 @@ class PublicDBusInterface(object):
             GLib.source_remove(self.__stop_kolibri_timeout_source)
             self.__stop_kolibri_timeout_source = None
 
-    def __stop_kolibri_timeout_cb(self):
+    def __stop_kolibri_timeout_cb(self) -> bool:
         if self.clients_count == 0:
             self.__service_manager.stop_kolibri()
         self.__stop_kolibri_timeout_source = None
@@ -319,7 +360,10 @@ class PublicDBusInterface(object):
 
 
 class PrivateDBusInterface(object):
-    def __init__(self, application):
+    __application: Application = None
+    __skeleton: KolibriDaemonDBus.PrivateSkeleton = None
+
+    def __init__(self, application: Application):
         self.__application = application
 
         self.__skeleton = KolibriDaemonDBus.PrivateSkeleton()
@@ -331,16 +375,21 @@ class PrivateDBusInterface(object):
     def shutdown(self):
         pass
 
-    def export(self, connection, object_path):
+    def export(self, connection: Gio.DBusConnection, object_path: str):
         return self.__skeleton.export(connection, object_path)
 
-    def unexport(self, connection):
+    def unexport(self, connection: Gio.DBusConnection):
         if self.__skeleton.has_connection(connection):
             self.__skeleton.unexport_from_connection(connection)
 
-    def __on_check_login_token(self, interface, invocation, token_key):
+    def __on_check_login_token(
+        self,
+        interface: KolibriDaemonDBus.PrivateSkeleton,
+        invocation: Gio.DBusMethodInvocation,
+        token_key: str,
+    ) -> bool:
         self.__application.reset_inactivity_timeout()
-        login_token = self.__application.check_login_token(token_key)
+        login_token = self.__application.pop_login_token(token_key)
         if login_token:
             result_dict = login_token.user._asdict()
         else:
@@ -357,15 +406,15 @@ class LoginTokenManager(object):
         self.__login_tokens = dict()
         self.__expire_tokens_timeout_source = None
 
-    def generate_for_user(self, user_detail):
+    def generate_for_user(self, user_detail: UserDetail) -> str:
         self.__revoke_expired_tokens()
         return self.__add_login_token(user_detail)
 
-    def pop_login_token(self, token_key):
+    def pop_login_token(self, token_key: str) -> LoginToken:
         self.__revoke_expired_tokens()
         return self.__pop_login_token(token_key)
 
-    def __add_login_token(self, user_detail):
+    def __add_login_token(self, user_detail: UserDetail) -> LoginToken:
         user_id = str(user_detail.user_id)
         token_key = self.__generate_token_key(user_id)
         login_token = LoginToken.with_expire_time(
@@ -374,12 +423,12 @@ class LoginTokenManager(object):
         # We only allow one token at a time to be associated with a particular
         # user. Using a dictionary provides that for free.
         self.__login_tokens[user_id] = login_token
-        return login_token
+        return token_key
 
-    def __generate_token_key(self, user_id):
+    def __generate_token_key(self, user_id: str) -> str:
         return ":".join([user_id, uuid4().hex])
 
-    def __pop_login_token(self, token_key):
+    def __pop_login_token(self, token_key: str) -> LoginToken:
         user_id, _sep, _uuid = token_key.partition(":")
         login_token = self.__login_tokens.get(user_id, None)
         if login_token and login_token.key == token_key:
@@ -397,6 +446,16 @@ class LoginTokenManager(object):
 
 
 class Application(Gio.Application):
+    __use_session_bus: bool = None
+    __use_system_bus: bool = None
+
+    __public_interface: PublicDBusInterface = None
+    __private_interface: PrivateDBusInterface = None
+    __login_token_manager: LoginTokenManager = None
+
+    __hold_tokens: set = None
+    __system_name_id: int = None
+
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,
@@ -408,8 +467,15 @@ class Application(Gio.Application):
             **kwargs
         )
 
-        self.__use_session_bus = None
-        self.__use_system_bus = None
+        self.__public_interface = PublicDBusInterface(self)
+        self.__public_interface.init()
+
+        self.__private_interface = PrivateDBusInterface(self)
+        self.__private_interface.init()
+
+        self.__login_token_manager = LoginTokenManager()
+
+        self.__hold_tokens = set()
 
         self.add_main_option(
             "session",
@@ -438,53 +504,45 @@ class Application(Gio.Application):
             None,
         )
 
-        self.__public_interface = PublicDBusInterface(self)
-        self.__public_interface.init()
-
-        self.__private_interface = PrivateDBusInterface(self)
-        self.__private_interface.init()
-
-        self.__login_token_manager = LoginTokenManager()
-
-        self.__hold_tokens = set()
-
-        self.__system_name_id = 0
-
     @property
-    def use_session_bus(self):
+    def use_session_bus(self) -> bool:
         return self.__use_session_bus
 
     @property
-    def use_system_bus(self):
+    def use_system_bus(self) -> bool:
         return self.__use_system_bus
 
     def reset_inactivity_timeout(self):
         self.hold()
         self.release()
 
-    def hold_with_token(self, token):
+    def hold_with_token(self, token: typing.Hashable):
         if token not in self.__hold_tokens:
             self.hold()
             self.__hold_tokens.add(token)
 
-    def release_with_token(self, token):
+    def release_with_token(self, token: typing.Hashable):
         if token in self.__hold_tokens:
             self.__hold_tokens.remove(token)
             self.release()
 
-    def generate_login_token(self, user_detail):
+    def generate_login_token(self, user_detail: UserDetail) -> str:
         return self.__login_token_manager.generate_for_user(user_detail)
 
-    def check_login_token(self, token_key):
+    def pop_login_token(self, token_key: str) -> LoginToken:
         return self.__login_token_manager.pop_login_token(token_key)
 
-    def do_dbus_register(self, connection, object_path):
+    def do_dbus_register(
+        self, connection: Gio.DBusConnection, object_path: str
+    ) -> bool:
         if self.use_session_bus:
             self.__public_interface.export(connection, DAEMON_MAIN_OBJECT_PATH)
         self.__private_interface.export(connection, DAEMON_PRIVATE_OBJECT_PATH)
         return True
 
-    def do_dbus_unregister(self, connection, object_path):
+    def do_dbus_unregister(
+        self, connection: Gio.DBusConnection, object_path: str
+    ) -> bool:
         self.__public_interface.unexport(connection)
         self.__private_interface.unexport(connection)
         return True
@@ -492,7 +550,7 @@ class Application(Gio.Application):
     def do_name_lost(self):
         self.quit()
 
-    def do_handle_local_options(self, options):
+    def do_handle_local_options(self, options: GLib.VariantDict) -> int:
         use_system_bus = options.lookup_value("system", None)
         if use_system_bus is not None:
             self.__use_system_bus = use_system_bus.get_boolean()
@@ -529,7 +587,7 @@ class Application(Gio.Application):
 
         Gio.Application.do_shutdown(self)
 
-    def __system_bus_on_get(self, source, result):
+    def __system_bus_on_get(self, source: GLib.Object, result: Gio.AsyncResult):
         connection = Gio.bus_get_finish(result)
 
         accounts_service = AccountsServiceManager.get_default(connection)
@@ -546,9 +604,9 @@ class Application(Gio.Application):
             self.__on_system_name_lost,
         )
 
-    def __on_system_name_acquired(self, connection, name):
+    def __on_system_name_acquired(self, connection: Gio.DBusConnection, name: str):
         pass
 
-    def __on_system_name_lost(self, connection, name):
+    def __on_system_name_lost(self, connection: Gio.DBusConnection, name: str):
         self.__public_interface.unexport(connection)
         self.__private_interface.unexport(connection)

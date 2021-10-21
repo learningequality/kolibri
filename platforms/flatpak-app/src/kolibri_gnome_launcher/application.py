@@ -34,13 +34,13 @@ class Launcher(Gio.Application):
             | Gio.ApplicationFlags.HANDLES_OPEN,
         )
 
-    def do_open(self, files, n_files, hint):
+    def do_open(self, files: list, n_files: int, hint: str):
         file_uris = [f.get_uri() for f in files]
 
         for uri in file_uris:
             self.handle_uri(uri)
 
-    def handle_uri(self, uri):
+    def handle_uri(self, uri: str):
         url_tuple = urlsplit(uri)
 
         if url_tuple.scheme == "x-kolibri-dispatch":

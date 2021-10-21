@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 from kolibri_app.globals import get_current_language
 
 
-def get_localized_file(file_path_template, file_path_fallback):
+def get_localized_file(file_path_template: str, file_path_fallback: str) -> Path:
     language = get_current_language()
 
     if not language:

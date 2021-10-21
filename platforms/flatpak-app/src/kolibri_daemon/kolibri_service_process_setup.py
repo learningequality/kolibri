@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -6,14 +8,18 @@ import json
 import multiprocessing
 import os
 import subprocess
+import typing
 
 from collections import Mapping
+from pathlib import Path
 
 from kolibri_app.globals import init_kolibri
 from kolibri_app.globals import init_logging
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
+from .content_extensions import ContentChannelCompare
 from .content_extensions import ContentExtensionsList
+from .kolibri_service import KolibriServiceContext
 
 
 KOLIBRI_BIN = "kolibri"
@@ -27,9 +33,13 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
     - Sets context.setup_result to True if sucessful, or to False if not.
     """
 
-    PROCESS_NAME = "kolibri-daemon-setup"
+    PROCESS_NAME: str = "kolibri-daemon-setup"
 
-    def __init__(self, context):
+    __context: KolibriServiceContext = None
+    __cached_extensions: ContentExtensionsList = None
+    __active_extensions: ContentExtensionsList = None
+
+    def __init__(self, context: KolibriServiceContext):
         self.__context = context
         self.__cached_extensions = ContentExtensionsList.from_cache()
         self.__active_extensions = ContentExtensionsList.from_flatpak_info()
@@ -102,11 +112,11 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
             options.setdefault("device_settings", {})
             call_command("provisiondevice", interactive=False, **options)
 
-    def __run_kolibri_command(self, *args):
+    def __run_kolibri_command(self, *args) -> bool:
         result = subprocess.run([KOLIBRI_BIN, "manage", *args], check=False)
         return result.returncode == 0
 
-    def __iter_content_operations(self):
+    def __iter_content_operations(self) -> typing.Generator[_KolibriContentOperation]:
         extension_compares_iter = ContentExtensionsList.compare(
             self.__cached_extensions, self.__active_extensions
         )
@@ -118,11 +128,13 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
 
 
 class _KolibriContentOperation(object):
-    def apply(self, run_command_fn):
+    def apply(self, run_command_fn: typing.Callable) -> typing.Any:
         raise NotImplementedError()
 
     @classmethod
-    def from_channel_compare(cls, channel_compare):
+    def from_channel_compare(
+        cls, channel_compare: ContentChannelCompare
+    ) -> _KolibriContentOperation:
         if channel_compare.added:
             logger.info("Channel added: %s", channel_compare.channel_id)
             yield _KolibriContentOperation_ImportChannel(
@@ -177,23 +189,37 @@ class _KolibriContentOperation(object):
 
 
 class _KolibriContentOperation_ImportChannel(_KolibriContentOperation):
-    def __init__(self, channel_id, extension_dir):
+    __channel_id: str = None
+    __extension_dir: Path = None
+
+    def __init__(self, channel_id: str, extension_dir: Path):
         self.__channel_id = channel_id
         self.__extension_dir = extension_dir
 
-    def apply(self, run_command_fn):
+    def apply(self, run_command_fn: typing.Callable) -> typing.Any:
         args = ["--channels", self.__channel_id, "--skip-annotations"]
         return run_command_fn("scanforcontent", *args)
 
 
 class _KolibriContentOperation_ImportContent(_KolibriContentOperation):
-    def __init__(self, channel_id, extension_dir, include_node_ids, exclude_node_ids):
+    __channel_id: str = None
+    __extension_dir: Path = None
+    __include_node_ids: set = None
+    __exclude_node_ids: set = None
+
+    def __init__(
+        self,
+        channel_id: str,
+        extension_dir: Path,
+        include_node_ids: set,
+        exclude_node_ids: set,
+    ):
         self.__channel_id = channel_id
         self.__extension_dir = extension_dir
         self.__include_node_ids = include_node_ids
         self.__exclude_node_ids = exclude_node_ids
 
-    def apply(self, run_command_fn):
+    def apply(self, run_command_fn: typing.Callable) -> typing.Any:
         args = []
         if self.__include_node_ids:
             args.extend(["--node_ids", ",".join(self.__include_node_ids)])
@@ -210,11 +236,14 @@ class _KolibriContentOperation_ImportContent(_KolibriContentOperation):
 
 
 class _KolibriContentOperation_RescanContent(_KolibriContentOperation):
-    def __init__(self, channel_id, removed=False):
+    __channel_id: str = None
+    __removed: bool = None
+
+    def __init__(self, channel_id: str, removed: bool = False):
         self.__channel_id = channel_id
         self.__removed = removed
 
-    def apply(self, run_command_fn):
+    def apply(self, run_command_fn: typing.Callable) -> typing.Any:
         args = ["--channels", self.__channel_id]
         if self.__removed:
             args.append("--channel-import-mode=none")
