@@ -47,18 +47,19 @@
           :contents="trimmedPopular"
         />
       </div>
-      <div v-else-if="!searchLoading">
-        <h2>
+      <div v-else-if="!searchLoading" class="results-title">
+        <h2 class="results-title">
           {{ $tr('results', { results: results.length }) }}
         </h2>
-        <div class="results-header">
-          <KButton
-            v-if="more"
-            :text="coreString('viewMoreAction')"
-            :primary="false"
-            :disabled="moreLoading"
-            @click="searchMore"
-          />
+        <KButton
+          v-if="more"
+          :text="coreString('viewMoreAction')"
+          appearance="basic-link"
+          :disabled="moreLoading"
+          class="filter-action-button"
+          @click="searchMore"
+        />
+        <div class="results-header-group">
           <div
             v-for="item in Object.values(searchTermChipList)"
             :key="item"
@@ -76,10 +77,10 @@
             </span>
 
           </div>
-
           <KButton
             :text="$tr('clearAll')"
             appearance="basic-link"
+            class="filter-action-button"
             @click="clearSearch"
           />
         </div>
@@ -584,8 +585,19 @@
     right: 8px;
   }
 
-  .results-header {
+  .results-title {
+    display: inline-block;
     margin-bottom: 24px;
+  }
+
+  .results-header-group {
+    margin-bottom: 24px;
+  }
+
+  .filter-action-button {
+    display: inline-block;
+    margin: 4px;
+    margin-left: 8px;
   }
 
   .filter-chip {
