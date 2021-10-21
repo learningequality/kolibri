@@ -133,7 +133,7 @@ class SoUDClientListener(KolibriInstanceListener):
         """
         if not instance.device_info.get("subset_of_users_device", False):
             for user_id in self._get_user_ids():
-                begin_request_soud_sync(server=instance.base_url, user=user_id)
+                begin_request_soud_sync(instance.base_url, user_id)
 
     def update_instance(self, instance):
         """
@@ -148,7 +148,7 @@ class SoUDClientListener(KolibriInstanceListener):
         """
         if not instance.device_info.get("subset_of_users_device", False):
             for user_id in self._get_user_ids():
-                stop_request_soud_sync(server=instance.base_url, user=user_id)
+                stop_request_soud_sync(instance.base_url, user_id)
 
 
 class SoUDServerListener(KolibriInstanceListener):

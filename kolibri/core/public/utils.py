@@ -227,13 +227,23 @@ def stoppeerusersync(server, user_id):
     """
     Close the sync session with a server
     """
+    logger.debug(
+        "Stopping SoUD syncs for user {} against server {}".format(user_id, server)
+    )
+
     user = FacilityUser.objects.get(pk=user_id)
     sync_session = find_soud_sync_session_for_resume(user, server)
+
+    # clear jobs with matching ID
+    job_id = hashlib.md5("{}::{}".format(server, user_id).encode()).hexdigest()
+    queue.clear_job(job_id)
+    scheduler.cancel(job_id)
 
     # skip if we couldn't find one for resume
     if sync_session is None:
         return
 
+    logger.debug("Enqueuing cleanup of SoUD sync session {}".format(sync_session.id))
     return queue_soud_sync_cleanup(sync_session.id)
 
 
@@ -438,6 +448,7 @@ def soud_sync_cleanup(**filters):
 
     :param filters: A dict of queryset filters for SyncSession model
     """
+    logger.debug("Running SoUD sync cleanup | {}".format(filters))
     sync_sessions = find_soud_sync_sessions(**filters)
     clean_up_ids = sync_sessions.values_list("id", flat=True)
 
