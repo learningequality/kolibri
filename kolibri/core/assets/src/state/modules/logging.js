@@ -1,121 +1,82 @@
-import { MaxPointsPerContent } from '../../constants';
+import Vue from 'kolibri.lib.vue';
+import fromPairs from 'lodash/fromPairs';
 
 export default {
   state: {
-    summary: { progress: 0 },
-    session: {},
-    mastery: {},
-    attempt: {},
-  },
-  getters: {
-    logging(state) {
-      return state;
-    },
-    contentPoints(state) {
-      return Math.floor(state.summary.progress) * MaxPointsPerContent;
-    },
-    sessionTimeSpent(state) {
-      return state.session.time_spent;
-    },
-    summaryTimeSpent(state) {
-      return state.summary.time_spent;
-    },
+    complete: null,
+    progress: null,
+    progress_delta: null,
+    last_saved_progress: null,
+    time_spent: null,
+    time_spent_delta: null,
+    session_id: null,
+    extra_fields: null,
+    extra_fields_dirty_bit: null,
+    mastery_criterion: null,
+    totalattempts: null,
+    pastattempts: null,
+    pastattemptMap: null,
+    saving: null,
+    context: null,
   },
   mutations: {
-    SET_LOGGING_SUMMARY_STATE(state, summaryState) {
-      state.summary = summaryState;
+    SET_EMPTY_LOGGING_STATE(state) {
+      for (let key in state) {
+        state[key] = null;
+      }
     },
-    SET_LOGGING_SUMMARY_ID(state, summaryId) {
-      state.summary.id = summaryId;
+    INITIALIZE_LOGGING_STATE(state, data) {
+      state.context = data.context;
+      state.complete = data.complete;
+      state.progress = data.progress;
+      state.progress_delta = 0;
+      state.time_spent = data.time_spent;
+      state.time_spent_delta = 0;
+      state.session_id = data.session_id;
+      state.extra_fields = data.extra_fields;
+      state.mastery_criterion = data.mastery_criterion ? data.mastery_criterion : null;
+      state.pastattempts = data.pastattempts ? data.pastattempts : null;
+      state.pastattemptMap = data.pastattempts
+        ? fromPairs(data.pastattempts.map(a => [a.id, a]))
+        : null;
+      state.totalattempts = data.totalattempts ? data.totalattempts : null;
     },
-    SET_LOGGING_SESSION_ID(state, sessionId) {
-      state.session.id = sessionId;
+    ADD_OR_UPDATE_ATTEMPT(state, attempt) {
+      if (attempt.id) {
+        if (!state.pastattemptMap[attempt.id]) {
+          state.pastattempts.unshift(attempt);
+          Vue.set(state.pastattemptMap, attempt.id, attempt);
+          state.totalattempts += 1;
+        } else {
+          Object.assign(state.pastattemptMap[attempt.id], attempt);
+        }
+      }
     },
-    SET_LOGGING_SESSION_STATE(state, sessionState) {
-      state.session = sessionState;
-    },
-    SET_LOGGING_PROGRESS(state, { sessionProgress, summaryProgress }) {
-      state.session.progress = sessionProgress;
-      state.summary.progress = summaryProgress;
-    },
-    SET_LOGGING_COMPLETION_TIME(state, time) {
-      state.summary.completion_timestamp = time;
+    UPDATE_LOGGING_TIME(state, timeDelta) {
+      state.time_spent = state.time_spent + timeDelta;
     },
     SET_LOGGING_CONTENT_STATE(state, contentState) {
-      // TODO: Consider whether we want to save these to the session log as well.
-      if (!state.summary.extra_fields) {
-        state.summary.extra_fields = {};
-      }
-      state.summary.extra_fields.contentState = contentState;
+      state.extra_fields.contentState = contentState;
+      state.extra_fields_dirty_bit = true;
     },
-    SET_LOGGING_TIME(state, { sessionTime, summaryTime, currentTime }) {
-      state.session.end_timestamp = currentTime;
-      state.summary.end_timestamp = currentTime;
-      state.session.time_spent = sessionTime;
-      state.summary.time_spent = summaryTime;
-    },
-    SET_LOGGING_THRESHOLD_CHECKS(state, { progress, timeSpent }) {
-      state.session.total_time_at_last_save = timeSpent;
-      state.session.progress_at_last_save = progress;
-    },
-    SET_LOGGING_MASTERY_STATE(state, masteryState) {
-      state.mastery = masteryState;
-    },
-    SET_LOGGING_MASTERY_COMPLETE(state, completetime) {
-      state.mastery.complete = true;
-      state.mastery.completion_timestamp = completetime;
-    },
-    SET_LOGGING_ATTEMPT_STATE(state, attemptState) {
-      state.attempt = attemptState;
-    },
-    SET_LOGGING_ATTEMPT_STARTTIME(state, starttime) {
-      state.attempt.start_timestamp = starttime;
-    },
-    UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY(state, action) {
-      state.attempt.interaction_history.push(action);
-    },
-    UPDATE_LOGGING_MASTERY(state, { currentTime, correct, firstAttempt, hinted, error }) {
-      if (firstAttempt) {
-        state.mastery.totalattempts += 1;
-        state.mastery.pastattempts.unshift({ correct, hinted, error });
-      }
-      state.mastery.end_timestamp = currentTime;
-    },
-    UPDATE_LOGGING_ATTEMPT(
-      state,
-      { currentTime, correct, firstAttempt, complete, hinted, answerState, simpleAnswer, error }
-    ) {
-      if (complete) {
-        state.attempt.completion_timestamp = currentTime;
-        state.attempt.complete = true;
-      } else {
-        state.attempt.completion_timestamp = null;
-        state.attempt.complete = false;
-      }
-      state.attempt.end_timestamp = currentTime;
-      let starttime = state.attempt.start_timestamp;
-      if (typeof starttime === 'string') {
-        starttime = new Date(starttime);
-      }
-      state.attempt.time_spent = currentTime - starttime;
-      if (firstAttempt) {
-        // Can only get it correct on the first try.
-        state.attempt.correct = correct;
-        state.attempt.hinted = hinted;
-        state.attempt.answer = answerState;
-        state.attempt.simple_answer = simpleAnswer;
-        state.attempt.error = error;
-      } else if (state.attempt.correct < 1) {
-        // Only set hinted if attempt has not already been marked as correct
-        // and set it to true if now true, but leave as true if false.
-        state.attempt.hinted = state.attempt.hinted || hinted;
+    SET_LOGGING_PROGRESS(state, progress) {
+      if (state.progress < progress) {
+        state.progress_delta = progress - state.progress;
+        state.progress = progress;
       }
     },
-    SET_EMPTY_LOGGING_STATE(state) {
-      state.summary = { progress: 0 };
-      state.session = {};
-      state.mastery = {};
-      state.attempt = {};
+    ADD_LOGGING_PROGRESS(state, progressDelta) {
+      state.progress_delta = state.progress_delta + progressDelta;
+      state.progress = Math.min(state.progress + progressDelta, 1);
+    },
+    LOGGING_SAVING(state) {
+      state.saving = true;
+      state.progress_delta = 0;
+      state.time_spent_delta = 0;
+      state.extra_fields_dirty_bit = false;
+    },
+    LOGGING_SAVED(state) {
+      state.saving = false;
     },
   },
 };

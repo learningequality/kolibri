@@ -11,7 +11,7 @@
     <LearningActivityBar
       :resourceTitle="resourceTitle"
       :learningActivities="mappedLearningActivities"
-      :isLessonContext="false"
+      :isLessonContext="lessonContext"
       :isBookmarked="bookmark ? true : bookmark"
       :isCoachContent="isCoachContent"
       :contentProgress="contentProgress"
@@ -85,6 +85,7 @@
   import GlobalSnackbar from '../../../../../../kolibri/core/assets/src/views/GlobalSnackbar';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
+  import { ClassesPageNames } from '../constants';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
@@ -150,8 +151,9 @@
     },
     computed: {
       ...mapGetters(['currentUserId']),
+      ...mapState(['pageName']),
       ...mapState({
-        contentProgress: state => state.core.logging.summary.progress,
+        contentProgress: state => state.core.logging.progress,
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
@@ -191,6 +193,9 @@
           }
         }
         return learningActivities;
+      },
+      lessonContext() {
+        return this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
       },
     },
     created() {

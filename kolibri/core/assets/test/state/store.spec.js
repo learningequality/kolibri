@@ -1,9 +1,7 @@
 import Vue from 'vue';
-import { AttemptLogResource } from 'kolibri.resources';
 import * as redirectBrowser from 'kolibri.utils.redirectBrowser';
 import client from 'kolibri.client';
 import * as constants from '../../src/constants';
-import ConditionalPromise from '../../src/conditionalPromise';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
@@ -77,31 +75,6 @@ describe('Vuex store/actions for core module', () => {
 
       const error = await store.dispatch('kolibriLogin', {});
       expect(error).toEqual(constants.LoginErrors.INVALID_CREDENTIALS);
-    });
-  });
-});
-
-describe('Vuex core logging actions', () => {
-  describe('attempt log saving', () => {
-    it('saveAndStoreAttemptLog does not overwrite state if item id has changed', async () => {
-      const store = makeStore();
-      store.dispatch('createAttemptLog', 'first');
-      let externalResolve;
-      const firstState = Object.assign({}, store.state.core.logging.attempt);
-      const findModelStub = jest.spyOn(AttemptLogResource, 'findModel');
-      findModelStub.mockReturnValue({
-        save: () =>
-          new ConditionalPromise(resolve => {
-            externalResolve = resolve;
-          }),
-      });
-      const promise = store.dispatch('saveAndStoreAttemptLog');
-      store.dispatch('createAttemptLog', 'second');
-      store.state.core.logging.attempt.id = 'assertion';
-      externalResolve(firstState);
-      await promise;
-      expect(store.state.core.logging.attempt.id).toEqual('assertion');
-      expect(store.state.core.logging.attempt.item).toEqual('second');
     });
   });
 });

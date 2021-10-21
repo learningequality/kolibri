@@ -106,16 +106,14 @@ oriented data synchronization.
 
 <script>
 
-  import { mapState, mapGetters, mapActions } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
+  import { MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import shuffled from 'kolibri.utils.shuffled';
-  import { now } from 'kolibri.utils.serverClock';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
-  import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
   import ExerciseAttempts from './ExerciseAttempts';
 
   export default {
@@ -127,10 +125,6 @@ oriented data synchronization.
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
-      id: {
-        type: String,
-        required: true,
-      },
       lang: {
         type: Object,
         default: () => defaultLanguage,
@@ -142,10 +136,6 @@ oriented data synchronization.
       files: {
         type: Array,
         default: () => [],
-      },
-      channelId: {
-        type: String,
-        default: '',
       },
       available: {
         type: Boolean,
@@ -189,7 +179,6 @@ oriented data synchronization.
     },
     data() {
       return {
-        ready: false,
         itemId: '',
         shake: false,
         firstAttemptAtQuestion: true,
@@ -200,25 +189,20 @@ oriented data synchronization.
         // Attempted fix for #1725
         checkingAnswer: false,
         checkWasAttempted: false,
+        startTime: null,
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn']),
       ...mapState({
-        mastered: state => state.core.logging.mastery.complete,
-        currentInteractions: state =>
-          state.core.logging.attempt.interaction_history
-            ? state.core.logging.attempt.interaction_history.length
-            : 0,
-        totalattempts: state => state.core.logging.mastery.totalattempts,
-        pastattempts: state =>
-          (state.core.logging.mastery.pastattempts || []).filter(attempt => attempt.error !== true),
+        pastattempts: state => (state.core.logging.pastattempts || []).filter(a => !a.error),
+        mastered: state => state.core.logging.complete,
+        totalattempts: state => state.core.logging.totalattempts,
         userid: state => state.core.session.user_id,
       }),
+      currentattempt() {
+        return !this.firstAttemptAtQuestion ? this.pastattempts[0] : null;
+      },
       recentAttempts() {
-        if (!this.pastattempts) {
-          return [];
-        }
         return this.pastattempts
           .map((attempt, index) => {
             // if first item and not a current attempt
@@ -302,74 +286,11 @@ oriented data synchronization.
         return null;
       },
     },
-    watch: {
-      exerciseProgress() {
-        this.updateExerciseProgressMethod();
-      },
-    },
-    beforeDestroy() {
-      if (this.currentInteractions > 0) {
-        this.saveAttemptLogMasterLog(false);
-      }
-    },
     created() {
-      if (this.isUserLoggedIn) {
-        this.callInitMasteryLog();
-      } else {
-        this.createDummyMasteryLog();
-      }
       this.nextQuestion();
     },
     methods: {
-      ...mapActions([
-        'createAttemptLog',
-        'createDummyMasteryLog',
-        'initMasteryLog',
-        'saveAndStoreAttemptLog',
-        'saveAndStoreMasteryLog',
-        'saveAttemptLog',
-        'saveMasteryLog',
-        'setMasteryLogComplete',
-        'updateAttemptLogInteractionHistory',
-        'updateExerciseProgress',
-        'updateMasteryAttemptState',
-      ]),
-      updateAttemptLogMasteryLog({
-        correct,
-        complete,
-        firstAttempt = false,
-        hinted,
-        answerState,
-        simpleAnswer,
-        error,
-      }) {
-        this.updateMasteryAttemptState({
-          currentTime: now(),
-          correct,
-          complete,
-          firstAttempt,
-          hinted,
-          answerState,
-          simpleAnswer,
-          error,
-        });
-      },
-      saveAttemptLogMasterLog(updateStore = true) {
-        if (updateStore) {
-          this.saveAndStoreAttemptLog().then(() => {
-            if (this.isUserLoggedIn && this.success) {
-              this.setMasteryLogComplete(now());
-              this.saveAndStoreMasteryLog();
-            }
-          });
-        } else {
-          this.saveAttemptLog().then(() => {
-            if (this.isUserLoggedIn && this.success) {
-              this.saveMasteryLog();
-            }
-          });
-        }
-      },
+      ...mapActions(['updateContentSession']),
       checkAnswer() {
         this.checkWasAttempted = true;
         if (!this.checkingAnswer) {
@@ -393,58 +314,34 @@ oriented data synchronization.
             this.shake = true;
           }
         }
-        this.updateAttemptLogInteractionHistory({
-          type: InteractionTypes.answer,
-          answer: answerState,
-          correct,
-        });
         this.complete = correct === 1;
-        if (this.firstAttemptAtQuestion) {
-          this.firstAttemptAtQuestion = false;
-          this.updateAttemptLogMasteryLog({
-            correct,
-            complete: this.complete,
-            answerState,
-            simpleAnswer,
-            firstAttempt: true,
-          });
-          // Save attempt log on first attempt
-          this.saveAttemptLogMasterLog();
-          // Update exercise progress when the first answer is given
-          this.updateExerciseProgressMethod();
-        } else {
-          this.updateAttemptLogMasteryLog({
-            complete: this.complete,
-          });
-          if (this.complete) {
-            // Otherwise only save if the attempt is now complete
-            this.saveAttemptLogMasterLog();
-          } else if (this.currentInteractions % 4 === 0) {
-            // After every 4 interactions in this exercise, update the attemptlog
-            // so needsHelp notification can be triggered
-            this.saveAttemptLogMasterLog();
-          }
-        }
+        this.updateAttempt({ answerState, simpleAnswer });
       },
       hintTaken({ answerState }) {
-        this.updateAttemptLogInteractionHistory({
-          type: InteractionTypes.hint,
-          answer: answerState,
-        });
-        if (this.firstAttemptAtQuestion) {
-          this.updateAttemptLogMasteryLog({
-            correct: 0,
-            complete: false,
-            firstAttempt: true,
-            hinted: true,
-            answerState,
-            simpleAnswer: '',
-          });
-          this.firstAttemptAtQuestion = false;
-          // Only save if this was the first attempt to capture this
-          this.saveAttemptLogMasterLog();
-        }
         this.hintWasTaken = true;
+        this.updateAttempt({ answerState });
+      },
+      updateAttempt({ answerState, simpleAnswer } = {}) {
+        const attempt = {
+          complete: this.complete,
+          time_spent: (new Date() - this.startTime) / 1000,
+          correct: this.correct,
+          hinted: this.hintWasTaken,
+          error: this.itemError,
+        };
+        if (answerState) {
+          attempt.answer = answerState;
+        }
+        if (simpleAnswer) {
+          attempt.simple_answer = simpleAnswer;
+        }
+        if (this.firstAttemptAtQuestion) {
+          this.firstAttemptAtQuestion = false;
+          attempt.item_id = this.itemId;
+        } else {
+          attempt.id = this.currentattempt.id;
+        }
+        this.updateContentSession({ attempt });
       },
       setItemId() {
         const index = this.totalattempts % this.assessmentIds.length;
@@ -461,44 +358,15 @@ oriented data synchronization.
         this.firstAttemptAtQuestion = true;
         this.correct = 0;
         this.itemError = false;
-        this.setItemId();
-        this.callCreateAttemptLog();
         this.checkWasAttempted = false;
-      },
-      callInitMasteryLog() {
-        this.initMasteryLog({
-          masterySpacingTime: this.masterySpacingTime,
-          masteryCriterion: this.masteryModel,
-        });
-      },
-      callCreateAttemptLog() {
-        this.ready = false;
-        this.createAttemptLog(this.itemId);
-        this.ready = true;
-      },
-      updateExerciseProgressMethod() {
-        this.updateExerciseProgress({ progressPercent: this.exerciseProgress });
-        updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
-        this.$emit('updateProgress', this.exerciseProgress);
+        this.startTime = new Date();
+        this.hintWasTaken = false;
+        this.setItemId();
       },
       handleItemError() {
         this.itemError = true;
-        this.updateAttemptLogInteractionHistory({
-          type: InteractionTypes.error,
-        });
         this.complete = true;
-        if (this.firstAttemptAtQuestion) {
-          this.updateAttemptLogMasteryLog({
-            correct: 0,
-            complete: this.complete,
-            firstAttempt: true,
-            error: true,
-          });
-          this.firstAttemptAtQuestion = false;
-        } else {
-          this.updateAttemptLogMasteryLog({ complete: this.complete });
-        }
-        this.saveAttemptLogMasterLog();
+        this.updateAttempt();
       },
       updateProgress(...args) {
         this.$emit('updateProgress', ...args);

@@ -13,10 +13,8 @@ const createComponent = (totalattempts, pastattempts, masteryModel) => {
   const store = makeStore();
   store.state.core = {
     logging: {
-      mastery: {
-        totalattempts,
-        pastattempts,
-      },
+      totalattempts,
+      pastattempts,
     },
     session: {
       user_id: 'test',
