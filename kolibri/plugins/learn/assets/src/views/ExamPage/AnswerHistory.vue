@@ -55,7 +55,7 @@
     },
     computed: {
       ...mapState('examViewer', ['questions']),
-      ...mapState({ attemptLogs: 'examAttemptLogs' }),
+      ...mapState({ pastattempts: state => state.core.logging.pastattempts }),
     },
     watch: {
       questionNumber(index) {
@@ -76,7 +76,11 @@
         return this.$tr('question', { num });
       },
       isAnswered(question) {
-        return ((this.attemptLogs[question.exercise_id] || {})[question.question_id] || {}).answer;
+        const attempt = this.pastattempts.find(
+          attempt =>
+            attempt.item === question.question_id && attempt.content_id === question.exercise_id
+        );
+        return attempt && attempt.answer;
       },
       buttonClass(index) {
         if (this.questionNumber === index) {

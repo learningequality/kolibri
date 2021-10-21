@@ -11,6 +11,7 @@ from django_filters import ModelChoiceFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
 from rest_framework import filters
@@ -23,23 +24,16 @@ from rest_framework.response import Response
 from .models import AttemptLog
 from .models import ContentSessionLog
 from .models import ContentSummaryLog
-from .models import ExamAttemptLog
-from .models import ExamLog
 from .models import MasteryLog
+from kolibri.core.api import ReadOnlyValuesViewset
 from .models import UserSessionLog
-from .permissions import ExamActivePermissions
-from .serializers import AttemptLogSerializer
 from .serializers import ContentSessionLogSerializer
 from .serializers import ContentSummaryLogSerializer
-from .serializers import ExamAttemptLogSerializer
-from .serializers import ExamLogSerializer
-from .serializers import MasteryLogSerializer
 from .serializers import TotalContentProgressSerializer
 from .serializers import UserSessionLogSerializer
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Classroom
-from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
@@ -146,9 +140,12 @@ attemptlog_fields = [
 
 
 def _serialize_quiz_log(log):
-    item_content_id, item = log["item"].split(QUIZ_ITEM_DELIMETER)
+    try:
+        item_content_id, item = log["item"].split(QUIZ_ITEM_DELIMETER)
+        log["item"] = item
+    except ValueError:
+        item_content_id = ""
     log["content_id"] = item_content_id
-    log["item"] = item
     return log
 
 
@@ -870,21 +867,32 @@ class UserSessionLogViewSet(LoggerViewSet):
 
 
 class MasteryFilter(FilterSet):
+    content = UUIDFilter(name="summarylog__content_id")
+
     class Meta:
         model = MasteryLog
-        fields = ["summarylog"]
+        fields = ["content"]
 
 
-class MasteryLogViewSet(LoggerViewSet):
+class MasteryLogViewSet(ReadOnlyValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = MasteryLog.objects.all()
-    serializer_class = MasteryLogSerializer
     pagination_class = OptionalPageNumberPagination
     filter_class = MasteryFilter
+    values = (
+        "user",
+        "summarylog",
+        "mastery_criterion",
+        "start_timestamp",
+        "end_timestamp",
+        "completion_timestamp",
+        "mastery_level",
+        "complete",
+    )
 
 
-class AttemptFilter(BaseLogFilter):
+class AttemptFilter(FilterSet):
     content = CharFilter(method="filter_content")
 
     def filter_content(self, queryset, name, value):
@@ -895,7 +903,7 @@ class AttemptFilter(BaseLogFilter):
         fields = ["masterylog", "complete", "user", "content", "item"]
 
 
-class AttemptLogViewSet(LoggerViewSet):
+class AttemptLogViewSet(ReadOnlyValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (
         KolibriAuthPermissionsFilter,
@@ -903,63 +911,30 @@ class AttemptLogViewSet(LoggerViewSet):
         filters.OrderingFilter,
     )
     queryset = AttemptLog.objects.all()
-    serializer_class = AttemptLogSerializer
     pagination_class = OptionalPageNumberPagination
     filter_class = AttemptFilter
     ordering_fields = ("end_timestamp",)
     ordering = ("end_timestamp",)
 
-
-class ExamAttemptFilter(BaseLogFilter):
-    exam = ModelChoiceFilter(method="filter_exam", queryset=Exam.objects.all())
-    user = ModelChoiceFilter(method="filter_user", queryset=FacilityUser.objects.all())
-    content = CharFilter(field_name="content_id")
-
-    def filter_exam(self, queryset, name, value):
-        return queryset.filter(examlog__exam=value)
-
-    def filter_user(self, queryset, name, value):
-        return queryset.filter(examlog__user=value)
-
-    class Meta:
-        model = ExamAttemptLog
-        fields = ["examlog", "exam", "user", "content", "item"]
-
-
-class ExamAttemptLogViewSet(LoggerViewSet):
-    permission_classes = (ExamActivePermissions, KolibriAuthPermissions)
-    filter_backends = (
-        KolibriAuthPermissionsFilter,
-        DjangoFilterBackend,
-        filters.OrderingFilter,
-    )
-    queryset = ExamAttemptLog.objects.all()
-    serializer_class = ExamAttemptLogSerializer
-    pagination_class = OptionalPageNumberPagination
-    filter_class = ExamAttemptFilter
-
-
-class ExamLogFilter(BaseLogFilter):
-
-    collection = ModelChoiceFilter(
-        method="filter_collection", queryset=Collection.objects.all()
+    values = (
+        "item",
+        "start_timestamp",
+        "end_timestamp",
+        "completion_timestamp",
+        "time_spent",
+        "complete",
+        "correct",
+        "hinted",
+        "answer",
+        "simple_answer",
+        "interaction_history",
+        "user",
+        "error",
+        "masterylog",
+        "sessionlog",
     )
 
-    def filter_collection(self, queryset, name, collection):
-        return queryset.filter(
-            Q(user__memberships__collection_id=collection)
-            | Q(user__memberships__collection__parent_id=collection)
-        )
-
-    class Meta:
-        model = ExamLog
-        fields = ["user", "exam"]
-
-
-class ExamLogViewSet(viewsets.ModelViewSet):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
-    queryset = ExamLog.objects.all()
-    serializer_class = ExamLogSerializer
-    pagination_class = OptionalPageNumberPagination
-    filter_class = ExamLogFilter
+    def consolidate(self, items, queryset):
+        for item in items:
+            _serialize_quiz_log(item)
+        return items

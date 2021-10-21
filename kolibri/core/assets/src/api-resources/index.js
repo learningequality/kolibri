@@ -33,8 +33,6 @@ export { default as FacilityTaskResource } from './facilityTask';
 export { default as ChannelResource } from './channel';
 export { default as MasteryLogResource } from './masteryLog';
 export { default as ExamResource } from './exam';
-export { default as ExamLogResource } from './examLog';
-export { default as ExamAttemptLogResource } from './examAttemptLog';
 export { default as FacilityDatasetResource } from './facilityDataset';
 export { default as UserProgressResource } from './userProgress';
 export { default as UserSyncStatusResource } from './userSyncStatus';
