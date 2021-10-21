@@ -51,7 +51,7 @@
         <h2>
           {{ $tr('results', { results: results.length }) }}
         </h2>
-        <div>
+        <div class="results-header">
           <KButton
             v-if="more"
             :text="coreString('viewMoreAction')"
@@ -59,6 +59,24 @@
             :disabled="moreLoading"
             @click="searchMore"
           />
+          <div
+            v-for="item in Object.values(searchTermChipList)"
+            :key="item"
+            class="filter-chip"
+          >
+            <!-- TODO Marcella convert to strings, and add relevant aria label -->
+            <span>
+              <p class="filter-chip-text">{{ item }}</p>
+              <KIconButton
+                icon="close"
+                size="mini"
+                class="filter-chip-button"
+                @click="removeFilterTag(item)"
+              />
+            </span>
+
+          </div>
+
           <KButton
             :text="$tr('clearAll')"
             appearance="basic-link"
@@ -349,7 +367,6 @@
           if (this.$route.query.keywords) {
             searchTerms.keywords = this.$route.query.keywords;
           }
-          console.log(searchTerms);
           return searchTerms;
         },
         set(value) {
@@ -374,6 +391,9 @@
       },
       displayingSearchResults() {
         return Object.values(this.searchTerms).some(v => Object.keys(v).length);
+      },
+      searchTermChipList() {
+        return this.$route.query;
       },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
@@ -470,7 +490,6 @@
             getParams.keywords = this.searchTerms.keywords;
           }
           ContentNodeResource.fetchCollection({ getParams }).then(data => {
-            console.log(data);
             this.results = data.results;
             this.more = data.more;
             this.labels = data.labels;
@@ -497,6 +516,14 @@
       },
       toggleInfoPanel(content) {
         this.sidePanelContent = content;
+      },
+      removeFilterTag(value) {
+        let query = JSON.parse(JSON.stringify(this.$route.query));
+        const key = Object.keys(query).filter(function(key) {
+          return query[key] === value;
+        })[0];
+        delete query[key];
+        this.$router.replace({ query: query });
       },
       clearSearch() {
         this.$router.push(this.$router.getRoute(PageNames.LIBRARY));
@@ -555,6 +582,36 @@
     position: fixed;
     top: 8px;
     right: 8px;
+  }
+
+  .results-header {
+    margin-bottom: 24px;
+  }
+
+  .filter-chip {
+    display: inline-block;
+    margin: 2px;
+    font-size: 14px;
+    vertical-align: top;
+    background-color: #dedede;
+    border-radius: 34px;
+  }
+
+  .filter-chip-text {
+    display: inline-block;
+    margin: 4px 0 4px 8px;
+    font-size: 14px;
+  }
+
+  .filter-chip-button {
+    padding-top: 4px;
+    margin: 2px;
+    color: #dadada;
+    vertical-align: middle;
+    /deep/ svg {
+      width: 20px;
+      height: 20px;
+    }
   }
 
 </style>
