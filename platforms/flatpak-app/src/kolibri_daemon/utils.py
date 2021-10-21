@@ -9,8 +9,13 @@ from gi.repository import GLib
 
 from pathlib import Path
 
+import re
+
 from kolibri_app.config import KOLIBRI_HOME_TEMPLATE_DIR
 from kolibri_app.globals import KOLIBRI_HOME_PATH
+
+# HTML tags and entities
+TAGRE = re.compile('<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});')
 
 
 def kolibri_update_from_home_template():
@@ -49,3 +54,14 @@ def kolibri_update_from_home_template():
 
 def dict_to_vardict(data):
     return dict((key, GLib.Variant("s", value)) for key, value in data.items())
+
+
+def sanitize_text(text):
+    """
+    Replace all line break with spaces and removes all the html tags
+    """
+
+    lines = text.splitlines()
+    lines = [re.sub(TAGRE, "", line) for line in lines]
+
+    return " ".join(lines)
