@@ -4,6 +4,8 @@ from concurrent.futures import ProcessPoolExecutor
 from kolibri_app.globals import init_kolibri
 from kolibri_app.globals import init_logging
 
+from .utils import sanitize_text
+
 
 NODE_ICON_LOOKUP = {
     "video": "video-x-generic",
@@ -83,11 +85,13 @@ class SearchHandler(object):
             return None
 
         node_icon = NODE_ICON_LOOKUP.get(node_data.get("kind"), DEFAULT_NODE_ICON)
+        title = sanitize_text(node_data.get("title"))
+        description = sanitize_text(node_data.get("description"))
 
         return {
             "id": item_id,
-            "name": node_data.get("title"),
-            "description": node_data.get("description"),
+            "name": title,
+            "description": description,
             "gicon": node_icon,
         }
 
