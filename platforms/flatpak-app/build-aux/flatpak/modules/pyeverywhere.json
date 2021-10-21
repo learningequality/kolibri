@@ -1,0 +1,14 @@
+{
+    "name" : "pyeverywhere",
+    "buildsystem" : "simple",
+    "build-commands" : [
+        "pip3 install --prefix=${FLATPAK_DEST} ."
+    ],
+    "sources" : [
+        {
+            "type" : "git",
+            "url" : "https://github.com/kollivier/pyeverywhere.git",
+            "commit" : "63cdb6dd642ebce4af6a5134dbabcd4bd4f2a96d"
+        }
+    ]
+}
