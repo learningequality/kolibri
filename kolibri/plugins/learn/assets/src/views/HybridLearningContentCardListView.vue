@@ -28,14 +28,6 @@
         >
           {{ bookmarkCreated }}
         </p>
-        <KLinearLoader
-          v-if="progress"
-          class="k-linear-loader"
-          :delay="false"
-          :progress="progress"
-          type="determinate"
-          :style="{ backgroundColor: $themeTokens.fineLine }"
-        />
       </div>
       <span class="details" :style="{ color: $themeTokens.text }">
         <div
@@ -95,14 +87,6 @@
           @click="$emit(value)"
         />
       </div>
-      <KLinearLoader
-        v-if="progress && isMobile"
-        class="k-linear-loader"
-        :delay="false"
-        :progress="progress"
-        type="determinate"
-        :style="{ backgroundColor: $themeTokens.fineLine }"
-      />
     </div>
   </div>
 
@@ -169,14 +153,6 @@
       contentNode: {
         type: Object,
         required: true,
-      },
-      progress: {
-        type: Number,
-        required: false,
-        default: 0.0,
-        validator(value) {
-          return value >= 0.0 && value <= 1.0;
-        },
       },
       link: {
         type: Object,
