@@ -64,7 +64,7 @@ class PublicDBusInterface(object):
 
     @autostop_timeout.setter
     def autostop_timeout(self, value):
-        self.__stop_kolibri_timeout_interval = interval
+        self.__stop_kolibri_timeout_interval = value
 
     def init(self):
         self.__service_manager.init()
