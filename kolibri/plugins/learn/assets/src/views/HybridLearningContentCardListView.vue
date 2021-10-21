@@ -42,11 +42,7 @@
           class="metadata-info"
           :style="{ color: $themePalette.grey.v_700 }"
         >
-          <KLabeledIcon
-            :icon="kind === 'topic' ? 'topic' : `${kindToLearningActivity}Solid`"
-            size="mini"
-            :label="iconLabel"
-          />
+          <LearningActivityLabel :contentNode="contentNode" class="learning-activity-label" />
         </div>
         <h3 class="title">
           <TextTruncator
@@ -116,14 +112,11 @@
 <script>
 
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
-  import {
-    LearningActivities,
-    ContentKindsToLearningActivitiesMap,
-  } from 'kolibri.coreVue.vuex.constants';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { now } from 'kolibri.utils.serverClock';
   import { PageNames } from '../constants';
+  import LearningActivityLabel from './cards/ResourceCard/LearningActivityLabel';
   import commonLearnStrings from './commonLearnStrings';
   import CardThumbnail from './HybridLearningContentCard/CardThumbnail';
 
@@ -132,6 +125,7 @@
     components: {
       CardThumbnail,
       TextTruncator,
+      LearningActivityLabel,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
@@ -171,6 +165,10 @@
       category: {
         type: String,
         default: null,
+      },
+      contentNode: {
+        type: Object,
+        required: true,
       },
       progress: {
         type: Number,
@@ -230,29 +228,6 @@
         } else {
           return null;
         }
-      },
-      kindToLearningActivity() {
-        let activity = '';
-        if (this.kind === 'topic') {
-          return 'folder';
-        } else if (Object.values(LearningActivities).includes(this.kind)) {
-          activity = this.kind;
-          return `${activity}`;
-        } else {
-          // otherwise reassign the old content types to the new metadata
-          activity = ContentKindsToLearningActivitiesMap[this.kind];
-          return `${activity}`;
-        }
-      },
-      iconLabel() {
-        const kindToLearningActivity = this.coreString(this.kindToLearningActivity);
-        let addedMobileDisplay = '';
-        // append the | and the activity length on mobile views only
-        // make all part of the same string for correct RTL display
-        if (this.isMobile) {
-          addedMobileDisplay = ` | ${this.coreString(this.activityLength)}`;
-        }
-        return `${kindToLearningActivity} ${addedMobileDisplay}`;
       },
       isLibraryPage() {
         return this.pageName === PageNames.LIBRARY;
@@ -351,6 +326,13 @@
     justify-content: flex-end;
     width: 100%;
     padding: $margin;
+  }
+
+  .learning-activity-label {
+    width: 100px;
+    /deep/ .learning-activity {
+      justify-content: flex-start;
+    }
   }
 
   .metadata-info-footer {
