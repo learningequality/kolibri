@@ -10,7 +10,8 @@
       :key="key"
       :span="span"
       :disabled="availablePaths && !availablePaths[nestedObject.value]"
-      :style="availablePaths && !availablePaths[nestedObject.value] ? { textColor: 'grey' } : {}"
+      :style="availablePaths && !availablePaths[nestedObject.value] ?
+        { textColor: 'grey' } : { cursor: 'pointer' }"
     >
       <KIcon
         icon="info"
@@ -23,16 +24,17 @@
         {{ coreString(camelCase(key)) }}
       </h2>
       <div class="filter-list-item">
-        <p
+        <a
           v-for="(item, nestedKey) in nestedObject.nested"
           :key="item.value"
           :disabled="availablePaths && !availablePaths[item.value]"
-          :style="availablePaths && !availablePaths[item.value] ? { textColor: 'grey' } : {}"
+          :style="availablePaths && !availablePaths[item.value] ?
+            { textColor: 'grey' } : { cursor: 'pointer' }"
 
           @click="$emit('input', item.value)"
         >
           {{ coreString(camelCase(nestedKey)) }}
-        </p>
+        </a>
 
       </div>
     </KFixedGridItem>
