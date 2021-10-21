@@ -201,46 +201,56 @@ class TestZeroConfPlugin(object):
         unregister_zeroconf_service.assert_called_once()
 
 
+@mock.patch(
+    "kolibri.utils.server._read_pid_file", return_value=((None, None, None, None))
+)
 class ServerInitializationTestCase(TestCase):
     @mock.patch("kolibri.utils.server.logging.error")
     @mock.patch("kolibri.utils.server.wait_for_free_port")
-    def test_port_occupied(self, wait_for_port_mock, logging_mock):
+    def test_port_occupied(self, wait_for_port_mock, logging_mock, read_pid_file_mock):
         wait_for_port_mock.side_effect = OSError
         with self.assertRaises(SystemExit):
-            server.background_port_check("8080", "8081")
+            process = server.KolibriProcessBus("8080", "8081")
+            process.background = True
+            process.background_port_check()
             logging_mock.assert_called()
 
     @mock.patch("kolibri.utils.server.logging.error")
     @mock.patch("kolibri.utils.server.wait_for_free_port")
-    def test_port_occupied_socket_activation(self, wait_for_port_mock, logging_mock):
+    def test_port_occupied_socket_activation(
+        self, wait_for_port_mock, logging_mock, read_pid_file_mock
+    ):
         wait_for_port_mock.side_effect = OSError
         # LISTEN_PID environment variable would be set if using socket activation
         with mock.patch.dict(os.environ, {"LISTEN_PID": "1234"}):
-            server.background_port_check("8080", "8081")
+            process = server.KolibriProcessBus("8080", "8081")
+            process.background = True
+            process.background_port_check()
             logging_mock.assert_not_called()
 
     @mock.patch("kolibri.utils.server.logging.error")
     @mock.patch("kolibri.utils.server.wait_for_free_port")
-    def test_port_zero_zip_port_zero(self, wait_for_port_mock, logging_mock):
+    def test_port_zero_zip_port_zero(
+        self, wait_for_port_mock, logging_mock, read_pid_file_mock
+    ):
         wait_for_port_mock.side_effect = OSError
-        server.background_port_check("0", "0")
+        process = server.KolibriProcessBus(0, 0)
+        process.background = True
+        process.background_port_check()
         logging_mock.assert_not_called()
 
     @mock.patch("kolibri.utils.server.pid_exists")
-    @mock.patch("kolibri.utils.server.ProcessBus")
-    def test_unclean_shutdown(self, process_bus_mock, pid_exists_mock):
+    def test_unclean_shutdown(self, pid_exists_mock, read_pid_file_mock):
         pid_exists_mock.return_value = False
-        with open(server.PID_FILE, "w") as f:
-            f.write("{}\n{}\n{}\n{}\n".format(1000, 8000, 8001, server.STATUS_RUNNING))
-        server.start()
-        process_bus_mock.assert_called()
+        read_pid_file_mock.return_value = (1000, 8000, 8001, server.STATUS_RUNNING)
+        with mock.patch.object(server.KolibriProcessBus, "run") as run_mock:
+            server.start()
+            run_mock.assert_called()
 
     @mock.patch("kolibri.utils.server.pid_exists")
-    @mock.patch("kolibri.utils.server.ProcessBus")
-    def test_server_running(self, process_bus_mock, pid_exists_mock):
+    def test_server_running(self, pid_exists_mock, read_pid_file_mock):
         pid_exists_mock.return_value = True
-        with open(server.PID_FILE, "w") as f:
-            f.write("{}\n{}\n{}\n{}\n".format(1000, 8000, 8001, server.STATUS_RUNNING))
+        read_pid_file_mock.return_value = (1000, 8000, 8001, server.STATUS_RUNNING)
         with self.assertRaises(SystemExit):
             server.start()
 
