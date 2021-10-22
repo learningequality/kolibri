@@ -136,8 +136,37 @@ def serialize_quiz_attempt_log(log):
     return log
 
 
+class LogContext(object):
+
+    __slots__ = "node_id", "quiz_id", "lesson_id", "mastery_level"
+
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            self[key] = value
+
+    def __setitem__(self, key, value):
+        if key not in self.__slots__:
+            return
+        setattr(self, key, value)
+
+    def __getitem__(self, key):
+        if key not in self.__slots__:
+            return
+        return getattr(self, key, None)
+
+    def __contains__(self, key):
+        return key in self.__slots__ and hasattr(self, key)
+
+    def to_dict(self):
+        output = {}
+        for slot in self.__slots__:
+            if hasattr(self, slot):
+                output[slot] = getattr(self, slot)
+        return output
+
+
 class ProgressTrackingViewSet(viewsets.GenericViewSet):
-    def _validate_quiz(self, user, quiz_id):
+    def _check_quiz_permissions(self, user, quiz_id):
         if user.is_anonymous():
             raise PermissionDenied("Cannot access a quiz if not logged in")
         if not Exam.objects.filter(
@@ -149,12 +178,23 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         ).exists():
             raise PermissionDenied("User does not have access to this quiz_id")
 
-    def _validate_context(self, user, validated_data):
+    def _check_lesson_permissions(self, user, lesson_id):
+        if user.is_anonymous():
+            raise PermissionDenied("Cannot access a lesson if not logged in")
+        if not Lesson.objects.filter(
+            lesson_assignments__collection_id__in=user.memberships.all().values(
+                "collection_id"
+            ),
+            id=lesson_id,
+        ).exists():
+            raise ValidationError("Invalid lesson_id")
+
+    def _get_context(self, user, validated_data):
         node_id = validated_data.get("node_id")
         quiz_id = validated_data.get("quiz_id")
         lesson_id = validated_data.get("lesson_id")
 
-        context = {}
+        context = LogContext()
 
         if node_id is not None:
             try:
@@ -170,29 +210,77 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 kind = node.kind
                 context["node_id"] = node_id
                 if lesson_id:
-                    if user.is_anonymous():
-                        raise PermissionDenied(
-                            "Cannot access a lesson if not logged in"
-                        )
-                    if not Lesson.objects.filter(
-                        lesson_assignments__collection_id__in=user.memberships.all().values(
-                            "collection_id"
-                        ),
-                        id=lesson_id,
-                    ).exists():
-                        raise ValidationError("Invalid lesson_id")
-                    else:
-                        context["lesson_id"] = lesson_id
+                    self._check_lesson_permissions(user, lesson_id)
+                    context["lesson_id"] = lesson_id
             except ContentNode.DoesNotExist:
                 raise ValidationError("Invalid node_id")
         elif quiz_id is not None:
-            self._validate_quiz(user, quiz_id)
+            self._check_quiz_permissions(user, quiz_id)
             mastery_model = {"type": "quiz", "coach_assigned": True}
             content_id = quiz_id
             channel_id = None
             kind = content_kinds.QUIZ
             context["quiz_id"] = quiz_id
         return content_id, channel_id, kind, mastery_model, context
+
+    def _get_or_create_summarylog(
+        self,
+        user,
+        content_id,
+        channel_id,
+        kind,
+        mastery_model,
+        start_timestamp,
+        repeat,
+        context,
+    ):
+        if not user:
+            return {
+                "progress": 0,
+                "extra_fields": {},
+            }
+
+        try:
+            summarylog = ContentSummaryLog.objects.get(
+                content_id=content_id,
+                user=user,
+            )
+            updated_fields = ("end_timestamp", "channel_id")
+            if repeat:
+                summarylog.progress = 0
+                updated_fields += ("progress",)
+            summarylog.channel_id = channel_id
+            summarylog.end_timestamp = start_timestamp
+            summarylog.save(update_fields=updated_fields)
+        except ContentSummaryLog.DoesNotExist:
+            summarylog = ContentSummaryLog.objects.create(
+                content_id=content_id,
+                user=user,
+                channel_id=channel_id,
+                kind=kind,
+                start_timestamp=start_timestamp,
+                end_timestamp=start_timestamp,
+            )
+            self._process_created_notification(summarylog, context)
+
+        output = {
+            "progress": summarylog.progress,
+            "extra_fields": summarylog.extra_fields,
+            "time_spent": summarylog.time_spent,
+            "complete": summarylog.progress >= 1,
+        }
+        if mastery_model:
+            assessment_output, mastery_level = self._start_assessment_session(
+                mastery_model,
+                summarylog,
+                user,
+                start_timestamp,
+                repeat,
+                context,
+            )
+            output.update(assessment_output)
+            context["mastery_level"] = mastery_level
+        return output
 
     def create(self, request):
         """
@@ -227,63 +315,24 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         start_timestamp = local_now()
         repeat = serializer.validated_data["repeat"]
 
-        content_id, channel_id, kind, mastery_model, context = self._validate_context(
+        content_id, channel_id, kind, mastery_model, context = self._get_context(
             request.user, serializer.validated_data
         )
 
-        output = {
-            "progress": 0,
-            "extra_fields": {},
-        }
-
         with transaction.atomic():
 
-            user = None
+            user = None if request.user.is_anonymous() else request.user
 
-            if not request.user.is_anonymous():
-                user = request.user
-                try:
-                    summarylog = ContentSummaryLog.objects.get(
-                        content_id=content_id,
-                        user=request.user,
-                    )
-                    updated_fields = ("end_timestamp", "channel_id")
-                    if repeat:
-                        summarylog.progress = 0
-                        updated_fields += ("progress",)
-                    summarylog.channel_id = channel_id
-                    summarylog.end_timestamp = start_timestamp
-                    summarylog.save(update_fields=updated_fields)
-                except ContentSummaryLog.DoesNotExist:
-                    summarylog = ContentSummaryLog.objects.create(
-                        content_id=content_id,
-                        user=request.user,
-                        channel_id=channel_id,
-                        kind=kind,
-                        start_timestamp=start_timestamp,
-                        end_timestamp=start_timestamp,
-                    )
-                    self._process_created_notification(summarylog, context)
-                output.update(
-                    {
-                        "progress": summarylog.progress,
-                        "extra_fields": summarylog.extra_fields,
-                        "time_spent": summarylog.time_spent,
-                        "complete": summarylog.progress >= 1,
-                    }
-                )
-                if mastery_model:
-                    output.update(
-                        self._start_assessment_session(
-                            mastery_model,
-                            summarylog,
-                            request.user,
-                            start_timestamp,
-                            repeat,
-                            context,
-                        )
-                    )
-                    context["mastery_level"] = output.pop("mastery_level")
+            output = self._get_or_create_summarylog(
+                user,
+                content_id,
+                channel_id,
+                kind,
+                mastery_model,
+                start_timestamp,
+                repeat,
+                context,
+            )
 
             # Must ensure there is no user here to maintain user privacy for logging.
             visitor_id = (
@@ -298,9 +347,9 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 end_timestamp=start_timestamp,
                 user=user,
                 visitor_id=visitor_id,
-                extra_fields={"context": context},
+                extra_fields={"context": context.to_dict()},
             )
-            output.update({"session_id": sessionlog.id, "context": context})
+            output.update({"session_id": sessionlog.id, "context": context.to_dict()})
         return Response(output)
 
     def _process_created_notification(self, summarylog, context):
@@ -324,7 +373,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 quiz_started_notification, masterylog, context["quiz_id"]
             )
 
-    def _check_quiz_permissions(self, masterylog):
+    def _check_quiz_log_permissions(self, masterylog):
         if (
             masterylog
             and masterylog.complete
@@ -354,9 +403,21 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         if masterylog is None or (masterylog.complete and repeat):
             # There is no previous masterylog, or there is no incomplete
             # previous masterylog, and the request is requesting a new attempt.
+            # Here we generate a mastery_level value - this serves to disambiguate multiple
+            # retries at an assessment (either an exercise, practice quiz, or coach assigned quiz).
+            # Having the same mastery_level/summarylog (and hence user) pair will result in the same
+            # identifier being created. So if the same user engages with the same assessment on different
+            # devices, when the data synchronizes, if the mastery_level is the same, this data will be
+            # unified under a single retry.
             if mastery_model.get("coach_assigned"):
                 # To prevent coach assigned quiz mastery logs from propagating to older
                 # Kolibri versions, we use negative mastery levels for these.
+                # In older versions of Kolibri the mastery_level is validated to be
+                # between 1 and 10 - so these values will fail validation and hence will
+                # not be deserialized from the morango store.
+                # TODO: rtibbles - determine if we should instead randomize these values
+                # to ensure that coach assigned quiz attempts on different devices are not
+                # mixed together.
                 mastery_level = (
                     masterylog.mastery_level - 1 if masterylog is not None else -1
                 )
@@ -375,7 +436,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             )
             self._process_masterylog_created_notification(masterylog, context)
         else:
-            self._check_quiz_permissions(masterylog)
+            self._check_quiz_log_permissions(masterylog)
         return masterylog
 
     def _start_assessment_session(
@@ -411,11 +472,10 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
 
         return {
             "mastery_criterion": mastery_criterion,
-            "mastery_level": masterylog.mastery_level,
             "pastattempts": attemptlogs,
             "totalattempts": masterylog.attemptlogs.count(),
             "complete": masterylog.complete,
-        }
+        }, masterylog.mastery_level
 
     def _generate_interaction(self, validated_data):
         if validated_data["error"]:
@@ -442,7 +502,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
     def _update_and_return_mastery_log_id(
         self, user, complete, summarylog_id, end_timestamp, context
     ):
-        if not user.is_anonymous() and context.get("mastery_level") is not None:
+        if not user.is_anonymous() and context["mastery_level"] is not None:
             try:
                 masterylog = MasteryLog.objects.get(
                     user=user,
@@ -455,105 +515,106 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                     masterylog.save(update_fields=("complete", "completion_timestamp"))
                     self._process_masterylog_completed_notification(masterylog, context)
                 else:
-                    self._check_quiz_permissions(masterylog)
+                    self._check_quiz_log_permissions(masterylog)
                 return masterylog.id
             except MasteryLog.DoesNotExist:
                 raise ValidationError(
                     "Invalid mastery_level value, this session has not been started."
                 )
 
-    def _update_or_create_attempt(  # noqa C901
-        self, session_id, masterylog_id, user, attempt, end_timestamp, context
-    ):
-        attempt_id = attempt.get("id")
-        item = attempt.get("item")
-
-        correct = attempt["correct"]
-        complete = attempt["complete"]
-
-        answer = attempt.get("answer")
-        simple_answer = attempt.get("simple_answer")
-        error = attempt["error"]
-        hinted = attempt["hinted"]
-        time_spent = attempt["time_spent"]
-        replace = attempt["replace"]
+    def _update_attempt(self, masterylog_id, user, attempt, end_timestamp, context):
+        try:
+            attemptlog = AttemptLog.objects.get(
+                id=attempt["id"],
+                masterylog_id=masterylog_id,
+                user=user,
+            )
+        except AttemptLog.DoesNotExist:
+            raise ValidationError("Invalid attempt_id specified")
 
         interaction = self._generate_interaction(attempt)
 
+        attemptlog.interaction_history += [interaction]
+        attemptlog.end_timestamp = end_timestamp
+        attemptlog.time_spent = attempt["time_spent"]
+        update_fields = ("interaction_history", "end_timestamp", "time_spent")
+
+        if attempt["error"] and not attemptlog.error:
+            attemptlog.error = attempt["hinted"]
+            update_fields += ("error",)
+
+        # Mark hinted only if it is not already correct, and don't undo previously hinted
+        if attempt["hinted"] and not attemptlog.hinted and not attemptlog.correct:
+            attemptlog.hinted = attempt["hinted"]
+            update_fields += ("hinted",)
+
+        if attempt["replace"]:
+            attemptlog.correct = attempt["correct"]
+            update_fields += ("correct",)
+
+            if "answer" in attempt:
+                attemptlog.answer = attempt["answer"]
+                update_fields += ("answer",)
+
+            if "simple_answer" in attempt:
+                attemptlog.simple_answer = attempt["simple_answer"]
+                update_fields += ("simple_answer",)
+
+        if attempt["complete"] and not attemptlog.complete:
+            attemptlog.complete = attempt["complete"]
+            attemptlog.completion_timestamp = end_timestamp
+            update_fields += (
+                "complete",
+                "completion_timestamp",
+            )
+
+        attemptlog.save(update_fields=update_fields)
+        self._process_attempt_updated_notification(attemptlog, context)
+        return attemptlog
+
+    def _create_attempt(
+        self, session_id, masterylog_id, user, attempt, end_timestamp, context
+    ):
+        if "quiz_id" in context and "content_id" in attempt:
+            # Store the content_id for this specific question and the item
+            # together, to allow coach assigned quizzes to be stored seamlessly.
+            attempt["item"] = "{}{}{}".format(
+                attempt.pop("content_id"), QUIZ_ITEM_DELIMETER, attempt["item"]
+            )
+
+        start_timestamp = end_timestamp - timedelta(seconds=attempt["time_spent"])
+
+        interaction = self._generate_interaction(attempt)
+
+        del attempt["replace"]
+
+        attemptlog = AttemptLog.objects.create(
+            sessionlog_id=session_id,
+            masterylog_id=masterylog_id,
+            interaction_history=[interaction],
+            user=user,
+            start_timestamp=start_timestamp,
+            completion_timestamp=end_timestamp if attempt["complete"] else None,
+            end_timestamp=end_timestamp,
+            **attempt
+        )
+        if user:
+            self._process_attempt_created_notification(attemptlog, context)
+        return attemptlog
+
+    def _update_or_create_attempt(
+        self, session_id, masterylog_id, user, attempt, end_timestamp, context
+    ):
         user = None if user.is_anonymous() else user
 
-        if attempt_id:
-            try:
-                attemptlog = AttemptLog.objects.get(
-                    id=attempt_id,
-                    masterylog_id=masterylog_id,
-                    user=user,
-                )
-            except AttemptLog.DoesNotExist:
-                raise ValidationError("Invalid attempt_id specified")
-            attemptlog.interaction_history += [interaction]
-            attemptlog.end_timestamp = end_timestamp
-            attemptlog.time_spent = time_spent
-            update_fields = ("interaction_history", "end_timestamp", "time_spent")
-
-            if error and not attemptlog.error:
-                attemptlog.error = error
-                update_fields += ("error",)
-
-            # Mark hinted only if it is not already correct, and don't undo previously hinted
-            if hinted and not attemptlog.hinted and not attemptlog.correct:
-                attemptlog.hinted = hinted
-                update_fields += ("hinted",)
-
-            if replace:
-                attemptlog.correct = correct
-                update_fields += ("correct",)
-
-                if answer:
-                    attemptlog.answer = answer
-                    update_fields += ("answer",)
-
-                if simple_answer:
-                    attemptlog.simple_answer = simple_answer
-                    update_fields += ("simple_answer",)
-
-            if complete and not attemptlog.complete:
-                attemptlog.complete = complete
-                attemptlog.completion_timestamp = end_timestamp
-                update_fields += (
-                    "complete",
-                    "completion_timestamp",
-                )
-
-            attemptlog.save(update_fields=update_fields)
-            self._process_attempt_updated_notification(attemptlog, context)
-        else:
-            if "quiz_id" in context and "content_id" in attempt:
-                # Store the content_id for this specific question and the item
-                # together, to allow coach assigned quizzes to be stored seamlessly.
-                item = "{}{}{}".format(attempt["content_id"], QUIZ_ITEM_DELIMETER, item)
-
-            start_timestamp = end_timestamp - timedelta(seconds=time_spent)
-
-            attemptlog = AttemptLog.objects.create(
-                item=item,
-                sessionlog_id=session_id,
-                masterylog_id=masterylog_id,
-                correct=correct,
-                answer=answer or {},
-                simple_answer=simple_answer or "",
-                interaction_history=[interaction],
-                hinted=hinted,
-                error=error,
-                user=user,
-                complete=complete,
-                time_spent=time_spent,
-                start_timestamp=start_timestamp,
-                completion_timestamp=end_timestamp if complete else None,
-                end_timestamp=end_timestamp,
+        if "id" in attempt:
+            attemptlog = self._update_attempt(
+                masterylog_id, user, attempt, end_timestamp, context
             )
-            if user:
-                self._process_attempt_created_notification(attemptlog, context)
+        else:
+            attemptlog = self._create_attempt(
+                session_id, masterylog_id, user, attempt, end_timestamp, context
+            )
         output = {}
         for field in attemptlog_fields:
             output[field] = getattr(attemptlog, field)
@@ -594,67 +655,71 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 "ContentSessionLog with id {} does not exist".format(session_id)
             )
 
-    def _get_summary_log(self, user, sessionlog):
-        if not user.is_anonymous():
-            return ContentSummaryLog.objects.get(
-                content_id=sessionlog.content_id, user=user
+    def _normalize_progress(self, progress):
+        return max(0, min(1.0, progress))
+
+    def _update_content_log(self, log, end_timestamp, validated_data):
+        update_fields = ("end_timestamp",)
+
+        log.end_timestamp = end_timestamp
+        if "progress_delta" in validated_data:
+            update_fields += ("progress",)
+            log.progress = self._normalize_progress(
+                log.progress + validated_data["progress_delta"]
             )
+        elif "progress" in validated_data:
+            update_fields += ("progress",)
+            log.progress = self._normalize_progress(validated_data["progress"])
+        if "time_spent_delta" in validated_data:
+            update_fields += ("time_spent",)
+            log.time_spent += validated_data["time_spent_delta"]
+        return update_fields
+
+    def _update_summary_log(
+        self, user, sessionlog, end_timestamp, validated_data, context
+    ):
+        if user.is_anonymous():
+            return
+        summarylog = ContentSummaryLog.objects.get(
+            content_id=sessionlog.content_id, user=user
+        )
+        was_complete = summarylog.progress >= 1
+
+        update_fields = self._update_content_log(
+            summarylog, end_timestamp, validated_data
+        )
+
+        if summarylog.progress >= 1 and not was_complete:
+            summarylog.completion_timestamp = end_timestamp
+            update_fields += ("completion_timestamp",)
+            self._process_completed_notification(summarylog, context)
+        if "extra_fields" in validated_data:
+            update_fields += ("extra_fields",)
+            summarylog.extra_fields = validated_data["extra_fields"]
+
+        summarylog.save(update_fields=update_fields)
+        return summarylog
 
     def _update_session(  # noqa C901
         self, session_id, user, end_timestamp, validated_data
     ):
-        progress_delta = validated_data.get("progress_delta")
-        progress = validated_data.get("progress")
-        time_spent_delta = validated_data.get("time_spent_delta")
-        extra_fields = validated_data.get("extra_fields")
-
         sessionlog = self._get_session_log(session_id, user)
 
-        update_fields = ("end_timestamp",)
-
-        context = sessionlog.extra_fields.get("context", {})
+        context = LogContext(**sessionlog.extra_fields.get("context", {}))
 
         if "quiz_id" in context:
-            self._validate_quiz(user, context["quiz_id"])
+            self._check_quiz_permissions(user, context["quiz_id"])
 
-        summarylog = self._get_summary_log(user, sessionlog)
-
-        was_complete = summarylog and summarylog.progress >= 1
-
-        sessionlog.end_timestamp = end_timestamp
-        if summarylog:
-            summarylog.end_timestamp = end_timestamp
-        if progress_delta:
-            update_fields += ("progress",)
-            sessionlog.progress = min(1.0, sessionlog.progress + progress_delta)
-            if summarylog:
-                summarylog.progress = min(1.0, summarylog.progress + progress_delta)
-        elif progress is not None:
-            update_fields += ("progress",)
-            sessionlog.progress = progress
-            if summarylog:
-                summarylog.progress = progress
-        if time_spent_delta:
-            update_fields += ("time_spent",)
-            sessionlog.time_spent += time_spent_delta
-            if summarylog:
-                summarylog.time_spent += time_spent_delta
-
-        summarylog_update_fields = update_fields
-
-        if summarylog and summarylog.progress >= 1 and not was_complete:
-            summarylog.completion_timestamp = end_timestamp
-            summarylog_update_fields = summarylog_update_fields + (
-                "completion_timestamp",
-            )
-            self._process_completed_notification(summarylog, context)
-        if summarylog and extra_fields:
-            summarylog_update_fields += ("extra_fields",)
-            summarylog.extra_fields = extra_fields
-
+        update_fields = self._update_content_log(
+            sessionlog, end_timestamp, validated_data
+        )
         sessionlog.save(update_fields=update_fields)
+
+        summarylog = self._update_summary_log(
+            user, sessionlog, end_timestamp, validated_data, context
+        )
+
         if summarylog is not None:
-            summarylog.save(update_fields=summarylog_update_fields)
             complete = summarylog.progress >= 1
         else:
             complete = sessionlog.progress >= 1
