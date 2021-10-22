@@ -26,7 +26,7 @@
         :value="value.keywords || ''"
         @change="val => $emit('input', { ...value, keywords: val })"
       />
-      <div>
+      <div v-if="Object.keys(libraryCategoriesList).length">
         <h2 class="section title">
           {{ $tr('categories') }}
         </h2>

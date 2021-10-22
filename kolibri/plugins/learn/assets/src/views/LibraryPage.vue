@@ -20,7 +20,6 @@
           v-if="channels.length"
           class="grid"
           :contents="channels"
-          :genContentLink="genChannelLink"
         />
         <div v-if="!(windowBreakpoint < 1)" class="toggle-view-buttons">
           <KIconButton
@@ -202,7 +201,7 @@
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
-  import CategorySearchModal from './CategorySearchModal';
+  import CategorySearchModal from './CategorySearchModal/index';
 
   const mobileCarouselLimit = 3;
   const desktopCarouselLimit = 15;
@@ -252,7 +251,6 @@
         return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
       },
       trimmedPopular() {
-        console.log(this.popular);
         return this.popular.slice(0, this.carouselLimit);
       },
       trimmedNextSteps() {
@@ -402,7 +400,6 @@
         }
         // else {
         //   ContentNodeResource.fetchCollection({ getParams }).then(data => {
-        //     console.log(data.labels);
         //     this.labels = data.labels;
         //   });
         // }
