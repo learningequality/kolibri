@@ -13,23 +13,26 @@
       :style="availablePaths && !availablePaths[nestedObject.value] ?
         { textColor: 'grey' } : { cursor: 'pointer' }"
     >
-      <KIcon
-        icon="info"
-        size="large"
-      />
-      <h2
-        class="filter-list-item"
-        @click="$emit('input', nestedObject.value)"
+      <div class="filter-list-title">
+        <!-- TO DO swap out KDS Icons -->
+        <KIcon
+          icon="info"
+          size="large"
+        />
+        <h2 @click="$emit('input', nestedObject.value)">
+          {{ coreString(camelCase(key)) }}
+
+        </h2>
+      </div>
+      <div
+        v-for="(item, nestedKey) in nestedObject.nested"
+        :key="item.value"
       >
-        {{ coreString(camelCase(key)) }}
-      </h2>
-      <div class="filter-list-item">
         <a
-          v-for="(item, nestedKey) in nestedObject.nested"
-          :key="item.value"
           :disabled="availablePaths && !availablePaths[item.value]"
           :style="availablePaths && !availablePaths[item.value] ?
-            { textColor: 'grey' } : { cursor: 'pointer' }"
+            { textColor: 'grey', display: 'block', marginTop: '8px' } :
+            { cursor: 'pointer', display: 'block', marginTop: '8px' }"
 
           @click="$emit('input', item.value)"
         >
@@ -179,3 +182,13 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .filter-list-title {
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+
+</style>

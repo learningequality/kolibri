@@ -6,11 +6,11 @@
       :style="{ marginLeft: `${(sidePanelWidth + 24)}px` }"
     >
       <div v-if="!windowIsLarge">
-        <KIconButton
+        <!-- TO DO Marcella swap out new icon after KDS update -->
+        <KButton
           icon="channel"
-          :ariaLabel="coreString('search')"
-          :color="$themeTokens.text"
-          :tooltip="coreString('search')"
+          :text="coreString('searchLabel')"
+          :primary="false"
           @click="toggleSidePanelVisibility"
         />
       </div>
@@ -94,8 +94,9 @@
         <KButton
           v-if="more"
           :text="coreString('viewMoreAction')"
-          :primary="false"
+          appearance="basic-link"
           :disabled="moreLoading"
+          class="filter-action-button"
           @click="searchMore"
         />
       </div>
