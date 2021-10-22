@@ -47,16 +47,6 @@
         type: Array,
         required: true,
       },
-      cardViewStyle: {
-        type: String,
-        required: true,
-        default: 'card',
-        validator(value) {
-          return ['card', 'list'].includes(value);
-        },
-        default: () => ({}),
-        required: false,
-      },
     },
     data: () => ({
       modalIsOpen: false,
