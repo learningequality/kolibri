@@ -2,10 +2,10 @@ import datetime
 
 from django.db import connections
 from django.db.models import Count
-from django.db.models import Q
 from django.db.models import Sum
 from django.db.utils import DatabaseError
 from django.db.utils import OperationalError
+from django.http import Http404
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -19,9 +19,9 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.decorators import query_params_required
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
+from kolibri.core.logger.api import serialize_quiz_attempt_log
 from kolibri.core.logger.models import AttemptLog
-from kolibri.core.logger.models import ExamAttemptLog
-from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import MasteryLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationsLog
 from kolibri.core.sqlite.utils import repair_sqlite_db
@@ -377,28 +377,36 @@ class QuizDifficultQuestionsViewset(viewsets.ViewSet):
         # Only return logs when the learner has submitted the Quiz OR
         # the coach has deactivated the Quiz. Do not return logs when Quiz is still
         # in-progress.
-        queryset = ExamAttemptLog.objects.filter(
-            Q(examlog__closed=True) | Q(examlog__exam__active=False), examlog__exam=pk
-        )
+        try:
+            quiz = Exam.objects.all().values("active", "collection_id").get(pk=pk)
+        except Exam.DoesNotExist:
+            raise Http404
+        quiz_active = quiz["active"]
+        queryset = AttemptLog.objects.filter(sessionlog__content_id=pk)
+        if quiz_active:
+            queryset = queryset.filter(masterylog__complete=True)
         if group_id is not None:
             queryset = queryset.filter(
                 user__memberships__collection_id=group_id
             ).distinct()
             collection_id = group_id
         else:
-            collection_id = Exam.objects.get(pk=pk).collection_id
-        data = queryset.values("item", "content_id").annotate(correct=Sum("correct"))
+            collection_id = quiz["collection_id"]
+        data = queryset.values("item").annotate(correct=Sum("correct"))
 
         # Instead of inferring the totals from the number of logs, use the total
         # number of people who submitted (if quiz is active) or started the exam
         # (if quiz is inactive) as our guide, as people who started the exam
         # but did not attempt the question are still important.
+        total_queryset = MasteryLog.objects.filter(summarylog__content_id=pk)
+        if quiz_active:
+            total_queryset = total_queryset.filter(complete=True)
         total = (
-            ExamLog.objects.filter(Q(closed=True) | Q(exam__active=False), exam_id=pk)
-            .filter(user__memberships__collection_id=collection_id)
+            total_queryset.filter(user__memberships__collection_id=collection_id)
             .distinct()
             .count()
         )
         for datum in data:
+            serialize_quiz_attempt_log(datum)
             datum["total"] = total
         return Response(data)

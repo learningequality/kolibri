@@ -126,7 +126,7 @@ attemptlog_fields = [
 ]
 
 
-def _serialize_quiz_log(log):
+def serialize_quiz_attempt_log(log):
     try:
         item_content_id, item = log["item"].split(QUIZ_ITEM_DELIMETER)
         log["item"] = item
@@ -406,7 +406,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             attemptlogs = attemptlogs.order_by()
             if mastery_criterion.get("coach_assigned"):
                 for log in attemptlogs:
-                    _serialize_quiz_log(log)
+                    serialize_quiz_attempt_log(log)
         else:
             attemptlogs = attemptlogs[:10]
 
@@ -559,7 +559,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         for field in attemptlog_fields:
             output[field] = getattr(attemptlog, field)
         if "quiz_id" in context:
-            _serialize_quiz_log(output)
+            serialize_quiz_attempt_log(output)
         return {"attempt": output}
 
     def _process_attempt_created_notification(self, attemptlog, context):
@@ -812,5 +812,5 @@ class AttemptLogViewSet(ReadOnlyValuesViewset):
 
     def consolidate(self, items, queryset):
         for item in items:
-            _serialize_quiz_log(item)
+            serialize_quiz_attempt_log(item)
         return items
