@@ -389,9 +389,6 @@ apply_settings(sys.modules[__name__])
 
 MORANGO_INSTANCE_INFO = "kolibri.core.auth.constants.morango_sync:CUSTOM_INSTANCE_INFO"
 # prepend custom Morango operation to handle behaviors during sync
-MORANGO_SERIALIZE_OPERATIONS = (
-    "kolibri.core.auth.utils:ExamLogsCompatibilityOperation",
-) + morango_settings.MORANGO_SERIALIZE_OPERATIONS
 MORANGO_CLEANUP_OPERATIONS = (
     "kolibri.core.auth.utils:ExamLogsCompatibilityOperation",
     "kolibri.core.auth.utils:GenerateNotifications",

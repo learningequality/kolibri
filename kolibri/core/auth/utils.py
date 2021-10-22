@@ -16,12 +16,11 @@ from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
+from kolibri.core.logger.utils.exam_log_migration import migrate_from_exam_logs
 from kolibri.core.notifications.api import batch_process_attemptlogs
 from kolibri.core.notifications.api import batch_process_examlogs
 from kolibri.core.notifications.api import batch_process_summarylogs
 from kolibri.core.upgrade import matches_version
-
-# from kolibri.core.logger.utils.exam_log_migration import migrate_from_exam_logs
 
 
 def confirm_or_exit(message):
@@ -225,9 +224,8 @@ class ExamLogsCompatibilityOperation(VersionMigrationOperation):
 
     def upgrade(self, context):
         """
+        Migrates exam logs to be backwards compatible with older Kolibris
         :type context: morango.sync.context.LocalSessionContext
         """
-        exam_logs = context.transfer_session.get_touched_record_ids_for_model(  # noqa
-            ExamLog
-        )
-        # migrate_from_exam_logs(exam_logs)
+        exam_logs = context.transfer_session.get_touched_record_ids_for_model(ExamLog)
+        migrate_from_exam_logs(exam_logs)
