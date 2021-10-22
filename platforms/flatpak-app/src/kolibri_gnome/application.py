@@ -507,7 +507,7 @@ class Application(pew.ui.PEWApp):
     def is_kolibri_url(self, url):
         return self.kolibri_daemon.is_kolibri_url(url)
 
-    def get_loader_url(self):
+    def get_loader_url(self, state):
         return self.__loader_url + "#" + state
 
     def get_full_url(self, url):
