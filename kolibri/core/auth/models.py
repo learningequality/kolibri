@@ -261,15 +261,17 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         )
         super(AbstractFacilityDataModel, self).full_clean(*args, **kwargs)
 
-    def save(self, *args, **kwargs):
-
-        # before saving, ensure we have a dataset, and convert any validation errors into integrity errors,
-        # since by this point the `clean_fields` method should already have prevented this situation from arising
+    def pre_save(self):
+        # before saving, ensure we have a dataset, and convert any validation errors into integrity
+        # errors, since by this point the `clean_fields` method should already have prevented
+        # this situation from arising
         try:
             self.ensure_dataset()
         except KolibriValidationError as e:
             raise IntegrityError(str(e))
 
+    def save(self, *args, **kwargs):
+        self.pre_save()
         super(AbstractFacilityDataModel, self).save(*args, **kwargs)
 
     def ensure_dataset(self, *args, **kwargs):
