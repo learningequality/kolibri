@@ -10,8 +10,10 @@ from gi.repository import GLib
 from pathlib import Path
 
 import re
+import configparser
 
 from kolibri_app.config import KOLIBRI_HOME_TEMPLATE_DIR
+from kolibri_app.config import DATA_DIR
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
 # HTML tags and entities
@@ -94,3 +96,27 @@ def sanitize_text(text):
     lines = [re.sub(TAGRE, "", line) for line in lines]
 
     return " ".join(lines)
+
+
+def get_search_media_icon(kind):
+    node_icon_lookup = {
+        "video": "play-circle-outline.svg",
+        "exercise": "checkbox-marked-circle-outline.svg",
+        "document": "text-box-outline.svg",
+        "topic": "cube-outline.svg",
+        "audio": "podcast.svg",
+        "html5": "motion-outline.svg",
+        "slideshow": "image-outline.svg",
+    }
+    node_icon = node_icon_lookup.get(kind, "cube-outline.svg")
+
+    path = Path(DATA_DIR, "media-icons", node_icon).as_posix()
+
+    flatpak = Path("/.flatpak-info")
+    if flatpak.exists():
+        config = configparser.ConfigParser()
+        config.read(flatpak.as_posix())
+        files_path = config["Instance"]["app-path"]
+        path = path.replace("/app", files_path)
+
+    return path

@@ -5,19 +5,7 @@ from kolibri_app.globals import init_kolibri
 from kolibri_app.globals import init_logging
 
 from .utils import sanitize_text
-
-
-NODE_ICON_LOOKUP = {
-    "video": "video-x-generic",
-    "exercise": "edit-paste",
-    "document": "x-office-document",
-    "topic": "folder",
-    "audio": "audio-x-generic",
-    "html5": "text-html",
-    "slideshow": "image-x-generic",
-}
-
-DEFAULT_NODE_ICON = "application-x-executable"
+from .utils import get_search_media_icon
 
 
 class SearchHandler(object):
@@ -84,7 +72,7 @@ class SearchHandler(object):
         if not isinstance(node_data, collections.Mapping):
             return None
 
-        node_icon = NODE_ICON_LOOKUP.get(node_data.get("kind"), DEFAULT_NODE_ICON)
+        node_icon = get_search_media_icon(node_data.get("kind"))
         title = sanitize_text(node_data.get("title"))
         description = sanitize_text(node_data.get("description"))
 
