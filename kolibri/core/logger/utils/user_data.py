@@ -23,11 +23,10 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
+from kolibri.core.logger.api import QUIZ_ITEM_DELIMETER
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.logger.models import ExamAttemptLog
-from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
 
 logger = logging.getLogger(__name__)
@@ -540,17 +539,44 @@ def create_exams_for_classrooms(**options):
         )
         # everyone in the class has to take the exam
         for user in classroom.get_members():
-            # create exam log per user
-            examlog = ExamLog.objects.create(
-                exam=exam, user=user, completion_timestamp=now
+            random_seconds = random.randint(1, 500)
+            seconds = timezone.timedelta(seconds=random_seconds)
+            then = now - seconds
+            # create mastery log per user
+            sl = ContentSessionLog.objects.create(
+                user=user,
+                start_timestamp=then,
+                end_timestamp=now,
+                content_id=exam.id,
+                channel_id=None,
+                time_spent=60,  # 1 minute
+                kind=content_kinds.QUIZ,
+            )
+            summarylog = ContentSummaryLog.objects.create(
+                user=user,
+                start_timestamp=then,
+                end_timestamp=now,
+                completion_timestamp=now,
+                content_id=exam.id,
+                channel_id=None,
+                kind=content_kinds.QUIZ,
+            )
+            masterylog = MasteryLog.objects.create(
+                mastery_criterion={"type": "quiz", "coach_assigned": True},
+                summarylog=summarylog,
+                start_timestamp=summarylog.start_timestamp,
+                user=user,
+                mastery_level=-1,
             )
             # create 1 exam attempt log per question in exam
             for i in range(len(exam_content)):
                 correct = random.choice([0, 1])
                 random_seconds = random.randint(1, 100)
                 seconds = timezone.timedelta(seconds=random_seconds)
-                ExamAttemptLog.objects.create(
-                    item=assessment_ids[i],
+                AttemptLog.objects.create(
+                    item="{}{}{}".format(
+                        content_ids[i], QUIZ_ITEM_DELIMETER, assessment_ids[i]
+                    ),
                     start_timestamp=now - seconds,
                     end_timestamp=now,
                     completion_timestamp=now,
@@ -564,8 +590,8 @@ def create_exams_for_classrooms(**options):
                     answer={},
                     interaction_history={},
                     user=user,
-                    examlog=examlog,
-                    content_id=content_ids[i],
+                    masterylog=masterylog,
+                    sessionlog=sl,
                 )
 
 
