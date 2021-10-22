@@ -13,9 +13,43 @@
         :style="{
           color: $themeTokens.text,
           backgroundColor: $themeTokens.surface,
+          right: (alignment === 'right' ? 0 : ''),
+          left: (alignment === 'left' ? 0 : ''),
+          width: (sidePanelOverrideWidth ? sidePanelOverrideWidth : '')
         }"
       >
+        <div v-if="!closeButtonHidden">
+          <KIconButton
+            icon="close"
+            class="close-button"
+            @click="closePanel"
+          />
+        </div>
         <slot></slot>
+
+      <!--
+        <h2 class="title">
+          {{ title }}
+          <span>
+            <KIconButton
+              icon="close"
+              class="close-button"
+              @click="togglePanel"
+            />
+          </span>
+        </h2>
+        <SidePanelResourceMetadata
+          v-if="panelType === 'resourceMetadata'"
+          :togglePanel="togglePanel"
+        />
+        <SidePanelResourcesList
+          v-if="panelType === 'resourcesList'"
+          :contents="siblingNodes"
+          :currentContent="content"
+          :togglePanel="togglePanel"
+          :nextTopic="nextTopic"
+        />
+      -->
       </div>
     </transition>
     <Backdrop
@@ -31,7 +65,9 @@
 <script>
 
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
+  //import { mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  //import SidePanelResourcesList from './SidePanelResourcesList';
 
   export default {
     name: 'FullScreenSidePanel',
@@ -40,6 +76,25 @@
       //SidePanelResourcesList,
     },
     mixins: [responsiveWindowMixin],
+    props: {
+      closeButtonHidden: {
+        type: Boolean,
+        default: false,
+      },
+      alignment: {
+        type: String,
+        default: 'right',
+        validator(val) {
+          return ['right', 'left'].includes(val);
+        },
+      },
+      // to customize the width of the side panel in different scenarios
+      sidePanelOverrideWidth: {
+        type: String,
+        required: false,
+        default: null,
+      },
+    },
     computed: {
       isMobile() {
         return this.windowBreakpoint == 0;
@@ -67,12 +122,6 @@
       },
       */
     },
-    // $trs: {
-    //   topicHeader: {
-    //     message: 'Also in this folder',
-    //     context: 'Title of the panel with all topic contents. ',
-    //   },
-    // },
   };
 
 </script>
@@ -89,18 +138,17 @@
   .side-panel {
     position: fixed;
     top: 0;
-    right: 0;
     bottom: 0;
     // Must be <= 12 z-index so that KDropdownMenu shows over
     z-index: 12;
     width: 472px;
     height: 100vh;
-    padding: 24px;
-    overflow: scroll;
+    padding: 32px;
+    overflow: auto;
     font-size: 14px;
 
-    @media (min-width: 436px) {
-      width: 346px;
+    .is-mobile & {
+      width: 100vw;
     }
   }
 

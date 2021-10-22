@@ -39,19 +39,9 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeResource } from 'kolibri.resources';
+  import client from 'kolibri.client';
+  import urls from 'kolibri.urls';
   import genContentLink from '../utils/genContentLink';
-  import client from 'kolibri.client';
-  import urls from 'kolibri.urls';
-  import { normalizeContentNode } from '../modules/coreLearn/utils.js';
-  import HybridLearningCardGrid from './HybridLearningCardGrid';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { ContentNodeResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { ContentNodeResource } from 'kolibri.resources';
-  import client from 'kolibri.client';
-  import urls from 'kolibri.urls';
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
 

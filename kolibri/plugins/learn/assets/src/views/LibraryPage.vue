@@ -131,15 +131,19 @@
     />
     <FullScreenSidePanel
       v-if="!windowIsLarge && sidePanelIsOpen"
-      @togglePanel="toggleSidePanelVisibility"
+      alignment="left"
+      class="full-screen-side-panel"
+      closeButtonHidden="true"
+      :sidePanelOverrideWidth="`${sidePanelOverlayWidth + 64}px`"
+      @closePanel="toggleSidePanelVisibility"
     >
       <KIconButton
         v-if="windowIsSmall && !currentCategory"
         class="overlay-close-button"
         icon="close"
-        :ariaLabel="coreString('close')"
+        :ariaLabel="coreString('closeAction')"
         :color="$themeTokens.text"
-        :tooltip="coreString('close')"
+        :tooltip="coreString('closeAction')"
         @click="toggleSidePanelVisibility"
       />
       <KIconButton
@@ -177,100 +181,6 @@
       @cancel="currentCategory = null"
       @input="handleCategory"
     />
-    <KGrid
-      class="main-content-grid"
-    >
-      <EmbeddedSidePanel
-        :channels="channels"
-        width="3"
-      />
-      <div>
-        <KIconButton
-          icon="channel"
-          :ariaLabel="coreString('search')"
-          :color="$themeTokens.text"
-          :tooltip="coreString('search')"
-          @click="toggleSidePanelVisibility"
-        />
-      </div>
-      <KGridItem
-        :layout="{ span: 3 }"
-        class="side-panel"
-      />
-      <KGridItem
-        class="card-grid"
-        :style="{ padding: windowIsSmall ? '24px' : 0 }"
-        :layout="{ span: 8 }"
-        :layout4="{ span: 4 }"
-      >
-        <div v-if="!displayingSearchResults">
-          <h2>{{ coreString('channelsLabel') }}</h2>
-          <ChannelCardGroupGrid
-            v-if="channels.length"
-            class="grid"
-            :contents="channels"
-            @toggleInfoPanel="toggleInfoPanel"
-          />
-          <div class="toggle-view-buttons">
-            <KIconButton
-              icon="menu"
-              :ariaLabel="$tr('viewAsList')"
-              :color="$themeTokens.text"
-              :tooltip="$tr('viewAsList')"
-              @click="toggleCardView('list')"
-            />
-            <KIconButton
-              icon="channel"
-              :ariaLabel="$tr('viewAsGrid')"
-              :color="$themeTokens.text"
-              :tooltip="$tr('viewAsGrid')"
-              @click="toggleCardView('card')"
-            />
-          </div>
-          <h2>{{ $tr('recent') }}</h2>
-          <HybridLearningCardGrid
-            v-if="popular.length"
-            :cardViewStyle="currentViewStyle"
-            :numCols="numCols"
-            :genContentLink="genContentLink"
-            :contents="trimmedPopular"
-            @toggleInfoPanel="toggleInfoPanel"
-          />
-        </div>
-        <div v-else>
-          <KCircularLoader
-            v-if="searchLoading"
-            class="loader"
-            type="indeterminate"
-            :delay="false"
-          />
-          <div v-else>
-            <h2>{{ $tr('results', { results: results.length }) }}</h2>
-
-            <p>{{ $tr('clearAll') }}</p>
-            <HybridLearningCardGrid
-              v-if="results.length"
-              :cardViewStyle="currentViewStyle"
-              :genContentLink="genContentLink"
-              :contents="results"
-            />
-          </div>
-        </div>
-      </KGridItem>
-    </KGrid>
-    <CategorySearchModal
-      v-if="currentCategory"
-      :selectedCategory="currentCategory"
-      @cancel="currentCategory = null"
-      @input="handleCategory"
-    />
-
-    <FullScreenSidePanel
-      v-if="sidePanelContent"
-      @closePanel="sidePanelContent = null"
-    >
-      <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
-    </FullScreenSidePanel>
   </div>
 
 </template>
@@ -281,14 +191,13 @@
   import { mapState } from 'vuex';
   import uniq from 'lodash/uniq';
 
-  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
+  import genContentLink from '../utils/genContentLink';
   import FullScreenSidePanel from '../../../../../core/assets/src/views/FullScreenSidePanel';
   import { PageNames } from '../constants';
-  import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
@@ -316,8 +225,6 @@
       };
     },
     components: {
-      BrowseResourceMetadata,
-      CategorySearchModal,
       HybridLearningCardGrid,
       ChannelCardGroupGrid,
       EmbeddedSidePanel,
@@ -334,7 +241,6 @@
         results: [],
         more: null,
         labels: null,
-        sidePanelContent: null,
         showSearchModal: false,
         sidePanelIsOpen: false,
       };
@@ -346,6 +252,7 @@
         return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
       },
       trimmedPopular() {
+        console.log(this.popular);
         return this.popular.slice(0, this.carouselLimit);
       },
       trimmedNextSteps() {
@@ -445,12 +352,7 @@
     methods: {
       /* eslint-disable kolibri/vue-no-unused-methods */
       // TODO: Remove this if we're close to release and haven't used it
-      genChannelLink(channel_id) {
-        return {
-          name: PageNames.TOPICS_CHANNEL,
-          params: { channel_id },
-        };
-      },
+      genContentLink,
       handleShowSearchModal(value) {
         this.currentCategory = value;
         this.showSearchModal = true;
@@ -516,9 +418,6 @@
           });
         }
       },
-      toggleInfoPanel(content) {
-        this.sidePanelContent = content;
-      },
       removeFilterTag(value) {
         let query = JSON.parse(JSON.stringify(this.$route.query));
         const key = Object.keys(query).filter(function(key) {
@@ -580,8 +479,11 @@
     float: right;
   }
 
+  .full-screen-side-panel {
+    position: relative;
+  }
   .overlay-close-button {
-    position: fixed;
+    position: absolute;
     top: 8px;
     right: 8px;
   }
