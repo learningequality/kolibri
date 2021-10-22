@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import operator
-import os
-import pwd
+import functools
 import time
 import typing
+from concurrent.futures import Future
 from uuid import uuid4
 
 from gi.repository import Gio
@@ -14,56 +13,22 @@ from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
 from kolibri_app.config import DAEMON_PRIVATE_OBJECT_PATH
 
-from .accounts_service import AccountsServiceManager
-from .accounts_service import AccountsServiceUser
-from .dbus_helpers import get_user_id_for_dbus_invocation
+from .dbus_helpers import DBusManagerProxy
+from .desktop_users import AccountsServiceManager
+from .desktop_users import UserInfo
 from .kolibri_search_handler import LocalSearchHandler
 from .kolibri_service_manager import KolibriServiceManager
 from .utils import dict_to_vardict
+from .utils import future_chain
 
 
 INACTIVITY_TIMEOUT_MS = 30 * 1000  # 30 seconds in milliseconds
 
 DEFAULT_STOP_KOLIBRI_TIMEOUT_SECONDS = 60  # 1 minute in seconds
 
-LOCAL_USER = os.environ.get("USER", None)
-
-try:
-    LOCAL_USER_PWD = pwd.getpwnam(LOCAL_USER)
-except KeyError:
-    LOCAL_USER_PWD = None
-
-
-class UserDetail(typing.NamedTuple):
-    user_id: int
-    user_name: str
-    full_name: str
-    is_admin: bool
-
-    @classmethod
-    def from_accounts_service_user(
-        cls, user: AccountsServiceUser, **kwargs
-    ) -> UserDetail:
-        return cls(
-            user_id=user.user_id,
-            user_name=user.user_name,
-            full_name=user.full_name,
-            is_admin=user.is_admin,
-            **kwargs
-        )
-
-    @classmethod
-    def from_pwd_user(cls, user: pwd.struct_passwd, **kwargs) -> UserDetail:
-        return cls(
-            user_id=user.pw_uid,
-            user_name=user.pw_name,
-            full_name=user.pw_gecos,
-            **kwargs
-        )
-
 
 class LoginToken(typing.NamedTuple):
-    user: UserDetail
+    user: UserInfo
     key: str
     expires: int
 
@@ -223,21 +188,43 @@ class PublicDBusInterface(object):
         invocation: Gio.DBusMethodInvocation,
     ) -> bool:
         self.__application.reset_inactivity_timeout()
-        # TODO: Do this asynchronously
-        user_id = get_user_id_for_dbus_invocation(invocation)
-        user_detail = self.__get_user_detail(user_id)
 
-        if user_detail is None:
+        connection = invocation.get_connection()
+
+        future_chain(
+            future_chain(
+                future_chain(
+                    DBusManagerProxy.get_default(connection).init_future(),
+                    map_fn=functools.partial(
+                        DBusManagerProxy.get_user_id_from_dbus_invocation_future,
+                        invocation=invocation,
+                    ),
+                ),
+                map_fn=functools.partial(
+                    UserInfo.from_user_id_future,
+                    accounts_service=self.__accounts_service,
+                ),
+            ),
+            map_fn=self.__application.generate_login_token,
+        ).add_done_callback(
+            functools.partial(self.__complete_get_login_token_from_future, invocation)
+        )
+
+        return True
+
+    def __complete_get_login_token_from_future(
+        self, invocation: Gio.DBusMethodInvocation, future: Future
+    ):
+        try:
+            token_key = future.result()
+        except Exception as error:
             invocation.return_error_literal(
                 Gio.io_error_quark(),
                 Gio.IOErrorEnum.FAILED,
-                "Error retrieving user details",
+                "Error creating login token: {}".format(error),
             )
-            return True
-
-        token_key = self.__application.generate_login_token(user_detail)
-        interface.complete_get_login_token(invocation, token_key)
-        return True
+        else:
+            self.__skeleton.complete_get_login_token(invocation, token_key)
 
     def __on_handle_get_item_ids_for_search(
         self,
@@ -269,18 +256,6 @@ class PublicDBusInterface(object):
         )
         interface.complete_get_metadata_for_item_ids(invocation, result_variant)
         return True
-
-    def __get_user_detail(self, user_id: int) -> UserDetail:
-        if LOCAL_USER_PWD and user_id == LOCAL_USER_PWD.pw_uid:
-            return UserDetail.from_pwd_user(LOCAL_USER_PWD, is_admin=True)
-        elif self.__accounts_service:
-            # TODO: Make this async by passing a result_handler with user_data
-            #       along with error_handler.
-            #       <https://gitlab.gnome.org/GNOME/pygobject/-/blob/master/gi/overrides/Gio.py#L339>
-            remote_user = self.__accounts_service.get_user_by_id(user_id)
-            return UserDetail.from_accounts_service_user(remote_user)
-        else:
-            return None
 
     def __begin_watch_changes_timeout(self):
         if self.__watch_changes_timeout_source:
@@ -406,19 +381,19 @@ class LoginTokenManager(object):
         self.__login_tokens = dict()
         self.__expire_tokens_timeout_source = None
 
-    def generate_for_user(self, user_detail: UserDetail) -> str:
+    def generate_for_user(self, user_info: UserInfo) -> str:
         self.__revoke_expired_tokens()
-        return self.__add_login_token(user_detail)
+        return self.__add_login_token(user_info)
 
     def pop_login_token(self, token_key: str) -> LoginToken:
         self.__revoke_expired_tokens()
         return self.__pop_login_token(token_key)
 
-    def __add_login_token(self, user_detail: UserDetail) -> LoginToken:
-        user_id = str(user_detail.user_id)
+    def __add_login_token(self, user_info: UserInfo) -> LoginToken:
+        user_id = str(user_info.user_id)
         token_key = self.__generate_token_key(user_id)
         login_token = LoginToken.with_expire_time(
-            self.TOKEN_EXPIRE_TIME, user=user_detail, key=token_key
+            self.TOKEN_EXPIRE_TIME, user=user_info, key=token_key
         )
         # We only allow one token at a time to be associated with a particular
         # user. Using a dictionary provides that for free.
@@ -526,8 +501,8 @@ class Application(Gio.Application):
             self.__hold_tokens.remove(token)
             self.release()
 
-    def generate_login_token(self, user_detail: UserDetail) -> str:
-        return self.__login_token_manager.generate_for_user(user_detail)
+    def generate_login_token(self, user_info: UserInfo) -> str:
+        return self.__login_token_manager.generate_for_user(user_info)
 
     def pop_login_token(self, token_key: str) -> LoginToken:
         return self.__login_token_manager.pop_login_token(token_key)
