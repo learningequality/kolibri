@@ -51,7 +51,8 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
 
     @property
     def plugin_data(self):
-        plugin_data = {
+        label_metadata = get_all_contentnode_label_metadata()
+        return {
             "allowGuestAccess": get_device_setting("allow_guest_access"),
             "allowLearnerUnassignedResourceAccess": allow_learner_unassigned_resource_access(),
             "enableCustomChannelNav": conf.OPTIONS["Learn"][
@@ -60,9 +61,14 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             "isSubsetOfUsersDevice": get_device_setting(
                 "subset_of_users_device", False
             ),
+            "categories": label_metadata["categories"],
+            "learningActivities": label_metadata["learning_activities"],
+            "languages": label_metadata["languages"],
+            "channels": label_metadata["channels"],
+            "gradeLevels": label_metadata["grade_levels"],
+            "accessibilityLabels": label_metadata["accessibility_labels"],
+            "learnerNeeds": label_metadata["learner_needs"],
         }
-        plugin_data.update(get_all_contentnode_label_metadata())
-        return plugin_data
 
 
 @register_hook
