@@ -198,28 +198,27 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         """
         Make a POST request to start a content session.
 
-        Must specify either:
-        node_id - the pk of the resource
-        quiz_id - the pk of the quiz (Exam) object
+        Requires one of either:
+        - node_id: the pk of the resource
+        - quiz_id: the pk of the quiz (Exam) object
 
-        The parameters are optional:
-        repeat - whether to reset previous progress on this content to zero and start fresh
-        lesson_id - if this is being engaged within a lesson
+        Optional parameters:
+        - repeat: whether to reset previous progress on this content to zero and start fresh
+        - lesson_id: if this is being engaged within a lesson
 
-        returns object with the following parameters:
-        session_id - the id of the session object that was created by this call.
-        context - which contains node_id, quiz_id, lesson_id, and mastery_level as appropriate
+        Returns object with properties:
+        - session_id: id of the session object that was created by this call
+        - context: contains node_id, quiz_id, lesson_id, and mastery_level as appropriate
 
-        if the user is logged in, will also include
-        progress - any previous progress on this content resource
-        time_spent - any previous time spent on this content resource
-        extra_fields - any previously recorded additional data stored for this resource
+        If user is logged in, return object will also include:
+        - progress: any previous progress on this content resource
+        - time_spent: any previous time spent on this content resource
+        - extra_fields: any previously recorded additional data stored for this resource
 
-        if this is an assessment, will also include
-        mastery_criterion - the mastery criterion that should be applied to determine completion
-        pastattempts - a serialized subset of previous responses within this run, that can be used
-                       to determine completion
-        totalattempts - the total number of previous responses within this run of the assessment resource.
+        If this is an assessment, return object will also include:
+        - mastery_criterion: mastery criterion that should be applied to determine completion
+        - pastattempts: serialized subset of recent responses, used to determine completion
+        - totalattempts: total number of previous responses within this run of the assessment resource
         """
         serializer = StartSessionSerializer(
             data=request.data, context={"request": request}
@@ -675,26 +674,26 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         """
         Make a PUT request to update the current session
 
-        To update progress, two different parameters can be used, but are mutually exclusive.
-        progress_delta - increase the progress by this amount
-        progress - set the progress to this amount
+        Requires one of either:
+        - progress_delta: increase the progress by this amount
+        - progress: set the progress to this amount
 
         Can also update time spent recorded with a delta:
-        time_spent_delta - number of seconds to increase time_spent by
+        - time_spent_delta: number of seconds to increase time_spent by
 
-        And update the extra_fields value stored
-        extra_fields - the complete representation to set extra_fields to
+        And update the extra_fields value stored:
+        - extra_fields: the complete representation to set extra_fields to
 
-        If creating or updating an attempt for an assessment must include
-        attempt - a nested object, if creating an attempt, must include item
+        If creating or updating an attempt for an assessment must include:
+        - attempt: a nested object, if creating an attempt, must include item
                   if updating an existing attempt, must include attempt_id
 
-        returns an object with the following properties
-        complete - boolean indicating if the resource is completed
+        Returns an object with the properties:
+        - complete: boolean indicating if the resource is completed
 
-        if an attempt at an assessment was included, then the following parameter will be included
-        attempt - a serialized form of the attempt, equivalent to that returned in pastattempts from
-                  session initialization.
+        If an attempt at an assessment was included, then this parameter will be included:
+        - attempt: serialized form of the attempt, equivalent to that returned in pastattempts from
+                  session initialization
         """
         if pk is None:
             raise Http404
