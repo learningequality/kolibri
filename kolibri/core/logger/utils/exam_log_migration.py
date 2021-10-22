@@ -49,7 +49,10 @@ def _update_mastery_log(log):
     )
 
 
-attempt_log_fields = [
+# Field that we want to update
+# if there have been changes to an ExamAttemptLog
+# when a migrated AttemptLog has already been created
+attempt_log_fields_for_update = [
     "end_timestamp",
     "completion_timestamp",
     "time_spent",
@@ -85,10 +88,13 @@ def _update_attempt_logs(masterylog_id, logs):
             existing_log = existing_log_items[log.item]
             # Last write wins
             # Otherwise we ignore the updated log.
+            # Need to cast the value for the unsaved log here, as otherwise
+            # it is still in the string form, rather than datetime, as Morango
+            # deserialize does not run to_python_value or from_db_value.
             if existing_log.end_timestamp < AttemptLog._meta.get_field(
                 "end_timestamp"
             ).from_db_value(log.end_timestamp, None, None, None):
-                for field in attempt_log_fields:
+                for field in attempt_log_fields_for_update:
                     setattr(
                         existing_log,
                         field,
@@ -158,7 +164,9 @@ def migrate_from_exam_logs(source_logs):  # noqa C901
     kind = content_kinds.QUIZ
     mastery_criterion = {"type": content_kinds.QUIZ}
 
-    attempts_blocklist = {
+    # ExamAttemptLog properties that we do not want
+    # to copy onto the new AttemptLog
+    exam_attempts_blocklist = {
         "id",
         "_morango_dirty_bit",
         "_morango_source_id",
@@ -233,7 +241,7 @@ def migrate_from_exam_logs(source_logs):  # noqa C901
 
             for examattemptlog in examattemptlogs:
                 data = examattemptlog.serialize()
-                for f in attempts_blocklist:
+                for f in exam_attempts_blocklist:
                     if f in data:
                         del data[f]
                 data["sessionlog_id"] = session_log.id
