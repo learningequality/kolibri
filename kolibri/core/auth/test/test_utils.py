@@ -9,6 +9,7 @@ import uuid
 import factory
 import mock
 from django.core.management.base import CommandError
+from django.test import SimpleTestCase
 from django.test import TestCase
 
 from ..models import Facility
@@ -16,6 +17,7 @@ from kolibri.core.auth.management import utils
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.auth.utils import merge_users
+from kolibri.core.auth.utils import VersionMigrationOperation
 from kolibri.core.logger import models as log_models
 
 
@@ -481,3 +483,130 @@ class MergeUsersTestCase(TestCase):
                     channel_id=log.channel_id,
                 ).exists()
             )
+
+
+class VersionMigrationOperationTestCase(SimpleTestCase):
+    def setUp(self):
+        super(VersionMigrationOperationTestCase, self).setUp()
+        self.operation = VersionMigrationOperation()
+        self.operation.version = "0.15.0"
+        self.upgrade = mock.Mock()
+        self.operation.upgrade = self.upgrade
+        self.downgrade = mock.Mock()
+        self.operation.downgrade = self.downgrade
+        self.context = mock.Mock()
+        self.context.is_server = False
+        self.context.sync_session.client_instance_data = {}
+        self.context.sync_session.server_instance_data = {}
+
+    def test_handle__assert_sync_session(self):
+        self.context.sync_session = None
+        with self.assertRaises(AssertionError):
+            self.operation.handle(self.context)
+
+    def test_handle__assert_version(self):
+        self.operation.version = None
+        with self.assertRaises(AssertionError):
+            self.operation.handle(self.context)
+
+    def test_handle__server__upgrade_not_needed(self):
+        self.context.is_receiver = True
+        self.context.is_server = True
+        self.context.sync_session.client_instance_data = {
+            "kolibri": self.operation.version,
+        }
+        self.assertFalse(self.operation.handle(self.context))
+        self.upgrade.assert_not_called()
+        self.downgrade.assert_not_called()
+
+    def test_handle__server__downgrade_not_needed(self):
+        self.context.is_receiver = False
+        self.context.is_server = True
+        self.context.sync_session.client_instance_data = {
+            "kolibri": self.operation.version,
+        }
+        self.assertFalse(self.operation.handle(self.context))
+        self.downgrade.assert_not_called()
+        self.upgrade.assert_not_called()
+
+    def test_handle__server__upgrade(self):
+        self.context.is_receiver = True
+        self.context.is_server = True
+        self.context.sync_session.client_instance_data = {
+            "kolibri": "0.14.7",
+        }
+        self.assertFalse(self.operation.handle(self.context))
+        self.upgrade.assert_called_once_with(self.context)
+        self.downgrade.assert_not_called()
+
+    def test_handle__server__downgrade(self):
+        self.context.is_receiver = False
+        self.context.is_server = True
+        self.context.sync_session.client_instance_data = {
+            "kolibri": "0.14.7",
+        }
+        self.assertFalse(self.operation.handle(self.context))
+        self.downgrade.assert_called_once_with(self.context)
+        self.upgrade.assert_not_called()
+
+    def test_handle__server__upgrade__no_info(self):
+        self.context.is_receiver = True
+        self.context.is_server = True
+        self.assertFalse(self.operation.handle(self.context))
+        self.upgrade.assert_called_once_with(self.context)
+        self.downgrade.assert_not_called()
+
+    def test_handle__server__downgrade__no_info(self):
+        self.context.is_receiver = False
+        self.context.is_server = True
+        self.assertFalse(self.operation.handle(self.context))
+        self.downgrade.assert_called_once_with(self.context)
+        self.upgrade.assert_not_called()
+
+    def test_handle__client__upgrade_not_needed(self):
+        self.context.is_receiver = True
+        self.context.sync_session.server_instance_data = {
+            "kolibri": self.operation.version,
+        }
+        self.assertFalse(self.operation.handle(self.context))
+        self.upgrade.assert_not_called()
+        self.downgrade.assert_not_called()
+
+    def test_handle__client__downgrade_not_needed(self):
+        self.context.is_receiver = False
+        self.context.sync_session.server_instance_data = {
+            "kolibri": self.operation.version,
+        }
+        self.assertFalse(self.operation.handle(self.context))
+        self.downgrade.assert_not_called()
+        self.upgrade.assert_not_called()
+
+    def test_handle__client__upgrade(self):
+        self.context.is_receiver = True
+        self.context.sync_session.server_instance_data = {
+            "kolibri": "0.14.7",
+        }
+        self.assertFalse(self.operation.handle(self.context))
+        self.upgrade.assert_called_once_with(self.context)
+        self.downgrade.assert_not_called()
+
+    def test_handle__client__downgrade(self):
+        self.context.is_receiver = False
+        self.context.sync_session.server_instance_data = {
+            "kolibri": "0.14.7",
+        }
+        self.assertFalse(self.operation.handle(self.context))
+        self.downgrade.assert_called_once_with(self.context)
+        self.upgrade.assert_not_called()
+
+    def test_handle__client__upgrade__no_info(self):
+        self.context.is_receiver = True
+        self.assertFalse(self.operation.handle(self.context))
+        self.upgrade.assert_called_once_with(self.context)
+        self.downgrade.assert_not_called()
+
+    def test_handle__client__downgrade__no_info(self):
+        self.context.is_receiver = False
+        self.assertFalse(self.operation.handle(self.context))
+        self.downgrade.assert_called_once_with(self.context)
+        self.upgrade.assert_not_called()
