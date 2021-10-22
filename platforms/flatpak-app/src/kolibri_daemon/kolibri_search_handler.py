@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import collections
 from concurrent.futures import ProcessPoolExecutor
 
@@ -24,14 +26,14 @@ class SearchHandler(object):
     class SearchHandlerFailed(Exception):
         pass
 
-    def get_item_ids_for_search(self, search):
+    def get_item_ids_for_search(self, search: str) -> list:
         """
         Returns a list of item IDs matching a search query.
         """
 
         raise NotImplementedError()
 
-    def get_metadata_for_item_ids(self, item_ids):
+    def get_metadata_for_item_ids(self, item_ids: list) -> list:
         """
         Returns a list of search metadata objects for the given item IDs.
         """
@@ -39,7 +41,7 @@ class SearchHandler(object):
         raise NotImplementedError()
 
     @staticmethod
-    def _node_data_to_item_id(node_data):
+    def _node_data_to_item_id(node_data: dict) -> str:
         """
         Converts a Kolibri node ID to an item ID for a search result. An item
         ID consists of a node type and node ID, as well as the channel ID
@@ -62,7 +64,7 @@ class SearchHandler(object):
             )
 
     @staticmethod
-    def _item_id_to_node_id(item_id):
+    def _item_id_to_node_id(item_id: str) -> str:
         """
         Converts an item ID from a search result back to a Kolibri node ID.
         Raises ValueError if item_id is an invalid format. The channel part
@@ -74,7 +76,9 @@ class SearchHandler(object):
         return node_id
 
     @staticmethod
-    def _node_data_to_search_metadata(item_id, node_data):
+    def _node_data_to_search_metadata(
+        item_id: str, node_data: collections.Mapping
+    ) -> dict:
         """
         Given a node data object, returns search metadata as described in the
         GNOME Shell SearchProvider interface:
@@ -106,6 +110,8 @@ class LocalSearchHandler(SearchHandler):
     process to avoid globals leaking into the main thread.
     """
 
+    __executor: ProcessPoolExecutor = None
+
     def __init__(self):
         self.__executor = None
 
@@ -126,14 +132,14 @@ class LocalSearchHandler(SearchHandler):
 
         init_kolibri()
 
-    def get_item_ids_for_search(self, search):
+    def get_item_ids_for_search(self, search: str) -> list:
         args = (search,)
         future = self.__executor.submit(
             LocalSearchHandler._get_item_ids_for_search, args
         )
         return future.result()
 
-    def get_metadata_for_item_ids(self, item_ids):
+    def get_metadata_for_item_ids(self, item_ids: list) -> list:
         return list(
             filter(
                 lambda metadata: metadata is not None,
@@ -144,7 +150,7 @@ class LocalSearchHandler(SearchHandler):
         )
 
     @staticmethod
-    def _get_item_ids_for_search(search):
+    def _get_item_ids_for_search(search: str) -> list:
         from kolibri.core.content.api import ContentNodeSearchViewset
         from kolibri.dist.rest_framework.test import APIRequestFactory
 
@@ -156,7 +162,7 @@ class LocalSearchHandler(SearchHandler):
         return list(map(SearchHandler._node_data_to_item_id, search_results))
 
     @staticmethod
-    def _get_metadata_for_item_id(item_id):
+    def _get_metadata_for_item_id(item_id: str) -> dict:
         from kolibri.core.content.api import ContentNodeViewset
         from kolibri.dist.rest_framework.test import APIRequestFactory
 

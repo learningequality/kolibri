@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import logging
 
 logger = logging.getLogger(__name__)
 
 import filecmp
 import shutil
+import typing
 
 from gi.repository import GLib
 
@@ -57,7 +60,7 @@ def kolibri_update_from_home_template():
             shutil.copy2(left_file, right_file)
 
 
-def dict_to_vardict(data):
+def dict_to_vardict(data: dict) -> dict:
     """
     Convert all the values in a Python dict to GLib.Variant.
     """
@@ -65,7 +68,7 @@ def dict_to_vardict(data):
     return dict((key, _value_to_variant(value)) for key, value in data.items())
 
 
-def _value_to_variant(value):
+def _value_to_variant(value: typing.Union[bytes, int, float, str]) -> Glib.Variant:
     """
     Automatically convert a Python value to a GLib.Variant by guessing the
     matching variant type.
@@ -85,7 +88,7 @@ def _value_to_variant(value):
         raise ValueError("Unknown value type", value)
 
 
-def sanitize_text(text):
+def sanitize_text(text: str) -> str:
     """
     Replace all line break with spaces and removes all the html tags
     """

@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import typing
+
 from gi.repository import Gio
 
 
@@ -9,7 +13,7 @@ class AccountsServiceManager(Gio.DBusProxy):
     """
 
     @classmethod
-    def get_default(cls, connection):
+    def get_default(cls, connection: Gio.DBusConnection) -> AccountsServiceManager():
         return cls(
             g_connection=connection,
             g_name="org.freedesktop.Accounts",
@@ -17,7 +21,7 @@ class AccountsServiceManager(Gio.DBusProxy):
             g_interface_name="org.freedesktop.Accounts",
         )
 
-    def get_user_by_id(self, user_id):
+    def get_user_by_id(self, user_id: int) -> AccountsServiceUser:
         user_path = self.FindUserById("(x)", user_id)
         user_proxy = AccountsServiceUser.new_with_object_path(self, user_path)
         user_proxy.init()
@@ -28,7 +32,9 @@ class AccountsServiceUser(Gio.DBusProxy):
     ACCOUNT_TYPE_ADMIN = 1
 
     @classmethod
-    def new_with_object_path(cls, manager, path):
+    def new_with_object_path(
+        cls, manager: AccountsServiceManager, path: str
+    ) -> AccountsServiceUser():
         return cls(
             g_connection=manager.get_connection(),
             g_name=manager.get_name(),
@@ -37,22 +43,22 @@ class AccountsServiceUser(Gio.DBusProxy):
         )
 
     @property
-    def user_id(self):
+    def user_id(self) -> int:
         return self.__unpack_property("Uid")
 
     @property
-    def user_name(self):
+    def user_name(self) -> str:
         return self.__unpack_property("UserName")
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         return self.__unpack_property("RealName")
 
     @property
-    def is_admin(self):
+    def is_admin(self) -> bool:
         return self.__unpack_property("AccountType") == self.ACCOUNT_TYPE_ADMIN
 
-    def __unpack_property(self, name):
+    def __unpack_property(self, name: str) -> typing.Any:
         result = self.get_cached_property(name)
         if result is None:
             return None

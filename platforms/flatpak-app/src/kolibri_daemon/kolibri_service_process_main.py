@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import multiprocessing
 import os
 
@@ -6,6 +8,7 @@ from kolibri_app.globals import init_logging
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
 from .content_extensions import ContentExtensionsList
+from .kolibri_service import KolibriServiceContext
 
 # TODO: We need to use multiprocessing because Kolibri occasionally calls
 #       os.kill against its own process ID.
@@ -18,9 +21,12 @@ class KolibriServiceMainProcess(multiprocessing.Process):
     - Sets context.is_stopped to True when Kolibri stops for any reason.
     """
 
-    PROCESS_NAME = "kolibri-daemon-main"
+    PROCESS_NAME: str = "kolibri-daemon-main"
 
-    def __init__(self, context):
+    __context: KolibriServiceContext = None
+    __active_extensions: ContentExtensionsList = None
+
+    def __init__(self, context: KolibriServiceContext):
         self.__context = context
         self.__active_extensions = ContentExtensionsList.from_flatpak_info()
         super().__init__()
@@ -45,6 +51,7 @@ class KolibriServiceMainProcess(multiprocessing.Process):
 
     def __run_kolibri_start(self):
         self.__context.await_is_stopped()
+
         setup_result = self.__context.await_setup_result()
 
         if setup_result != self.__context.SetupResult.SUCCESS:
@@ -92,7 +99,9 @@ class KolibriServiceMainProcess(multiprocessing.Process):
         except SystemExit:
             pass
 
-    def __kolibri_ready_cb(self, urls, bind_addr=None, bind_port=None):
+    def __kolibri_ready_cb(
+        self, urls: list, bind_addr: str = None, bind_port: int = None
+    ):
         self.__context.base_url = urls[0]
         self.__context.start_result = self.__context.StartResult.SUCCESS
         self.__context.is_starting = False

@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 import multiprocessing
 
 from kolibri_app.globals import init_logging
+
+from .kolibri_service import KolibriServiceContext
 
 
 class KolibriServiceStopProcess(multiprocessing.Process):
@@ -9,9 +13,11 @@ class KolibriServiceStopProcess(multiprocessing.Process):
     avoid blocking the rest of the program while Kolibri is stopping.
     """
 
-    PROCESS_NAME = "kolibri-daemon-stop"
+    PROCESS_NAME: str = "kolibri-daemon-stop"
 
-    def __init__(self, context):
+    __context: KolibriServiceContext = None
+
+    def __init__(self, context: KolibriServiceContext):
         self.__context = context
         super().__init__()
 
