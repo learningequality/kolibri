@@ -158,11 +158,8 @@
               paths[path] = true;
             }
           }
-          console.log('paths');
-          console.log(paths);
           return paths;
         }
-        console.log('null');
         return null;
       },
       categoryGroupIsNested() {
