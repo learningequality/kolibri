@@ -16,6 +16,7 @@ from sqlalchemy import func
 from sqlalchemy import Integer
 from sqlalchemy import or_
 from sqlalchemy import select
+from sqlalchemy import String
 from sqlalchemy.sql.expression import literal
 
 from .paths import get_content_file_name
@@ -821,6 +822,13 @@ def set_channel_ancestors(channel_id):
     # Go from the shallowest to deepest
     for level in range(1, node_depth + 1):
 
+        if bridge.engine.name == "sqlite":
+            parent_id_expression = ContentNodeTable.c.parent_id
+        elif bridge.engine.name == "postgresql":
+            parent_id_expression = func.replace(
+                cast(ContentNodeTable.c.parent_id, String(length=36)), "-", ""
+            )
+
         # Statement to generate the ancestors JSON using SQL, to avoid having to load data
         # into Python in order to do this.
         ancestors = select(
@@ -851,7 +859,7 @@ def set_channel_ancestors(channel_id):
                     # so we prepend with a comma in order to separate.
                     else_=',{"id": "',
                 )
-                + ContentNodeTable.c.parent_id
+                + parent_id_expression
                 + '","title": "'
                 + parent.c.title
                 + '"}]'
