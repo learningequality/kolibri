@@ -68,7 +68,7 @@
               @click="searchMore"
             />
             <p>{{ $tr('clearAll') }}</p>
-            <ContentCardGroupGrid
+            <HybridLearningCardGrid
               v-if="results.length"
               :cardViewStyle="currentViewStyle"
               :genContentLink="genContentLink"
@@ -146,7 +146,6 @@
       CategorySearchModal,
       HybridLearningCardGrid,
       ChannelCardGroupGrid,
-      ContentCardGroupGrid,
       EmbeddedSidePanel,
       FullScreenSidePanel,
     },
