@@ -510,11 +510,6 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
     context:
       'Heading for total number of times a learner took a practice quiz in table of learners. Found in Reports > Lesson > Practice quiz.',
   },
-  lastTimeAttempted: {
-    message: 'Attempted {{X time-unit}} ago', //!FIXME
-    context:
-      'Label that describes when the last attempt for a practice quiz was in a unit of time.',
-  },
   difficultQuestionsDescription: {
     message: 'Showing difficult questions for the most recent quiz attempt of all recipients',
     context:

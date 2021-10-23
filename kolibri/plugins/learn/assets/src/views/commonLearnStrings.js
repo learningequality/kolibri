@@ -80,7 +80,7 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context: 'Time suggested by coach for how long an independent practice quiz should take',
   },
   practiceQuizReportTitle: {
-    message: 'Report for [Quiz title]', //!!FIXME
+    message: 'Report for {quizTitle}',
     context: 'Title of the independent practice quiz',
   },
   practiceAgainButton: {
@@ -112,11 +112,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context:
       'Label for the dropdown to choose one of their five most recent attempts at the practice quiz',
   },
-  recentAttemptsLabel: {
-    message: '(XX%) X minutes/days/weeks/months ago', //!Fix me
-    context:
-      'Label that describes the percent correct, and the amount of time that has passed since the that attempt',
-  },
   answerLogCorrectLabel: {
     message: 'You answered this correctly on the last attempt',
     context:
@@ -133,27 +128,28 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
       'Label that tells learner they got the question wrong the last time, but got it correctly on this attempt',
   },
   practiceQuizReportImprovedLabel: {
-    message: 'You improved at Z questions', //!Fix me
+    message:
+      'You improved at {value, number, integer} {value, plural, one {question} other {questions}}',
     context:
-      'Describes to learner how many questions the answered correctly compared to the most recent attempt', //? Unclear
+      'Describes to learner how many questions the answered correctly compared to the most recent attempt',
   },
   practiceQuizReportFasterSuggestedLabel: {
-    message: 'Y minutes faster than the suggested time', //!Fix me
+    message: '{value, number, integer} minutes faster than the suggested time',
     context: 'Describes to learner how many minutes faster they were than the suggested time',
   },
   practiceQuizReportSlowerSuggestedLabel: {
-    message: 'Y minutes slower than the suggested time', //!Fix me
+    message: '{value, number, integer} minutes slower than the suggested time',
     context: 'Describes to learner how many minutes slower they were than the suggested time',
   },
   practiceQuizReportFasterTimeLabel: {
-    message: 'Y minutes faster than last time', //!Fix me
+    message: '{value, number, integer} minutes faster than last time',
     context:
       'Describes to learner how many minutes faster they were during this attempt than the last attempt',
   },
   practiceQuizReportSlowerTimeLabel: {
-    message: 'Y minutes slower than last time', //!Fix me
+    message: '{value, number, integer} minutes slower than last time',
     context:
-      'Describes to learner how many minutes slower they were during this attempt than the last attemptz',
+      'Describes to learner how many minutes slower they were during this attempt than the last attempt',
   },
 });
 
