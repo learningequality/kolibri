@@ -34,8 +34,8 @@
     }
   }
 
-  .ui-toolbar {
-    padding: 0 16px;
-  }
+  // .ui-toolbar {
+  //   padding: 0 16px;
+  // }
 
 </style>
