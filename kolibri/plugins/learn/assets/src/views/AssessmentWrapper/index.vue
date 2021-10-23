@@ -411,7 +411,7 @@ oriented data synchronization.
         }
         if (this.firstAttemptAtQuestion) {
           this.firstAttemptAtQuestion = false;
-          attempt.item_id = this.itemId;
+          attempt.item = this.itemId;
         } else {
           attempt.id = this.currentattempt.id;
         }
