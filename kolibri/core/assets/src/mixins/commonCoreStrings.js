@@ -1026,6 +1026,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
 
   // TODO - move these into diff sections as we make this a full feature in 0.16
   // Past Papers Project (12/2021) strings
+  scoreLabel: {
+    message: 'Score',
+    context:
+      "In the 'Reports' tab, coaches can see the score that each learner has obtained on a quiz.\n\nThis is represented as a percentage and indicates the questions they've answered correctly.",
+  },
 });
 
 // We forgot a string, so we are using one from the PerseusInternalMessages namespace

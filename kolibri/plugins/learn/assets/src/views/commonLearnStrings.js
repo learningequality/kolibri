@@ -92,11 +92,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context:
       'In a learner\'s independent practice quiz report, tells whether the practice quiz is "In progress" or "Completed"',
   },
-  scoreLabel: {
-    message: 'Score',
-    context:
-      "In the 'Reports' tab, coaches can see the score that each learner has obtained on a quiz.\n\nThis is represented as a percentage and indicates the questions they've answered correctly.",
-  },
   timeSpentLabel: {
     message: 'Time spent',
     context: 'Indicates the time a learner has spent on a specific learning resource.',

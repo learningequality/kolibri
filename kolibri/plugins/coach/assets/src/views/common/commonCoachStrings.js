@@ -263,11 +263,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "In the 'Reports' tab, coaches can see the number of viewed learning resources for each learner.",
   },
-  scoreLabel: {
-    message: 'Score',
-    context:
-      "In the 'Reports' tab, coaches can see the score that each learner has obtained on a quiz.\n\nThis is represented as a percentage and indicates the questions they've answered correctly.",
-  },
   startedLabel: {
     message: 'Started',
     context: 'Indicates if a learner has started a specific activity, like a quiz.',
