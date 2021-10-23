@@ -323,6 +323,7 @@ function immediatelyUpdateContentSession(store, attempt) {
   const progress_delta = store.state.logging.progress_delta;
   const time_spent_delta = store.state.logging.time_spent_delta;
   const extra_fields = store.state.logging.extra_fields;
+  const extra_fields_dirty_bit = store.state.logging.extra_fields_dirty_bit;
   const progress = store.state.logging.progress;
 
   // Always update if there's an attempt
@@ -332,7 +333,7 @@ function immediatelyUpdateContentSession(store, attempt) {
       progress_delta >= progressThreshold ||
       (progress_delta && progress >= 1) ||
       time_spent_delta >= timeThreshold ||
-      extra_fields)
+      extra_fields_dirty_bit)
   ) {
     store.commit('LOGGING_SAVING');
     const data = {};
@@ -345,7 +346,7 @@ function immediatelyUpdateContentSession(store, attempt) {
     if (!isUndefined(attempt)) {
       data.attempt = attempt;
     }
-    if (extra_fields) {
+    if (extra_fields_dirty_bit) {
       data.extra_fields = extra_fields;
     }
     return client({
