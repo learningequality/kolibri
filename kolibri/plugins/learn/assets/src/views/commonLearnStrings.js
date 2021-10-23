@@ -92,10 +92,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context:
       'In a learner\'s independent practice quiz report, tells whether the practice quiz is "In progress" or "Completed"',
   },
-  timeSpentLabel: {
-    message: 'Time spent',
-    context: 'Indicates the time a learner has spent on a specific learning resource.',
-  },
   attemptedLabel: {
     message: 'Attempted',
     context:

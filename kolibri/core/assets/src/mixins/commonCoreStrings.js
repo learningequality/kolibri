@@ -1031,6 +1031,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "In the 'Reports' tab, coaches can see the score that each learner has obtained on a quiz.\n\nThis is represented as a percentage and indicates the questions they've answered correctly.",
   },
+  timeSpentLabel: {
+    message: 'Time spent',
+    context: 'Indicates the time a learner has taken on a specific learning resource.',
+  },
 });
 
 // We forgot a string, so we are using one from the PerseusInternalMessages namespace

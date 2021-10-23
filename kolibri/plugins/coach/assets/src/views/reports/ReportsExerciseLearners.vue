@@ -4,7 +4,7 @@
     <template #headers>
       <th>{{ coachString('nameLabel') }}</th>
       <th>{{ coreString('progressLabel') }}</th>
-      <th>{{ coachString('timeSpentLabel') }}</th>
+      <th>{{ coreString('timeSpentLabel') }}</th>
       <th v-if="showGroupsColumn">
         {{ coachString('groupsLabel') }}
       </th>

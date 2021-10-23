@@ -59,7 +59,7 @@
         <template #headers>
           <th>{{ coachString('nameLabel') }}</th>
           <th>{{ coachString('statusLabel') }}</th>
-          <th>{{ coachString('timeSpentLabel') }}</th>
+          <th>{{ coreString('timeSpentLabel') }}</th>
           <th>{{ coachString('groupsLabel') }}</th>
           <th>{{ coachString('lastActivityLabel') }}</th>
         </template>
@@ -94,6 +94,7 @@
 <script>
 
   import sortBy from 'lodash/sortBy';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
@@ -104,7 +105,7 @@
     components: {
       ReportsControls,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];

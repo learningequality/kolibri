@@ -4,7 +4,7 @@
     <template #headers>
       <th>{{ coachString('nameLabel') }}</th>
       <th>{{ coachString('statusLabel') }}</th>
-      <th>{{ coachString('timeSpentLabel') }}</th>
+      <th>{{ coreString('timeSpentLabel') }}</th>
       <th v-if="showGroupsColumn">
         {{ coachString('groupsLabel') }}
       </th>
@@ -41,6 +41,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import StatusSimple from '../common/status/StatusSimple';
   import TruncatedItemList from '../common/TruncatedItemList';
@@ -54,7 +55,7 @@
       TimeDuration,
       TruncatedItemList,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       entries: {
         type: Array,

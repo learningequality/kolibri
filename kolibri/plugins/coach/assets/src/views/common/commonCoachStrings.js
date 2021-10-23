@@ -276,10 +276,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     message: 'Title',
     context: 'Generic label for the name of some element like a lesson.',
   },
-  timeSpentLabel: {
-    message: 'Time spent',
-    context: 'Indicates the time a learner has taken on a specific learning resource.',
-  },
   ungroupedLearnersLabel: {
     message: 'Ungrouped learners',
     context: 'Refers to learners who are not part of a specific group.',

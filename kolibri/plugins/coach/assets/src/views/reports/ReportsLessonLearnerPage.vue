@@ -33,7 +33,7 @@
         <template #headers>
           <th>{{ coachString('titleLabel') }}</th>
           <th>{{ coreString('progressLabel') }}</th>
-          <th>{{ coachString('timeSpentLabel') }}</th>
+          <th>{{ coreString('timeSpentLabel') }}</th>
         </template>
         <template #tbody>
           <transition-group tag="tbody" name="list">
