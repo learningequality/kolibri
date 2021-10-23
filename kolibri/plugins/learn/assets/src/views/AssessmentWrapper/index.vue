@@ -10,6 +10,42 @@ oriented data synchronization.
 <template v-if="ready">
 
   <div>
+    <LessonMasteryBar
+      data-test="lessonMasteryBar"
+      :availableHintsMessage="hint$tr('hint', { hintsLeft: availableHints })"
+      @takeHint="takeHint"
+    >
+      <template #hint>
+        <div
+          v-if="totalHints > 0"
+          class="hint-btn-container"
+          :class="{ 'rtl': isRtl }"
+        >
+          <KButton
+            v-if="availableHints > 0"
+            class="hint-btn"
+            appearance="basic-link"
+            :text="hint$tr('hint', { hintsLeft: availableHints })"
+            :primary="false"
+            @click="takeHint"
+          />
+          <KButton
+            v-else
+            class="hint-btn"
+            appearance="basic-link"
+            :text="hint$tr('noMoreHint')"
+            :primary="false"
+            :disabled="true"
+          />
+          <CoreInfoIcon
+            class="info-icon"
+            tooltipPlacement="bottom left"
+            :iconAriaLabel="hint$tr('hintExplanation')"
+            :tooltipText="hint$tr('hintExplanation')"
+          />
+        </div>
+      </template>
+    </LessonMasteryBar>
     <div>
       <UiAlert v-if="itemError" :dismissible="false" type="error">
         {{ $tr('itemError') }}
@@ -113,8 +149,27 @@ oriented data synchronization.
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import { createTranslator } from 'kolibri.utils.i18n';
   import { defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
+  import LessonMasteryBar from './LessonMasteryBar';
   import ExerciseAttempts from './ExerciseAttempts';
+
+  const hintTranslator = createTranslator('PerseusRendererIndex', {
+    hint: {
+      message: 'Use a hint ({hintsLeft, number} left)',
+      context:
+        'A hint is a suggestion to help learners solve a problem. This phrase tells the learner how many hints they have left to use.',
+    },
+    hintExplanation: {
+      message: 'If you use a hint, this question will not be added to your progress',
+      context: 'A hint is a suggestion to help learners solve a problem.',
+    },
+    noMoreHint: {
+      message: 'No more hints',
+      context: 'A hint is a suggestion to help learners solve a problem.',
+    },
+  });
 
   export default {
     name: 'AssessmentWrapper',
@@ -122,6 +177,8 @@ oriented data synchronization.
       ExerciseAttempts,
       UiAlert,
       BottomAppBar,
+      LessonMasteryBar,
+      CoreInfoIcon,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
@@ -179,6 +236,7 @@ oriented data synchronization.
     },
     data() {
       return {
+        mounted: false,
         itemId: '',
         shake: false,
         firstAttemptAtQuestion: true,
@@ -285,12 +343,28 @@ oriented data synchronization.
         }
         return null;
       },
+      renderer() {
+        // TODO: rtibbles - update the KContentRenderer API to expose hint info
+        // and add takeHint public method
+        return (
+          this.mounted && this.$refs.contentRenderer && this.$refs.contentRenderer.$refs.contentView
+        );
+      },
+      availableHints() {
+        return (this.renderer && this.renderer.availableHints) || 0;
+      },
+      totalHints() {
+        return (this.renderer && this.renderer.totalHints) || 0;
+      },
     },
     created() {
       this.nextQuestion();
     },
     methods: {
       ...mapActions(['updateContentSession']),
+      takeHint() {
+        this.renderer && this.renderer.takeHint();
+      },
       checkAnswer() {
         this.checkWasAttempted = true;
         if (!this.checkingAnswer) {
@@ -375,10 +449,14 @@ oriented data synchronization.
         this.$emit('updateContentState', ...args);
       },
       startTracking(...args) {
+        this.mounted = true;
         this.$emit('startTracking', ...args);
       },
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
+      },
+      hint$tr(msgId, options) {
+        return hintTranslator.$tr(msgId, options);
       },
     },
     $trs: {
