@@ -1023,6 +1023,9 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Folders',
     context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
   },
+
+  // TODO - move these into diff sections as we make this a full feature in 0.16
+  // Past Papers Project (12/2021) strings
 });
 
 // We forgot a string, so we are using one from the PerseusInternalMessages namespace
