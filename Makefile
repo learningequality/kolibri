@@ -252,10 +252,10 @@ docker-whl: docker-envlist docker-clean
 	docker run \
 		--env-file ./docker/env.list \
 		--cidfile docker-whl.cid \
-		-v $$PWD/dist:/kolibridist \
 		-v yarn_cache:/yarn_cache \
 		-v cext_cache:/cext_cache \
 		`cat docker-whl.iid`
+	docker cp `cat docker-whl.cid`:/kolibridist/* dist
 	git checkout -- ./docker/env.list  # restore env.list file
 
 docker-build-base: writeversion
