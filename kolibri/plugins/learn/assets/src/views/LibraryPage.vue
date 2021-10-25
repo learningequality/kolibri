@@ -58,6 +58,22 @@
           class="filter-action-button"
           @click="searchMore"
         />
+        <div v-if="!(windowBreakpoint < 1)" class="toggle-view-buttons">
+          <KIconButton
+            icon="menu"
+            :ariaLabel="$tr('viewAsList')"
+            :color="$themeTokens.text"
+            :tooltip="$tr('viewAsList')"
+            @click="toggleCardView('list')"
+          />
+          <KIconButton
+            icon="channel"
+            :ariaLabel="$tr('viewAsGrid')"
+            :color="$themeTokens.text"
+            :tooltip="$tr('viewAsGrid')"
+            @click="toggleCardView('card')"
+          />
+        </div>
         <div class="results-header-group">
           <div
             v-for="item in Object.values(searchTermChipList)"
