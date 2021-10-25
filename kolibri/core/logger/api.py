@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+from itertools import groupby
 
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -71,9 +72,9 @@ class StartSessionSerializer(serializers.Serializer):
         return data
 
 
-class AttemptSerializer(serializers.Serializer):
+class ResponseSerializer(serializers.Serializer):
     id = HexStringUUIDField(required=False)
-    item = serializers.CharField(required=False)
+    item = serializers.CharField()
     correct = serializers.FloatField(min_value=0, max_value=1)
     complete = serializers.BooleanField(required=False, default=False)
     time_spent = serializers.FloatField(min_value=0)
@@ -94,8 +95,6 @@ class AttemptSerializer(serializers.Serializer):
     def validate(self, data):
         if not data["error"] and "answer" not in data:
             raise ValidationError("Must provide an answer if not an error")
-        if "id" not in data and "item" not in data:
-            raise ValidationError("Must provide an id or item")
         return data
 
 
@@ -104,7 +103,7 @@ class UpdateSessionSerializer(serializers.Serializer):
     progress = serializers.FloatField(min_value=0, max_value=1.0, required=False)
     time_spent_delta = serializers.FloatField(min_value=0, required=False)
     extra_fields = serializers.DictField(required=False)
-    attempt = AttemptSerializer(required=False)
+    responses = ResponseSerializer(required=False, many=True)
 
     def validate(self, data):
         if "progress_delta" in data and "progress" in data:
@@ -522,126 +521,138 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                     "Invalid mastery_level value, this session has not been started."
                 )
 
-    def _update_attempt(self, masterylog_id, user, attempt, end_timestamp, context):
-        try:
-            attemptlog = AttemptLog.objects.get(
-                id=attempt["id"],
-                masterylog_id=masterylog_id,
-                user=user,
-            )
-        except AttemptLog.DoesNotExist:
-            raise ValidationError("Invalid attempt_id specified")
+    def _update_attempt(self, attemptlog, response, update_fields, end_timestamp):
 
-        interaction = self._generate_interaction(attempt)
+        interaction = self._generate_interaction(response)
 
         attemptlog.interaction_history += [interaction]
         attemptlog.end_timestamp = end_timestamp
-        attemptlog.time_spent = attempt["time_spent"]
-        update_fields = ("interaction_history", "end_timestamp", "time_spent")
+        attemptlog.time_spent = response["time_spent"]
 
-        if attempt["error"] and not attemptlog.error:
-            attemptlog.error = attempt["hinted"]
-            update_fields += ("error",)
+        if response["error"] and not attemptlog.error:
+            attemptlog.error = response["error"]
+            update_fields.add("error")
 
         # Mark hinted only if it is not already correct, and don't undo previously hinted
-        if attempt["hinted"] and not attemptlog.hinted and not attemptlog.correct:
-            attemptlog.hinted = attempt["hinted"]
-            update_fields += ("hinted",)
+        if response["hinted"] and not attemptlog.hinted and not attemptlog.correct:
+            attemptlog.hinted = response["hinted"]
+            update_fields.add("hinted")
 
-        if attempt["replace"]:
-            attemptlog.correct = attempt["correct"]
-            update_fields += ("correct",)
+        if response["replace"]:
+            attemptlog.correct = response["correct"]
+            update_fields.add("correct")
 
-            if "answer" in attempt:
-                attemptlog.answer = attempt["answer"]
-                update_fields += ("answer",)
+            if "answer" in response:
+                attemptlog.answer = response["answer"]
+                update_fields.add("answer")
 
-            if "simple_answer" in attempt:
-                attemptlog.simple_answer = attempt["simple_answer"]
-                update_fields += ("simple_answer",)
+            if "simple_answer" in response:
+                attemptlog.simple_answer = response["simple_answer"]
+                update_fields.add("simple_answer")
 
-        if attempt["complete"] and not attemptlog.complete:
-            attemptlog.complete = attempt["complete"]
+        if response["complete"] and not attemptlog.complete:
+            attemptlog.complete = response["complete"]
             attemptlog.completion_timestamp = end_timestamp
-            update_fields += (
-                "complete",
-                "completion_timestamp",
-            )
-
-        attemptlog.save(update_fields=update_fields)
-        self._process_attempt_updated_notification(attemptlog, context)
-        return attemptlog
+            update_fields.update({"complete", "completion_timestamp"})
 
     def _create_attempt(
-        self, session_id, masterylog_id, user, attempt, end_timestamp, context
+        self, session_id, masterylog_id, user, response, end_timestamp, context
     ):
-        if "quiz_id" in context and "content_id" in attempt:
+        if "quiz_id" in context and "content_id" in response:
             # Store the content_id for this specific question and the item
             # together, to allow coach assigned quizzes to be stored seamlessly.
-            attempt["item"] = "{}{}{}".format(
-                attempt.pop("content_id"), QUIZ_ITEM_DELIMETER, attempt["item"]
+            response["item"] = "{}{}{}".format(
+                response.pop("content_id"), QUIZ_ITEM_DELIMETER, response["item"]
             )
 
-        start_timestamp = end_timestamp - timedelta(seconds=attempt["time_spent"])
+        start_timestamp = end_timestamp - timedelta(seconds=response["time_spent"])
 
-        interaction = self._generate_interaction(attempt)
+        interaction = self._generate_interaction(response)
 
-        del attempt["replace"]
+        del response["replace"]
 
-        attemptlog = AttemptLog.objects.create(
+        return AttemptLog(
             sessionlog_id=session_id,
             masterylog_id=masterylog_id,
             interaction_history=[interaction],
             user=user,
             start_timestamp=start_timestamp,
-            completion_timestamp=end_timestamp if attempt["complete"] else None,
+            completion_timestamp=end_timestamp if response["complete"] else None,
             end_timestamp=end_timestamp,
-            **attempt
+            **response
         )
-        if user:
-            self._process_attempt_created_notification(attemptlog, context)
-        return attemptlog
 
-    def _update_or_create_attempt(
-        self, session_id, masterylog_id, user, attempt, end_timestamp, context
+    def _update_or_create_attempts(
+        self, session_id, masterylog_id, user, responses, end_timestamp, context
     ):
         user = None if user.is_anonymous() else user
 
-        if "id" in attempt:
-            attemptlog = self._update_attempt(
-                masterylog_id, user, attempt, end_timestamp, context
-            )
-        else:
-            attemptlog = self._create_attempt(
-                session_id, masterylog_id, user, attempt, end_timestamp, context
-            )
-        output = {}
-        for field in attemptlog_fields:
-            output[field] = getattr(attemptlog, field)
-        if "quiz_id" in context:
-            serialize_quiz_attempt_log(output)
-        return {"attempt": output}
+        output = []
 
-    def _process_attempt_created_notification(self, attemptlog, context):
-        if "lesson_id" in context:
-            wrap_to_save_queue(
-                start_lesson_assessment,
-                attemptlog,
-                context["node_id"],
-                context["lesson_id"],
+        for _, item_responses in groupby(responses, lambda x: x["item"]):
+            created = False
+            update_fields = {"interaction_history", "end_timestamp", "time_spent"}
+            item_responses = list(item_responses)
+            if "id" in item_responses[0]:
+                try:
+                    attemptlog = AttemptLog.objects.get(
+                        id=item_responses[0]["id"],
+                        masterylog_id=masterylog_id,
+                        user=user,
+                    )
+                except AttemptLog.DoesNotExist:
+                    raise ValidationError("Invalid attemptlog id specified")
+            else:
+                attemptlog = self._create_attempt(
+                    session_id,
+                    masterylog_id,
+                    user,
+                    item_responses[0],
+                    end_timestamp,
+                    context,
+                )
+                created = True
+                item_responses = item_responses[1:]
+            updated = bool(item_responses)
+
+            for response in item_responses:
+                self._update_attempt(attemptlog, response, update_fields, end_timestamp)
+
+            self._process_attempt_notifications(
+                attemptlog, context, user, created, updated
             )
-        if "quiz_id" in context:
+            attemptlog.save(update_fields=None if created else update_fields)
+            attempt = {}
+            for field in attemptlog_fields:
+                attempt[field] = getattr(attemptlog, field)
+            if "quiz_id" in context:
+                serialize_quiz_attempt_log(attempt)
+            output.append(attempt)
+        return {"attempts": output}
+
+    def _process_attempt_notifications(
+        self, attemptlog, context, user, created, updated
+    ):
+        if user is None:
+            return
+        if "lesson_id" in context:
+            if created:
+                wrap_to_save_queue(
+                    start_lesson_assessment,
+                    attemptlog,
+                    context["node_id"],
+                    context["lesson_id"],
+                )
+            if updated:
+                wrap_to_save_queue(
+                    update_lesson_assessment,
+                    attemptlog,
+                    context["node_id"],
+                    context["lesson_id"],
+                )
+        if created and "quiz_id" in context:
             wrap_to_save_queue(
                 quiz_answered_notification, attemptlog, context["quiz_id"]
-            )
-
-    def _process_attempt_updated_notification(self, attemptlog, context):
-        if "lesson_id" in context:
-            wrap_to_save_queue(
-                update_lesson_assessment,
-                attemptlog,
-                context["node_id"],
-                context["lesson_id"],
             )
 
     def _get_session_log(self, session_id, user):
@@ -700,9 +711,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         summarylog.save(update_fields=update_fields)
         return summarylog
 
-    def _update_session(  # noqa C901
-        self, session_id, user, end_timestamp, validated_data
-    ):
+    def _update_session(self, session_id, user, end_timestamp, validated_data):
         sessionlog = self._get_session_log(session_id, user)
 
         context = LogContext(**sessionlog.extra_fields.get("context", {}))
@@ -749,15 +758,14 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         And update the extra_fields value stored:
         - extra_fields: the complete representation to set extra_fields to
 
-        If creating or updating an attempt for an assessment must include:
-        - attempt: a nested object, if creating an attempt, must include item
-                  if updating an existing attempt, must include attempt_id
+        If creating or updating attempts for an assessment must include:
+        - responses: an array of objects, if updating an existing attempt, must include attempt_id
 
         Returns an object with the properties:
         - complete: boolean indicating if the resource is completed
 
         If an attempt at an assessment was included, then this parameter will be included:
-        - attempt: serialized form of the attempt, equivalent to that returned in pastattempts from
+        - attempts: serialized form of the attempt, equivalent to that returned in pastattempts from
                   session initialization
         """
         if pk is None:
@@ -776,12 +784,12 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             masterylog_id = self._update_and_return_mastery_log_id(
                 request.user, output["complete"], summarylog_id, end_timestamp, context
             )
-            if "attempt" in validated_data:
-                attempt_output = self._update_or_create_attempt(
+            if "responses" in validated_data:
+                attempt_output = self._update_or_create_attempts(
                     pk,
                     masterylog_id,
                     request.user,
-                    validated_data["attempt"],
+                    validated_data["responses"],
                     end_timestamp,
                     context,
                 )
