@@ -176,14 +176,20 @@
       </div>
     </div>
 
-    <div v-if="parent && showLocationsInChannel" class="section">
+    <div v-if="showLocationsInChannel && locationsInChannel" class="section">
       <div class="label">
-        {{ metadataStrings.$tr('locationsInChannel', { 'channelName': parent.title }) }}:
+        {{
+          metadataStrings.$tr('locationsInChannel', { 'channelname': content.ancestors[0].title })
+        }}:
       </div>
-      <div>
-        <KRouterLink :to="genContentLink(parent.id, parent.is_leaf)">
-          {{ parent.title }}
-        </KRouterLink>
+      <div v-for="location in locationsInChannel" :key="location.id">
+        <div>
+          <KRouterLink
+            :to="genContentLink(location.ancestors[location.ancestors.length - 1].id, false)"
+          >
+            {{ location.ancestors[location.ancestors.length - 1].title }}
+          </KRouterLink>
+        </div>
       </div>
     </div>
 
@@ -203,7 +209,6 @@
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import ContentKindsToLearningActivitiesMap from 'kolibri.coreVue.vuex.constants';
   import { ContentNodeResource } from 'kolibri.resources';
   import genContentLink from '../utils/genContentLink';
   import LearningActivityChip from './LearningActivityChip';
@@ -221,16 +226,6 @@
     },
     mixins: [commonCoreStrings],
     props: {
-      /**
-       * Optional - if the metadata is to show a list of locations where
-       * the content can be found in the currently viewed channel, this is
-       * how we get the channel data.
-       */
-      channelToShowLocationsFor: {
-        type: Object,
-        required: false,
-        default: null,
-      },
       content: {
         type: Object,
         required: true,
@@ -248,7 +243,7 @@
         descriptionOverflow: false,
         metadataStrings: { $tr: () => null },
         recommendations: null,
-        parent: null,
+        locationsInChannel: null,
       };
     },
     computed: {
@@ -267,12 +262,17 @@
     },
     mounted() {
       ContentNodeResource.fetchRecommendationsFor(this.content.id).then(recommendations => {
-        // We only need three - TODO: Should we randomize this every time by shuffling before drawing 3?
-        this.recommendations = recommendations.splice(0, 3);
+        const threeRecs = recommendations.splice(0, 3);
+        this.recommendations = threeRecs.length ? threeRecs : null;
       });
-      ContentNodeResource.fetchModel({ id: this.content.parent }).then(
-        parent => (this.parent = parent)
-      );
+
+      if (this.showLocationsInChannel) {
+        // Retreives any topics in this same channel
+        ContentNodeResource.fetchCollection({
+          getParams: { content_id: this.content.content_id, channel_id: this.content.channel_id },
+        }).then(parents => (this.locationsInChannel = parents && parents.length ? parents : null));
+      }
+
       this.metadataStrings = crossComponentTranslator(SidePanelResourceMetadata);
       this.calculateDescriptionOverflow();
     },

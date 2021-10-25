@@ -144,7 +144,7 @@
       v-if="sidePanelContent"
       @closePanel="sidePanelContent = null"
     >
-      <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" :channelToShowLocationsFor="channel" />
+      <BrowseResourceMetadata :content="sidePanelContent" :showLocationsInChannel="true" />
     </FullScreenSidePanel>
   </div>
 
