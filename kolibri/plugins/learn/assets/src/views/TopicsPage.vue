@@ -74,14 +74,14 @@
               :text="coreString('folders')"
               appearance="flat-button"
               :appearanceOverrides="customTabButtonOverrides"
-              @click="toggleSidebarView('folders')"
+              @click="toggleFolderDropdown"
             />
             <KButton
               ref="tab_button"
               :text="coreString('searchLabel')"
               appearance="flat-button"
               :appearanceOverrides="customTabButtonOverrides"
-              @click="toggleSidebarView('search')"
+              @click="toggleSidePanelVisibility"
             />
           </div>
           <img
@@ -98,8 +98,17 @@
         <div
           class="card-grid"
         >
-          <!-- breadcrumbs -->
-          <KGrid>
+          <!-- folder selection dropdown menu for small resolutions -->
+          <KSelect
+            v-if="showFoldersDropdown && topics.length"
+            :options="topicOptionsList"
+            :value="selected"
+            :label="coreString('folders')"
+            class="selector"
+            @change="updateFolder($event.value)"
+          />
+          <!-- breadcrumbs - for large screens, or when there are no more folders -->
+          <KGrid v-if="!showFoldersDropdown">
             <KGridItem
               class="breadcrumbs"
               :layout4="{ span: 4 }"
@@ -113,6 +122,7 @@
           <div v-if="!windowIsLarge">
             <!-- TO DO Marcella swap out new icon after KDS update -->
             <KButton
+              v-if="!windowIsSmall"
               icon="channel"
               class="filter-overlay-toggle-button"
               :text="coreString('searchLabel')"
@@ -363,6 +373,7 @@
         labels: null,
         showSearchModal: false,
         sidePanelIsOpen: false,
+        showFoldersDropdown: false,
       };
     },
     computed: {
@@ -380,6 +391,12 @@
         // Get the channel if we're root, topic if not
         return this.isRoot ? this.channel : this.topic;
       },
+      topicOptionsList() {
+        return this.topics.map(topic => ({
+          value: topic.id,
+          label: topic.title,
+        }));
+      },
       currentChannelIsCustom() {
         if (
           plugin_data.enableCustomChannelNav &&
@@ -392,6 +409,9 @@
       },
       getTagline() {
         return this.topicOrChannel['tagline'] || this.topicOrChannel['description'] || null;
+      },
+      selected(value) {
+        return this.topicOptionsList.find(t => t.value === value) || {};
       },
       customTabButtonOverrides() {
         return {
@@ -509,6 +529,9 @@
       toggleSidePanelVisibility() {
         this.sidePanelIsOpen = !this.sidePanelIsOpen;
       },
+      toggleFolderDropdown() {
+        this.showFoldersDropdown = !this.showFoldersDropdown;
+      },
       closeCategoryModal() {
         this.currentCategory = null;
       },
@@ -525,7 +548,11 @@
           return contents;
         }
       },
+      updateFolder(id) {
+        this.$router.push(genContentLink(id));
+      },
       search() {
+        this.sidePanelIsOpen = false;
         // updated search to only display results within the currently opened channel
         const getParams = { max_results: 25, channel_id: this.topic.channel_id };
         if (this.displayingSearchResults) {
@@ -601,11 +628,15 @@
       },
       stickyCalculation() {
         let header = document.getElementsByClassName('header')[0];
-        let position = header.getBoundingClientRect();
-        if (position.bottom >= 64) {
-          this.stickyTop = `${position.bottom}px`;
+        if (header) {
+          let position = header.getBoundingClientRect();
+          if (position.bottom >= 64) {
+            this.stickyTop = `${position.bottom}px`;
+          } else {
+            this.stickyTop = '64px';
+          }
         } else {
-          this.stickyTop = '64px';
+          null;
         }
       },
     },
