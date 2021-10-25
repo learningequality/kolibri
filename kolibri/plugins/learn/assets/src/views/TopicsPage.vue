@@ -70,6 +70,7 @@
         <div class="mobile-header-contents">
           <div class="mobile-tabs">
             <KButton
+              v-if="!windowIsSmall || topics.length"
               ref="tab_button"
               :text="coreString('folders')"
               appearance="flat-button"
@@ -258,9 +259,9 @@
           v-if="windowIsSmall && !currentCategory"
           class="overlay-close-button"
           icon="close"
-          :ariaLabel="coreString('close')"
+          :ariaLabel="coreString('closeAction')"
           :color="$themeTokens.text"
-          :tooltip="coreString('close')"
+          :tooltip="coreString('closeAction')"
           @click="toggleSidePanelVisibility"
         />
         <KIconButton
@@ -340,6 +341,7 @@
   ];
 
   const carouselLimit = 4;
+  const mobileCarouselLimit = 3;
 
   export default {
     name: 'TopicsPage',
@@ -548,7 +550,7 @@
       trimmedTopicsList(contents) {
         // if more folders, display limited preview
         if (this.topics.length > 0) {
-          return contents.slice(0, carouselLimit);
+          return contents.slice(0, this.windowIsSmall ? mobileCarouselLimit : carouselLimit);
           // if we have reached the end of the folder, show all contents
         } else {
           return contents;
