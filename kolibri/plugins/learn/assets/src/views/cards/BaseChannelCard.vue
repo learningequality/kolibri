@@ -32,7 +32,7 @@
       -->
       <KFixedGridItem
         span="3"
-        :style="{ textAlign: unset }"
+        :style="{ textAlign: 'unset' }"
       >
         <TextTruncatorCss
           v-if="description"
