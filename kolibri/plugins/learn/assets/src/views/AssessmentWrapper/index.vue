@@ -396,26 +396,26 @@ oriented data synchronization.
         this.updateAttempt({ answerState });
       },
       updateAttempt({ answerState, simpleAnswer } = {}) {
-        const attempt = {
+        const response = {
           complete: this.complete,
           time_spent: (new Date() - this.startTime) / 1000,
           correct: this.correct,
           hinted: this.hintWasTaken,
           error: this.itemError,
+          item: this.itemId,
         };
         if (answerState) {
-          attempt.answer = answerState;
+          response.answer = answerState;
         }
         if (simpleAnswer) {
-          attempt.simple_answer = simpleAnswer;
+          response.simple_answer = simpleAnswer;
         }
         if (this.firstAttemptAtQuestion) {
           this.firstAttemptAtQuestion = false;
-          attempt.item = this.itemId;
         } else {
-          attempt.id = this.currentattempt.id;
+          response.id = this.currentattempt.id;
         }
-        this.updateContentSession({ attempt });
+        this.updateContentSession({ response });
       },
       setItemId() {
         const index = this.totalattempts % this.assessmentIds.length;

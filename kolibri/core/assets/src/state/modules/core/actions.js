@@ -319,22 +319,61 @@ function _zeroToOne(num) {
   return Math.min(1, Math.max(num || 0, 0));
 }
 
-function immediatelyUpdateContentSession(store, attempt) {
+function makeSessionUpdateRequest(store, data) {
+  return client({
+    method: 'put',
+    url: urls['kolibri:core:trackprogress-detail'](store.state.logging.session_id),
+    data,
+  }).then(response => {
+    if (response.data.attempts) {
+      for (let attempt of response.data.attempts) {
+        store.commit('ADD_OR_UPDATE_ATTEMPT', attempt);
+      }
+    }
+    return response.data;
+  });
+}
+
+const maxRetries = 5;
+
+// Function to delay rejection to allow delayed retry behaviour
+function rejectDelay(reason, retryDelay = 5000) {
+  return new Promise(function(resolve, reject) {
+    setTimeout(reject.bind(null, reason), retryDelay);
+  });
+}
+
+// Start the savingPromise as a resolved promise
+// so we can always just chain from this promise for subsequent saves.
+let savingPromise = Promise.resolve();
+
+let updateContentSessionResolveRejectStack = [];
+let updateContentSessionTimeout;
+
+function immediatelyUpdateContentSession(store) {
+  // Once this timeout has been executed, we can reset the global timeout
+  // to null, as we are now actually invoking the debounced function.
+  updateContentSessionTimeout = null;
+
   const progress_delta = store.state.logging.progress_delta;
   const time_spent_delta = store.state.logging.time_spent_delta;
   const extra_fields = store.state.logging.extra_fields;
   const extra_fields_dirty_bit = store.state.logging.extra_fields_dirty_bit;
   const progress = store.state.logging.progress;
+  const unsavedResponses = store.state.logging.unsavedResponses;
 
-  // Always update if there's an attempt
   if (
-    !store.state.logging.saving &&
-    (!isUndefined(attempt) ||
-      progress_delta >= progressThreshold ||
-      (progress_delta && progress >= 1) ||
-      time_spent_delta >= timeThreshold ||
-      extra_fields_dirty_bit)
+    // Always update if there's an attempt that hasn't got an id yet, or if there have been
+    // at least 3 additional responses.
+    (unsavedResponses.length &&
+      (unsavedResponses.some(r => !r.id) || unsavedResponses.length > 2)) ||
+    progress_delta >= progressThreshold ||
+    (progress_delta && progress >= 1) ||
+    time_spent_delta >= timeThreshold ||
+    extra_fields_dirty_bit
   ) {
+    // Clear the temporary state that we've
+    // picked up to save to the backend.
     store.commit('LOGGING_SAVING');
     const data = {};
     if (progress_delta) {
@@ -343,34 +382,65 @@ function immediatelyUpdateContentSession(store, attempt) {
     if (time_spent_delta) {
       data.time_spent_delta = time_spent_delta;
     }
-    if (!isUndefined(attempt)) {
-      data.attempt = attempt;
+    if (unsavedResponses.length) {
+      data.responses = unsavedResponses;
     }
     if (extra_fields_dirty_bit) {
       data.extra_fields = extra_fields;
     }
-    return client({
-      method: 'put',
-      url: urls['kolibri:core:trackprogress-detail'](store.state.logging.session_id),
-      data,
-    }).then(response => {
-      if (response.data.attempt) {
-        store.commit('ADD_OR_UPDATE_ATTEMPT', response.data.attempt);
+    // Don't try to make a new save until the previous save
+    // has completed.
+    savingPromise = savingPromise.then(() => {
+      // Create an initial rejection so that we can chain consistently
+      // in the retry loop.
+      let attempt = Promise.reject();
+      for (var i = 0; i < maxRetries; i++) {
+        // Catch any previous error and then try to make the session update again
+        attempt = attempt
+          .catch(() => makeSessionUpdateRequest(store, data))
+          .catch(err => {
+            // Only try to handle 503 status codes here, as otherwise we might be continually
+            // retrying the server when it is rejecting the request for valid reasons.
+            if (err.response.status === 503) {
+              // Defer to the server's Retry-After header if it is set.
+              return rejectDelay(err, err.response.headers['retry-after']);
+            }
+            return handleApiError(err);
+          });
       }
-      store.commit('LOGGING_SAVED');
-      return response.data;
+      return attempt.catch(handleApiError);
     });
+    return savingPromise
+      .then(result => {
+        // If it is successful call all of the resolve functions that we have stored
+        // from all the Promises that have been returned while this specific debounce
+        // has been active.
+        for (let [resolve] of updateContentSessionResolveRejectStack) {
+          resolve(result);
+        }
+        // Reset the stack for resolve/reject functions, so that future invocations
+        // do not call these now consumed functions.
+        updateContentSessionResolveRejectStack = [];
+      })
+      .catch(err => {
+        // If there is an error call reject for all previously returned promises.
+        for (let [, reject] of updateContentSessionResolveRejectStack) {
+          reject(err);
+        }
+        // Likewise reset the stack.
+        updateContentSessionResolveRejectStack = [];
+      });
   }
 }
 
-const debouncedUpdateContentSession = debounce(immediatelyUpdateContentSession, 2000);
+const updateContentSessionDebounceTime = 2000;
 
 /**
  * Update a content session for progress tracking
  */
 export function updateContentSession(
   store,
-  { progressDelta, progress, contentState, attempt, immediate = false } = {}
+  { progressDelta, progress, contentState, response, immediate = false } = {}
 ) {
   if (!isUndefined(progressDelta) && !isUndefined(progress)) {
     throw TypeError('Must only specify either progressDelta or progress');
@@ -402,22 +472,41 @@ export function updateContentSession(
     }
     store.commit('SET_LOGGING_CONTENT_STATE', contentState);
   }
-  if (!isUndefined(attempt)) {
-    if (!isPlainObject(attempt)) {
-      throw TypeError('attempt must be an object');
+  if (!isUndefined(response)) {
+    if (!isPlainObject(response)) {
+      throw TypeError('response must be an object');
     }
-    store.commit('ADD_OR_UPDATE_ATTEMPT', attempt);
+    store.commit('ADD_OR_UPDATE_ATTEMPT', response);
+    store.commit('ADD_UNSAVED_RESPONSE', response);
   }
 
   if (store.getters.isUserLoggedIn && store.state.logging.progress >= 1) {
     store.commit('INCREMENT_TOTAL_PROGRESS', 1);
   }
 
-  if (!isUndefined(attempt) || immediate) {
-    return immediatelyUpdateContentSession(store, attempt);
-  } else {
-    return debouncedUpdateContentSession(store);
-  }
+  immediate = (!isUndefined(response) && !response.id) || immediate;
+  // Logic for promise returning debounce vendored and modified from:
+  // https://github.com/sindresorhus/p-debounce/blob/main/index.js
+  // Return a promise that will consistently resolve when this debounced
+  // function invocation is completed.
+  return new Promise((resolve, reject) => {
+    // Clear any current timeouts, so that this invocation takes precedence
+    // Any subsequent calls will then also revoke this timeout.
+    clearTimeout(updateContentSessionTimeout);
+    // Add the resolve and reject handlers for this promise to the stack here.
+    updateContentSessionResolveRejectStack.push([resolve, reject]);
+    if (immediate) {
+      // If immediate invocation is required immediately call the handler
+      // rather than using a timeout delay.
+      immediatelyUpdateContentSession(store);
+    } else {
+      // Otherwise update the timeout to this invocation.
+      updateContentSessionTimeout = setTimeout(
+        () => immediatelyUpdateContentSession(store),
+        updateContentSessionDebounceTime
+      );
+    }
+  });
 }
 
 /**

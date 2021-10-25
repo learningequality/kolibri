@@ -16,6 +16,8 @@ export default {
     totalattempts: null,
     pastattempts: null,
     pastattemptMap: null,
+    // Array of as yet unsaved responses
+    unsavedResponses: null,
     saving: null,
     context: null,
   },
@@ -40,6 +42,10 @@ export default {
         ? fromPairs(data.pastattempts.map(a => [a.id, a]))
         : null;
       state.totalattempts = data.totalattempts ? data.totalattempts : null;
+      state.unsavedResponses = [];
+    },
+    ADD_UNSAVED_RESPONSE(state, response) {
+      state.unsavedResponses.push(response);
     },
     ADD_OR_UPDATE_ATTEMPT(state, attempt) {
       if (attempt.id) {
@@ -70,13 +76,10 @@ export default {
       state.progress = Math.min(state.progress + progressDelta, 1);
     },
     LOGGING_SAVING(state) {
-      state.saving = true;
       state.progress_delta = 0;
       state.time_spent_delta = 0;
       state.extra_fields_dirty_bit = false;
-    },
-    LOGGING_SAVED(state) {
-      state.saving = false;
+      state.unsavedResponses = [];
     },
   },
 };
