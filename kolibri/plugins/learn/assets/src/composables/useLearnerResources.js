@@ -13,7 +13,7 @@ import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resour
 import { LearnerClassroomResource } from '../apiResources';
 import { PageNames, ClassesPageNames } from '../constants';
 
-// The refs are defined in the outer scope so they can be use as a store
+// The refs are defined in the outer scope so they can be used as a shared store
 const _resumableContentNodes = ref([]);
 const _resumableContentNodesProgresses = ref([]);
 const classes = ref([]);

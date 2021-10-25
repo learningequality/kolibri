@@ -6,7 +6,7 @@ import { ref } from 'kolibri.lib.vueCompositionApi';
 import { set } from '@vueuse/core';
 import { ChannelResource } from 'kolibri.resources';
 
-// The refs are defined in the outer scope so they can be use as a store
+// The refs are defined in the outer scope so they can be used as a shared store
 const channels = ref([]);
 
 export default function useChannels() {
