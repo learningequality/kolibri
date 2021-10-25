@@ -1091,7 +1091,7 @@ export default {
         return coreStrings.$tr(nonconformingKeys[key], args);
       }
 
-      return coreStrings.$tr(camelCase(key), args);
+      return coreStrings.$tr(key, args);
     },
     /**
      * Shows a specific snackbar notification from our notificationStrings translator.
