@@ -1069,19 +1069,19 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Label for the dropdown to choose one of their five most recent attempts at the practice quiz',
   },
   answerLogCorrectLabel: {
-    message: 'You answered this correctly on the last attempt',
+    message: 'You answered this correctly on the previous attempt',
     context:
-      'Label that tells learner they answered the question correctly the last time they took the practice quiz',
+      'Label that tells learner they answered the question correctly the previous time they took the practice quiz',
   },
   answerLogIncorrectLabel: {
-    message: 'You also answered this incorrectly on the last attempt',
+    message: 'You also answered this incorrectly on the previous attempt',
     context:
       'Label that tells learner they answered this question incorrectly this attempt and also the attempt before this',
   },
   answerLogImprovedLabel: {
-    message: 'You improved your incorrect answer on the last attempt',
+    message: 'You improved your incorrect answer on the previous attempt',
     context:
-      'Label that tells learner they got the question wrong the last time, but got it correctly on this attempt',
+      'Label that tells learner they got the question wrong the previous time, but got it correctly on this attempt',
   },
   practiceQuizReportImprovedLabel: {
     message:
@@ -1098,14 +1098,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'Describes to learner how many minutes slower they were than the suggested time',
   },
   practiceQuizReportFasterTimeLabel: {
-    message: '{value, number, integer} minutes faster than last time',
+    message: '{value, number, integer} minutes faster than the previous attempt',
     context:
-      'Describes to learner how many minutes faster they were during this attempt than the last attempt',
+      'Describes to learner how many minutes faster they were during this attempt than the previous attempt',
   },
   practiceQuizReportSlowerTimeLabel: {
-    message: '{value, number, integer} minutes slower than last time',
+    message: '{value, number, integer} minutes slower than the previous attempt',
     context:
-      'Describes to learner how many minutes slower they were during this attempt than the last attempt',
+      'Describes to learner how many minutes slower they were during this attempt than the previous attempt',
   },
 });
 
