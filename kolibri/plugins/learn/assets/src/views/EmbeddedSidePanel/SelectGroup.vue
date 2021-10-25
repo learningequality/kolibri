@@ -157,22 +157,40 @@
 
 <style lang="scss" scoped>
 
+  /deep/ .ui-select-label-text.is-inline {
+    position: absolute;
+    bottom: 45px;
+    left: 10px;
+    font-size: 12px;
+    color: black;
+  }
+
+  /deep/ .ui-select-label-text.is-floating {
+    position: absolute;
+    bottom: 15px;
+    left: 10px;
+    font-size: 12px;
+  }
+
+  /deep/ .ui-select-display {
+    height: 3rem;
+    border-bottom: inherit;
+  }
+
+  /deep/ .ui-select-display-value {
+    position: relative;
+    top: 12px;
+    flex-grow: 1;
+    height: 32px;
+    padding-top: 10px;
+    padding-left: 20px;
+    font-size: 14px;
+  }
   .selector {
+    height: 52px !important;
     padding-top: 10px;
     background-color: rgba(189, 189, 189, 0.25);
     border-radius: 2px;
-
-    /deep/ .ui-select-display-value {
-      margin-left: 10px;
-    }
-
-    /deep/ .ui-select-label-text {
-      position: static;
-      top: 0;
-      margin-left: 10px;
-      font-size: 12px;
-      color: black;
-    }
 
     /deep/ .ui-icon {
       margin-right: 10px;
