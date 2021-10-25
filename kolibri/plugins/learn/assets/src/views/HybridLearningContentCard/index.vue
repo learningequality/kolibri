@@ -15,6 +15,7 @@
       <div class="header-bar">
         <LearningActivityLabel
           :contentNode="contentNode"
+          :hideDuration="true"
           class="learning-activity-label"
           :style="{ color: $themeTokens.text }"
         />

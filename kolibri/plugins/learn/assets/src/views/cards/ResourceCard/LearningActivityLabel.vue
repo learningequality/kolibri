@@ -19,6 +19,7 @@
       </template>
     </div>
     <div
+      v-if="!hideDuration"
       data-test="duration"
       :style="{ marginTop: '8px' }"
     >
@@ -62,6 +63,11 @@
       contentNode: {
         type: Object,
         required: true,
+      },
+      hideDuration: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
     computed: {
