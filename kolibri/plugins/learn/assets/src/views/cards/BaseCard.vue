@@ -20,6 +20,7 @@
 
       <div
         v-if="collectionTitle"
+        :style="{ color: $themeTokens.annotation }"
         dir="auto"
         data-test="collectionTitle"
       >
