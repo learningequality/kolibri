@@ -76,10 +76,7 @@
         return this.$tr('question', { num });
       },
       isAnswered(question) {
-        const attempt = this.pastattempts.find(
-          attempt =>
-            attempt.item === question.question_id && attempt.content_id === question.exercise_id
-        );
+        const attempt = this.pastattempts.find(attempt => attempt.item === question.item);
         return attempt && attempt.answer;
       },
       buttonClass(index) {

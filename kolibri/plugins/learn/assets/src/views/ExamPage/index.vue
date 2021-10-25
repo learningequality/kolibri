@@ -228,17 +228,14 @@
       },
       currentAttempt() {
         return (
-          this.pastattempts.find(
-            attempt => attempt.item === this.itemId && attempt.content_id === this.nodeId
-          ) || {
-            item: this.itemId,
+          this.pastattempts.find(attempt => attempt.item === this.attemptLogItemValue) || {
+            item: this.attemptLogItemValue,
             complete: false,
             time_spent: 0,
             correct: 0,
             answer: null,
             simple_answer: '',
             hinted: false,
-            content_id: this.nodeId,
           }
         );
       },
@@ -250,6 +247,11 @@
       },
       itemId() {
         return this.currentQuestion.question_id;
+      },
+      // We generate a special item value to save to the backend that encodes
+      // both the itemId and the nodeId
+      attemptLogItemValue() {
+        return `${this.nodeId}:${this.itemId}`;
       },
       questionsAnswered() {
         return this.pastattempts.reduce((count, attempt) => count + (attempt.answer ? 1 : 0), 0);
@@ -275,11 +277,12 @@
       },
     },
     watch: {
-      itemId(newVal, oldVal) {
+      attemptLogItemValue(newVal, oldVal) {
         // HACK: manually dismiss the perseus renderer message when moving
         // to a different item (fixes #3853)
         if (newVal !== oldVal) {
-          this.$refs.contentRenderer.$refs.contentView.dismissMessage();
+          this.$refs.contentRenderer.$refs.contentView.dismissMessage &&
+            this.$refs.contentRenderer.$refs.contentView.dismissMessage();
           this.startTime = Date.now();
         }
       },
@@ -293,15 +296,15 @@
         startTracking: 'startTrackingProgress',
         stopTracking: 'stopTrackingProgress',
       }),
-      setAndSaveCurrentExamAttemptLog(store, { close, attempt } = {}) {
+      setAndSaveCurrentExamAttemptLog({ close, response } = {}) {
         // Clear the learner classroom cache here as its progress data is now
         // stale
         LearnerClassroomResource.clearCache();
 
         const data = {};
 
-        if (attempt) {
-          data.attempt = { ...attempt, replace: true };
+        if (response) {
+          data.response = { ...response, replace: true };
         }
 
         if (close) {
@@ -327,21 +330,19 @@
       saveAnswer(close = false) {
         const answer = this.checkAnswer();
         if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
-          console.log(this.currentAttempt.time_spent, this.startTime);
-          const attempt = {
+          const response = {
             answer: answer.answerState,
             simple_answer: answer.simpleAnswer || '',
             correct: answer.correct,
-            content_id: this.content.id,
-            item: this.itemId,
+            item: this.attemptLogItemValue,
             id: this.currentAttempt.id,
             time_spent:
               ((this.currentAttempt.time_spent || 0) + Date.now() - this.startTime) / 1000,
           };
           if (close) {
-            return this.setAndSaveCurrentExamAttemptLog({ close, attempt });
+            return this.setAndSaveCurrentExamAttemptLog({ close, response });
           } else {
-            return this.debouncedSetAndSaveCurrentExamAttemptLog({ attempt });
+            return this.debouncedSetAndSaveCurrentExamAttemptLog({ response });
           }
         } else if (close) {
           return this.setAndSaveCurrentExamAttemptLog({ close });

@@ -83,6 +83,13 @@ function convertExamQuestionSourcesV1V2(questionSources) {
   return annotateQuestionSourcesWithCounter(questionSources);
 }
 
+function annotateQuestionsWithItem(questions) {
+  return questions.map(question => {
+    question.item = `${question.exercise_id}:${question.question_id}`;
+    return question;
+  });
+}
+
 export function convertExamQuestionSources(exam, extraArgs = {}) {
   const { data_model_version } = exam;
   if (data_model_version === 0) {
@@ -101,17 +108,20 @@ export function convertExamQuestionSources(exam, extraArgs = {}) {
     contentNodes.forEach(node => {
       questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
     });
-    return convertExamQuestionSourcesV0V2(exam.question_sources, exam.seed, questionIds);
+    return annotateQuestionsWithItem(
+      convertExamQuestionSourcesV0V2(exam.question_sources, exam.seed, questionIds)
+    );
   }
   if (data_model_version === 1) {
-    return convertExamQuestionSourcesV1V2(exam.question_sources);
+    return annotateQuestionsWithItem(convertExamQuestionSourcesV1V2(exam.question_sources));
   }
-  return exam.question_sources;
+  return annotateQuestionsWithItem(exam.question_sources);
 }
 
 export function fetchNodeDataAndConvertExam(exam) {
   const { data_model_version } = exam;
   if (data_model_version >= 2) {
+    exam.question_sources = annotateQuestionsWithItem(exam.question_sources);
     return Promise.resolve(exam);
   }
   return ContentNodeResource.fetchCollection({
@@ -190,10 +200,8 @@ export function getExamReport(store, examId, userId, questionNumber = 0, interac
               return resolve({ exam, masteryLog, user });
             }
 
-            const allQuestions = questions.map((question, index) => {
-              const attemptLog = attempts.filter(
-                log => log.item === question.question_id && log.content_id === question.exercise_id
-              );
+            const examAttempts = questions.map((question, index) => {
+              const attemptLog = attempts.filter(log => log.item === question.item);
               let examAttemptLog = attemptLog[0]
                 ? attemptLog[0]
                 : { interaction_history: [], correct: false, noattempt: true };
@@ -213,12 +221,12 @@ export function getExamReport(store, examId, userId, questionNumber = 0, interac
               );
             });
 
-            allQuestions.sort((loga, logb) => loga.questionNumber - logb.questionNumber);
+            examAttempts.sort((loga, logb) => loga.questionNumber - logb.questionNumber);
 
             const currentQuestion = questions[questionNumber];
             const itemId = currentQuestion.question_id;
             const exercise = contentNodes.find(node => node.id === currentQuestion.exercise_id);
-            const currentAttempt = allQuestions[questionNumber];
+            const currentAttempt = examAttempts[questionNumber];
             // filter out interactions without answers but keep hints and errors
             const currentInteractionHistory = currentAttempt.interaction_history.filter(
               interaction =>
@@ -243,7 +251,7 @@ export function getExamReport(store, examId, userId, questionNumber = 0, interac
               currentInteraction,
               currentInteractionHistory,
               user,
-              examAttempts: allQuestions,
+              examAttempts,
               masteryLog,
             };
             resolve(payload);
