@@ -91,6 +91,7 @@
             <!-- TO DO Marcella swap out new icon after KDS update -->
             <KButton
               icon="channel"
+              class="filter-overlay-toggle-button"
               :text="coreString('searchLabel')"
               :primary="false"
               @click="toggleSidePanelVisibility"
@@ -675,7 +676,6 @@
   /deep/.side-panel {
     position: relative;
     bottom: 0;
-    // padding-bottom: 450px !important;
   }
 
   /deep/.card-thumbnail-wrapper {
@@ -725,14 +725,21 @@
     }
   }
 
+  .filter-overlay-toggle-button {
+    margin-bottom: 16px;
+  }
+
   .full-screen-side-panel {
-    position: relative;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    z-index: 12;
   }
 
   .overlay-close-button {
     position: absolute;
     top: 8px;
-    right: 8px;
+    right: 24px;
   }
 
 </style>
