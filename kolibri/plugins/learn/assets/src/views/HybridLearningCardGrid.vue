@@ -45,7 +45,7 @@
       :key="content.id"
       :contentNode="content"
       :channelThumbnail="content.channel_thumbnail"
-      :channelTitle="content.channel_thumbnail"
+      :channelTitle="content.channel_title"
       :description="content.description"
       :activityLength="content.activity_length"
       class="grid-item"

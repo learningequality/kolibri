@@ -76,7 +76,7 @@ def _get_available_channels(base_queryset):
             id__in=base_queryset.values_list("channel_id", flat=True).distinct()
         )
         .order_by("order")
-        .values("id", "name")
+        .values("id", "name", "thumbnail")
     )
 
 
