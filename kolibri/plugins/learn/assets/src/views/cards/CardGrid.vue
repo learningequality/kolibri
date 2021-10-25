@@ -40,6 +40,9 @@
         type: Number,
         required: false,
         default: GRID_TYPE_1,
+        validator(value) {
+          return [GRID_TYPE_1, GRID_TYPE_2].includes(value);
+        },
       },
     },
     computed: {
