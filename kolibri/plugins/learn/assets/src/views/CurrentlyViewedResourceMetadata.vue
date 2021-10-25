@@ -19,7 +19,6 @@
     <div class="section">
       <!-- For Beginners Chip Here -->
       <div
-        v-if="content.forBeginners"
         class="beginners-chip"
         :style="{ 'background-color': $themeBrand.secondary.v_600 }"
       >
@@ -47,15 +46,6 @@
       :primary="true"
       @click="toggleShowMoreOrLess"
     />
-
-    <!-- No "Subject" string available - but it is noted in Figma as a possible metadata
-    <div v-if="content.subject" class="section">
-      <span class="label">
-      </span>
-      <span>
-      </span>
-    </div>
-    -->
 
     <div v-if="content.level" class="section">
       <span class="label">
@@ -312,7 +302,6 @@
       // Ensures space on line w/ closing X icon whether
       // chips are visible or not
       min-height: 40px;
-      padding: 12px;
     }
 
     .label {
@@ -323,6 +312,12 @@
   .content {
     font-size: 16px;
     line-height: 24px;
+  }
+
+  .related {
+    .list-item {
+      margin: 8px 0;
+    }
   }
 
 </style>

@@ -68,30 +68,21 @@
     <!-- this v-else ensures spacing remains consistent without show more -->
     <div v-else class="section"></div>
 
-    <!-- TODO No "Subject" string available - but it is noted in Figma as a possible metadata
-    <div v-if="content.subject" class="section">
-      <span class="label">
-      </span>
-      <span>
-      </span>
-    </div>
-    -->
-
-    <div v-if="content.level" class="section">
-      <span class="label">
-        {{ metadataStrings.$tr('level') }}:
-      </span>
-      <span>
-        {{ content.level }}
-      </span>
-    </div>
-
     <div v-if="content.duration" class="section">
       <span class="label">
         {{ metadataStrings.$tr('estimatedTime') }}:
       </span>
       <span>
         <TimeDuration :seconds="content.duration" />
+      </span>
+    </div>
+
+    <div v-if="content.grade_levels && content.grade_levels.length" class="section">
+      <span class="label">
+        {{ metadataStrings.$tr('level') }}:
+      </span>
+      <span>
+        {{ content.lang.grade_levels.join(", ") }}
       </span>
     </div>
 
@@ -109,7 +100,7 @@
         {{ coreString('accessibility') }}:
       </span>
       <span>
-        {{ content.accessibility }}
+        {{ content.accessibility.join(", ") }}
       </span>
     </div>
 
@@ -118,7 +109,7 @@
         {{ metadataStrings.$tr('whatYouWillNeed') }}:
       </span>
       <span>
-        {{ content.whatYouWillNeed }}
+        {{ content.whatYouWillNeed.join(", ") }}
       </span>
     </div>
 
@@ -151,48 +142,49 @@
           :ariaLabel="metadataStrings.$tr('toggleLicenseDescription')"
           size="small"
           type="secondary"
-          class="license-toggle"
+          class="absolute-icon license-toggle"
           @click="licenseDescriptionIsVisible = !licenseDescriptionIsVisible"
         />
         <div v-if="licenseDescriptionIsVisible" class="license-details">
           <p class="license-details-name">
             {{ licenseLongName }}
           </p>
-          <p>{{ licenseDescription }}</p>
+          <p style="margin-bottom: 0;">{{ licenseDescription }}</p>
         </div>
       </span>
     </div>
 
-    <div v-if="content.related" class="section">
+    <div v-if="recommendations" class="related section">
       <div class="label">
         {{ coreString('related') }}:
       </div>
-      <ul class="list">
-        <li
-          v-for="related in content.related"
+      <div class="list">
+        <div
+          v-for="related in recommendations"
           :key="related.title"
           class="list-item"
         >
-          <KLabeledIcon :icon="related.activityKind">
-            {{ related.title }}
-          </KLabeledIcon>
-        </li>
-      </ul>
+          <KRouterLink :to="genContentLink(related.id, related.is_leaf)">
+            <KLabeledIcon>
+              <template #icon>
+                <LearningActivityIcon :kind="related.learning_activities" />
+              </template>
+              {{ related.title }}
+            </KLabeledIcon>
+          </KRouterLink>
+        </div>
+      </div>
     </div>
 
-    <div v-if="content.locations" class="section">
+    <div v-if="parent && showLocationsInChannel" class="section">
       <div class="label">
-        {{ metadataStrings.$tr('locationsInChannel', { 'channelName': content.parent.title }) }}:
+        {{ metadataStrings.$tr('locationsInChannel', { 'channelName': parent.title }) }}:
       </div>
-      <ul class="list">
-        <li
-          v-for="location in content.locations"
-          :key="location.title"
-          class="list-item"
-        >
-          {{ location.title }}
-        </li>
-      </ul>
+      <div>
+        <KRouterLink :to="genContentLink(parent.id, parent.is_leaf)">
+          {{ parent.title }}
+        </KRouterLink>
+      </div>
     </div>
 
   </section>
@@ -211,8 +203,11 @@
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import ContentKindsToLearningActivitiesMap from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeResource } from 'kolibri.resources';
   import genContentLink from '../utils/genContentLink';
   import LearningActivityChip from './LearningActivityChip';
+  import LearningActivityIcon from './LearningActivityIcon';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
   import SidePanelResourceMetadata from './SidePanelResourceMetadata';
 
@@ -220,14 +215,29 @@
     name: 'BrowseResourceMetadata',
     components: {
       LearningActivityChip,
+      LearningActivityIcon,
       TimeDuration,
       ContentNodeThumbnail,
     },
     mixins: [commonCoreStrings],
     props: {
+      /**
+       * Optional - if the metadata is to show a list of locations where
+       * the content can be found in the currently viewed channel, this is
+       * how we get the channel data.
+       */
+      channelToShowLocationsFor: {
+        type: Object,
+        required: false,
+        default: null,
+      },
       content: {
         type: Object,
         required: true,
+      },
+      showLocationsInChannel: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -237,6 +247,8 @@
         truncate: 'truncate-description',
         descriptionOverflow: false,
         metadataStrings: { $tr: () => null },
+        recommendations: null,
+        parent: null,
       };
     },
     computed: {
@@ -254,6 +266,13 @@
       },
     },
     mounted() {
+      ContentNodeResource.fetchRecommendationsFor(this.content.id).then(recommendations => {
+        // We only need three - TODO: Should we randomize this every time by shuffling before drawing 3?
+        this.recommendations = recommendations.splice(0, 3);
+      });
+      ContentNodeResource.fetchModel({ id: this.content.parent }).then(
+        parent => (this.parent = parent)
+      );
       this.metadataStrings = crossComponentTranslator(SidePanelResourceMetadata);
       this.calculateDescriptionOverflow();
     },
@@ -339,6 +358,7 @@
   }
 
   .section {
+    position: relative;
     padding-right: 4px;
     padding-bottom: 16px;
 
@@ -354,7 +374,6 @@
       // Ensures space on line w/ closing X icon whether
       // chips are visible or not
       min-height: 40px;
-      padding: 12px;
     }
 
     &.flex {
@@ -365,15 +384,28 @@
     .label {
       font-weight: bold;
     }
+  }
 
-    /deep/ .activity-chip {
-      margin: 4px;
-    }
+  /* The KIconButton is just a bit larger than the space we
+    have vertically, so it affected spacing between items. By
+    positioning it absolutely, we put it where it belongs visually
+    but strip it of the power to affect anything else's spacing.
+    */
+  .absolute-icon {
+    position: absolute;
+    top: -6px;
+    margin-left: 8px;
   }
 
   .content {
     font-size: 16px;
     line-height: 24px;
+  }
+
+  .related {
+    .list-item {
+      margin: 8px 0;
+    }
   }
 
 </style>
