@@ -19,7 +19,6 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.decorators import query_params_required
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
-from kolibri.core.logger.api import serialize_quiz_attempt_log
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.notifications.models import LearnerProgressNotification
@@ -407,6 +406,5 @@ class QuizDifficultQuestionsViewset(viewsets.ViewSet):
             .count()
         )
         for datum in data:
-            serialize_quiz_attempt_log(datum)
             datum["total"] = total
         return Response(data)

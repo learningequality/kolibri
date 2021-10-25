@@ -634,7 +634,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
                 start_timestamp=timestamp,
                 end_timestamp=timestamp,
                 correct=0,
-                item="test_item_id:{}".format(i),
+                item="{}:test_item_id".format(i),
                 user=self.user,
                 answer=interaction["answer"],
                 interaction_history=[interaction],
@@ -690,11 +690,9 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
         )
 
     def _make_request(self, data):
-        post_data = {"content_id": self.content_id}
-        post_data.update(data)
         return self.client.post(
             reverse("kolibri:core:trackprogress-list"),
-            data=post_data,
+            data=data,
             format="json",
         )
 
@@ -782,8 +780,9 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
         self.assertEqual(response.json()["totalattempts"], 15)
         self.assertEqual(len(response.json()["pastattempts"]), 15)
         for attempt in response.json()["pastattempts"]:
-            self.assertEqual(attempt["item"], "test_item_id")
-            self.assertTrue(0 <= int(attempt["content_id"]) < 15)
+            number, item = attempt["item"].split(":")
+            self.assertEqual(item, "test_item_id")
+            self.assertTrue(0 <= int(number) < 15)
 
     def tearDown(self):
         self.client.logout()
@@ -1115,7 +1114,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
             {
                 "responses": [
                     {
-                        "item": self.item_id,
+                        "item": self.item,
                         "correct": 1.0,
                         "time_spent": 10,
                     }
@@ -1131,7 +1130,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
             {
                 "responses": [
                     {
-                        "item": self.item_id,
+                        "item": self.item,
                         "answer": {"response": "test"},
                         "time_spent": 10,
                     }
@@ -1147,7 +1146,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
             {
                 "responses": [
                     {
-                        "item": self.item_id,
+                        "item": self.item,
                         "answer": {"response": "test"},
                         "correct": 1.0,
                     }
@@ -1163,7 +1162,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
             {
                 "responses": [
                     {
-                        "item": self.item_id,
+                        "item": self.item,
                         "answer": {"response": "test"},
                         "correct": 1.0,
                         "time_spent": 10,
@@ -1190,7 +1189,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
             {
                 "responses": [
                     {
-                        "item": self.item_id,
+                        "item": self.item,
                         "error": True,
                         "correct": 1.0,
                         "time_spent": 10,
@@ -1224,7 +1223,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
             {
                 "responses": [
                     {
-                        "item": self.item_id,
+                        "item": self.item,
                         "hinted": True,
                         "answer": {"response": "hinty mchintyson"},
                         "correct": 1.0,
@@ -1260,14 +1259,14 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
             {
                 "responses": [
                     {
-                        "item": self.item_id,
+                        "item": self.item,
                         "hinted": True,
                         "answer": {"response": "hinty mchintyson"},
                         "correct": 1.0,
                         "time_spent": 10,
                     },
                     {
-                        "item": self.item_id,
+                        "item": self.item,
                         "error": True,
                         "correct": 1.0,
                         "time_spent": 20,
@@ -1309,14 +1308,14 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
             {
                 "responses": [
                     {
-                        "item": self.item_id,
+                        "item": self.item,
                         "hinted": True,
                         "answer": {"response": "hinty mchintyson"},
                         "correct": 1.0,
                         "time_spent": 10,
                     },
                     {
-                        "item": self.item_id,
+                        "item": self.item,
                         "error": True,
                         "correct": 0.0,
                         "time_spent": 20,
@@ -1375,7 +1374,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
                 "responses": [
                     {
                         "id": attemptlog.id,
-                        "item": self.item_id,
+                        "item": self.item,
                         "answer": {"response": "test"},
                         "correct": 1,
                         "time_spent": 10,
@@ -1427,7 +1426,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
                 "responses": [
                     {
                         "id": attemptlog.id,
-                        "item": self.item_id,
+                        "item": self.item,
                         "answer": {"response": "test"},
                         "correct": 1,
                         "time_spent": 10,
@@ -1435,7 +1434,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
                     },
                     {
                         "id": attemptlog.id,
-                        "item": self.item_id,
+                        "item": self.item,
                         "answer": {"response": "testwrong"},
                         "correct": 0,
                         "time_spent": 20,
@@ -1496,7 +1495,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
                 "responses": [
                     {
                         "id": attemptlog.id,
-                        "item": self.item_id,
+                        "item": self.item,
                         "answer": {"response": "test"},
                         "correct": 1,
                         "time_spent": 10,
@@ -1550,14 +1549,14 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
                 "responses": [
                     {
                         "id": attemptlog.id,
-                        "item": self.item_id,
+                        "item": self.item,
                         "answer": {"response": "test"},
                         "correct": 1,
                         "time_spent": 20,
                     },
                     {
                         "id": attemptlog.id,
-                        "item": self.item_id,
+                        "item": self.item,
                         "answer": {"response": "testwrong"},
                         "correct": 0.5,
                         "time_spent": 30,
@@ -1615,7 +1614,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
                 "responses": [
                     {
                         "id": attemptlog.id,
-                        "item": self.item_id,
+                        "item": self.item,
                         "answer": {"response": "hinty mchintyson2"},
                         "hinted": True,
                         "correct": 0,
@@ -1670,7 +1669,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
                 "responses": [
                     {
                         "id": attemptlog.id,
-                        "item": self.item_id,
+                        "item": self.item,
                         "answer": {"response": "hinty mchintyson"},
                         "hinted": True,
                         "correct": 0,
@@ -1721,7 +1720,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
                 "responses": [
                     {
                         "id": attemptlog.id,
-                        "item": self.item_id,
+                        "item": self.item,
                         "error": True,
                         "correct": 0,
                         "time_spent": 10,
@@ -1775,8 +1774,7 @@ class ProgressTrackingViewSetAnonymousUpdateSessionAssessmentTestCase(
             number_of_assessments=20,
         )
 
-        self.item_id = "test_item_id"
-        self.item = self.item_id
+        self.item = "test_item_id"
 
         self.session_log = ContentSessionLog.objects.create(
             content_id=self.content_id,
@@ -1833,8 +1831,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
             kind="exercise",
         )
 
-        self.item_id = "test_item_id"
-        self.item = self.item_id
+        self.item = "test_item_id"
 
         self.mastery_log = MasteryLog.objects.create(
             mastery_criterion=mastery_model,
@@ -1869,7 +1866,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
                 {
                     "responses": [
                         {
-                            "item": self.item_id,
+                            "item": self.item,
                             "answer": {"response": "test"},
                             "correct": 1.0,
                             "time_spent": 10,
@@ -1929,7 +1926,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
                     "responses": [
                         {
                             "id": attemptlog.id,
-                            "item": self.item_id,
+                            "item": self.item,
                             "answer": {"response": "test"},
                             "correct": 1,
                             "time_spent": 10,
@@ -2007,8 +2004,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
             user=self.user,
             mastery_level=-1,
         )
-        self.item_id = "test_item_id"
-        self.item = "{}:{}".format(self.node_id, self.item_id)
+        self.item = "{}:{}".format(self.node_id, "test_item_id")
 
         self.client.login(
             username=self.user.username,
@@ -2022,7 +2018,6 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
 
     def _make_request(self, data):
         data["quiz_id"] = self.content_id
-        data["responses"][0]["content_id"] = self.node_id
         return self.client.put(
             reverse(
                 "kolibri:core:trackprogress-detail", kwargs={"pk": self.session_log.id}
@@ -2125,7 +2120,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
                 "responses": [
                     {
                         "id": attemptlog.id,
-                        "item": self.item_id,
+                        "item": self.item,
                         "answer": {"response": "test"},
                         "correct": 1,
                         "time_spent": 10,
@@ -2160,7 +2155,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
                 "responses": [
                     {
                         "id": attemptlog.id,
-                        "item": self.item_id,
+                        "item": self.item,
                         "answer": {"response": "test"},
                         "correct": 1,
                         "time_spent": 10,

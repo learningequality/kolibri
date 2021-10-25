@@ -23,7 +23,6 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
-from kolibri.core.logger.api import QUIZ_ITEM_DELIMETER
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
@@ -31,6 +30,8 @@ from kolibri.core.logger.models import MasteryLog
 
 logger = logging.getLogger(__name__)
 
+
+QUIZ_ITEM_DELIMETER = ":"
 
 #####################
 # When modifying here, run these tests for sanity:

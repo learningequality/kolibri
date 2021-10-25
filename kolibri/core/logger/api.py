@@ -44,9 +44,6 @@ from kolibri.utils.time_utils import local_now
 logger = logging.getLogger(__name__)
 
 
-QUIZ_ITEM_DELIMETER = ":"
-
-
 class HexStringUUIDField(serializers.UUIDField):
     def __init__(self, **kwargs):
         self.uuid_format = "hex"
@@ -87,11 +84,6 @@ class ResponseSerializer(serializers.Serializer):
     # this is a no-op if the attempt is being created.
     replace = serializers.BooleanField(required=False, default=False)
 
-    # An additional field that can be set to handle coach assigned quizzes
-    # that are themselves not proper content nodes but refer to content under
-    # the hood.
-    content_id = HexStringUUIDField(required=False)
-
     def validate(self, data):
         if not data["error"] and "answer" not in data:
             raise ValidationError("Must provide an answer if not an error")
@@ -123,16 +115,6 @@ attemptlog_fields = [
     "answer",
     "time_spent",
 ]
-
-
-def serialize_quiz_attempt_log(log):
-    try:
-        item_content_id, item = log["item"].split(QUIZ_ITEM_DELIMETER)
-        log["item"] = item
-    except ValueError:
-        item_content_id = ""
-    log["content_id"] = item_content_id
-    return log
 
 
 class LogContext(object):
@@ -463,9 +445,6 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             attemptlogs = attemptlogs[: MAPPING[exercise_type]]
         elif exercise_type == "quiz":
             attemptlogs = attemptlogs.order_by()
-            if mastery_criterion.get("coach_assigned"):
-                for log in attemptlogs:
-                    serialize_quiz_attempt_log(log)
         else:
             attemptlogs = attemptlogs[:10]
 
@@ -555,16 +534,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             attemptlog.completion_timestamp = end_timestamp
             update_fields.update({"complete", "completion_timestamp"})
 
-    def _create_attempt(
-        self, session_id, masterylog_id, user, response, end_timestamp, context
-    ):
-        if "quiz_id" in context and "content_id" in response:
-            # Store the content_id for this specific question and the item
-            # together, to allow coach assigned quizzes to be stored seamlessly.
-            response["item"] = "{}{}{}".format(
-                response.pop("content_id"), QUIZ_ITEM_DELIMETER, response["item"]
-            )
-
+    def _create_attempt(self, session_id, masterylog_id, user, response, end_timestamp):
         start_timestamp = end_timestamp - timedelta(seconds=response["time_spent"])
 
         interaction = self._generate_interaction(response)
@@ -609,7 +579,6 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                     user,
                     item_responses[0],
                     end_timestamp,
-                    context,
                 )
                 created = True
                 item_responses = item_responses[1:]
@@ -625,8 +594,6 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             attempt = {}
             for field in attemptlog_fields:
                 attempt[field] = getattr(attemptlog, field)
-            if "quiz_id" in context:
-                serialize_quiz_attempt_log(attempt)
             output.append(attempt)
         return {"attempts": output}
 
@@ -881,8 +848,3 @@ class AttemptLogViewSet(ReadOnlyValuesViewset):
         "masterylog",
         "sessionlog",
     )
-
-    def consolidate(self, items, queryset):
-        for item in items:
-            serialize_quiz_attempt_log(item)
-        return items
