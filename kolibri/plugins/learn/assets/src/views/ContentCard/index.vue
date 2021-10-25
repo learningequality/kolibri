@@ -62,6 +62,7 @@
     components: {
       CardThumbnail,
       CoachContentLabel,
+      TextTruncator,
     },
     props: {
       title: {
