@@ -100,7 +100,7 @@ def sanitize_text(text: str) -> str:
     return " ".join(lines)
 
 
-def get_search_media_icon(kind):
+def get_search_media_icon(kind: str) -> str:
     node_icon_lookup = {
         "video": "play-circle-outline",
         "exercise": "checkbox-marked-circle-outline",
