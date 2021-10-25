@@ -7,7 +7,7 @@
 
 
     <div v-else class="page">
-      <div class="header">
+      <div v-if="!windowIsSmall" class="header">
         <KGrid>
           <KGridItem
             :layout4="{ span: 4 }"
@@ -66,7 +66,30 @@
           />
         </div>
       </div>
-
+      <div v-if="windowIsSmall" class="mobile-header">
+        <div class="mobile-header-contents">
+          <div class="mobile-tabs">
+            <KButton
+              ref="tab_button"
+              :text="coreString('folders')"
+              appearance="flat-button"
+              :appearanceOverrides="customTabButtonOverrides"
+              @click="toggleSidebarView('folders')"
+            />
+            <KButton
+              ref="tab_button"
+              :text="coreString('searchLabel')"
+              appearance="flat-button"
+              :appearanceOverrides="customTabButtonOverrides"
+              @click="toggleSidebarView('search')"
+            />
+          </div>
+          <img
+            :src="topicOrChannel['thumbnail']"
+            class="channel-logo"
+          >
+        </div>
+      </div>
 
       <main
         class="main-content-grid"
@@ -730,6 +753,24 @@
     z-index: 12;
   }
 
+  .mobile-header {
+    position: relative;
+    height: 100px;
+    background-color: white;
+  }
+
+  .mobile-tabs {
+    position: absolute;
+    bottom: 0;
+  }
+
+  .channel-logo {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    max-height: 55px;
+    vertical-align: bottom;
+  }
   .overlay-close-button {
     position: absolute;
     top: 8px;
