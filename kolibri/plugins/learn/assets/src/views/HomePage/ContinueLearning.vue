@@ -33,7 +33,7 @@
           :key="idx"
           :contentNode="contentNode"
           :to="getTopicContentNodeLink(contentNode.id)"
-          :collectionName="getContentNodeTopicName(contentNode)"
+          :collectionTitle="getContentNodeTopicName(contentNode)"
         />
       </template>
     </CardGrid>
