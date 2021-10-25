@@ -197,6 +197,7 @@
   import genContentLink from '../utils/genContentLink';
   import FullScreenSidePanel from '../../../../../core/assets/src/views/FullScreenSidePanel';
   import { PageNames } from '../constants';
+  import { normalizeContentNode } from '../modules/coreLearn/utils';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
@@ -392,7 +393,7 @@
             getParams.keywords = this.searchTerms.keywords;
           }
           ContentNodeResource.fetchCollection({ getParams }).then(data => {
-            this.results = data.results;
+            this.results = data.results.map(normalizeContentNode);
             this.more = data.more;
             this.labels = data.labels;
             this.searchLoading = false;
@@ -408,7 +409,7 @@
         if (this.displayingSearchResults && this.more && !this.moreLoading) {
           this.moreLoading = true;
           ContentNodeResource.fetchCollection({ getParams: this.more }).then(data => {
-            this.results.push(...data.results);
+            this.results.push(...data.results.map(normalizeContentNode));
             this.more = data.more;
             this.labels = data.labels;
             this.moreLoading = false;

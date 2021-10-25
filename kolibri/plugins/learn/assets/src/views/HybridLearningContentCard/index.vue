@@ -243,6 +243,7 @@
 
   .channel-logo {
     display: inline-block;
+    height: 28px;
   }
 
   .text {
