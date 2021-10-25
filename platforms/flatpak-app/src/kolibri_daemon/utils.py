@@ -14,6 +14,7 @@ from pathlib import Path
 
 import re
 
+from kolibri_app.config import BASE_APPLICATION_ID
 from kolibri_app.config import KOLIBRI_HOME_TEMPLATE_DIR
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
@@ -97,3 +98,20 @@ def sanitize_text(text: str) -> str:
     lines = [re.sub(TAGRE, "", line) for line in lines]
 
     return " ".join(lines)
+
+
+def get_search_media_icon(kind):
+    node_icon_lookup = {
+        "video": "play-circle-outline",
+        "exercise": "checkbox-marked-circle-outline",
+        "document": "text-box-outline",
+        "topic": "cube-outline",
+        "audio": "podcast",
+        "html5": "motion-outline",
+        "slideshow": "image-outline",
+    }
+
+    return "{prefix}-{icon}".format(
+        prefix=BASE_APPLICATION_ID,
+        icon=node_icon_lookup.get(kind, "cube-outline"),
+    )
