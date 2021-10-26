@@ -320,6 +320,7 @@ function _zeroToOne(num) {
 }
 
 function makeSessionUpdateRequest(store, data) {
+  const wasComplete = store.state.logging.complete;
   return client({
     method: 'put',
     url: urls['kolibri:core:trackprogress-detail'](store.state.logging.session_id),
@@ -328,6 +329,12 @@ function makeSessionUpdateRequest(store, data) {
     if (response.data.attempts) {
       for (let attempt of response.data.attempts) {
         store.commit('ADD_OR_UPDATE_ATTEMPT', attempt);
+      }
+    }
+    if (response.data.complete) {
+      store.commit('SET_COMPLETE');
+      if (store.getters.isUserLoggedIn && !wasComplete) {
+        store.commit('INCREMENT_TOTAL_PROGRESS', 1);
       }
     }
     return response.data;
@@ -482,10 +489,6 @@ export function updateContentSession(
     }
     store.commit('ADD_OR_UPDATE_ATTEMPT', response);
     store.commit('ADD_UNSAVED_RESPONSE', response);
-  }
-
-  if (store.getters.isUserLoggedIn && store.state.logging.progress >= 1) {
-    store.commit('INCREMENT_TOTAL_PROGRESS', 1);
   }
 
   immediate = (!isUndefined(response) && !response.id) || immediate;

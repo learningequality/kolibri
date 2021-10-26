@@ -81,5 +81,8 @@ export default {
       state.extra_fields_dirty_bit = false;
       state.unsavedResponses = [];
     },
+    SET_COMPLETE(state) {
+      state.complete = true;
+    },
   },
 };
