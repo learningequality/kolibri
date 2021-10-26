@@ -108,7 +108,7 @@ class LocalSearchHandler(SearchHandler):
             max_workers=1, initializer=self.__process_initializer
         )
 
-    def stop(self):
+    def shutdown(self):
         self.__executor.shutdown()
 
     def __process_initializer(self):

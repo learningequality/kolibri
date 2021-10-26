@@ -55,6 +55,13 @@ class KolibriServiceContext(object):
         SUCCESS = auto()
         ERROR = auto()
 
+    class Status(Enum):
+        NONE = auto()
+        STARTING = auto()
+        STOPPED = auto()
+        STARTED = auto()
+        ERROR = auto()
+
     def __init__(self):
         self.__changed_event = multiprocessing.Event()
 
@@ -261,6 +268,24 @@ class KolibriServiceContext(object):
     def await_kolibri_home(self) -> str:
         self.__kolibri_home_set_event.wait()
         return self.kolibri_home
+
+    @property
+    def status(self) -> KolibriServiceManager.Status:
+        if self.is_starting:
+            return self.Status.STARTING
+        elif self.start_result == self.StartResult.SUCCESS:
+            return self.Status.STARTED
+        elif self.start_result == self.StartResult.ERROR:
+            return self.Status.ERROR
+        elif self.setup_result == self.SetupResult.ERROR:
+            return self.Status.ERROR
+        elif self.is_stopped:
+            return self.Status.STOPPED
+        else:
+            return self.Status.NONE
+
+    def is_running(self) -> bool:
+        return self.status in [self.Status.STARTING, self.Status.STARTED]
 
 
 class KolibriServiceProcess(multiprocessing.Process):

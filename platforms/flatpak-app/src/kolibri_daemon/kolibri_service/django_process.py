@@ -36,12 +36,15 @@ class DjangoProcess(KolibriServiceProcess):
             self.context.start_result = self.context.StartResult.ERROR
             self.__run_kolibri_cleanup()
         finally:
-            self.context.is_starting = False
-            if self.context.start_result != self.context.StartResult.ERROR:
-                self.context.start_result = None
-            self.context.is_stopped = True
-            self.context.base_url = ""
-            self.context.app_key = ""
+            self.reset_context()
+
+    def reset_context(self):
+        self.context.is_starting = False
+        if self.context.start_result != self.context.StartResult.ERROR:
+            self.context.start_result = None
+        self.context.is_stopped = True
+        self.context.base_url = ""
+        self.context.app_key = ""
 
     def __run_kolibri_main(self):
         self.context.await_is_stopped()
