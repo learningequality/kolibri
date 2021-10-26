@@ -229,9 +229,15 @@
   }
 
   .header-bar {
-    padding: 13px 18px 0;
-    margin-bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 18px 0;
     font-size: 13px;
+    .channel-logo {
+      align-self: end;
+      height: 28px;
+      margin-bottom: 4px;
+    }
   }
 
   .k-labeled-icon {
@@ -240,11 +246,6 @@
     height: 24px;
     margin-bottom: 0;
     vertical-align: top;
-  }
-
-  .channel-logo {
-    display: inline-block;
-    height: 28px;
   }
 
   .text {
@@ -274,9 +275,12 @@
   }
 
   .learning-activity-label {
-    width: 100px;
+    top: 0;
+    display: inline-block;
+    width: 60%;
     /deep/ .learning-activity {
       justify-content: flex-start;
+      margin-top: 2px;
     }
   }
 
