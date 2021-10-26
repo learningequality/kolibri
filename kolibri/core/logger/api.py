@@ -4,6 +4,8 @@ from itertools import groupby
 
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.db.models import OuterRef
+from django.db.models import Subquery
 from django.db.models import Sum
 from django.http import Http404
 from django_filters.rest_framework import CharFilter
@@ -26,6 +28,7 @@ from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.content.api import OptionalPageNumberPagination
+from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -178,16 +181,21 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
 
         if node_id is not None:
             try:
-                node = ContentNode.objects.prefetch_related("assessmentmetadata").get(
-                    id=node_id
+                node = (
+                    ContentNode.objects.annotate(
+                        mastery_model=Subquery(
+                            AssessmentMetaData.objects.filter(
+                                contentnode_id=OuterRef("id")
+                            ).values_list("mastery_model", flat=True)[:1]
+                        )
+                    )
+                    .values("content_id", "channel_id", "kind", "mastery_model")
+                    .get(id=node_id)
                 )
-                assessmentmetadata = node.assessmentmetadata.all()
-                mastery_model = (
-                    assessmentmetadata[0].mastery_model if assessmentmetadata else None
-                )
-                content_id = node.content_id
-                channel_id = node.channel_id
-                kind = node.kind
+                mastery_model = node["mastery_model"]
+                content_id = node["content_id"]
+                channel_id = node["channel_id"]
+                kind = node["kind"]
                 context["node_id"] = node_id
                 if lesson_id:
                     self._check_lesson_permissions(user, lesson_id)
