@@ -296,32 +296,8 @@ oriented data synchronization.
       attemptsWindowN() {
         return this.mOfNMasteryModel.n;
       },
-      exerciseProgress() {
-        if (this.mastered) {
-          return 1;
-        }
-        if (this.pastattempts.length) {
-          let calculatedMastery;
-          if (this.pastattempts.length > this.attemptsWindowN) {
-            calculatedMastery = Math.min(
-              this.pastattempts.slice(0, this.attemptsWindowN).reduce((a, b) => a + b.correct, 0) /
-                this.totalCorrectRequiredM,
-              1
-            );
-          } else {
-            calculatedMastery = Math.min(
-              this.pastattempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM,
-              1
-            );
-          }
-          // If there are any attempts at all, set some progress on the exercise
-          // because they have now started the exercise.
-          return Math.max(calculatedMastery, 0.001);
-        }
-        return 0;
-      },
       success() {
-        return this.exerciseProgress === 1;
+        return this.mastered;
       },
       currentStatus() {
         if (this.itemError) {
@@ -364,6 +340,37 @@ oriented data synchronization.
       ...mapActions(['updateContentSession']),
       takeHint() {
         this.renderer && this.renderer.takeHint();
+      },
+      exerciseProgress(submittingAttempt) {
+        if (this.mastered) {
+          return 1;
+        }
+        const pastAttempts = submittingAttempt
+          ? [submittingAttempt].concat(this.pastattempts)
+          : this.pastattempts;
+        if (pastAttempts.length) {
+          let calculatedMastery;
+          if (pastAttempts.length > this.attemptsWindowN) {
+            calculatedMastery = Math.min(
+              pastAttempts.slice(0, this.attemptsWindowN).reduce((a, b) => a + b.correct, 0) /
+                this.totalCorrectRequiredM,
+              1
+            );
+          } else {
+            calculatedMastery = Math.min(
+              Number(
+                (
+                  pastAttempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM
+                ).toPrecision(3)
+              ),
+              1
+            );
+          }
+          // If there are any attempts at all, set some progress on the exercise
+          // because they have now started the exercise.
+          return Math.max(calculatedMastery, 0.001);
+        }
+        return 0;
       },
       checkAnswer() {
         this.checkWasAttempted = true;
@@ -410,12 +417,15 @@ oriented data synchronization.
         if (simpleAnswer) {
           response.simple_answer = simpleAnswer;
         }
+        let progress;
         if (this.firstAttemptAtQuestion) {
           this.firstAttemptAtQuestion = false;
+          progress = this.exerciseProgress(response);
         } else {
           response.id = this.currentattempt.id;
+          progress = this.exerciseProgress();
         }
-        this.updateContentSession({ response });
+        this.updateContentSession({ progress, response });
       },
       setItemId() {
         const index = this.totalattempts % this.assessmentIds.length;
