@@ -122,7 +122,7 @@
               position: 'absolute',
               right: 0,
               width: ellipsisWidth,
-              height: '50%',
+              height: '100%',
               background: 'white',
             },
           };
