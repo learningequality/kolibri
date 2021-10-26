@@ -393,19 +393,23 @@ function immediatelyUpdateContentSession(store) {
     savingPromise = savingPromise.then(() => {
       // Create an initial rejection so that we can chain consistently
       // in the retry loop.
-      let attempt = Promise.reject();
+      let attempt = Promise.reject({ response: { status: 503 } });
       for (var i = 0; i < maxRetries; i++) {
         // Catch any previous error and then try to make the session update again
         attempt = attempt
-          .catch(() => makeSessionUpdateRequest(store, data))
+          .catch(err => {
+            if (err && err.response && err.response.status === 503) {
+              makeSessionUpdateRequest(store, data);
+            }
+          })
           .catch(err => {
             // Only try to handle 503 status codes here, as otherwise we might be continually
             // retrying the server when it is rejecting the request for valid reasons.
-            if (err.response.status === 503) {
+            if (err && err.response && err.response.status === 503) {
               // Defer to the server's Retry-After header if it is set.
               return rejectDelay(err, err.response.headers['retry-after']);
             }
-            return handleApiError(err);
+            Promise.reject(err);
           });
       }
       return attempt.catch(handleApiError);
