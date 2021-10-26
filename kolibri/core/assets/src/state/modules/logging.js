@@ -60,6 +60,7 @@ export default {
     },
     UPDATE_LOGGING_TIME(state, timeDelta) {
       state.time_spent = state.time_spent + timeDelta;
+      state.time_spent_delta = state.time_spent_delta + timeDelta;
     },
     SET_LOGGING_CONTENT_STATE(state, contentState) {
       state.extra_fields.contentState = contentState;
