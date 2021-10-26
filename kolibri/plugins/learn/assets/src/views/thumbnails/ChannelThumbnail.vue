@@ -43,8 +43,11 @@
 
   .image {
     flex-shrink: 0; // IE fix
-    width: 100%;
+    align-self: center;
+    width: auto;
+    max-width: 100%;
     height: auto;
+    max-height: 100%;
   }
 
 </style>
