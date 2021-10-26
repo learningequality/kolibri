@@ -76,7 +76,7 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context: 'Label to show that the practice resource can be interacted with as a quiz.',
   },
   suggestedTime: {
-    message: 'Suggested Time',
+    message: 'Suggested time',
     context: 'Time suggested by coach for how long an independent practice quiz should take',
   },
 });

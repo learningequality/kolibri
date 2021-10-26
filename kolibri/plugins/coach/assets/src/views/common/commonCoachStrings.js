@@ -512,8 +512,7 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
   },
   difficultQuestionsDescription: {
     message: 'Showing difficult questions for the most recent quiz attempt of all recipients',
-    context:
-      'Description that appears when the Difficult Questions subtab is clicked to explain that the data below is for the most recent attempt for each learner.',
+    context: "Description for the 'Difficult questions' subtab.",
   },
 });
 
