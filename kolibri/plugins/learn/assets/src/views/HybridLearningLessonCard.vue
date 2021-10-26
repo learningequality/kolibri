@@ -1,7 +1,6 @@
 <template>
 
   <div
-    class="card"
     :class="[
       { 'mobile-card': isMobile },
       $computedClass({ ':focus': $coreOutline })
@@ -10,7 +9,7 @@
   >
     <router-link
       :to="link"
-      class="card-content"
+      class="card card-content"
     >
       <div class="thumbnail">
         <CardThumbnail
@@ -136,7 +135,7 @@
     border-radius: 8px;
     transition: box-shadow $core-time ease;
     &:hover {
-      @extend %dropshadow-8dp;
+      @extend %dropshadow-4dp;
     }
     &:focus {
       outline-width: 4px;
@@ -187,6 +186,7 @@
 
   .k-linear-loader {
     display: block;
+    margin-right: $margin;
     margin-bottom: 0;
   }
 
