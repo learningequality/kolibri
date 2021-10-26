@@ -314,6 +314,7 @@
   import { ContentNodeKinds, AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
   import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import FullScreenSidePanel from '../../../../../core/assets/src/views/FullScreenSidePanel';
   import commonCoach from '../../../../../plugins/coach/assets/src/views/common';
   import genContentLink from '../utils/genContentLink';
@@ -578,14 +579,13 @@
             getParams.keywords = this.searchTerms.keywords;
           }
           ContentNodeResource.fetchCollection({ getParams }).then(data => {
-            this.results = data.results;
+            this.results = data.results.map(normalizeContentNode);
             this.more = data.more;
             this.labels = data.labels;
             this.searchLoading = false;
           });
         } else {
           ContentNodeResource.fetchCollection({ getParams }).then(data => {
-            console.log(data.labels);
             this.labels = data.labels;
           });
         }
@@ -597,7 +597,7 @@
             getParams: this.more,
             channel_id: this.topic.channel_id,
           }).then(data => {
-            this.results.push(...data.results);
+            this.results.map(normalizeContentNode).push(...data.results);
             this.more = data.more;
             this.labels = data.labels;
             this.moreLoading = false;
