@@ -22,9 +22,11 @@ from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.test.factory_logger import ContentSessionLogFactory
 from kolibri.core.logger.test.factory_logger import ContentSummaryLogFactory
 from kolibri.core.logger.test.factory_logger import FacilityUserFactory
+from kolibri.core.logger.utils.exam_log_migration import migrate_from_exam_logs
 from kolibri.core.notifications.api import _get_lesson_dict
 from kolibri.core.notifications.api import batch_process_attemptlogs
 from kolibri.core.notifications.api import batch_process_examlogs
+from kolibri.core.notifications.api import batch_process_masterylogs_for_quizzes
 from kolibri.core.notifications.api import batch_process_summarylogs
 from kolibri.core.notifications.api import create_examlog
 from kolibri.core.notifications.api import create_notification
@@ -1423,4 +1425,49 @@ class BulkNotificationsAPITestCase(APITestCase):
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
             timestamp=attemptlog3.end_timestamp,
+        )
+
+    @patch("kolibri.core.notifications.api.create_notification")
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_batch_masterylog_from_examlog_notifications(
+        self, save_notifications, create_notification
+    ):
+        LearnerProgressNotification.objects.all().delete()
+        migrate_from_exam_logs(ExamLog.objects.all())
+        batch_process_masterylogs_for_quizzes(
+            MasteryLog.objects.filter(summarylog__content_id=self.exam1.id)
+            .values_list("id", flat=True)
+            .order_by("complete"),
+            AttemptLog.objects.all().values_list("id", flat=True),
+        )
+        assert save_notifications.called
+        self._assert_call_contains(
+            create_notification.mock_calls[0],
+            NotificationObjectType.Quiz,
+            NotificationEventType.Answered,
+            self.user1.id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            quiz_id=self.exam1.id,
+            timestamp=self.examattemptlog1.start_timestamp,
+        )
+        self._assert_call_contains(
+            create_notification.mock_calls[1],
+            NotificationObjectType.Quiz,
+            NotificationEventType.Started,
+            self.user1.id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            quiz_id=self.exam1.id,
+            timestamp=self.examattemptlog1.start_timestamp,
+        )
+        self._assert_call_contains(
+            create_notification.mock_calls[2],
+            NotificationObjectType.Quiz,
+            NotificationEventType.Completed,
+            self.user1.id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            quiz_id=self.exam1.id,
+            timestamp=self.examlog1.completion_timestamp,
         )

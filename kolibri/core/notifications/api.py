@@ -19,6 +19,7 @@ from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import MasteryLog
 from kolibri.core.query import annotate_array_aggregate
 
 
@@ -525,7 +526,9 @@ def quiz_started_notification(masterylog, quiz_id):
         .values_list("collection_id", flat=True)
     )
 
-    collection_id = Exam.objects.filter(id=quiz_id).values_list("collection_id").first()
+    collection_id = (
+        Exam.objects.filter(id=quiz_id).values_list("collection_id", flat=True).first()
+    )
 
     notification = create_notification(
         NotificationObjectType.Quiz,
@@ -558,7 +561,9 @@ def quiz_completed_notification(masterylog, quiz_id):
         .values_list("collection_id", flat=True)
     )
 
-    collection_id = Exam.objects.filter(id=quiz_id).values_list("collection_id").first()
+    collection_id = (
+        Exam.objects.filter(id=quiz_id).values_list("collection_id", flat=True).first()
+    )
 
     attempts = (
         masterylog.attemptlogs.values_list("item")
@@ -576,7 +581,7 @@ def quiz_completed_notification(masterylog, quiz_id):
         quiz_id=quiz_id,
         quiz_num_correct=sum(attempts) or 0,
         quiz_num_answered=len(attempts) or 0,
-        timestamp=masterylog.start_timestamp,
+        timestamp=masterylog.completion_timestamp,
     )
 
     save_notifications([notification])
@@ -597,7 +602,9 @@ def quiz_answered_notification(attemptlog, quiz_id):
         .values_list("collection_id", flat=True)
     )
 
-    collection_id = Exam.objects.filter(id=quiz_id).values_list("collection_id").first()
+    collection_id = (
+        Exam.objects.filter(id=quiz_id).values_list("collection_id", flat=True).first()
+    )
 
     notification = create_notification(
         NotificationObjectType.Quiz,
@@ -731,8 +738,27 @@ def parse_attemptslog(attemptlog):
 
 
 def batch_process_attemptlogs(attemptlog_ids):
-    for attemptlog in AttemptLog.objects.filter(id__in=attemptlog_ids):
+    for attemptlog in AttemptLog.objects.filter(id__in=attemptlog_ids).exclude(
+        masterylog__mastery_criterion__contains="coach_assigned"
+    ):
         parse_attemptslog(attemptlog)
+
+
+def batch_process_masterylogs_for_quizzes(masterylog_ids, attemptlog_ids):
+    for attemptlog in (
+        AttemptLog.objects.filter(id__in=attemptlog_ids)
+        .filter(masterylog__mastery_criterion__contains="coach_assigned")
+        .annotate(quiz_id=F("masterylog__summarylog__content_id"))
+        .order_by("start_timestamp")
+    ):
+        quiz_answered_notification(attemptlog, attemptlog.quiz_id)
+    for masterylog in (
+        MasteryLog.objects.filter(id__in=masterylog_ids)
+        .filter(mastery_criterion__contains="coach_assigned")
+        .annotate(quiz_id=F("summarylog__content_id"))
+    ):
+        quiz_started_notification(masterylog, masterylog.quiz_id)
+        quiz_completed_notification(masterylog, masterylog.quiz_id)
 
 
 def batch_process_examlogs(examlog_ids, examattemptlog_ids):
