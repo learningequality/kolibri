@@ -4,11 +4,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+from concurrent.futures import Future
+
 import filecmp
 import shutil
 import typing
 
 from gi.repository import GLib
+from gi.repository import Gio
 
 from pathlib import Path
 
@@ -59,6 +62,74 @@ def kolibri_update_from_home_template():
             shutil.copytree(left_file, right_file)
         else:
             shutil.copy2(left_file, right_file)
+
+
+class AsyncResultFuture(Future):
+    """
+    Future subclass with helpers to deal with asynchronous operations from Gio.
+    If return_source is True, async_result_handler will return the source
+    object instead. This is useful for chaining with init_async callbacks.
+    """
+
+    def __init__(self, return_source: bool = False):
+        self.__return_source = return_source
+        super().__init__()
+
+    @property
+    def return_source(self) -> bool:
+        return self.__return_source
+
+    def async_result_handler(
+        self, source: GLib.Object, result: typing.Any, user_data: typing.Any = None
+    ):
+        """
+        Gio.AsyncReadyCallback function which returns the result (or an
+        exception) to this Future.
+        """
+
+        if isinstance(result, Exception):
+            self.set_exception(result)
+        elif self.__return_source:
+            self.set_result(source)
+        else:
+            self.set_result(result)
+
+
+def future_chain(
+    from_future: typing.Any, to_future: Future = None, map_fn: typing.Callable = None
+) -> Future:
+    """
+    This is an attempt to build a simple way of chaining together Future
+    objects, with an optional mapping function, to make it easier to deal with
+    deeply nested async functions. It would be better to use asyncio properly,
+    but at the moment that is problematic with pygobject and GLib.
+    """
+
+    if to_future is None:
+        to_future = Future()
+
+    def from_future_done_cb(future: Future):
+        try:
+            result = future.result()
+        except Exception as error:
+            to_future.set_exception(error)
+        else:
+            if callable(map_fn):
+                result = map_fn(result)
+
+            if isinstance(result, Future):
+                future_chain(result, to_future)
+            else:
+                to_future.set_result(result)
+
+    if not isinstance(from_future, Future):
+        _from_future_value = from_future
+        from_future = Future()
+        from_future.set_result(_from_future_value)
+
+    from_future.add_done_callback(from_future_done_cb)
+
+    return to_future
 
 
 def dict_to_vardict(data: dict) -> dict:
