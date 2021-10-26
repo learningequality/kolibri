@@ -608,7 +608,9 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             self._process_attempt_notifications(
                 attemptlog, context, user, created, updated
             )
-            attemptlog.save(update_fields=None if created else update_fields)
+            attemptlog.save(
+                update_fields=None if created else update_fields, force_insert=created
+            )
             attempt = {}
             for field in attemptlog_fields:
                 attempt[field] = getattr(attemptlog, field)
