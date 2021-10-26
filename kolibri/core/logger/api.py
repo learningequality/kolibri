@@ -232,12 +232,22 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         context,
     ):
         if not user:
-            return {
+            output = {
                 "progress": 0,
                 "extra_fields": {},
                 "time_spent": 0,
                 "complete": False,
             }
+            if mastery_model:
+                output.update(
+                    {
+                        "mastery_criterion": mastery_model,
+                        "pastattempts": [],
+                        "totalattempts": 0,
+                        "complete": False,
+                    }
+                )
+            return output
 
         try:
             summarylog = ContentSummaryLog.objects.get(
