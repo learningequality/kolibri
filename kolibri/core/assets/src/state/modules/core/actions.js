@@ -367,13 +367,13 @@ function immediatelyUpdateContentSession(store) {
   const extra_fields = store.state.logging.extra_fields;
   const extra_fields_dirty_bit = store.state.logging.extra_fields_dirty_bit;
   const progress = store.state.logging.progress;
-  const unsavedResponses = store.state.logging.unsavedResponses;
+  const unsavedInteractions = store.state.logging.unsavedInteractions;
 
   if (
     // Always update if there's an attempt that hasn't got an id yet, or if there have been
-    // at least 3 additional responses.
-    (unsavedResponses.length &&
-      (unsavedResponses.some(r => !r.id) || unsavedResponses.length > 2)) ||
+    // at least 3 additional interactions.
+    (unsavedInteractions.length &&
+      (unsavedInteractions.some(r => !r.id) || unsavedInteractions.length > 2)) ||
     progress_delta >= progressThreshold ||
     (progress_delta && progress >= 1) ||
     time_spent_delta >= timeThreshold ||
@@ -389,8 +389,8 @@ function immediatelyUpdateContentSession(store) {
     if (time_spent_delta) {
       data.time_spent_delta = time_spent_delta;
     }
-    if (unsavedResponses.length) {
-      data.responses = unsavedResponses;
+    if (unsavedInteractions.length) {
+      data.interactions = unsavedInteractions;
     }
     if (extra_fields_dirty_bit) {
       data.extra_fields = extra_fields;
@@ -451,7 +451,7 @@ const updateContentSessionDebounceTime = 2000;
  */
 export function updateContentSession(
   store,
-  { progressDelta, progress, contentState, response, immediate = false } = {}
+  { progressDelta, progress, contentState, interaction, immediate = false } = {}
 ) {
   if (!isUndefined(progressDelta) && !isUndefined(progress)) {
     throw TypeError('Must only specify either progressDelta or progress');
@@ -483,15 +483,15 @@ export function updateContentSession(
     }
     store.commit('SET_LOGGING_CONTENT_STATE', contentState);
   }
-  if (!isUndefined(response)) {
-    if (!isPlainObject(response)) {
-      throw TypeError('response must be an object');
+  if (!isUndefined(interaction)) {
+    if (!isPlainObject(interaction)) {
+      throw TypeError('interaction must be an object');
     }
-    store.commit('ADD_OR_UPDATE_ATTEMPT', response);
-    store.commit('ADD_UNSAVED_RESPONSE', response);
+    store.commit('ADD_OR_UPDATE_ATTEMPT', interaction);
+    store.commit('ADD_UNSAVED_INTERACTION', interaction);
   }
 
-  immediate = (!isUndefined(response) && !response.id) || immediate;
+  immediate = (!isUndefined(interaction) && !interaction.id) || immediate;
   // Logic for promise returning debounce vendored and modified from:
   // https://github.com/sindresorhus/p-debounce/blob/main/index.js
   // Return a promise that will consistently resolve when this debounced

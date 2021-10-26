@@ -403,7 +403,7 @@ oriented data synchronization.
         this.updateAttempt({ answerState });
       },
       updateAttempt({ answerState, simpleAnswer } = {}) {
-        const response = {
+        const interaction = {
           complete: this.complete,
           time_spent: (new Date() - this.startTime) / 1000,
           correct: this.correct,
@@ -412,20 +412,20 @@ oriented data synchronization.
           item: this.itemId,
         };
         if (answerState) {
-          response.answer = answerState;
+          interaction.answer = answerState;
         }
         if (simpleAnswer) {
-          response.simple_answer = simpleAnswer;
+          interaction.simple_answer = simpleAnswer;
         }
         let progress;
         if (this.firstAttemptAtQuestion) {
           this.firstAttemptAtQuestion = false;
-          progress = this.exerciseProgress(response);
+          progress = this.exerciseProgress(interaction);
         } else {
-          response.id = this.currentattempt.id;
+          interaction.id = this.currentattempt.id;
           progress = this.exerciseProgress();
         }
-        this.updateContentSession({ progress, response });
+        this.updateContentSession({ progress, interaction });
       },
       setItemId() {
         const index = this.totalattempts % this.assessmentIds.length;

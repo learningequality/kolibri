@@ -192,6 +192,8 @@
     data() {
       return {
         submitModalOpen: false,
+        // Note this time is only used to calculate the time spent on a
+        // question, it is not used to generate any timestamps.
         startTime: Date.now(),
       };
     },
@@ -296,15 +298,15 @@
         startTracking: 'startTrackingProgress',
         stopTracking: 'stopTrackingProgress',
       }),
-      setAndSaveCurrentExamAttemptLog({ close, response } = {}) {
+      setAndSaveCurrentExamAttemptLog({ close, interaction } = {}) {
         // Clear the learner classroom cache here as its progress data is now
         // stale
         LearnerClassroomResource.clearCache();
 
         const data = {};
 
-        if (response) {
-          data.response = { ...response, replace: true };
+        if (interaction) {
+          data.interaction = { ...interaction, replace: true };
         }
 
         if (close) {
@@ -330,7 +332,7 @@
       saveAnswer(close = false) {
         const answer = this.checkAnswer();
         if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
-          const response = {
+          const interaction = {
             answer: answer.answerState,
             simple_answer: answer.simpleAnswer || '',
             correct: answer.correct,
@@ -339,10 +341,11 @@
             time_spent:
               ((this.currentAttempt.time_spent || 0) + Date.now() - this.startTime) / 1000,
           };
+          this.startTime = Date.now();
           if (close) {
-            return this.setAndSaveCurrentExamAttemptLog({ close, response });
+            return this.setAndSaveCurrentExamAttemptLog({ close, interaction });
           } else {
-            return this.debouncedSetAndSaveCurrentExamAttemptLog({ response });
+            return this.debouncedSetAndSaveCurrentExamAttemptLog({ interaction });
           }
         } else if (close) {
           return this.setAndSaveCurrentExamAttemptLog({ close });

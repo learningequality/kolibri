@@ -1129,7 +1129,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
 
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "answer": {"response": "test"},
                         "correct": 1.0,
@@ -1145,7 +1145,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
 
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "item": self.item,
                         "correct": 1.0,
@@ -1161,7 +1161,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
 
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "item": self.item,
                         "answer": {"response": "test"},
@@ -1177,7 +1177,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
 
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "item": self.item,
                         "answer": {"response": "test"},
@@ -1193,7 +1193,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
 
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "item": self.item,
                         "answer": {"response": "test"},
@@ -1220,7 +1220,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
 
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "item": self.item,
                         "error": True,
@@ -1254,7 +1254,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
 
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "item": self.item,
                         "hinted": True,
@@ -1290,7 +1290,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
 
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "item": self.item,
                         "hinted": True,
@@ -1339,7 +1339,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
 
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "item": self.item,
                         "hinted": True,
@@ -1404,7 +1404,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         )
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "id": attemptlog.id,
                         "item": self.item,
@@ -1456,7 +1456,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         )
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "id": attemptlog.id,
                         "item": self.item,
@@ -1525,7 +1525,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         )
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "id": attemptlog.id,
                         "item": self.item,
@@ -1579,7 +1579,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         )
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "id": attemptlog.id,
                         "item": self.item,
@@ -1644,7 +1644,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         )
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "id": attemptlog.id,
                         "item": self.item,
@@ -1699,7 +1699,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         )
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "id": attemptlog.id,
                         "item": self.item,
@@ -1750,7 +1750,7 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
         )
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "id": attemptlog.id,
                         "item": self.item,
@@ -1897,7 +1897,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
         with patch("kolibri.core.logger.api.wrap_to_save_queue") as save_queue_mock:
             response = self._make_request(
                 {
-                    "responses": [
+                    "interactions": [
                         {
                             "item": self.item,
                             "answer": {"response": "test"},
@@ -1952,7 +1952,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
         with patch("kolibri.core.logger.api.wrap_to_save_queue") as save_queue_mock:
             response = self._make_request(
                 {
-                    "responses": [
+                    "interactions": [
                         {
                             "id": attemptlog.id,
                             "item": self.item,
@@ -2142,7 +2142,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
         )
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "id": attemptlog.id,
                         "item": self.item,
@@ -2177,7 +2177,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
         )
         response = self._make_request(
             {
-                "responses": [
+                "interactions": [
                     {
                         "id": attemptlog.id,
                         "item": self.item,

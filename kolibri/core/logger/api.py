@@ -1,6 +1,7 @@
 import logging
 from datetime import timedelta
 from itertools import groupby
+from random import randint
 
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -72,7 +73,7 @@ class StartSessionSerializer(serializers.Serializer):
         return data
 
 
-class ResponseSerializer(serializers.Serializer):
+class InteractionSerializer(serializers.Serializer):
     id = HexStringUUIDField(required=False)
     item = serializers.CharField()
     correct = serializers.FloatField(min_value=0, max_value=1)
@@ -98,7 +99,7 @@ class UpdateSessionSerializer(serializers.Serializer):
     progress = serializers.FloatField(min_value=0, max_value=1.0, required=False)
     time_spent_delta = serializers.FloatField(min_value=0, required=False)
     extra_fields = serializers.DictField(required=False)
-    responses = ResponseSerializer(required=False, many=True)
+    interactions = InteractionSerializer(required=False, many=True)
 
     def validate(self, data):
         if "progress_delta" in data and "progress" in data:
@@ -106,6 +107,11 @@ class UpdateSessionSerializer(serializers.Serializer):
                 "must not pass progress_delta and progress in the same request"
             )
         return data
+
+
+# The lowest integer that can be encoded
+# in a Django IntegerField across all backends
+MIN_INTEGER = -2147483648
 
 
 attemptlog_fields = [
@@ -410,26 +416,32 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         )
 
         if masterylog is None or (masterylog.complete and repeat):
-            # There is no previous masterylog, or there is no incomplete
-            # previous masterylog, and the request is requesting a new attempt.
+            # There is no previous masterylog, or the previous masterylog
+            # is complete, and the request is requesting a new attempt.
             # Here we generate a mastery_level value - this serves to disambiguate multiple
             # retries at an assessment (either an exercise, practice quiz, or coach assigned quiz).
             # Having the same mastery_level/summarylog (and hence user) pair will result in the same
             # identifier being created. So if the same user engages with the same assessment on different
             # devices, when the data synchronizes, if the mastery_level is the same, this data will be
-            # unified under a single retry.
+            # unified under a single try.
             if mastery_model.get("coach_assigned"):
                 # To prevent coach assigned quiz mastery logs from propagating to older
                 # Kolibri versions, we use negative mastery levels for these.
                 # In older versions of Kolibri the mastery_level is validated to be
                 # between 1 and 10 - so these values will fail validation and hence will
                 # not be deserialized from the morango store.
-                # TODO: rtibbles - determine if we should instead randomize these values
-                # to ensure that coach assigned quiz attempts on different devices are not
-                # mixed together.
-                mastery_level = (
-                    masterylog.mastery_level - 1 if masterylog is not None else -1
-                )
+                # We choose a random integer across the range of acceptable values,
+                # in order to prevent collisions across multiple devices when users
+                # start different tries of the same coach assigned quiz.
+                # With a length of 9 digits for the decimal number, we would need approximately
+                # 45 tries to have a 1 in a million chance of a collision.
+                # Numbers derived using the formula for the generalized birthday problem:
+                # https://en.wikipedia.org/wiki/Birthday_problem#The_generalized_birthday_problem
+                # n=sqrt(2*d*ln(1/(1-p))
+                # where d is the number of combinations of d digits, p is the probability
+                # So for 9 digits, d = 10^9
+                # p = 0.000001 for one in a million
+                mastery_level = randint(MIN_INTEGER, -1)
             else:
                 mastery_level = (
                     masterylog.mastery_level + 1 if masterylog is not None else 1
@@ -483,7 +495,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             "complete": masterylog.complete,
         }, masterylog.mastery_level
 
-    def _generate_interaction(self, validated_data):
+    def _generate_interaction_summary(self, validated_data):
         if validated_data["error"]:
             return {
                 "type": interaction_types.ERROR,
@@ -534,66 +546,68 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                     "Invalid mastery_level value, this session has not been started."
                 )
 
-    def _update_attempt(self, attemptlog, response, update_fields, end_timestamp):
+    def _update_attempt(self, attemptlog, interaction, update_fields, end_timestamp):
 
-        interaction = self._generate_interaction(response)
+        interaction_summary = self._generate_interaction_summary(interaction)
 
-        attemptlog.interaction_history += [interaction]
+        attemptlog.interaction_history += [interaction_summary]
         attemptlog.end_timestamp = end_timestamp
-        attemptlog.time_spent = response["time_spent"]
+        attemptlog.time_spent = interaction["time_spent"]
 
-        if response["error"] and not attemptlog.error:
-            attemptlog.error = response["error"]
+        if interaction["error"] and not attemptlog.error:
+            attemptlog.error = interaction["error"]
             update_fields.add("error")
 
         # Mark hinted only if it is not already correct, and don't undo previously hinted
-        if response["hinted"] and not attemptlog.hinted and not attemptlog.correct:
-            attemptlog.hinted = response["hinted"]
+        if interaction["hinted"] and not attemptlog.hinted and not attemptlog.correct:
+            attemptlog.hinted = interaction["hinted"]
             update_fields.add("hinted")
 
-        if response["replace"]:
-            attemptlog.correct = response["correct"]
+        if interaction["replace"]:
+            attemptlog.correct = interaction["correct"]
             update_fields.add("correct")
 
-            if "answer" in response:
-                attemptlog.answer = response["answer"]
+            if "answer" in interaction:
+                attemptlog.answer = interaction["answer"]
                 update_fields.add("answer")
 
-            if "simple_answer" in response:
-                attemptlog.simple_answer = response["simple_answer"]
+            if "simple_answer" in interaction:
+                attemptlog.simple_answer = interaction["simple_answer"]
                 update_fields.add("simple_answer")
 
-        if response["complete"] and not attemptlog.complete:
-            attemptlog.complete = response["complete"]
+        if interaction["complete"] and not attemptlog.complete:
+            attemptlog.complete = interaction["complete"]
             attemptlog.completion_timestamp = end_timestamp
             update_fields.update({"complete", "completion_timestamp"})
 
-    def _create_attempt(self, session_id, masterylog_id, user, response, end_timestamp):
-        start_timestamp = end_timestamp - timedelta(seconds=response["time_spent"])
+    def _create_attempt(
+        self, session_id, masterylog_id, user, interaction, end_timestamp
+    ):
+        start_timestamp = end_timestamp - timedelta(seconds=interaction["time_spent"])
 
-        interaction = self._generate_interaction(response)
+        interaction_summary = self._generate_interaction_summary(interaction)
 
-        del response["replace"]
+        del interaction["replace"]
 
         return AttemptLog(
             sessionlog_id=session_id,
             masterylog_id=masterylog_id,
-            interaction_history=[interaction],
+            interaction_history=[interaction_summary],
             user=user,
             start_timestamp=start_timestamp,
-            completion_timestamp=end_timestamp if response["complete"] else None,
+            completion_timestamp=end_timestamp if interaction["complete"] else None,
             end_timestamp=end_timestamp,
-            **response
+            **interaction
         )
 
     def _update_or_create_attempts(
-        self, session_id, masterylog_id, user, responses, end_timestamp, context
+        self, session_id, masterylog_id, user, interactions, end_timestamp, context
     ):
         user = None if user.is_anonymous() else user
 
         output = []
 
-        for _, item_responses in groupby(responses, lambda x: x["item"]):
+        for _, item_interactions in groupby(interactions, lambda x: x["item"]):
             created = False
             update_fields = {
                 "interaction_history",
@@ -601,11 +615,11 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 "time_spent",
                 "_morango_dirty_bit",
             }
-            item_responses = list(item_responses)
-            if "id" in item_responses[0]:
+            item_interactions = list(item_interactions)
+            if "id" in item_interactions[0]:
                 try:
                     attemptlog = AttemptLog.objects.get(
-                        id=item_responses[0]["id"],
+                        id=item_interactions[0]["id"],
                         masterylog_id=masterylog_id,
                         user=user,
                     )
@@ -616,14 +630,14 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                     session_id,
                     masterylog_id,
                     user,
-                    item_responses[0],
+                    item_interactions[0],
                     end_timestamp,
                 )
                 created = True
-                item_responses = item_responses[1:]
-            updated = bool(item_responses)
+                item_interactions = item_interactions[1:]
+            updated = bool(item_interactions)
 
-            for response in item_responses:
+            for response in item_interactions:
                 self._update_attempt(attemptlog, response, update_fields, end_timestamp)
 
             self._process_attempt_notifications(
@@ -752,7 +766,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         - extra_fields: the complete representation to set extra_fields to
 
         If creating or updating attempts for an assessment must include:
-        - responses: an array of objects, if updating an existing attempt, must include attempt_id
+        - interactions: an array of objects, if updating an existing attempt, must include attempt_id
 
         Returns an object with the properties:
         - complete: boolean indicating if the resource is completed
@@ -779,12 +793,12 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             masterylog_id = self._update_and_return_mastery_log_id(
                 request.user, output["complete"], summarylog_id, end_timestamp, context
             )
-            if "responses" in validated_data:
+            if "interactions" in validated_data:
                 attempt_output = self._update_or_create_attempts(
                     pk,
                     masterylog_id,
                     request.user,
-                    validated_data["responses"],
+                    validated_data["interactions"],
                     end_timestamp,
                     context,
                 )

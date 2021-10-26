@@ -5,7 +5,7 @@
     :immersivePagePrimary="true"
     immersivePageIcon="back"
     :immersivePageRoute="toolbarRoute"
-    :appBarTitle="exam && exam.title"
+    :appBarTitle="exam ? exam.title : null"
     :pageTitle="title"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"

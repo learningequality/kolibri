@@ -544,7 +544,7 @@ def create_exams_for_classrooms(**options):
             seconds = timezone.timedelta(seconds=random_seconds)
             then = now - seconds
             # create mastery log per user
-            sl = ContentSessionLog.objects.create(
+            sessionlog = ContentSessionLog.objects.create(
                 user=user,
                 start_timestamp=then,
                 end_timestamp=now,
@@ -592,7 +592,7 @@ def create_exams_for_classrooms(**options):
                     interaction_history={},
                     user=user,
                     masterylog=masterylog,
-                    sessionlog=sl,
+                    sessionlog=sessionlog,
                 )
 
 
