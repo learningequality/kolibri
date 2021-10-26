@@ -42,6 +42,7 @@
   }
 
   .image {
+    flex-shrink: 0; // IE fix
     width: 100%;
     height: auto;
   }
