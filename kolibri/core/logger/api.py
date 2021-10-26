@@ -227,7 +227,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 content_id=content_id,
                 user=user,
             )
-            updated_fields = ("end_timestamp", "channel_id")
+            updated_fields = ("end_timestamp", "channel_id", "_morango_dirty_bit")
             if repeat:
                 summarylog.progress = 0
                 updated_fields += ("progress",)
@@ -489,7 +489,13 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 if complete and not masterylog.complete:
                     masterylog.complete = True
                     masterylog.completion_timestamp = end_timestamp
-                    masterylog.save(update_fields=("complete", "completion_timestamp"))
+                    masterylog.save(
+                        update_fields=(
+                            "complete",
+                            "completion_timestamp",
+                            "_morango_dirty_bit",
+                        )
+                    )
                     self._process_masterylog_completed_notification(masterylog, context)
                 else:
                     self._check_quiz_log_permissions(masterylog)
@@ -560,7 +566,12 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
 
         for _, item_responses in groupby(responses, lambda x: x["item"]):
             created = False
-            update_fields = {"interaction_history", "end_timestamp", "time_spent"}
+            update_fields = {
+                "interaction_history",
+                "end_timestamp",
+                "time_spent",
+                "_morango_dirty_bit",
+            }
             item_responses = list(item_responses)
             if "id" in item_responses[0]:
                 try:
@@ -623,7 +634,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         return max(0, min(1.0, progress))
 
     def _update_content_log(self, log, end_timestamp, validated_data):
-        update_fields = ("end_timestamp",)
+        update_fields = ("end_timestamp", "_morango_dirty_bit")
 
         log.end_timestamp = end_timestamp
         if "progress_delta" in validated_data:
