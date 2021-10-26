@@ -12,14 +12,22 @@
       :to="link"
       class="card-link"
     >
-      <div class="header-bar">
+      <div class="header-bar" :style="headerStyles">
+        <div v-if="!isLeaf">
+          <KIcon icon="topic" color="white" class="folder-header-bar" />
+          <p class="folder-header-text">
+            {{ coreString('folder') }}
+          </p>
+        </div>
         <LearningActivityLabel
+          v-if="isLeaf"
           :contentNode="contentNode"
           :hideDuration="true"
           class="learning-activity-label"
           :style="{ color: $themeTokens.text }"
         />
         <img
+          v-if="isLeaf"
           :src="channelThumbnail"
           :alt="learnString('logo', { channelTitle: channelTitle })"
           class="channel-logo"
@@ -178,6 +186,17 @@
       isTopic() {
         return !this.isLeaf;
       },
+      headerStyles() {
+        let styles = {};
+        if (!this.isLeaf) {
+          styles = {
+            backgroundColor: this.$themeTokens.text,
+            borderRadius: '8px 8px 0 0',
+            color: this.$themeTokens.textInverted,
+          };
+        }
+        return styles;
+      },
       maxTitleHeight() {
         if (this.hasFooter && this.subtitle) {
           return 20;
@@ -231,13 +250,26 @@
   .header-bar {
     display: flex;
     justify-content: space-between;
-    padding: 8px 18px 0;
+    padding: 8px 18px;
     font-size: 13px;
     .channel-logo {
       align-self: end;
       height: 28px;
       margin-bottom: 4px;
     }
+  }
+
+  .folder-header-bar {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 16px;
+  }
+
+  .folder-header-text {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
   }
 
   .k-labeled-icon {
