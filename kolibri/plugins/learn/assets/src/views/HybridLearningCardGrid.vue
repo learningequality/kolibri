@@ -16,7 +16,7 @@
           :kind="content.kind"
           :activityLength="content.activity_length"
           :isLeaf="content.is_leaf"
-          :progress="content.progress || 0"
+          :progress="content.progress_fraction || 0"
           :numCoachContents="content.num_coach_contents"
           :link="genContentLink(content.id, content.is_leaf)"
           :contentId="content.content_id"
@@ -39,6 +39,25 @@
         :to="genContentLink(content.id, content.is_leaf)"
       />
     </CardGrid>
+    <HybridLearningLessonCard
+      v-for="content in contents"
+      v-else-if="currentPage === 'lessonPage'"
+      :key="content.id"
+      :contentNode="content"
+      :channelThumbnail="content.channel_thumbnail"
+      :channelTitle="content.channel_title"
+      :description="content.description"
+      :activityLength="content.activity_length"
+      :thumbnail="getContentNodeThumbnail(content)"
+      class="grid-item"
+      :isMobile="windowIsSmall"
+      :title="content.title"
+      :kind="content.kind"
+      :isLeaf="content.is_leaf"
+      :progress="content.progress_fraction || 0"
+      :numCoachContents="content.num_coach_contents"
+      :link="genContentLink(content.id, content.is_leaf)"
+    />
     <HybridLearningContentCardListView
       v-for="content in contents"
       v-else
@@ -54,7 +73,7 @@
       :thumbnail="content.thumbnail"
       :kind="content.kind"
       :isLeaf="content.is_leaf"
-      :progress="content.progress || 0"
+      :progress="content.progress_fraction || 0"
       :numCoachContents="content.num_coach_contents"
       :link="genContentLink(content.id, content.is_leaf)"
       :contentId="content.content_id"
@@ -81,6 +100,8 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import HybridLearningContentCardListView from './HybridLearningContentCardListView';
   import HybridLearningContentCard from './HybridLearningContentCard';
+  import HybridLearningLessonCard from './HybridLearningLessonCard';
+
   import ResourceCard from './cards/ResourceCard';
   import CardGrid from './cards/CardGrid';
 
@@ -92,6 +113,7 @@
       CopiesModal,
       HybridLearningContentCardListView,
       HybridLearningContentCard,
+      HybridLearningLessonCard,
       ResourceCard,
       CardGrid,
     },
@@ -109,6 +131,11 @@
           return ['card', 'list'].includes(value);
         },
       },
+      currentPage: {
+        type: String,
+        default: null,
+        required: false,
+      },
       numCols: {
         type: Number,
         required: true,
@@ -118,6 +145,11 @@
         validator(value) {
           return validateLinkObject(value(1, 'exercise'));
         },
+        default: () => ({}),
+        required: false,
+      },
+      getContentNodeThumbnail: {
+        type: Function,
         default: () => ({}),
         required: false,
       },

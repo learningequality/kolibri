@@ -251,6 +251,12 @@
             hasSidebar: true,
           };
         }
+        // if (this.pageName === ClassesPageNames.LESSON_PLAYLIST) {
+        //   return {
+        //     immersivePage: false,
+        //     hasSidebar: true,
+        //   };
+        // }
         if (
           this.pageName === PageNames.TOPICS_TOPIC ||
           this.pageName === PageNames.TOPICS_CHANNEL
