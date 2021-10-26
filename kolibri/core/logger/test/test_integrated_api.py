@@ -102,7 +102,14 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         self.assertEqual(log.content_id, self.content_id)
         self.assertEqual(log.channel_id, self.channel_id)
         self.assertIsNotNone(log.visitor_id)
+        self.assertEqual(log.extra_fields["context"]["node_id"], self.node.id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 0)
+        result = response.json()
+        self.assertEqual(result["progress"], 0)
+        self.assertEqual(result["time_spent"], 0)
+        self.assertEqual(result["complete"], False)
+        self.assertEqual(result["extra_fields"], {})
+        self.assertEqual(result["context"]["node_id"], self.node.id)
 
     def test_start_session_logged_in_succeeds(self):
         self.client.login(
@@ -117,11 +124,18 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         log = ContentSessionLog.objects.get()
         self.assertEqual(log.content_id, self.content_id)
         self.assertEqual(log.channel_id, self.channel_id)
+        self.assertEqual(log.extra_fields["context"]["node_id"], self.node.id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
         log = ContentSummaryLog.objects.get()
         self.assertEqual(log.content_id, self.content_id)
         self.assertEqual(log.channel_id, self.channel_id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+        result = response.json()
+        self.assertEqual(result["progress"], 0)
+        self.assertEqual(result["time_spent"], 0)
+        self.assertEqual(result["complete"], False)
+        self.assertEqual(result["extra_fields"], {})
+        self.assertEqual(result["context"]["node_id"], self.node.id)
 
     def test_start_session_logged_in_lesson_succeeds(self):
         self.client.login(
@@ -152,11 +166,20 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         log = ContentSessionLog.objects.get()
         self.assertEqual(log.content_id, self.content_id)
         self.assertEqual(log.channel_id, self.channel_id)
+        self.assertEqual(log.extra_fields["context"]["node_id"], self.node.id)
+        self.assertEqual(log.extra_fields["context"]["lesson_id"], lesson.id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
         log = ContentSummaryLog.objects.get()
         self.assertEqual(log.content_id, self.content_id)
         self.assertEqual(log.channel_id, self.channel_id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+        result = response.json()
+        self.assertEqual(result["progress"], 0)
+        self.assertEqual(result["time_spent"], 0)
+        self.assertEqual(result["complete"], False)
+        self.assertEqual(result["extra_fields"], {})
+        self.assertEqual(result["context"]["node_id"], self.node.id)
+        self.assertEqual(result["context"]["lesson_id"], lesson.id)
 
     def test_start_session_anonymous_lesson_fails(self):
         lesson = create_assigned_lesson_for_user(self.user)
@@ -210,6 +233,14 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
         log = MasteryLog.objects.get()
         self.assertEqual(log.mastery_criterion, mastery_model)
+        result = response.json()
+        self.assertEqual(result["progress"], 0)
+        self.assertEqual(result["time_spent"], 0)
+        self.assertEqual(result["complete"], False)
+        self.assertEqual(result["extra_fields"], {})
+        self.assertEqual(result["pastattempts"], [])
+        self.assertEqual(result["totalattempts"], 0)
+        self.assertEqual(result["context"]["node_id"], self.node.id)
 
     def test_start_assessment_session_anonymous_coach_assigned_fails(self):
         coach = FacilityUserFactory.create(facility=self.facility)
@@ -287,6 +318,7 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         log = ContentSessionLog.objects.get()
         self.assertEqual(log.content_id, quiz.id)
         self.assertIsNone(log.channel_id)
+        self.assertEqual(log.extra_fields["context"]["quiz_id"], quiz.id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
         log = ContentSummaryLog.objects.get()
         self.assertEqual(log.content_id, quiz.id)
@@ -296,6 +328,14 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         self.assertEqual(
             log.mastery_criterion, {"type": "quiz", "coach_assigned": True}
         )
+        result = response.json()
+        self.assertEqual(result["progress"], 0)
+        self.assertEqual(result["time_spent"], 0)
+        self.assertEqual(result["complete"], False)
+        self.assertEqual(result["extra_fields"], {})
+        self.assertEqual(result["pastattempts"], [])
+        self.assertEqual(result["totalattempts"], 0)
+        self.assertEqual(result["context"]["quiz_id"], quiz.id)
 
     def test_start_assessment_session_logged_in_coach_assigned_quiz_not_active_fails(
         self,

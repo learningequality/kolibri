@@ -219,6 +219,8 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             return {
                 "progress": 0,
                 "extra_fields": {},
+                "time_spent": 0,
+                "complete": False,
             }
 
         try:
