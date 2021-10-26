@@ -1,12 +1,7 @@
 <template>
 
-  <!-- For the sidebar when viewing content -->
+  <section v-if="content" class="metadata">
 
-  <section class="metadata">
-    <!-- placeholder for learning activity type chips TODO update with chip component -->
-
-
-    <!-- Whatever data will come in this place may be an array? -->
     <div class="chips section">
       <div v-for="activity in content.learning_activities" :key="activity">
         <LearningActivityChip
@@ -15,26 +10,32 @@
       </div>
     </div>
 
-    <!-- The key here is not set in stone -->
-    <div class="section">
-      <!-- For Beginners Chip Here -->
-      <div
+    <div>
+      <span
+        v-if="forBeginners"
         class="beginners-chip"
         :style="{ 'background-color': $themeBrand.secondary.v_600 }"
+        data-test="beginners-chip"
       >
         {{ coreString("ForBeginners") }}
-      </div>
+      </span>
     </div>
 
     <div class="section">
       <ContentNodeThumbnail :contentNode="content" />
     </div>
 
-    <div v-if="content.title" class="section title">
+    <div v-if="content.title" class="section title" data-test="content-title">
       {{ content.title }}
     </div>
 
-    <div v-if="content.description" ref="description" class="content" :class="truncate">
+    <div
+      v-if="content.description"
+      ref="description"
+      class="content"
+      :class="truncate"
+      data-test="content-description"
+    >
       {{ content.description }}
     </div>
 
@@ -56,7 +57,7 @@
       </span>
     </div>
 
-    <div v-if="content.duration" class="section">
+    <div v-if="content.duration" class="section" data-test="estimated-time">
       <span class="label">
         {{ metadataStrings.$tr('estimatedTime') }}:
       </span>
@@ -65,7 +66,20 @@
       </span>
     </div>
 
-    <div v-if="content.lang" class="section">
+    <div
+      v-if="content.grade_levels && content.grade_levels.length"
+      class="section"
+      data-test="grade-levels"
+    >
+      <span class="label">
+        {{ metadataStrings.$tr('level') }}:
+      </span>
+      <span>
+        {{ content.grade_levels.join(", ") }}
+      </span>
+    </div>
+
+    <div v-if="content.lang" class="section" data-test="lang">
       <span class="label">
         {{ metadataStrings.$tr('language') }}:
       </span>
@@ -74,7 +88,7 @@
       </span>
     </div>
 
-    <div v-if="content.author" class="section">
+    <div v-if="content.author" class="section" data-test="author">
       <span class="label">
         {{ metadataStrings.$tr('author') }}:
       </span>
@@ -83,7 +97,7 @@
       </span>
     </div>
 
-    <div v-if="content.license_owner" class="section">
+    <div v-if="content.license_owner" class="section" data-test="license-owner">
       <span class="label">
         {{ metadataStrings.$tr('copyrightHolder') }}:
       </span>
@@ -92,7 +106,7 @@
       </span>
     </div>
 
-    <div v-if="licenseDescription" class="section">
+    <div v-if="licenseDescription" class="section" data-test="license-desc">
       <span class="label">
         {{ metadataStrings.$tr('license') }}:
       </span>
@@ -120,6 +134,7 @@
       :files="downloadableFiles"
       :nodeTitle="content.title"
       class="download-button"
+      data-test="download-button"
     />
 
   </section>
@@ -131,6 +146,7 @@
 
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
+  import LearnerNeeds from 'kolibri-constants/labels/Needs';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -175,6 +191,9 @@
       };
     },
     computed: {
+      forBeginners() {
+        return get(this.content, 'learner_needs', []).includes(LearnerNeeds.FOR_BEGINNERS);
+      },
       licenseShortName() {
         return licenseShortName(get(this, 'content.license_name', null));
       },

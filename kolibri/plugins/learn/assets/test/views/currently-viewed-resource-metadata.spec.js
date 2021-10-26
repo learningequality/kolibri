@@ -1,21 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
-import { ContentNodeResource } from 'kolibri.resources';
-import KRouterLink from 'kolibri-design-system/lib/buttons-and-links/KRouterLink';
 import LearnerNeeds from 'kolibri-constants/labels/Needs';
 import AccessibilityCategories from 'kolibri-constants/labels/AccessibilityCategories';
 import GradeLevels from 'kolibri-constants/labels/Levels';
 import ResourceTypes from 'kolibri-constants/labels/ResourceType';
 import Subjects from 'kolibri-constants/labels/Subjects';
 import LearningActivities from 'kolibri-constants/labels/LearningActivities';
-import ContentNodeThumbnail from '../../src/views/thumbnails/ContentNodeThumbnail';
 import LearningActivityChip from '../../src/views/LearningActivityChip';
-import BrowseResourceMetadata from '../../src/views/BrowseResourceMetadata';
-import genContentLink from '../../src/utils/genContentLink';
-
-const promise = new Promise(() => []);
-
-ContentNodeResource.fetchRecommendationsFor = jest.fn(() => promise);
-ContentNodeResource.fetchCollection = jest.fn(() => promise);
+import CurrentlyViewedResourceMetadata from '../../src/views/CurrentlyViewedResourceMetadata';
 
 const baseContentNode = {
   id: '2ea9bda8703241be89b5b9fd87f88815',
@@ -30,15 +21,15 @@ const baseContentNode = {
   parent: '55b3dffe512c4d93bcdc85efde1046f5',
   title: 'Intro to addition',
   learning_activities: [LearningActivities.READ],
-  // Include FOR_BEGINNERS which shows the related Chip, then another because
-  // FOR_BEGINNERS is handled specially, so we need another to test that we show
-  // the "learner needs" section
   learner_needs: [LearnerNeeds.FOR_BEGINNERS, LearnerNeeds.PAPER_PENCIL],
   grade_levels: [GradeLevels.WORK_SKILLS, GradeLevels.UPPER_PRIMARY],
   resource_types: [ResourceTypes.TUTORIAL],
   accessibility_labels: [AccessibilityCategories.CAPTIONS_SUBTITLES],
   categories: [Subjects.NUMERACY],
   duration: 3600,
+  // Need a file with a preset that doesn't end in "thumbnail" to ensure that
+  // the download button will show when the canDownloadContent prop is also true
+  files: [{ preset: 'fake' }],
   lang: {
     id: 'en',
     lang_code: 'en',
@@ -65,14 +56,14 @@ function makeContentNode(metadata = {}) {
 
 function makeWrapper(metadata = {}, options = {}) {
   const content = makeContentNode(metadata);
-  const propsData = { content };
-  return shallowMount(BrowseResourceMetadata, {
+  const propsData = { content, canDownloadContent: true };
+  return shallowMount(CurrentlyViewedResourceMetadata, {
     propsData,
     ...options,
   });
 }
 
-describe('BrowseResourceMetadata', () => {
+describe('CurrentlyViewedResourceMetadata', () => {
   /* The base makeWrapper bootstraps a content item that has all of the metadata
    * for a fully loaded component in place.
    *
@@ -84,23 +75,16 @@ describe('BrowseResourceMetadata', () => {
   describe('metadata is displayed when present on given content', () => {
     beforeAll(() => (wrapper = makeWrapper()));
 
+    it('shows the download button when told to', () => {
+      expect(wrapper.find("[data-test='download-button']").exists()).toBeTruthy();
+    });
+
     it('shows properly translated learning activities as LearningActivityChip', () => {
       expect(wrapper.findComponent(LearningActivityChip).exists()).toBeTruthy();
     });
 
     it('shows the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {
       expect(wrapper.find("[data-test='beginners-chip']").exists()).toBeTruthy();
-    });
-
-    it('shows the view resource button-link with genContentLink-generated path', () => {
-      const link = wrapper.findComponent(KRouterLink);
-      expect(link.exists()).toBeTruthy();
-      const to = link.props().to;
-      expect(to).toEqual(genContentLink(baseContentNode.id, baseContentNode.is_leaf));
-    });
-
-    it('displays a ContentNodeThumbnail', () => {
-      expect(wrapper.findComponent(ContentNodeThumbnail).exists()).toBeTruthy();
     });
 
     it('shows the title', () => {
@@ -132,23 +116,26 @@ describe('BrowseResourceMetadata', () => {
     // With the metadata wiped
     beforeAll(
       () =>
-        (wrapper = makeWrapper({
-          learner_needs: [],
-          learning_activities: [],
-          grade_levels: [],
-          accessibility_labels: [],
-          thumbnail: null, // Should still render the component though
-          resource_types: [],
-          categories: [],
-          duration: null,
-          lang: null,
-          title: null,
-          description: null,
-          author: null,
-          license_description: null,
-          license_name: null,
-          license_owner: null,
-        }))
+        (wrapper = makeWrapper(
+          {
+            learner_needs: [],
+            learning_activities: [],
+            grade_levels: [],
+            accessibility_labels: [],
+            thumbnail: null, // Should still render the component though
+            resource_types: [],
+            categories: [],
+            duration: null,
+            lang: null,
+            title: null,
+            description: null,
+            author: null,
+            license_description: null,
+            license_name: null,
+            license_owner: null,
+          },
+          { propsData: { canDownloadContent: false } }
+        ))
     );
 
     it('does not show properly translated learning activities as LearningActivityChip', () => {
@@ -158,10 +145,6 @@ describe('BrowseResourceMetadata', () => {
     it('does not show the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {
       console.log(wrapper.vm.forBeginners);
       expect(wrapper.find("[data-test='beginners-chip']").exists()).toBeFalsy();
-    });
-
-    it('displays a ContentNodeThumbnail - which handles showing the placeholder', () => {
-      expect(wrapper.findComponent(ContentNodeThumbnail).exists()).toBeTruthy();
     });
 
     it('does not show the title', () => {
@@ -186,6 +169,10 @@ describe('BrowseResourceMetadata', () => {
 
     it('does not show license description section without the data', () => {
       expect(wrapper.find("[data-test='license-desc']").exists()).toBeFalsy();
+    });
+
+    it('does not show the download button when canDownloadContent is not true', () => {
+      expect(wrapper.find("[data-test='download-button']").exists()).toBeFalsy();
     });
   });
 });
