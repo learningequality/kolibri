@@ -27,6 +27,7 @@ from .models import MasteryLog
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+from kolibri.core.auth.models import dataset_cache
 from kolibri.core.content.api import OptionalPageNumberPagination
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ContentNode
@@ -149,6 +150,14 @@ class LogContext(object):
 
 
 class ProgressTrackingViewSet(viewsets.GenericViewSet):
+    def _precache_dataset_id(self, user):
+        if user is None or user.is_anonymous():
+            return
+        key = ContentSessionLog.get_related_dataset_cache_key(
+            user.id, user._meta.db_table
+        )
+        dataset_cache.set(key, user.dataset_id)
+
     def _check_quiz_permissions(self, user, quiz_id):
         if user.is_anonymous():
             raise PermissionDenied("Cannot access a quiz if not logged in")
@@ -309,9 +318,11 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             request.user, serializer.validated_data
         )
 
-        with transaction.atomic():
+        with transaction.atomic(), dataset_cache:
 
             user = None if request.user.is_anonymous() else request.user
+
+            self._precache_dataset_id(user)
 
             output = self._get_or_create_summarylog(
                 user,
@@ -749,7 +760,9 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         end_timestamp = local_now()
         validated_data = serializer.validated_data
 
-        with transaction.atomic():
+        with transaction.atomic(), dataset_cache:
+            self._precache_dataset_id(request.user)
+
             output, summarylog_id, context = self._update_session(
                 pk, request.user, end_timestamp, validated_data
             )
