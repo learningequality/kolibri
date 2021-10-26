@@ -18,7 +18,6 @@ PROCESS_NAME = "kolibri-daemon"
 
 
 def application_signal_handler(application, sig, frame):
-    print("SIGNAL HANDLER", application, sig, type(sig), frame, type(frame))
     application.quit()
 
 

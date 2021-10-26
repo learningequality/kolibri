@@ -1,13 +1,11 @@
-kolibri_gnome_sources = [
-    'application.py',
-    '__init__.py',
-    'kolibri_daemon_manager.py',
-    'main.py',
-    'utils.py',
-]
-
 python_installation.install_sources(
-    kolibri_gnome_sources,
+    [
+        'application.py',
+        '__init__.py',
+        'kolibri_daemon_manager.py',
+        'main.py',
+        'utils.py',
+    ],
     subdir: 'kolibri_gnome'
 )
 

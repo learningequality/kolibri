@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from enum import Enum
 
-from .kolibri_service import KolibriServiceContext
-from .kolibri_service_process_main import KolibriServiceMainProcess
-from .kolibri_service_process_setup import KolibriServiceSetupProcess
-from .kolibri_service_process_stop import KolibriServiceStopProcess
+from .kolibri_service.context import KolibriServiceContext
+from .kolibri_service.django_process import DjangoProcess
+from .kolibri_service.setup_process import SetupProcess
+from .kolibri_service.stop_process import StopProcess
 from .utils import kolibri_update_from_home_template
 
 
@@ -15,9 +15,9 @@ class KolibriServiceManager(KolibriServiceContext):
     processes, and checking for availability.
     """
 
-    __main_process: KolibriServiceMainProcess = None
-    __setup_process: KolibriServiceSetupProcess = None
-    __stop_process: KolibriServiceStopProcess = None
+    __django_process: DjangoProcess = None
+    __setup_process: SetupProcess = None
+    __stop_process: StopProcess = None
 
     class Status(Enum):
         NONE = 1
@@ -68,8 +68,8 @@ class KolibriServiceManager(KolibriServiceContext):
     def join(self):
         if self.__setup_process and self.__setup_process.is_alive():
             self.__setup_process.join()
-        if self.__main_process and self.__main_process.is_alive():
-            self.__main_process.join()
+        if self.__django_process and self.__django_process.is_alive():
+            self.__django_process.join()
         if self.__stop_process and self.__stop_process.is_alive():
             self.__stop_process.join()
 
@@ -77,21 +77,21 @@ class KolibriServiceManager(KolibriServiceContext):
         # Clean up finished processes to keep things tidy, without blocking.
         if self.__setup_process and not self.__setup_process.is_alive():
             self.__setup_process = None
-        if self.__main_process and not self.__main_process.is_alive():
-            self.__main_process = None
+        if self.__django_process and not self.__django_process.is_alive():
+            self.__django_process = None
         if self.__stop_process and not self.__stop_process.is_alive():
             self.__stop_process = None
 
     def start_kolibri(self):
-        if self.__main_process and self.__main_process.is_alive():
+        if self.__django_process and self.__django_process.is_alive():
             return
 
         if not self.__setup_process:
-            self.__setup_process = KolibriServiceSetupProcess(self)
+            self.__setup_process = SetupProcess(self)
             self.__setup_process.start()
 
-        self.__main_process = KolibriServiceMainProcess(self)
-        self.__main_process.start()
+        self.__django_process = DjangoProcess(self)
+        self.__django_process.start()
 
     def stop_kolibri(self):
         if not self.is_running():
@@ -99,15 +99,15 @@ class KolibriServiceManager(KolibriServiceContext):
         elif self.__stop_process and self.__stop_process.is_alive():
             return
         else:
-            self.__stop_process = KolibriServiceStopProcess(self)
+            self.__stop_process = StopProcess(self)
             self.__stop_process.start()
 
     def pop_has_changes(self) -> bool:
         # The main process might exit prematurely. If that happens, we should
         # set is_stopped accordingly.
         if (
-            self.__main_process
-            and not self.__main_process.is_alive()
+            self.__django_process
+            and not self.__django_process.is_alive()
             and not self.is_stopped
         ):
             self.is_starting = False

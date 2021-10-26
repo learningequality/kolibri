@@ -1,11 +1,9 @@
-kolibri_gnome_launcher_sources = [
-    '__init__.py',
-    'application.py',
-    'main.py',
-]
-
 python_installation.install_sources(
-    kolibri_gnome_launcher_sources,
+    [
+        '__init__.py',
+        'application.py',
+        'main.py',
+    ],
     subdir: 'kolibri_gnome_launcher'
 )
 

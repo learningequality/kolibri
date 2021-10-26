@@ -6,8 +6,8 @@ from concurrent.futures import ProcessPoolExecutor
 from kolibri_app.globals import init_kolibri
 from kolibri_app.globals import init_logging
 
-from .utils import sanitize_text
 from .utils import get_search_media_icon
+from .utils import sanitize_text
 
 
 class SearchHandler(object):
