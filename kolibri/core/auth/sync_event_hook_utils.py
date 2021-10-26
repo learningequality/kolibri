@@ -1,9 +1,14 @@
 import json
+import logging
 
+from django.utils.functional import wraps
 from morango.sync.context import LocalSessionContext
 
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.hooks import FacilityDataSyncHook
+
+
+logger = logging.getLogger(__name__)
 
 
 def _get_our_cert(context):
@@ -16,18 +21,18 @@ def _get_their_cert(context):
     return ss.client_certificate if ss.is_server else ss.server_certificate
 
 
-def _this_side_using_single_user_cert(context):
+def this_side_using_single_user_cert(context):
     return _get_our_cert(context).scope_definition_id == ScopeDefinitions.SINGLE_USER
 
 
-def _other_side_using_single_user_cert(context):
+def other_side_using_single_user_cert(context):
     return _get_their_cert(context).scope_definition_id == ScopeDefinitions.SINGLE_USER
 
 
-def _get_user_id_for_single_user_sync(context):
-    if _other_side_using_single_user_cert(context):
+def get_user_id_for_single_user_sync(context):
+    if other_side_using_single_user_cert(context):
         cert = _get_their_cert(context)
-    elif _this_side_using_single_user_cert(context):
+    elif this_side_using_single_user_cert(context):
         cert = _get_our_cert(context)
     else:
         return None
@@ -37,33 +42,39 @@ def _get_user_id_for_single_user_sync(context):
 def _extract_kwargs_from_context(context):
     return {
         "dataset_id": _get_our_cert(context).get_root().id,
-        "local_is_single_user": _this_side_using_single_user_cert(context),
-        "remote_is_single_user": _other_side_using_single_user_cert(context),
-        "single_user_id": _get_user_id_for_single_user_sync(context),
+        "local_is_single_user": this_side_using_single_user_cert(context),
+        "remote_is_single_user": other_side_using_single_user_cert(context),
+        "single_user_id": get_user_id_for_single_user_sync(context),
         "context": context,
     }
 
 
+def _local_event_handler(func):
+    @wraps(func)
+    def wrapper(context):
+        if context is None or not isinstance(context, LocalSessionContext):
+            return
+        # we catch all errors because as a rule of thumb, we don't want hooks to fail
+        try:
+            func(context)
+        except Exception as e:
+            logger.error("Transfer event handler '{}' failed".format(func.__name__), e)
+
+    return wrapper
+
+
+@_local_event_handler
 def _pre_transfer_handler(context):
-    if context is None:
-        raise AssertionError
-
     kwargs = _extract_kwargs_from_context(context)
-
-    if isinstance(context, LocalSessionContext):
-        for hook in FacilityDataSyncHook.registered_hooks:
-            hook.pre_transfer(**kwargs)
+    for hook in FacilityDataSyncHook.registered_hooks:
+        hook.pre_transfer(**kwargs)
 
 
+@_local_event_handler
 def _post_transfer_handler(context):
-    if context is None:
-        raise AssertionError
-
     kwargs = _extract_kwargs_from_context(context)
-
-    if isinstance(context, LocalSessionContext):
-        for hook in FacilityDataSyncHook.registered_hooks:
-            hook.post_transfer(**kwargs)
+    for hook in FacilityDataSyncHook.registered_hooks:
+        hook.post_transfer(**kwargs)
 
 
 def register_sync_event_handlers(session_controller):

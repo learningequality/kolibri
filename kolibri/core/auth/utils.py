@@ -3,7 +3,6 @@ import sys
 from django.db import connections
 from django.utils.six.moves import input
 from morango.sync.backends.utils import calculate_max_sqlite_variables
-from morango.sync.operations import LocalOperation
 
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import FacilityDataset
@@ -12,15 +11,8 @@ from kolibri.core.auth.models import Membership
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.logger.models import ExamAttemptLog
-from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
-from kolibri.core.logger.utils.exam_log_migration import migrate_from_exam_logs
-from kolibri.core.notifications.api import batch_process_attemptlogs
-from kolibri.core.notifications.api import batch_process_examlogs
-from kolibri.core.notifications.api import batch_process_summarylogs
-from kolibri.core.upgrade import matches_version
 
 
 def confirm_or_exit(message):
@@ -130,102 +122,3 @@ def merge_users(source_user, target_user):
     _merge_log_data(MasteryLog)
 
     _merge_log_data(AttemptLog)
-
-
-class VersionMigrationOperation(LocalOperation):
-    """
-    Morango operation class to handle migrating data to and from other versions, assuming we're
-    handling it as the newer instance
-    """
-
-    version = None
-
-    @property
-    def version_threshold(self):
-        return "<{}".format(self.version)
-
-    def handle(self, context):
-        """
-        :type context: morango.sync.context.LocalSessionContext
-        :return: False
-        """
-        self._assert(context.sync_session is not None)
-        self._assert(self.version is not None)
-
-        # get the instance info for the other instance
-        instance_info = context.sync_session.server_instance_data
-        if context.is_server:
-            instance_info = context.sync_session.client_instance_data
-
-        # get the kolibri version, which is defined in
-        # kolibri.core.auth.constants.morango_sync:CUSTOM_INSTANCE_INFO
-        remote_version = instance_info.get("kolibri")
-
-        # pre-0.15.0 won't have the kolibri version
-        if remote_version is None or matches_version(
-            remote_version, self.version_threshold
-        ):
-            if context.is_receiver:
-                self.upgrade(context)
-            else:
-                self.downgrade(context)
-
-        return False
-
-    def upgrade(self, context):
-        """
-        Called when we're receiving data from a version older than `self.version`
-
-        :type context: morango.sync.context.LocalSessionContext
-        """
-        pass
-
-    def downgrade(self, context):
-        """
-        Called when we're producing data for a version older than `self.version`
-
-        :type context: morango.sync.context.LocalSessionContext
-        """
-        pass
-
-
-class GenerateNotifications(LocalOperation):
-    """
-    Generates notifications at cleanup stage (the end) of a transfer, if our instance was a
-    "receiver" meaning we have received data
-    """
-
-    def handle(self, context):
-        """
-        :type context: morango.sync.context.LocalSessionContext
-        :return: False
-        """
-        self._assert(context.transfer_session is not None)
-        self._assert(context.is_receiver)
-
-        batch_process_attemptlogs(
-            context.transfer_session.get_touched_record_ids_for_model(AttemptLog)
-        )
-        batch_process_examlogs(
-            context.transfer_session.get_touched_record_ids_for_model(ExamLog),
-            context.transfer_session.get_touched_record_ids_for_model(ExamAttemptLog),
-        )
-        batch_process_summarylogs(
-            context.transfer_session.get_touched_record_ids_for_model(ContentSummaryLog)
-        )
-
-        # always return false, indicating that other operations in this stage's configuration
-        # should also be executed
-        return False
-
-
-class ExamLogsCompatibilityOperation(VersionMigrationOperation):
-    version = "0.15.0"
-
-    def upgrade(self, context):
-        """
-        Migrates exam logs to be backwards compatible with older Kolibris
-        :type context: morango.sync.context.LocalSessionContext
-        """
-        exam_logs = context.transfer_session.get_touched_record_ids_for_model(ExamLog)
-        migrate_from_exam_logs(exam_logs)

@@ -1,0 +1,22 @@
+from kolibri.core.auth.hooks import FacilityDataSyncHook
+from kolibri.core.auth.sync_operations import KolibriVersionedSyncOperation
+from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.utils.exam_log_migration import migrate_from_exam_logs
+from kolibri.plugins.hooks import register_hook
+
+
+class ExamLogsCompatibilityOperation(KolibriVersionedSyncOperation):
+    version = "0.15.0"
+
+    def upgrade(self, context):
+        """
+        Migrates exam logs to be backwards compatible with older Kolibris
+        :type context: morango.sync.context.LocalSessionContext
+        """
+        exam_logs = context.transfer_session.get_touched_record_ids_for_model(ExamLog)
+        migrate_from_exam_logs(exam_logs)
+
+
+@register_hook
+class LoggerSyncHook(FacilityDataSyncHook):
+    cleanup_operations = [ExamLogsCompatibilityOperation()]

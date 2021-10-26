@@ -27,3 +27,11 @@ class FacilityDataSyncHook(KolibriHook):
         context,
     ):
         pass
+
+    def get_sync_operations(self, context):
+        """
+        :type context: morango.sync.context.SessionContext
+        :return: A list of callable functions or Morango operations
+        :rtype: callable|morango.sync.operations.BaseOperation
+        """
+        return getattr(self, "{}_operations".format(context.stage), [])
