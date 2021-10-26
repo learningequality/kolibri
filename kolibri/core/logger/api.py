@@ -31,13 +31,12 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.constants import interaction_types
 from kolibri.core.logger.constants.exercise_attempts import MAPPING
-from kolibri.core.notifications.api import finish_lesson_resource
+from kolibri.core.notifications.api import create_summarylog
+from kolibri.core.notifications.api import parse_attemptslog
+from kolibri.core.notifications.api import parse_summarylog
 from kolibri.core.notifications.api import quiz_answered_notification
 from kolibri.core.notifications.api import quiz_completed_notification
 from kolibri.core.notifications.api import quiz_started_notification
-from kolibri.core.notifications.api import start_lesson_assessment
-from kolibri.core.notifications.api import start_lesson_resource
-from kolibri.core.notifications.api import update_lesson_assessment
 from kolibri.core.notifications.tasks import wrap_to_save_queue
 from kolibri.utils.time_utils import local_now
 
@@ -338,16 +337,14 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
     def _process_created_notification(self, summarylog, context):
         # dont create notifications upon creating a summary log for an exercise
         # notifications should only be triggered upon first attempting a question in the exercise
-        if (
-            "lesson_id" in context
-            and "node_id" in context
-            and summarylog.kind != content_kinds.EXERCISE
-        ):
+        if "node_id" in context and summarylog.kind != content_kinds.EXERCISE:
+            # We have sufficient information to only trigger notifications for the specific
+            # lesson that this is being engaged with, but until we can work out the exact
+            # way that we want to match this with contextual progress tracking, we are
+            # not changing this for now.
             wrap_to_save_queue(
-                start_lesson_resource,
+                create_summarylog,
                 summarylog,
-                context["node_id"],
-                context["lesson_id"],
             )
 
     def _process_masterylog_created_notification(self, masterylog, context):
@@ -605,20 +602,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         if user is None:
             return
         if "lesson_id" in context:
-            if created:
-                wrap_to_save_queue(
-                    start_lesson_assessment,
-                    attemptlog,
-                    context["node_id"],
-                    context["lesson_id"],
-                )
-            if updated:
-                wrap_to_save_queue(
-                    update_lesson_assessment,
-                    attemptlog,
-                    context["node_id"],
-                    context["lesson_id"],
-                )
+            wrap_to_save_queue(parse_attemptslog, attemptlog)
         if created and "quiz_id" in context:
             wrap_to_save_queue(
                 quiz_answered_notification, attemptlog, context["quiz_id"]
@@ -705,12 +689,10 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         return {"complete": complete}, summarylog.id if summarylog else None, context
 
     def _process_completed_notification(self, summarylog, context):
-        if "lesson_id" in context:
+        if "node_id" in context:
             wrap_to_save_queue(
-                finish_lesson_resource,
+                parse_summarylog,
                 summarylog,
-                context["node_id"],
-                context["lesson_id"],
             )
 
     def update(self, request, pk=None):

@@ -29,13 +29,12 @@ from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.constants import interaction_types
-from kolibri.core.notifications.api import finish_lesson_resource
+from kolibri.core.notifications.api import create_summarylog
+from kolibri.core.notifications.api import parse_attemptslog
+from kolibri.core.notifications.api import parse_summarylog
 from kolibri.core.notifications.api import quiz_answered_notification
 from kolibri.core.notifications.api import quiz_completed_notification
 from kolibri.core.notifications.api import quiz_started_notification
-from kolibri.core.notifications.api import start_lesson_assessment
-from kolibri.core.notifications.api import start_lesson_resource
-from kolibri.core.notifications.api import update_lesson_assessment
 from kolibri.utils.time_utils import local_now
 
 
@@ -154,12 +153,10 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
                 }
             )
             save_queue_mock.assert_called()
-            self.assertEqual(save_queue_mock.mock_calls[0][1][0], start_lesson_resource)
+            self.assertEqual(save_queue_mock.mock_calls[0][1][0], create_summarylog)
             self.assertTrue(
                 isinstance(save_queue_mock.mock_calls[0][1][1], ContentSummaryLog)
             )
-            self.assertEqual(save_queue_mock.mock_calls[0][1][2], node_id)
-            self.assertEqual(save_queue_mock.mock_calls[0][1][3], lesson_id)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(ContentSessionLog.objects.all().count(), 1)
@@ -1057,14 +1054,10 @@ class ProgressTrackingViewSetLoggedInUpdateSessionTestCase(
                 }
             )
             save_queue_mock.assert_called()
-            self.assertEqual(
-                save_queue_mock.mock_calls[0][1][0], finish_lesson_resource
-            )
+            self.assertEqual(save_queue_mock.mock_calls[0][1][0], parse_summarylog)
             self.assertTrue(
                 isinstance(save_queue_mock.mock_calls[0][1][1], ContentSummaryLog)
             )
-            self.assertEqual(save_queue_mock.mock_calls[0][1][2], self.node.id)
-            self.assertEqual(save_queue_mock.mock_calls[0][1][3], lesson_id)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["complete"], True)
@@ -1915,12 +1908,8 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
                 }
             )
             save_queue_mock.assert_called()
-            self.assertEqual(
-                save_queue_mock.mock_calls[0][1][0], start_lesson_assessment
-            )
+            self.assertEqual(save_queue_mock.mock_calls[0][1][0], parse_attemptslog)
             self.assertTrue(isinstance(save_queue_mock.mock_calls[0][1][1], AttemptLog))
-            self.assertEqual(save_queue_mock.mock_calls[0][1][2], self.node.id)
-            self.assertEqual(save_queue_mock.mock_calls[0][1][3], lesson_id)
 
         self.assertEqual(response.status_code, 200)
         attempt_id = response.json().get("attempts", [{}])[0].get("id")
@@ -1976,12 +1965,8 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
                 }
             )
             save_queue_mock.assert_called()
-            self.assertEqual(
-                save_queue_mock.mock_calls[0][1][0], update_lesson_assessment
-            )
+            self.assertEqual(save_queue_mock.mock_calls[0][1][0], parse_attemptslog)
             self.assertTrue(isinstance(save_queue_mock.mock_calls[0][1][1], AttemptLog))
-            self.assertEqual(save_queue_mock.mock_calls[0][1][2], self.node.id)
-            self.assertEqual(save_queue_mock.mock_calls[0][1][3], lesson_id)
 
         self.assertEqual(response.status_code, 200)
         attempt_id = response.json().get("attempts", [{}])[0].get("id")
