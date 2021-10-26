@@ -517,21 +517,18 @@ class Application(pew.ui.PEWApp):
         return self.__loader_url + "#" + state
 
     def get_full_url(self, url: str) -> str:
-        try:
-            return self.parse_kolibri_url(url)
-        except ValueError:
-            pass
-
-        try:
-            return self.parse_x_kolibri_app_url(url)
-        except ValueError:
-            pass
-
+        url_tuple = urlsplit(url)
+        if url_tuple.scheme == "kolibri":
+            target_url = self.parse_kolibri_url_tuple(url_tuple)
+            return self.kolibri_daemon.get_kolibri_initialize_url(target_url)
+        elif url_tuple.scheme == "x-kolibri-app":
+            target_url = self.parse_x_kolibri_app_url_tuple(url_tuple)
+            return self.kolibri_daemon.get_kolibri_initialize_url(target_url)
         return url
 
-    def parse_kolibri_url(self, url: str) -> str:
+    def parse_kolibri_url_tuple(self, url_tuple: typing.NamedTuple) -> str:
         """
-        Parse a URL according to the public Kolibri URL format. This format uses
+        Parse a URL tuple according to the public Kolibri URL format. This format uses
         a single-character identifier for a node type - "t" for topic or "c"
         for content, followed by its unique identifier. It is constrained to
         opening content nodes or search pages.
@@ -543,11 +540,7 @@ class Application(pew.ui.PEWApp):
         - kolibri:?searchTerm=addition
         """
 
-        url_tuple = urlsplit(url)
         url_query = parse_qs(url_tuple.query, keep_blank_values=True)
-
-        if url_tuple.scheme != "kolibri":
-            raise ValueError()
 
         if url_tuple.path and url_tuple.path != "/":
             item_path = "/learn"
@@ -564,28 +557,20 @@ class Application(pew.ui.PEWApp):
                 search=" ".join(url_query["searchTerm"])
             )
 
-        target_url = "{path}#{fragment}".format(path=item_path, fragment=item_fragment)
-        return self.kolibri_daemon.get_kolibri_initialize_url(target_url)
+        return "{path}#{fragment}".format(path=item_path, fragment=item_fragment)
 
     def url_to_x_kolibri_app(self, url: str) -> str:
         return urlsplit(url)._replace(scheme="x-kolibri-app", netloc="").geturl()
 
-    def parse_x_kolibri_app_url(self, url: str) -> str:
+    def parse_x_kolibri_app_url_tuple(self, url_tuple: typing.NamedTuple) -> str:
         """
-        Parse a URL according to the internal Kolibri app URL format. This
+        Parse a URL tuple according to the internal Kolibri app URL format. This
         format is the same as Kolibri's URLs, but without the hostname or port
         number.
 
         - x-kolibri-app:/device
         """
-
-        url_tuple = urlsplit(url)
-
-        if url_tuple.scheme != "x-kolibri-app":
-            raise ValueError()
-
-        target_url = url_tuple._replace(scheme="", netloc="").geturl()
-        return self.kolibri_daemon.get_kolibri_initialize_url(target_url)
+        return url_tuple._replace(scheme="", netloc="").geturl()
 
     def open_in_browser(self, url: str):
         subprocess.call(["xdg-open", url])
