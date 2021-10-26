@@ -1087,7 +1087,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message:
       'You improved at {value, number, integer} {value, plural, one {question} other {questions}}',
     context:
-      'Indicates to learner how many questions the answered correctly compared to the most recent attempt',
+      'Indicates to learner how many questions they answered correctly compared to the most recent attempt',
   },
   practiceQuizReportFasterSuggestedLabel: {
     message: '{value, number, integer} minutes faster than the suggested time',

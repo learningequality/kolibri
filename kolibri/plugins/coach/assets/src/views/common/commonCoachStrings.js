@@ -511,7 +511,7 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
       'Heading for total number of times a learner took a practice quiz in table of learners. Found in Reports > Lesson > Practice quiz.',
   },
   difficultQuestionsDescription: {
-    message: 'Showing difficult questions for the most recent quiz attempt of all recipients',
+    message: 'Difficult questions in the most recent attempt of all learners',
     context: "Description for the 'Difficult questions' subtab.",
   },
 });
