@@ -21,20 +21,15 @@
     </section>
 
     <section class="content-cards">
-      <ContentCard
-        v-for="(c, idx) in contentNodes"
-        :key="c.id"
-        class="content-card"
-        :isMobile="true"
-        :kind="c.kind"
-        :isLeaf="c.is_leaf"
-        :link="lessonResourceViewerLink(idx)"
-        :progress="c.progress_fraction"
-        :numCoachContents="c.coach_content ? 1 : 0"
-        :thumbnail="getContentNodeThumbnail(c)"
-        :title="c.title"
+      <HybridLearningCardGrid
+        v-if="contentNodes.length"
+        currentPage="lessonPage"
+        cardViewStyle="list"
+        :numCols="1"
+        :getContentNodeThumbnail="getContentNodeThumbnail"
+        :genContentLink="genContentLink"
+        :contents="contentNodes"
       />
-
       <p v-if="!lessonHasResources" class="no-resources-message">
         {{ $tr('noResourcesInLesson') }}
       </p>
@@ -51,8 +46,8 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
-  import ContentCard from '../ContentCard';
-  import { lessonResourceViewerLink } from './classPageLinks';
+  import genContentLink from '../../utils/genContentLink';
+  import HybridLearningCardGrid from './../HybridLearningCardGrid';
 
   export default {
     name: 'LessonPlaylistPage',
@@ -62,7 +57,7 @@
       };
     },
     components: {
-      ContentCard,
+      HybridLearningCardGrid,
       ContentIcon,
       ProgressIcon,
     },
@@ -87,7 +82,7 @@
     },
     methods: {
       getContentNodeThumbnail,
-      lessonResourceViewerLink,
+      genContentLink,
     },
     $trs: {
       noResourcesInLesson: {
