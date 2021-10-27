@@ -171,6 +171,10 @@
         type: String,
         default: null,
       },
+      currentPage: {
+        type: String,
+        default: null,
+      },
       copiesCount: {
         type: Number,
         default: null,
@@ -206,10 +210,10 @@
         }
       },
       isLibraryPage() {
-        return this.pageName === PageNames.LIBRARY;
+        return this.currentPage === PageNames.LIBRARY;
       },
       isBookmarksPage() {
-        return this.pageName === PageNames.BOOKMARKS;
+        return this.currentPage === PageNames.BOOKMARKS;
       },
       ceilingDate() {
         if (this.createdDate > this.now) {
@@ -273,6 +277,7 @@
   .metadata-info {
     margin-top: 8px;
     margin-bottom: 8px;
+    font-size: 14px;
   }
 
   .channel-logo {

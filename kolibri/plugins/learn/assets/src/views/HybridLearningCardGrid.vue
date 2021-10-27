@@ -28,6 +28,17 @@
         />
       </KFixedGridItem>
     </KFixedGrid>
+    <CardGrid
+      v-else-if="cardViewStyle === 'card' && windowIsSmall && currentPage !== isBookmarksPage"
+    >
+      <ResourceCard
+        v-for="(content, idx) in contents"
+
+        :key="`resource-${idx}`"
+        :contentNode="content"
+        :to="genContentLink(content.id, content.is_leaf)"
+      />
+    </CardGrid>
     <HybridLearningLessonCard
       v-for="content in contents"
       v-else-if="currentPage === 'lessonPage'"
@@ -49,13 +60,14 @@
     />
     <HybridLearningContentCardListView
       v-for="content in contents"
-      v-else-if="currentPage === 'BOOKMARKS'"
+      v-else
       :key="content.id"
       :contentNode="content"
       :channelThumbnail="content.channel_thumbnail"
       :channelTitle="content.channel_title"
       :description="content.description"
       :activityLength="content.activity_length"
+      :currentPage="currentPage"
       class="grid-item"
       :isMobile="windowIsSmall"
       :title="content.title"
@@ -72,17 +84,6 @@
       @openCopiesModal="openCopiesModal"
       @removeFromBookmarks="removeFromBookmarks(content, contents)"
     />
-    <CardGrid
-      v-else-if="cardViewStyle === 'card' && windowIsSmall"
-    >
-      <ResourceCard
-        v-for="(content, idx) in contents"
-
-        :key="`resource-${idx}`"
-        :contentNode="content"
-        :to="genContentLink(content.id, content.is_leaf)"
-      />
-    </CardGrid>
     <CopiesModal
       v-if="modalIsOpen"
       :uniqueId="uniqueId"
@@ -98,10 +99,10 @@
 
   import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { PageNames } from '../constants';
   import HybridLearningContentCardListView from './HybridLearningContentCardListView';
   import HybridLearningContentCard from './HybridLearningContentCard';
   import HybridLearningLessonCard from './HybridLearningLessonCard';
-
   import ResourceCard from './cards/ResourceCard';
   import CardGrid from './cards/CardGrid';
 
@@ -164,6 +165,11 @@
       sharedContentId: null,
       uniqueId: null,
     }),
+    computed: {
+      isBookmarksPage() {
+        return this.currentPage === PageNames.BOOKMARKS;
+      },
+    },
     methods: {
       openCopiesModal(contentId) {
         this.sharedContentId = contentId;
