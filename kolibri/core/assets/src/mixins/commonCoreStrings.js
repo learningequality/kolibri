@@ -1075,7 +1075,7 @@ export default {
      * if available.
      *
      * @param {string} key - A key as defined in the coreStrings translator; also accepts keys
-     * for the object kolibri.coreVue.vuex.constants.MetadataLookup.
+     * for the object MetadataLookup.
      * @param {object} args - An object with keys matching ICU syntax arguments for the translation
      * string mapping to the values to be passed for those arguments.
      */

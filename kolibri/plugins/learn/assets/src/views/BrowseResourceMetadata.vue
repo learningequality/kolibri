@@ -249,18 +249,35 @@
       };
     },
     computed: {
+      /**
+       * Returns whether or not the LearnerNeeds.FOR_BEGINNERS constant is present in
+       * this.content.learner_needs
+       * @returns {Boolean}
+       */
       forBeginners() {
         return get(this.content, 'learner_needs', []).includes(LearnerNeeds.FOR_BEGINNERS);
       },
+      /**
+       * Returns a list of this.content.learner_needs without the FOR_BEGINNERS key, if present
+       * @returns {string[]}
+       */
       learnerNeeds() {
         // Remove FOR_BEGINNERS in this list because it is indicated separately, above, if present
         return get(this.content, 'learner_needs', []).filter(
           need => need !== LearnerNeeds.FOR_BEGINNERS
         );
       },
+      /**
+       * Joins this.content.accessibility_labels with a comma & space for display purposes
+       * @returns {string}
+       */
       accessibilityLabels() {
         return this.content.accessibility_labels.map(label => this.coreString(label)).join(', ');
       },
+      /**
+       * Joins this.learnerNeeds with a comma & space for display purposes
+       * @returns {string}
+       */
       learnerNeedsLabels() {
         return this.learnerNeeds.map(label => this.coreString(label)).join(', ');
       },
