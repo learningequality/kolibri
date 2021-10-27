@@ -186,9 +186,9 @@
       <div v-for="location in locationsInChannel" :key="location.id">
         <div>
           <KRouterLink
-            :to="genContentLink(location.ancestors[location.ancestors.length - 1].id, false)"
+            :to="genContentLink(location.ancestors.splice(-1)[0].id, false)"
           >
-            {{ location.ancestors[location.ancestors.length - 1].title }}
+            {{ location.ancestors.splice(-1)[0].title }}
           </KRouterLink>
         </div>
       </div>
@@ -304,7 +304,9 @@
         // Retreives any topics in this same channel
         ContentNodeResource.fetchCollection({
           getParams: { content_id: this.content.content_id, channel_id: this.content.channel_id },
-        }).then(parents => (this.locationsInChannel = parents && parents.length ? parents : null));
+        }).then(
+          locations => (this.locationsInChannel = locations && locations.length ? locations : null)
+        );
       }
 
       this.metadataStrings = crossComponentTranslator(SidePanelResourceMetadata);
@@ -438,6 +440,7 @@
 
   .related {
     .list-item {
+      padding-left: 4px;
       margin: 8px 0;
     }
   }
