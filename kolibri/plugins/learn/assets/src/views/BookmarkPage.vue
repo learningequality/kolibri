@@ -11,6 +11,7 @@
     <HybridLearningCardGrid
       v-if="bookmarks.length"
       :contents="bookmarks"
+      :currentPage="currentPage"
       :genContentLink="genContentLink"
       :cardViewStyle="windowIsSmall ? 'card' : 'list'"
       numCols="1"
@@ -42,6 +43,7 @@
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import genContentLink from '../utils/genContentLink';
+  import { PageNames } from '../constants';
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
 
@@ -66,6 +68,9 @@
     computed: {
       footerIcons() {
         return { info: 'viewInformation', close: 'removeFromBookmarks' };
+      },
+      currentPage() {
+        return PageNames.BOOKMARKS;
       },
     },
     created() {

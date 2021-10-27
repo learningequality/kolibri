@@ -28,17 +28,6 @@
         />
       </KFixedGridItem>
     </KFixedGrid>
-    <CardGrid
-      v-else-if="cardViewStyle === 'card' && windowIsSmall"
-    >
-      <ResourceCard
-        v-for="(content, idx) in contents"
-
-        :key="`resource-${idx}`"
-        :contentNode="content"
-        :to="genContentLink(content.id, content.is_leaf)"
-      />
-    </CardGrid>
     <HybridLearningLessonCard
       v-for="content in contents"
       v-else-if="currentPage === 'lessonPage'"
@@ -60,7 +49,7 @@
     />
     <HybridLearningContentCardListView
       v-for="content in contents"
-      v-else
+      v-else-if="currentPage === 'BOOKMARKS'"
       :key="content.id"
       :contentNode="content"
       :channelThumbnail="content.channel_thumbnail"
@@ -83,6 +72,17 @@
       @openCopiesModal="openCopiesModal"
       @removeFromBookmarks="removeFromBookmarks(content, contents)"
     />
+    <CardGrid
+      v-else-if="cardViewStyle === 'card' && windowIsSmall"
+    >
+      <ResourceCard
+        v-for="(content, idx) in contents"
+
+        :key="`resource-${idx}`"
+        :contentNode="content"
+        :to="genContentLink(content.id, content.is_leaf)"
+      />
+    </CardGrid>
     <CopiesModal
       v-if="modalIsOpen"
       :uniqueId="uniqueId"
