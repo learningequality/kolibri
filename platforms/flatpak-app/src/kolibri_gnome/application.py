@@ -99,9 +99,10 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
     """
 
     __target_url: str = None
-    __was_kolibri_started: bool = False
+    __was_target_url_ever_loaded: bool = False
 
     def __init__(self, name: str, url: str = None, **kwargs):
+        self.__target_url = url
         super().__init__(name, url, **kwargs)
 
     @property
@@ -116,46 +117,32 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
         self.delegate.remove_window(self)
 
     def kolibri_change_notify(self):
-        if self.__target_url:
-            self.load_url(self.__target_url)
-        elif not self.kolibri_daemon.is_started():
-            # Convert current URL to a new kolibri-app URL for deferred loading
-            self.load_url(self.delegate.url_to_x_kolibri_app(self.get_url()))
-
-        is_kolibri_started = self.kolibri_daemon.is_started()
-        if is_kolibri_started and not self.__was_kolibri_started:
-            self.on_kolibri_started()
-        self.__was_kolibri_started = is_kolibri_started
+        self.load_url(self.__target_url)
 
     def on_kolibri_started(self):
         pass
 
     def load_url(self, url: str):
+        url_to_load = None
         if self.kolibri_daemon.is_error():
-            self.__target_url = url
-            self.__load_url_error()
+            url_to_load = self.delegate.get_loader_url("error")
         elif self.kolibri_daemon.is_loading():
-            self.__target_url = url
-            self.__load_url_loading()
+            url_to_load = self.delegate.get_loader_url("loading")
         else:
-            full_url = self.delegate.get_full_url(url)
-            if self.get_url() != full_url:
-                self.__target_url = None
-                super().load_url(full_url)
-                self.present_window()
+            # Not loading means it's started:
+            url_to_load = self.delegate.get_full_url(url)
 
-    def __load_url_loading(self):
-        loading_url = self.delegate.get_loader_url("loading")
-        if self.current_url != loading_url:
-            super().load_url(loading_url)
+        if self.current_url == url_to_load:
+            return
 
-    def __load_url_error(self):
-        error_url = self.delegate.get_loader_url("error")
-        if self.current_url != error_url:
-            super().load_url(error_url)
+        super().load_url(url_to_load)
+
+        if self.kolibri_daemon.is_started() and not self.__was_target_url_ever_loaded:
+            self.present_window()
+            self.__was_target_url_ever_loaded = True
 
     def get_current_or_target_url(self) -> str:
-        if self.__target_url is None:
+        if self.kolibri_daemon.is_started() and self.__was_target_url_ever_loaded:
             return self.get_url()
         else:
             return self.__target_url
