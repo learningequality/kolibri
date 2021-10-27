@@ -41,37 +41,82 @@
           </KGridItem>
         </KGrid>
         <CoachContentLabel :value="content.num_coach_contents" :isTopic="false" />
-        <HeaderTable>
-          <HeaderTableRow
-            v-if="completionData"
-            :keyText="coachString('masteryModelLabel')"
-          >
-            <template #value>
-              <MasteryModel :masteryModel="completionData" />
-            </template>
-          </HeaderTableRow>
-        </HeaderTable>
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <p v-if="description" dir="auto" v-html="description"></p>
-        <ul class="meta">
-          <li v-if="content.author">
-            {{ $tr('authorDataHeader') }}:
-            {{ content.author }}
-          </li>
-          <li v-if="licenseName">
-            {{ $tr('licenseDataHeader') }}:
-            {{ licenseName }}
-            <InfoIcon
-              v-if="licenseDescription"
-              :tooltipText="licenseDescription"
-              :iconAriaLabel="licenseDescription"
-            />
-          </li>
-          <li v-if="content.license_owner">
-            {{ $tr('copyrightHolderDataHeader') }}:
-            {{ content.license_owner }}
-          </li>
-        </ul>
+        <template v-if="content.options.modality === 'QUIZ'">
+          <HeaderTable>
+            <HeaderTableRow
+              :keyText="$tr('totalQuestionsHeader')"
+            >
+              <template #value>
+                {{ content.assessmentmetadata.number_of_assessments }}
+              </template>
+            </HeaderTableRow>
+            <HeaderTableRow
+              :keyText="$tr('suggestedTimeToCompleteHeader')"
+            >
+              <template #value>
+                {{ currentContentNode.duration || 'Not available' }}
+              </template>
+            </HeaderTableRow>
+            <HeaderTableRow
+              v-if="licenseName"
+              :keyText="$tr('licenseDataHeader')"
+            >
+              <template #value>
+                {{ licenseName }}
+                <InfoIcon
+                  v-if="licenseDescription"
+                  :tooltipText="licenseDescription"
+                  :iconAriaLabel="licenseDescription"
+                />
+              </template>
+            </HeaderTableRow>
+            <HeaderTableRow
+              v-if="content.license_owner"
+              :keyText="$tr('copyrightHolderDataHeader')"
+            >
+              <template #value>
+                {{ content.license_owner }}
+              </template>
+            </HeaderTableRow>
+          </HeaderTable>
+        </template>
+
+        <template v-else>
+          <HeaderTable>
+            <HeaderTableRow
+              v-if="completionData"
+              :keyText="coachString('masteryModelLabel')"
+            >
+              <template #value>
+                <MasteryModel
+                  v-if="content"
+                  :masteryModel="completionData"
+                />
+              </template>
+            </HeaderTableRow>
+          </HeaderTable>
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <p v-if="description" dir="auto" v-html="description"></p>
+          <ul class="meta">
+            <li v-if="content.author">
+              {{ $tr('authorDataHeader') }}:
+              {{ content.author }}
+            </li>
+            <li v-if="licenseName">
+              {{ $tr('licenseDataHeader') }}:
+              {{ licenseName }}
+              <InfoIcon
+                v-if="licenseDescription"
+                :tooltipText="licenseDescription"
+                :iconAriaLabel="licenseDescription"
+              />
+            </li>
+            <li v-if="content.license_owner">
+              {{ $tr('copyrightHolderDataHeader') }}:
+              {{ content.license_owner }}
+            </li>
+          </ul>
+        </template>
       </div>
     </template>
 
@@ -237,6 +282,15 @@
           'Notification that can refer to when resources are added to a lesson, for example.',
       },
       addButtonLabel: 'Add',
+      totalQuestionsHeader: {
+        message: 'Total questions',
+        context: 'Refers to the total number of questions in a quiz.',
+      },
+      suggestedTimeToCompleteHeader: {
+        message: 'Suggested time',
+        context:
+          'Refers to the recommended time it takes to complete a quiz.\n\nDuration is set by whoever made the quiz originally.',
+      },
     },
   };
 
