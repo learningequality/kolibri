@@ -28,8 +28,27 @@
         />
       </KFixedGridItem>
     </KFixedGrid>
+    <HybridLearningLessonCard
+      v-for="content in contents"
+      v-else-if="currentPage === 'lessonPage' || (windowIsSmall && isLibraryPage)"
+      :key="content.id"
+      :contentNode="content"
+      :channelThumbnail="content.channel_thumbnail"
+      :channelTitle="content.channel_title"
+      :description="content.description"
+      :activityLength="content.activity_length"
+      :thumbnail="content.thumbnail || getContentNodeThumbnail(content)"
+      class="grid-item"
+      :isMobile="windowIsSmall"
+      :title="content.title"
+      :kind="content.kind"
+      :isLeaf="content.is_leaf"
+      :progress="content.progress || content.progress_fraction || 0"
+      :numCoachContents="content.num_coach_contents"
+      :link="genContentLink(content.id, content.is_leaf)"
+    />
     <CardGrid
-      v-else-if="cardViewStyle === 'card' && windowIsSmall && currentPage !== isBookmarksPage"
+      v-else-if=" !isBookmarksPage && cardViewStyle === 'card' && windowIsSmall"
     >
       <ResourceCard
         v-for="(content, idx) in contents"
@@ -39,25 +58,7 @@
         :to="genContentLink(content.id, content.is_leaf)"
       />
     </CardGrid>
-    <HybridLearningLessonCard
-      v-for="content in contents"
-      v-else-if="currentPage === 'lessonPage'"
-      :key="content.id"
-      :contentNode="content"
-      :channelThumbnail="content.channel_thumbnail"
-      :channelTitle="content.channel_title"
-      :description="content.description"
-      :activityLength="content.activity_length"
-      :thumbnail="getContentNodeThumbnail(content)"
-      class="grid-item"
-      :isMobile="windowIsSmall"
-      :title="content.title"
-      :kind="content.kind"
-      :isLeaf="content.is_leaf"
-      :progress="content.progress_fraction || 0"
-      :numCoachContents="content.num_coach_contents"
-      :link="genContentLink(content.id, content.is_leaf)"
-    />
+
     <HybridLearningContentCardListView
       v-for="content in contents"
       v-else
@@ -168,6 +169,9 @@
     computed: {
       isBookmarksPage() {
         return this.currentPage === PageNames.BOOKMARKS;
+      },
+      isLibraryPage() {
+        return this.currentPage === PageNames.LIBRARY;
       },
     },
     methods: {

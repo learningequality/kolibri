@@ -44,6 +44,7 @@
           :numCols="numCols"
           :genContentLink="genContentLink"
           :contents="trimmedPopular"
+          :currentPage="currentPage"
         />
       </div>
       <div v-else-if="!searchLoading" class="results-title">
@@ -275,6 +276,9 @@
       },
       trimmedResume() {
         return this.resume.slice(0, this.carouselLimit);
+      },
+      currentPage() {
+        return PageNames.LIBRARY;
       },
       searchTerms: {
         get() {

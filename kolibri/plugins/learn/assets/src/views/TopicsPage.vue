@@ -49,6 +49,7 @@
         </KGrid>
         <div class="tabs">
           <KButton
+            v-if="topics.length"
             ref="tab_button"
             :text="coreString('folders')"
             appearance="flat-button"
@@ -147,26 +148,20 @@
               </h2>
               <!-- card grid of items in folder -->
               <HybridLearningCardGrid
-                v-if="t.children.results && t.children.results.length"
-                :contents="trimmedTopicsList(t.children.results)"
+                v-if="contents && contents.length"
+                :contents="trimmedTopicsList(contents)"
                 :numCols="numCols"
                 :genContentLink="genContentLink"
-                :channelThumbnail="topicOrChannel['thumbnail']"
+                :channelThumbnail="channel_thumbnail"
                 cardViewStyle="card"
               />
-              <KButton
-                v-if="t.children && t.children.more"
-                @click="childLoadMore(t.children.more)"
-              >
-                {{ $tr('viewMore') }}
-              </KButton>
             </div>
             <HybridLearningCardGrid
               v-if="resources.length"
               :contents="trimmedTopicsList(resources)"
               :numCols="numCols"
               :genContentLink="genContentLink"
-              :channelThumbnail="topicOrChannel['thumbnail']"
+              :channelThumbnail="channel_thumbnail"
               cardViewStyle="card"
             />
           </div>
@@ -244,7 +239,8 @@
         position="embedded"
         :style="{ position: 'fixed',
                   marginTop: stickyTop,
-                  paddingTop: '24px' }"
+                  paddingTop: '24px',
+                  paddingBottom: '200px' }"
         @currentCategory="handleShowSearchModal"
       />
       <FullScreenSidePanel
@@ -314,7 +310,7 @@
 
 <script>
 
-  import { mapMutations, mapState } from 'vuex';
+  import { mapState } from 'vuex';
   import uniq from 'lodash/uniq';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds, AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
@@ -624,13 +620,6 @@
         query = null;
         this.$router.replace({ query: query });
       },
-      ...mapMutations('topicsTree', ['ADD_MORE_CHILD_CONTENTS']),
-      childLoadMore(more) {
-        return ContentNodeResource.fetchTree(more).then(data => {
-          const index = this.contents.findIndex(content => content.id === more.id);
-          this.ADD_MORE_CHILD_CONTENTS({ index, ...data.children });
-        });
-      },
       toggleSidebarView(value) {
         this.activeTab = value;
       },
@@ -658,8 +647,8 @@
         message: '{ topicTitle } - { channelTitle }',
         context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
-      viewMore: 'View more',
       /* eslint-disable kolibri/vue-no-unused-translations */
+      viewMore: 'View more',
       showMore: {
         message: 'Show more',
         context: 'Clickable link which allows to load more resources.',
@@ -687,6 +676,7 @@
 
   .page {
     position: relative;
+    overflow-x: hidden;
   }
 
   .header {

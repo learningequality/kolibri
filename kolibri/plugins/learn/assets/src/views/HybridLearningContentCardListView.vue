@@ -69,7 +69,7 @@
     </router-link>
     <div class="footer">
       <p
-        v-if="isMobile"
+        v-if="isMobile && isBookmarksPage"
         class="metadata-info-footer"
         :style="{ color: $themePalette.grey.v_700 }"
       >
