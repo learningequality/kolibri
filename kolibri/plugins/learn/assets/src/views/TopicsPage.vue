@@ -148,8 +148,8 @@
               </h2>
               <!-- card grid of items in folder -->
               <HybridLearningCardGrid
-                v-if="contents && contents.length"
-                :contents="trimmedTopicsList(contents)"
+                v-if="t.children.results && t.children.results.length"
+                :contents="trimmedTopicsList(t.children.results)"
                 :numCols="numCols"
                 :genContentLink="genContentLink"
                 :channelThumbnail="channel_thumbnail"
