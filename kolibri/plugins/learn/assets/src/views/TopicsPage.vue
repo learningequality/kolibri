@@ -5,8 +5,8 @@
       <CustomContentRenderer :topic="topic" />
     </div>
 
-
     <div v-else class="page">
+      <!-- Header with thumbail and tagline -->
       <div v-if="!windowIsSmall" class="header">
         <KGrid>
           <KGridItem
@@ -47,6 +47,8 @@
             {{ getTagline }}
           </KGridItem>
         </KGrid>
+        <!-- Nested tabs within the header, for toggling sidebar options -->
+        <!-- larger screens -->
         <div class="tabs">
           <KButton
             v-if="topics.length"
@@ -67,6 +69,7 @@
           />
         </div>
       </div>
+      <!-- mobile tabs (different alignment and interactions) -->
       <div v-if="windowIsSmall" class="mobile-header">
         <div class="mobile-header-contents">
           <div class="mobile-tabs">
@@ -202,6 +205,7 @@
                 @click="clearSearch"
               />
             </div>
+            <!-- results display -->
             <HybridLearningCardGrid
               v-if="results.length"
               :numCols="numCols"
@@ -228,6 +232,9 @@
           </div>
         </div>
       </main>
+      <!-- Side Panels for filtering and searching  -->
+
+      <!-- Embedded Side panel is on larger views, and exists next to content -->
       <EmbeddedSidePanel
         v-if="!!windowIsLarge || (windowIsMedium && activeTab === 'folders')"
         v-model="searchTerms"
@@ -244,6 +251,8 @@
                   paddingBottom: '200px' }"
         @currentCategory="handleShowSearchModal"
       />
+      <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
+      <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
       <FullScreenSidePanel
         v-if="!windowIsLarge && sidePanelIsOpen"
         alignment="left"

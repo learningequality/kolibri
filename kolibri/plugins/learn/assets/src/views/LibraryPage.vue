@@ -14,6 +14,7 @@
           @click="toggleSidePanelVisibility"
         />
       </div>
+      <!-- "Default" display - channels and recent/popular content -->
       <div v-if="!displayingSearchResults">
         <h2>{{ coreString('channelsLabel') }}</h2>
         <ChannelCardGroupGrid
@@ -21,7 +22,7 @@
           class="grid"
           :contents="channels"
         />
-        <div v-if="!(windowBreakpoint < 1)" class="toggle-view-buttons">
+        <div v-if="!(windowBreakpoint < 1 )" class="toggle-view-buttons">
           <KIconButton
             icon="menu"
             :ariaLabel="$tr('viewAsList')"
@@ -47,6 +48,11 @@
           :currentPage="currentPage"
         />
       </div>
+
+      <!-- Display of search results, after the search is finished loading -->
+
+      <!-- First section is the results title and the various display buttons  -->
+      <!-- for interacting or updating the results   -->
       <div v-else-if="!searchLoading" class="results-title">
         <h2 class="results-title">
           {{ $tr('results', { results: results.length }) }}
@@ -100,6 +106,7 @@
             @click="clearSearch"
           />
         </div>
+        <!-- Grid of search results  -->
         <HybridLearningCardGrid
           v-if="results.length"
           :numCols="numCols"
@@ -107,6 +114,7 @@
           :genContentLink="genContentLink"
           :contents="results"
         />
+        <!-- conditionally displayed button if there are additional results -->
         <KButton
           v-if="more"
           :text="coreString('viewMoreAction')"
@@ -116,6 +124,7 @@
           @click="searchMore"
         />
       </div>
+      <!-- loader for search loading -->
       <div v-else>
         <KCircularLoader
           v-if="searchLoading"
@@ -123,20 +132,12 @@
           type="indeterminate"
           :delay="false"
         />
-        <div v-else>
-          <h2>{{ $tr('results', { results: results.length }) }}</h2>
-
-          <p>{{ $tr('clearAll') }}</p>
-          <HybridLearningCardGrid
-            v-if="results.length"
-            :numCols="numCols"
-            :cardViewStyle="currentViewStyle"
-            :genContentLink="genContentLink"
-            :contents="results"
-          />
-        </div>
       </div>
     </main>
+
+    <!-- Side Panels for filtering and searching  -->
+
+    <!-- Embedded Side panel is on larger views, and exists next to content -->
     <EmbeddedSidePanel
       v-if="!!windowIsLarge"
       v-model="searchTerms"
@@ -145,6 +146,8 @@
       position="embedded"
       @currentCategory="handleShowSearchModal"
     />
+    <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
+    <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
     <FullScreenSidePanel
       v-if="!windowIsLarge && sidePanelIsOpen"
       alignment="left"
@@ -188,6 +191,9 @@
         @input="handleCategory"
       />
     </FullScreenSidePanel>
+
+    <!-- Category Search modal for larger screens. On smaller screens, it is -->
+    <!-- contained within the full screen search modal (different design) -->
     <CategorySearchModal
       v-if="(windowIsMedium || windowIsLarge) && currentCategory"
       :selectedCategory="currentCategory"
