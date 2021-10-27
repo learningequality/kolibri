@@ -9,7 +9,11 @@
         />
         <h1 dir="auto" class="title">
           {{ currentLesson.title }}
-          <ProgressIcon v-if="lessonHasResources" :progress="lessonProgress" />
+          <ProgressIcon
+            v-if="lessonHasResources"
+            class="progress-icon"
+            :progress="lessonProgress"
+          />
         </h1>
       </div>
       <div v-if="currentLesson.description !== ''">
@@ -108,7 +112,7 @@
   }
 
   .content-cards {
-    max-width: 800px;
+    max-width: 100%;
   }
 
   .content-card {
@@ -121,13 +125,23 @@
     text-align: center;
   }
 
-  // Copied from LessonSummaryPage
   .lesson-icon {
     display: inline-block;
     margin-right: 0.5em;
     font-size: 1.8em;
     /deep/ .ui-icon {
-      vertical-align: bottom;
+      margin-bottom: 12px;
+      vertical-align: middle;
+    }
+  }
+
+  .progress-icon {
+    display: inline-block;
+    margin-right: 0.5em;
+    font-size: 1.8em;
+    /deep/ .ui-icon {
+      margin-top: 4px;
+      vertical-align: middle;
     }
   }
 
