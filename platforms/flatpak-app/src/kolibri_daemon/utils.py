@@ -6,6 +6,7 @@ import re
 import shutil
 import typing
 from concurrent.futures import Future
+from functools import partial
 from pathlib import Path
 
 from gi.repository import GLib
@@ -90,7 +91,9 @@ class AsyncResultFuture(Future):
 
 
 def future_chain(
-    from_future: typing.Any, to_future: Future = None, map_fn: typing.Callable = None
+    from_future: typing.Any,
+    to_future: typing.Optional[Future] = None,
+    map_fn: typing.Callable = None,
 ) -> Future:
     """
     This is an attempt to build a simple way of chaining together Future
@@ -99,31 +102,36 @@ def future_chain(
     but at the moment that is problematic with pygobject and GLib.
     """
 
-    if to_future is None:
-        to_future = Future()
-
-    def from_future_done_cb(future: Future):
-        try:
-            result = future.result()
-        except Exception as error:
-            to_future.set_exception(error)
-        else:
-            if callable(map_fn):
-                result = map_fn(result)
-
-            if isinstance(result, Future):
-                future_chain(result, to_future)
-            else:
-                to_future.set_result(result)
-
     if not isinstance(from_future, Future):
         _from_future_value = from_future
         from_future = Future()
         from_future.set_result(_from_future_value)
 
-    from_future.add_done_callback(from_future_done_cb)
+    if to_future is None:
+        to_future = Future()
+
+    from_future.add_done_callback(
+        partial(_future_chain_from_future_done_cb, to_future=to_future, map_fn=map_fn)
+    )
 
     return to_future
+
+
+def _future_chain_from_future_done_cb(
+    from_future: Future, to_future: Future, map_fn: typing.Callable = None
+):
+    try:
+        result = from_future.result()
+    except Exception as error:
+        to_future.set_exception(error)
+    else:
+        if callable(map_fn):
+            result = map_fn(result)
+
+        if isinstance(result, Future):
+            future_chain(result, to_future)
+        else:
+            to_future.set_result(result)
 
 
 def dict_to_vardict(data: dict) -> dict:
@@ -134,7 +142,7 @@ def dict_to_vardict(data: dict) -> dict:
     return dict((key, _value_to_variant(value)) for key, value in data.items())
 
 
-def _value_to_variant(value: typing.Union[bytes, int, float, str]) -> Glib.Variant:
+def _value_to_variant(value: typing.Union[bytes, int, float, str]) -> GLib.Variant:
     """
     Automatically convert a Python value to a GLib.Variant by guessing the
     matching variant type.

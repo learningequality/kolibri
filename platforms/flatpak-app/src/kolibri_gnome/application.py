@@ -8,6 +8,7 @@ import typing
 from gettext import gettext as _
 from pathlib import Path
 from urllib.parse import parse_qs
+from urllib.parse import SplitResult
 from urllib.parse import urlsplit
 
 import pew.ui
@@ -91,10 +92,10 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
     status.
     """
 
-    __target_url: str = None
+    __target_url: typing.Optional[str] = None
     __was_target_url_ever_loaded: bool = False
 
-    def __init__(self, name: str, url: str = None, **kwargs):
+    def __init__(self, name: str, url: typing.Optional[str] = None, **kwargs):
         self.__target_url = url
         super().__init__(name, url, **kwargs)
 
@@ -351,8 +352,7 @@ class KolibriGenericWindow(KolibriWindow):
 
 
 class KolibriChannelWindow(KolibriWindow):
-    __channel_id: str = None
-    __last_good_url: str = None
+    __channel_id: str
 
     def __init__(self, channel_id, *args, **kwargs):
         self.__channel_id = channel_id
@@ -390,14 +390,14 @@ class KolibriChannelWindow(KolibriWindow):
 
 
 class Application(pew.ui.PEWApp):
-    handles_open_file_uris = True
+    handles_open_file_uris: bool = True
 
-    __application_id: str = None
-    __kolibri_daemon: KolibriDaemonManager = None
-    __loader_url: str = None
-    __windows: typing.List[KolibriWindow] = None
+    __application_id: str
+    __kolibri_daemon: KolibriDaemonManager
+    __loader_url: str
+    __windows: typing.List[KolibriWindow]
 
-    def __init__(self, application_id=None):
+    def __init__(self, application_id):
         self.__application_id = application_id
 
         self.__kolibri_daemon = KolibriDaemonManager(self.__on_kolibri_daemon_change)
@@ -441,7 +441,7 @@ class Application(pew.ui.PEWApp):
         for window in self.__windows:
             window.kolibri_change_notify()
 
-    def open_window(self, target_url: str = None) -> KolibriWindow:
+    def open_window(self, target_url: str = None) -> typing.Optional[KolibriWindow]:
         target_url = target_url or self.default_url
 
         if not self.should_load_url(target_url, fallback_to_external=True):
@@ -507,7 +507,7 @@ class Application(pew.ui.PEWApp):
     def get_loader_url(self, state: str) -> str:
         return self.__loader_url + "#" + state
 
-    def get_full_url(self, url: str) -> str:
+    def get_full_url(self, url: str) -> typing.Optional[str]:
         url_tuple = urlsplit(url)
         if url_tuple.scheme == "kolibri":
             target_url = self.parse_kolibri_url_tuple(url_tuple)
@@ -517,7 +517,7 @@ class Application(pew.ui.PEWApp):
             return self.kolibri_daemon.get_kolibri_initialize_url(target_url)
         return url
 
-    def parse_kolibri_url_tuple(self, url_tuple: typing.NamedTuple) -> str:
+    def parse_kolibri_url_tuple(self, url_tuple: SplitResult) -> str:
         """
         Parse a URL tuple according to the public Kolibri URL format. This format uses
         a single-character identifier for a node type - "t" for topic or "c"
@@ -553,7 +553,7 @@ class Application(pew.ui.PEWApp):
     def url_to_x_kolibri_app(self, url: str) -> str:
         return urlsplit(url)._replace(scheme="x-kolibri-app", netloc="").geturl()
 
-    def parse_x_kolibri_app_url_tuple(self, url_tuple: typing.NamedTuple) -> str:
+    def parse_x_kolibri_app_url_tuple(self, url_tuple: SplitResult) -> str:
         """
         Parse a URL tuple according to the internal Kolibri app URL format. This
         format is the same as Kolibri's URLs, but without the hostname or port
@@ -586,7 +586,7 @@ class GenericApplication(Application):
 
 
 class ChannelApplication(Application):
-    __channel_id: str = None
+    __channel_id: str
 
     def __init__(self, channel_id: str, *args, **kwargs):
         self.__channel_id = channel_id
@@ -676,7 +676,9 @@ class ChannelApplication(Application):
 
         return contentnode_channel == self.channel_id
 
-    def __contentnode_id_for_learn_fragment(self, fragment: str) -> str:
+    def __contentnode_id_for_learn_fragment(
+        self, fragment: str
+    ) -> typing.Optional[str]:
         pattern = r"^topics\/([ct]\/)?(?P<node_id>\w+)"
         match = re.match(pattern, fragment)
         if match:

@@ -88,7 +88,7 @@ def init_kolibri():
     initialize()
 
 
-def get_current_language() -> str:
+def get_current_language() -> typing.Optional[str]:
     try:
         translations = gettext.translation(
             config.GETTEXT_PACKAGE, localedir=config.LOCALE_DIR

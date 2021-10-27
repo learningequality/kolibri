@@ -9,7 +9,7 @@ def get_localized_file(file_path_template: str, file_path_fallback: str) -> Path
     language = get_current_language()
 
     if not language:
-        return file_path_fallback
+        return Path(file_path_fallback)
 
     file_path = Path(file_path_template.format(language))
 

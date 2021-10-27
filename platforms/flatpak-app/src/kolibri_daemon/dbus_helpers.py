@@ -18,14 +18,14 @@ class DBusManagerProxy(Gio.DBusProxy):
             g_interface_name="org.freedesktop.DBus",
         )
 
-    def init_future(self) -> Future:
+    def init_future(self) -> Future[DBusManagerProxy]:
         future = AsyncResultFuture(return_source=True)
         self.init_async(GLib.PRIORITY_DEFAULT, None, future.async_result_handler)
         return future
 
     def get_user_id_from_dbus_invocation_future(
         self, invocation: Gio.DBusMethodInvocation
-    ) -> Future:
+    ) -> Future[int]:
         future = AsyncResultFuture()
         self.GetConnectionUnixUser(
             "(s)", invocation.get_sender(), result_handler=future.async_result_handler

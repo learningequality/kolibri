@@ -33,8 +33,9 @@ class LoginToken(typing.NamedTuple):
     expires: int
 
     @classmethod
-    def with_expire_time(cls, expires_in: int, *args, **kwargs) -> LoginToken:
-        return cls(*args, expires=time.monotonic() + expires_in, **kwargs)
+    def with_expire_time(cls, expires_in: int, **kwargs) -> LoginToken:
+        expires = int(time.monotonic() + expires_in)
+        return cls(expires=expires, **kwargs)
 
     def is_expired(self) -> bool:
         return self.expires < time.monotonic()
@@ -43,17 +44,17 @@ class LoginToken(typing.NamedTuple):
 class PublicDBusInterface(object):
     VERSION = 1
 
-    __application: Application = None
-    __skeleton: KolibriDaemonDBus.MainSkeleton = None
+    __application: Application
+    __skeleton: KolibriDaemonDBus.MainSkeleton
 
-    __kolibri_service: KolibriServiceManager = None
-    __accounts_service: AccountsServiceManager = None
+    __kolibri_service: KolibriServiceManager
+    __accounts_service: typing.Optional[AccountsServiceManager] = None
 
-    __hold_clients: dict = None
+    __hold_clients: dict
 
-    __watch_changes_timeout_source: int = None
-    __auto_stop_timeout_source: int = None
-    __stop_kolibri_timeout_source: int = None
+    __watch_changes_timeout_source: typing.Optional[int] = None
+    __auto_stop_timeout_source: typing.Optional[int] = None
+    __stop_kolibri_timeout_source: typing.Optional[int] = None
 
     __stop_kolibri_timeout_interval: int = DEFAULT_STOP_KOLIBRI_TIMEOUT_SECONDS
 
@@ -201,13 +202,13 @@ class PublicDBusInterface(object):
             ),
             map_fn=self.__application.generate_login_token,
         ).add_done_callback(
-            functools.partial(self.__complete_get_login_token_from_future, invocation)
+            partial(self.__complete_get_login_token_from_future, invocation)
         )
 
         return True
 
     def __complete_get_login_token_from_future(
-        self, invocation: Gio.DBusMethodInvocation, future: Future
+        self, invocation: Gio.DBusMethodInvocation, future: Future[str]
     ):
         try:
             token_key = future.result()
@@ -325,8 +326,8 @@ class PublicDBusInterface(object):
 
 
 class PrivateDBusInterface(object):
-    __application: Application = None
-    __skeleton: KolibriDaemonDBus.PrivateSkeleton = None
+    __application: Application
+    __skeleton: KolibriDaemonDBus.PrivateSkeleton
 
     def __init__(self, application: Application):
         self.__application = application
@@ -375,11 +376,11 @@ class LoginTokenManager(object):
         self.__revoke_expired_tokens()
         return self.__add_login_token(user_info)
 
-    def pop_login_token(self, token_key: str) -> LoginToken:
+    def pop_login_token(self, token_key: str) -> typing.Optional[LoginToken]:
         self.__revoke_expired_tokens()
         return self.__pop_login_token(token_key)
 
-    def __add_login_token(self, user_info: UserInfo) -> LoginToken:
+    def __add_login_token(self, user_info: UserInfo) -> str:
         user_id = str(user_info.user_id)
         token_key = self.__generate_token_key(user_id)
         login_token = LoginToken.with_expire_time(
@@ -393,7 +394,7 @@ class LoginTokenManager(object):
     def __generate_token_key(self, user_id: str) -> str:
         return ":".join([user_id, uuid4().hex])
 
-    def __pop_login_token(self, token_key: str) -> LoginToken:
+    def __pop_login_token(self, token_key: str) -> typing.Optional[LoginToken]:
         user_id, _sep, _uuid = token_key.partition(":")
         login_token = self.__login_tokens.get(user_id, None)
         if login_token and login_token.key == token_key:
@@ -411,18 +412,18 @@ class LoginTokenManager(object):
 
 
 class Application(Gio.Application):
-    __kolibri_service: KolibriServiceManager = None
-    __search_handler: LocalSearchHandler = None
+    __kolibri_service: KolibriServiceManager
+    __search_handler: LocalSearchHandler
 
-    __use_session_bus: bool = None
-    __use_system_bus: bool = None
+    __use_session_bus: bool = False
+    __use_system_bus: bool = False
 
-    __public_interface: PublicDBusInterface = None
-    __private_interface: PrivateDBusInterface = None
-    __login_token_manager: LoginTokenManager = None
+    __public_interface: PublicDBusInterface
+    __private_interface: PrivateDBusInterface
+    __login_token_manager: LoginTokenManager
 
-    __hold_tokens: set = None
-    __system_name_id: int = None
+    __hold_tokens: set
+    __system_name_id: typing.Optional[int] = None
 
     def __init__(
         self,
@@ -506,7 +507,7 @@ class Application(Gio.Application):
     def generate_login_token(self, user_info: UserInfo) -> str:
         return self.__login_token_manager.generate_for_user(user_info)
 
-    def pop_login_token(self, token_key: str) -> LoginToken:
+    def pop_login_token(self, token_key: str) -> typing.Optional[LoginToken]:
         return self.__login_token_manager.pop_login_token(token_key)
 
     def get_item_ids_for_search(self, search: str) -> list:

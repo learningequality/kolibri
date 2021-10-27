@@ -57,7 +57,7 @@ class Launcher(Gio.Application):
         # TODO: Implement channel-specific search endpoints in Kolibri and
         #       remove this special case.
         if channel_id:
-            node_query = None
+            node_query = None  # type: ignore[assignment]
 
         if channel_id and channel_id != "_":
             kolibri_gnome_args.extend(["--channel-id", channel_id])

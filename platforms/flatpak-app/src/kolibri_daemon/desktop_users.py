@@ -12,12 +12,14 @@ from .utils import AsyncResultFuture
 from .utils import future_chain
 
 
-LOCAL_USER = os.environ.get("USER", None)
+LOCAL_USER: typing.Optional[str] = os.environ.get("USER", None)
+LOCAL_USER_PWD: typing.Optional[pwd.struct_passwd] = None
 
-try:
-    LOCAL_USER_PWD = pwd.getpwnam(LOCAL_USER)
-except KeyError:
-    LOCAL_USER_PWD = None
+if LOCAL_USER:
+    try:
+        LOCAL_USER_PWD = pwd.getpwnam(LOCAL_USER)
+    except KeyError:
+        pass
 
 
 class UserInfo(typing.NamedTuple):
@@ -35,23 +37,22 @@ class UserInfo(typing.NamedTuple):
             user_name=user.user_name,
             full_name=user.full_name,
             is_admin=user.is_admin,
-            **kwargs
         )
 
     @classmethod
-    def from_pwd_user(cls, user: pwd.struct_passwd, **kwargs) -> UserInfo:
+    def from_pwd_user(cls, user: pwd.struct_passwd, is_admin: bool = False) -> UserInfo:
         return cls(
             user_id=user.pw_uid,
             user_name=user.pw_name,
             full_name=user.pw_gecos,
-            **kwargs
+            is_admin=is_admin,
         )
 
     @classmethod
     def from_user_id_future(
-        cls, user_id: str, accounts_service: AccountsServiceManager = None
-    ) -> Future:
-        out_future = Future()
+        cls, user_id: int, accounts_service: AccountsServiceManager = None
+    ) -> Future[UserInfo]:
+        out_future: Future[UserInfo] = Future()
 
         if LOCAL_USER_PWD and user_id == LOCAL_USER_PWD.pw_uid:
             user_info = UserInfo.from_pwd_user(LOCAL_USER_PWD, is_admin=True)
@@ -76,7 +77,7 @@ class AccountsServiceManager(Gio.DBusProxy):
     """
 
     @classmethod
-    def get_default(cls, connection: Gio.DBusConnection) -> AccountsServiceManager():
+    def get_default(cls, connection: Gio.DBusConnection) -> AccountsServiceManager:
         return cls(
             g_connection=connection,
             g_name="org.freedesktop.Accounts",
@@ -84,14 +85,14 @@ class AccountsServiceManager(Gio.DBusProxy):
             g_interface_name="org.freedesktop.Accounts",
         )
 
-    def init_future(self) -> Future:
+    def init_future(self) -> Future[AccountsServiceManager]:
         future = AsyncResultFuture(return_source=True)
         self.init_async(
             GLib.PRIORITY_DEFAULT, None, future.async_result_handler, future
         )
         return future
 
-    def get_user_by_id_future(self, user_id: int) -> Future:
+    def get_user_by_id_future(self, user_id: int) -> Future[AccountsServiceUser]:
         user_path_future = AsyncResultFuture()
         self.FindUserById(
             "(x)", user_id, result_handler=user_path_future.async_result_handler
@@ -111,7 +112,7 @@ class AccountsServiceUser(Gio.DBusProxy):
     @classmethod
     def new_with_object_path(
         cls, manager: AccountsServiceManager, path: str
-    ) -> AccountsServiceUser():
+    ) -> AccountsServiceUser:
         return cls(
             g_connection=manager.get_connection(),
             g_name=manager.get_name(),
@@ -119,7 +120,7 @@ class AccountsServiceUser(Gio.DBusProxy):
             g_interface_name="org.freedesktop.Accounts.User",
         )
 
-    def init_future(self) -> Future:
+    def init_future(self) -> Future[AccountsServiceUser]:
         future = AsyncResultFuture(return_source=True)
         self.init_async(GLib.PRIORITY_DEFAULT, None, future.async_result_handler)
         return future
