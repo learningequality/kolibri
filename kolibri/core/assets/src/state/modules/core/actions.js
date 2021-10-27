@@ -539,9 +539,7 @@ export function startTrackingProgress(store, interval = intervalTime) {
  */
 export function stopTrackingProgress(store) {
   intervalTimer.stopTimer();
-  updateContentSession(store, { immediate: true }).then(() => {
-    store.commit('SET_EMPTY_LOGGING_STATE');
-  });
+  updateContentSession(store, { immediate: true });
 }
 
 export function setChannelInfo(store) {
