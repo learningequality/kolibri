@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import multiprocessing
+import typing
 from ctypes import c_bool
 from ctypes import c_char
 from ctypes import c_int
+from enum import auto
 from enum import Enum
 
 
@@ -44,14 +46,21 @@ class KolibriServiceContext(object):
     __kolibri_home_set_event: multiprocessing.Event = None
 
     class SetupResult(Enum):
-        NONE = 1
-        SUCCESS = 2
-        ERROR = 3
+        NONE = auto()
+        SUCCESS = auto()
+        ERROR = auto()
 
     class StartResult(Enum):
-        NONE = 1
-        SUCCESS = 2
-        ERROR = 3
+        NONE = auto()
+        SUCCESS = auto()
+        ERROR = auto()
+
+    class Status(Enum):
+        NONE = auto()
+        STARTING = auto()
+        STOPPED = auto()
+        STARTED = auto()
+        ERROR = auto()
 
     def __init__(self):
         self.__changed_event = multiprocessing.Event()
@@ -81,6 +90,8 @@ class KolibriServiceContext(object):
             c_char, self.KOLIBRI_HOME_LENGTH
         )
         self.__kolibri_home_set_event = multiprocessing.Event()
+
+        self.is_stopped = True
 
     def push_has_changes(self):
         self.__changed_event.set()
@@ -257,3 +268,46 @@ class KolibriServiceContext(object):
     def await_kolibri_home(self) -> str:
         self.__kolibri_home_set_event.wait()
         return self.kolibri_home
+
+    @property
+    def status(self) -> KolibriServiceManager.Status:
+        if self.is_starting:
+            return self.Status.STARTING
+        elif self.start_result == self.StartResult.SUCCESS:
+            return self.Status.STARTED
+        elif self.start_result == self.StartResult.ERROR:
+            return self.Status.ERROR
+        elif self.setup_result == self.SetupResult.ERROR:
+            return self.Status.ERROR
+        elif self.is_stopped:
+            return self.Status.STOPPED
+        else:
+            return self.Status.NONE
+
+    def is_running(self) -> bool:
+        return self.status in [self.Status.STARTING, self.Status.STARTED]
+
+
+class KolibriServiceProcess(multiprocessing.Process):
+    PROCESS_NAME: typing.Optional[str] = None
+    ENABLE_LOGGING: bool = True
+
+    __context: KolibriServiceContext
+
+    def __init__(self, context: KolibriServiceContext):
+        self.__context = context
+        super().__init__()
+
+    @property
+    def context(self):
+        return self.__context
+
+    def run(self):
+        from kolibri_app.globals import init_logging
+        from setproctitle import setproctitle
+
+        if self.PROCESS_NAME:
+            setproctitle(self.PROCESS_NAME)
+
+        if self.PROCESS_NAME and self.ENABLE_LOGGING:
+            init_logging("{}.txt".format(self.PROCESS_NAME))

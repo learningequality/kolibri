@@ -46,8 +46,7 @@ class PublicDBusInterface(object):
     __application: Application = None
     __skeleton: KolibriDaemonDBus.MainSkeleton = None
 
-    __service_manager: KolibriServiceManager = None
-    __kolibri_search_handler: LocalSearchHandler = None
+    __kolibri_service: KolibriServiceManager = None
     __accounts_service: AccountsServiceManager = None
 
     __hold_clients: dict = None
@@ -58,8 +57,11 @@ class PublicDBusInterface(object):
 
     __stop_kolibri_timeout_interval: int = DEFAULT_STOP_KOLIBRI_TIMEOUT_SECONDS
 
-    def __init__(self, application: Application, use_accounts_service: bool = False):
+    def __init__(
+        self, application: Application, kolibri_service: KolibriServiceManager
+    ):
         self.__application = application
+        self.__kolibri_service = kolibri_service
 
         self.__skeleton = KolibriDaemonDBus.MainSkeleton()
         self.__skeleton.connect("handle-hold", self.__on_handle_hold)
@@ -78,9 +80,6 @@ class PublicDBusInterface(object):
             self.__on_handle_get_metadata_for_item_ids,
         )
 
-        self.__service_manager = KolibriServiceManager()
-        self.__kolibri_search_handler = LocalSearchHandler()
-
         self.__hold_clients = dict()
 
     @property
@@ -96,17 +95,12 @@ class PublicDBusInterface(object):
         self.__stop_kolibri_timeout_interval = value
 
     def init(self):
-        self.__service_manager.init()
-        self.__kolibri_search_handler.init()
         self.__begin_watch_changes_timeout()
         self.__begin_auto_stop_timeout()
 
     def shutdown(self):
         self.__cancel_watch_changes_timeout()
         self.__cancel_auto_stop_timeout()
-        self.__kolibri_search_handler.stop()
-        self.__service_manager.stop_kolibri()
-        self.__service_manager.join()
 
     def set_accounts_service(self, accounts_service: AccountsServiceManager):
         self.__accounts_service = accounts_service
@@ -168,7 +162,7 @@ class PublicDBusInterface(object):
         invocation: Gio.DBusMethodInvocation,
     ) -> bool:
         self.__application.reset_inactivity_timeout()
-        self.__service_manager.start_kolibri()
+        self.__kolibri_service.start_kolibri()
         interface.complete_start(invocation)
         return True
 
@@ -178,7 +172,7 @@ class PublicDBusInterface(object):
         invocation: Gio.DBusMethodInvocation,
     ) -> bool:
         self.__application.reset_inactivity_timeout()
-        self.__service_manager.stop_kolibri()
+        self.__kolibri_service.stop_kolibri()
         interface.complete_stop(invocation)
         return True
 
@@ -233,7 +227,7 @@ class PublicDBusInterface(object):
         search: str,
     ) -> bool:
         self.__application.reset_inactivity_timeout()
-        item_ids = self.__kolibri_search_handler.get_item_ids_for_search(search)
+        item_ids = self.__application.get_item_ids_for_search(search)
         # Using interface.complete_get_item_ids_for_search results in
         # `TypeError: Must be string, not list`, so instead we will return a
         # Variant manually...
@@ -248,9 +242,7 @@ class PublicDBusInterface(object):
         item_ids: list,
     ) -> bool:
         self.__application.reset_inactivity_timeout()
-        metadata_list = self.__kolibri_search_handler.get_metadata_for_item_ids(
-            item_ids
-        )
+        metadata_list = self.__application.get_metadata_for_item_ids(item_ids)
         result_variant = GLib.Variant(
             "aa{sv}", list(map(dict_to_vardict, metadata_list))
         )
@@ -270,15 +262,15 @@ class PublicDBusInterface(object):
             self.__watch_changes_timeout_source = None
 
     def __watch_changes_timeout_cb(self):
-        if self.__service_manager.pop_has_changes():
+        if self.__kolibri_service.context.pop_has_changes():
             self.__update_cached_properties()
         return GLib.SOURCE_CONTINUE
 
     def __update_cached_properties(self):
-        self.__skeleton.props.app_key = self.__service_manager.app_key
-        self.__skeleton.props.base_url = self.__service_manager.base_url
-        self.__skeleton.props.kolibri_home = self.__service_manager.kolibri_home
-        self.__skeleton.props.status = self.__service_manager.status.name
+        self.__skeleton.props.app_key = self.__kolibri_service.context.app_key
+        self.__skeleton.props.base_url = self.__kolibri_service.context.base_url
+        self.__skeleton.props.kolibri_home = self.__kolibri_service.context.kolibri_home
+        self.__skeleton.props.status = self.__kolibri_service.context.status.name
         self.__skeleton.props.version = self.VERSION
 
     def __begin_auto_stop_timeout(self):
@@ -299,16 +291,14 @@ class PublicDBusInterface(object):
         # KolibriDaemon dbus interface, instead of stopping Kolibri after the
         # dbus connection has been closed.
 
-        self.__service_manager.cleanup()
-
         # Stop Kolibri if no clients are connected
-        if self.clients_count == 0 and self.__service_manager.is_running():
+        if self.clients_count == 0 and self.__kolibri_service.context.is_running():
             self.__begin_stop_kolibri_timeout()
         else:
             self.__cancel_stop_kolibri_timeout()
 
         # Add a GApplication hold if clients are connected or Kolibri is running
-        if self.clients_count > 0 or self.__service_manager.is_running():
+        if self.clients_count > 0 or self.__kolibri_service.context.is_running():
             self.__application.hold_with_token(self)
         else:
             self.__application.release_with_token(self)
@@ -329,7 +319,7 @@ class PublicDBusInterface(object):
 
     def __stop_kolibri_timeout_cb(self) -> bool:
         if self.clients_count == 0:
-            self.__service_manager.stop_kolibri()
+            self.__kolibri_service.stop_kolibri()
         self.__stop_kolibri_timeout_source = None
         return GLib.SOURCE_REMOVE
 
@@ -421,6 +411,9 @@ class LoginTokenManager(object):
 
 
 class Application(Gio.Application):
+    __kolibri_service: KolibriServiceManager = None
+    __search_handler: LocalSearchHandler = None
+
     __use_session_bus: bool = None
     __use_system_bus: bool = None
 
@@ -431,7 +424,13 @@ class Application(Gio.Application):
     __hold_tokens: set = None
     __system_name_id: int = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        kolibri_service: KolibriServiceManager,
+        search_handler: LocalSearchHandler,
+        *args,
+        **kwargs
+    ):
         super().__init__(
             *args,
             application_id=DAEMON_APPLICATION_ID,
@@ -442,7 +441,10 @@ class Application(Gio.Application):
             **kwargs
         )
 
-        self.__public_interface = PublicDBusInterface(self)
+        self.__kolibri_service = kolibri_service
+        self.__search_handler = search_handler
+
+        self.__public_interface = PublicDBusInterface(self, kolibri_service)
         self.__public_interface.init()
 
         self.__private_interface = PrivateDBusInterface(self)
@@ -507,6 +509,12 @@ class Application(Gio.Application):
     def pop_login_token(self, token_key: str) -> LoginToken:
         return self.__login_token_manager.pop_login_token(token_key)
 
+    def get_item_ids_for_search(self, search: str) -> list:
+        return self.__search_handler.get_item_ids_for_search(search)
+
+    def get_metadata_for_item_ids(self, item_ids: list) -> list:
+        return self.__search_handler.get_metadata_for_item_ids(item_ids)
+
     def do_dbus_register(
         self, connection: Gio.DBusConnection, object_path: str
     ) -> bool:
@@ -559,6 +567,10 @@ class Application(Gio.Application):
 
         self.__public_interface.shutdown()
         self.__private_interface.shutdown()
+
+        self.__search_handler.shutdown()
+        self.__kolibri_service.shutdown()
+        self.__kolibri_service.join()
 
         Gio.Application.do_shutdown(self)
 

@@ -6,8 +6,8 @@ from concurrent.futures import ProcessPoolExecutor
 from kolibri_app.globals import init_kolibri
 from kolibri_app.globals import init_logging
 
-from .utils import sanitize_text
 from .utils import get_search_media_icon
+from .utils import sanitize_text
 
 
 class SearchHandler(object):
@@ -108,7 +108,7 @@ class LocalSearchHandler(SearchHandler):
             max_workers=1, initializer=self.__process_initializer
         )
 
-    def stop(self):
+    def shutdown(self):
         self.__executor.shutdown()
 
     def __process_initializer(self):

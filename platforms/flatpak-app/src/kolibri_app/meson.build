@@ -1,11 +1,9 @@
-kolibri_app_sources = [
-    'globals.py',
-    '__init__.py',
-    'kolibri_settings.py',
-]
-
 python_installation.install_sources(
-    kolibri_app_sources,
+    [
+        'globals.py',
+        '__init__.py',
+        'kolibri_settings.py',
+    ],
     subdir: 'kolibri_app'
 )
 

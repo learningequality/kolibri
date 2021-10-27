@@ -5,7 +5,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import json
-import multiprocessing
 import os
 import subprocess
 import typing
@@ -14,18 +13,17 @@ from collections import Mapping
 from pathlib import Path
 
 from kolibri_app.globals import init_kolibri
-from kolibri_app.globals import init_logging
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
 from .content_extensions import ContentChannelCompare
 from .content_extensions import ContentExtensionsList
-from .kolibri_service import KolibriServiceContext
+from .context import KolibriServiceProcess
 
 
 KOLIBRI_BIN = "kolibri"
 
 
-class KolibriServiceSetupProcess(multiprocessing.Process):
+class SetupProcess(KolibriServiceProcess):
     """
     Does initial setup for Kolibri such as scanning for pre-installed content.
     Initial database migrations and provisioning will also happen here, as
@@ -35,27 +33,22 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
 
     PROCESS_NAME: str = "kolibri-daemon-setup"
 
-    __context: KolibriServiceContext = None
     __cached_extensions: ContentExtensionsList = None
     __active_extensions: ContentExtensionsList = None
 
-    def __init__(self, context: KolibriServiceContext):
-        self.__context = context
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.__cached_extensions = ContentExtensionsList.from_cache()
         self.__active_extensions = ContentExtensionsList.from_flatpak_info()
-        super().__init__()
 
     def run(self):
-        from setproctitle import setproctitle
-
-        setproctitle(self.PROCESS_NAME)
-        init_logging("{}.txt".format(self.PROCESS_NAME))
+        super().run()
 
         try:
             self.__automatic_provisiondevice()
         except Exception as error:
             logger.warning("Error initializing Kolibri: %s", error)
-            self.__context.setup_result = self.__context.SetupResult.ERROR
+            self.context.setup_result = self.context.SetupResult.ERROR
             return
 
         self.__active_extensions.update_kolibri_environ(os.environ)
@@ -70,10 +63,10 @@ class KolibriServiceSetupProcess(multiprocessing.Process):
         if success:
             logger.info("Finished updating content extensions.")
             self.__active_extensions.write_to_cache()
-            self.__context.setup_result = self.__context.SetupResult.SUCCESS
+            self.context.setup_result = self.context.SetupResult.SUCCESS
         else:
             logger.warning("Failed to update content extensions.")
-            self.__context.setup_result = self.__context.SetupResult.ERROR
+            self.context.setup_result = self.context.SetupResult.ERROR
 
     def __automatic_provisiondevice(self):
         from kolibri.core.device.utils import device_provisioned
