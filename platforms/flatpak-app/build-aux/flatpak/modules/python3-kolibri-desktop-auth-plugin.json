@@ -2,13 +2,13 @@
     "name": "python3-kolibri-desktop-auth-plugin",
     "buildsystem": "simple",
     "build-commands": [
-        "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} kolibri-desktop-auth-plugin==0.0.2"
+        "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} kolibri-desktop-auth-plugin"
     ],
     "sources": [
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/2f/a2/aaae3b82fec612784700f1cff642dbe0078f8bee59d673a3842fcbc771c2/kolibri_desktop_auth_plugin-0.0.2-py2.py3-none-any.whl",
-            "sha256": "7477f9f05af300a205e54d282ac604cfc46f5dfb16a159113551be06bda1429d"
+            "url": "https://files.pythonhosted.org/packages/e9/7b/43ca209c6dfa679444a143d5ecfd2ab3d70b7e08f15a160dde02fabc7d42/kolibri_desktop_auth_plugin-0.0.3-py2.py3-none-any.whl",
+            "sha256": "1273f71cc6f2e96edb3ea24256b01c4c9e2c38dee42e7d66d939db93dd088a98"
         }
     ]
 }

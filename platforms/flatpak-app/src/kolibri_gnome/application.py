@@ -102,6 +102,7 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
     __was_kolibri_started: bool = False
 
     def __init__(self, name: str, url: str = None, **kwargs):
+        self.__target_url = url
         super().__init__(name, url, **kwargs)
 
     @property
@@ -116,47 +117,30 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
         self.delegate.remove_window(self)
 
     def kolibri_change_notify(self):
-        if self.__target_url:
+        if not self.__was_kolibri_started:
             self.load_url(self.__target_url)
-        elif not self.kolibri_daemon.is_started():
-            # Convert current URL to a new kolibri-app URL for deferred loading
-            self.load_url(self.delegate.url_to_x_kolibri_app(self.get_url()))
-
-        is_kolibri_started = self.kolibri_daemon.is_started()
-        if is_kolibri_started and not self.__was_kolibri_started:
-            self.on_kolibri_started()
-        self.__was_kolibri_started = is_kolibri_started
-
-    def on_kolibri_started(self):
-        pass
 
     def load_url(self, url: str):
         if self.kolibri_daemon.is_error():
-            self.__target_url = url
-            self.__load_url_error()
+            self.__load_loader_url("error")
         elif self.kolibri_daemon.is_loading():
-            self.__target_url = url
-            self.__load_url_loading()
-        else:
+            self.__load_loader_url("loading")
+        # Not loading means it's started:
+        elif not self.__was_kolibri_started:
+            self.__was_kolibri_started = True
             full_url = self.delegate.get_full_url(url)
-            if self.get_url() != full_url:
-                self.__target_url = None
+            if self.current_url != full_url:
                 super().load_url(full_url)
                 self.present_window()
 
-    def __load_url_loading(self):
-        loading_url = self.delegate.get_loader_url("loading")
-        if self.current_url != loading_url:
-            super().load_url(loading_url)
-
-    def __load_url_error(self):
-        error_url = self.delegate.get_loader_url("error")
-        if self.current_url != error_url:
-            super().load_url(error_url)
+    def __load_loader_url(self, url_kind: str):
+        loader_url = self.delegate.get_loader_url(url_kind)
+        if self.current_url != loader_url:
+            super().load_url(loader_url)
 
     def get_current_or_target_url(self) -> str:
-        if self.__target_url is None:
-            return self.get_url()
+        if self.__was_kolibri_started:
+            return self.current_url
         else:
             return self.__target_url
 
@@ -533,21 +517,18 @@ class Application(pew.ui.PEWApp):
         return self.__loader_url + "#" + state
 
     def get_full_url(self, url: str) -> str:
-        try:
-            return self.parse_kolibri_url(url)
-        except ValueError:
-            pass
-
-        try:
-            return self.parse_x_kolibri_app_url(url)
-        except ValueError:
-            pass
-
+        url_tuple = urlsplit(url)
+        if url_tuple.scheme == "kolibri":
+            target_url = self.parse_kolibri_url_tuple(url_tuple)
+            return self.kolibri_daemon.get_kolibri_initialize_url(target_url)
+        elif url_tuple.scheme == "x-kolibri-app":
+            target_url = self.parse_x_kolibri_app_url_tuple(url_tuple)
+            return self.kolibri_daemon.get_kolibri_initialize_url(target_url)
         return url
 
-    def parse_kolibri_url(self, url: str) -> str:
+    def parse_kolibri_url_tuple(self, url_tuple: typing.NamedTuple) -> str:
         """
-        Parse a URL according to the public Kolibri URL format. This format uses
+        Parse a URL tuple according to the public Kolibri URL format. This format uses
         a single-character identifier for a node type - "t" for topic or "c"
         for content, followed by its unique identifier. It is constrained to
         opening content nodes or search pages.
@@ -559,11 +540,7 @@ class Application(pew.ui.PEWApp):
         - kolibri:?searchTerm=addition
         """
 
-        url_tuple = urlsplit(url)
         url_query = parse_qs(url_tuple.query, keep_blank_values=True)
-
-        if url_tuple.scheme != "kolibri":
-            raise ValueError()
 
         if url_tuple.path and url_tuple.path != "/":
             item_path = "/learn"
@@ -580,28 +557,20 @@ class Application(pew.ui.PEWApp):
                 search=" ".join(url_query["searchTerm"])
             )
 
-        target_url = "{path}#{fragment}".format(path=item_path, fragment=item_fragment)
-        return self.kolibri_daemon.get_kolibri_initialize_url(target_url)
+        return "{path}#{fragment}".format(path=item_path, fragment=item_fragment)
 
     def url_to_x_kolibri_app(self, url: str) -> str:
         return urlsplit(url)._replace(scheme="x-kolibri-app", netloc="").geturl()
 
-    def parse_x_kolibri_app_url(self, url: str) -> str:
+    def parse_x_kolibri_app_url_tuple(self, url_tuple: typing.NamedTuple) -> str:
         """
-        Parse a URL according to the internal Kolibri app URL format. This
+        Parse a URL tuple according to the internal Kolibri app URL format. This
         format is the same as Kolibri's URLs, but without the hostname or port
         number.
 
         - x-kolibri-app:/device
         """
-
-        url_tuple = urlsplit(url)
-
-        if url_tuple.scheme != "x-kolibri-app":
-            raise ValueError()
-
-        target_url = url_tuple._replace(scheme="", netloc="").geturl()
-        return self.kolibri_daemon.get_kolibri_initialize_url(target_url)
+        return url_tuple._replace(scheme="", netloc="").geturl()
 
     def open_in_browser(self, url: str):
         subprocess.call(["xdg-open", url])
