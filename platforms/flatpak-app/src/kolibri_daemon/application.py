@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import functools
 import time
 import typing
 from concurrent.futures import Future
+from functools import partial
 from uuid import uuid4
 
 from gi.repository import Gio
@@ -189,12 +189,12 @@ class PublicDBusInterface(object):
             future_chain(
                 future_chain(
                     DBusManagerProxy.get_default(connection).init_future(),
-                    map_fn=functools.partial(
+                    map_fn=partial(
                         DBusManagerProxy.get_user_id_from_dbus_invocation_future,
                         invocation=invocation,
                     ),
                 ),
-                map_fn=functools.partial(
+                map_fn=partial(
                     UserInfo.from_user_id_future,
                     accounts_service=self.__accounts_service,
                 ),

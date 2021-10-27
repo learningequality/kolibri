@@ -1,29 +1,17 @@
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
-
-import gi
-
-gi.require_version("Gdk", "3.0")
-gi.require_version("Gtk", "3.0")
-gi.require_version("KolibriDaemonDBus", "1.0")
-gi.require_version("WebKit2", "4.0")
-
 import argparse
 import datetime
+import logging
 import signal
 import sys
-
 from functools import partial
-from setproctitle import setproctitle
 
 from gi.repository import Gio
 from gi.repository import GLib
-
-from kolibri_app.config import FRONTEND_CHANNEL_APPLICATION_ID_PREFIX
 from kolibri_app.config import FRONTEND_APPLICATION_ID
+from kolibri_app.config import FRONTEND_CHANNEL_APPLICATION_ID_PREFIX
 from kolibri_app.globals import init_gettext
 from kolibri_app.globals import init_logging
+from setproctitle import setproctitle
 
 
 PROCESS_NAME = "kolibri-gnome"

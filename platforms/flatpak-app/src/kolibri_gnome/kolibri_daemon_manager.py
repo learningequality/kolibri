@@ -1,21 +1,19 @@
 from __future__ import annotations
 
 import logging
-
-logger = logging.getLogger(__name__)
-
-import requests
 import typing
-
 from urllib.parse import urlencode
 from urllib.parse import urljoin
 
+import requests
+from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import KolibriDaemonDBus
-
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
+
+logger = logging.getLogger(__name__)
 
 
 AUTOLOGIN_URL_TEMPLATE = "kolibri_desktop_auth_plugin/login/{token}?{query}"

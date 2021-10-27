@@ -1,37 +1,30 @@
 from __future__ import annotations
 
 import logging
-
-logger = logging.getLogger(__name__)
-
 import re
 import subprocess
 import sys
 import typing
-
 from gettext import gettext as _
 from pathlib import Path
 from urllib.parse import parse_qs
 from urllib.parse import urlsplit
 
-import pew
 import pew.ui
-
-from pew.pygobject_gtk.menus import PEWMenuItem
-from pew.ui import PEWShortcut
-
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import WebKit2
-
 from kolibri_app.config import DATA_DIR
 from kolibri_app.globals import KOLIBRI_APP_DEVELOPER_EXTRAS
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 from kolibri_app.globals import XDG_CURRENT_DESKTOP
+from pew.pygobject_gtk.menus import PEWMenuItem
+from pew.ui import PEWShortcut
 
 from .kolibri_daemon_manager import KolibriDaemonManager
 from .utils import get_localized_file
 
+logger = logging.getLogger(__name__)
 
 INACTIVITY_TIMEOUT_MS = 10 * 1000  # 10 seconds in milliseconds
 

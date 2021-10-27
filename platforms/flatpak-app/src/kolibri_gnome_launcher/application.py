@@ -1,14 +1,12 @@
 import logging
-
-logger = logging.getLogger(__name__)
-
 import subprocess
-
 from urllib.parse import urlsplit
 from urllib.parse import urlunparse
-from gi.repository import Gio
 
+from gi.repository import Gio
 from kolibri_app.config import LAUNCHER_APPLICATION_ID
+
+logger = logging.getLogger(__name__)
 
 
 class Launcher(Gio.Application):
