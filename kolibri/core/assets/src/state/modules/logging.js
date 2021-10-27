@@ -5,9 +5,9 @@ function valOrNull(val) {
   return typeof val !== 'undefined' ? val : null;
 }
 
-function progressPrecision(num) {
+function threeDecimalPlaceRoundup(num) {
   if (num) {
-    return Number(num.toPrecision(3));
+    return Math.ceil(num * 1000) / 1000;
   }
   return num;
 }
@@ -40,7 +40,7 @@ export default {
     INITIALIZE_LOGGING_STATE(state, data) {
       state.context = valOrNull(data.context);
       state.complete = valOrNull(data.complete);
-      state.progress = progressPrecision(valOrNull(data.progress));
+      state.progress = threeDecimalPlaceRoundup(valOrNull(data.progress));
       state.progress_delta = 0;
       state.time_spent = valOrNull(data.time_spent);
       state.time_spent_delta = 0;
@@ -89,24 +89,24 @@ export default {
       }
     },
     UPDATE_LOGGING_TIME(state, timeDelta) {
-      state.time_spent = state.time_spent + timeDelta;
-      state.time_spent_delta = state.time_spent_delta + timeDelta;
+      state.time_spent = state.time_spent + threeDecimalPlaceRoundup(timeDelta);
+      state.time_spent_delta = threeDecimalPlaceRoundup(state.time_spent_delta + timeDelta);
     },
     SET_LOGGING_CONTENT_STATE(state, contentState) {
       state.extra_fields.contentState = contentState;
       state.extra_fields_dirty_bit = true;
     },
     SET_LOGGING_PROGRESS(state, progress) {
-      progress = progressPrecision(progress);
+      progress = threeDecimalPlaceRoundup(progress);
       if (state.progress < progress) {
-        state.progress_delta = progressPrecision(progress - state.progress);
+        state.progress_delta = threeDecimalPlaceRoundup(progress - state.progress);
         state.progress = progress;
       }
     },
     ADD_LOGGING_PROGRESS(state, progressDelta) {
-      progressDelta = progressPrecision(progressDelta);
-      state.progress_delta = progressPrecision(state.progress_delta + progressDelta);
-      state.progress = Math.min(progressPrecision(state.progress + progressDelta), 1);
+      progressDelta = threeDecimalPlaceRoundup(progressDelta);
+      state.progress_delta = threeDecimalPlaceRoundup(state.progress_delta + progressDelta);
+      state.progress = Math.min(threeDecimalPlaceRoundup(state.progress + progressDelta), 1);
     },
     LOGGING_SAVING(state) {
       state.progress_delta = 0;
