@@ -120,7 +120,7 @@
             </KGridItem>
           </KGrid>
 
-          <div v-if="!windowIsLarge">
+          <div v-if="(windowIsMedium && activeTab === 'search') || windowIsSmall">
             <!-- TO DO Marcella swap out new icon after KDS update -->
             <KButton
               v-if="!windowIsSmall"
@@ -233,7 +233,7 @@
         </div>
       </main>
       <EmbeddedSidePanel
-        v-if="!!windowIsLarge"
+        v-if="!!windowIsLarge || (windowIsMedium && activeTab === 'folders')"
         v-model="searchTerms"
         :topicsListDisplayed="topics.length > 0 ? activeTab === 'folders' : false"
         topicPage="True"
@@ -478,7 +478,7 @@
         return this.$route.query;
       },
       sidePanelWidth() {
-        if (this.windowIsSmall || this.windowIsMedium) {
+        if (this.windowIsSmall || (this.windowIsMedium && this.activeTab === 'search')) {
           return 0;
         } else if (this.windowBreakpoint < 4) {
           return 234;
