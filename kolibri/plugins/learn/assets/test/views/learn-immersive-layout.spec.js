@@ -4,6 +4,15 @@ import LearnImmersiveLayout from '../../src/views/LearnImmersiveLayout';
 
 jest.mock('kolibri.urls');
 
+jest.mock('plugin_data', () => {
+  return {
+    __esModule: true,
+    default: {
+      channels: [],
+    },
+  };
+});
+
 const localVue = createLocalVue();
 
 const store = makeStore();

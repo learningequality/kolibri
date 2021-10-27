@@ -7,6 +7,15 @@ jest.mock('kolibri.client');
 jest.mock('kolibri.urls');
 jest.mock('kolibri.resources');
 
+jest.mock('plugin_data', () => {
+  return {
+    __esModule: true,
+    default: {
+      channels: [],
+    },
+  };
+});
+
 describe('Bookmark Page', () => {
   let wrapper;
   let createdSpy;
