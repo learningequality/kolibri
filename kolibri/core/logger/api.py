@@ -312,11 +312,10 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         Returns object with properties:
         - session_id: id of the session object that was created by this call
         - context: contains node_id, quiz_id, lesson_id, and mastery_level as appropriate
-
-        If user is logged in, return object will also include:
         - progress: any previous progress on this content resource
         - time_spent: any previous time spent on this content resource
         - extra_fields: any previously recorded additional data stored for this resource
+        - complete: whether this resource is completed by this user
 
         If this is an assessment, return object will also include:
         - mastery_criterion: mastery criterion that should be applied to determine completion

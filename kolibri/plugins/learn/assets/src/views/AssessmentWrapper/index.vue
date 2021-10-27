@@ -358,11 +358,7 @@ oriented data synchronization.
             );
           } else {
             calculatedMastery = Math.min(
-              Number(
-                (
-                  pastAttempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM
-                ).toPrecision(3)
-              ),
+              pastAttempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM,
               1
             );
           }
@@ -419,11 +415,12 @@ oriented data synchronization.
         }
         let progress;
         if (this.firstAttemptAtQuestion) {
-          this.firstAttemptAtQuestion = false;
+          // Only update progress on first attempt at question
+          // as cannot change progress on subsequent attempts.
           progress = this.exerciseProgress(interaction);
+          this.firstAttemptAtQuestion = false;
         } else {
           interaction.id = this.currentattempt.id;
-          progress = this.exerciseProgress();
         }
         this.updateContentSession({ progress, interaction });
       },

@@ -1,8 +1,19 @@
 import Vue from 'kolibri.lib.vue';
 import fromPairs from 'lodash/fromPairs';
 
+function valOrNull(val) {
+  return typeof val !== 'undefined' ? val : null;
+}
+
+function progressPrecision(num) {
+  if (num) {
+    return Number(num.toPrecision(3));
+  }
+  return num;
+}
+
 export default {
-  state: {
+  state: () => ({
     complete: null,
     progress: null,
     progress_delta: null,
@@ -18,9 +29,8 @@ export default {
     pastattemptMap: null,
     // Array of as yet unsaved interactions
     unsavedInteractions: null,
-    saving: null,
     context: null,
-  },
+  }),
   mutations: {
     SET_EMPTY_LOGGING_STATE(state) {
       for (let key in state) {
@@ -28,33 +38,53 @@ export default {
       }
     },
     INITIALIZE_LOGGING_STATE(state, data) {
-      state.context = data.context;
-      state.complete = data.complete;
-      state.progress = data.progress;
+      state.context = valOrNull(data.context);
+      state.complete = valOrNull(data.complete);
+      state.progress = progressPrecision(valOrNull(data.progress));
       state.progress_delta = 0;
-      state.time_spent = data.time_spent;
+      state.time_spent = valOrNull(data.time_spent);
       state.time_spent_delta = 0;
-      state.session_id = data.session_id;
-      state.extra_fields = data.extra_fields;
-      state.mastery_criterion = data.mastery_criterion ? data.mastery_criterion : null;
-      state.pastattempts = data.pastattempts ? data.pastattempts : null;
+      state.session_id = valOrNull(data.session_id);
+      state.extra_fields = valOrNull(data.extra_fields);
+      state.mastery_criterion = valOrNull(data.mastery_criterion);
+      state.pastattempts = valOrNull(data.pastattempts);
       state.pastattemptMap = data.pastattempts
         ? fromPairs(data.pastattempts.map(a => [a.id, a]))
         : null;
-      state.totalattempts = data.totalattempts ? data.totalattempts : null;
+      state.totalattempts = valOrNull(data.totalattempts);
       state.unsavedInteractions = [];
     },
     ADD_UNSAVED_INTERACTION(state, interaction) {
       state.unsavedInteractions.push(interaction);
+      if (!interaction.id) {
+        const unsavedInteraction = state.pastattempts.find(
+          a => !a.id && a.item === interaction.item
+        );
+        if (unsavedInteraction) {
+          for (let key in interaction) {
+            Vue.set(unsavedInteraction, key, interaction[key]);
+          }
+        } else {
+          state.pastattempts.unshift(interaction);
+          state.totalattempts += 1;
+        }
+      }
     },
-    ADD_OR_UPDATE_ATTEMPT(state, attempt) {
-      if (attempt.id) {
-        if (!state.pastattemptMap[attempt.id]) {
-          state.pastattempts.unshift(attempt);
-          Vue.set(state.pastattemptMap, attempt.id, attempt);
+    UPDATE_ATTEMPT(state, interaction) {
+      if (interaction.id) {
+        if (!state.pastattemptMap[interaction.id]) {
+          const nowSavedInteraction = state.pastattempts.find(
+            a => !a.id && a.item === interaction.item
+          );
+          for (let key in interaction) {
+            Vue.set(nowSavedInteraction, key, interaction[key]);
+          }
+          Vue.set(state.pastattemptMap, nowSavedInteraction.id, nowSavedInteraction);
           state.totalattempts += 1;
         } else {
-          Object.assign(state.pastattemptMap[attempt.id], attempt);
+          for (let key in interaction) {
+            Vue.set(state.pastattemptMap[interaction.id], key, interaction[key]);
+          }
         }
       }
     },
@@ -67,14 +97,16 @@ export default {
       state.extra_fields_dirty_bit = true;
     },
     SET_LOGGING_PROGRESS(state, progress) {
+      progress = progressPrecision(progress);
       if (state.progress < progress) {
-        state.progress_delta = progress - state.progress;
+        state.progress_delta = progressPrecision(progress - state.progress);
         state.progress = progress;
       }
     },
     ADD_LOGGING_PROGRESS(state, progressDelta) {
-      state.progress_delta = state.progress_delta + progressDelta;
-      state.progress = Math.min(state.progress + progressDelta, 1);
+      progressDelta = progressPrecision(progressDelta);
+      state.progress_delta = progressPrecision(state.progress_delta + progressDelta);
+      state.progress = Math.min(progressPrecision(state.progress + progressDelta), 1);
     },
     LOGGING_SAVING(state) {
       state.progress_delta = 0;

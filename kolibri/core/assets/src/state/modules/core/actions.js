@@ -328,7 +328,7 @@ function makeSessionUpdateRequest(store, data) {
   }).then(response => {
     if (response.data.attempts) {
       for (let attempt of response.data.attempts) {
-        store.commit('ADD_OR_UPDATE_ATTEMPT', attempt);
+        store.commit('UPDATE_ATTEMPT', attempt);
       }
     }
     if (response.data.complete) {
@@ -406,45 +406,49 @@ function immediatelyUpdateContentSession(store) {
         attempt = attempt
           .catch(err => {
             if (err && err.response && err.response.status === 503) {
-              makeSessionUpdateRequest(store, data);
+              return makeSessionUpdateRequest(store, data);
             }
+            return Promise.reject(err);
           })
           .catch(err => {
             // Only try to handle 503 status codes here, as otherwise we might be continually
             // retrying the server when it is rejecting the request for valid reasons.
             if (err && err.response && err.response.status === 503) {
               // Defer to the server's Retry-After header if it is set.
-              return rejectDelay(err, err.response.headers['retry-after']);
+              const retryAfter = (err.response.headers || {})['retry-after'];
+              // retry-after header is in seconds, we need a value in milliseconds.
+              return rejectDelay(err, retryAfter ? retryAfter * 1000 : retryAfter);
             }
-            Promise.reject(err);
+            return Promise.reject(err);
           });
       }
-      return attempt.catch(handleApiError);
+      return attempt.catch(err => store.dispatch('handleApiError', err));
     });
-    return savingPromise
-      .then(result => {
-        // If it is successful call all of the resolve functions that we have stored
-        // from all the Promises that have been returned while this specific debounce
-        // has been active.
-        for (let [resolve] of updateContentSessionResolveRejectStack) {
-          resolve(result);
-        }
-        // Reset the stack for resolve/reject functions, so that future invocations
-        // do not call these now consumed functions.
-        updateContentSessionResolveRejectStack = [];
-      })
-      .catch(err => {
-        // If there is an error call reject for all previously returned promises.
-        for (let [, reject] of updateContentSessionResolveRejectStack) {
-          reject(err);
-        }
-        // Likewise reset the stack.
-        updateContentSessionResolveRejectStack = [];
-      });
   }
+  return savingPromise
+    .then(result => {
+      // If it is successful call all of the resolve functions that we have stored
+      // from all the Promises that have been returned while this specific debounce
+      // has been active.
+      for (let [resolve] of updateContentSessionResolveRejectStack) {
+        resolve(result);
+      }
+      // Reset the stack for resolve/reject functions, so that future invocations
+      // do not call these now consumed functions.
+      updateContentSessionResolveRejectStack = [];
+    })
+    .catch(err => {
+      // If there is an error call reject for all previously returned promises.
+      for (let [, reject] of updateContentSessionResolveRejectStack) {
+        reject(err);
+      }
+      // Likewise reset the stack.
+      updateContentSessionResolveRejectStack = [];
+    });
 }
 
-const updateContentSessionDebounceTime = 2000;
+// Set the debounce artificially short in tests to prevent slowdowns.
+const updateContentSessionDebounceTime = process.env.NODE_ENV === 'test' ? 1 : 2000;
 
 /**
  * Update a content session for progress tracking
@@ -453,6 +457,9 @@ export function updateContentSession(
   store,
   { progressDelta, progress, contentState, interaction, immediate = false } = {}
 ) {
+  if (store.state.logging.session_id === null) {
+    throw ReferenceError('Cannot update a content session before one has been initialized');
+  }
   if (!isUndefined(progressDelta) && !isUndefined(progress)) {
     throw TypeError('Must only specify either progressDelta or progress');
   }
@@ -470,13 +477,6 @@ export function updateContentSession(
     progressDelta = _zeroToOne(progressDelta);
     store.commit('ADD_LOGGING_PROGRESS', progressDelta);
   }
-  // Reset the elapsed time in the timer
-  const elapsedTime = intervalTimer.getNewTimeElapsed();
-  // Discard the time that has passed if the page is not visible.
-  if (store.state.pageVisible) {
-    /* Update the logging state with new timing information */
-    store.commit('UPDATE_LOGGING_TIME', elapsedTime);
-  }
   if (!isUndefined(contentState)) {
     if (!isPlainObject(contentState)) {
       throw TypeError('contentState must be an object');
@@ -487,8 +487,15 @@ export function updateContentSession(
     if (!isPlainObject(interaction)) {
       throw TypeError('interaction must be an object');
     }
-    store.commit('ADD_OR_UPDATE_ATTEMPT', interaction);
     store.commit('ADD_UNSAVED_INTERACTION', interaction);
+    store.commit('UPDATE_ATTEMPT', interaction);
+  }
+  // Reset the elapsed time in the timer
+  const elapsedTime = intervalTimer.getNewTimeElapsed();
+  // Discard the time that has passed if the page is not visible.
+  if (store.state.pageVisible) {
+    /* Update the logging state with new timing information */
+    store.commit('UPDATE_LOGGING_TIME', elapsedTime);
   }
 
   immediate = (!isUndefined(interaction) && !interaction.id) || immediate;
