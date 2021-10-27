@@ -80,7 +80,6 @@
           height: '100px',
           border: '2px solid transparent',
           'text-transform': 'capitalize',
-          'text-align': 'center',
           'font-weight': 'normal',
           transition: 'none',
           ':hover': {
@@ -128,8 +127,8 @@
   }
 
   .activity-button-text {
-    padding: 0;
-    margin: 0;
+    margin: auto;
+    margin-top: -12px;
   }
 
 </style>

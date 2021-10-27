@@ -156,6 +156,7 @@
                 cardViewStyle="card"
               />
             </div>
+            <!-- search results -->
             <HybridLearningCardGrid
               v-if="resources.length"
               :contents="trimmedTopicsList(resources)"
@@ -547,10 +548,12 @@
       trimmedTopicsList(contents) {
         // if more folders, display limited preview
         if (this.topics.length > 0) {
-          return contents.slice(0, this.windowIsSmall ? mobileCarouselLimit : carouselLimit);
+          return contents
+            .slice(0, !this.windowIsLarge ? mobileCarouselLimit : carouselLimit)
+            .map(normalizeContentNode);
           // if we have reached the end of the folder, show all contents
         } else {
-          return contents;
+          return contents.map(normalizeContentNode);
         }
       },
       updateFolder(id) {
@@ -581,6 +584,7 @@
             getParams.keywords = this.searchTerms.keywords;
           }
           ContentNodeResource.fetchCollection({ getParams }).then(data => {
+            console.log(data);
             this.results = data.results.map(normalizeContentNode);
             this.more = data.more;
             this.labels = data.labels;
@@ -597,9 +601,8 @@
           this.moreLoading = true;
           ContentNodeResource.fetchCollection({
             getParams: this.more,
-            channel_id: this.topic.channel_id,
           }).then(data => {
-            this.results.map(normalizeContentNode).push(...data.results);
+            this.results.push(...data.results.map(normalizeContentNode));
             this.more = data.more;
             this.labels = data.labels;
             this.moreLoading = false;
