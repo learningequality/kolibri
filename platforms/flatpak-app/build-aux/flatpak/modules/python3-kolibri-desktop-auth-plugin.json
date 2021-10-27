@@ -7,8 +7,8 @@
     "sources": [
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/e9/7b/43ca209c6dfa679444a143d5ecfd2ab3d70b7e08f15a160dde02fabc7d42/kolibri_desktop_auth_plugin-0.0.3-py2.py3-none-any.whl",
-            "sha256": "1273f71cc6f2e96edb3ea24256b01c4c9e2c38dee42e7d66d939db93dd088a98"
+            "url": "https://files.pythonhosted.org/packages/a5/c6/0c82f30e05cda00891c58e1b35d37f43abd3d1416a9b22855c9a82219276/kolibri_desktop_auth_plugin-0.0.4-py2.py3-none-any.whl",
+            "sha256": "a7a3b8d7719a6f3807772c7abfc1d4f35170dd7e78adac5b7389798f570dd2bf"
         }
     ]
 }
