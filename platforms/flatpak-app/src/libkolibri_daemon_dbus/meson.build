@@ -34,6 +34,13 @@ kolibri_daemon_dbus_src = gnome.gdbus_codegen(
     sources: 'org.learningequality.Kolibri.Daemon.xml',
     interface_prefix: 'org.learningequality.Kolibri.',
     namespace: 'Kolibri',
+    # The public interface should be "org.learningequality.Kolibri.Daemon.Main",
+    # but at the moment it appears as "org.learningequality.Kolibri.Daemon" for
+    # compatibility with eos-kolibri's included D-Bus policy:
+    # <https://github.com/endlessm/eos-kolibri>
+    annotations: [
+        ['org.learningequality.Kolibri.Daemon', 'org.gtk.GDBus.C.Name', 'DaemonMain']
+    ],
     autocleanup: 'all'
 )
 
