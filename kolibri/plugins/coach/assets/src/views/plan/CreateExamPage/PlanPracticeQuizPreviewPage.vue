@@ -10,12 +10,12 @@
     authorizedRole="adminOrCoach"
   >
     <KPageContainer>
-      <ChannelQuizContentPreviewPage
+      <PracticeQuizContentPreviewPage
         :currentContentNode="currentContentNode"
         :isSelected="isSelected"
         :questions="preview.questions"
         :displaySelectOptions="true"
-        :isChannelQuiz="true"
+        :isPracticeQuiz="true"
         :completionData="preview.completionData"
         @submit="handleSubmit"
       />
@@ -32,12 +32,12 @@
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import commonCoach from '../../common';
-  import ChannelQuizContentPreviewPage from '../LessonContentPreviewPage/ChannelQuizContentPreviewPage';
+  import PracticeQuizContentPreviewPage from '../LessonContentPreviewPage/PracticeQuizContentPreviewPage';
 
   export default {
-    name: 'PlanChannelQuizPreviewPage',
+    name: 'PlanPracticeQuizPreviewPage',
     components: {
-      ChannelQuizContentPreviewPage,
+      PracticeQuizContentPreviewPage,
     },
     mixins: [commonCoreStrings, commonCoach],
     computed: {
@@ -68,7 +68,7 @@
               classId: id,
               randomized: content.assessmentmetadata.randomize,
             };
-            return this.$store.dispatch('examCreation/createChannelQuizAndRoute', params);
+            return this.$store.dispatch('examCreation/createPracticeQuizAndRoute', params);
           })
           .then(() => {
             this.showSnackbarNotification('quizCreated');

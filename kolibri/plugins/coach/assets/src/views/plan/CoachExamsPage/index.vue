@@ -272,7 +272,7 @@
       handleSelect({ value }) {
         const nextRoute = {
           MAKE_NEW_QUIZ: PageNames.EXAM_CREATION_ROOT,
-          SELECT_QUIZ: PageNames.EXAM_CREATION_CHANNEL_QUIZ,
+          SELECT_QUIZ: PageNames.EXAM_CREATION_PRACTICE_QUIZ,
         }[value];
         this.$router.push(this.$router.getRoute(nextRoute));
       },
@@ -295,9 +295,9 @@
         context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.\n",
       },
       selectQuiz: {
-        message: 'Select channel quiz',
+        message: 'Select quiz',
         context:
-          "Channel quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a channel quiz refers to importing a ready-to-use quiz.",
+          "Practice quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a practice quiz refers to importing a ready-to-use quiz.",
       },
     },
   };
