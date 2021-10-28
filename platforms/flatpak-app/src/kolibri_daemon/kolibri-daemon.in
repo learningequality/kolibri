@@ -1,3 +1,7 @@
 #!/bin/sh
 
-@PYTHON@ -m "kolibri_daemon.main" $@
+if [ -z "${DBUS_SESSION_BUS_ADDRESS}" ]; then
+    dbus-run-session -- @PYTHON@ -m "kolibri_daemon.main" $@
+else
+    @PYTHON@ -m "kolibri_daemon.main" $@
+fi
