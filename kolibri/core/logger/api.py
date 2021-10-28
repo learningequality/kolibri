@@ -127,6 +127,26 @@ attemptlog_fields = [
 
 
 class LogContext(object):
+    """
+    Object used to provide a limited dict like interface for encoding the
+    context that can be stored in the sessionlog, and which is then
+    returned to the frontend as part of the initialization of a content
+    session.
+    node_id - represents a specific ContentNode in a topic tree, while the
+    content_id for that node is recorded directly on the sessionlog.
+    quiz_id - represents the id of the Exam Model object that this session
+    is regarding (if any).
+    lesson_id - represents the id of the lesson this node_id is being engaged
+    with from within (if any).
+    mastery_level - represents the current 'try' at an assessment, whether an exercise
+    a practice quiz or a coach assigned quiz. Different mastery_level values
+    indicate a different try at the assessment.
+
+    This is used to encode the values that are sent when initializing a session
+    (see its use in the _get_context method below)
+    and then also used to hold the values from an existing sessionlog when
+    updating a session (see _update_session method).
+    """
 
     __slots__ = "node_id", "quiz_id", "lesson_id", "mastery_level"
 
@@ -148,6 +168,10 @@ class LogContext(object):
         return key in self.__slots__ and hasattr(self, key)
 
     def to_dict(self):
+        """
+        Provide a dictionary of the keys stored in the context object.
+        Used to serialize for inclusion in an API Response.
+        """
         output = {}
         for slot in self.__slots__:
             if hasattr(self, slot):

@@ -107,7 +107,7 @@ class DatabaseBusyErrorHandler(object):
     """
     A middleware class to raise a 503 when the database is under heavy load
     For SQLite this will trigger for database locked errors.
-    For Postgres this will trigger for
+    For Postgres this will trigger for deadlocks.
     """
 
     def __init__(self, get_response):
