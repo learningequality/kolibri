@@ -1,6 +1,6 @@
 {
   "name": "kolibri",
-  "version": "0.13.0-dev.10",
+  "version": "0.14.7-rc0",
   "description": "The Kolibri core API",
   "repository": "github.com/learningequality/kolibri",
   "author": "Learning Equality",
@@ -13,11 +13,13 @@
     "core-js": "^3.2.1",
     "csv-generator-client": "^2.1.1",
     "date-fns": "^1.28.2",
+    "fuse.js": "^6.4.6",
     "fontfaceobserver": "^2.0.13",
     "frame-throttle": "^3.0.0",
+    "hammerjs": "^2.0.8",
     "intl": "^1.2.4",
     "knuth-shuffle-seeded": "^1.0.6",
-    "kolibri-design-system": "github:nucleogenesis/kolibri-design-system-1#big-keen-ui-vendoring",
+    "kolibri-design-system": "github:learningequality/kolibri-design-system#v0.2.1",
     "lockr": "0.8.4",
     "lodash": "^4.17.4",
     "loglevel": "^1.4.1",
@@ -34,6 +36,6 @@
     "vuex-router-sync": "^5.0.0"
   },
   "devDependencies": {
-    "kolibri-tools": "0.13.0-dev.10"
+    "kolibri-tools": "0.14.7-rc0"
   }
 }
