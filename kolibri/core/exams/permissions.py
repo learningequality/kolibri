@@ -26,7 +26,7 @@ class UserCanReadExamAssignmentData(DenyAll):
         from kolibri.core.logger.models import MasteryLog
 
         user_masterylog_content_ids = MasteryLog.objects.filter(user=user).values(
-            "content_id"
+            "summarylog__content_id"
         )
         return Q(collection_id__in=user.memberships.all().values("collection_id")) & Q(
             Q(exam__active=True) | Q(exam__id__in=user_masterylog_content_ids)
