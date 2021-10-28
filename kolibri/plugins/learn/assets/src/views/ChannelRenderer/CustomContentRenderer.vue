@@ -103,7 +103,7 @@
       this.hashi.initialize(
         {},
         {},
-        urls.zipContentUrl(zipFile.checksum, zipFile.extension),
+        urls.zipContentUrl(zipFile.checksum, zipFile.extension, 'index.html'),
         zipFile.checksum
       );
     },
