@@ -34,8 +34,7 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.logger.models import ExamAttemptLog
-from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.logger.utils import user_data
 
@@ -164,14 +163,39 @@ class BaseDeviceSetupMixin(object):
                             channel_id=self.channel.id,
                         )
                     for _ in range(1):
-                        examlog = ExamLog.objects.create(exam=exam, user=user)
-                        ExamAttemptLog.objects.create(
-                            examlog=examlog,
+                        sl = ContentSessionLog.objects.create(
+                            user=user,
+                            start_timestamp=min_timestamp,
+                            end_timestamp=max_timestamp,
+                            content_id=exam.id,
+                            channel_id=None,
+                            time_spent=60,  # 1 minute
+                            kind=content_kinds.QUIZ,
+                        )
+                        summarylog = ContentSummaryLog.objects.create(
+                            user=user,
+                            start_timestamp=min_timestamp,
+                            end_timestamp=max_timestamp,
+                            completion_timestamp=max_timestamp,
+                            content_id=exam.id,
+                            channel_id=None,
+                            kind=content_kinds.QUIZ,
+                        )
+                        masterylog = MasteryLog.objects.create(
+                            mastery_criterion={"type": "quiz", "coach_assigned": True},
+                            summarylog=summarylog,
+                            start_timestamp=summarylog.start_timestamp,
+                            user=user,
+                            mastery_level=-1,
+                        )
+                        AttemptLog.objects.create(
+                            masterylog=masterylog,
+                            sessionlog=sl,
                             start_timestamp=min_timestamp,
                             end_timestamp=max_timestamp,
                             completion_timestamp=max_timestamp,
                             correct=1,
-                            content_id=uuid.uuid4().hex,
+                            item="test:test",
                         )
 
 
@@ -209,17 +233,21 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
             "clc": 1,  # coach_login_count
             "f": "2018-10-11",  # first interaction
             "l": "2019-10-11",  # last interaction
-            "ss": 20,  # summarylog_started
-            "sc": 20,  # summarylog_complete
-            "sk": {content_kinds.EXERCISE: 20, content_kinds.VIDEO: 20},  # sess_kinds
+            "ss": 40,  # summarylog_started
+            "sc": 40,  # summarylog_complete
+            "sk": {
+                content_kinds.EXERCISE: 20,
+                content_kinds.VIDEO: 20,
+                content_kinds.QUIZ: 20,
+            },  # sess_kinds
             "lec": 1,  # lesson_count
             "ec": 1,  # exam_count
             "elc": 20,  # exam_log_count
             "alc": 20,  # att_log_count
             "ealc": 20,  # exam_att_log_count
-            "suc": 20,  # sess_user_count
+            "suc": 40,  # sess_user_count
             "sac": 20,  # sess_anon_count
-            "sut": 20,  # sess_user_time
+            "sut": 40,  # sess_user_time
             "sat": 20,  # sess_anon_time
             "dsl": {
                 "bys": {

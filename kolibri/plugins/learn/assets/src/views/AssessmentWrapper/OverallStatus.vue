@@ -34,7 +34,6 @@
         );
       },
       totalCorrectRequiredM() {
-        console.log('in OverallStatus', this);
         return this.mOfNMasteryModel.m;
       },
     },

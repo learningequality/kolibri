@@ -60,38 +60,6 @@ export const NoCategories = 'no_categories';
 // used internally on the client as a hack to allow content-icons to display users
 export const USER = 'user';
 
-export const MasteryLoggingMap = {
-  id: 'id',
-  summarylog: 'summarylog',
-  start_timestamp: 'start_timestamp',
-  completion_timestamp: 'completion_timestamp',
-  end_timestamp: 'end_timestamp',
-  mastery_level: 'mastery_level',
-  mastery_criterion: 'mastery_criterion',
-  complete: 'complete',
-  responsehistory: 'responsehistory',
-  pastattempts: 'pastattempts',
-  totalattempts: 'totalattempts',
-};
-
-export const AttemptLoggingMap = {
-  id: 'id',
-  sessionlog: 'sessionlog',
-  item: 'item',
-  user: 'user',
-  start_timestamp: 'start_timestamp',
-  completion_timestamp: 'completion_timestamp',
-  end_timestamp: 'end_timestamp',
-  time_spent: 'time_spent',
-  complete: 'complete',
-  correct: 'correct',
-  answer: 'answer',
-  simple_answer: 'simple_answer',
-  interaction_history: 'interaction_history',
-  masterylog: 'masterylog',
-  hinted: 'hinted',
-};
-
 export const InteractionTypes = {
   hint: 'hint',
   answer: 'answer',

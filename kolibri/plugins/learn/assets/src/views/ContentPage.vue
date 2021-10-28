@@ -13,10 +13,10 @@
         :available="content.available"
         :duration="content.duration"
         :extraFields="extraFields"
-        :progress="summaryProgress"
+        :progress="progress"
         :userId="currentUserId"
         :userFullName="fullName"
-        :timeSpent="summaryTimeSpent"
+        :timeSpent="timeSpent"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
@@ -28,7 +28,6 @@
 
       <AssessmentWrapper
         v-else
-        :id="content.id"
         class="content-renderer"
         :kind="content.kind"
         :files="content.files"
@@ -36,16 +35,15 @@
         :randomize="content.randomize"
         :masteryModel="content.masteryModel"
         :assessmentIds="content.assessmentIds"
-        :channelId="channelId"
         :available="content.available"
         :extraFields="extraFields"
-        :progress="summaryProgress"
+        :progress="progress"
         :userId="currentUserId"
         :userFullName="fullName"
-        :timeSpent="summaryTimeSpent"
+        :timeSpent="timeSpent"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
-        @updateProgress="updateExerciseProgress"
+        @updateProgress="updateProgress"
         @updateContentState="updateContentState"
       />
     </template>
@@ -87,7 +85,7 @@
       return {
         title: this.$tr('documentTitle', {
           contentTitle: this.content.title,
-          channelTitle: this.channel.title,
+          channelTitle: this.content.ancestors[0].title,
         }),
       };
     },
@@ -103,11 +101,6 @@
           return val.kind && val.content_id;
         },
       },
-      channelId: {
-        type: String,
-        required: true,
-        default: null,
-      },
     },
     data() {
       return {
@@ -119,28 +112,14 @@
       ...mapGetters(['isUserLoggedIn', 'currentUserId']),
       ...mapState(['pageName']),
       ...mapState({
-        masteryAttempts: state => state.core.logging.mastery.totalattempts,
-        summaryProgress: state => state.core.logging.summary.progress,
-        summaryTimeSpent: state => state.core.logging.summary.time_spent,
-        sessionProgress: state => state.core.logging.session.progress,
-        extraFields: state => state.core.logging.summary.extra_fields,
+        progress: state => state.core.logging.progress,
+        timeSpent: state => state.core.logging.time_spent,
+        extraFields: state => state.core.logging.extra_fields,
         fullName: state => state.core.session.full_name,
       }),
-      progress() {
-        if (this.isUserLoggedIn) {
-          // if there no attempts for this exercise, there is no progress
-          if (this.content.kind === ContentNodeKinds.EXERCISE && this.masteryAttempts === 0) {
-            return undefined;
-          }
-          return this.summaryProgress;
-        }
-        return this.sessionProgress;
-      },
-      contentKind() {
-        return this.content && this.content.kind ? this.content.kind : null;
-      },
-      contentId() {
-        return this.content && this.content.content_id ? this.content.content_id : null;
+      lessonId() {
+        // This should be undefined when not in a lesson
+        return this.$route.params.lessonId;
       },
       nextContentNodeRoute() {
         // HACK Use a the Resource Viewer Link instead
@@ -157,10 +136,9 @@
       },
     },
     created() {
-      return this.initSessionAction({
-        channelId: this.channelId,
-        contentId: this.contentId,
-        contentKind: this.contentKind,
+      return this.initContentSession({
+        nodeId: this.content.id,
+        lessonId: this.lessonId,
       }).then(() => {
         this.sessionReady = true;
         this.setWasIncomplete();
@@ -171,33 +149,28 @@
     },
     methods: {
       ...mapActions({
-        initSessionAction: 'initContentSession',
-        updateProgressAction: 'updateProgress',
-        addProgressAction: 'addProgress',
+        initContentSession: 'initContentSession',
+        updateContentSession: 'updateContentSession',
         startTracking: 'startTrackingProgress',
         stopTracking: 'stopTrackingProgress',
-        updateContentNodeState: 'updateContentState',
       }),
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
       },
-      updateProgress(progressPercent, forceSave = false) {
-        this.updateProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
-          updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
+      updateProgress(progress) {
+        this.updateContentSession({ progress }).then(() =>
+          updateContentNodeProgress(this.contentNodeId, this.progress)
         );
-        this.$emit('updateProgress', progressPercent);
+        this.$emit('updateProgress', progress);
       },
-      addProgress(progressPercent, forceSave = false) {
-        this.addProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
-          updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
+      addProgress(progressDelta) {
+        this.updateContentSession({ progressDelta }).then(() =>
+          updateContentNodeProgress(this.contentNodeId, this.progress)
         );
-        this.$emit('addProgress', progressPercent);
+        this.$emit('addProgress', progressDelta);
       },
-      updateExerciseProgress(progressPercent) {
-        this.$emit('updateProgress', progressPercent);
-      },
-      updateContentState(contentState, forceSave = true) {
-        this.updateContentNodeState({ contentState, forceSave });
+      updateContentState(contentState) {
+        this.updateContentSession({ contentState });
       },
       navigateTo(message) {
         let id = message.nodeId;
@@ -209,10 +182,9 @@
             this.$store.dispatch('handleApiError', error);
           });
       },
-      // TODO: markAsComplete not used but may be re-added for upcoming progress/status work
-      // markAsComplete() {
-      //   this.wasIncomplete = false;
-      // },
+      markAsComplete() {
+        this.wasIncomplete = false;
+      },
       onError(error) {
         this.$store.dispatch('handleApiError', error);
       },

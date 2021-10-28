@@ -16,8 +16,6 @@ export default {
   state() {
     return {
       pageName: '',
-      examAttemptLogs: {},
-      examLog: {},
       memberships: [],
       canAccessUnassignedContentSetting: plugin_data.allowLearnerUnassignedResourceAccess,
       allowGuestAccess: plugin_data.allowGuestAccess,

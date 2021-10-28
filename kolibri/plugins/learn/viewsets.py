@@ -3,6 +3,7 @@ from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models import Sum
+from django.db.models.fields import IntegerField
 from rest_framework.permissions import IsAuthenticated
 
 from kolibri.core.api import ReadOnlyValuesViewset
@@ -10,9 +11,9 @@ from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Classroom
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
+from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.logger.models import ExamAttemptLog
-from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import MasteryLog
 
 
 class LearnerClassroomViewset(ReadOnlyValuesViewset):
@@ -68,39 +69,45 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                 "total_resources": len(lesson["resources"]),
             }
 
+        user_masterylog_content_ids = MasteryLog.objects.filter(
+            user=self.request.user
+        ).values("summarylog__content_id")
+
         exams = (
             Exam.objects.filter(
                 assignments__collection__membership__user=self.request.user,
                 collection__in=(c["id"] for c in items),
             )
-            .filter(Q(active=True) | Q(examlogs__user=self.request.user))
+            .filter(Q(active=True) | Q(id__in=user_masterylog_content_ids))
             .annotate(
                 closed=Subquery(
-                    ExamLog.objects.filter(
-                        exam=OuterRef("id"), user=self.request.user
-                    ).values("closed")[:1]
+                    MasteryLog.objects.filter(
+                        summarylog__content_id=OuterRef("id"), user=self.request.user
+                    ).values("complete")[:1]
                 ),
                 score=Subquery(
-                    ExamAttemptLog.objects.filter(
-                        examlog__exam=OuterRef("id"), user=self.request.user
+                    AttemptLog.objects.filter(
+                        sessionlog__content_id=OuterRef("id"), user=self.request.user
                     )
                     .order_by()
-                    .values_list("item", "content_id")
+                    .values_list("item")
                     .distinct()
-                    .values("examlog")
+                    .values("masterylog")
                     .annotate(total_correct=Sum("correct"))
-                    .values("total_correct")
+                    .values("total_correct"),
+                    output_field=IntegerField(),
                 ),
                 answer_count=Subquery(
-                    ExamAttemptLog.objects.filter(
-                        examlog__exam=OuterRef("id"), user=self.request.user
+                    AttemptLog.objects.filter(
+                        sessionlog__content_id=OuterRef("id"), user=self.request.user
                     )
                     .order_by()
-                    .values_list("item", "content_id")
+                    .values_list("item")
                     .distinct()
-                    .values("examlog")
+                    .values("masterylog")
                     .annotate(total_complete=Count("id"))
-                    .values("total_complete")
+                    .values("total_complete"),
+                    output_field=IntegerField(),
                 ),
             )
             .distinct()

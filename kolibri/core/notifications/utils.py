@@ -3,6 +3,10 @@ from __future__ import unicode_literals
 import functools
 
 
+def _generate_key(*args, **kwargs):
+    return (args, frozenset(sorted(kwargs.items())))
+
+
 def memoize(fun):
     """A simple memoize decorator for functions supporting (hashable)
     positional arguments.
@@ -20,7 +24,7 @@ def memoize(fun):
 
     @functools.wraps(fun)
     def wrapper(*args, **kwargs):
-        key = (args, frozenset(sorted(kwargs.items())))
+        key = _generate_key(*args, **kwargs)
         try:
             return cache[key]
         except KeyError:
@@ -31,6 +35,11 @@ def memoize(fun):
         """Clear cache."""
         cache.clear()
 
+    def delete_key(*args, **kwargs):
+        key = _generate_key(*args, **kwargs)
+        del cache[key]
+
     cache = {}
     wrapper.cache_clear = cache_clear
+    wrapper.delete_key = delete_key
     return wrapper

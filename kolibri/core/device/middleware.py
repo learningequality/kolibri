@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.db import OperationalError
+from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import is_valid_path
@@ -96,6 +98,41 @@ class ProvisioningErrorHandler(object):
         ):
             return redirect(SetupHook.provision_url())
         return None
+
+    def __call__(self, request):
+        return self.get_response(request)
+
+
+class DatabaseBusyErrorHandler(object):
+    """
+    A middleware class to raise a 503 when the database is under heavy load
+    For SQLite this will trigger for database locked errors.
+    For Postgres this will trigger for deadlocks.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def process_exception(self, request, exception):
+        if not isinstance(exception, OperationalError):
+            return None
+        if (
+            OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite"
+            and "database is locked" not in exception.args[0]
+        ):
+            return None
+        if (
+            OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres"
+            and "deadlock detected" not in exception.args[0]
+        ):
+            return None
+        # Return a 503 response with a Retry-After of 10 seconds. In future we may be able to customize this value
+        # based on what is currently happening on the server.
+        return HttpResponse(
+            "Database is not available for write operations",
+            status=503,
+            headers={"Retry-After": 10},
+        )
 
     def __call__(self, request):
         return self.get_response(request)

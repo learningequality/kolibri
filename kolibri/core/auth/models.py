@@ -84,8 +84,14 @@ class DatasetCache(local):
     def __init__(self):
         self.deactivate()
 
+    def __enter__(self):
+        self.activate()
+
     def activate(self):
         self._active = True
+
+    def __exit__(self, type, value, traceback):
+        self.deactivate()
 
     def deactivate(self):
         self._active = False
@@ -226,6 +232,10 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
     class Meta:
         abstract = True
 
+    @classmethod
+    def get_related_dataset_cache_key(cls, id, db_table):
+        return "{id}_{db_table}_dataset".format(id=id, db_table=db_table)
+
     def cached_related_dataset_lookup(self, related_obj_name):
         """
         Attempt to get the dataset_id either from the cache or the actual related obj instance.
@@ -234,8 +244,8 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         :return: the dataset_id associated with the related obj
         """
         field = self._meta.get_field(related_obj_name)
-        key = "{id}_{db_table}_dataset".format(
-            id=getattr(self, field.attname), db_table=field.related_model._meta.db_table
+        key = self.get_related_dataset_cache_key(
+            getattr(self, field.attname), field.related_model._meta.db_table
         )
         dataset_id = dataset_cache.get(key)
         if dataset_id is None:
