@@ -21,7 +21,6 @@ import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
 import Lockr from 'lockr';
 import { baseSessionState } from '../session';
-import intervalTimer from '../../../timer';
 import { LoginErrors, ERROR_CONSTANTS, UPDATE_MODAL_DISMISSED } from '../../../constants';
 import { browser, os } from '../../../utils/browserInfo';
 import errorCodes from './../../../disconnectionErrorCodes.js';
@@ -271,6 +270,34 @@ export function getFacilityConfig(store, facilityId) {
   });
 }
 
+let lastElapsedTimeCheck;
+let timeCheckIntervalTimer;
+
+function getNewTimeElapsed() {
+  // Timer has not been started
+  if (!lastElapsedTimeCheck) {
+    return 0;
+  }
+  const currentTime = new Date();
+  const timeElapsed = currentTime - lastElapsedTimeCheck;
+  lastElapsedTimeCheck = currentTime;
+  // Some browsers entirely suspend code execution in background tabs,
+  // which can lead to unreliable timing if a tab has been in the background
+  // if the time elasped is significantly longer than the interval that we are
+  // checking this at, we should discard the result.
+  if (timeElapsed > intervalTime * 10) {
+    return 0;
+  }
+  // Return a time in seconds, rather than milliseconds.
+  return timeElapsed / 1000;
+}
+
+function clearTrackingInterval() {
+  clearInterval(timeCheckIntervalTimer);
+  timeCheckIntervalTimer = null;
+  lastElapsedTimeCheck = null;
+}
+
 /**
  * Initialize a content session for progress tracking
  * To be called on page load for content renderers
@@ -305,6 +332,8 @@ export function initContentSession(store, { nodeId, lessonId, quizId } = {}) {
   // Always clear the logging state when we init the content session,
   // to avoid state pollution.
   store.commit('SET_EMPTY_LOGGING_STATE');
+  // Clear any previous interval tracking that has been started
+  clearTrackingInterval();
 
   return client({
     method: 'post',
@@ -491,9 +520,9 @@ export function updateContentSession(
     store.commit('UPDATE_ATTEMPT', interaction);
   }
   // Reset the elapsed time in the timer
-  const elapsedTime = intervalTimer.getNewTimeElapsed();
+  const elapsedTime = getNewTimeElapsed();
   // Discard the time that has passed if the page is not visible.
-  if (store.state.pageVisible) {
+  if (store.state.pageVisible && elapsedTime) {
     /* Update the logging state with new timing information */
     store.commit('UPDATE_LOGGING_TIME', elapsedTime);
   }
@@ -527,10 +556,11 @@ export function updateContentSession(
  * Start interval timer and set start time
  * @param {int} interval
  */
-export function startTrackingProgress(store, interval = intervalTime) {
-  intervalTimer.startTimer(interval, () => {
+export function startTrackingProgress(store) {
+  timeCheckIntervalTimer = setInterval(() => {
     updateContentSession(store);
-  });
+  }, intervalTime);
+  lastElapsedTimeCheck = new Date();
 }
 
 /**
@@ -538,7 +568,7 @@ export function startTrackingProgress(store, interval = intervalTime) {
  * Must be called after startTrackingProgress
  */
 export function stopTrackingProgress(store) {
-  intervalTimer.stopTimer();
+  clearTrackingInterval();
   updateContentSession(store, { immediate: true });
 }
 
