@@ -12,8 +12,8 @@
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/9d/3a/0fc55e8b74c5fa7b92d4eb608914ab08e107aacaecf539cb60beacde52fe/kolibri_app_desktop_xdg_plugin-1.1.2-py2.py3-none-any.whl",
-            "sha256": "4a2a4034b67351f829893ddd0af8907c2019ec80eb96abcbf22a6b93d0ec4091"
+            "url": "https://files.pythonhosted.org/packages/54/a9/8d315e437199337cf4bfff710d29e3bd6e10be4549b4a14d246053619579/kolibri_app_desktop_xdg_plugin-1.1.3-py2.py3-none-any.whl",
+            "sha256": "af0ed48415f7ed37e773fef328d332cbf076817ebddca018efde27c092e6e3ca"
         }
     ]
 }
