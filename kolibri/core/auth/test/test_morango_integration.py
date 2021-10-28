@@ -9,6 +9,7 @@ import uuid
 from django.core.management import call_command
 from django.test import TestCase
 from django.utils import timezone
+from le_utils.constants import content_kinds
 from morango.models import InstanceIDModel
 from morango.models import ScopeDefinition
 from morango.models import Store
@@ -30,13 +31,11 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
+from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import MasteryLog
 from kolibri.core.public.utils import find_soud_sync_session_for_resume
-
-# TODO: add back in after single-user exam assignment is reinstated
-# from kolibri.core.logger.models import ExamAttemptLog
-# from kolibri.core.logger.models import ExamLog
 
 
 class FacilityDatasetCertificateTestCase(TestCase):
@@ -599,9 +598,7 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
 
         # repeat the same sets of scenarios, but separately for an exam and a lesson, and with
         # different methods for disabling the assignment as part of the process
-        for kind in (
-            "lesson",
-        ):  # TODO: once exams are back, change to: ("exam", "lesson")
+        for kind in ("exam", "lesson"):
             for disable_assignment in (self.deactivate, self.unassign):
 
                 # Create on Laptop A, single-user sync to tablet, disable, repeat
@@ -681,47 +678,99 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
                     self.tablet, kind, assignment_id, should_exist=False
                 )
 
-        # TODO: uncomment the following once single-user exam assignment syncing is reinstated
-        # # Create exam on Laptop A, single-user sync to tablet, then modify exam on Laptop A and
-        # # single-user sync again to check that "updating" works
-        # assignment_id = self.create_assignment("exam")
-        # self.sync_single_user(self.laptop_a)
-        # assignment_a = ExamAssignment.objects.using(self.laptop_a.db_alias).get(id=assignment_id)
-        # assignment_a.exam.seed = 433
-        # assignment_a.exam.save()
-        # self.sync_single_user(self.laptop_a)
-        # assignment_t = ExamAssignment.objects.using(self.tablet.db_alias).get(id=assignment_id)
-        # assert assignment_t.exam.seed == 433
+        # Create exam on Laptop A, single-user sync to tablet, then modify exam on Laptop A and
+        # single-user sync again to check that "updating" works
+        assignment_id = self.create_assignment("exam")
+        self.sync_single_user(self.laptop_a)
+        assignment_a = ExamAssignment.objects.using(self.laptop_a.db_alias).get(
+            id=assignment_id
+        )
+        assignment_a.exam.seed = 433
+        assignment_a.exam.save()
+        self.sync_single_user(self.laptop_a)
+        assignment_t = ExamAssignment.objects.using(self.tablet.db_alias).get(
+            id=assignment_id
+        )
+        assert assignment_t.exam.seed == 433
 
-        # # Create ExamLog and ExamAttemptLog on tablet and sync to laptop A to verify receipt
-        # self.tablet.create_model(
-        #     ExamLog,
-        #     exam_id=assignment_t.exam_id,
-        #     user_id=self.learner.id,
-        #     completion_timestamp=timezone.now(),
-        # )
-        # learner_exam_log = ExamLog.objects.using(self.tablet.db_alias).get(
-        #     exam_id=assignment_t.exam_id, user_id=self.learner.id
-        # )
-        # self.tablet.create_model(
-        #     ExamAttemptLog,
-        #     user_id=self.learner.id,
-        #     examlog_id=learner_exam_log.id,
-        #     content_id=uuid.uuid4().hex,
-        #     item=uuid.uuid4().hex,
-        #     start_timestamp=timezone.now(),
-        #     end_timestamp=timezone.now(),
-        #     completion_timestamp=timezone.now(),
-        #     time_spent=2,
-        #     complete=True,
-        #     correct=False,
-        # )
-        # self.sync_single_user(self.laptop_a)
-        # self.assertTrue(
-        #     ExamLog.objects.using(self.laptop_a.db_alias)
-        #     .filter(exam_id=assignment_t.exam_id, user_id=self.learner.id)
-        #     .exists()
-        # )
+        # Create ExamLog and ExamAttemptLog on tablet and sync to laptop A to verify receipt
+        exam_start = timezone.now() - datetime.timedelta(minutes=42)
+        exam_end = timezone.now()
+        self.tablet.create_model(
+            ContentSessionLog,
+            user_id=self.learner.id,
+            content_id=assignment_t.exam_id,
+            start_timestamp=exam_start,
+            end_timestamp=exam_end,
+            progress=1,
+            kind=content_kinds.QUIZ,
+        )
+        exam_session_log = ContentSessionLog.objects.using(self.tablet.db_alias).get(
+            content_id=assignment_t.exam_id, user_id=self.learner.id
+        )
+        self.tablet.create_model(
+            ContentSummaryLog,
+            user_id=self.learner.id,
+            content_id=assignment_t.exam_id,
+            start_timestamp=exam_start,
+            end_timestamp=exam_end,
+            completion_timestamp=exam_end,
+            progress=1,
+            kind=content_kinds.QUIZ,
+        )
+        exam_summary_log = ContentSummaryLog.objects.using(self.tablet.db_alias).get(
+            content_id=assignment_t.exam_id, user_id=self.learner.id
+        )
+        self.tablet.create_model(
+            MasteryLog,
+            user_id=self.learner.id,
+            summarylog_id=exam_summary_log.id,
+            mastery_criterion={"type": content_kinds.QUIZ},
+            start_timestamp=exam_start,
+            end_timestamp=exam_end,
+            completion_timestamp=exam_end,
+            mastery_level=1,
+            complete=True,
+        )
+        exam_mastery_log = MasteryLog.objects.using(self.tablet.db_alias).get(
+            summarylog_id=exam_summary_log.id, user_id=self.learner.id
+        )
+        self.tablet.create_model(
+            AttemptLog,
+            user_id=self.learner.id,
+            sessionlog_id=exam_session_log.id,
+            masterylog_id=exam_mastery_log.id,
+            item=uuid.uuid4().hex,
+            start_timestamp=exam_start,
+            end_timestamp=exam_end,
+            completion_timestamp=exam_end,
+            time_spent=2,
+            complete=True,
+            correct=1,
+        )
+        self.sync_single_user(self.laptop_a)
+        logs_expected = [
+            ContentSessionLog.objects.filter(
+                content_id=assignment_t.exam_id, user_id=self.learner.id
+            ),
+            ContentSummaryLog.objects.filter(
+                content_id=assignment_t.exam_id, user_id=self.learner.id
+            ),
+            MasteryLog.objects.filter(
+                summarylog_id=exam_summary_log.id, user_id=self.learner.id
+            ),
+            AttemptLog.objects.filter(
+                sessionlog_id=exam_session_log.id, masterylog_id=exam_mastery_log.id
+            ),
+        ]
+
+        for log_queryset in logs_expected:
+            self.assertTrue(
+                log_queryset.using(self.laptop_a.db_alias).exists(),
+                msg="Exam logging information in {} was not synced".format(
+                    log_queryset.model.__name__
+                ),
+            )
 
         # Create lesson on Laptop A, single-user sync to tablet, then modify lesson on Laptop A
         # and single-user sync again to check that "updating" works
@@ -740,17 +789,18 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
 
         # The morango dirty bits should not be set on exams, lessons, and assignments on the tablet,
         # since we never want these "ghost" copies to sync back out to anywhere else
-        # TODO: uncomment the following once single-user exam assignment syncing is reinstated
-        # assert (
-        #     ExamAssignment.objects.using(self.tablet.db_alias)
-        #     .filter(_morango_dirty_bit=True)
-        #     .count()
-        #     == 0
-        # )
-        # assert (
-        #     Exam.objects.using(self.tablet.db_alias).filter(_morango_dirty_bit=True).count()
-        #     == 0
-        # )
+        assert (
+            ExamAssignment.objects.using(self.tablet.db_alias)
+            .filter(_morango_dirty_bit=True)
+            .count()
+            == 0
+        )
+        assert (
+            Exam.objects.using(self.tablet.db_alias)
+            .filter(_morango_dirty_bit=True)
+            .count()
+            == 0
+        )
         assert (
             LessonAssignment.objects.using(self.tablet.db_alias)
             .filter(_morango_dirty_bit=True)

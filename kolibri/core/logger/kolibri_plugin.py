@@ -13,8 +13,10 @@ class ExamLogsCompatibilityOperation(KolibriVersionedSyncOperation):
         Migrates exam logs to be backwards compatible with older Kolibris
         :type context: morango.sync.context.LocalSessionContext
         """
-        exam_logs = context.transfer_session.get_touched_record_ids_for_model(ExamLog)
-        migrate_from_exam_logs(exam_logs)
+        exam_logs_ids = context.transfer_session.get_touched_record_ids_for_model(
+            ExamLog
+        )
+        migrate_from_exam_logs(ExamLog.objects.filter(id__in=exam_logs_ids))
 
 
 @register_hook

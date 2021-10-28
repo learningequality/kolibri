@@ -50,7 +50,8 @@ class KolibriSyncOperations(BaseOperation):
         # we'll execute the operations in the order of the registered hooks
         for hook in FacilityDataSyncHook.registered_hooks:
             # pass the context so the hook can decide what operations should be executed at this
-            # stage of the transfer
+            # stage of the transfer, but by default it looks for an attribute that matches the
+            # current stage
             operations.extend(hook.get_sync_operations(context))
         return operations
 
@@ -61,6 +62,32 @@ class KolibriSyncOperationMixin(BaseOperation):
     does have side effects that do that modify the behavior of the sync (returning non-False)
     """
 
+    @property
+    def history_key(self):
+        """
+        The string key used for retaining state information about this operation occurring
+        :return:
+        """
+        return self.__class__.__name__
+
+    def _get_storage(self, context):
+        """
+        :type context: morango.sync.context.SessionContext
+        :return: A dict representing the "storage" available for retaining state
+        """
+        context.sync_session.refresh_from_db(fields=["extra_fields"])
+        return json.loads(context.sync_session.extra_fields or "{}")
+
+    def _update_storage(self, context, storage):
+        """
+        :type context: morango.sync.context.SessionContext
+        :param storage: A dict with changes to update storage with
+        """
+        extra_fields = self._get_storage(context)
+        extra_fields.update(**storage)
+        context.sync_session.extra_fields = json.dumps(extra_fields)
+        context.sync_session.save()
+
     def has_handled(self, context):
         """
         Override to determine whether `handle_initial` or `handle_subsequent` should be invoked,
@@ -69,11 +96,9 @@ class KolibriSyncOperationMixin(BaseOperation):
         :type context: morango.sync.context.SessionContext
         :return: A boolean
         """
-        context.sync_session.refresh_from_db(fields=["extra_fields"])
-        extra_fields = json.loads(context.sync_session.extra_fields)
-        operation_history = extra_fields.get(self.__class__.__name__, [])
+        storage = self._get_storage(context)
         key = "{}:{}".format(context.transfer_session.id, context.stage)
-        return key in operation_history
+        return key in storage.get(self.history_key, [])
 
     def mark_handled(self, context):
         """
@@ -81,22 +106,20 @@ class KolibriSyncOperationMixin(BaseOperation):
 
         :type context: morango.sync.context.SessionContext
         """
-        context.sync_session.refresh_from_db(fields=["extra_fields"])
-        extra_fields = json.loads(context.sync_session.extra_fields)
-        operation_history = extra_fields.get(self.__class__.__name__, [])
+        operation_history = self._get_storage(context).get(self.history_key, [])
         operation_history.append(
             "{}:{}".format(context.transfer_session.id, context.stage)
         )
-        extra_fields[self.__class__.__name__] = operation_history
-        context.sync_session.extra_fields = json.dumps(extra_fields)
-        context.sync_session.save()
+        self._update_storage(context, {self.history_key: operation_history})
 
     def handle(self, context):
         """
         :type context: morango.sync.context.SessionContext
         :return: False or transfer status
         """
-        if self.has_handled(context):
+        # this requires the transfer session to create a state for this context
+        self._assert(context.transfer_session is not None)
+        if not self.has_handled(context):
             result = self.handle_initial(context)
             self.mark_handled(context)
             return result
@@ -104,8 +127,8 @@ class KolibriSyncOperationMixin(BaseOperation):
 
     def handle_initial(self, context):
         """
-        Invoked on the first call to the stage's operations, but will not be re-invoked if stage
-        operations are re-executed
+        Invoked on the first call to the stage's operations for the context, but will not be
+        re-invoked if stage operations are re-executed
         :param context: morango.sync.context.SessionContext
         :return: False or transfer status
         """
@@ -113,7 +136,8 @@ class KolibriSyncOperationMixin(BaseOperation):
 
     def handle_subsequent(self, context):
         """
-        Invoked on the subsequent calls to the stage's operations after the first invocation
+        Invoked on the subsequent calls to the stage's operations after the first invocation for
+        the context
         :param context: morango.sync.context.SessionContext
         :return: False or transfer status
         """
@@ -137,7 +161,6 @@ class KolibriVersionedSyncOperation(KolibriSyncOperationMixin, LocalOperation):
         :type context: morango.sync.context.LocalSessionContext
         :return: False
         """
-        self._assert(context.sync_session is not None)
         self._assert(self.version is not None)
 
         # get the instance info for the other instance
@@ -189,7 +212,7 @@ class KolibriSingleUserSyncOperation(KolibriSyncOperationMixin, LocalOperation):
         """
         is_local = this_side_using_single_user_cert(context)
         is_remote = other_side_using_single_user_cert(context)
-        self._assert(is_local or is_remote)
+        self._assert(is_local != is_remote)
 
         user_id = get_user_id_for_single_user_sync(context)
 
