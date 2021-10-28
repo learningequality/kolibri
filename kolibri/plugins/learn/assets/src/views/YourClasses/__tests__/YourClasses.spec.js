@@ -96,7 +96,7 @@ describe(`YourClasses`, () => {
     it(`clicking 'View all' link navigates to all classes page`, () => {
       const wrapper = makeWrapper({ classes: TEST_CLASSES, short: true });
       getViewAllLink(wrapper).trigger('click');
-      expect(wrapper.vm.$route.path).toBe('/all-classes');
+      expect(wrapper.vm.$route.name).toBe(ClassesPageNames.ALL_CLASSES);
     });
   });
 
@@ -106,6 +106,7 @@ describe(`YourClasses`, () => {
     getClassesLinks(wrapper)
       .at(0)
       .trigger('click');
-    expect(wrapper.vm.$route.path).toBe('/class');
+    expect(wrapper.vm.$route.name).toBe(ClassesPageNames.CLASS_ASSIGNMENTS);
+    expect(wrapper.vm.$route.params).toEqual({ classId: 'class-1' });
   });
 });

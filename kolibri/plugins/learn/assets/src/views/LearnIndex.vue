@@ -255,10 +255,16 @@
           this.pageName === PageNames.TOPICS_TOPIC ||
           this.pageName === PageNames.TOPICS_CHANNEL
         ) {
+          let immersivePageRoute;
+          if (this.$route.query.last == PageNames.HOME) {
+            immersivePageRoute = this.$router.getRoute(PageNames.HOME);
+          } else {
+            immersivePageRoute = this.$router.getRoute(PageNames.LIBRARY);
+          }
           return {
             appBarTitle: this.coreString('browseChannel'),
             immersivePage: true,
-            immersivePageRoute: this.$router.getRoute(PageNames.LIBRARY),
+            immersivePageRoute,
             immersivePagePrimary: true,
             immersivePageIcon: 'close',
             hasSidebar: true,
