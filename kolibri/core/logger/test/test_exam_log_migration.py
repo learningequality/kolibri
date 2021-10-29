@@ -43,6 +43,8 @@ class SimpleForwardMigrateTestCase(TestCase):
     def test_masterylogs(self):
         self.assertEqual(models.MasteryLog.objects.all().count(), 3)
         self.assertEqual(models.MasteryLog.objects.filter(complete=False).count(), 3)
+        for log in models.MasteryLog.objects.all():
+            self.assertTrue(log.mastery_criterion["coach_assigned"])
 
     def test_attemptlogs(self):
         self.assertEqual(models.AttemptLog.objects.all().count(), 12)

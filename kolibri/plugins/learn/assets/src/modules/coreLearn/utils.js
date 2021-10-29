@@ -37,11 +37,11 @@ export function _collectionState(data) {
  * These methods are used to manipulate client side cache to reduce requests
  */
 
-export function updateContentNodeProgress(channelId, contentId, progressFraction) {
+export function updateContentNodeProgress(nodeId, progressFraction) {
   /*
    * Update the progress_fraction directly on the model object, so as to prevent having
    * to cache bust the model (and hence the entire collection), because some progress was
    * made on this ContentNode.
    */
-  ContentNodeProgressResource.getModel(contentId).set({ progress_fraction: progressFraction });
+  ContentNodeProgressResource.getModel(nodeId).set({ progress_fraction: progressFraction });
 }

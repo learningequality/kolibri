@@ -3,9 +3,9 @@ import uniq from 'lodash/uniq';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import {
   ExamResource,
-  ExamLogResource,
+  MasteryLogResource,
   FacilityUserResource,
-  ExamAttemptLogResource,
+  AttemptLogResource,
   ContentNodeResource,
 } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
@@ -83,6 +83,13 @@ function convertExamQuestionSourcesV1V2(questionSources) {
   return annotateQuestionSourcesWithCounter(questionSources);
 }
 
+function annotateQuestionsWithItem(questions) {
+  return questions.map(question => {
+    question.item = `${question.exercise_id}:${question.question_id}`;
+    return question;
+  });
+}
+
 export function convertExamQuestionSources(exam, extraArgs = {}) {
   const { data_model_version } = exam;
   if (data_model_version === 0) {
@@ -101,17 +108,20 @@ export function convertExamQuestionSources(exam, extraArgs = {}) {
     contentNodes.forEach(node => {
       questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
     });
-    return convertExamQuestionSourcesV0V2(exam.question_sources, exam.seed, questionIds);
+    return annotateQuestionsWithItem(
+      convertExamQuestionSourcesV0V2(exam.question_sources, exam.seed, questionIds)
+    );
   }
   if (data_model_version === 1) {
-    return convertExamQuestionSourcesV1V2(exam.question_sources);
+    return annotateQuestionsWithItem(convertExamQuestionSourcesV1V2(exam.question_sources));
   }
-  return exam.question_sources;
+  return annotateQuestionsWithItem(exam.question_sources);
 }
 
 export function fetchNodeDataAndConvertExam(exam) {
   const { data_model_version } = exam;
   if (data_model_version >= 2) {
+    exam.question_sources = annotateQuestionsWithItem(exam.question_sources);
     return Promise.resolve(exam);
   }
   return ContentNodeResource.fetchCollection({
@@ -147,25 +157,25 @@ export function annotateQuestionSourcesWithCounter(questionSources) {
 export function getExamReport(store, examId, userId, questionNumber = 0, interactionIndex = 0) {
   return new Promise((resolve, reject) => {
     const examPromise = ExamResource.fetchModel({ id: examId });
-    const examLogPromise = ExamLogResource.fetchCollection({
+    const masteryLogPromise = MasteryLogResource.fetchCollection({
       getParams: {
-        exam: examId,
+        content: examId,
         user: userId,
       },
     });
-    const attemptLogPromise = ExamAttemptLogResource.fetchCollection({
+    const attemptLogPromise = AttemptLogResource.fetchCollection({
       getParams: {
-        exam: examId,
+        content: examId,
         user: userId,
       },
       force: true,
     });
     const userPromise = FacilityUserResource.fetchModel({ id: userId });
 
-    ConditionalPromise.all([examPromise, examLogPromise, attemptLogPromise, userPromise]).only(
+    ConditionalPromise.all([examPromise, masteryLogPromise, attemptLogPromise, userPromise]).only(
       samePageCheckGenerator(store),
-      ([exam, examLogs, examAttempts, user]) => {
-        const examLog = examLogs[0] || {};
+      ([exam, masteryLogs, attempts, user]) => {
+        const masteryLog = masteryLogs[0] || {};
         const questionSources = exam.question_sources;
 
         let contentPromise;
@@ -187,13 +197,11 @@ export function getExamReport(store, examId, userId, questionNumber = 0, interac
 
             // When all the Exercises are not available on the server
             if (questions.length === 0) {
-              return resolve({ exam, examLog, user });
+              return resolve({ exam, masteryLog, user });
             }
 
-            const allQuestions = questions.map((question, index) => {
-              const attemptLog = examAttempts.filter(
-                log => log.item === question.question_id && log.content_id === question.exercise_id
-              );
+            const examAttempts = questions.map((question, index) => {
+              const attemptLog = attempts.filter(log => log.item === question.item);
               let examAttemptLog = attemptLog[0]
                 ? attemptLog[0]
                 : { interaction_history: [], correct: false, noattempt: true };
@@ -213,12 +221,12 @@ export function getExamReport(store, examId, userId, questionNumber = 0, interac
               );
             });
 
-            allQuestions.sort((loga, logb) => loga.questionNumber - logb.questionNumber);
+            examAttempts.sort((loga, logb) => loga.questionNumber - logb.questionNumber);
 
             const currentQuestion = questions[questionNumber];
             const itemId = currentQuestion.question_id;
             const exercise = contentNodes.find(node => node.id === currentQuestion.exercise_id);
-            const currentAttempt = allQuestions[questionNumber];
+            const currentAttempt = examAttempts[questionNumber];
             // filter out interactions without answers but keep hints and errors
             const currentInteractionHistory = currentAttempt.interaction_history.filter(
               interaction =>
@@ -227,8 +235,8 @@ export function getExamReport(store, examId, userId, questionNumber = 0, interac
                 )
             );
             const currentInteraction = currentInteractionHistory[interactionIndex];
-            if (examLog.completion_timestamp) {
-              examLog.completion_timestamp = new Date(examLog.completion_timestamp);
+            if (masteryLog.completion_timestamp) {
+              masteryLog.completion_timestamp = new Date(masteryLog.completion_timestamp);
             }
             const payload = {
               exerciseContentNodes: [...contentNodes],
@@ -243,8 +251,8 @@ export function getExamReport(store, examId, userId, questionNumber = 0, interac
               currentInteraction,
               currentInteractionHistory,
               user,
-              examAttempts: allQuestions,
-              examLog,
+              examAttempts,
+              masteryLog,
             };
             resolve(payload);
           },

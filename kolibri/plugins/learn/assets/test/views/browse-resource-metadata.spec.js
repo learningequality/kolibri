@@ -1,70 +1,191 @@
 import { shallowMount } from '@vue/test-utils';
-import BrowseResourceMetadata from '../../src/views/BrowseResourceMetadata';
+import { ContentNodeResource } from 'kolibri.resources';
+import KRouterLink from 'kolibri-design-system/lib/buttons-and-links/KRouterLink';
+import LearnerNeeds from 'kolibri-constants/labels/Needs';
+import AccessibilityCategories from 'kolibri-constants/labels/AccessibilityCategories';
+import GradeLevels from 'kolibri-constants/labels/Levels';
+import ResourceTypes from 'kolibri-constants/labels/ResourceType';
+import Subjects from 'kolibri-constants/labels/Subjects';
+import LearningActivities from 'kolibri-constants/labels/LearningActivities';
+import ContentNodeThumbnail from '../../src/views/thumbnails/ContentNodeThumbnail';
 import LearningActivityChip from '../../src/views/LearningActivityChip';
+import BrowseResourceMetadata from '../../src/views/BrowseResourceMetadata';
+import genContentLink from '../../src/utils/genContentLink';
 
-/* eslint-disable */
-const longDescription =
-  'Isha and Birendra welcome you to Nepal! What is the population of Nepal? TRANSCRIPT: Namaste and welcome to Nepal. My name is Isatap and I study in Grade 7. Nepal lies between the two biggest countries of the world, India and China. The population of Nepal is 27 million approximately. The capital city of Nepal is Kathmandu. Once again, welcome to Nepal. Group: Welcome to Nepal! Good morning! My name is Birendra.I am 13 years old. My country’s name is Nepal. Nepal is situated in between the two large countries China and India. Kathmandu is Capital city of Nepal. It has a 27 million person population. Lastly, our greetings and best wishes to all of you from Nepal. Bye!! Group: Welcome to Nepal! MORE INFO: The red paint on the forehead is known as tikka and is worn for cultural purposes. The kids had it on today as it was ‘Teachers Day’ and the kids had a ceremony honoring their teachers.';
-/* eslint-enable */
+const promise = new Promise(() => []);
 
-/*
- * Give a value which will be passed as props data.
- */
-const metadataKeys = {
-  'activityKind is truthy and LearningActivityChip is shown': {
-    key: 'activityKind',
-    value: 'watch',
-    expectation: wrapper => expect(wrapper.findComponent(LearningActivityChip)).toBeTruthy(),
+ContentNodeResource.fetchRecommendationsFor = jest.fn(() => promise);
+ContentNodeResource.fetchCollection = jest.fn(() => promise);
+
+const baseContentNode = {
+  id: '2ea9bda8703241be89b5b9fd87f88815',
+  author: 'Test Author',
+  channel_id: '95a52b386f2c485cb97dd60901674a98',
+  content_id: '682e09992e9c5f2baea4b8bee92c6c0c',
+  description: 'Learn what it means to add. The examples used are 1+1 and 2+3.\n\n',
+  kind: 'video',
+  license_description: 'Licensed Content',
+  license_name: 'CC BY-NC-SA',
+  license_owner: 'Khan Academy',
+  parent: '55b3dffe512c4d93bcdc85efde1046f5',
+  title: 'Intro to addition',
+  learning_activities: [LearningActivities.READ],
+  // Include FOR_BEGINNERS which shows the related Chip, then another because
+  // FOR_BEGINNERS is handled specially, so we need another to test that we show
+  // the "learner needs" section
+  learner_needs: [LearnerNeeds.FOR_BEGINNERS, LearnerNeeds.PAPER_PENCIL],
+  grade_levels: [GradeLevels.WORK_SKILLS, GradeLevels.UPPER_PRIMARY],
+  resource_types: [ResourceTypes.TUTORIAL],
+  accessibility_labels: [AccessibilityCategories.CAPTIONS_SUBTITLES],
+  categories: [Subjects.NUMERACY],
+  duration: 3600,
+  lang: {
+    id: 'en',
+    lang_code: 'en',
+    lang_subcode: null,
+    lang_name: 'English',
+    lang_direction: 'ltr',
   },
-  "'for beginners' chip when forBeginners is true": {
-    value: true,
-    expectation: wrapper => expect(wrapper.find('[data-test="beginners-chip"]')).toBeTruthy(),
-  },
-  'content has a title': {
-    value: 'title',
-    expectation: wrapper => expect(wrapper.find('[data-test="content-title"]')).toBeTruthy(),
-  },
-  'content has a short description': {
-    value: 'description',
-    expectation: wrapper => expect(wrapper.find('[data-test="content-description"]')).toBeTruthy(),
-  },
-  'content has a long description': {
-    value: longDescription,
-    expectation: wrapper => expect(wrapper.find('[data-test="show--or-less"]')).toBeTruthy(),
-  },
+  is_leaf: true,
+  ancestors: [
+    {
+      id: '95a52b386f2c485cb97dd60901674a98',
+      title: 'Kolibri QA Channel',
+    },
+    {
+      id: '55b3dffe512c4d93bcdc85efde1046f5',
+      title: 'Videos',
+    },
+  ],
 };
-/*
-  'forBeginners',
-  'title',
-  'description',
-  'level',
-  'duration',
-  'lang',
-  'accessibility',
-  'whatYouWillNeed',
-  'author',
-  'license_owner',
-  'related',
-  'locations',
-];
-*/
 
-function makeWrapper({ propsData } = {}) {
+function makeContentNode(metadata = {}) {
+  return { ...baseContentNode, ...metadata };
+}
+
+function makeWrapper(metadata = {}, options = {}) {
+  const content = makeContentNode(metadata);
+  const propsData = { content };
   return shallowMount(BrowseResourceMetadata, {
     propsData,
+    ...options,
   });
 }
 
-describe("displays the metadata when given, and doesn't when not", () => {
-  it.each(Object.keys(metadataKeys))('displays %s when available, nothing if not', key => {
-    const metadata = metadataKeys[key];
-    const wrapper = makeWrapper({
-      propsData: {
-        content: {
-          [key]: metadata.value,
-        },
-      },
+describe('BrowseResourceMetadata', () => {
+  /* The base makeWrapper bootstraps a content item that has all of the metadata
+   * for a fully loaded component in place.
+   *
+   * Passing { `metadata_key` : [] } to makeWrapper's metadata arg will override the
+   * data to be empty in order to test that nothing shows as expected
+   */
+  let wrapper;
+
+  describe('metadata is displayed when present on given content', () => {
+    beforeAll(() => (wrapper = makeWrapper()));
+
+    it('shows properly translated learning activities as LearningActivityChip', () => {
+      expect(wrapper.findComponent(LearningActivityChip).exists()).toBeTruthy();
     });
-    metadata.expectation(wrapper);
+
+    it('shows the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {
+      expect(wrapper.find("[data-test='beginners-chip']").exists()).toBeTruthy();
+    });
+
+    it('shows the view resource button-link with genContentLink-generated path', () => {
+      const link = wrapper.findComponent(KRouterLink);
+      expect(link.exists()).toBeTruthy();
+      const to = link.props().to;
+      expect(to).toEqual(genContentLink(baseContentNode.id, baseContentNode.is_leaf));
+    });
+
+    it('displays a ContentNodeThumbnail', () => {
+      expect(wrapper.findComponent(ContentNodeThumbnail).exists()).toBeTruthy();
+    });
+
+    it('shows the title', () => {
+      expect(wrapper.find("[data-test='content-title']").text()).toEqual(baseContentNode.title);
+    });
+
+    it('shows the estimated time when duration is present', () => {
+      expect(wrapper.find("[data-test='estimated-time']").exists()).toBeTruthy();
+    });
+
+    it('it shows the grade levels when there are some', () => {
+      expect(wrapper.find("[data-test='grade-levels']").exists()).toBeTruthy();
+    });
+
+    it("shows author's name", () => {
+      expect(wrapper.find("[data-test='author']").exists()).toBeTruthy();
+    });
+
+    it('shows license owner', () => {
+      expect(wrapper.find("[data-test='license-owner']").exists()).toBeTruthy();
+    });
+
+    it('shows license description', () => {
+      expect(wrapper.find("[data-test='license-desc']").exists()).toBeTruthy();
+    });
+  });
+
+  describe('metadata sections are not visible without data', () => {
+    // With the metadata wiped
+    beforeAll(
+      () =>
+        (wrapper = makeWrapper({
+          learner_needs: [],
+          learning_activities: [],
+          grade_levels: [],
+          accessibility_labels: [],
+          thumbnail: null, // Should still render the component though
+          resource_types: [],
+          categories: [],
+          duration: null,
+          lang: null,
+          title: null,
+          description: null,
+          author: null,
+          license_description: null,
+          license_name: null,
+          license_owner: null,
+        }))
+    );
+
+    it('does not show properly translated learning activities as LearningActivityChip', () => {
+      expect(wrapper.findComponent(LearningActivityChip).exists()).toBeFalsy();
+    });
+
+    it('does not show the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {
+      console.log(wrapper.vm.forBeginners);
+      expect(wrapper.find("[data-test='beginners-chip']").exists()).toBeFalsy();
+    });
+
+    it('displays a ContentNodeThumbnail - which handles showing the placeholder', () => {
+      expect(wrapper.findComponent(ContentNodeThumbnail).exists()).toBeTruthy();
+    });
+
+    it('does not show the title', () => {
+      expect(wrapper.find("[data-test='content-title']").exists()).toBeFalsy();
+    });
+
+    it('does not show the estimated time when duration is not present', () => {
+      expect(wrapper.find("[data-test='estimated-time']").exists()).toBeFalsy();
+    });
+
+    it('it does not show the grade levels when there are none', () => {
+      expect(wrapper.find("[data-test='grade-levels']").exists()).toBeFalsy();
+    });
+
+    it("does not show author's name section without the data", () => {
+      expect(wrapper.find("[data-test='author']").exists()).toBeFalsy();
+    });
+
+    it('does not show license owner section without the data', () => {
+      expect(wrapper.find("[data-test='license-owner']").exists()).toBeFalsy();
+    });
+
+    it('does not show license description section without the data', () => {
+      expect(wrapper.find("[data-test='license-desc']").exists()).toBeFalsy();
+    });
   });
 });

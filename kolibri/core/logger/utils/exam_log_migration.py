@@ -11,6 +11,7 @@ from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
+from kolibri.utils.time_utils import local_now
 
 
 def _bulk_create(LogModel, logs):
@@ -152,7 +153,7 @@ def migrate_from_exam_logs(source_logs):  # noqa C901
     All other ExamAttemptLog fields are shared with AttemptLog
 
     For MasteryLog + ContentSessionLog + ContentSummaryLog
-    infer start_timestamp from Min across ExamAttemptLogs
+    infer start_timestamp from Min across ExamAttemptLogs or use now if none
 
     mastery_criterion (MasteryLog), { "type": "quiz" }
     mastery_level (MasteryLog), short integer derived deterministically from exam_id
@@ -162,7 +163,7 @@ def migrate_from_exam_logs(source_logs):  # noqa C901
     source_logs = source_logs.prefetch_related("attemptlogs")
 
     kind = content_kinds.QUIZ
-    mastery_criterion = {"type": content_kinds.QUIZ}
+    mastery_criterion = {"type": content_kinds.QUIZ, "coach_assigned": True}
 
     # ExamAttemptLog properties that we do not want
     # to copy onto the new AttemptLog
@@ -189,7 +190,10 @@ def migrate_from_exam_logs(source_logs):  # noqa C901
         summary_log_ids = []
         for examlog in logs:
             examattemptlogs = examlog.attemptlogs.all()
-            start_timestamp = min(e.start_timestamp for e in examattemptlogs)
+            try:
+                start_timestamp = min(e.start_timestamp for e in examattemptlogs)
+            except ValueError:
+                start_timestamp = local_now()
             content_id = examlog.exam_id
             user = examlog.user
             complete = examlog.closed

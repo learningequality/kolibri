@@ -147,8 +147,9 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
 
 
 def _map_exam_status(item):
-    closed = item.pop("closed")
-    item["status"] = COMPLETED if closed else STARTED
+    complete = item.pop("complete")
+    item["status"] = COMPLETED if complete else STARTED
+    item["exam_id"] = item.pop("summarylog__content_id")
     return item
 
 
@@ -159,27 +160,27 @@ def serialize_exam_status(queryset):
             queryset.annotate(
                 last_activity=Max("attemptlogs__end_timestamp"),
                 num_correct=Subquery(
-                    logger_models.ExamAttemptLog.objects.filter(examlog=OuterRef("id"))
+                    logger_models.AttemptLog.objects.filter(masterylog=OuterRef("id"))
                     .order_by()
-                    .values_list("item", "content_id")
+                    .values_list("item")
                     .distinct()
-                    .values("examlog")
+                    .values("masterylog")
                     .annotate(total_correct=Sum("correct"))
                     .values("total_correct")
                 ),
                 num_answered=Subquery(
-                    logger_models.ExamAttemptLog.objects.filter(examlog=OuterRef("id"))
+                    logger_models.AttemptLog.objects.filter(masterylog=OuterRef("id"))
                     .order_by()
-                    .values_list("item", "content_id")
+                    .values_list("item")
                     .distinct()
-                    .values("examlog")
+                    .values("masterylog")
                     .annotate(total_complete=Count("id"))
                     .values("total_complete")
                 ),
             )
             .values(
-                "exam_id",
-                "closed",
+                "summarylog__content_id",
+                "complete",
                 "last_activity",
                 "num_correct",
                 "num_answered",
@@ -285,8 +286,8 @@ class ClassSummaryViewSet(viewsets.ViewSet):
         query_learners = FacilityUser.objects.filter(memberships__collection=classroom)
         query_lesson = Lesson.objects.filter(collection=pk)
         query_exams = Exam.objects.filter(collection=pk)
-        query_exam_logs = logger_models.ExamLog.objects.filter(
-            exam__in=query_exams
+        query_exam_mastery_logs = logger_models.MasteryLog.objects.filter(
+            summarylog__content_id__in=query_exams.values("id")
         ).order_by()
 
         lesson_data = serialize_lessons(query_lesson)
@@ -364,7 +365,7 @@ class ClassSummaryViewSet(viewsets.ViewSet):
                 classroom.get_individual_learners_group()
             ),
             "exams": exam_data,
-            "exam_learner_status": serialize_exam_status(query_exam_logs),
+            "exam_learner_status": serialize_exam_status(query_exam_mastery_logs),
             "content": query_content.values(
                 "content_id", "title", "kind", "channel_id", node_id=F("id")
             ),

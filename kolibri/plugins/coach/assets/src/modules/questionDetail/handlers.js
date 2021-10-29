@@ -39,10 +39,11 @@ function showQuestionDetailView(params) {
   if (quizId) {
     // If this is showing for a quiz, then no exerciseId will be passed in
     // set the appropriate exerciseId here based on the question sources
+    // Additionally the questionId is actually the unique item value, made
+    // of a combination of 'question_id:exercise_id'
     const baseExam = store.state.classSummary.examMap[quizId];
     promise = fetchNodeDataAndConvertExam(baseExam).then(exam => {
-      exerciseNodeId = exam.question_sources.find(source => source.question_id === questionId)
-        .exercise_id;
+      exerciseNodeId = exam.question_sources.find(source => source.item === questionId).exercise_id;
       return exam;
     });
   } else {
@@ -57,9 +58,7 @@ function showQuestionDetailView(params) {
         exercise.assessmentmetadata = assessmentMetaDataState(exercise);
         let title;
         if (exam) {
-          const question = exam.question_sources.find(
-            source => source.question_id === questionId && source.exercise_id === exerciseNodeId
-          );
+          const question = exam.question_sources.find(source => source.item === questionId);
           title = coachStrings.$tr('nthExerciseName', {
             name: question.title,
             number: question.counter_in_exercise,
@@ -86,7 +85,7 @@ function showQuestionDetailView(params) {
           .dispatch('questionDetail/setLearners', {
             ...params,
             exercise,
-            exerciseNodeId,
+            exerciseId: exerciseNodeId,
           })
           .then(learners => {
             // No learnerId was passed in, so we should trigger a url redirect

@@ -13,10 +13,8 @@ const createComponent = (totalattempts, pastattempts, masteryModel) => {
   const store = makeStore();
   store.state.core = {
     logging: {
-      mastery: {
-        totalattempts,
-        pastattempts,
-      },
+      totalattempts,
+      pastattempts,
     },
     session: {
       user_id: 'test',
@@ -39,7 +37,7 @@ describe('assessmentWrapper Component', function() {
     describe('exerciseProgress', function() {
       it('should be 0 when there are no past attempts', function() {
         this.vm = createComponent(0, [], { type: 'm_of_n', m: 5, n: 5 });
-        expect(this.vm.exerciseProgress).toEqual(0);
+        expect(this.vm.exerciseProgress()).toEqual(0);
       });
       let numCorrect;
       let m;
@@ -62,7 +60,7 @@ describe('assessmentWrapper Component', function() {
                   .concat(Array(numCorrect).fill({ correct: 1 }))
                   .concat(Array(totalattempts - m).fill({ correct: 0 }));
                 this.vm = createComponent(totalattempts, pastattempts, masteryModel);
-                expect(this.vm.exerciseProgress).toEqual(numCorrect / m);
+                expect(this.vm.exerciseProgress()).toEqual(numCorrect / m);
               });
               /* eslint-enable no-loop-func */
             }

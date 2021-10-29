@@ -30,7 +30,10 @@
         data-test="classLink"
         :to="classAssignmentsLink(c.id)"
       >
-        <h3 :style="{ margin: 0, fontWeight: 'normal' }">
+        <h3
+          dir="auto"
+          :style="{ margin: 0, fontWeight: 'normal' }"
+        >
           {{ c.name }}
         </h3>
       </CardLink>

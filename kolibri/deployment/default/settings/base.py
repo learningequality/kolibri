@@ -94,6 +94,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "kolibri.core.analytics.middleware.cherrypy_access_log_middleware",
     "kolibri.core.device.middleware.ProvisioningErrorHandler",
+    "kolibri.core.device.middleware.DatabaseBusyErrorHandler",
     "django.middleware.cache.UpdateCacheMiddleware",
     "kolibri.core.analytics.middleware.MetricsMiddleware",
     "kolibri.core.auth.middleware.KolibriSessionMiddleware",

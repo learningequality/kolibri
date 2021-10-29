@@ -2,10 +2,11 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import datetime
 import json
 
 from django.core.urlresolvers import reverse
+from django.utils.timezone import now
+from le_utils.constants import content_kinds
 from rest_framework.test import APITestCase
 
 from . import helpers
@@ -22,8 +23,6 @@ from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.logger.models import ExamAttemptLog
-from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
 
 DUMMY_PASSWORD = "password"
@@ -192,7 +191,7 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
             channel_id=self.node_1.channel_id,
             kind="exercise",
             progress=0.1,
-            start_timestamp=datetime.datetime.now(),
+            start_timestamp=now(),
         )
 
         self.summarylog = ContentSummaryLog.objects.create(
@@ -201,21 +200,21 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
             channel_id=self.node_1.channel_id,
             kind="exercise",
             progress=0.1,
-            start_timestamp=datetime.datetime.now(),
+            start_timestamp=now(),
         )
 
         self.masterylog = MasteryLog.objects.create(
             user=user,
             summarylog=self.summarylog,
-            start_timestamp=datetime.datetime.now(),
+            start_timestamp=now(),
             mastery_level=1,
         )
 
         AttemptLog.objects.create(
             masterylog=self.masterylog,
             sessionlog=self.sessionlog,
-            start_timestamp=datetime.datetime.now(),
-            end_timestamp=datetime.datetime.now(),
+            start_timestamp=now(),
+            end_timestamp=now(),
             complete=True,
             correct=0,
             user=user,
@@ -296,8 +295,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
         AttemptLog.objects.create(
             masterylog=self.masterylog,
             sessionlog=self.sessionlog,
-            start_timestamp=datetime.datetime.now(),
-            end_timestamp=datetime.datetime.now(),
+            start_timestamp=now(),
+            end_timestamp=now(),
             complete=True,
             correct=0,
             user=self.classroom_group_learner,
@@ -324,8 +323,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
         AttemptLog.objects.create(
             masterylog=self.masterylog,
             sessionlog=self.sessionlog,
-            start_timestamp=datetime.datetime.now(),
-            end_timestamp=datetime.datetime.now(),
+            start_timestamp=now(),
+            end_timestamp=now(),
             complete=True,
             correct=1,
             user=self.classroom_group_learner,
@@ -354,8 +353,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
         AttemptLog.objects.create(
             masterylog=self.masterylog,
             sessionlog=self.sessionlog,
-            start_timestamp=datetime.datetime.now(),
-            end_timestamp=datetime.datetime.now(),
+            start_timestamp=now(),
+            end_timestamp=now(),
             complete=True,
             correct=1,
             user=self.classroom_group_learner,
@@ -379,8 +378,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
         AttemptLog.objects.create(
             masterylog=self.masterylog,
             sessionlog=self.sessionlog,
-            start_timestamp=datetime.datetime.now(),
-            end_timestamp=datetime.datetime.now(),
+            start_timestamp=now(),
+            end_timestamp=now(),
             complete=True,
             correct=1,
             user=self.classroom_group_learner,
@@ -548,17 +547,41 @@ class QuizDifficultQuestionTestCase(APITestCase):
         self.assertEqual(len(response.data), 0)
 
     def _set_one_difficult(self, user):
-        self.examlog = ExamLog.objects.create(user=user, exam=self.quiz)
+        self.sessionlog = ContentSessionLog.objects.create(
+            user=user,
+            start_timestamp=now(),
+            end_timestamp=now(),
+            content_id=self.quiz.id,
+            channel_id=None,
+            time_spent=60,  # 1 minute
+            kind=content_kinds.QUIZ,
+        )
+        summarylog = ContentSummaryLog.objects.create(
+            user=user,
+            start_timestamp=now(),
+            end_timestamp=now(),
+            completion_timestamp=now(),
+            content_id=self.quiz.id,
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+        )
+        self.masterylog = MasteryLog.objects.create(
+            mastery_criterion={"type": "quiz", "coach_assigned": True},
+            summarylog=summarylog,
+            start_timestamp=summarylog.start_timestamp,
+            user=user,
+            mastery_level=-1,
+        )
 
-        ExamAttemptLog.objects.create(
-            examlog=self.examlog,
-            start_timestamp=datetime.datetime.now(),
-            end_timestamp=datetime.datetime.now(),
+        AttemptLog.objects.create(
+            masterylog=self.masterylog,
+            sessionlog=self.sessionlog,
+            start_timestamp=now(),
+            end_timestamp=now(),
             complete=True,
             correct=0,
             user=user,
-            item="test",
-            content_id=self.content_id,
+            item="{}:test".format(self.content_id),
         )
 
     def test_coach_one_difficult(self):
@@ -575,8 +598,8 @@ class QuizDifficultQuestionTestCase(APITestCase):
         # Reactivate exam, but flag learner as not having submitted it
         self.quiz.active = True
         self.quiz.save()
-        self.examlog.closed = False
-        self.examlog.save()
+        self.masterylog.complete = False
+        self.masterylog.save()
 
         self._login_as_coach()
         response = self._get_quiz_difficulties()
@@ -588,8 +611,8 @@ class QuizDifficultQuestionTestCase(APITestCase):
         # Reactivate exam, and flag learner as having submitted it
         self.quiz.active = True
         self.quiz.save()
-        self.examlog.closed = True
-        self.examlog.save()
+        self.masterylog.complete = True
+        self.masterylog.save()
 
         self._login_as_coach()
         response = self._get_quiz_difficulties()
@@ -605,10 +628,34 @@ class QuizDifficultQuestionTestCase(APITestCase):
         # Reactivate quiz and simulate 2 quiz submissions.
         self.quiz.active = True
         self.quiz.save()
-        self.examlog.closed = True
-        self.examlog.save()
-        ExamLog.objects.create(
-            user=self.classroom_group_learner_2, exam=self.quiz, closed=True
+        self.masterylog.complete = True
+        self.masterylog.save()
+        user = self.classroom_group_learner_2
+        ContentSessionLog.objects.create(
+            user=user,
+            start_timestamp=now(),
+            end_timestamp=now(),
+            content_id=self.quiz.id,
+            channel_id=None,
+            time_spent=60,  # 1 minute
+            kind=content_kinds.QUIZ,
+        )
+        summarylog = ContentSummaryLog.objects.create(
+            user=user,
+            start_timestamp=now(),
+            end_timestamp=now(),
+            completion_timestamp=now(),
+            content_id=self.quiz.id,
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+        )
+        self.masterylog = MasteryLog.objects.create(
+            mastery_criterion={"type": "quiz", "coach_assigned": True},
+            summarylog=summarylog,
+            start_timestamp=summarylog.start_timestamp,
+            user=user,
+            mastery_level=-1,
+            complete=True,
         )
 
         response = self._get_quiz_difficulties()
@@ -647,15 +694,15 @@ class QuizDifficultQuestionTestCase(APITestCase):
 
     def test_coach_two_difficult(self):
         self._set_one_difficult(self.classroom_group_learner)
-        ExamAttemptLog.objects.create(
-            examlog=self.examlog,
-            start_timestamp=datetime.datetime.now(),
-            end_timestamp=datetime.datetime.now(),
+        AttemptLog.objects.create(
+            masterylog=self.masterylog,
+            sessionlog=self.sessionlog,
+            start_timestamp=now(),
+            end_timestamp=now(),
             complete=True,
             correct=0,
             user=self.classroom_group_learner,
-            item="notatest",
-            content_id=self.content_id,
+            item="{}:notatest".format(self.content_id),
         )
         self._login_as_coach()
         response = self._get_quiz_difficulties()
@@ -667,15 +714,15 @@ class QuizDifficultQuestionTestCase(APITestCase):
 
     def test_coach_one_difficult_one_not(self):
         self._set_one_difficult(self.classroom_group_learner)
-        ExamAttemptLog.objects.create(
-            examlog=self.examlog,
-            start_timestamp=datetime.datetime.now(),
-            end_timestamp=datetime.datetime.now(),
+        AttemptLog.objects.create(
+            masterylog=self.masterylog,
+            sessionlog=self.sessionlog,
+            start_timestamp=now(),
+            end_timestamp=now(),
             complete=True,
             correct=1,
             user=self.classroom_group_learner,
-            item="notatest",
-            content_id=self.content_id,
+            item="{}:notatest".format(self.content_id),
         )
         self._login_as_coach()
         response = self._get_quiz_difficulties()
@@ -689,15 +736,15 @@ class QuizDifficultQuestionTestCase(APITestCase):
 
     def test_coach_difficult_by_group_id(self):
         self._set_one_difficult(self.classroom_group_learner)
-        ExamAttemptLog.objects.create(
-            examlog=self.examlog,
-            start_timestamp=datetime.datetime.now(),
-            end_timestamp=datetime.datetime.now(),
+        AttemptLog.objects.create(
+            masterylog=self.masterylog,
+            sessionlog=self.sessionlog,
+            start_timestamp=now(),
+            end_timestamp=now(),
             complete=True,
             correct=1,
             user=self.classroom_group_learner,
-            item="notatest",
-            content_id=self.content_id,
+            item="{}:notatest".format(self.content_id),
         )
         self._login_as_coach()
         response = self._get_quiz_difficulties(for_group=True)

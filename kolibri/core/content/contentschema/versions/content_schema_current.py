@@ -46,16 +46,16 @@ class ContentContentnode(Base):
     __tablename__ = "content_contentnode"
     __table_args__ = (
         Index(
-            "content_contentnode_level_channel_id_available_29f0bb18_idx",
-            "level",
-            "channel_id",
-            "available",
-        ),
-        Index(
             "content_contentnode_level_channel_id_kind_fd732cc4_idx",
             "level",
             "channel_id",
             "kind",
+        ),
+        Index(
+            "content_contentnode_level_channel_id_available_29f0bb18_idx",
+            "level",
+            "channel_id",
+            "available",
         ),
     )
 
@@ -67,6 +67,7 @@ class ContentContentnode(Base):
     sort_order = Column(Float)
     license_owner = Column(String(200), nullable=False)
     author = Column(String(200), nullable=False)
+    kind = Column(String(200), nullable=False)
     available = Column(Boolean, nullable=False)
     lft = Column(Integer, nullable=False, index=True)
     rght = Column(Integer, nullable=False, index=True)
@@ -86,7 +87,12 @@ class ContentContentnode(Base):
     learner_needs = Column(Text)
     learning_activities = Column(Text)
     resource_types = Column(Text)
-    kind = Column(String(200), nullable=False)
+    accessibility_labels_bitmask_0 = Column(BigInteger)
+    categories_bitmask_0 = Column(BigInteger)
+    grade_levels_bitmask_0 = Column(BigInteger)
+    learner_needs_bitmask_0 = Column(BigInteger)
+    learning_activities_bitmask_0 = Column(BigInteger)
+    ancestors = Column(Text)
     parent_id = Column(ForeignKey("content_contentnode.id"), index=True)
 
     lang = relationship("ContentLanguage")

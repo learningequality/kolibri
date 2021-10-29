@@ -1,5 +1,9 @@
+import { get } from '@vueuse/core';
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
+import useChannels from '../composables/useChannels';
+import useUser from '../composables/useUser';
+import useLearnerResources from '../composables/useLearnerResources';
 import {
   showTopicsTopic,
   showTopicsChannel,
@@ -18,6 +22,10 @@ import HomePage from '../views/HomePage';
 import RecommendedSubpage from '../views/RecommendedSubpage';
 import classesRoutes from './classesRoutes';
 
+const { isUserLoggedIn } = useUser();
+const { fetchChannels } = useChannels();
+const { fetchClasses, fetchResumableContentNodes } = useLearnerResources();
+
 function unassignedContentGuard() {
   const { canAccessUnassignedContent } = store.getters;
   if (!canAccessUnassignedContent) {
@@ -34,16 +42,7 @@ export default [
     name: PageNames.ROOT,
     path: '/',
     handler: () => {
-      const { memberships } = store.state;
-      const { canAccessUnassignedContent } = store.getters;
-
-      // If a registered user, go to Home Page, else go to Content
-      return router.replace({
-        name:
-          memberships.length > 0 || !canAccessUnassignedContent
-            ? PageNames.HOME
-            : PageNames.TOPICS_ROOT,
-      });
+      return router.replace({ name: PageNames.HOME });
     },
   },
   {
@@ -51,8 +50,31 @@ export default [
     path: '/home',
     component: HomePage,
     handler() {
-      store.commit('SET_PAGE_NAME', PageNames.HOME);
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      let promises = [fetchChannels()];
+      // force fetch classes and resumable content nodes to make sure that the home
+      // page is up-to-date when navigating to other 'Learn' pages and then back
+      // to the home page
+      if (get(isUserLoggedIn)) {
+        promises = [
+          ...promises,
+          fetchClasses({ force: true }),
+          fetchResumableContentNodes({ force: true }),
+        ];
+      }
+      return store.dispatch('loading').then(() => {
+        return Promise.all(promises)
+          .then(([channels]) => {
+            if (!channels || !channels.length) {
+              router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+              return;
+            }
+            store.commit('SET_PAGE_NAME', PageNames.HOME);
+            store.dispatch('notLoading');
+          })
+          .catch(error => {
+            return store.dispatch('handleApiError', error);
+          });
+      });
     },
   },
   {

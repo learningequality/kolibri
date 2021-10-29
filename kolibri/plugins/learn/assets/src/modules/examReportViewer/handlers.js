@@ -19,7 +19,7 @@ export function showExamReport(store, params) {
   );
   ConditionalPromise.all([examReportPromise]).then(
     ([examReport]) => {
-      if (canViewExamReport(examReport.exam, examReport.examLog)) {
+      if (canViewExamReport(examReport.exam, examReport.masteryLog)) {
         store.commit('examReportViewer/SET_STATE', examReport);
         store.commit('CORE_SET_ERROR', null);
         store.commit('CORE_SET_PAGE_LOADING', false);

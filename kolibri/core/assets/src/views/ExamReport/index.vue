@@ -7,7 +7,7 @@
         :userName="userName"
         :questions="examAttempts"
         :completionTimestamp="completionTimestamp"
-        :completed="closed"
+        :completed="complete"
       />
     </template>
 
@@ -123,7 +123,7 @@
         required: false,
         default: null,
       },
-      closed: {
+      complete: {
         type: Boolean,
         required: true,
       },

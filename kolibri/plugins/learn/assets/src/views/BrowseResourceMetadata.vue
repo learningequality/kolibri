@@ -1,11 +1,7 @@
 <template>
 
-  <!-- For the sidebar when browsing all content -->
-
   <section class="metadata">
-    <!-- placeholder for learning activity type chips TODO update with chip component -->
 
-    <!-- Whatever data will come in this place may be an array? -->
     <div class="chips section">
       <div v-for="activity in content.learning_activities" :key="activity">
         <LearningActivityChip
@@ -19,7 +15,7 @@
         properly even when one isn't there -->
       <div>
         <span
-          v-if="content.forBeginners"
+          v-if="forBeginners"
           class="beginners-chip"
           :style="{ 'background-color': $themeBrand.secondary.v_600 }"
           data-test="beginners-chip"
@@ -34,6 +30,7 @@
           appearance="raised-button"
           :primary="false"
           :to="genContentLink(content.id, content.is_leaf)"
+          data-test="view-resource-link"
         />
       </div>
     </div>
@@ -68,25 +65,7 @@
     <!-- this v-else ensures spacing remains consistent without show more -->
     <div v-else class="section"></div>
 
-    <!-- TODO No "Subject" string available - but it is noted in Figma as a possible metadata
-    <div v-if="content.subject" class="section">
-      <span class="label">
-      </span>
-      <span>
-      </span>
-    </div>
-    -->
-
-    <div v-if="content.level" class="section">
-      <span class="label">
-        {{ metadataStrings.$tr('level') }}:
-      </span>
-      <span>
-        {{ content.level }}
-      </span>
-    </div>
-
-    <div v-if="content.duration" class="section">
+    <div v-if="content.duration" class="section" data-test="estimated-time">
       <span class="label">
         {{ metadataStrings.$tr('estimatedTime') }}:
       </span>
@@ -95,7 +74,20 @@
       </span>
     </div>
 
-    <div v-if="content.lang" class="section">
+    <div
+      v-if="content.grade_levels && content.grade_levels.length"
+      class="section"
+      data-test="grade-levels"
+    >
+      <span class="label">
+        {{ metadataStrings.$tr('level') }}:
+      </span>
+      <span>
+        {{ content.grade_levels.join(", ") }}
+      </span>
+    </div>
+
+    <div v-if="content.lang" class="section" data-test="lang">
       <span class="label">
         {{ metadataStrings.$tr('language') }}:
       </span>
@@ -104,25 +96,25 @@
       </span>
     </div>
 
-    <div v-if="content.accessibility" class="section">
+    <div v-if="accessibilityLabels" class="section" data-test="accessibility-labels">
       <span class="label">
         {{ coreString('accessibility') }}:
       </span>
       <span>
-        {{ content.accessibility }}
+        {{ accessibilityLabels }}
       </span>
     </div>
 
-    <div v-if="content.whatYouWillNeed" class="section">
+    <div v-if="content.learner_needs" class="section" data-test="learner-needs">
       <span class="label">
         {{ metadataStrings.$tr('whatYouWillNeed') }}:
       </span>
       <span>
-        {{ content.whatYouWillNeed }}
+        {{ learnerNeedsLabels }}
       </span>
     </div>
 
-    <div v-if="content.author" class="section">
+    <div v-if="content.author" class="section" data-test="author">
       <span class="label">
         {{ metadataStrings.$tr('author') }}:
       </span>
@@ -131,7 +123,7 @@
       </span>
     </div>
 
-    <div v-if="content.license_owner" class="section">
+    <div v-if="content.license_owner" class="section" data-test="license-owner">
       <span class="label">
         {{ metadataStrings.$tr('copyrightHolder') }}:
       </span>
@@ -140,7 +132,7 @@
       </span>
     </div>
 
-    <div v-if="licenseDescription" class="section">
+    <div v-if="licenseDescription" class="section" data-test="license-desc">
       <span class="label">
         {{ metadataStrings.$tr('license') }}:
       </span>
@@ -151,48 +143,55 @@
           :ariaLabel="metadataStrings.$tr('toggleLicenseDescription')"
           size="small"
           type="secondary"
-          class="license-toggle"
+          class="absolute-icon license-toggle"
           @click="licenseDescriptionIsVisible = !licenseDescriptionIsVisible"
         />
         <div v-if="licenseDescriptionIsVisible" class="license-details">
           <p class="license-details-name">
             {{ licenseLongName }}
           </p>
-          <p>{{ licenseDescription }}</p>
+          <p style="margin-bottom: 0;">{{ licenseDescription }}</p>
         </div>
       </span>
     </div>
 
-    <div v-if="content.related" class="section">
+    <div v-if="recommendations" class="related section" data-test="recommendations">
       <div class="label">
         {{ coreString('related') }}:
       </div>
-      <ul class="list">
-        <li
-          v-for="related in content.related"
+      <div class="list">
+        <div
+          v-for="related in recommendations"
           :key="related.title"
           class="list-item"
         >
-          <KLabeledIcon :icon="related.activityKind">
-            {{ related.title }}
-          </KLabeledIcon>
-        </li>
-      </ul>
+          <KRouterLink :to="genContentLink(related.id, related.is_leaf)">
+            <KLabeledIcon>
+              <template #icon>
+                <LearningActivityIcon :kind="related.learning_activities" />
+              </template>
+              {{ related.title }}
+            </KLabeledIcon>
+          </KRouterLink>
+        </div>
+      </div>
     </div>
 
-    <div v-if="content.locations" class="section">
+    <div v-if="showLocationsInChannel && locationsInChannel" class="section" data-test="locations">
       <div class="label">
-        {{ metadataStrings.$tr('locationsInChannel', { 'channelName': content.parent.title }) }}:
+        {{
+          metadataStrings.$tr('locationsInChannel', { 'channelname': content.ancestors[0].title })
+        }}:
       </div>
-      <ul class="list">
-        <li
-          v-for="location in content.locations"
-          :key="location.title"
-          class="list-item"
-        >
-          {{ location.title }}
-        </li>
-      </ul>
+      <div v-for="location in locationsInChannel" :key="location.id">
+        <div>
+          <KRouterLink
+            :to="genContentLink(location.ancestors.splice(-1)[0].id, false)"
+          >
+            {{ location.ancestors.splice(-1)[0].title }}
+          </KRouterLink>
+        </div>
+      </div>
     </div>
 
   </section>
@@ -210,9 +209,12 @@
     licenseLongName,
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
+  import LearnerNeeds from 'kolibri-constants/labels/Needs';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { ContentNodeResource } from 'kolibri.resources';
   import genContentLink from '../utils/genContentLink';
   import LearningActivityChip from './LearningActivityChip';
+  import LearningActivityIcon from './LearningActivityIcon';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
   import SidePanelResourceMetadata from './SidePanelResourceMetadata';
 
@@ -220,6 +222,7 @@
     name: 'BrowseResourceMetadata',
     components: {
       LearningActivityChip,
+      LearningActivityIcon,
       TimeDuration,
       ContentNodeThumbnail,
     },
@@ -229,6 +232,10 @@
         type: Object,
         required: true,
       },
+      showLocationsInChannel: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -237,9 +244,43 @@
         truncate: 'truncate-description',
         descriptionOverflow: false,
         metadataStrings: { $tr: () => null },
+        recommendations: null,
+        locationsInChannel: null,
       };
     },
     computed: {
+      /**
+       * Returns whether or not the LearnerNeeds.FOR_BEGINNERS constant is present in
+       * this.content.learner_needs
+       * @returns {Boolean}
+       */
+      forBeginners() {
+        return get(this.content, 'learner_needs', []).includes(LearnerNeeds.FOR_BEGINNERS);
+      },
+      /**
+       * Returns a list of this.content.learner_needs without the FOR_BEGINNERS key, if present
+       * @returns {string[]}
+       */
+      learnerNeeds() {
+        // Remove FOR_BEGINNERS in this list because it is indicated separately, above, if present
+        return get(this.content, 'learner_needs', []).filter(
+          need => need !== LearnerNeeds.FOR_BEGINNERS
+        );
+      },
+      /**
+       * Joins this.content.accessibility_labels with a comma & space for display purposes
+       * @returns {string}
+       */
+      accessibilityLabels() {
+        return this.content.accessibility_labels.map(label => this.coreString(label)).join(', ');
+      },
+      /**
+       * Joins this.learnerNeeds with a comma & space for display purposes
+       * @returns {string}
+       */
+      learnerNeedsLabels() {
+        return this.learnerNeeds.map(label => this.coreString(label)).join(', ');
+      },
       licenseShortName() {
         return licenseShortName(get(this, 'content.license_name', null));
       },
@@ -254,6 +295,20 @@
       },
     },
     mounted() {
+      ContentNodeResource.fetchRecommendationsFor(this.content.id).then(recommendations => {
+        const threeRecs = recommendations.splice(0, 3);
+        this.recommendations = threeRecs.length ? threeRecs : null;
+      });
+
+      if (this.showLocationsInChannel) {
+        // Retreives any topics in this same channel
+        ContentNodeResource.fetchCollection({
+          getParams: { content_id: this.content.content_id, channel_id: this.content.channel_id },
+        }).then(
+          locations => (this.locationsInChannel = locations && locations.length ? locations : null)
+        );
+      }
+
       this.metadataStrings = crossComponentTranslator(SidePanelResourceMetadata);
       this.calculateDescriptionOverflow();
     },
@@ -339,6 +394,7 @@
   }
 
   .section {
+    position: relative;
     padding-right: 4px;
     padding-bottom: 16px;
 
@@ -354,7 +410,6 @@
       // Ensures space on line w/ closing X icon whether
       // chips are visible or not
       min-height: 40px;
-      padding: 12px;
     }
 
     &.flex {
@@ -365,15 +420,29 @@
     .label {
       font-weight: bold;
     }
+  }
 
-    /deep/ .activity-chip {
-      margin: 4px;
-    }
+  /* The KIconButton is just a bit larger than the space we
+    have vertically, so it affected spacing between items. By
+    positioning it absolutely, we put it where it belongs visually
+    but strip it of the power to affect anything else's spacing.
+    */
+  .absolute-icon {
+    position: absolute;
+    top: -6px;
+    margin-left: 8px;
   }
 
   .content {
     font-size: 16px;
     line-height: 24px;
+  }
+
+  .related {
+    .list-item {
+      padding-left: 4px;
+      margin: 8px 0;
+    }
   }
 
 </style>

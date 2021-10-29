@@ -75,38 +75,15 @@
       isMobile() {
         return this.windowBreakpoint == 0;
       },
-      /**
-      ---- hope to move the responsibility for this to other avenues ----
-      ...mapState('topicsTree', ['content', 'contents']),
-      panelType() {
-        return 'resourceMetadata';
-      },
-      siblingNodes() {
-        let siblings = this.contents.filter(
-          currentContent => currentContent.parent === this.content.parent
-        );
-        return siblings;
-      },
-      nextTopic() {
-        let currentContentGrandparent = this.content.ancestors[0].id;
-        let topicsWithSameAncestor = this.contents.filter(
-          item =>
-            !item.is_leaf && item.ancestors[0] && item.ancestors[0].id === currentContentGrandparent
-        );
-        let currentIndex = topicsWithSameAncestor
-          .map(topic => topic.id)
-          .indexOf(this.content.parent);
-        let nextTopic = topicsWithSameAncestor[currentIndex + 1] || null;
-        return nextTopic;
-      },
-      title() {
-        if (this.panelType === 'resourceMetadata') {
-          return this.content.title;
-        } else {
-          return this.$tr('topicHeader');
-        }
-      },
-      */
+    },
+    /* this is the easiest way I could think to avoid having dual scroll bars */
+    mounted() {
+      const htmlTag = window.document.getElementsByTagName('html')[0];
+      htmlTag.style['overflow-y'] = 'hidden';
+    },
+    beforeDestroy() {
+      const htmlTag = window.document.getElementsByTagName('html')[0];
+      htmlTag.style['overflow-y'] = 'auto';
     },
     methods: {
       closePanel() {
