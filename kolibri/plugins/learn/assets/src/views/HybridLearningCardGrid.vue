@@ -14,7 +14,7 @@
           :title="content.title"
           :thumbnail="content.thumbnail"
           :kind="content.kind"
-          :activityLength="content.activity_length"
+          :activityLength="content.duration"
           :isLeaf="content.is_leaf"
           :progress="content.progress_fraction || 0"
           :numCoachContents="content.num_coach_contents"
@@ -28,25 +28,26 @@
         />
       </KFixedGridItem>
     </KFixedGrid>
-    <HybridLearningLessonCard
-      v-for="content in contents"
-      v-else-if="currentPage === 'lessonPage' || (windowIsSmall && isLibraryPage)"
-      :key="content.id"
-      :contentNode="content"
-      :channelThumbnail="content.channel_thumbnail"
-      :channelTitle="content.channel_title"
-      :description="content.description"
-      :activityLength="content.activity_length"
-      :thumbnail="content.thumbnail || getContentNodeThumbnail(content)"
-      class="grid-item"
-      :isMobile="windowIsSmall"
-      :title="content.title"
-      :kind="content.kind"
-      :isLeaf="content.is_leaf"
-      :progress="content.progress || content.progress_fraction || 0"
-      :numCoachContents="content.num_coach_contents"
-      :link="genContentLink(content.id, content.is_leaf)"
-    />
+    <div v-else-if="currentPage === 'lessonPage' || (windowIsSmall && isLibraryPage)">
+      <HybridLearningLessonCard
+        v-for="content in contents"
+        :key="content.id"
+        :contentNode="content"
+        :channelThumbnail="content.channel_thumbnail"
+        :channelTitle="content.channel_title"
+        :description="content.description"
+        :activityLength="content.duration"
+        :thumbnail="content.thumbnail || getContentNodeThumbnail(content)"
+        class="grid-item"
+        :isMobile="windowIsSmall"
+        :title="content.title"
+        :kind="content.kind"
+        :isLeaf="content.is_leaf"
+        :progress="content.progress || content.progress_fraction || 0"
+        :numCoachContents="content.num_coach_contents"
+        :link="genContentLink(content.id, content.is_leaf)"
+      />
+    </div>
     <CardGrid
       v-else-if=" !isBookmarksPage && cardViewStyle === 'card' && windowIsSmall"
     >
@@ -67,7 +68,7 @@
       :channelThumbnail="content.channel_thumbnail"
       :channelTitle="content.channel_title"
       :description="content.description"
-      :activityLength="content.activity_length"
+      :activityLength="content.duration"
       :currentPage="currentPage"
       class="grid-item"
       :isMobile="windowIsSmall"
@@ -98,15 +99,14 @@
 
 <script>
 
-  import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { PageNames } from '../constants';
+  import genContentLink from '../utils/genContentLink';
   import HybridLearningContentCardListView from './HybridLearningContentCardListView';
   import HybridLearningContentCard from './HybridLearningContentCard';
   import HybridLearningLessonCard from './HybridLearningLessonCard';
   import ResourceCard from './cards/ResourceCard';
   import CardGrid from './cards/CardGrid';
-
   import CopiesModal from './CopiesModal';
 
   export default {
@@ -142,14 +142,6 @@
         type: Number,
         required: true,
       },
-      genContentLink: {
-        type: Function,
-        validator(value) {
-          return validateLinkObject(value(1, 'exercise'));
-        },
-        default: () => ({}),
-        required: false,
-      },
       getContentNodeThumbnail: {
         type: Function,
         default: () => ({}),
@@ -175,6 +167,7 @@
       },
     },
     methods: {
+      genContentLink,
       openCopiesModal(contentId) {
         this.sharedContentId = contentId;
         this.uniqueId = this.contents.find(content => content.content_id === contentId).id;

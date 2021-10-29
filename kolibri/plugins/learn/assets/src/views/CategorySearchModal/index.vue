@@ -17,15 +17,17 @@
         v-on="$listeners"
       />
     </KModal>
+    <div v-else>
+      <h2>{{ $tr('title') }}</h2>
+      <CategorySearchModalOptions
+        :selectedCategory="selectedCategory"
+        :availableLabels="availableLabels"
+        span="1"
+        numCols="1"
+        v-on="$listeners"
+      />
+    </div>
 
-    <h2>{{ $tr('title') }}</h2>
-    <CategorySearchModalOptions
-      :selectedCategory="selectedCategory"
-      :availableLabels="availableLabels"
-      span="1"
-      numCols="1"
-      v-on="$listeners"
-    />
 
   </div>
 

@@ -7,6 +7,7 @@
       class="selector"
       :value="selectedLanguage"
       :label="coreString('languageLabel')"
+      :style="{ color: $themeTokens.text }"
       @change="val => handleChange('languages', val)"
     />
     <KSelect
@@ -15,6 +16,7 @@
       class="selector"
       :value="selectedLevel"
       :label="coreString('levelLabel')"
+      :style="{ color: $themeTokens.text }"
       @change="val => handleChange('grade_levels', val)"
     />
     <KSelect
@@ -23,6 +25,7 @@
       class="selector"
       :value="selectedChannel"
       :label="coreString('channelLabel')"
+      :style="{ color: $themeTokens.text }"
       @change="val => handleChange('channels', val)"
     />
     <KSelect
@@ -31,6 +34,7 @@
       class="selector"
       :value="selectedAccessibilityFilter"
       :label="coreString('accessibility')"
+      :style="{ color: $themeTokens.text }"
       @change="val => handleChange('accessibility_labels', val)"
     />
   </div>
@@ -162,7 +166,6 @@
     bottom: 45px;
     left: 10px;
     font-size: 12px;
-    color: black;
   }
 
   /deep/ .ui-select-label-text.is-floating {
