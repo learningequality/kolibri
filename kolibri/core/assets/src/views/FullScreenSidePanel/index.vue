@@ -13,13 +13,18 @@
         :style="{
           color: $themeTokens.text,
           backgroundColor: $themeTokens.surface,
+          right: (alignment === 'right' ? 0 : ''),
+          left: (alignment === 'left' ? 0 : ''),
+          width: (sidePanelOverrideWidth ? sidePanelOverrideWidth : '')
         }"
       >
-        <KIconButton
-          icon="close"
-          class="close-button"
-          @click="closePanel"
-        />
+        <div v-if="!closeButtonHidden">
+          <KIconButton
+            icon="close"
+            class="close-button"
+            @click="closePanel"
+          />
+        </div>
         <slot></slot>
 
       <!--
@@ -71,6 +76,25 @@
       //SidePanelResourcesList,
     },
     mixins: [responsiveWindowMixin],
+    props: {
+      closeButtonHidden: {
+        type: Boolean,
+        default: false,
+      },
+      alignment: {
+        type: String,
+        default: 'right',
+        validator(val) {
+          return ['right', 'left'].includes(val);
+        },
+      },
+      // to customize the width of the side panel in different scenarios
+      sidePanelOverrideWidth: {
+        type: String,
+        required: false,
+        default: null,
+      },
+    },
     computed: {
       isMobile() {
         return this.windowBreakpoint == 0;
@@ -114,7 +138,6 @@
   .side-panel {
     position: fixed;
     top: 0;
-    right: 0;
     bottom: 0;
     // Must be <= 12 z-index so that KDropdownMenu shows over
     z-index: 12;

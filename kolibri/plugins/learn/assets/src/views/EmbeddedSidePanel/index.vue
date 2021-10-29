@@ -1,21 +1,24 @@
 <template>
 
-  <KGridItem
-    :layout="{ span: width }"
+  <div
     :style="{
       color: $themeTokens.text,
       backgroundColor: $themeTokens.surface,
+      width: width,
     }"
-    class="side-panel"
+    :class="position === 'embedded' ? 'side-panel' : ''"
   >
     <div v-if="topics && topicsListDisplayed">
       <div v-for="t in topics" :key="t.id">
-        <h3>
-          {{ t.title }}
-        </h3>
+        <KRouterLink
+          :text="t.title"
+          class="side-panel-folder-link"
+          :appearanceOverrides="{ color: $themeTokens.text }"
+          :to="genContentLink(t.id)"
+        />
       </div>
     </div>
-    <div v-else :style="sidePanelStyle">
+    <div v-else>
       <!-- search by keyword -->
       <h2 class="title">
         {{ $tr('keywords') }}
@@ -75,10 +78,18 @@
         @input="handleActivity"
       />
       <!-- Filter results by learning activity, displaying all options -->
-      <SelectGroup v-model="inputValue" :availableLabels="availableLabels" class="section" />
-      <div class="section">
+      <SelectGroup
+        v-model="inputValue"
+        :availableLabels="availableLabels"
+        class="section"
+      />
+      <div
+        v-if="value.learner_needs && value.learner_needs.length"
+        class="section"
+      >
         <div
           v-for="(val, activity) in resourcesNeededList"
+
           :key="activity"
           span="4"
           alignment="center"
@@ -92,7 +103,7 @@
         </div>
       </div>
     </div>
-  </KGridItem>
+  </div>
 
 </template>
 
@@ -111,6 +122,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import SearchBox from '../SearchBox';
   import commonLearnStrings from '../commonLearnStrings';
+  import genContentLink from '../../utils/genContentLink';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import SelectGroup from './SelectGroup';
   import plugin_data from 'plugin_data';
@@ -192,13 +204,16 @@
         type: [Number, String],
         required: true,
       },
-      topicPage: {
-        type: Boolean,
-        required: false,
-      },
       topicsListDisplayed: {
         type: Boolean,
         required: false,
+      },
+      position: {
+        type: String,
+        required: true,
+        validator(val) {
+          return ['embedded', 'overlay'].includes(val);
+        },
       },
     },
     computed: {
@@ -236,12 +251,6 @@
           },
         };
       },
-      sidePanelStyle() {
-        if (this.topicPage) {
-          return { position: 'relative' };
-        }
-        return null;
-      },
       availableRootCategories() {
         if (this.availableLabels) {
           const roots = {};
@@ -267,6 +276,7 @@
       },
     },
     methods: {
+      genContentLink,
       allCategories() {
         this.$emit('input', { ...this.value, categories: { [AllCategories]: true } });
       },
@@ -327,13 +337,22 @@
 
   .side-panel {
     position: fixed;
+    top: 0;
+    left: 0;
     height: 100%;
-    padding: 30px 40px !important;
-    padding-bottom: 120px !important;
-    margin-right: 16px;
-    overflow: scroll;
+    padding: 24px;
+    padding-top: 140px;
+    overflow-y: scroll;
     font-size: 14px;
     box-shadow: 0 3px 3px 0 #00000040;
+  }
+
+  .side-panel-folder-link {
+    margin-top: 12px;
+    margin-bottom: 12px;
+    /deep/ .link-text {
+      text-decoration: none !important;
+    }
   }
 
   .section {

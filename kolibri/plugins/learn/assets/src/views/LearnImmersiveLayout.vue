@@ -198,7 +198,7 @@
         return this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
       },
     },
-    created() {
+    beforeUpdate() {
       client({
         method: 'get',
         url: urls['kolibri:core:bookmarks-list'](),

@@ -14,7 +14,7 @@
         :tagline="getTagLine(content)"
         :progress="content.progress || 0"
         :numCoachContents="content.num_coach_contents"
-        :link="genContentLink(content.id, content.is_leaf)"
+        :link="genChannelLink(content.id, content.is_leaf)"
         :contentId="content.content_id"
         :copiesCount="content.copies_count"
         @openCopiesModal="openCopiesModal"
@@ -35,7 +35,7 @@
 <script>
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import genContentLink from '../utils/genContentLink';
+  import { PageNames } from '../constants';
   import ChannelCard from './ChannelCard';
   import CopiesModal from './CopiesModal';
 
@@ -66,7 +66,12 @@
       },
     },
     methods: {
-      genContentLink,
+      genChannelLink(channel_id) {
+        return {
+          name: PageNames.TOPICS_CHANNEL,
+          params: { channel_id },
+        };
+      },
       openCopiesModal(contentId) {
         this.sharedContentId = contentId;
         this.uniqueId = this.contents.find(content => content.content_id === contentId).id;

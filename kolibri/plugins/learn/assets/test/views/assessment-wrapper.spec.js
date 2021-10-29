@@ -2,6 +2,15 @@ import Vue from 'vue';
 import makeStore from '../makeStore';
 import assessmentWrapper from '../../src/views/AssessmentWrapper';
 
+jest.mock('plugin_data', () => {
+  return {
+    __esModule: true,
+    default: {
+      channels: [],
+    },
+  };
+});
+
 const createComponent = (totalattempts, pastattempts, masteryModel) => {
   const propsData = {
     id: 'test',

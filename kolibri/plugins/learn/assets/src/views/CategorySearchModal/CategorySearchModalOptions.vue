@@ -1,61 +1,73 @@
 <template>
 
-  <KModal
-    :title="$tr('title')"
-    :cancelText="coreString('closeAction')"
-    size="large"
-    @cancel="$emit('cancel')"
+  <KFixedGrid
+    v-if="categoryGroupIsNested"
+    :numCols="numCols"
+    :style="{ margin: '24px' }"
   >
-
-    <KFixedGrid
-      v-if="categoryGroupIsNested"
-      :numCols="12"
-      :style="{ margin: '24px' }"
+    <KFixedGridItem
+      v-for="(nestedObject, key) in displaySelectedCategories"
+      :key="key"
+      :span="span"
+      :disabled="availablePaths && !availablePaths[nestedObject.value]"
+      :style="availablePaths && !availablePaths[nestedObject.value] ?
+        { textColor: 'grey' } : { cursor: 'pointer' }"
     >
-      <KFixedGridItem
-        v-for="(nestedObject, key) in displaySelectedCategories"
-        :key="key"
-        :span="4"
-        :disabled="availablePaths && !availablePaths[nestedObject.value]"
-        :style="availablePaths && !availablePaths[nestedObject.value] ? { textColor: 'grey' } : {}"
-      >
+      <div class="filter-list-title">
+        <!-- TO DO swap out KDS Icons -->
         <KIcon
           icon="info"
           size="large"
         />
-        <h2>{{ coreString(camelCase(key)) }}</h2>
-        <p
-          v-for="(item, nestedKey) in nestedObject.nested"
-          :key="item.value"
+        <h2 @click="$emit('input', nestedObject.value)">
+          {{ coreString(camelCase(key)) }}
+
+        </h2>
+      </div>
+      <div
+        v-for="(item, nestedKey) in nestedObject.nested"
+        :key="item.value"
+      >
+        <a
           :disabled="availablePaths && !availablePaths[item.value]"
-          :style="availablePaths && !availablePaths[item.value] ? { textColor: 'grey' } : {}"
+          :style="availablePaths && !availablePaths[item.value] ?
+            { textColor: 'grey', display: 'block', marginTop: '8px' } :
+            { cursor: 'pointer', display: 'block', marginTop: '8px' }"
+
           @click="$emit('input', item.value)"
         >
           {{ coreString(camelCase(nestedKey)) }}
-        </p>
-      </KFixedGridItem>
-    </KFixedGrid>
-    <KFixedGrid
-      v-else
-      :numCols="12"
-      :style="{ margin: '24px' }"
+        </a>
+
+      </div>
+    </KFixedGridItem>
+  </KFixedGrid>
+  <KFixedGrid
+    v-else
+    :numCols="numCols"
+    :style="{ margin: '24px' }"
+  >
+    <KFixedGridItem
+      v-for="(value, key) in displaySelectedCategories"
+      :key="value.value"
+      :span="span"
+      :disabled="availablePaths && !availablePaths[value.value]"
+      :style="availablePaths && !availablePaths[value.value] ?
+        { color: 'grey' } : { cursor: 'pointer' }"
+      @click="$emit('input', value.value)"
     >
-      <KFixedGridItem
-        v-for="(value, key) in displaySelectedCategories"
-        :key="value.value"
-        :span="4"
-        :disabled="availablePaths && !availablePaths[value.value]"
-        :style="availablePaths && !availablePaths[value.value] ? { textColor: 'grey' } : {}"
+      <KIcon
+        icon="info"
+        size="large"
+      />
+      <h2
+        class="filter-list-item"
         @click="$emit('input', value.value)"
       >
-        <KIcon
-          icon="info"
-          size="large"
-        />
-        <h2>{{ coreString(camelCase(key)) }}</h2>
-      </KFixedGridItem>
-    </KFixedGrid>
-  </KModal>
+        {{ coreString(camelCase(key)) }}
+      </h2>
+    </KFixedGridItem>
+  </KFixedGrid>
 
 </template>
 
@@ -110,7 +122,7 @@
   }
 
   export default {
-    name: 'CategorySearchModal',
+    name: 'CategorySearchModalOptions',
     mixins: [commonCoreStrings],
     props: {
       selectedCategory: {
@@ -121,6 +133,16 @@
       availableLabels: {
         type: Object,
         required: false,
+        default: null,
+      },
+      numCols: {
+        type: String,
+        required: true,
+        default: null,
+      },
+      span: {
+        type: String,
+        required: true,
         default: null,
       },
     },
@@ -154,12 +176,16 @@
         return camelCase(val);
       },
     },
-    $trs: {
-      title: {
-        message: 'Choose a category',
-        context: 'Title of the category selection window',
-      },
-    },
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .filter-list-title {
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+
+</style>

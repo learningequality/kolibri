@@ -7,6 +7,7 @@
       class="selector"
       :value="selectedLanguage"
       :label="coreString('languageLabel')"
+      :style="{ color: $themeTokens.text }"
       @change="val => handleChange('languages', val)"
     />
     <KSelect
@@ -15,6 +16,7 @@
       class="selector"
       :value="selectedLevel"
       :label="coreString('levelLabel')"
+      :style="{ color: $themeTokens.text }"
       @change="val => handleChange('grade_levels', val)"
     />
     <KSelect
@@ -23,6 +25,7 @@
       class="selector"
       :value="selectedChannel"
       :label="coreString('channelLabel')"
+      :style="{ color: $themeTokens.text }"
       @change="val => handleChange('channels', val)"
     />
     <KSelect
@@ -31,6 +34,7 @@
       class="selector"
       :value="selectedAccessibilityFilter"
       :label="coreString('accessibility')"
+      :style="{ color: $themeTokens.text }"
       @change="val => handleChange('accessibility_labels', val)"
     />
   </div>
@@ -157,22 +161,39 @@
 
 <style lang="scss" scoped>
 
+  /deep/ .ui-select-label-text.is-inline {
+    position: absolute;
+    bottom: 45px;
+    left: 10px;
+    font-size: 12px;
+  }
+
+  /deep/ .ui-select-label-text.is-floating {
+    position: absolute;
+    bottom: 15px;
+    left: 10px;
+    font-size: 12px;
+  }
+
+  /deep/ .ui-select-display {
+    height: 3rem;
+    border-bottom: inherit;
+  }
+
+  /deep/ .ui-select-display-value {
+    position: relative;
+    top: 12px;
+    flex-grow: 1;
+    height: 32px;
+    padding-top: 10px;
+    padding-left: 20px;
+    font-size: 14px;
+  }
   .selector {
+    height: 52px !important;
     padding-top: 10px;
     background-color: rgba(189, 189, 189, 0.25);
     border-radius: 2px;
-
-    /deep/ .ui-select-display-value {
-      margin-left: 10px;
-    }
-
-    /deep/ .ui-select-label-text {
-      position: static;
-      top: 0;
-      margin-left: 10px;
-      font-size: 12px;
-      color: black;
-    }
 
     /deep/ .ui-icon {
       margin-right: 10px;
