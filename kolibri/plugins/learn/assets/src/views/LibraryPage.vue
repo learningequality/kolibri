@@ -83,7 +83,7 @@
         </div>
         <div class="results-header-group">
           <div
-            v-for="item in Object.values(searchTermChipList)"
+            v-for="(item, key) in searchTermChipList"
             :key="item"
             class="filter-chip"
           >
@@ -94,7 +94,7 @@
                 icon="close"
                 size="mini"
                 class="filter-chip-button"
-                @click="removeFilterTag(item)"
+                @click="removeFilterTag(item, key)"
               />
             </span>
 
@@ -424,12 +424,11 @@
             this.labels = data.labels;
             this.searchLoading = false;
           });
+        } else {
+          ContentNodeResource.fetchCollection({ getParams }).then(data => {
+            this.labels = data.labels;
+          });
         }
-        // else {
-        //   ContentNodeResource.fetchCollection({ getParams }).then(data => {
-        //     this.labels = data.labels;
-        //   });
-        // }
       },
       searchMore() {
         if (this.displayingSearchResults && this.more && !this.moreLoading) {
@@ -442,16 +441,16 @@
           });
         }
       },
-      removeFilterTag(value) {
-        let query = JSON.parse(JSON.stringify(this.$route.query));
-        const key = Object.keys(query).filter(function(key) {
-          return query[key] === value;
-        })[0];
-        delete query[key];
-        this.$router.replace({ query: query });
+      removeFilterTag(value, key) {
+        const keyObject = this.searchTerms[key];
+        delete keyObject[value];
+        this.searchTerms = {
+          ...this.searchTerms,
+          [key]: keyObject,
+        };
       },
       clearSearch() {
-        this.$router.push(this.$router.getRoute(PageNames.LIBRARY));
+        this.searchTerms = {};
       },
     },
     $trs: {
