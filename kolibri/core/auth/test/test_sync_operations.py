@@ -1,3 +1,5 @@
+import json
+
 import mock
 from django.test import SimpleTestCase
 from morango.constants import transfer_statuses
@@ -98,9 +100,8 @@ class KolibriSyncOperationMixinTestCase(SimpleTestCase):
     def test_update_storage(self, mock_get_storage):
         mock_get_storage.return_value = {"test": True}
         self.operation._update_storage(self.context, {"appended": 1})
-        self.assertEqual(
-            '{"test": true, "appended": 1}', self.context.sync_session.extra_fields
-        )
+        actual_json = json.loads(self.context.sync_session.extra_fields)
+        self.assertEqual({"test": True, "appended": 1}, actual_json)
         self.context.sync_session.save.assert_called_once_with()
 
     @mock.patch(
