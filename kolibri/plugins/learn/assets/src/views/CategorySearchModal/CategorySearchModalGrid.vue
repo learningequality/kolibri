@@ -5,12 +5,10 @@
       :title="$tr('title')"
       :cancelText="coreString('closeAction')"
       size="large"
-      :class="isLevel0 ? 'level-0' : ''"
       @cancel="$emit('cancel')"
     />
     <div
       v-if="level0ModalIsOpen"
-      class="level-0"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
       <h1>{{ $tr('title') }}</h1>
@@ -22,7 +20,8 @@
         <KFixedGridItem
           v-for="(nestedObject, key) in displaySelectedCategories"
           :key="key"
-          :span="responsiveSpan"
+          :layout="{ span: 4 }"
+          :layout12="{ span: 3 }"
         >
           <KIcon
             icon="info"
@@ -87,18 +86,6 @@
       displaySelectedCategories() {
         return LibraryCategories[this.selectedCategory].nested;
       },
-      isLevel0() {
-        return this.windowWidth <= 330;
-      },
-      responsiveSpan() {
-        if (this.windowWidth < 480) {
-          return 8;
-        } else if (this.windowWidth < 600) {
-          return 6;
-        } else {
-          return 4;
-        }
-      },
     },
     methods: {
       camelCase(val) {
@@ -114,18 +101,3 @@
   };
 
 </script>
-
-
-<style lang="scss" scoped>
-
-  .level-0 {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 35;
-    overflow-y: scroll;
-  }
-
-</style>
