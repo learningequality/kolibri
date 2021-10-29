@@ -63,6 +63,7 @@
           :isTopic="isTopic"
         />
         <KIconButton
+          v-if="isLeaf"
           icon="infoPrimary"
           size="mini"
           :color="$themePalette.grey.v_400"

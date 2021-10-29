@@ -25,6 +25,7 @@
           :channelThumbnail="content.channel_thumbnail"
           :channelTitle="content.channel_title"
           @openCopiesModal="openCopiesModal"
+          @toggleInfoPanel="$emit('toggleInfoPanel', content)"
         />
       </KFixedGridItem>
     </KFixedGrid>
@@ -84,6 +85,7 @@
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
       @openCopiesModal="openCopiesModal"
+      @toggleInfoPanel="$emit('toggleInfoPanel', content)"
       @removeFromBookmarks="removeFromBookmarks(content, contents)"
     />
     <CopiesModal

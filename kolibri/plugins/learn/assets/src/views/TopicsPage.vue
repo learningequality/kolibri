@@ -157,6 +157,7 @@
                 :genContentLink="genContentLink"
                 :channelThumbnail="channel_thumbnail"
                 cardViewStyle="card"
+                @toggleInfoPanel="toggleInfoPanel"
               />
             </div>
             <!-- search results -->
@@ -167,6 +168,7 @@
               :genContentLink="genContentLink"
               :channelThumbnail="channel_thumbnail"
               cardViewStyle="card"
+              @toggleInfoPanel="toggleInfoPanel"
             />
           </div>
           <div v-else-if="!searchLoading" class="results-title">
@@ -212,6 +214,7 @@
               :cardViewStyle="currentViewStyle"
               :genContentLink="genContentLink"
               :contents="results"
+              @toggleInfoPanel="toggleInfoPanel"
             />
             <KButton
               v-if="more"
@@ -333,6 +336,7 @@
   import genContentLink from '../utils/genContentLink';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
+  import BrowseResourceMetadata from './BrowseResourceMetadata';
   import CustomContentRenderer from './ChannelRenderer/CustomContentRenderer';
   import CardThumbnail from './ContentCard/CardThumbnail';
   import CategorySearchModal from './CategorySearchModal/index';
@@ -374,6 +378,7 @@
       CategorySearchModal,
       EmbeddedSidePanel,
       FullScreenSidePanel,
+      BrowseResourceMetadata,
     },
     mixins: [commonCoach, responsiveWindowMixin, commonCoreStrings],
     data: function() {
@@ -389,6 +394,7 @@
         labels: null,
         showSearchModal: false,
         sidePanelIsOpen: false,
+        sidePanelContent: null,
         showFoldersDropdown: false,
       };
     },
@@ -598,7 +604,6 @@
             getParams.keywords = this.searchTerms.keywords;
           }
           ContentNodeResource.fetchCollection({ getParams }).then(data => {
-            console.log(data);
             this.results = data.results.map(normalizeContentNode);
             this.more = data.more;
             this.labels = data.labels;
@@ -639,6 +644,9 @@
       },
       toggleSidebarView(value) {
         this.activeTab = value;
+      },
+      toggleInfoPanel(content) {
+        this.sidePanelContent = content;
       },
       stickyCalculation() {
         let header = document.getElementsByClassName('header')[0];

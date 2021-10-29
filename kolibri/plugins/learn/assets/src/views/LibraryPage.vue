@@ -46,6 +46,7 @@
           :genContentLink="genContentLink"
           :contents="trimmedPopular"
           :currentPage="currentPage"
+          @toggleInfoPanel="toggleInfoPanel"
         />
       </div>
 
@@ -113,6 +114,7 @@
           :cardViewStyle="currentViewStyle"
           :genContentLink="genContentLink"
           :contents="results"
+          @toggleInfoPanel="toggleInfoPanel"
         />
         <!-- conditionally displayed button if there are additional results -->
         <KButton
@@ -203,6 +205,13 @@
       @cancel="currentCategory = null"
       @input="handleCategory"
     />
+
+    <FullScreenSidePanel
+      v-if="sidePanelContent"
+      @closePanel="sidePanelContent = null"
+    >
+      <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
+    </FullScreenSidePanel>
   </div>
 
 </template>
@@ -217,10 +226,11 @@
   import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
+  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import genContentLink from '../utils/genContentLink';
-  import FullScreenSidePanel from '../../../../../core/assets/src/views/FullScreenSidePanel';
   import { PageNames } from '../constants';
   import { normalizeContentNode } from '../modules/coreLearn/utils';
+  import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
@@ -253,6 +263,7 @@
       EmbeddedSidePanel,
       FullScreenSidePanel,
       CategorySearchModal,
+      BrowseResourceMetadata,
     },
     mixins: [commonLearnStrings, commonCoreStrings, responsiveWindowMixin],
     data: function() {
@@ -266,6 +277,7 @@
         labels: null,
         showSearchModal: false,
         sidePanelIsOpen: false,
+        sidePanelContent: null,
       };
     },
     computed: {
@@ -388,6 +400,9 @@
       },
       toggleSidePanelVisibility() {
         this.sidePanelIsOpen = !this.sidePanelIsOpen;
+      },
+      toggleInfoPanel(content) {
+        this.sidePanelContent = content;
       },
       closeCategoryModal() {
         this.currentCategory = null;
