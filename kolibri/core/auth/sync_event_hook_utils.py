@@ -39,6 +39,21 @@ def get_user_id_for_single_user_sync(context):
     return json.loads(cert.scope_params)["user_id"]
 
 
+def get_other_side_kolibri_version(context):
+    """
+    :type context: morango.sync.context.LocalSessionContext
+    :return: A str or None
+    """
+    # get the instance info for the other instance
+    instance_info = context.sync_session.server_instance_data
+    if context.is_server:
+        instance_info = context.sync_session.client_instance_data
+
+    # get the kolibri version, which is defined in
+    # kolibri.core.auth.constants.morango_sync:CUSTOM_INSTANCE_INFO
+    return instance_info.get("kolibri")
+
+
 def _extract_kwargs_from_context(context):
     return {
         "dataset_id": _get_our_cert(context).get_root().id,

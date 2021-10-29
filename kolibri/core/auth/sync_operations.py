@@ -5,6 +5,7 @@ from morango.constants import transfer_stages
 from morango.sync.operations import BaseOperation
 from morango.sync.operations import LocalOperation
 
+from .sync_event_hook_utils import get_other_side_kolibri_version
 from .sync_event_hook_utils import get_user_id_for_single_user_sync
 from .sync_event_hook_utils import other_side_using_single_user_cert
 from .sync_event_hook_utils import this_side_using_single_user_cert
@@ -163,14 +164,9 @@ class KolibriVersionedSyncOperation(KolibriSyncOperationMixin, LocalOperation):
         """
         self._assert(self.version is not None)
 
-        # get the instance info for the other instance
-        instance_info = context.sync_session.server_instance_data
-        if context.is_server:
-            instance_info = context.sync_session.client_instance_data
-
         # get the kolibri version, which is defined in
         # kolibri.core.auth.constants.morango_sync:CUSTOM_INSTANCE_INFO
-        remote_version = instance_info.get("kolibri")
+        remote_version = get_other_side_kolibri_version(context)
 
         # pre-0.15.0 won't have the kolibri version
         if remote_version is None or matches_version(
