@@ -2,6 +2,7 @@ from itertools import compress
 from itertools import groupby
 
 from django.db import connections
+from django.db.models import F
 from django.db.models import Value
 from django.db.models.functions import Greatest
 from le_utils.constants import content_kinds
@@ -10,6 +11,7 @@ from morango.sync.backends.utils import calculate_max_sqlite_variables
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.utils.time_utils import local_now
 
@@ -108,7 +110,32 @@ def _update_attempt_logs(masterylog_id, logs):
     _bulk_create(AttemptLog, to_create)
 
 
-def migrate_from_exam_logs(source_logs):  # noqa C901
+# ExamAttemptLog properties that we do not want
+# to copy onto the new AttemptLog
+exam_attempts_blocklist = {
+    "id",
+    "_morango_dirty_bit",
+    "_morango_source_id",
+    "_morango_partition",
+    "examlog_id",
+    "content_id",
+}
+
+
+def _create_attemptlog(examattemptlog, sessionlog_id, masterylog_id):
+    data = examattemptlog.serialize()
+    for f in exam_attempts_blocklist:
+        if f in data:
+            del data[f]
+    data["sessionlog_id"] = sessionlog_id
+    data["masterylog_id"] = masterylog_id
+    attemptlog = AttemptLog.deserialize(data)
+    attemptlog.item = "{}:{}".format(examattemptlog.content_id, attemptlog.item)
+    attemptlog.id = attemptlog.calculate_uuid()
+    return attemptlog
+
+
+def migrate_from_exam_logs(source_logs, source_attempt_log_ids=None):  # noqa C901
     """
     This function performs a forward migration to generate logs of the following kinds:
     ContentSummaryLog
@@ -160,21 +187,15 @@ def migrate_from_exam_logs(source_logs):  # noqa C901
     channel_id (ContentSessionLog + ContentSummaryLog), None
     kind (ContentSessionLog + ContentSummaryLog), quiz
     """
+    if source_attempt_log_ids is None:
+        unprocessed_attempt_log_ids = set()
+    else:
+        unprocessed_attempt_log_ids = set(source_attempt_log_ids)
+
     source_logs = source_logs.prefetch_related("attemptlogs")
 
     kind = content_kinds.QUIZ
     mastery_criterion = {"type": content_kinds.QUIZ, "coach_assigned": True}
-
-    # ExamAttemptLog properties that we do not want
-    # to copy onto the new AttemptLog
-    exam_attempts_blocklist = {
-        "id",
-        "_morango_dirty_bit",
-        "_morango_source_id",
-        "_morango_partition",
-        "examlog_id",
-        "content_id",
-    }
 
     i = 0
 
@@ -244,18 +265,14 @@ def migrate_from_exam_logs(source_logs):  # noqa C901
             mastery_logs.append(mastery_log)
 
             for examattemptlog in examattemptlogs:
-                data = examattemptlog.serialize()
-                for f in exam_attempts_blocklist:
-                    if f in data:
-                        del data[f]
-                data["sessionlog_id"] = session_log.id
-                data["masterylog_id"] = mastery_log.id
-                attemptlog = AttemptLog.deserialize(data)
-                attemptlog.item = "{}:{}".format(
-                    examattemptlog.content_id, attemptlog.item
+                attemptlog = _create_attemptlog(
+                    examattemptlog, session_log.id, mastery_log.id
                 )
-                attemptlog.id = attemptlog.calculate_uuid()
                 attempt_logs.append(attemptlog)
+                try:
+                    unprocessed_attempt_log_ids.remove(examattemptlog.id)
+                except KeyError:
+                    pass
         pre_existing_summary_logs = set(
             ContentSummaryLog.objects.filter(id__in=summary_log_ids).values_list(
                 "id", flat=True
@@ -285,3 +302,31 @@ def migrate_from_exam_logs(source_logs):  # noqa C901
                 _update_attempt_logs(masterylog_id, logs)
         i += BATCH_READ_SIZE
         logs = source_logs[i : i + BATCH_READ_SIZE]
+
+    if unprocessed_attempt_log_ids:
+        examlog_id_to_masterylog = {}
+        unprocessed_attempt_log_ids = list(unprocessed_attempt_log_ids)
+        attempt_logs = []
+        i = 0
+        source_logs = ExamAttemptLog.objects.filter(
+            id__in=unprocessed_attempt_log_ids[i : i + BATCH_READ_SIZE]
+        ).annotate(exam_id=F("examlog__exam_id"))
+        for examattemptlog in source_logs:
+            if examattemptlog.examlog_id not in examlog_id_to_masterylog:
+                examlog_id_to_masterylog[examattemptlog.examlog_id] = (
+                    MasteryLog.objects.filter(
+                        user_id=examattemptlog.user_id,
+                        summarylog__content_id=examattemptlog.exam_id,
+                    )
+                    .values_list("id", flat=True)
+                    .first()
+                )
+            masterylog_id = examlog_id_to_masterylog[examattemptlog.examlog_id]
+            if masterylog_id:
+                attemptlog = _create_attemptlog(examattemptlog, None, masterylog_id)
+                attempt_logs.append(attemptlog)
+
+    for masterylog_id, logs in groupby(
+        sorted(attempt_logs, key=lambda x: x.masterylog_id), lambda x: x.masterylog_id
+    ):
+        _update_attempt_logs(masterylog_id, logs)
