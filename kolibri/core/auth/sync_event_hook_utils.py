@@ -52,29 +52,37 @@ def _extract_kwargs_from_context(context):
 def _local_event_handler(func):
     @wraps(func)
     def wrapper(context):
-        if context is None or not isinstance(context, LocalSessionContext):
-            return
-        # we catch all errors because as a rule of thumb, we don't want hooks to fail
-        try:
-            func(context)
-        except Exception as e:
-            logger.error("Transfer event handler '{}' failed".format(func.__name__), e)
+        if isinstance(context, LocalSessionContext):
+            kwargs = _extract_kwargs_from_context(context)
+            return func(**kwargs)
 
     return wrapper
 
 
 @_local_event_handler
-def _pre_transfer_handler(context):
-    kwargs = _extract_kwargs_from_context(context)
+def _pre_transfer_handler(**kwargs):
     for hook in FacilityDataSyncHook.registered_hooks:
-        hook.pre_transfer(**kwargs)
+        # we catch all errors because as a rule of thumb, we don't want hooks to fail
+        try:
+            hook.pre_transfer(**kwargs)
+        except Exception as e:
+            logger.error(
+                "{}.pre_transfer hook failed".format(hook.__class__.__name__),
+                exc_info=e,
+            )
 
 
 @_local_event_handler
-def _post_transfer_handler(context):
-    kwargs = _extract_kwargs_from_context(context)
+def _post_transfer_handler(**kwargs):
     for hook in FacilityDataSyncHook.registered_hooks:
-        hook.post_transfer(**kwargs)
+        # we catch all errors because as a rule of thumb, we don't want hooks to fail
+        try:
+            hook.post_transfer(**kwargs)
+        except Exception as e:
+            logger.error(
+                "{}.post_transfer hook failed".format(hook.__class__.__name__),
+                exc_info=e,
+            )
 
 
 def register_sync_event_handlers(session_controller):

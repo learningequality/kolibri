@@ -28,7 +28,7 @@ class FacilityDataSyncHook(KolibriHook):
         :type local_is_single_user: bool
         :type remote_is_single_user: bool
         :type single_user_id: str
-        :type context: morango.sync.context.SessionContext
+        :type context: morango.sync.context.LocalSessionContext
         """
         pass
 
@@ -46,7 +46,7 @@ class FacilityDataSyncHook(KolibriHook):
         :type local_is_single_user: bool
         :type remote_is_single_user: bool
         :type single_user_id: str
-        :type context: morango.sync.context.SessionContext
+        :type context: morango.sync.context.LocalSessionContext
         """
         pass
 
