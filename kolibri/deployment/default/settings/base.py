@@ -387,7 +387,10 @@ SESSION_COOKIE_AGE = 1200
 
 apply_settings(sys.modules[__name__])
 
-MORANGO_INSTANCE_INFO = "kolibri.core.auth.constants.morango_sync:CUSTOM_INSTANCE_INFO"
+MORANGO_INSTANCE_INFO = os.environ.get(
+    "MORANGO_INSTANCE_INFO",
+    "kolibri.core.auth.constants.morango_sync:CUSTOM_INSTANCE_INFO",
+)
 # prepend our own Morango Operation to handle custom behaviors during sync
 SYNC_OPERATIONS = ("kolibri.core.auth.sync_operations:KolibriSyncOperations",)
 MORANGO_INITIALIZE_OPERATIONS = (

@@ -34,6 +34,8 @@ from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import ExamAttemptLog
+from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.public.utils import find_soud_sync_session_for_resume
 
@@ -191,7 +193,16 @@ class EcosystemTestCase(TestCase):
             ordered=False,
         )
 
-    @multiple_kolibri_servers(3)
+    @multiple_kolibri_servers(
+        3,
+        env=[
+            None,
+            {
+                "MORANGO_INSTANCE_INFO": "kolibri.core.auth.test.sync_utils:CUSTOM_INSTANCE_INFO"
+            },
+            None,
+        ],
+    )
     def test_scenarios(self, servers):
         servers_len = len(servers)
         self.maxDiff = None
@@ -345,6 +356,67 @@ class EcosystemTestCase(TestCase):
                 servers[(i + 1) % servers_len],
                 facility.dataset_id,
             )
+
+        # Test migration of ExamLog and ExamAttemptLog from s1 to s2 to verify receipt which
+        # requires spoofing kolibri version in syncing info
+        exam_title = uuid.uuid4().hex
+        classroom_id = Classroom.objects.using(s1.db_alias).get(name="classroom").id
+        s2.create_model(
+            FacilityUser,
+            username="learner",
+            password=DUMMY_PASSWORD,
+            facility_id=facility.id,
+        )
+        learner_id = FacilityUser.objects.using(s2.db_alias).get(username="learner").id
+        s2.create_model(
+            Exam,
+            title=exam_title,
+            question_count=1,
+            question_sources=["a"],
+            collection_id=classroom_id,
+            creator_id=alto_user.id,
+            active=True,
+        )
+        exam_id = Exam.objects.using(s2.db_alias).get(title=exam_title).id
+        s2.create_model(
+            ExamAssignment,
+            exam_id=exam_id,
+            collection_id=classroom_id,
+            assigned_by_id=alto_user.id,
+        )
+
+        s1.sync(s2, facility)
+
+        s1.create_model(
+            ExamLog,
+            exam_id=exam_id,
+            user_id=learner_id,
+            completion_timestamp=timezone.now(),
+        )
+        exam_log = ExamLog.objects.using(s1.db_alias).get(
+            exam_id=exam_id, user_id=learner_id
+        )
+        s1.create_model(
+            ExamAttemptLog,
+            user_id=learner_id,
+            examlog_id=exam_log.id,
+            content_id=exam_id,
+            item=uuid.uuid4().hex,
+            start_timestamp=timezone.now(),
+            end_timestamp=timezone.now(),
+            completion_timestamp=timezone.now(),
+            time_spent=2,
+            complete=True,
+            correct=False,
+        )
+
+        s1.sync(s2, facility)
+
+        self.assertTrue(
+            MasteryLog.objects.using(s2.db_alias)
+            .filter(user_id=learner_id, summarylog__content_id=exam_id)
+            .exists()
+        )
 
     @multiple_kolibri_servers(5)
     def test_chaos_sync(self, servers):
@@ -693,7 +765,7 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
         )
         assert assignment_t.exam.seed == 433
 
-        # Create ExamLog and ExamAttemptLog on tablet and sync to laptop A to verify receipt
+        # Create Exam related logs on tablet and sync to laptop A to verify receipt
         exam_start = timezone.now() - datetime.timedelta(minutes=42)
         exam_end = timezone.now()
         self.tablet.create_model(

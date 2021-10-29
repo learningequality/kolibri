@@ -19,6 +19,9 @@ from requests.exceptions import RequestException
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 
+# custom Morango instance info used in tests
+CUSTOM_INSTANCE_INFO = {"kolibri": "0.14.7"}
+
 
 def get_free_tcp_port():
     tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -36,6 +39,7 @@ class KolibriServer(object):
         db_name="default",
         kolibri_home=None,
         seeded_kolibri_home=None,
+        env=None,
     ):
         self.env = os.environ.copy()
         self.env["KOLIBRI_HOME"] = kolibri_home or tempfile.mkdtemp()
@@ -43,6 +47,8 @@ class KolibriServer(object):
         self.env["POSTGRES_DB"] = db_name
         self.env["KOLIBRI_RUN_MODE"] = self.env.get("KOLIBRI_RUN_MODE", "") + "-testing"
         self.env["KOLIBRI_ZIP_CONTENT_PORT"] = str(get_free_tcp_port())
+        if env is not None:
+            self.env.update(env)
         self.db_path = os.path.join(self.env["KOLIBRI_HOME"], "db.sqlite3")
         self.db_alias = uuid.uuid4().hex
         self.port = get_free_tcp_port()
@@ -134,7 +140,7 @@ class KolibriServer(object):
         a single-user sync. If credentials are needed, include `username` and `password`.
         """
 
-        extra_args = []
+        extra_args = ["--noninteractive"]
 
         if user:
             extra_args += [
@@ -176,8 +182,15 @@ class KolibriServer(object):
 
 
 class multiple_kolibri_servers(object):
-    def __init__(self, count=2):
+    def __init__(self, count=2, **server_kwargs):
         self.server_count = count
+        self.server_kwargs = [
+            {
+                key: value[i] if isinstance(value, (list, tuple)) else value
+                for key, value in server_kwargs.items()
+            }
+            for i in range(self.server_count)
+        ]
 
     def __enter__(self):
 
@@ -187,13 +200,16 @@ class multiple_kolibri_servers(object):
             tempserver = KolibriServer(
                 autostart=False,
                 kolibri_home=os.environ.get("KOLIBRI_TEST_PRESEEDED_HOME"),
+                **self.server_kwargs[0]
             )
             tempserver.manage("migrate")
             tempserver.delete_model(DatabaseIDModel)
             preseeded_home = tempserver.env["KOLIBRI_HOME"]
 
             self.servers = [
-                KolibriServer(seeded_kolibri_home=preseeded_home)
+                KolibriServer(
+                    seeded_kolibri_home=preseeded_home, **self.server_kwargs[i]
+                )
                 for i in range(self.server_count)
             ]
 
@@ -214,6 +230,7 @@ class multiple_kolibri_servers(object):
                     KolibriServer(
                         settings="kolibri.deployment.default.settings.postgres_test",
                         db_name="eco_test" + str(i + 1),
+                        **self.server_kwargs[i]
                     )
                     for i in range(self.server_count)
                 ]
@@ -223,6 +240,7 @@ class multiple_kolibri_servers(object):
                     KolibriServer(
                         settings="kolibri.deployment.default.settings.postgres_test",
                         db_name="eco2_test" + str(i + 1),
+                        **self.server_kwargs[i]
                     )
                     for i in range(self.server_count)
                 ]

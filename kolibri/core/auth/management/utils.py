@@ -524,6 +524,12 @@ class MorangoSyncCommand(AsyncCommand):
         if not noninteractive:
             # output session ID for CLI user
             logger.info("Session ID: {}".format(sync_session_client.sync_session.id))
+            logger.info(
+                "Session instance info: {}".format(
+                    sync_session_client.sync_session.client_instance_data
+                )
+            )
+
         logger.info("Syncing has been initiated (this may take a while)...")
 
         try:
