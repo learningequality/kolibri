@@ -60,19 +60,19 @@
                     <KLabeledIcon :icon="tableRow.kind">
                       {{ tableRow }}
                       <KRouterLink
-                        v-if="tableRow.kind === 'exercise' && tableRow.hasAssignments"
-                        :text="tableRow.title"
-                        :to="classRoute(
-                          'ReportsLessonExerciseLearnerListPage',
-                          { exerciseId: tableRow.content_id }
-                        )"
-                      />
-                      <KRouterLink
-                        v-else-if="tableRow.kind === 'quiz' && tableRow.hasAssignments"
+                        v-if="tableRow.options.modality === 'QUIZ' && tableRow.hasAssignments"
                         :text="tableRow.title"
                         :to="classRoute(
                           'ReportsLessonPracticeQuizLearnerListPage',
                           { resourceId: tableRow.content_id }
+                        )"
+                      />
+                      <KRouterLink
+                        v-else-if="tableRow.kind === 'exercise' && tableRow.hasAssignments"
+                        :text="tableRow.title"
+                        :to="classRoute(
+                          'ReportsLessonExerciseLearnerListPage',
+                          { exerciseId: tableRow.content_id }
                         )"
                       />
                       <KRouterLink
@@ -139,9 +139,7 @@
       },
       table() {
         const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
-        console.log('contentArray is:', contentArray);
         return contentArray.map(content => {
-          console.log('content in table is:', content); //PAUSE because need a way to differentiate between practice quiz and exercise
           const tally = this.getContentStatusTally(content.content_id, this.recipients);
           const tableRow = {
             avgTimeSpent: this.getContentAvgTimeSpent(content.content_id, this.recipients),

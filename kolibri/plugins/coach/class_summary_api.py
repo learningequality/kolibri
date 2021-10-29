@@ -367,7 +367,7 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             "exams": exam_data,
             "exam_learner_status": serialize_exam_status(query_exam_mastery_logs),
             "content": query_content.values(
-                "content_id", "title", "kind", "channel_id", node_id=F("id")
+                "content_id", "title", "kind", "channel_id", "options", node_id=F("id")
             ),
             "content_learner_status": content_status_serializer(
                 lesson_data, learners_data, classroom
