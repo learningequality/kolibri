@@ -7,10 +7,16 @@ from itertools import chain
 from django.test import TestCase
 from le_utils.constants import content_kinds
 from le_utils.constants import format_presets
+from le_utils.constants.labels.accessibility_categories import (
+    ACCESSIBILITYCATEGORIESLIST,
+)
+from le_utils.constants.labels.learning_activities import LEARNINGACTIVITIESLIST
+from le_utils.constants.labels.levels import LEVELSLIST
+from le_utils.constants.labels.needs import NEEDSLIST
+from le_utils.constants.labels.subjects import SUBJECTSLIST
 from mock import patch
 from sqlalchemy import create_engine
 
-from kolibri.core.content.constants.kind_to_learningactivity import kind_activity_map
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -34,6 +40,10 @@ def to_dict(instance):
 
 def uuid4_hex():
     return uuid.uuid4().hex
+
+
+def choices(sequence, k):
+    return [random.choice(sequence) for _ in range(0, k)]
 
 
 class ChannelBuilder(object):
@@ -417,9 +427,17 @@ class ChannelBuilder(object):
             "title": "Test",
             "parent_id": None if root else parent_id or uuid4_hex(),
             "kind": kind,
-            "learning_activities": kind_activity_map.get(kind),
             "coach_content": False,
             "available": False,
+            "learning_activities": ",".join(
+                set(choices(LEARNINGACTIVITIESLIST, k=random.randint(1, 3)))
+            ),
+            "accessibility_labels": ",".join(
+                set(choices(ACCESSIBILITYCATEGORIESLIST, k=random.randint(1, 3)))
+            ),
+            "grade_levels": ",".join(set(choices(LEVELSLIST, k=random.randint(1, 2)))),
+            "categories": ",".join(set(choices(SUBJECTSLIST, k=random.randint(1, 10)))),
+            "learner_needs": ",".join(set(choices(NEEDSLIST, k=random.randint(1, 5)))),
         }
 
 

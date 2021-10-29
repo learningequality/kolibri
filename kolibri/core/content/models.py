@@ -91,7 +91,7 @@ class ContentNodeQueryset(TreeQuerySet, FilterByUUIDQuerysetMixin):
         bits = {}
         for label in labels:
             if label in bitmasks:
-                bitmask_fieldname = bitmasks[label]["field_name"]
+                bitmask_fieldname = bitmasks[label]["bitmask_field_name"]
                 if bitmask_fieldname not in bits:
                     bits[bitmask_fieldname] = 0
                 bits[bitmask_fieldname] += bitmasks[label]["bits"]

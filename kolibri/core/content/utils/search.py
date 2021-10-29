@@ -37,12 +37,17 @@ for key, labels in metadata_lookup.items():
     bitmask_lookup = {}
     i = 0
     while labels[i : i + 64]:
-        field_name = "{}_bitmask_{}".format(key, i)
-        bitmask_fieldnames[field_name] = []
+        bitmask_field_name = "{}_bitmask_{}".format(key, i)
+        bitmask_fieldnames[bitmask_field_name] = []
         for j, label in enumerate(labels):
-            info = {"field_name": field_name, "bits": 2 ** j, "label": label}
+            info = {
+                "bitmask_field_name": bitmask_field_name,
+                "field_name": key,
+                "bits": 2 ** j,
+                "label": label,
+            }
             bitmask_lookup[label] = info
-            bitmask_fieldnames[field_name].append(info)
+            bitmask_fieldnames[bitmask_field_name].append(info)
         i += 64
     metadata_bitmasks[key] = bitmask_lookup
 
@@ -121,12 +126,14 @@ def get_all_contentnode_label_metadata():
 
 def annotate_label_bitmasks(queryset):
     update_statements = {}
-    for field_name, label_info in bitmask_fieldnames.items():
-        update_statements[field_name] = sum(
+    for bitmask_fieldname, label_info in bitmask_fieldnames.items():
+        update_statements[bitmask_fieldname] = sum(
             Case(
                 When(
-                    learning_activities__contains=info["label"],
-                    then=Value(info["bits"]),
+                    **{
+                        info["field_name"] + "__contains": info["label"],
+                        "then": Value(info["bits"]),
+                    }
                 ),
                 default=Value(0),
             )
