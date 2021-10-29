@@ -314,8 +314,22 @@ class ContentNodeAPITestCase(APITestCase):
                 "coach_content": expected.coach_content,
                 "content_id": expected.content_id,
                 "description": expected.description,
-                "duration": None,
-                "learning_activities": infer_learning_activity(expected.kind),
+                "duration": expected.duration,
+                "learning_activities": expected.learning_activities.split(",")
+                if expected.learning_activities
+                else [],
+                "grade_levels": expected.grade_levels.split(",")
+                if expected.grade_levels
+                else [],
+                "resource_types": expected.resource_types.split(",")
+                if expected.resource_types
+                else [],
+                "accessibility_labels": expected.accessibility_labels.split(",")
+                if expected.accessibility_labels
+                else [],
+                "categories": expected.categories.split(",")
+                if expected.categories
+                else [],
                 "kind": expected.kind,
                 "lang": self.map_language(expected.lang),
                 "license_description": expected.license_description,
@@ -329,7 +343,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "lft": expected.lft,
                 "rght": expected.rght,
                 "tree_id": expected.tree_id,
-                "ancestors": list(expected.get_ancestors().values("id", "title")),
+                "ancestors": [],
                 "tags": list(
                     expected.tags.all()
                     .order_by("tag_name")

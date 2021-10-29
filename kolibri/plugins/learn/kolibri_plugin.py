@@ -7,6 +7,7 @@ from django.urls import reverse
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.auth.constants.user_kinds import LEARNER
 from kolibri.core.content.hooks import ContentNodeDisplayHook
+from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
 from kolibri.core.device.utils import allow_learner_unassigned_resource_access
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import is_landing_page
@@ -50,6 +51,7 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
 
     @property
     def plugin_data(self):
+        label_metadata = get_all_contentnode_label_metadata()
         return {
             "allowGuestAccess": get_device_setting("allow_guest_access"),
             "allowLearnerUnassignedResourceAccess": allow_learner_unassigned_resource_access(),
@@ -59,6 +61,13 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             "isSubsetOfUsersDevice": get_device_setting(
                 "subset_of_users_device", False
             ),
+            "categories": label_metadata["categories"],
+            "learningActivities": label_metadata["learning_activities"],
+            "languages": label_metadata["languages"],
+            "channels": label_metadata["channels"],
+            "gradeLevels": label_metadata["grade_levels"],
+            "accessibilityLabels": label_metadata["accessibility_labels"],
+            "learnerNeeds": label_metadata["learner_needs"],
         }
 
 

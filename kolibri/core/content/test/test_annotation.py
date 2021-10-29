@@ -14,12 +14,14 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.test.test_channel_upgrade import ChannelBuilder
 from kolibri.core.content.utils.annotation import calculate_included_languages
 from kolibri.core.content.utils.annotation import calculate_published_size
 from kolibri.core.content.utils.annotation import calculate_total_resource_count
 from kolibri.core.content.utils.annotation import mark_local_files_as_available
 from kolibri.core.content.utils.annotation import mark_local_files_as_unavailable
 from kolibri.core.content.utils.annotation import recurse_annotation_up_tree
+from kolibri.core.content.utils.annotation import set_channel_ancestors
 from kolibri.core.content.utils.annotation import set_channel_metadata_fields
 from kolibri.core.content.utils.annotation import (
     set_leaf_node_availability_from_local_file_availability,
@@ -906,3 +908,14 @@ class SetChannelMetadataFieldsTestCase(TestCase):
 
         self.channel.refresh_from_db()
         self.assertTrue(self.channel.public)
+
+
+@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
+class AncestorAnnotationTestCase(TransactionTestCase):
+    def test_ancestors(self):
+        builder = ChannelBuilder()
+        builder.insert_into_default_db()
+        channel_id = builder.channel["id"]
+        set_channel_ancestors(channel_id)
+        for n in ContentNode.objects.filter(channel_id=channel_id):
+            self.assertEqual(n.ancestors, list(n.get_ancestors().values("id", "title")))

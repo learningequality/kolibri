@@ -11,7 +11,6 @@
 
   import responsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
 
-  // Add new enums as the designs call for different grid styles
   const GRID_TYPE_1 = 1;
   const GRID_TYPE_2 = 2;
 
@@ -19,10 +18,31 @@
     name: 'CardGrid',
     mixins: [responsiveWindowMixin],
     props: {
+      /**
+       * `1` or `2`
+       *
+       * The following number of cards will
+       * be displayed on one row:
+       *
+       * Grid type `1`
+       *   Level 3+: 3 cards
+       *   Level 2: 2 cards
+       *   Level 1: 1 cards
+       *   Level 0: 1 card
+       *
+       * Grid type `2`
+       *   Level 3+: 4 cards
+       *   Level 2: 3 cards
+       *   Level 1: 2 cards
+       *   Level 0: 1 card
+       */
       gridType: {
         type: Number,
         required: false,
         default: GRID_TYPE_1,
+        validator(value) {
+          return [GRID_TYPE_1, GRID_TYPE_2].includes(value);
+        },
       },
     },
     computed: {

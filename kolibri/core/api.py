@@ -15,6 +15,7 @@ from rest_framework.serializers import Serializer
 from rest_framework.serializers import UUIDField
 from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_201_CREATED
+from rest_framework.status import HTTP_503_SERVICE_UNAVAILABLE
 from six.moves.urllib.parse import urljoin
 
 from .utils.portal import registerfacility
@@ -35,11 +36,16 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["get"])
     def validate_token(self, request):
         PORTAL_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
-        # token is in query params
-        response = requests.get(
-            urljoin(PORTAL_URL, "portal/api/public/v1/registerfacility/validate_token"),
-            params=request.query_params,
-        )
+        try:
+            # token is in query params
+            response = requests.get(
+                urljoin(
+                    PORTAL_URL, "portal/api/public/v1/registerfacility/validate_token"
+                ),
+                params=request.query_params,
+            )
+        except requests.exceptions.ConnectionError:
+            return Response({"status": "offline"}, status=HTTP_503_SERVICE_UNAVAILABLE)
         # handle any invalid json type responses
         try:
             data = response.json()

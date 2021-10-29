@@ -353,7 +353,7 @@
   .menu {
     position: absolute;
     top: 50%;
-    z-index: 8;
+    z-index: 16;
     min-width: 270px;
     transform: translateY(16px);
   }

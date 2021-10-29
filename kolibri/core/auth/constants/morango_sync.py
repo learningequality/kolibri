@@ -1,7 +1,10 @@
 from __future__ import unicode_literals
 
+from kolibri.utils import conf
+
 
 PROFILE_FACILITY_DATA = "facilitydata"
+DATA_PORTAL_SYNCING_BASE_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
 
 
 class ScopeDefinitions(object):

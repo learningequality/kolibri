@@ -43,7 +43,7 @@
     </div>
 
     <div v-else>
-      <Breadcrumbs v-if="pageName !== 'TOPICS_CONTENT'" />
+      <Breadcrumbs v-if="(pageName === 'HOME' || pageName === 'ALL_CLASSES')" />
       <component :is="currentPage" v-if="currentPage" />
       <router-view />
     </div>
@@ -54,7 +54,6 @@
       @cancel="handleCancelUpdateYourProfileModal"
       @submit="handleSubmitUpdateYourProfileModal"
     />
-
 
   </CoreBase>
 
@@ -75,7 +74,6 @@
   import ContentPage from './ContentPage';
   import ContentUnavailablePage from './ContentUnavailablePage';
   import Breadcrumbs from './Breadcrumbs';
-  import SearchPage from './SearchPage';
   import LearnImmersiveLayout from './LearnImmersiveLayout';
   import ExamPage from './ExamPage';
   import ExamReportViewer from './LearnExamReportViewer';
@@ -96,7 +94,6 @@
     [PageNames.TOPICS_TOPIC]: TopicsPage,
     [PageNames.TOPICS_CONTENT]: ContentPage,
     [PageNames.CONTENT_UNAVAILABLE]: ContentUnavailablePage,
-    [PageNames.SEARCH]: SearchPage,
     [PageNames.BOOKMARKS]: BookmarkPage,
     [ClassesPageNames.EXAM_VIEWER]: ExamPage,
     [ClassesPageNames.EXAM_REPORT_VIEWER]: ExamReportViewer,
@@ -258,10 +255,16 @@
           this.pageName === PageNames.TOPICS_TOPIC ||
           this.pageName === PageNames.TOPICS_CHANNEL
         ) {
+          let immersivePageRoute;
+          if (this.$route.query.last == PageNames.HOME) {
+            immersivePageRoute = this.$router.getRoute(PageNames.HOME);
+          } else {
+            immersivePageRoute = this.$router.getRoute(PageNames.LIBRARY);
+          }
           return {
             appBarTitle: this.coreString('browseChannel'),
             immersivePage: true,
-            immersivePageRoute: this.$router.getRoute(PageNames.LIBRARY),
+            immersivePageRoute,
             immersivePagePrimary: true,
             immersivePageIcon: 'close',
             hasSidebar: true,

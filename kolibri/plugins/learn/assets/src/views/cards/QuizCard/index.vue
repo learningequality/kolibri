@@ -1,6 +1,9 @@
 <template>
 
-  <BaseCard v-bind="{ to, title, collectionTitle, completedLabel, inProgressLabel }">
+  <BaseCard
+    v-if="quiz"
+    v-bind="{ to, title, collectionTitle, completedLabel, inProgressLabel }"
+  >
     <template
       v-if="showThumbnail"
       #topLeft

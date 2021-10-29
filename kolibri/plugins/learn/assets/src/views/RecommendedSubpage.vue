@@ -5,7 +5,6 @@
     <h1>{{ header }}</h1>
     <ContentCardGroupGrid
       :contents="recommendations"
-      :genContentLink="genContentLink"
     />
   </div>
 
@@ -94,12 +93,6 @@
           }
         }
       }
-    },
-    methods: {
-      genContentLink(id, isLeaf) {
-        const pageName = isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC;
-        return this.$router.getRoute(pageName, { id }, { last: this.pageName });
-      },
     },
   };
 

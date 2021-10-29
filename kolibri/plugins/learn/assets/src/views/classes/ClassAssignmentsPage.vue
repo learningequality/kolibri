@@ -2,11 +2,11 @@
 
   <div>
     <h1 class="classroom-name">
-      <KLabeledIcon icon="classes" :label="classroomName" />
+      <KLabeledIcon icon="classes" :label="className" />
     </h1>
 
-    <AssignedLessonsCards :lessons="lessons" />
-    <AssignedQuizzesCards :quizzes="exams" :style="{ marginTop: '44px' }" />
+    <AssignedLessonsCards :lessons="activeLessons" />
+    <AssignedQuizzesCards :quizzes="activeQuizzes" :style="{ marginTop: '44px' }" />
 
   </div>
 
@@ -15,9 +15,12 @@
 
 <script>
 
-  import { mapState } from 'vuex';
-  import AssignedQuizzesCards from './AssignedQuizzesCards.vue';
-  import AssignedLessonsCards from './AssignedLessonsCards.vue';
+  import { computed, onBeforeMount, onBeforeUnmount } from 'kolibri.lib.vueCompositionApi';
+  import { get } from '@vueuse/core';
+
+  import useLearnerResources from '../../composables/useLearnerResources';
+  import AssignedQuizzesCards from './AssignedQuizzesCards';
+  import AssignedLessonsCards from './AssignedLessonsCards';
 
   export default {
     name: 'ClassAssignmentsPage',
@@ -30,33 +33,46 @@
       AssignedQuizzesCards,
       AssignedLessonsCards,
     },
-    data() {
-      return {
-        pollTimeoutId: null,
-      };
-    },
-    computed: {
-      ...mapState('classAssignments', {
-        classroomName: state => state.currentClassroom.name,
-        exams: state => state.currentClassroom.assignments.exams,
-        lessons: state => state.currentClassroom.assignments.lessons,
-      }),
-    },
-    mounted() {
-      this.schedulePoll();
-    },
-    beforeDestroy() {
-      clearTimeout(this.pollTimeoutId);
-    },
-    methods: {
-      schedulePoll() {
-        this.pollTimeoutId = setTimeout(this.pollForUpdates, 30000);
-      },
-      pollForUpdates() {
-        this.$store.dispatch('classAssignments/updateWithChanges').then(() => {
-          this.schedulePoll();
+    setup(_, { root }) {
+      const {
+        fetchClass,
+        getClass,
+        getClassActiveLessons,
+        getClassActiveQuizzes,
+      } = useLearnerResources();
+
+      const classId = root.$router.currentRoute.params.classId;
+      const classroom = computed(() => getClass(classId));
+      const className = computed(() => (get(classroom) ? get(classroom).name : ''));
+      const activeLessons = computed(() => getClassActiveLessons(get(classId)));
+      const activeQuizzes = computed(() => getClassActiveQuizzes(get(classId)));
+
+      function schedulePoll() {
+        const timeoutId = setTimeout(pollForUpdates, 30000);
+        return timeoutId;
+      }
+
+      function pollForUpdates() {
+        fetchClass({ classId, force: true }).then(() => {
+          schedulePoll();
         });
-      },
+      }
+
+      let pollTimeoutId;
+
+      onBeforeMount(() => {
+        pollTimeoutId = schedulePoll();
+      });
+
+      onBeforeUnmount(() => {
+        clearTimeout(pollTimeoutId);
+      });
+
+      return {
+        className,
+        activeLessons,
+        activeQuizzes,
+      };
     },
     $trs: {
       documentTitle: {

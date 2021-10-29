@@ -8,6 +8,7 @@ from django.db.models import Max
 from django.db.models import Sum
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
+from sqlalchemy import case
 from sqlalchemy import cast
 from sqlalchemy import exists
 from sqlalchemy import false
@@ -15,6 +16,8 @@ from sqlalchemy import func
 from sqlalchemy import Integer
 from sqlalchemy import or_
 from sqlalchemy import select
+from sqlalchemy import String
+from sqlalchemy.sql.expression import literal
 
 from .paths import get_content_file_name
 from .paths import get_content_storage_file_path
@@ -27,6 +30,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
 from kolibri.core.content.utils.sqlalchemybridge import filter_by_checksums
 from kolibri.core.content.utils.tree import get_channel_node_depth
 from kolibri.core.device.models import ContentCacheKey
@@ -344,7 +348,7 @@ def set_leaf_node_availability_from_local_file_availability(
             )
         )
         # Only look at files that are required (not supplementary)
-        .where(FileTable.c.supplementary == False)
+        .where(FileTable.c.supplementary == False)  # noqa
         # Correlate between the contentnode id and the foreign key
         # to the content node on the file table to complete the
         # many to many lookup
@@ -661,8 +665,8 @@ def calculate_dummy_progress_for_annotation(node_ids, exclude_node_ids, total_pr
     return int(annotation_proportion * total_progress / (100 - annotation_proportion))
 
 
-def propagate_forced_localfile_removal(localfiles_list):
-    total = len(localfiles_list)
+def propagate_forced_localfile_removal(localfiles_dict_list):
+    total = len(localfiles_dict_list)
     i = 0
     # Even thought we are using the filter_by_uuids method below
     # which prevents too many SQL parameters from being passed in to the query
@@ -670,11 +674,11 @@ def propagate_forced_localfile_removal(localfiles_list):
     # and cause issues - so we batch the ids here.
     batch_size = 10000
     while i < total:
-        file_slice = localfiles_list[i : i + batch_size]
+        file_slice = localfiles_dict_list[i : i + batch_size]
         files = File.objects.filter(
             supplementary=False,
             local_file__in=LocalFile.objects.filter_by_uuids(
-                [f.id for f in file_slice]
+                [f["id"] for f in file_slice]
             ),
         )
         ContentNode.objects.filter(files__in=files).update(available=False)
@@ -695,6 +699,9 @@ def update_content_metadata(
     recurse_annotation_up_tree(channel_id)
     set_channel_metadata_fields(channel_id, public=public)
     ContentCacheKey.update_cache_key()
+    # Do this call after refreshing the content cache key
+    # as the caching is dependent on the key.
+    get_all_contentnode_label_metadata()
 
 
 def set_content_visibility(
@@ -716,6 +723,9 @@ def set_content_invisible(channel_id, node_ids, exclude_node_ids):
     recurse_annotation_up_tree(channel_id)
     set_channel_metadata_fields(channel_id)
     ContentCacheKey.update_cache_key()
+    # Do this call after refreshing the content cache key
+    # as the caching is dependent on the key.
+    get_all_contentnode_label_metadata()
 
 
 def set_channel_metadata_fields(channel_id, public=None):
@@ -780,3 +790,105 @@ def calculate_next_order(channel, model=ChannelMetadata):
         channel.order = max_order + 1
 
     channel.save()
+
+
+def set_channel_ancestors(channel_id):
+    bridge = Bridge(app_name=CONTENT_APP_NAME)
+
+    ContentNodeTable = bridge.get_table(ContentNode)
+
+    connection = bridge.get_connection()
+
+    node_depth = get_channel_node_depth(bridge, channel_id)
+
+    parent = ContentNodeTable.alias()
+
+    # start a transaction
+
+    trans = connection.begin()
+    start = datetime.datetime.now()
+
+    connection.execute(
+        ContentNodeTable.update()
+        .where(
+            and_(
+                ContentNodeTable.c.level == 0,
+                ContentNodeTable.c.channel_id == channel_id,
+            )
+        )
+        .values(ancestors="[]")
+    )
+
+    # Go from the shallowest to deepest
+    for level in range(1, node_depth + 1):
+
+        if bridge.engine.name == "sqlite":
+            parent_id_expression = ContentNodeTable.c.parent_id
+        elif bridge.engine.name == "postgresql":
+            parent_id_expression = func.replace(
+                cast(ContentNodeTable.c.parent_id, String(length=36)), "-", ""
+            )
+
+        # Statement to generate the ancestors JSON using SQL, to avoid having to load data
+        # into Python in order to do this.
+        ancestors = select(
+            [
+                # Get all of the JSON from the parent's ancestors field, but remove the
+                # closing ]
+                func.substr(
+                    parent.c.ancestors, 1, func.length(parent.c.ancestors) - literal(1)
+                )
+                # Conditionalize how we add new elements depending on whether the parent's
+                # ancestors are empty or not.
+                + case(
+                    [
+                        (
+                            # If the last (and presumably first) character of the parent's
+                            # ancestors field is literal '[' then this is an empty ancestors list
+                            func.substr(
+                                parent.c.ancestors,
+                                func.length(parent.c.ancestors) - literal(1),
+                                1,
+                            )
+                            == literal("["),
+                            # In this case we just open the object without having to prepend a comma.
+                            '{"id": "',
+                        )
+                    ],
+                    # Otherwise we are adding a new element to a JSON list that already has elements in it
+                    # so we prepend with a comma in order to separate.
+                    else_=',{"id": "',
+                )
+                + parent_id_expression
+                + '","title": "'
+                + parent.c.title
+                + '"}]'
+            ]
+        ).where(
+            and_(
+                ContentNodeTable.c.parent_id == parent.c.id,
+            )
+        )
+
+        connection.execute(
+            ContentNodeTable.update()
+            .where(
+                and_(
+                    ContentNodeTable.c.level == level,
+                    ContentNodeTable.c.channel_id == channel_id,
+                )
+            )
+            .values(
+                ancestors=ancestors,
+            )
+        )
+
+    # commit the transaction
+    trans.commit()
+
+    elapsed = datetime.datetime.now() - start
+    logger.debug(
+        "Recursive ancestor annotation took {} seconds".format(elapsed.seconds)
+    )
+
+    bridge.end()

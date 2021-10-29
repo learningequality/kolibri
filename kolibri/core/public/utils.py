@@ -1,5 +1,6 @@
 import datetime
 import hashlib
+import json
 import logging
 import platform
 import random
@@ -8,19 +9,26 @@ import requests
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.utils import timezone
+from morango.errors import MorangoResumeSyncError
 from morango.models import InstanceIDModel
+from morango.models import SyncSession
 from requests.exceptions import ConnectionError
 from rest_framework import status
+from six.moves.urllib.parse import urljoin
 
 import kolibri
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import SYNC
+from kolibri.core.tasks.api import prepare_soud_resume_sync_job
 from kolibri.core.tasks.api import prepare_soud_sync_job
 from kolibri.core.tasks.api import prepare_sync_task
+from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import queue
@@ -90,21 +98,82 @@ def get_device_info(version=DEVICE_INFO_VERSION):
     return info
 
 
-def peer_sync(**kwargs):
+def find_soud_sync_sessions(using=None, **filters):
+    """
+    :param using: Database alias string
+    :param filters: A dict of queryset filter
+    :return: A SyncSession queryset
+    """
+    qs = SyncSession.objects.all()
+    if using is not None:
+        qs = qs.using(using)
+
+    return qs.filter(
+        active=True,
+        connection_kind="network",
+        profile=PROFILE_FACILITY_DATA,
+        client_certificate__scope_definition_id=ScopeDefinitions.SINGLE_USER,
+        **filters
+    ).order_by("-last_activity_timestamp")
+
+
+def find_soud_sync_session_for_resume(user, base_url, using=None):
+    """
+    Finds the most recently active sync session for a SoUD sync
+
+    :type user: FacilityUser
+    :param base_url: The server url
+    :type base_url: str
+    :param using: Database alias string
+    :rtype: SyncSession|None
+    """
+    # SoUD requests sync with server, so for resume we filter by client and matching base url
+    sync_sessions = find_soud_sync_sessions(
+        is_server=False,
+        connection_path__startswith=base_url.rstrip("/"),
+        using=using,
+    )
+
+    # ensure the certificate is for the user we're checking for
+    for sync_session in sync_sessions:
+        scope_params = json.loads(sync_session.client_certificate.scope_params)
+        dataset_id = scope_params.get("dataset_id")
+        user_id = scope_params.get("user_id")
+        if user_id == user.id and user.dataset_id == dataset_id:
+            return sync_session
+
+    return None
+
+
+def peer_sync(command, **kwargs):
+    cleanup = False
+    resync_interval = kwargs["resync_interval"]
     try:
-        call_command("sync", **kwargs)
-    except Exception:
-        logger.error(
-            "Error syncing user {} to server {}".format(
-                kwargs["user"], kwargs["baseurl"]
+        call_command(command, **kwargs)
+    except Exception as e:
+        cleanup = True
+        if isinstance(e, MorangoResumeSyncError):
+            # override to reschedule a sync sooner in this case
+            resync_interval = 5
+            logger.warning(
+                "Failed to resume sync session for user {} to server {}; queuing its cleanup".format(
+                    kwargs["user"], kwargs["baseurl"]
+                )
             )
-        )
-        raise
+        else:
+            logger.error(
+                "Error syncing user {} to server {}".format(
+                    kwargs["user"], kwargs["baseurl"]
+                )
+            )
+            raise
     finally:
+        # cleanup session on error if we tried to resume it
+        if cleanup and command == "resumesync":
+            # for resume we should have id kwarg
+            queue_soud_sync_cleanup(kwargs["id"])
         # schedule a new sync
-        schedule_new_sync(
-            kwargs["baseurl"], kwargs["user"], interval=kwargs["resync_interval"]
-        )
+        schedule_new_sync(kwargs["baseurl"], kwargs["user"], interval=resync_interval)
 
 
 def startpeerusersync(
@@ -118,27 +187,64 @@ def startpeerusersync(
     facility_id = user.facility.id
 
     device_info = get_device_info()
+    command = "sync"
+    common_job_args = dict(
+        keep_alive=True,
+        resync_interval=resync_interval,
+        job_id=hashlib.md5("{}::{}".format(server, user).encode()).hexdigest(),
+        extra_metadata=prepare_sync_task(
+            facility_id,
+            user_id,
+            user.username,
+            user.facility.name,
+            device_info["device_name"],
+            device_info["instance_id"],
+            server,
+            type="SYNCPEER/SINGLE",
+        ),
+    )
+    job_data = None
+    # attempt to resume an existing session
+    sync_session = find_soud_sync_session_for_resume(user, server)
+    if sync_session is not None:
+        command = "resumesync"
+        # if resuming encounters an error, it should close the session to avoid a loop
+        job_data = prepare_soud_resume_sync_job(
+            server, sync_session.id, user_id, **common_job_args
+        )
 
-    extra_metadata = prepare_sync_task(
-        facility_id,
-        user_id,
-        user.username,
-        user.facility.name,
-        device_info["device_name"],
-        device_info["instance_id"],
-        server,
-        type="SYNCPEER/SINGLE",
+    # if not resuming, prepare normal job
+    if job_data is None:
+        job_data = prepare_soud_sync_job(
+            server, facility_id, user_id, **common_job_args
+        )
+
+    job_id = queue.enqueue(peer_sync, command, **job_data)
+    return job_id
+
+
+def stoppeerusersync(server, user_id):
+    """
+    Close the sync session with a server
+    """
+    logger.debug(
+        "Stopping SoUD syncs for user {} against server {}".format(user_id, server)
     )
 
-    job_data = prepare_soud_sync_job(
-        server, facility_id, user_id, extra_metadata=extra_metadata
-    )
-    job_data["resync_interval"] = resync_interval
-    JOB_ID = hashlib.md5("{}::{}".format(server, user).encode()).hexdigest()
-    job_data["job_id"] = JOB_ID
-    job = queue.enqueue(peer_sync, **job_data)
+    user = FacilityUser.objects.get(pk=user_id)
+    sync_session = find_soud_sync_session_for_resume(user, server)
 
-    return job
+    # clear jobs with matching ID
+    job_id = hashlib.md5("{}::{}".format(server, user_id).encode()).hexdigest()
+    queue.clear_job(job_id)
+    scheduler.cancel(job_id)
+
+    # skip if we couldn't find one for resume
+    if sync_session is None:
+        return
+
+    logger.debug("Enqueuing cleanup of SoUD sync session {}".format(sync_session.id))
+    return queue_soud_sync_cleanup(sync_session.id)
 
 
 def begin_request_soud_sync(server, user):
@@ -149,7 +255,7 @@ def begin_request_soud_sync(server, user):
     info = get_device_info()
     if not info["subset_of_users_device"]:
         # this does not make sense unless this is a SoUD
-        logger.warn("Only Subsets of Users Devices can do automated SoUD syncing.")
+        logger.warning("Only Subsets of Users Devices can do automated SoUD syncing.")
         return
     users = UserSyncStatus.objects.filter(user_id=user).values(
         "queued", "sync_session__last_activity_timestamp"
@@ -194,6 +300,20 @@ def begin_request_soud_sync(server, user):
     queue.enqueue(request_soud_sync, server, user)
 
 
+def stop_request_soud_sync(server, user):
+    """
+    Cleanup steps to stop SoUD syncing
+    """
+    info = get_device_info()
+    if not info["subset_of_users_device"]:
+        # this does not make sense unless this is a SoUD
+        logger.warning("Only Subsets of Users Devices can do this")
+        return
+
+    # close active sync session
+    stoppeerusersync(server, user)
+
+
 def request_soud_sync(server, user, queue_id=None, ttl=4):
     """
     Make a request to the serverurl endpoint to sync this SoUD (Subset of Users Device)
@@ -206,10 +326,12 @@ def request_soud_sync(server, user, queue_id=None, ttl=4):
         endpoint = reverse("kolibri:core:syncqueue-list")
     else:
         endpoint = reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue_id})
-    server_url = "{server}{endpoint}".format(server=server, endpoint=endpoint)
+
+    server_url = urljoin(server, endpoint)
 
     instance_model = InstanceIDModel.get_or_create_current_instance()[0]
 
+    logger.debug("Requesting SoUD sync for user {} and server {}".format(user, server))
     try:
         data = {"user": user, "instance": instance_model.id}
         if queue_id is None:
@@ -242,13 +364,13 @@ def request_soud_sync(server, user, queue_id=None, ttl=4):
         dt = datetime.timedelta(seconds=interval)
         scheduler.enqueue_in(dt, job)
         if queue_id:
-            logger.warn(
+            logger.warning(
                 "Connection error connecting to server {} for user {}, for queue id {}. Trying to connect in {} seconds".format(
                     server, user, queue_id, interval
                 )
             )
         else:
-            logger.warn(
+            logger.warning(
                 "Connection error connecting to server {} for user {}. Trying to connect in {} seconds".format(
                     server, user, interval
                 )
@@ -256,10 +378,21 @@ def request_soud_sync(server, user, queue_id=None, ttl=4):
         return
 
     if response.status_code == status.HTTP_404_NOT_FOUND:
+        logger.debug(
+            "User {} was not found requesting SoUD sync from server {}".format(
+                user, server
+            )
+        )
         return  # Request done to a server not owning this user's data
 
     if response.status_code == status.HTTP_200_OK:
         handle_server_sync_response(response, server, user)
+    else:
+        logger.warning(
+            "{} response for user {} SoUD sync request to server {} | {}".format(
+                response.status_code, user, server, response.content
+            )
+        )
 
 
 def handle_server_sync_response(response, server, user):
@@ -306,3 +439,36 @@ def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVA
     JOB_ID = hashlib.md5("{}:{}".format(server, user).encode()).hexdigest()
     job = Job(request_soud_sync, server, user, job_id=JOB_ID)
     scheduler.enqueue_in(dt, job)
+
+
+@register_task
+def soud_sync_cleanup(**filters):
+    """
+    Targeted cleanup of active SoUD sessions
+
+    :param filters: A dict of queryset filters for SyncSession model
+    """
+    logger.debug("Running SoUD sync cleanup | {}".format(filters))
+    sync_sessions = find_soud_sync_sessions(**filters)
+    clean_up_ids = sync_sessions.values_list("id", flat=True)
+
+    if clean_up_ids:
+        call_command("cleanupsyncs", ids=clean_up_ids, expiration=0)
+
+
+def queue_soud_sync_cleanup(*sync_session_ids):
+    """
+    Queue targeted cleanup of active SoUD sessions
+
+    :param sync_session_ids: ID's of sync sessions we should cleanup
+    """
+    return soud_sync_cleanup.enqueue(pk__in=sync_session_ids)
+
+
+def queue_soud_server_sync_cleanup(client_ip):
+    """
+    A server oriented cleanup of active SoUD sessions
+
+    :param client_ip: The IP address of the client
+    """
+    return soud_sync_cleanup.enqueue(client_ip=client_ip, is_server=True)

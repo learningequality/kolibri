@@ -1,5 +1,6 @@
 import logging
 import re
+from collections import OrderedDict
 from functools import reduce
 from random import sample
 
@@ -17,6 +18,7 @@ from django.utils.cache import patch_response_headers
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import etag
+from django_filters.rest_framework import BaseInFilter
 from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
@@ -59,6 +61,7 @@ from kolibri.core.content.utils.importability_annotation import (
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_info_url
 from kolibri.core.content.utils.paths import get_local_content_storage_file_url
+from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
@@ -66,6 +69,7 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.query import SQSum
+from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 
@@ -152,6 +156,14 @@ class IdFilter(FilterSet):
 MODALITIES = set(["QUIZ"])
 
 
+class UUIDInFilter(BaseInFilter, UUIDFilter):
+    pass
+
+
+class CharInFilter(BaseInFilter, CharFilter):
+    pass
+
+
 class ContentNodeFilter(IdFilter):
     kind = ChoiceFilter(
         method="filter_kind",
@@ -163,6 +175,16 @@ class ContentNodeFilter(IdFilter):
     parent__isnull = BooleanFilter(field_name="parent", lookup_expr="isnull")
     include_coach_content = BooleanFilter(method="filter_include_coach_content")
     contains_quiz = CharFilter(method="filter_contains_quiz")
+    grade_levels = CharFilter(method="bitmask_contains_and")
+    resource_types = CharFilter(method="bitmask_contains_and")
+    learning_activities = CharFilter(method="bitmask_contains_and")
+    accessibility_labels = CharFilter(method="bitmask_contains_and")
+    categories = CharFilter(method="bitmask_contains_and")
+    learner_needs = CharFilter(method="bitmask_contains_and")
+    keywords = CharFilter(method="filter_keywords")
+    channels = UUIDInFilter(name="channel_id")
+    languages = CharInFilter(name="lang_id")
+    categories__isnull = BooleanFilter(field_name="categories", lookup_expr="isnull")
 
     class Meta:
         model = models.ContentNode
@@ -180,6 +202,15 @@ class ContentNodeFilter(IdFilter):
             "include_coach_content",
             "kind_in",
             "contains_quiz",
+            "grade_levels",
+            "resource_types",
+            "learning_activities",
+            "accessibility_labels",
+            "categories",
+            "learner_needs",
+            "keywords",
+            "channels",
+            "languages",
         ]
 
     def filter_kind(self, queryset, name, value):
@@ -221,6 +252,26 @@ class ContentNodeFilter(IdFilter):
             return queryset.filter(pk__in=quizzes.values_list("pk", flat=True))
         return queryset
 
+    def filter_keywords(self, queryset, name, value):
+        # all words with punctuation removed
+        all_words = [w for w in re.split('[?.,!";: ]', value) if w]
+        # words in all_words that are not stopwords
+        critical_words = [w for w in all_words if w not in stopwords_set]
+        words = critical_words if critical_words else all_words
+        query = union(
+            [
+                # all critical words in title
+                intersection([Q(title__icontains=w) for w in words]),
+                # all critical words in description
+                intersection([Q(description__icontains=w) for w in words]),
+            ]
+        )
+
+        return queryset.filter(query)
+
+    def bitmask_contains_and(self, queryset, name, value):
+        return queryset.has_all_labels(name, value.split(","))
+
 
 class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
     """
@@ -248,20 +299,8 @@ def map_file(file):
     return file
 
 
-kind_activity_map = {
-    content_kinds.EXERCISE: "practice",
-    content_kinds.VIDEO: "watch",
-    content_kinds.AUDIO: "listen",
-    content_kinds.DOCUMENT: "read",
-    content_kinds.HTML5: "explore",
-}
-
-
-def infer_learning_activity(node):
-    activity = kind_activity_map.get(node["kind"])
-    if activity:
-        return [activity]
-    return []
+def _split_text_field(text):
+    return text.split(",") if text else []
 
 
 class BaseContentNodeMixin(object):
@@ -294,11 +333,21 @@ class BaseContentNodeMixin(object):
         "lft",
         "rght",
         "tree_id",
+        "learning_activities",
+        "grade_levels",
+        "resource_types",
+        "accessibility_labels",
+        "categories",
+        "duration",
+        "ancestors",
     )
 
     field_map = {
-        "learning_activities": infer_learning_activity,
-        "duration": lambda x: None,
+        "learning_activities": lambda x: _split_text_field(x["learning_activities"]),
+        "grade_levels": lambda x: _split_text_field(x["grade_levels"]),
+        "resource_types": lambda x: _split_text_field(x["resource_types"]),
+        "accessibility_labels": lambda x: _split_text_field(x["accessibility_labels"]),
+        "categories": lambda x: _split_text_field(x["categories"]),
     }
 
     def get_queryset(self):
@@ -371,82 +420,71 @@ class BaseContentNodeMixin(object):
 
         return assessmentmetadata_map, files_map, languages_map, tags_map
 
-    def process_items(self, items, queryset, ancestor_lookup_method=None):
+    def consolidate(self, items, queryset):
         output = []
-        assessmentmetadata, files_map, languages_map, tags = self.get_related_data_maps(
-            items, queryset
-        )
-        for item in items:
-            item["assessmentmetadata"] = assessmentmetadata.get(item["id"])
-            item["tags"] = tags.get(item["id"], [])
-            item["files"] = files_map.get(item["id"], [])
-            lang_id = item.pop("lang_id")
-            item["lang"] = languages_map.get(lang_id)
-            if ancestor_lookup_method:
-                item["ancestors"] = ancestor_lookup_method(item)
-            item["is_leaf"] = item.get("kind") != content_kinds.TOPIC
-            output.append(item)
+        if items:
+            (
+                assessmentmetadata,
+                files_map,
+                languages_map,
+                tags,
+            ) = self.get_related_data_maps(items, queryset)
+            for item in items:
+                item["assessmentmetadata"] = assessmentmetadata.get(item["id"])
+                item["tags"] = tags.get(item["id"], [])
+                item["files"] = files_map.get(item["id"], [])
+                lang_id = item.pop("lang_id")
+                item["lang"] = languages_map.get(lang_id)
+                item["is_leaf"] = item.get("kind") != content_kinds.TOPIC
+                output.append(item)
         return output
 
-    def consolidate(self, items, queryset):
-        if items:
 
-            # We need to batch our queries for ancestors as the size of the expression tree
-            # depends on the number of nodes that we are querying for.
-            # On Windows, the SQL parameter limit is 999, and an ancestors call can produce
-            # 3 parameters per node in the queryset, so this should max out the parameters at 750.
-            ANCESTOR_BATCH_SIZE = 250
+class OptionalContentNodePagination(ValuesViewsetCursorPagination):
+    ordering = "id"
+    page_size_query_param = "max_results"
 
-            if len(items) > ANCESTOR_BATCH_SIZE:
+    def paginate_queryset(self, queryset, request, view=None):
+        # Record the queryset for use in returning available filters
+        self.queryset = queryset
+        return super(OptionalContentNodePagination, self).paginate_queryset(
+            queryset, request, view=view
+        )
 
-                ancestors_map = {}
+    def get_paginated_response(self, data):
+        return Response(
+            OrderedDict(
+                [
+                    ("more", self.get_more()),
+                    ("results", data),
+                    ("labels", get_available_metadata_labels(self.queryset)),
+                ]
+            )
+        )
 
-                for i in range(0, len(items), ANCESTOR_BATCH_SIZE):
-
-                    for anc in (
-                        models.ContentNode.objects.filter(
-                            id__in=[
-                                item["id"]
-                                for item in items[i : i + ANCESTOR_BATCH_SIZE]
-                            ]
-                        )
-                        .get_ancestors()
-                        .values("id", "title", "lft", "rght", "tree_id")
-                    ):
-                        ancestors_map[anc["id"]] = anc
-
-                ancestors = sorted(ancestors_map.values(), key=lambda x: x["lft"])
-            else:
-                ancestors = list(
-                    queryset.get_ancestors()
-                    .values("id", "title", "lft", "rght", "tree_id")
-                    .order_by("lft")
-                )
-
-            def ancestor_lookup(item):
-                lft = item.get("lft")
-                rght = item.get("rght")
-                tree_id = item.get("tree_id")
-                return list(
-                    map(
-                        lambda x: {"id": x["id"], "title": x["title"]},
-                        filter(
-                            lambda x: x["lft"] < lft
-                            and x["rght"] > rght
-                            and x["tree_id"] == tree_id,
-                            ancestors,
-                        ),
-                    )
-                )
-
-            return self.process_items(items, queryset, ancestor_lookup)
-
-        return []
+    def get_paginated_response_schema(self, schema):
+        return {
+            "type": "object",
+            "properties": {
+                "more": {
+                    "type": "object",
+                    "nullable": True,
+                    "example": {
+                        "cursor": "asdadshjashjadh",
+                    },
+                },
+                "results": schema,
+                "labels": {
+                    "type": "object",
+                    "example": {"accessibility_labels": ["id1", "id2"]},
+                },
+            },
+        }
 
 
 @method_decorator(cache_forever, name="dispatch")
 class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
-    pagination_class = OptionalPageNumberPagination
+    pagination_class = OptionalContentNodePagination
 
     @list_route(methods=["get"])
     def descendants(self, request):
@@ -579,30 +617,16 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
         thumbnails = serializers.FileSerializer(
             next_item.files.filter(thumbnail=True), many=True
         ).data
-        if thumbnails:
-            return Response(
-                {
-                    "kind": next_item.kind,
-                    "id": next_item.id,
-                    "title": next_item.title,
-                    "thumbnail": thumbnails[0]["storage_url"],
-                    "is_leaf": next_item.kind != content_kinds.TOPIC,
-                    "learning_activities": infer_learning_activity(
-                        {"kind": next_item.kind}
-                    ),
-                    "duration": None,
-                }
-            )
+        thumbnail = thumbnails[0]["storage_url"] if thumbnails else None
         return Response(
             {
                 "kind": next_item.kind,
                 "id": next_item.id,
                 "title": next_item.title,
+                "thumbnail": thumbnail,
                 "is_leaf": next_item.kind != content_kinds.TOPIC,
-                "learning_activities": infer_learning_activity(
-                    {"kind": next_item.kind}
-                ),
-                "duration": None,
+                "learning_activities": _split_text_field(next_item.learning_activities),
+                "duration": next_item.duration,
             }
         )
 
@@ -793,11 +817,6 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
     # should not raise it.
     page_size = 25
 
-    def consolidate(self, items, queryset):
-        if items:
-            return self.process_items(items, queryset)
-        return []
-
     def validate_and_return_params(self, request):
         depth = request.query_params.get("depth", 2)
         lft__gt = request.query_params.get("lft__gt")
@@ -895,10 +914,6 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
         # The serialized parent representation is the first node in the lft order
         parent = nodes[0]
 
-        # Do a query to get the parent's ancestors - for all other nodes, we can manually build
-        # the ancestors from the tree topology that we already know!
-        parent["ancestors"] = list(parent_model.get_ancestors().values("id", "title"))
-
         # Use this to keep track of direct children of the parent node
         # this will allow us to do lookups for the grandchildren, in order
         # to insert them into the "children" property
@@ -934,10 +949,6 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
                 # If the parent of the descendant does not already have its `children` property
                 # initialized, do so here.
                 desc_parent["children"] = {"results": [], "more": None}
-            # The ancestors field for the descendant will be its parents ancestors, plus its parent!
-            desc["ancestors"] = desc_parent["ancestors"] + [
-                {"id": desc_parent["id"], "title": desc_parent["title"]}
-            ]
             # Add this descendant to the results for the children pagination object
             desc_parent["children"]["results"].append(desc)
             # Only bother updating the URL for more if we have hit the page size limit

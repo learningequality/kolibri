@@ -8853,9 +8853,9 @@ kolibri-constants@^0.1.32-beta1:
   resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.1.32-beta1.tgz#6bee6ecba1e451930494bef5b4fde60ef9246cc9"
   integrity sha512-D9UBe5Nj2VDgdrpCUWhvXn1Lef7gF1kzSH5rvbKMzVTwaGo5qi5VgBPen3vyJ4VjN01zZkOO3kn1QJjK5NLxSg==
 
-"kolibri-design-system@git://github.com/learningequality/kolibri-design-system#04d71dabf0cb4030da31b7a33a2a8f754df1c6c9":
+"kolibri-design-system@git://github.com/learningequality/kolibri-design-system#632240f0b11f37c8b18de5ed930a4bf66b7c3678":
   version "0.2.2-beta-2"
-  resolved "git://github.com/learningequality/kolibri-design-system#04d71dabf0cb4030da31b7a33a2a8f754df1c6c9"
+  resolved "git://github.com/learningequality/kolibri-design-system#632240f0b11f37c8b18de5ed930a4bf66b7c3678"
   dependencies:
     aphrodite "https://github.com/learningequality/aphrodite/"
     autosize "^3.0.21"

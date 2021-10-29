@@ -8,6 +8,7 @@ export { default as AccessibilityCategories } from 'kolibri-constants/labels/Acc
 // Used to categorize the level or audience of content
 export { default as ContentLevels } from 'kolibri-constants/labels/Levels';
 export { default as ResourcesNeededTypes } from 'kolibri-constants/labels/Needs';
+export { default as Categories } from 'kolibri-constants/labels/Subjects';
 
 export const UserKinds = {
   ADMIN: 'admin',
@@ -50,65 +51,14 @@ export const ContentKindsToLearningActivitiesMap = {
   topic: 'folder',
 };
 
-// Resource library categories and subcategoriess
-export const LibraryCategories = {};
+export const CategoriesLookup = invert(Subjects);
 
-const subjectLookup = invert(Subjects);
+export const AllCategories = 'all_categories';
 
-for (let subjectKey of Object.entries(Subjects)
-  .sort((a, b) => a[0].length - b[0].length)
-  .map(a => a[0])) {
-  const ids = Subjects[subjectKey].split('.');
-  let path = '';
-  let nested = LibraryCategories;
-  for (let fragment of ids) {
-    path += fragment;
-    const nestedKey = subjectLookup[path];
-    if (!nested[nestedKey]) {
-      nested[nestedKey] = {
-        value: path,
-        nested: {},
-      };
-    }
-    nested = nested[nestedKey].nested;
-    path += '.';
-  }
-}
+export const NoCategories = 'no_categories';
 
 // used internally on the client as a hack to allow content-icons to display users
 export const USER = 'user';
-
-export const MasteryLoggingMap = {
-  id: 'id',
-  summarylog: 'summarylog',
-  start_timestamp: 'start_timestamp',
-  completion_timestamp: 'completion_timestamp',
-  end_timestamp: 'end_timestamp',
-  mastery_level: 'mastery_level',
-  mastery_criterion: 'mastery_criterion',
-  complete: 'complete',
-  responsehistory: 'responsehistory',
-  pastattempts: 'pastattempts',
-  totalattempts: 'totalattempts',
-};
-
-export const AttemptLoggingMap = {
-  id: 'id',
-  sessionlog: 'sessionlog',
-  item: 'item',
-  user: 'user',
-  start_timestamp: 'start_timestamp',
-  completion_timestamp: 'completion_timestamp',
-  end_timestamp: 'end_timestamp',
-  time_spent: 'time_spent',
-  complete: 'complete',
-  correct: 'correct',
-  answer: 'answer',
-  simple_answer: 'simple_answer',
-  interaction_history: 'interaction_history',
-  masterylog: 'masterylog',
-  hinted: 'hinted',
-};
 
 export const InteractionTypes = {
   hint: 'hint',

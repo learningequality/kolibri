@@ -14,7 +14,7 @@
       :exercise="exercise"
       :itemId="itemId"
       :completionTimestamp="completionTimestamp"
-      :closed="closed"
+      :complete="complete"
       :navigateToQuestion="navigateToQuestion"
       :navigateToQuestionAttempt="navigateToQuestionAttempt"
       :questions="questions"
@@ -56,8 +56,8 @@
         'learnerId',
       ]),
       ...mapState('examReportDetail', {
-        closed: state => state.examLog.closed,
-        completionTimestamp: state => state.examLog.completion_timestamp,
+        complete: state => state.masteryLog.complete,
+        completionTimestamp: state => state.masteryLog.completion_timestamp,
         selectedInteractionIndex: state => state.interactionIndex,
       }),
       learner() {

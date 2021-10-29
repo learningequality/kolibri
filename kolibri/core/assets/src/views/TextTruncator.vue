@@ -135,6 +135,11 @@
   .truncated {
     overflow: hidden;
     text-overflow: ellipsis;
+    // this ensure that when the text truncator is used
+    // in a router-link card, the text is not underlined
+    a {
+      text-decoration: none !important;
+    }
   }
 
 </style>
