@@ -327,6 +327,9 @@
     right: 16px;
     bottom: 16px;
     display: inline;
+    // this override fixes an existing KDS bug with
+    // the hover state circle being squished
+    // and can be removed upon that hover state fix
     .button {
       width: 32px !important;
       height: 32px !important;

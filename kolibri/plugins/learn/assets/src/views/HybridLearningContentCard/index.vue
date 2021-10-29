@@ -299,6 +299,16 @@
     right: $margin-thin;
     bottom: $margin-thin;
     display: inline;
+    // this override fixes an existing KDS bug with
+    // the hover state circle being squished
+    // and can be removed upon that hover state fix
+    .button {
+      width: 32px !important;
+      height: 32px !important;
+      /deep/ svg {
+        top: 4px !important;
+      }
+    }
   }
 
   .coach-content-label {
