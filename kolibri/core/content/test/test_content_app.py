@@ -343,7 +343,7 @@ class ContentNodeAPITestCase(APITestCase):
                 "lft": expected.lft,
                 "rght": expected.rght,
                 "tree_id": expected.tree_id,
-                "ancestors": list(expected.get_ancestors().values("id", "title")),
+                "ancestors": [],
                 "tags": list(
                     expected.tags.all()
                     .order_by("tag_name")

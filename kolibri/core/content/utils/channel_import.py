@@ -35,6 +35,8 @@ from kolibri.core.content.models import ContentTag
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.annotation import set_channel_ancestors
+from kolibri.core.content.utils.search import annotate_label_bitmasks
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
@@ -1105,6 +1107,10 @@ def import_channel_from_local_db(channel_id, cancel_check=None):
         ContentNode.objects.create(
             id=node_id, title=channel.name, content_id=node_id, channel_id=channel_id
         )
+
+    annotate_label_bitmasks(ContentNode.objects.filter(channel_id=channel_id))
+    set_channel_ancestors(channel_id)
+
     channel.save()
 
     logger.info("Channel {} successfully imported into the database".format(channel_id))
