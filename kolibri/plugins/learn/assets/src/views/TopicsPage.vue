@@ -326,6 +326,7 @@
   import { ContentNodeKinds, AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
   import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { throttle } from 'frame-throttle';
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import FullScreenSidePanel from '../../../../../core/assets/src/views/FullScreenSidePanel';
   import commonCoach from '../../../../../plugins/coach/assets/src/views/common';
@@ -506,6 +507,10 @@
           return 4;
         }
       },
+      // calls handleScroll no more than every 17ms
+      throttledHandleScroll() {
+        return throttle(this.stickyCalculation);
+      },
     },
     watch: {
       searchTerms() {
@@ -513,10 +518,10 @@
       },
     },
     beforeDestroy() {
-      window.removeEventListener('scroll', this.stickyCalculation);
+      window.removeEventListener('scroll', this.throttledHandleScroll);
     },
     created() {
-      window.addEventListener('scroll', this.stickyCalculation);
+      window.addEventListener('scroll', this.throttledHandleScroll);
       this.search();
       if (this.$store.getters.isUserLoggedIn) {
         const contentNodeIds = uniq(
