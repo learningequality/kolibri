@@ -439,10 +439,6 @@
             this.labels = data.labels;
             this.searchLoading = false;
           });
-        } else {
-          ContentNodeResource.fetchCollection({ getParams }).then(data => {
-            this.labels = data.labels;
-          });
         }
       },
       searchMore() {
