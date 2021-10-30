@@ -1,7 +1,6 @@
 import { get } from '@vueuse/core';
 import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
 import useChannels from '../../composables/useChannels';
@@ -9,32 +8,20 @@ import { _collectionState, normalizeContentNode, contentState } from '../coreLea
 
 const { channelsMap } = useChannels();
 
-export function showTopicsChannel(store, id) {
-  return store.dispatch('loading').then(() => {
-    store.commit('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
-    return showTopicsTopic(store, { id, isRoot: true });
-  });
-}
-
 export function showTopicsContent(store, id) {
-  store.commit('SET_EMPTY_LOGGING_STATE');
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
 
-  const promises = [
-    ContentNodeResource.fetchModel({ id }),
-    ContentNodeResource.fetchNextContent(id),
-  ];
-  ConditionalPromise.all(promises).only(
+  ContentNodeResource.fetchModel({ id }).only(
     samePageCheckGenerator(store),
-    ([content, nextContent]) => {
+    content => {
       const currentChannel = get(channelsMap)[content.channel_id];
       if (!currentChannel) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       store.commit('topicsTree/SET_STATE', {
-        content: contentState(content, nextContent),
+        content: contentState(content),
         channel: currentChannel,
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
@@ -46,33 +33,35 @@ export function showTopicsContent(store, id) {
   );
 }
 
-export function showTopicsTopic(store, { id, isRoot = false }) {
+export function showTopicsTopic(store, { id, pageName }) {
   return store.dispatch('loading').then(() => {
-    store.commit('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
-    const promises = [
-      ContentNodeResource.fetchTree({
-        id,
-        params: {
-          include_coach_content:
-            store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
-        },
-      }),
-    ];
-
-    return ConditionalPromise.all(promises).only(
+    store.commit('SET_PAGE_NAME', pageName);
+    return ContentNodeResource.fetchTree({
+      id,
+      params: {
+        include_coach_content:
+          store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
+      },
+    }).only(
       samePageCheckGenerator(store),
-      ([topic]) => {
+      topic => {
         const currentChannel = get(channelsMap)[topic.channel_id];
         if (!currentChannel) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
           return;
         }
+        const isRoot = !topic.parent;
         if (isRoot) {
           topic.description = currentChannel.description;
           topic.tagline = currentChannel.tagline;
           topic.thumbnail = currentChannel.thumbnail;
         }
         const children = topic.children.results || [];
+
+        if (!children.some(c => !c.is_leaf) && pageName !== PageNames.TOPICS_TOPIC_SEARCH) {
+          router.replace({ name: PageNames.TOPICS_TOPIC_SEARCH, id });
+          store.commit('SET_PAGE_NAME', PageNames.TOPICS_TOPIC_SEARCH);
+        }
 
         store.commit('topicsTree/SET_STATE', {
           isRoot,

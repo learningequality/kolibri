@@ -92,6 +92,7 @@
   const pageNameToComponentMap = {
     [PageNames.TOPICS_CHANNEL]: TopicsPage,
     [PageNames.TOPICS_TOPIC]: TopicsPage,
+    [PageNames.TOPICS_TOPIC_SEARCH]: TopicsPage,
     [PageNames.TOPICS_CONTENT]: ContentPage,
     [PageNames.CONTENT_UNAVAILABLE]: ContentUnavailablePage,
     [PageNames.BOOKMARKS]: BookmarkPage,
@@ -147,7 +148,7 @@
       currentPageIsTopic() {
         return [
           pageNameToComponentMap[PageNames.TOPICS_TOPIC],
-          pageNameToComponentMap[PageNames.TOPICS_CHANNEL],
+          pageNameToComponentMap[PageNames.TOPICS_TOPIC_SEARCH],
         ].includes(this.currentPage);
       },
       currentPageIsContentOrLesson() {
@@ -156,7 +157,7 @@
           this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER
         );
       },
-      currentChannelIsCustom() {
+      currentTopicIsCustom() {
         return (
           this.topicsTreeTopic &&
           this.topicsTreeTopic.options &&
@@ -197,7 +198,7 @@
             immersivePageIcon: 'close',
           };
         }
-        if (this.pageName === PageNames.TOPICS_CHANNEL && this.currentChannelIsCustom) {
+        if (this.pageName === PageNames.TOPICS_TOPIC && this.currentTopicIsCustom) {
           return {
             appBarTitle: this.topicsTreeChannel.title || '',
             immersivePage: true,
@@ -253,7 +254,7 @@
         }
         if (
           this.pageName === PageNames.TOPICS_TOPIC ||
-          this.pageName === PageNames.TOPICS_CHANNEL
+          this.pageName === PageNames.TOPICS_TOPIC_SEARCH
         ) {
           let immersivePageRoute;
           if (this.$route.query.last == PageNames.HOME) {

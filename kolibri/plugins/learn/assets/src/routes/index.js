@@ -4,11 +4,7 @@ import router from 'kolibri.coreVue.router';
 import useChannels from '../composables/useChannels';
 import useUser from '../composables/useUser';
 import useLearnerResources from '../composables/useLearnerResources';
-import {
-  showTopicsTopic,
-  showTopicsChannel,
-  showTopicsContent,
-} from '../modules/topicsTree/handlers';
+import { showTopicsTopic, showTopicsContent } from '../modules/topicsTree/handlers';
 import {
   showLibrary,
   showPopularPage,
@@ -95,21 +91,6 @@ export default [
     },
   },
   {
-    name: PageNames.TOPICS_CHANNEL,
-    path: '/topics/:channel_id',
-    handler: (toRoute, fromRoute) => {
-      if (unassignedContentGuard()) {
-        return unassignedContentGuard();
-      }
-      // If navigation is triggered by a custom channel updating the
-      // context query param, do not run the handler
-      if (toRoute.params.channel_id === fromRoute.params.channel_id) {
-        return;
-      }
-      showTopicsChannel(store, toRoute.params.channel_id);
-    },
-  },
-  {
     name: PageNames.TOPICS_TOPIC,
     path: '/topics/t/:id',
     handler: (toRoute, fromRoute) => {
@@ -121,7 +102,22 @@ export default [
       if (toRoute.params.id === fromRoute.params.id) {
         return;
       }
-      showTopicsTopic(store, { id: toRoute.params.id });
+      showTopicsTopic(store, { id: toRoute.params.id, pageName: toRoute.name });
+    },
+  },
+  {
+    name: PageNames.TOPICS_TOPIC_SEARCH,
+    path: '/topics/t/:id/search',
+    handler: (toRoute, fromRoute) => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
+      // If navigation is triggered by a custom navigation updating the
+      // context query param, do not run the handler
+      if (toRoute.params.id === fromRoute.params.id) {
+        return;
+      }
+      showTopicsTopic(store, { id: toRoute.params.id, pageName: toRoute.name });
     },
   },
   {
