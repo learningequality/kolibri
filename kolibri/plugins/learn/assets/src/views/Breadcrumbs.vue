@@ -15,6 +15,7 @@
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames, PageModes } from '../constants';
+  import useChannels from '../composables/useChannels';
   import classesBreadcrumbItems from './classes/classesBreadcrumbItems';
   import commonLearnStrings from './commonLearnStrings';
 
@@ -22,17 +23,32 @@
     name: 'Breadcrumbs',
     components: { KBreadcrumbs },
     mixins: [classesBreadcrumbItems, commonCoreStrings, commonLearnStrings],
+    setup() {
+      const { channelsMap } = useChannels();
+      return {
+        channelsMap,
+      };
+    },
     computed: {
       ...mapGetters(['pageMode']),
       ...mapState(['pageName']),
       ...mapState('topicsTree', {
-        channelRootId: state => (state.channel || {}).root_id,
-        channelTitle: state => (state.channel || {}).title,
+        topic: state => state.topic,
         topicTitle: state => (state.topic || {}).title,
         topicCrumbs: state => (state.topic || {}).breadcrumbs || [],
+        content: state => state.content,
         contentTitle: state => (state.content || {}).title,
         contentCrumbs: state => (state.content || {}).breadcrumbs || [],
       }),
+      channel() {
+        return this.channelsMap[(this.topic || this.content || {}).channel_id];
+      },
+      channelRootId() {
+        return this.channel && this.channel.root;
+      },
+      channelTitle() {
+        return this.channel && this.channel.name;
+      },
       inLearn() {
         return this.pageMode === PageModes.LIBRARY && this.pageName !== PageNames.LIBRARY;
       },
