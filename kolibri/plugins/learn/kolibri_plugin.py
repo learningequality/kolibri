@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.db.models import F
 from django.urls import reverse
 
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
@@ -51,6 +52,33 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
 
     @property
     def plugin_data(self):
+        from kolibri.core.content.models import ChannelMetadata
+
+        channels = list(
+            ChannelMetadata.objects.filter(root__available=True)
+            .annotate(
+                lang_code=F("root__lang__lang_code"),
+                lang_name=F("root__lang__lang_name"),
+                available=F("root__available"),
+                num_coach_contents=F("root__num_coach_contents"),
+            )
+            .values(
+                "author",
+                "description",
+                "tagline",
+                "id",
+                "last_updated",
+                "lang_code",
+                "lang_name",
+                "name",
+                "root",
+                "thumbnail",
+                "version",
+                "available",
+                "num_coach_contents",
+                "public",
+            )
+        )
         label_metadata = get_all_contentnode_label_metadata()
         return {
             "allowGuestAccess": get_device_setting("allow_guest_access"),
@@ -64,7 +92,7 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             "categories": label_metadata["categories"],
             "learningActivities": label_metadata["learning_activities"],
             "languages": label_metadata["languages"],
-            "channels": label_metadata["channels"],
+            "channels": channels,
             "gradeLevels": label_metadata["grade_levels"],
             "accessibilityLabels": label_metadata["accessibility_labels"],
             "learnerNeeds": label_metadata["learner_needs"],
