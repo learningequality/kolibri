@@ -118,7 +118,6 @@
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     data() {
       return {
-        searchPageExitRoute: null,
         demographicInfo: null,
       };
     },
@@ -187,17 +186,6 @@
             };
           }
         }
-        if (this.pageName === PageNames.SEARCH) {
-          return {
-            appBarTitle: this.coreString('searchLabel'),
-            immersivePage: true,
-            // Default to the Learn root page if there is no searchPageExitRoute to return to.
-            immersivePageRoute:
-              this.searchPageExitRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
-            immersivePagePrimary: true,
-            immersivePageIcon: 'close',
-          };
-        }
         if (this.pageName === PageNames.TOPICS_TOPIC && this.currentTopicIsCustom) {
           return {
             appBarTitle: this.topicsTreeChannel.title || '',
@@ -210,11 +198,8 @@
         if (this.pageName === PageNames.TOPICS_CONTENT) {
           let immersivePageRoute = {};
           let appBarTitle;
-          const { searchTerm, last } = this.$route.query;
-          if (searchTerm) {
-            appBarTitle = this.coreString('searchLabel');
-            immersivePageRoute = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
-          } else if (last) {
+          const { last } = this.$route.query;
+          if (last) {
             // 'last' should only be route names for Recommended Page and its subpages
             immersivePageRoute = this.$router.getRoute(last);
             appBarTitle = {
@@ -277,13 +262,11 @@
         };
       },
       showSearch() {
-        return this.pageName !== PageNames.SEARCH && this.canAccessUnassignedContent;
+        return this.canAccessUnassignedContent;
       },
       topNavIsVisible() {
         return (
-          this.pageName !== PageNames.CONTENT_UNAVAILABLE &&
-          this.pageName !== PageNames.SEARCH &&
-          !this.immersivePageProps.immersivePage
+          this.pageName !== PageNames.CONTENT_UNAVAILABLE && !this.immersivePageProps.immersivePage
         );
       },
       content() {
@@ -311,7 +294,6 @@
       },
       maxWidth() {
         // ref: https://www.figma.com/file/zbxBoJUUkOynZtgK0wO9KD/Channel-descriptions?node-id=281%3A1270
-        if (this.pageName !== PageNames.TOPICS_ROOT) return undefined;
         if (this.windowBreakpoint <= 1) return 400;
         return 1800;
       },
@@ -328,11 +310,8 @@
         // extract the key pieces of routing from immersive page props, but since we don't need
         // them all, just create two alternative route paths for return/'back' navigation
         let route = {};
-        const { searchTerm } = this.$route.query;
         if (this.$route.query.last == PageNames.RECOMMENDED) {
           route = this.$router.getRoute(PageNames.RECOMMENDED);
-        } else if (searchTerm) {
-          route = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
         } else if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
           route = this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST);
         } else if (this.topicsTreeContent.parent) {
@@ -342,30 +321,6 @@
           });
         }
         return route;
-      },
-    },
-    watch: {
-      $route: function(newRoute, oldRoute) {
-        const topicRouteNames = [
-          PageNames.TOPICS_ROOT,
-          PageNames.TOPICS_CHANNEL,
-          PageNames.TOPICS_TOPIC,
-        ];
-        // If going from topic -> search, save the topic route parameters for the
-        // exit link.
-        // But, if we go from search -> content, we do not edit `searchPageExitRoute`
-        // preserve the backwards linking from content -> search -> topic
-        if (topicRouteNames.includes(oldRoute.name) && newRoute.name === PageNames.SEARCH) {
-          this.searchPageExitRoute = {
-            name: oldRoute.name,
-            query: oldRoute.query,
-            params: oldRoute.params,
-          };
-        } else if (oldRoute.name === PageNames.SEARCH && topicRouteNames.includes(newRoute.name)) {
-          // If going from search -> topic (either by clicking "X" or clicking a topic card
-          // in the results), clear out the exit route.
-          this.searchPageExitRoute = null;
-        }
       },
     },
     mounted() {
