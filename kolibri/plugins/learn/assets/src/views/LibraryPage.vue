@@ -82,31 +82,11 @@
             @click="toggleCardView('card')"
           />
         </div>
-        <div class="results-header-group">
-          <div
-            v-for="(item, key) in searchTermChipList"
-            :key="item"
-            class="filter-chip"
-          >
-            <!-- TODO Marcella convert to strings, and add relevant aria label -->
-            <span>
-              <p class="filter-chip-text">{{ item }}</p>
-              <KIconButton
-                icon="close"
-                size="mini"
-                class="filter-chip-button"
-                @click="removeFilterTag(item, key)"
-              />
-            </span>
-
-          </div>
-          <KButton
-            :text="$tr('clearAll')"
-            appearance="basic-link"
-            class="filter-action-button"
-            @click="clearSearch"
-          />
-        </div>
+        <SearchChips
+          :searchTerms="searchTerms"
+          @removeItem="removeFilterTag"
+          @clearSearch="clearSearch"
+        />
         <!-- Grid of search results  -->
         <HybridLearningCardGrid
           v-if="results.length"
@@ -223,32 +203,22 @@
   import uniq from 'lodash/uniq';
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
+  import { ContentNodeProgressResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import genContentLink from '../utils/genContentLink';
   import { PageNames } from '../constants';
-  import { normalizeContentNode } from '../modules/coreLearn/utils';
+  import useSearch from '../composables/useSearch';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
-  import CategorySearchModal from './CategorySearchModal/index';
+  import CategorySearchModal from './CategorySearchModal';
+  import SearchChips from './SearchChips';
 
   const mobileCarouselLimit = 3;
   const desktopCarouselLimit = 15;
-
-  const searchKeys = [
-    'learning_activities',
-    'categories',
-    'learner_needs',
-    'channels',
-    'accessibility_labels',
-    'languages',
-    'grade_levels',
-  ];
 
   export default {
     name: 'LibraryPage',
@@ -264,17 +234,43 @@
       FullScreenSidePanel,
       CategorySearchModal,
       BrowseResourceMetadata,
+      SearchChips,
     },
     mixins: [commonLearnStrings, commonCoreStrings, responsiveWindowMixin],
+    setup() {
+      const {
+        searchTerms,
+        displayingSearchResults,
+        searchLoading,
+        moreLoading,
+        results,
+        more,
+        labels,
+        search,
+        searchMore,
+        removeFilterTag,
+        clearSearch,
+        setCategory,
+      } = useSearch();
+      return {
+        searchTerms,
+        displayingSearchResults,
+        searchLoading,
+        moreLoading,
+        results,
+        more,
+        labels,
+        search,
+        searchMore,
+        removeFilterTag,
+        clearSearch,
+        setCategory,
+      };
+    },
     data: function() {
       return {
         currentViewStyle: 'card',
         currentCategory: null,
-        searchLoading: true,
-        moreLoading: false,
-        results: [],
-        more: null,
-        labels: null,
         showSearchModal: false,
         sidePanelIsOpen: false,
         sidePanelContent: null,
@@ -298,49 +294,6 @@
       currentPage() {
         return PageNames.LIBRARY;
       },
-      searchTerms: {
-        get() {
-          const searchTerms = {};
-          for (let key of searchKeys) {
-            const obj = {};
-            if (this.$route.query[key]) {
-              for (let value of this.$route.query[key].split(',')) {
-                obj[value] = true;
-              }
-            }
-            searchTerms[key] = obj;
-          }
-          if (this.$route.query.keywords) {
-            searchTerms.keywords = this.$route.query.keywords;
-          }
-          return searchTerms;
-        },
-        set(value) {
-          const query = { ...this.$route.query };
-          for (let key of searchKeys) {
-            const val = Object.keys(value[key])
-              .filter(Boolean)
-              .join(',');
-            if (val.length) {
-              query[key] = Object.keys(value[key]).join(',');
-            } else {
-              delete query[key];
-            }
-          }
-          if (value.keywords && value.keywords.length) {
-            query.keywords = value.keywords;
-          } else {
-            delete query.keywords;
-          }
-          this.$router.push({ ...this.$route, query });
-        },
-      },
-      displayingSearchResults() {
-        return Object.values(this.searchTerms).some(v => Object.keys(v).length);
-      },
-      searchTermChipList() {
-        return this.$route.query;
-      },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
           return 0;
@@ -361,11 +314,6 @@
         } else {
           return 3;
         }
-      },
-    },
-    watch: {
-      searchTerms() {
-        this.search();
       },
     },
     created() {
@@ -408,60 +356,8 @@
         this.currentCategory = null;
       },
       handleCategory(category) {
-        this.searchTerms = { ...this.searchTerms, categories: { [category]: true } };
+        this.setCategory(category);
         this.currentCategory = null;
-      },
-      search() {
-        const getParams = { max_results: 25 };
-        if (this.displayingSearchResults) {
-          this.searchLoading = true;
-          for (let key of searchKeys) {
-            if (key === 'categories') {
-              if (this.searchTerms[key][AllCategories]) {
-                getParams['categories__isnull'] = false;
-                break;
-              } else if (this.searchTerms[key][NoCategories]) {
-                getParams['categories__isnull'] = true;
-                break;
-              }
-            }
-            const keys = Object.keys(this.searchTerms[key]);
-            if (keys.length) {
-              getParams[key] = keys;
-            }
-          }
-          if (this.searchTerms.keywords) {
-            getParams.keywords = this.searchTerms.keywords;
-          }
-          ContentNodeResource.fetchCollection({ getParams }).then(data => {
-            this.results = data.results.map(normalizeContentNode);
-            this.more = data.more;
-            this.labels = data.labels;
-            this.searchLoading = false;
-          });
-        }
-      },
-      searchMore() {
-        if (this.displayingSearchResults && this.more && !this.moreLoading) {
-          this.moreLoading = true;
-          ContentNodeResource.fetchCollection({ getParams: this.more }).then(data => {
-            this.results.push(...data.results.map(normalizeContentNode));
-            this.more = data.more;
-            this.labels = data.labels;
-            this.moreLoading = false;
-          });
-        }
-      },
-      removeFilterTag(value, key) {
-        const keyObject = this.searchTerms[key];
-        delete keyObject[value];
-        this.searchTerms = {
-          ...this.searchTerms,
-          [key]: keyObject,
-        };
-      },
-      clearSearch() {
-        this.searchTerms = {};
       },
     },
     $trs: {
@@ -535,32 +431,6 @@
     display: inline-block;
     margin: 4px;
     margin-left: 8px;
-  }
-
-  .filter-chip {
-    display: inline-block;
-    margin: 2px;
-    font-size: 14px;
-    vertical-align: top;
-    background-color: #dedede;
-    border-radius: 34px;
-  }
-
-  .filter-chip-text {
-    display: inline-block;
-    margin: 4px 0 4px 8px;
-    font-size: 14px;
-  }
-
-  .filter-chip-button {
-    padding-top: 4px;
-    margin: 2px;
-    color: #dadada;
-    vertical-align: middle;
-    /deep/ svg {
-      width: 20px;
-      height: 20px;
-    }
   }
 
 </style>
