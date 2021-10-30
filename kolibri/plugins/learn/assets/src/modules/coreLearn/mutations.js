@@ -5,4 +5,7 @@ export default {
   LEARN_SET_MEMBERSHIPS(state, memberships) {
     state.memberships = memberships;
   },
+  SET_ROOT_NODES(state, rootNodes) {
+    state.rootNodes = rootNodes;
+  },
 };

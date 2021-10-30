@@ -18,9 +18,9 @@
       <div v-if="!displayingSearchResults">
         <h2>{{ coreString('channelsLabel') }}</h2>
         <ChannelCardGroupGrid
-          v-if="channels.length"
+          v-if="rootNodes.length"
           class="grid"
-          :contents="channels"
+          :contents="rootNodes"
         />
         <div v-if="!(windowBreakpoint < 1 )" class="toggle-view-buttons">
           <KIconButton
@@ -278,7 +278,7 @@
     },
     computed: {
       ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
-      ...mapState('topicsRoot', { channels: 'rootNodes' }),
+      ...mapState(['rootNodes']),
       carouselLimit() {
         return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
       },

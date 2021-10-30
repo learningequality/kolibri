@@ -7,7 +7,6 @@ import examReportViewer from './examReportViewer';
 import examViewer from './examViewer';
 import lessonPlaylist from './lessonPlaylist';
 import recommended from './recommended';
-import topicsRoot from './topicsRoot';
 import topicsTree from './topicsTree';
 
 import plugin_data from 'plugin_data';
@@ -17,6 +16,7 @@ export default {
     return {
       pageName: '',
       memberships: [],
+      rootNodes: [],
       canAccessUnassignedContentSetting: plugin_data.allowLearnerUnassignedResourceAccess,
       allowGuestAccess: plugin_data.allowGuestAccess,
     };
@@ -31,7 +31,6 @@ export default {
     examViewer,
     lessonPlaylist,
     recommended,
-    topicsRoot,
     topicsTree,
   },
 };

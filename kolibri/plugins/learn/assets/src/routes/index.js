@@ -11,7 +11,6 @@ import {
   showNextStepsPage,
   showResumePage,
 } from '../modules/recommended/handlers';
-import { showChannels } from '../modules/topicsRoot/handlers';
 import { PageNames, ClassesPageNames } from '../constants';
 import LibraryPage from '../views/LibraryPage';
 import HomePage from '../views/HomePage';
@@ -76,7 +75,6 @@ export default [
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
       }
-      showChannels(store);
       showLibrary(store);
     },
     component: LibraryPage,
