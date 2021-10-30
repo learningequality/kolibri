@@ -33,27 +33,17 @@
       ...mapGetters(['pageMode']),
       ...mapState(['pageName']),
       ...mapState('topicsTree', {
-        topic: state => state.topic,
         topicTitle: state => (state.topic || {}).title,
-        topicCrumbs: state => (state.topic || {}).breadcrumbs || [],
-        content: state => state.content,
-        contentTitle: state => (state.content || {}).title,
-        contentCrumbs: state => (state.content || {}).breadcrumbs || [],
+        topicAncestors: state => (state.topic || {}).ancestors || [],
       }),
-      channel() {
-        return this.channelsMap[(this.topic || this.content || {}).channel_id];
-      },
-      channelRootId() {
-        return this.channel && this.channel.root;
-      },
-      channelTitle() {
-        return this.channel && this.channel.name;
-      },
       inLearn() {
         return this.pageMode === PageModes.LIBRARY && this.pageName !== PageNames.LIBRARY;
       },
       inTopics() {
-        return this.pageMode === PageModes.TOPICS && this.pageName !== PageNames.TOPICS_ROOT;
+        return (
+          this.pageName === PageNames.TOPICS_TOPIC ||
+          this.pageName === PageNames.TOPICS_TOPIC_SEARCH
+        );
       },
       learnBreadcrumbs() {
         return [
@@ -64,65 +54,22 @@
           { text: this.contentTitle },
         ];
       },
-      middleTopicBreadcrumbs() {
-        let crumbs = [];
-
-        // Channels have no previous topics
-        if (this.pageName === PageNames.TOPICS_CHANNEL) {
-          return crumbs;
-        }
-
-        // Link to top-level Channel
-        crumbs.push({
-          text: this.channelTitle,
-          link: {
-            name: PageNames.TOPICS_CHANNEL,
-            params: {
-              channel_id: this.channelRootId,
-            },
-          },
-        });
-
-        // Links to previous topics
-        if (this.pageName === PageNames.TOPICS_CONTENT) {
-          crumbs = [...crumbs, ...this.topicCrumbLinks(this.contentCrumbs)];
-        } else if (this.pageName === PageNames.TOPICS_TOPIC) {
-          crumbs = [...crumbs, ...this.topicCrumbLinks(this.topicCrumbs)];
-        }
-        return crumbs;
-      },
-      lastTopicBreadcrumb() {
-        if (this.pageName === PageNames.TOPICS_CHANNEL) {
-          return { text: this.channelTitle };
-        } else if (this.pageName === PageNames.TOPICS_CONTENT) {
-          return { text: this.contentTitle };
-        } else if (this.pageName === PageNames.TOPICS_TOPIC) {
-          return { text: this.topicTitle };
-        }
-
-        return {};
-      },
       topicsBreadcrumbs() {
         return [
           // All Channels Link
           {
-            text: this.coreString('channelsLabel'),
-            link: { name: PageNames.TOPICS_ROOT },
+            text: this.learnString('libraryLabel'),
+            link: { name: PageNames.LIBRARY },
           },
-          ...this.middleTopicBreadcrumbs,
-          this.lastTopicBreadcrumb,
+          ...this.topicAncestors.map(({ title, id }) => ({
+            text: title,
+            link: {
+              name: PageNames.TOPICS_TOPIC,
+              params: { id },
+            },
+          })),
+          { text: this.topicTitle },
         ];
-      },
-    },
-    methods: {
-      topicCrumbLinks(crumbs) {
-        return crumbs.map(({ title, id }) => ({
-          text: title,
-          link: {
-            name: PageNames.TOPICS_TOPIC,
-            params: { id },
-          },
-        }));
       },
     },
   };
