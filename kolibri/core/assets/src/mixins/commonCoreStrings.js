@@ -1048,6 +1048,9 @@ const nonconformingKeys = {
   MATERIALS: 'NeedsMaterials',
   FOR_BEGINNERS: 'ForBeginners',
   digitalLiteracy: 'digitialLiteracy',
+  BASIC_SKILLS: 'allLevelsBasicSkills',
+  FOUNDATIONS: 'basicSkills',
+  FOUNDATIONS_LOGIC_AND_CRITICAL_THINKING: 'logicAndCriticalThinking',
 };
 
 /**
