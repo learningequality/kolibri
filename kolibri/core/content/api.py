@@ -24,6 +24,7 @@ from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import NumberFilter
 from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
@@ -185,6 +186,8 @@ class ContentNodeFilter(IdFilter):
     channels = UUIDInFilter(name="channel_id")
     languages = CharInFilter(name="lang_id")
     categories__isnull = BooleanFilter(field_name="categories", lookup_expr="isnull")
+    lft__gt = NumberFilter(field_name="lft", lookup_expr="gt")
+    rght__lt = NumberFilter(field_name="rght", lookup_expr="lt")
 
     class Meta:
         model = models.ContentNode
@@ -211,6 +214,9 @@ class ContentNodeFilter(IdFilter):
             "keywords",
             "channels",
             "languages",
+            "tree_id",
+            "lft__gt",
+            "rght__lt",
         ]
 
     def filter_kind(self, queryset, name, value):

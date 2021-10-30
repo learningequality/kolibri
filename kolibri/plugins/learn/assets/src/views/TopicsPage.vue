@@ -304,10 +304,8 @@
 <script>
 
   import { mapState } from 'vuex';
-  import uniq from 'lodash/uniq';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { ContentNodeProgressResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { throttle } from 'frame-throttle';
@@ -370,7 +368,7 @@
         removeFilterTag,
         clearSearch,
         setCategory,
-        setSearchWithinChannel,
+        setSearchWithinDescendant,
       } = useSearch();
       return {
         searchTerms,
@@ -385,7 +383,7 @@
         removeFilterTag,
         clearSearch,
         setCategory,
-        setSearchWithinChannel,
+        setSearchWithinDescendant,
       };
     },
     data: function() {
@@ -477,29 +475,19 @@
         return throttle(this.stickyCalculation);
       },
     },
+    watch: {
+      topic() {
+        this.setSearchWithinDescendant(this.topic);
+      },
+    },
     beforeDestroy() {
       window.removeEventListener('scroll', this.throttledHandleScroll);
     },
     created() {
       this.translator = crossComponentTranslator(LibraryPage);
       window.addEventListener('scroll', this.throttledHandleScroll);
-      this.setSearchWithinChannel(this.topic.channel_id);
+      this.setSearchWithinDescendant(this.topic);
       this.search();
-      if (this.$store.getters.isUserLoggedIn) {
-        const contentNodeIds = uniq(
-          [...this.trimmedNextSteps, ...this.trimmedPopular, ...this.trimmedResume].map(
-            ({ id }) => id
-          )
-        );
-
-        if (contentNodeIds.length > 0) {
-          ContentNodeProgressResource.fetchCollection({ getParams: { ids: contentNodeIds } }).then(
-            progresses => {
-              this.$store.commit('recommended/SET_RECOMMENDED_NODES_PROGRESS', progresses);
-            }
-          );
-        }
-      }
     },
     methods: {
       genContentLink,

@@ -25,10 +25,10 @@ export default function useSearch() {
   const more = ref(null);
   const labels = ref(null);
 
-  let channel;
+  let descendant;
 
-  function setSearchWithinChannel(c) {
-    channel = c;
+  function setSearchWithinDescendant(d) {
+    descendant = d;
   }
 
   const searchTerms = computed({
@@ -77,8 +77,14 @@ export default function useSearch() {
   );
 
   function search() {
+    const getParams = {};
+    if (descendant) {
+      getParams.tree_id = descendant.tree_id;
+      getParams.lft__gt = descendant.lft;
+      getParams.rght__lt = descendant.rght;
+    }
     if (get(displayingSearchResults)) {
-      const getParams = { max_results: 25 };
+      getParams.max_results = 25;
       const terms = get(searchTerms);
       set(searchLoading, true);
       for (let key of searchKeys) {
@@ -90,7 +96,7 @@ export default function useSearch() {
             getParams['categories__isnull'] = true;
             continue;
           }
-          if (key === 'channels' && channel) {
+          if (key === 'channels' && descendant) {
             continue;
           }
         }
@@ -102,17 +108,14 @@ export default function useSearch() {
       if (terms.keywords) {
         getParams.keywords = terms.keywords;
       }
-      if (channel) {
-        getParams.channel_id = channel;
-      }
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
         set(results, data.results.map(normalizeContentNode));
         set(more, data.more);
         set(labels, data.labels);
         set(searchLoading, false);
       });
-    } else if (channel) {
-      const getParams = { max_results: 1, channel };
+    } else if (descendant) {
+      getParams.max_results = 1;
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
         set(labels, data.labels);
       });
@@ -165,6 +168,6 @@ export default function useSearch() {
     removeFilterTag,
     clearSearch,
     setCategory,
-    setSearchWithinChannel,
+    setSearchWithinDescendant,
   };
 }
