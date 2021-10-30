@@ -1,38 +1,16 @@
 <template>
 
   <div class="results-header-group">
-    <div
-      v-for="(item, key) in searchTerms"
-      :key="key"
-    >
-
-      <div v-if="key === 'keyword'" class="filter-chip">
-        <span>
-          <p class="filter-chip-text">{{ coreString(item) }}</p>
-          <KIconButton
-            icon="close"
-            size="mini"
-            class="filter-chip-button"
-            :ariaLabel="coreString('removeAction')"
-            @click="$emit('removeItem', { value: item, key })"
-          />
-        </span>
-      </div>
-
-      <template v-else>
-        <div v-for="(bool, value) in item" :key="item + value" class="filter-chip">
-          <span>
-            <p class="filter-chip-text">{{ translate(key, value) }}</p>
-            <KIconButton
-              icon="close"
-              size="mini"
-              class="filter-chip-button"
-              @click="$emit('removeItem', { value, key })"
-            />
-          </span>
-        </div>
-      </template>
-
+    <div v-for="item in items" :key="item.key + item.value" class="filter-chip">
+      <span>
+        <p class="filter-chip-text">{{ item.text }}</p>
+        <KIconButton
+          icon="close"
+          size="mini"
+          class="filter-chip-button"
+          @click="$emit('removeItem', item)"
+        />
+      </span>
     </div>
     <KButton
       :text="clearAllString()"
@@ -47,6 +25,7 @@
 
 <script>
 
+  import flatMap from 'lodash/flatMap';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import useChannels from '../composables/useChannels';
@@ -64,6 +43,28 @@
       searchTerms: {
         type: Object,
         default: () => ({}),
+      },
+    },
+    computed: {
+      items() {
+        return flatMap(this.searchTerms, (value, key) => {
+          if (key === 'keywords') {
+            return [
+              {
+                text: value,
+                key,
+                value,
+              },
+            ];
+          }
+          return Object.keys(value).map(val => {
+            return {
+              value: val,
+              key,
+              text: this.translate(key, val),
+            };
+          });
+        });
       },
     },
     created() {
@@ -92,6 +93,7 @@
 <style lang="scss" scoped>
 
   .results-header-group {
+    display: inline-block;
     margin-bottom: 24px;
   }
 

@@ -1080,8 +1080,8 @@ export default {
      * string mapping to the values to be passed for those arguments.
      */
     coreString(key, args) {
-      if (key === 'None of the above') {
-        return noneOfTheAboveTranslator.$tr(key, args);
+      if (key === 'None of the above' || key === METADATA.NoCategories) {
+        return noneOfTheAboveTranslator.$tr('None of the above', args);
       }
 
       const metadataKey = get(MetadataLookup, key, null);
