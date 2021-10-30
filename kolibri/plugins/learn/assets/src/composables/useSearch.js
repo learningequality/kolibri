@@ -52,7 +52,7 @@ export default function useSearch() {
     set(value) {
       const query = { ...get(route).query };
       for (let key of searchKeys) {
-        const val = Object.keys(value[key])
+        const val = Object.keys(value[key] || {})
           .filter(Boolean)
           .join(',');
         if (val.length) {
