@@ -155,7 +155,6 @@
                 :contents="trimmedTopicsList(t.children.results)"
                 :numCols="numCols"
                 :genContentLink="genContentLink"
-                :channelThumbnail="channel_thumbnail"
                 cardViewStyle="card"
                 @toggleInfoPanel="toggleInfoPanel"
               />
@@ -166,7 +165,6 @@
               :contents="trimmedTopicsList(resources)"
               :numCols="numCols"
               :genContentLink="genContentLink"
-              :channelThumbnail="channel_thumbnail"
               cardViewStyle="card"
               @toggleInfoPanel="toggleInfoPanel"
             />
@@ -228,6 +226,7 @@
         :genContentLink="genContentLink"
         :width="`${sidePanelWidth}px`"
         :availableLabels="labels"
+        :showChannels="false"
         position="embedded"
         :style="{ position: 'fixed',
                   marginTop: stickyTop,

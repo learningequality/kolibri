@@ -20,7 +20,7 @@
       @change="val => handleChange('grade_levels', val)"
     />
     <KSelect
-      v-if="channelOptionsList.length"
+      v-if="showChannels && channelOptionsList.length"
       :options="channelOptionsList"
       class="selector"
       :value="selectedChannel"
@@ -77,6 +77,10 @@
         type: Object,
         required: false,
         default: null,
+      },
+      showChannels: {
+        type: Boolean,
+        default: true,
       },
     },
     computed: {

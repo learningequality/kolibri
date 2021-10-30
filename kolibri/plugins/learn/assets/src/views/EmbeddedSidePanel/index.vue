@@ -81,6 +81,7 @@
       <SelectGroup
         v-model="inputValue"
         :availableLabels="availableLabels"
+        :showChannels="showChannels"
         class="section"
       />
       <div
@@ -184,7 +185,6 @@
             'accessibility_labels',
             'languages',
             'grade_levels',
-            'keywords',
           ];
           return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
@@ -214,6 +214,10 @@
         validator(val) {
           return ['embedded', 'overlay'].includes(val);
         },
+      },
+      showChannels: {
+        type: Boolean,
+        default: true,
       },
     },
     computed: {
