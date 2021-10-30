@@ -22,8 +22,8 @@ import HomePage from '../views/HomePage';
 import RecommendedSubpage from '../views/RecommendedSubpage';
 import classesRoutes from './classesRoutes';
 
+const { channels } = useChannels();
 const { isUserLoggedIn } = useUser();
-const { fetchChannels } = useChannels();
 const { fetchClasses, fetchResumableContentNodes } = useLearnerResources();
 
 function unassignedContentGuard() {
@@ -50,24 +50,20 @@ export default [
     path: '/home',
     component: HomePage,
     handler() {
-      let promises = [fetchChannels()];
+      if (!get(channels) || !get(channels).length) {
+        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+        return;
+      }
+      const promises = [];
       // force fetch classes and resumable content nodes to make sure that the home
       // page is up-to-date when navigating to other 'Learn' pages and then back
       // to the home page
       if (get(isUserLoggedIn)) {
-        promises = [
-          ...promises,
-          fetchClasses({ force: true }),
-          fetchResumableContentNodes({ force: true }),
-        ];
+        promises.push(fetchClasses({ force: true }), fetchResumableContentNodes({ force: true }));
       }
       return store.dispatch('loading').then(() => {
         return Promise.all(promises)
-          .then(([channels]) => {
-            if (!channels || !channels.length) {
-              router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
-              return;
-            }
+          .then(() => {
             store.commit('SET_PAGE_NAME', PageNames.HOME);
             store.dispatch('notLoading');
           })

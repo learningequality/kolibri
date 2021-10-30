@@ -33,7 +33,7 @@
 
 const MOCK_DEFAULTS = {
   channels: [],
-  fetchChannels: jest.fn(),
+  channelsMap: {},
 };
 
 export function useChannelsMock(overrides = {}) {

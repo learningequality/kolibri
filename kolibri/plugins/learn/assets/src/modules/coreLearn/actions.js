@@ -1,9 +1,12 @@
+import { get } from '@vueuse/core';
 import { ContentNodeResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
+import useChannels from '../../composables/useChannels';
 import { PageNames, pageNameToModuleMap } from '../../constants';
 
 const { DEFERRED } = DemographicConstants;
+const { channels } = useChannels();
 
 export function resetModuleState(store, lastPageName) {
   const moduleName = pageNameToModuleMap[lastPageName];
@@ -12,19 +15,11 @@ export function resetModuleState(store, lastPageName) {
   }
 }
 
-export function setAndCheckChannels(store) {
-  return store.dispatch('setChannelInfo').then(
-    channels => {
-      if (!channels.length) {
-        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
-      }
-      return channels;
-    },
-    error => {
-      store.dispatch('handleApiError', error);
-      return error;
-    }
-  );
+export function setAndCheckChannels() {
+  if (!get(channels).length) {
+    router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+  }
+  return get(channels);
 }
 
 export function getCopies(store, contentId) {

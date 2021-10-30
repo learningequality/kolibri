@@ -1,18 +1,16 @@
+import { get } from '@vueuse/core';
 import { ContentNodeProgressResource } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import tail from 'lodash/tail';
-import plugin_data from 'plugin_data';
+import useChannels from '../../composables/useChannels';
 
-const channels = {};
-for (let channel of plugin_data.channels) {
-  channels[channel.id] = channel;
-}
+const { channelsMap } = useChannels();
 
 // adds progress, thumbnail, and breadcrumbs. normalizes pk/id and kind
 export function normalizeContentNode(node) {
-  const channel = channels[node.channel_id];
+  const channel = get(channelsMap)[node.channel_id];
   return {
     ...node,
     kind: node.parent ? node.kind : ContentNodeKinds.CHANNEL,

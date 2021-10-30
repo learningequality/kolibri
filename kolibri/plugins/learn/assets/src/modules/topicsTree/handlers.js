@@ -1,9 +1,13 @@
+import { get } from '@vueuse/core';
 import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
+import useChannels from '../../composables/useChannels';
 import { _collectionState, normalizeContentNode, contentState } from '../coreLearn/utils';
+
+const { channelsMap } = useChannels();
 
 export function showTopicsChannel(store, id) {
   return store.dispatch('loading').then(() => {
@@ -20,12 +24,11 @@ export function showTopicsContent(store, id) {
   const promises = [
     ContentNodeResource.fetchModel({ id }),
     ContentNodeResource.fetchNextContent(id),
-    store.dispatch('setChannelInfo'),
   ];
   ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([content, nextContent]) => {
-      const currentChannel = store.getters.getChannelObject(content.channel_id);
+      const currentChannel = get(channelsMap)[content.channel_id];
       if (!currentChannel) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
@@ -54,13 +57,12 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
             store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
         },
       }),
-      store.dispatch('setChannelInfo'),
     ];
 
     return ConditionalPromise.all(promises).only(
       samePageCheckGenerator(store),
       ([topic]) => {
-        const currentChannel = store.getters.getChannelObject(topic.channel_id);
+        const currentChannel = get(channelsMap)[topic.channel_id];
         if (!currentChannel) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
           return;
