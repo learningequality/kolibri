@@ -148,16 +148,17 @@
         return this.lessonMap[this.$route.params.lessonId];
       },
       resource() {
-        return this.contentMap[this.$route.params.resourceId];
+        console.log('resource:', this.$route.params);
+        return this.contentMap[this.$route.params.practiceQuizId];
       },
       recipients() {
         return this.getLearnersForLesson(this.lesson);
       },
       allRecipientsAvgTime() {
-        return this.getContentAvgTimeSpent(this.$route.params.resourceId, this.recipients);
+        return this.getContentAvgTimeSpent(this.$route.params.practiceQuizId, this.recipients);
       },
       summaryTally() {
-        return this.getContentStatusTally(this.$route.params.resourceId, this.recipients);
+        return this.getContentStatusTally(this.$route.params.practiceQuizId, this.recipients);
       },
       lessonGroups() {
         if (!this.lesson.groups.length) {
@@ -175,7 +176,7 @@
             groups,
             groupNames: groups.map(group => group.name),
             statusObj: this.getContentStatusObjForLearner(
-              this.$route.params.resourceId,
+              this.$route.params.practiceQuizId,
               learner.id
             ),
           };
@@ -199,11 +200,12 @@
         let query;
         if (this.viewByGroups) {
           query = { ...this.$route.query, groups: 'true' };
+          console.log('...this.$route togglegroupsview', this.$route);
         } else {
+          console.log('...this.$route togglegroups else', this.$route.query);
           query = { ...this.$route.query, groups: undefined };
         }
-
-        this.$router.replace({ query });
+        this.$router.replace({ query }); //I believe this is the problem
       },
       getLearnerLessonGroups(learnerId) {
         return this.lessonGroups.filter(group => group.member_ids.includes(learnerId));
@@ -216,16 +218,16 @@
       },
       getGroupTally(groupId) {
         const recipients = this.getLearnersForGroups([groupId]);
-        return this.getContentStatusTally(this.$route.params.resourceId, recipients);
+        return this.getContentStatusTally(this.$route.params.practiceQuizId, recipients);
       },
       getGroupRecipientsAvgTime(groupId) {
         const recipients = this.getLearnersForGroups([groupId]);
-        return this.getContentAvgTimeSpent(this.$route.params.resourceId, recipients);
+        return this.getContentAvgTimeSpent(this.$route.params.practiceQuizId, recipients);
       },
       onPreviewClick() {
-        let lastPage = LastPages.RESOURCE_LEARNER_LIST;
+        let lastPage = LastPages.PRACTICE_QUIZ_LEARNER_LIST;
         if (this.viewByGroups) {
-          lastPage = LastPages.RESOURCE_LEARNER_LIST_BY_GROUPS;
+          lastPage = LastPages.PRACTICE_QUIZ_LEARNER_LIST_BY_GROUPS;
         }
 
         this.$router.push(
@@ -236,7 +238,7 @@
             },
             {
               last: lastPage,
-              resourceId: this.resource.content_id,
+              practiceQuizId: this.resource.content_id,
             }
           )
         );

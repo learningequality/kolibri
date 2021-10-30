@@ -5,12 +5,14 @@ import { CollectionTypes } from '../../constants/lessonsConstants';
 // It has extra params that may not be used by some routes.
 // See reportRoutes.js for details on param naming.
 function makeParams(notification) {
+  console.log('notification', notification);
   return {
     groupId: notification.collection.id,
     lessonId: notification.assignment.id,
     quizId: notification.assignment.id,
     resourceId: notification.resource.content_id,
     exerciseId: notification.resource.content_id,
+    practiceQuizId: notification.resource.content_id,
     learnerId: notification.learnerSummary.firstUserId,
     // For individual Quiz or Exercise notifications, default to first index for everything
     questionId: 0,

@@ -65,6 +65,8 @@ function formatPageTitle() {
           return classSummary.contentMap[params.exerciseId].title;
         case 'RESOURCE_NAME':
           return classSummary.contentMap[params.resourceId].title;
+        case 'PRACTICE_QUIZ_NAME':
+          return classSummary.contentMap[params.practiceQuizId].title;
         default:
           return coachStrings.$tr(part);
       }
@@ -242,6 +244,8 @@ export default {
       if (this.classId) {
         params.classId = this.classId;
       }
+      console.log('classRoute', name);
+      console.log('classRoute', params, query);
       return router.getRoute(name, params, query);
     },
     // Set the backLinkQuery to set the correct exit behavior
@@ -289,6 +293,20 @@ export default {
             'ReportsLessonResourceLearnerListPage',
             {
               resourceId: this.$route.query.resourceId,
+            },
+            {
+              groups: 'true',
+            }
+          );
+        case LastPages.PRACTICE_QUIZ_LEARNER_LIST:
+          return this.classRoute('ReportsLessonPracticeQuizLearnerListPage', {
+            practiceQuizId: this.$route.query.practiceQuizId,
+          });
+        case LastPages.PRACTICE_QUIZ_LEARNER_LIST_BY_GROUPS:
+          return this.classRoute(
+            'ReportsLessonPracticeQuizLearnerListPage',
+            {
+              practiceQuizId: this.$route.query.practiceQuizId,
             },
             {
               groups: 'true',

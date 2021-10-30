@@ -31,6 +31,7 @@ const INTERACTION = '/interactions/:interactionIndex';
 const EXERCISE = '/exercises/:exerciseId';
 const RESOURCES = '/resources';
 const RESOURCE = '/resources/:resourceId';
+const PRACTICE_QUIZ = '/resources/:practiceQuizId';
 
 function path(...args) {
   return args.join('');
@@ -454,11 +455,11 @@ export default [
     },
   },
   {
-    path: path(CLASS, LESSON, RESOURCE, LEARNERS),
+    path: path(CLASS, LESSON, PRACTICE_QUIZ, LEARNERS),
     component: pages.ReportsLessonPracticeQuizLearnerListPage,
     handler: defaultHandler,
     meta: {
-      titleParts: ['RESOURCE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+      titleParts: ['PRACTICE_QUIZ_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
   },
   {

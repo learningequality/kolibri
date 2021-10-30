@@ -64,7 +64,7 @@
                         :text="tableRow.title"
                         :to="classRoute(
                           'ReportsLessonPracticeQuizLearnerListPage',
-                          { resourceId: tableRow.content_id }
+                          { practiceQuizId: tableRow.content_id }
                         )"
                       />
                       <KRouterLink
