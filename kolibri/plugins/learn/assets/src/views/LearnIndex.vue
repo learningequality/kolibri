@@ -341,7 +341,8 @@
       },
       handleSubmitUpdateYourProfileModal() {
         if (this.userProfilePluginUrl) {
-          const url = `${this.userProfilePluginUrl()}#/profile/edit?next_page=learn`;
+          const next = window.encodeURIComponent(window.location.href);
+          const url = `${this.userProfilePluginUrl()}#/profile/edit?next=${next}`;
           const redirect = () => {
             window.location.href = url;
           };

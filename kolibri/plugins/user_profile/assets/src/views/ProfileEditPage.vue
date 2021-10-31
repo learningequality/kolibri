@@ -70,7 +70,6 @@
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
   import { mapGetters } from 'vuex';
-  import urls from 'kolibri.urls';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
@@ -135,8 +134,8 @@
       formIsValid() {
         return every([this.fullNameValid, this.usernameValid]);
       },
-      isReferredFromLearnPage() {
-        return this.$route.query.next_page === 'learn';
+      nextUrl() {
+        return this.$route.query.next;
       },
       profileRoute() {
         return this.$router.getRoute(ComponentMap.PROFILE);
@@ -170,8 +169,8 @@
         );
       },
       handleCancel() {
-        if (this.isReferredFromLearnPage) {
-          this.navigateToLearnPage();
+        if (this.nextUrl) {
+          this.navigateToNext();
         } else {
           this.$router.push(this.profileRoute);
         }
@@ -186,8 +185,8 @@
             })
             .then(() => {
               this.showSnackbarNotification('changesSaved');
-              if (this.isReferredFromLearnPage) {
-                this.navigateToLearnPage();
+              if (this.nextUrl) {
+                this.navigateToNext();
               } else {
                 this.$router.push(this.profileRoute);
               }
@@ -214,8 +213,8 @@
           }
         });
       },
-      navigateToLearnPage() {
-        window.location.href = urls['kolibri:kolibri.plugins.learn:learn']();
+      navigateToNext() {
+        window.location.href = this.nextUrl;
       },
     },
     $trs: {
