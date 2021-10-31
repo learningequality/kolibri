@@ -445,6 +445,37 @@ describe('Vuex store/actions for core module', () => {
         contentState: { newState: 0.2 },
       });
     });
+    it('should update extra_fields and but not store to backend if not an update', async () => {
+      const store = await initStore();
+      await store.dispatch('updateContentSession', {
+        contentState: { statements: [{ test: 'statement' }] },
+      });
+      expect(store.state.core.logging.extra_fields).toEqual({
+        contentState: { statements: [{ test: 'statement' }] },
+      });
+      expect(client).toHaveBeenCalled();
+      expect(client.mock.calls[0][0].data.extra_fields).toEqual({
+        contentState: { statements: [{ test: 'statement' }] },
+      });
+      await store.dispatch('updateContentSession', {
+        contentState: { statements: [{ test: 'statement' }, { test2: 'statement2' }] },
+      });
+      expect(store.state.core.logging.extra_fields).toEqual({
+        contentState: { statements: [{ test: 'statement' }, { test2: 'statement2' }] },
+      });
+      expect(client).toHaveBeenCalled();
+      expect(client.mock.calls[1][0].data.extra_fields).toEqual({
+        contentState: { statements: [{ test: 'statement' }, { test2: 'statement2' }] },
+      });
+      client.__reset();
+      await store.dispatch('updateContentSession', {
+        contentState: { statements: [{ test: 'statement' }, { test2: 'statement2' }] },
+      });
+      expect(store.state.core.logging.extra_fields).toEqual({
+        contentState: { statements: [{ test: 'statement' }, { test2: 'statement2' }] },
+      });
+      expect(client).not.toHaveBeenCalled();
+    });
     it('should update pastattempts and store if interaction is passed without an id', async () => {
       const store = await initStore();
       await store.dispatch('updateContentSession', {
