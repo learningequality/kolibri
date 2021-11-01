@@ -60,23 +60,42 @@
 
   const libraryCategories = {};
 
-  for (let subjectKey of Object.entries(Categories)
-    .sort((a, b) => a[0].length - b[0].length)
-    .map(a => a[0])) {
-    const ids = Categories[subjectKey].split('.');
+  // Create a nested object representing the hierarchy of categories
+  for (let value of Object.values(Categories)
+    // Sort by the length of the key path to deal with
+    // shorter key paths first.
+    .sort((a, b) => a.length - b.length)) {
+    // Split the value into the paths so we can build the object
+    // down the path to create the nested representation
+    const ids = value.split('.');
+    // Start with an empty path
     let path = '';
+    // Start with the global object
     let nested = libraryCategories;
     for (let fragment of ids) {
+      // Add the fragment to create the path we examine
       path += fragment;
+      // Check to see if this path is one of the paths
+      // that is available on this device
       if (availablePaths[path]) {
+        // Lookup the human readable key for this path
         const nestedKey = CategoriesLookup[path];
+        // Check if we have already represented this in the object
         if (!nested[nestedKey]) {
+          // If not, add an object representing this category
           nested[nestedKey] = {
+            // The value is the whole path to this point, so the value
+            // of the key.
             value: path,
+            // Nested is an object that contains any subsidiary categories
             nested: {},
           };
         }
+        // For the next stage of the loop the relevant object to edit is
+        // the nested object under this key.
         nested = nested[nestedKey].nested;
+        // Add '.' to path so when we next append to the path,
+        // it is properly '.' separated.
         path += '.';
       } else {
         break;
