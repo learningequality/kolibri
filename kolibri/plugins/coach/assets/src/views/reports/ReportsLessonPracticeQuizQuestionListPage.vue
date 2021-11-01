@@ -12,9 +12,34 @@
     </template>
 
     <KPageContainer>
-
-      <h1>DIFFICULT QUESTIONS</h1>
-      <p> see ReportsLessonExerciseQuestionListPage for what to render </p>
+      <ReportsLessonPracticeQuizHeader @previewClick="onPreviewClick" />
+      <!-- <CoreTable :emptyMessage="coachString('questionListEmptyState')">
+        <template #headers>
+          <th>{{ coachString('questionLabel') }}</th>
+          <th>{{ coachString('helpNeededLabel') }}</th>
+        </template>
+        <template #tbody>
+          <transition-group tag="tbody" name="list">
+            <tr v-for="tableRow in table" :key="tableRow.question_id">
+              <td>
+                <KRouterLink
+                  :text="tableRow.title"
+                  :to="questionLink(tableRow.question_id)"
+                />
+              </td>
+              <td>
+                <LearnerProgressRatio
+                  :verb="VERBS.needHelp"
+                  :icon="ICONS.help"
+                  :total="tableRow.total"
+                  :count="tableRow.total - tableRow.correct"
+                  :verbosity="1"
+                />
+              </td>
+            </tr>
+          </transition-group>
+        </template>
+      </CoreTable> -->
     </KPageContainer>
   </CoreBase>
 
@@ -26,17 +51,17 @@
   // import { mapGetters } from 'vuex';
   import commonCoach from '../common';
   // import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
-  // import { LastPages } from '../../constants/lastPagesConstants';
+  import { LastPages } from '../../constants/lastPagesConstants';
   // import CSVExporter from '../../csv/exporter';
   // import * as csvFields from '../../csv/fields';
-  // import ReportsLessonPracticeQuizHeader from './ReportsLessonExerciseHeader';
+  import ReportsLessonPracticeQuizHeader from './ReportsLessonPracticeQuizHeader';
   // import ReportsControls from './ReportsControls';
   // import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsLessonPracticeQuizQuestionListPage',
     components: {
-      // ReportsLessonPracticeQuizHeader,
+      ReportsLessonPracticeQuizHeader,
       // ReportsControls,
       // LearnerProgressRatio,
     },
@@ -46,9 +71,9 @@
       // lesson() {
       //   return this.lessonMap[this.$route.params.lessonId];
       // },
-      // exercise() {
-      //   return this.contentMap[this.$route.params.exerciseId];
-      // },
+      resource() {
+        return this.contentMap[this.$route.params.practiceQuizId];
+      },
       // table() {
       //   return this.difficultQuestions.map(question => {
       //     const tableRow = {};
@@ -64,20 +89,20 @@
       //     exerciseId: this.$route.params.exerciseId,
       //   });
       // },
-      // onPreviewClick() {
-      //   this.$router.push(
-      //     this.$router.getRoute(
-      //       'RESOURCE_CONTENT_PREVIEW',
-      //       {
-      //         contentId: this.exercise.node_id,
-      //       },
-      //       {
-      //         last: LastPages.EXERCISE_QUESTION_LIST,
-      //         exerciseId: this.exercise.content_id,
-      //       }
-      //     )
-      //   );
-      // },
+      onPreviewClick() {
+        this.$router.push(
+          this.$router.getRoute(
+            'RESOURCE_CONTENT_PREVIEW',
+            {
+              contentId: this.resource.node_id,
+            },
+            {
+              last: LastPages.PRACTICE_QUIZ_LEARNER_LIST,
+              practiceQuizId: this.resource.content_id,
+            }
+          )
+        );
+      },
       // exportCSV() {
       //   const columns = [...csvFields.title(), ...csvFields.helpNeeded()];
       //   const exporter = new CSVExporter(columns, this.className);

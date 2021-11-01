@@ -58,7 +58,6 @@
                 <tr v-for="tableRow in table" :key="tableRow.node_id">
                   <td>
                     <KLabeledIcon :icon="tableRow.kind">
-                      {{ tableRow }}
                       <KRouterLink
                         v-if="tableRow.options.modality === 'QUIZ' && tableRow.hasAssignments"
                         :text="tableRow.title"

@@ -12,7 +12,6 @@
     </template>
 
     <KPageContainer>
-      <h1>This is the ReportsLessonPracticeQuizLearnerListPage</h1>
       <section>
         <ReportsLessonPracticeQuizHeader @previewClick="onPreviewClick" />
       </section>
