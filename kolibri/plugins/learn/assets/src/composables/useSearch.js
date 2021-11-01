@@ -118,7 +118,13 @@ export default function useSearch() {
       getParams.max_results = 1;
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
         set(labels, data.labels);
+        set(more, null);
       });
+    } else {
+      // Clear labels if no search results displaying
+      // and we're not gathering labels from the descendant
+      set(more, null);
+      set(labels, null);
     }
   }
 
@@ -135,18 +141,23 @@ export default function useSearch() {
   }
 
   function removeFilterTag({ value, key }) {
-    const keyObject = get(searchTerms)[key];
-    delete keyObject[value];
-    set(searchTerms, {
-      ...get(searchTerms),
-      [key]: keyObject,
-    });
+    if (key === 'keywords') {
+      set(searchTerms, {
+        ...get(searchTerms),
+        [key]: '',
+      });
+    } else {
+      const keyObject = get(searchTerms)[key];
+      delete keyObject[value];
+      set(searchTerms, {
+        ...get(searchTerms),
+        [key]: keyObject,
+      });
+    }
   }
 
   function clearSearch() {
     set(searchTerms, {});
-    set(more, null);
-    set(labels, null);
   }
 
   function setCategory(category) {

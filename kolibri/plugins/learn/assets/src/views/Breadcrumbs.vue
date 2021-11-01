@@ -35,7 +35,11 @@
       ...mapState('topicsTree', {
         topicTitle: state => (state.topic || {}).title,
         topicAncestors: state => (state.topic || {}).ancestors || [],
+        topicChannelId: state => (state.topic || {}).channel_id,
       }),
+      channelTitle() {
+        return this.channelsMap[this.topicChannelId].name;
+      },
       inLearn() {
         return this.pageMode === PageModes.LIBRARY && this.pageName !== PageNames.LIBRARY;
       },
@@ -61,14 +65,15 @@
             text: this.learnString('libraryLabel'),
             link: { name: PageNames.LIBRARY },
           },
-          ...this.topicAncestors.map(({ title, id }) => ({
-            text: title,
+          ...this.topicAncestors.map(({ title, id }, index) => ({
+            // Use the channel name just in case the root node does not have a title.
+            text: index === 0 ? this.channelTitle : title,
             link: {
               name: PageNames.TOPICS_TOPIC,
               params: { id },
             },
           })),
-          { text: this.topicTitle },
+          { text: this.topicAncestors.length ? this.topicTitle : this.channelTitle },
         ];
       },
     },

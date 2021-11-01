@@ -15,7 +15,6 @@
     :authorized="userIsAuthorized"
     authorizedRole="registeredUser"
     v-bind="immersivePageProps"
-    :maxMainWidth="maxWidth"
   >
     <template #app-bar-actions>
       <ActionBarSearchBox v-if="showSearch" />
@@ -69,6 +68,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames, ClassesPageNames } from '../constants';
+  import useChannels from '../composables/useChannels';
   import commonLearnStrings from './commonLearnStrings';
   import TopicsPage from './TopicsPage';
   import ContentPage from './ContentPage';
@@ -90,7 +90,6 @@
   import plugin_data from 'plugin_data';
 
   const pageNameToComponentMap = {
-    [PageNames.TOPICS_CHANNEL]: TopicsPage,
     [PageNames.TOPICS_TOPIC]: TopicsPage,
     [PageNames.TOPICS_TOPIC_SEARCH]: TopicsPage,
     [PageNames.TOPICS_CONTENT]: ContentPage,
@@ -116,6 +115,12 @@
       UpdateYourProfileModal,
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
+    setup() {
+      const { channelsMap } = useChannels();
+      return {
+        channelsMap,
+      };
+    },
     data() {
       return {
         demographicInfo: null,
@@ -131,7 +136,6 @@
       }),
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
-        topicsTreeChannel: 'channel',
         topicsTreeTopic: 'topic',
       }),
       ...mapState('examReportViewer', ['exam']),
@@ -188,9 +192,9 @@
         }
         if (this.pageName === PageNames.TOPICS_TOPIC && this.currentTopicIsCustom) {
           return {
-            appBarTitle: this.topicsTreeChannel.title || '',
+            appBarTitle: this.channelsMap[this.topicsTreeTopic.channel_id].title || '',
             immersivePage: true,
-            immersivePageRoute: this.$router.getRoute(PageNames.TOPICS_ROOT),
+            immersivePageRoute: this.$router.getRoute(PageNames.LIBRARY),
             immersivePagePrimary: false,
             immersivePageIcon: 'back',
           };
@@ -214,12 +218,11 @@
               id: this.topicsTreeContent.parent,
             });
 
-            if (this.topicsTreeContent.breadcrumbs.length > 0) {
-              appBarTitle = lastItem(this.topicsTreeContent.breadcrumbs).title;
+            if (this.topicsTreeContent.ancestors.length > 1) {
+              appBarTitle = lastItem(this.topicsTreeContent.ancestors).title;
             } else {
-              // `breadcrumbs` is empty if the direct parent is the channel, so pull
-              // channel info from state.topicsTree.channel
-              appBarTitle = this.topicsTreeChannel.title;
+              // `ancestors` only has one entry if the direct parent is the channel
+              appBarTitle = this.channelsMap[this.topicsTreeContent.channel_id].title;
             }
           }
           return {
@@ -291,11 +294,6 @@
         const isAssessment = content && content.assessment;
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? ASSESSMENT_FOOTER : 0;
-      },
-      maxWidth() {
-        // ref: https://www.figma.com/file/zbxBoJUUkOynZtgK0wO9KD/Channel-descriptions?node-id=281%3A1270
-        if (this.windowBreakpoint <= 1) return 400;
-        return 1800;
       },
       profileNeedsUpdate() {
         return (

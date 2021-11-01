@@ -11,8 +11,8 @@ function noClassesGuard() {
   const { memberships } = store.state;
   const { canAccessUnassignedContent } = store.getters;
   if (memberships.length === 0 && canAccessUnassignedContent) {
-    // If there are no memberships and it is allowed, redirect to topics page
-    return router.replace({ name: PageNames.TOPICS_ROOT });
+    // If there are no memberships and it is allowed, redirect to library page
+    return router.replace({ name: PageNames.LIBRARY });
   }
   // Otherwise return nothing
   return;
