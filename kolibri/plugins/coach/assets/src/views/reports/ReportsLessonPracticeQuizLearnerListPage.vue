@@ -12,26 +12,10 @@
     </template>
 
     <KPageContainer>
+      <h1>This is the ReportsLessonPracticeQuizLearnerListPage</h1>
       <section>
-        <HeaderWithOptions>
-          <template #header>
-            <BackLink
-              :to="classRoute('ReportsLessonReportPage', {})"
-              :text="coachString('backToLessonLabel', { lesson: lesson.title })"
-            />
-          </template>
-          <template #options>
-            <KButton
-              :text="coachString('previewAction')"
-              @click="onPreviewClick"
-            />
-          </template>
-        </HeaderWithOptions>
-        <h1>
-          <KLabeledIcon :icon="resource.kind" :label="resource.title" />
-        </h1>
+        <ReportsLessonPracticeQuizHeader @previewClick="onPreviewClick" />
       </section>
-      <h1>This is ReportsLessonPracticeQuizLearnerListPage</h1>
       <ReportsControls @export="exportCSV">
         <KCheckbox
           :label="coachString('viewByGroupsLabel')"
@@ -120,11 +104,12 @@
 <script>
 
   import sortBy from 'lodash/sortBy';
+  // import { PageNames } from '../../constants';
   import { LastPages } from '../../constants/lastPagesConstants';
   import commonCoach from '../common';
-  import HeaderWithOptions from '../common/HeaderWithOptions';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
+  import ReportsLessonPracticeQuizHeader from './ReportsLessonPracticeQuizHeader';
   import ReportsResourceLearners from './ReportsResourceLearners';
   import ReportsResourcesStats from './ReportsResourcesStats';
   import ReportsControls from './ReportsControls';
@@ -132,7 +117,7 @@
   export default {
     name: 'ReportsLessonPracticeQuizLearnerListPage',
     components: {
-      HeaderWithOptions,
+      ReportsLessonPracticeQuizHeader,
       ReportsResourceLearners,
       ReportsResourcesStats,
       ReportsControls,
@@ -179,6 +164,7 @@
               this.$route.params.practiceQuizId,
               learner.id
             ),
+            practiceQuizLearnerLink: this.getPracticeQuizLearnerLink(learner.id),
           };
           Object.assign(tableRow, learner);
           return tableRow;
@@ -207,6 +193,12 @@
         }
         this.$router.replace({ query }); //I believe this is the problem
       },
+      // ?! COME BACK
+      // getPracticeQuizLearnerLink(learnerId) {
+      //   const link = this.classRoute(PageNames.REPORTS_LESSON_PRACTICE_QUIZ_LEARNER_PAGE_ROOT, {
+      //     learnerId,
+      //   });
+      // },
       getLearnerLessonGroups(learnerId) {
         return this.lessonGroups.filter(group => group.member_ids.includes(learnerId));
       },
