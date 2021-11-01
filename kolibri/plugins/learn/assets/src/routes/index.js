@@ -17,7 +17,7 @@ import HomePage from '../views/HomePage';
 import RecommendedSubpage from '../views/RecommendedSubpage';
 import classesRoutes from './classesRoutes';
 
-const { channels } = useChannels();
+const { channels, channelsMap } = useChannels();
 const { isUserLoggedIn } = useUser();
 const { fetchClasses, fetchResumableContentNodes } = useLearnerResources();
 
@@ -86,6 +86,20 @@ export default [
       store.commit('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
+    },
+  },
+  {
+    // Handle historic channel page with redirect
+    path: '/topics/:channel_id',
+    redirect: to => {
+      const { channel_id } = to.params;
+      const id = get(channelsMap)[channel_id].root;
+      return {
+        name: PageNames.TOPICS_TOPIC,
+        params: {
+          id,
+        },
+      };
     },
   },
   {

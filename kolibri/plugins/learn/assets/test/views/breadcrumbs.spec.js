@@ -64,10 +64,9 @@ describe('learn page breadcrumbs', () => {
       const wrapper = makeWrapper({ store });
       const { breadcrumbItems } = getElements(wrapper);
       const bcs = breadcrumbItems();
-      expect(bcs.length).toEqual(2);
-      expect(bcs[0].link.name).toEqual(PageNames.LIBRARY);
-      expect(bcs[1].link).toEqual(undefined);
-      expect(bcs[1].text).toEqual('Recommended Channel');
+      expect(bcs.length).toEqual(1);
+      expect(bcs[0].link).toEqual(undefined);
+      expect(bcs[0].text).toEqual('Recommended Channel');
     });
 
     it('shows correct breadcrumbs at a non-Channel Topic', () => {
@@ -90,21 +89,18 @@ describe('learn page breadcrumbs', () => {
       const wrapper = makeWrapper({ store });
       const { breadcrumbItems } = getElements(wrapper);
       const bcs = breadcrumbItems();
-      expect(bcs.length).toEqual(4);
-      // All Channels Link
-      expect(bcs[0].link.name).toEqual(PageNames.LIBRARY);
-      expect(bcs[0].text).toEqual('Library');
+      expect(bcs.length).toEqual(3);
       // Parent Channel Link
-      expect(bcs[1].link.name).toEqual(PageNames.TOPICS_TOPIC);
-      expect(bcs[1].link.params.id).toEqual('root-1');
-      expect(bcs[1].text).toEqual('Another Recommended Channel');
+      expect(bcs[0].link.name).toEqual(PageNames.TOPICS_TOPIC);
+      expect(bcs[0].link.params.id).toEqual('root-1');
+      expect(bcs[0].text).toEqual('Another Recommended Channel');
       // Previous Topic Link
-      expect(bcs[2].link.name).toEqual(PageNames.TOPICS_TOPIC);
-      expect(bcs[2].link.params.id).toEqual('previous_topic');
-      expect(bcs[2].text).toEqual('Previous Topic');
+      expect(bcs[1].link.name).toEqual(PageNames.TOPICS_TOPIC);
+      expect(bcs[1].link.params.id).toEqual('previous_topic');
+      expect(bcs[1].text).toEqual('Previous Topic');
       // Topic
-      expect(bcs[3].link).toEqual(undefined);
-      expect(bcs[3].text).toEqual('Recommended Topic');
+      expect(bcs[2].link).toEqual(undefined);
+      expect(bcs[2].text).toEqual('Recommended Topic');
     });
   });
 

@@ -3,7 +3,6 @@ import { ContentNodeProgressResource } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
-import tail from 'lodash/tail';
 import useChannels from '../../composables/useChannels';
 
 const { channelsMap } = useChannels();
@@ -15,7 +14,6 @@ export function normalizeContentNode(node) {
     ...node,
     kind: node.parent ? node.kind : ContentNodeKinds.CHANNEL,
     thumbnail: getContentNodeThumbnail(node) || undefined,
-    breadcrumbs: tail(node.ancestors),
     progress: Math.min(node.progress_fraction || 0, 1.0),
     copies_count: node.copies_count,
     channel_title: channel ? channel.name : '',

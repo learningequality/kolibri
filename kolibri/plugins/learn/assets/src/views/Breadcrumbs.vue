@@ -60,11 +60,6 @@
       },
       topicsBreadcrumbs() {
         return [
-          // All Channels Link
-          {
-            text: this.learnString('libraryLabel'),
-            link: { name: PageNames.LIBRARY },
-          },
           ...this.topicAncestors.map(({ title, id }, index) => ({
             // Use the channel name just in case the root node does not have a title.
             text: index === 0 ? this.channelTitle : title,
