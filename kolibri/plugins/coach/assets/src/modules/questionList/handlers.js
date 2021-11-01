@@ -1,6 +1,7 @@
 import store from 'kolibri.coreVue.vuex.store';
 
 export function generateQuestionListHandler(paramsToCheck) {
+  console.log('fn generateQuestionListHandler', paramsToCheck);
   return function questionListHandler(to, from) {
     if (paramsToCheck.some(param => to.params[param] !== from.params[param])) {
       // Only set loading state if we are not switching
@@ -15,6 +16,7 @@ export function generateQuestionListHandler(paramsToCheck) {
 }
 
 function showQuestionListView(params) {
+  console.log('fn showQuestionListView', params);
   return store
     .dispatch('questionList/setItemStats', {
       ...params,

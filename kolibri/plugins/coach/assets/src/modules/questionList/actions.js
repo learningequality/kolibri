@@ -6,7 +6,10 @@ import { coachStrings } from '../../views/common/commonCoachStrings';
 import ExerciseDifficulties from './../../apiResources/exerciseDifficulties';
 import QuizDifficulties from './../../apiResources/quizDifficulties';
 
-export function setItemStats(store, { classId, exerciseId, quizId, lessonId, groupId }) {
+export function setItemStats(
+  store,
+  { classId, exerciseId, quizId, lessonId, groupId, practiceQuizId }
+) {
   let itemPromise;
   let resource;
   let pk;
@@ -17,6 +20,12 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
     itemPromise = ExamResource.fetchModel({
       id: quizId,
     }).then(fetchNodeDataAndConvertExam);
+  } else if (practiceQuizId) {
+    pk = practiceQuizId;
+    resource = ExerciseDifficulties;
+    itemPromise = ContentNodeResource.fetchModel({
+      id: store.rootState.classSummary.contentMap[practiceQuizId].node_id,
+    });
   } else {
     pk = exerciseId;
     resource = ExerciseDifficulties;

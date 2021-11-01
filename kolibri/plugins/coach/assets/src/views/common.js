@@ -244,8 +244,6 @@ export default {
       if (this.classId) {
         params.classId = this.classId;
       }
-      console.log('classRoute', name);
-      console.log('classRoute', params, query);
       return router.getRoute(name, params, query);
     },
     // Set the backLinkQuery to set the correct exit behavior
@@ -282,6 +280,10 @@ export default {
           );
         case LastPages.EXERCISE_QUESTION_LIST:
           return this.classRoute('ReportsLessonExerciseQuestionListPage', {
+            exerciseId: this.$route.query.exerciseId,
+          });
+        case LastPages.PRACTICE_QUIZ_QUESTION_LIST:
+          return this.classRoute('ReportsLessonPracticeQuizQuestionListPage', {
             exerciseId: this.$route.query.exerciseId,
           });
         case LastPages.RESOURCE_LEARNER_LIST:

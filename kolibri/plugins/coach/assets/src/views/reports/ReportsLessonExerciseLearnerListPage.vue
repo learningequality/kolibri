@@ -166,10 +166,8 @@
 
         let query;
         if (this.viewByGroups) {
-          console.log('...this.$route', this.$route);
           query = { ...this.$route.query, groups: 'true' };
         } else {
-          console.log('...this.$route', this.$route);
           query = { ...this.$route.query, groups: undefined };
         }
 

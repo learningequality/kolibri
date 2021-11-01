@@ -104,7 +104,7 @@
 <script>
 
   import sortBy from 'lodash/sortBy';
-  // import { PageNames } from '../../constants';
+  import { PageNames } from '../../constants';
   import { LastPages } from '../../constants/lastPagesConstants';
   import commonCoach from '../common';
   import CSVExporter from '../../csv/exporter';
@@ -133,7 +133,6 @@
         return this.lessonMap[this.$route.params.lessonId];
       },
       resource() {
-        console.log('resource:', this.$route.params);
         return this.contentMap[this.$route.params.practiceQuizId];
       },
       recipients() {
@@ -186,19 +185,19 @@
         let query;
         if (this.viewByGroups) {
           query = { ...this.$route.query, groups: 'true' };
-          console.log('...this.$route togglegroupsview', this.$route);
         } else {
-          console.log('...this.$route togglegroups else', this.$route.query);
           query = { ...this.$route.query, groups: undefined };
         }
         this.$router.replace({ query }); //I believe this is the problem
       },
       // ?! COME BACK
-      // getPracticeQuizLearnerLink(learnerId) {
-      //   const link = this.classRoute(PageNames.REPORTS_LESSON_PRACTICE_QUIZ_LEARNER_PAGE_ROOT, {
-      //     learnerId,
-      //   });
-      // },
+      getPracticeQuizLearnerLink(learnerId) {
+        const link = this.classRoute(PageNames.REPORTS_LESSON_PRACTICE_QUIZ_LEARNER_PAGE_ROOT, {
+          learnerId,
+        });
+
+        return link;
+      },
       getLearnerLessonGroups(learnerId) {
         return this.lessonGroups.filter(group => group.member_ids.includes(learnerId));
       },

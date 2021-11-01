@@ -382,6 +382,14 @@ export default [
     },
   },
   {
+    path: path(CLASS, LESSON, PRACTICE_QUIZ, QUESTIONS),
+    component: pages.ReportsLessonPracticeQuizQuestionListPage,
+    handler: generateQuestionListHandler(['lessonId', 'practiceQuizId']),
+    meta: {
+      titleParts: ['questionsLabel', 'PRACTICE_QUIZ_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
     path: path(CLASS, LESSON, EXERCISE, QUESTION),
     name: PageNames.REPORTS_LESSON_EXERCISE_QUESTION_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
