@@ -350,6 +350,22 @@ export default [
     },
   },
   {
+    path: path(CLASS, LESSON, PRACTICE_QUIZ, LEARNER),
+    name: PageNames.REPORTS_LESSON_PRACTICE_QUIZ_LEARNER_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params, query } = to;
+      return exerciseRootRedirectHandler(
+        params,
+        pages.ReportsLessonPracticeQuizLearnerPage.name,
+        next,
+        query
+      );
+    },
+    meta: {
+      titleParts: ['LEARNER_NAME', 'PRACTICE_QUIZ_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
     path: path(CLASS, LESSON, EXERCISE, LEARNER, ATTEMPT, INTERACTION),
     component: pages.ReportsLessonExerciseLearnerPage,
     handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
