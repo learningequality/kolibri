@@ -96,7 +96,7 @@ def delete_redis_cache():
 
     for arg in redis_args:
         search = ["redis-cli", "-n", arg[0], "--scan", "--pattern", arg[1]]
-        delete = ["xargs", "redis-cli", "-n", arg[0], "unlink"]
+        delete = ["xargs", "--no-run-if-empty", "redis-cli", "-n", arg[0], "unlink"]
         exe_search = subprocess.Popen(search, stdout=subprocess.PIPE)
         subprocess.Popen(delete, stdin=exe_search.stdout)
 

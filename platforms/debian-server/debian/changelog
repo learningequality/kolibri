@@ -1,17 +1,19 @@
-kolibri-server (0.4.0-0ubuntu1) UNRELEASED; urgency=medium
+kolibri-server (0.3.7-0ubuntu1) UNRELEASED; urgency=medium
 
+  [ José L. Redrejo Rodríguez ]
+  * Build kolibri-server as a native package
+  * If port 80 is selected when using debconf, remove default nginx symlink
+
+  [ Benjamin Bach ]
+  * Silence startup error when redis cache is empty #63
+  * Move HTML error pages to /usr/share/kolibri/error_pages/ #70
+  * Use --pidfile2 option for UWSGI #68
+  * System service does not start if UWSGI does not start #68
   * Log to ~/.kolibri/logs/uwsgi.log
   * Adds a logrotate rule in /etc/logrotate.d/kolibri
   * Fix some syntax issues in init.d script
   * Use bash for init.d script
-  * Set GID of UWSGI process to same as UID's primary group
-
- -- Benjamin Bach <benjamin@learningequality.org>  Thu, 19 Mar 2020 12:07:10 +0100
-
-kolibri-server (0.3.7~beta1-0ubuntu4) UNRELEASED; urgency=medium
-
-  * Build kolibri-server as a native package
-  * If port 80 is selected when using debconf, remove default nginx symlink
+  * Set GID of UWSGI process to same as UID's primary group  
 
  -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 27 Apr 2020 19:45:44 +0200
 

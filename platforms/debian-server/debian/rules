@@ -8,8 +8,9 @@ override_dh_systemd_enable:
 
 override_dh_compress:
 	for file in $$(cd nginx_error_page/ && find -name "error.html" -printf '%P\n'); do \
-		mkdir -p $(CURDIR)/debian/kolibri-server/etc/kolibri/dist/error_pages/$$(dirname $$file); \
+		mkdir -p $(CURDIR)/debian/kolibri-server/usr/share/kolibri/error_pages/$$(dirname $$file); \
+		# Substitute magic string "1.2.3" for the actual version
 		sed 's/1.2.3/$(shell dpkg-parsechangelog -SVersion)/' \
-		  	nginx_error_page/$$file > $(CURDIR)/debian/kolibri-server/etc/kolibri/dist/error_pages/$$file;\
+		  nginx_error_page/$$file > $(CURDIR)/debian/kolibri-server/usr/share/kolibri/error_pages/$$file;\
 	done
 	dh_compress
