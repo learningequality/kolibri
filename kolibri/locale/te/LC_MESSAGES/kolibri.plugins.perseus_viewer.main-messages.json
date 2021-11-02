@@ -140,10 +140,7 @@
   "PerseusInternalMessages.reflection": "ప్రతిబింబం",
   "PerseusInternalMessages.rotation": "భ్రమణం",
   "PerseusInternalMessages.translation": "అనువాదం",
-  "PerseusRendererIndex.hint": "({hintsLeft, number} మిగిలి ఉన్న) సూచనని ఉపయోగించు",
-  "PerseusRendererIndex.hintExplanation": "మీరు సూచనను ఉపయోగిస్తే, మీ పురోగతికి ఈ ప్రశ్న జోడించబడదు",
   "PerseusRendererIndex.hintLabel": "సూచన:",
-  "PerseusRendererIndex.noMoreHint": "ఇంకా సూచనలు లేవు",
   "PerseusRendererIndex.notAvailable": "స్క్రేచ్ప్యాడ్ లేదు",
   "PerseusRendererIndex.showScratch": "స్క్రేచ్ప్యాడ్ చుపియండి"
 }

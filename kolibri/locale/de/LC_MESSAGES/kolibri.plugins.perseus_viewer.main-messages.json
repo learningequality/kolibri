@@ -105,7 +105,7 @@
   "PerseusInternalMessages.The symbol { questionSymbol } indicates that question { questionNumber } references this portion of the passage.": "Das Symbol { questionSymbol } bedeutet, dass Frage { questionNumber } auf diesen Teil des Abschnitts verweist.",
   "PerseusInternalMessages.Theta": "Theta",
   "PerseusInternalMessages.Translate": "Translation",
-  "PerseusInternalMessages.Translation": "Translation",
+  "PerseusInternalMessages.Translation": "Parallelverschiebung",
   "PerseusInternalMessages.Translation by { vector }": "Translation um { vector }",
   "PerseusInternalMessages.True": "Wahr",
   "PerseusInternalMessages.Try again": "Erneut versuchen",
@@ -140,10 +140,7 @@
   "PerseusInternalMessages.reflection": "Spiegelung",
   "PerseusInternalMessages.rotation": "Rotation",
   "PerseusInternalMessages.translation": "Translation",
-  "PerseusRendererIndex.hint": "Hinweis verwenden (noch {hintsLeft, number} übrig)",
-  "PerseusRendererIndex.hintExplanation": "Wenn Sie einen Hinweis verwenden, wird die Frage nicht zu Ihrem Fortschritt gezählt.",
   "PerseusRendererIndex.hintLabel": "Hinweis:",
-  "PerseusRendererIndex.noMoreHint": "Keine weiteren Hinweise",
   "PerseusRendererIndex.notAvailable": "Das Schmierblatt ist nicht verfügbar",
   "PerseusRendererIndex.showScratch": "Schmierblatt anzeigen"
 }

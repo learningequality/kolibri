@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "更改密码",
+  "ChangeUserPasswordModal.passwordChangedNotification": "您的密码已更改。",
+  "ProfileEditPage.editProfileHeader": "修改个人资料",
+  "ProfilePage.changePasswordPrompt": "更改密码",
+  "ProfilePage.detailsHeader": "详细信息",
+  "ProfilePage.documentTitle": "用户资料",
+  "ProfilePage.editAction": "编辑",
+  "ProfilePage.isSuperuser": "超级管理员权限 ",
+  "ProfilePage.limitedPermissions": "有限权限",
+  "ProfilePage.manageContent": "管理频道和资源",
+  "ProfilePage.manageDevicePermissions": "管理设备权限",
+  "ProfilePage.points": "分",
+  "ProfilePage.youCan": "您可以："
+}

@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "Sannju paltirgel",
+  "ChangeUserPasswordModal.passwordChangedNotification": "Paltirgel maaɗa sannjaama",
+  "ProfileEditPage.editProfileHeader": "Wo''in tinndinoore dow kuutiniroowo",
+  "ProfilePage.changePasswordPrompt": "Sannju paltirgel",
+  "ProfilePage.detailsHeader": "Tiimugo",
+  "ProfilePage.documentTitle": "Tinndinoore dow kuutiniroowo",
+  "ProfilePage.editAction": "Wo''ingo",
+  "ProfilePage.isSuperuser": "Yerduye diga dawroojum mawɗum ",
+  "ProfilePage.limitedPermissions": "Hetaneego yerduye",
+  "ProfilePage.manageContent": "Hakkilango gure janngugo bee jannginillum",
+  "ProfilePage.manageDevicePermissions": "Hakkilango yerduye kompiita",
+  "ProfilePage.points": "Keɓal",
+  "ProfilePage.youCan": "A waaway:"
+}

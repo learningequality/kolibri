@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-15 16:05-0700\n"
-"PO-Revision-Date: 2021-09-24 21:59\n"
+"POT-Creation-Date: 2021-11-01 22:12-0700\n"
+"PO-Revision-Date: 2021-11-02 05:29\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Language: vi_VN\n"
@@ -33,7 +33,7 @@ msgstr "Nội dung của ô '{}' không hợp lệ"
 
 #: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr "Tên người dùng bị trùng lặp"
+msgstr "Tên người dùng bị trùng lắp"
 
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
@@ -50,7 +50,7 @@ msgstr "Hàng đầu tiên chứa cả nhãn đầu đề hợp lệ và không 
 
 #: core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr "Phương tiện mặc định không tồn tại. Hãy chắc chắn thiết lập một phương tiện trên thiết bị trước khi chạy lệnh này"
+msgstr "Công cụ mặc định không tồn tại. Bảo đảm thiết lập công cụ trên thiết bị trước khi chạy lệnh này"
 
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
@@ -143,7 +143,7 @@ msgstr "Giá trị trong cột '{}' không hợp lệ"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
-msgstr "Tên người dùng bị trùng"
+msgstr "Tên người dùng bị trùng lắp"
 
 #: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
@@ -172,15 +172,15 @@ msgstr "Không thể cập nhật thông tin cho người dùng mang mã số: '
 msgid "Database ID is not valid"
 msgstr "Mã cơ sở dữ liệu không hợp lệ"
 
-#: core/content/api.py:158
+#: core/content/api.py:170
 msgid "Resource"
 msgstr "Nguồn tài liệu"
 
-#: core/content/api.py:1316
+#: core/content/api.py:1327
 msgid "The requested channel does not exist on the content server"
 msgstr "Kênh được yêu cầu không tồn tại trên máy chủ nội dung"
 
-#: core/content/models.py:220
+#: core/content/models.py:252
 msgid "Unknown format"
 msgstr "Không xác định được định dạng"
 
@@ -188,15 +188,15 @@ msgstr "Không xác định được định dạng"
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri không hỗ trợ ngôn ngữ này"
 
-#: core/logger/csv_export.py:204
+#: core/logger/csv_export.py:205
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
 msgstr "nhật_ký_nội_dung_phiên_làm_việc"
 
-#: core/logger/csv_export.py:214
+#: core/logger/csv_export.py:215
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
-msgstr "nhật_ký_nội_dung_phần_tóm_tắt"
+msgstr "nhật ký_phần tóm tắt_nội dung"
 
 #: core/tasks/api.py:82
 msgid "There was a network error."
@@ -225,7 +225,7 @@ msgstr "Rất tiếc, phiên bản trình duyệt của bạn không được h�
 
 #: core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr "Chúng tôi đề nghị dùng Firefox hoặc Chrome để truy cập Kolibri."
+msgstr "Chúng tôi đề nghị dùng Firefox hoặc Chrome để sử dụng Kolibri."
 
 #: core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
@@ -238,5 +238,5 @@ msgstr "Không tìm thấy trang chuyển hướng phù hợp. Có thể Kolibri
 #: plugins/facility/views.py:52
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users_{}"
-msgstr "người_dùng_{}"
+msgstr "người dùng_{}"
 

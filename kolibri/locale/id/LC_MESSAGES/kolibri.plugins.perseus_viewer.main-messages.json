@@ -54,7 +54,7 @@
   "PerseusInternalMessages.Keep trying": "Coba terus",
   "PerseusInternalMessages.Left arrow": "Panah kiri",
   "PerseusInternalMessages.Left parenthesis": "Kurung kiri",
-  "PerseusInternalMessages.Less than or equal to sign": "Less than or equal to sign",
+  "PerseusInternalMessages.Less than or equal to sign": "Lebih kecil dari atau sama dengan tanda",
   "PerseusInternalMessages.Less than sign": "Kurang dari tanda",
   "PerseusInternalMessages.Logarithm with base 10": "Logaritma dengan basis 10",
   "PerseusInternalMessages.Logarithm with custom base": "Logaritma dengan basis kustom",
@@ -140,10 +140,7 @@
   "PerseusInternalMessages.reflection": "refleksi",
   "PerseusInternalMessages.rotation": "rotasi",
   "PerseusInternalMessages.translation": "terjemahan",
-  "PerseusRendererIndex.hint": "Mengunakan sebuah petunjuk ({hintsLeft, number} kiri)",
-  "PerseusRendererIndex.hintExplanation": "Jika anda menggunakan petunjuk, pertanyaan ini tidak akan ditambahkan ke perkembangan pekerjaan anda",
   "PerseusRendererIndex.hintLabel": "Petunjuk:",
-  "PerseusRendererIndex.noMoreHint": "Tidak ada lagi petunjuk",
   "PerseusRendererIndex.notAvailable": "Papan pengaris tidak tersedia",
   "PerseusRendererIndex.showScratch": "Tampilkan papan pengaris"
 }
