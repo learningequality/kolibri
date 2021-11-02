@@ -32,6 +32,7 @@
           v-for="(contentNode, idx) in resumableNonClassesContentNodes"
           :key="idx"
           :contentNode="contentNode"
+          :contentNodeProgress="getResumableContentNodeProgress(contentNode.id)"
           :to="getTopicContentNodeLink(contentNode.id)"
           :collectionTitle="getContentNodeTopicName(contentNode)"
         />
