@@ -1,9 +1,7 @@
 import { get, set } from '@vueuse/core';
-import { computed, ref, watch } from 'kolibri.lib.vueCompositionApi';
+import { computed, getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
 import { ContentNodeResource } from 'kolibri.resources';
 import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
-import router from 'kolibri.coreVue.router';
-import store from 'kolibri.coreVue.vuex.store';
 import { normalizeContentNode } from '../modules/coreLearn/utils';
 
 const searchKeys = [
@@ -16,10 +14,15 @@ const searchKeys = [
   'grade_levels',
 ];
 
-export default function useSearch() {
+export default function useSearch(store, router) {
+  // Get store and router references from the curent instance
+  // but allow them to be passed in to allow for dependency
+  // injection, primarily for tests.
+  store = store || getCurrentInstance().proxy.$store;
+  router = router || getCurrentInstance().proxy.$router;
   const route = computed(() => store.state.route);
 
-  const searchLoading = ref(true);
+  const searchLoading = ref(false);
   const moreLoading = ref(false);
   const results = ref([]);
   const more = ref(null);
@@ -44,9 +47,7 @@ export default function useSearch() {
         }
         searchTerms[key] = obj;
       }
-      if (query.keywords) {
-        searchTerms.keywords = query.keywords;
-      }
+      searchTerms.keywords = query.keywords || '';
       return searchTerms;
     },
     set(value) {
@@ -73,6 +74,10 @@ export default function useSearch() {
   });
 
   const displayingSearchResults = computed(() =>
+    // Happily this works even for keywords, because calling Object.keys
+    // on a string value will give an array of the indexes of a string
+    // for an empty string, this array will be empty, meaning that this
+    // check still works!
     Object.values(get(searchTerms)).some(v => Object.keys(v).length)
   );
 
@@ -96,9 +101,9 @@ export default function useSearch() {
             getParams['categories__isnull'] = true;
             continue;
           }
-          if (key === 'channels' && descendant) {
-            continue;
-          }
+        }
+        if (key === 'channels' && descendant) {
+          continue;
         }
         const keys = Object.keys(terms[key]);
         if (keys.length) {
@@ -109,7 +114,7 @@ export default function useSearch() {
         getParams.keywords = terms.keywords;
       }
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
-        set(results, data.results.map(normalizeContentNode));
+        set(results, (data.results || []).map(normalizeContentNode));
         set(more, data.more);
         set(labels, data.labels);
         set(searchLoading, false);
@@ -131,8 +136,8 @@ export default function useSearch() {
   function searchMore() {
     if (get(displayingSearchResults) && get(more) && !get(moreLoading)) {
       set(moreLoading, true);
-      ContentNodeResource.fetchCollection({ getParams: get(more) }).then(data => {
-        set(results, [...get(results), ...data.results.map(normalizeContentNode)]);
+      return ContentNodeResource.fetchCollection({ getParams: get(more) }).then(data => {
+        set(results, [...get(results), ...(data.results || []).map(normalizeContentNode)]);
         set(more, data.more);
         set(labels, data.labels);
         set(moreLoading, false);
@@ -161,7 +166,7 @@ export default function useSearch() {
   }
 
   function setCategory(category) {
-    set(searchTerms, { ...this.searchTerms, categories: { [category]: true } });
+    set(searchTerms, { ...get(searchTerms), categories: { [category]: true } });
   }
 
   watch(searchTerms, search);
