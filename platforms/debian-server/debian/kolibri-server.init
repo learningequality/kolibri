@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ### BEGIN INIT INFO
 # Provides:          kolibri-server
 # Required-Start:    $local_fs $network $remote_fs $syslog $named nginx
@@ -43,13 +43,11 @@ set -e
 [ "$KOLIBRI_USER"=="" ] || { echo "$KOLIBRI_USER not set" && exit 1 ;}
 [ "$KOLIBRI_HOME"=="" ] || { echo "$KOLIBRI_HOME not set" && exit 1 ;}
 
-KOLIBRI_USER_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"
+KOLIBRI_GID=`id -g $KOLIBRI_USER`
 
-# I don't like this, what if the user decides to set KOLIBRI_HOME somewhere else?
-DAEMON_HOME="$KOLIBRI_USER_HOME/.kolibri"
-
-DAEMON_UWSGI_ARGS="--ini /etc/kolibri/dist/uwsgi.ini --uid=$KOLIBRI_USER \
-  --env=KOLIBRI_HOME=$DAEMON_HOME --daemonize=$DAEMON_HOME/uwsgi.log --pidfile2=$PIDFILE_UWSGI"
+DAEMON_UWSGI_ARGS="--ini /etc/kolibri/dist/uwsgi.ini --uid=$KOLIBRI_USER --gid=$KOLIBRI_GID \
+  --env=KOLIBRI_HOME=$KOLIBRI_HOME --daemonize=$KOLIBRI_HOME/logs/uwsgi.log --pidfile=$PIDFILE_UWSGI \
+  --logfile-chown"
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
@@ -135,7 +133,7 @@ case "$1" in
       esac
       service nginx reload
     else
-      [ "$VERBOSE" != no ] && log_warning_msg "$NAME daemon not configured, not starting... (run $SETUP)"
+      [ "$VERBOSE" != no ] && log_warning_msg "$NAME daemon not configured, not starting... \(run $SETUP\)"
     fi
   ;;
   stop)
@@ -167,7 +165,7 @@ case "$1" in
           *) log_end_msg 1 ;; # Failed to start
         esac
         else
-            [ "$VERBOSE" != no ] && log_warning_msg "$NAME daemon not configured, not starting... (run $SETUP)"
+            [ "$VERBOSE" != no ] && log_warning_msg "$NAME daemon not configured, not starting... \(run $SETUP\)"
         fi
     ;;
     *)
@@ -181,5 +179,3 @@ case "$1" in
     exit 3
   ;;
 esac
-
-:

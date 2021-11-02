@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 . /usr/share/debconf/confmodule
@@ -9,8 +9,9 @@ case "$1" in
 
     # get KOLIBRI_USER from kolibri installer package:
     . /etc/default/kolibri
-    KOLIBRI_USER_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')"
-    DAEMON_HOME="$KOLIBRI_USER_HOME/.kolibri"
+
+    # perhaps some day the group name will be set by the kolibri package
+    KOLIBRI_GROUP=`id $KOLIBRI_USER -gn`
 
     # to avoid problems with previous installations of kolibri-server beta versions:
     rm -f /etc/kolibri/nginx.d/port.conf
@@ -27,10 +28,30 @@ case "$1" in
         ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
         rm -f /etc/kolibri/nginx_default
     fi
-    echo "include $DAEMON_HOME/nginx.conf;" > /etc/kolibri/nginx.d/099-user.conf
+    echo "include $KOLIBRI_HOME/nginx.conf;" > /etc/kolibri/nginx.d/099-user.conf
+
+    # Write logrotate configuration if it's not already written
+    LOGROTATE_CONF="/etc/logrotate.d/kolibri"
+    if [ -e "/etc/logrotate.d" ] # && ! [ -e "$LOGROTATE_CONF" ]
+    then
+      # Issues with string substitution for "\n" caused this pattern
+      echo "\"${KOLIBRI_HOME}/logs/uwsgi.log\" {" > "$LOGROTATE_CONF"
+      echo "  copytruncate" >> "$LOGROTATE_CONF"
+      echo "  weekly" >> "$LOGROTATE_CONF"
+      echo "  rotate 150" >> "$LOGROTATE_CONF"
+      echo "  size 2M" >> "$LOGROTATE_CONF"
+      echo "  compress" >> "$LOGROTATE_CONF"
+      echo "  delaycompress" >> "$LOGROTATE_CONF"
+      echo "  missingok" >> "$LOGROTATE_CONF"
+      echo "  notifempty" >> "$LOGROTATE_CONF"
+      echo "  create 0644 $KOLIBRI_USER $KOLIBRI_GROUP" >> "$LOGROTATE_CONF"
+      echo "}" >> "$LOGROTATE_CONF"
+    fi
+
     service nginx reload || true
     service kolibri-server force-reload || true
     ;;
+
   abort-upgrade|abort-remove|abort-deconfigure)
     ;;
 
