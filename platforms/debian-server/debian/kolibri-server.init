@@ -67,6 +67,8 @@ do_start()
   $SU_COMMAND $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py"
   # ensure kolibri application is running:
   do_check_nginx
+  # ensure PIDFILE_UWSGI is not a world-writable pidfile
+  chmod 660 $PIDFILE_UWSGI || true
   $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND start &"
   mkdir -p /var/run/$NAME
   chown "$KOLIBRI_USER" /var/run/$NAME

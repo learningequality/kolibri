@@ -1,8 +1,10 @@
-kolibri-server (0.3.7-0ubuntu1) UNRELEASED; urgency=medium
+kolibri-server (0.3.7-0ubuntu1) bionic; urgency=low
 
   [ José L. Redrejo Rodríguez ]
   * Build kolibri-server as a native package
   * If port 80 is selected when using debconf, remove default nginx symlink
+  * Avoid error on uwsgi pid permissions
+  * Bump needed kolibri version to support redis options
 
   [ Benjamin Bach ]
   * Silence startup error when redis cache is empty #63
@@ -13,7 +15,7 @@ kolibri-server (0.3.7-0ubuntu1) UNRELEASED; urgency=medium
   * Adds a logrotate rule in /etc/logrotate.d/kolibri
   * Fix some syntax issues in init.d script
   * Use bash for init.d script
-  * Set GID of UWSGI process to same as UID's primary group  
+  * Set GID of UWSGI process to same as UID's primary group
 
  -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 27 Apr 2020 19:45:44 +0200
 

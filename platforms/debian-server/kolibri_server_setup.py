@@ -3,7 +3,12 @@ import argparse
 import os
 import subprocess
 
+import kolibri.utils.pskolibri as psutil
+
+from kolibri.core.analytics.measurements import get_machine_info
 from kolibri.core.content.utils.paths import get_content_dir_path
+from kolibri.core.utils.cache import RedisSettingsHelper
+from kolibri.core.utils.cache import process_cache
 from kolibri.utils.options import update_options_file
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.conf import KOLIBRI_HOME
@@ -103,12 +108,25 @@ def delete_redis_cache():
 
 def enable_redis_cache():
     """
-    Set redis as the cache backend .
+    Set redis as the cache backend.
     When multiple processes run the server we need to use
     redis to ensure the cache is shared among them.
+    It also limits redis memory usage to avoid server problems
+    if the cache grows too much
     """
     update_options_file("Cache", "CACHE_BACKEND", "redis", KOLIBRI_HOME)
+    update_options_file("Cache", "CACHE_REDIS_MAXMEMORY_POLICY", "allkeys-lru", KOLIBRI_HOME)
+
     delete_redis_cache()
+    server_memory = psutil.virtual_memory().total
+    max_memory = round(server_memory / 10)
+    helper = RedisSettingsHelper(process_cache.get_master_client())
+    redis_memory = helper.get_used_memory()
+    if max_memory < redis_memory:
+        max_memory = redis_memory + 2000
+
+    update_options_file("Cache", "CACHE_REDIS_MAXMEMORY", max_memory, KOLIBRI_HOME)
+
 
 
 def disable_redis_cache():
