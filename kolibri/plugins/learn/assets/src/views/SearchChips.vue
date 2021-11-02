@@ -48,7 +48,7 @@
     computed: {
       items() {
         return flatMap(this.searchTerms, (value, key) => {
-          if (key === 'keywords') {
+          if (key === 'keywords' && value && value.length) {
             return [
               {
                 text: value,
