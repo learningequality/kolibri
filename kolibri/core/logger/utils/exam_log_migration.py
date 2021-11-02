@@ -214,20 +214,25 @@ def _handle_unprocessed_attemptlog_ids(unprocessed_attempt_log_ids):
         source_logs = ExamAttemptLog.objects.filter(
             id__in=unprocessed_attempt_log_ids[i : i + BATCH_READ_SIZE]
         ).annotate(exam_id=F("examlog__exam_id"))
-        for examattemptlog in source_logs:
-            if examattemptlog.examlog_id not in examlog_id_to_masterylog:
-                examlog_id_to_masterylog[examattemptlog.examlog_id] = (
-                    MasteryLog.objects.filter(
-                        user_id=examattemptlog.user_id,
-                        summarylog__content_id=examattemptlog.exam_id,
+        while source_logs:
+            for examattemptlog in source_logs:
+                if examattemptlog.examlog_id not in examlog_id_to_masterylog:
+                    examlog_id_to_masterylog[examattemptlog.examlog_id] = (
+                        MasteryLog.objects.filter(
+                            user_id=examattemptlog.user_id,
+                            summarylog__content_id=examattemptlog.exam_id,
+                        )
+                        .values_list("id", flat=True)
+                        .first()
                     )
-                    .values_list("id", flat=True)
-                    .first()
-                )
-            masterylog_id = examlog_id_to_masterylog[examattemptlog.examlog_id]
-            if masterylog_id:
-                attemptlog = _create_attemptlog(examattemptlog, None, masterylog_id)
-                attempt_logs.append(attemptlog)
+                masterylog_id = examlog_id_to_masterylog[examattemptlog.examlog_id]
+                if masterylog_id:
+                    attemptlog = _create_attemptlog(examattemptlog, None, masterylog_id)
+                    attempt_logs.append(attemptlog)
+            i += BATCH_READ_SIZE
+            source_logs = ExamAttemptLog.objects.filter(
+                id__in=unprocessed_attempt_log_ids[i : i + BATCH_READ_SIZE]
+            ).annotate(exam_id=F("examlog__exam_id"))
 
         for masterylog_id, logs in groupby(
             sorted(attempt_logs, key=lambda x: x.masterylog_id),
