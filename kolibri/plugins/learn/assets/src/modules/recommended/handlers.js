@@ -1,9 +1,13 @@
+import { get } from '@vueuse/core';
 import { ContentNodeResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import uniqBy from 'lodash/uniqBy';
 import { PageNames } from '../../constants';
-import { contentState } from '../coreLearn/utils';
+import useChannels from '../../composables/useChannels';
+import { contentState, _collectionState } from '../coreLearn/utils';
+
+const { channels } = useChannels();
 
 // User-agnostic recommendations
 function _getPopular(store) {
@@ -69,7 +73,9 @@ function _showRecSubpage(store, getContentPromise, pageName, channelId = null) {
 }
 
 export function showLibrary(store) {
-  store.commit('SET_EMPTY_LOGGING_STATE');
+  if (!get(channels).length) {
+    return;
+  }
   // Special case for when only the page number changes:
   // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
   if (store.state.pageName !== PageNames.LIBRARY) {
@@ -80,13 +86,16 @@ export function showLibrary(store) {
     _getNextSteps(store),
     _getPopular(store),
     _getResume(store),
-    store.dispatch('setAndCheckChannels'),
+    ContentNodeResource.fetchCollection({
+      getParams: {
+        parent__isnull: true,
+        include_coach_content:
+          store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
+      },
+    }),
   ]).only(
     samePageCheckGenerator(store),
-    ([nextSteps, popular, resume, channels]) => {
-      if (!channels.length) {
-        return;
-      }
+    ([nextSteps, popular, resume, channelCollection]) => {
       store.commit('recommended/SET_STATE', {
         // Hard to guarantee this uniqueness on the database side, so
         // do a uniqBy content_id here, to prevent confusing repeated
@@ -95,6 +104,24 @@ export function showLibrary(store) {
         popular: _mapContentSet(popular),
         resume: _mapContentSet(resume),
       });
+
+      // we want them to be in the same order as the channels list
+      const rootNodes = get(channels)
+        .map(channel => {
+          const node = _collectionState(channelCollection).find(n => n.channel_id === channel.id);
+          if (node) {
+            // The `channel` comes with additional data that is
+            // not returned from the ContentNodeResource.
+            // Namely thumbnail, description and tagline (so far)
+            node.title = channel.name || node.title;
+            node.thumbnail = channel.thumbnail;
+            node.description = channel.tagline || channel.description;
+            return node;
+          }
+        })
+        .filter(Boolean);
+
+      store.commit('SET_ROOT_NODES', rootNodes);
 
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);

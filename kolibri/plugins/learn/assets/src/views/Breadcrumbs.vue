@@ -15,6 +15,7 @@
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames, PageModes } from '../constants';
+  import useChannels from '../composables/useChannels';
   import classesBreadcrumbItems from './classes/classesBreadcrumbItems';
   import commonLearnStrings from './commonLearnStrings';
 
@@ -22,22 +23,31 @@
     name: 'Breadcrumbs',
     components: { KBreadcrumbs },
     mixins: [classesBreadcrumbItems, commonCoreStrings, commonLearnStrings],
+    setup() {
+      const { channelsMap } = useChannels();
+      return {
+        channelsMap,
+      };
+    },
     computed: {
       ...mapGetters(['pageMode']),
       ...mapState(['pageName']),
       ...mapState('topicsTree', {
-        channelRootId: state => (state.channel || {}).root_id,
-        channelTitle: state => (state.channel || {}).title,
         topicTitle: state => (state.topic || {}).title,
-        topicCrumbs: state => (state.topic || {}).breadcrumbs || [],
-        contentTitle: state => (state.content || {}).title,
-        contentCrumbs: state => (state.content || {}).breadcrumbs || [],
+        topicAncestors: state => (state.topic || {}).ancestors || [],
+        topicChannelId: state => (state.topic || {}).channel_id,
       }),
+      channelTitle() {
+        return this.channelsMap[this.topicChannelId].name;
+      },
       inLearn() {
         return this.pageMode === PageModes.LIBRARY && this.pageName !== PageNames.LIBRARY;
       },
       inTopics() {
-        return this.pageMode === PageModes.TOPICS && this.pageName !== PageNames.TOPICS_ROOT;
+        return (
+          this.pageName === PageNames.TOPICS_TOPIC ||
+          this.pageName === PageNames.TOPICS_TOPIC_SEARCH
+        );
       },
       learnBreadcrumbs() {
         return [
@@ -48,65 +58,18 @@
           { text: this.contentTitle },
         ];
       },
-      middleTopicBreadcrumbs() {
-        let crumbs = [];
-
-        // Channels have no previous topics
-        if (this.pageName === PageNames.TOPICS_CHANNEL) {
-          return crumbs;
-        }
-
-        // Link to top-level Channel
-        crumbs.push({
-          text: this.channelTitle,
-          link: {
-            name: PageNames.TOPICS_CHANNEL,
-            params: {
-              channel_id: this.channelRootId,
-            },
-          },
-        });
-
-        // Links to previous topics
-        if (this.pageName === PageNames.TOPICS_CONTENT) {
-          crumbs = [...crumbs, ...this.topicCrumbLinks(this.contentCrumbs)];
-        } else if (this.pageName === PageNames.TOPICS_TOPIC) {
-          crumbs = [...crumbs, ...this.topicCrumbLinks(this.topicCrumbs)];
-        }
-        return crumbs;
-      },
-      lastTopicBreadcrumb() {
-        if (this.pageName === PageNames.TOPICS_CHANNEL) {
-          return { text: this.channelTitle };
-        } else if (this.pageName === PageNames.TOPICS_CONTENT) {
-          return { text: this.contentTitle };
-        } else if (this.pageName === PageNames.TOPICS_TOPIC) {
-          return { text: this.topicTitle };
-        }
-
-        return {};
-      },
       topicsBreadcrumbs() {
         return [
-          // All Channels Link
-          {
-            text: this.coreString('channelsLabel'),
-            link: { name: PageNames.TOPICS_ROOT },
-          },
-          ...this.middleTopicBreadcrumbs,
-          this.lastTopicBreadcrumb,
+          ...this.topicAncestors.map(({ title, id }, index) => ({
+            // Use the channel name just in case the root node does not have a title.
+            text: index === 0 ? this.channelTitle : title,
+            link: {
+              name: PageNames.TOPICS_TOPIC,
+              params: { id },
+            },
+          })),
+          { text: this.topicAncestors.length ? this.topicTitle : this.channelTitle },
         ];
-      },
-    },
-    methods: {
-      topicCrumbLinks(crumbs) {
-        return crumbs.map(({ title, id }) => ({
-          text: title,
-          link: {
-            name: PageNames.TOPICS_TOPIC,
-            params: { id },
-          },
-        }));
       },
     },
   };

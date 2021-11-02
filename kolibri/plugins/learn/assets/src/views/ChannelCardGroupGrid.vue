@@ -66,10 +66,10 @@
       },
     },
     methods: {
-      genChannelLink(channel_id) {
+      genChannelLink(id) {
         return {
-          name: PageNames.TOPICS_CHANNEL,
-          params: { channel_id },
+          name: PageNames.TOPICS_TOPIC,
+          params: { id },
         };
       },
       openCopiesModal(contentId) {

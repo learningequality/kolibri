@@ -4,26 +4,21 @@ import router from 'kolibri.coreVue.router';
 import useChannels from '../composables/useChannels';
 import useUser from '../composables/useUser';
 import useLearnerResources from '../composables/useLearnerResources';
-import {
-  showTopicsTopic,
-  showTopicsChannel,
-  showTopicsContent,
-} from '../modules/topicsTree/handlers';
+import { showTopicsTopic, showTopicsContent } from '../modules/topicsTree/handlers';
 import {
   showLibrary,
   showPopularPage,
   showNextStepsPage,
   showResumePage,
 } from '../modules/recommended/handlers';
-import { showChannels } from '../modules/topicsRoot/handlers';
 import { PageNames, ClassesPageNames } from '../constants';
 import LibraryPage from '../views/LibraryPage';
 import HomePage from '../views/HomePage';
 import RecommendedSubpage from '../views/RecommendedSubpage';
 import classesRoutes from './classesRoutes';
 
+const { channels, channelsMap } = useChannels();
 const { isUserLoggedIn } = useUser();
-const { fetchChannels } = useChannels();
 const { fetchClasses, fetchResumableContentNodes } = useLearnerResources();
 
 function unassignedContentGuard() {
@@ -50,24 +45,20 @@ export default [
     path: '/home',
     component: HomePage,
     handler() {
-      let promises = [fetchChannels()];
+      if (!get(channels) || !get(channels).length) {
+        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+        return;
+      }
+      const promises = [];
       // force fetch classes and resumable content nodes to make sure that the home
       // page is up-to-date when navigating to other 'Learn' pages and then back
       // to the home page
       if (get(isUserLoggedIn)) {
-        promises = [
-          ...promises,
-          fetchClasses({ force: true }),
-          fetchResumableContentNodes({ force: true }),
-        ];
+        promises.push(fetchClasses({ force: true }), fetchResumableContentNodes({ force: true }));
       }
       return store.dispatch('loading').then(() => {
         return Promise.all(promises)
-          .then(([channels]) => {
-            if (!channels || !channels.length) {
-              router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
-              return;
-            }
+          .then(() => {
             store.commit('SET_PAGE_NAME', PageNames.HOME);
             store.dispatch('notLoading');
           })
@@ -84,7 +75,6 @@ export default [
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
       }
-      showChannels(store);
       showLibrary(store);
     },
     component: LibraryPage,
@@ -99,18 +89,17 @@ export default [
     },
   },
   {
-    name: PageNames.TOPICS_CHANNEL,
+    // Handle historic channel page with redirect
     path: '/topics/:channel_id',
-    handler: (toRoute, fromRoute) => {
-      if (unassignedContentGuard()) {
-        return unassignedContentGuard();
-      }
-      // If navigation is triggered by a custom channel updating the
-      // context query param, do not run the handler
-      if (toRoute.params.channel_id === fromRoute.params.channel_id) {
-        return;
-      }
-      showTopicsChannel(store, toRoute.params.channel_id);
+    redirect: to => {
+      const { channel_id } = to.params;
+      const id = get(channelsMap)[channel_id].root;
+      return {
+        name: PageNames.TOPICS_TOPIC,
+        params: {
+          id,
+        },
+      };
     },
   },
   {
@@ -125,7 +114,22 @@ export default [
       if (toRoute.params.id === fromRoute.params.id) {
         return;
       }
-      showTopicsTopic(store, { id: toRoute.params.id });
+      showTopicsTopic(store, { id: toRoute.params.id, pageName: toRoute.name });
+    },
+  },
+  {
+    name: PageNames.TOPICS_TOPIC_SEARCH,
+    path: '/topics/t/:id/search',
+    handler: (toRoute, fromRoute) => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
+      // If navigation is triggered by a custom navigation updating the
+      // context query param, do not run the handler
+      if (toRoute.params.id === fromRoute.params.id) {
+        return;
+      }
+      showTopicsTopic(store, { id: toRoute.params.id, pageName: toRoute.name });
     },
   },
   {

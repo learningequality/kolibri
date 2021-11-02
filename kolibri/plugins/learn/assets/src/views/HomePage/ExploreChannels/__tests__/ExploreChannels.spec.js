@@ -11,18 +11,22 @@ const TEST_CHANNELS = [
   {
     id: 'channel-1',
     name: 'Channel 1',
+    root: 'root-1',
   },
   {
     id: 'channel-2',
     name: 'Channel 2',
+    root: 'root-2',
   },
   {
     id: 'channel-3',
     name: 'Channel 3',
+    root: 'root-3',
   },
   {
     id: 'channel-4',
     name: 'Channel 4',
+    root: 'root-4',
   },
 ];
 
@@ -42,8 +46,8 @@ function makeWrapper(propsData) {
         path: '/library',
       },
       {
-        name: PageNames.TOPICS_CHANNEL,
-        path: '/channel',
+        name: PageNames.TOPICS_TOPIC,
+        path: '/topics/t',
       },
     ],
   });
@@ -116,7 +120,7 @@ describe(`ExploreChannels`, () => {
     getChannelsLinks(wrapper)
       .at(0)
       .trigger('click');
-    expect(wrapper.vm.$route.name).toBe(PageNames.TOPICS_CHANNEL);
-    expect(wrapper.vm.$route.params).toEqual({ channel_id: 'channel-1' });
+    expect(wrapper.vm.$route.name).toBe(PageNames.TOPICS_TOPIC);
+    expect(wrapper.vm.$route.params).toEqual({ id: 'root-1' });
   });
 });
