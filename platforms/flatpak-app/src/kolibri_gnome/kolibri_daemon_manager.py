@@ -167,7 +167,7 @@ class KolibriDaemonManager(object):
 
         if dbus_proxy_owner_changed:
             self.__starting_kolibri = False
-            self.__dbus_proxy.call_hold(callback=self.__dbus_proxy_null_result_handler)
+            self.__dbus_proxy.Hold(result_handler=self.__dbus_proxy_null_result_handler)
 
         if self.__login_token is None and self.__dbus_proxy.props.status == "STARTED":
             self.__dbus_proxy.GetLoginToken(result_handler=self.__dbus_proxy_login_token_result_handler)
@@ -183,12 +183,12 @@ class KolibriDaemonManager(object):
             pass
         elif not self.is_error() or dbus_proxy_owner_changed:
             self.__starting_kolibri = True
-            self.__dbus_proxy.call_start(callback=self.__dbus_proxy_null_result_handler)
+            self.__dbus_proxy.Start(result_handler=self.__dbus_proxy_null_result_handler)
 
         self.__on_dbus_proxy_changed()
 
     def __dbus_proxy_null_result_handler(
-        self, dbus_proxy: KolibriDaemonDBus.MainProxy, result: Gio.AsyncResult
+        self, dbus_proxy: KolibriDaemonDBus.MainProxy, result: typing.Any, user_data: typing.Any = None
     ):
         if isinstance(result, Exception):
             logging.warning(
