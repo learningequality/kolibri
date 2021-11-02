@@ -22,7 +22,6 @@
       v-if="!hideDuration"
       class="duration"
       data-test="duration"
-      :style="{ marginTop: '8px' }"
     >
       <TimeDuration
         v-if="displayMinutes"
@@ -169,6 +168,7 @@
   }
 
   .duration {
+    margin-top: 8px;
     text-align: right;
   }
 
