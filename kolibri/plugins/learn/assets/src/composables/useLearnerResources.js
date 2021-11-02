@@ -356,16 +356,21 @@ export default function useLearnerResources() {
       if (!contentNodes || !contentNodes.length) {
         return [];
       }
-      set(_resumableContentNodes, contentNodes);
       const contentNodesIds = contentNodes.map(contentNode => contentNode.id);
       return ContentNodeProgressResource.fetchCollection({
         getParams: { ids: contentNodesIds },
         force,
-      }).then(progresses => {
-        if (progresses) {
-          set(_resumableContentNodesProgresses, progresses);
-        }
-        return contentNodes;
+      }).then(progressData => {
+        const progresses = progressData ? progressData : [];
+        set(_resumableContentNodesProgresses, progresses);
+        // when saving resumable content nodes, remove those that have progress 0
+        // see https://github.com/learningequality/kolibri/issues/8573
+        const resumableContentNodes = contentNodes.filter(contentNode => {
+          const progress = progresses.find(progress => progress.id === contentNode.id);
+          return progress.progress_fraction > 0;
+        });
+        set(_resumableContentNodes, resumableContentNodes);
+        return resumableContentNodes;
       });
     });
   }
