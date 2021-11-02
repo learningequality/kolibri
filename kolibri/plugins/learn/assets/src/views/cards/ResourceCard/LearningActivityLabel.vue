@@ -20,6 +20,7 @@
     </div>
     <div
       v-if="!hideDuration"
+      class="duration"
       data-test="duration"
       :style="{ marginTop: '8px' }"
     >
@@ -165,6 +166,10 @@
       position: static;
       padding-left: 2px;
     }
+  }
+
+  .duration {
+    text-align: right;
   }
 
 </style>
