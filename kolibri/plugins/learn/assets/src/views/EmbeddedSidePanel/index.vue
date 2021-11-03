@@ -17,6 +17,9 @@
           :to="genContentLink(t.id)"
         />
       </div>
+      <KButton v-if="more" appearance="basic-link" @click="loadMoreTopics">
+        {{ coreString('viewMoreAction') }}
+      </KButton>
     </div>
     <div v-else>
       <!-- search by keyword -->
@@ -114,6 +117,7 @@
   import camelCase from 'lodash/camelCase';
   import pick from 'lodash/pick';
   import uniq from 'lodash/uniq';
+  import { mapActions } from 'vuex';
   import {
     AllCategories,
     CategoriesLookup,
@@ -200,6 +204,10 @@
           return [];
         },
       },
+      more: {
+        type: Object,
+        default: null,
+      },
       width: {
         type: [Number, String],
         required: true,
@@ -280,6 +288,7 @@
       },
     },
     methods: {
+      ...mapActions('topicsTree', ['loadMoreTopics']),
       genContentLink,
       allCategories() {
         this.$emit('input', { ...this.value, categories: { [AllCategories]: true } });

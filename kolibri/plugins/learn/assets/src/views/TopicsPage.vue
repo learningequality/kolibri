@@ -137,7 +137,7 @@
           <!-- default/preview display of nested folder structure, not search -->
           <div v-if="!displayingSearchResults">
             <!-- display for each nested topic/folder  -->
-            <div v-for="t in topics" :key="t.id">
+            <div v-for="t in topicsForDisplay" :key="t.id">
               <!-- header link to folder -->
               <h2>
                 <KRouterLink
@@ -150,18 +150,31 @@
               </h2>
               <!-- card grid of items in folder -->
               <HybridLearningCardGrid
-                v-if="t.children.results && t.children.results.length"
-                :contents="trimmedTopicsList(t.children.results)"
+                v-if="t.children && t.children.length"
+                :contents="t.children"
                 :numCols="numCols"
                 :genContentLink="genContentLink"
                 cardViewStyle="card"
                 @toggleInfoPanel="toggleInfoPanel"
               />
+              <KButton v-if="t.showMore" appearance="basic-link" @click="handleShowMore(t.id)">
+                {{ $tr('showMore') }}
+              </KButton>
+              <KRouterLink v-else-if="t.viewAll" :to="t.viewAll">
+                {{ $tr('viewAll') }}
+              </KRouterLink>
+              <KButton
+                v-else-if="t.viewMore"
+                appearance="basic-link"
+                @click="loadMoreContents(t.id)"
+              >
+                {{ coreString('viewMoreAction') }}
+              </KButton>
             </div>
             <!-- search results -->
             <HybridLearningCardGrid
               v-if="resources.length"
-              :contents="trimmedTopicsList(resources)"
+              :contents="resources"
               :numCols="numCols"
               :genContentLink="genContentLink"
               cardViewStyle="card"
@@ -222,6 +235,7 @@
         :topicsListDisplayed="!searchActive"
         topicPage="True"
         :topics="topics"
+        :more="topic.children ? topic.children.more : null"
         :genContentLink="genContentLink"
         :width="`${sidePanelWidth}px`"
         :availableLabels="labels"
@@ -303,7 +317,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapActions, mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -393,6 +407,7 @@
         currentCategory: null,
         showSearchModal: false,
         sidePanelContent: null,
+        expandedTopics: {},
       };
     },
     computed: {
@@ -443,10 +458,67 @@
         return this.channel.title;
       },
       resources() {
-        return this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
+        const resources = this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
+        // If there are no topics, then just display all resources we have loaded.
+        if (!this.topics.length) {
+          return resources;
+        }
+        return resources.slice(0, this.childrenToDisplay);
       },
       topics() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
+      },
+      topicsForDisplay() {
+        return this.topics
+          .filter(t =>
+            this.subTopicId ? t.id === this.subTopicId : t.children && t.children.results.length
+          )
+          .map(t => {
+            let childrenToDisplay;
+            const topicChildren = t.children ? t.children.results : [];
+            if (this.subTopicId) {
+              // If we are in a subtopic display, we should only be displaying this topic
+              // so don't bother checking if the ids match.
+              childrenToDisplay = topicChildren.length;
+            } else if (this.expandedTopics[t.id]) {
+              // If topic is expanded show three times as many children.
+              childrenToDisplay = this.childrenToDisplay * 3;
+            } else {
+              childrenToDisplay = this.childrenToDisplay;
+            }
+            const children = topicChildren.slice(0, childrenToDisplay).map(normalizeContentNode);
+            // showMore is whether we should show more inline
+            const showMore =
+              !this.subTopicId &&
+              topicChildren.length > this.childrenToDisplay &&
+              !this.expandedTopics[t.id];
+            // viewAll is a flag + link object to link to a subpage which shows all initially
+            // loaded topics content
+            const viewAll =
+              !this.subTopicId && topicChildren.length > childrenToDisplay
+                ? {
+                    ...this.$route,
+                    params: {
+                      ...this.$route.params,
+                      subtopic: t.id,
+                    },
+                  }
+                : null;
+
+            // viewMore is the 'more' object that will be used to load more items from this topic.
+            const viewMore = topicChildren.more;
+
+            return {
+              ...t,
+              viewAll,
+              children,
+              showMore,
+              viewMore,
+            };
+          });
+      },
+      subTopicId() {
+        return this.$route.params.subtopic;
       },
       topicOptionsList() {
         return this.topics.map(topic => ({
@@ -506,6 +578,9 @@
       throttledHandleScroll() {
         return throttle(this.stickyCalculation);
       },
+      childrenToDisplay() {
+        return this.windowIsLarge ? carouselLimit : mobileCarouselLimit;
+      },
     },
     watch: {
       topic() {
@@ -522,6 +597,7 @@
       this.search();
     },
     methods: {
+      ...mapActions('topicsTree', ['loadMoreContents']),
       genContentLink,
       handleShowSearchModal(value) {
         this.currentCategory = value;
@@ -534,17 +610,6 @@
       handleCategory(category) {
         this.setCategory(category);
         this.currentCategory = null;
-      },
-      trimmedTopicsList(contents) {
-        // if more folders, display limited preview
-        if (this.topics.length > 0) {
-          return contents
-            .slice(0, !this.windowIsLarge ? mobileCarouselLimit : carouselLimit)
-            .map(normalizeContentNode);
-          // if we have reached the end of the folder, show all contents
-        } else {
-          return contents.map(normalizeContentNode);
-        }
       },
       updateFolder(id) {
         this.$router.push(genContentLink(id));
@@ -565,6 +630,12 @@
           null;
         }
       },
+      handleShowMore(topicId) {
+        this.expandedTopics = {
+          ...this.expandedTopics,
+          [topicId]: true,
+        };
+      },
     },
     $trs: {
       documentTitleForChannel: {
@@ -575,6 +646,14 @@
       documentTitleForTopic: {
         message: '{ topicTitle } - { channelTitle }',
         context: 'DO NOT TRANSLATE\nCopy the source string.',
+      },
+      showMore: {
+        message: 'Show more',
+        context: 'Clickable link which allows to load more resources.',
+      },
+      viewAll: {
+        message: 'View all',
+        context: 'Clickable link which allows to display all resources in a topic.',
       },
     },
   };

@@ -104,7 +104,7 @@ export default [
   },
   {
     name: PageNames.TOPICS_TOPIC,
-    path: '/topics/t/:id',
+    path: '/topics/t/:id/:subtopic?',
     handler: (toRoute, fromRoute) => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
