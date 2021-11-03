@@ -17,9 +17,10 @@
           :to="genContentLink(t.id)"
         />
       </div>
-      <KButton v-if="more" appearance="basic-link" @click="loadMoreTopics">
+      <KButton v-if="more && !topicsLoading" appearance="basic-link" @click="handleLoadMoreTopics">
         {{ coreString('viewMoreAction') }}
       </KButton>
+      <KCircularLoader v-if="topicsLoading" />
     </div>
     <div v-else>
       <!-- search by keyword -->
@@ -215,6 +216,11 @@
         default: true,
       },
     },
+    data() {
+      return {
+        topicsLoading: false,
+      };
+    },
     computed: {
       inputValue: {
         get() {
@@ -309,6 +315,12 @@
             learner_needs: { ...this.value.learner_needs, [need]: true },
           });
         }
+      },
+      handleLoadMoreTopics() {
+        this.topicsLoading = true;
+        this.loadMoreTopics().then(() => {
+          this.topicsLoading = false;
+        });
       },
     },
     $trs: {

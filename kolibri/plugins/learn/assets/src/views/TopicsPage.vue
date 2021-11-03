@@ -103,17 +103,8 @@
         <div
           class="card-grid"
         >
-          <!-- folder selection dropdown menu for small resolutions -->
-          <KSelect
-            v-if="showFoldersDropdown && topics.length"
-            :options="topicOptionsList"
-            :value="selected"
-            :label="coreString('folders')"
-            class="selector"
-            @change="updateFolder($event.value)"
-          />
           <!-- breadcrumbs - for large screens, or when there are no more folders -->
-          <KGrid v-if="!showFoldersDropdown && !displayingSearchResults">
+          <KGrid v-if="!displayingSearchResults">
             <KGridItem
               class="breadcrumbs"
               :layout4="{ span: 4 }"
@@ -164,12 +155,13 @@
                 {{ $tr('viewAll') }}
               </KRouterLink>
               <KButton
-                v-else-if="t.viewMore"
+                v-else-if="t.viewMore && t.id !== subTopicLoading"
                 appearance="basic-link"
-                @click="loadMoreContents(t.id)"
+                @click="handleLoadMore(t.id)"
               >
                 {{ coreString('viewMoreAction') }}
               </KButton>
+              <KCircularLoader v-if="t.id === subTopicLoading" />
             </div>
             <!-- search results -->
             <HybridLearningCardGrid
@@ -255,7 +247,7 @@
         class="full-screen-side-panel"
         :closeButtonHidden="true"
         :sidePanelOverrideWidth="`${sidePanelOverlayWidth + 64}px`"
-        @closePanel="$router.push(searchLink)"
+        @closePanel="$router.push(currentLink)"
       >
         <KIconButton
           v-if="windowIsSmall && !currentCategory"
@@ -264,7 +256,7 @@
           :ariaLabel="coreString('closeAction')"
           :color="$themeTokens.text"
           :tooltip="coreString('closeAction')"
-          @click="$router.push(searchLink)"
+          @click="$router.push(currentLink)"
         />
         <KIconButton
           v-if="windowIsSmall && currentCategory"
@@ -277,6 +269,11 @@
         <EmbeddedSidePanel
           v-if="!currentCategory"
           v-model="searchTerms"
+          :topicsListDisplayed="!searchActive"
+          topicPage="True"
+          :topics="topics"
+          :more="topic.children ? topic.children.more : null"
+          :genContentLink="genContentLink"
           :width="`${sidePanelOverlayWidth}px`"
           :availableLabels="labels"
           :showChannels="false"
@@ -408,22 +405,20 @@
         showSearchModal: false,
         sidePanelContent: null,
         expandedTopics: {},
+        subTopicLoading: null,
       };
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
-      showFoldersDropdown() {
-        return this.$route.query.dropdown === 'true';
-      },
       sidePanelIsOpen() {
-        return this.$route.query.searchPanel === 'true';
+        return this.$route.query.sidePanel === 'true';
       },
       foldersLink() {
         if (this.topic) {
           const query = {};
           if (this.windowIsSmall || this.windowIsMedium) {
-            query.dropdown = String(
-              this.$route.name === PageNames.TOPICS_TOPIC ? !this.showFoldersDropdown : true
+            query.sidePanel = String(
+              this.$route.name === PageNames.TOPICS_TOPIC ? !this.sidePanelIsOpen : true
             );
           }
           return {
@@ -438,7 +433,7 @@
         if (this.topic) {
           const query = { ...this.$route.query };
           if (this.windowIsSmall || this.windowIsMedium) {
-            query.searchPanel = String(
+            query.sidePanel = String(
               this.$route.name === PageNames.TOPICS_TOPIC_SEARCH ? !this.sidePanelIsOpen : true
             );
           }
@@ -450,6 +445,9 @@
           };
         }
         return {};
+      },
+      currentLink() {
+        return this.searchActive ? this.searchLink : this.foldersLink;
       },
       searchActive() {
         return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;
@@ -492,10 +490,14 @@
               !this.subTopicId &&
               topicChildren.length > this.childrenToDisplay &&
               !this.expandedTopics[t.id];
+
+            // viewMore is the 'more' object that will be used to load more items from this topic.
+            const viewMore = t.children ? t.children.more : null;
+
             // viewAll is a flag + link object to link to a subpage which shows all initially
             // loaded topics content
             const viewAll =
-              !this.subTopicId && topicChildren.length > childrenToDisplay
+              !this.subTopicId && (topicChildren.length > childrenToDisplay || viewMore)
                 ? {
                     ...this.$route,
                     params: {
@@ -504,9 +506,6 @@
                     },
                   }
                 : null;
-
-            // viewMore is the 'more' object that will be used to load more items from this topic.
-            const viewMore = topicChildren.more;
 
             return {
               ...t,
@@ -520,12 +519,6 @@
       subTopicId() {
         return this.$route.params.subtopic;
       },
-      topicOptionsList() {
-        return this.topics.map(topic => ({
-          value: topic.id,
-          label: topic.title,
-        }));
-      },
       currentChannelIsCustom() {
         if (
           plugin_data.enableCustomChannelNav &&
@@ -535,9 +528,6 @@
           return true;
         }
         return false;
-      },
-      selected(value) {
-        return this.topicOptionsList.find(t => t.value === value) || {};
       },
       customTabButtonOverrides() {
         return {
@@ -611,9 +601,6 @@
         this.setCategory(category);
         this.currentCategory = null;
       },
-      updateFolder(id) {
-        this.$router.push(genContentLink(id));
-      },
       toggleInfoPanel(content) {
         this.sidePanelContent = content;
       },
@@ -635,6 +622,12 @@
           ...this.expandedTopics,
           [topicId]: true,
         };
+      },
+      handleLoadMore(topicId) {
+        this.subTopicLoading = topicId;
+        this.loadMoreContents(topicId).then(() => {
+          this.subTopicLoading = null;
+        });
       },
     },
     $trs: {

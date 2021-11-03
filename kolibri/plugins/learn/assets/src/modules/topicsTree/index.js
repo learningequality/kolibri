@@ -52,9 +52,13 @@ export default {
     loadMoreTopics(store) {
       const more = store.state.topic.children.more;
       if (more) {
-        return ContentNodeResource.fetchTree(more).then(data => {
-          store.commit('ADD_MORE_CONTENTS', data);
-        });
+        return ContentNodeResource.fetchTree(more)
+          .then(data => {
+            store.commit('ADD_MORE_CONTENTS', data);
+          })
+          .catch(err => {
+            store.dispatch('handleApiError', err);
+          });
       }
     },
     loadMoreContents(store, parentId) {
@@ -62,10 +66,14 @@ export default {
       const parent = parentIndex > -1 ? store.state.contents[parentIndex] : null;
       const more = parent && parent.children && parent.children.more;
       if (more) {
-        return ContentNodeResource.fetchTree(more).then(data => {
-          data.index = parentIndex;
-          store.commit('ADD_MORE_CHILD_CONTENTS', data);
-        });
+        return ContentNodeResource.fetchTree(more)
+          .then(data => {
+            data.index = parentIndex;
+            store.commit('ADD_MORE_CHILD_CONTENTS', data);
+          })
+          .catch(err => {
+            store.dispatch('handleApiError', err);
+          });
       }
     },
   },
