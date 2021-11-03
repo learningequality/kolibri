@@ -27,11 +27,7 @@
   }
 
   /deep/ .ui-toolbar__left {
-    .ui-toolbar__nav-icon {
-      .button {
-        margin-left: 16px;
-      }
-    }
+    margin-left: 16px;
   }
 
   .ui-toolbar {
