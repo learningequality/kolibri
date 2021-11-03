@@ -10,13 +10,22 @@
       <div v-if="!windowIsSmall" class="header">
         <KGrid>
           <KGridItem
+            v-if="!displayingSearchResults"
+            class="breadcrumbs"
             :layout4="{ span: 4 }"
             :layout8="{ span: 8 }"
             :layout12="{ span: 12 }"
           >
-            <h3 class="title">
+            <slot name="breadcrumbs"></slot>
+          </KGridItem>
+          <KGridItem
+            :layout4="{ span: 4 }"
+            :layout8="{ span: 8 }"
+            :layout12="{ span: 12 }"
+          >
+            <h1 class="title">
               {{ topic.title }}
-            </h3>
+            </h1>
           </KGridItem>
 
           <KGridItem
@@ -103,18 +112,6 @@
         <div
           class="card-grid"
         >
-          <!-- breadcrumbs - for large screens, or when there are no more folders -->
-          <KGrid v-if="!displayingSearchResults">
-            <KGridItem
-              class="breadcrumbs"
-              :layout4="{ span: 4 }"
-              :layout8="{ span: 8 }"
-              :layout12="{ span: 12 }"
-            >
-              <slot name="breadcrumbs"></slot>
-            </KGridItem>
-          </KGrid>
-
           <div v-if="(windowIsMedium && searchActive)">
             <!-- TO DO Marcella swap out new icon after KDS update -->
             <KButton
