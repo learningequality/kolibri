@@ -12,6 +12,7 @@
     "core-js": "^3.13",
     "csv-generator-client": "^2.1.1",
     "date-fns": "^1.28.2",
+    "deep-object-diff": "^1.1.0",
     "fontfaceobserver": "^2.0.13",
     "frame-throttle": "^3.0.0",
     "fuse.js": "^6.4.6",
