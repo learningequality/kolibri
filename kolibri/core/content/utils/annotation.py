@@ -861,7 +861,7 @@ def set_channel_ancestors(channel_id):
                 )
                 + parent_id_expression
                 + '","title": "'
-                + parent.c.title
+                + func.replace(parent.c.title, '"', '\\"')
                 + '"}]'
             ]
         ).where(
