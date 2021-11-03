@@ -71,6 +71,14 @@ const pageNameToNotificationPropsMap = [
   },
   {
     key: {
+      object: 'PracticeQuiz',
+      isMultiple: true,
+      isWholeClass: true,
+    },
+    value: 'ReportsLessonPracticeQuizLearnerListPage',
+  },
+  {
+    key: {
       object: 'Lesson',
       isMultiple: true,
       isWholeClass: true,

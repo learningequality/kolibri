@@ -454,6 +454,14 @@ export default [
     },
   },
   {
+    path: path(CLASS, LESSON, RESOURCE, LEARNERS),
+    component: pages.ReportsLessonPracticeQuizLearnerListPage,
+    handler: defaultHandler,
+    meta: {
+      titleParts: ['RESOURCE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
     name: 'QuizReportEditDetailsPage',
     path: path(CLASS, QUIZ, '/edit'),
     component: QuizEditDetailsPage,
