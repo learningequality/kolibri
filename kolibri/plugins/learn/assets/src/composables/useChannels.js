@@ -3,30 +3,22 @@
  */
 
 import { ref } from 'kolibri.lib.vueCompositionApi';
-import { set } from '@vueuse/core';
-import { ChannelResource } from 'kolibri.resources';
+import plugin_data from 'plugin_data';
+
+const channelsArray = plugin_data.channels ? plugin_data.channels : [];
+const chanMap = {};
+
+for (let channel of channelsArray) {
+  chanMap[channel.id] = channel;
+}
 
 // The refs are defined in the outer scope so they can be used as a shared store
-const channels = ref([]);
+const channels = ref(channelsArray);
+const channelsMap = ref(chanMap);
 
 export default function useChannels() {
-  /**
-   * Fetches channels and saves data to this composable's store
-   *
-   * @param {Boolean} available only get the channels that are "available"
-   *                            (i.e. with resources on device) when `true`
-   * @returns {Promise}
-   * @public
-   */
-  function fetchChannels({ available = true } = {}) {
-    return ChannelResource.fetchCollection({ getParams: { available } }).then(collection => {
-      set(channels, collection);
-      return collection;
-    });
-  }
-
   return {
     channels,
-    fetchChannels,
+    channelsMap,
   };
 }

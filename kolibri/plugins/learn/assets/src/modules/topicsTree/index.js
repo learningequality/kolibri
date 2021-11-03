@@ -4,7 +4,7 @@ function defaultState() {
   return {
     channel: {},
     content: {},
-    // used in TOPICS_TOPIC, TOPICS_CHANNEL
+    // used in TOPICS_TOPIC, TOPICS_TOPIC_SEARCH
     contents: [],
     isRoot: null,
     topic: {},

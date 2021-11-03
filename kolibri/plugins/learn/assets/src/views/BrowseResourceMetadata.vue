@@ -180,15 +180,16 @@
     <div v-if="showLocationsInChannel && locationsInChannel" class="section" data-test="locations">
       <div class="label">
         {{
-          metadataStrings.$tr('locationsInChannel', { 'channelname': content.ancestors[0].title })
+          metadataStrings
+            .$tr('locationsInChannel', { 'channelname': (content.ancestors[0] || {}).title })
         }}:
       </div>
       <div v-for="location in locationsInChannel" :key="location.id">
         <div>
           <KRouterLink
-            :to="genContentLink(location.ancestors.splice(-1)[0].id, false)"
+            :to="genContentLink((location.ancestors.splice(-1)[0] || {}).id, false)"
           >
-            {{ location.ancestors.splice(-1)[0].title }}
+            {{ (location.ancestors.splice(-1)[0] || {}).title }}
           </KRouterLink>
         </div>
       </div>

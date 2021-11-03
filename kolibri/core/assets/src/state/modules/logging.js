@@ -1,5 +1,6 @@
 import Vue from 'kolibri.lib.vue';
 import fromPairs from 'lodash/fromPairs';
+import { diff } from 'deep-object-diff';
 
 function valOrNull(val) {
   return typeof val !== 'undefined' ? val : null;
@@ -93,8 +94,10 @@ export default {
       state.time_spent_delta = threeDecimalPlaceRoundup(state.time_spent_delta + timeDelta);
     },
     SET_LOGGING_CONTENT_STATE(state, contentState) {
+      const delta = diff(state.extra_fields, { ...state.extra_fields, contentState });
       state.extra_fields.contentState = contentState;
-      state.extra_fields_dirty_bit = true;
+      state.extra_fields_dirty_bit =
+        state.extra_fields_dirty_bit || Boolean(Object.keys(delta).length);
     },
     SET_LOGGING_PROGRESS(state, progress) {
       progress = threeDecimalPlaceRoundup(progress);

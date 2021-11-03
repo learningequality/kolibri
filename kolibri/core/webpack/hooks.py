@@ -22,6 +22,7 @@ from functools import partial
 from django.conf import settings
 from django.contrib.staticfiles.finders import find as find_staticfiles
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.six.moves.urllib.request import url2pathname
@@ -276,7 +277,10 @@ class WebpackBundleHook(hooks.KolibriHook):
                     bundle=self.unique_id,
                     plugin_data=json.dumps(
                         json.dumps(
-                            self.plugin_data, separators=(",", ":"), ensure_ascii=False
+                            self.plugin_data,
+                            separators=(",", ":"),
+                            ensure_ascii=False,
+                            cls=DjangoJSONEncoder,
                         )
                     ),
                 )

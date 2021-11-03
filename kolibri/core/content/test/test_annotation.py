@@ -1,6 +1,7 @@
 import tempfile
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import DataError
 from django.test import TestCase
@@ -919,3 +920,17 @@ class AncestorAnnotationTestCase(TransactionTestCase):
         set_channel_ancestors(channel_id)
         for n in ContentNode.objects.filter(channel_id=channel_id):
             self.assertEqual(n.ancestors, list(n.get_ancestors().values("id", "title")))
+
+    def test_ancestors_quotation_marks_in_title(self):
+        builder = ChannelBuilder()
+        builder._django_nodes[0].title = 'Title with "A title!" in it!'
+        builder.insert_into_default_db()
+        channel_id = builder.channel["id"]
+        set_channel_ancestors(channel_id)
+        try:
+            for n in ContentNode.objects.filter(channel_id=channel_id):
+                self.assertEqual(
+                    n.ancestors, list(n.get_ancestors().values("id", "title"))
+                )
+        except ValidationError:
+            self.fail("Did not coerce to proper JSON")

@@ -20,8 +20,8 @@
     </div>
     <div
       v-if="!hideDuration"
+      class="duration"
       data-test="duration"
-      :style="{ marginTop: '8px' }"
     >
       <TimeDuration
         v-if="displayMinutes"
@@ -165,6 +165,11 @@
       position: static;
       padding-left: 2px;
     }
+  }
+
+  .duration {
+    margin-top: 8px;
+    text-align: right;
   }
 
 </style>

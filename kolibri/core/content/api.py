@@ -24,6 +24,7 @@ from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import NumberFilter
 from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
@@ -185,6 +186,8 @@ class ContentNodeFilter(IdFilter):
     channels = UUIDInFilter(name="channel_id")
     languages = CharInFilter(name="lang_id")
     categories__isnull = BooleanFilter(field_name="categories", lookup_expr="isnull")
+    lft__gt = NumberFilter(field_name="lft", lookup_expr="gt")
+    rght__lt = NumberFilter(field_name="rght", lookup_expr="lt")
 
     class Meta:
         model = models.ContentNode
@@ -211,6 +214,9 @@ class ContentNodeFilter(IdFilter):
             "keywords",
             "channels",
             "languages",
+            "tree_id",
+            "lft__gt",
+            "rght__lt",
         ]
 
     def filter_kind(self, queryset, name, value):
@@ -819,7 +825,7 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
 
     def validate_and_return_params(self, request):
         depth = request.query_params.get("depth", 2)
-        lft__gt = request.query_params.get("lft__gt")
+        next__gt = request.query_params.get("next__gt")
 
         try:
             depth = int(depth)
@@ -828,16 +834,16 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
         except ValueError:
             raise ValidationError("Depth query parameter must have the value 1 or 2")
 
-        if lft__gt is not None:
+        if next__gt is not None:
             try:
-                lft__gt = int(lft__gt)
-                if 1 > lft__gt:
+                next__gt = int(next__gt)
+                if 1 > next__gt:
                     raise ValueError
             except ValueError:
                 raise ValidationError(
-                    "lft__gt query parameter must be a positive integer if specified"
+                    "next__gt query parameter must be a positive integer if specified"
                 )
-        return depth, lft__gt
+        return depth, next__gt
 
     def get_grandchild_ids(self, child_ids, depth):
         if depth == 2:
@@ -868,13 +874,13 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
         GET parameters on request can be:
         depth - a value of either 1 or 2 indicating the depth to recurse the tree, either 1 or 2 levels
         if this parameter is missing it will default to 2.
-        lft__gt - a value to return child nodes with a lft value greater than this, if missing defaults to None
+        next__gt - a value to return child nodes with a lft value greater than this, if missing defaults to None
 
         The pagination object returned for "children" will have this form:
         results - a list of serialized children, that can also have their own nested children attribute.
         more - a dictionary or None, if a dictionary, will have an id key that is the id of the parent object
         for these children, and a params key that is a dictionary of the required query parameters to query more
-        children for this parent - at a minimum this will include lft__gt and depth, but may also include
+        children for this parent - at a minimum this will include next__gt and depth, but may also include
         other query parameters for filtering content nodes.
 
         The "more" property describes the "id" required to do URL reversal on this endpoint, and the params that should
@@ -890,12 +896,12 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
         # use for the `get_ancestors` MPTT method.
         parent_model = self.get_object()
 
-        depth, lft__gt = self.validate_and_return_params(request)
+        depth, next__gt = self.validate_and_return_params(request)
 
         # Get a list of child_ids of the parent node up to the pagination limit
         child_qs = self.get_queryset().filter(parent=parent_model)
-        if lft__gt is not None:
-            child_qs = child_qs.filter(lft__gt=lft__gt)
+        if next__gt is not None:
+            child_qs = child_qs.filter(lft__gt=next__gt)
         child_ids = child_qs.values_list("id", flat=True).order_by("lft")[
             0 : self.page_size
         ]
@@ -956,13 +962,13 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
             if len(desc_parent["children"]["results"]) == self.page_size:
                 # Any subsequent queries to get siblings of this node can restrict themselves
                 # to looking for nodes with lft greater than the rght value of this descendant
-                lft__gt = desc["rght"]
+                next__gt = desc["rght"]
                 # If the rght value of this descendant is exactly 1 less than the rght value of
                 # its parent, then there are no more children that can be queried.
                 # So only in this instance do we update the more URL
                 if desc["rght"] + 1 < desc_parent["rght"]:
                     params = request.query_params.copy()
-                    params["lft__gt"] = lft__gt
+                    params["next__gt"] = next__gt
                     params["depth"] = more_depth
                     desc_parent["children"]["more"] = {
                         "id": desc_parent["id"],

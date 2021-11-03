@@ -398,7 +398,7 @@ class ContentNodeAPITestCase(APITestCase):
                     self.assertGreater(len(child_nodes), len(children["results"]))
                     self.assertEqual(children["more"]["id"], expected.id)
                     self.assertEqual(
-                        children["more"]["params"]["lft__gt"], child_nodes[24].rght
+                        children["more"]["params"]["next__gt"], child_nodes[24].rght
                     )
                     self.assertEqual(
                         children["more"]["params"]["depth"], 2 - recursion_depth
@@ -444,15 +444,15 @@ class ContentNodeAPITestCase(APITestCase):
         == "django.db.backends.postgresql",
         "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
     )
-    def test_contentnode_tree_lft__gt(self):
+    def test_contentnode_tree_next__gt(self):
         builder = ChannelBuilder(levels=2, num_children=30)
         builder.insert_into_default_db()
         content.ContentNode.objects.all().update(available=True)
         root = content.ContentNode.objects.get(id=builder.root_node["id"])
-        lft__gt = content.ContentNode.objects.filter(parent=root)[24].rght
+        next__gt = content.ContentNode.objects.filter(parent=root)[24].rght
         response = self.client.get(
             reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id}),
-            data={"lft__gt": lft__gt},
+            data={"next__gt": next__gt},
         )
         self.assertEqual(len(response.data["children"]["results"]), 5)
         self.assertIsNone(response.data["children"]["more"])

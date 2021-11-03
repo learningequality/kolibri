@@ -2,9 +2,8 @@
 export const PageNames = {
   ROOT: 'ROOT',
   HOME: 'HOME',
-  TOPICS_ROOT: 'TOPICS_ROOT',
-  TOPICS_CHANNEL: 'TOPICS_CHANNEL',
   TOPICS_TOPIC: 'TOPICS_TOPIC',
+  TOPICS_TOPIC_SEARCH: 'TOPICS_TOPIC_SEARCH',
   TOPICS_CONTENT: 'TOPICS_CONTENT',
   LIBRARY: 'LIBRARY',
   RECOMMENDED_POPULAR: 'RECOMMENDED_POPULAR',
@@ -42,10 +41,7 @@ export const pageNameToModuleMap = {
   [ClassesPageNames.EXAM_REPORT_VIEWER]: 'examReportViewer',
   [ClassesPageNames.LESSON_PLAYLIST]: 'lessonPlaylist',
   [ClassesPageNames.LESSON_RESOURCE_VIEWER]: 'lessonPlaylist/resource',
-  [PageNames.TOPICS_ROOT]: 'topicsRoot',
-  [PageNames.LIBRARY]: 'library',
-  [PageNames.TOPICS_CHANNEL]: 'topicsTree',
   [PageNames.TOPICS_CONTENT]: 'topicsTree',
   [PageNames.TOPICS_TOPIC]: 'topicsTree',
-  [PageNames.RECOMMENDED_CONTENT]: 'topicsTree',
+  [PageNames.TOPICS_TOPIC_SEARCH]: 'topicsTree',
 };

@@ -1048,6 +1048,9 @@ const nonconformingKeys = {
   MATERIALS: 'NeedsMaterials',
   FOR_BEGINNERS: 'ForBeginners',
   digitalLiteracy: 'digitialLiteracy',
+  BASIC_SKILLS: 'allLevelsBasicSkills',
+  FOUNDATIONS: 'basicSkills',
+  FOUNDATIONS_LOGIC_AND_CRITICAL_THINKING: 'logicAndCriticalThinking',
 };
 
 /**
@@ -1080,8 +1083,8 @@ export default {
      * string mapping to the values to be passed for those arguments.
      */
     coreString(key, args) {
-      if (key === 'None of the above') {
-        return noneOfTheAboveTranslator.$tr(key, args);
+      if (key === 'None of the above' || key === METADATA.NoCategories) {
+        return noneOfTheAboveTranslator.$tr('None of the above', args);
       }
 
       const metadataKey = get(MetadataLookup, key, null);

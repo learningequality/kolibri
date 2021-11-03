@@ -15,7 +15,6 @@
     :authorized="userIsAuthorized"
     authorizedRole="registeredUser"
     v-bind="immersivePageProps"
-    :maxMainWidth="maxWidth"
   >
     <template #app-bar-actions>
       <ActionBarSearchBox v-if="showSearch" />
@@ -69,6 +68,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { PageNames, ClassesPageNames } from '../constants';
+  import useChannels from '../composables/useChannels';
   import commonLearnStrings from './commonLearnStrings';
   import TopicsPage from './TopicsPage';
   import ContentPage from './ContentPage';
@@ -90,8 +90,8 @@
   import plugin_data from 'plugin_data';
 
   const pageNameToComponentMap = {
-    [PageNames.TOPICS_CHANNEL]: TopicsPage,
     [PageNames.TOPICS_TOPIC]: TopicsPage,
+    [PageNames.TOPICS_TOPIC_SEARCH]: TopicsPage,
     [PageNames.TOPICS_CONTENT]: ContentPage,
     [PageNames.CONTENT_UNAVAILABLE]: ContentUnavailablePage,
     [PageNames.BOOKMARKS]: BookmarkPage,
@@ -115,9 +115,14 @@
       UpdateYourProfileModal,
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
+    setup() {
+      const { channelsMap } = useChannels();
+      return {
+        channelsMap,
+      };
+    },
     data() {
       return {
-        searchPageExitRoute: null,
         demographicInfo: null,
       };
     },
@@ -131,7 +136,6 @@
       }),
       ...mapState('topicsTree', {
         topicsTreeContent: 'content',
-        topicsTreeChannel: 'channel',
         topicsTreeTopic: 'topic',
       }),
       ...mapState('examReportViewer', ['exam']),
@@ -147,7 +151,7 @@
       currentPageIsTopic() {
         return [
           pageNameToComponentMap[PageNames.TOPICS_TOPIC],
-          pageNameToComponentMap[PageNames.TOPICS_CHANNEL],
+          pageNameToComponentMap[PageNames.TOPICS_TOPIC_SEARCH],
         ].includes(this.currentPage);
       },
       currentPageIsContentOrLesson() {
@@ -156,7 +160,7 @@
           this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER
         );
       },
-      currentChannelIsCustom() {
+      currentTopicIsCustom() {
         return (
           this.topicsTreeTopic &&
           this.topicsTreeTopic.options &&
@@ -186,22 +190,11 @@
             };
           }
         }
-        if (this.pageName === PageNames.SEARCH) {
+        if (this.pageName === PageNames.TOPICS_TOPIC && this.currentTopicIsCustom) {
           return {
-            appBarTitle: this.coreString('searchLabel'),
+            appBarTitle: this.channelsMap[this.topicsTreeTopic.channel_id].title || '',
             immersivePage: true,
-            // Default to the Learn root page if there is no searchPageExitRoute to return to.
-            immersivePageRoute:
-              this.searchPageExitRoute || this.$router.getRoute(PageNames.TOPICS_ROOT),
-            immersivePagePrimary: true,
-            immersivePageIcon: 'close',
-          };
-        }
-        if (this.pageName === PageNames.TOPICS_CHANNEL && this.currentChannelIsCustom) {
-          return {
-            appBarTitle: this.topicsTreeChannel.title || '',
-            immersivePage: true,
-            immersivePageRoute: this.$router.getRoute(PageNames.TOPICS_ROOT),
+            immersivePageRoute: this.$router.getRoute(PageNames.LIBRARY),
             immersivePagePrimary: false,
             immersivePageIcon: 'back',
           };
@@ -209,11 +202,8 @@
         if (this.pageName === PageNames.TOPICS_CONTENT) {
           let immersivePageRoute = {};
           let appBarTitle;
-          const { searchTerm, last } = this.$route.query;
-          if (searchTerm) {
-            appBarTitle = this.coreString('searchLabel');
-            immersivePageRoute = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
-          } else if (last) {
+          const { last } = this.$route.query;
+          if (last) {
             // 'last' should only be route names for Recommended Page and its subpages
             immersivePageRoute = this.$router.getRoute(last);
             appBarTitle = {
@@ -228,12 +218,11 @@
               id: this.topicsTreeContent.parent,
             });
 
-            if (this.topicsTreeContent.breadcrumbs.length > 0) {
-              appBarTitle = lastItem(this.topicsTreeContent.breadcrumbs).title;
+            if (this.topicsTreeContent.ancestors.length > 1) {
+              appBarTitle = lastItem(this.topicsTreeContent.ancestors).title;
             } else {
-              // `breadcrumbs` is empty if the direct parent is the channel, so pull
-              // channel info from state.topicsTree.channel
-              appBarTitle = this.topicsTreeChannel.title;
+              // `ancestors` only has one entry if the direct parent is the channel
+              appBarTitle = this.channelsMap[this.topicsTreeContent.channel_id].title;
             }
           }
           return {
@@ -253,7 +242,7 @@
         }
         if (
           this.pageName === PageNames.TOPICS_TOPIC ||
-          this.pageName === PageNames.TOPICS_CHANNEL
+          this.pageName === PageNames.TOPICS_TOPIC_SEARCH
         ) {
           let immersivePageRoute;
           if (this.$route.query.last == PageNames.HOME) {
@@ -276,13 +265,11 @@
         };
       },
       showSearch() {
-        return this.pageName !== PageNames.SEARCH && this.canAccessUnassignedContent;
+        return this.canAccessUnassignedContent;
       },
       topNavIsVisible() {
         return (
-          this.pageName !== PageNames.CONTENT_UNAVAILABLE &&
-          this.pageName !== PageNames.SEARCH &&
-          !this.immersivePageProps.immersivePage
+          this.pageName !== PageNames.CONTENT_UNAVAILABLE && !this.immersivePageProps.immersivePage
         );
       },
       content() {
@@ -308,12 +295,6 @@
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? ASSESSMENT_FOOTER : 0;
       },
-      maxWidth() {
-        // ref: https://www.figma.com/file/zbxBoJUUkOynZtgK0wO9KD/Channel-descriptions?node-id=281%3A1270
-        if (this.pageName !== PageNames.TOPICS_ROOT) return undefined;
-        if (this.windowBreakpoint <= 1) return 400;
-        return 1800;
-      },
       profileNeedsUpdate() {
         return (
           this.demographicInfo &&
@@ -327,11 +308,8 @@
         // extract the key pieces of routing from immersive page props, but since we don't need
         // them all, just create two alternative route paths for return/'back' navigation
         let route = {};
-        const { searchTerm } = this.$route.query;
         if (this.$route.query.last == PageNames.RECOMMENDED) {
           route = this.$router.getRoute(PageNames.RECOMMENDED);
-        } else if (searchTerm) {
-          route = this.$router.getRoute(PageNames.SEARCH, {}, this.$route.query);
         } else if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
           route = this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST);
         } else if (this.topicsTreeContent.parent) {
@@ -341,30 +319,6 @@
           });
         }
         return route;
-      },
-    },
-    watch: {
-      $route: function(newRoute, oldRoute) {
-        const topicRouteNames = [
-          PageNames.TOPICS_ROOT,
-          PageNames.TOPICS_CHANNEL,
-          PageNames.TOPICS_TOPIC,
-        ];
-        // If going from topic -> search, save the topic route parameters for the
-        // exit link.
-        // But, if we go from search -> content, we do not edit `searchPageExitRoute`
-        // preserve the backwards linking from content -> search -> topic
-        if (topicRouteNames.includes(oldRoute.name) && newRoute.name === PageNames.SEARCH) {
-          this.searchPageExitRoute = {
-            name: oldRoute.name,
-            query: oldRoute.query,
-            params: oldRoute.params,
-          };
-        } else if (oldRoute.name === PageNames.SEARCH && topicRouteNames.includes(newRoute.name)) {
-          // If going from search -> topic (either by clicking "X" or clicking a topic card
-          // in the results), clear out the exit route.
-          this.searchPageExitRoute = null;
-        }
       },
     },
     mounted() {
