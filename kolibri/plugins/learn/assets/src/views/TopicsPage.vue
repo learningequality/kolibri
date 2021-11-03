@@ -629,11 +629,6 @@
     max-width: 920px;
   }
 
-  /deep/.side-panel {
-    position: relative;
-    bottom: 0;
-  }
-
   /deep/.card-thumbnail-wrapper {
     max-width: 100%;
     height: 110px;
