@@ -163,7 +163,7 @@ The Python project-specific dependencies installed above will install ``nodeenv`
 .. code-block:: bash
 
   # node.js, npm, and yarn
-  nodeenv -p --node=10.15.3
+  nodeenv -p --node=10.24.1
   npm install -g yarn
 
   # other required project dependencies
