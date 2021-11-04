@@ -16,7 +16,7 @@ import {
 } from 'kolibri.resources';
 import { setServerTime } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
-import { redirectBrowser } from 'kolibri.utils.redirectBrowser';
+import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
 import Lockr from 'lockr';

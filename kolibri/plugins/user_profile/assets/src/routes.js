@@ -1,5 +1,5 @@
 import store from 'kolibri.coreVue.vuex.store';
-import { redirectBrowser } from 'kolibri.utils.redirectBrowser';
+import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import ProfilePage from './views/ProfilePage';
 import ProfileEditPage from './views/ProfileEditPage';
 
