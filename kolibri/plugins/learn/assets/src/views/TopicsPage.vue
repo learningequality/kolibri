@@ -57,6 +57,11 @@
             :text="coreString('folders')"
             appearance="flat-button"
             class="tab-button"
+            :style="!searchActive ? {
+              color: `${this.$themeTokens.primary} !important`,
+              borderBottom: `2px solid ${this.$themeTokens.primary}`,
+              paddingBottom: '2px',
+            } : {}"
             :appearanceOverrides="customTabButtonOverrides"
           />
           <KRouterLink
@@ -65,6 +70,11 @@
             :text="coreString('searchLabel')"
             appearance="flat-button"
             class="tab-button"
+            :style="searchActive ? {
+              color: `${this.$themeTokens.primary} !important`,
+              borderBottom: `2px solid ${this.$themeTokens.primary}`,
+              paddingBottom: '2px',
+            } : {}"
             :appearanceOverrides="customTabButtonOverrides"
           />
         </div>
@@ -388,7 +398,7 @@
     },
     data: function() {
       return {
-        stickyTop: '360px',
+        stickyTop: '364px',
         currentViewStyle: 'card',
         currentCategory: null,
         showSearchModal: false,
