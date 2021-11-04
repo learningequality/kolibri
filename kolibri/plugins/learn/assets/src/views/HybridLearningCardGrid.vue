@@ -77,7 +77,6 @@
       :thumbnail="content.thumbnail"
       :kind="content.kind"
       :isLeaf="content.is_leaf"
-      :progress="content.progress_fraction || 0"
       :numCoachContents="content.num_coach_contents"
       :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
       :contentId="content.content_id"
