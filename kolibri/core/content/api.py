@@ -823,8 +823,7 @@ NUM_CHILDREN = 12
 NUM_GRANDCHILDREN_PER_CHILD = 12
 
 
-@method_decorator(cache_forever, name="dispatch")
-class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
+class TreeQueryMixin(object):
     def validate_and_return_params(self, request):
         depth = request.query_params.get("depth", 2)
         next__gt = request.query_params.get("next__gt")
@@ -870,6 +869,32 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
                     gc_by_parent[gc["parent_id"]].append(gc["id"])
                     yield gc["id"]
 
+    def get_tree_queryset(self, request, pk):
+        # Get the model for the parent node here - we do this so that we trigger a 404 immediately if the node
+        # does not exist (or exists but is not available).
+        parent_id = pk if pk and self.get_queryset().filter(id=pk).exists() else None
+
+        if parent_id is None:
+            raise Http404
+        depth, next__gt = self.validate_and_return_params(request)
+
+        # Get a list of child_ids of the parent node up to the pagination limit
+        child_qs = self.get_queryset().filter(parent_id=parent_id)
+        if next__gt is not None:
+            child_qs = child_qs.filter(lft__gt=next__gt)
+        child_ids = child_qs.values_list("id", flat=True).order_by("lft")[
+            0:NUM_CHILDREN
+        ]
+
+        # Get a flat list of ids for grandchildren we will be returning
+        gc_ids = self.get_grandchild_ids(child_ids, depth, NUM_GRANDCHILDREN_PER_CHILD)
+        return self.filter_queryset(self.get_queryset()).filter(
+            Q(id=parent_id) | Q(id__in=child_ids) | Q(id__in=gc_ids)
+        )
+
+
+@method_decorator(cache_forever, name="dispatch")
+class ContentNodeTreeViewset(BaseContentNodeMixin, TreeQueryMixin, BaseValuesViewset):
     def retrieve(self, request, pk=None):
         """
         A nested, paginated representation of the children and grandchildren of a specific node
@@ -894,33 +919,11 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
         :return: an object representing the parent with a pagination object as "children"
         """
 
-        # Get the model for the parent node here - we do this so that we trigger a 404 immediately if the node
-        # does not exist (or exists but is not available).
-        parent_id = pk if pk and self.get_queryset().filter(id=pk).exists() else None
-
-        if parent_id is None:
-            raise Http404
-
-        depth, next__gt = self.validate_and_return_params(request)
-
-        # Get a list of child_ids of the parent node up to the pagination limit
-        child_qs = self.get_queryset().filter(parent_id=parent_id)
-        if next__gt is not None:
-            child_qs = child_qs.filter(lft__gt=next__gt)
-        child_ids = child_qs.values_list("id", flat=True).order_by("lft")[
-            0:NUM_CHILDREN
-        ]
-
-        # Get a flat list of ids for grandchildren we will be returning
-        gc_ids = self.get_grandchild_ids(child_ids, depth, NUM_GRANDCHILDREN_PER_CHILD)
+        queryset = self.get_tree_queryset(request, pk)
 
         # We explicitly order by lft here, so that the nodes are in tree traversal order, so we can iterate over them and build
         # out our nested representation, being sure that any ancestors have already been processed.
-        nodes = self.serialize(
-            self.filter_queryset(self.get_queryset())
-            .filter(Q(id=parent_id) | Q(id__in=child_ids) | Q(id__in=gc_ids))
-            .order_by("lft")
-        )
+        nodes = self.serialize(queryset.order_by("lft"))
 
         # The serialized parent representation is the first node in the lft order
         parent = nodes[0]
@@ -934,7 +937,7 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
         for desc in nodes[1:]:
             # First check to see whether it is a direct child of the
             # parent node that we initially queried
-            if desc["parent"] == parent_id:
+            if desc["parent"] == pk:
                 # If so add them to the children_by_id map so that
                 # grandchildren descendants can reference them later
                 children_by_id[desc["id"]] = desc
@@ -1213,7 +1216,7 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
         return Response(parent_data)
 
 
-class ContentNodeProgressFilter(IdFilter):
+class ContentNodeProgressFilter(ContentNodeFilter):
     lesson = UUIDFilter(method="filter_by_lesson")
 
     def filter_by_lesson(self, queryset, name, value):
@@ -1240,80 +1243,34 @@ def mean(data):
     return mean
 
 
-class ContentNodeProgressViewset(ReadOnlyValuesViewset):
+class ContentNodeProgressViewset(TreeQueryMixin, viewsets.GenericViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ContentNodeProgressFilter
 
-    values = (
-        "id",
-        "kind",
-        "lft",
-        "rght",
-        "tree_id",
-        "content_id",
-    )
-
     def get_queryset(self):
-        return models.ContentNode.objects.all()
+        return models.ContentNode.objects.filter(available=True)
 
-    def consolidate(self, items, queryset):
-
-        leaves = (
-            queryset.get_descendants(include_self=True)
-            .order_by()
-            .exclude(available=False)
-            .exclude(kind=content_kinds.TOPIC)
-            .values("content_id", "lft", "rght", "tree_id")
+    def generate_response(self, request, queryset):
+        if request.user.is_anonymous():
+            return Response([])
+        logs = list(
+            ContentSummaryLog.objects.filter(
+                user=self.request.user,
+                content_id__in=queryset.exclude(kind=content_kinds.TOPIC).values_list(
+                    "content_id", flat=True
+                ),
+            ).values("content_id", "progress")
         )
+        return Response(logs)
 
-        leaf_content_ids = [c["content_id"] for c in leaves]
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        return self.generate_response(request, queryset)
 
-        progress_lookup = {}
-
-        if not self.request.user.is_anonymous():
-            # if there are too many leaf_content_ids we'll have a
-            # 'too many SQL variables' errors in sqlite
-            # so we batch the leaf ids here:
-            total = len(leaf_content_ids)
-            i = 0
-            batch_size = 998
-            while i < total:
-                leaf_content_ids_batch = leaf_content_ids[i : i + batch_size]
-                logs = ContentSummaryLog.objects.filter(
-                    user=self.request.user, content_id__in=leaf_content_ids_batch
-                )
-                for log in logs.values("content_id", "progress"):
-                    progress_lookup[log["content_id"]] = round(log["progress"], 4)
-
-                i += batch_size
-
-        output = []
-
-        for item in items:
-            out_item = {
-                "id": item["id"],
-            }
-            if item["kind"] == content_kinds.TOPIC:
-                topic_leaves = filter(
-                    lambda x: x["lft"] > item["lft"]
-                    and x["rght"] < item["rght"]
-                    and x["tree_id"] == item["tree_id"],
-                    leaves,
-                )
-
-                out_item["progress_fraction"] = round(
-                    mean(
-                        progress_lookup.get(leaf["content_id"], 0)
-                        for leaf in topic_leaves
-                    ),
-                    4,
-                )
-            else:
-                out_item["progress_fraction"] = progress_lookup.get(
-                    item["content_id"], 0.0
-                )
-            output.append(out_item)
-        return output
+    @detail_route(methods=["get"])
+    def tree(self, request, pk=None):
+        queryset = self.get_tree_queryset(request, pk)
+        return self.generate_response(request, queryset)
 
 
 class FileViewset(viewsets.ReadOnlyModelViewSet):
