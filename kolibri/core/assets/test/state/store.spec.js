@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import * as redirectBrowser from 'kolibri.utils.redirectBrowser';
+import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import client from 'kolibri.client';
 import * as constants from '../../src/constants';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
@@ -7,6 +7,7 @@ import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri.urls');
 jest.mock('kolibri.client');
+jest.mock('kolibri.utils.redirectBrowser');
 
 describe('Vuex store/actions for core module', () => {
   describe('error handling', () => {
@@ -36,15 +37,13 @@ describe('Vuex store/actions for core module', () => {
     stubWindowLocation(beforeAll, afterAll);
 
     let store;
-    let redirectStub;
 
     beforeEach(() => {
       store = makeStore();
-      redirectStub = jest.spyOn(redirectBrowser, 'redirectBrowser');
     });
 
     afterEach(() => {
-      redirectStub.mockRestore();
+      redirectBrowser.mockReset();
     });
 
     it('successful login', async () => {
@@ -56,7 +55,7 @@ describe('Vuex store/actions for core module', () => {
       });
 
       await store.dispatch('kolibriLogin', {});
-      expect(redirectStub).toHaveBeenCalled();
+      expect(redirectBrowser).toHaveBeenCalled();
     });
 
     it('failed login (401)', async () => {
