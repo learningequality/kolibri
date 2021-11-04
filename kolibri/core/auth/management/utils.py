@@ -530,8 +530,6 @@ class MorangoSyncCommand(AsyncCommand):
                 )
             )
 
-        logger.info("Syncing has been initiated (this may take a while)...")
-
         try:
             # pull from server
             if not no_pull:
@@ -578,7 +576,8 @@ class MorangoSyncCommand(AsyncCommand):
             self.job.save_meta()
 
         dataset_cache.deactivate()
-        logger.info("Syncing has been completed.")
+        if not noninteractive:
+            logger.info("Syncing has been completed.")
 
     @contextmanager
     def _lock(self):
@@ -634,8 +633,7 @@ class MorangoSyncCommand(AsyncCommand):
 
         self._session_tracker_adapter(
             sync_client.signals.session,
-            "Creating pull transfer session",
-            "Completed pull transfer session",
+            noninteractive,
         )
 
         sync_client.initialize(sync_filter)
@@ -679,8 +677,7 @@ class MorangoSyncCommand(AsyncCommand):
 
         self._session_tracker_adapter(
             sync_client.signals.session,
-            "Creating push transfer session",
-            "Completed push transfer session",
+            noninteractive,
         )
 
         with self._lock():
@@ -705,13 +702,12 @@ class MorangoSyncCommand(AsyncCommand):
             self.job.extra_metadata.update(progress.extra_data)
             self.job.save_meta()
 
-    def _session_tracker_adapter(self, signal_group, started_msg, completed_msg):
+    def _session_tracker_adapter(self, signal_group, noninteractive):
         """
         Attaches a signal handler to session creation signals
 
         :type signal_group: morango.sync.syncsession.SyncSignalGroup
-        :type started_msg: str
-        :type completed_msg: str
+        :type noninteractive: bool
         """
 
         @run_once
@@ -719,15 +715,13 @@ class MorangoSyncCommand(AsyncCommand):
             """
             A session is created individually for pushing and pulling
             """
-            logger.info(started_msg)
             if self.job:
                 self.job.extra_metadata.update(sync_state=State.SESSION_CREATION)
 
         @run_once
         def session_destruction(transfer_session):
-            if transfer_session.records_total == 0:
+            if not noninteractive and transfer_session.records_total == 0:
                 logger.info("There are no records to transfer")
-            logger.info(completed_msg)
 
         signal_group.started.connect(session_creation)
         signal_group.completed.connect(session_destruction)
@@ -756,7 +750,8 @@ class MorangoSyncCommand(AsyncCommand):
             )
 
         def stats(transfer_session):
-            logger.info(stats_msg(transfer_session))
+            if transfer_session.records_total > 0:
+                logger.info(stats_msg(transfer_session))
 
         def handler(transfer_session):
             """
@@ -787,9 +782,6 @@ class MorangoSyncCommand(AsyncCommand):
 
         signal_group.connect(handler)
 
-        # log one more time at end to capture in logging output
-        signal_group.completed.connect(stats)
-
     def _queueing_tracker_adapter(
         self, signal_group, message, sync_state, noninteractive
     ):
@@ -806,16 +798,18 @@ class MorangoSyncCommand(AsyncCommand):
         def started(transfer_session):
             dataset_cache.clear()
             if noninteractive or tracker.progressbar is None:
-                logger.info(message)
+                if (
+                    not sync_state.endswith("DEQUEUING")
+                    or transfer_session.records_total > 0
+                ):
+                    logger.info(message)
+                else:
+                    logger.info("No records transferred")
 
         def handler(transfer_session):
             tracker.update_progress(
                 message=message, extra_data=dict(sync_state=sync_state)
             )
 
-        if noninteractive or tracker.progressbar is None:
-            signal_group.started.connect(started)
-
         signal_group.started.connect(started)
         signal_group.started.connect(handler)
-        signal_group.completed.connect(handler)

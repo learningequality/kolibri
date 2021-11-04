@@ -17,6 +17,7 @@ from datetime import timedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
+from django.core.validators import MinLengthValidator
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -119,7 +120,7 @@ class ContentSessionLog(BaseLogModel):
         help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)]
     )
     progress = models.FloatField(default=0, validators=[MinValueValidator(0)])
-    kind = models.CharField(max_length=200)
+    kind = models.CharField(max_length=200, validators=[MinLengthValidator(1)])
     extra_fields = JSONField(default={}, blank=True)
 
     def save(self, *args, **kwargs):
@@ -150,7 +151,7 @@ class ContentSummaryLog(BaseLogModel):
     progress = models.FloatField(
         default=0, validators=[MinValueValidator(0), MaxValueValidator(1.01)]
     )
-    kind = models.CharField(max_length=200)
+    kind = models.CharField(max_length=200, validators=[MinLengthValidator(1)])
     extra_fields = JSONField(default={}, blank=True)
 
     def calculate_source_id(self):
@@ -259,7 +260,7 @@ class BaseAttemptLog(BaseLogModel):
 
     # Unique identifier within the relevant assessment for the particular question/item
     # that this attemptlog is a record of an interaction with.
-    item = models.CharField(max_length=200)
+    item = models.CharField(max_length=200, validators=[MinLengthValidator(1)])
     start_timestamp = DateTimeTzField()
     end_timestamp = DateTimeTzField()
     completion_timestamp = DateTimeTzField(blank=True, null=True)
