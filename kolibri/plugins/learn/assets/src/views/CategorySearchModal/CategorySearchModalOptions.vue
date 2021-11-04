@@ -12,16 +12,15 @@
       :disabled="availablePaths && !availablePaths[nestedObject.value]"
       :style="availablePaths && !availablePaths[nestedObject.value] ?
         { textColor: 'grey' } : { cursor: 'pointer' }"
+      class="category-item"
     >
       <div class="filter-list-title">
-        <!-- TO DO swap out KDS Icons -->
         <KIcon
-          icon="info"
+          :icon="icon(key)"
           size="large"
         />
         <h2 @click="$emit('input', nestedObject.value)">
           {{ coreString(camelCase(key)) }}
-
         </h2>
       </div>
       <div
@@ -54,10 +53,11 @@
       :disabled="availablePaths && !availablePaths[value.value]"
       :style="availablePaths && !availablePaths[value.value] ?
         { color: 'grey' } : { cursor: 'pointer' }"
+      class="category-item"
       @click="$emit('input', value.value)"
     >
       <KIcon
-        icon="info"
+        :icon="icon(key)"
         size="large"
       />
       <h2
@@ -175,6 +175,23 @@
       camelCase(val) {
         return camelCase(val);
       },
+      icon(key) {
+        // 'language' icon is already in use and it doesn't follow the
+        // same naming pattern for category resources, so set separate
+        // case to return the correct icon
+        if (camelCase(key) === 'languageLearning') {
+          return 'language';
+        } else if (
+          camelCase(key) === 'technicalAndVocationalTraining' ||
+          camelCase(key) === 'professionalSkills'
+        ) {
+          // similarly, 'skills' icon is used for both of these resources
+          // and doesn't follow same pattern
+          return 'skillsResource';
+        } else {
+          return `${camelCase(key)}Resource`;
+        }
+      },
     },
   };
 
@@ -186,6 +203,14 @@
   .filter-list-title {
     margin-top: 24px;
     margin-bottom: 8px;
+  }
+
+  .filter-list-item {
+    margin-top: 16px;
+  }
+
+  .category-item {
+    margin-bottom: 32px;
   }
 
 </style>
