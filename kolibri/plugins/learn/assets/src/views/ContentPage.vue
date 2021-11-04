@@ -101,6 +101,12 @@
           return val.kind && val.content_id;
         },
       },
+      // only present when the content node is being viewed as part of lesson
+      decodedLessonId: {
+        type: String,
+        required: false,
+        default: null,
+      },
     },
     data() {
       return {
@@ -119,7 +125,7 @@
       }),
       lessonId() {
         // This should be undefined when not in a lesson
-        return this.$route.params.lessonId;
+        return this.$route.params.lessonId ? this.$route.params.lessonId : this.decodedLessonId;
       },
       nextContentNodeRoute() {
         // HACK Use a the Resource Viewer Link instead

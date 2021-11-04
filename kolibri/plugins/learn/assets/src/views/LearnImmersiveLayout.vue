@@ -51,6 +51,7 @@
         data-test="contentPage"
         :content="content"
         :channelId="content.channel_id"
+        :decodedLessonId="lessonId"
       />
     </div>
     <GlobalSnackbar />
@@ -197,6 +198,13 @@
       lessonContext() {
         return this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
       },
+      lessonId() {
+        if (this.back.params.length > 0) {
+          let params = JSON.parse(decodeURI(this.back.params));
+          return params.lessonId ? params.lessonId : null;
+        }
+        return null;
+      },
     },
     beforeUpdate() {
       client({
@@ -209,7 +217,7 @@
     },
     methods: {
       navigateBack() {
-        if (this.back.params) {
+        if (this.back.params.length > 0) {
           let params = JSON.parse(decodeURI(this.back.params));
           let route = { ...this.back, params };
           this.$router.push(route);
