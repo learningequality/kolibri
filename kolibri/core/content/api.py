@@ -791,7 +791,7 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
                         "content_id", flat=True
                     ).distinct()
                 )
-                .filter(user=user)
+                .filter(user=user, progress__gt=0)
                 .exclude(progress=1)
                 .order_by("end_timestamp")
                 .values_list("content_id", flat=True)
