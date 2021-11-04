@@ -36,6 +36,7 @@ export default {
           learner_can_edit_username: null,
           // Set in RequirePasswordForLearnersForm
           learner_can_login_with_no_password: null,
+          learner_can_edit_password: null,
         },
         // Set in SuperuserCredentialsForm
         superuser: {
@@ -162,6 +163,7 @@ export default {
     },
     SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD(state, setting) {
       state.onboardingData.settings.learner_can_login_with_no_password = setting;
+      state.onboardingData.settings.learner_can_edit_password = !setting;
     },
     SET_LOADING(state, loadingFlag) {
       state.loading = loadingFlag;
