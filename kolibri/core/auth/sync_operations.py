@@ -11,6 +11,7 @@ from .sync_event_hook_utils import other_side_using_single_user_cert
 from .sync_event_hook_utils import this_side_using_single_user_cert
 from kolibri.core.auth.hooks import FacilityDataSyncHook
 from kolibri.core.upgrade import matches_version
+from kolibri.utils.version import truncate_version
 
 
 logger = logging.getLogger(__name__)
@@ -170,7 +171,7 @@ class KolibriVersionedSyncOperation(KolibriSyncOperationMixin, LocalOperation):
 
         # pre-0.15.0 won't have the kolibri version
         if remote_version is None or matches_version(
-            remote_version, self.version_threshold
+            truncate_version(remote_version), self.version_threshold
         ):
             if context.is_receiver:
                 self.upgrade(context)
