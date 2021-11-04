@@ -18,7 +18,7 @@
           :isLeaf="content.is_leaf"
           :progress="content.progress_fraction || 0"
           :numCoachContents="content.num_coach_contents"
-          :link="genContentLink(content.id, content.is_leaf, backRoute)"
+          :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
           :contentId="content.content_id"
           :copiesCount="content.copies_count"
           :description="content.description"
@@ -57,7 +57,7 @@
 
         :key="`resource-${idx}`"
         :contentNode="content"
-        :to="genContentLink(content.id, content.is_leaf)"
+        :to="genContentLink(content.id, content.is_leaf, backRoute, context)"
       />
     </CardGrid>
 
@@ -79,7 +79,7 @@
       :isLeaf="content.is_leaf"
       :progress="content.progress_fraction || 0"
       :numCoachContents="content.num_coach_contents"
-      :link="genContentLink(content.id, content.is_leaf, backRoute)"
+      :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
       :contentId="content.content_id"
       :copiesCount="content.copies_count"
       :footerIcons="footerIcons"
@@ -171,10 +171,13 @@
         return this.pageName === PageNames.LIBRARY;
       },
       context() {
-        let context = {
-          lessonId: this.currentLesson.id,
-          classId: this.currentLesson.classroom.id,
-        };
+        let context = {};
+        if (this.currentLesson) {
+          context = {
+            lessonId: this.currentLesson.id,
+            classId: this.currentLesson.classroom.id,
+          };
+        }
         return encodeURI(JSON.stringify(context));
       },
       backRoute() {
