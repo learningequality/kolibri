@@ -134,9 +134,6 @@
       formIsValid() {
         return every([this.fullNameValid, this.usernameValid]);
       },
-      nextUrl() {
-        return this.$route.query.next;
-      },
       profileRoute() {
         return this.$router.getRoute(ComponentMap.PROFILE);
       },
@@ -169,11 +166,7 @@
         );
       },
       handleCancel() {
-        if (this.nextUrl) {
-          this.navigateToNext();
-        } else {
-          this.$router.push(this.profileRoute);
-        }
+        this.$router.push(this.profileRoute);
       },
       handleSubmit() {
         this.formSubmitted = true;
@@ -185,11 +178,7 @@
             })
             .then(() => {
               this.showSnackbarNotification('changesSaved');
-              if (this.nextUrl) {
-                this.navigateToNext();
-              } else {
-                this.$router.push(this.profileRoute);
-              }
+              this.$router.push(this.profileRoute);
             })
             .catch(error => {
               this.status = 'FAILURE';
@@ -212,9 +201,6 @@
             this.$refs.usernameTextbox.focus();
           }
         });
-      },
-      navigateToNext() {
-        window.location.href = this.nextUrl;
       },
     },
     $trs: {

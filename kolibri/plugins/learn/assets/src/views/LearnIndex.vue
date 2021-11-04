@@ -47,13 +47,6 @@
       <router-view />
     </div>
 
-    <UpdateYourProfileModal
-      v-if="profileNeedsUpdate"
-      :disabled="demographicInfo === null || !userProfilePluginUrl"
-      @cancel="handleCancelUpdateYourProfileModal"
-      @submit="handleSubmitUpdateYourProfileModal"
-    />
-
   </CoreBase>
 
 </template>
@@ -62,7 +55,6 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import urls from 'kolibri.urls';
   import lastItem from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -85,7 +77,6 @@
   import ActionBarSearchBox from './ActionBarSearchBox';
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
-  import UpdateYourProfileModal from './UpdateYourProfileModal';
   import BookmarkPage from './BookmarkPage.vue';
   import plugin_data from 'plugin_data';
 
@@ -112,18 +103,12 @@
       LearnTopNav,
       TotalPoints,
       LearnImmersiveLayout,
-      UpdateYourProfileModal,
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     setup() {
       const { channelsMap } = useChannels();
       return {
         channelsMap,
-      };
-    },
-    data() {
-      return {
-        demographicInfo: null,
       };
     },
     computed: {
@@ -295,15 +280,6 @@
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? ASSESSMENT_FOOTER : 0;
       },
-      profileNeedsUpdate() {
-        return (
-          this.demographicInfo &&
-          (this.demographicInfo.gender === '' || this.demographicInfo.birth_year === '')
-        );
-      },
-      userProfilePluginUrl() {
-        return urls['kolibri:kolibri.plugins.user_profile:user_profile'];
-      },
       learnBackPageRoute() {
         // extract the key pieces of routing from immersive page props, but since we don't need
         // them all, just create two alternative route paths for return/'back' navigation
@@ -319,37 +295,6 @@
           });
         }
         return route;
-      },
-    },
-    mounted() {
-      if (this.isUserLoggedIn) {
-        this.getDemographicInfo();
-      }
-    },
-    methods: {
-      getDemographicInfo() {
-        return this.$store
-          .dispatch('getDemographicInfo')
-          .then(info => {
-            this.demographicInfo = { ...info };
-          })
-          .catch(() => {});
-      },
-      handleCancelUpdateYourProfileModal() {
-        this.$store.dispatch('deferProfileUpdates', this.demographicInfo);
-        this.demographicInfo = null;
-      },
-      handleSubmitUpdateYourProfileModal() {
-        if (this.userProfilePluginUrl) {
-          const next = window.encodeURIComponent(window.location.href);
-          const url = `${this.userProfilePluginUrl()}#/profile/edit?next=${next}`;
-          const redirect = () => {
-            window.location.href = url;
-          };
-          this.$store
-            .dispatch('deferProfileUpdates', this.demographicInfo)
-            .then(redirect, redirect);
-        }
       },
     },
     $trs: {
