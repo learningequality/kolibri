@@ -17,7 +17,6 @@ const {
   getClassActiveLessons,
   getClassActiveQuizzes,
   getResumableContentNode,
-  getResumableContentNodeProgress,
   getClassLessonLink,
   getClassQuizLink,
   getClassResourceLink,
@@ -543,12 +542,6 @@ describe(`useLearnerResources`, () => {
         id: 'resource-6-in-progress',
         title: 'Resource 6 (In Progress)',
       });
-    });
-  });
-
-  describe(`getResumableContentNodeProgress`, () => {
-    it(`returns a resumable content node progress`, () => {
-      expect(getResumableContentNodeProgress('resource-3-in-progress')).toBe(0.74);
     });
   });
 

@@ -15,7 +15,7 @@
     </template>
 
     <template v-if="contentNodeProgress" #progress>
-      <ProgressBar :progress="contentNodeProgress" />
+      <ProgressBar :contentNode="contentNode" />
     </template>
   </BaseCard>
 
@@ -41,11 +41,6 @@
       contentNode: {
         type: Object,
         required: true,
-      },
-      contentNodeProgress: {
-        type: Number,
-        required: false,
-        default: null,
       },
       /**
        * vue-router link object

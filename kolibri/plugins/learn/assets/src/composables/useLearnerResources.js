@@ -9,14 +9,15 @@ import { computed, ref } from 'kolibri.lib.vueCompositionApi';
 import { get, set } from '@vueuse/core';
 import flatMap from 'lodash/flatMap';
 
-import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
+import { ContentNodeResource } from 'kolibri.resources';
 import { LearnerClassroomResource } from '../apiResources';
 import { PageNames, ClassesPageNames } from '../constants';
+import useContentNodeProgress from './useContentNodeProgress';
 
 // The refs are defined in the outer scope so they can be used as a shared store
 const _resumableContentNodes = ref([]);
-const _resumableContentNodesProgresses = ref([]);
 const classes = ref([]);
+const { fetchContentNodeProgress } = useContentNodeProgress();
 
 export default function useLearnerResources() {
   /**
@@ -217,21 +218,6 @@ export default function useLearnerResources() {
   }
 
   /**
-   * @param {String} contentNodeId
-   * @returns {Number} A content node progress as a fraction between 0 and 1
-   * @public
-   */
-  function getResumableContentNodeProgress(contentNodeId) {
-    const progressData = get(_resumableContentNodesProgresses).find(
-      item => item.id === contentNodeId
-    );
-    if (!progressData) {
-      return undefined;
-    }
-    return progressData.progress_fraction;
-  }
-
-  /**
    * @param {Object} lesson
    * @returns {Object} vue-router link to a lesson page
    * @public
@@ -357,21 +343,8 @@ export default function useLearnerResources() {
         return [];
       }
       const contentNodesIds = contentNodes.map(contentNode => contentNode.id);
-      return ContentNodeProgressResource.fetchCollection({
-        getParams: { ids: contentNodesIds },
-        force,
-      }).then(progressData => {
-        const progresses = progressData ? progressData : [];
-        set(_resumableContentNodesProgresses, progresses);
-        // when saving resumable content nodes, remove those that have progress 0
-        // see https://github.com/learningequality/kolibri/issues/8573
-        const resumableContentNodes = contentNodes.filter(contentNode => {
-          const progress = progresses.find(progress => progress.id === contentNode.id);
-          return progress.progress_fraction > 0;
-        });
-        set(_resumableContentNodes, resumableContentNodes);
-        return resumableContentNodes;
-      });
+      fetchContentNodeProgress({ ids: contentNodesIds });
+      return contentNodes;
     });
   }
 
@@ -385,7 +358,6 @@ export default function useLearnerResources() {
     learnerFinishedAllClasses,
     getClass,
     getResumableContentNode,
-    getResumableContentNodeProgress,
     getClassActiveLessons,
     getClassActiveQuizzes,
     getClassLessonLink,

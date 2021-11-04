@@ -14,7 +14,6 @@
           v-for="(resource, idx) in uniqueResumableClassesResources"
           :key="`resource-${idx}`"
           :contentNode="getResumableContentNode(resource.contentNodeId)"
-          :contentNodeProgress="getResumableContentNodeProgress(resource.contentNodeId)"
           :to="getClassResourceLink(resource)"
           :collectionTitle="getResourceClassName(resource)"
         />
@@ -32,7 +31,6 @@
           v-for="(contentNode, idx) in resumableNonClassesContentNodes"
           :key="idx"
           :contentNode="contentNode"
-          :contentNodeProgress="getResumableContentNodeProgress(contentNode.id)"
           :to="getTopicContentNodeLink(contentNode.id)"
           :collectionTitle="getContentNodeTopicName(contentNode)"
         />
@@ -71,7 +69,6 @@
         resumableNonClassesContentNodes,
         getClass,
         getResumableContentNode,
-        getResumableContentNodeProgress,
         getClassQuizLink,
         getClassResourceLink,
         getTopicContentNodeLink,
@@ -107,7 +104,6 @@
         resumableNonClassesContentNodes,
         uniqueResumableClassesResources,
         getResumableContentNode,
-        getResumableContentNodeProgress,
         getClassQuizLink,
         getClassResourceLink,
         getTopicContentNodeLink,
