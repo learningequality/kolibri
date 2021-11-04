@@ -127,7 +127,7 @@
           <div v-if="(windowIsMedium && searchActive)">
             <!-- TO DO Marcella swap out new icon after KDS update -->
             <KButton
-              icon="channel"
+              icon="filter"
               class="filter-overlay-toggle-button"
               :text="coreString('searchLabel')"
               :primary="false"

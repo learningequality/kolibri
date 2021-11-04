@@ -25,7 +25,7 @@
         :disabled="availableActivities && !availableActivities[value]"
         @click="$emit('input', value)"
       >
-        <KIcon :icon="`${camelCase(activity) + 'Shaded'}`" class="activity-icon" />
+        <KIcon :icon="activityIcon(activity)" class="activity-icon" />
         <p class="activity-button-text">
           {{ coreString(camelCase(activity)) }}
         </p>
@@ -106,6 +106,13 @@
     methods: {
       camelCase(id) {
         return camelCase(id);
+      },
+      activityIcon(activity) {
+        if (activity == 'EXPLORE') {
+          return 'interactShaded';
+        } else {
+          return `${camelCase(activity) + 'Shaded'}`;
+        }
       },
     },
     $trs: {

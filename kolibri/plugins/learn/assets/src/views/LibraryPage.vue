@@ -8,7 +8,7 @@
       <div v-if="!windowIsLarge">
         <!-- TO DO Marcella swap out new icon after KDS update -->
         <KButton
-          icon="channel"
+          icon="filter"
           :text="coreString('searchLabel')"
           :primary="false"
           @click="toggleSidePanelVisibility"
