@@ -303,6 +303,7 @@ function clearTrackingInterval() {
  * To be called on page load for content renderers
  */
 export function initContentSession(store, { nodeId, lessonId, quizId } = {}) {
+  const data = {};
   if (!nodeId && !quizId) {
     throw TypeError('Must define either nodeId or quizId');
   }
@@ -313,15 +314,18 @@ export function initContentSession(store, { nodeId, lessonId, quizId } = {}) {
 
   if (quizId) {
     sessionStarted = store.state.logging.context && store.state.logging.context.quiz_id === quizId;
+    data.quiz_id = quizId;
   }
 
   if (nodeId) {
     sessionStarted = store.state.logging.context && store.state.logging.context.node_id === nodeId;
+    data.node_id = nodeId;
     if (lessonId) {
       sessionStarted =
         sessionStarted &&
         store.state.logging.context &&
         store.state.logging.context.lesson_id === lessonId;
+      data.lesson_id = lessonId;
     }
   }
 
@@ -338,7 +342,7 @@ export function initContentSession(store, { nodeId, lessonId, quizId } = {}) {
   return client({
     method: 'post',
     url: urls['kolibri:core:trackprogress-list'](),
-    data: { node_id: nodeId, lesson_id: lessonId, quiz_id: quizId },
+    data: data,
   }).then(response => {
     store.commit('INITIALIZE_LOGGING_STATE', response.data);
   });

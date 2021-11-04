@@ -125,7 +125,7 @@
       }),
       lessonId() {
         // This should be undefined when not in a lesson
-        return this.$route.params.lessonId ? this.$route.params.lessonId : this.decodedLessonId;
+        return this.$route.params.lessonId || this.decodedLessonId;
       },
       nextContentNodeRoute() {
         // HACK Use a the Resource Viewer Link instead
