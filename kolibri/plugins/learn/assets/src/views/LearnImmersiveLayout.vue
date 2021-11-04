@@ -209,8 +209,13 @@
     },
     methods: {
       navigateBack() {
-        // return to previous page using the route object set through props
-        this.$router.push(this.back);
+        if (this.back.params) {
+          let params = JSON.parse(decodeURI(this.back.params));
+          let route = { ...this.back, params };
+          this.$router.push(route);
+        } else {
+          this.$router.push(this.back);
+        }
       },
       openSidePanel() {
         this.sidePanelContent = this.content;

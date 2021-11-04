@@ -171,10 +171,11 @@
         return this.pageName === PageNames.LIBRARY;
       },
       context() {
-        return {
+        let context = {
           lessonId: this.currentLesson.id,
           classId: this.currentLesson.classroom.id,
         };
+        return encodeURI(JSON.stringify(context));
       },
       backRoute() {
         return this.pageName;
