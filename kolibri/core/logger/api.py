@@ -386,6 +386,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 start_timestamp=start_timestamp,
                 end_timestamp=start_timestamp,
                 user=user,
+                kind=kind,
                 visitor_id=visitor_id,
                 extra_fields={"context": context.to_dict()},
             )
