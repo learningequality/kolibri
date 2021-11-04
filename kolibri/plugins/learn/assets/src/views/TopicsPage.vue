@@ -145,16 +145,22 @@
                 cardViewStyle="card"
                 @toggleInfoPanel="toggleInfoPanel"
               />
-              <KButton v-if="t.showMore" appearance="basic-link" @click="handleShowMore(t.id)">
+              <KButton
+                v-if="t.showMore"
+                class="more-after-grid"
+                appearance="basic-link"
+                @click="handleShowMore(t.id)"
+              >
                 {{ $tr('showMore') }}
               </KButton>
-              <KRouterLink v-else-if="t.viewAll" :to="t.viewAll">
+              <KRouterLink v-else-if="t.viewAll" class="more-after-grid" :to="t.viewAll">
                 {{ $tr('viewAll') }}
               </KRouterLink>
               <KButton
                 v-else-if="t.viewMore && t.id !== subTopicLoading"
+                class="more-after-grid"
                 appearance="basic-link"
-                @click="handleLoadMore(t.id)"
+                @click="handleLoadMoreinSubtopic(t.id)"
               >
                 {{ coreString('viewMoreAction') }}
               </KButton>
@@ -169,6 +175,16 @@
               cardViewStyle="card"
               @toggleInfoPanel="toggleInfoPanel"
             />
+            <div v-if="topicMore" class="end-button-block">
+              <KButton
+                v-if="!topicMoreLoading"
+                :text="coreString('viewMoreAction')"
+                appearance="raised-button"
+                :disabled="topicMoreLoading"
+                @click="handleLoadMoreInTopic"
+              />
+              <KCircularLoader v-else />
+            </div>
           </div>
           <div v-else-if="!searchLoading" class="results-title">
             <h2 class="results-title">
@@ -187,7 +203,7 @@
               @removeItem="removeFilterTag"
               @clearSearch="clearSearch"
             />
-            <!-- results display -->
+            <!-- search results display -->
             <HybridLearningCardGrid
               v-if="results.length"
               :numCols="numCols"
@@ -196,14 +212,17 @@
               :contents="results"
               @toggleInfoPanel="toggleInfoPanel"
             />
-            <KButton
-              v-if="more"
-              :text="coreString('viewMoreAction')"
-              appearance="basic-link"
-              :disabled="moreLoading"
-              class="filter-action-button"
-              @click="searchMore"
-            />
+            <div v-if="more" class="end-button-block">
+              <KButton
+                v-if="moreLoading"
+                :text="coreString('viewMoreAction')"
+                appearance="basic-link"
+                :disabled="moreLoading"
+                class="filter-action-button"
+                @click="searchMore"
+              />
+              <KCircularLoader v-else />
+            </div>
           </div>
           <div v-else>
             <KCircularLoader
@@ -224,7 +243,8 @@
         :topicsListDisplayed="!searchActive"
         topicPage="True"
         :topics="topics"
-        :more="topic.children ? topic.children.more : null"
+        :topicsLoading="topicMoreLoading"
+        :more="topicMore"
         :genContentLink="genContentLink"
         :width="`${sidePanelWidth}px`"
         :availableLabels="labels"
@@ -235,6 +255,7 @@
                   paddingTop: '24px',
                   paddingBottom: '200px' }"
         @currentCategory="handleShowSearchModal"
+        @loadMoreTopics="handleLoadMoreInTopic"
       />
       <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
       <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
@@ -269,13 +290,15 @@
           :topicsListDisplayed="!searchActive"
           topicPage="True"
           :topics="topics"
-          :more="topic.children ? topic.children.more : null"
+          :topicsLoading="topicMoreLoading"
+          :more="topicMore"
           :genContentLink="genContentLink"
           :width="`${sidePanelOverlayWidth}px`"
           :availableLabels="labels"
           :showChannels="false"
           position="overlay"
           @currentCategory="handleShowSearchModal"
+          @loadMoreTopics="handleLoadMoreInTopic"
         />
         <CategorySearchModal
           v-if="currentCategory && windowIsSmall"
@@ -403,6 +426,7 @@
         sidePanelContent: null,
         expandedTopics: {},
         subTopicLoading: null,
+        topicMoreLoading: false,
       };
     },
     computed: {
@@ -568,10 +592,18 @@
       childrenToDisplay() {
         return this.windowIsLarge ? carouselLimit : mobileCarouselLimit;
       },
+      topicMore() {
+        return this.topic.children && this.topic.children.more;
+      },
     },
     watch: {
       topic() {
         this.setSearchWithinDescendant(this.topic);
+      },
+      subTopicId(newValue, oldValue) {
+        if (newValue && newValue !== oldValue) {
+          this.handleLoadMoreinSubtopic(newValue);
+        }
       },
     },
     beforeDestroy() {
@@ -582,9 +614,12 @@
       window.addEventListener('scroll', this.throttledHandleScroll);
       this.setSearchWithinDescendant(this.topic);
       this.search();
+      if (this.subTopicId) {
+        this.handleLoadMoreinSubtopic(this.subTopicId);
+      }
     },
     methods: {
-      ...mapActions('topicsTree', ['loadMoreContents']),
+      ...mapActions('topicsTree', ['loadMoreContents', 'loadMoreTopics']),
       genContentLink,
       handleShowSearchModal(value) {
         this.currentCategory = value;
@@ -620,10 +655,16 @@
           [topicId]: true,
         };
       },
-      handleLoadMore(topicId) {
+      handleLoadMoreinSubtopic(topicId) {
         this.subTopicLoading = topicId;
         this.loadMoreContents(topicId).then(() => {
           this.subTopicLoading = null;
+        });
+      },
+      handleLoadMoreInTopic() {
+        this.topicMoreLoading = true;
+        this.loadMoreTopics().then(() => {
+          this.topicMoreLoading = false;
         });
       },
     },
@@ -757,6 +798,16 @@
     position: absolute;
     top: 8px;
     right: 24px;
+  }
+
+  .more-after-grid {
+    margin-bottom: 16px;
+  }
+
+  .end-button-block {
+    width: 100%;
+    margin-top: 16px;
+    text-align: center;
   }
 
 </style>

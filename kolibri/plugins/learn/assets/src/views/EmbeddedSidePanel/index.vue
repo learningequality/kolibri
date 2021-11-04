@@ -17,7 +17,11 @@
           :to="genContentLink(t.id)"
         />
       </div>
-      <KButton v-if="more && !topicsLoading" appearance="basic-link" @click="handleLoadMoreTopics">
+      <KButton
+        v-if="more && !topicsLoading"
+        appearance="basic-link"
+        @click="$emit('loadMoreTopics')"
+      >
         {{ coreString('viewMoreAction') }}
       </KButton>
       <KCircularLoader v-if="topicsLoading" />
@@ -117,7 +121,6 @@
 
   import pick from 'lodash/pick';
   import uniq from 'lodash/uniq';
-  import { mapActions } from 'vuex';
   import {
     AllCategories,
     CategoriesLookup,
@@ -196,6 +199,10 @@
         type: Object,
         default: null,
       },
+      topicsLoading: {
+        type: Boolean,
+        default: false,
+      },
       width: {
         type: [Number, String],
         required: true,
@@ -215,11 +222,6 @@
         type: Boolean,
         default: true,
       },
-    },
-    data() {
-      return {
-        topicsLoading: false,
-      };
     },
     computed: {
       inputValue: {
@@ -281,7 +283,6 @@
       },
     },
     methods: {
-      ...mapActions('topicsTree', ['loadMoreTopics']),
       genContentLink,
       allCategories() {
         this.$emit('input', { ...this.value, categories: { [AllCategories]: true } });
@@ -315,12 +316,6 @@
             learner_needs: { ...this.value.learner_needs, [need]: true },
           });
         }
-      },
-      handleLoadMoreTopics() {
-        this.topicsLoading = true;
-        this.loadMoreTopics().then(() => {
-          this.topicsLoading = false;
-        });
       },
     },
     $trs: {
