@@ -199,7 +199,7 @@
         return this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
       },
       lessonId() {
-        if (this.back.params.length > 0) {
+        if (this.back && this.back.params && this.back.params.length > 0) {
           let params = JSON.parse(decodeURI(this.back.params));
           return params.lessonId ? params.lessonId : null;
         }
