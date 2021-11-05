@@ -88,12 +88,7 @@ export function showLibrary(store) {
     store.commit('CORE_SET_PAGE_LOADING', true);
   }
 
-  if (store.getters.isUserLoggedIn) {
-    fetchContentNodeProgress({ resume: true });
-  }
-
-  return ConditionalPromise.all([
-    fetchResumableContentNodes(),
+  const promises = [
     ContentNodeResource.fetchCollection({
       getParams: {
         parent__isnull: true,
@@ -101,7 +96,14 @@ export function showLibrary(store) {
           store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
       },
     }),
-  ]).only(
+  ];
+
+  if (store.getters.isUserLoggedIn) {
+    fetchContentNodeProgress({ resume: true });
+    promises.push(fetchResumableContentNodes());
+  }
+
+  return ConditionalPromise.all(promises).only(
     samePageCheckGenerator(store),
     ([, channelCollection]) => {
       // we want them to be in the same order as the channels list
