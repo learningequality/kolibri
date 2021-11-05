@@ -1,11 +1,9 @@
 import { get } from '@vueuse/core';
-import { ContentNodeResource, MembershipResource, FacilityUserResource } from 'kolibri.resources';
+import { ContentNodeResource, MembershipResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
-import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
 import useChannels from '../../composables/useChannels';
 import { PageNames, pageNameToModuleMap } from '../../constants';
 
-const { DEFERRED } = DemographicConstants;
 const { channels } = useChannels();
 
 export function resetModuleState(store, lastPageName) {
@@ -56,24 +54,4 @@ export function prepareLearnApp(store) {
     .catch(err => {
       store.commit('CORE_SET_ERROR', err);
     });
-}
-
-export function getDemographicInfo(store) {
-  return FacilityUserResource.fetchModel({ id: store.getters.currentUserId }).then(facilityUser => {
-    return {
-      gender: facilityUser.gender,
-      birth_year: facilityUser.birth_year,
-    };
-  });
-}
-
-// Sets FacilityUser.gender to 'DEFERRED'. See getDemographicInfo above.
-export function deferProfileUpdates(store, demographicInfo) {
-  return FacilityUserResource.saveModel({
-    id: store.getters.currentUserId,
-    data: {
-      gender: demographicInfo.gender || DEFERRED,
-      birth_year: demographicInfo.birth_year || DEFERRED,
-    },
-  });
 }

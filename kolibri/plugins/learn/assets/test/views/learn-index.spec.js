@@ -17,8 +17,6 @@ jest.mock('plugin_data', () => {
   };
 });
 
-LearnIndex.methods.getDemographicInfo = function() {};
-
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 
