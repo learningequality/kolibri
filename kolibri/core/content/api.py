@@ -578,6 +578,13 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
     pagination_class = OptionalContentNodePagination
 
     @list_route(methods=["get"])
+    def random(self, request, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        max_results = int(self.request.query_params.get("max_results", 10))
+        queryset = queryset.order_by('?')[:max_results]
+        return Response(self.serialize(queryset))
+
+    @list_route(methods=["get"])
     def descendants(self, request):
         """
         Returns a slim view all the descendants of a set of content nodes (as designated by the passed in ids).

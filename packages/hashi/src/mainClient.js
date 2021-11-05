@@ -89,6 +89,8 @@ export default class MainClient {
         event = events.CHANNELMETADATAREQUESTED;
       } else if (message.dataType === DataTypes.CHANNELFILTEROPTIONS) {
         event = events.CHANNELFILTEROPTIONSREQUESTED;
+      } else if (message.dataType === DataTypes.RANDOMCOLLECTION) {
+        event = events.RANDOMCOLLECTIONREQUESTED;
       }
 
       if (event) {

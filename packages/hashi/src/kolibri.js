@@ -262,6 +262,27 @@ export default class Kolibri extends BaseShim {
           nameSpace,
         });
       }
+
+      /*
+       * Method to query random contentnodes from Kolibri and return an array
+       * of matching metadata
+       * @param {Object} options - The different options to filter by
+       * @param {string=} options.parent - id of the parent node to filter by, or 'self'
+       * @param {number} [options.maxResults=10] - the maximum number of nodes per request
+       * @param {string[]} options.kinds - an array of kinds to filer by, this
+       * option is ignored when "onlyContent" is used
+       * @param {boolean} options.onlyContent - set to true to query only
+       * content nodes. This option overrides the "kinds" option, so if
+       * onlyContent is used at the same time as "kinds", the "kinds" will be ignored
+       * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
+       */
+      getRandomNodes(options) {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.DATAREQUESTED,
+          data: { options, dataType: DataTypes.RANDOMCOLLECTION },
+          nameSpace,
+        });
+      }
     }
 
     this.shim = new Shim();

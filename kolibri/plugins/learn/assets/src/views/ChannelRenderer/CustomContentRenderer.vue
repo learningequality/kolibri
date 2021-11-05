@@ -115,6 +115,9 @@
       this.hashi.on(events.CHANNELFILTEROPTIONSREQUESTED, message => {
         this.sendChannelFilterOptions.call(this, message);
       });
+      this.hashi.on(events.RANDOMCOLLECTIONREQUESTED, message => {
+        this.sendRandomCollection.call(this, message);
+      });
       this.hashi.initialize(
         {},
         {},
@@ -307,6 +310,36 @@
                 availableAuthors: response.data.available_authors,
                 availableTags: response.data.available_tags,
                 availableKinds: response.data.available_kinds,
+              },
+            });
+          })
+          .catch(err => {
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendMessage(newMsg);
+          });
+      },
+      sendRandomCollection(message) {
+        const { options } = message;
+        const { kinds, onlyContent } = options;
+
+        return ContentNodeResource.fetchRandomCollection({
+          getParams: {
+            parent: options.parent === 'self' ? this.topic.id : options.parent,
+            channel_id: this.topic.channel_id,
+            max_results: options.maxResults ? options.maxResults : 10,
+            kind_in: onlyContent ? allButTopicTypes : kinds,
+            // Time seed to avoid cache
+            seed: Date.now().toString(),
+          },
+        })
+          .then(contentNodes => {
+            return createReturnMsg({
+              message,
+              data: {
+                maxResults: options.maxResults ? options.maxResults : 10,
+                results: contentNodes.results,
               },
             });
           })

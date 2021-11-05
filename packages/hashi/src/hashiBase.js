@@ -16,6 +16,7 @@ export const events = {
   KOLIBRIVERSIONREQUESTED: 'kolibriversionrequested',
   CHANNELMETADATAREQUESTED: 'channelmetadatarequested',
   CHANNELFILTEROPTIONSREQUESTED: 'channelfilteroptionsrequested',
+  RANDOMCOLLECTIONREQUESTED: 'randomcollectionrequested',
   NOW: 'now',
   RESIZE: 'resize',
   LOADING: 'loading',
@@ -29,6 +30,7 @@ export const DataTypes = {
   KOLIBRIVERSION: 'KolibriVersion',
   CHANNELMETADATA: 'ChannelMetadata',
   CHANNELFILTEROPTIONS: 'ChannelFilterOptions',
+  RANDOMCOLLECTION: 'RandomCollection',
 };
 
 export const MessageStatuses = {
