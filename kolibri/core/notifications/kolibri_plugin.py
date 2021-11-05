@@ -11,6 +11,7 @@ from kolibri.core.notifications.api import batch_process_masterylogs_for_quizzes
 from kolibri.core.notifications.api import batch_process_summarylogs
 from kolibri.core.upgrade import matches_version
 from kolibri.plugins.hooks import register_hook
+from kolibri.utils.version import truncate_version
 
 
 @register_hook
@@ -41,7 +42,9 @@ class NotificationsSyncHook(FacilityDataSyncHook):
             # exam logs are deprecated beyond 0.15.0, but process them if syncing with version
             # pre-0.15.0
             remote_version = get_other_side_kolibri_version(context)
-            if remote_version is None or matches_version(remote_version, "<0.15.0"):
+            if remote_version is None or matches_version(
+                truncate_version(remote_version), "<0.15.0"
+            ):
                 batch_process_examlogs(
                     context.transfer_session.get_touched_record_ids_for_model(ExamLog),
                     context.transfer_session.get_touched_record_ids_for_model(
