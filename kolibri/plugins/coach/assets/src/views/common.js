@@ -247,7 +247,8 @@ export default {
       return router.getRoute(name, params, query);
     },
     // Set the backLinkQuery to set the correct exit behavior
-    // for ReportsLessonExerciseLearnerPage and ReportsQuizLearnerPage.
+    // for ReportsLessonExerciseLearnerPage, ReportsQuizLearnerPage,
+    // and ReportsLessonPracticeQuizLearnerPage
     backRouteForQuery(query) {
       const lastPage = query.last;
 
@@ -278,13 +279,27 @@ export default {
               groups: 'true',
             }
           );
+        case LastPages.PRACTICE_QUIZ_LEARNER_LIST:
+          return this.classRoute('ReportsLessonPracticeQuizLearnerListPage', {
+            practiceQuizId: this.$route.query.practiceQuizId,
+          });
+        case LastPages.PRACTICE_QUIZ_LEARNER_LIST_BY_GROUPS:
+          return this.classRoute(
+            'ReportsLessonPracticeQuizLearnerListPage',
+            {
+              practiceQuizId: this.$route.query.practiceQuizId,
+            },
+            {
+              groups: 'true',
+            }
+          );
         case LastPages.EXERCISE_QUESTION_LIST:
           return this.classRoute('ReportsLessonExerciseQuestionListPage', {
             exerciseId: this.$route.query.exerciseId,
           });
         case LastPages.PRACTICE_QUIZ_QUESTION_LIST:
           return this.classRoute('ReportsLessonPracticeQuizQuestionListPage', {
-            exerciseId: this.$route.query.exerciseId,
+            practiceQuizId: this.$route.query.practiceQuizId,
           });
         case LastPages.RESOURCE_LEARNER_LIST:
           return this.classRoute('ReportsLessonResourceLearnerListPage', {
@@ -295,20 +310,6 @@ export default {
             'ReportsLessonResourceLearnerListPage',
             {
               resourceId: this.$route.query.resourceId,
-            },
-            {
-              groups: 'true',
-            }
-          );
-        case LastPages.PRACTICE_QUIZ_LEARNER_LIST:
-          return this.classRoute('ReportsLessonPracticeQuizLearnerListPage', {
-            practiceQuizId: this.$route.query.practiceQuizId,
-          });
-        case LastPages.PRACTICE_QUIZ_LEARNER_LIST_BY_GROUPS:
-          return this.classRoute(
-            'ReportsLessonPracticeQuizLearnerListPage',
-            {
-              practiceQuizId: this.$route.query.practiceQuizId,
             },
             {
               groups: 'true',

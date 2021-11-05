@@ -12,9 +12,8 @@
     </template>
 
     <KPageContainer>
-      <section>
-        <ReportsLessonPracticeQuizHeader @previewClick="onPreviewClick" />
-      </section>
+      <ReportsLessonPracticeQuizHeader @previewClick="onPreviewClick" />
+
       <ReportsControls @export="exportCSV">
         <KCheckbox
           :label="coachString('viewByGroupsLabel')"
@@ -53,7 +52,7 @@
             />
           </p>
 
-          <ReportsResourceLearners
+          <ReportsPracticeQuizLearners
             :entries="getGroupEntries(group.id)"
             :showGroupsColumn="false"
           />
@@ -70,7 +69,7 @@
             {{ coachString('ungroupedLearnersLabel') }}
           </h2>
 
-          <ReportsResourceLearners
+          <ReportsPracticeQuizLearners
             :entries="ungroupedEntries"
             :showGroupsColumn="false"
           />
@@ -92,7 +91,7 @@
           />
         </p>
 
-        <ReportsResourceLearners :entries="allEntries" />
+        <ReportsPracticeQuizLearners :entries="allEntries" />
       </template>
     </KPageContainer>
   </CoreBase>
@@ -109,7 +108,7 @@
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import ReportsLessonPracticeQuizHeader from './ReportsLessonPracticeQuizHeader';
-  import ReportsResourceLearners from './ReportsResourceLearners';
+  import ReportsPracticeQuizLearners from './ReportsPracticeQuizLearners';
   import ReportsResourcesStats from './ReportsResourcesStats';
   import ReportsControls from './ReportsControls';
 
@@ -117,7 +116,7 @@
     name: 'ReportsLessonPracticeQuizLearnerListPage',
     components: {
       ReportsLessonPracticeQuizHeader,
-      ReportsResourceLearners,
+      ReportsPracticeQuizLearners,
       ReportsResourcesStats,
       ReportsControls,
     },
@@ -131,7 +130,7 @@
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },
-      resource() {
+      practiceQuiz() {
         return this.contentMap[this.$route.params.practiceQuizId];
       },
       recipients() {
@@ -187,13 +186,20 @@
         } else {
           query = { ...this.$route.query, groups: undefined };
         }
-        this.$router.replace({ query }); //I believe this is the problem
+        this.$router.replace({ query });
       },
-      // ?! COME BACK
       getPracticeQuizLearnerLink(learnerId) {
         const link = this.classRoute(PageNames.REPORTS_LESSON_PRACTICE_QUIZ_LEARNER_PAGE_ROOT, {
           learnerId,
         });
+
+        if (this.viewByGroups) {
+          link.query = {
+            ...link.query,
+            last: LastPages.PRACTICE_QUIZ_LEARNER_LIST_BY_GROUPS,
+            practiceQuizId: this.practiceQuiz.content_id,
+          };
+        }
 
         return link;
       },
@@ -224,11 +230,11 @@
           this.$router.getRoute(
             'RESOURCE_CONTENT_PREVIEW',
             {
-              contentId: this.resource.node_id,
+              contentId: this.practiceQuiz.node_id,
             },
             {
               last: lastPage,
-              practiceQuizId: this.resource.content_id,
+              practiceQuizId: this.practiceQuiz.content_id,
             }
           )
         );
@@ -258,7 +264,7 @@
         const exporter = new CSVExporter(columns, this.className);
         exporter.addNames({
           lesson: this.lesson.title,
-          resource: this.resource.title,
+          resource: this.practiceQuiz.title,
         });
 
         if (!this.viewByGroups) {

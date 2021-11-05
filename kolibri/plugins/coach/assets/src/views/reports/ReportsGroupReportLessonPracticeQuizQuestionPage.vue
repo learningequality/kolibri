@@ -2,15 +2,15 @@
 
   <CoreBase
     :immersivePage="true"
-    :immersivePageRoute="toolbarRoute"
     :immersivePagePrimary="true"
     immersivePageIcon="back"
-    appBarTitle="change me when you have the practiceQuiz title"
+    :immersivePageRoute="toolbarRoute"
+    :appBarTitle="exercise.title"
+    :pageTitle="title"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
-    <h1>This is ReportsLessonPracticeQuizLearnerPage</h1>
-    <!-- <LearnerExerciseReport
+    <!-- <QuestionLearnersReport
       @navigate="handleNavigation"
     /> -->
   </CoreBase>
@@ -21,21 +21,23 @@
 <script>
 
   // import { mapState } from 'vuex';
-  import commonCoach from '../common';
-  // import LearnerExerciseReport from '../common/LearnerExerciseReport';
+  // import commonCoach from '../common';
+  // import QuestionLearnersReport from '../common/QuestionLearnersReport';
 
   export default {
-    name: 'ReportsLessonPracticeQuizLearnerPage',
+    name: 'ReportsGroupReportLessonPracticeQuizQuestionPage',
     components: {
-      // LearnerExerciseReport,
+      // QuestionLearnersReport,
     },
-    mixins: [commonCoach],
+    // mixins: [commonCoach],
     computed: {
+      // ...mapState('questionDetail', ['title']),
       // ...mapState('exerciseDetail', ['exercise']),
-      toolbarRoute() {
-        const backRoute = this.backRouteForQuery(this.$route.query);
-        return backRoute || this.classRoute('ReportsLessonPracticeQuizLearnerListPage', {});
-      },
+      // toolbarRoute() {
+      //   const backRoute = this.backRouteForQuery(this.$route.query);
+      //   return backRoute ||
+      // this.classRoute('ReportsGroupReportLessonExerciseQuestionListPage', {});
+      // },
     },
     methods: {
       // handleNavigation(params) {
@@ -43,10 +45,10 @@
       //     name: this.name,
       //     params: {
       //       classId: this.$route.params.classId,
+      //       groupId: this.$route.params.groupId,
       //       lessonId: this.$route.params.lessonId,
       //       ...params,
       //     },
-      //     query: this.$route.query,
       //   });
       // },
     },

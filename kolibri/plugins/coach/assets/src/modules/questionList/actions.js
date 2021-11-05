@@ -49,7 +49,6 @@ export function setItemStats(
       store.commit('SET_STATE', { exam: item });
       // If no one attempted one of the questions, it could get missed out of the list
       // of difficult questions, so use the exam data to fill in the blanks here.
-      console.log(item, stats);
       stats = item.question_sources.map(source => {
         const stat = stats.find(stat => stat.item === source.item) || {
           correct: 0,

@@ -5,6 +5,10 @@ import {
   generateExerciseDetailHandler,
   exerciseRootRedirectHandler,
 } from '../modules/exerciseDetail/handlers';
+import {
+  generatePracticeQuizDetailHandler,
+  practiceQuizRootRedirectHandler,
+} from '../modules/practiceQuizDetail/handlers';
 import { generateExamReportDetailHandler } from '../modules/examReportDetail/handlers';
 import {
   generateQuestionDetailHandler,
@@ -31,7 +35,7 @@ const INTERACTION = '/interactions/:interactionIndex';
 const EXERCISE = '/exercises/:exerciseId';
 const RESOURCES = '/resources';
 const RESOURCE = '/resources/:resourceId';
-const PRACTICE_QUIZ = '/resources/:practiceQuizId';
+const PRACTICE_QUIZ = '/practiceQuiz/:practiceQuizId';
 
 function path(...args) {
   return args.join('');
@@ -103,6 +107,7 @@ export default [
       titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
     },
   },
+
   {
     path: path(CLASS, GROUP, LESSON, EXERCISE, QUESTIONS),
     component: pages.ReportsGroupReportLessonExerciseQuestionListPage,
@@ -130,6 +135,95 @@ export default [
     meta: {
       // Leaves out info on question
       titleParts: ['questionLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    path: path(CLASS, GROUP, LESSON, PRACTICE_QUIZ, LEARNERS),
+    component: pages.ReportsGroupReportLessonPracticeQuizLearnerListPage,
+    handler: defaultHandler,
+    meta: {
+      titleParts: [
+        'learnersLabel',
+        'PRACTICE_QUIZ_NAME',
+        'LESSON_NAME',
+        'GROUP_NAME',
+        'CLASS_NAME',
+      ],
+    },
+  },
+  {
+    path: path(CLASS, GROUP, LESSON, PRACTICE_QUIZ, LEARNER),
+    name: PageNames.REPORTS_GROUP_REPORT_LESSON_PRACTICE_QUIZ_LEARNER_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return practiceQuizRootRedirectHandler(
+        params,
+        pages.ReportsGroupReportLessonPracticeQuizLearnerPage.name,
+        next
+      );
+    },
+    meta: {
+      titleParts: ['LEARNER_NAME', 'PRACTICE_QUIZ_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    path: path(CLASS, GROUP, LESSON, PRACTICE_QUIZ, LEARNER, ATTEMPT, INTERACTION),
+    component: pages.ReportsGroupReportLessonPracticeQuizLearnerPage,
+    handler: generatePracticeQuizDetailHandler([
+      'groupId',
+      'learnerId',
+      'lessonId',
+      'practiceQuizId',
+    ]),
+    meta: {
+      // Leaves out attempt and interaction
+      titleParts: ['LEARNER_NAME', 'PRACTICE_QUIZ_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    path: path(CLASS, GROUP, LESSON, PRACTICE_QUIZ, QUESTIONS),
+    component: pages.ReportsGroupReportLessonPracticeQuizQuestionListPage,
+    handler: generateQuestionListHandler(['groupId', 'lessonId', 'practiceQuizId']),
+    meta: {
+      titleParts: [
+        'questionsLabel',
+        'PRACTICE_QUIZ_NAME',
+        'LESSON_NAME',
+        'GROUP_NAME',
+        'CLASS_NAME',
+      ],
+    },
+  },
+  {
+    path: path(CLASS, GROUP, LESSON, PRACTICE_QUIZ, QUESTION),
+    name: PageNames.REPORTS_GROUP_REPORT_LESSON_PRACTICE_QUIZ_QUESTION_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return practiceQuizRootRedirectHandler(
+        params,
+        pages.ReportsGroupReportLessonPracticeQuizQuestionPage.name,
+        next
+      );
+    },
+  },
+  {
+    path: path(CLASS, GROUP, LESSON, PRACTICE_QUIZ, QUESTION, LEARNER, INTERACTION),
+    component: pages.ReportsGroupReportLessonPracticeQuizQuestionPage,
+    handler: generatePracticeQuizDetailHandler([
+      'groupId',
+      'lessonId',
+      'practiceQuizId',
+      'questionId',
+    ]),
+    meta: {
+      // Leaves out info on question
+      titleParts: [
+        'questionLabel',
+        'PRACTICE_QUIZ_NAME',
+        'LESSON_NAME',
+        'GROUP_NAME',
+        'CLASS_NAME',
+      ],
     },
   },
   {
@@ -349,22 +443,7 @@ export default [
       titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
   },
-  {
-    path: path(CLASS, LESSON, PRACTICE_QUIZ, LEARNER),
-    name: PageNames.REPORTS_LESSON_PRACTICE_QUIZ_LEARNER_PAGE_ROOT,
-    beforeEnter: (to, from, next) => {
-      const { params, query } = to;
-      return exerciseRootRedirectHandler(
-        params,
-        pages.ReportsLessonPracticeQuizLearnerPage.name,
-        next,
-        query
-      );
-    },
-    meta: {
-      titleParts: ['LEARNER_NAME', 'PRACTICE_QUIZ_NAME', 'LESSON_NAME', 'CLASS_NAME'],
-    },
-  },
+
   {
     path: path(CLASS, LESSON, EXERCISE, LEARNER, ATTEMPT, INTERACTION),
     component: pages.ReportsLessonExerciseLearnerPage,
@@ -381,14 +460,7 @@ export default [
       titleParts: ['questionsLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
   },
-  {
-    path: path(CLASS, LESSON, PRACTICE_QUIZ, QUESTIONS),
-    component: pages.ReportsLessonPracticeQuizQuestionListPage,
-    handler: generateQuestionListHandler(['lessonId', 'practiceQuizId']),
-    meta: {
-      titleParts: ['questionsLabel', 'PRACTICE_QUIZ_NAME', 'LESSON_NAME', 'CLASS_NAME'],
-    },
-  },
+
   {
     path: path(CLASS, LESSON, EXERCISE, QUESTION),
     name: PageNames.REPORTS_LESSON_EXERCISE_QUESTION_PAGE_ROOT,
@@ -408,6 +480,67 @@ export default [
     meta: {
       // No info on question
       titleParts: ['EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    path: path(CLASS, LESSON, PRACTICE_QUIZ, LEARNERS),
+    component: pages.ReportsLessonPracticeQuizLearnerListPage,
+    handler: defaultHandler,
+    meta: {
+      titleParts: ['learnersLabel', 'PRACTICE_QUIZ_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    path: path(CLASS, LESSON, PRACTICE_QUIZ, LEARNER),
+    name: PageNames.REPORTS_LESSON_PRACTICE_QUIZ_LEARNER_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params, query } = to;
+      return practiceQuizRootRedirectHandler(
+        params,
+        pages.ReportsLessonPracticeQuizLearnerPage.name,
+        next,
+        query
+      );
+    },
+    meta: {
+      titleParts: ['LEARNER_NAME', 'PRACTICE_QUIZ_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    path: path(CLASS, LESSON, PRACTICE_QUIZ, LEARNER, ATTEMPT, INTERACTION),
+    component: pages.ReportsLessonPracticeQuizLearnerPage,
+    handler: generatePracticeQuizDetailHandler(['learnerId', 'lessonId', 'practiceQuizId']),
+    meta: {
+      titleParts: ['LEARNER_NAME', 'PRACTICE_QUIZ_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    path: path(CLASS, LESSON, PRACTICE_QUIZ, QUESTIONS),
+    component: pages.ReportsLessonPracticeQuizQuestionListPage,
+    handler: generateQuestionListHandler(['lessonId', 'practiceQuizId']),
+    meta: {
+      titleParts: ['questionsLabel', 'PRACTICE_QUIZ_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    path: path(CLASS, LESSON, PRACTICE_QUIZ, QUESTION),
+    name: PageNames.REPORTS_LESSON_PRACTICE_QUIZ_QUESTION_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return practiceQuizRootRedirectHandler(
+        params,
+        pages.ReportsLessonPracticeQuizQuestionPage.name,
+        next
+      );
+    },
+  },
+  {
+    path: path(CLASS, LESSON, PRACTICE_QUIZ, QUESTION, LEARNER, INTERACTION),
+    component: pages.ReportsLessonPracticeQuizQuestionPage,
+    handler: generatePracticeQuizDetailHandler(['lessonId', 'practiceQuizId', 'questionId']),
+    meta: {
+      // No info on question
+      titleParts: ['PRACTICE_QUIZ_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
   },
   {
@@ -476,14 +609,6 @@ export default [
     handler: defaultHandler,
     meta: {
       titleParts: ['RESOURCE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
-    path: path(CLASS, LESSON, PRACTICE_QUIZ, LEARNERS),
-    component: pages.ReportsLessonPracticeQuizLearnerListPage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['PRACTICE_QUIZ_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
   },
   {

@@ -14,6 +14,7 @@ import classSummary from './classSummary';
 import coachNotifications from './coachNotifications';
 import questionDetail from './questionDetail';
 import questionList from './questionList';
+import practiceQuizDetail from './practiceQuizDetail';
 
 const logging = logger.getLogger(__filename);
 
@@ -129,6 +130,7 @@ export default {
     exerciseDetail,
     groups,
     lessonSummary,
+    practiceQuizDetail,
     lessonsRoot,
     questionDetail,
     questionList,

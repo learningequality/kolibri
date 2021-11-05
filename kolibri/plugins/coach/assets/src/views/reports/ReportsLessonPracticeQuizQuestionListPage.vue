@@ -13,6 +13,11 @@
 
     <KPageContainer>
       <ReportsLessonPracticeQuizHeader @previewClick="onPreviewClick" />
+      <KRouterLink
+        text="Difficult Question Details page"
+        :to="questionLink('2dca14ca5e765a11ac6faf719fb1f42d')"
+        primary
+      />
       <!-- <CoreTable :emptyMessage="coachString('questionListEmptyState')">
         <template #headers>
           <th>{{ coachString('questionLabel') }}</th>
@@ -56,7 +61,7 @@
   // import * as csvFields from '../../csv/fields';
   import ReportsLessonPracticeQuizHeader from './ReportsLessonPracticeQuizHeader';
   // import ReportsControls from './ReportsControls';
-  // import { PageNames } from './../../constants';
+  import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsLessonPracticeQuizQuestionListPage',
@@ -83,12 +88,12 @@
       // },
     },
     methods: {
-      // questionLink(questionId) {
-      //   return this.classRoute(PageNames.REPORTS_LESSON_EXERCISE_QUESTION_PAGE_ROOT, {
-      //     questionId,
-      //     exerciseId: this.$route.params.exerciseId,
-      //   });
-      // },
+      questionLink(questionId) {
+        return this.classRoute(PageNames.REPORTS_LESSON_PRACTICE_QUIZ_QUESTION_PAGE_ROOT, {
+          questionId,
+          practiceQuizId: this.$route.params.practiceQuizId,
+        });
+      },
       onPreviewClick() {
         this.$router.push(
           this.$router.getRoute(
@@ -97,7 +102,7 @@
               contentId: this.resource.node_id,
             },
             {
-              last: LastPages.PRACTICE_QUIZ_LEARNER_LIST,
+              last: LastPages.PRACTICE_QUIZ_QUESTION_LIST,
               practiceQuizId: this.resource.content_id,
             }
           )

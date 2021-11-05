@@ -199,7 +199,6 @@ export function showLessonResourceContentPreview(store, params) {
 }
 
 export function showLessonSelectionContentPreview(store, params, query = {}) {
-  console.log('in prview', params);
   const { classId, lessonId, contentId } = params;
   return store.dispatch('loading').then(() => {
     const pendingSelections = store.state.lessonSummary.workingResources || [];

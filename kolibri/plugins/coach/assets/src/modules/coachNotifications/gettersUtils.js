@@ -5,7 +5,6 @@ import { CollectionTypes } from '../../constants/lessonsConstants';
 // It has extra params that may not be used by some routes.
 // See reportRoutes.js for details on param naming.
 function makeParams(notification) {
-  console.log('notification', notification);
   return {
     groupId: notification.collection.id,
     lessonId: notification.assignment.id,
