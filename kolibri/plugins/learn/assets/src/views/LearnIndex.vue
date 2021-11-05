@@ -314,10 +314,10 @@
             id: this.topicsTreeContent.parent,
           });
         } else if (this.$route.query && this.$route.query.last) {
-          let last = this.$route.query.last;
+          const last = this.$route.query.last;
           route = this.$router.getRoute(last);
-          if (this.$route.query.prevContext) {
-            let params = this.$route.query.prevContext;
+          if (this.$route.query) {
+            const params = this.$route.query;
             route = { ...route, params };
           }
         } else {

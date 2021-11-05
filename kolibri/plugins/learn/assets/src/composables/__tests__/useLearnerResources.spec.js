@@ -17,7 +17,6 @@ const {
   getClassActiveLessons,
   getClassActiveQuizzes,
   getResumableContentNode,
-  getResumableContentNodeProgress,
   getClassLessonLink,
   getClassQuizLink,
   getClassResourceLink,
@@ -430,7 +429,7 @@ describe(`useLearnerResources`, () => {
   describe(`resumableNonClassesContentNodes`, () => {
     it(`returns an array of IDs of all content nodes that are
       in progress and don't belong to any of learner's classes`, () => {
-      expect(resumableNonClassesContentNodes.value).toEqual([
+      expect(resumableNonClassesContentNodes.value).toMatchObject([
         { id: 'resource-9-in-progress', title: 'Resource 9 (In Progress)' },
         { id: 'resource-10-in-progress', title: 'Resource 10 (In Progress)' },
       ]);
@@ -539,16 +538,10 @@ describe(`useLearnerResources`, () => {
 
   describe(`getResumableContentNode`, () => {
     it(`returns a resumable content node object by its ID`, () => {
-      expect(getResumableContentNode('resource-6-in-progress')).toEqual({
+      expect(getResumableContentNode('resource-6-in-progress')).toMatchObject({
         id: 'resource-6-in-progress',
         title: 'Resource 6 (In Progress)',
       });
-    });
-  });
-
-  describe(`getResumableContentNodeProgress`, () => {
-    it(`returns a resumable content node progress`, () => {
-      expect(getResumableContentNodeProgress('resource-3-in-progress')).toBe(0.74);
     });
   });
 
@@ -621,11 +614,13 @@ describe(`useLearnerResources`, () => {
           classId: 'class-2',
         })
       ).toEqual({
-        name: ClassesPageNames.LESSON_RESOURCE_VIEWER,
+        name: PageNames.TOPICS_CONTENT,
         params: {
+          id: 'resource-1-in-progress',
+        },
+        query: {
           classId: 'class-2',
           lessonId: 'class-2-active-lesson-1',
-          resourceNumber: 2,
         },
       });
     });

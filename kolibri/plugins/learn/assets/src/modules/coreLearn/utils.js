@@ -14,7 +14,6 @@ export function normalizeContentNode(node) {
     ...node,
     kind: node.parent ? node.kind : ContentNodeKinds.CHANNEL,
     thumbnail: getContentNodeThumbnail(node) || undefined,
-    progress: Math.min(node.progress_fraction || 0, 1.0),
     copies_count: node.copies_count,
     channel_title: channel ? channel.name : '',
     channel_thumbnail: channel ? channel.thumbnail : null,

@@ -6,7 +6,6 @@ import classes from './classes';
 import examReportViewer from './examReportViewer';
 import examViewer from './examViewer';
 import lessonPlaylist from './lessonPlaylist';
-import recommended from './recommended';
 import topicsTree from './topicsTree';
 
 import plugin_data from 'plugin_data';
@@ -30,7 +29,6 @@ export default {
     examReportViewer,
     examViewer,
     lessonPlaylist,
-    recommended,
     topicsTree,
   },
 };

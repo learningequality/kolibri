@@ -16,7 +16,6 @@
           :kind="content.kind"
           :activityLength="content.duration"
           :isLeaf="content.is_leaf"
-          :progress="content.progress_fraction || 0"
           :numCoachContents="content.num_coach_contents"
           :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
           :contentId="content.content_id"
@@ -44,7 +43,6 @@
         :title="content.title"
         :kind="content.kind"
         :isLeaf="content.is_leaf"
-        :progress="content.progress || content.progress_fraction || 0"
         :numCoachContents="content.num_coach_contents"
         :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
       />
@@ -77,7 +75,6 @@
       :thumbnail="content.thumbnail"
       :kind="content.kind"
       :isLeaf="content.is_leaf"
-      :progress="content.progress_fraction || 0"
       :numCoachContents="content.num_coach_contents"
       :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
       :contentId="content.content_id"
@@ -172,13 +169,13 @@
       },
       context() {
         let context = {};
-        if (this.currentLesson) {
+        if (this.currentLesson && this.currentLesson.classroom) {
           context = {
             lessonId: this.currentLesson.id,
             classId: this.currentLesson.classroom.id,
           };
         }
-        return encodeURI(JSON.stringify(context));
+        return context;
       },
       backRoute() {
         return this.pageName;

@@ -47,17 +47,13 @@
       </div>
     </router-link>
     <div class="footer">
-      <KLinearLoader
-        v-if="!completed && progress"
-        class="k-linear-loader"
-        :delay="false"
-        :progress="progress * 100"
-        type="determinate"
-        :style="{ backgroundColor: $themeTokens.fineLine }"
+      <ProgressBar
+        :contentNode="contentNode"
+        :style="{ maxWidth: `calc(100% - ${32 * footerLength}px)` }"
       />
       <div class="footer-icons">
         <CoachContentLabel
-          v-if="isUserLoggedIn && !isLearner"
+          v-if="isUserLoggedIn && !isLearner && numCoachContents"
           class="coach-content-label"
           :value="numCoachContents"
           :isTopic="isTopic"
@@ -93,6 +89,7 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import ProgressBar from '../ProgressBar';
   import LearningActivityLabel from '../cards/ResourceCard/LearningActivityLabel';
   import commonLearnStrings from '../commonLearnStrings';
   import CardThumbnail from './CardThumbnail.vue';
@@ -104,6 +101,7 @@
       CoachContentLabel,
       TextTruncator,
       LearningActivityLabel,
+      ProgressBar,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
@@ -142,14 +140,6 @@
       numCoachContents: {
         type: Number,
         default: 0,
-      },
-      progress: {
-        type: Number,
-        required: false,
-        default: 0.0,
-        validator(value) {
-          return value >= 0.0 && value <= 1.0;
-        },
       },
       link: {
         type: Object,
@@ -190,18 +180,22 @@
         return styles;
       },
       maxTitleHeight() {
-        if (this.hasFooter && this.subtitle) {
+        if (this.footerLength && this.subtitle) {
           return 20;
-        } else if (this.hasFooter || this.subtitle) {
+        } else if (this.footerLength || this.subtitle) {
           return 40;
         }
         return 66;
       },
-      hasFooter() {
-        return this.numCoachContents > 0 || this.copiesCount > 1 || this.$slots.actions;
-      },
-      completed() {
-        return this.progress >= 1;
+      footerLength() {
+        return (
+          1 +
+          this.isLeaf +
+          (this.isUserLoggedIn && !this.isLearner && this.numCoachContents) +
+          (this.numCoachContents > 0) +
+          (this.copiesCount > 1) +
+          (this.$slots.actions ? this.$slots.actions.length : 0)
+        );
       },
     },
   };
@@ -316,12 +310,6 @@
       justify-content: flex-start;
       margin-top: 2px;
     }
-  }
-
-  .k-linear-loader {
-    left: 0;
-    display: inline-block;
-    max-width: calc(100% - 90px);
   }
 
   .mobile-card.card {

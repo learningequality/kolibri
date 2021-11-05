@@ -9,14 +9,17 @@ import { computed, ref } from 'kolibri.lib.vueCompositionApi';
 import { get, set } from '@vueuse/core';
 import flatMap from 'lodash/flatMap';
 
-import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
+import { ContentNodeResource } from 'kolibri.resources';
+import genContentLink from '../utils/genContentLink';
 import { LearnerClassroomResource } from '../apiResources';
 import { PageNames, ClassesPageNames } from '../constants';
+import { normalizeContentNode } from '../modules/coreLearn/utils';
+import useContentNodeProgress from './useContentNodeProgress';
 
 // The refs are defined in the outer scope so they can be used as a shared store
-const _resumableContentNodes = ref([]);
-const _resumableContentNodesProgresses = ref([]);
+const resumableContentNodes = ref([]);
 const classes = ref([]);
+const { fetchContentNodeProgress } = useContentNodeProgress();
 
 export default function useLearnerResources() {
   /**
@@ -80,7 +83,7 @@ export default function useLearnerResources() {
    * @private
    */
   function _isContentNodeResumable(contentNodeId) {
-    const resumableContentNodesIds = get(_resumableContentNodes).map(contentNode => contentNode.id);
+    const resumableContentNodesIds = get(resumableContentNodes).map(contentNode => contentNode.id);
     return get(resumableContentNodesIds).includes(contentNodeId);
   }
 
@@ -152,7 +155,7 @@ export default function useLearnerResources() {
    * @public
    */
   const resumableNonClassesContentNodes = computed(() => {
-    return get(_resumableContentNodes).filter(
+    return get(resumableContentNodes).filter(
       contentNode => !_isContentNodeInClasses(contentNode.id)
     );
   });
@@ -213,22 +216,7 @@ export default function useLearnerResources() {
    * @public
    */
   function getResumableContentNode(contentNodeId) {
-    return get(_resumableContentNodes).find(contentNode => contentNode.id === contentNodeId);
-  }
-
-  /**
-   * @param {String} contentNodeId
-   * @returns {Number} A content node progress as a fraction between 0 and 1
-   * @public
-   */
-  function getResumableContentNodeProgress(contentNodeId) {
-    const progressData = get(_resumableContentNodesProgresses).find(
-      item => item.id === contentNodeId
-    );
-    if (!progressData) {
-      return undefined;
-    }
-    return progressData.progress_fraction;
+    return get(resumableContentNodes).find(contentNode => contentNode.id === contentNodeId);
   }
 
   /**
@@ -290,14 +278,10 @@ export default function useLearnerResources() {
     if (lessonResourceIdx === undefined) {
       return undefined;
     }
-    return {
-      name: ClassesPageNames.LESSON_RESOURCE_VIEWER,
-      params: {
-        classId: resource.classId,
-        lessonId: resource.lessonId,
-        resourceNumber: lessonResourceIdx,
-      },
-    };
+    return genContentLink(resource.contentNodeId, true, undefined, {
+      lessonId: resource.lessonId,
+      classId: resource.classId,
+    });
   }
 
   /**
@@ -352,26 +336,13 @@ export default function useLearnerResources() {
    * @public
    */
   function fetchResumableContentNodes({ force = false } = {}) {
+    fetchContentNodeProgress({ resume: true });
     return ContentNodeResource.fetchResume({}, force).then(contentNodes => {
       if (!contentNodes || !contentNodes.length) {
         return [];
       }
-      const contentNodesIds = contentNodes.map(contentNode => contentNode.id);
-      return ContentNodeProgressResource.fetchCollection({
-        getParams: { ids: contentNodesIds },
-        force,
-      }).then(progressData => {
-        const progresses = progressData ? progressData : [];
-        set(_resumableContentNodesProgresses, progresses);
-        // when saving resumable content nodes, remove those that have progress 0
-        // see https://github.com/learningequality/kolibri/issues/8573
-        const resumableContentNodes = contentNodes.filter(contentNode => {
-          const progress = progresses.find(progress => progress.id === contentNode.id);
-          return progress.progress_fraction > 0;
-        });
-        set(_resumableContentNodes, resumableContentNodes);
-        return resumableContentNodes;
-      });
+      set(resumableContentNodes, contentNodes.map(normalizeContentNode));
+      return contentNodes;
     });
   }
 
@@ -385,7 +356,6 @@ export default function useLearnerResources() {
     learnerFinishedAllClasses,
     getClass,
     getResumableContentNode,
-    getResumableContentNodeProgress,
     getClassActiveLessons,
     getClassActiveQuizzes,
     getClassLessonLink,
@@ -395,5 +365,6 @@ export default function useLearnerResources() {
     fetchClass,
     fetchClasses,
     fetchResumableContentNodes,
+    resumableContentNodes,
   };
 }
