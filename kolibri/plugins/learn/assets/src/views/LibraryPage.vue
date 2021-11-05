@@ -40,11 +40,11 @@
         </div>
         <h2>{{ $tr('recent') }}</h2>
         <HybridLearningCardGrid
-          v-if="popular.length"
+          v-if="resumableContentNodes.length"
           :cardViewStyle="currentViewStyle"
           :numCols="numCols"
           :genContentLink="genContentLink"
-          :contents="trimmedPopular"
+          :contents="trimmedResume"
           :currentPage="currentPage"
           @toggleInfoPanel="toggleInfoPanel"
         />
@@ -200,15 +200,14 @@
 <script>
 
   import { mapState } from 'vuex';
-  import uniq from 'lodash/uniq';
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { ContentNodeProgressResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import genContentLink from '../utils/genContentLink';
   import { PageNames } from '../constants';
   import useSearch from '../composables/useSearch';
+  import useLearnerResources from '../composables/useLearnerResources';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
@@ -252,6 +251,7 @@
         clearSearch,
         setCategory,
       } = useSearch();
+      const { resumableContentNodes } = useLearnerResources();
       return {
         searchTerms,
         displayingSearchResults,
@@ -265,6 +265,7 @@
         removeFilterTag,
         clearSearch,
         setCategory,
+        resumableContentNodes,
       };
     },
     data: function() {
@@ -277,19 +278,12 @@
       };
     },
     computed: {
-      ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       ...mapState(['rootNodes']),
       carouselLimit() {
         return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
       },
-      trimmedPopular() {
-        return this.popular.slice(0, this.carouselLimit);
-      },
-      trimmedNextSteps() {
-        return this.nextSteps.slice(0, this.carouselLimit);
-      },
       trimmedResume() {
-        return this.resume.slice(0, this.carouselLimit);
+        return this.resumableContentNodes.slice(0, this.carouselLimit);
       },
       currentPage() {
         return PageNames.LIBRARY;
@@ -318,25 +312,8 @@
     },
     created() {
       this.search();
-      if (this.$store.getters.isUserLoggedIn) {
-        const contentNodeIds = uniq(
-          [...this.trimmedNextSteps, ...this.trimmedPopular, ...this.trimmedResume].map(
-            ({ id }) => id
-          )
-        );
-
-        if (contentNodeIds.length > 0) {
-          ContentNodeProgressResource.fetchCollection({ getParams: { ids: contentNodeIds } }).then(
-            progresses => {
-              this.$store.commit('recommended/SET_RECOMMENDED_NODES_PROGRESS', progresses);
-            }
-          );
-        }
-      }
     },
     methods: {
-      /* eslint-disable kolibri/vue-no-unused-methods */
-      // TODO: Remove this if we're close to release and haven't used it
       genContentLink,
       handleShowSearchModal(value) {
         this.currentCategory = value;

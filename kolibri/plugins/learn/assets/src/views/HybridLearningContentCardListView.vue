@@ -75,6 +75,7 @@
       >
         {{ bookmarkCreated }}
       </p>
+      <ProgressBar v-else :contentNode="contentNode" />
       <div class="footer-icons">
         <KIconButton
           v-for="(value, key) in footerIcons"
@@ -100,6 +101,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { now } from 'kolibri.utils.serverClock';
   import { PageNames } from '../constants';
+  import ProgressBar from './ProgressBar';
   import LearningActivityLabel from './cards/ResourceCard/LearningActivityLabel';
   import commonLearnStrings from './commonLearnStrings';
   import CardThumbnail from './HybridLearningContentCard/CardThumbnail';
@@ -110,6 +112,7 @@
       CardThumbnail,
       TextTruncator,
       LearningActivityLabel,
+      ProgressBar,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {

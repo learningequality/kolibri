@@ -14,7 +14,7 @@
       <LearningActivityLabel :contentNode="contentNode" />
     </template>
 
-    <template v-if="contentNodeProgress" #progress>
+    <template #progress>
       <ProgressBar :contentNode="contentNode" />
     </template>
   </BaseCard>

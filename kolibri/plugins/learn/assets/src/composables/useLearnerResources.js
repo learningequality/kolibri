@@ -15,7 +15,7 @@ import { PageNames, ClassesPageNames } from '../constants';
 import useContentNodeProgress from './useContentNodeProgress';
 
 // The refs are defined in the outer scope so they can be used as a shared store
-const _resumableContentNodes = ref([]);
+const resumableContentNodes = ref([]);
 const classes = ref([]);
 const { fetchContentNodeProgress } = useContentNodeProgress();
 
@@ -81,7 +81,7 @@ export default function useLearnerResources() {
    * @private
    */
   function _isContentNodeResumable(contentNodeId) {
-    const resumableContentNodesIds = get(_resumableContentNodes).map(contentNode => contentNode.id);
+    const resumableContentNodesIds = get(resumableContentNodes).map(contentNode => contentNode.id);
     return get(resumableContentNodesIds).includes(contentNodeId);
   }
 
@@ -153,7 +153,7 @@ export default function useLearnerResources() {
    * @public
    */
   const resumableNonClassesContentNodes = computed(() => {
-    return get(_resumableContentNodes).filter(
+    return get(resumableContentNodes).filter(
       contentNode => !_isContentNodeInClasses(contentNode.id)
     );
   });
@@ -214,7 +214,7 @@ export default function useLearnerResources() {
    * @public
    */
   function getResumableContentNode(contentNodeId) {
-    return get(_resumableContentNodes).find(contentNode => contentNode.id === contentNodeId);
+    return get(resumableContentNodes).find(contentNode => contentNode.id === contentNodeId);
   }
 
   /**
@@ -338,12 +338,12 @@ export default function useLearnerResources() {
    * @public
    */
   function fetchResumableContentNodes({ force = false } = {}) {
+    fetchContentNodeProgress({ resume: true });
     return ContentNodeResource.fetchResume({}, force).then(contentNodes => {
       if (!contentNodes || !contentNodes.length) {
         return [];
       }
-      const contentNodesIds = contentNodes.map(contentNode => contentNode.id);
-      fetchContentNodeProgress({ ids: contentNodesIds });
+      set(resumableContentNodes, contentNodes);
       return contentNodes;
     });
   }
@@ -367,5 +367,6 @@ export default function useLearnerResources() {
     fetchClass,
     fetchClasses,
     fetchResumableContentNodes,
+    resumableContentNodes,
   };
 }

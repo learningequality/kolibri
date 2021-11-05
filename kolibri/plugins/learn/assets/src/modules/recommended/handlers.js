@@ -5,9 +5,15 @@ import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import uniqBy from 'lodash/uniqBy';
 import { PageNames } from '../../constants';
 import useChannels from '../../composables/useChannels';
+import useContentNodeProgress from '../../composables/useContentNodeProgress';
+import useLearnerResources from '../../composables/useLearnerResources';
 import { contentState, _collectionState } from '../coreLearn/utils';
 
 const { channels } = useChannels();
+
+const { fetchContentNodeProgress } = useContentNodeProgress();
+
+const { fetchResumableContentNodes } = useLearnerResources();
 
 // User-agnostic recommendations
 function _getPopular(store) {
@@ -82,10 +88,12 @@ export function showLibrary(store) {
     store.commit('CORE_SET_PAGE_LOADING', true);
   }
 
+  if (store.getters.isUserLoggedIn) {
+    fetchContentNodeProgress({ resume: true });
+  }
+
   return ConditionalPromise.all([
-    _getNextSteps(store),
-    _getPopular(store),
-    _getResume(store),
+    fetchResumableContentNodes(),
     ContentNodeResource.fetchCollection({
       getParams: {
         parent__isnull: true,
@@ -95,16 +103,7 @@ export function showLibrary(store) {
     }),
   ]).only(
     samePageCheckGenerator(store),
-    ([nextSteps, popular, resume, channelCollection]) => {
-      store.commit('recommended/SET_STATE', {
-        // Hard to guarantee this uniqueness on the database side, so
-        // do a uniqBy content_id here, to prevent confusing repeated
-        // content items.
-        nextSteps: _mapContentSet(nextSteps),
-        popular: _mapContentSet(popular),
-        resume: _mapContentSet(resume),
-      });
-
+    ([, channelCollection]) => {
       // we want them to be in the same order as the channels list
       const rootNodes = get(channels)
         .map(channel => {
