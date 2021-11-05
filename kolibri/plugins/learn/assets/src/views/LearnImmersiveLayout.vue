@@ -50,8 +50,7 @@
         class="content"
         data-test="contentPage"
         :content="content"
-        :channelId="content.channel_id"
-        :decodedLessonId="lessonId"
+        :lessonId="lessonId"
       />
     </div>
     <GlobalSnackbar />
@@ -200,7 +199,7 @@
       },
       lessonId() {
         if (this.back && this.back.params && this.back.params.length > 0) {
-          let params = JSON.parse(decodeURI(this.back.params));
+          const params = this.back.params;
           return params.lessonId ? params.lessonId : null;
         }
         return null;
@@ -217,13 +216,7 @@
     },
     methods: {
       navigateBack() {
-        if (this.back.params.length > 0) {
-          let params = JSON.parse(decodeURI(this.back.params));
-          let route = { ...this.back, params };
-          this.$router.push(route);
-        } else {
-          this.$router.push(this.back);
-        }
+        this.$router.push(this.back);
       },
       openSidePanel() {
         this.sidePanelContent = this.content;

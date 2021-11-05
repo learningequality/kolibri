@@ -5,6 +5,6 @@ export default function genContentLink(id, isLeaf, last, prevContext) {
   return {
     name: isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
     params: { id },
-    query: { last: last, prevContext },
+    query: { last: last, ...prevContext },
   };
 }

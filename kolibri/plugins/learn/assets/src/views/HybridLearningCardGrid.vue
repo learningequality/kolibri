@@ -169,13 +169,13 @@
       },
       context() {
         let context = {};
-        if (this.currentLesson) {
+        if (this.currentLesson && this.currentLesson.classroom) {
           context = {
             lessonId: this.currentLesson.id,
             classId: this.currentLesson.classroom.id,
           };
         }
-        return encodeURI(JSON.stringify(context));
+        return context;
       },
       backRoute() {
         return this.pageName;

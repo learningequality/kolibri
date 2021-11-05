@@ -102,7 +102,7 @@
         },
       },
       // only present when the content node is being viewed as part of lesson
-      decodedLessonId: {
+      lessonId: {
         type: String,
         required: false,
         default: null,
@@ -123,10 +123,6 @@
         extraFields: state => state.core.logging.extra_fields,
         fullName: state => state.core.session.full_name,
       }),
-      lessonId() {
-        // This should be undefined when not in a lesson
-        return this.$route.params.lessonId || this.decodedLessonId;
-      },
       nextContentNodeRoute() {
         // HACK Use a the Resource Viewer Link instead
         if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {

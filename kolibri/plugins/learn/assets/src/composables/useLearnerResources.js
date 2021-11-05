@@ -10,6 +10,7 @@ import { get, set } from '@vueuse/core';
 import flatMap from 'lodash/flatMap';
 
 import { ContentNodeResource } from 'kolibri.resources';
+import genContentLink from '../utils/genContentLink';
 import { LearnerClassroomResource } from '../apiResources';
 import { PageNames, ClassesPageNames } from '../constants';
 import useContentNodeProgress from './useContentNodeProgress';
@@ -276,14 +277,10 @@ export default function useLearnerResources() {
     if (lessonResourceIdx === undefined) {
       return undefined;
     }
-    return {
-      name: ClassesPageNames.LESSON_RESOURCE_VIEWER,
-      params: {
-        classId: resource.classId,
-        lessonId: resource.lessonId,
-        resourceNumber: lessonResourceIdx,
-      },
-    };
+    return genContentLink(resource.contentNodeId, true, null, {
+      lessonId: resource.lessonId,
+      classId: resource.classId,
+    });
   }
 
   /**
