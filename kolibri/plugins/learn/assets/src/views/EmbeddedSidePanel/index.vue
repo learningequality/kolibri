@@ -17,6 +17,14 @@
           :to="genContentLink(t.id)"
         />
       </div>
+      <KButton
+        v-if="more && !topicsLoading"
+        appearance="basic-link"
+        @click="$emit('loadMoreTopics')"
+      >
+        {{ coreString('viewMoreAction') }}
+      </KButton>
+      <KCircularLoader v-if="topicsLoading" />
     </div>
     <div v-else>
       <!-- search by keyword -->
@@ -52,7 +60,7 @@
           class="category-list-item"
         >
           <KButton
-            :text="coreString(camelCase(category))"
+            :text="coreString(val)"
             appearance="flat-button"
             :appearanceOverrides="customCategoryStyles"
             :disabled="availableRootCategories && !availableRootCategories[val]"
@@ -111,7 +119,6 @@
 
 <script>
 
-  import camelCase from 'lodash/camelCase';
   import pick from 'lodash/pick';
   import uniq from 'lodash/uniq';
   import {
@@ -135,18 +142,6 @@
     const value = ResourcesNeededTypes[key];
     // TODO rtibbles: remove this condition
     if (plugin_data.learnerNeeds.includes(value) || process.env.NODE_ENV !== 'production') {
-      // For some reason the string ids for these items are in PascalCase not camelCase
-      if (key === 'PEOPLE') {
-        key = 'ToUseWithTeachersAndPeers';
-      } else if (key === 'PAPER_PENCIL') {
-        key = 'ToUseWithPaperAndPencil';
-      } else if (key === 'INTERNET') {
-        key = 'NeedsInternet';
-      } else if (key === 'MATERIALS') {
-        key = 'NeedsMaterials';
-      } else if (key === 'FOR_BEGINNERS') {
-        key = 'ForBeginners';
-      }
       resourcesNeeded[key] = value;
     }
   });
@@ -199,6 +194,14 @@
         default() {
           return [];
         },
+      },
+      more: {
+        type: Object,
+        default: null,
+      },
+      topicsLoading: {
+        type: Boolean,
+        default: false,
       },
       width: {
         type: [Number, String],
@@ -313,9 +316,6 @@
             learner_needs: { ...this.value.learner_needs, [need]: true },
           });
         }
-      },
-      camelCase(val) {
-        return camelCase(val);
       },
     },
     $trs: {
