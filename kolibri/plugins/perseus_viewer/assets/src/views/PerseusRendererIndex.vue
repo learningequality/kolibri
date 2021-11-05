@@ -408,7 +408,7 @@
       loadPerseusFile() {
         if (this.defaultFile && this.defaultFile.storage_url) {
           this.loading = true;
-          if (!this.perseusFile) {
+          if (!this.perseusFile || this.perseusFileUrl !== this.defaultFile.storage_url) {
             return client({
               method: 'get',
               url: this.defaultFile.storage_url,
@@ -420,6 +420,7 @@
               })
               .then(perseusFile => {
                 this.perseusFile = perseusFile;
+                this.perseusFileUrl = this.defaultFile.storage_url;
               });
           } else {
             return Promise.resolve();
