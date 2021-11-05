@@ -9,7 +9,6 @@
 # Description:       Multicore server setup for Kolibri, an offline education platform
 ### END INIT INFO
 
-
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="kolibri-server"
@@ -102,16 +101,13 @@ do_stop_uwsgi()
 
 do_check_nginx()
 {
-  # Check with "service" command, works on systemd and sysVinit
-  # See: https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
-  # Silence output
-  service nginx status 1>/dev/null 2>&1
-  retval=$?
-  if [ $retval -ne 0  ]; then
-    $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND restart"
-    service nginx start
+  if ps ax | grep -v grep | grep nginx > /dev/null
+  then
+      service nginx reload
   else
-    service nginx reload
+      $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND stop"
+      $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND start"
+      service nginx start
   fi
 }
 

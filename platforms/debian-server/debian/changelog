@@ -1,3 +1,10 @@
+kolibri-server (0.3.8-0ubuntu1) bionic; urgency=high
+
+  * Fix python code in kolibri_server_setup
+  * Modify init script for a better systemd handling
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Fri, 05 Nov 2021 17:09:50 +0100
+
 kolibri-server (0.3.7-0ubuntu1) bionic; urgency=low
 
   [ José L. Redrejo Rodríguez ]

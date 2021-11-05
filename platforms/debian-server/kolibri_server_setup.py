@@ -5,7 +5,6 @@ import subprocess
 
 import kolibri.utils.pskolibri as psutil
 
-from kolibri.core.analytics.measurements import get_machine_info
 from kolibri.core.content.utils.paths import get_content_dir_path
 from kolibri.core.utils.cache import RedisSettingsHelper
 from kolibri.core.utils.cache import process_cache
