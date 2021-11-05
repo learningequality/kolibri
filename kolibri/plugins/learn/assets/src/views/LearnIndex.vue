@@ -308,15 +308,20 @@
         // extract the key pieces of routing from immersive page props, but since we don't need
         // them all, just create two alternative route paths for return/'back' navigation
         let route = {};
-        if (this.$route.query.last == PageNames.RECOMMENDED) {
-          route = this.$router.getRoute(PageNames.RECOMMENDED);
-        } else if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-          route = this.$router.getRoute(ClassesPageNames.LESSON_PLAYLIST);
-        } else if (this.topicsTreeContent.parent) {
+        if (this.$route.query.last === PageNames.TOPICS_TOPIC_SEARCH) {
           // Need to guard for parent being non-empty to avoid console errors
           route = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
             id: this.topicsTreeContent.parent,
           });
+        } else if (this.$route.query && this.$route.query.last) {
+          let last = this.$route.query.last;
+          route = this.$router.getRoute(last);
+          if (this.$route.query.prevContext) {
+            let params = this.$route.query.prevContext;
+            route = { ...route, params };
+          }
+        } else {
+          route = this.$router.getRoute(PageNames.HOME);
         }
         return route;
       },

@@ -18,7 +18,7 @@
           :isLeaf="content.is_leaf"
           :progress="content.progress_fraction || 0"
           :numCoachContents="content.num_coach_contents"
-          :link="genContentLink(content.id, content.is_leaf)"
+          :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
           :contentId="content.content_id"
           :copiesCount="content.copies_count"
           :description="content.description"
@@ -46,7 +46,7 @@
         :isLeaf="content.is_leaf"
         :progress="content.progress || content.progress_fraction || 0"
         :numCoachContents="content.num_coach_contents"
-        :link="genContentLink(content.id, content.is_leaf)"
+        :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
       />
     </div>
     <CardGrid
@@ -57,7 +57,7 @@
 
         :key="`resource-${idx}`"
         :contentNode="content"
-        :to="genContentLink(content.id, content.is_leaf)"
+        :to="genContentLink(content.id, content.is_leaf, backRoute, context)"
       />
     </CardGrid>
 
@@ -79,7 +79,7 @@
       :isLeaf="content.is_leaf"
       :progress="content.progress_fraction || 0"
       :numCoachContents="content.num_coach_contents"
-      :link="genContentLink(content.id, content.is_leaf)"
+      :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
       :contentId="content.content_id"
       :copiesCount="content.copies_count"
       :footerIcons="footerIcons"
@@ -101,6 +101,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { PageNames } from '../constants';
   import genContentLink from '../utils/genContentLink';
@@ -161,11 +162,26 @@
       uniqueId: null,
     }),
     computed: {
+      ...mapState(['pageName']),
+      ...mapState('lessonPlaylist', ['currentLesson']),
       isBookmarksPage() {
-        return this.currentPage === PageNames.BOOKMARKS;
+        return this.pageName === PageNames.BOOKMARKS;
       },
       isLibraryPage() {
-        return this.currentPage === PageNames.LIBRARY;
+        return this.pageName === PageNames.LIBRARY;
+      },
+      context() {
+        let context = {};
+        if (this.currentLesson) {
+          context = {
+            lessonId: this.currentLesson.id,
+            classId: this.currentLesson.classroom.id,
+          };
+        }
+        return encodeURI(JSON.stringify(context));
+      },
+      backRoute() {
+        return this.pageName;
       },
     },
     methods: {
