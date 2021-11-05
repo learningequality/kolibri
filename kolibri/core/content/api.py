@@ -165,6 +165,35 @@ class CharInFilter(BaseInFilter, CharFilter):
     pass
 
 
+contentnode_filter_fields = [
+    "parent",
+    "parent__isnull",
+    "prerequisite_for",
+    "has_prerequisite",
+    "related",
+    "exclude_content_ids",
+    "ids",
+    "content_id",
+    "channel_id",
+    "kind",
+    "include_coach_content",
+    "kind_in",
+    "contains_quiz",
+    "grade_levels",
+    "resource_types",
+    "learning_activities",
+    "accessibility_labels",
+    "categories",
+    "learner_needs",
+    "keywords",
+    "channels",
+    "languages",
+    "tree_id",
+    "lft__gt",
+    "rght__lt",
+]
+
+
 class ContentNodeFilter(IdFilter):
     kind = ChoiceFilter(
         method="filter_kind",
@@ -191,33 +220,7 @@ class ContentNodeFilter(IdFilter):
 
     class Meta:
         model = models.ContentNode
-        fields = [
-            "parent",
-            "parent__isnull",
-            "prerequisite_for",
-            "has_prerequisite",
-            "related",
-            "exclude_content_ids",
-            "ids",
-            "content_id",
-            "channel_id",
-            "kind",
-            "include_coach_content",
-            "kind_in",
-            "contains_quiz",
-            "grade_levels",
-            "resource_types",
-            "learning_activities",
-            "accessibility_labels",
-            "categories",
-            "learner_needs",
-            "keywords",
-            "channels",
-            "languages",
-            "tree_id",
-            "lft__gt",
-            "rght__lt",
-        ]
+        fields = contentnode_filter_fields
 
     def filter_kind(self, queryset, name, value):
         """
@@ -488,6 +491,39 @@ class OptionalContentNodePagination(ValuesViewsetCursorPagination):
         }
 
 
+def get_resume_queryset(request, queryset):
+    user = request.user
+    # if user is anonymous, don't return any nodes
+    # if person requesting is not the data they are requesting for, also return no nodes
+    if not user.is_facility_user:
+        queryset = queryset.none()
+    else:
+        # get the most recently viewed, but not finished, content nodes
+        # search for content nodes that currently exist in the database
+        content_ids = (
+            ContentSummaryLog.objects.filter(
+                content_id__in=models.ContentNode.objects.values_list(
+                    "content_id", flat=True
+                ).distinct()
+            )
+            .filter(user=user, progress__gt=0)
+            .exclude(progress=1)
+            .order_by("end_timestamp")
+            .values_list("content_id", flat=True)
+            .distinct()
+        )
+
+        # If no logs, don't bother doing the other queries
+        if not content_ids:
+            queryset = queryset.none()
+        else:
+            resume = queryset.filter_by_content_ids(
+                list(content_ids[:10]), validate=False
+            )
+            queryset = resume.dedupe_by_content_id(use_distinct=False)
+    return queryset
+
+
 @method_decorator(cache_forever, name="dispatch")
 class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
     pagination_class = OptionalContentNodePagination
@@ -650,24 +686,19 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
         )
         return Response(self.serialize(queryset))
 
-    @detail_route(methods=["get"])
+    @list_route(methods=["get"])
     def next_steps(self, request, **kwargs):
         """
         Recommend content that has user completed content as a prerequisite, or leftward sibling.
-        Note that this is a slightly smelly use of a detail route, as the id in question is not for
-        a contentnode, but rather for a user. Recommend we move recommendation endpoints to their own
-        endpoints in future.
 
         :param request: request object
-        :param pk: id of the user whose recommendations they are
         :return: uncompleted content nodes, or empty queryset if user is anonymous
         """
         user = request.user
-        user_id = kwargs.get("pk", None)
         queryset = self.get_queryset()
         # if user is anonymous, don't return any nodes
         # if person requesting is not the data they are requesting for, also return no nodes
-        if not user.is_facility_user or user.id != user_id:
+        if not user.is_facility_user:
             queryset = queryset.none()
         else:
             completed_content_ids = ContentSummaryLog.objects.filter(
@@ -763,49 +794,15 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
 
         return Response(data)
 
-    @detail_route(methods=["get"])
+    @list_route(methods=["get"])
     def resume(self, request, **kwargs):
         """
         Recommend content that the user has recently engaged with, but not finished.
-        Note that this is a slightly smelly use of a detail route, as the id in question is not for
-        a contentnode, but rather for a user. Recommend we move recommendation endpoints to their own
-        endpoints in future.
 
         :param request: request object
-        :param pk: id of the user whose recommendations they are
         :return: 10 most recently viewed content nodes
         """
-        user = request.user
-        user_id = kwargs.get("pk", None)
-        queryset = self.get_queryset()
-        # if user is anonymous, don't return any nodes
-        # if person requesting is not the data they are requesting for, also return no nodes
-        if not user.is_facility_user or user.id != user_id:
-            queryset = queryset.none()
-        else:
-            # get the most recently viewed, but not finished, content nodes
-            # search for content nodes that currently exist in the database
-            content_ids = (
-                ContentSummaryLog.objects.filter(
-                    content_id__in=models.ContentNode.objects.values_list(
-                        "content_id", flat=True
-                    ).distinct()
-                )
-                .filter(user=user, progress__gt=0)
-                .exclude(progress=1)
-                .order_by("end_timestamp")
-                .values_list("content_id", flat=True)
-                .distinct()
-            )
-
-            # If no logs, don't bother doing the other queries
-            if not content_ids:
-                queryset = queryset.none()
-            else:
-                resume = queryset.filter_by_content_ids(
-                    list(content_ids[:10]), validate=False
-                )
-                queryset = resume.dedupe_by_content_id(use_distinct=False)
+        queryset = get_resume_queryset(request, self.get_queryset())
 
         return Response(self.serialize(queryset))
 
@@ -1218,6 +1215,7 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
 
 class ContentNodeProgressFilter(ContentNodeFilter):
     lesson = UUIDFilter(method="filter_by_lesson")
+    resume = BooleanFilter(method="filter_by_resume")
 
     def filter_by_lesson(self, queryset, name, value):
         try:
@@ -1227,9 +1225,12 @@ class ContentNodeProgressFilter(ContentNodeFilter):
         except Lesson.DoesNotExist:
             return queryset.none()
 
+    def filter_by_resume(self, queryset, name, value):
+        return get_resume_queryset(self.request, queryset)
+
     class Meta:
         model = models.ContentNode
-        fields = ["ids", "parent", "lesson"]
+        fields = contentnode_filter_fields + ["resume", "lesson"]
 
 
 def mean(data):
@@ -1246,6 +1247,13 @@ def mean(data):
 class ContentNodeProgressViewset(TreeQueryMixin, viewsets.GenericViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ContentNodeProgressFilter
+    # Use same pagination class as ContentNodeViewset so we can
+    # return identically paginated responses.
+    # The only deviation is that we only return the results
+    # and not the full pagination object, as we expect
+    # that the pagination object generated by the ContentNodeViewset
+    # will be used to make subsequent page requests.
+    pagination_class = OptionalContentNodePagination
 
     def get_queryset(self):
         return models.ContentNode.objects.filter(available=True)
@@ -1265,6 +1273,9 @@ class ContentNodeProgressViewset(TreeQueryMixin, viewsets.GenericViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
+        page_queryset = self.paginate_queryset(queryset)
+        if page_queryset is not None:
+            queryset = page_queryset
         return self.generate_response(request, queryset)
 
     @detail_route(methods=["get"])
