@@ -196,7 +196,7 @@
         return 40;
       },
       maxDescriptionHeight() {
-        return 100;
+        return 64;
       },
       displayCategoryAndLevelMetadata() {
         if (this.category && this.level) {

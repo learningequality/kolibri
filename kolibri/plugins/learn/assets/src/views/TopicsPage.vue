@@ -66,6 +66,11 @@
             :text="coreString('folders')"
             appearance="flat-button"
             class="tab-button"
+            :style="!searchActive ? {
+              color: `${this.$themeTokens.primary} !important`,
+              borderBottom: `2px solid ${this.$themeTokens.primary}`,
+              paddingBottom: '2px',
+            } : {}"
             :appearanceOverrides="customTabButtonOverrides"
           />
           <KRouterLink
@@ -74,6 +79,11 @@
             :text="coreString('searchLabel')"
             appearance="flat-button"
             class="tab-button"
+            :style="searchActive ? {
+              color: `${this.$themeTokens.primary} !important`,
+              borderBottom: `2px solid ${this.$themeTokens.primary}`,
+              paddingBottom: '2px',
+            } : {}"
             :appearanceOverrides="customTabButtonOverrides"
           />
         </div>
@@ -113,7 +123,6 @@
           class="card-grid"
         >
           <div v-if="(windowIsMedium && searchActive)">
-            <!-- TO DO Marcella swap out new icon after KDS update -->
             <KButton
               icon="filter"
               class="filter-overlay-toggle-button"
@@ -243,6 +252,8 @@
         :topicsListDisplayed="!searchActive"
         topicPage="True"
         :topics="topics"
+        :activeActivityButtons="activeActivityButtons"
+        :activeCategories="activeCategories"
         :topicsLoading="topicMoreLoading"
         :more="topicMore"
         :genContentLink="genContentLink"
@@ -295,6 +306,8 @@
           :genContentLink="genContentLink"
           :width="`${sidePanelOverlayWidth}px`"
           :availableLabels="labels"
+          :activeActivityButtons="activeActivityButtons"
+          :activeCategories="activeCategories"
           :showChannels="false"
           position="overlay"
           @currentCategory="handleShowSearchModal"
@@ -419,7 +432,7 @@
     },
     data: function() {
       return {
-        stickyTop: '360px',
+        stickyTop: '364px',
         currentViewStyle: 'card',
         currentCategory: null,
         showSearchModal: false,
@@ -588,6 +601,12 @@
       // calls handleScroll no more than every 17ms
       throttledHandleScroll() {
         return throttle(this.stickyCalculation);
+      },
+      activeActivityButtons() {
+        return this.searchTerms.learning_activities;
+      },
+      activeCategories() {
+        return this.searchTerms.categories;
       },
       childrenToDisplay() {
         return this.windowIsLarge ? carouselLimit : mobileCarouselLimit;

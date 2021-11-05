@@ -49,10 +49,12 @@
           <KButton
             :text="$tr('allCategories')"
             appearance="flat-button"
+            :class="!!activeKeys.filter(k => k.includes('all_categories')).length ? 'active' : ''"
             :appearanceOverrides="customCategoryStyles"
             @click="allCategories"
           />
         </div>
+
         <div
           v-for="(category, val) in libraryCategoriesList"
           :key="category"
@@ -63,7 +65,10 @@
             :text="coreString(val)"
             appearance="flat-button"
             :appearanceOverrides="customCategoryStyles"
-            :disabled="availableRootCategories && !availableRootCategories[val]"
+            :disabled="availableRootCategories &&
+              !availableRootCategories[val] &&
+              !activeKeys.filter(k => k.includes(val)).length"
+            :class="!!activeKeys.filter(k => k.includes(val)).length ? 'active' : ''"
             iconAfter="chevronRight"
             @click="$emit('currentCategory', category)"
           />
@@ -76,12 +81,14 @@
             :text="coreString('None of the above')"
             appearance="flat-button"
             :appearanceOverrides="customCategoryStyles"
+            :class="!!activeKeys.filter(k => k.includes('no_categories')).length ? 'active' : ''"
             @click="noCategories"
           />
         </div>
       </div>
       <ActivityButtonsGroup
         :availableLabels="availableLabels"
+        :activeButtons="activeActivityButtons"
         class="section"
         @input="handleActivity"
       />
@@ -222,6 +229,16 @@
         type: Boolean,
         default: true,
       },
+      activeActivityButtons: {
+        type: Object,
+        required: false,
+        default: null,
+      },
+      activeCategories: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
     computed: {
       inputValue: {
@@ -280,6 +297,9 @@
           return needs;
         }
         return null;
+      },
+      activeKeys() {
+        return Object.keys(this.activeCategories);
       },
     },
     methods: {
@@ -361,6 +381,14 @@
 
   .section {
     margin-top: 40px;
+  }
+
+  .active {
+    background-color: rgb(235, 210, 235);
+    border: 2px !important;
+    border-color: #996189 !important;
+    border-style: solid !important;
+    border-radius: 4px !important;
   }
 
   .card-grid {

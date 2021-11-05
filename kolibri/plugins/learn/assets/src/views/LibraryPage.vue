@@ -66,7 +66,7 @@
           class="filter-action-button"
           @click="searchMore"
         />
-        <div v-if="!(windowBreakpoint < 1)" class="toggle-view-buttons">
+        <div v-if="!(windowBreakpoint < 1) && results.length" class="toggle-view-buttons">
           <KIconButton
             icon="menu"
             :ariaLabel="$tr('viewAsList')"
@@ -126,6 +126,8 @@
       :width="`${sidePanelWidth}px`"
       :availableLabels="labels"
       position="embedded"
+      :activeActivityButtons="activeActivityButtons"
+      :activeCategories="activeCategories"
       @currentCategory="handleShowSearchModal"
     />
     <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
@@ -308,12 +310,18 @@
       },
       numCols() {
         if (this.currentViewStyle === 'list' || this.windowBreakpoint < 1) {
-          return 1;
-        } else if (this.windowBreakpoint < 2) {
+          return null;
+        } else if (this.windowIsSmall) {
           return 2;
         } else {
           return 3;
         }
+      },
+      activeActivityButtons() {
+        return this.searchTerms.learning_activities;
+      },
+      activeCategories() {
+        return this.searchTerms.categories;
       },
     },
     created() {

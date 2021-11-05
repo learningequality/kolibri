@@ -22,7 +22,10 @@
       <KButton
         appearance="flat-button"
         :appearanceOverrides="customActivityStyles"
-        :disabled="availableActivities && !availableActivities[value]"
+        :disabled="availableActivities &&
+          !availableActivities[value] &&
+          !activeKeys.filter(k => k.includes(value)).length "
+        :class="!!activeKeys.filter(k => k.includes(value)).length ? 'active' : ''"
         @click="$emit('input', value)"
       >
         <KIcon :icon="activityIcon(activity)" class="activity-icon" />
@@ -68,6 +71,11 @@
         required: false,
         default: null,
       },
+      activeButtons: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
     computed: {
       learningActivitiesList() {
@@ -101,6 +109,9 @@
           return activities;
         }
         return null;
+      },
+      activeKeys() {
+        return Object.keys(this.activeButtons);
       },
     },
     methods: {
@@ -136,6 +147,14 @@
   .activity-button-text {
     margin: auto;
     margin-top: -12px;
+  }
+
+  .active {
+    background-color: rgb(235, 210, 235);
+    border: 2px !important;
+    border-color: #996189 !important;
+    border-style: solid !important;
+    border-radius: 4px !important;
   }
 
 </style>

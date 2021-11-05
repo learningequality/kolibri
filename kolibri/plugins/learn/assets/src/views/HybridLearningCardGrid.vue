@@ -2,7 +2,7 @@
 
   <div class="content-grid">
     <KFixedGrid
-      v-if="(cardViewStyle === 'card' && !windowIsSmall || numCols === 2)"
+      v-if="(cardViewStyle === 'card' && numCols)"
       :numCols="numCols"
       gutter="24"
     >
