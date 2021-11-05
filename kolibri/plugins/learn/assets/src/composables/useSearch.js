@@ -3,6 +3,7 @@ import { computed, getCurrentInstance, ref, watch } from 'kolibri.lib.vueComposi
 import { ContentNodeResource } from 'kolibri.resources';
 import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
 import { normalizeContentNode } from '../modules/coreLearn/utils';
+import useContentNodeProgress from './useContentNodeProgress';
 
 const searchKeys = [
   'learning_activities',
@@ -13,6 +14,8 @@ const searchKeys = [
   'languages',
   'grade_levels',
 ];
+
+const { fetchContentNodeProgress } = useContentNodeProgress();
 
 export default function useSearch(store, router) {
   // Get store and router references from the curent instance
@@ -113,6 +116,9 @@ export default function useSearch(store, router) {
       if (terms.keywords) {
         getParams.keywords = terms.keywords;
       }
+      if (store.getters.isUserLoggedIn) {
+        fetchContentNodeProgress(getParams);
+      }
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
         set(results, (data.results || []).map(normalizeContentNode));
         set(more, data.more);
@@ -136,6 +142,9 @@ export default function useSearch(store, router) {
   function searchMore() {
     if (get(displayingSearchResults) && get(more) && !get(moreLoading)) {
       set(moreLoading, true);
+      if (store.getters.isUserLoggedIn) {
+        fetchContentNodeProgress(get(more));
+      }
       return ContentNodeResource.fetchCollection({ getParams: get(more) }).then(data => {
         set(results, [...get(results), ...(data.results || []).map(normalizeContentNode)]);
         set(more, data.more);
