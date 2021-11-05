@@ -268,12 +268,8 @@
       },
     },
     created() {
-      ContentNodeResource.fetchNextContent(this.contentNodeId).then(data => {
-        this.nextContentNode = data;
-      });
-      ContentNodeResource.fetchRecommendationsFor(this.contentNodeId).then(data => {
-        this.recommendedContentNodes = data;
-      });
+      this.loadNextContent();
+      this.loadRecommendedContent();
     },
     beforeMount() {
       this.lastFocus = document.activeElement;
@@ -307,6 +303,16 @@
       window.setTimeout(() => this.lastFocus.focus());
     },
     methods: {
+      loadNextContent() {
+        ContentNodeResource.fetchNextContent(this.contentNodeId).then(data => {
+          this.nextContentNode = data;
+        });
+      },
+      loadRecommendedContent() {
+        ContentNodeResource.fetchRecommendationsFor(this.contentNodeId).then(data => {
+          this.recommendedContentNodes = data;
+        });
+      },
       genContentLink,
       emitCloseEvent() {
         this.$emit('close');

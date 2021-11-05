@@ -278,7 +278,7 @@ export default function useLearnerResources() {
     if (lessonResourceIdx === undefined) {
       return undefined;
     }
-    return genContentLink(resource.contentNodeId, true, null, {
+    return genContentLink(resource.contentNodeId, true, undefined, {
       lessonId: resource.lessonId,
       classId: resource.classId,
     });
