@@ -16,7 +16,7 @@ from six.moves.urllib.parse import urljoin
 # read the config file options
 port = OPTIONS["Deployment"]["HTTP_PORT"]
 path_prefix = OPTIONS["Deployment"]["URL_PATH_PREFIX"]
-redis_db = OPTIONS["Cache"]["CACHE_REDIS_MIN_DB"]
+redis_db = OPTIONS["Cache"]["CACHE_REDIS_DB"]
 
 if path_prefix != "/":
     path_prefix = "/" + path_prefix
@@ -64,7 +64,7 @@ def set_port(port):
     """
     Modify Kolibri options to set the TCP port the server will listen on
     """
-    update_options_file("Deployment", "HTTP_PORT", port, KOLIBRI_HOME)
+    update_options_file("Deployment", "HTTP_PORT", port)
 
 
 def disable_cherrypy():
@@ -73,7 +73,7 @@ def disable_cherrypy():
     Kolibri will only run background tasks.
     Web must be provided by an external server, usually uwsgi + nginx
     """
-    update_options_file("Server", "CHERRYPY_START", False, KOLIBRI_HOME)
+    update_options_file("Server", "CHERRYPY_START", False)
 
 
 def enable_cherrypy():
@@ -81,7 +81,7 @@ def enable_cherrypy():
     Enable internal kolibri web server.
     This option is incompatible with running kolibri-server
     """
-    update_options_file("Server", "CHERRYPY_START", True, KOLIBRI_HOME)
+    update_options_file("Server", "CHERRYPY_START", True)
 
 
 def delete_redis_cache():
@@ -113,19 +113,19 @@ def enable_redis_cache():
     It also limits redis memory usage to avoid server problems
     if the cache grows too much
     """
-    update_options_file("Cache", "CACHE_BACKEND", "redis", KOLIBRI_HOME)
-    update_options_file("Cache", "CACHE_REDIS_MAXMEMORY_POLICY", "allkeys-lru", KOLIBRI_HOME)
+    update_options_file("Cache", "CACHE_BACKEND", "redis")
+    update_options_file("Cache", "CACHE_REDIS_MAXMEMORY_POLICY", "allkeys-lru")
 
     delete_redis_cache()
     server_memory = psutil.virtual_memory().total
     max_memory = round(server_memory / 10)
-    helper = RedisSettingsHelper(process_cache.get_master_client())
-    redis_memory = helper.get_used_memory()
-    if max_memory < redis_memory:
-        max_memory = redis_memory + 2000
+    if hasattr(process_cache, "get_master_client"):
+        helper = RedisSettingsHelper(process_cache.get_master_client())
+        redis_memory = helper.get_used_memory()
+        if max_memory < redis_memory:
+            max_memory = redis_memory + 2000
 
-    update_options_file("Cache", "CACHE_REDIS_MAXMEMORY", max_memory, KOLIBRI_HOME)
-
+    update_options_file("Cache", "CACHE_REDIS_MAXMEMORY", max_memory)
 
 
 def disable_redis_cache():
@@ -133,7 +133,7 @@ def disable_redis_cache():
     Set memory as the cache backend .
     If redis is not active, enabling it will break kolibri
     """
-    update_options_file("Cache", "CACHE_BACKEND", "memory", KOLIBRI_HOME)
+    update_options_file("Cache", "CACHE_BACKEND", "memory")
 
 
 def check_redis_service():

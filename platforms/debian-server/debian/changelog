@@ -1,3 +1,10 @@
+kolibri-server (0.4.0-0ubuntu1) UNRELEASED; urgency=low
+
+  * New upstream release, compatible with kolibri 0.15.x
+  * Modify kolibri_server_setup to follow API changes
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Fri, 05 Nov 2021 18:45:08 +0100
+
 kolibri-server (0.3.8-0ubuntu1) bionic; urgency=high
 
   * Fix python code in kolibri_server_setup
