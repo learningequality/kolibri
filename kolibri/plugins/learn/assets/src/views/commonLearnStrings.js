@@ -68,6 +68,17 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Multiple learning activities',
     context: 'Label indicating the resource contains multiple learning activities',
   },
+
+  // TODO - move these into diff sections as we make this a full feature in 0.16
+  // Past Papers Project (12/2021) strings
+  quizLabel: {
+    message: 'Quiz',
+    context: 'Label to show that the practice resource can be interacted with as a quiz.',
+  },
+  suggestedTime: {
+    message: 'Suggested time',
+    context: 'Time suggested by coach for how long an independent practice quiz should take',
+  },
 });
 
 export default {

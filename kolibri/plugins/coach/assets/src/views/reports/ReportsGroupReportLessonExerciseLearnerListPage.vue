@@ -25,7 +25,7 @@
         <template #headers>
           <th>{{ coachString('nameLabel') }}</th>
           <th>{{ coreString('progressLabel') }}</th>
-          <th>{{ coachString('timeSpentLabel') }}</th>
+          <th>{{ coreString('timeSpentLabel') }}</th>
           <th>{{ coachString('groupsLabel') }}</th>
           <th>{{ coachString('lastActivityLabel') }}</th>
         </template>
