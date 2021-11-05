@@ -5,16 +5,10 @@ import useChannels from '../composables/useChannels';
 import useUser from '../composables/useUser';
 import useLearnerResources from '../composables/useLearnerResources';
 import { showTopicsTopic, showTopicsContent } from '../modules/topicsTree/handlers';
-import {
-  showLibrary,
-  showPopularPage,
-  showNextStepsPage,
-  showResumePage,
-} from '../modules/recommended/handlers';
+import { showLibrary } from '../modules/recommended/handlers';
 import { PageNames, ClassesPageNames } from '../constants';
 import LibraryPage from '../views/LibraryPage';
 import HomePage from '../views/HomePage';
-import RecommendedSubpage from '../views/RecommendedSubpage';
 import classesRoutes from './classesRoutes';
 
 const { channels, channelsMap } = useChannels();
@@ -102,9 +96,11 @@ export default [
       };
     },
   },
+  // Have to put TOPICS_TOPIC_SEARCH before TOPICS_TOPIC to ensure
+  // search gets picked up before being interpreted as a subtopic id.
   {
-    name: PageNames.TOPICS_TOPIC,
-    path: '/topics/t/:id',
+    name: PageNames.TOPICS_TOPIC_SEARCH,
+    path: '/topics/t/:id/search',
     handler: (toRoute, fromRoute) => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
@@ -118,8 +114,8 @@ export default [
     },
   },
   {
-    name: PageNames.TOPICS_TOPIC_SEARCH,
-    path: '/topics/t/:id/search',
+    name: PageNames.TOPICS_TOPIC,
+    path: '/topics/t/:id/:subtopic?',
     handler: (toRoute, fromRoute) => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
@@ -141,39 +137,6 @@ export default [
       }
       showTopicsContent(store, toRoute.params.id);
     },
-  },
-  {
-    name: PageNames.RECOMMENDED_POPULAR,
-    path: '/recommended/popular',
-    handler: () => {
-      if (unassignedContentGuard()) {
-        return unassignedContentGuard();
-      }
-      showPopularPage(store);
-    },
-    component: RecommendedSubpage,
-  },
-  {
-    name: PageNames.RECOMMENDED_RESUME,
-    path: '/recommended/resume',
-    handler: () => {
-      if (unassignedContentGuard()) {
-        return unassignedContentGuard();
-      }
-      showResumePage(store);
-    },
-    component: RecommendedSubpage,
-  },
-  {
-    name: PageNames.RECOMMENDED_NEXT_STEPS,
-    path: '/recommended/nextsteps',
-    handler: () => {
-      if (unassignedContentGuard()) {
-        return unassignedContentGuard();
-      }
-      showNextStepsPage(store);
-    },
-    component: RecommendedSubpage,
   },
   {
     name: PageNames.BOOKMARKS,

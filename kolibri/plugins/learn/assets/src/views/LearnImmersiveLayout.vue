@@ -50,7 +50,7 @@
         class="content"
         data-test="contentPage"
         :content="content"
-        :channelId="content.channel_id"
+        :lessonId="lessonId"
       />
     </div>
     <GlobalSnackbar />
@@ -197,6 +197,13 @@
       lessonContext() {
         return this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
       },
+      lessonId() {
+        if (this.back && this.back.params && this.back.params.length > 0) {
+          const params = this.back.params;
+          return params.lessonId ? params.lessonId : null;
+        }
+        return null;
+      },
     },
     beforeUpdate() {
       client({
@@ -209,7 +216,6 @@
     },
     methods: {
       navigateBack() {
-        // return to previous page using the route object set through props
         this.$router.push(this.back);
       },
       openSidePanel() {

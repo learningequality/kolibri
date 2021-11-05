@@ -27,14 +27,7 @@ describe('Bookmark Page', () => {
     createdSpy = jest.spyOn(BookmarkPage, 'created').mockImplementation(() => Promise.resolve());
     removeFromBookmarksSpy = jest.spyOn(BookmarkPage.methods, 'removeFromBookmarks');
 
-    wrapper = shallowMount(BookmarkPage, {
-      stubs: {
-        ContentCardGroupGrid: {
-          name: 'ContentCardGroupGrid',
-          template: '<div></div>',
-        },
-      },
-    });
+    wrapper = shallowMount(BookmarkPage);
     wrapper.setData({
       loading: false,
       more: true,

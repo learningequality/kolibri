@@ -2,13 +2,13 @@
 
   <div class="content-grid">
     <KFixedGrid
-      v-if="(cardViewStyle === 'card' && !windowIsSmall || numCols === 2)"
+      v-if="(cardViewStyle === 'card' && numCols)"
       :numCols="numCols"
       gutter="24"
     >
       <KFixedGridItem v-for="content in contents" :key="content.id" span="1">
         <HybridLearningContentCard
-          class="grid-item"
+          class="card-grid-item"
           :isMobile="windowIsSmall"
           :contentNode="content"
           :title="content.title"
@@ -16,9 +16,8 @@
           :kind="content.kind"
           :activityLength="content.duration"
           :isLeaf="content.is_leaf"
-          :progress="content.progress_fraction || 0"
           :numCoachContents="content.num_coach_contents"
-          :link="genContentLink(content.id, content.is_leaf)"
+          :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
           :contentId="content.content_id"
           :copiesCount="content.copies_count"
           :description="content.description"
@@ -39,14 +38,13 @@
         :description="content.description"
         :activityLength="content.duration"
         :thumbnail="content.thumbnail || getContentNodeThumbnail(content)"
-        class="grid-item"
+        class="card-grid-item"
         :isMobile="windowIsSmall"
         :title="content.title"
         :kind="content.kind"
         :isLeaf="content.is_leaf"
-        :progress="content.progress || content.progress_fraction || 0"
         :numCoachContents="content.num_coach_contents"
-        :link="genContentLink(content.id, content.is_leaf)"
+        :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
       />
     </div>
     <CardGrid
@@ -57,7 +55,7 @@
 
         :key="`resource-${idx}`"
         :contentNode="content"
-        :to="genContentLink(content.id, content.is_leaf)"
+        :to="genContentLink(content.id, content.is_leaf, backRoute, context)"
       />
     </CardGrid>
 
@@ -71,15 +69,14 @@
       :description="content.description"
       :activityLength="content.duration"
       :currentPage="currentPage"
-      class="grid-item"
+      class="card-grid-item"
       :isMobile="windowIsSmall"
       :title="content.title"
       :thumbnail="content.thumbnail"
       :kind="content.kind"
       :isLeaf="content.is_leaf"
-      :progress="content.progress_fraction || 0"
       :numCoachContents="content.num_coach_contents"
-      :link="genContentLink(content.id, content.is_leaf)"
+      :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
       :contentId="content.content_id"
       :copiesCount="content.copies_count"
       :footerIcons="footerIcons"
@@ -101,6 +98,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { PageNames } from '../constants';
   import genContentLink from '../utils/genContentLink';
@@ -161,11 +159,26 @@
       uniqueId: null,
     }),
     computed: {
+      ...mapState(['pageName']),
+      ...mapState('lessonPlaylist', ['currentLesson']),
       isBookmarksPage() {
-        return this.currentPage === PageNames.BOOKMARKS;
+        return this.pageName === PageNames.BOOKMARKS;
       },
       isLibraryPage() {
-        return this.currentPage === PageNames.LIBRARY;
+        return this.pageName === PageNames.LIBRARY;
+      },
+      context() {
+        let context = {};
+        if (this.currentLesson && this.currentLesson.classroom) {
+          context = {
+            lessonId: this.currentLesson.id,
+            classId: this.currentLesson.classroom.id,
+          };
+        }
+        return context;
+      },
+      backRoute() {
+        return this.pageName;
       },
     },
     methods: {
@@ -188,7 +201,7 @@
 
   $gutters: 16px;
 
-  .grid-item {
+  .card-grid-item {
     margin-bottom: $gutters;
   }
 

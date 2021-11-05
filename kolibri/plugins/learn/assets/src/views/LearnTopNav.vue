@@ -30,7 +30,7 @@
     >
       <!-- todo update icon -->
       <KIcon
-        icon="channel"
+        icon="library"
         style="top: 0; width: 24px; height: 24px;"
         :color="$themeTokens.textInverted"
       />

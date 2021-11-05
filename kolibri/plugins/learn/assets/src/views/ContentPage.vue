@@ -52,10 +52,7 @@
     <CompletionModal
       v-if="progress >= 1 && wasIncomplete"
       :isUserLoggedIn="isUserLoggedIn"
-      :nextContentNode="content.next_content"
-      :nextContentNodeRoute="nextContentNodeRoute"
-      :recommendedContentNodes="recommended"
-      :genContentLink="genContentLink"
+      :contentNodeId="content.id"
       @close="markAsComplete"
     />
   </div>
@@ -68,12 +65,11 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { ContentNodeResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { PageNames, ClassesPageNames } from '../constants';
+  import { ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
   import AssessmentWrapper from './AssessmentWrapper';
-  import { lessonResourceViewerLink } from './classes/classPageLinks';
   import commonLearnStrings from './commonLearnStrings';
+  import CompletionModal from './CompletionModal';
 
   export default {
     name: 'ContentPage',
@@ -91,6 +87,7 @@
     },
     components: {
       AssessmentWrapper,
+      CompletionModal,
     },
     mixins: [commonLearnStrings],
     props: {
@@ -100,6 +97,12 @@
         validator(val) {
           return val.kind && val.content_id;
         },
+      },
+      // only present when the content node is being viewed as part of lesson
+      lessonId: {
+        type: String,
+        required: false,
+        default: null,
       },
     },
     data() {
@@ -117,23 +120,6 @@
         extraFields: state => state.core.logging.extra_fields,
         fullName: state => state.core.session.full_name,
       }),
-      lessonId() {
-        // This should be undefined when not in a lesson
-        return this.$route.params.lessonId;
-      },
-      nextContentNodeRoute() {
-        // HACK Use a the Resource Viewer Link instead
-        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-          return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);
-        }
-        return {
-          name:
-            this.content.next_content.kind === ContentNodeKinds.TOPIC
-              ? PageNames.TOPICS_TOPIC
-              : PageNames.TOPICS_CONTENT,
-          params: { id: this.content.next_content.id },
-        };
-      },
     },
     created() {
       return this.initContentSession({

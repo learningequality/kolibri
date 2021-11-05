@@ -1134,6 +1134,7 @@ const nonconformingKeys = {
   digitalLiteracy: 'digitialLiteracy',
   BASIC_SKILLS: 'allLevelsBasicSkills',
   FOUNDATIONS: 'basicSkills',
+  toolsAndSoftwareTraining: 'softwareToolsAndTraining',
   FOUNDATIONS_LOGIC_AND_CRITICAL_THINKING: 'logicAndCriticalThinking',
 };
 
@@ -1174,8 +1175,12 @@ export default {
       const metadataKey = get(MetadataLookup, key, null);
       key = metadataKey ? camelCase(metadataKey) : key;
 
-      if (Object.keys(nonconformingKeys).includes(key)) {
+      if (nonconformingKeys[key]) {
         return coreStrings.$tr(nonconformingKeys[key], args);
+      }
+
+      if (nonconformingKeys[metadataKey]) {
+        return coreStrings.$tr(nonconformingKeys[metadataKey], args);
       }
 
       return coreStrings.$tr(key, args);

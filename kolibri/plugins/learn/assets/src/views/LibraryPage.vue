@@ -8,7 +8,7 @@
       <div v-if="!windowIsLarge">
         <!-- TO DO Marcella swap out new icon after KDS update -->
         <KButton
-          icon="channel"
+          icon="filter"
           :text="coreString('searchLabel')"
           :primary="false"
           @click="toggleSidePanelVisibility"
@@ -38,13 +38,15 @@
             @click="toggleCardView('card')"
           />
         </div>
-        <h2>{{ $tr('recent') }}</h2>
+        <h2 v-if="resumableContentNodes.length">
+          {{ $tr('recent') }}
+        </h2>
         <HybridLearningCardGrid
-          v-if="popular.length"
+          v-if="resumableContentNodes.length"
           :cardViewStyle="currentViewStyle"
           :numCols="numCols"
           :genContentLink="genContentLink"
-          :contents="trimmedPopular"
+          :contents="trimmedResume"
           :currentPage="currentPage"
           @toggleInfoPanel="toggleInfoPanel"
         />
@@ -66,7 +68,7 @@
           class="filter-action-button"
           @click="searchMore"
         />
-        <div v-if="!(windowBreakpoint < 1)" class="toggle-view-buttons">
+        <div v-if="!(windowBreakpoint < 1) && results.length" class="toggle-view-buttons">
           <KIconButton
             icon="menu"
             :ariaLabel="$tr('viewAsList')"
@@ -126,6 +128,8 @@
       :width="`${sidePanelWidth}px`"
       :availableLabels="labels"
       position="embedded"
+      :activeActivityButtons="activeActivityButtons"
+      :activeCategories="activeCategories"
       @currentCategory="handleShowSearchModal"
     />
     <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
@@ -200,15 +204,14 @@
 <script>
 
   import { mapState } from 'vuex';
-  import uniq from 'lodash/uniq';
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { ContentNodeProgressResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import genContentLink from '../utils/genContentLink';
   import { PageNames } from '../constants';
   import useSearch from '../composables/useSearch';
+  import useLearnerResources from '../composables/useLearnerResources';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
@@ -252,6 +255,7 @@
         clearSearch,
         setCategory,
       } = useSearch();
+      const { resumableContentNodes } = useLearnerResources();
       return {
         searchTerms,
         displayingSearchResults,
@@ -265,6 +269,7 @@
         removeFilterTag,
         clearSearch,
         setCategory,
+        resumableContentNodes,
       };
     },
     data: function() {
@@ -277,19 +282,12 @@
       };
     },
     computed: {
-      ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
       ...mapState(['rootNodes']),
       carouselLimit() {
         return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
       },
-      trimmedPopular() {
-        return this.popular.slice(0, this.carouselLimit);
-      },
-      trimmedNextSteps() {
-        return this.nextSteps.slice(0, this.carouselLimit);
-      },
       trimmedResume() {
-        return this.resume.slice(0, this.carouselLimit);
+        return this.resumableContentNodes.slice(0, this.carouselLimit);
       },
       currentPage() {
         return PageNames.LIBRARY;
@@ -308,35 +306,24 @@
       },
       numCols() {
         if (this.currentViewStyle === 'list' || this.windowBreakpoint < 1) {
-          return 1;
-        } else if (this.windowBreakpoint < 2) {
+          return null;
+        } else if (this.windowIsSmall) {
           return 2;
         } else {
           return 3;
         }
       },
+      activeActivityButtons() {
+        return this.searchTerms.learning_activities;
+      },
+      activeCategories() {
+        return this.searchTerms.categories;
+      },
     },
     created() {
       this.search();
-      if (this.$store.getters.isUserLoggedIn) {
-        const contentNodeIds = uniq(
-          [...this.trimmedNextSteps, ...this.trimmedPopular, ...this.trimmedResume].map(
-            ({ id }) => id
-          )
-        );
-
-        if (contentNodeIds.length > 0) {
-          ContentNodeProgressResource.fetchCollection({ getParams: { ids: contentNodeIds } }).then(
-            progresses => {
-              this.$store.commit('recommended/SET_RECOMMENDED_NODES_PROGRESS', progresses);
-            }
-          );
-        }
-      }
     },
     methods: {
-      /* eslint-disable kolibri/vue-no-unused-methods */
-      // TODO: Remove this if we're close to release and haven't used it
       genContentLink,
       handleShowSearchModal(value) {
         this.currentCategory = value;

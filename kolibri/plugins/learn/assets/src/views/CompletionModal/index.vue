@@ -112,7 +112,12 @@
                   <ResourceItem
                     data-test="recommended-resource"
                     :contentNode="contentNode"
-                    :contentNodeRoute="genContentLink(contentNode.id, contentNode.is_leaf)"
+                    :contentNodeRoute="genContentLink(
+                      contentNode.id,
+                      contentNode.is_leaf,
+                      $route.query.last,
+                      $route.query
+                    )"
                     :size="recommendedResourceItemSize"
                   />
                 </KGridItem>
@@ -141,9 +146,10 @@
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { MaxPointsPerContent } from 'kolibri.coreVue.vuex.constants';
-  import { validateLinkObject } from 'kolibri.utils.validators';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
+  import { ContentNodeResource } from 'kolibri.resources';
+  import genContentLink from '../../utils/genContentLink';
   import commonLearnStrings from '../commonLearnStrings';
   import CompletionModalSection from './CompletionModalSection';
   import ResourceItem from './ResourceItem';
@@ -178,51 +184,9 @@
         type: Boolean,
         required: true,
       },
-      /**
-       * If there is a resource following the current resource,
-       * "Keep going" section is displayed and a user can navigate
-       * to the next resource
-       */
-      nextContentNode: {
-        type: Object,
-        required: false,
-        default: null,
-      },
-      /**
-       * vue-router link object
-       * A next resource route that needs be provided
-       * when `nextContentNode` is provided
-       */
-      nextContentNodeRoute: {
-        type: Object,
-        required: false,
-        default: null,
-      },
-      /**
-       * If there is at least one resource in this array
-       * of recommended resources, "You may find helpful"
-       * section is displayed and a user can navigate to one
-       * of the resources.
-       */
-      recommendedContentNodes: {
-        type: Array,
-        required: false,
-        default: null,
-      },
-      /**
-       * A function that receives `content_node.id` and `content_node.is_leaf`
-       * and returns a vue-router link object for the content node
-       * used for generating target routes of recommended resources.
-       * It needs be provided when `recommendedContentNodes` are provided.
-       */
-      genContentLink: {
-        type: Function,
-        required: false,
-        default: () => null,
-        validator(fn) {
-          const link = fn(1, false);
-          return validateLinkObject(link);
-        },
+      contentNodeId: {
+        type: String,
+        required: true,
       },
     },
     data() {
@@ -233,6 +197,19 @@
         // where the focus was before opening the modal
         // so we can return it back after it's closed
         lastFocus: null,
+        /**
+         * If there is at least one resource in this array
+         * of recommended resources, "You may find helpful"
+         * section is displayed and a user can navigate to one
+         * of the resources.
+         */
+        recommendedContentNodes: [],
+        /**
+         * If there is a resource following the current resource,
+         * "Keep going" section is displayed and a user can navigate
+         * to the next resource
+         */
+        nextContentNode: null,
       };
     },
     computed: {
@@ -281,6 +258,18 @@
           return 'small';
         }
       },
+      nextContentNodeRoute() {
+        return this.genContentLink(
+          this.nextContentNode.id,
+          this.nextContentNode.is_leaf,
+          this.$route.query.last,
+          this.$route.query
+        );
+      },
+    },
+    created() {
+      this.loadNextContent();
+      this.loadRecommendedContent();
     },
     beforeMount() {
       this.lastFocus = document.activeElement;
@@ -314,6 +303,17 @@
       window.setTimeout(() => this.lastFocus.focus());
     },
     methods: {
+      loadNextContent() {
+        ContentNodeResource.fetchNextContent(this.contentNodeId).then(data => {
+          this.nextContentNode = data;
+        });
+      },
+      loadRecommendedContent() {
+        ContentNodeResource.fetchRecommendationsFor(this.contentNodeId).then(data => {
+          this.recommendedContentNodes = data;
+        });
+      },
+      genContentLink,
       emitCloseEvent() {
         this.$emit('close');
       },

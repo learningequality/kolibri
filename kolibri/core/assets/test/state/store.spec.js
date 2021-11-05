@@ -117,6 +117,26 @@ describe('Vuex store/actions for core module', () => {
         );
       }
     });
+    it('should not set a lessonId if the lessonId is a falsey value', async () => {
+      const store = makeStore();
+      const node_id = 'test_node_id';
+      const lesson_id = null;
+      client.__setPayload({
+        context: { node_id, lesson_id },
+      });
+      await store.dispatch('initContentSession', { nodeId: node_id, lessonId: lesson_id });
+      expect(client.mock.calls[0][0].data).toEqual({ node_id: node_id });
+    });
+    it('should not set a nodeId if the nodeId is a falsey value', async () => {
+      const store = makeStore();
+      const node_id = null;
+      const quiz_id = 'test-quiz-id';
+      client.__setPayload({
+        context: { node_id, quiz_id },
+      });
+      await store.dispatch('initContentSession', { nodeId: node_id, quizId: quiz_id });
+      expect(client.mock.calls[0][0].data).toEqual({ quiz_id: quiz_id });
+    });
     it('should set the logging state with the return data from the client', async () => {
       const store = makeStore();
       const session_id = 'test_session_id';

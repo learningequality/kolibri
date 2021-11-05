@@ -1,6 +1,5 @@
 import isPlainObject from 'lodash/isPlainObject';
 import { Resource } from 'kolibri.lib.apiResource';
-import Store from 'kolibri.coreVue.vuex.store';
 import urls from 'kolibri.urls';
 import cloneDeep from '../cloneDeep';
 import ConditionalPromise from '../conditionalPromise';
@@ -105,13 +104,13 @@ export default new Resource({
     return this.fetchDetailCollection('recommendations_for', id, getParams);
   },
   fetchResume(getParams, force) {
-    return this.fetchDetailCollection('resume', Store.getters.currentUserId, getParams, force);
+    return this.fetchListCollection('resume', getParams, force);
   },
   fetchPopular(getParams) {
     return this.fetchListCollection('popular', getParams);
   },
   fetchNextSteps(getParams) {
-    return this.fetchDetailCollection('next_steps', Store.getters.currentUserId, getParams);
+    return this.fetchListCollection('next_steps', getParams);
   },
   cache: {},
   fetchModel({ id }) {

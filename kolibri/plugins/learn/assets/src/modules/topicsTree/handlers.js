@@ -1,12 +1,14 @@
 import { get } from '@vueuse/core';
-import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
+import { ContentNodeResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
 import useChannels from '../../composables/useChannels';
+import useContentNodeProgress from '../../composables/useContentNodeProgress';
 import { _collectionState, normalizeContentNode, contentState } from '../coreLearn/utils';
 
 const { channelsMap } = useChannels();
+const { fetchContentNodeTreeProgress } = useContentNodeProgress();
 
 export function showTopicsContent(store, id) {
   store.commit('CORE_SET_PAGE_LOADING', true);
@@ -36,12 +38,16 @@ export function showTopicsContent(store, id) {
 export function showTopicsTopic(store, { id, pageName }) {
   return store.dispatch('loading').then(() => {
     store.commit('SET_PAGE_NAME', pageName);
+    const params = {
+      include_coach_content:
+        store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
+    };
+    if (store.getters.isUserLoggedIn) {
+      fetchContentNodeTreeProgress(id, params);
+    }
     return ContentNodeResource.fetchTree({
       id,
-      params: {
-        include_coach_content:
-          store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
-      },
+      params,
     }).only(
       samePageCheckGenerator(store),
       topic => {
@@ -69,17 +75,6 @@ export function showTopicsTopic(store, { id, pageName }) {
           topic: normalizeContentNode(topic),
           contents: _collectionState(children),
         });
-
-        // Only load contentnode progress if the user is logged in
-        if (store.getters.isUserLoggedIn) {
-          if (children.length > 0) {
-            ContentNodeProgressResource.fetchCollection({
-              getParams: { parent: id },
-            }).then(progresses => {
-              store.commit('topicsTree/SET_NODE_PROGRESS', progresses);
-            });
-          }
-        }
 
         store.dispatch('notLoading');
         store.commit('CORE_SET_ERROR', null);

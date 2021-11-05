@@ -165,6 +165,35 @@ class CharInFilter(BaseInFilter, CharFilter):
     pass
 
 
+contentnode_filter_fields = [
+    "parent",
+    "parent__isnull",
+    "prerequisite_for",
+    "has_prerequisite",
+    "related",
+    "exclude_content_ids",
+    "ids",
+    "content_id",
+    "channel_id",
+    "kind",
+    "include_coach_content",
+    "kind_in",
+    "contains_quiz",
+    "grade_levels",
+    "resource_types",
+    "learning_activities",
+    "accessibility_labels",
+    "categories",
+    "learner_needs",
+    "keywords",
+    "channels",
+    "languages",
+    "tree_id",
+    "lft__gt",
+    "rght__lt",
+]
+
+
 class ContentNodeFilter(IdFilter):
     kind = ChoiceFilter(
         method="filter_kind",
@@ -191,33 +220,7 @@ class ContentNodeFilter(IdFilter):
 
     class Meta:
         model = models.ContentNode
-        fields = [
-            "parent",
-            "parent__isnull",
-            "prerequisite_for",
-            "has_prerequisite",
-            "related",
-            "exclude_content_ids",
-            "ids",
-            "content_id",
-            "channel_id",
-            "kind",
-            "include_coach_content",
-            "kind_in",
-            "contains_quiz",
-            "grade_levels",
-            "resource_types",
-            "learning_activities",
-            "accessibility_labels",
-            "categories",
-            "learner_needs",
-            "keywords",
-            "channels",
-            "languages",
-            "tree_id",
-            "lft__gt",
-            "rght__lt",
-        ]
+        fields = contentnode_filter_fields
 
     def filter_kind(self, queryset, name, value):
         """
@@ -488,6 +491,39 @@ class OptionalContentNodePagination(ValuesViewsetCursorPagination):
         }
 
 
+def get_resume_queryset(request, queryset):
+    user = request.user
+    # if user is anonymous, don't return any nodes
+    # if person requesting is not the data they are requesting for, also return no nodes
+    if not user.is_facility_user:
+        queryset = queryset.none()
+    else:
+        # get the most recently viewed, but not finished, content nodes
+        # search for content nodes that currently exist in the database
+        content_ids = (
+            ContentSummaryLog.objects.filter(
+                content_id__in=models.ContentNode.objects.values_list(
+                    "content_id", flat=True
+                ).distinct()
+            )
+            .filter(user=user, progress__gt=0)
+            .exclude(progress=1)
+            .order_by("end_timestamp")
+            .values_list("content_id", flat=True)
+            .distinct()
+        )
+
+        # If no logs, don't bother doing the other queries
+        if not content_ids:
+            queryset = queryset.none()
+        else:
+            resume = queryset.filter_by_content_ids(
+                list(content_ids[:10]), validate=False
+            )
+            queryset = resume.dedupe_by_content_id(use_distinct=False)
+    return queryset
+
+
 @method_decorator(cache_forever, name="dispatch")
 class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
     pagination_class = OptionalContentNodePagination
@@ -650,24 +686,19 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
         )
         return Response(self.serialize(queryset))
 
-    @detail_route(methods=["get"])
+    @list_route(methods=["get"])
     def next_steps(self, request, **kwargs):
         """
         Recommend content that has user completed content as a prerequisite, or leftward sibling.
-        Note that this is a slightly smelly use of a detail route, as the id in question is not for
-        a contentnode, but rather for a user. Recommend we move recommendation endpoints to their own
-        endpoints in future.
 
         :param request: request object
-        :param pk: id of the user whose recommendations they are
         :return: uncompleted content nodes, or empty queryset if user is anonymous
         """
         user = request.user
-        user_id = kwargs.get("pk", None)
         queryset = self.get_queryset()
         # if user is anonymous, don't return any nodes
         # if person requesting is not the data they are requesting for, also return no nodes
-        if not user.is_facility_user or user.id != user_id:
+        if not user.is_facility_user:
             queryset = queryset.none()
         else:
             completed_content_ids = ContentSummaryLog.objects.filter(
@@ -763,66 +794,33 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
 
         return Response(data)
 
-    @detail_route(methods=["get"])
+    @list_route(methods=["get"])
     def resume(self, request, **kwargs):
         """
         Recommend content that the user has recently engaged with, but not finished.
-        Note that this is a slightly smelly use of a detail route, as the id in question is not for
-        a contentnode, but rather for a user. Recommend we move recommendation endpoints to their own
-        endpoints in future.
 
         :param request: request object
-        :param pk: id of the user whose recommendations they are
         :return: 10 most recently viewed content nodes
         """
-        user = request.user
-        user_id = kwargs.get("pk", None)
-        queryset = self.get_queryset()
-        # if user is anonymous, don't return any nodes
-        # if person requesting is not the data they are requesting for, also return no nodes
-        if not user.is_facility_user or user.id != user_id:
-            queryset = queryset.none()
-        else:
-            # get the most recently viewed, but not finished, content nodes
-            # search for content nodes that currently exist in the database
-            content_ids = (
-                ContentSummaryLog.objects.filter(
-                    content_id__in=models.ContentNode.objects.values_list(
-                        "content_id", flat=True
-                    ).distinct()
-                )
-                .filter(user=user)
-                .exclude(progress=1)
-                .order_by("end_timestamp")
-                .values_list("content_id", flat=True)
-                .distinct()
-            )
-
-            # If no logs, don't bother doing the other queries
-            if not content_ids:
-                queryset = queryset.none()
-            else:
-                resume = queryset.filter_by_content_ids(
-                    list(content_ids[:10]), validate=False
-                )
-                queryset = resume.dedupe_by_content_id(use_distinct=False)
+        queryset = get_resume_queryset(request, self.get_queryset())
 
         return Response(self.serialize(queryset))
 
 
-@method_decorator(cache_forever, name="dispatch")
-class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
-    # We fix the page size at 25 for a couple of reasons:
-    # 1. At this size the query appears to be relatively performant, and will deliver most of the tree
-    #    data to the frontend in a single query.
-    # 2. In the case where the tree topology means that this will not produce the full query, the limit of
-    #    25 immediate children and 25 grand children means that we are at most using 1 + 25 + 25 * 25 = 651
-    #    SQL parameters in the query to get the nodes for serialization - this means that we should not ever
-    #    run into an issue where we hit a SQL parameters limit in the queries in here.
-    # If we find that this page size is too high, we should lower it, but for the reasons noted above, we
-    # should not raise it.
-    page_size = 25
+# The max recursed page size should be less than 25 for a couple of reasons:
+# 1. At this size the query appears to be relatively performant, and will deliver most of the tree
+#    data to the frontend in a single query.
+# 2. In the case where the tree topology means that this will not produce the full query, the limit of
+#    25 immediate children and 25 grand children means that we are at most using 1 + 25 + 25 * 25 = 651
+#    SQL parameters in the query to get the nodes for serialization - this means that we should not ever
+#    run into an issue where we hit a SQL parameters limit in the queries in here.
+# If we find that this page size is too high, we should lower it, but for the reasons noted above, we
+# should not raise it.
+NUM_CHILDREN = 12
+NUM_GRANDCHILDREN_PER_CHILD = 12
 
+
+class TreeQueryMixin(object):
     def validate_and_return_params(self, request):
         depth = request.query_params.get("depth", 2)
         next__gt = request.query_params.get("next__gt")
@@ -843,9 +841,10 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
                 raise ValidationError(
                     "next__gt query parameter must be a positive integer if specified"
                 )
+
         return depth, next__gt
 
-    def get_grandchild_ids(self, child_ids, depth):
+    def get_grandchild_ids(self, child_ids, depth, page_size):
         if depth == 2:
             # Use this to keep track of how many grand children we have accumulated per child of the parent node
             gc_by_parent = {}
@@ -863,11 +862,37 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
                 # then we keep on adding them to both lists
                 # If not, we just skip this node, as we have already hit the page limit for the node that is
                 # its parent.
-                if len(gc_by_parent[gc["parent_id"]]) < self.page_size:
+                if len(gc_by_parent[gc["parent_id"]]) < page_size:
                     gc_by_parent[gc["parent_id"]].append(gc["id"])
                     yield gc["id"]
 
-    def retrieve(self, request, **kwargs):
+    def get_tree_queryset(self, request, pk):
+        # Get the model for the parent node here - we do this so that we trigger a 404 immediately if the node
+        # does not exist (or exists but is not available).
+        parent_id = pk if pk and self.get_queryset().filter(id=pk).exists() else None
+
+        if parent_id is None:
+            raise Http404
+        depth, next__gt = self.validate_and_return_params(request)
+
+        # Get a list of child_ids of the parent node up to the pagination limit
+        child_qs = self.get_queryset().filter(parent_id=parent_id)
+        if next__gt is not None:
+            child_qs = child_qs.filter(lft__gt=next__gt)
+        child_ids = child_qs.values_list("id", flat=True).order_by("lft")[
+            0:NUM_CHILDREN
+        ]
+
+        # Get a flat list of ids for grandchildren we will be returning
+        gc_ids = self.get_grandchild_ids(child_ids, depth, NUM_GRANDCHILDREN_PER_CHILD)
+        return self.filter_queryset(self.get_queryset()).filter(
+            Q(id=parent_id) | Q(id__in=child_ids) | Q(id__in=gc_ids)
+        )
+
+
+@method_decorator(cache_forever, name="dispatch")
+class ContentNodeTreeViewset(BaseContentNodeMixin, TreeQueryMixin, BaseValuesViewset):
+    def retrieve(self, request, pk=None):
         """
         A nested, paginated representation of the children and grandchildren of a specific node
 
@@ -891,31 +916,11 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
         :return: an object representing the parent with a pagination object as "children"
         """
 
-        # Get the model for the parent node here - we do this so that we trigger a 404 immediately if the node
-        # does not exist (or exists but is not available), and so that we have the Django model object later to
-        # use for the `get_ancestors` MPTT method.
-        parent_model = self.get_object()
-
-        depth, next__gt = self.validate_and_return_params(request)
-
-        # Get a list of child_ids of the parent node up to the pagination limit
-        child_qs = self.get_queryset().filter(parent=parent_model)
-        if next__gt is not None:
-            child_qs = child_qs.filter(lft__gt=next__gt)
-        child_ids = child_qs.values_list("id", flat=True).order_by("lft")[
-            0 : self.page_size
-        ]
-
-        # Get a flat list of ids for grandchildren we will be returning
-        gc_ids = self.get_grandchild_ids(child_ids, depth)
+        queryset = self.get_tree_queryset(request, pk)
 
         # We explicitly order by lft here, so that the nodes are in tree traversal order, so we can iterate over them and build
         # out our nested representation, being sure that any ancestors have already been processed.
-        nodes = self.serialize(
-            self.filter_queryset(self.get_queryset())
-            .filter(Q(id=parent_model.id) | Q(id__in=child_ids) | Q(id__in=gc_ids))
-            .order_by("lft")
-        )
+        nodes = self.serialize(queryset.order_by("lft"))
 
         # The serialized parent representation is the first node in the lft order
         parent = nodes[0]
@@ -929,7 +934,7 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
         for desc in nodes[1:]:
             # First check to see whether it is a direct child of the
             # parent node that we initially queried
-            if desc["parent"] == parent_model.id:
+            if desc["parent"] == pk:
                 # If so add them to the children_by_id map so that
                 # grandchildren descendants can reference them later
                 children_by_id[desc["id"]] = desc
@@ -939,6 +944,9 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
                 # When we request more results for pagination, we want to return
                 # both nodes at this level, and the nodes at the lower level
                 more_depth = 2
+                # For the parent node the page size is the maximum number of children
+                # we are returning (regardless of whether they have a full representation)
+                page_size = NUM_CHILDREN
             elif desc["parent"] in children_by_id:
                 # Otherwise, check to see if our descendant's parent is in the
                 # children_by_id map - if it failed the first condition,
@@ -947,6 +955,9 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
                 # When we request more results for pagination, we only want to return
                 # nodes at this level, and not any of its children
                 more_depth = 1
+                # For a child node, the page size is the maximum number of grandchildren
+                # per node that we are returning if it is a recursed node
+                page_size = NUM_GRANDCHILDREN_PER_CHILD
             else:
                 # If we get to here, we have a node that is not in the tree subsection we are
                 # trying to return, so we just ignore it. This shouldn't happen.
@@ -959,7 +970,7 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, BaseValuesViewset):
             desc_parent["children"]["results"].append(desc)
             # Only bother updating the URL for more if we have hit the page size limit
             # otherwise it will just continue to be None
-            if len(desc_parent["children"]["results"]) == self.page_size:
+            if len(desc_parent["children"]["results"]) == page_size:
                 # Any subsequent queries to get siblings of this node can restrict themselves
                 # to looking for nodes with lft greater than the rght value of this descendant
                 next__gt = desc["rght"]
@@ -1202,8 +1213,9 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
         return Response(parent_data)
 
 
-class ContentNodeProgressFilter(IdFilter):
+class ContentNodeProgressFilter(ContentNodeFilter):
     lesson = UUIDFilter(method="filter_by_lesson")
+    resume = BooleanFilter(method="filter_by_resume")
 
     def filter_by_lesson(self, queryset, name, value):
         try:
@@ -1213,9 +1225,12 @@ class ContentNodeProgressFilter(IdFilter):
         except Lesson.DoesNotExist:
             return queryset.none()
 
+    def filter_by_resume(self, queryset, name, value):
+        return get_resume_queryset(self.request, queryset)
+
     class Meta:
         model = models.ContentNode
-        fields = ["ids", "parent", "lesson"]
+        fields = contentnode_filter_fields + ["resume", "lesson"]
 
 
 def mean(data):
@@ -1229,80 +1244,44 @@ def mean(data):
     return mean
 
 
-class ContentNodeProgressViewset(ReadOnlyValuesViewset):
+class ContentNodeProgressViewset(TreeQueryMixin, viewsets.GenericViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ContentNodeProgressFilter
-
-    values = (
-        "id",
-        "kind",
-        "lft",
-        "rght",
-        "tree_id",
-        "content_id",
-    )
+    # Use same pagination class as ContentNodeViewset so we can
+    # return identically paginated responses.
+    # The only deviation is that we only return the results
+    # and not the full pagination object, as we expect
+    # that the pagination object generated by the ContentNodeViewset
+    # will be used to make subsequent page requests.
+    pagination_class = OptionalContentNodePagination
 
     def get_queryset(self):
-        return models.ContentNode.objects.all()
+        return models.ContentNode.objects.filter(available=True)
 
-    def consolidate(self, items, queryset):
-
-        leaves = (
-            queryset.get_descendants(include_self=True)
-            .order_by()
-            .exclude(available=False)
-            .exclude(kind=content_kinds.TOPIC)
-            .values("content_id", "lft", "rght", "tree_id")
+    def generate_response(self, request, queryset):
+        if request.user.is_anonymous():
+            return Response([])
+        logs = list(
+            ContentSummaryLog.objects.filter(
+                user=self.request.user,
+                content_id__in=queryset.exclude(kind=content_kinds.TOPIC).values_list(
+                    "content_id", flat=True
+                ),
+            ).values("content_id", "progress")
         )
+        return Response(logs)
 
-        leaf_content_ids = [c["content_id"] for c in leaves]
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page_queryset = self.paginate_queryset(queryset)
+        if page_queryset is not None:
+            queryset = page_queryset
+        return self.generate_response(request, queryset)
 
-        progress_lookup = {}
-
-        if not self.request.user.is_anonymous():
-            # if there are too many leaf_content_ids we'll have a
-            # 'too many SQL variables' errors in sqlite
-            # so we batch the leaf ids here:
-            total = len(leaf_content_ids)
-            i = 0
-            batch_size = 998
-            while i < total:
-                leaf_content_ids_batch = leaf_content_ids[i : i + batch_size]
-                logs = ContentSummaryLog.objects.filter(
-                    user=self.request.user, content_id__in=leaf_content_ids_batch
-                )
-                for log in logs.values("content_id", "progress"):
-                    progress_lookup[log["content_id"]] = round(log["progress"], 4)
-
-                i += batch_size
-
-        output = []
-
-        for item in items:
-            out_item = {
-                "id": item["id"],
-            }
-            if item["kind"] == content_kinds.TOPIC:
-                topic_leaves = filter(
-                    lambda x: x["lft"] > item["lft"]
-                    and x["rght"] < item["rght"]
-                    and x["tree_id"] == item["tree_id"],
-                    leaves,
-                )
-
-                out_item["progress_fraction"] = round(
-                    mean(
-                        progress_lookup.get(leaf["content_id"], 0)
-                        for leaf in topic_leaves
-                    ),
-                    4,
-                )
-            else:
-                out_item["progress_fraction"] = progress_lookup.get(
-                    item["content_id"], 0.0
-                )
-            output.append(out_item)
-        return output
+    @detail_route(methods=["get"])
+    def tree(self, request, pk=None):
+        queryset = self.get_tree_queryset(request, pk)
+        return self.generate_response(request, queryset)
 
 
 class FileViewset(viewsets.ReadOnlyModelViewSet):
