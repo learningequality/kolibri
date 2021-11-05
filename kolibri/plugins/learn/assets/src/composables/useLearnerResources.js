@@ -13,6 +13,7 @@ import { ContentNodeResource } from 'kolibri.resources';
 import genContentLink from '../utils/genContentLink';
 import { LearnerClassroomResource } from '../apiResources';
 import { PageNames, ClassesPageNames } from '../constants';
+import { normalizeContentNode } from '../modules/coreLearn/utils';
 import useContentNodeProgress from './useContentNodeProgress';
 
 // The refs are defined in the outer scope so they can be used as a shared store
@@ -340,7 +341,7 @@ export default function useLearnerResources() {
       if (!contentNodes || !contentNodes.length) {
         return [];
       }
-      set(resumableContentNodes, contentNodes);
+      set(resumableContentNodes, contentNodes.map(normalizeContentNode));
       return contentNodes;
     });
   }
