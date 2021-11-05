@@ -318,11 +318,9 @@
         }
       },
       activeActivityButtons() {
-        console.log(this.searchTerms.learning_activities);
         return this.searchTerms.learning_activities;
       },
       activeCategories() {
-        console.log(this.searchTerms.categories);
         return this.searchTerms.categories;
       },
     },
