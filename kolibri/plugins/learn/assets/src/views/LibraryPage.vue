@@ -38,7 +38,9 @@
             @click="toggleCardView('card')"
           />
         </div>
-        <h2>{{ $tr('recent') }}</h2>
+        <h2 v-if="resumableContentNodes.length">
+          {{ $tr('recent') }}
+        </h2>
         <HybridLearningCardGrid
           v-if="resumableContentNodes.length"
           :cardViewStyle="currentViewStyle"
