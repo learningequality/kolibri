@@ -140,19 +140,13 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
         if self.kolibri_daemon.is_started() and not self.__was_target_url_ever_loaded:
             self.present_window()
             self.__was_target_url_ever_loaded = True
-
-    def get_current_or_target_url(self) -> str:
-        if self.kolibri_daemon.is_started() and self.__was_target_url_ever_loaded:
-            return self.get_url()
-        else:
-            return self.__target_url
+            self.on_kolibri_started()
 
     def open_window(self):
         self.delegate.open_window(None)
 
     def open_in_browser(self):
-        url = self.get_current_or_target_url()
-        self.delegate.open_in_browser(url)
+        self.delegate.open_in_browser(self.get_url())
 
     def open_kolibri_home(self):
         self.delegate.open_kolibri_home()
