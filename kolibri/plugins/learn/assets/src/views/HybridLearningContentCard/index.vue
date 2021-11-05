@@ -64,21 +64,12 @@
         />
         <KIconButton
           v-if="isLeaf"
-          icon="infoPrimary"
+          icon="infoOutline"
           size="mini"
-          :color="$themePalette.grey.v_400"
+          :color="$themePalette.grey.v_600"
           :ariaLabel="coreString('viewInformation')"
           :tooltip="coreString('viewInformation')"
           @click="$emit('toggleInfoPanel')"
-        />
-        <KIconButton
-          icon="optionsVertical"
-          class="info-icon"
-          size="mini"
-          :color="$themePalette.grey.v_400"
-          :ariaLabel="coreString('moreOptions')"
-          :tooltip="coreString('moreOptions')"
-          @click="$emit('toggleOptions')"
         />
         <KButton
           v-if="copiesCount > 1"

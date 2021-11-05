@@ -5,7 +5,7 @@
       <span>
         <p class="filter-chip-text">{{ item.text }}</p>
         <KIconButton
-          icon="close"
+          icon="delete"
           size="mini"
           class="filter-chip-button"
           @click="$emit('removeItem', item)"
@@ -119,14 +119,10 @@
   }
 
   .filter-chip-button {
-    padding-top: 4px;
+    min-width: 24px !important;
     margin: 2px;
     color: #dadada;
     vertical-align: middle;
-    /deep/ svg {
-      width: 20px;
-      height: 20px;
-    }
   }
 
 </style>
