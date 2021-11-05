@@ -102,9 +102,11 @@ export default [
       };
     },
   },
+  // Have to put TOPICS_TOPIC_SEARCH before TOPICS_TOPIC to ensure
+  // search gets picked up before being interpreted as a subtopic id.
   {
-    name: PageNames.TOPICS_TOPIC,
-    path: '/topics/t/:id',
+    name: PageNames.TOPICS_TOPIC_SEARCH,
+    path: '/topics/t/:id/search',
     handler: (toRoute, fromRoute) => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
@@ -118,8 +120,8 @@ export default [
     },
   },
   {
-    name: PageNames.TOPICS_TOPIC_SEARCH,
-    path: '/topics/t/:id/search',
+    name: PageNames.TOPICS_TOPIC,
+    path: '/topics/t/:id/:subtopic?',
     handler: (toRoute, fromRoute) => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();

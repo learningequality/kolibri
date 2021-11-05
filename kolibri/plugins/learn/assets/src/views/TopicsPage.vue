@@ -10,13 +10,22 @@
       <div v-if="!windowIsSmall" class="header">
         <KGrid>
           <KGridItem
+            v-if="!displayingSearchResults"
+            class="breadcrumbs"
             :layout4="{ span: 4 }"
             :layout8="{ span: 8 }"
             :layout12="{ span: 12 }"
           >
-            <h3 class="title">
+            <slot name="breadcrumbs"></slot>
+          </KGridItem>
+          <KGridItem
+            :layout4="{ span: 4 }"
+            :layout8="{ span: 8 }"
+            :layout12="{ span: 12 }"
+          >
+            <h1 class="title">
               {{ topic.title }}
-            </h3>
+            </h1>
           </KGridItem>
 
           <KGridItem
@@ -113,27 +122,6 @@
         <div
           class="card-grid"
         >
-          <!-- folder selection dropdown menu for small resolutions -->
-          <KSelect
-            v-if="showFoldersDropdown && topics.length"
-            :options="topicOptionsList"
-            :value="selected"
-            :label="coreString('folders')"
-            class="selector"
-            @change="updateFolder($event.value)"
-          />
-          <!-- breadcrumbs - for large screens, or when there are no more folders -->
-          <KGrid v-if="!showFoldersDropdown && !displayingSearchResults">
-            <KGridItem
-              class="breadcrumbs"
-              :layout4="{ span: 4 }"
-              :layout8="{ span: 8 }"
-              :layout12="{ span: 12 }"
-            >
-              <slot name="breadcrumbs"></slot>
-            </KGridItem>
-          </KGrid>
-
           <div v-if="(windowIsMedium && searchActive)">
             <KButton
               icon="filter"
@@ -146,7 +134,7 @@
           <!-- default/preview display of nested folder structure, not search -->
           <div v-if="!displayingSearchResults">
             <!-- display for each nested topic/folder  -->
-            <div v-for="t in topics" :key="t.id">
+            <div v-for="t in topicsForDisplay" :key="t.id">
               <!-- header link to folder -->
               <h2>
                 <KRouterLink
@@ -159,23 +147,53 @@
               </h2>
               <!-- card grid of items in folder -->
               <HybridLearningCardGrid
-                v-if="t.children.results && t.children.results.length"
-                :contents="trimmedTopicsList(t.children.results)"
+                v-if="t.children && t.children.length"
+                :contents="t.children"
                 :numCols="numCols"
                 :genContentLink="genContentLink"
                 cardViewStyle="card"
                 @toggleInfoPanel="toggleInfoPanel"
               />
+              <KButton
+                v-if="t.showMore"
+                class="more-after-grid"
+                appearance="basic-link"
+                @click="handleShowMore(t.id)"
+              >
+                {{ $tr('showMore') }}
+              </KButton>
+              <KRouterLink v-else-if="t.viewAll" class="more-after-grid" :to="t.viewAll">
+                {{ $tr('viewAll') }}
+              </KRouterLink>
+              <KButton
+                v-else-if="t.viewMore && t.id !== subTopicLoading"
+                class="more-after-grid"
+                appearance="basic-link"
+                @click="handleLoadMoreinSubtopic(t.id)"
+              >
+                {{ coreString('viewMoreAction') }}
+              </KButton>
+              <KCircularLoader v-if="t.id === subTopicLoading" />
             </div>
             <!-- search results -->
             <HybridLearningCardGrid
               v-if="resources.length"
-              :contents="trimmedTopicsList(resources)"
+              :contents="resources"
               :numCols="numCols"
               :genContentLink="genContentLink"
               cardViewStyle="card"
               @toggleInfoPanel="toggleInfoPanel"
             />
+            <div v-if="topicMore" class="end-button-block">
+              <KButton
+                v-if="!topicMoreLoading"
+                :text="coreString('viewMoreAction')"
+                appearance="raised-button"
+                :disabled="topicMoreLoading"
+                @click="handleLoadMoreInTopic"
+              />
+              <KCircularLoader v-else />
+            </div>
           </div>
           <div v-else-if="!searchLoading" class="results-title">
             <h2 class="results-title">
@@ -194,7 +212,7 @@
               @removeItem="removeFilterTag"
               @clearSearch="clearSearch"
             />
-            <!-- results display -->
+            <!-- search results display -->
             <HybridLearningCardGrid
               v-if="results.length"
               :numCols="numCols"
@@ -203,14 +221,17 @@
               :contents="results"
               @toggleInfoPanel="toggleInfoPanel"
             />
-            <KButton
-              v-if="more"
-              :text="coreString('viewMoreAction')"
-              appearance="basic-link"
-              :disabled="moreLoading"
-              class="filter-action-button"
-              @click="searchMore"
-            />
+            <div v-if="more" class="end-button-block">
+              <KButton
+                v-if="moreLoading"
+                :text="coreString('viewMoreAction')"
+                appearance="basic-link"
+                :disabled="moreLoading"
+                class="filter-action-button"
+                @click="searchMore"
+              />
+              <KCircularLoader v-else />
+            </div>
           </div>
           <div v-else>
             <KCircularLoader
@@ -233,6 +254,8 @@
         :topics="topics"
         :activeActivityButtons="activeActivityButtons"
         :activeCategories="activeCategories"
+        :topicsLoading="topicMoreLoading"
+        :more="topicMore"
         :genContentLink="genContentLink"
         :width="`${sidePanelWidth}px`"
         :availableLabels="labels"
@@ -243,6 +266,7 @@
                   paddingTop: '24px',
                   paddingBottom: '200px' }"
         @currentCategory="handleShowSearchModal"
+        @loadMoreTopics="handleLoadMoreInTopic"
       />
       <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
       <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
@@ -252,7 +276,7 @@
         class="full-screen-side-panel"
         :closeButtonHidden="true"
         :sidePanelOverrideWidth="`${sidePanelOverlayWidth + 64}px`"
-        @closePanel="$router.push(searchLink)"
+        @closePanel="$router.push(currentLink)"
       >
         <KIconButton
           v-if="windowIsSmall && !currentCategory"
@@ -261,7 +285,7 @@
           :ariaLabel="coreString('closeAction')"
           :color="$themeTokens.text"
           :tooltip="coreString('closeAction')"
-          @click="$router.push(searchLink)"
+          @click="$router.push(currentLink)"
         />
         <KIconButton
           v-if="windowIsSmall && currentCategory"
@@ -274,6 +298,12 @@
         <EmbeddedSidePanel
           v-if="!currentCategory"
           v-model="searchTerms"
+          :topicsListDisplayed="!searchActive"
+          topicPage="True"
+          :topics="topics"
+          :topicsLoading="topicMoreLoading"
+          :more="topicMore"
+          :genContentLink="genContentLink"
           :width="`${sidePanelOverlayWidth}px`"
           :availableLabels="labels"
           :activeActivityButtons="activeActivityButtons"
@@ -281,6 +311,7 @@
           :showChannels="false"
           position="overlay"
           @currentCategory="handleShowSearchModal"
+          @loadMoreTopics="handleLoadMoreInTopic"
         />
         <CategorySearchModal
           v-if="currentCategory && windowIsSmall"
@@ -316,7 +347,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapActions, mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -406,22 +437,22 @@
         currentCategory: null,
         showSearchModal: false,
         sidePanelContent: null,
+        expandedTopics: {},
+        subTopicLoading: null,
+        topicMoreLoading: false,
       };
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
-      showFoldersDropdown() {
-        return this.$route.query.dropdown === 'true';
-      },
       sidePanelIsOpen() {
-        return this.$route.query.searchPanel === 'true';
+        return this.$route.query.sidePanel === 'true';
       },
       foldersLink() {
         if (this.topic) {
           const query = {};
           if (this.windowIsSmall || this.windowIsMedium) {
-            query.dropdown = String(
-              this.$route.name === PageNames.TOPICS_TOPIC ? !this.showFoldersDropdown : true
+            query.sidePanel = String(
+              this.$route.name === PageNames.TOPICS_TOPIC ? !this.sidePanelIsOpen : true
             );
           }
           return {
@@ -436,7 +467,7 @@
         if (this.topic) {
           const query = { ...this.$route.query };
           if (this.windowIsSmall || this.windowIsMedium) {
-            query.searchPanel = String(
+            query.sidePanel = String(
               this.$route.name === PageNames.TOPICS_TOPIC_SEARCH ? !this.sidePanelIsOpen : true
             );
           }
@@ -449,6 +480,9 @@
         }
         return {};
       },
+      currentLink() {
+        return this.searchActive ? this.searchLink : this.foldersLink;
+      },
       searchActive() {
         return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;
       },
@@ -456,16 +490,68 @@
         return this.channel.title;
       },
       resources() {
-        return this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
+        const resources = this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
+        // If there are no topics, then just display all resources we have loaded.
+        if (!this.topics.length) {
+          return resources;
+        }
+        return resources.slice(0, this.childrenToDisplay);
       },
       topics() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
       },
-      topicOptionsList() {
-        return this.topics.map(topic => ({
-          value: topic.id,
-          label: topic.title,
-        }));
+      topicsForDisplay() {
+        return this.topics
+          .filter(t =>
+            this.subTopicId ? t.id === this.subTopicId : t.children && t.children.results.length
+          )
+          .map(t => {
+            let childrenToDisplay;
+            const topicChildren = t.children ? t.children.results : [];
+            if (this.subTopicId) {
+              // If we are in a subtopic display, we should only be displaying this topic
+              // so don't bother checking if the ids match.
+              childrenToDisplay = topicChildren.length;
+            } else if (this.expandedTopics[t.id]) {
+              // If topic is expanded show three times as many children.
+              childrenToDisplay = this.childrenToDisplay * 3;
+            } else {
+              childrenToDisplay = this.childrenToDisplay;
+            }
+            const children = topicChildren.slice(0, childrenToDisplay).map(normalizeContentNode);
+            // showMore is whether we should show more inline
+            const showMore =
+              !this.subTopicId &&
+              topicChildren.length > this.childrenToDisplay &&
+              !this.expandedTopics[t.id];
+
+            // viewMore is the 'more' object that will be used to load more items from this topic.
+            const viewMore = t.children ? t.children.more : null;
+
+            // viewAll is a flag + link object to link to a subpage which shows all initially
+            // loaded topics content
+            const viewAll =
+              !this.subTopicId && (topicChildren.length > childrenToDisplay || viewMore)
+                ? {
+                    ...this.$route,
+                    params: {
+                      ...this.$route.params,
+                      subtopic: t.id,
+                    },
+                  }
+                : null;
+
+            return {
+              ...t,
+              viewAll,
+              children,
+              showMore,
+              viewMore,
+            };
+          });
+      },
+      subTopicId() {
+        return this.$route.params.subtopic;
       },
       currentChannelIsCustom() {
         if (
@@ -476,9 +562,6 @@
           return true;
         }
         return false;
-      },
-      selected(value) {
-        return this.topicOptionsList.find(t => t.value === value) || {};
       },
       customTabButtonOverrides() {
         return {
@@ -525,10 +608,21 @@
       activeCategories() {
         return this.searchTerms.categories;
       },
+      childrenToDisplay() {
+        return this.windowIsLarge ? carouselLimit : mobileCarouselLimit;
+      },
+      topicMore() {
+        return this.topic.children && this.topic.children.more;
+      },
     },
     watch: {
       topic() {
         this.setSearchWithinDescendant(this.topic);
+      },
+      subTopicId(newValue, oldValue) {
+        if (newValue && newValue !== oldValue) {
+          this.handleLoadMoreinSubtopic(newValue);
+        }
       },
     },
     beforeDestroy() {
@@ -539,8 +633,12 @@
       window.addEventListener('scroll', this.throttledHandleScroll);
       this.setSearchWithinDescendant(this.topic);
       this.search();
+      if (this.subTopicId) {
+        this.handleLoadMoreinSubtopic(this.subTopicId);
+      }
     },
     methods: {
+      ...mapActions('topicsTree', ['loadMoreContents', 'loadMoreTopics']),
       genContentLink,
       handleShowSearchModal(value) {
         this.currentCategory = value;
@@ -553,20 +651,6 @@
       handleCategory(category) {
         this.setCategory(category);
         this.currentCategory = null;
-      },
-      trimmedTopicsList(contents) {
-        // if more folders, display limited preview
-        if (this.topics.length > 0) {
-          return contents
-            .slice(0, !this.windowIsLarge ? mobileCarouselLimit : carouselLimit)
-            .map(normalizeContentNode);
-          // if we have reached the end of the folder, show all contents
-        } else {
-          return contents.map(normalizeContentNode);
-        }
-      },
-      updateFolder(id) {
-        this.$router.push(genContentLink(id));
       },
       toggleInfoPanel(content) {
         this.sidePanelContent = content;
@@ -584,6 +668,24 @@
           null;
         }
       },
+      handleShowMore(topicId) {
+        this.expandedTopics = {
+          ...this.expandedTopics,
+          [topicId]: true,
+        };
+      },
+      handleLoadMoreinSubtopic(topicId) {
+        this.subTopicLoading = topicId;
+        this.loadMoreContents(topicId).then(() => {
+          this.subTopicLoading = null;
+        });
+      },
+      handleLoadMoreInTopic() {
+        this.topicMoreLoading = true;
+        this.loadMoreTopics().then(() => {
+          this.topicMoreLoading = false;
+        });
+      },
     },
     $trs: {
       documentTitleForChannel: {
@@ -594,6 +696,14 @@
       documentTitleForTopic: {
         message: '{ topicTitle } - { channelTitle }',
         context: 'DO NOT TRANSLATE\nCopy the source string.',
+      },
+      showMore: {
+        message: 'Show more',
+        context: 'Clickable link which allows to load more resources.',
+      },
+      viewAll: {
+        message: 'View all',
+        context: 'Clickable link which allows to display all resources in a topic.',
       },
     },
   };
@@ -702,6 +812,16 @@
     position: absolute;
     top: 8px;
     right: 24px;
+  }
+
+  .more-after-grid {
+    margin-bottom: 16px;
+  }
+
+  .end-button-block {
+    width: 100%;
+    margin-top: 16px;
+    text-align: center;
   }
 
 </style>

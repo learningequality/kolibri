@@ -13343,9 +13343,9 @@ function _classCallCheck(instance, Constructor) {
 // This represents the type returned by String.match(). It is an
 // array of strings, but also has index:number and input:string properties.
 // Flow doesn't handle it well, so we punt and just use any.
-var babelPluginFlowReactPropTypes_proptype_TreeNode = __webpack_require__(70).babelPluginFlowReactPropTypes_proptype_TreeNode || __webpack_require__(0).PropTypes.any;
+var babelPluginFlowReactPropTypes_proptype_TreeNode = __webpack_require__(69).babelPluginFlowReactPropTypes_proptype_TreeNode || __webpack_require__(0).PropTypes.any;
 
-var babelPluginFlowReactPropTypes_proptype_TraversalState = __webpack_require__(70).babelPluginFlowReactPropTypes_proptype_TraversalState || __webpack_require__(0).PropTypes.any;
+var babelPluginFlowReactPropTypes_proptype_TraversalState = __webpack_require__(69).babelPluginFlowReactPropTypes_proptype_TraversalState || __webpack_require__(0).PropTypes.any;
 
 // This is the return type of the check() method of a Rule object
 // This is the return type of the lint detection function passed as the 4th
@@ -13828,7 +13828,7 @@ var QuestionParagraph = __webpack_require__(328);
 
 var SvgImage = __webpack_require__(53);
 
-var TeX = __webpack_require__(71);
+var TeX = __webpack_require__(70);
 
 var WidgetContainer = __webpack_require__(329);
 
@@ -15636,7 +15636,7 @@ var React = __webpack_require__(0);
 
 var KeyConfigs = __webpack_require__(39);
 
-var CursorContexts = __webpack_require__(72);
+var CursorContexts = __webpack_require__(71);
 
 var _require = __webpack_require__(20), BorderDirections = _require.BorderDirections, EchoAnimationTypes = _require.EchoAnimationTypes, IconTypes = _require.IconTypes, KeyTypes = _require.KeyTypes, KeypadTypes = _require.KeypadTypes;
 
@@ -16736,7 +16736,7 @@ var CallbackQueue = __webpack_require__(165);
 var PooledClass = __webpack_require__(45);
 var ReactFeatureFlags = __webpack_require__(166);
 var ReactReconciler = __webpack_require__(56);
-var Transaction = __webpack_require__(68);
+var Transaction = __webpack_require__(67);
 
 var invariant = __webpack_require__(5);
 
@@ -19456,7 +19456,7 @@ var KhanAnswerTypes = {
 };
 
 module.exports = KhanAnswerTypes;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(64)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(75)))
 
 /***/ }),
 /* 49 */
@@ -19552,7 +19552,7 @@ var _rule = __webpack_require__(10);
 
 var _rule2 = _interopRequireDefault(_rule);
 
-var _treeTransformer = __webpack_require__(70);
+var _treeTransformer = __webpack_require__(69);
 
 var _treeTransformer2 = _interopRequireDefault(_treeTransformer);
 
@@ -19819,7 +19819,7 @@ var ReactDOM = __webpack_require__(4);
 
 var _ = __webpack_require__(1);
 
-var TeX = __webpack_require__(71);
+var TeX = __webpack_require__(70);
 
 var ApiClassNames = __webpack_require__(3).ClassNames;
 
@@ -21664,12 +21664,1817 @@ module.exports = {
 /* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(KAS, _) {/*** IMPORTS FROM imports-loader ***/
-var window = {};
+"use strict";
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
 
-/*! KAS | https://github.com/Khan/KAS */
+
+
+var emptyObject = {};
+
+if (false) {}
+
+module.exports = emptyObject;
+
+/***/ }),
+/* 65 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule EventPropagators
+ */
+
+
+
+var EventConstants = __webpack_require__(41);
+var EventPluginHub = __webpack_require__(66);
+var EventPluginUtils = __webpack_require__(105);
+
+var accumulateInto = __webpack_require__(162);
+var forEachAccumulated = __webpack_require__(163);
+var warning = __webpack_require__(11);
+
+var PropagationPhases = EventConstants.PropagationPhases;
+var getListener = EventPluginHub.getListener;
+
+/**
+ * Some event types have a notion of different registration names for different
+ * "phases" of propagation. This finds listeners by a given phase.
+ */
+function listenerAtPhase(inst, event, propagationPhase) {
+  var registrationName = event.dispatchConfig.phasedRegistrationNames[propagationPhase];
+  return getListener(inst, registrationName);
+}
+
+/**
+ * Tags a `SyntheticEvent` with dispatched listeners. Creating this function
+ * here, allows us to not have to bind or create functions for each event.
+ * Mutating the event's members allows us to not have to create a wrapping
+ * "dispatch" object that pairs the event with the listener.
+ */
+function accumulateDirectionalDispatches(inst, upwards, event) {
+  if (false) {}
+  var phase = upwards ? PropagationPhases.bubbled : PropagationPhases.captured;
+  var listener = listenerAtPhase(inst, event, phase);
+  if (listener) {
+    event._dispatchListeners = accumulateInto(event._dispatchListeners, listener);
+    event._dispatchInstances = accumulateInto(event._dispatchInstances, inst);
+  }
+}
+
+/**
+ * Collect dispatches (must be entirely collected before dispatching - see unit
+ * tests). Lazily allocate the array to conserve memory.  We must loop through
+ * each event and perform the traversal for each one. We cannot perform a
+ * single traversal for the entire collection of events because each event may
+ * have a different target.
+ */
+function accumulateTwoPhaseDispatchesSingle(event) {
+  if (event && event.dispatchConfig.phasedRegistrationNames) {
+    EventPluginUtils.traverseTwoPhase(event._targetInst, accumulateDirectionalDispatches, event);
+  }
+}
+
+/**
+ * Same as `accumulateTwoPhaseDispatchesSingle`, but skips over the targetID.
+ */
+function accumulateTwoPhaseDispatchesSingleSkipTarget(event) {
+  if (event && event.dispatchConfig.phasedRegistrationNames) {
+    var targetInst = event._targetInst;
+    var parentInst = targetInst ? EventPluginUtils.getParentInstance(targetInst) : null;
+    EventPluginUtils.traverseTwoPhase(parentInst, accumulateDirectionalDispatches, event);
+  }
+}
+
+/**
+ * Accumulates without regard to direction, does not look for phased
+ * registration names. Same as `accumulateDirectDispatchesSingle` but without
+ * requiring that the `dispatchMarker` be the same as the dispatched ID.
+ */
+function accumulateDispatches(inst, ignoredDirection, event) {
+  if (event && event.dispatchConfig.registrationName) {
+    var registrationName = event.dispatchConfig.registrationName;
+    var listener = getListener(inst, registrationName);
+    if (listener) {
+      event._dispatchListeners = accumulateInto(event._dispatchListeners, listener);
+      event._dispatchInstances = accumulateInto(event._dispatchInstances, inst);
+    }
+  }
+}
+
+/**
+ * Accumulates dispatches on an `SyntheticEvent`, but only for the
+ * `dispatchMarker`.
+ * @param {SyntheticEvent} event
+ */
+function accumulateDirectDispatchesSingle(event) {
+  if (event && event.dispatchConfig.registrationName) {
+    accumulateDispatches(event._targetInst, null, event);
+  }
+}
+
+function accumulateTwoPhaseDispatches(events) {
+  forEachAccumulated(events, accumulateTwoPhaseDispatchesSingle);
+}
+
+function accumulateTwoPhaseDispatchesSkipTarget(events) {
+  forEachAccumulated(events, accumulateTwoPhaseDispatchesSingleSkipTarget);
+}
+
+function accumulateEnterLeaveDispatches(leave, enter, from, to) {
+  EventPluginUtils.traverseEnterLeave(from, to, accumulateDispatches, leave, enter);
+}
+
+function accumulateDirectDispatches(events) {
+  forEachAccumulated(events, accumulateDirectDispatchesSingle);
+}
+
+/**
+ * A small set of propagation patterns, each of which will accept a small amount
+ * of information, and generate a set of "dispatch ready event objects" - which
+ * are sets of events that have already been annotated with a set of dispatched
+ * listener functions/ids. The API is designed this way to discourage these
+ * propagation strategies from actually executing the dispatches, since we
+ * always want to collect the entire set of dispatches before executing event a
+ * single one.
+ *
+ * @constructor EventPropagators
+ */
+var EventPropagators = {
+  accumulateTwoPhaseDispatches: accumulateTwoPhaseDispatches,
+  accumulateTwoPhaseDispatchesSkipTarget: accumulateTwoPhaseDispatchesSkipTarget,
+  accumulateDirectDispatches: accumulateDirectDispatches,
+  accumulateEnterLeaveDispatches: accumulateEnterLeaveDispatches
+};
+
+module.exports = EventPropagators;
+
+/***/ }),
+/* 66 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule EventPluginHub
+ */
+
+
+
+var _prodInvariant = __webpack_require__(8);
+
+var EventPluginRegistry = __webpack_require__(104);
+var EventPluginUtils = __webpack_require__(105);
+var ReactErrorUtils = __webpack_require__(106);
+
+var accumulateInto = __webpack_require__(162);
+var forEachAccumulated = __webpack_require__(163);
+var invariant = __webpack_require__(5);
+
+/**
+ * Internal store for event listeners
+ */
+var listenerBank = {};
+
+/**
+ * Internal queue of events that have accumulated their dispatches and are
+ * waiting to have their dispatches executed.
+ */
+var eventQueue = null;
+
+/**
+ * Dispatches an event and releases it back into the pool, unless persistent.
+ *
+ * @param {?object} event Synthetic event to be dispatched.
+ * @param {boolean} simulated If the event is simulated (changes exn behavior)
+ * @private
+ */
+var executeDispatchesAndRelease = function (event, simulated) {
+  if (event) {
+    EventPluginUtils.executeDispatchesInOrder(event, simulated);
+
+    if (!event.isPersistent()) {
+      event.constructor.release(event);
+    }
+  }
+};
+var executeDispatchesAndReleaseSimulated = function (e) {
+  return executeDispatchesAndRelease(e, true);
+};
+var executeDispatchesAndReleaseTopLevel = function (e) {
+  return executeDispatchesAndRelease(e, false);
+};
+
+var getDictionaryKey = function (inst) {
+  // Prevents V8 performance issue:
+  // https://github.com/facebook/react/pull/7232
+  return '.' + inst._rootNodeID;
+};
+
+/**
+ * This is a unified interface for event plugins to be installed and configured.
+ *
+ * Event plugins can implement the following properties:
+ *
+ *   `extractEvents` {function(string, DOMEventTarget, string, object): *}
+ *     Required. When a top-level event is fired, this method is expected to
+ *     extract synthetic events that will in turn be queued and dispatched.
+ *
+ *   `eventTypes` {object}
+ *     Optional, plugins that fire events must publish a mapping of registration
+ *     names that are used to register listeners. Values of this mapping must
+ *     be objects that contain `registrationName` or `phasedRegistrationNames`.
+ *
+ *   `executeDispatch` {function(object, function, string)}
+ *     Optional, allows plugins to override how an event gets dispatched. By
+ *     default, the listener is simply invoked.
+ *
+ * Each plugin that is injected into `EventsPluginHub` is immediately operable.
+ *
+ * @public
+ */
+var EventPluginHub = {
+
+  /**
+   * Methods for injecting dependencies.
+   */
+  injection: {
+
+    /**
+     * @param {array} InjectedEventPluginOrder
+     * @public
+     */
+    injectEventPluginOrder: EventPluginRegistry.injectEventPluginOrder,
+
+    /**
+     * @param {object} injectedNamesToPlugins Map from names to plugin modules.
+     */
+    injectEventPluginsByName: EventPluginRegistry.injectEventPluginsByName
+
+  },
+
+  /**
+   * Stores `listener` at `listenerBank[registrationName][key]`. Is idempotent.
+   *
+   * @param {object} inst The instance, which is the source of events.
+   * @param {string} registrationName Name of listener (e.g. `onClick`).
+   * @param {function} listener The callback to store.
+   */
+  putListener: function (inst, registrationName, listener) {
+    !(typeof listener === 'function') ?  false ? undefined : _prodInvariant('94', registrationName, typeof listener) : void 0;
+
+    var key = getDictionaryKey(inst);
+    var bankForRegistrationName = listenerBank[registrationName] || (listenerBank[registrationName] = {});
+    bankForRegistrationName[key] = listener;
+
+    var PluginModule = EventPluginRegistry.registrationNameModules[registrationName];
+    if (PluginModule && PluginModule.didPutListener) {
+      PluginModule.didPutListener(inst, registrationName, listener);
+    }
+  },
+
+  /**
+   * @param {object} inst The instance, which is the source of events.
+   * @param {string} registrationName Name of listener (e.g. `onClick`).
+   * @return {?function} The stored callback.
+   */
+  getListener: function (inst, registrationName) {
+    var bankForRegistrationName = listenerBank[registrationName];
+    var key = getDictionaryKey(inst);
+    return bankForRegistrationName && bankForRegistrationName[key];
+  },
+
+  /**
+   * Deletes a listener from the registration bank.
+   *
+   * @param {object} inst The instance, which is the source of events.
+   * @param {string} registrationName Name of listener (e.g. `onClick`).
+   */
+  deleteListener: function (inst, registrationName) {
+    var PluginModule = EventPluginRegistry.registrationNameModules[registrationName];
+    if (PluginModule && PluginModule.willDeleteListener) {
+      PluginModule.willDeleteListener(inst, registrationName);
+    }
+
+    var bankForRegistrationName = listenerBank[registrationName];
+    // TODO: This should never be null -- when is it?
+    if (bankForRegistrationName) {
+      var key = getDictionaryKey(inst);
+      delete bankForRegistrationName[key];
+    }
+  },
+
+  /**
+   * Deletes all listeners for the DOM element with the supplied ID.
+   *
+   * @param {object} inst The instance, which is the source of events.
+   */
+  deleteAllListeners: function (inst) {
+    var key = getDictionaryKey(inst);
+    for (var registrationName in listenerBank) {
+      if (!listenerBank.hasOwnProperty(registrationName)) {
+        continue;
+      }
+
+      if (!listenerBank[registrationName][key]) {
+        continue;
+      }
+
+      var PluginModule = EventPluginRegistry.registrationNameModules[registrationName];
+      if (PluginModule && PluginModule.willDeleteListener) {
+        PluginModule.willDeleteListener(inst, registrationName);
+      }
+
+      delete listenerBank[registrationName][key];
+    }
+  },
+
+  /**
+   * Allows registered plugins an opportunity to extract events from top-level
+   * native browser events.
+   *
+   * @return {*} An accumulation of synthetic events.
+   * @internal
+   */
+  extractEvents: function (topLevelType, targetInst, nativeEvent, nativeEventTarget) {
+    var events;
+    var plugins = EventPluginRegistry.plugins;
+    for (var i = 0; i < plugins.length; i++) {
+      // Not every plugin in the ordering may be loaded at runtime.
+      var possiblePlugin = plugins[i];
+      if (possiblePlugin) {
+        var extractedEvents = possiblePlugin.extractEvents(topLevelType, targetInst, nativeEvent, nativeEventTarget);
+        if (extractedEvents) {
+          events = accumulateInto(events, extractedEvents);
+        }
+      }
+    }
+    return events;
+  },
+
+  /**
+   * Enqueues a synthetic event that should be dispatched when
+   * `processEventQueue` is invoked.
+   *
+   * @param {*} events An accumulation of synthetic events.
+   * @internal
+   */
+  enqueueEvents: function (events) {
+    if (events) {
+      eventQueue = accumulateInto(eventQueue, events);
+    }
+  },
+
+  /**
+   * Dispatches all synthetic events on the event queue.
+   *
+   * @internal
+   */
+  processEventQueue: function (simulated) {
+    // Set `eventQueue` to null before processing it so that we can tell if more
+    // events get enqueued while processing.
+    var processingEventQueue = eventQueue;
+    eventQueue = null;
+    if (simulated) {
+      forEachAccumulated(processingEventQueue, executeDispatchesAndReleaseSimulated);
+    } else {
+      forEachAccumulated(processingEventQueue, executeDispatchesAndReleaseTopLevel);
+    }
+    !!eventQueue ?  false ? undefined : _prodInvariant('95') : void 0;
+    // This would be a good time to rethrow if any of the event handlers threw.
+    ReactErrorUtils.rethrowCaughtError();
+  },
+
+  /**
+   * These are needed for tests only. Do not use!
+   */
+  __purge: function () {
+    listenerBank = {};
+  },
+
+  __getListenerBank: function () {
+    return listenerBank;
+  }
+
+};
+
+module.exports = EventPluginHub;
+
+/***/ }),
+/* 67 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule Transaction
+ */
+
+
+
+var _prodInvariant = __webpack_require__(8);
+
+var invariant = __webpack_require__(5);
+
+/**
+ * `Transaction` creates a black box that is able to wrap any method such that
+ * certain invariants are maintained before and after the method is invoked
+ * (Even if an exception is thrown while invoking the wrapped method). Whoever
+ * instantiates a transaction can provide enforcers of the invariants at
+ * creation time. The `Transaction` class itself will supply one additional
+ * automatic invariant for you - the invariant that any transaction instance
+ * should not be run while it is already being run. You would typically create a
+ * single instance of a `Transaction` for reuse multiple times, that potentially
+ * is used to wrap several different methods. Wrappers are extremely simple -
+ * they only require implementing two methods.
+ *
+ * <pre>
+ *                       wrappers (injected at creation time)
+ *                                      +        +
+ *                                      |        |
+ *                    +-----------------|--------|--------------+
+ *                    |                 v        |              |
+ *                    |      +---------------+   |              |
+ *                    |   +--|    wrapper1   |---|----+         |
+ *                    |   |  +---------------+   v    |         |
+ *                    |   |          +-------------+  |         |
+ *                    |   |     +----|   wrapper2  |--------+   |
+ *                    |   |     |    +-------------+  |     |   |
+ *                    |   |     |                     |     |   |
+ *                    |   v     v                     v     v   | wrapper
+ *                    | +---+ +---+   +---------+   +---+ +---+ | invariants
+ * perform(anyMethod) | |   | |   |   |         |   |   | |   | | maintained
+ * +----------------->|-|---|-|---|-->|anyMethod|---|---|-|---|-|-------->
+ *                    | |   | |   |   |         |   |   | |   | |
+ *                    | |   | |   |   |         |   |   | |   | |
+ *                    | |   | |   |   |         |   |   | |   | |
+ *                    | +---+ +---+   +---------+   +---+ +---+ |
+ *                    |  initialize                    close    |
+ *                    +-----------------------------------------+
+ * </pre>
+ *
+ * Use cases:
+ * - Preserving the input selection ranges before/after reconciliation.
+ *   Restoring selection even in the event of an unexpected error.
+ * - Deactivating events while rearranging the DOM, preventing blurs/focuses,
+ *   while guaranteeing that afterwards, the event system is reactivated.
+ * - Flushing a queue of collected DOM mutations to the main UI thread after a
+ *   reconciliation takes place in a worker thread.
+ * - Invoking any collected `componentDidUpdate` callbacks after rendering new
+ *   content.
+ * - (Future use case): Wrapping particular flushes of the `ReactWorker` queue
+ *   to preserve the `scrollTop` (an automatic scroll aware DOM).
+ * - (Future use case): Layout calculations before and after DOM updates.
+ *
+ * Transactional plugin API:
+ * - A module that has an `initialize` method that returns any precomputation.
+ * - and a `close` method that accepts the precomputation. `close` is invoked
+ *   when the wrapped process is completed, or has failed.
+ *
+ * @param {Array<TransactionalWrapper>} transactionWrapper Wrapper modules
+ * that implement `initialize` and `close`.
+ * @return {Transaction} Single transaction for reuse in thread.
+ *
+ * @class Transaction
+ */
+var Mixin = {
+  /**
+   * Sets up this instance so that it is prepared for collecting metrics. Does
+   * so such that this setup method may be used on an instance that is already
+   * initialized, in a way that does not consume additional memory upon reuse.
+   * That can be useful if you decide to make your subclass of this mixin a
+   * "PooledClass".
+   */
+  reinitializeTransaction: function () {
+    this.transactionWrappers = this.getTransactionWrappers();
+    if (this.wrapperInitData) {
+      this.wrapperInitData.length = 0;
+    } else {
+      this.wrapperInitData = [];
+    }
+    this._isInTransaction = false;
+  },
+
+  _isInTransaction: false,
+
+  /**
+   * @abstract
+   * @return {Array<TransactionWrapper>} Array of transaction wrappers.
+   */
+  getTransactionWrappers: null,
+
+  isInTransaction: function () {
+    return !!this._isInTransaction;
+  },
+
+  /**
+   * Executes the function within a safety window. Use this for the top level
+   * methods that result in large amounts of computation/mutations that would
+   * need to be safety checked. The optional arguments helps prevent the need
+   * to bind in many cases.
+   *
+   * @param {function} method Member of scope to call.
+   * @param {Object} scope Scope to invoke from.
+   * @param {Object?=} a Argument to pass to the method.
+   * @param {Object?=} b Argument to pass to the method.
+   * @param {Object?=} c Argument to pass to the method.
+   * @param {Object?=} d Argument to pass to the method.
+   * @param {Object?=} e Argument to pass to the method.
+   * @param {Object?=} f Argument to pass to the method.
+   *
+   * @return {*} Return value from `method`.
+   */
+  perform: function (method, scope, a, b, c, d, e, f) {
+    !!this.isInTransaction() ?  false ? undefined : _prodInvariant('27') : void 0;
+    var errorThrown;
+    var ret;
+    try {
+      this._isInTransaction = true;
+      // Catching errors makes debugging more difficult, so we start with
+      // errorThrown set to true before setting it to false after calling
+      // close -- if it's still set to true in the finally block, it means
+      // one of these calls threw.
+      errorThrown = true;
+      this.initializeAll(0);
+      ret = method.call(scope, a, b, c, d, e, f);
+      errorThrown = false;
+    } finally {
+      try {
+        if (errorThrown) {
+          // If `method` throws, prefer to show that stack trace over any thrown
+          // by invoking `closeAll`.
+          try {
+            this.closeAll(0);
+          } catch (err) {}
+        } else {
+          // Since `method` didn't throw, we don't want to silence the exception
+          // here.
+          this.closeAll(0);
+        }
+      } finally {
+        this._isInTransaction = false;
+      }
+    }
+    return ret;
+  },
+
+  initializeAll: function (startIndex) {
+    var transactionWrappers = this.transactionWrappers;
+    for (var i = startIndex; i < transactionWrappers.length; i++) {
+      var wrapper = transactionWrappers[i];
+      try {
+        // Catching errors makes debugging more difficult, so we start with the
+        // OBSERVED_ERROR state before overwriting it with the real return value
+        // of initialize -- if it's still set to OBSERVED_ERROR in the finally
+        // block, it means wrapper.initialize threw.
+        this.wrapperInitData[i] = Transaction.OBSERVED_ERROR;
+        this.wrapperInitData[i] = wrapper.initialize ? wrapper.initialize.call(this) : null;
+      } finally {
+        if (this.wrapperInitData[i] === Transaction.OBSERVED_ERROR) {
+          // The initializer for wrapper i threw an error; initialize the
+          // remaining wrappers but silence any exceptions from them to ensure
+          // that the first error is the one to bubble up.
+          try {
+            this.initializeAll(i + 1);
+          } catch (err) {}
+        }
+      }
+    }
+  },
+
+  /**
+   * Invokes each of `this.transactionWrappers.close[i]` functions, passing into
+   * them the respective return values of `this.transactionWrappers.init[i]`
+   * (`close`rs that correspond to initializers that failed will not be
+   * invoked).
+   */
+  closeAll: function (startIndex) {
+    !this.isInTransaction() ?  false ? undefined : _prodInvariant('28') : void 0;
+    var transactionWrappers = this.transactionWrappers;
+    for (var i = startIndex; i < transactionWrappers.length; i++) {
+      var wrapper = transactionWrappers[i];
+      var initData = this.wrapperInitData[i];
+      var errorThrown;
+      try {
+        // Catching errors makes debugging more difficult, so we start with
+        // errorThrown set to true before setting it to false after calling
+        // close -- if it's still set to true in the finally block, it means
+        // wrapper.close threw.
+        errorThrown = true;
+        if (initData !== Transaction.OBSERVED_ERROR && wrapper.close) {
+          wrapper.close.call(this, initData);
+        }
+        errorThrown = false;
+      } finally {
+        if (errorThrown) {
+          // The closer for wrapper i threw an error; close the remaining
+          // wrappers but silence any exceptions from them to ensure that the
+          // first error is the one to bubble up.
+          try {
+            this.closeAll(i + 1);
+          } catch (e) {}
+        }
+      }
+    }
+    this.wrapperInitData.length = 0;
+  }
+};
+
+var Transaction = {
+
+  Mixin: Mixin,
+
+  /**
+   * Token to look for to determine if an error occurred.
+   */
+  OBSERVED_ERROR: {}
+
+};
+
+module.exports = Transaction;
+
+/***/ }),
+/* 68 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule SyntheticUIEvent
+ */
+
+
+
+var SyntheticEvent = __webpack_require__(42);
+
+var getEventTarget = __webpack_require__(107);
+
+/**
+ * @interface UIEvent
+ * @see http://www.w3.org/TR/DOM-Level-3-Events/
+ */
+var UIEventInterface = {
+  view: function (event) {
+    if (event.view) {
+      return event.view;
+    }
+
+    var target = getEventTarget(event);
+    if (target.window === target) {
+      // target is a window object
+      return target;
+    }
+
+    var doc = target.ownerDocument;
+    // TODO: Figure out why `ownerDocument` is sometimes undefined in IE8.
+    if (doc) {
+      return doc.defaultView || doc.parentWindow;
+    } else {
+      return window;
+    }
+  },
+  detail: function (event) {
+    return event.detail || 0;
+  }
+};
+
+/**
+ * @param {object} dispatchConfig Configuration used to dispatch this event.
+ * @param {string} dispatchMarker Marker identifying the event target.
+ * @param {object} nativeEvent Native browser event.
+ * @extends {SyntheticEvent}
+ */
+function SyntheticUIEvent(dispatchConfig, dispatchMarker, nativeEvent, nativeEventTarget) {
+  return SyntheticEvent.call(this, dispatchConfig, dispatchMarker, nativeEvent, nativeEventTarget);
+}
+
+SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
+
+module.exports = SyntheticUIEvent;
+
+/***/ }),
+/* 69 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _typeof = "function" === typeof Symbol && "symbol" === typeof Symbol.iterator ? function(obj) {
+    return typeof obj;
+} : function(obj) {
+    return obj && "function" === typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+};
+
+function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
+}
+
+// TraversalCallback is the type of the callback function passed to the
+// traverse() method. It is invoked with node, state, and content arguments
+// and is expected to return nothing.
+Object.defineProperty(module.exports, "babelPluginFlowReactPropTypes_proptype_TreeNode", __webpack_require__(0).PropTypes.shape({
+    type: __webpack_require__(0).PropTypes.string.isRequired
+}));
+
+/**
+      * TreeTransformer is a class for traversing and transforming trees.  Create a
+      * TreeTransformer by passing the root node of the tree to the
+      * constructor. Then traverse that tree by calling the traverse() method. The
+      * argument to traverse() is a callback function that will be called once for
+      * each node in the tree. This is a post-order depth-first traversal: the
+      * callback is not called on the a way down, but on the way back up. That is,
+      * the children of a node are traversed before the node itself is.
+      *
+      * The traversal callback function is passed three arguments, the node being
+      * traversed, a TraversalState object, and the concatentated text content of
+      * the node and all of its descendants. The TraversalState object is the most
+      * most interesting argument: it has methods for querying the ancestors and
+      * siblings of the node, and for deleting or replacing the node. These
+      * transformation methods are why this class is a tree transformer and not
+      * just a tree traverser.
+      *
+      * A typical tree traversal looks like this:
+      *
+      *   new TreeTransformer(root).traverse((node, state, content) => {
+      *       let parent = state.parent();
+      *       let previous = state.previousSibling();
+      *       // etc.
+      *   });
+      *
+      * The traverse() method descends through nodes and arrays of nodes and calls
+      * the traverse callback on each node on the way back up to the root of the
+      * tree. (Note that it only calls the callback on the nodes themselves, not
+      * any arrays that contain nodes.) A node is loosely defined as any object
+      * with a string-valued `type` property. Objects that do not have a type
+      * property are assumed to not be part of the tree and are not traversed. When
+      * traversing an array, all elements of the array are examined, and any that
+      * are nodes or arrays are recursively traversed. When traversing a node, all
+      * properties of the object are examined and any node or array values are
+      * recursively traversed.  In typical parse trees, the children of a node are
+      * in a `children` or `content` array, but this class is designed to handle
+      * more general trees.  The Perseus markdown parser, for example, produces
+      * nodes of type "table" that have children in the `header` and `cells`
+      * properties.
+      *
+      * CAUTION: the traverse() method does not make any attempt to detect
+      * cycles. If you call it on a cyclic graph instead of a tree, it will cause
+      * infinite recursion (or, more likely, a stack overflow).
+      *
+      * TODO(davidflanagan): it probably wouldn't be hard to detect cycles: when
+      * pushing a new node onto the containers stack we could just check that it
+      * isn't already there.
+      *
+      * If a node has a text-valued `content` property, it is taken to be the
+      * plain-text content of the node. The traverse() method concatenates these
+      * content strings and passes them to the traversal callback for each
+      * node. This means that the callback has access the full text content of its
+      * node and all of the nodes descendants.
+      *
+      * See the TraversalState class for more information on what information and
+      * methods are available to the traversal callback.
+      **/
+// TreeNode is the type of a node in a parse tree. The only real requirement is
+// that every node has a string-valued `type` property
+// This is the TreeTransformer class described in detail at the
+// top of this file.
+var TreeTransformer = function() {
+    // To create a tree transformer, just pass the root node of the tree
+    function TreeTransformer(root) {
+        _classCallCheck(this, TreeTransformer);
+        this.root = root;
+    }
+    // A utility function for determing whether an arbitrary value is a node
+    TreeTransformer.isNode = function isNode(n) {
+        return n && "object" === ("undefined" === typeof n ? "undefined" : _typeof(n)) && "string" === typeof n.type;
+    };
+    // Determines whether a value is a node with type "text" and has
+    // a text-valued `content` property.
+    TreeTransformer.isTextNode = function isTextNode(n) {
+        return TreeTransformer.isNode(n) && "text" === n.type && "string" === typeof n.content;
+    };
+    // This is the main entry point for the traverse() method. See the comment
+    // at the top of this file for a detailed description. Note that this
+    // method just creates a new TraversalState object to use for this
+    // traversal and then invokes the internal _traverse() method to begin the
+    // recursion.
+    TreeTransformer.prototype.traverse = function traverse(f) {
+        this._traverse(this.root, new TraversalState(this.root), f);
+    };
+    // Do a post-order traversal of node and its descendants, invoking the
+    // callback function f() once for each node and returning the concatenated
+    // text content of the node and its descendants. f() is passed three
+    // arguments: the current node, a TraversalState object representing the
+    // current state of the traversal, and a string that holds the
+    // concatenated text of the node and its descendants.
+    //
+    // This private method holds all the traversal logic and implementation
+    // details. Note that this method uses the TraversalState object to store
+    // information about the structure of the tree.
+    TreeTransformer.prototype._traverse = function _traverse(n, state, f) {
+        var _this = this;
+        var content = "";
+        if (TreeTransformer.isNode(n)) {
+            // If we were called on a node object, then we handle it
+            // this way.
+            var _node = n;
+            // safe cast; we just tested
+            // Put the node on the stack before recursing on its children
+            state._containers.push(_node);
+            state._ancestors.push(_node);
+            // Record the node's text content if it has any.
+            // Usually this is for nodes with a type property of "text",
+            // but other nodes types like "math" may also have content.
+            "string" === typeof _node.content && (content = _node.content);
+            Object.keys(_node).forEach(function(key) {
+                // Never recurse on the type property
+                if ("type" === key) return;
+                // Ignore properties that are null or primitive and only
+                // recurse on objects and arrays. Note that we don't do a
+                // isNode() check here. That is done in the recursive call to
+                // _traverse(). Note that the recursive call on each child
+                // returns the text content of the child and we add that
+                // content to the content for this node. Also note that we
+                // push the name of the property we're recursing over onto a
+                // TraversalState stack.
+                var value = _node[key];
+                if (value && "object" === ("undefined" === typeof value ? "undefined" : _typeof(value))) {
+                    state._indexes.push(key);
+                    content += _this._traverse(value, state, f);
+                    state._indexes.pop();
+                }
+            });
+            // Restore the stacks after recursing on the children
+            state._currentNode = state._ancestors.pop();
+            state._containers.pop();
+            // And finally call the traversal callback for this node.  Note
+            // that this is post-order traversal. We call the callback on the
+            // way back up the tree, not on the way down.  That way we already
+            // know all the content contained within the node.
+            f(_node, state, content);
+        } else if (Array.isArray(n)) {
+            // If we were called on an array instead of a node, then
+            var nodes = n;
+            // Push the array onto the stack. This will allow the
+            // TraversalState object to locate siblings of this node.
+            state._containers.push(nodes);
+            // Now loop through this array and recurse on each element in it.
+            // Before recursing on an element, we push its array index on a
+            // TraversalState stack so that the TraversalState sibling methods
+            // can work. Note that TraversalState methods can alter the length
+            // of the array, and change the index of the current node, so we
+            // are careful here to test the array length on each iteration and
+            // to reset the index when we pop the stack. Also note that we
+            // concatentate the text content of the children.
+            var index = 0;
+            while (index < nodes.length) {
+                state._indexes.push(index);
+                content += this._traverse(nodes[index], state, f);
+                // Casting to convince Flow that this is a number
+                index = state._indexes.pop() + 1;
+            }
+            // Pop the array off the stack. Note, however, that we do not call
+            // the traversal callback on the array. That function is only
+            // called for nodes, not arrays of nodes.
+            state._containers.pop();
+        }
+        // The _traverse() method always returns the text content of
+        // this node and its children. This is the one piece of state that
+        // is not tracked in the TraversalState object.
+        return content;
+    };
+    return TreeTransformer;
+}();
+
+// An instance of this class is passed to the callback function for
+// each node traversed. The class itself is not exported, but its
+// methods define the API available to the traversal callback.
+/**
+ * This class represents the state of a tree traversal. An instance is created
+ * by the traverse() method of the TreeTransformer class to maintain the state
+ * for that traversal, and the instance is passed to the traversal callback
+ * function for each node that is traversed. This class is not intended to be
+ * instantiated directly, but is exported so that its type can be used for
+ * Flow annotaions.
+ **/
+exports.default = TreeTransformer;
+
+var TraversalState = exports.TraversalState = function() {
+    // The constructor just stores the root node and creates empty stacks.
+    // These are internal state properties. Use the accessor methods defined
+    // below instead of using these properties directly. Note that the
+    // _containers and _indexes stacks can have two different types of
+    // elements, depending on whether we just recursed on an array or on a
+    // node. This is hard for Flow to deal with, so you'll see a number of
+    // Flow casts through the any type when working with these two properties.
+    function TraversalState(root) {
+        _classCallCheck(this, TraversalState);
+        this.root = root;
+        // When the callback is called, this property will hold the
+        // node that is currently being traversed.
+        this._currentNode = null;
+        // This is a stack of the objects and arrays that we've
+        // traversed through before reaching the currentNode.
+        // It is different than the ancestors array.
+        this._containers = new Stack();
+        // This stack has the same number of elements as the _containers
+        // stack. The last element of this._indexes[] is the index of
+        // the current node in the object or array that is the last element
+        // of this._containers[]. If the last element of this._containers[] is
+        // an array, then the last element of this stack will be a number.
+        // Otherwise if the last container is an object, then the last index
+        // will be a string property name.
+        this._indexes = new Stack();
+        // This is a stack of the ancestor nodes of the current one.
+        // It is different than the containers[] stack because it only
+        // includes nodes, not arrays.
+        this._ancestors = new Stack();
+    }
+    /**
+     * Return the current node in the traversal. Any time the traversal
+     * callback is called, this method will return the name value as the
+     * first argument to the callback.
+     */
+    // The root node of the tree being traversed
+    TraversalState.prototype.currentNode = function currentNode() {
+        return this._currentNode || this.root;
+    };
+    /**
+     * Return the parent of the current node, if there is one, or null.
+     */
+    TraversalState.prototype.parent = function parent() {
+        return this._ancestors.top();
+    };
+    /**
+     * Return an array of ancestor nodes. The first element of this array is
+     * the same as this.parent() and the last element is the root node. If we
+     * are currently at the root node, the the returned array will be empty.
+     * This method makes a copy of the internal state, so modifications to the
+     * returned array have no effect on the traversal.
+     */
+    TraversalState.prototype.ancestors = function ancestors() {
+        return this._ancestors.values();
+    };
+    /**
+     * Return the next sibling of this node, if it has one, or null otherwise.
+     */
+    TraversalState.prototype.nextSibling = function nextSibling() {
+        var siblings = this._containers.top();
+        // If we're at the root of the tree or if the parent is an
+        // object instead of an array, then there are no siblings.
+        if (!siblings || !Array.isArray(siblings)) return null;
+        // The top index is a number because the top container is an array
+        var index = this._indexes.top();
+        return siblings.length > index + 1 ? siblings[index + 1] : null;
+    };
+    /**
+     * Return the previous sibling of this node, if it has one, or null
+     * otherwise.
+     */
+    TraversalState.prototype.previousSibling = function previousSibling() {
+        var siblings = this._containers.top();
+        // If we're at the root of the tree or if the parent is an
+        // object instead of an array, then there are no siblings.
+        if (!siblings || !Array.isArray(siblings)) return null;
+        // The top index is a number because the top container is an array
+        var index = this._indexes.top();
+        return index > 0 ? siblings[index - 1] : null;
+    };
+    /**
+     * Remove the next sibling node (if there is one) from the tree.  Returns
+     * the removed sibling or null. This method makes it easy to traverse a
+     * tree and concatenate adjacent text nodes into a single node.
+     */
+    TraversalState.prototype.removeNextSibling = function removeNextSibling() {
+        var siblings = this._containers.top();
+        if (siblings && Array.isArray(siblings)) {
+            // top index is a number because top container is an array
+            var index = this._indexes.top();
+            if (siblings.length > index + 1) return siblings.splice(index + 1, 1)[0];
+        }
+        return null;
+    };
+    /**
+     * Replace the current node in the tree with the specified nodes.  If no
+     * nodes are passed, this is a node deletion. If one node (or array) is
+     * passed, this is a 1-for-1 replacement. If more than one node is passed
+     * then this is a combination of deletion and insertion.  The new node or
+     * nodes will not be traversed, so this method can safely be used to
+     * reparent the current node node beneath a new parent.
+     *
+     * This method throws an error if you attempt to replace the root node of
+     * the tree.
+     */
+    TraversalState.prototype.replace = function replace() {
+        var parent = this._containers.top();
+        if (!parent) throw new Error("Can't replace the root of the tree");
+        // The top of the container stack is either an array or an object
+        // and the top of the indexes stack is a corresponding array index
+        // or object property. This is hard for Flow, so we have to do some
+        // unsafe casting and be careful when we use which cast version
+        var parentIsArray = Array.isArray(parent);
+        var array = parent;
+        var index = this._indexes.top();
+        var object = parent;
+        var property = this._indexes.top();
+        for (var _len = arguments.length, replacements = Array(_len), _key = 0; _key < _len; _key++) replacements[_key] = arguments[_key];
+        if (parentIsArray) {
+            // For an array parent we just splice the new nodes in
+            array.splice.apply(array, [ index, 1 ].concat(replacements));
+            // Adjust the index to account for the changed array length.
+            // We don't want to traverse any of the newly inserted nodes.
+            this._indexes.pop();
+            this._indexes.push(index + replacements.length - 1);
+        } else // For an object parent we care how many new nodes there are
+        0 === replacements.length ? // Deletion
+        delete object[property] : 1 === replacements.length ? // Replacement
+        object[property] = replacements[0] : // Replace one node with an array of nodes
+        object[property] = replacements;
+    };
+    /**
+     * Returns true if the current node has a previous sibling and false
+     * otherwise. If this method returns false, then previousSibling() will
+     * return null, and goToPreviousSibling() will throw an error.
+     */
+    TraversalState.prototype.hasPreviousSibling = function hasPreviousSibling() {
+        return Array.isArray(this._containers.top()) && this._indexes.top() > 0;
+    };
+    /**
+     * Modify this traversal state object to have the state it would have had
+     * when visiting the previous sibling. Note that you may want to use
+     * clone() to make a copy before modifying the state object like this.
+     * This mutator method is not typically used during ordinary tree
+     * traversals, but is used by the Selector class for matching multi-node
+     * selectors.
+     */
+    TraversalState.prototype.goToPreviousSibling = function goToPreviousSibling() {
+        if (!this.hasPreviousSibling()) throw new Error("goToPreviousSibling(): node has no previous sibling");
+        this._currentNode = this.previousSibling();
+        // Since we know that we have a previous sibling, we know that
+        // the value on top of the stack is a number, but we have to do
+        // this unsafe cast because Flow doesn't know that.
+        var index = this._indexes.pop();
+        this._indexes.push(index - 1);
+    };
+    /**
+     * Returns true if the current node has an ancestor and false otherwise.
+     * If this method returns false, then the parent() method will return
+     * null and goToParent() will throw an error
+     */
+    TraversalState.prototype.hasParent = function hasParent() {
+        return 0 !== this._ancestors.size();
+    };
+    /**
+     * Modify this object to look like it will look when we (later) visit the
+     * parent node of this node. You should not modify the instance passed to
+     * the tree traversal callback. Instead, make a copy with the clone()
+     * method and modify that.  This mutator method is not typically used
+     * during ordinary tree traversals, but is used by the Selector class for
+     * matching multi-node selectors that involve parent and ancestor
+     * selectors.
+     */
+    TraversalState.prototype.goToParent = function goToParent() {
+        if (!this.hasParent()) throw new Error("goToParent(): node has no ancestor");
+        this._currentNode = this._ancestors.pop();
+        // We need to pop the containers and indexes stacks at least once
+        // and more as needed until we restore the invariant that
+        // this._containers.top()[this.indexes.top()] === this._currentNode
+        //
+        while (this._containers.size() && // This is safe, but easier to just disable flow than do casts
+        // $FlowFixMe
+        this._containers.top()[this._indexes.top()] !== this._currentNode) {
+            this._containers.pop();
+            this._indexes.pop();
+        }
+    };
+    /**
+     * Return a new TraversalState object that is a copy of this one.
+     * This method is useful in conjunction with the mutating methods
+     * goToParent() and goToPreviousSibling().
+     */
+    TraversalState.prototype.clone = function clone() {
+        var clone = new TraversalState(this.root);
+        clone._currentNode = this._currentNode;
+        clone._containers = this._containers.clone();
+        clone._indexes = this._indexes.clone();
+        clone._ancestors = this._ancestors.clone();
+        return clone;
+    };
+    /**
+     * Returns true if this TraversalState object is equal to that
+     * TraversalState object, or false otherwise. This method exists
+     * primarily for use by our unit tests.
+     */
+    TraversalState.prototype.equals = function equals(that) {
+        return this.root === that.root && this._currentNode === that._currentNode && this._containers.equals(that._containers) && this._indexes.equals(that._indexes) && this._ancestors.equals(that._ancestors);
+    };
+    return TraversalState;
+}();
+
+/**
+ * This class is an internal utility that just treats an array as a stack
+ * and gives us a top() method so we don't have to write expressions like
+ * `ancestors[ancestors.length-1]`. The values() method automatically
+ * copies the internal array so we don't have to worry about client code
+ * modifying our internal stacks. The use of this Stack abstraction makes
+ * the TraversalState class simpler in a number of places.
+ */
+var Stack = function() {
+    function Stack(array) {
+        _classCallCheck(this, Stack);
+        this.stack = array ? array.slice(0) : [];
+    }
+    /** Push a value onto the stack. */
+    Stack.prototype.push = function push(v) {
+        this.stack.push(v);
+    };
+    /** Pop a value off of the stack. */
+    Stack.prototype.pop = function pop() {
+        return this.stack.pop();
+    };
+    /** Return the top value of the stack without popping it. */
+    Stack.prototype.top = function top() {
+        return this.stack[this.stack.length - 1];
+    };
+    /** Return a copy of the stack as an array */
+    Stack.prototype.values = function values() {
+        return this.stack.slice(0);
+    };
+    /** Return the number of elements in the stack */
+    Stack.prototype.size = function size() {
+        return this.stack.length;
+    };
+    /** Return a string representation of the stack */
+    Stack.prototype.toString = function toString() {
+        return this.stack.toString();
+    };
+    /** Return a shallow copy of the stack */
+    Stack.prototype.clone = function clone() {
+        return new Stack(this.stack);
+    };
+    /**
+     * Compare this stack to another and return true if the contents of
+     * the two arrays are the same.
+     */
+    Stack.prototype.equals = function equals(that) {
+        if (!that || !that.stack || that.stack.length !== this.stack.length) return false;
+        for (var i = 0; i < this.stack.length; i++) if (this.stack[i] !== that.stack[i]) return false;
+        return true;
+    };
+    return Stack;
+}();
+
+/***/ }),
+/* 70 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(katex) {
+
+/**
+ * For math rendered using KaTex and/or MathJax. Use me like <TeX>2x + 3</TeX>.
+ */
+/* global katex, MathJax, Khan */
+// TODO(joel) - require MathJax / katex so they don't have to be global
+var PureRenderMixin = __webpack_require__(318);
+
+var React = __webpack_require__(0);
+
+var ReactDOM = __webpack_require__(4);
+
+var katexA11y = __webpack_require__(319);
+
+var pendingScripts = [];
+
+var pendingCallbacks = [];
+
+var needsProcess = false;
+
+var process = function process(script, callback) {
+    pendingScripts.push(script);
+    pendingCallbacks.push(callback);
+    if (!needsProcess) {
+        needsProcess = true;
+        setTimeout(doProcess, 0);
+    }
+};
+
+var loadMathJax = function loadMathJax(callback) {
+    if ("undefined" !== typeof MathJax) callback(); else {
+        if ("undefined" === typeof Khan || !Khan.mathJaxLoaded) throw new Error("MathJax wasn't loaded before it was needed by <TeX/>");
+        Khan.mathJaxLoaded.then(callback);
+    }
+};
+
+var doProcess = function doProcess() {
+    loadMathJax(function() {
+        MathJax.Hub.Queue(function() {
+            var oldElementScripts = MathJax.Hub.elementScripts;
+            MathJax.Hub.elementScripts = function(element) {
+                return pendingScripts;
+            };
+            try {
+                return MathJax.Hub.Process(null, function() {
+                    // Trigger all of the pending callbacks before clearing them
+                    // out.
+                    for (var _iterator = pendingCallbacks, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator](); ;) {
+                        var _ref;
+                        if (_isArray) {
+                            if (_i >= _iterator.length) break;
+                            _ref = _iterator[_i++];
+                        } else {
+                            _i = _iterator.next();
+                            if (_i.done) break;
+                            _ref = _i.value;
+                        }
+                        _ref();
+                    }
+                    pendingScripts = [];
+                    pendingCallbacks = [];
+                    needsProcess = false;
+                });
+            } catch (e) {
+                // IE8 requires `catch` in order to use `finally`
+                throw e;
+            } finally {
+                MathJax.Hub.elementScripts = oldElementScripts;
+            }
+        });
+    });
+};
+
+// Make content only visible to screen readers.
+// Both collegeboard.org and Bootstrap 3 use this exact implementation.
+var srOnly = {
+    border: 0,
+    clip: "rect(0,0,0,0)",
+    height: "1px",
+    margin: "-1px",
+    overflow: "hidden",
+    padding: 0,
+    position: "absolute",
+    width: "1px"
+};
+
+var TeX = React.createClass({
+    displayName: "TeX",
+    propTypes: {
+        children: React.PropTypes.node,
+        onClick: React.PropTypes.func,
+        onRender: React.PropTypes.func,
+        style: React.PropTypes.any
+    },
+    mixins: [ PureRenderMixin ],
+    getDefaultProps: function getDefaultProps() {
+        return {
+            // Called after math is rendered or re-rendered
+            onRender: function onRender() {},
+            onClick: null
+        };
+    },
+    componentDidMount: function componentDidMount() {
+        var _this = this;
+        this._root = ReactDOM.findDOMNode(this);
+        if (this.refs.katex.childElementCount > 0) {
+            // If we already rendered katex in the render function, we don't
+            // need to render anything here.
+            this.props.onRender(this._root);
+            return;
+        }
+        var text = this.props.children;
+        this.setScriptText(text);
+        process(this.script, function() {
+            return _this.props.onRender(_this._root);
+        });
+    },
+    componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
+        var _this2 = this;
+        // If we already rendered katex in the render function, we don't
+        // need to render anything here.
+        if (this.refs.katex.childElementCount > 0) {
+            this.script && // If we successfully rendered KaTeX, check if there's
+            // lingering MathJax from the last render, and if so remove it.
+            loadMathJax(function() {
+                var jax = MathJax.Hub.getJaxFor(_this2.script);
+                jax && jax.Remove();
+            });
+            this.props.onRender();
+            return;
+        }
+        var newText = this.props.children;
+        if (this.script) loadMathJax(function() {
+            MathJax.Hub.Queue(function() {
+                var jax = MathJax.Hub.getJaxFor(_this2.script);
+                if (jax) return jax.Text(newText, _this2.props.onRender);
+                _this2.setScriptText(newText);
+                process(_this2.script, _this2.props.onRender);
+            });
+        }); else {
+            this.setScriptText(newText);
+            process(this.script, this.props.onRender);
+        }
+    },
+    componentWillUnmount: function componentWillUnmount() {
+        var _this3 = this;
+        this.script && loadMathJax(function() {
+            var jax = MathJax.Hub.getJaxFor(_this3.script);
+            jax && jax.Remove();
+        });
+    },
+    setScriptText: function setScriptText(text) {
+        if (!this.script) {
+            this.script = document.createElement("script");
+            this.script.type = "math/tex";
+            ReactDOM.findDOMNode(this.refs.mathjax).appendChild(this.script);
+        }
+        "text" in this.script ? // IE8, etc
+        this.script.text = text : this.script.textContent = text;
+    },
+    render: function render() {
+        var katexHtml = null;
+        try {
+            katexHtml = {
+                __html: katex.renderToString(this.props.children)
+            };
+        } catch (e) {
+            /* jshint -W103 */
+            if (e.__proto__ !== katex.ParseError.prototype) /* jshint +W103 */
+            throw e;
+        }
+        var katexA11yHtml = null;
+        if (katexHtml) try {
+            katexA11yHtml = {
+                __html: katexA11y.renderString(this.props.children)
+            };
+        } catch (e) {}
+        return React.createElement("span", {
+            style: this.props.style,
+            onClick: this.props.onClick
+        }, React.createElement("span", {
+            ref: "mathjax"
+        }), React.createElement("span", {
+            ref: "katex",
+            dangerouslySetInnerHTML: katexHtml,
+            "aria-hidden": !!katexHtml && !!katexA11yHtml
+        }), React.createElement("span", {
+            dangerouslySetInnerHTML: katexA11yHtml,
+            style: srOnly
+        }));
+    }
+});
+
+module.exports = TeX;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(86)))
+
+/***/ }),
+/* 71 */
+/***/ (function(module, exports) {
+
+/**
+ * Constants that define the various contexts in which a cursor can exist. The
+ * active context is determined first by looking at the cursor's siblings (e.g.,
+ * for the `BEFORE_FRACTION` context), and then at its direct parent. Though a
+ * cursor could in theory be nested in multiple contexts, we only care about the
+ * immediate context.
+ *
+ * TODO(charlie): Add a context to represent being inside of a radical. Right
+ * now, we show the dismiss button rather than allowing the user to jump out of
+ * the radical.
+ */
+module.exports = {
+    // The cursor is not in any of the other viable contexts.
+    NONE: "NONE",
+    // The cursor is within a set of parentheses.
+    IN_PARENS: "IN_PARENS",
+    // The cursor is within a superscript (e.g., an exponent).
+    IN_SUPER_SCRIPT: "IN_SUPER_SCRIPT",
+    // The cursor is within a subscript (e.g., the base of a custom logarithm).
+    IN_SUB_SCRIPT: "IN_SUB_SCRIPT",
+    // The cursor is in the numerator of a fraction.
+    IN_NUMERATOR: "IN_NUMERATOR",
+    // The cursor is in the denominator of a fraction.
+    IN_DENOMINATOR: "IN_DENOMINATOR",
+    // The cursor is sitting before a fraction; that is, the cursor is within
+    // what looks to be a mixed number preceding a fraction. This will only be
+    // the case when the only math between the cursor and the fraction to its
+    // write is non-leaf math (numbers and variables).
+    BEFORE_FRACTION: "BEFORE_FRACTION"
+};
+
+/***/ }),
+/* 72 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _extends = Object.assign || function(target) {
+    for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+        for (var key in source) Object.prototype.hasOwnProperty.call(source, key) && (target[key] = source[key]);
+    }
+    return target;
+};
+
+function _objectWithoutProperties(obj, keys) {
+    var target = {};
+    for (var i in obj) {
+        if (keys.indexOf(i) >= 0) continue;
+        if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;
+        target[i] = obj[i];
+    }
+    return target;
+}
+
+function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
+}
+
+function _possibleConstructorReturn(self, call) {
+    if (!self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !call || "object" !== typeof call && "function" !== typeof call ? self : call;
+}
+
+function _inherits(subClass, superClass) {
+    if ("function" !== typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+        constructor: {
+            value: subClass,
+            enumerable: false,
+            writable: true,
+            configurable: true
+        }
+    });
+    superClass && (Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass);
+}
+
+/**
+ * A touchable wrapper around the base KeypadButton component. This button is
+ * responsible for keeping our button ID system (which will be used to handle
+ * touch events globally) opaque to the KeypadButton.
+ */
+var React = __webpack_require__(0);
+
+var ReactDOM = __webpack_require__(4);
+
+var _require = __webpack_require__(40), connect = _require.connect;
+
+var _require2 = __webpack_require__(2), StyleSheet = _require2.StyleSheet;
+
+var KeypadButton = __webpack_require__(126);
+
+var KeyConfigs = __webpack_require__(39);
+
+var GestureManager = __webpack_require__(128);
+
+var _require3 = __webpack_require__(24), bordersPropType = _require3.bordersPropType, keyIdPropType = _require3.keyIdPropType;
+
+var _require4 = __webpack_require__(20), KeyTypes = _require4.KeyTypes;
+
+var TouchableKeypadButton = function(_React$Component) {
+    _inherits(TouchableKeypadButton, _React$Component);
+    function TouchableKeypadButton() {
+        _classCallCheck(this, TouchableKeypadButton);
+        return _possibleConstructorReturn(this, _React$Component.apply(this, arguments));
+    }
+    TouchableKeypadButton.prototype.shouldComponentUpdate = function shouldComponentUpdate(newProps) {
+        // We take advantage of a few different properties of our key
+        // configuration system. Namely, we know that the other props flow
+        // directly from the ID, and thus don't need to be checked. If a key has
+        // a custom style, we bail out (this should be rare).
+        return newProps.id !== this.props.id || newProps.gestureManager !== this.props.gestureManager || newProps.focused !== this.props.focused || newProps.disabled !== this.props.disabled || newProps.popoverEnabled !== this.props.popoverEnabled || newProps.type !== this.props.type || !!newProps.style;
+    };
+    TouchableKeypadButton.prototype.componentWillUnmount = function componentWillUnmount() {
+        var _props = this.props, gestureManager = _props.gestureManager, id = _props.id;
+        gestureManager.unregisterDOMNode(id);
+    };
+    TouchableKeypadButton.prototype.render = function render() {
+        var _props2 = this.props, borders = _props2.borders, childKeyIds = _props2.childKeyIds, disabled = _props2.disabled, gestureManager = _props2.gestureManager, id = _props2.id, style = _props2.style, rest = _objectWithoutProperties(_props2, [ "borders", "childKeyIds", "disabled", "gestureManager", "id", "style" ]);
+        // Only bind the relevant event handlers if the key is enabled.
+        var eventHandlers = disabled ? {
+            onTouchStart: function onTouchStart(evt) {
+                return evt.preventDefault();
+            }
+        } : {
+            onTouchStart: function onTouchStart(evt) {
+                return gestureManager.onTouchStart(evt, id);
+            },
+            onTouchEnd: function onTouchEnd(evt) {
+                return gestureManager.onTouchEnd(evt);
+            },
+            onTouchMove: function onTouchMove(evt) {
+                return gestureManager.onTouchMove(evt);
+            },
+            onTouchCancel: function onTouchCancel(evt) {
+                return gestureManager.onTouchCancel(evt);
+            }
+        };
+        var styleWithAddons = [].concat(Array.isArray(style) ? style : [ style ], [ styles.preventScrolls ]);
+        return React.createElement(KeypadButton, _extends({
+            ref: function ref(node) {
+                return gestureManager.registerDOMNode(id, ReactDOM.findDOMNode(node), childKeyIds, borders);
+            },
+            borders: borders,
+            disabled: disabled,
+            style: styleWithAddons
+        }, eventHandlers, rest));
+    };
+    return TouchableKeypadButton;
+}(React.Component);
+
+TouchableKeypadButton.propTypes = {
+    borders: bordersPropType,
+    childKeyIds: React.PropTypes.arrayOf(keyIdPropType),
+    disabled: React.PropTypes.bool,
+    focused: React.PropTypes.bool,
+    gestureManager: React.PropTypes.instanceOf(GestureManager),
+    id: keyIdPropType.isRequired,
+    popoverEnabled: React.PropTypes.bool,
+    style: React.PropTypes.any,
+    type: React.PropTypes.oneOf(Object.keys(KeyTypes)).isRequired
+};
+
+var extractProps = function extractProps(keyConfig) {
+    return {
+        ariaLabel: keyConfig.ariaLabel,
+        icon: keyConfig.icon,
+        type: keyConfig.type
+    };
+};
+
+var mapStateToProps = function mapStateToProps(state, ownProps) {
+    var gestures = state.gestures;
+    var keyConfig = ownProps.keyConfig, rest = _objectWithoutProperties(ownProps, [ "keyConfig" ]);
+    var id = keyConfig.id, childKeyIds = keyConfig.childKeyIds, type = keyConfig.type;
+    var childKeys = childKeyIds && childKeyIds.map(function(id) {
+        return KeyConfigs[id];
+    });
+    // Override with the default child props, if the key is a multi-symbol key
+    // (but not a many-symbol key, which operates under different rules).
+    var useFirstChildProps = type !== KeyTypes.MANY && childKeys && childKeys.length > 0;
+    return _extends({}, rest, {
+        childKeyIds: childKeyIds,
+        gestureManager: gestures.gestureManager,
+        id: id,
+        // Add in some gesture state.
+        focused: gestures.focus === id,
+        popoverEnabled: gestures.popover && gestures.popover.parentId === id,
+        // Pass down the child keys and any extracted props.
+        childKeys: childKeys
+    }, extractProps(useFirstChildProps ? childKeys[0] : keyConfig));
+};
+
+var styles = StyleSheet.create({
+    preventScrolls: {
+        // Touch events that start in the touchable buttons shouldn't be
+        // allowed to produce page scrolls.
+        touchAction: "none"
+    }
+});
+
+module.exports = connect(mapStateToProps)(TouchableKeypadButton);
+
+/***/ }),
+/* 73 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* eslint-disable comma-dangle, no-var */
+/* TODO(csilvers): fix these lint errors (http://eslint.org/docs/rules): */
+/* To fix, remove an entry above, run ka-lint, and fix errors. */
+/* Free implementation of getUserInput. This should be used sparingly, since it
+ * just returns all the widget's props rather than picking out those which were
+ * input by the user.
+ */
+var WIDGET_PROP_BLACKLIST = __webpack_require__(203);
+
+var _ = __webpack_require__(1);
+
+var WidgetJsonifyDeprecated = {
+    getUserInput: function getUserInput() {
+        // Omit props that get passed to all widgets
+        return _.omit(this.props, WIDGET_PROP_BLACKLIST);
+    }
+};
+
+module.exports = WidgetJsonifyDeprecated;
+
+/***/ }),
+/* 74 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function($) {var _extends = Object.assign || function(target) {
+    for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+        for (var key in source) Object.prototype.hasOwnProperty.call(source, key) && (target[key] = source[key]);
+    }
+    return target;
+};
+
+/* eslint-disable react/prop-types, react/sort-comp */
+var classNames = __webpack_require__(16);
+
+var React = __webpack_require__(0);
+
+var ReactDOM = __webpack_require__(4);
+
+var _ = __webpack_require__(1);
+
+var firstNumericalParse = __webpack_require__(6).firstNumericalParse;
+
+var captureScratchpadTouchStart = __webpack_require__(6).captureScratchpadTouchStart;
+
+var knumber = __webpack_require__(7).number;
+
+var KhanMath = __webpack_require__(30);
+
+var toNumericString = KhanMath.toNumericString;
+
+var getNumericFormat = KhanMath.getNumericFormat;
+
+/* An input box that accepts only numeric strings
+ *
+ * Calls onChange(value, format) for valid numbers.
+ * Reverts to the current value onBlur or on [ENTER],
+ *   but maintains the format (i.e. 3/2, 1 1/2, 150%)
+ * Accepts empty input and sends it to onChange as null
+ *   if no numeric placeholder is set.
+ * If given a checkValidity function, will turn
+ *   the background/outline red when invalid
+ * If useArrowKeys is set to true, up/down arrows will
+ *   increment/decrement integers
+ * Optionally takes a size ("mini", "small", "normal")
+ */
+var NumberInput = React.createClass({
+    displayName: "NumberInput",
+    propTypes: {
+        value: React.PropTypes.number,
+        format: React.PropTypes.string,
+        placeholder: React.PropTypes.oneOfType([ React.PropTypes.string, React.PropTypes.number ]),
+        onChange: React.PropTypes.func.isRequired,
+        onFormatChange: React.PropTypes.func,
+        checkValidity: React.PropTypes.func,
+        size: React.PropTypes.string,
+        label: React.PropTypes.oneOf([ "put your labels outside your inputs!" ])
+    },
+    getDefaultProps: function getDefaultProps() {
+        return {
+            value: null,
+            placeholder: null,
+            format: null,
+            onFormatChange: function onFormatChange() {
+                return null;
+            },
+            checkValidity: function checkValidity() {
+                return true;
+            },
+            useArrowKeys: false
+        };
+    },
+    getInitialState: function getInitialState() {
+        return {
+            format: this.props.format
+        };
+    },
+    render: function render() {
+        var classes = classNames({
+            "number-input": true,
+            "invalid-input": !this._checkValidity(this.props.value),
+            mini: "mini" === this.props.size,
+            small: "small" === this.props.size,
+            normal: "normal" === this.props.size
+        });
+        null != this.props.className && (classes = classes + " " + this.props.className);
+        return React.createElement("input", _extends({}, this.props, {
+            className: classes,
+            type: "text",
+            ref: "input",
+            onChange: this._handleChange,
+            onFocus: this._handleFocus,
+            onBlur: this._handleBlur,
+            onKeyPress: this._handleBlur,
+            onKeyDown: this._onKeyDown,
+            onTouchStart: captureScratchpadTouchStart,
+            defaultValue: toNumericString(this.props.value, this.state.format),
+            value: void 0
+        }));
+    },
+    componentDidUpdate: function componentDidUpdate(prevProps) {
+        knumber.equal(this.getValue(), this.props.value) || this._setValue(this.props.value, this.state.format);
+    },
+    /* Return the current "value" of this input
+     * If empty, it returns the placeholder (if it is a number) or null
+     */
+    getValue: function getValue() {
+        return this.parseInputValue(ReactDOM.findDOMNode(this.refs.input).value);
+    },
+    /* Return the current string value of this input */
+    getStringValue: function getStringValue() {
+        return ReactDOM.findDOMNode(this.refs.input).value.toString();
+    },
+    parseInputValue: function parseInputValue(value) {
+        if ("" === value) {
+            var placeholder = this.props.placeholder;
+            return _.isFinite(placeholder) ? +placeholder : null;
+        }
+        var result = firstNumericalParse(value);
+        return _.isFinite(result) ? result : this.props.value;
+    },
+    /* Set text input focus to this input */
+    focus: function focus() {
+        ReactDOM.findDOMNode(this.refs.input).focus();
+        this._handleFocus();
+    },
+    blur: function blur() {
+        ReactDOM.findDOMNode(this.refs.input).blur();
+        this._handleBlur();
+    },
+    setSelectionRange: function setSelectionRange(selectionStart, selectionEnd) {
+        ReactDOM.findDOMNode(this).setSelectionRange(selectionStart, selectionEnd);
+    },
+    getSelectionStart: function getSelectionStart() {
+        return ReactDOM.findDOMNode(this).selectionStart;
+    },
+    getSelectionEnd: function getSelectionEnd() {
+        return ReactDOM.findDOMNode(this).selectionEnd;
+    },
+    _checkValidity: function _checkValidity(value) {
+        if (null == value) return true;
+        var val = firstNumericalParse(value);
+        var checkValidity = this.props.checkValidity;
+        return _.isFinite(val) && checkValidity(val);
+    },
+    _handleChange: function _handleChange(e) {
+        var text = e.target.value;
+        var value = this.parseInputValue(text);
+        var format = getNumericFormat(text);
+        this.props.onChange(value);
+        if (format) {
+            this.props.onFormatChange(value, format);
+            this.setState({
+                format: format
+            });
+        }
+    },
+    _handleFocus: function _handleFocus() {
+        this.props.onFocus && this.props.onFocus();
+    },
+    _handleBlur: function _handleBlur(e) {
+        // Only continue on blur or "enter"
+        if (e && "keypress" === e.type && 13 !== e.keyCode) return;
+        this._setValue(this.props.value, this.state.format);
+        this.props.onBlur && this.props.onBlur();
+    },
+    _onKeyDown: function _onKeyDown(e) {
+        this.props.onKeyDown && this.props.onKeyDown(e);
+        if (!this.props.useArrowKeys || !_.contains([ "ArrowUp", "ArrowDown" ], e.key)) return;
+        var val = this.getValue();
+        if (val !== Math.floor(val)) return;
+        "ArrowUp" === e.key ? val += 1 : "ArrowDown" === e.key && (val -= 1);
+        this._checkValidity(val) && this.props.onChange(val);
+    },
+    _setValue: function _setValue(val, format) {
+        $(ReactDOM.findDOMNode(this.refs.input)).val(toNumericString(val, format));
+    }
+});
+
+module.exports = NumberInput;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(9)))
+
+/***/ }),
+/* 75 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(_) {/*! KAS | https://github.com/Khan/KAS */
 // This is a @generated file
-window.KAS = {};
+var KAS = {};
 (function(KAS) {
 
 /* parser generated by jison 0.4.15 */
@@ -26766,1819 +28571,9 @@ KAS.compare = function(expr1, expr2, options) {
 
 })(KAS);
 
+module.exports = KAS;
 
-/*** EXPORTS FROM exports-loader ***/
-module.exports = window.KAS;
-
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(64), __webpack_require__(1)))
-
-/***/ }),
-/* 65 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-
-
-var emptyObject = {};
-
-if (false) {}
-
-module.exports = emptyObject;
-
-/***/ }),
-/* 66 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @providesModule EventPropagators
- */
-
-
-
-var EventConstants = __webpack_require__(41);
-var EventPluginHub = __webpack_require__(67);
-var EventPluginUtils = __webpack_require__(105);
-
-var accumulateInto = __webpack_require__(162);
-var forEachAccumulated = __webpack_require__(163);
-var warning = __webpack_require__(11);
-
-var PropagationPhases = EventConstants.PropagationPhases;
-var getListener = EventPluginHub.getListener;
-
-/**
- * Some event types have a notion of different registration names for different
- * "phases" of propagation. This finds listeners by a given phase.
- */
-function listenerAtPhase(inst, event, propagationPhase) {
-  var registrationName = event.dispatchConfig.phasedRegistrationNames[propagationPhase];
-  return getListener(inst, registrationName);
-}
-
-/**
- * Tags a `SyntheticEvent` with dispatched listeners. Creating this function
- * here, allows us to not have to bind or create functions for each event.
- * Mutating the event's members allows us to not have to create a wrapping
- * "dispatch" object that pairs the event with the listener.
- */
-function accumulateDirectionalDispatches(inst, upwards, event) {
-  if (false) {}
-  var phase = upwards ? PropagationPhases.bubbled : PropagationPhases.captured;
-  var listener = listenerAtPhase(inst, event, phase);
-  if (listener) {
-    event._dispatchListeners = accumulateInto(event._dispatchListeners, listener);
-    event._dispatchInstances = accumulateInto(event._dispatchInstances, inst);
-  }
-}
-
-/**
- * Collect dispatches (must be entirely collected before dispatching - see unit
- * tests). Lazily allocate the array to conserve memory.  We must loop through
- * each event and perform the traversal for each one. We cannot perform a
- * single traversal for the entire collection of events because each event may
- * have a different target.
- */
-function accumulateTwoPhaseDispatchesSingle(event) {
-  if (event && event.dispatchConfig.phasedRegistrationNames) {
-    EventPluginUtils.traverseTwoPhase(event._targetInst, accumulateDirectionalDispatches, event);
-  }
-}
-
-/**
- * Same as `accumulateTwoPhaseDispatchesSingle`, but skips over the targetID.
- */
-function accumulateTwoPhaseDispatchesSingleSkipTarget(event) {
-  if (event && event.dispatchConfig.phasedRegistrationNames) {
-    var targetInst = event._targetInst;
-    var parentInst = targetInst ? EventPluginUtils.getParentInstance(targetInst) : null;
-    EventPluginUtils.traverseTwoPhase(parentInst, accumulateDirectionalDispatches, event);
-  }
-}
-
-/**
- * Accumulates without regard to direction, does not look for phased
- * registration names. Same as `accumulateDirectDispatchesSingle` but without
- * requiring that the `dispatchMarker` be the same as the dispatched ID.
- */
-function accumulateDispatches(inst, ignoredDirection, event) {
-  if (event && event.dispatchConfig.registrationName) {
-    var registrationName = event.dispatchConfig.registrationName;
-    var listener = getListener(inst, registrationName);
-    if (listener) {
-      event._dispatchListeners = accumulateInto(event._dispatchListeners, listener);
-      event._dispatchInstances = accumulateInto(event._dispatchInstances, inst);
-    }
-  }
-}
-
-/**
- * Accumulates dispatches on an `SyntheticEvent`, but only for the
- * `dispatchMarker`.
- * @param {SyntheticEvent} event
- */
-function accumulateDirectDispatchesSingle(event) {
-  if (event && event.dispatchConfig.registrationName) {
-    accumulateDispatches(event._targetInst, null, event);
-  }
-}
-
-function accumulateTwoPhaseDispatches(events) {
-  forEachAccumulated(events, accumulateTwoPhaseDispatchesSingle);
-}
-
-function accumulateTwoPhaseDispatchesSkipTarget(events) {
-  forEachAccumulated(events, accumulateTwoPhaseDispatchesSingleSkipTarget);
-}
-
-function accumulateEnterLeaveDispatches(leave, enter, from, to) {
-  EventPluginUtils.traverseEnterLeave(from, to, accumulateDispatches, leave, enter);
-}
-
-function accumulateDirectDispatches(events) {
-  forEachAccumulated(events, accumulateDirectDispatchesSingle);
-}
-
-/**
- * A small set of propagation patterns, each of which will accept a small amount
- * of information, and generate a set of "dispatch ready event objects" - which
- * are sets of events that have already been annotated with a set of dispatched
- * listener functions/ids. The API is designed this way to discourage these
- * propagation strategies from actually executing the dispatches, since we
- * always want to collect the entire set of dispatches before executing event a
- * single one.
- *
- * @constructor EventPropagators
- */
-var EventPropagators = {
-  accumulateTwoPhaseDispatches: accumulateTwoPhaseDispatches,
-  accumulateTwoPhaseDispatchesSkipTarget: accumulateTwoPhaseDispatchesSkipTarget,
-  accumulateDirectDispatches: accumulateDirectDispatches,
-  accumulateEnterLeaveDispatches: accumulateEnterLeaveDispatches
-};
-
-module.exports = EventPropagators;
-
-/***/ }),
-/* 67 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @providesModule EventPluginHub
- */
-
-
-
-var _prodInvariant = __webpack_require__(8);
-
-var EventPluginRegistry = __webpack_require__(104);
-var EventPluginUtils = __webpack_require__(105);
-var ReactErrorUtils = __webpack_require__(106);
-
-var accumulateInto = __webpack_require__(162);
-var forEachAccumulated = __webpack_require__(163);
-var invariant = __webpack_require__(5);
-
-/**
- * Internal store for event listeners
- */
-var listenerBank = {};
-
-/**
- * Internal queue of events that have accumulated their dispatches and are
- * waiting to have their dispatches executed.
- */
-var eventQueue = null;
-
-/**
- * Dispatches an event and releases it back into the pool, unless persistent.
- *
- * @param {?object} event Synthetic event to be dispatched.
- * @param {boolean} simulated If the event is simulated (changes exn behavior)
- * @private
- */
-var executeDispatchesAndRelease = function (event, simulated) {
-  if (event) {
-    EventPluginUtils.executeDispatchesInOrder(event, simulated);
-
-    if (!event.isPersistent()) {
-      event.constructor.release(event);
-    }
-  }
-};
-var executeDispatchesAndReleaseSimulated = function (e) {
-  return executeDispatchesAndRelease(e, true);
-};
-var executeDispatchesAndReleaseTopLevel = function (e) {
-  return executeDispatchesAndRelease(e, false);
-};
-
-var getDictionaryKey = function (inst) {
-  // Prevents V8 performance issue:
-  // https://github.com/facebook/react/pull/7232
-  return '.' + inst._rootNodeID;
-};
-
-/**
- * This is a unified interface for event plugins to be installed and configured.
- *
- * Event plugins can implement the following properties:
- *
- *   `extractEvents` {function(string, DOMEventTarget, string, object): *}
- *     Required. When a top-level event is fired, this method is expected to
- *     extract synthetic events that will in turn be queued and dispatched.
- *
- *   `eventTypes` {object}
- *     Optional, plugins that fire events must publish a mapping of registration
- *     names that are used to register listeners. Values of this mapping must
- *     be objects that contain `registrationName` or `phasedRegistrationNames`.
- *
- *   `executeDispatch` {function(object, function, string)}
- *     Optional, allows plugins to override how an event gets dispatched. By
- *     default, the listener is simply invoked.
- *
- * Each plugin that is injected into `EventsPluginHub` is immediately operable.
- *
- * @public
- */
-var EventPluginHub = {
-
-  /**
-   * Methods for injecting dependencies.
-   */
-  injection: {
-
-    /**
-     * @param {array} InjectedEventPluginOrder
-     * @public
-     */
-    injectEventPluginOrder: EventPluginRegistry.injectEventPluginOrder,
-
-    /**
-     * @param {object} injectedNamesToPlugins Map from names to plugin modules.
-     */
-    injectEventPluginsByName: EventPluginRegistry.injectEventPluginsByName
-
-  },
-
-  /**
-   * Stores `listener` at `listenerBank[registrationName][key]`. Is idempotent.
-   *
-   * @param {object} inst The instance, which is the source of events.
-   * @param {string} registrationName Name of listener (e.g. `onClick`).
-   * @param {function} listener The callback to store.
-   */
-  putListener: function (inst, registrationName, listener) {
-    !(typeof listener === 'function') ?  false ? undefined : _prodInvariant('94', registrationName, typeof listener) : void 0;
-
-    var key = getDictionaryKey(inst);
-    var bankForRegistrationName = listenerBank[registrationName] || (listenerBank[registrationName] = {});
-    bankForRegistrationName[key] = listener;
-
-    var PluginModule = EventPluginRegistry.registrationNameModules[registrationName];
-    if (PluginModule && PluginModule.didPutListener) {
-      PluginModule.didPutListener(inst, registrationName, listener);
-    }
-  },
-
-  /**
-   * @param {object} inst The instance, which is the source of events.
-   * @param {string} registrationName Name of listener (e.g. `onClick`).
-   * @return {?function} The stored callback.
-   */
-  getListener: function (inst, registrationName) {
-    var bankForRegistrationName = listenerBank[registrationName];
-    var key = getDictionaryKey(inst);
-    return bankForRegistrationName && bankForRegistrationName[key];
-  },
-
-  /**
-   * Deletes a listener from the registration bank.
-   *
-   * @param {object} inst The instance, which is the source of events.
-   * @param {string} registrationName Name of listener (e.g. `onClick`).
-   */
-  deleteListener: function (inst, registrationName) {
-    var PluginModule = EventPluginRegistry.registrationNameModules[registrationName];
-    if (PluginModule && PluginModule.willDeleteListener) {
-      PluginModule.willDeleteListener(inst, registrationName);
-    }
-
-    var bankForRegistrationName = listenerBank[registrationName];
-    // TODO: This should never be null -- when is it?
-    if (bankForRegistrationName) {
-      var key = getDictionaryKey(inst);
-      delete bankForRegistrationName[key];
-    }
-  },
-
-  /**
-   * Deletes all listeners for the DOM element with the supplied ID.
-   *
-   * @param {object} inst The instance, which is the source of events.
-   */
-  deleteAllListeners: function (inst) {
-    var key = getDictionaryKey(inst);
-    for (var registrationName in listenerBank) {
-      if (!listenerBank.hasOwnProperty(registrationName)) {
-        continue;
-      }
-
-      if (!listenerBank[registrationName][key]) {
-        continue;
-      }
-
-      var PluginModule = EventPluginRegistry.registrationNameModules[registrationName];
-      if (PluginModule && PluginModule.willDeleteListener) {
-        PluginModule.willDeleteListener(inst, registrationName);
-      }
-
-      delete listenerBank[registrationName][key];
-    }
-  },
-
-  /**
-   * Allows registered plugins an opportunity to extract events from top-level
-   * native browser events.
-   *
-   * @return {*} An accumulation of synthetic events.
-   * @internal
-   */
-  extractEvents: function (topLevelType, targetInst, nativeEvent, nativeEventTarget) {
-    var events;
-    var plugins = EventPluginRegistry.plugins;
-    for (var i = 0; i < plugins.length; i++) {
-      // Not every plugin in the ordering may be loaded at runtime.
-      var possiblePlugin = plugins[i];
-      if (possiblePlugin) {
-        var extractedEvents = possiblePlugin.extractEvents(topLevelType, targetInst, nativeEvent, nativeEventTarget);
-        if (extractedEvents) {
-          events = accumulateInto(events, extractedEvents);
-        }
-      }
-    }
-    return events;
-  },
-
-  /**
-   * Enqueues a synthetic event that should be dispatched when
-   * `processEventQueue` is invoked.
-   *
-   * @param {*} events An accumulation of synthetic events.
-   * @internal
-   */
-  enqueueEvents: function (events) {
-    if (events) {
-      eventQueue = accumulateInto(eventQueue, events);
-    }
-  },
-
-  /**
-   * Dispatches all synthetic events on the event queue.
-   *
-   * @internal
-   */
-  processEventQueue: function (simulated) {
-    // Set `eventQueue` to null before processing it so that we can tell if more
-    // events get enqueued while processing.
-    var processingEventQueue = eventQueue;
-    eventQueue = null;
-    if (simulated) {
-      forEachAccumulated(processingEventQueue, executeDispatchesAndReleaseSimulated);
-    } else {
-      forEachAccumulated(processingEventQueue, executeDispatchesAndReleaseTopLevel);
-    }
-    !!eventQueue ?  false ? undefined : _prodInvariant('95') : void 0;
-    // This would be a good time to rethrow if any of the event handlers threw.
-    ReactErrorUtils.rethrowCaughtError();
-  },
-
-  /**
-   * These are needed for tests only. Do not use!
-   */
-  __purge: function () {
-    listenerBank = {};
-  },
-
-  __getListenerBank: function () {
-    return listenerBank;
-  }
-
-};
-
-module.exports = EventPluginHub;
-
-/***/ }),
-/* 68 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @providesModule Transaction
- */
-
-
-
-var _prodInvariant = __webpack_require__(8);
-
-var invariant = __webpack_require__(5);
-
-/**
- * `Transaction` creates a black box that is able to wrap any method such that
- * certain invariants are maintained before and after the method is invoked
- * (Even if an exception is thrown while invoking the wrapped method). Whoever
- * instantiates a transaction can provide enforcers of the invariants at
- * creation time. The `Transaction` class itself will supply one additional
- * automatic invariant for you - the invariant that any transaction instance
- * should not be run while it is already being run. You would typically create a
- * single instance of a `Transaction` for reuse multiple times, that potentially
- * is used to wrap several different methods. Wrappers are extremely simple -
- * they only require implementing two methods.
- *
- * <pre>
- *                       wrappers (injected at creation time)
- *                                      +        +
- *                                      |        |
- *                    +-----------------|--------|--------------+
- *                    |                 v        |              |
- *                    |      +---------------+   |              |
- *                    |   +--|    wrapper1   |---|----+         |
- *                    |   |  +---------------+   v    |         |
- *                    |   |          +-------------+  |         |
- *                    |   |     +----|   wrapper2  |--------+   |
- *                    |   |     |    +-------------+  |     |   |
- *                    |   |     |                     |     |   |
- *                    |   v     v                     v     v   | wrapper
- *                    | +---+ +---+   +---------+   +---+ +---+ | invariants
- * perform(anyMethod) | |   | |   |   |         |   |   | |   | | maintained
- * +----------------->|-|---|-|---|-->|anyMethod|---|---|-|---|-|-------->
- *                    | |   | |   |   |         |   |   | |   | |
- *                    | |   | |   |   |         |   |   | |   | |
- *                    | |   | |   |   |         |   |   | |   | |
- *                    | +---+ +---+   +---------+   +---+ +---+ |
- *                    |  initialize                    close    |
- *                    +-----------------------------------------+
- * </pre>
- *
- * Use cases:
- * - Preserving the input selection ranges before/after reconciliation.
- *   Restoring selection even in the event of an unexpected error.
- * - Deactivating events while rearranging the DOM, preventing blurs/focuses,
- *   while guaranteeing that afterwards, the event system is reactivated.
- * - Flushing a queue of collected DOM mutations to the main UI thread after a
- *   reconciliation takes place in a worker thread.
- * - Invoking any collected `componentDidUpdate` callbacks after rendering new
- *   content.
- * - (Future use case): Wrapping particular flushes of the `ReactWorker` queue
- *   to preserve the `scrollTop` (an automatic scroll aware DOM).
- * - (Future use case): Layout calculations before and after DOM updates.
- *
- * Transactional plugin API:
- * - A module that has an `initialize` method that returns any precomputation.
- * - and a `close` method that accepts the precomputation. `close` is invoked
- *   when the wrapped process is completed, or has failed.
- *
- * @param {Array<TransactionalWrapper>} transactionWrapper Wrapper modules
- * that implement `initialize` and `close`.
- * @return {Transaction} Single transaction for reuse in thread.
- *
- * @class Transaction
- */
-var Mixin = {
-  /**
-   * Sets up this instance so that it is prepared for collecting metrics. Does
-   * so such that this setup method may be used on an instance that is already
-   * initialized, in a way that does not consume additional memory upon reuse.
-   * That can be useful if you decide to make your subclass of this mixin a
-   * "PooledClass".
-   */
-  reinitializeTransaction: function () {
-    this.transactionWrappers = this.getTransactionWrappers();
-    if (this.wrapperInitData) {
-      this.wrapperInitData.length = 0;
-    } else {
-      this.wrapperInitData = [];
-    }
-    this._isInTransaction = false;
-  },
-
-  _isInTransaction: false,
-
-  /**
-   * @abstract
-   * @return {Array<TransactionWrapper>} Array of transaction wrappers.
-   */
-  getTransactionWrappers: null,
-
-  isInTransaction: function () {
-    return !!this._isInTransaction;
-  },
-
-  /**
-   * Executes the function within a safety window. Use this for the top level
-   * methods that result in large amounts of computation/mutations that would
-   * need to be safety checked. The optional arguments helps prevent the need
-   * to bind in many cases.
-   *
-   * @param {function} method Member of scope to call.
-   * @param {Object} scope Scope to invoke from.
-   * @param {Object?=} a Argument to pass to the method.
-   * @param {Object?=} b Argument to pass to the method.
-   * @param {Object?=} c Argument to pass to the method.
-   * @param {Object?=} d Argument to pass to the method.
-   * @param {Object?=} e Argument to pass to the method.
-   * @param {Object?=} f Argument to pass to the method.
-   *
-   * @return {*} Return value from `method`.
-   */
-  perform: function (method, scope, a, b, c, d, e, f) {
-    !!this.isInTransaction() ?  false ? undefined : _prodInvariant('27') : void 0;
-    var errorThrown;
-    var ret;
-    try {
-      this._isInTransaction = true;
-      // Catching errors makes debugging more difficult, so we start with
-      // errorThrown set to true before setting it to false after calling
-      // close -- if it's still set to true in the finally block, it means
-      // one of these calls threw.
-      errorThrown = true;
-      this.initializeAll(0);
-      ret = method.call(scope, a, b, c, d, e, f);
-      errorThrown = false;
-    } finally {
-      try {
-        if (errorThrown) {
-          // If `method` throws, prefer to show that stack trace over any thrown
-          // by invoking `closeAll`.
-          try {
-            this.closeAll(0);
-          } catch (err) {}
-        } else {
-          // Since `method` didn't throw, we don't want to silence the exception
-          // here.
-          this.closeAll(0);
-        }
-      } finally {
-        this._isInTransaction = false;
-      }
-    }
-    return ret;
-  },
-
-  initializeAll: function (startIndex) {
-    var transactionWrappers = this.transactionWrappers;
-    for (var i = startIndex; i < transactionWrappers.length; i++) {
-      var wrapper = transactionWrappers[i];
-      try {
-        // Catching errors makes debugging more difficult, so we start with the
-        // OBSERVED_ERROR state before overwriting it with the real return value
-        // of initialize -- if it's still set to OBSERVED_ERROR in the finally
-        // block, it means wrapper.initialize threw.
-        this.wrapperInitData[i] = Transaction.OBSERVED_ERROR;
-        this.wrapperInitData[i] = wrapper.initialize ? wrapper.initialize.call(this) : null;
-      } finally {
-        if (this.wrapperInitData[i] === Transaction.OBSERVED_ERROR) {
-          // The initializer for wrapper i threw an error; initialize the
-          // remaining wrappers but silence any exceptions from them to ensure
-          // that the first error is the one to bubble up.
-          try {
-            this.initializeAll(i + 1);
-          } catch (err) {}
-        }
-      }
-    }
-  },
-
-  /**
-   * Invokes each of `this.transactionWrappers.close[i]` functions, passing into
-   * them the respective return values of `this.transactionWrappers.init[i]`
-   * (`close`rs that correspond to initializers that failed will not be
-   * invoked).
-   */
-  closeAll: function (startIndex) {
-    !this.isInTransaction() ?  false ? undefined : _prodInvariant('28') : void 0;
-    var transactionWrappers = this.transactionWrappers;
-    for (var i = startIndex; i < transactionWrappers.length; i++) {
-      var wrapper = transactionWrappers[i];
-      var initData = this.wrapperInitData[i];
-      var errorThrown;
-      try {
-        // Catching errors makes debugging more difficult, so we start with
-        // errorThrown set to true before setting it to false after calling
-        // close -- if it's still set to true in the finally block, it means
-        // wrapper.close threw.
-        errorThrown = true;
-        if (initData !== Transaction.OBSERVED_ERROR && wrapper.close) {
-          wrapper.close.call(this, initData);
-        }
-        errorThrown = false;
-      } finally {
-        if (errorThrown) {
-          // The closer for wrapper i threw an error; close the remaining
-          // wrappers but silence any exceptions from them to ensure that the
-          // first error is the one to bubble up.
-          try {
-            this.closeAll(i + 1);
-          } catch (e) {}
-        }
-      }
-    }
-    this.wrapperInitData.length = 0;
-  }
-};
-
-var Transaction = {
-
-  Mixin: Mixin,
-
-  /**
-   * Token to look for to determine if an error occurred.
-   */
-  OBSERVED_ERROR: {}
-
-};
-
-module.exports = Transaction;
-
-/***/ }),
-/* 69 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright 2013-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @providesModule SyntheticUIEvent
- */
-
-
-
-var SyntheticEvent = __webpack_require__(42);
-
-var getEventTarget = __webpack_require__(107);
-
-/**
- * @interface UIEvent
- * @see http://www.w3.org/TR/DOM-Level-3-Events/
- */
-var UIEventInterface = {
-  view: function (event) {
-    if (event.view) {
-      return event.view;
-    }
-
-    var target = getEventTarget(event);
-    if (target.window === target) {
-      // target is a window object
-      return target;
-    }
-
-    var doc = target.ownerDocument;
-    // TODO: Figure out why `ownerDocument` is sometimes undefined in IE8.
-    if (doc) {
-      return doc.defaultView || doc.parentWindow;
-    } else {
-      return window;
-    }
-  },
-  detail: function (event) {
-    return event.detail || 0;
-  }
-};
-
-/**
- * @param {object} dispatchConfig Configuration used to dispatch this event.
- * @param {string} dispatchMarker Marker identifying the event target.
- * @param {object} nativeEvent Native browser event.
- * @extends {SyntheticEvent}
- */
-function SyntheticUIEvent(dispatchConfig, dispatchMarker, nativeEvent, nativeEventTarget) {
-  return SyntheticEvent.call(this, dispatchConfig, dispatchMarker, nativeEvent, nativeEventTarget);
-}
-
-SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
-
-module.exports = SyntheticUIEvent;
-
-/***/ }),
-/* 70 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _typeof = "function" === typeof Symbol && "symbol" === typeof Symbol.iterator ? function(obj) {
-    return typeof obj;
-} : function(obj) {
-    return obj && "function" === typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-};
-
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
-}
-
-// TraversalCallback is the type of the callback function passed to the
-// traverse() method. It is invoked with node, state, and content arguments
-// and is expected to return nothing.
-Object.defineProperty(module.exports, "babelPluginFlowReactPropTypes_proptype_TreeNode", __webpack_require__(0).PropTypes.shape({
-    type: __webpack_require__(0).PropTypes.string.isRequired
-}));
-
-/**
-      * TreeTransformer is a class for traversing and transforming trees.  Create a
-      * TreeTransformer by passing the root node of the tree to the
-      * constructor. Then traverse that tree by calling the traverse() method. The
-      * argument to traverse() is a callback function that will be called once for
-      * each node in the tree. This is a post-order depth-first traversal: the
-      * callback is not called on the a way down, but on the way back up. That is,
-      * the children of a node are traversed before the node itself is.
-      *
-      * The traversal callback function is passed three arguments, the node being
-      * traversed, a TraversalState object, and the concatentated text content of
-      * the node and all of its descendants. The TraversalState object is the most
-      * most interesting argument: it has methods for querying the ancestors and
-      * siblings of the node, and for deleting or replacing the node. These
-      * transformation methods are why this class is a tree transformer and not
-      * just a tree traverser.
-      *
-      * A typical tree traversal looks like this:
-      *
-      *   new TreeTransformer(root).traverse((node, state, content) => {
-      *       let parent = state.parent();
-      *       let previous = state.previousSibling();
-      *       // etc.
-      *   });
-      *
-      * The traverse() method descends through nodes and arrays of nodes and calls
-      * the traverse callback on each node on the way back up to the root of the
-      * tree. (Note that it only calls the callback on the nodes themselves, not
-      * any arrays that contain nodes.) A node is loosely defined as any object
-      * with a string-valued `type` property. Objects that do not have a type
-      * property are assumed to not be part of the tree and are not traversed. When
-      * traversing an array, all elements of the array are examined, and any that
-      * are nodes or arrays are recursively traversed. When traversing a node, all
-      * properties of the object are examined and any node or array values are
-      * recursively traversed.  In typical parse trees, the children of a node are
-      * in a `children` or `content` array, but this class is designed to handle
-      * more general trees.  The Perseus markdown parser, for example, produces
-      * nodes of type "table" that have children in the `header` and `cells`
-      * properties.
-      *
-      * CAUTION: the traverse() method does not make any attempt to detect
-      * cycles. If you call it on a cyclic graph instead of a tree, it will cause
-      * infinite recursion (or, more likely, a stack overflow).
-      *
-      * TODO(davidflanagan): it probably wouldn't be hard to detect cycles: when
-      * pushing a new node onto the containers stack we could just check that it
-      * isn't already there.
-      *
-      * If a node has a text-valued `content` property, it is taken to be the
-      * plain-text content of the node. The traverse() method concatenates these
-      * content strings and passes them to the traversal callback for each
-      * node. This means that the callback has access the full text content of its
-      * node and all of the nodes descendants.
-      *
-      * See the TraversalState class for more information on what information and
-      * methods are available to the traversal callback.
-      **/
-// TreeNode is the type of a node in a parse tree. The only real requirement is
-// that every node has a string-valued `type` property
-// This is the TreeTransformer class described in detail at the
-// top of this file.
-var TreeTransformer = function() {
-    // To create a tree transformer, just pass the root node of the tree
-    function TreeTransformer(root) {
-        _classCallCheck(this, TreeTransformer);
-        this.root = root;
-    }
-    // A utility function for determing whether an arbitrary value is a node
-    TreeTransformer.isNode = function isNode(n) {
-        return n && "object" === ("undefined" === typeof n ? "undefined" : _typeof(n)) && "string" === typeof n.type;
-    };
-    // Determines whether a value is a node with type "text" and has
-    // a text-valued `content` property.
-    TreeTransformer.isTextNode = function isTextNode(n) {
-        return TreeTransformer.isNode(n) && "text" === n.type && "string" === typeof n.content;
-    };
-    // This is the main entry point for the traverse() method. See the comment
-    // at the top of this file for a detailed description. Note that this
-    // method just creates a new TraversalState object to use for this
-    // traversal and then invokes the internal _traverse() method to begin the
-    // recursion.
-    TreeTransformer.prototype.traverse = function traverse(f) {
-        this._traverse(this.root, new TraversalState(this.root), f);
-    };
-    // Do a post-order traversal of node and its descendants, invoking the
-    // callback function f() once for each node and returning the concatenated
-    // text content of the node and its descendants. f() is passed three
-    // arguments: the current node, a TraversalState object representing the
-    // current state of the traversal, and a string that holds the
-    // concatenated text of the node and its descendants.
-    //
-    // This private method holds all the traversal logic and implementation
-    // details. Note that this method uses the TraversalState object to store
-    // information about the structure of the tree.
-    TreeTransformer.prototype._traverse = function _traverse(n, state, f) {
-        var _this = this;
-        var content = "";
-        if (TreeTransformer.isNode(n)) {
-            // If we were called on a node object, then we handle it
-            // this way.
-            var _node = n;
-            // safe cast; we just tested
-            // Put the node on the stack before recursing on its children
-            state._containers.push(_node);
-            state._ancestors.push(_node);
-            // Record the node's text content if it has any.
-            // Usually this is for nodes with a type property of "text",
-            // but other nodes types like "math" may also have content.
-            "string" === typeof _node.content && (content = _node.content);
-            Object.keys(_node).forEach(function(key) {
-                // Never recurse on the type property
-                if ("type" === key) return;
-                // Ignore properties that are null or primitive and only
-                // recurse on objects and arrays. Note that we don't do a
-                // isNode() check here. That is done in the recursive call to
-                // _traverse(). Note that the recursive call on each child
-                // returns the text content of the child and we add that
-                // content to the content for this node. Also note that we
-                // push the name of the property we're recursing over onto a
-                // TraversalState stack.
-                var value = _node[key];
-                if (value && "object" === ("undefined" === typeof value ? "undefined" : _typeof(value))) {
-                    state._indexes.push(key);
-                    content += _this._traverse(value, state, f);
-                    state._indexes.pop();
-                }
-            });
-            // Restore the stacks after recursing on the children
-            state._currentNode = state._ancestors.pop();
-            state._containers.pop();
-            // And finally call the traversal callback for this node.  Note
-            // that this is post-order traversal. We call the callback on the
-            // way back up the tree, not on the way down.  That way we already
-            // know all the content contained within the node.
-            f(_node, state, content);
-        } else if (Array.isArray(n)) {
-            // If we were called on an array instead of a node, then
-            var nodes = n;
-            // Push the array onto the stack. This will allow the
-            // TraversalState object to locate siblings of this node.
-            state._containers.push(nodes);
-            // Now loop through this array and recurse on each element in it.
-            // Before recursing on an element, we push its array index on a
-            // TraversalState stack so that the TraversalState sibling methods
-            // can work. Note that TraversalState methods can alter the length
-            // of the array, and change the index of the current node, so we
-            // are careful here to test the array length on each iteration and
-            // to reset the index when we pop the stack. Also note that we
-            // concatentate the text content of the children.
-            var index = 0;
-            while (index < nodes.length) {
-                state._indexes.push(index);
-                content += this._traverse(nodes[index], state, f);
-                // Casting to convince Flow that this is a number
-                index = state._indexes.pop() + 1;
-            }
-            // Pop the array off the stack. Note, however, that we do not call
-            // the traversal callback on the array. That function is only
-            // called for nodes, not arrays of nodes.
-            state._containers.pop();
-        }
-        // The _traverse() method always returns the text content of
-        // this node and its children. This is the one piece of state that
-        // is not tracked in the TraversalState object.
-        return content;
-    };
-    return TreeTransformer;
-}();
-
-// An instance of this class is passed to the callback function for
-// each node traversed. The class itself is not exported, but its
-// methods define the API available to the traversal callback.
-/**
- * This class represents the state of a tree traversal. An instance is created
- * by the traverse() method of the TreeTransformer class to maintain the state
- * for that traversal, and the instance is passed to the traversal callback
- * function for each node that is traversed. This class is not intended to be
- * instantiated directly, but is exported so that its type can be used for
- * Flow annotaions.
- **/
-exports.default = TreeTransformer;
-
-var TraversalState = exports.TraversalState = function() {
-    // The constructor just stores the root node and creates empty stacks.
-    // These are internal state properties. Use the accessor methods defined
-    // below instead of using these properties directly. Note that the
-    // _containers and _indexes stacks can have two different types of
-    // elements, depending on whether we just recursed on an array or on a
-    // node. This is hard for Flow to deal with, so you'll see a number of
-    // Flow casts through the any type when working with these two properties.
-    function TraversalState(root) {
-        _classCallCheck(this, TraversalState);
-        this.root = root;
-        // When the callback is called, this property will hold the
-        // node that is currently being traversed.
-        this._currentNode = null;
-        // This is a stack of the objects and arrays that we've
-        // traversed through before reaching the currentNode.
-        // It is different than the ancestors array.
-        this._containers = new Stack();
-        // This stack has the same number of elements as the _containers
-        // stack. The last element of this._indexes[] is the index of
-        // the current node in the object or array that is the last element
-        // of this._containers[]. If the last element of this._containers[] is
-        // an array, then the last element of this stack will be a number.
-        // Otherwise if the last container is an object, then the last index
-        // will be a string property name.
-        this._indexes = new Stack();
-        // This is a stack of the ancestor nodes of the current one.
-        // It is different than the containers[] stack because it only
-        // includes nodes, not arrays.
-        this._ancestors = new Stack();
-    }
-    /**
-     * Return the current node in the traversal. Any time the traversal
-     * callback is called, this method will return the name value as the
-     * first argument to the callback.
-     */
-    // The root node of the tree being traversed
-    TraversalState.prototype.currentNode = function currentNode() {
-        return this._currentNode || this.root;
-    };
-    /**
-     * Return the parent of the current node, if there is one, or null.
-     */
-    TraversalState.prototype.parent = function parent() {
-        return this._ancestors.top();
-    };
-    /**
-     * Return an array of ancestor nodes. The first element of this array is
-     * the same as this.parent() and the last element is the root node. If we
-     * are currently at the root node, the the returned array will be empty.
-     * This method makes a copy of the internal state, so modifications to the
-     * returned array have no effect on the traversal.
-     */
-    TraversalState.prototype.ancestors = function ancestors() {
-        return this._ancestors.values();
-    };
-    /**
-     * Return the next sibling of this node, if it has one, or null otherwise.
-     */
-    TraversalState.prototype.nextSibling = function nextSibling() {
-        var siblings = this._containers.top();
-        // If we're at the root of the tree or if the parent is an
-        // object instead of an array, then there are no siblings.
-        if (!siblings || !Array.isArray(siblings)) return null;
-        // The top index is a number because the top container is an array
-        var index = this._indexes.top();
-        return siblings.length > index + 1 ? siblings[index + 1] : null;
-    };
-    /**
-     * Return the previous sibling of this node, if it has one, or null
-     * otherwise.
-     */
-    TraversalState.prototype.previousSibling = function previousSibling() {
-        var siblings = this._containers.top();
-        // If we're at the root of the tree or if the parent is an
-        // object instead of an array, then there are no siblings.
-        if (!siblings || !Array.isArray(siblings)) return null;
-        // The top index is a number because the top container is an array
-        var index = this._indexes.top();
-        return index > 0 ? siblings[index - 1] : null;
-    };
-    /**
-     * Remove the next sibling node (if there is one) from the tree.  Returns
-     * the removed sibling or null. This method makes it easy to traverse a
-     * tree and concatenate adjacent text nodes into a single node.
-     */
-    TraversalState.prototype.removeNextSibling = function removeNextSibling() {
-        var siblings = this._containers.top();
-        if (siblings && Array.isArray(siblings)) {
-            // top index is a number because top container is an array
-            var index = this._indexes.top();
-            if (siblings.length > index + 1) return siblings.splice(index + 1, 1)[0];
-        }
-        return null;
-    };
-    /**
-     * Replace the current node in the tree with the specified nodes.  If no
-     * nodes are passed, this is a node deletion. If one node (or array) is
-     * passed, this is a 1-for-1 replacement. If more than one node is passed
-     * then this is a combination of deletion and insertion.  The new node or
-     * nodes will not be traversed, so this method can safely be used to
-     * reparent the current node node beneath a new parent.
-     *
-     * This method throws an error if you attempt to replace the root node of
-     * the tree.
-     */
-    TraversalState.prototype.replace = function replace() {
-        var parent = this._containers.top();
-        if (!parent) throw new Error("Can't replace the root of the tree");
-        // The top of the container stack is either an array or an object
-        // and the top of the indexes stack is a corresponding array index
-        // or object property. This is hard for Flow, so we have to do some
-        // unsafe casting and be careful when we use which cast version
-        var parentIsArray = Array.isArray(parent);
-        var array = parent;
-        var index = this._indexes.top();
-        var object = parent;
-        var property = this._indexes.top();
-        for (var _len = arguments.length, replacements = Array(_len), _key = 0; _key < _len; _key++) replacements[_key] = arguments[_key];
-        if (parentIsArray) {
-            // For an array parent we just splice the new nodes in
-            array.splice.apply(array, [ index, 1 ].concat(replacements));
-            // Adjust the index to account for the changed array length.
-            // We don't want to traverse any of the newly inserted nodes.
-            this._indexes.pop();
-            this._indexes.push(index + replacements.length - 1);
-        } else // For an object parent we care how many new nodes there are
-        0 === replacements.length ? // Deletion
-        delete object[property] : 1 === replacements.length ? // Replacement
-        object[property] = replacements[0] : // Replace one node with an array of nodes
-        object[property] = replacements;
-    };
-    /**
-     * Returns true if the current node has a previous sibling and false
-     * otherwise. If this method returns false, then previousSibling() will
-     * return null, and goToPreviousSibling() will throw an error.
-     */
-    TraversalState.prototype.hasPreviousSibling = function hasPreviousSibling() {
-        return Array.isArray(this._containers.top()) && this._indexes.top() > 0;
-    };
-    /**
-     * Modify this traversal state object to have the state it would have had
-     * when visiting the previous sibling. Note that you may want to use
-     * clone() to make a copy before modifying the state object like this.
-     * This mutator method is not typically used during ordinary tree
-     * traversals, but is used by the Selector class for matching multi-node
-     * selectors.
-     */
-    TraversalState.prototype.goToPreviousSibling = function goToPreviousSibling() {
-        if (!this.hasPreviousSibling()) throw new Error("goToPreviousSibling(): node has no previous sibling");
-        this._currentNode = this.previousSibling();
-        // Since we know that we have a previous sibling, we know that
-        // the value on top of the stack is a number, but we have to do
-        // this unsafe cast because Flow doesn't know that.
-        var index = this._indexes.pop();
-        this._indexes.push(index - 1);
-    };
-    /**
-     * Returns true if the current node has an ancestor and false otherwise.
-     * If this method returns false, then the parent() method will return
-     * null and goToParent() will throw an error
-     */
-    TraversalState.prototype.hasParent = function hasParent() {
-        return 0 !== this._ancestors.size();
-    };
-    /**
-     * Modify this object to look like it will look when we (later) visit the
-     * parent node of this node. You should not modify the instance passed to
-     * the tree traversal callback. Instead, make a copy with the clone()
-     * method and modify that.  This mutator method is not typically used
-     * during ordinary tree traversals, but is used by the Selector class for
-     * matching multi-node selectors that involve parent and ancestor
-     * selectors.
-     */
-    TraversalState.prototype.goToParent = function goToParent() {
-        if (!this.hasParent()) throw new Error("goToParent(): node has no ancestor");
-        this._currentNode = this._ancestors.pop();
-        // We need to pop the containers and indexes stacks at least once
-        // and more as needed until we restore the invariant that
-        // this._containers.top()[this.indexes.top()] === this._currentNode
-        //
-        while (this._containers.size() && // This is safe, but easier to just disable flow than do casts
-        // $FlowFixMe
-        this._containers.top()[this._indexes.top()] !== this._currentNode) {
-            this._containers.pop();
-            this._indexes.pop();
-        }
-    };
-    /**
-     * Return a new TraversalState object that is a copy of this one.
-     * This method is useful in conjunction with the mutating methods
-     * goToParent() and goToPreviousSibling().
-     */
-    TraversalState.prototype.clone = function clone() {
-        var clone = new TraversalState(this.root);
-        clone._currentNode = this._currentNode;
-        clone._containers = this._containers.clone();
-        clone._indexes = this._indexes.clone();
-        clone._ancestors = this._ancestors.clone();
-        return clone;
-    };
-    /**
-     * Returns true if this TraversalState object is equal to that
-     * TraversalState object, or false otherwise. This method exists
-     * primarily for use by our unit tests.
-     */
-    TraversalState.prototype.equals = function equals(that) {
-        return this.root === that.root && this._currentNode === that._currentNode && this._containers.equals(that._containers) && this._indexes.equals(that._indexes) && this._ancestors.equals(that._ancestors);
-    };
-    return TraversalState;
-}();
-
-/**
- * This class is an internal utility that just treats an array as a stack
- * and gives us a top() method so we don't have to write expressions like
- * `ancestors[ancestors.length-1]`. The values() method automatically
- * copies the internal array so we don't have to worry about client code
- * modifying our internal stacks. The use of this Stack abstraction makes
- * the TraversalState class simpler in a number of places.
- */
-var Stack = function() {
-    function Stack(array) {
-        _classCallCheck(this, Stack);
-        this.stack = array ? array.slice(0) : [];
-    }
-    /** Push a value onto the stack. */
-    Stack.prototype.push = function push(v) {
-        this.stack.push(v);
-    };
-    /** Pop a value off of the stack. */
-    Stack.prototype.pop = function pop() {
-        return this.stack.pop();
-    };
-    /** Return the top value of the stack without popping it. */
-    Stack.prototype.top = function top() {
-        return this.stack[this.stack.length - 1];
-    };
-    /** Return a copy of the stack as an array */
-    Stack.prototype.values = function values() {
-        return this.stack.slice(0);
-    };
-    /** Return the number of elements in the stack */
-    Stack.prototype.size = function size() {
-        return this.stack.length;
-    };
-    /** Return a string representation of the stack */
-    Stack.prototype.toString = function toString() {
-        return this.stack.toString();
-    };
-    /** Return a shallow copy of the stack */
-    Stack.prototype.clone = function clone() {
-        return new Stack(this.stack);
-    };
-    /**
-     * Compare this stack to another and return true if the contents of
-     * the two arrays are the same.
-     */
-    Stack.prototype.equals = function equals(that) {
-        if (!that || !that.stack || that.stack.length !== this.stack.length) return false;
-        for (var i = 0; i < this.stack.length; i++) if (this.stack[i] !== that.stack[i]) return false;
-        return true;
-    };
-    return Stack;
-}();
-
-/***/ }),
-/* 71 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(katex) {
-
-/**
- * For math rendered using KaTex and/or MathJax. Use me like <TeX>2x + 3</TeX>.
- */
-/* global katex, MathJax, Khan */
-// TODO(joel) - require MathJax / katex so they don't have to be global
-var PureRenderMixin = __webpack_require__(318);
-
-var React = __webpack_require__(0);
-
-var ReactDOM = __webpack_require__(4);
-
-var katexA11y = __webpack_require__(319);
-
-var pendingScripts = [];
-
-var pendingCallbacks = [];
-
-var needsProcess = false;
-
-var process = function process(script, callback) {
-    pendingScripts.push(script);
-    pendingCallbacks.push(callback);
-    if (!needsProcess) {
-        needsProcess = true;
-        setTimeout(doProcess, 0);
-    }
-};
-
-var loadMathJax = function loadMathJax(callback) {
-    if ("undefined" !== typeof MathJax) callback(); else {
-        if ("undefined" === typeof Khan || !Khan.mathJaxLoaded) throw new Error("MathJax wasn't loaded before it was needed by <TeX/>");
-        Khan.mathJaxLoaded.then(callback);
-    }
-};
-
-var doProcess = function doProcess() {
-    loadMathJax(function() {
-        MathJax.Hub.Queue(function() {
-            var oldElementScripts = MathJax.Hub.elementScripts;
-            MathJax.Hub.elementScripts = function(element) {
-                return pendingScripts;
-            };
-            try {
-                return MathJax.Hub.Process(null, function() {
-                    // Trigger all of the pending callbacks before clearing them
-                    // out.
-                    for (var _iterator = pendingCallbacks, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator](); ;) {
-                        var _ref;
-                        if (_isArray) {
-                            if (_i >= _iterator.length) break;
-                            _ref = _iterator[_i++];
-                        } else {
-                            _i = _iterator.next();
-                            if (_i.done) break;
-                            _ref = _i.value;
-                        }
-                        _ref();
-                    }
-                    pendingScripts = [];
-                    pendingCallbacks = [];
-                    needsProcess = false;
-                });
-            } catch (e) {
-                // IE8 requires `catch` in order to use `finally`
-                throw e;
-            } finally {
-                MathJax.Hub.elementScripts = oldElementScripts;
-            }
-        });
-    });
-};
-
-// Make content only visible to screen readers.
-// Both collegeboard.org and Bootstrap 3 use this exact implementation.
-var srOnly = {
-    border: 0,
-    clip: "rect(0,0,0,0)",
-    height: "1px",
-    margin: "-1px",
-    overflow: "hidden",
-    padding: 0,
-    position: "absolute",
-    width: "1px"
-};
-
-var TeX = React.createClass({
-    displayName: "TeX",
-    propTypes: {
-        children: React.PropTypes.node,
-        onClick: React.PropTypes.func,
-        onRender: React.PropTypes.func,
-        style: React.PropTypes.any
-    },
-    mixins: [ PureRenderMixin ],
-    getDefaultProps: function getDefaultProps() {
-        return {
-            // Called after math is rendered or re-rendered
-            onRender: function onRender() {},
-            onClick: null
-        };
-    },
-    componentDidMount: function componentDidMount() {
-        var _this = this;
-        this._root = ReactDOM.findDOMNode(this);
-        if (this.refs.katex.childElementCount > 0) {
-            // If we already rendered katex in the render function, we don't
-            // need to render anything here.
-            this.props.onRender(this._root);
-            return;
-        }
-        var text = this.props.children;
-        this.setScriptText(text);
-        process(this.script, function() {
-            return _this.props.onRender(_this._root);
-        });
-    },
-    componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
-        var _this2 = this;
-        // If we already rendered katex in the render function, we don't
-        // need to render anything here.
-        if (this.refs.katex.childElementCount > 0) {
-            this.script && // If we successfully rendered KaTeX, check if there's
-            // lingering MathJax from the last render, and if so remove it.
-            loadMathJax(function() {
-                var jax = MathJax.Hub.getJaxFor(_this2.script);
-                jax && jax.Remove();
-            });
-            this.props.onRender();
-            return;
-        }
-        var newText = this.props.children;
-        if (this.script) loadMathJax(function() {
-            MathJax.Hub.Queue(function() {
-                var jax = MathJax.Hub.getJaxFor(_this2.script);
-                if (jax) return jax.Text(newText, _this2.props.onRender);
-                _this2.setScriptText(newText);
-                process(_this2.script, _this2.props.onRender);
-            });
-        }); else {
-            this.setScriptText(newText);
-            process(this.script, this.props.onRender);
-        }
-    },
-    componentWillUnmount: function componentWillUnmount() {
-        var _this3 = this;
-        this.script && loadMathJax(function() {
-            var jax = MathJax.Hub.getJaxFor(_this3.script);
-            jax && jax.Remove();
-        });
-    },
-    setScriptText: function setScriptText(text) {
-        if (!this.script) {
-            this.script = document.createElement("script");
-            this.script.type = "math/tex";
-            ReactDOM.findDOMNode(this.refs.mathjax).appendChild(this.script);
-        }
-        "text" in this.script ? // IE8, etc
-        this.script.text = text : this.script.textContent = text;
-    },
-    render: function render() {
-        var katexHtml = null;
-        try {
-            katexHtml = {
-                __html: katex.renderToString(this.props.children)
-            };
-        } catch (e) {
-            /* jshint -W103 */
-            if (e.__proto__ !== katex.ParseError.prototype) /* jshint +W103 */
-            throw e;
-        }
-        var katexA11yHtml = null;
-        if (katexHtml) try {
-            katexA11yHtml = {
-                __html: katexA11y.renderString(this.props.children)
-            };
-        } catch (e) {}
-        return React.createElement("span", {
-            style: this.props.style,
-            onClick: this.props.onClick
-        }, React.createElement("span", {
-            ref: "mathjax"
-        }), React.createElement("span", {
-            ref: "katex",
-            dangerouslySetInnerHTML: katexHtml,
-            "aria-hidden": !!katexHtml && !!katexA11yHtml
-        }), React.createElement("span", {
-            dangerouslySetInnerHTML: katexA11yHtml,
-            style: srOnly
-        }));
-    }
-});
-
-module.exports = TeX;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(86)))
-
-/***/ }),
-/* 72 */
-/***/ (function(module, exports) {
-
-/**
- * Constants that define the various contexts in which a cursor can exist. The
- * active context is determined first by looking at the cursor's siblings (e.g.,
- * for the `BEFORE_FRACTION` context), and then at its direct parent. Though a
- * cursor could in theory be nested in multiple contexts, we only care about the
- * immediate context.
- *
- * TODO(charlie): Add a context to represent being inside of a radical. Right
- * now, we show the dismiss button rather than allowing the user to jump out of
- * the radical.
- */
-module.exports = {
-    // The cursor is not in any of the other viable contexts.
-    NONE: "NONE",
-    // The cursor is within a set of parentheses.
-    IN_PARENS: "IN_PARENS",
-    // The cursor is within a superscript (e.g., an exponent).
-    IN_SUPER_SCRIPT: "IN_SUPER_SCRIPT",
-    // The cursor is within a subscript (e.g., the base of a custom logarithm).
-    IN_SUB_SCRIPT: "IN_SUB_SCRIPT",
-    // The cursor is in the numerator of a fraction.
-    IN_NUMERATOR: "IN_NUMERATOR",
-    // The cursor is in the denominator of a fraction.
-    IN_DENOMINATOR: "IN_DENOMINATOR",
-    // The cursor is sitting before a fraction; that is, the cursor is within
-    // what looks to be a mixed number preceding a fraction. This will only be
-    // the case when the only math between the cursor and the fraction to its
-    // write is non-leaf math (numbers and variables).
-    BEFORE_FRACTION: "BEFORE_FRACTION"
-};
-
-/***/ }),
-/* 73 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _extends = Object.assign || function(target) {
-    for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i];
-        for (var key in source) Object.prototype.hasOwnProperty.call(source, key) && (target[key] = source[key]);
-    }
-    return target;
-};
-
-function _objectWithoutProperties(obj, keys) {
-    var target = {};
-    for (var i in obj) {
-        if (keys.indexOf(i) >= 0) continue;
-        if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;
-        target[i] = obj[i];
-    }
-    return target;
-}
-
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
-}
-
-function _possibleConstructorReturn(self, call) {
-    if (!self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    return !call || "object" !== typeof call && "function" !== typeof call ? self : call;
-}
-
-function _inherits(subClass, superClass) {
-    if ("function" !== typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-        constructor: {
-            value: subClass,
-            enumerable: false,
-            writable: true,
-            configurable: true
-        }
-    });
-    superClass && (Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass);
-}
-
-/**
- * A touchable wrapper around the base KeypadButton component. This button is
- * responsible for keeping our button ID system (which will be used to handle
- * touch events globally) opaque to the KeypadButton.
- */
-var React = __webpack_require__(0);
-
-var ReactDOM = __webpack_require__(4);
-
-var _require = __webpack_require__(40), connect = _require.connect;
-
-var _require2 = __webpack_require__(2), StyleSheet = _require2.StyleSheet;
-
-var KeypadButton = __webpack_require__(126);
-
-var KeyConfigs = __webpack_require__(39);
-
-var GestureManager = __webpack_require__(128);
-
-var _require3 = __webpack_require__(24), bordersPropType = _require3.bordersPropType, keyIdPropType = _require3.keyIdPropType;
-
-var _require4 = __webpack_require__(20), KeyTypes = _require4.KeyTypes;
-
-var TouchableKeypadButton = function(_React$Component) {
-    _inherits(TouchableKeypadButton, _React$Component);
-    function TouchableKeypadButton() {
-        _classCallCheck(this, TouchableKeypadButton);
-        return _possibleConstructorReturn(this, _React$Component.apply(this, arguments));
-    }
-    TouchableKeypadButton.prototype.shouldComponentUpdate = function shouldComponentUpdate(newProps) {
-        // We take advantage of a few different properties of our key
-        // configuration system. Namely, we know that the other props flow
-        // directly from the ID, and thus don't need to be checked. If a key has
-        // a custom style, we bail out (this should be rare).
-        return newProps.id !== this.props.id || newProps.gestureManager !== this.props.gestureManager || newProps.focused !== this.props.focused || newProps.disabled !== this.props.disabled || newProps.popoverEnabled !== this.props.popoverEnabled || newProps.type !== this.props.type || !!newProps.style;
-    };
-    TouchableKeypadButton.prototype.componentWillUnmount = function componentWillUnmount() {
-        var _props = this.props, gestureManager = _props.gestureManager, id = _props.id;
-        gestureManager.unregisterDOMNode(id);
-    };
-    TouchableKeypadButton.prototype.render = function render() {
-        var _props2 = this.props, borders = _props2.borders, childKeyIds = _props2.childKeyIds, disabled = _props2.disabled, gestureManager = _props2.gestureManager, id = _props2.id, style = _props2.style, rest = _objectWithoutProperties(_props2, [ "borders", "childKeyIds", "disabled", "gestureManager", "id", "style" ]);
-        // Only bind the relevant event handlers if the key is enabled.
-        var eventHandlers = disabled ? {
-            onTouchStart: function onTouchStart(evt) {
-                return evt.preventDefault();
-            }
-        } : {
-            onTouchStart: function onTouchStart(evt) {
-                return gestureManager.onTouchStart(evt, id);
-            },
-            onTouchEnd: function onTouchEnd(evt) {
-                return gestureManager.onTouchEnd(evt);
-            },
-            onTouchMove: function onTouchMove(evt) {
-                return gestureManager.onTouchMove(evt);
-            },
-            onTouchCancel: function onTouchCancel(evt) {
-                return gestureManager.onTouchCancel(evt);
-            }
-        };
-        var styleWithAddons = [].concat(Array.isArray(style) ? style : [ style ], [ styles.preventScrolls ]);
-        return React.createElement(KeypadButton, _extends({
-            ref: function ref(node) {
-                return gestureManager.registerDOMNode(id, ReactDOM.findDOMNode(node), childKeyIds, borders);
-            },
-            borders: borders,
-            disabled: disabled,
-            style: styleWithAddons
-        }, eventHandlers, rest));
-    };
-    return TouchableKeypadButton;
-}(React.Component);
-
-TouchableKeypadButton.propTypes = {
-    borders: bordersPropType,
-    childKeyIds: React.PropTypes.arrayOf(keyIdPropType),
-    disabled: React.PropTypes.bool,
-    focused: React.PropTypes.bool,
-    gestureManager: React.PropTypes.instanceOf(GestureManager),
-    id: keyIdPropType.isRequired,
-    popoverEnabled: React.PropTypes.bool,
-    style: React.PropTypes.any,
-    type: React.PropTypes.oneOf(Object.keys(KeyTypes)).isRequired
-};
-
-var extractProps = function extractProps(keyConfig) {
-    return {
-        ariaLabel: keyConfig.ariaLabel,
-        icon: keyConfig.icon,
-        type: keyConfig.type
-    };
-};
-
-var mapStateToProps = function mapStateToProps(state, ownProps) {
-    var gestures = state.gestures;
-    var keyConfig = ownProps.keyConfig, rest = _objectWithoutProperties(ownProps, [ "keyConfig" ]);
-    var id = keyConfig.id, childKeyIds = keyConfig.childKeyIds, type = keyConfig.type;
-    var childKeys = childKeyIds && childKeyIds.map(function(id) {
-        return KeyConfigs[id];
-    });
-    // Override with the default child props, if the key is a multi-symbol key
-    // (but not a many-symbol key, which operates under different rules).
-    var useFirstChildProps = type !== KeyTypes.MANY && childKeys && childKeys.length > 0;
-    return _extends({}, rest, {
-        childKeyIds: childKeyIds,
-        gestureManager: gestures.gestureManager,
-        id: id,
-        // Add in some gesture state.
-        focused: gestures.focus === id,
-        popoverEnabled: gestures.popover && gestures.popover.parentId === id,
-        // Pass down the child keys and any extracted props.
-        childKeys: childKeys
-    }, extractProps(useFirstChildProps ? childKeys[0] : keyConfig));
-};
-
-var styles = StyleSheet.create({
-    preventScrolls: {
-        // Touch events that start in the touchable buttons shouldn't be
-        // allowed to produce page scrolls.
-        touchAction: "none"
-    }
-});
-
-module.exports = connect(mapStateToProps)(TouchableKeypadButton);
-
-/***/ }),
-/* 74 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* eslint-disable comma-dangle, no-var */
-/* TODO(csilvers): fix these lint errors (http://eslint.org/docs/rules): */
-/* To fix, remove an entry above, run ka-lint, and fix errors. */
-/* Free implementation of getUserInput. This should be used sparingly, since it
- * just returns all the widget's props rather than picking out those which were
- * input by the user.
- */
-var WIDGET_PROP_BLACKLIST = __webpack_require__(203);
-
-var _ = __webpack_require__(1);
-
-var WidgetJsonifyDeprecated = {
-    getUserInput: function getUserInput() {
-        // Omit props that get passed to all widgets
-        return _.omit(this.props, WIDGET_PROP_BLACKLIST);
-    }
-};
-
-module.exports = WidgetJsonifyDeprecated;
-
-/***/ }),
-/* 75 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function($) {var _extends = Object.assign || function(target) {
-    for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i];
-        for (var key in source) Object.prototype.hasOwnProperty.call(source, key) && (target[key] = source[key]);
-    }
-    return target;
-};
-
-/* eslint-disable react/prop-types, react/sort-comp */
-var classNames = __webpack_require__(16);
-
-var React = __webpack_require__(0);
-
-var ReactDOM = __webpack_require__(4);
-
-var _ = __webpack_require__(1);
-
-var firstNumericalParse = __webpack_require__(6).firstNumericalParse;
-
-var captureScratchpadTouchStart = __webpack_require__(6).captureScratchpadTouchStart;
-
-var knumber = __webpack_require__(7).number;
-
-var KhanMath = __webpack_require__(30);
-
-var toNumericString = KhanMath.toNumericString;
-
-var getNumericFormat = KhanMath.getNumericFormat;
-
-/* An input box that accepts only numeric strings
- *
- * Calls onChange(value, format) for valid numbers.
- * Reverts to the current value onBlur or on [ENTER],
- *   but maintains the format (i.e. 3/2, 1 1/2, 150%)
- * Accepts empty input and sends it to onChange as null
- *   if no numeric placeholder is set.
- * If given a checkValidity function, will turn
- *   the background/outline red when invalid
- * If useArrowKeys is set to true, up/down arrows will
- *   increment/decrement integers
- * Optionally takes a size ("mini", "small", "normal")
- */
-var NumberInput = React.createClass({
-    displayName: "NumberInput",
-    propTypes: {
-        value: React.PropTypes.number,
-        format: React.PropTypes.string,
-        placeholder: React.PropTypes.oneOfType([ React.PropTypes.string, React.PropTypes.number ]),
-        onChange: React.PropTypes.func.isRequired,
-        onFormatChange: React.PropTypes.func,
-        checkValidity: React.PropTypes.func,
-        size: React.PropTypes.string,
-        label: React.PropTypes.oneOf([ "put your labels outside your inputs!" ])
-    },
-    getDefaultProps: function getDefaultProps() {
-        return {
-            value: null,
-            placeholder: null,
-            format: null,
-            onFormatChange: function onFormatChange() {
-                return null;
-            },
-            checkValidity: function checkValidity() {
-                return true;
-            },
-            useArrowKeys: false
-        };
-    },
-    getInitialState: function getInitialState() {
-        return {
-            format: this.props.format
-        };
-    },
-    render: function render() {
-        var classes = classNames({
-            "number-input": true,
-            "invalid-input": !this._checkValidity(this.props.value),
-            mini: "mini" === this.props.size,
-            small: "small" === this.props.size,
-            normal: "normal" === this.props.size
-        });
-        null != this.props.className && (classes = classes + " " + this.props.className);
-        return React.createElement("input", _extends({}, this.props, {
-            className: classes,
-            type: "text",
-            ref: "input",
-            onChange: this._handleChange,
-            onFocus: this._handleFocus,
-            onBlur: this._handleBlur,
-            onKeyPress: this._handleBlur,
-            onKeyDown: this._onKeyDown,
-            onTouchStart: captureScratchpadTouchStart,
-            defaultValue: toNumericString(this.props.value, this.state.format),
-            value: void 0
-        }));
-    },
-    componentDidUpdate: function componentDidUpdate(prevProps) {
-        knumber.equal(this.getValue(), this.props.value) || this._setValue(this.props.value, this.state.format);
-    },
-    /* Return the current "value" of this input
-     * If empty, it returns the placeholder (if it is a number) or null
-     */
-    getValue: function getValue() {
-        return this.parseInputValue(ReactDOM.findDOMNode(this.refs.input).value);
-    },
-    /* Return the current string value of this input */
-    getStringValue: function getStringValue() {
-        return ReactDOM.findDOMNode(this.refs.input).value.toString();
-    },
-    parseInputValue: function parseInputValue(value) {
-        if ("" === value) {
-            var placeholder = this.props.placeholder;
-            return _.isFinite(placeholder) ? +placeholder : null;
-        }
-        var result = firstNumericalParse(value);
-        return _.isFinite(result) ? result : this.props.value;
-    },
-    /* Set text input focus to this input */
-    focus: function focus() {
-        ReactDOM.findDOMNode(this.refs.input).focus();
-        this._handleFocus();
-    },
-    blur: function blur() {
-        ReactDOM.findDOMNode(this.refs.input).blur();
-        this._handleBlur();
-    },
-    setSelectionRange: function setSelectionRange(selectionStart, selectionEnd) {
-        ReactDOM.findDOMNode(this).setSelectionRange(selectionStart, selectionEnd);
-    },
-    getSelectionStart: function getSelectionStart() {
-        return ReactDOM.findDOMNode(this).selectionStart;
-    },
-    getSelectionEnd: function getSelectionEnd() {
-        return ReactDOM.findDOMNode(this).selectionEnd;
-    },
-    _checkValidity: function _checkValidity(value) {
-        if (null == value) return true;
-        var val = firstNumericalParse(value);
-        var checkValidity = this.props.checkValidity;
-        return _.isFinite(val) && checkValidity(val);
-    },
-    _handleChange: function _handleChange(e) {
-        var text = e.target.value;
-        var value = this.parseInputValue(text);
-        var format = getNumericFormat(text);
-        this.props.onChange(value);
-        if (format) {
-            this.props.onFormatChange(value, format);
-            this.setState({
-                format: format
-            });
-        }
-    },
-    _handleFocus: function _handleFocus() {
-        this.props.onFocus && this.props.onFocus();
-    },
-    _handleBlur: function _handleBlur(e) {
-        // Only continue on blur or "enter"
-        if (e && "keypress" === e.type && 13 !== e.keyCode) return;
-        this._setValue(this.props.value, this.state.format);
-        this.props.onBlur && this.props.onBlur();
-    },
-    _onKeyDown: function _onKeyDown(e) {
-        this.props.onKeyDown && this.props.onKeyDown(e);
-        if (!this.props.useArrowKeys || !_.contains([ "ArrowUp", "ArrowDown" ], e.key)) return;
-        var val = this.getValue();
-        if (val !== Math.floor(val)) return;
-        "ArrowUp" === e.key ? val += 1 : "ArrowDown" === e.key && (val -= 1);
-        this._checkValidity(val) && this.props.onChange(val);
-    },
-    _setValue: function _setValue(val, format) {
-        $(ReactDOM.findDOMNode(this.refs.input)).val(toNumericString(val, format));
-    }
-});
-
-module.exports = NumberInput;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(1)))
 
 /***/ }),
 /* 76 */
@@ -28950,7 +28945,7 @@ module.exports = keyMirror;
 
 
 
-var SyntheticUIEvent = __webpack_require__(69);
+var SyntheticUIEvent = __webpack_require__(68);
 var ViewportMetrics = __webpack_require__(168);
 
 var getEventModifierState = __webpack_require__(109);
@@ -39462,7 +39457,7 @@ var _prodInvariant = __webpack_require__(8);
 var ReactNoopUpdateQueue = __webpack_require__(100);
 
 var canDefineProperty = __webpack_require__(153);
-var emptyObject = __webpack_require__(65);
+var emptyObject = __webpack_require__(64);
 var invariant = __webpack_require__(5);
 var warning = __webpack_require__(11);
 
@@ -43135,7 +43130,7 @@ var _ = __webpack_require__(1);
 
 var SimpleMarkdown = __webpack_require__(123);
 
-var TeX = __webpack_require__(71);
+var TeX = __webpack_require__(70);
 
 var Util = __webpack_require__(6);
 
@@ -46682,7 +46677,7 @@ var ReactPropTypeLocations = __webpack_require__(101);
 var ReactPropTypeLocationNames = __webpack_require__(102);
 var ReactNoopUpdateQueue = __webpack_require__(100);
 
-var emptyObject = __webpack_require__(65);
+var emptyObject = __webpack_require__(64);
 var invariant = __webpack_require__(5);
 var keyMirror = __webpack_require__(78);
 var keyOf = __webpack_require__(47);
@@ -49844,7 +49839,7 @@ var ReactReconciler = __webpack_require__(56);
 var ReactUpdateQueue = __webpack_require__(118);
 var ReactUpdates = __webpack_require__(37);
 
-var emptyObject = __webpack_require__(65);
+var emptyObject = __webpack_require__(64);
 var instantiateReactComponent = __webpack_require__(176);
 var invariant = __webpack_require__(5);
 var setInnerHTML = __webpack_require__(80);
@@ -51865,13 +51860,13 @@ var _require2 = __webpack_require__(23), View = _require2.View;
 
 var Keypad = __webpack_require__(195);
 
-var TouchableKeypadButton = __webpack_require__(73);
+var TouchableKeypadButton = __webpack_require__(72);
 
 var _require3 = __webpack_require__(43), row = _require3.row, roundedTopLeft = _require3.roundedTopLeft, roundedTopRight = _require3.roundedTopRight;
 
 var _require4 = __webpack_require__(20), BorderStyles = _require4.BorderStyles;
 
-var CursorContexts = __webpack_require__(72);
+var CursorContexts = __webpack_require__(71);
 
 var _require5 = __webpack_require__(24), cursorContextPropType = _require5.cursorContextPropType;
 
@@ -52422,7 +52417,7 @@ var TwoPageKeypad = __webpack_require__(433);
 
 var ManyKeypadButton = __webpack_require__(436);
 
-var TouchableKeypadButton = __webpack_require__(73);
+var TouchableKeypadButton = __webpack_require__(72);
 
 var _require4 = __webpack_require__(43), row = _require4.row, column = _require4.column, oneColumn = _require4.oneColumn, fullWidth = _require4.fullWidth, roundedTopLeft = _require4.roundedTopLeft, roundedTopRight = _require4.roundedTopRight;
 
@@ -52434,7 +52429,7 @@ var _require7 = __webpack_require__(24), cursorContextPropType = _require7.curso
 
 var KeyConfigs = __webpack_require__(39);
 
-var CursorContexts = __webpack_require__(72);
+var CursorContexts = __webpack_require__(71);
 
 var ExpressionKeypad = function(_React$Component) {
     _inherits(ExpressionKeypad, _React$Component);
@@ -57182,7 +57177,7 @@ var Changeable = __webpack_require__(17);
 
 var PerseusMarkdown = __webpack_require__(124);
 
-var WidgetJsonifyDeprecated = __webpack_require__(74);
+var WidgetJsonifyDeprecated = __webpack_require__(73);
 
 var EN_DASH = "–";
 
@@ -57872,7 +57867,7 @@ var React = __webpack_require__(0);
 
 var _ = __webpack_require__(1);
 
-var TeX = __webpack_require__(71);
+var TeX = __webpack_require__(70);
 
 var prettyBig = {
     fontSize: "150%"
@@ -60662,7 +60657,7 @@ var _assign = __webpack_require__(13);
 var ReactComponent = __webpack_require__(99);
 var ReactNoopUpdateQueue = __webpack_require__(100);
 
-var emptyObject = __webpack_require__(65);
+var emptyObject = __webpack_require__(64);
 
 /**
  * Base class helpers for the updating state of a component.
@@ -60969,7 +60964,7 @@ module.exports = {
 
 
 var EventConstants = __webpack_require__(41);
-var EventPropagators = __webpack_require__(66);
+var EventPropagators = __webpack_require__(65);
 var ExecutionEnvironment = __webpack_require__(22);
 var FallbackCompositionState = __webpack_require__(233);
 var SyntheticCompositionEvent = __webpack_require__(234);
@@ -61551,8 +61546,8 @@ module.exports = SyntheticInputEvent;
 
 
 var EventConstants = __webpack_require__(41);
-var EventPluginHub = __webpack_require__(67);
-var EventPropagators = __webpack_require__(66);
+var EventPluginHub = __webpack_require__(66);
+var EventPropagators = __webpack_require__(65);
 var ExecutionEnvironment = __webpack_require__(22);
 var ReactDOMComponentTree = __webpack_require__(18);
 var ReactUpdates = __webpack_require__(37);
@@ -62101,7 +62096,7 @@ module.exports = DefaultEventPluginOrder;
 
 
 var EventConstants = __webpack_require__(41);
-var EventPropagators = __webpack_require__(66);
+var EventPropagators = __webpack_require__(65);
 var ReactDOMComponentTree = __webpack_require__(18);
 var SyntheticMouseEvent = __webpack_require__(79);
 
@@ -62886,7 +62881,7 @@ var DOMNamespaces = __webpack_require__(111);
 var DOMProperty = __webpack_require__(55);
 var DOMPropertyOperations = __webpack_require__(173);
 var EventConstants = __webpack_require__(41);
-var EventPluginHub = __webpack_require__(67);
+var EventPluginHub = __webpack_require__(66);
 var EventPluginRegistry = __webpack_require__(104);
 var ReactBrowserEventEmitter = __webpack_require__(82);
 var ReactDOMButton = __webpack_require__(259);
@@ -64257,7 +64252,7 @@ module.exports = quoteAttributeValueForBrowser;
 
 
 
-var EventPluginHub = __webpack_require__(67);
+var EventPluginHub = __webpack_require__(66);
 
 function runEventQueueInBatch(events) {
   EventPluginHub.enqueueEvents(events);
@@ -65414,7 +65409,7 @@ var ReactPropTypeLocations = __webpack_require__(101);
 var ReactReconciler = __webpack_require__(56);
 
 var checkReactTypeSpec = __webpack_require__(266);
-var emptyObject = __webpack_require__(65);
+var emptyObject = __webpack_require__(64);
 var invariant = __webpack_require__(5);
 var shallowEqual = __webpack_require__(116);
 var shouldUpdateReactComponent = __webpack_require__(117);
@@ -66282,7 +66277,7 @@ module.exports = checkReactTypeSpec;
 var _assign = __webpack_require__(13);
 
 var PooledClass = __webpack_require__(45);
-var Transaction = __webpack_require__(68);
+var Transaction = __webpack_require__(67);
 var ReactInstrumentation = __webpack_require__(33);
 var ReactServerUpdateQueue = __webpack_require__(268);
 
@@ -66374,7 +66369,7 @@ module.exports = ReactServerRenderingTransaction;
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var ReactUpdateQueue = __webpack_require__(118);
-var Transaction = __webpack_require__(68);
+var Transaction = __webpack_require__(67);
 var warning = __webpack_require__(11);
 
 function warnNoop(publicInstance, callerName) {
@@ -66883,7 +66878,7 @@ module.exports = ReactDOMTextComponent;
 var _assign = __webpack_require__(13);
 
 var ReactUpdates = __webpack_require__(37);
-var Transaction = __webpack_require__(68);
+var Transaction = __webpack_require__(67);
 
 var emptyFunction = __webpack_require__(31);
 
@@ -67160,7 +67155,7 @@ module.exports = getUnboundedScrollPosition;
 
 
 var DOMProperty = __webpack_require__(55);
-var EventPluginHub = __webpack_require__(67);
+var EventPluginHub = __webpack_require__(66);
 var EventPluginUtils = __webpack_require__(105);
 var ReactComponentEnvironment = __webpack_require__(114);
 var ReactClass = __webpack_require__(155);
@@ -67208,7 +67203,7 @@ var PooledClass = __webpack_require__(45);
 var ReactBrowserEventEmitter = __webpack_require__(82);
 var ReactInputSelection = __webpack_require__(182);
 var ReactInstrumentation = __webpack_require__(33);
-var Transaction = __webpack_require__(68);
+var Transaction = __webpack_require__(67);
 var ReactUpdateQueue = __webpack_require__(118);
 
 /**
@@ -68086,7 +68081,7 @@ module.exports = SVGDOMPropertyConfig;
 
 
 var EventConstants = __webpack_require__(41);
-var EventPropagators = __webpack_require__(66);
+var EventPropagators = __webpack_require__(65);
 var ExecutionEnvironment = __webpack_require__(22);
 var ReactDOMComponentTree = __webpack_require__(18);
 var ReactInputSelection = __webpack_require__(182);
@@ -68291,7 +68286,7 @@ var _prodInvariant = __webpack_require__(8);
 
 var EventConstants = __webpack_require__(41);
 var EventListener = __webpack_require__(181);
-var EventPropagators = __webpack_require__(66);
+var EventPropagators = __webpack_require__(65);
 var ReactDOMComponentTree = __webpack_require__(18);
 var SyntheticAnimationEvent = __webpack_require__(285);
 var SyntheticClipboardEvent = __webpack_require__(286);
@@ -68302,7 +68297,7 @@ var SyntheticMouseEvent = __webpack_require__(79);
 var SyntheticDragEvent = __webpack_require__(290);
 var SyntheticTouchEvent = __webpack_require__(291);
 var SyntheticTransitionEvent = __webpack_require__(292);
-var SyntheticUIEvent = __webpack_require__(69);
+var SyntheticUIEvent = __webpack_require__(68);
 var SyntheticWheelEvent = __webpack_require__(293);
 
 var emptyFunction = __webpack_require__(31);
@@ -69017,7 +69012,7 @@ module.exports = SyntheticClipboardEvent;
 
 
 
-var SyntheticUIEvent = __webpack_require__(69);
+var SyntheticUIEvent = __webpack_require__(68);
 
 /**
  * @interface FocusEvent
@@ -69059,7 +69054,7 @@ module.exports = SyntheticFocusEvent;
 
 
 
-var SyntheticUIEvent = __webpack_require__(69);
+var SyntheticUIEvent = __webpack_require__(68);
 
 var getEventCharCode = __webpack_require__(120);
 var getEventKey = __webpack_require__(289);
@@ -69299,7 +69294,7 @@ module.exports = SyntheticDragEvent;
 
 
 
-var SyntheticUIEvent = __webpack_require__(69);
+var SyntheticUIEvent = __webpack_require__(68);
 
 var getEventModifierState = __webpack_require__(109);
 
@@ -79635,7 +79630,7 @@ function _classCallCheck(instance, Constructor) {
  * matches at the current node. See the comment at the start of this file for
  * more details on the match() method.
  */
-var babelPluginFlowReactPropTypes_proptype_TraversalState = __webpack_require__(70).babelPluginFlowReactPropTypes_proptype_TraversalState || __webpack_require__(0).PropTypes.any;
+var babelPluginFlowReactPropTypes_proptype_TraversalState = __webpack_require__(69).babelPluginFlowReactPropTypes_proptype_TraversalState || __webpack_require__(0).PropTypes.any;
 
 /**
                                                                                                                                                                                        * The Selector class implements a CSS-like system for matching nodes in a
@@ -79723,7 +79718,7 @@ var babelPluginFlowReactPropTypes_proptype_TraversalState = __webpack_require__(
                                                                                                                                                                                        * depending on features of the TraversalState object from the TreeTransformer
                                                                                                                                                                                        * traversal.
                                                                                                                                                                                        */
-var babelPluginFlowReactPropTypes_proptype_TreeNode = __webpack_require__(70).babelPluginFlowReactPropTypes_proptype_TreeNode || __webpack_require__(0).PropTypes.any;
+var babelPluginFlowReactPropTypes_proptype_TreeNode = __webpack_require__(69).babelPluginFlowReactPropTypes_proptype_TreeNode || __webpack_require__(0).PropTypes.any;
 
 var Selector = function() {
     function Selector() {
@@ -87616,7 +87611,7 @@ var MultiSymbolPopover = function(_React$Component) {
         var keys = this.props.keys;
         // TODO(charlie): We have to require this lazily because of a cyclic
         // dependence in our components.
-        var TouchableKeypadButton = __webpack_require__(73);
+        var TouchableKeypadButton = __webpack_require__(72);
         return React.createElement(View, {
             style: styles.container
         }, keys.map(function(key) {
@@ -88640,7 +88635,7 @@ var React = __webpack_require__(0);
 
 var EmptyKeypadButton = __webpack_require__(437);
 
-var TouchableKeypadButton = __webpack_require__(73);
+var TouchableKeypadButton = __webpack_require__(72);
 
 var Keys = __webpack_require__(90);
 
@@ -88822,7 +88817,7 @@ var _require = __webpack_require__(2), StyleSheet = _require.StyleSheet;
 
 var _require2 = __webpack_require__(23), View = _require2.View;
 
-var TouchableKeypadButton = __webpack_require__(73);
+var TouchableKeypadButton = __webpack_require__(72);
 
 var _require3 = __webpack_require__(43), row = _require3.row, column = _require3.column, centered = _require3.centered, stretch = _require3.stretch, roundedTopLeft = _require3.roundedTopLeft;
 
@@ -88963,7 +88958,7 @@ var Keys = __webpack_require__(90);
 
 var KeyConfigs = __webpack_require__(39);
 
-var CursorContexts = __webpack_require__(72);
+var CursorContexts = __webpack_require__(71);
 
 var GestureManager = __webpack_require__(128);
 
@@ -90418,7 +90413,7 @@ var $ = __webpack_require__(9);
 // TODO(kevinb) allow test code to use const MathQuill = require('mathquill');
 var Keys = __webpack_require__(90);
 
-var CursorContexts = __webpack_require__(72);
+var CursorContexts = __webpack_require__(71);
 
 var _require = __webpack_require__(20), DecimalSeparators = _require.DecimalSeparators;
 
@@ -94143,7 +94138,7 @@ module.exports = {
     Expression: Expression,
     isLintable: true
 };
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(64)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(75)))
 
 /***/ }),
 /* 457 */
@@ -94291,7 +94286,7 @@ var classNames = __webpack_require__(16);
 
 var Changeable = __webpack_require__(17);
 
-var WidgetJsonifyDeprecated = __webpack_require__(74);
+var WidgetJsonifyDeprecated = __webpack_require__(73);
 
 var _ = __webpack_require__(1);
 
@@ -97097,7 +97092,7 @@ var _ = __webpack_require__(1);
 
 var Changeable = __webpack_require__(17);
 
-var WidgetJsonifyDeprecated = __webpack_require__(74);
+var WidgetJsonifyDeprecated = __webpack_require__(73);
 
 var updateQueryString = __webpack_require__(6).updateQueryString;
 
@@ -97977,7 +97972,7 @@ module.exports = {
     transform: _.identity,
     hidden: true
 };
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(64)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(75)))
 
 /***/ }),
 /* 476 */
@@ -98004,7 +97999,7 @@ var InfoTip = __webpack_require__(212);
 
 var Interactive2 = __webpack_require__(85);
 
-var NumberInput = __webpack_require__(75);
+var NumberInput = __webpack_require__(74);
 
 var Util = __webpack_require__(6);
 
@@ -99839,7 +99834,7 @@ var _ = __webpack_require__(1);
 
 var Changeable = __webpack_require__(17);
 
-var WidgetJsonifyDeprecated = __webpack_require__(74);
+var WidgetJsonifyDeprecated = __webpack_require__(73);
 
 var MAX_SIZE = 8;
 
@@ -100144,7 +100139,7 @@ var ReactDOM = __webpack_require__(4);
 
 var _ = __webpack_require__(1);
 
-var NumberInput = __webpack_require__(75);
+var NumberInput = __webpack_require__(74);
 
 var Renderer = __webpack_require__(15);
 
@@ -101645,7 +101640,7 @@ var _ = __webpack_require__(1);
 
 var Changeable = __webpack_require__(17);
 
-var NumberInput = __webpack_require__(75);
+var NumberInput = __webpack_require__(74);
 
 var MathOutput = __webpack_require__(51);
 
@@ -104396,7 +104391,7 @@ var _ = __webpack_require__(1);
 
 var Changeable = __webpack_require__(17);
 
-var WidgetJsonifyDeprecated = __webpack_require__(74);
+var WidgetJsonifyDeprecated = __webpack_require__(73);
 
 var Renderer = __webpack_require__(15);
 
@@ -105483,7 +105478,7 @@ var Graphie = __webpack_require__(54);
 
 var Path = Graphie.Path, Arc = Graphie.Arc, Circle = Graphie.Circle, Label = Graphie.Label, Line = Graphie.Line, MovablePoint = Graphie.MovablePoint, MovableLine = Graphie.MovableLine;
 
-var NumberInput = __webpack_require__(75);
+var NumberInput = __webpack_require__(74);
 
 var MathOutput = __webpack_require__(51);
 
@@ -106453,11 +106448,11 @@ var Graph = __webpack_require__(211);
 
 var InlineIcon = __webpack_require__(34);
 
-var NumberInput = __webpack_require__(75);
+var NumberInput = __webpack_require__(74);
 
 var MathOutput = __webpack_require__(51);
 
-var TeX = __webpack_require__(71);
+var TeX = __webpack_require__(70);
 
 var SimpleKeypadInput = __webpack_require__(62);
 
@@ -108658,7 +108653,7 @@ module.exports = {
     sigfigPrint: sigfigPrint,
     hidden: true
 };
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(9), __webpack_require__(64)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(9), __webpack_require__(75)))
 
 /***/ }),
 /* 504 */

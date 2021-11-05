@@ -5,6 +5,7 @@
       v-if="languageOptionsList.length"
       :options="languageOptionsList"
       class="selector"
+      :clearable="true"
       :value="selectedLanguage"
       :label="coreString('languageLabel')"
       :style="{ color: $themeTokens.text }"
@@ -14,6 +15,7 @@
       v-if="contentLevelsList.length"
       :options="contentLevelsList"
       class="selector"
+      :clearable="true"
       :value="selectedLevel"
       :label="coreString('levelLabel')"
       :style="{ color: $themeTokens.text }"
@@ -23,6 +25,7 @@
       v-if="showChannels && channelOptionsList.length"
       :options="channelOptionsList"
       class="selector"
+      :clearable="true"
       :value="selectedChannel"
       :label="coreString('channelLabel')"
       :style="{ color: $themeTokens.text }"
@@ -32,6 +35,7 @@
       v-if="accessibilityOptionsList.length"
       :options="accessibilityOptionsList"
       class="selector"
+      :clearable="true"
       :value="selectedAccessibilityFilter"
       :label="coreString('accessibility')"
       :style="{ color: $themeTokens.text }"
@@ -155,6 +159,8 @@
       handleChange(field, value) {
         if (value && value.value) {
           this.$emit('input', { ...this.value, [field]: { [value.value]: true } });
+        } else {
+          this.$emit('input', { ...this.value, [field]: {} });
         }
       },
     },

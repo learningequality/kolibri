@@ -29,7 +29,7 @@
       },
       mOfNMasteryModel() {
         return MasteryModelGenerators[this.masteryModel.type](
-          this.assessmentIds,
+          this.content.assessmentIds,
           this.masteryModel
         );
       },

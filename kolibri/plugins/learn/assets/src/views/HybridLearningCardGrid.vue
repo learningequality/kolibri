@@ -8,7 +8,7 @@
     >
       <KFixedGridItem v-for="content in contents" :key="content.id" span="1">
         <HybridLearningContentCard
-          class="grid-item"
+          class="card-grid-item"
           :isMobile="windowIsSmall"
           :contentNode="content"
           :title="content.title"
@@ -39,7 +39,7 @@
         :description="content.description"
         :activityLength="content.duration"
         :thumbnail="content.thumbnail || getContentNodeThumbnail(content)"
-        class="grid-item"
+        class="card-grid-item"
         :isMobile="windowIsSmall"
         :title="content.title"
         :kind="content.kind"
@@ -71,7 +71,7 @@
       :description="content.description"
       :activityLength="content.duration"
       :currentPage="currentPage"
-      class="grid-item"
+      class="card-grid-item"
       :isMobile="windowIsSmall"
       :title="content.title"
       :thumbnail="content.thumbnail"
@@ -188,7 +188,7 @@
 
   $gutters: 16px;
 
-  .grid-item {
+  .card-grid-item {
     margin-bottom: $gutters;
   }
 

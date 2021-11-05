@@ -14,6 +14,7 @@
     :invalid="invalid"
     :error="invalidText"
     :name="name"
+    :clearable="clearable"
     :placeholder="placeholder"
     @change="handleChange"
     @blur="$emit('blur')"
@@ -118,6 +119,14 @@
       placeholder: {
         type: String,
         default: null,
+      },
+      /**
+       * Whether to turn into a clearable state
+       * when an option has been selected.
+       */
+      clearable: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
