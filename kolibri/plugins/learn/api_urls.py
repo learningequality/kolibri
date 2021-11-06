@@ -4,6 +4,7 @@ from rest_framework import routers
 
 from .viewsets import LearnerClassroomViewset
 from .viewsets import LearnerLessonViewset
+from .viewsets import LearnStateView
 
 router = routers.SimpleRouter()
 router.register(
@@ -12,4 +13,7 @@ router.register(
 router.register(r"learnerlesson", LearnerLessonViewset, base_name="learnerlesson")
 
 
-urlpatterns = [url(r"^", include(router.urls))]
+urlpatterns = [
+    url(r"^", include(router.urls)),
+    url(r"state", LearnStateView.as_view(), name="state"),
+]

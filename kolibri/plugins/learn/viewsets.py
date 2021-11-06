@@ -5,15 +5,39 @@ from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models.fields import IntegerField
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Classroom
+from kolibri.core.auth.models import Facility
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
+
+
+class LearnStateView(APIView):
+    def get(self, request, format=None):
+        if request.user.is_anonymous():
+            default_facility = Facility.get_default_facility()
+            can_download_content = (
+                default_facility.dataset.show_download_button_in_learn
+            )
+            return Response(
+                {
+                    "in_classes": False,
+                    "can_download_content": can_download_content,
+                }
+            )
+        return Response(
+            {
+                "in_classes": request.user.memberships.exists(),
+                "can_download_content": request.user.dataset.show_download_button_in_learn,
+            }
+        )
 
 
 class LearnerClassroomViewset(ReadOnlyValuesViewset):

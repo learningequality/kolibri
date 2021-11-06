@@ -86,6 +86,7 @@
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
   import { ClassesPageNames } from '../constants';
+  import useCoreLearn from '../composables/useCoreLearn';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
@@ -120,6 +121,10 @@
       SkipNavigationLink,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
+    setup() {
+      const { canDownload } = useCoreLearn();
+      return { canDownload };
+    },
     props: {
       content: {
         type: Object,
@@ -157,7 +162,6 @@
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
-        canDownload: state => state.core.facilityConfig.show_download_button_in_learn,
       }),
       ...mapState('topicsTree', {
         isCoachContent: state => (state.content.coach_content ? 1 : 0),
