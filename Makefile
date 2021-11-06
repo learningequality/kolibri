@@ -44,7 +44,6 @@ help:
 	@echo "i18n-download branch=<crowdin-branch>: download strings from Crowdin"
 	@echo "i18n-download-source-fonts: retrieve source Google Noto fonts"
 	@echo "i18n-regenerate-fonts: regenerate font files"
-	@echo "i18n-update branch=<crowdin-branch>: i18n-download + i18n-regenerate-fonts"
 	@echo "i18n-stats branch=<crowdin-branch>: output information about translation status"
 	@echo "i18n-django-compilemessages: compiles .po files to .mo files for Django"
 	@echo "i18n-install-font name=<noto-font>: Downloads and installs a new or updated font"
@@ -224,11 +223,6 @@ i18n-regenerate-fonts:
 	python packages/kolibri-tools/lib/i18n/fonts.py generate-subset-fonts
 
 i18n-download: i18n-download-translations i18n-regenerate-fonts i18n-transfer-context
-
-i18n-update:
-	echo "WARNING: i18n-update has been renamed to i18n-download"
-	$(MAKE) i18n-download
-	echo "WARNING: i18n-update has been renamed to i18n-download"
 
 i18n-stats:
 	python packages/kolibri-tools/lib/i18n/crowdin.py translation-stats ${branch}
