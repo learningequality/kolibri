@@ -333,6 +333,7 @@ class KolibriWindow(KolibriView):
             self._open_in_browser_menu_item.gio_action.set_enabled(True)
         else:
             self._open_in_browser_menu_item.gio_action.set_enabled(False)
+            return
 
         # It would be nice if we could replace this history item with the
         # previous one, but WebKitGtk doesn't allow for much in the way of
