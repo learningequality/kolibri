@@ -140,10 +140,7 @@
   "PerseusInternalMessages.reflection": "осева симетрия",
   "PerseusInternalMessages.rotation": "ротация",
   "PerseusInternalMessages.translation": "превод",
-  "PerseusRendererIndex.hint": "Използвай подсказка (остават {hintsLeft, number})",
-  "PerseusRendererIndex.hintExplanation": "Ако използваш подсказка, този въпрос няма да бъде добавен към напредъка ти",
   "PerseusRendererIndex.hintLabel": "Подсказка:",
-  "PerseusRendererIndex.noMoreHint": "Няма повече подсказки",
   "PerseusRendererIndex.notAvailable": "Бележникът не е достъпен",
   "PerseusRendererIndex.showScratch": "Покажи бележника"
 }

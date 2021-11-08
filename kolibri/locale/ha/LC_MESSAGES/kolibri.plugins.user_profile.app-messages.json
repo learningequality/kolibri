@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "Canza kalmar shiga",
+  "ChangeUserPasswordModal.passwordChangedNotification": "An canza kalmar shigar ku.",
+  "ProfileEditPage.editProfileHeader": "Gyara rumbun bayanan mai amfani",
+  "ProfilePage.changePasswordPrompt": "Canza kalmar shiga",
+  "ProfilePage.detailsHeader": "Ƙarin bayanai",
+  "ProfilePage.documentTitle": "Rumbun Bayanai na Mai Amfani",
+  "ProfilePage.editAction": "Gyara",
+  "ProfilePage.isSuperuser": "Izinin Babban Mai Jagora ",
+  "ProfilePage.limitedPermissions": "Izini masu iyaka",
+  "ProfilePage.manageContent": "Sarrafa tashoshi da albarkatu",
+  "ProfilePage.manageDevicePermissions": "Sarrafa izinin na'ura",
+  "ProfilePage.points": "Maki",
+  "ProfilePage.youCan": "Kuna iya:"
+}

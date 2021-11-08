@@ -182,8 +182,9 @@
       someResourcesSelected: {
         message:
           '{count} {count, plural, one {resource selected} other {resources selected}} ({bytesText})',
+
         context:
-          "Indicates the amount of resources selected to import along with the file size. For example:\n\n'727 resources (22 GB)'\n",
+          "Indicates the amount of resources selected to import along with the file size. For example:\n\n'727 resources selected (22 GB)'",
       },
     },
   };

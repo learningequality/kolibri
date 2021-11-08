@@ -72,7 +72,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   retryAction: {
     message: 'Retry',
     context:
-      'Button which allows a user to retry a an action that may have failed due to an unexpected reason such as a loss of connection.',
+      'Button which allows a user to retry an action that may have failed due to an unexpected reason such as a loss of connection.',
   },
   removeAction: {
     message: 'Remove',
@@ -126,7 +126,8 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   removeFromBookmarks: {
     message: 'Remove from bookmarks',
-    context: "An action that removes a resource or topic from a user's bookmarks",
+    context:
+      "An action that removes a resource or topic from a user's bookmarks. The opposite of 'Save to bookmarks'.",
   },
   saveToBookmarks: {
     message: 'Save to bookmarks',
@@ -182,7 +183,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   channelLabel: {
     message: 'Channel',
     context:
-      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri. A label for a single channel.',
+      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri.',
   },
   classCoachLabel: {
     message: 'Class coach',
@@ -239,7 +240,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   facilityName: {
     message: 'Facility name',
-    context: 'The name of the facility.',
+    context: "The name of the facility. For example: 'Demo facility'.",
   },
   facilityNameWithId: {
     message: '{facilityName} ({id})',
@@ -272,7 +273,8 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   inProgressLabel: {
     message: 'In progress',
-    context: 'Indicates a task such as a sync is in progress.',
+    context:
+      "Indicates a task such as a sync is in progress. A lesson or class could also be in progress if the learner hasn't finished it yet.",
   },
   kolibriLabel: {
     message: 'Kolibri',
@@ -281,7 +283,8 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   languageLabel: {
     message: 'Language',
-    context: 'Refers to the language that is used in a resource or in Kolibri',
+    context:
+      'Refers to the language that is used in a resource or in Kolibri. For example, users can filter learning resources by language.',
   },
   learnerLabel: {
     message: 'Learner',
@@ -311,7 +314,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   noUsersExistLabel: {
     message: 'No users exist',
-    context: 'There are no users in this facility',
+    context: 'Displays when there are no users in the facility.',
   },
   optionsLabel: {
     message: 'Options',
@@ -408,10 +411,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   viewInformation: {
     message: 'View information',
-    context: 'Show more detailed information about a resource',
+    context: 'Option to show more detailed information about a resource.',
   },
   moreOptions: {
     message: 'More options',
+    context: 'Reveals a set of more options when clicked.',
   },
   userActionsColumnHeader: {
     message: 'Actions',
@@ -440,7 +444,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // Learning Activities
   all: {
     message: 'All',
-    context: 'A label for everything in the group of activities',
+    context: 'A label for everything in the group of activities.',
   },
   watch: {
     message: 'Watch',
@@ -492,7 +496,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   dailyLife: {
     message: 'Daily life',
-    context: 'Category type.',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Everyday_life',
   },
   forTeachers: {
     message: 'For teachers',
@@ -518,7 +522,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   computerScience: {
     message: 'Computer science',
-    context: 'Category type.',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Computer_science',
   },
   languageLearning: {
     message: 'Language learning',
@@ -566,7 +570,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   physics: {
     message: 'Physics',
-    context: 'Category type.',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Physics.',
   },
   earthScience: {
     message: 'Earth science',
@@ -580,7 +584,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   //  Literature Subcategories
   literature: {
     message: 'Literature',
-    context: 'Category type.',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Literature',
   },
   readingComprehension: {
     message: 'Reading comprehension',
@@ -588,17 +592,17 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   writing: {
     message: 'Writing',
-    context: 'Category type.',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Writing',
   },
   logicAndCriticalThinking: {
     message: 'Logic and critical thinking',
-    context: 'Category type.',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Critical_thinking',
   },
 
   // Social Sciences Subcategories
   politicalScience: {
     message: 'Political science',
-    context: 'Category type.',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Political_science.',
   },
   sociology: {
     message: 'Sociology',
@@ -621,11 +625,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   music: {
     message: 'Music',
-    context: 'Category type.',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Music',
   },
   dance: {
     message: 'Dance',
-    context: 'Category type.',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Dance',
   },
   drama: {
     message: 'Drama',
@@ -639,7 +643,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   mechanicalEngineering: {
     message: 'Mechanical engineering',
-    context: 'Category type.',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Mechanical_engineering.',
   },
   webDesign: {
     message: 'Web design',
@@ -668,7 +672,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // Work Categories
   professionalSkills: {
     message: 'Professional skills',
-    context: 'Category type.',
+    context: 'Category type. Refers to skills that are related to a profession or a job.',
   },
   technicalAndVocationalTraining: {
     message: 'Technical and vocational training',
@@ -693,7 +697,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // Daily Life Categories
   publicHealth: {
     message: 'Public health',
-    context: 'Category type.',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Public_health.',
   },
   entrepreneurship: {
     message: 'Entrepreneurship',
@@ -722,7 +726,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   mentalHealth: {
     message: 'Mental health',
-    context: 'Category type.',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Mental_health',
   },
 
   // Teacher-Specific Categories
@@ -780,7 +784,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   taggedPdf: {
     message: 'Tagged PDF',
     context:
-      'A tagged PDF includes hidden accessibility markups (tags) that help to optimize the reading experience of those who use screen readers and other assistive technology (AT).\n\nhttps://taggedpdf.com/what-is-a-tagged-pdf/',
+      'A tagged PDF includes hidden accessibility markups (tags) that make the document accessible to those who use screen readers and other assistive technology (AT).\n\nhttps://taggedpdf.com/what-is-a-tagged-pdf/',
   },
   altText: {
     message: 'Has alternative text description for images',
@@ -831,7 +835,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   specializedProfessionalTraining: {
     message: 'Specialized professional training',
-    context: 'Level of education.',
+    context: 'Level of education that refers to training for a profession (job).',
   },
   allLevelsBasicSkills: {
     message: 'All levels -- basic skills',
@@ -1013,7 +1017,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // Content activity
   notStartedLabel: {
     message: 'Not started',
-    context: 'For content that has not been viewed or engaged with yet',
+    context: 'Refers to content that has not been viewed nor engaged with yet.',
   },
   folder: {
     message: 'Folder',

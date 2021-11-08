@@ -157,8 +157,11 @@
         context:
           "Title of the spreadsheet format reference window.\n\nCSV is a spreadsheet format that stands for 'Comma-separated values'. More here: https://en.wikipedia.org/wiki/Comma-separated_values",
       },
-      sectionDescription:
-        'A CSV spreadsheet should use the first row as a header, and contain the following columns:',
+      sectionDescription: {
+        message:
+          'A CSV spreadsheet should use the first row as a header, and contain the following columns:',
+        context: 'Description on CSV details window.',
+      },
       close: {
         message: 'Close',
         context: 'Button to close the spreadsheet format reference window.',
@@ -251,7 +254,7 @@
       columnNameHeader: {
         message: 'Column',
         context:
-          'Refers to the title of a type of data on the spreadsheet format reference window.\n',
+          'Refers to the title of a type of data on the spreadsheet format reference window.',
       },
       columnIDHeader: {
         message: 'Identifier',

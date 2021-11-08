@@ -1,17 +1,17 @@
 {
-  "CommonLearnStrings.dontShowThisAgainLabel": "Ta hollu ɗuʼum fahin",
-  "CommonLearnStrings.exploreResources": "Raaru jannginillum",
-  "CommonLearnStrings.learnLabel": "Janngu",
+  "CommonLearnStrings.dontShowThisAgainLabel": "Taa' hollu ɗuʼum fahin",
+  "CommonLearnStrings.exploreResources": "Raarugo jannginillum",
+  "CommonLearnStrings.learnLabel": "Janngugo",
   "CommonLearnStrings.libraryLabel": "Suudu defte",
-  "CommonLearnStrings.logo": "Daga wuro janngugo {channelTitle}",
-  "CommonLearnStrings.markResourceAsCompleteLabel": "Battin jannginillum",
+  "CommonLearnStrings.logo": "Diga wuro janngugo {channelTitle}",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "Maandaago jannginillum to timmi",
   "CommonLearnStrings.mostPopularLabel": "Giɗaaɗum soosey",
   "CommonLearnStrings.multipleLearningActivities": "Kuuɗe janngugo feere-feere",
   "CommonLearnStrings.multipleLearningActivitiesLabel": "",
   "CommonLearnStrings.nextStepsLabel": "Jokkotooɗum",
   "CommonLearnStrings.popularLabel": "Giɗaaɗum",
   "CommonLearnStrings.resourceCompletedLabel": "A timmini jannginillum ɗu'um",
-  "CommonLearnStrings.resourceHidden": "Jannginillum suudaama",
+  "CommonLearnStrings.resourceHidden": "Jannginillum suudiiɗum",
   "CommonLearnStrings.resumeLabel": "Nanngu to alunoɗa",
-  "CommonLearnStrings.suggestedTimeToComplete": "Baakin wakkati noye haa timmingo huwugo jannginillum"
+  "CommonLearnStrings.suggestedTimeToComplete": "Foti hoosay wakkati"
 }

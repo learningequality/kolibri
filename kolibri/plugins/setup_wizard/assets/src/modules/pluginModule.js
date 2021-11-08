@@ -7,7 +7,8 @@ import { FacilityImportResource } from '../api';
 const SetupStrings = createTranslator('SetupStrings', {
   personalFacilityName: {
     message: 'Home Facility for {name}',
-    context: 'Template for a facility name for personal setups.',
+    context:
+      "Default facility name when Kolibri is installed with the 'Quick start' setup option for at home learning, outside any type of structure or institution like a school or a library. '{name}' will display the full name of the super admin user for their Kolibri server. Note that users can change this default name after the setup, and put whatever name they want to use for their home facility.",
   },
 });
 

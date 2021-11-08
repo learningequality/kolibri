@@ -65,7 +65,7 @@
         message:
           'Giving this device a meaningful name can help you and others you connect with to recognize it',
 
-        context: 'Device naming description.',
+        context: 'Device naming description which is displayed when a user creates a new device.',
       },
     },
   };

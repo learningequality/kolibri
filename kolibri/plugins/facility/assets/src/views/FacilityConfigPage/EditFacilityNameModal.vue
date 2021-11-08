@@ -90,7 +90,7 @@
         message:
           'Warning: Only the facility name will be changed, and the new name will be synced and updated on other devices linked to this facility.',
 
-        context: 'Explanation of what consequences renaming will have',
+        context: 'Explanation of what consequences renaming a facility will have.',
       },
       title: {
         message: 'Rename facility',

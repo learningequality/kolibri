@@ -276,7 +276,10 @@
       //     When the coach presses the 'End quiz' button, the quiz
       //passes from 'active' to 'inactive'.",
       // },
-      newQuiz: 'Create new quiz',
+      newQuiz: {
+        message: 'Create new quiz',
+        context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.\n",
+      },
       selectQuiz: {
         message: 'Select channel quiz',
         context:

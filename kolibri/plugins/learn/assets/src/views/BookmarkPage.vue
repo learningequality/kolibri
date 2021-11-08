@@ -113,7 +113,8 @@
       },
       removedNotification: {
         message: 'Removed from bookmarks',
-        context: 'Message indicating that a resource has been removed from the Bookmarks page.',
+        context:
+          'Notification indicating that a resource has been removed from the Bookmarks page.',
       },
       noBookmarks: {
         message: 'You have no bookmarked resources',

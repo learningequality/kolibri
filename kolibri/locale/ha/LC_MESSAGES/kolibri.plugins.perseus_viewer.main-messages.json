@@ -26,7 +26,7 @@
   "PerseusInternalMessages.Cosine": "Kosayin",
   "PerseusInternalMessages.Cube": "Kyub",
   "PerseusInternalMessages.Cube root": "Kyub rut",
-  "PerseusInternalMessages.Custom exponent": "Kwastan esfonet",
+  "PerseusInternalMessages.Custom exponent": "Esfonet na musamman",
   "PerseusInternalMessages.Decimal": "Digo",
   "PerseusInternalMessages.Delete": "Goge",
   "PerseusInternalMessages.Dilate": "Fadada",
@@ -54,7 +54,7 @@
   "PerseusInternalMessages.Keep trying": "Ci gaba da kokari",
   "PerseusInternalMessages.Left arrow": "Kibiya hagu",
   "PerseusInternalMessages.Left parenthesis": "Baka barin hagu",
-  "PerseusInternalMessages.Less than or equal to sign": "Alamar kasa da ko daidai da",
+  "PerseusInternalMessages.Less than or equal to sign": "Kasa da ko daidai da alama",
   "PerseusInternalMessages.Less than sign": "Alamar kasa da",
   "PerseusInternalMessages.Logarithm with base 10": "Logarizim mai tushen 10",
   "PerseusInternalMessages.Logarithm with custom base": "Logarizim mai dabi'ar tushen",
@@ -140,10 +140,7 @@
   "PerseusInternalMessages.reflection": "kamanni",
   "PerseusInternalMessages.rotation": "juyawa",
   "PerseusInternalMessages.translation": "fassara",
-  "PerseusRendererIndex.hint": "Yi amfani da nuni ({hintsLeft, number} left)",
-  "PerseusRendererIndex.hintExplanation": "In ka yi amfani da ambato, ba za a kara wannan tambayar a ci gabanka ba",
   "PerseusRendererIndex.hintLabel": "Manuniya:",
-  "PerseusRendererIndex.noMoreHint": "Ba wasu manuniya",
   "PerseusRendererIndex.notAvailable": "Ba allon kartawa",
   "PerseusRendererIndex.showScratch": "Nuna allon kartawa"
 }
