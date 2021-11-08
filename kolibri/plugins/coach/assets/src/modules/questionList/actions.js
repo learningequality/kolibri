@@ -5,8 +5,12 @@ import { fetchNodeDataAndConvertExam } from 'kolibri.utils.exams';
 import { coachStrings } from '../../views/common/commonCoachStrings';
 import ExerciseDifficulties from './../../apiResources/exerciseDifficulties';
 import QuizDifficulties from './../../apiResources/quizDifficulties';
+import PracticeQuizDifficulties from './../../apiResources/practiceQuizDifficulties';
 
-export function setItemStats(store, { classId, exerciseId, quizId, lessonId, groupId }) {
+export function setItemStats(
+  store,
+  { classId, exerciseId, quizId, lessonId, groupId, practiceQuiz = false } = {}
+) {
   let itemPromise;
   let resource;
   let pk;
@@ -19,7 +23,7 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
     }).then(fetchNodeDataAndConvertExam);
   } else {
     pk = exerciseId;
-    resource = ExerciseDifficulties;
+    resource = practiceQuiz ? PracticeQuizDifficulties : ExerciseDifficulties;
     itemPromise = ContentNodeResource.fetchModel({
       id: store.rootState.classSummary.contentMap[exerciseId].node_id,
     });
@@ -40,7 +44,6 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
       store.commit('SET_STATE', { exam: item });
       // If no one attempted one of the questions, it could get missed out of the list
       // of difficult questions, so use the exam data to fill in the blanks here.
-      console.log(item, stats);
       stats = item.question_sources.map(source => {
         const stat = stats.find(stat => stat.item === source.item) || {
           correct: 0,
@@ -59,6 +62,24 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
     } else {
       item.assessmentmetadata = assessmentMetaDataState(item);
       store.commit('SET_STATE', { exercise: item });
+      if (practiceQuiz) {
+        stats = item.assessmentmetadata.assessmentIds.map((id, questionNumber) => {
+          const stat = stats.find(stat => stat.item === id) || {
+            correct: 0,
+            total: (stats[0] || {}).total || 0,
+          };
+          const title = coachStrings.$tr('nthExerciseName', {
+            name: item.title,
+            number: questionNumber,
+          });
+          return {
+            ...stat,
+            exercise_id: exerciseId,
+            question_id: id,
+            title,
+          };
+        });
+      }
       stats = stats.map(stat => {
         const questionNumber = Math.max(
           1,
