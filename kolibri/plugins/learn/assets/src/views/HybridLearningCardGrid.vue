@@ -2,7 +2,7 @@
 
   <div class="content-grid">
     <KFixedGrid
-      v-if="(cardViewStyle === 'card' && numCols)"
+      v-if="(cardViewStyle === 'card' && !!numCols)"
       :numCols="numCols"
       gutter="24"
     >
@@ -10,19 +10,10 @@
         <HybridLearningContentCard
           class="card-grid-item"
           :isMobile="windowIsSmall"
-          :contentNode="content"
-          :title="content.title"
+          :content="content"
           :thumbnail="content.thumbnail"
           :kind="content.kind"
-          :activityLength="content.duration"
-          :isLeaf="content.is_leaf"
-          :numCoachContents="content.num_coach_contents"
           :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
-          :contentId="content.content_id"
-          :copiesCount="content.copies_count"
-          :description="content.description"
-          :channelThumbnail="content.channel_thumbnail"
-          :channelTitle="content.channel_title"
           @openCopiesModal="openCopiesModal"
           @toggleInfoPanel="$emit('toggleInfoPanel', content)"
         />
@@ -32,18 +23,11 @@
       <HybridLearningLessonCard
         v-for="content in contents"
         :key="content.id"
-        :contentNode="content"
-        :channelThumbnail="content.channel_thumbnail"
-        :channelTitle="content.channel_title"
-        :description="content.description"
-        :activityLength="content.duration"
+        :content="content"
+        :kind="content.kind"
         :thumbnail="content.thumbnail || getContentNodeThumbnail(content)"
         class="card-grid-item"
         :isMobile="windowIsSmall"
-        :title="content.title"
-        :kind="content.kind"
-        :isLeaf="content.is_leaf"
-        :numCoachContents="content.num_coach_contents"
         :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
       />
     </div>
@@ -63,22 +47,13 @@
       v-for="content in contents"
       v-else
       :key="content.id"
-      :contentNode="content"
-      :channelThumbnail="content.channel_thumbnail"
-      :channelTitle="content.channel_title"
-      :description="content.description"
-      :activityLength="content.duration"
+      :content="content"
+      :kind="content.kind"
+      :thumbnail="content.thumbnail"
       :currentPage="currentPage"
       class="card-grid-item"
       :isMobile="windowIsSmall"
-      :title="content.title"
-      :thumbnail="content.thumbnail"
-      :kind="content.kind"
-      :isLeaf="content.is_leaf"
-      :numCoachContents="content.num_coach_contents"
       :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
-      :contentId="content.content_id"
-      :copiesCount="content.copies_count"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
       @openCopiesModal="openCopiesModal"
@@ -140,7 +115,8 @@
       },
       numCols: {
         type: Number,
-        required: true,
+        required: false,
+        default: null,
       },
       getContentNodeThumbnail: {
         type: Function,

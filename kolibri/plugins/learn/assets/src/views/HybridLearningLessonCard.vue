@@ -14,23 +14,23 @@
       <div class="thumbnail">
         <CardThumbnail
           v-bind="{ thumbnail, kind, isMobile }"
-          :activityLength="activityLength"
+          :activityLength="content.duration"
         />
       </div>
       <h3 class="title">
         <TextTruncator
-          :text="title"
+          :text="content.title"
           :maxHeight="maxTitleHeight"
           :style="{ color: $themeTokens.text }"
         />
       </h3>
       <LearningActivityLabel
-        :contentNode="contentNode"
+        :contentNode="content"
         class="learning-activity-label"
         :style="{ color: $themeTokens.text }"
       />
       <div class="footer">
-        <ProgressBar :contentNode="contentNode" />
+        <ProgressBar :contentNode="content" />
       </div>
     </router-link>
   </div>
@@ -58,10 +58,6 @@
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
-      title: {
-        type: String,
-        required: true,
-      },
       thumbnail: {
         type: String,
         default: null,
@@ -71,7 +67,7 @@
         required: true,
         validator: validateContentNodeKind,
       },
-      contentNode: {
+      content: {
         type: Object,
         required: true,
       },
@@ -83,10 +79,6 @@
       isMobile: {
         type: Boolean,
         default: false,
-      },
-      activityLength: {
-        type: String,
-        default: null,
       },
     },
     computed: {

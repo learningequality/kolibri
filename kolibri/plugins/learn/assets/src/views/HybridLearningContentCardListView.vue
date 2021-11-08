@@ -14,12 +14,12 @@
       <div
         v-if="!isMobile"
         class="folder-header"
-        :style="{ backgroundColor: (!isLeaf ? $themeTokens.text : null ) }"
+        :style="{ backgroundColor: (!content.is_leaf ? $themeTokens.text : null ) }"
       ></div>
       <div class="thumbnail">
         <CardThumbnail
           v-bind="{ thumbnail, kind, isMobile }"
-          :activityLength="activityLength"
+          :activityLength="content.duration"
         />
         <p
           v-if="!isMobile && isBookmarksPage"
@@ -34,17 +34,17 @@
           class="metadata-info"
           :style="{ color: $themePalette.grey.v_700 }"
         >
-          <LearningActivityLabel :contentNode="contentNode" class="learning-activity-label" />
+          <LearningActivityLabel :contentNode="content" class="learning-activity-label" />
         </div>
         <h3 class="title">
           <TextTruncator
-            :text="title"
+            :text="content.title"
             :maxHeight="maxTitleHeight"
           />
         </h3>
         <p class="text">
           <TextTruncator
-            :text="description"
+            :text="content.description"
             :maxHeight="maxDescriptionHeight"
           />
         </p>
@@ -53,16 +53,16 @@
         </div>
         <img
           v-if="!isMobile"
-          :src="channelThumbnail"
-          :alt="learnString('logo', { channelTitle: channelTitle })"
+          :src="content.channel_thumbnail"
+          :alt="learnString('logo', { channelTitle: content.channel_title })"
           class="channel-logo"
         >
         <KButton
-          v-if="!isMobile && isLibraryPage"
+          v-if="!isMobile && isLibraryPage && content.copies_count && (content.copies_count > 0)"
           appearance="basic-link"
           class="copies"
           :style="{ color: $themeTokens.text }"
-          :text="coreString('copies', { num: copiesCount })"
+          :text="coreString('copies', { num: content.copies_count })"
           @click.prevent="$emit('openCopiesModal', contentId)"
         />
       </span>
@@ -75,7 +75,7 @@
       >
         {{ bookmarkCreated }}
       </p>
-      <ProgressBar v-else :contentNode="contentNode" />
+      <ProgressBar v-else :contentNode="content" />
       <div class="footer-icons">
         <KIconButton
           v-for="(value, key) in footerIcons"
@@ -116,14 +116,6 @@
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
-      title: {
-        type: String,
-        required: true,
-      },
-      description: {
-        type: String,
-        default: null,
-      },
       createdDate: {
         type: String,
         default: null,
@@ -132,28 +124,12 @@
         type: String,
         default: null,
       },
-      channelThumbnail: {
-        type: String,
-        default: null,
-      },
-      channelTitle: {
-        type: String,
-        default: null,
-      },
       kind: {
         type: String,
         required: true,
         validator: validateContentNodeKind,
       },
-      level: {
-        type: String,
-        default: null,
-      },
-      category: {
-        type: String,
-        default: null,
-      },
-      contentNode: {
+      content: {
         type: Object,
         required: true,
       },
@@ -161,10 +137,6 @@
         type: Object,
         required: true,
         validator: validateLinkObject,
-      },
-      isLeaf: {
-        type: Boolean,
-        default: false,
       },
       isMobile: {
         type: Boolean,
@@ -175,14 +147,6 @@
         default: null,
       },
       currentPage: {
-        type: String,
-        default: null,
-      },
-      copiesCount: {
-        type: Number,
-        default: null,
-      },
-      activityLength: {
         type: String,
         default: null,
       },
