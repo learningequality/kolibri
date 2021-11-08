@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-15 16:05-0700\n"
-"PO-Revision-Date: 2021-09-24 21:59\n"
+"POT-Creation-Date: 2021-11-01 22:12-0700\n"
+"PO-Revision-Date: 2021-11-02 05:29\n"
 "Last-Translator: \n"
 "Language-Team: Hindi\n"
 "Language: hi_IN\n"
@@ -172,15 +172,15 @@ msgstr "उपयोगकर्ता को आईडी : '{}' के सा�
 msgid "Database ID is not valid"
 msgstr "डेटाबेस आईडी मान्य नहीं है"
 
-#: core/content/api.py:158
+#: core/content/api.py:170
 msgid "Resource"
 msgstr "संसाधन"
 
-#: core/content/api.py:1316
+#: core/content/api.py:1327
 msgid "The requested channel does not exist on the content server"
 msgstr "अनुरोध किए गए चैनल सामग्री सर्वर पर मौजूद नहीं है"
 
-#: core/content/models.py:220
+#: core/content/models.py:252
 msgid "Unknown format"
 msgstr "अज्ञात स्वरूप"
 
@@ -188,12 +188,12 @@ msgstr "अज्ञात स्वरूप"
 msgid "Language is not supported by Kolibri"
 msgstr "भाषा कोलिब्री द्वारा समर्थित नहीं है"
 
-#: core/logger/csv_export.py:204
+#: core/logger/csv_export.py:205
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
 msgstr "सामग्री_सत्र_लॉग"
 
-#: core/logger/csv_export.py:214
+#: core/logger/csv_export.py:215
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
 msgstr "सामग्री_सारांश_लॉग"

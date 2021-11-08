@@ -275,7 +275,7 @@
       },
       searchPlaceholder: {
         message: 'Search for a user…',
-        context: 'Indicates the search function which allows coaches to add learners to a lesson.',
+        context: 'Indicates the search function which allows admins to import users.',
       },
       noUsersMatch: {
         message: 'No users match',

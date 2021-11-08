@@ -264,6 +264,12 @@ EXTRA_LANG_INFO = {
         "name": "Chichewa, Chewa, Nyanja",
         "name_local": "Chinyanja",
     },
+    "pt-mz": {
+        "bidi": False,
+        "code": "pt-mz",
+        "name": "Portuguese (Mozambique)",
+        "name_local": "Português (Moçambique)",
+    },
     "zh": {
         "bidi": False,
         "code": "zh-hans",

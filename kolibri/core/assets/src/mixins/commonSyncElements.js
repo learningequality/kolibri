@@ -22,16 +22,16 @@ const syncStrings = createTranslator('CommonSyncStrings', {
   },
   addNewAddressAction: {
     message: 'Add new address',
-    context: 'Label for a button that open menu to save a new network address',
+    context: 'Label for a button that opens a menu to save a new network address.',
   },
   selectFacilityTitle: {
     message: 'Select facility',
     context:
-      'Title of the modal window where the user selects a facility to import from the source device',
+      'Title of the modal window where the user selects a facility to import from the source device, if there are multiple facilities available to import.',
   },
   adminCredentialsTitle: {
     message: 'Enter admin credentials',
-    context: 'Title of the menu where the user provides credentials before importing facility',
+    context: 'Title of the menu where the user provides credentials before importing a facility.',
   },
   nameWithIdFragment: {
     message: '{name} ({id})',

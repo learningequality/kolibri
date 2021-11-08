@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "Changer le mot de passe",
+  "ChangeUserPasswordModal.passwordChangedNotification": "Votre mot de passe a été changé.",
+  "ProfileEditPage.editProfileHeader": "Éditer le profil",
+  "ProfilePage.changePasswordPrompt": "Changer de mot de passe",
+  "ProfilePage.detailsHeader": "Détails",
+  "ProfilePage.documentTitle": "Profil de l'utilisateur",
+  "ProfilePage.editAction": "Modifier",
+  "ProfilePage.isSuperuser": "Autorisations du super admin ",
+  "ProfilePage.limitedPermissions": "Autorisations limitées",
+  "ProfilePage.manageContent": "Gérer les chaînes et les ressources",
+  "ProfilePage.manageDevicePermissions": "Gérer les autorisations de l'appareil",
+  "ProfilePage.points": "Points",
+  "ProfilePage.youCan": "Vous pouvez:"
+}

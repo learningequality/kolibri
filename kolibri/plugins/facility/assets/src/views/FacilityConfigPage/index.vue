@@ -290,7 +290,7 @@
       },
       documentTitle: {
         message: 'Facility Settings',
-        context: 'Title of page.',
+        context: 'Title of page where user can configure facility settings.',
       },
     },
   };

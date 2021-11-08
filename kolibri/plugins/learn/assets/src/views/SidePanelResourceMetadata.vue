@@ -43,7 +43,10 @@
         context:
           'Indicates who holds the copyright of that specific learning resource. For example, "Copyright holder: Ubongo Media".',
       },
-      language: 'Language',
+      language: {
+        message: 'Language',
+        context: 'Users can filter learning resources by language (e.g. Spanish, German)',
+      },
       level: {
         message: 'Level',
         context: 'Refers to the level of education to which the resource is directed at.',

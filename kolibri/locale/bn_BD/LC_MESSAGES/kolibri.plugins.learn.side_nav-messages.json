@@ -3,8 +3,8 @@
   "CommonLearnStrings.exploreResources": "উপকরণ ঘুরে দেখুন",
   "CommonLearnStrings.learnLabel": "শিখুন",
   "CommonLearnStrings.libraryLabel": "লাইব্রেরি",
-  "CommonLearnStrings.logo": "{channelTitle} চ্যানেলের",
-  "CommonLearnStrings.markResourceAsCompleteLabel": "উপকরণকে \"শেষ\" বলে চিহ্নিত করুন",
+  "CommonLearnStrings.logo": "{channelTitle} চ্যানেল থেকে",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "উপকরণটি \"সমাপ্ত\" হিসেবে চিহ্নিত করুন",
   "CommonLearnStrings.mostPopularLabel": "সবচেয়ে জনপ্রিয়",
   "CommonLearnStrings.multipleLearningActivities": "একাধিক শিক্ষা-কার্যক্রম",
   "CommonLearnStrings.multipleLearningActivitiesLabel": "",
@@ -13,5 +13,5 @@
   "CommonLearnStrings.resourceCompletedLabel": "উপকরণ পড়া শেষ",
   "CommonLearnStrings.resourceHidden": "উপকরণ লুকনো হয়েছে",
   "CommonLearnStrings.resumeLabel": "আবার শুরু কর",
-  "CommonLearnStrings.suggestedTimeToComplete": "শেষ করতে এতক্ষণ লাগবে বলে ধারণা করা হচ্ছে"
+  "CommonLearnStrings.suggestedTimeToComplete": "শেষ করার আনুমানিক সময়"
 }

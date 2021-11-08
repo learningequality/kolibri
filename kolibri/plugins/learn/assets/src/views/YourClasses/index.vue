@@ -111,7 +111,10 @@
         context:
           'Message that a learner sees in the Learn > CLASSES section and in the Learn > HOME section if they are not enrolled in any classes.',
       },
-      viewAll: 'View all',
+      viewAll: {
+        message: 'View all',
+        context: 'Option to view all the classes the user is enrolled in.',
+      },
     },
   };
 

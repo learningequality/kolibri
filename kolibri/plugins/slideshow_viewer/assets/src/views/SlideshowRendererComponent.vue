@@ -302,12 +302,12 @@
       exitFullscreen: {
         message: 'Exit fullscreen',
         context:
-          "Learners can use the Esc key or the 'exit fullscreen' button to close the fullscreen view on a slideshow.",
+          "Learners can use the Esc key or the 'EXIT FULLSCREEN' button to close the fullscreen view on a slideshow.",
       },
       enterFullscreen: {
         message: 'Enter fullscreen',
         context:
-          'Learners can use the full screen button in the upper right corner to open a slideshow in fullscreen view.',
+          "Learners can use the 'ENTER FULLSCREEN' button in the upper right corner to open a slideshow in fullscreen view.",
       },
     },
   };

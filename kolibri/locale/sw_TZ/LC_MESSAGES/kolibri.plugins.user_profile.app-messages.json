@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "Badilisha nywila",
+  "ChangeUserPasswordModal.passwordChangedNotification": "Nywila imebadilishwa.",
+  "ProfileEditPage.editProfileHeader": "Hariri profaili yako",
+  "ProfilePage.changePasswordPrompt": "Badilisha nywila",
+  "ProfilePage.detailsHeader": "Maelezo",
+  "ProfilePage.documentTitle": "Maelezo ya Mtumiaji",
+  "ProfilePage.editAction": "Hariri",
+  "ProfilePage.isSuperuser": "Ruhusa ya msimamizi mkuu ",
+  "ProfilePage.limitedPermissions": "Idadi ndogo ya ruhusa",
+  "ProfilePage.manageContent": "Dhibiti vituo na rasilimali",
+  "ProfilePage.manageDevicePermissions": "Simamia ruhusa ya kifaa",
+  "ProfilePage.points": "Pointi",
+  "ProfilePage.youCan": "Unaweza:"
+}
