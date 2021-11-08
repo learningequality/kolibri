@@ -472,7 +472,7 @@ class PracticeQuizDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewse
 
         # Instead of inferring the totals from the number of attempt logs, use the total
         # number of people who have a completed try on the practice quiz
-        total = masterylog_queryset.count()
+        total = masterylog_queryset.distinct().count()
         for datum in data:
             datum["total"] = total
         return Response(data)
