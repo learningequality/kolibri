@@ -56,7 +56,7 @@
 
       <!-- First section is the results title and the various display buttons  -->
       <!-- for interacting or updating the results   -->
-      <div v-else-if="!searchLoading" class="results-title">
+      <div v-else-if="!searchLoading">
         <h2 class="results-title">
           {{ $tr('results', { results: results.length }) }}
         </h2>
@@ -305,9 +305,7 @@
         return 300;
       },
       numCols() {
-        if (this.currentViewStyle === 'list' || this.windowBreakpoint < 1) {
-          return null;
-        } else if (this.windowIsSmall) {
+        if (this.windowIsSmall) {
           return 2;
         } else {
           return 3;
