@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "Thay đổi mật khẩu",
+  "ChangeUserPasswordModal.passwordChangedNotification": "Mật khẩu của bạn đã được thay đổi.",
+  "ProfileEditPage.editProfileHeader": "Sửa hồ sơ",
+  "ProfilePage.changePasswordPrompt": "Thay đổi mật khẩu",
+  "ProfilePage.detailsHeader": "Chi tiết",
+  "ProfilePage.documentTitle": "Hồ sơ người dùng",
+  "ProfilePage.editAction": "Sửa",
+  "ProfilePage.isSuperuser": "Quyền siêu quản trị ",
+  "ProfilePage.limitedPermissions": "Quyền bị giới hạn",
+  "ProfilePage.manageContent": "Quản lý kênh và tài liệu",
+  "ProfilePage.manageDevicePermissions": "Quản lý quyền sử dụng thiết bị",
+  "ProfilePage.points": "Điểm",
+  "ProfilePage.youCan": "Bạn có thể:"
+}

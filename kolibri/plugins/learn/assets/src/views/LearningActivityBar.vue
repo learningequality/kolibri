@@ -325,7 +325,10 @@
       },
     },
     $trs: {
-      goBack: 'Go back',
+      goBack: {
+        message: 'Go back',
+        context: 'Link to go back to the previous screen.',
+      },
       moreOptions: {
         message: 'More options',
         context: 'Tooltip text.',

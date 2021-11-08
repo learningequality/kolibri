@@ -204,7 +204,7 @@
       },
       detailsHeading: {
         message: 'Session logs',
-        context: "'Session logs' refer to individual visits to each resource.",
+        context: "'Session logs' refer to individual visits to each resource made by a user.",
       },
       detailsSubHeading: {
         message: 'Individual visits to each resource',
@@ -248,7 +248,7 @@
       },
       note: {
         message: 'Note:',
-        context: 'Precedes the more detailed explanation of what logs are.\n',
+        context: 'Text that precedes the more detailed explanation of what logs are.',
       },
       noDownload: {
         message: 'Download is not supported on Android',
@@ -260,7 +260,8 @@
       },
       generatingLog: {
         message: 'Generating log file...',
-        context: "Message that displays when user clicks on 'Generate a new log file'.",
+        context:
+          "Message that displays when user clicks on 'Generate a new log file'. Log files contain information about users and their interactions with the resources on the device.",
       },
     },
   };

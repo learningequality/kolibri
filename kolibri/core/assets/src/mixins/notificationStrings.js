@@ -4,11 +4,11 @@ import { createTranslator } from 'kolibri.utils.i18n';
 export default createTranslator('NotificationStrings', {
   classCreated: {
     message: 'Class created',
-    context: 'Adding a class',
+    context: 'A confirmation message indicating that the user has created a class.',
   },
   classDeleted: {
     message: 'Class deleted',
-    context: 'Deleting a class',
+    context: 'A confirmation message indicating that the user has deleted a class.',
   },
   coachesAssignedNoCount: {
     message: '{count, plural, one {Coach assigned} other {Coaches assigned}}',
@@ -37,11 +37,11 @@ export default createTranslator('NotificationStrings', {
   },
   userCreated: {
     message: 'User created',
-    context: 'Creating a new user',
+    context: 'A confirmation message indicating that a new user has been created.\n',
   },
   userDeleted: {
     message: 'User deleted',
-    context: 'Deleting a user',
+    context: 'A confirmation message indicating that an existing user has been deleted.',
   },
   passwordReset: {
     message: 'Password reset',
@@ -54,23 +54,25 @@ export default createTranslator('NotificationStrings', {
   },
   lessonCreated: {
     message: 'Lesson created',
-    context: 'Creating a new lesson',
+    context: 'A confirmation message indicating that the user has created a lesson.',
   },
   lessonCopied: {
     message: 'Lesson copied',
-    context: 'Copying a lesson to a classroom',
+    context: 'A confirmation message indicating that the user has copied a lesson to a class.',
   },
   lessonDeleted: {
     message: 'Lesson deleted',
-    context: 'Deleting a lesson',
+    context: 'A confirmation message indicating that the user has deleted a lesson.',
   },
   resourcesAddedWithCount: {
     message: '{count, number} {count, plural, one {resource added} other {resources added}}',
-    context: 'Adding a specified number of resources to a lesson',
+    context:
+      'Notification that appears when a user adds a specified number of resources to a lesson. For example, "75 resources added".',
   },
   resourcesRemovedWithCount: {
     message: '{count, number} {count, plural, one {resource removed} other {resources removed}}',
-    context: 'Removing a specified number of resources from a lesson',
+    context:
+      'Notification that displays when a user removes a specified number of resources from a lesson. For example, "75 resources removed".',
   },
   resourcesAddedNoCount: {
     message: '{count, plural, one {Resource added} other {Resources added}}',
@@ -82,27 +84,31 @@ export default createTranslator('NotificationStrings', {
   },
   resourceOrderSaved: {
     message: 'Resource order saved',
-    context: 'Saving the new order of resources in a lesson',
+    context:
+      'A confirmation message indicating that the user has changed the order of the learning resources in a lesson by clicking and dragging them.',
   },
   quizCopied: {
     message: 'Quiz copied',
-    context: 'Copying a quiz to a classroom',
+    context:
+      'A confirmation message indicating that the user has copied an existing quiz to a class.',
   },
   quizCreated: {
     message: 'Quiz created',
-    context: 'Text will appear as a notification at the bottom after the new quiz is created',
+    context:
+      'Text will appear as a notification at the bottom of the screen after a user creates a new quiz.',
   },
   quizDeleted: {
     message: 'Quiz deleted',
-    context: 'Deleting a quiz',
+    context:
+      'NotificationStrings.quizDeleted\n\nA confirmation message indicating that the user has deleted a quiz.',
   },
   groupCreated: {
     message: 'Group created',
-    context: 'Creating a new learner group',
+    context: 'A confirmation message indicating that the user has created a new group of learners.',
   },
   groupDeleted: {
     message: 'Group deleted',
-    context: 'Deleting a learner group',
+    context: 'A confirmation message indicating that the user has deleted a new group of learners.',
   },
   // TODO move more messages into this namespace:
   // - "Quiz started"

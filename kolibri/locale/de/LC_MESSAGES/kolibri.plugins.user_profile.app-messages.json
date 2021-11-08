@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "Passwort ändern",
+  "ChangeUserPasswordModal.passwordChangedNotification": "Ihr Passwort wurde geändert.",
+  "ProfileEditPage.editProfileHeader": "Profil bearbeiten",
+  "ProfilePage.changePasswordPrompt": "Passwort ändern",
+  "ProfilePage.detailsHeader": "Informationen",
+  "ProfilePage.documentTitle": "Benutzerprofil",
+  "ProfilePage.editAction": "Bearbeiten",
+  "ProfilePage.isSuperuser": "Berechtigungen von Superadministratoren ",
+  "ProfilePage.limitedPermissions": "Begrenzte Berechtigungen",
+  "ProfilePage.manageContent": "Kanäle und Materialien verwalten",
+  "ProfilePage.manageDevicePermissions": "Geräteberechtigungen verwalten",
+  "ProfilePage.points": "Punkte",
+  "ProfilePage.youCan": "Sie können:"
+}

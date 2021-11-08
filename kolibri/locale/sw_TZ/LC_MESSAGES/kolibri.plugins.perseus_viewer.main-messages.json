@@ -8,7 +8,7 @@
   "PerseusInternalMessages.(Choice { letter }, Correct Answer)": "(Chaguo { letter }, Jibu Sahihi)",
   "PerseusInternalMessages.(selected)": "(imechaguliwa)",
   "PerseusInternalMessages.**Your answer should be** ": "**Jibu lako linapaswa kuwa ** ",
-  "PerseusInternalMessages.0 solutions": "0 suluhisho",
+  "PerseusInternalMessages.0 solutions": "suluhisho 0",
   "PerseusInternalMessages.A B C D E F G H I J K L M N O P Q R S T U V W X Y Z": "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z",
   "PerseusInternalMessages.Add highlight": "Ongeza ghulisha",
   "PerseusInternalMessages.Beginning of reading passage footnotes.": "Mwanzo wa kusoma tanbihi za kifungu.",
@@ -140,10 +140,7 @@
   "PerseusInternalMessages.reflection": "kuakisi",
   "PerseusInternalMessages.rotation": "mzunguko",
   "PerseusInternalMessages.translation": "tafsiri",
-  "PerseusRendererIndex.hint": "Tumia dokezo ({hintsLeft, number} iliyobaki)",
-  "PerseusRendererIndex.hintExplanation": "Ikiwa unatumia kidokezo, swali hili halitaongezwa kwa maendeleo yako",
   "PerseusRendererIndex.hintLabel": "Dokezo:",
-  "PerseusRendererIndex.noMoreHint": "Hakuna vidokezo vingine",
   "PerseusRendererIndex.notAvailable": "Hakuna karatasi ya kuandikia",
   "PerseusRendererIndex.showScratch": "Onyesha karatasi ya kuandikia"
 }

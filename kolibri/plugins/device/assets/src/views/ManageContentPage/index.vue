@@ -212,7 +212,7 @@
     $trs: {
       import: {
         message: 'Import',
-        context: 'Option to import channels from another device.\n',
+        context: 'Option to import channels or users from another device.',
       },
       documentTitle: {
         message: 'Manage Device Channels',

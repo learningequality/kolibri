@@ -82,7 +82,7 @@
       versionNumber: {
         message: 'Version {v, number, integer}',
         context:
-          'Indicates the channel version. This can be updated when new resources are made available in a channel.\n',
+          'Indicates the channel version. This can be updated when new resources are made available in a channel.',
       },
       defaultDescription: {
         message: '(No description)',

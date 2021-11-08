@@ -104,7 +104,10 @@
       },
     },
     $trs: {
-      header: 'Explore channels',
+      header: {
+        message: 'Explore channels',
+        context: "Heading in the 'Learn' section where users can view channels.",
+      },
     },
   };
 

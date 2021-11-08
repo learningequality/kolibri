@@ -138,7 +138,8 @@
     $trs: {
       stepTitle: {
         message: 'Import facility - {step, number} of {total, number}',
-        context: 'Title that goes on top of the screen to indicate the current step',
+        context:
+          'Title that goes on top of the screen to indicate the current step in the import facility process.',
       },
     },
   };

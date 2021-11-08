@@ -365,11 +365,11 @@
       /* eslint-disable kolibri/vue-no-unused-translations */
       viewAsList: {
         message: 'View as list',
-        context: 'Label for a button',
+        context: 'Label for a button used to view resources as a list.',
       },
       viewAsGrid: {
         message: 'View as grid',
-        context: 'Label for a button. See also https://en.wikipedia.org/wiki/Grid_view',
+        context: 'Label for a button used to view resources as a grid.',
       },
       clearAll: {
         message: 'Clear all',

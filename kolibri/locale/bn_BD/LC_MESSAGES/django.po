@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-15 16:05-0700\n"
-"PO-Revision-Date: 2021-09-23 20:20\n"
+"POT-Creation-Date: 2021-11-01 22:12-0700\n"
+"PO-Revision-Date: 2021-11-02 05:29\n"
 "Last-Translator: \n"
 "Language-Team: Bengali\n"
 "Language: bn_BD\n"
@@ -153,7 +153,7 @@ msgstr "'{}' কলামটি প্রয়োজন"
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr "প্রথম সারিতে কলামের নামে ভুল আছে"
+msgstr "প্রথম সারিতে ভুল হেডার লেবেল রয়েছে"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
@@ -172,15 +172,15 @@ msgstr "এই আইডি সহ ব্যবহারকারী আপড�
 msgid "Database ID is not valid"
 msgstr "ডেটাবেস আই.ডি বৈধ নয়"
 
-#: core/content/api.py:158
+#: core/content/api.py:170
 msgid "Resource"
 msgstr "উপকরণ"
 
-#: core/content/api.py:1316
+#: core/content/api.py:1327
 msgid "The requested channel does not exist on the content server"
 msgstr "এই চ্যানেলের বিষয়বস্তু সার্ভারে বিদ্যমান নয়"
 
-#: core/content/models.py:220
+#: core/content/models.py:252
 msgid "Unknown format"
 msgstr "ভুল হয়েছে"
 
@@ -188,12 +188,12 @@ msgstr "ভুল হয়েছে"
 msgid "Language is not supported by Kolibri"
 msgstr "ভাষাটি কলিব্রিতে ব্যবহারযোগ্য নয়"
 
-#: core/logger/csv_export.py:204
+#: core/logger/csv_export.py:205
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
 msgstr "কন্টেন্ট_সেশন_লগস"
 
-#: core/logger/csv_export.py:214
+#: core/logger/csv_export.py:215
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
 msgstr "কন্টেন্ত_সামারি_লগস"

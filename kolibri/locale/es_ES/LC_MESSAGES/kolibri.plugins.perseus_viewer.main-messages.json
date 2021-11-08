@@ -140,10 +140,7 @@
   "PerseusInternalMessages.reflection": "reflexión",
   "PerseusInternalMessages.rotation": "rotación",
   "PerseusInternalMessages.translation": "traslación",
-  "PerseusRendererIndex.hint": "Usar una pista (tienes {hintsLeft, number})",
-  "PerseusRendererIndex.hintExplanation": "Si utilizas una pista, esta pregunta no cuenta para tu progreso",
   "PerseusRendererIndex.hintLabel": "Pista:",
-  "PerseusRendererIndex.noMoreHint": "No quedan pistas",
   "PerseusRendererIndex.notAvailable": "La pizarra no está disponible",
   "PerseusRendererIndex.showScratch": "Ver pizarra"
 }

@@ -47,8 +47,7 @@
     $trs: {
       pointsTooltip: {
         message: 'You earned { points, number } points',
-        context:
-          'Notification indicating how many point a leaner has earned for competing an exercise.',
+        context: 'Notification indicating how many points a leaner has earned.',
       },
     },
   };

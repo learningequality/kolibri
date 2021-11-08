@@ -1,17 +1,17 @@
 {
-  "CommonLearnStrings.dontShowThisAgainLabel": "",
-  "CommonLearnStrings.exploreResources": "",
+  "CommonLearnStrings.dontShowThisAgainLabel": "Não mostrar novamente",
+  "CommonLearnStrings.exploreResources": "Explorar conteúdos",
   "CommonLearnStrings.learnLabel": "Aprender",
-  "CommonLearnStrings.libraryLabel": "",
-  "CommonLearnStrings.logo": "",
-  "CommonLearnStrings.markResourceAsCompleteLabel": "",
+  "CommonLearnStrings.libraryLabel": "Biblioteca",
+  "CommonLearnStrings.logo": "Do canal {channelTitle}",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "Marcar conteúdo como completado",
   "CommonLearnStrings.mostPopularLabel": "Mais populares",
-  "CommonLearnStrings.multipleLearningActivities": "",
+  "CommonLearnStrings.multipleLearningActivities": "Conteúdo com múltiplas atividades",
   "CommonLearnStrings.multipleLearningActivitiesLabel": "",
   "CommonLearnStrings.nextStepsLabel": "Próximos passos",
   "CommonLearnStrings.popularLabel": "Populares",
-  "CommonLearnStrings.resourceCompletedLabel": "",
-  "CommonLearnStrings.resourceHidden": "",
+  "CommonLearnStrings.resourceCompletedLabel": "Conteúdo completado",
+  "CommonLearnStrings.resourceHidden": "Conteúdo ocultado",
   "CommonLearnStrings.resumeLabel": "Continuar",
-  "CommonLearnStrings.suggestedTimeToComplete": ""
+  "CommonLearnStrings.suggestedTimeToComplete": "Tempo estimado para a conclusão"
 }

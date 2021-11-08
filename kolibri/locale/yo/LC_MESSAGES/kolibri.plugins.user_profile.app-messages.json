@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "Ṣàyípadà ọ̀rọ̀ aṣínà",
+  "ChangeUserPasswordModal.passwordChangedNotification": "A paaro ọ̀rọ̀ aṣínà yin.",
+  "ProfileEditPage.editProfileHeader": "Ṣàtúnṣe Ìrísí olùlò",
+  "ProfilePage.changePasswordPrompt": "Ṣàyípadà ọ̀rọ̀ aṣínà",
+  "ProfilePage.detailsHeader": "Ẹ̀kúnrẹ́rẹ́ àlàyé",
+  "ProfilePage.documentTitle": "Ìrísí olùlò aṣàmúlò",
+  "ProfilePage.editAction": "Ṣàtúnṣe",
+  "ProfilePage.isSuperuser": "Ẹ̀tọ́ alábòójútó tó ga jù ",
+  "ProfilePage.limitedPermissions": "Àwọn àṣẹ tí ó nídìnwọ̀n",
+  "ProfilePage.manageContent": "Ṣàkóso àwọn ìkànní àti àwọn orísun",
+  "ProfilePage.manageDevicePermissions": "Ṣàyẹ̀wò ohun èlò tó ò ń lò níbí",
+  "ProfilePage.points": "Àwọn kókó",
+  "ProfilePage.youCan": "O lè:"
+}

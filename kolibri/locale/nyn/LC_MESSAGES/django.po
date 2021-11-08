@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-15 16:05-0700\n"
-"PO-Revision-Date: 2021-09-23 20:20\n"
+"POT-Creation-Date: 2021-11-01 22:12-0700\n"
+"PO-Revision-Date: 2021-11-02 05:29\n"
 "Last-Translator: \n"
 "Language-Team: Chewa\n"
 "Language: ny_MW\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr "Chinachake chalakwika [{}]: {}"
+msgstr "Chinachake chosayembekezereka [{}]: {}"
 
 #: core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
@@ -29,7 +29,7 @@ msgstr "Zomwe mwalowetsa mu '{}' zatalika kwambiri"
 #: core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr "Fomati ya zimene mwalemba mu '{}' ndi yolakwika"
+msgstr "Zomwe mwalemba umu '{}' ndi zolakwika"
 
 #: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
@@ -139,7 +139,7 @@ msgstr "Mwalowetsa zilembo zambiri mu gawo ili '{}'"
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr "Valiyu ili mugawo '{}' zosagwira"
+msgstr "Nambala kapena mawu omwe ali mugawo '{}' ndi osagwira"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -153,7 +153,7 @@ msgstr "Pakufunika gawo ili '{}'"
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr "Mu mzere woyambirira mwapezeka chizindikiro cholakwika"
+msgstr "Mumzere woyambirira mwapezeka chizindikiro cholakwika"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
@@ -170,17 +170,17 @@ msgstr "Sizingatheke kupanga apudeti akaunti yokhala ndi ID: '{}' chifukwa choti
 
 #: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
-msgstr "Detabezi ID ndi yosavomerezeka"
+msgstr "Databezi ID ndi yosavomerezeka"
 
-#: core/content/api.py:158
+#: core/content/api.py:170
 msgid "Resource"
 msgstr "Zophunzirira"
 
-#: core/content/api.py:1316
+#: core/content/api.py:1327
 msgid "The requested channel does not exist on the content server"
 msgstr "Tchanelo imene mukufuna sikupezeka pa seva"
 
-#: core/content/models.py:220
+#: core/content/models.py:252
 msgid "Unknown format"
 msgstr "Fomati yosadziwika"
 
@@ -188,12 +188,12 @@ msgstr "Fomati yosadziwika"
 msgid "Language is not supported by Kolibri"
 msgstr "Chilankhulo chimenechi sichili pa Kolibri"
 
-#: core/logger/csv_export.py:204
+#: core/logger/csv_export.py:205
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
 msgstr "content_session_logs"
 
-#: core/logger/csv_export.py:214
+#: core/logger/csv_export.py:215
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
 msgstr "content_summary_logs"

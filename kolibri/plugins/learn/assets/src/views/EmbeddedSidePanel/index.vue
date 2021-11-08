@@ -349,7 +349,7 @@
       },
       allCategories: {
         message: 'All categories',
-        context: 'Button label in the Library page sidebar.',
+        context: 'Option in the Library page sidebar.',
       },
     },
   };

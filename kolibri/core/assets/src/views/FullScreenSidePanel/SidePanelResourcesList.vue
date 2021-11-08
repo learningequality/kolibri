@@ -91,7 +91,7 @@
       },
       nextFolder: {
         message: 'Next folder',
-        context: '',
+        context: 'Indicates navigation to the next folder and its contents.',
       },
     },
   };

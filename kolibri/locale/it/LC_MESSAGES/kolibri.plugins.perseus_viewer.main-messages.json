@@ -140,10 +140,7 @@
   "PerseusInternalMessages.reflection": "riflessione",
   "PerseusInternalMessages.rotation": "rotazione",
   "PerseusInternalMessages.translation": "traslazione",
-  "PerseusRendererIndex.hint": "Usa un suggerimento ({hintsLeft, number} rimasti)",
-  "PerseusRendererIndex.hintExplanation": "Se usi un suggerimento, questa risposta non verrà aggiunta ai tuoi progressi",
   "PerseusRendererIndex.hintLabel": "Suggerimento:",
-  "PerseusRendererIndex.noMoreHint": "Non ci sono altri suggerimenti",
   "PerseusRendererIndex.notAvailable": "Il blocco appunti non è disponibile",
   "PerseusRendererIndex.showScratch": "Mostra blocco appunti"
 }
