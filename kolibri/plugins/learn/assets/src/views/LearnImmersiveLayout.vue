@@ -20,6 +20,7 @@
       data-test="learningActivityBar"
       @navigateBack="navigateBack"
       @toggleBookmark="toggleBookmark"
+      @viewResourceList="toggleResourceList"
       @viewInfo="openSidePanel"
     />
     <KLinearLoader
@@ -63,6 +64,13 @@
         :canDownloadContent="canDownload"
       />
     </FullScreenSidePanel>
+    <FullScreenSidePanel 
+      v-if="showViewResourcesSidePanel"
+      @closePanel="showViewResourcesSidePanel = false"
+    >
+      <AlsoInThis :contentNodes="viewResourcesContents" :title="viewResourcesTitle" />
+    </FullScreenSidePanel>
+
   </div>
 
 </template>
@@ -79,9 +87,11 @@
     LearningActivities,
     ContentKindsToLearningActivitiesMap,
   } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
+  import { _collectionState } from '../modules/coreLearn/utils.js';
   import GlobalSnackbar from '../../../../../../kolibri/core/assets/src/views/GlobalSnackbar';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
@@ -90,6 +100,7 @@
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
+  import AlsoInThis from './AlsoInThis';
 
   export default {
     name: 'LearnImmersiveLayout',
@@ -111,6 +122,7 @@
       };
     },
     components: {
+      AlsoInThis,
       AppError,
       AuthMessage,
       ContentPage,
@@ -152,6 +164,9 @@
       return {
         bookmark: null,
         sidePanelContent: null,
+        showViewResourcesSidePanel: false,
+        viewResourcesContents: [],
+        viewResourcesTitle: 'adf',
       };
     },
     computed: {
@@ -209,6 +224,20 @@
         return null;
       },
     },
+    watch: {
+      content: function() {
+        console.log('watch content - fetching siblings');
+        this.showViewResourcesSidePanel = false;
+        this.fetchSiblings();
+      },
+    },
+    mounted() {
+      /** I got 404s because content wasn't provided immediately upon mounting, so we check
+       * this here, otherwise a watcher on `content` should trigger calling the same */
+      if (this.content.id) {
+        this.fetchSiblings();
+      }
+    },
     beforeUpdate() {
       client({
         method: 'get',
@@ -219,6 +248,52 @@
       });
     },
     methods: {
+      /**
+       * Returns a progress-laden list of content nodes that are in
+       * this.content's parent folder OR the same lesson, depending on the
+       * value of this.lessonContext.
+       * @returns { Array<ContentNode>} - An array of ContentNodes with their progresses
+       * annotated.
+       */
+      fetchSiblings() {
+        if (this.lessonContext) {
+          // TODO: Get and set lesson string
+        }
+        // TODO: Get and set view resources string
+
+        /** Largely borrowed from modules/topicsTree/handlers.js
+           - Get the parent's children
+           - Get and map their progresses */
+        const store = this.$store;
+        ContentNodeResource.fetchTree({
+          id: this.content.parent,
+          params: {
+            include_coach_content:
+              store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
+          },
+        }).then(parent => {
+          const nodes = parent.children.results;
+          let nodesWithProgress = nodes;
+
+          // Only fetch progress if user is logged in
+          if (store.getters.isUserLoggedIn) {
+            ContentNodeProgressResource.fetchCollection({
+              getParams: { parent: this.content.parent },
+            }).then(progresses => {
+              this.viewResourcesContents = nodes.map(node => {
+                const matchingProgress = progresses.find(p => p.id === node.id) || {
+                  progress_fraction: 0, // Default if no match found
+                };
+
+                node.progress = matchingProgress.progress_fraction;
+                return node;
+              });
+            });
+          } else {
+            this.viewResourcesContents = nodes.map(node => (node.progress = 0));
+          }
+        });
+      },
       navigateBack() {
         this.$router.push(this.back);
       },
@@ -245,6 +320,9 @@
             this.bookmark = response.data;
           });
         }
+      },
+      toggleResourceList() {
+        this.showViewResourcesSidePanel = true;
       },
     },
     $trs: {
