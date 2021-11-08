@@ -74,18 +74,21 @@
     },
     methods: {
       appBarTitle(route) {
+        /* eslint-disable kolibri/vue-no-undefined-string-uses */
+        // remove 'disable' after switching back to `this.$tr`
         if (route.name === ComponentMap.SIGN_UP) {
           if (route.query.step) {
             return tempTranslator.$tr('signUpStep1Title');
           }
           return tempTranslator.$tr('signUpStep2Title');
         }
+        /* eslint-enable kolibri/vue-no-undefined-string-uses */
 
         return this.coreString('signInLabel');
       },
     },
     $trs: {
-      // TODO: move strings from tempTranslator back to here
+      // TODO: move strings from tempTranslator back to this.$tr
     },
   };
 
