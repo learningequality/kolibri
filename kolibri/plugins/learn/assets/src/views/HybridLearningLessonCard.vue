@@ -13,7 +13,8 @@
     >
       <div class="thumbnail">
         <CardThumbnail
-          v-bind="{ thumbnail, kind, isMobile }"
+          v-bind="{ thumbnail, isMobile }"
+          :kind="content.kind"
           :activityLength="content.duration"
         />
       </div>
@@ -40,7 +41,7 @@
 
 <script>
 
-  import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressBar from './ProgressBar';
@@ -61,11 +62,6 @@
       thumbnail: {
         type: String,
         default: null,
-      },
-      kind: {
-        type: String,
-        required: true,
-        validator: validateContentNodeKind,
       },
       content: {
         type: Object,

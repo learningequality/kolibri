@@ -18,7 +18,8 @@
       ></div>
       <div class="thumbnail">
         <CardThumbnail
-          v-bind="{ thumbnail, kind, isMobile }"
+          :kind="content.kind"
+          v-bind="{ thumbnail, isMobile }"
           :activityLength="content.duration"
         />
         <p
@@ -96,7 +97,7 @@
 
 <script>
 
-  import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { now } from 'kolibri.utils.serverClock';
@@ -123,11 +124,6 @@
       thumbnail: {
         type: String,
         default: null,
-      },
-      kind: {
-        type: String,
-        required: true,
-        validator: validateContentNodeKind,
       },
       content: {
         type: Object,

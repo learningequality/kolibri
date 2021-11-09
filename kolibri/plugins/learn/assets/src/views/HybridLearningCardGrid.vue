@@ -12,7 +12,6 @@
           :isMobile="windowIsSmall"
           :content="content"
           :thumbnail="content.thumbnail"
-          :kind="content.kind"
           :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
           @openCopiesModal="openCopiesModal"
           @toggleInfoPanel="$emit('toggleInfoPanel', content)"
@@ -24,7 +23,6 @@
         v-for="content in contents"
         :key="content.id"
         :content="content"
-        :kind="content.kind"
         :thumbnail="content.thumbnail || getContentNodeThumbnail(content)"
         class="card-grid-item"
         :isMobile="windowIsSmall"
@@ -48,7 +46,6 @@
       v-else
       :key="content.id"
       :content="content"
-      :kind="content.kind"
       :thumbnail="content.thumbnail"
       :currentPage="currentPage"
       class="card-grid-item"
