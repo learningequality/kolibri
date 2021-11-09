@@ -25,7 +25,26 @@
         @navigateTo="navigateTo"
         @error="onError"
       />
-
+      <QuizRenderer
+        v-else-if="practiceQuiz"
+        class="content-renderer"
+        :kind="content.kind"
+        :files="content.files"
+        :lang="content.lang"
+        :randomize="content.randomize"
+        :masteryModel="content.masteryModel"
+        :assessmentIds="content.assessmentIds"
+        :available="content.available"
+        :extraFields="extraFields"
+        :progress="progress"
+        :userId="currentUserId"
+        :userFullName="fullName"
+        :timeSpent="timeSpent"
+        @startTracking="startTracking"
+        @stopTracking="stopTracking"
+        @updateProgress="updateProgress"
+        @updateContentState="updateContentState"
+      />
       <AssessmentWrapper
         v-else
         class="content-renderer"
@@ -62,11 +81,14 @@
 
 <script>
 
+  import get from 'lodash/get';
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { ContentNodeResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
+  import Modalities from 'kolibri-constants/Modalities';
   import { ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
+  import QuizRenderer from './QuizRenderer';
   import AssessmentWrapper from './AssessmentWrapper';
   import commonLearnStrings from './commonLearnStrings';
   import CompletionModal from './CompletionModal';
@@ -88,6 +110,7 @@
     components: {
       AssessmentWrapper,
       CompletionModal,
+      QuizRenderer,
     },
     mixins: [commonLearnStrings],
     props: {
@@ -120,6 +143,9 @@
         extraFields: state => state.core.logging.extra_fields,
         fullName: state => state.core.session.full_name,
       }),
+      practiceQuiz() {
+        return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
+      },
     },
     created() {
       return this.initContentSession({
