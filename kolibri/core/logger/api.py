@@ -11,6 +11,7 @@ from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models import Value
 from django.http import Http404
+from django_filters.filters import NumberFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
@@ -932,13 +933,14 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
 
 class AttemptFilter(FilterSet):
     content = CharFilter(method="filter_content")
+    mastery_level = NumberFilter(name="masterylog__mastery_level")
 
     def filter_content(self, queryset, name, value):
         return queryset.filter(masterylog__summarylog__content_id=value)
 
     class Meta:
         model = AttemptLog
-        fields = ["masterylog", "complete", "user", "content", "item"]
+        fields = ["masterylog", "complete", "user", "content", "item", "mastery_level"]
 
 
 def _attempts_diff(item):
