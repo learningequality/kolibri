@@ -200,6 +200,31 @@ describe('Vuex store/actions for core module', () => {
       await store.dispatch('initContentSession', { nodeId: node_id, lessonId: lesson_id });
       expect(client).not.toHaveBeenCalled();
     });
+    it('should not make a backend request when the session for lesson_id and node_id is already active unless repeat is true', async () => {
+      const store = makeStore();
+      const session_id = 'test_session_id';
+      const node_id = 'test_node_id';
+      const lesson_id = 'test_lesson_id';
+      const progress = 0.5;
+      const time_spent = 15;
+      const extra_fields = { extra: true };
+      client.__setPayload({
+        session_id,
+        context: { node_id, lesson_id },
+        progress,
+        time_spent,
+        extra_fields,
+        complete: false,
+      });
+      await store.dispatch('initContentSession', { nodeId: node_id, lessonId: lesson_id });
+      client.__reset();
+      await store.dispatch('initContentSession', {
+        nodeId: node_id,
+        lessonId: lesson_id,
+        repeat: true,
+      });
+      expect(client).toHaveBeenCalled();
+    });
     it('should not make a backend request when the session for quiz_id is already active', async () => {
       const store = makeStore();
       const session_id = 'test_session_id';
@@ -219,6 +244,26 @@ describe('Vuex store/actions for core module', () => {
       client.__reset();
       await store.dispatch('initContentSession', { quizId: quiz_id });
       expect(client).not.toHaveBeenCalled();
+    });
+    it('should not make a backend request when the session for quiz_id is already active unless repeat is true', async () => {
+      const store = makeStore();
+      const session_id = 'test_session_id';
+      const quiz_id = 'test_quiz_id';
+      const progress = 0.5;
+      const time_spent = 15;
+      const extra_fields = { extra: true };
+      client.__setPayload({
+        session_id,
+        context: { quiz_id },
+        progress,
+        time_spent,
+        extra_fields,
+        complete: false,
+      });
+      await store.dispatch('initContentSession', { quizId: quiz_id });
+      client.__reset();
+      await store.dispatch('initContentSession', { quizId: quiz_id, repeat: true });
+      expect(client).toHaveBeenCalled();
     });
     it('should set the logging state with the return data for an assessment from the client', async () => {
       const store = makeStore();
