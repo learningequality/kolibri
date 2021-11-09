@@ -74,6 +74,15 @@ facility_settings = [
     "registered",
 ]
 
+if sys.version_info[0] >= 3:
+    # encodestring is a deprecated alias for
+    # encodebytes, which was finally removed
+    # in Python 3.9
+    encodestring = base64.encodebytes
+else:
+    # encodebytes does not exist in Python 2.7
+    encodestring = base64.encodestring
+
 
 def calculate_list_stats(data):
     if data:
@@ -233,17 +242,8 @@ def extract_facility_statistics(facility):
         dataset_id=dataset_id, learners=False
     )
 
-    if sys.version_info[0] >= 3:
-        # encodestring is a deprecated alias for
-        # encodebytes, which was finally removed
-        # in Python 3.9
-        encodestring = base64.encodebytes
-    else:
-        # encodebytes does not exist in Python 2.7
-        encodestring = base64.encodestring
-
     # fmt: off
-    return {
+    data = {
         # facility_id
         "fi": encodestring(hashlib.md5(facility.id.encode()).digest())[:10].decode(),
         # settings
@@ -302,6 +302,16 @@ def extract_facility_statistics(facility):
         "dsnl": non_learner_demographics,
     }
     # fmt: on
+
+    # conditionally calculate and add soud_hash
+    if get_device_setting("subset_of_users_device", False):
+        user_ids = ":".join(
+            facility.facilityuser_set.order_by("id").values_list("id", flat=True)
+        )
+        # soud_hash
+        data["sh"] = encodestring(hashlib.md5(user_ids.encode()).digest())[:10].decode()
+
+    return data
 
 
 def extract_channel_statistics(channel):

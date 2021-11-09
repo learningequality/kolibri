@@ -32,7 +32,7 @@ from kolibri.core.auth.sync_event_hook_utils import register_sync_event_handlers
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_device
-from kolibri.core.device.utils import set_device_settings
+from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
@@ -337,20 +337,6 @@ def create_superuser_and_provision_device(username, dataset_id, noninteractive=F
         )
 
 
-def provision_single_user_device(user_id):
-
-    user = FacilityUser.objects.get(id=user_id)
-
-    # if device has not been provisioned, set it up
-    if not device_provisioned():
-        provision_device(default_facility=user.facility)
-        set_device_settings(subset_of_users_device=True)
-
-    DevicePermissions.objects.get_or_create(
-        user=user, defaults={"is_superuser": False, "can_manage_content": True}
-    )
-
-
 def is_single_user_scoped(cert):
     """
     :type cert: Certificate
@@ -549,7 +535,9 @@ class MorangoSyncCommand(AsyncCommand):
             if not no_provision:
                 with self._lock():
                     if user_id:
-                        provision_single_user_device(user_id)
+                        provision_single_user_device(
+                            FacilityUser.objects.get(id=user_id)
+                        )
                     else:
                         create_superuser_and_provision_device(
                             username, dataset_id, noninteractive=noninteractive
