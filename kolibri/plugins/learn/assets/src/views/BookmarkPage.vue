@@ -14,7 +14,6 @@
       :currentPage="currentPage"
       :genContentLink="genContentLink"
       :cardViewStyle="windowIsSmall ? 'card' : 'list'"
-      numCols="1"
       :footerIcons="footerIcons"
       @removeFromBookmarks="removeFromBookmarks"
     />

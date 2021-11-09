@@ -13,24 +13,25 @@
     >
       <div class="thumbnail">
         <CardThumbnail
-          v-bind="{ thumbnail, kind, isMobile }"
-          :activityLength="activityLength"
+          v-bind="{ thumbnail, isMobile }"
+          :kind="content.kind"
+          :activityLength="content.duration"
         />
       </div>
       <h3 class="title">
         <TextTruncator
-          :text="title"
+          :text="content.title"
           :maxHeight="maxTitleHeight"
           :style="{ color: $themeTokens.text }"
         />
       </h3>
       <LearningActivityLabel
-        :contentNode="contentNode"
+        :contentNode="content"
         class="learning-activity-label"
         :style="{ color: $themeTokens.text }"
       />
       <div class="footer">
-        <ProgressBar :contentNode="contentNode" />
+        <ProgressBar :contentNode="content" />
       </div>
     </router-link>
   </div>
@@ -40,7 +41,7 @@
 
 <script>
 
-  import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressBar from './ProgressBar';
@@ -58,20 +59,11 @@
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
-      title: {
-        type: String,
-        required: true,
-      },
       thumbnail: {
         type: String,
         default: null,
       },
-      kind: {
-        type: String,
-        required: true,
-        validator: validateContentNodeKind,
-      },
-      contentNode: {
+      content: {
         type: Object,
         required: true,
       },
@@ -83,10 +75,6 @@
       isMobile: {
         type: Boolean,
         default: false,
-      },
-      activityLength: {
-        type: String,
-        default: null,
       },
     },
     computed: {
