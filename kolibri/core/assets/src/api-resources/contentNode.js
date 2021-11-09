@@ -94,8 +94,8 @@ export default new Resource({
   fetchCopiesCount(getParams = {}) {
     return this.fetchListCollection('copies_count', getParams);
   },
-  fetchNextContent(id) {
-    return this.fetchDetailModel('next_content', id);
+  fetchNextContent(id, getParams = {}) {
+    return this.fetchDetailModel('next_content', id, getParams);
   },
   fetchNodeAssessments(ids) {
     return this.getListEndpoint('node_assessments', { ids });

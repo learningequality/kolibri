@@ -43,6 +43,22 @@
         </div>
       </KRouterLink>
     </div>
+
+    <KRouterLink
+      v-if="nextContent"
+      :to="genContentLink(nextContent.id, nextContent.is_leaf)"
+      class="next-content-link" 
+      :style="{ backgroundColor: $themeTokens.fineLine }"
+    >
+      <KIcon class="folder-icon" icon="topic" />
+      <div class="next-label">
+        Next folder
+      </div>
+      <div class="next-title">
+        {{ nextContent.title }}
+      </div>
+      <KIcon class="forward-icon" icon="forward" />
+    </KRouterLink>
   </div>
 
 </template>
@@ -66,7 +82,7 @@
     },
     props: {
       /**
-       * @param {Array<object>} contentNodes - The contentNode objects to be displayed. Each
+       * contentNodes - The contentNode objects to be displayed. Each
        * contentNode must include the following keys id, title, duration, progress, is_leaf.
        */
       contentNodes: {
@@ -79,6 +95,16 @@
       title: {
         type: String,
         required: true,
+      },
+      /** Content node with the following parameters: id, is_leaf, title */
+      nextContent: {
+        type: Object,
+        required: false,
+        default: () => {},
+        validator(node) {
+          const { id, is_leaf, title } = node;
+          return id && is_leaf && title;
+        },
       },
     },
     computed: {
@@ -100,6 +126,7 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
+  $parent-padding: 32px; // The SidePanel
   $icon-size: 32px;
   $progress-width: 48px;
   $item-padding-x: 8px;
@@ -107,7 +134,47 @@
   .wrapper {
     position: relative;
     width: 100%;
-    height: 100%;
+
+    /* Avoids overflow issues, aligns bottom bit */
+    height: calc(100% - 16px);
+  }
+
+  /** Most of the styles for the footer piece */
+  .next-content-link {
+    position: absolute;
+    right: -32px;
+    bottom: 0;
+    left: -32px;
+    height: 100px;
+    padding: 12px 32px 8px;
+
+    .next-label {
+      position: absolute;
+      top: 30px;
+      left: 80px;
+      display: inline-block;
+      min-width: 150px;
+    }
+
+    .next-title {
+      position: absolute;
+      left: 80px;
+      font-weight: bold;
+    }
+
+    .folder-icon {
+      top: 24px;
+      left: 0;
+      width: $icon-size;
+      height: $icon-size;
+    }
+    .forward-icon {
+      position: absolute;
+      top: 34px;
+      right: $parent-padding;
+      width: $icon-size;
+      height: $icon-size;
+    }
   }
 
   .item {
@@ -120,13 +187,18 @@
   }
 
   .activity-icon,
+  .next-label,
   .topic-icon {
     position: absolute;
-    top: 0;
     left: $item-padding-x;
     display: inline-block;
     width: $icon-size;
     height: $icon-size;
+  }
+
+  .activity-icon,
+  .topic-icon {
+    top: 0;
   }
 
   .content-meta {
@@ -151,7 +223,7 @@
 
   .mastered-icon {
     top: 0;
-    right: 0;
+    right: 16px;
     width: 24px;
     height: 24px;
   }

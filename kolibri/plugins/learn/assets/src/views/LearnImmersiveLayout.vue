@@ -66,9 +66,14 @@
     </FullScreenSidePanel>
     <FullScreenSidePanel 
       v-if="showViewResourcesSidePanel"
+      class="also-in-this-side-panel"
       @closePanel="showViewResourcesSidePanel = false"
     >
-      <AlsoInThis :contentNodes="viewResourcesContents" :title="viewResourcesTitle" />
+      <AlsoInThis 
+        :contentNodes="viewResourcesContents" 
+        :nextContent="nextContent"
+        :title="viewResourcesTitle" 
+      />
     </FullScreenSidePanel>
 
   </div>
@@ -165,8 +170,8 @@
         bookmark: null,
         sidePanelContent: null,
         showViewResourcesSidePanel: false,
+        nextFolder: {},
         viewResourcesContents: [],
-        viewResourcesTitle: 'adf',
       };
     },
     computed: {
@@ -223,6 +228,9 @@
         }
         return null;
       },
+      viewResourcesTitle() {
+        return this.lessonContext ? 'LESSON' : 'FOLDER';
+      },
     },
     watch: {
       content: function() {
@@ -252,7 +260,7 @@
        * Returns a progress-laden list of content nodes that are in
        * this.content's parent folder OR the same lesson, depending on the
        * value of this.lessonContext.
-       * @returns { Array<ContentNode>} - An array of ContentNodes with their progresses
+       * @returns { ContentNode[] } - An array of ContentNodes with their progresses
        * annotated.
        */
       fetchSiblings() {
@@ -272,26 +280,40 @@
               store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
           },
         }).then(parent => {
+          /** Create two promises
+           * 1) Fetch progress so it can be mapped to the content nodes. Only done when
+           *    the user is logged in.
+           * 2) Fetch the next content for our parent folder (the next folder). Always do this
+           *
+           * Sets this.viewResourcesContents and this.nextFolder with valid data for AlsoInThis
+           * in any case
+           */
           const nodes = parent.children.results;
-          let nodesWithProgress = nodes;
+          const progressPromise = ContentNodeProgressResource.fetchCollection({
+            getParams: { parent: this.content.parent },
+          }).then(progresses => {
+            this.viewResourcesContents = nodes.map(node => {
+              const matchingProgress = progresses.find(p => p.id === node.id) || {
+                progress_fraction: 0, // Default if no match found
+              };
 
-          // Only fetch progress if user is logged in
-          if (store.getters.isUserLoggedIn) {
-            ContentNodeProgressResource.fetchCollection({
-              getParams: { parent: this.content.parent },
-            }).then(progresses => {
-              this.viewResourcesContents = nodes.map(node => {
-                const matchingProgress = progresses.find(p => p.id === node.id) || {
-                  progress_fraction: 0, // Default if no match found
-                };
-
-                node.progress = matchingProgress.progress_fraction;
-                return node;
-              });
+              node.progress = matchingProgress.progress_fraction;
+              return node;
             });
+          });
+
+          const nextFolderPromise = ContentNodeResource.fetchNextContent(parent.id, {
+            topicOnly: true,
+          }).then(nextContent => (this.nextContent = nextContent));
+
+          const promises = [nextFolderPromise];
+
+          if (store.getters.isUserLoggedIn) {
+            promises.push(progressPromise);
           } else {
             this.viewResourcesContents = nodes.map(node => (node.progress = 0));
           }
+          Promise.all(promises);
         });
       },
       navigateBack() {
@@ -377,6 +399,12 @@
     position: fixed;
     right: 0;
     left: 0;
+  }
+
+  .also-in-this-side-panel {
+    /deep/ .side-panel {
+      padding-bottom: 0;
+    }
   }
 
 </style>

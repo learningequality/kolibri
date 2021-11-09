@@ -633,13 +633,17 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
     def next_content(self, request, **kwargs):
         # retrieve the "next" content node, according to depth-first tree traversal
         this_item = self.get_object()
-        next_item = (
+        topic_only = request.query_params.get("topicOnly")
+        next_item_query = (
             models.ContentNode.objects.filter(
                 available=True, tree_id=this_item.tree_id, lft__gt=this_item.rght
             )
-            .order_by("lft")
-            .first()
         )
+        if topic_only:
+            next_item_query.filter(kind=content_kinds.TOPIC)
+
+        next_item = next_item_query.order_by("lft").first()
+
         if not next_item:
             next_item = this_item.get_root()
 
