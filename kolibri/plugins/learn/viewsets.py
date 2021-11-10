@@ -12,11 +12,18 @@ from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
+from kolibri.core.content.api import ContentNodeProgressViewset
+from kolibri.core.content.api import ContentNodeViewset
+from kolibri.core.content.api import UserContentNodeViewset
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
-from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
+
+
+contentnode_progress_viewset = ContentNodeProgressViewset()
+contentnode_viewset = ContentNodeViewset()
+user_contentnode_viewset = UserContentNodeViewset()
 
 
 class LearnStateView(APIView):
@@ -57,6 +64,8 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
         return Classroom.objects.filter(membership__user=self.request.user)
 
     def consolidate(self, items, queryset):
+        if not items:
+            return items
         lessons = (
             Lesson.objects.filter(
                 lesson_assignments__collection__membership__user=self.request.user,
@@ -68,18 +77,23 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                 "description", "id", "is_active", "title", "resources", "collection"
             )
         )
-        lesson_content_ids = set()
+        lesson_contentnode_ids = set()
         for lesson in lessons:
-            lesson_content_ids |= {
-                resource["content_id"] for resource in lesson["resources"]
+            lesson_contentnode_ids |= {
+                resource["contentnode_id"] for resource in lesson["resources"]
             }
 
-        progress_map = {
-            l["content_id"]: l["progress"]
-            for l in ContentSummaryLog.objects.filter(
-                content_id__in=lesson_content_ids, user=self.request.user
-            ).values("content_id", "progress")
-        }
+        contentnode_progress = contentnode_progress_viewset.serialize_list(
+            self.request, {"ids": lesson_contentnode_ids}
+        )
+
+        contentnodes = contentnode_viewset.serialize_list(
+            self.request, {"ids": lesson_contentnode_ids}
+        )
+
+        progress_map = {l["content_id"]: l["progress"] for l in contentnode_progress}
+
+        contentnode_map = {c["id"]: c for c in contentnodes}
 
         for lesson in lessons:
             lesson["progress"] = {
@@ -92,6 +106,11 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                 ),
                 "total_resources": len(lesson["resources"]),
             }
+            for resource in lesson["resources"]:
+                resource["progress"] = progress_map.get(resource["content_id"], 0)
+                resource["contentnode"] = contentnode_map.get(
+                    resource["contentnode_id"], None
+                )
 
         user_masterylog_content_ids = MasteryLog.objects.filter(
             user=self.request.user
@@ -176,6 +195,42 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
             }
             out_items.append(item)
         return out_items
+
+
+learner_classroom_viewset = LearnerClassroomViewset()
+
+
+def _resumable_resources(classrooms):
+    for classroom in classrooms:
+        for lesson in classroom["assignments"]["lessons"]:
+            for resource in lesson["resources"]:
+                yield resource["progress"] > 0
+
+
+class LearnHomePageHydrationView(APIView):
+    def get(self, request, format=None):
+        classrooms = []
+        resumable_resources = []
+        resumable_resources_progress = []
+        if not request.user.is_anonymous():
+            classrooms = learner_classroom_viewset.serialize_list(request)
+            if not classrooms or not any(_resumable_resources(classrooms)):
+                resumable_resources = user_contentnode_viewset.serialize_list(
+                    request, {"resume": True, "max_results": 12}
+                )
+                resumable_resources_progress = (
+                    contentnode_progress_viewset.serialize_list(
+                        request, {"resume": True, "max_results": 12}
+                    )
+                )
+
+        return Response(
+            {
+                "classrooms": classrooms,
+                "resumable_resources": resumable_resources,
+                "resumable_resources_progress": resumable_resources_progress,
+            }
+        )
 
 
 def _map_lesson_classroom(item):
